@@ -66,7 +66,7 @@ serveObserved("voice-embeddings", async (req) => {
         const _ip = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
         if (_ip) {  // only bucket when there is a real client IP (external caller)
           const _rl = await checkSoloRateLimit(_rlDb, soloRateLimitKey(_id.authUid, _ip));
-          if (!_rl.allowed) return soloRateLimitedResponse(corsHeaders);
+          if (!_rl.allowed) return soloRateLimitedResponse(corsHeaders, _rl.retry_after_seconds);
         }
       }
     }

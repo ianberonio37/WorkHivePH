@@ -2,13 +2,13 @@
 name: ops-cron-realtime
 type: ops
 source: db:cron.job+pg_publication_tables
-source_sha: e1a3ff3e452efc96
+source_sha: 59c249983ff818f8
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## ops · cron jobs + realtime publication
 
-**pg_cron jobs (25)** — a failing cron is SILENT; audit `cron.job_run_details` for failures:
+**pg_cron jobs (26)** — a failing cron is SILENT; audit `cron.job_run_details` for failures:
 - `achievement-xp-log-purge` @ `0 3 * * 0` → DELETE FROM achievement_xp_log WHERE earned_at < now() - interval '90 days'
 - `agent-memory-retention` @ `15 4 * * *` →        DELETE FROM public.agent_memory        WHERE kind = 'turn'          AND c
 - `ai-eval-daily` @ `30 3 * * *` →        SELECT net.http_post(         url     := current_setting('app.supabase_fu
@@ -20,6 +20,7 @@ supersedes: null
 - `failure-signature-scan-daily` @ `0 21 * * *` → SELECT net.http_post(url := current_setting('app.supabase_functions_url') || '/f
 - `gateway-audit-retention` @ `30 4 * * *` →        DELETE FROM public.gateway_audit_log        WHERE created_at < now() - IN
 - `hard-delete-soft-expired` @ `0 4 * * *` →  SELECT public.hard_delete_expired_soft_deletes(); 
+- `hierarchical-summaries-weekly` @ `0 21 * * 0` →    SELECT net.http_post(     url := current_setting('app.supabase_functions_url'
 - `hive-route-calls-retention` @ `45 4 * * *` →        DELETE FROM public.hive_route_calls        WHERE hour_bucket < now() - IN
 - `listing-holding-fee-monthly` @ `0 3 1 * *` → SELECT public.sweep_listing_holding_fee();
 - `ml-retrain-weekly` @ `0 18 * * 6` → SELECT net.http_post(url := current_setting('app.supabase_functions_url') || '/t

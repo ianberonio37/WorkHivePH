@@ -115,7 +115,16 @@ def main(argv):
                 continue
             aff += 1
         if aff and a.apply:
-            json.dump(reg, open(bank_path, "w", encoding="utf-8"), indent=1)
+            # ATOMIC write (2026-08-31): the bare open(bank_path,"w") truncated a per-page bank in
+            # place; the board's validate_live_mcp_bank gate reads these files and could catch a torn
+            # one and false-FAIL. Temp + os.replace. Third instance of the open_w_truncates bug in the
+            # banking tools, fixed alongside bank_gate_restamp and bank_prover_reports.
+            tmp = bank_path + ".tmp"
+            with open(tmp, "w", encoding="utf-8") as f:
+                json.dump(reg, f, indent=1)
+                f.flush()
+                os.fsync(f.fileno())
+            os.replace(tmp, bank_path)
         if aff:
             print(f"  {os.path.basename(bank_path):44s} {GREEN}{aff} re-affirmed{RST}")
         tot_aff += aff

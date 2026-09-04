@@ -195,7 +195,7 @@ serveObserved("marketplace-listing-assist", async (req) => {
       const _rq = await checkRouteRateLimit(db, hive_id || "", "marketplace-listing-assist");
       // Denies ONLY when an explicit hive_route_quotas row exists (rq.per_route), so this stays
       // a no-op until an admin sets a cap - while always counting for attribution.
-      if (_rq.per_route && !_rq.allowed) return routeRateLimitedResponse(corsHeaders, "marketplace-listing-assist", _rq.cap);
+      if (_rq.per_route && !_rq.allowed) return routeRateLimitedResponse(corsHeaders, "marketplace-listing-assist", _rq.cap, _rq.retry_after_seconds);
     } catch { /* empty-catch-allow: per-surface quota bookkeeping must never fail a real request */ }
     const rl = await checkAIRateLimit(db, hive_id, RATE_LIMIT_PER_HOUR);
     if (!rl.allowed) { log.warn(null, "rate_limit_hit", { hive_id, section }); return json({ error: "AI call limit reached for this hive. Try again in an hour." }, 429); }

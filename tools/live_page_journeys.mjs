@@ -28,6 +28,9 @@
 //   node tools/live_page_journeys.mjs                 # all registered journeys
 //   node tools/live_page_journeys.mjs --phase K1      # one phase
 //   node tools/live_page_journeys.mjs --page index.html
+//   node tools/live_page_journeys.mjs --journey LOG3   # ONE journey, nothing before it in the context
+//                                                      # - the unit to re-check a gap with, because a
+//                                                      # journey inherits earlier journeys' leftovers
 //   node tools/live_page_journeys.mjs --headed
 //   node tools/live_page_journeys.mjs --accept        # forward-only live% ratchet
 //
@@ -59,11 +62,47 @@ function adminQuery(sql) {
 // ─── config ─────────────────────────────────────────────────────────────────
 const SEEDER = process.env.WH_TEST_BASE_URL || 'http://127.0.0.1:5000';
 const SUPABASE_URL = process.env.WH_SUPABASE_URL || 'http://127.0.0.1:54321';
-// HIVE default fixed 2026-07-19 (Ian-sanctioned systemic stale-hive drive): was 9b4eaeac — BOTH test
-// accounts (leandromarquez + bryangarcia) are members of 636cf7e8, NOT 9b4eaeac. The stale default made
-// every gate using this recipe get RLS 0-rows → scan EMPTY pages (false confidence). 636cf7e8 = the real
-// Baguio Textile Mills hive both accounts belong to.
-const HIVE = process.env.WH_TEST_HIVE || '636cf7e8-431a-4907-8a9f-43dd4cc216d6'; // hive fallback only — signIn resolves live membership
+// ★★A LONG FULL RUN UNDER-REPORTS THE SIGNED-IN LANES — DO NOT READ ITS GAPS AS PRODUCT TRUTH
+// (measured 2026-08-27). A full 110-journey sweep reported 47/109 live with the failures piled onto
+// ONE role: 56 of 62 not-live were `worker`, against 4 supervisor and 2 anon, and the last committed
+// full run (2026-07-21) had the same lane at 59 live / 3 not. Re-walking logbook ALONE, minutes later
+// on the same stack and the same hive, returned 5 of 6 LIVE - including LOG1, which the sweep had
+// scored R✗ J✗ T✗ C- X✗ and which passes every lens in isolation.
+//
+// So the sweep's own load is part of what it measures. Each role gets ONE browser context reused
+// across ~50 journeys, and the worker lane is both the longest and the last, so it degrades furthest;
+// oracles with fixed waits (reachLogbook allows 12s, LA2 polls 5.6s, LA12 13.5s) start timing out on
+// pages that are fine. Everything cheap was ruled out first - zero transport errors, sign-in resolved
+// to the live hive, worker RLS reads rows over REST, the hive is populated (941 logbook rows), the
+// seeder serves fresh assets, and the 48-minute run finished inside the 1h token TTL.
+//
+// AND THE PAGE IS NOT A SMALL ENOUGH UNIT EITHER - the isolation has to go all the way down. Walking
+// logbook ALONE still showed LOG3 failing at its very first step (its own seed entry never saved,
+// while a toast from the previous journey still read "Entry saved." and was banked as evidence).
+// Running LOG3 with `--journey LOG3` - nothing before it in the context - it passes every lens. So
+// the full tally for one page went 0/5 live in the sweep, 5/6 page-alone, and 6/6 once each failure
+// was isolated: every one of those "failures" was inherited state, not a defect.
+//
+// WHAT THIS MEANS FOR A READER: a gap in a long run is a CANDIDATE, not a finding, and a gap in a
+// page run is still a candidate. Re-walk with `--journey <id>` before believing any of it; both
+// flags now write their own report and cannot clobber the sweep, which is what makes the re-walk
+// safe. Anon rows are the exception worth trusting: contention manufactures failures, never
+// successes, so an anon journey that reads LIVE under load really is.
+//
+// THE REAL REPAIR, when someone has the room for it, is upstream of all this advice: reset the
+// context between journeys (storage cleared, overlays closed, toast text blanked) or give each
+// journey its own, so a later journey cannot inherit an earlier one's leftovers at all.
+//
+// ★THIS CONSTANT HAS NOW ROTTED TWICE, WHICH IS THE WHOLE ARGUMENT FOR NOT TRUSTING IT.
+// 2026-07-19 it was moved off 9b4eaeac to 636cf7e8, with a comment asserting "636cf7e8 = the real
+// Baguio Textile Mills hive both accounts belong to" — because the stale default was making every
+// gate on this recipe read RLS 0-rows and scan EMPTY pages (false confidence). Today 636cf7e8 is
+// itself gone and Baguio Textile Mills is 084c113b: the id rotted at the next reseed and the prose
+// kept asserting a fact that had stopped being true, which is worse than no comment at all.
+// The DURABLE fix is already below at the signIn step, which RESOLVES the hive from the live
+// hive_members SSOT rather than asserting it. This value is therefore a last-resort fallback only,
+// refreshed 2026-08-27 so that even the fallback names a hive that exists.
+const HIVE = process.env.WH_TEST_HIVE || '084c113b-99c0-45c6-a8e8-b4b8349da46d'; // fallback only — signIn resolves live membership
 const ACCOUNTS = {
   supervisor: { email: 'leandromarquez@auth.workhiveph.com', pw: 'test1234', worker: 'Leandro Marquez' },
   worker: { email: 'bryangarcia@auth.workhiveph.com', pw: 'test1234', worker: 'Bryan Garcia' },
@@ -78,9 +117,32 @@ const ACCEPT = args.includes('--accept');
 const UPDATE_BASELINE = args.includes('--update-baseline');
 const PHASE_ONLY = (() => { const i = args.indexOf('--phase'); return i >= 0 ? args[i + 1] : null; })();
 const PAGE_ONLY = (() => { const i = args.indexOf('--page'); return i >= 0 ? args[i + 1] : null; })();
-const RESULTS = 'live_page_journeys_results.json';
-const BASELINE = 'live_page_journeys_baseline.json';
-const FINDINGS = 'live_page_journeys_findings.json';
+// ★A NARROWED RUN MUST NEVER WEAR THE FULL SWEEP'S FILENAME (2026-08-27). MEASURED: this file's
+// results artifact held 14 journeys, all of them index.html - the exact contents of `--page
+// index.html` - while the registry defines 110 across 26 pages. It had been written here by a
+// page-scoped run and then read as a complete sweep. Nothing announced the truncation: the summary
+// said `live_pct: 100`, which is true of the 14 and meaningless of the 110, and
+// validate_conversion_bank.py consumed it and reported 6 rows OWED because LA10 (marketplace) and
+// LA12 (a learn page) "were not in results". They had never been run.
+//
+// ★THE BASELINE IS THE SHARPER HAZARD. It is a forward-only ratchet carrying a hand-written floor
+// (live>=95 of 102) and the reasoning for it. A narrowed `--accept --update-baseline` would have
+// written this run's live=14 straight over that 95 - LOOSENING a forward-only ratchet, the one
+// thing a ratchet must never do, and destroying the justification with it. So all three artifacts
+// take the suffix, and a narrowed run ratchets against its own scope or against nothing at all.
+// ★--journey EXISTS BECAUSE A PAGE IS NOT A SMALL ENOUGH UNIT (added 2026-08-27). Journeys share one
+// browser context per role, so a later one inherits whatever the earlier ones left - a restored draft,
+// an open modal, a toast still holding the previous step's text. LOG3 failed its very first step in a
+// logbook-only run while LOG1/LOG2/LOG4 passed around it, and there was no way to ask "does LOG3 fail
+// ALONE?" without walking the whole page again and reproducing the same accumulation. A finding that
+// cannot be isolated cannot be attributed, so the smallest runnable unit is now one journey.
+const JOURNEY_ONLY = (() => { const i = args.indexOf('--journey'); return i >= 0 ? args[i + 1] : null; })();
+const NARROW = [PHASE_ONLY ? `phase-${PHASE_ONLY}` : '', PAGE_ONLY ? `page-${PAGE_ONLY}` : '',
+                JOURNEY_ONLY ? `journey-${JOURNEY_ONLY}` : '']
+  .filter(Boolean).join('.').replace(/[^\w.-]+/g, '_');
+const RESULTS = NARROW ? `live_page_journeys_results.${NARROW}.json` : 'live_page_journeys_results.json';
+const BASELINE = NARROW ? `live_page_journeys_baseline.${NARROW}.json` : 'live_page_journeys_baseline.json';
+const FINDINGS = NARROW ? `live_page_journeys_findings.${NARROW}.json` : 'live_page_journeys_findings.json';
 
 function loadJson(p) { try { return JSON.parse(readFileSync(p, 'utf8')); } catch (e) { return null; } }
 
@@ -251,6 +313,19 @@ async function runCritic(page, pageFile, role) {
       inputUnder16: um.inputs ? um.inputs.under16 : null,
       axeIds: (ref?.defects || []).filter(d => d.pillar === 'U' && String(d.check).startsWith('axe:')).map(d => ({ id: d.check, sev: d.severity, m: String(d.measured).slice(0, 90) })),
     };
+    // T1 (2026-08-24): clickAudit joins the AUTOMATED path. It was the battery's ONLY
+    // behavioral dead-CTA rule and it ran nowhere — full() includes it but this walker calls
+    // referee(), so the landing page's dead sticky CTA shipped under a green board. Majors
+    // land as floor findings like the other deterministic rules; cta:inert-primary lands as
+    // a severity-1 walk order (confirm the inert state ever lifts).
+    try {
+      const ca = await page.evaluate(() => window.__UFAI.clickAudit());
+      bat.clickChecked = ca.checked; bat.clickMajor = ca.major;
+      for (const d of (ca.defects || [])) {
+        if (d.severity === 'Major') findings.push({ page: pageFile, role, layer: 'floor', rule: d.check, severity: 2, evidence: String(d.measured).slice(0, 110), owner: d.check === 'click:no-accessible-name' ? 'qa-tester' : 'frontend' });
+        else if (d.check === 'cta:inert-primary') findings.push({ page: pageFile, role, layer: 'floor', rule: d.check, severity: 1, evidence: String(d.measured).slice(0, 110), owner: 'frontend' });
+      }
+    } catch (e) { bat.clickErr = String(e).slice(0, 120); }
     // deterministic-floor findings (these RATCHET to 0)
     if (bat.tapUnder44 > 0) findings.push({ page: pageFile, role, layer: 'floor', rule: 'tap-target≥44px', severity: 2, evidence: `${bat.tapUnder44}/${bat.tapChecked} interactive <44px`, owner: 'mobile-maestro' });
     if (bat.inputUnder16 > 0) findings.push({ page: pageFile, role, layer: 'floor', rule: 'input-font≥16px (iOS no-zoom)', severity: 2, evidence: `${bat.inputUnder16} inputs <16px`, owner: 'mobile-maestro' });
@@ -327,7 +402,33 @@ async function runJourney(context, j, criticCache) {
 // ═══════════════════════════════════════════════════════════════════════════════
 // Reusable recipe exported for Arc V (Effortless, tools/effortless_sweep.mjs) + any future
 // journey consumer — so the sign-in/helper/critic recipe has ONE source of truth (no drift).
-export { signIn, makeHelpers, runCritic, runJourney, scoreJourney, pageSlug, adminQuery, ACCOUNTS, SEEDER, SUPABASE_URL, HIVE, T_ATTRIBUTED, LENS_IDS };
+// T1: disposable-account factory for the conversion journeys. LA7-LA10/J6 verify the MODAL
+// path themselves (that UI is their subject); this helper is for journeys that need a FRESH
+// account as a PRECONDITION, not as the thing under test. Uses the same synthetic-email
+// convention as index.html's auth (_AUTH_DOMAIN). Callers clean up via adminQuery — delete
+// from auth.users where id = uid cascades the profile.
+async function signUp(context, prefix = 'k1probe') {
+  const page = await context.newPage();
+  await page.goto(`${SEEDER}/workhive/index.html`, { waitUntil: 'domcontentloaded' });
+  await page.waitForFunction(() => typeof window.getDb === 'function' && !!window.supabase, { timeout: 15000 }).catch(() => {});
+  const username = `${prefix}_${Date.now().toString(36)}`;
+  const r = await page.evaluate(async ({ username, url }) => {
+    try {
+      const db = window._whSupabaseClient || window.getDb(url, window.SUPABASE_KEY);
+      const email = username + '@auth.workhiveph.com';
+      const { data, error } = await db.auth.signUp({ email, password: 'Probe!' + username });
+      if (error) return { ok: false, err: error.message };
+      const { error: pe } = await db.from('worker_profiles').insert({ auth_uid: data.user.id, username, display_name: 'Probe ' + username });
+      if (pe) return { ok: false, err: 'profile: ' + pe.message };
+      localStorage.setItem('wh_last_worker', 'Probe ' + username);
+      return { ok: true, uid: data.user.id };
+    } catch (e) { return { ok: false, err: String(e).slice(0, 120) }; }
+  }, { username, url: SUPABASE_URL });
+  await page.close();
+  return { ...r, username, displayName: 'Probe ' + username };
+}
+
+export { signIn, signUp, makeHelpers, runCritic, runJourney, scoreJourney, pageSlug, adminQuery, ACCOUNTS, SEEDER, SUPABASE_URL, HIVE, T_ATTRIBUTED, LENS_IDS };
 
 // ─── SERVICE PREFLIGHT (2026-07-21) — a dead service must never masquerade as journey
 // regressions. Runs #2/#3 read an identical 59/102 "regression" that was actually the edge
@@ -359,7 +460,8 @@ async function preflight() {
 }
 
 const __runArcK = async () => {
-  let journeys = JOURNEYS.filter(j => (!PHASE_ONLY || j.phase === PHASE_ONLY) && (!PAGE_ONLY || j.page === PAGE_ONLY));
+  let journeys = JOURNEYS.filter(j => (!PHASE_ONLY || j.phase === PHASE_ONLY) && (!PAGE_ONLY || j.page === PAGE_ONLY)
+    && (!JOURNEY_ONLY || j.id === JOURNEY_ONLY));
   if (!journeys.length) { console.error(`[K] no journeys match (phase=${PHASE_ONLY} page=${PAGE_ONLY}). Registered: ${JOURNEYS.length}`); process.exit(2); }
 
   const pf = await preflight();
@@ -377,7 +479,30 @@ const __runArcK = async () => {
     // app derives "today" from the browser's local date — a UTC headless browser would be
     // a day behind in the evening, breaking date-scoped journeys like the day planner).
     const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 }, timezoneId: 'Asia/Manila' });
-    const si = await signIn(ctx, role);
+    // T1: listener tracker BEFORE any page script runs — every addEventListener('click', …)
+    // marks its element (el.__ufaiClick) so the battery's clickAudit can resolve listener-wired
+    // controls. Keep in sync with ufai_battery.js LISTENER_TRACKER_SRC (same 6 lines; the
+    // battery exports the canonical copy but addInitScript must fire before it installs).
+    await ctx.addInitScript(`(() => {
+      const orig = EventTarget.prototype.addEventListener;
+      EventTarget.prototype.addEventListener = function (type, fn, opts) {
+        try { if (type === 'click' && this && this.nodeType === 1) this.__ufaiClick = (this.__ufaiClick || 0) + 1; } catch (_) {}
+        return orig.call(this, type, fn, opts);
+      };
+    })();`);
+    // Sign-in RETRY (2026-09-04): the local Supabase auth intermittently returns WH_DB_TIMEOUT under
+    // sustained board load (the full board walks many view-family cells back-to-back on an 8GB host).
+    // A single failed attempt threw SIGN-IN FAILED and cascaded the whole gate — validate_live_mcp_bank's
+    // green went 752 -> 190 on TWO full boards, ~50 gates reddening off transient auth timeouts. The
+    // sibling harness family_rubric_sweep.mjs already retries 4x with backoff for exactly this; this is
+    // that fix reaching this engine too (fix EVERY path, not just the walked one). A transient DB
+    // timeout must not masquerade as a page/gate regression.
+    let si;
+    for (let attempt = 1; attempt <= 4; attempt++) {
+      si = await signIn(ctx, role);
+      if (si.ok) { if (attempt > 1) console.log(`[K] sign-in ${role}: OK on attempt ${attempt}`); break; }
+      if (attempt < 4) { console.log(`[K] sign-in ${role} attempt ${attempt} FAIL ${si.err} — retrying`); await new Promise((r) => setTimeout(r, 1500 * attempt)); }
+    }
     if (si.hive) RESOLVED_HIVES[role] = si.hive;   // DB-truth hive for this role's oracles
     if (si.uid) RESOLVED_UIDS[role] = si.uid;      // DB-truth auth_uid (probe-row inserts)
     console.log(`[K] sign-in ${role.padEnd(11)}: ${si.ok ? (si.anon ? 'ANON (no session)' : 'OK') : 'FAIL ' + si.err}${si.hive ? ' hive ' + si.hive.slice(0, 8) : ''}`);

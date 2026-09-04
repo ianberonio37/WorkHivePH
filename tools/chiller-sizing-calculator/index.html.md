@@ -7,7 +7,7 @@ Source: https://workhiveph.com/tools/chiller-sizing-calculator/
 Chiller Sizing Calculator
 **The Chiller Sizing Calculator picks the chiller capacity (TR/kW) and efficiency for a cooling load with a design margin. Example: for a 300 kW cooling load on a water-cooled chiller (COP 5.5), Recommended capacity = 100.1 TR, Capacity = 352 kW, Efficiency = 0.64 kW/TR (per ASHRAE 90.1-2019 Table 6.8.1 | AHRI 550/590 | ASHRAE 2021 Ch.2).**
 How it works
-Computed from your inputs per ASHRAE 90.1-2019 Table 6.8.1 | AHRI 550/590 | ASHRAE 2021 Ch.2.
+Computed per ASHRAE 90.1-2019 Table 6.8.1 | AHRI 550/590 | ASHRAE 2021 Ch.2.
 Worked example (HVAC & Cooling)
 Inputs: a 300 kW cooling load on a water-cooled chiller (COP 5.5).
 ResultValue
@@ -21,14 +21,14 @@ The calculator returns Recommended capacity, Capacity, Efficiency, computed per 
 Check the worked example to confirm the method matches how you would do it by hand, then run your own numbers in the interactive tool.
 FAQ
 What is a chiller sizing calculator TR?The Chiller Sizing Calculator is a free online tool that computes picks the chiller capacity (TR/kW) and efficiency for a cooling load with a design margin. It shows the formula and a fully worked example so you can check the method, not just the number.
-How is it calculated?The result is computed from your inputs following ASHRAE 90.1-2019 | AHRI 550/590. The worked example on this page shows a real computation with real numbers.
-Is the calculator free?Yes. WorkHive's engineering calculators are free to use, no sign-up needed for the tools. WorkHive is a free, offline-first maintenance platform built for Philippine industrial plants.
+How is it calculated?The result is computed following ASHRAE 90.1-2019 | AHRI 550/590. The worked example on this page shows a real computation with real numbers.
+Is the calculator free?Yes. WorkHive's engineering calculators are free: the worked example on this page shows the full calculation with real numbers, and the interactive calculator runs in WorkHive's free Engineering Design suite. A free account takes about 30 seconds. WorkHive is a free, offline-first maintenance platform built for Philippine industrial plants.
 Run it on your own numbers
-[Open the interactive Chiller Sizing Calculator in WorkHive](https://workhiveph.com/engineering-design.html): free, no sign-up needed for the calculators.
+[Open the interactive Chiller Sizing Calculator in WorkHive (free sign-in)](https://workhiveph.com/engineering-design.html): free with a WorkHive account. Sign-up takes about 30 seconds.
 Related calculators
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
 [HVAC Cooling Load Calculator](https://workhiveph.com/tools/hvac-cooling-load-calculator/)
 [Ventilation / ACH Calculator](https://workhiveph.com/tools/ventilation-ach-calculator/)
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/)
 
-<!-- md-twin source-sha: c5168b40ade34951 -->
+<!-- md-twin source-sha: c6033e2670993967 -->

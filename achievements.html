@@ -9,9 +9,10 @@
   <meta name="description" content="WorkHive worker achievements and badges. XP per skill domain, leaderboard, and progress tracking." />
   <meta property="og:title" content="Achievements: WorkHive" />
   <meta property="og:image" content="https://workhiveph.com/brand_assets/og-social.png" />
-  <link rel="canonical" href="https://workhiveph.com/workhive/achievements.html" />
+  <link rel="canonical" href="https://workhiveph.com/achievements.html" />
   <link rel="manifest" href="manifest.json" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=optional" rel="stylesheet" />
+  <script src="browser-floor.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
   <script src="utils.js"></script>
   <link rel="stylesheet" href="components.css" />  <!-- S11 shared component CSS -->
@@ -357,6 +358,9 @@
       <span class="ic ic-back" aria-hidden="true"></span>
     </button>
     <h1 class="page-title" style="margin:0;" data-i="ach_growth">Growth</h1>
+    <!-- T51 (2026-08-26): the current-hive chip - this page renders HIVE-SCOPED data, and a multi-hive contractor could not tell WHICH hive they were acting in (the single most important chrome question for that persona). Same visual pattern as pm-scheduler's chip; self-filling so no page init needs touching. -->
+    <span id="wh-hive-chip" translate="no" style="display:none;align-items:center;gap:4px;padding:3px 10px;border-radius:999px;font-size:.68rem;font-weight:700;background:rgba(247,162,27,0.1);border:1px solid rgba(247,162,27,0.25);color:var(--wh-orange-text);max-width:140px;"><span id="wh-hive-chip-name" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span></span>
+    <script>try{var _hn=localStorage.getItem('wh_hive_name');/* storage-key-allow: pre-utils chip paint */if(_hn){document.getElementById('wh-hive-chip-name').textContent=_hn;document.getElementById('wh-hive-chip').style.display='inline-flex';}}catch(_){/* empty-catch-allow: the chip is context decoration */}</script>
   </div>
   <!-- STREAMLINE F5: skillmatrix + achievements are ONE "Growth" surface (same worker
        audience, same job "how am I progressing?"). One nav entry; this tab bar switches
@@ -373,6 +377,17 @@
     <span id="ac-verdict-icon" class="verdict-icon">·</span>
     <div class="verdict-text"><span id="ac-verdict-label">Computing XP progress...</span><small id="ac-verdict-sub">Adding this week's XP and counting active domains.</small></div>
   </div>
+  <!-- T54 (2026-08-25): the badge rung points to the ladder's top — earned badges feed the
+       Resume Builder's auto-fill; without this line the connection was invisible from here. -->
+  <!-- T45: the data-i marker used to sit on this <p>, and whI18nApply assigns el.textContent — so
+       translating the sentence would have DELETED the Resume link inside it. The text is tagged in
+       spans around the anchor instead, which keeps the link and lets both halves turn Filipino. The
+       swapper is deliberately unchanged: an innerHTML path would trade a link bug for an injection
+       surface, and the markup was the thing that was wrong. -->
+  <p class="text-xs" style="color:var(--muted); margin:-0.35rem 0 0.9rem;">
+    <span data-i="ach_resumeline_pre">Every badge you earn here lands on your</span>
+    <a href="resume.html" style="color:var(--wh-orange-text); font-weight:700; text-decoration:underline;">Resume</a><span data-i="ach_resumeline_post"> automatically - employers see certified skills, not claims.</span>
+  </p>
   <div class="simple-row">
     <div class="simple-card hero tag-grey" id="ac-card-week" data-rag-tile="achievements:xp_this_week" data-rag-label="XP this week">
       <h2 class="sc-label" style="margin:0;" data-i="ach_xpweek">XP this week</h2>
@@ -537,8 +552,8 @@
   if (!WORKER_NAME) {
     _identityRestored
       // Same omission as community's: bounce WITH the sign-in prompt, not to a silent homepage.
-      .then(_n => { if (!_n) window.location.href = 'index.html?signin=1'; })
-      .catch(() => { window.location.href = 'index.html?signin=1'; });
+      .then(_n => { if (!_n) whSignInWall(); })
+      .catch(() => { whSignInWall(); });
   }
 
   // ── Static achievement config ───────────────────────────────
@@ -596,8 +611,18 @@
   // the sign entirely and says so.
   // ★ NOT `Number.isFinite(Number(v))` — `Number(null)` is 0, so that check passes null through and
   // still prints "+null". Only `undefined` coerces to NaN. Reject the absent values explicitly.
-  const xpText = (v) => (v !== null && v !== undefined && v !== '' && Number.isFinite(Number(v))
-    ? `+${v}` : 'XP not recorded');
+  // ★ AND A NEGATIVE AMOUNT ALREADY CARRIES ITS OWN SIGN (T17/T74, 2026-08-28). The guard above was
+  // written for the ABSENT case and hard-codes "+" for every finite number, so an XP REVERSAL
+  // rendered "+-20". Seen live on this page: "Logbook entry submitted +-20", "Logbook entry closed
+  // +-50". Negatives did not exist when this line was written — they arrived with the reversible XP
+  // ledger, which is exactly the sibling-fix shape this file has met before: the null case was
+  // repaired here and the minus case was never considered, because the feature that produces
+  // minuses came later. A reversal is the one XP event a worker most needs to read correctly.
+  const xpText = (v) => {
+    if (v === null || v === undefined || v === '' || !Number.isFinite(Number(v))) return 'XP not recorded';
+    const n = Number(v);
+    return n < 0 ? String(n) : `+${n}`;   // String(-20) is "-20"; only a gain needs a sign added
+  };
 
   let _weekXP       = null; // dedicated 7-day XP SUM — must NOT be derived from the 30-row _xpLog list (see init: an active worker can log >30 XP events/week, silently undercounting the sum).
   let _achChannel   = null;
@@ -739,8 +764,14 @@
     };
 
     setCard('week',
-      `+${weekXP}`,
-      weekXP === 0 ? 'No XP earned in the past 7 days' : `${weekXP} XP from logbook, PM & community work this week`,
+      // The SIBLING of the xpText fix above, 140 lines away and found by sweeping for the shape
+      // rather than by reading this line. weekXP is a plain SUM of xp_earned (init, :1197) and the
+      // ledger is reversible, so a week whose reversals outweigh its gains is genuinely negative —
+      // and the hero hard-coded "+", which would print "+-30" on the headline tile.
+      weekXP < 0 ? String(weekXP) : `+${weekXP}`,
+      weekXP === 0 ? 'No XP earned in the past 7 days'
+        : weekXP < 0 ? `${weekXP} XP this week; more was taken back by deleted work than earned`
+        : `${weekXP} XP from logbook, PM & community work this week`,
       weekXP === 0 ? 'IDLE' : weekXP >= 100 ? 'GREAT WEEK' : weekXP >= 50 ? 'ON PACE' : 'KEEP GOING',
       weekXP === 0 ? 'grey' : weekXP >= 50 ? 'green' : 'amber'
     );
@@ -783,7 +814,7 @@
       if (composite === 0) {
         text = 'You have no XP yet. Log a breakdown or complete a PM in Logbook / PM Scheduler, and XP and badges land here automatically.';
       } else if (weekXP === 0) {
-        text = 'No XP this week. The easiest source is logging a breakdown with problem + root_cause + action; that earns +100 XP in the Failure Hunter domain.';
+        text = 'No XP this week. The easiest source is logging a breakdown with problem, root cause and action. That earns +100 XP in the Failure Hunter domain.';
       } else if (active < 4) {
         text = `Only ${active}/12 domains active. Try a new kind of entry. A PM completion earns Maintenance XP. A shared tip earns Knowledge XP.`;
       } else if (weekXP < 50) {
@@ -894,7 +925,14 @@
     const eventsEl = card.querySelector('.domain-events');
     const events   = _xpLog.filter(e => e.achievement_id === achId).slice(0, 3);
     if (!events.length) {
-      eventsEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<p class="empty-note" style="padding:0.4rem 0;">No activity yet</p>';
+      // T74 (2026-08-26): "No activity yet" was a dead end - a worker expanding a LOCKED domain
+      // wants its HOW, and the regular cards never render def.desc (only legendaries did). Teach
+      // the unlock path from the definition the page already holds.
+      const _def = ACHIEVEMENT_DEFS[achId] || {};
+      eventsEl/* xss-allow: escHtml on the def text */ .innerHTML =
+        '<p class="empty-note" style="padding:0.4rem 0;">No activity yet.'
+        + (_def.desc ? ' <strong>How to earn:</strong> ' + escHtml(_def.desc)
+                     + ' - XP lands here automatically as you do that work.' : '') + '</p>';
       return;
     }
     eventsEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = events.map(e => {
@@ -1045,11 +1083,37 @@
     whModalA11y(document.getElementById('levelup-overlay'), { onClose: closeLevelUpModal });
   }
 
+  /* TWO CELEBRATION LADDERS, ONE LEVEL APART (2026-08-28, T182 proportionality).
+     The graduated design here is right — a full-screen modal for the rare moments, a toast for
+     the routine level-up, which is exactly the repetition decay a progression system needs. Two
+     things were off inside it:
+
+     1. THE LADDERS COLLIDED. Tiers begin at 11/26/51/76/91 and the round-number milestones fired
+        on 25/50/75 — each one sitting EXACTLY ONE LEVEL BELOW a tier boundary. So the three most
+        significant moments in the whole ladder (bronze→silver, silver→gold, gold→platinum) each
+        delivered TWO full-screen modals on consecutive level-ups: "Level 25!" then "Tier Up!".
+        Back-to-back interruptions at the moment of an achievement devalue both. The tier-up is
+        strictly the bigger event, so when the very next level crosses a tier, the round number
+        now steps aside and whispers via the toast.
+     2. THE TWO CHECKS DISAGREED ON JUMPS. The tier check is RANGE-based (old tier ≠ new tier), so
+        it survives a multi-level jump; the milestone check was EXACT-LANDING (newLevel % 25), so
+        a worker who went 99 → 101 in one write — a big XP award crossing two thresholds, or a
+        missed realtime frame leaving `existing` stale — got no level-100 modal at all. Milestones
+        are now crossing-based too, matching how tiers already behaved. */
   function handleLevelUp(achievementId, oldLevel, newLevel) {
     const oldTier = getWorkerTier(oldLevel).id;
     const newTier = getWorkerTier(newLevel).id;
     const isTierUp = newTier !== oldTier;
-    if (isTierUp || newLevel % 25 === 0) {
+    // crossing, not landing — 99 → 101 still earns the level-100 moment
+    const crossedMilestone = Math.floor(newLevel / 25) > Math.floor((oldLevel || 0) / 25);
+    /* The tier modal is the bigger event, so the round number steps aside when one is adjacent
+       in EITHER direction - ahead (25 before the silver boundary at 26) or just behind (a
+       boundary at 24 followed by milestone 25). The first version checked only ahead, which the
+       proportionality gate caught by moving a tier `min` in utils.js: symmetric is the property
+       actually wanted, since the two ladders can drift past each other in either direction. */
+    const tierUpIsNext = getWorkerTier(newLevel + 1).id !== newTier;
+    const tierUpWasLast = getWorkerTier(newLevel - 1).id !== getWorkerTier(newLevel - 2).id;
+    if (isTierUp || (crossedMilestone && !tierUpIsNext && !tierUpWasLast)) {
       showLevelUpModal(achievementId, newLevel, isTierUp);
     } else {
       const def  = ACHIEVEMENT_DEFS[achievementId];
@@ -1199,7 +1263,7 @@
      duplicated the header #achievements-source-chip (both full-width "Live · … source" chips). Its
      v_worker_truth attribution was folded into the header chip's source above. -->
 
-<script>window.WH_FIL_PAGE={ach_growth:'Paglago',ach_xpweek:'XP ngayong linggo',ach_activedom:'Aktibong domain',ach_totallvl:'Kabuuang level'};</script>
+<script>window.WH_FIL_PAGE={ach_growth:'Paglago',ach_xpweek:'XP ngayong linggo',ach_activedom:'Aktibong domain',ach_totallvl:'Kabuuang level',ach_resumeline_pre:'Bawat badge na makukuha mo dito ay mapupunta sa iyong',ach_resumeline_post:' nang awtomatiko - nakikita ng employer ang certified na skills, hindi puro sabi-sabi.'};</script>
   <!-- AV1 (FULLSTACK_COMPONENT_LIBRARY Layer AV): the offline canonical set — ships as one unit -->
   <script src="offline-banner.js"></script>
   <script defer src="offline-queue.js"></script>

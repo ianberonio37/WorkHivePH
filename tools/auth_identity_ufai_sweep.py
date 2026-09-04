@@ -102,7 +102,7 @@ def _read(surface: str) -> str:
 
 def _strip(body: str) -> str:
     # drop // line comments + /* */ blocks so a marker in a comment never scores
-    b = re.sub(r"/\*.*?\*/", "", body, flags=re.S)
+    b = re.sub(r"/\*(?![\"']).*?\*/", "", body, flags=re.S)
     return re.sub(r"//.*", "", b)
 
 

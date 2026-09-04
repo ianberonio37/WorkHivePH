@@ -20,6 +20,10 @@ All core platform features (Logbook, PM Scheduler, Inventory, Skill Matrix, Engi
 
 WorkHive may in the future add optional premium add-ons at the enterprise tier. Those add-ons, if they appear, will be clearly labelled, will not gate worker-level access to existing free features, and will require explicit opt-in.
 
+## Eligibility
+
+WorkHive is for people of legal working age. By creating an account you represent that you are at least 18 years old, the age Philippine labor law sets for hazardous work, which industrial maintenance is. WorkHive does not verify age and relies on this representation; an employer deploying WorkHive remains responsible for its own workforce rules.
+
 ## Your account
 
 - You are responsible for providing accurate information when you sign up.
@@ -32,7 +36,7 @@ WorkHive may in the future add optional premium add-ons at the enterprise tier. 
 
 You retain ownership of all data and content you enter into WorkHive (logbook entries, asset records, skill matrix evidence, etc.). WorkHive owns the platform software, branding, and aggregated anonymous analytics. You grant WorkHive a limited license to store, process, and display your data in order to deliver the platform features to you and your hive members.
 
-You may export your data at any time and delete your account, after which your personal data is purged per the [Privacy Policy](https://workhiveph.com/privacy-policy/).
+You may request an export of your data or the deletion of your account at any time by emailing [admin@workhiveph.com](mailto:admin@workhiveph.com) with the subject line "Data Rights Request". We handle these by hand today rather than through a button in the app; once a deletion is processed, your personal data is purged per the [Privacy Policy](https://workhiveph.com/privacy-policy/).
 
 ## Acceptable use
 
@@ -69,7 +73,7 @@ We may update these terms from time to time. Material changes will be announced 
 
 ## Termination
 
-You may stop using WorkHive and delete your account at any time. We may suspend or terminate accounts that violate these terms or applicable laws, with reasonable notice where practical.
+You may stop using WorkHive at any time, and request deletion of your account by emailing [admin@workhiveph.com](mailto:admin@workhiveph.com) with the subject line "Data Rights Request". We may suspend or terminate accounts that violate these terms or applicable laws, with reasonable notice where practical.
 
 ## Governing law
 
@@ -79,4 +83,4 @@ These terms are governed by the laws of the Republic of the Philippines. Any dis
 
 Email [admin@workhiveph.com](mailto:admin@workhiveph.com) with any question about these terms. Owner: WorkHive Engineering Services (DTI Business Name 8080496), Ian Lumayno Beronio, sole proprietor.
 
-<!-- md-twin source-sha: ea133acd164fe5d1 -->
+<!-- md-twin source-sha: 8e72ac3e6a99aa12 -->

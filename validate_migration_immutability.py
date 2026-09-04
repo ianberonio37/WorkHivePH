@@ -251,7 +251,58 @@ def list_migrations() -> list[str]:
     return sorted(glob.glob(os.path.join(MIGRATIONS_DIR, "*.sql")))
 
 
-def _git_commits_touching(path: str) -> list[dict]:
+# ONE git log FOR THE WHOLE DIRECTORY, not one per file (2026-08-28). This was the board's slowest check
+# by a wide margin: it spawned `git log -- <file>` once per migration, and at 572 migrations x a measured
+# 609ms per call that is ~348 SECONDS of pure subprocess wait. Caught by watching it sit for 9 minutes
+# having burned 4 seconds of CPU - the signature of blocking on I/O rather than computing.
+# WHAT IS AND IS NOT CHANGED: the per-file ANSWER is identical - same commits, same newest-first order,
+# same {sha, date} shape - because `--name-only` reports exactly the paths each commit touched and the
+# commits arrive in git log's same default order. Only the subprocess COUNT changes. The map is built once,
+# lazily; if the batch fails for any reason the code falls back to the original per-file call, because a
+# batch that silently returned nothing would make every migration look uncommitted and the gate would pass
+# vacuously - the exact false-green this repo keeps having to design against.
+_COMMIT_MAP = None
+
+
+def _build_commit_map() -> dict:
+    """path -> [{sha, date}] for every migration, from ONE `git log --name-only` pass."""
+    m = {}
+    try:
+        result = subprocess.run(
+            ["git", "log", "--name-only", "--pretty=format:__WHC__%H|%ad", "--date=iso",
+             "--", MIGRATIONS_DIR],
+            capture_output=True, text=True, timeout=180,
+        )
+    except (FileNotFoundError, subprocess.TimeoutExpired):
+        return {}
+    if result.returncode != 0:
+        return {}
+    sha = date = None
+    for raw in result.stdout.splitlines():
+        line = raw.strip()
+        if not line:
+            continue
+        if line.startswith("__WHC__"):
+            head = line[len("__WHC__"):]
+            if "|" in head:
+                sha, date = (x.strip() for x in head.split("|", 1))
+            continue
+        if sha and line.endswith(".sql"):
+            m.setdefault(line.replace("\\", "/"), []).append({"sha": sha, "date": date})
+    return m
+
+
+def _map_key(path: str) -> str:
+    """Repo-root-relative, forward-slashed - the shape `git log --name-only` prints."""
+    root = os.path.dirname(os.path.abspath(__file__))
+    try:
+        rel = os.path.relpath(os.path.abspath(path), root)
+    except ValueError:
+        rel = path
+    return rel.replace("\\", "/")
+
+
+def _git_commits_touching_uncached(path: str) -> list[dict]:
     """Return list of {hash, date} for all commits that touched `path`.
 
     Newest first (matches `git log` default order). Returns empty list if
@@ -274,6 +325,16 @@ def _git_commits_touching(path: str) -> list[dict]:
         sha, date = line.split("|", 1)
         out.append({"sha": sha.strip(), "date": date.strip()})
     return out
+
+
+def _git_commits_touching(path: str) -> list[dict]:
+    """Batched front door; identical output to the per-file call it replaces."""
+    global _COMMIT_MAP
+    if _COMMIT_MAP is None:
+        _COMMIT_MAP = _build_commit_map()
+    if _COMMIT_MAP:
+        return _COMMIT_MAP.get(_map_key(path), [])
+    return _git_commits_touching_uncached(path)
 
 
 def _git_diff_whitespace_only(path: str, sha_a: str, sha_b: str) -> bool:

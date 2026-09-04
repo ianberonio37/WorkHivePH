@@ -6,10 +6,10 @@ differently (one trusts it; one re-gates on another field).
 
 ## Summary
 
-- View/column pairs scanned: **335**
+- View/column pairs scanned: **347**
 - AT_RISK pairs (re-gating detected): **0**
 - REVIEW pairs (local-math smell on at least one consumer): **9**
-- Files scanned: **328**
+- Files scanned: **337**
 
 ## Smell legend
 
@@ -58,7 +58,7 @@ re-deriving what the canonical view should expose:
 | `v_alert_truth` | `severity` | ✅ OK | 3 | direct |
 | `v_alert_truth` | `status` | ✅ OK | 1 | direct |
 | `v_alert_truth` | `title` | ✅ OK | 3 | direct |
-| `v_amc_truth` | `amc_id` | ✅ OK | 2 | direct |
+| `v_amc_truth` | `amc_id` | ✅ OK | 3 | direct |
 | `v_amc_truth` | `headline` | ✅ OK | 1 | direct |
 | `v_amc_truth` | `shift_date` | ✅ OK | 1 | direct |
 | `v_amc_truth` | `status` | ✅ OK | 2 | direct |
@@ -99,6 +99,7 @@ re-deriving what the canonical view should expose:
 | `v_asset_truth` | `parent_id` | ✅ OK | 1 | direct |
 | `v_asset_truth` | `pm_asset_id` | ✅ OK | 1 | direct |
 | `v_asset_truth` | `pm_completed_count` | ✅ OK | 2 | direct |
+| `v_asset_truth` | `pm_skipped_count` | ✅ OK | 1 | direct |
 | `v_asset_truth` | `status` | ✅ OK | 2 | direct |
 | `v_asset_truth` | `tag` | ✅ OK | 12 | direct |
 | `v_community_posts_truth` | `author_name` | ✅ OK | 2 | direct |
@@ -139,7 +140,7 @@ re-deriving what the canonical view should expose:
 | `v_hives_truth` | `hive_members` | ✅ OK | 1 | direct |
 | `v_hives_truth` | `intent` | ✅ OK | 1 | direct |
 | `v_hives_truth` | `invite_code` | ✅ OK | 1 | direct |
-| `v_hives_truth` | `name` | ✅ OK | 8 | direct |
+| `v_hives_truth` | `name` | ✅ OK | 9 | direct |
 | `v_hives_truth` | `preferred_persona` | ✅ OK | 2 | direct |
 | `v_inventory_items_truth` | `bin_location` | ✅ OK | 2 | direct |
 | `v_inventory_items_truth` | `category` | ✅ OK | 2 | direct |
@@ -148,7 +149,7 @@ re-deriving what the canonical view should expose:
 | `v_inventory_items_truth` | `is_out_of_stock` | ✅ OK | 2 | direct |
 | `v_inventory_items_truth` | `min_qty` | ✅ OK | 5 | direct |
 | `v_inventory_items_truth` | `part_name` | ✅ OK | 14 | direct |
-| `v_inventory_items_truth` | `part_number` | ✅ OK | 6 | direct, mapped_enum |
+| `v_inventory_items_truth` | `part_number` | ✅ OK | 7 | direct, mapped_enum |
 | `v_inventory_items_truth` | `qty_on_hand` | ✅ OK | 12 | direct |
 | `v_inventory_items_truth` | `reorder_point` | ✅ OK | 7 | direct |
 | `v_inventory_items_truth` | `status` | ✅ OK | 2 | direct |
@@ -158,7 +159,7 @@ re-deriving what the canonical view should expose:
 | `v_inventory_transactions_truth` | `item_id` | ✅ OK | 1 | direct |
 | `v_inventory_transactions_truth` | `job_ref` | ✅ OK | 1 | direct |
 | `v_inventory_transactions_truth` | `note` | ✅ OK | 1 | direct |
-| `v_inventory_transactions_truth` | `qty_change` | ✅ OK | 4 | direct |
+| `v_inventory_transactions_truth` | `qty_change` | ✅ OK | 5 | direct |
 | `v_inventory_transactions_truth` | `type` | ✅ OK | 3 | direct |
 | `v_knowledge_freshness_truth` | `days_since_last_embed` | ✅ OK | 1 | direct |
 | `v_knowledge_freshness_truth` | `embedded_pct` | ✅ OK | 1 | direct |
@@ -179,7 +180,7 @@ re-deriving what the canonical view should expose:
 | `v_logbook_truth` | `asset_tag` | ✅ OK | 2 | direct |
 | `v_logbook_truth` | `category` | ✅ OK | 12 | direct |
 | `v_logbook_truth` | `closed_at` | ✅ OK | 4 | direct |
-| `v_logbook_truth` | `date` | ✅ OK | 6 | direct |
+| `v_logbook_truth` | `date` | ✅ OK | 7 | direct |
 | `v_logbook_truth` | `downtime_hours` | ✅ OK | 13 | direct |
 | `v_logbook_truth` | `failure_consequence` | ✅ OK | 3 | direct |
 | `v_logbook_truth` | `knowledge` | ✅ OK | 2 | direct |
@@ -190,18 +191,19 @@ re-deriving what the canonical view should expose:
 | `v_logbook_truth` | `permit_reference` | ✅ OK | 1 | mapped_enum |
 | `v_logbook_truth` | `problem` | ✅ OK | 14 | direct |
 | `v_logbook_truth` | `production_output` | ✅ OK | 1 | direct |
-| `v_logbook_truth` | `readings_json` | ✅ OK | 2 | direct |
+| `v_logbook_truth` | `readings_json` | ✅ OK | 3 | direct |
 | `v_logbook_truth` | `root_cause` | ✅ OK | 15 | direct |
 | `v_logbook_truth` | `status` | ✅ OK | 17 | direct |
 | `v_logbook_truth` | `worker_name` | ✅ OK | 7 | direct |
 | `v_marketplace_inquiries_truth` | `buyer_contact` | ✅ OK | 1 | direct |
 | `v_marketplace_inquiries_truth` | `buyer_name` | ✅ OK | 1 | direct |
-| `v_marketplace_inquiries_truth` | `listing_id` | ✅ OK | 1 | direct |
+| `v_marketplace_inquiries_truth` | `listing_id` | ✅ OK | 2 | direct |
 | `v_marketplace_inquiries_truth` | `listing_title` | ✅ OK | 1 | direct |
-| `v_marketplace_inquiries_truth` | `message` | ✅ OK | 1 | direct |
-| `v_marketplace_inquiries_truth` | `replied_at` | ✅ OK | 2 | direct |
-| `v_marketplace_inquiries_truth` | `reply_text` | ✅ OK | 1 | direct |
-| `v_marketplace_inquiries_truth` | `status` | ✅ OK | 2 | direct |
+| `v_marketplace_inquiries_truth` | `message` | ✅ OK | 2 | direct |
+| `v_marketplace_inquiries_truth` | `replied_at` | ✅ OK | 3 | direct |
+| `v_marketplace_inquiries_truth` | `reply_text` | ✅ OK | 2 | direct, mapped_enum |
+| `v_marketplace_inquiries_truth` | `seller_name` | ✅ OK | 1 | direct |
+| `v_marketplace_inquiries_truth` | `status` | ✅ OK | 3 | direct |
 | `v_marketplace_listings_truth` | `category` | ✅ OK | 7 | direct, mapped_enum |
 | `v_marketplace_listings_truth` | `completed_sales` | ✅ OK | 1 | direct |
 | `v_marketplace_listings_truth` | `condition` | ✅ OK | 5 | direct, mapped_enum |
@@ -215,9 +217,10 @@ re-deriving what the canonical view should expose:
 | `v_marketplace_listings_truth` | `rating_avg` | ✅ OK | 1 | direct |
 | `v_marketplace_listings_truth` | `section` | ✅ OK | 7 | direct |
 | `v_marketplace_listings_truth` | `seller_contact` | ✅ OK | 2 | direct |
+| `v_marketplace_listings_truth` | `seller_kyb_verified` | ✅ OK | 2 | direct |
 | `v_marketplace_listings_truth` | `seller_name` | ✅ OK | 5 | direct |
 | `v_marketplace_listings_truth` | `seller_tier` | ✅ OK | 1 | direct |
-| `v_marketplace_listings_truth` | `seller_verified` | ✅ OK | 2 | direct, mapped_enum |
+| `v_marketplace_listings_truth` | `seller_verified` | ✅ OK | 2 | direct |
 | `v_marketplace_listings_truth` | `status` | ✅ OK | 5 | direct |
 | `v_marketplace_listings_truth` | `title` | ✅ OK | 9 | direct |
 | `v_marketplace_listings_truth` | `view_count` | ✅ OK | 1 | direct |
@@ -226,7 +229,7 @@ re-deriving what the canonical view should expose:
 | `v_marketplace_sellers_truth` | `cert_verified_at` | ✅ OK | 2 | direct |
 | `v_marketplace_sellers_truth` | `certifications` | ✅ OK | 5 | direct |
 | `v_marketplace_sellers_truth` | `is_verified_public` | ✅ OK | 3 | direct |
-| `v_marketplace_sellers_truth` | `kyb_verified` | ✅ OK | 5 | direct |
+| `v_marketplace_sellers_truth` | `kyb_verified` | ✅ OK | 5 | direct, mapped_enum |
 | `v_marketplace_sellers_truth` | `kyb_verified_at` | ✅ OK | 2 | direct |
 | `v_marketplace_sellers_truth` | `last_listed_at` | ✅ OK | 2 | direct |
 | `v_marketplace_sellers_truth` | `messenger_username` | ✅ OK | 2 | direct |
@@ -250,8 +253,9 @@ re-deriving what the canonical view should expose:
 | `v_pm_compliance_truth` | `criticality` | ✅ OK | 4 | direct |
 | `v_pm_compliance_truth` | `days_since_last_completion` | ✅ OK | 2 | direct |
 | `v_pm_compliance_truth` | `is_due` | ✅ OK | 1 | direct |
-| `v_pm_compliance_truth` | `last_anchor_date` | ✅ OK | 1 | direct |
+| `v_pm_compliance_truth` | `last_anchor_date` | ✅ OK | 2 | direct |
 | `v_pm_compliance_truth` | `pm_asset_id` | ✅ OK | 6 | direct |
+| `v_pm_compliance_truth` | `skips_90d` | ✅ OK | 1 | direct |
 | `v_pm_compliance_truth` | `tag_id` | ✅ OK | 4 | direct |
 | `v_pm_scope_items_truth` | `anchor_date` | ⚠️ REVIEW | 2 | direct |
 | `v_pm_scope_items_truth` | `asset_category` | ✅ OK | 4 | direct |
@@ -260,16 +264,21 @@ re-deriving what the canonical view should expose:
 | `v_pm_scope_items_truth` | `asset_location` | ✅ OK | 1 | direct |
 | `v_pm_scope_items_truth` | `asset_name` | ✅ OK | 7 | direct |
 | `v_pm_scope_items_truth` | `asset_tag` | ✅ OK | 3 | direct |
+| `v_pm_scope_items_truth` | `current_km` | ✅ OK | 1 | direct |
 | `v_pm_scope_items_truth` | `days_until_due` | ⚠️ REVIEW | 8 | direct |
 | `v_pm_scope_items_truth` | `frequency` | ⚠️ REVIEW | 7 | direct |
 | `v_pm_scope_items_truth` | `frequency_days` | ✅ OK | 2 | direct |
+| `v_pm_scope_items_truth` | `interval_kind` | ✅ OK | 1 | direct |
+| `v_pm_scope_items_truth` | `interval_km` | ✅ OK | 1 | direct |
 | `v_pm_scope_items_truth` | `is_custom` | ✅ OK | 1 | direct |
 | `v_pm_scope_items_truth` | `is_due_soon` | ⚠️ REVIEW | 7 | direct, mapped_enum |
 | `v_pm_scope_items_truth` | `is_overdue` | ⚠️ REVIEW | 10 | direct, mapped_enum |
 | `v_pm_scope_items_truth` | `item_text` | ⚠️ REVIEW | 8 | direct |
+| `v_pm_scope_items_truth` | `km_until_due` | ✅ OK | 1 | direct |
 | `v_pm_scope_items_truth` | `last_completed_at` | ✅ OK | 4 | direct |
 | `v_pm_scope_items_truth` | `last_completed_by` | ✅ OK | 1 | direct |
 | `v_pm_scope_items_truth` | `next_due_date` | ⚠️ REVIEW | 6 | direct |
+| `v_pm_scope_items_truth` | `next_due_km` | ✅ OK | 1 | direct |
 | `v_pm_scope_items_truth` | `pm_asset_id` | ✅ OK | 8 | direct |
 | `v_pm_scope_items_truth` | `scope_item_id` | ⚠️ REVIEW | 5 | direct |
 | `v_project_items_truth` | `actual_hours` | ✅ OK | 2 | direct |
@@ -340,6 +349,7 @@ re-deriving what the canonical view should expose:
 | `v_service_credit_topups_truth` | `provider_display_name` | ✅ OK | 2 | direct |
 | `v_service_provider_truth` | `completed_jobs` | ✅ OK | 2 | direct |
 | `v_service_provider_truth` | `display_name` | ✅ OK | 2 | direct |
+| `v_service_provider_truth` | `provider_type` | ✅ OK | 1 | mapped_enum |
 | `v_service_provider_truth` | `rating_avg` | ✅ OK | 2 | direct |
 | `v_service_provider_truth` | `rating_count` | ✅ OK | 2 | direct |
 | `v_service_provider_truth` | `tier` | ✅ OK | 2 | direct |
@@ -363,8 +373,10 @@ re-deriving what the canonical view should expose:
 | `v_worker_achievements_truth` | `xp_total` | ✅ OK | 1 | direct |
 | `v_worker_assignment_truth` | `capacity_signal` | ✅ OK | 1 | direct |
 | `v_worker_assignment_truth` | `last_category` | ✅ OK | 1 | direct |
+| `v_worker_assignment_truth` | `last_job_at` | ✅ OK | 1 | direct |
+| `v_worker_assignment_truth` | `last_pm_at` | ✅ OK | 1 | direct |
 | `v_worker_assignment_truth` | `open_jobs` | ✅ OK | 1 | direct |
-| `v_worker_assignment_truth` | `worker_name` | ✅ OK | 1 | direct |
+| `v_worker_assignment_truth` | `worker_name` | ✅ OK | 2 | direct |
 | `v_worker_skill_truth` | `badge_count` | ✅ OK | 1 | direct |
 | `v_worker_skill_truth` | `current_level` | ✅ OK | 4 | direct |
 | `v_worker_skill_truth` | `discipline` | ✅ OK | 4 | direct |
@@ -374,4 +386,4 @@ re-deriving what the canonical view should expose:
 | `v_worker_truth` | `hive_status` | ✅ OK | 8 | direct |
 | `v_worker_truth` | `preferred_persona` | ✅ OK | 2 | direct |
 | `v_worker_truth` | `role` | ✅ OK | 8 | direct |
-| `v_worker_truth` | `worker_name` | ✅ OK | 12 | direct |
+| `v_worker_truth` | `worker_name` | ✅ OK | 11 | direct |

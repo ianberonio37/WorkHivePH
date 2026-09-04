@@ -257,7 +257,7 @@ serveObserved("intelligence-report", async (req) => {
           { status: 401, headers: { ...cors, "Content-Type": "application/json" } });
       }
       const _rl = await checkUserRateLimit(db, "", _id.authUid, 50, 6);
-      if (!_rl.allowed) return userRateLimitedResponse(cors, _rl.user_cap);
+      if (!_rl.allowed) return userRateLimitedResponse(cors, _rl.user_cap, _rl.retry_after_seconds);
     }
 
     const body = await req.json().catch(() => ({}));

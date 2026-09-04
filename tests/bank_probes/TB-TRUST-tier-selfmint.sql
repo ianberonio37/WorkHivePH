@@ -5,8 +5,14 @@
 -- `recompute_seller_sales_and_tier` derives total_sales (and therefore the bronze/silver/gold ladder) from
 -- `marketplace_listings WHERE seller_name = X AND status = 'sold'`. A seller may mark their OWN listing sold
 -- — the listing guard permits it deliberately, since withdrawing or closing your own listing is legitimate —
--- and `marketplace_listings` records NO BUYER AT ALL. `marketplace_orders`, which does carry buyer_name, is
+-- and `marketplace_listings` records NO BUYER AT ALL. `marketplace_orders`, which does carry buyer_name, was
 -- empty and vestigial since the Stripe removal.
+--
+-- THAT LAST SENTENCE EXPIRED ON 2026-08-17, and this cell is the thing that noticed. The goods lifecycle
+-- began writing real orders (6 rows, 4 distinct buyers by 2026-08-25), so the `orders_rows = 0` assertion
+-- below went red — not because anything regressed, but because it asserted a fact about the world and the
+-- world moved. The same stale sentence still sits in MARKETPLACE_CREDIT_SUSTAINABILITY §8 and
+-- MARKETPLACE_TEST_BANK; a claim is only true as of the day it was measured.
 --
 -- So the trust ladder the entire marketplace runs on is SELF-MINTABLE, for FREE:
 --   12 self-marked listings -> silver.  51 -> gold.  No buyer, no order, no payment, no commission.
@@ -71,9 +77,16 @@ begin
                          and (column_name ilike '%buyer%' or column_name ilike '%sold_to%'))
          then 'yes' else 'NO' end;
 
-  -- and the table that DOES record a counterparty is unused
+  -- ...and the table that DOES record a counterparty is NO LONGER unused (2026-08-28).
+  -- This read `orders_rows = 0`, encoding "marketplace_orders is empty and vestigial since the Stripe
+  -- removal". That stopped being true on 2026-08-17, when the goods lifecycle began writing real orders
+  -- (6 rows, 4 distinct buyers by 2026-08-25) - so the cell went red for being RIGHT about a world that
+  -- had moved on. The premise changed; the code did not regress.
+  -- A bare global count was also the wrong SHAPE of oracle for a table that legitimately grows: pinning
+  -- it to 6 just re-breaks on the 7th order. Assert the PROPERTY the vulnerability turns on - that a
+  -- counterparty is recorded somewhere - rather than a number that drifts underneath it.
   select count(*) into n from public.marketplace_orders;
-  raise notice 'RESULT orders_rows=%', n;
+  raise notice 'RESULT orders_table_in_use=%', case when n > 0 then 'yes' else 'NO' end;
 end $probe$;
 
 rollback;

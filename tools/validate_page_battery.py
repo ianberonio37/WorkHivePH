@@ -20,7 +20,7 @@ throwing on load, 5xx-ing, reflecting XSS, or overflowing at 390px blocks CI.
 
 Skips cleanly (exit 0) if node or the local stack (Flask :5000 + Supabase :54321) is absent —
 mirrors validate_hive_battery.py. A real regression is exit 1. Live-only (skip_if_fast).
-Re-drive: WH_TEST_HIVE=636cf7e8-431a-4907-8a9f-43dd4cc216d6 node tools/page_battery.mjs --gate [--headed]
+Re-drive: WH_TEST_HIVE=084c113b-99c0-45c6-a8e8-b4b8349da46d node tools/page_battery.mjs --gate [--headed]
 """
 import io
 import os
@@ -45,7 +45,7 @@ def _resolve_live_hive() -> str:
         from test_identity import resolve_test_identity
         return resolve_test_identity("leandromarquez@auth.workhiveph.com").hive_id
     except Exception:
-        return "636cf7e8-431a-4907-8a9f-43dd4cc216d6"   # hive fallback (stale-known)
+        return "084c113b-99c0-45c6-a8e8-b4b8349da46d"   # hive fallback (stale-known)
 LIVE_HIVE = _resolve_live_hive()
 
 

@@ -111,23 +111,69 @@ def check_no_join_only_cta(articles):
     return issues
 
 
-CHECK_NAMES  = ["has_tool_anchor", "names_target_tool", "no_join_only_cta"]
+
+def check_cta_matches_declared_tool(articles):
+    """L4: the article's OWN CTA must point at the tool its registry entry DECLARES.
+
+    ★THE THREE CHECKS ABOVE ALL PASSED WHILE AN ARTICLE POINTED SOMEWHERE ELSE (T174, 2026-08-28).
+    learn/maintenance-project-planning-template declared tool_path='/hive.html' in wh_pages.py while
+    naming "Project Manager" fourteen times and carrying <a href="/project-manager.html">Open Project
+    Manager</a>. L1 was satisfied (it anchors to SOME tool), L2 was satisfied (it names A tool), L3
+    was satisfied - and the article and its registry entry disagreed about what it is for.
+
+    That is not cosmetic: learn-link.js keys the page-guide chip off tool_path, so the project-
+    planning guide was offered on the HIVE BOARD while project-manager.html had no guide at all. A
+    mis-declared tool silently moves a page's help to a different page.
+
+    Deliberately a WARN, not a FAIL: an article may legitimately link several tools, and the rule is
+    that its DECLARED tool must be among them - not that it is the only one.
+    """
+    issues = []
+    for slug, (expected_tool, _) in articles.items():
+        page = f"learn/{slug}/index.html"
+        content = read_file(page)
+        if content is None:
+            continue
+        anchors = {m.group(1) for m in TOOL_ANCHOR_RE.finditer(content)}
+        if not anchors:
+            continue                      # L1 already reports the no-anchor case
+        want = expected_tool if expected_tool.startswith("/") else "/" + expected_tool
+        # ★AN ARTICLE DECLARING A NON-TOOL TARGET IS OUT OF SCOPE, NOT IN VIOLATION. The platform
+        # OVERVIEW declares /index.html and links all 26 tools; the landing page is not a tool
+        # anchor, so "is the declared tool among the anchors" has no meaning for it. Flagging it
+        # would be the check misreading its own denominator - the same shape as counting a vendored
+        # library's .range() as a pagination defect.
+        if want.lstrip("/") in NON_TOOL_PAGES or want == "/index.html":
+            continue
+        if want not in anchors:
+            issues.append({"check": "cta_matches_declared_tool", "page": page, "severity": "warn",
+                           "reason": (f"{page} declares tool_path {want} in wh_pages.LEARN_ARTICLES "
+                                      f"but its body links {sorted(anchors)} - the article and the "
+                                      f"registry disagree about what it is for, and learn-link.js "
+                                      f"puts the page-guide chip on the DECLARED page, so the guide "
+                                      f"lands somewhere the article is not about.")})
+    return issues
+
+
+CHECK_NAMES  = ["has_tool_anchor", "names_target_tool", "no_join_only_cta", "cta_matches_declared_tool"]
 CHECK_LABELS = {
     "has_tool_anchor":   "L1  Every /learn/ article has ≥1 anchor to a /<tool>.html page",
     "names_target_tool": "L2  Article body names the target WorkHive tool at least once",
     "no_join_only_cta":  "L3  No button-styled CTA points only to /#join (anti-pattern)",
+    "cta_matches_declared_tool": "L4  Article links the tool its registry entry DECLARES",
 }
 
 
 def main():
     def bold(s): return f"\033[1m{s}\033[0m"
-    print(bold("\nTool-Aligned CTA Validator (3-layer)"))
+    print(bold("\nTool-Aligned CTA Validator (4-layer)"))
     print("=" * 55)
 
     all_issues = []
     all_issues += check_has_tool_anchor(ARTICLE_TOOL_MAP)
     all_issues += check_names_target_tool(ARTICLE_TOOL_MAP)
     all_issues += check_no_join_only_cta(ARTICLE_TOOL_MAP)
+    all_issues += check_cta_matches_declared_tool(ARTICLE_TOOL_MAP)
 
     n_pass, n_warn, n_fail = format_result(CHECK_NAMES, CHECK_LABELS, all_issues)
 

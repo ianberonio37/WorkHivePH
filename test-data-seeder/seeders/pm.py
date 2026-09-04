@@ -6,6 +6,7 @@ from .utils import random_timestamp_in_last_n_days, to_iso
 
 PM_FREQUENCIES = ["Weekly", "Monthly", "Quarterly", "Semi-annual", "Annual"]
 FREQ_DAYS = {
+    "Daily": 1,  # entered the live vocabulary with the Vehicles PM templates (daily walk-around, 2026-09-02)
     "Weekly": 7,
     "Monthly": 30,
     "Quarterly": 90,

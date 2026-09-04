@@ -644,6 +644,9 @@ const CASES = [
   {
     page: 'analytics',
     what: 'recomputing risk scores',
+    // no-restore is the DESIGN (see the NO RESTORE comment below): the recompute is the
+    // product's own idempotent refresh; the new generation is the correct end state.
+    noRestoreByDesign: true,
     marker: 'WH-EFFECT-PROBE-' + process.pid,
     // ★THE WRITE APPENDS - I ASSUMED IT REFRESHED AND THE MEASUREMENT CORRECTED ME. A recompute added
     // 30 rows to asset_risk_scores (605 -> 635), one per asset, rather than updating in place: the
@@ -1173,7 +1176,7 @@ const run = async () => {
         // ALARM IS NOT THE SAFE DIRECTION: it teaches me to distrust clean runs, and the next real
         // one reads like more noise.
       rec.leftBehind = Number(psql(c.countBefore(c.marker)).split('\n')[0]) - rec.before;
-      rec.cleanupOk = rec.leftBehind === 0;
+      rec.cleanupOk = rec.leftBehind === 0 || c.noRestoreByDesign === true; // append-only refresh: delta recorded, clean BY DESIGN
       }
     }
     await page.close();

@@ -8,7 +8,8 @@ from .pm import seed_pm
 from .logbook import seed_logbook, link_logbook_to_asset_nodes
 from .inventory import seed_inventory
 from .skill_matrix import seed_skill_matrix
-from .marketplace import seed_marketplace, seed_marketplace_sellers
+from .marketplace import (seed_marketplace, seed_marketplace_sellers,
+                          seed_marketplace_orders, seed_marketplace_inquiries)
 from .services import seed_services
 from .community import seed_community
 from .projects import seed_projects
@@ -89,6 +90,16 @@ def seed_everything(client, log) -> dict:
     # (grants each hive's top voice-of-hive badge + gold seller). Runs AFTER community
     # + achievements so a seller's community standing already exists.
     step_ms = seed_marketplace_sellers(client, log, ctx)
+    # T96 (2026-08-27): the goods lifecycle needs rows to be walkable at all.
+    # marketplace_orders enumerates a real escrow flow in a CHECK constraint and had
+    # never held a row - reset.py could truncate orders, nothing could create one - so
+    # no state transition on it had ever been exercised. One order per state, seeded
+    # after listings and sellers exist because each order references a real listing.
+    step_mo = seed_marketplace_orders(client, log, ctx)
+    # ...and the LIVE goods path, which is contact-only: buyers send inquiries against a
+    # listing and sellers reply. marketplace-seller's Inquiries tab reads this in six
+    # places and never reads orders, so this is the table the two-sided goods walk needs.
+    step_mi = seed_marketplace_inquiries(client, log, ctx)
     # Service-hailing substrate (SERVICE_HAILING_ROADMAP.md P1) — after marketplace
     # sellers + workers/hives exist (providers are built from both).
     step_sv = seed_services(client, log, ctx)

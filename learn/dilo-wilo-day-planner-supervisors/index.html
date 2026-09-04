@@ -22,7 +22,7 @@
   <meta property="og:type" content="article" />
   <meta property="og:site_name" content="WorkHive" />
   <meta property="article:published_time" content="2026-05-17T00:00:00+08:00" />
-  <meta property="article:modified_time" content="2026-05-17T00:00:00+08:00" />
+  <meta property="article:modified_time" content="2026-08-24T00:00:00+08:00" />
   <meta property="article:author" content="WorkHive Editorial Team" />
   <meta property="article:section" content="Maintenance" />
 
@@ -45,7 +45,7 @@
         "author": { "@type": "Organization", "name": "WorkHive Editorial Team", "url": "https://workhiveph.com/" },
         "publisher": { "@id": "https://workhiveph.com/#organization" },
         "datePublished": "2026-05-17",
-        "dateModified": "2026-05-17",
+        "dateModified": "2026-08-24",
         "mainEntityOfPage": "https://workhiveph.com/learn/dilo-wilo-day-planner-supervisors/",
         "inLanguage": "en-PH",
         "articleSection": "Maintenance",
@@ -135,7 +135,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = { theme: { extend: { colors: {
@@ -272,7 +272,8 @@
     <nav class="flex items-center gap-6">
       <a href="/" class="nav-link">Home</a>
       <a href="/learn/" class="nav-link">Learn</a>
-      <a href="/#join" class="nav-link">Join the Hive</a>
+      <a href="/?signin=1" class="nav-link">Sign In</a>
+      <a href="/?signup=1" class="nav-link">Sign Up Free</a>
     </nav>
   </div>
 </header>
@@ -294,7 +295,7 @@
       <span class="opacity-40">·</span>
       <span>Published <time datetime="2026-05-17">17 May 2026</time></span>
       <span class="opacity-40">·</span>
-      <span>Updated <time datetime="2026-05-17">17 May 2026</time></span>
+      <span>Updated <time datetime="2026-08-24">24 Aug 2026</time></span>
       <span class="opacity-40">·</span>
       <span>9 min read</span>
     </div>
@@ -349,7 +350,7 @@
       <p>The DILO/WILO/MILO/YILO method does not eliminate reactive work. It carves a fence around the strategic work so it gets done before reactive work arrives.</p>
 
       <h2 id="cascading-views">The cascading views: YILO down to DILO</h2>
-      <table>
+      <div data-table-scroll style="overflow-x:auto;-webkit-overflow-scrolling:touch;" role="region" aria-label="Scrollable table" tabindex="0"><table>
         <thead><tr><th>View</th><th>Horizon</th><th>Written when</th><th>Purpose</th></tr></thead>
         <tbody>
           <tr><td><strong>YILO</strong> (Year)</td><td>12 months</td><td>December annually</td><td>Set the 3 to 5 plant outcomes for the year</td></tr>
@@ -357,7 +358,7 @@
           <tr><td><strong>WILO</strong> (Week)</td><td>5 to 7 days</td><td>Friday afternoon</td><td>Allocate hours to 5 buckets, pick 3 priorities</td></tr>
           <tr><td><strong>DILO</strong> (Day)</td><td>8 to 12 hours</td><td>Each morning before huddle</td><td>Time-block the first 3 hours, leave the rest flexible</td></tr>
         </tbody>
-      </table>
+      </table></div>
       <p>The cascading aspect matters. A WILO that is not derived from the MILO is just a to-do list; a DILO that is not derived from the WILO is just an inbox.</p>
 
       <h2 id="yilo">YILO: designing the year</h2>
@@ -409,12 +410,12 @@
         <h4 aria-level="3">WorkHive Day Planner runs the YILO down to DILO cascade</h4>
         <p>The Day Planner has separate views for supervisor and engineer modes. The YILO links to the plant's PM compliance, OEE, and MTTR targets so progress is visible. The WILO auto-suggests blocks based on the MILO. The DILO 5-minute morning view shows today's 3 priorities pulled from the WILO and the time-blocks they need. Free at the worker tier forever.</p>
         <a href="/dayplanner.html" class="cta-btn">Open the Day Planner</a>
-        <p class="cta-secondary">No hive yet? <a href="/#join">Join WorkHive</a> first (free, takes 30 seconds).</p>
+        <p class="cta-secondary">No hive yet? <a href="/?signup=1">Join WorkHive</a> first (free, takes 30 seconds).</p>
       </div>
 
       <h2 id="supervisor-day">A supervisor day in 5 buckets</h2>
       <p>A realistic Philippine plant supervisor day allocates the 8-hour shift across 5 buckets. The percentages are starting estimates; adjust based on your actual.</p>
-      <table>
+      <div data-table-scroll style="overflow-x:auto;-webkit-overflow-scrolling:touch;" role="region" aria-label="Scrollable table" tabindex="0"><table>
         <thead><tr><th>Bucket</th><th>Typical share</th><th>What it covers</th></tr></thead>
         <tbody>
           <tr><td><strong>PM execution</strong></td><td>20-25%</td><td>Walk-throughs, PM verification, completion sign-off, exception handling</td></tr>
@@ -423,7 +424,7 @@
           <tr><td><strong>People</strong></td><td>10-15%</td><td>1-on-1s, training, skill matrix updates, hiring, performance conversations</td></tr>
           <tr><td><strong>Admin</strong></td><td>10-15%</td><td>Reports, approvals, procurement, vendor calls, system logging</td></tr>
         </tbody>
-      </table>
+      </table></div>
       <p>The WILO uses these percentages to set realistic week budgets. If you allocated 30 percent for project work but spent 5 percent because breakdowns ate the week, the next WILO needs to either accept a 5 percent reality or fix the breakdown root cause.</p>
 
       <h2 id="reactive-handling">How to plan when 70 percent of the day is reactive</h2>
@@ -510,11 +511,11 @@
 
 <footer class="py-10 border-t border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
   <div class="max-w-4xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">
-    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-05-17">17 May 2026</time></p>
+    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-08-24">24 Aug 2026</time></p>
     <div class="flex items-center gap-6">
       <a href="/" class="hover:text-white/60 transition-colors">Home</a>
       <a href="/#faq" class="hover:text-white/60 transition-colors">FAQ</a>
-      <a href="/#join" class="hover:text-white/60 transition-colors">Join the Hive</a>
+      <a href="/?signup=1" class="hover:text-white/60 transition-colors">Join the Hive</a>
     </div>
   </div>
 </footer>

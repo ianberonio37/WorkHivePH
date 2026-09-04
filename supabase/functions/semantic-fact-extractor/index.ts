@@ -178,7 +178,7 @@ serveObserved("semantic-fact-extractor", async (req) => {
         const _rq = await checkRouteRateLimit(db, hiveId || "", "semantic-fact-extractor");
         // Denies ONLY when an explicit hive_route_quotas row exists (rq.per_route), so this stays
         // a no-op until an admin sets a cap - while always counting for attribution.
-        if (_rq.per_route && !_rq.allowed) return routeRateLimitedResponse(corsHeaders, "semantic-fact-extractor", _rq.cap);
+        if (_rq.per_route && !_rq.allowed) return routeRateLimitedResponse(corsHeaders, "semantic-fact-extractor", _rq.cap, _rq.retry_after_seconds);
       } catch { /* empty-catch-allow: per-surface quota bookkeeping must never fail a real request */ }
       const _rl = await checkAIRateLimit(db, hiveId);
       if (!_rl.allowed) return fail(ctx, "rate_limited", "AI call limit reached for this hive. Try again in an hour.", { status: 429 });

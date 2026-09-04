@@ -44,7 +44,7 @@
         "isPartOf": { "@id": "https://workhiveph.com/#website" },
         "inLanguage": "en-PH",
         "datePublished": "2026-05-16",
-        "dateModified": "2026-08-17"
+        "dateModified": "2026-08-24"
       },
       {
         "@type": "BreadcrumbList",
@@ -194,7 +194,8 @@
     <nav class="flex items-center gap-6">
       <a href="/" class="nav-link">Home</a>
       <a href="/learn/" class="nav-link" style="color:#F4F6FA;">Learn</a>
-      <a href="/#join" class="nav-link">Join the Hive</a>
+      <a href="/?signin=1" class="nav-link">Sign In</a>
+      <a href="/?signup=1" class="nav-link">Sign Up Free</a>
     </nav>
   </div>
 </header>
@@ -729,11 +730,11 @@
 <!-- ── Footer ── -->
 <footer class="py-10 border-t border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
   <div class="max-w-4xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">
-    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-08-17">17 Aug 2026</time></p>
+    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-08-24">24 Aug 2026</time></p>
     <div class="flex items-center gap-6">
       <a href="/" class="hover:text-white/60 transition-colors">Home</a>
       <a href="/#faq" class="hover:text-white/60 transition-colors">FAQ</a>
-      <a href="/#join" class="hover:text-white/60 transition-colors">Join the Hive</a>
+      <a href="/?signup=1" class="hover:text-white/60 transition-colors">Join the Hive</a>
     </div>
   </div>
 </footer>
@@ -754,13 +755,19 @@
   var moreBtn = document.getElementById('lh-more');
   var PAGE = 12, shown = PAGE, bucket = 'all', query = '';
 
+  /* T152 (2026-08-28): a pill missing from this map does NOT fail loudly -- the lookup below
+     ends in `|| 'platform'`, so an unmapped guide is silently filed under Platform and the
+     chip that SHOULD list it never does. Two were: 'Getting Started' (a near-miss on the
+     'start here' key already present, so the beginner's own article was absent from the
+     Start Here chip) and 'Comparison' x4. Every pill rendered on a card must have a key
+     here; the fallthrough is a floor, not a category. */
   var BUCKET = {
-    'logbook':'start','inventory':'start','pm':'start','day planner':'start','hive':'start','voice journal':'start','handover':'start','skill matrix':'start','start here':'start',
+    'logbook':'start','inventory':'start','pm':'start','day planner':'start','hive':'start','voice journal':'start','handover':'start','skill matrix':'start','start here':'start','getting started':'start',
     'analytics':'reliability','analytics report':'reliability','oee':'reliability','reliability':'reliability','predictive':'reliability','asset hub':'reliability','alert hub':'reliability','ph intelligence':'reliability',
     'ai assistant':'ai','ai companion':'ai','ai quality':'ai',
     'eng. design':'engineering','engineering design':'engineering','engineering':'engineering',
     'careers':'careers','community':'careers','achievements':'careers','marketplace':'careers',
-    'integrations':'platform','plant connections':'platform','project mgr':'platform','shift brain':'platform','industry':'platform','safety':'platform','compliance':'platform','audit log':'platform','platform':'platform'
+    'integrations':'platform','plant connections':'platform','project mgr':'platform','shift brain':'platform','industry':'platform','safety':'platform','compliance':'platform','audit log':'platform','platform':'platform','comparison':'platform'
   };
 
   cards.forEach(function (c) {
@@ -810,6 +817,19 @@
     });
   });
   moreBtn.addEventListener('click', function () { shown += PAGE; render(); });
+
+  // T155 (2026-08-28): accept a seeded ?q= so the hub's search can be arrived AT, not only typed
+  // into. The 404 notice sends a lost visitor here with the slug they asked for already filled in,
+  // and a searched hub becomes a shareable link. Read before the first render so the page paints
+  // its filtered result once rather than flashing all 53 guides first.
+  try {
+    var seeded = (location.search.match(/[?&]q=([^&]*)/) || [])[1];
+    if (seeded) {
+      seeded = decodeURIComponent(seeded.replace(/\+/g, ' ')).trim();
+      if (seeded) { search.value = seeded; query = seeded.toLowerCase(); }
+    }
+  } catch (e) { /* empty-catch-allow: a malformed ?q= must not stop the hub from listing guides */ }
+
   render();
 })();
 </script>

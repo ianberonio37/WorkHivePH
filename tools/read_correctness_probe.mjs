@@ -12,7 +12,7 @@ import { execSync } from 'child_process';
 
 const SEEDER = process.env.WH_TEST_BASE_URL || 'http://127.0.0.1:5000';
 const SUPABASE_URL = process.env.WH_SUPABASE_URL || 'http://127.0.0.1:54321';
-const HIVE = process.env.WH_TEST_HIVE || '636cf7e8-431a-4907-8a9f-43dd4cc216d6';
+const HIVE = process.env.WH_TEST_HIVE || '084c113b-99c0-45c6-a8e8-b4b8349da46d';
 const SUP = { email: 'leandromarquez@auth.workhiveph.com', pw: 'test1234', worker: 'Leandro Marquez' };
 const DB = process.env.WH_DB_CONTAINER || 'supabase_db_workhive';
 const HEADED = process.argv.includes('--headed');

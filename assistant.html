@@ -362,6 +362,13 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
             allow="microphone; autoplay"></iframe>
 
     <!-- Input area -->
+    <!-- T16/T89 (2026-08-26): the gateway returns `remaining` on every answer and this page
+         discarded it, so the only quota signal a worker ever got was the refusal AFTER the
+         wall, mid-question. Sits beside the composer because "before an expensive ask" means
+         where the next ask is typed, not buried in the page intro. Empty and silent until the
+         count is actually low. -->
+    <p id="assistant-quota-note" role="status" aria-live="polite"
+       style="display:none; font-size:.62rem; color:var(--wh-amber-text, #f7a21b); margin:0 0 4px; line-height:1.35;"></p>
     <div id="chat-input-area" class="chat-input-area flex-shrink-0">
       <div class="flex items-end gap-2 max-w-lg mx-auto">
         <textarea aria-label="Ask anything…"
@@ -385,6 +392,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   <!-- Toast -->
   <div id="toast" class="toast" role="alert" aria-live="polite"></div>
 
+  <script src="browser-floor.js"></script>
   <script src="utils.js"></script>
   <script src="wh-persona.js"></script>
   <script src="wh-capture-validate.js"></script>
@@ -525,6 +533,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       }
 
       const list = document.getElementById('records-list');
+      // T40 (2026-08-25): a failed count rendered 'not read' with NOTHING TO PRESS - the one
+      // SILENT page left in the 500-storm sweep (with analytics-report). The retry re-issues
+      // the READ via loadRecordsSummary itself, never a re-render of the failed state.
+      if (logbookCount === null && typeof whListError === 'function') {
+        whListError(list, 'Could not read your records. The assistant will answer without grounding until this loads.',
+          () => loadRecordsSummary());
+        return;
+      }
       const items = [
         { label: 'Logbook entries', count: logbookCount, color: '#F7A21B' },
       ];
@@ -563,6 +579,39 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       } catch (_) { /* empty-catch-allow: the chip is an explainer, never a blocker */ }
     }
     try { _setAssistantScopeChip(); } catch (_) { /* empty-catch-allow */ }
+
+    // T16/T89: the quota the gateway already reports, said as a warning while there is still
+    // time to act on it. Declared here - above every async caller - so no path reads it in a
+    // temporal dead zone.
+    let _lastRemaining = null;
+    // T16 quota-seam, pre-ask half (2026-09-02): the note painted only AFTER the first answer of a
+    // SESSION, so the walk's worker typed an expensive question with no idea they were near the
+    // wall. The gateway's `remaining` is now PERSISTED (wh_ai_remaining: {n, at}) and restored at
+    // startChat, bounded to 12h so a yesterday's-low never wrongly warns after the daily window
+    // reset. Honest floor: a brand-new session with no history still shows nothing until the first
+    // answer - a last-KNOWN count is the most the client can truthfully claim pre-ask.
+    try {
+      const _q = JSON.parse(localStorage.getItem('wh_ai_remaining') || 'null');
+      if (_q && typeof _q.n === 'number' && (Date.now() - (_q.at || 0)) < 12 * 3600 * 1000) _lastRemaining = _q.n;
+    } catch (_) { /* empty-catch-allow: storage blocked -> no pre-ask floor */ }
+    function _paintQuotaNote() {
+      try {
+        const el = document.getElementById("assistant-quota-note");
+        if (!el) return;
+        if (typeof _lastRemaining === 'number') {
+          try { localStorage.setItem('wh_ai_remaining', JSON.stringify({ n: _lastRemaining, at: Date.now() })); } catch (_) { /* empty-catch-allow */ }
+        }
+        const q = (typeof window.whQuotaNotice === "function")
+          ? window.whQuotaNotice(_lastRemaining) : { text: "", level: "none" };
+        if (q.level === "low" || q.level === "out") {
+          el.textContent = q.text;
+          el.style.display = "";
+        } else {
+          el.textContent = "";
+          el.style.display = "none";
+        }
+      } catch (_) { /* empty-catch-allow: a notice must never block the conversation */ }
+    }
 
     async function buildSystemPrompt(name, contextNote) {
       const pastDate   = new Date(Date.now() - 3  * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
@@ -692,7 +741,7 @@ STAGE 2: Team Tools:
 - PM Scheduler (pm-scheduler.html): Register assets, assign PM checklists by category, set frequencies (Monthly/Quarterly/Semi-Annual/Yearly). Completing a PM can auto-create a logbook entry. Logbook and PM Scheduler are bidirectionally linked.
 - Skill Matrix (skillmatrix.html): 5-level competency tracking (Awareness→Master) across Mechanical, Electrical, Instrumentation, Facilities Management, Production Lines disciplines. Exams, badges, radar chart, team skill coverage.
 - Resume / CV Builder (resume.html): Build a professional, ATS-friendly resume from your WorkHive skills, badges and logbook. Upload a photo, PDF, Word, or Excel file; AI fills the details into an editable checklist you control. Export to PDF or JSON.
-- Engineering Calculator (engineering-design.html): 46 calculation types across Mechanical, HVAC, Electrical, Fire Protection, Plumbing, Structural, Machine Design, Vertical Transportation. Each generates a report with BOM/SOW. Built to PEC 2017, PSME, NFPA, IEC, ISO, ASME, DOLE OSHS.
+- Engineering Calculator (engineering-design.html): 55 calculation types across HVAC & Cooling, Mechanical, Electrical, Plumbing, Fire Protection, and Machine Design. Each generates a report with BOM/SOW. Built to PEC 2017, PSME, NFPA, IEC, ISO, ASME, DOLE OSHS.
 - Analytics Engine (analytics.html): 4-phase dashboard: (1) Descriptive: MTBF/MTTR (ISO 14224), OEE (ISO 22400-2 / Nakajima TPM), PM Compliance (SMRP), Pareto. (2) Diagnostic: failure modes (IEC 60812 FMEA), PM-failure correlation, RCM consequence classification (SAE JA1011). (3) Predictive: next failure date, health score 0-100, sensor anomaly detection (Z-score 3-sigma), stockout forecast (ISO 13381-1). (4) Prescriptive: priority ranking, PM optimization, AI action plan (ISO 55000). Run with 30/90/180 days or 1 year.
 - Analytics Report (analytics-report.html): Print-ready PDF report compiled from all 4 analytics phases in one pass. Editable cover page (Project / Client / Prepared by), RAG executive summary (P1/P2/On-Track tiles), Findings (top failure modes, MTBF, parts, PM-failure correlation), Predictive outlook (forecasted failures + composite health), AI-synthesised Action Plan in SOW-clause format, drilldowns, and signature block. Standards: ISO 14224, ISO 13381-1, ISO 55000, SAE JA1011, SMRP. Use this for client deliverables and management briefs.
 - Report Sender (report-sender.html): PWA tool for generating and emailing maintenance reports. Select report types (PM Overdue, Failure Digest, Shift Handover, Predictive), save contacts, use voice context, send to multiple recipients. Installable as a home screen app.
@@ -828,9 +877,27 @@ happens to know maintenance, not a manual.`;
       // every chat open and shaped nothing. The function is kept, not deleted, because it is the
       // obvious hook if per-asker grounding is ever wanted again - but it should not run until
       // something consumes it.
-      const [lc] = await Promise.all([
-        db.from('v_logbook_truth').select('id', { count: 'exact', head: true }).eq('worker_name', workerName),
-      ]);
+      // T40 (2026-08-25): an ABORT-shaped outage REJECTS this await (a 500 resolves with {error};
+      // a killed/blocked fetch rejects) - and with no catch, startChat died mid-flight and the
+      // welcome never painted: an eternal typing indicator, the stuck-skeleton class. Measured by
+      // prove_retry_path (routes aborted from load): SILENT at any settle. Catch -> lc null ->
+      // the lcUnknown branch below already speaks the honest sentence.
+      // "records" is not just the logbook: a vehicle owner who added a car (asset + PM schedule)
+      // but hasn't logged a repair yet HAS grounding data (VP-G walk: the fresh rider with a Click
+      // 125i + 14 PM tasks was told "you don't have any records yet"). Count assets + PM scope too,
+      // solo lane included (hive_id NULL + own auth_uid).
+      let lc = null, ac = null, pc = null;
+      try {
+        const _uid = _authedUser && _authedUser.id;
+        const scopeOwn = (q) => whHiveId()
+          ? q.or(`hive_id.eq.${whHiveId()},and(hive_id.is.null,auth_uid.eq.${_uid})`)
+          : q.is('hive_id', null).eq('auth_uid', _uid);
+        [lc, ac, pc] = await Promise.all([
+          db.from('v_logbook_truth').select('id', { count: 'exact', head: true }).eq('worker_name', workerName),
+          _uid ? scopeOwn(db.from('asset_nodes').select('id', { count: 'exact', head: true })) : Promise.resolve({ count: 0 }), // canonical-allow: lightweight solo hasRecords count (not a truth read); scoped by hive_id/auth_uid via scopeOwn
+          _uid ? scopeOwn(db.from('pm_assets').select('id', { count: 'exact', head: true })) : Promise.resolve({ count: 0 }), // canonical-allow: solo lane needs auth_uid scope; v_pm_compliance_truth is hive_id-only; scoped hive_id/auth_uid via scopeOwn
+        ]);
+      } catch (_) { lc = null; /* empty-catch-allow: rejection = unknown, the lcUnknown branch owns the sentence */ }
       removeTypingIndicator();
 
       /* THE COMMENT ABOVE FIXED THE RACE AND LEFT THE ERROR. A head:true COUNT resolves with
@@ -840,23 +907,29 @@ happens to know maintenance, not a manual.`;
          premise. To a worker with three years of logbook entries, that is the platform telling them
          their history is gone. Unknown is its own branch: say what happened and claim nothing. */
       const lcUnknown = !lc || lc.error || lc.count === null || lc.count === undefined;
-      const hasRecords = !lcUnknown && lc.count > 0;
+      // a known-good count of assets or PM tasks counts as records even with an unknown logbook read
+      const _assetN = (ac && !ac.error && typeof ac.count === 'number') ? ac.count : 0;
+      const _pmN    = (pc && !pc.error && typeof pc.count === 'number') ? pc.count : 0;
+      const hasRecords = (!lcUnknown && lc.count > 0) || _assetN > 0 || _pmN > 0;
       /* Signed-out wins over lcUnknown: the read did fail, but naming the CAUSE is the
          difference between a dead end and a next step. The name below is the one they typed
          (KEY_WORKER is 'wh_last_worker', a convenience prefill), so it is never presented as
          an identity the platform has verified. */
       const recordsNote = !_authedUser
         ? "You're not signed in, so I can't reach your job records -- I only have the name you entered. Sign in to get answers grounded in your own history. I can still help with technical questions, procedures and calculations."
+        : hasRecords
+        // a POSITIVE signal (logbook OR assets/PM) wins over an unknown logbook read: a vehicle
+        // owner with a car + schedule has records even before their first logged repair
+        ? "I can see your job records and will reference them when relevant."
         : lcUnknown
         ? "I couldn't reach your job records just now, so I may not have them to hand. That does not mean they are missing. Ask me anything technical in the meantime, and try again in a moment for anything about your own history."
-        : hasRecords
-        ? "I can see your job records and will reference them when relevant."
         : "You don't have any records yet. Add logbook entries or parts to unlock personalised insights. For now I can help with technical questions, procedures, or anything on your mind.";
       addAssistantBubble(`Hi ${workerName}! I'm your WorkHive Work Assistant. ${recordsNote}\n\nWhat do you need?`);
       // Arc P · Wave 3 (P1/P5): starter-prompt chips guide first use + fill the empty
       // chat void (was a blank area with no next step). Data-aware: grounded prompts
       // when the worker has records, general technical prompts when they don't.
       addStarterChips(hasRecords);
+      _paintQuotaNote();   // T16 pre-ask half: paint the restored last-known count BEFORE the first ask
       document.getElementById('chat-input').focus();
     }
 
@@ -1128,9 +1201,16 @@ happens to know maintenance, not a manual.`;
         // Previously only the fallback got RAG enrichment; now team knowledge base
         // context reaches the orchestrator on every question.
         const semanticContext = await getSemanticContext(text);
-        const enrichedQuestion = semanticContext
-          ? (text + '\n\n--- RELEVANT TEAM KNOWLEDGE (from fault history and skills) ---\n' + semanticContext + '\n--- END KNOWLEDGE ---')
-          : text;
+        // T12 THIRD SENDER (caught BY the journal-transcript gate's DB layer, 2026-09-02): this
+        // page used to bake the scaffold into `message` for BOTH gateway calls - and ai-gateway
+        // persists `message` VERBATIM as the journal transcript, so every enriched assistant
+        // question landed in the worker's journal wearing '--- RELEVANT TEAM KNOWLEDGE ---' (the
+        // exact class purged earlier; the gate caught the fresh row same-day). The knowledge now
+        // rides context.team_knowledge - the gateway re-redacts context, agents may consume it,
+        // and both agents are already grounded server-side (ops-snapshot + KB RAG), so the client
+        // block was belt-and-braces from the pre-gateway era. `message` is the worker's words.
+        const enrichedQuestion = text;   // name kept so downstream failure paths stay untouched
+        const _teamKnowledge = semanticContext || null;
 
         // Race an ai-gateway invoke against a timeout; unwrap the standard
         // envelope ({ ok, data:{answer}, ... }; error/gibberish paths are flat)
@@ -1150,7 +1230,25 @@ happens to know maintenance, not a manual.`;
         // The inline reply still rendered, so the page looked half-right: the specific sentence reached the
         // thread while the toast vanished, and my sweep reported the surface as saying NOTHING. A flag two
         // scopes apart from its reader is not a flag.
+        /* T146 (2026-08-28): A ZOMBIE FROM ONE ASK COULD MISLABEL THE NEXT ONE.
+           Promise.race does not cancel the loser - the invoke keeps running - and its .then/.catch
+           still wrote window.__whGatewayFailure whenever it eventually landed. That global is reset
+           at the top of every call (below) and READ afterwards to choose the sentence the person
+           sees: rate-limited, timed out, or failed. So the sequence was:
+             ask A times out at 25s        -> failure = 'timeout',   A's fallback shown
+             worker asks B                 -> failure reset to null
+             A's invoke finally resolves   -> failure = 'error' (or 'rate_limit')  <- ZOMBIE
+             B fails                       -> reads the global, blames A's cause
+           The cost is not a stray variable: whAiError exists to send someone to the RIGHT remedy,
+           and this hands them the wrong one - "wait for the rate limit" when they should retry, or
+           the reverse. It needs no race at all to bite; one slow ask followed by any second ask.
+           FIX: stamp each race with a generation and let a late handler write only while it is
+           still the current one. The zombie still resolves - we cannot cancel it - but it can no
+           longer speak for a question nobody asked it. */
+        let _gwGen = 0;
         async function _raceGatewayData(invokePromise, timeoutMs) {
+          const myGen = ++_gwGen;
+          const setFailure = (v) => { if (myGen === _gwGen) window.__whGatewayFailure = v; };
           window.__whGatewayFailure = null;
           const isRateLimited = (x) => {
             const s = (() => { try { return JSON.stringify(x); } catch (_) { return String(x); } })();
@@ -1160,17 +1258,17 @@ happens to know maintenance, not a manual.`;
           return Promise.race([
             invokePromise.then(r => {
               if (!r || r.error || !r.data) {
-                window.__whGatewayFailure = (r && r.error && isRateLimited(r.error)) ? 'rate_limit' : 'error';
+                setFailure((r && r.error && isRateLimited(r.error)) ? 'rate_limit' : 'error');
                 return null;
               }
               const env = r.data;
               return (env.ok === true && env.data && typeof env.data === 'object') ? env.data : env;
             }).catch((e) => {
-              window.__whGatewayFailure = isRateLimited(e) ? 'rate_limit' : 'error';
+              setFailure(isRateLimited(e) ? 'rate_limit' : 'error');
               return null;
             }),
             new Promise(resolve => setTimeout(() => {
-              if (!window.__whGatewayFailure) window.__whGatewayFailure = 'timeout';
+              if (myGen === _gwGen && !window.__whGatewayFailure) window.__whGatewayFailure = 'timeout';
               resolve(null);
             }, timeoutMs)),
           ]);
@@ -1194,14 +1292,28 @@ happens to know maintenance, not a manual.`;
               agent:   'assistant',
               message: enrichedQuestion,
               hive_id: hiveId,
-              context: { source: 'assistant-page' },
+              context: { source: 'assistant-page', team_knowledge: _teamKnowledge },
             },
           });
           // Preserve the 25s ceiling: if the chain is slow, fall back to the
           // personal assistant rather than hang behind the gateway's own 60s
           // downstream budget. Unwrap via the shared _raceGatewayData helper.
           const orchData = await _raceGatewayData(gwInvoke, 25000);
-          if (orchData && orchData.answer && !orchData.error) reply = orchData.answer;
+          if (orchData && orchData.answer && !orchData.error) {
+            // T16 stream-orphan guard (critic walk 2026-09-02): a downstream provider dying
+            // MID-GENERATION can surface here as a 200 whose answer is the first token(s) — the
+            // walk caught 'What did I log today?' answered by a bare 'I' (console 546), rendered
+            // as if complete because a truthy string IS a reply to this code. No legitimate
+            // assistant answer is a fragment: it either ends like a sentence or has real length.
+            // A fragment falls through to Step 2 (and Step 2's own floor throws to the inline
+            // error path, which restores the question) — never onto the glass as an answer.
+            const _a = String(orchData.answer).trim();
+            const _fragment = _a.length < 4 || (!/[.!?…]["')\]]?$/.test(_a) && _a.length < 12);
+            if (!_fragment) {
+              reply = _a;
+              if (typeof orchData.remaining === 'number') _lastRemaining = orchData.remaining;
+            }
+          }
         } catch { /* fall through */ /* empty-catch-allow: best-effort silent swallow */ }
 
         // ── Step 2: Fall back to the FAST conversational gateway agent ──
@@ -1222,7 +1334,7 @@ happens to know maintenance, not a manual.`;
               agent:   'voice-journal',
               message: enrichedQuestion,
               hive_id: hiveId,
-              context: { source: 'assistant-page-fallback' },
+              context: { source: 'assistant-page-fallback', team_knowledge: _teamKnowledge },
             },
           });
           const fbData = await _raceGatewayData(fbInvoke, 30000);
@@ -1252,7 +1364,16 @@ happens to know maintenance, not a manual.`;
               : (window.whAiError ? window.whAiError({ message: 'error' }) : 'Something went wrong. Please try again.')
                 + ' Nothing you typed was lost.');
           }
-          reply = fbData.answer;
+          // T16 stream-orphan guard, fallback half: the same mid-generation death can hand THIS
+          // path a fragment too. A fragment here has nowhere lower to fall — throw to the catch,
+          // whose inline bubble + input-restore is the designed failure surface.
+          const _fb = String(fbData.answer).trim();
+          if (_fb.length < 4 || (!/[.!?…]["')\]]?$/.test(_fb) && _fb.length < 12)) {
+            throw new Error((window.whAiError ? window.whAiError({ message: 'error' }) : 'Something went wrong. Please try again.')
+              + ' Nothing you typed was lost.');
+          }
+          reply = _fb;
+          if (typeof fbData.remaining === 'number') _lastRemaining = fbData.remaining;
         }
 
         removeTypingIndicator();
@@ -1261,6 +1382,23 @@ happens to know maintenance, not a manual.`;
         // clear-chat line, or the error bubble below (rating canned/error text
         // would poison the harvest). `text` holds the question for this turn.
         const replyEl = addAssistantBubble(reply);
+        // T2 S1 conversion nudge (2026-09-02): an anon could try the assistant (good) but the
+        // conversion moment - right after their first REAL answer - passed unmarked (the Sign Up
+        // CTA sits in the header, not beside the thing they just tried). One nudge, once per
+        // session, only for the signed-out, right under the answer they just got.
+        try {
+          if (!window.__whNudgedSignup) {
+            const { data: { user: _u } = { user: null } } = await db.auth.getUser();
+            if (!_u) {
+              window.__whNudgedSignup = true;
+              const _n = document.createElement('p');
+              _n.style.cssText = 'font-size:.68rem;margin:4px 0 0;color:rgba(255,255,255,0.75);';
+              _n.innerHTML = 'Answers like this get grounded in <b>your own logbook</b> once you have an account - <a href="index.html?signup=1&return=assistant.html" class="underline font-bold" style="color:var(--wh-blue-light);">sign up free</a>.';
+              replyEl && replyEl.appendChild(_n);
+            }
+          }
+        } catch (_) { /* empty-catch-allow: a nudge must never break the reply */ }
+        _paintQuotaNote();
         if (reply) _attachChatFeedback(replyEl, text, reply);
 
       } catch (err) {
@@ -1355,6 +1493,18 @@ happens to know maintenance, not a manual.`;
       // the canonical worker_name once the session resolves on a fresh device.
       if (typeof restoreIdentityFromSession === 'function') {
         restoreIdentityFromSession(db).catch(() => {});
+      }
+
+      // T85 (2026-08-26): the companion persona needs the identical treatment, and did not
+      // have it. getPersonaKey() reads localStorage only, and this page never bridged it to
+      // worker_profiles.preferred_persona - only index.html and voice-journal.html did. So a
+      // worker who chose Hezekiah on their phone and opened THIS page directly on a PC was
+      // answered by Zaniah while their account said Hezekiah: not a wrong default, an ignored
+      // choice, and silent because the wrong answer IS the default. Fire-and-forget like the
+      // identity refresh above - it lands long before anyone finishes typing a first message,
+      // and the persona is resolved at send time, not at load.
+      if (typeof window.hydratePersonaFromCloud === 'function') {
+        window.hydratePersonaFromCloud(db).catch(() => {});
       }
 
       const savedName = localStorage.getItem(KEY_WORKER) || /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ whWorker();

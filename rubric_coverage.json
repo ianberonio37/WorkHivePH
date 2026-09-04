@@ -1,11 +1,11 @@
 {
   "summary": {
-    "dims_total": 99,
-    "dims_accounted": 99,
-    "dims_with_pct": 91,
+    "dims_total": 102,
+    "dims_accounted": 102,
+    "dims_with_pct": 89,
     "board_pages": 32,
-    "board_mean": 100,
-    "s2_shared_chrome": 100,
+    "board_mean": 99,
+    "s2_shared_chrome": 99,
     "cross_page": {
       "S3": 94,
       "instances": 52,
@@ -21,7 +21,7 @@
       "verdict": "measured",
       "owner": "rubric-lens",
       "source": "family_rubric_scoreboard.json",
-      "pct": 100
+      "pct": 98
     },
     "A2": {
       "class": "A",
@@ -29,7 +29,7 @@
       "verdict": "measured",
       "owner": "rubric-lens",
       "source": "family_rubric_scoreboard.json",
-      "pct": 100
+      "pct": 97
     },
     "A3": {
       "class": "A",
@@ -37,7 +37,7 @@
       "verdict": "measured",
       "owner": "rubric-lens",
       "source": "family_rubric_scoreboard.json",
-      "pct": 100
+      "pct": 98
     },
     "B1": {
       "class": "B",
@@ -61,7 +61,7 @@
       "verdict": "measured",
       "owner": "rubric-lens",
       "source": "family_rubric_scoreboard.json",
-      "pct": 99
+      "pct": 83
     },
     "B4": {
       "class": "B",
@@ -85,7 +85,7 @@
       "verdict": "measured",
       "owner": "rubric-lens",
       "source": "family_rubric_scoreboard.json",
-      "pct": 100
+      "pct": 99
     },
     "C2": {
       "class": "C",
@@ -101,7 +101,7 @@
       "verdict": "measured",
       "owner": "rubric-lens",
       "source": "family_rubric_scoreboard.json",
-      "pct": 100
+      "pct": 99
     },
     "C3": {
       "class": "C",
@@ -165,7 +165,7 @@
       "verdict": "measured",
       "owner": "rubric-lens",
       "source": "family_rubric_scoreboard.json",
-      "pct": 100
+      "pct": 94
     },
     "E4": {
       "class": "E",
@@ -173,7 +173,7 @@
       "verdict": "measured",
       "owner": "rubric-lens",
       "source": "family_rubric_scoreboard.json",
-      "pct": 99
+      "pct": 100
     },
     "F1": {
       "class": "F",
@@ -181,7 +181,7 @@
       "verdict": "measured",
       "owner": "rubric-lens",
       "source": "family_rubric_scoreboard.json",
-      "pct": 100
+      "pct": 97
     },
     "F2": {
       "class": "F",
@@ -205,7 +205,7 @@
       "verdict": "measured",
       "owner": "rubric-lens",
       "source": "family_rubric_scoreboard.json",
-      "pct": 100
+      "pct": 97
     },
     "G2": {
       "class": "G",
@@ -213,7 +213,7 @@
       "verdict": "measured",
       "owner": "rubric-lens",
       "source": "family_rubric_scoreboard.json",
-      "pct": 100
+      "pct": 97
     },
     "G3": {
       "class": "G",
@@ -221,7 +221,7 @@
       "verdict": "measured",
       "owner": "rubric-lens",
       "source": "family_rubric_scoreboard.json",
-      "pct": 100
+      "pct": 94
     },
     "G4": {
       "class": "G",
@@ -237,7 +237,7 @@
       "verdict": "measured",
       "owner": "rubric-lens",
       "source": "family_rubric_scoreboard.json",
-      "pct": 100
+      "pct": 83
     },
     "H2": {
       "class": "H",
@@ -269,7 +269,7 @@
       "verdict": "judged",
       "owner": "battery",
       "source": "family_rubric_scoreboard.json",
-      "pct": 100
+      "pct": 98
     },
     "I2": {
       "class": "I",
@@ -277,7 +277,7 @@
       "verdict": "measured",
       "owner": "rubric-lens",
       "source": "family_rubric_scoreboard.json",
-      "pct": 100
+      "pct": 97
     },
     "J1": {
       "class": "J",
@@ -285,7 +285,7 @@
       "verdict": "measured",
       "owner": "rubric-lens",
       "source": "family_rubric_scoreboard.json",
-      "pct": 100
+      "pct": null
     },
     "J2": {
       "class": "J",
@@ -309,7 +309,7 @@
       "verdict": "measured",
       "owner": "rubric-lens",
       "source": "family_rubric_scoreboard.json",
-      "pct": 100
+      "pct": 95
     },
     "L1": {
       "class": "L",
@@ -349,7 +349,7 @@
       "verdict": "measured",
       "owner": "rubric-lens",
       "source": "family_rubric_scoreboard.json",
-      "pct": 100
+      "pct": 96
     },
     "O1": {
       "class": "O",
@@ -397,7 +397,7 @@
       "verdict": "measured",
       "owner": "rubric-lens",
       "source": "family_rubric_scoreboard.json",
-      "pct": 100
+      "pct": 96
     },
     "R4": {
       "class": "R",
@@ -429,7 +429,7 @@
       "verdict": "measured",
       "owner": "family-sweep",
       "source": "family board W2 (shared-chrome) + codebase-integrity nav-registry",
-      "pct": 100
+      "pct": 99
     },
     "S3": {
       "class": "S",
@@ -525,7 +525,7 @@
       "verdict": "measured",
       "owner": "rubric-lens",
       "source": "family_rubric_scoreboard.json",
-      "pct": 100
+      "pct": 99
     },
     "Z1": {
       "class": "Z",
@@ -557,7 +557,7 @@
       "verdict": "measured",
       "owner": "rubric-lens",
       "source": "family_rubric_scoreboard.json",
-      "pct": 100
+      "pct": 99
     },
     "X2": {
       "class": "X",
@@ -773,7 +773,7 @@
       "verdict": "measured",
       "owner": "rubric-lens",
       "source": "family_rubric_scoreboard.json",
-      "pct": 100
+      "pct": null
     },
     "Q2": {
       "class": "Q",
@@ -806,6 +806,30 @@
       "owner": "journey-validator",
       "source": "journey_ux_dims_report.json (validate_journey_ux_dims.py)",
       "pct": 100.0
+    },
+    "CV1": {
+      "class": "CV",
+      "title": "Primary-CTA activation (every primary-styled CTA, clicked as anon at 390+1280, produces an observable consequence: navigation | modal | scroll | focus | mutation burst; a still-inert primary after the reveal gesture is the defect)",
+      "verdict": "measured",
+      "owner": "journey-validator",
+      "source": "journey_ux_dims_report.json (validate_journey_ux_dims.py)",
+      "pct": null
+    },
+    "CV2": {
+      "class": "CV",
+      "title": "Auth-wall doors (every wall a signed-out visitor meets offers BOTH clickable doors \u2014 sign in AND create account \u2014 carrying ?return=; dead toasts and bare-marketing-landings fail)",
+      "verdict": "measured",
+      "owner": "journey-validator",
+      "source": "journey_ux_dims_report.json (validate_journey_ux_dims.py)",
+      "pct": null
+    },
+    "CV3": {
+      "class": "CV",
+      "title": "Funnel completion (cold anon -> primary CTA -> real signup -> DB-verified account -> signed-in value, with per-door source attribution)",
+      "verdict": "measured",
+      "owner": "journey-validator",
+      "source": "journey_ux_dims_report.json (validate_journey_ux_dims.py)",
+      "pct": null
     }
   }
 }

@@ -7,9 +7,9 @@ as an HTML comment on the capture page.
 
 ## Summary
 
-- Capture fields discovered:  **266**
+- Capture fields discovered:  **276**
 - Framework names skipped:    **2** (submit, search, csrf, ...)
-- Alive (≥1 consumer):        **264** ✅
+- Alive (≥1 consumer):        **274** ✅
 - Phantom (0 consumers):      **0** ❌
 - Allowlisted (justified):    **0**
 
@@ -18,7 +18,7 @@ as an HTML comment on the capture page.
 _None — every capture has at least one downstream consumer. Schema discipline is currently good; the gate locks this in against future drift._
 
 
-## Low-usage candidates — `consumer_count == 1` (22)
+## Low-usage candidates — `consumer_count == 1` (25)
 
 Fields read in exactly one place. Likely fine (single-purpose),
 but worth a scan for vestigial half-wired fields.
@@ -44,6 +44,9 @@ but worth a scan for vestigial half-wired fields.
 | `svc-rate-comment-` | marketplace.html |
 | `svc-reg-name` | marketplace-seller.html |
 | `svc-vcode-` | marketplace.html |
+| `veh-doc-file` | integrations.html |
+| `veh-ins` | integrations.html |
+| `veh-reg` | integrations.html |
 | `vm-kind` | founder-console.html |
 | `vm-maxuses` | founder-console.html |
 | `vm-segment` | founder-console.html |

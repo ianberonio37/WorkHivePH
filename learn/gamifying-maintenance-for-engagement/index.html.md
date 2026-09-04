@@ -10,7 +10,7 @@ By **WorkHive Editorial Team**
 ·
 Published 17 May 2026
 ·
-Updated 17 May 2026
+Updated 24 Aug 2026
 ·
 7 min read
 
@@ -85,7 +85,7 @@ The tool this guide is about
 
 XP for documented entries, peer-rated quality, PM on-time, fault-recurrence prevention, skill matrix advancement, Community helpfulness. Badges that survive the rarity test and stack with the Skill Matrix. Worker-owned (portable across employers). Free at the worker tier; corporate roll-up unlocks at Stage 4.
 
-No hive yet? [Join WorkHive](https://workhiveph.com/#join) first (free, takes 30 seconds).
+No hive yet? [Join WorkHive](https://workhiveph.com/?signup=1) first (free, takes 30 seconds).
 
 ## Frequently asked questions
 
@@ -122,4 +122,4 @@ Mature WorkHive customers do not. The framing matters: do not call them "badges 
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 5d720f51ce7eaa7c -->
+<!-- md-twin source-sha: e3cdb83a692234f5 -->

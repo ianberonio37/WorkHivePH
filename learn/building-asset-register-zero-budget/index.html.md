@@ -10,7 +10,7 @@ By **WorkHive Editorial Team**
 ·
 Published 17 May 2026
 ·
-Updated 17 May 2026
+Updated 24 Aug 2026
 ·
 9 min read
 
@@ -93,7 +93,7 @@ The tool this guide is about
 
 Asset Hub holds your ISO 14224-aligned hierarchy, photos, criticality, PM links, fault history, parts consumption, and skill-assignment matrix per asset. Every other WorkHive surface (Logbook, PM Scheduler, Inventory, Skill Matrix, Analytics, AI Assistant) reads from Asset Hub as the single source of truth. Free at the worker tier; scoped access for contractors and suppliers unlocks at Stage 2.
 
-No hive yet? [Join WorkHive](https://workhiveph.com/#join) first (free, takes 30 seconds).
+No hive yet? [Join WorkHive](https://workhiveph.com/?signup=1) first (free, takes 30 seconds).
 
 ## Naming conventions that survive 5 years
 
@@ -174,4 +174,4 @@ Selectively. A contractor doing PM on the cooling water system needs to see thos
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: f0e139d3107630d1 -->
+<!-- md-twin source-sha: 8da38d1ee4a7c0eb -->

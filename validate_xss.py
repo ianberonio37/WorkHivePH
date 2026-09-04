@@ -1,4 +1,4 @@
-﻿"""
+"""
 XSS / escHtml Coverage Validator — WorkHive Platform
 ======================================================
 Cross-Site Scripting (XSS) is the #1 web vulnerability for platforms that
@@ -379,6 +379,171 @@ _STRING_LITERAL_RE = re.compile(
 )
 
 
+_REGEX_PRECEDERS = set("(,=:[!&|?{};+-*%~^<>") | {""}
+_REGEX_KEYWORDS = ("return", "typeof", "case", "in", "of", "do", "else", "yield", "await")
+
+
+def _scan_js_noise(text):
+    """Mark every character as code or noise, tracking template nesting with a stack.
+
+    Returns a bytearray-like list of booleans, True where the character is real code. Strings,
+    comments and regex literals are noise; the CODE inside a template's ${...} is not, which is the
+    whole reason a stack is needed - a backtick in there opens a further template.
+    """
+    n = len(text)
+    is_code = [True] * n
+    stack = []          # "tmpl" = inside a template's literal text; ints = brace depth in ${...}
+    i = 0
+    prev_sig = ""
+    while i < n:
+        ch = text[i]
+        in_tmpl = bool(stack) and stack[-1] == "tmpl"
+
+        if in_tmpl:
+            if ch == "\\":
+                if i + 1 < n:
+                    is_code[i] = False
+                    if text[i + 1] != "\n":
+                        is_code[i + 1] = False
+                i += 2
+                continue
+            if ch == "`":
+                is_code[i] = False
+                stack.pop()
+                i += 1
+                continue
+            if ch == "$" and i + 1 < n and text[i + 1] == "{":
+                is_code[i] = False          # the `${` itself is punctuation, but the `{` must
+                stack.append(0)             # count as a brace so the pair stays balanced
+                i += 2
+                continue
+            if ch != "\n":
+                is_code[i] = False
+            i += 1
+            continue
+
+        # --- code context ---
+        if ch == "/" and i + 1 < n and text[i + 1] == "/":
+            while i < n and text[i] != "\n":
+                is_code[i] = False
+                i += 1
+            continue
+        if ch == "/" and i + 1 < n and text[i + 1] == "*":
+            while i < n and not (text[i] == "*" and i + 1 < n and text[i + 1] == "/"):
+                if text[i] != "\n":
+                    is_code[i] = False
+                i += 1
+            if i < n:
+                is_code[i] = False
+            if i + 1 < n:
+                is_code[i + 1] = False
+            i += 2
+            continue
+        if ch in "'\"":
+            quote = ch
+            is_code[i] = False
+            i += 1
+            while i < n and text[i] != quote and text[i] != "\n":
+                if text[i] == "\\" and i + 1 < n:
+                    is_code[i] = False
+                    i += 1
+                is_code[i] = False
+                i += 1
+            if i < n and text[i] == quote:
+                is_code[i] = False
+                i += 1
+            prev_sig = quote
+            continue
+        if ch == "`":
+            is_code[i] = False
+            stack.append("tmpl")
+            i += 1
+            continue
+        if ch == "/" and _is_regex_start(text, i, prev_sig):
+            is_code[i] = False
+            i += 1
+            in_class = False
+            while i < n and text[i] != "\n":
+                c = text[i]
+                if c == "\\" and i + 1 < n:
+                    is_code[i] = False
+                    is_code[i + 1] = False
+                    i += 2
+                    continue
+                is_code[i] = False
+                if c == "[":
+                    in_class = True
+                elif c == "]":
+                    in_class = False
+                elif c == "/" and not in_class:
+                    i += 1
+                    break
+                i += 1
+            prev_sig = "/"
+            continue
+        if stack and ch in "{}":
+            # inside a ${...}: track depth so the closing brace returns us to template text
+            if ch == "{":
+                stack[-1] += 1
+            else:
+                if stack[-1] == 0:
+                    stack.pop()             # this `}` closes the ${...}
+                else:
+                    stack[-1] -= 1
+        if not ch.isspace():
+            prev_sig = ch
+        i += 1
+    return is_code
+
+
+def _is_regex_start(text, i, prev_sig):
+    """A slash quotes a regex after an operator or an opening bracket, and divides after a value."""
+    if prev_sig in _REGEX_PRECEDERS:
+        return True
+    if prev_sig.isalnum() or prev_sig in "_$)]":
+        head = text[max(0, i - 12):i].rstrip()
+        return any(head.endswith(k) for k in _REGEX_KEYWORDS)
+    return False
+
+
+def _blank_js_noise(lines):
+    """Blank string, comment and regex characters, preserving line count and length.
+
+    A `{` inside any of those is not a brace, and the scope walk below counts braces. Length is
+    preserved so a column index into the original line still points at the same character.
+    """
+    text = "\n".join(lines)
+    flags = _scan_js_noise(text)
+    out = "".join(c if (flags[k] or c == "\n") else " " for k, c in enumerate(text))
+    return out.split("\n")
+
+
+def _enclosing_scope_text(neutral, use_line, use_col):
+    """Text of every scope ENCLOSING a callsite, with sibling and nested blocks removed.
+
+    Walks backwards from the callsite counting braces. A `}` opens a balanced block whose contents
+    belong to a scope the callsite is NOT inside - a sibling function, an earlier if/for body - and
+    is skipped until its `{`. A `{` seen at depth zero is unmatched, meaning the walk just stepped
+    OUT one level, so collecting simply continues into the parent. What comes back is exactly what
+    JS name resolution would see from that callsite, so an inherited declaration is found and a
+    sibling's is not.
+    """
+    kept = []
+    depth = 0
+    for j in range(use_line, -1, -1):
+        seg = neutral[j][:use_col] if j == use_line else neutral[j]
+        for ch in reversed(seg):
+            if ch == "}":
+                depth += 1
+            elif ch == "{":
+                if depth:
+                    depth -= 1
+            elif depth == 0:
+                kept.append(ch)
+        kept.append("\n")
+    return "".join(reversed(kept))
+
+
 def check_esc_html_shorthand_undeclared():
     r"""Catch the bug class found in the 2026-05-13 walkthrough:
     a renderer references the `e(...)` shorthand without declaring
@@ -435,6 +600,7 @@ def check_esc_html_shorthand_undeclared():
         # depth at that line is zero via a balanced-brace counter from the
         # start of the first `<script>` block).
         has_global_e = _has_global_e_declaration(content, decl_re)
+        neutral = _blank_js_noise(lines)
 
         seen_lines = set()
         for i, line in enumerate(lines):
@@ -464,17 +630,23 @@ def check_esc_html_shorthand_undeclared():
             # above already anticipated "string literal" for the typeof-guard shape; a literal that
             # contains a genuine inline function expression is the same shape wearing arguments.
             # Reported 2026-08-04 after the GCash top-up double-submit fix introduced the handler.
-            scope_start = 0
-            for j in range(i - 1, -1, -1):
-                probe = _STRING_LITERAL_RE.sub("''", re.sub(r"//.*$", "", lines[j]))
-                stripped = probe.strip()
-                if stripped.startswith("*") or stripped.startswith("/*"):
-                    continue
-                if func_open_re.search(probe):
-                    scope_start = j
-                    break
-            context = "\n".join(lines[scope_start:i + 1])
-            if decl_re.search(context):
+            # SCOPE BY BRACES, not by line distance. An inner `function` expression CLOSES OVER
+            # its parent's `e`, exactly as an arrow does - the header already grants arrows that
+            # grace, and `data.map(function (r) {...})` is the same shape wearing a keyword.
+            # Measured on marketplace.html:1940-1942, where `const e = escHtml` sits nine lines up
+            # in the enclosing function and the code runs correctly: treating the first
+            # function-open as a hard boundary reported three ReferenceErrors against working code.
+            # Walking OUTWARD by line number fixed that and broke the opposite case - a preceding
+            # SIBLING function's declaration rescued a callsite it cannot reach - so the walk now
+            # follows braces instead, which is what the language does. Balanced {...} blocks are
+            # skipped (siblings, earlier bodies); an unmatched `{` means we stepped out a level.
+            # Third variant of a class this check has been burned by twice, both about believing a
+            # boundary that was not one: a comment read as a function opening, then a string
+            # literal read as one. This one is about a boundary that IS one, and still inherits.
+            m_use = use_re.search(line)
+            scope_text = _enclosing_scope_text(neutral, i, m_use.start() if m_use else len(line))
+            scope_start = i
+            if decl_re.search(scope_text):
                 continue
             issues.append({
                 "check": "esc_html_shorthand_undeclared",
@@ -483,7 +655,7 @@ def check_esc_html_shorthand_undeclared():
                 "reason": (
                     f"{page}:{i+1} uses `e(...)` shorthand for escHtml but "
                     f"no `const e = escHtml` declaration in the enclosing "
-                    f"function (scope starts at line {scope_start+1}) and "
+                    f"function or any scope enclosing line {scope_start+1}, and "
                     f"no top-level declaration in the file. ReferenceError "
                     f"at runtime. Fix: add `const e = escHtml;` at the top "
                     f"of the function OR at the top of the script block."
@@ -506,17 +678,28 @@ def _has_global_e_declaration(content, decl_re):
     if open_close < 0:
         return False
     body = content[open_close + 1:]
+    raw_lines = body.splitlines()
+    # Blank strings and comments before counting: a brace inside either is not a brace, and a `}`
+    # in a string would deflate the depth and turn a nested declaration into a "global" one.
+    quiet = _blank_js_noise(raw_lines)
     depth = 0
-    pos = 0
-    for line in body.splitlines(keepends=True):
-        if depth == 0 and decl_re.search(line):
-            return True
-        for ch in line:
+    for raw, line in zip(raw_lines, quiet):
+        # Depth is judged at each match's OWN column, not at the line's start. A whole function or
+        # arrow body written on one line begins at depth 0, so a line-start test reads its inner
+        # declarations as script-level and then waves the entire page through unchecked.
+        starts = [m.start() for m in decl_re.finditer(raw)]
+        nxt = 0
+        for idx, ch in enumerate(line):
+            while nxt < len(starts) and starts[nxt] == idx:
+                if depth == 0:
+                    return True
+                nxt += 1
             if ch == '{':
                 depth += 1
             elif ch == '}':
                 depth = max(0, depth - 1)
-        pos += len(line)
+        if nxt < len(starts) and depth == 0:
+            return True
     return False
 
 
@@ -533,8 +716,11 @@ def check_ilike_wildcard_escape():
         const safeSV = rawSearch.replace(/%/g, '\\\\%').replace(/_/g, '\\\\_');
         query.or(`field.ilike.%${safeSV}%,...`);
 
-    The check: any .or( or .ilike( call with %${VAR}% interpolation where
-    VAR does NOT have a preceding .replace(/%/g pattern within 20 lines.
+    The check: any .or( or .ilike( call with %${VAR}% interpolation whose VAR is not neutralised
+    by its own most recent assignment. The search is anchored on that assignment rather than a
+    fixed line window - a window has a cliff (logbook assigned safeSV twenty-ONE lines above its
+    use and read as unescaped) and, worse, lets an unsafe REASSIGNMENT pass so long as some safe
+    idiom also appears somewhere in it. The last assignment is what the variable actually holds.
     """
     issues = []
     for page in LIVE_PAGES:
@@ -556,12 +742,49 @@ def check_ilike_wildcard_escape():
             #   (b) STRIP :  var = ....replace(/[ ...%..._... ]/g, ' ')  (a char-class that
             #       removes both % and _ - safe inside a PostgREST .or() where backslash-
             #       escaping cannot be used). Stripping is at least as safe as escaping.
-            look_back = max(0, i - 20)
-            context = "\n".join(lines[look_back:i + 1])
             v = re.escape(var_name)
+            # Walk back to the variable's most recent assignment and judge THAT - see the docstring.
+            assign_re = re.compile(rf'\b{v}\s*=(?!=)')
+            assign_at = None
+            for j in range(i, -1, -1):
+                if assign_re.search(lines[j]):
+                    assign_at = j
+                    break
+            if assign_at is None:
+                # for-of terms (`for (const _term of safeSV.split(...))`) have no `=` — resolve
+                # ONE level to the iterated source and judge ITS assignment (2026-09-03; the same
+                # blindness the punctuation gate had: the loop's terms come from a
+                # whSafeSearchTerm-produced variable and read as never-assigned).
+                fo = re.search(rf"for\s*\(\s*(?:const|let|var)\s+{v}\s+of\s+(\w+)", "\n".join(lines))
+                if fo:
+                    src_v = re.escape(fo.group(1))
+                    src_assign_re = re.compile(rf"\b{src_v}\s*=(?!=)")
+                    for j in range(i, -1, -1):
+                        if src_assign_re.search(lines[j]):
+                            assign_at = j
+                            v = src_v
+                            break
+            if assign_at is None:
+                issues.append({
+                    "check": "ilike_wildcard_escape",
+                    "page": page,
+                    "line": i + 1,
+                    "reason": f"{page}:{i+1} — {var_name} is interpolated into an ilike pattern but "
+                              f"never assigned in this file; its wildcards cannot be accounted for",
+                })
+                continue
+            context = "\n".join(lines[assign_at:i + 1])
             escape_idiom = re.search(rf'{v}\s*=.*\.replace\s*\(\s*/%/.*\.replace\s*\(\s*/_/', context)
             strip_idiom  = re.search(rf'{v}\s*=.*\.replace\s*\(\s*/\[(?=[^\]]*%)(?=[^\]]*_)[^\]]*\]', context)
-            safe_pattern = escape_idiom or strip_idiom
+            #   (c) CENTRAL HELPER: var = whSafeSearchTerm(...) - utils.js, which strips the
+            #       PostgREST or() delimiters , ( ) and the backslash AND escapes % and _. It does
+            #       strictly more than either open-coded idiom above, and exists because escaping
+            #       alone never prevented the failure a comma caused: a measured HTTP 400, "failed
+            #       to parse logic tree", which rejected the whole filter rather than widening it.
+            #       A page adopting the central path must not read as less safe than one spelling
+            #       the idiom out by hand.
+            helper_idiom = re.search(rf'{v}\s*=[^;]*whSafeSearchTerm\s*\(', context)
+            safe_pattern = escape_idiom or strip_idiom or helper_idiom
             if not safe_pattern:
                 issues.append({
                     "check": "ilike_wildcard_escape",

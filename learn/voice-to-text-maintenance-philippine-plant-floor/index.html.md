@@ -10,7 +10,7 @@ By **WorkHive Editorial Team**
 ·
 Published 17 May 2026
 ·
-Updated 17 May 2026
+Updated 24 Aug 2026
 ·
 8 min read
 
@@ -70,7 +70,7 @@ The tool this guide is about
 
 Tap to record, speak in Filipino, English, or Taglish, confirm the transcription in 5 seconds, submit. The entry lands in your hive's Logbook with the right asset tag and timestamp, ready for the AI Assistant to reference and the supervisor to review. Free at the worker tier; 90-day audio retention for compliance dispute resolution.
 
-No hive yet? [Join WorkHive](https://workhiveph.com/#join) first (free, takes 30 seconds).
+No hive yet? [Join WorkHive](https://workhiveph.com/?signup=1) first (free, takes 30 seconds).
 
 ## Compliance and DOLE OSHS
 
@@ -137,4 +137,4 @@ Yes. Voice recordings are encrypted in transit and at rest. Transcripts are scop
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: ab176ebc110d25ba -->
+<!-- md-twin source-sha: a6c180bc52246b24 -->

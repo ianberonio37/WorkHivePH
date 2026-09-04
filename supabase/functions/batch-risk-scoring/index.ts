@@ -99,10 +99,10 @@ serveObserved("batch-risk-scoring", async (req) => {
         const _rq = await checkRouteRateLimit(db, reqHiveId || "", "batch-risk-scoring");
         // Denies ONLY when an explicit hive_route_quotas row exists (rq.per_route), so this stays
         // a no-op until an admin sets a cap - while always counting for attribution.
-        if (_rq.per_route && !_rq.allowed) return routeRateLimitedResponse(corsHeaders, "batch-risk-scoring", _rq.cap);
+        if (_rq.per_route && !_rq.allowed) return routeRateLimitedResponse(corsHeaders, "batch-risk-scoring", _rq.cap, _rq.retry_after_seconds);
       } catch { /* empty-catch-allow: per-surface quota bookkeeping must never fail a real request */ }
       const rl = await checkAIRateLimit(db, reqHiveId);
-      if (!rl.allowed) return rateLimitedResponse(corsHeaders);
+      if (!rl.allowed) return rateLimitedResponse(corsHeaders, rl.scope ?? "hour", rl.retry_after_seconds);
 
       const { data: oneHive, error: oneErr } = await db
         .from("v_hives_truth").select("id, name").eq("id", reqHiveId).maybeSingle();
@@ -193,7 +193,11 @@ async function scoreHive(
         .limit(2000),
 
       db.from("v_pm_compliance_truth")
-        .select("id:pm_asset_id, asset_name, tag_id, category")
+        // PB-001 fix, half 2 (2026-09-02): last_anchor_date was NEVER SELECTED, so even a
+        // successful pmByName hit found pa.last_anchor_date === undefined and fell to the
+        // "No PM data linked" default — the factor could not be true for ANY asset. The
+        // name/tag keying (half 1) and this missing column were two halves of one defect.
+        .select("id:pm_asset_id, asset_name, tag_id, category, last_anchor_date")
         .eq("hive_id", hiveId),
 
       // inventory_transactions has no part_name column — only item_id (FK
@@ -541,10 +545,22 @@ function buildCompositeScoresV2(input: CompositeInput) {
 
   // Index PM data by asset_name so the PM-overdue factor can read real
   // last_anchor_date / category instead of the previous fixed 50.
+  // PB-001 false-factor fix (critic C10, 2026-09-02): this map was keyed by EXACT-CASE
+  // asset_name while the lookup used logbook's free-text machine string — so 'PB-001' vs
+  // 'Pressure Boiler PB-001' (or a case difference) silently missed, and the factor claimed
+  // "No PM data linked" (+medium-overdue risk) on the same screen that counted 14 PM
+  // completions — a wrong number born from a join miss, not from the plant. The reliability
+  // bridge 10 lines down already normalizes (lower-cased, trimmed, name AND tag keys); the
+  // PM bridge now does the same.
   const pmByName: Record<string, PmAssetRow> = {};
   const completionsByAssetId: Record<string, PmCompletionRow[]> = {};
+  const _pmNorm = (s: string | null | undefined) => String(s || "").trim().toLowerCase();
   for (const pa of input.pm_assets) {
-    if (pa.asset_name) pmByName[pa.asset_name] = pa;
+    // Key by BOTH name and tag (the select already fetches tag_id): logbook's machine is
+    // usually the TAG ('PB-001') while pm_assets carries the display name ('Caterpillar
+    // 3516B') — name-only keying is how PB-001's 14 completions went unseen.
+    if (pa.asset_name) pmByName[_pmNorm(pa.asset_name)] = pa;
+    if ((pa as { tag_id?: string }).tag_id) pmByName[_pmNorm((pa as { tag_id?: string }).tag_id)] = pa;
   }
   for (const pc of input.pm_completions) {
     const k = pc.asset_id || "";
@@ -616,7 +632,7 @@ function buildCompositeScoresV2(input: CompositeInput) {
     // value = clamp((days_since_last_anchor - 30) / 60, 0, 1). 30d = 0, 90d = 1.
     let pmValue = 0.5;
     let pmExplanation = "No PM data linked to this machine; assumed medium overdue.";
-    const pa = pmByName[machine];
+    const pa = pmByName[_pmNorm(machine)];
     if (pa && pa.last_anchor_date) {
       const anchor = new Date(pa.last_anchor_date).getTime();
       if (!isNaN(anchor)) {

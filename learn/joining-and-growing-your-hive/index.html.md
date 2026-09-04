@@ -10,7 +10,7 @@ By **WorkHive Editorial Team**
 ·
 Published 17 May 2026
 ·
-Updated 17 May 2026
+Updated 24 Aug 2026
 ·
 7 min read
 
@@ -56,7 +56,7 @@ This is one of the under-told values of WorkHive: it works as a personal profess
 
 Three steps:
 
-1. **Sign in or create an account.** Email plus password; takes about 30 seconds.
+1. **Sign in or create an account.** Username plus password, no email needed; takes about 30 seconds.
 2. **Find the hive.** Either enter the hive code your supervisor gave you, or search the directory for your plant by name.
 3. **Request to join.** Pick your role (field, supervisor, engineer). Supervisor sees the request and approves within minutes.
 
@@ -79,7 +79,7 @@ The tool this guide is about
 
 The Hive dashboard is the supervisor's home for the plant team: who is in the hive, who is requesting to join, current PM compliance, open issues, and adoption score. Set up your hive once and every other WorkHive tool inherits the membership and roles. Free at the worker tier; multi-site hive groups and corporate roll-up unlock at Stage 4.
 
-No hive yet? [Join WorkHive](https://workhiveph.com/#join) first (free, takes 30 seconds).
+No hive yet? [Join WorkHive](https://workhiveph.com/?signup=1) first (free, takes 30 seconds).
 
 ## Data isolation between hives
 
@@ -137,4 +137,4 @@ Each site is its own hive. The parent company can create a hive group that lets 
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 30b2e47550a0dcd9 -->
+<!-- md-twin source-sha: 04ae71663cb57363 -->

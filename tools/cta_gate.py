@@ -55,8 +55,13 @@ for _s in (sys.stdout, sys.stderr):
 # from the allowlist, every one of them present on disk and linked as the "Open X" button of
 # exactly the article it belongs to. Adding them corrects a MEASUREMENT, and the alternative
 # was 13 hand-edits to pages that were never broken.
+# T1 (2026-08-24): /?signup=1 joined the vocabulary — the public CTA retarget replaced the
+# /#join waitlist anchor with the real signup deep link platform-wide, and a gate that only
+# knew the OLD front door reported 3 truthfully-converting pages as CTA-less. Same lesson as
+# the eight tool pages above: teach the gate, don't bend the page. /#join stays recognized
+# (the self-test + any historical content still use it).
 ACTION_RE = re.compile(
-    r'href="(/#join|/engineering-design\.html|/logbook\.html|/pm-scheduler\.html|'
+    r'href="(/#join|/\?signup=1|/engineering-design\.html|/logbook\.html|/pm-scheduler\.html|'
     r'/skillmatrix\.html|/hive\.html|/assistant\.html|/analytics\.html|/inventory\.html|'
     r'/dayplanner\.html|/alert-hub\.html|/asset-hub\.html|/community\.html|/marketplace\.html|'
     r'/resume\.html|/voice-journal\.html|'

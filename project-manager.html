@@ -6,7 +6,7 @@
   <meta name="description" content="Project management for industrial shutdowns and overhauls. Critical-path tracking, daily progress, predecessor links." />
   <meta property="og:title" content="Project Manager · WorkHive" />
   <meta property="og:image" content="https://workhiveph.com/brand_assets/og-social.png" />
-  <link rel="canonical" href="https://workhiveph.com/workhive/project-manager.html" />
+  <link rel="canonical" href="https://workhiveph.com/project-manager.html" />
   <!-- capture: project_create_v1 (form) -->
   <!-- capture: project_change_order_v1 (form) -->
   <!-- capture: project_progress_log_v1 (form) -->
@@ -112,7 +112,7 @@
   .group.collapsed .group-chev { transform: rotate(-90deg); }
   .group.collapsed .group-content { display: none; }
   .group-content { padding: 12px; }
-  .group-content .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 12px; }
+  .group-content .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(310px, 100%), 1fr)); gap: 12px; }
 
   /* ── Empty state with type tiles (reuses wizard tile style) ── */
   .empty-tiles-wrap {
@@ -123,7 +123,12 @@
   .empty-tiles-sub { font-size: 0.88rem; color: var(--muted); text-align: center; margin-bottom: 18px; }
 
   /* ── Project cards ────────────────────────────────────────── */
-  .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 12px; }
+  /* min(310px, 100%) rather than a bare 310px: auto-fill still lays out multi-column wherever
+     there is room, but a bare floor of 310px is a floor the CONTAINER can be narrower than. At the
+     320 viewport main's 18px padding leaves 284px, the column stayed 310px, and every project card
+     - each one a tappable control that opens its project - sat exactly 8px past the right edge on
+     a page that does not scroll sideways, so nothing reported it. */
+  .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(310px, 100%), 1fr)); gap: 12px; }
   .pcard {
     background: var(--surface); border: 1px solid var(--border); border-radius: var(--wh-radius);
     padding: 14px 16px; cursor: pointer; transition: all 0.15s;
@@ -626,7 +631,7 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
         <input type="number" id="wiz-budget" min="0" step="100" placeholder="e.g. 250000">
         <div class="field-hint">Required for Earned Value tracking. Hidden for work-order and shutdown types unless you want it. WorkHive applies no VAT adjustment: the figure is stored exactly as you enter it, so use the basis your finance team tracks (VAT-inclusive or exclusive) and keep it consistent.</div>
       </div>
-      <div class="field"><label for="wiz-desc" data-i="description">Description</label><textarea id="wiz-desc" maxlength="2000" placeholder="Scope summary, drivers, success criteria…"></textarea></div>
+      <div class="field"><label for="wiz-desc" data-i="description">Description</label><textarea id="wiz-desc" maxlength="2000" placeholder="Scope summary, drivers, success criteria…"></textarea><p id="wiz-desc-count" style="text-align:right;font-size:0.7rem;color:rgba(255,255,255,0.80);margin:4px 0 0;">0 / 2000</p></div>
 
       <div style="margin: 16px 0 6px;">
         <strong style="font-size:0.92rem;">Scope items</strong>
@@ -684,7 +689,7 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
           <div class="field-hint">WorkHive applies no VAT adjustment: the figure is stored exactly as you enter it, so use the basis your finance team tracks (VAT-inclusive or exclusive) and keep it consistent.</div>
         </div>
       </div>
-      <div class="field"><label for="f-desc" data-i="description">Description</label><textarea id="f-desc" maxlength="2000" placeholder="Scope summary, drivers, success criteria…"></textarea></div>
+      <div class="field"><label for="f-desc" data-i="description">Description</label><textarea id="f-desc" maxlength="2000" placeholder="Scope summary, drivers, success criteria…"></textarea><p id="f-desc-count" style="text-align:right;font-size:0.7rem;color:rgba(255,255,255,0.80);margin:4px 0 0;">0 / 2000</p></div>
       <div class="modal-foot">
         <button type="button" class="btn ghost" onclick="closeModal('modal-project')" data-i="cancel">Cancel</button>
         <button type="submit" class="btn primary" id="f-submit" data-i="create">Create</button>
@@ -741,7 +746,7 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
         <select id="s-preds" multiple style="min-height: 80px;"></select>
         <div class="field-hint">Hold Ctrl/Cmd to select multiple. Drives critical-path calculation. Defaults to the previous item.</div>
       </div>
-      <div class="field"><label for="s-notes" data-i="notes">Notes</label><textarea id="s-notes" maxlength="1000" placeholder="Free-text notes (not the phase, that's above)."></textarea></div>
+      <div class="field"><label for="s-notes" data-i="notes">Notes</label><textarea id="s-notes" maxlength="1000" placeholder="Free-text notes (not the phase, that's above)."></textarea><p id="s-notes-count" style="text-align:right;font-size:0.7rem;color:rgba(255,255,255,0.80);margin:4px 0 0;">0 / 1000</p></div>
       <div class="modal-foot">
         <button type="button" class="btn ghost" onclick="closeModal('modal-scope')" data-i="cancel">Cancel</button>
         <button type="submit" class="btn primary" data-i="save">Save</button>
@@ -831,7 +836,7 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
     <h3 data-i="raiseco">Raise change order</h3>
     <form id="form-co" onsubmit="event.preventDefault(); saveChangeOrder();">
       <div class="field"><label for="co-title" data-i="title">Title *</label><input type="text" id="co-title" required maxlength="200" placeholder="e.g. Add seismic anchor restraints"></div>
-      <div class="field"><label for="co-scope" data-i="scopechange">Scope change *</label><textarea id="co-scope" required maxlength="2000" placeholder="What's changing in the scope. Be specific."></textarea></div>
+      <div class="field"><label for="co-scope" data-i="scopechange">Scope change *</label><textarea id="co-scope" required maxlength="2000" placeholder="What's changing in the scope. Be specific."></textarea><p id="co-scope-count" style="text-align:right;font-size:0.7rem;color:rgba(255,255,255,0.80);margin:4px 0 0;">0 / 2000</p></div>
       <div class="field"><label for="co-reason" data-i="reason">Reason</label>
         <select id="co-reason">
           <option value="">-</option>
@@ -852,6 +857,26 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
         <button type="submit" class="btn primary" data-i="submitapproval">Submit for approval</button>
       </div>
     </form>
+  </div>
+</div>
+
+<!-- T36 (2026-08-25): the calc->BOM->project chain's missing hop. engineering_calcs carries
+     bom_data + sow_text that NOTHING on this page read - the Contractor tile promised
+     "Extends Engineering Design BOM/SOW" while every computed BOM was re-typed by hand into
+     scope items. This modal lists the hive's saved calcs that carry a BOM and imports the
+     chosen one's items as project_items with quantities intact. -->
+<div id="modal-bom-import" class="modal-bg">
+  <div class="modal">
+    <h3>Import BOM from Engineering Design</h3>
+    <p class="small" style="color:var(--muted); margin:4px 0 10px;">
+      Each BOM line becomes a scope item with its quantity and unit kept in the title.
+      The BOM draft was AI-assisted in Engineering Design; review the imported items as you would any scope.
+    </p>
+    <div id="bom-import-list" style="max-height:340px; overflow-y:auto; display:flex; flex-direction:column; gap:6px;"></div>
+    <div id="bom-import-status" class="small" style="color:var(--muted); min-height:1.1em; margin-top:6px;"></div>
+    <div class="modal-foot">
+      <button type="button" class="btn ghost" onclick="closeModal('modal-bom-import')" data-i="cancel">Cancel</button>
+    </div>
   </div>
 </div>
 
@@ -876,7 +901,8 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
 
 <div id="toast-container"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
+<script src="browser-floor.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
 <script src="utils.js"></script>
 <script>
 /* ─────────────────────────────────────────────────────────────────────────
@@ -978,8 +1004,8 @@ async function validateHiveMembership() {
   // order let WORKER_NAME-gated workers redirect before _authUid was read,
   // hiding the auth gap. See PRODUCTION_FIXES.md #37.
   try { const { data: { session } } = await db.auth.getSession(); _authUid = session?.user?.id || null; } catch { /* empty-catch-allow: best-effort silent swallow */ }
-  if (!WORKER_NAME) { window.location.href = 'index.html?signin=1'; return; }
-  if (!_authUid)    { window.location.href = 'index.html?signin=1'; return; }
+  if (!WORKER_NAME) { whSignInWall(); return; }
+  if (!_authUid)    { whSignInWall(); return; }
 
   const isMember = await validateHiveMembership();
   if (!isMember) { $('hive-gate').style.display = 'flex'; return; }
@@ -1681,7 +1707,7 @@ function renderWizardTemplates() {
     return `<div class="template-card" data-tid="${e(t.id)}" onclick="wizardPickTemplate('${e(t.id)}')">
       <div class="template-card-name">${e(t.name)}</div>
       <div class="template-card-meta">
-        <span>📋 ${t.items.length} items</span>
+        <span>📋 ${t.items.length} ${t.items.length === 1 ? 'item' : 'items'}</span>
         <span>⏱ ~${totalH}h</span>
         <span>📅 ${t.duration_days} days</span>
         <span>🛠 ${e(t.discipline)}</span>
@@ -1701,11 +1727,11 @@ function renderWizardItems() {
   } else {
     list/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = _wizardState.items.map((it, idx) => `
       <div class="item-row ${it._checked ? '' : 'unchecked'}" data-idx="${idx}">
-        <input type="checkbox" ${it._checked ? 'checked' : ''} onchange="wizardToggleItem(${idx}, this.checked)">
+        <input type="checkbox" ${it._checked ? 'checked' : ''} onchange="wizardToggleItem(${idx}, this.checked)" aria-label="Include scope item ${e(it.title) || (idx + 1)}">
         <input type="text" value="${e(it.title)}" oninput="wizardEditItem(${idx}, 'title', this.value)" aria-label="Scope item title" placeholder="Scope item">
-        <input type="number" class="est-input" value="${it.est_h || ''}" oninput="wizardEditItem(${idx}, 'est_h', this.value)" min="0" step="0.5" title="Estimated hours">
+        <input type="number" class="est-input" value="${it.est_h || ''}" oninput="wizardEditItem(${idx}, 'est_h', this.value)" min="0" step="0.5" title="Estimated hours" aria-label="Estimated hours for ${e(it.title) || (idx + 1)}">
         <span class="phase-tag phase-${it.freq_phase || 'execute'}">${e(it.freq_phase || 'execute')}</span>
-        <button type="button" class="item-remove" onclick="wizardRemoveItem(${idx})" title="Remove">×</button>
+        <button type="button" class="item-remove" onclick="wizardRemoveItem(${idx})" title="Remove" aria-label="Remove scope item ${e(it.title) || (idx + 1)}">×</button>
       </div>
     `).join('');
   }
@@ -1764,7 +1790,7 @@ async function wizardSubmit() {
   const year = new Date().getFullYear();
   const { data: codeData, error: codeErr } = await db.rpc('generate_project_code',
     { p_hive_id: HIVE_ID, p_type: type, p_year: year });
-  if (codeErr) { showToast('Code gen failed: ' + codeErr.message, 'error'); resetCreateBtn(); return; }
+  if (codeErr) { showToast(whWriteError(codeErr, 'The project code could not be generated, so nothing was created. Try again.'), 'error'); resetCreateBtn(); return; }
   const projPayload = {
     hive_id: HIVE_ID, worker_name: WORKER_NAME, auth_uid: _authUid,
     project_code: codeData,
@@ -1781,7 +1807,7 @@ async function wizardSubmit() {
   // budget_php — SELECT on that column is revoked (mig 024/030), so the star 42501s and the
   // create fails even though the INSERT itself is legal. Only id is consumed below.
   const { data: ins, error: insErr } = await db.from('projects').insert(projPayload).select('id').single();
-  if (insErr) { showToast('Create failed: ' + insErr.message, 'error'); resetCreateBtn(); return; }
+  if (insErr) { showToast(whWriteError(insErr, 'The project was NOT created. Nothing was saved; your entries are still on the form.'), 'error'); resetCreateBtn(); return; }
 
   // 2. Batch insert scope items with sequential predecessors + auto-distributed dates
   if (checkedItems.length) {
@@ -1822,7 +1848,7 @@ async function wizardSubmit() {
       prevId = ids[idx];
     });
     const { error: itemErr } = await db.from('project_items').insert(itemRows);
-    if (itemErr) { showToast('Project created, but scope items failed: ' + itemErr.message, 'error'); }
+    if (itemErr) { showToast(whWriteError(itemErr, 'The project was created but its SCOPE ITEMS were not, so it starts empty. Open it and add them again.'), 'error'); }
   }
 
   showToast(`✓ Project ${codeData} created (${checkedItems.length} scope items) → shows in Project Report now · linkable to assets from Logbook & PM Scheduler`, 'success', 6000);
@@ -1850,7 +1876,7 @@ async function runAIIntent() {
     const { data, error } = await db.functions.invoke('project-orchestrator', {
       body: { phase: 'intent', transcript },
     });
-    if (error) { showToast(whAiError(error, 'AI failed'), 'error'); $('ai-intent-go').disabled = false; $('ai-intent-go').textContent = 'Parse with AI'; return; }
+    if (error) { showToast(await window.whFnError(error, 'The project assistant did not run. Nothing was changed; try again in a moment.'), 'error'); $('ai-intent-go').disabled = false; $('ai-intent-go').textContent = 'Parse with AI'; return; }
     if (data?._unavailable) { showToast('AI: ' + (data.reason || 'unavailable'), 'error'); $('ai-intent-go').disabled = false; $('ai-intent-go').textContent = 'Parse with AI'; return; }
     closeModal('modal-ai-intent');
     // Open wizard pre-filled from the AI payload
@@ -1882,7 +1908,7 @@ async function runAIIntent() {
     }, 50);
   } catch (e) {
     console.error('project-manager AI failed:', e);
-    showToast('AI failed: ' + e.message, 'error');
+    showToast(whAiError(e, 'The project narrative did not run. Nothing was changed.'), 'error');
     $('ai-intent-go').disabled = false;
     $('ai-intent-go').textContent = 'Parse with AI';
   }
@@ -1949,7 +1975,7 @@ async function saveProject() {
       .eq('id', _editingId).eq('hive_id', HIVE_ID);
     if (_editingUpdatedAt) projQuery = projQuery.eq('updated_at', _editingUpdatedAt);
     const { data: projRows, error } = await projQuery.select('id');
-    if (error) { showToast('Save failed: ' + error.message, 'error'); return; }
+    if (error) { showToast(whWriteError(error, 'Nothing was saved. Your changes are still on the form; try again.'), 'error'); return; }
     if (projRows !== null && projRows !== undefined && projRows.length === 0) {
       showToast('Project was modified by someone else, reload to see the latest.', 'error');
       return;
@@ -1969,13 +1995,23 @@ async function saveProject() {
   const year = new Date().getFullYear();
   const { data: codeData, error: codeErr } = await db.rpc('generate_project_code',
     { p_hive_id: HIVE_ID, p_type: type, p_year: year });
-  if (codeErr) { showToast('Code gen failed: ' + codeErr.message, 'error'); return; }
+  // T176: was 'Code gen failed: ' + codeErr.message — a Postgres sentence in a toast, and this
+  // fires BEFORE the insert, so the project does not exist yet. Say that: nothing was created.
+  if (codeErr) {
+    showToast(whWriteError(codeErr, 'Could not generate a project code, so nothing was created. Your entries are still in the form; try again.'), 'error');
+    return;
+  }
   payload.project_code = codeData;
   payload.status = 'planning';
   // PJ2: explicit RETURNING — a bare .select() is `select *` and pulls the SELECT-revoked
   // budget_php, which 42501s the whole create. Only id is consumed below.
   const { data: ins, error: insErr } = await db.from('projects').insert(payload).select('id').single();
-  if (insErr) { showToast('Create failed: ' + insErr.message, 'error'); return; }
+  // T176: whWriteError also carries the 23505 branch, which matters here — a duplicate project
+  // code is a permanent collision, and 'try again' is the one action that cannot work.
+  if (insErr) {
+    showToast(whWriteError(insErr, 'Could not create the project. Nothing was saved; your entries are still in the form.'), 'error');
+    return;
+  }
   // PJ2: budget set AFTER creation via the supervisor-only RPC (INSERT on the column is revoked).
   // A refusal is not a failed create — the project exists; only the figure did not apply.
   const _wizBudget = $('wiz-budget').value ? Number($('wiz-budget').value) : null;
@@ -1996,11 +2032,11 @@ async function deleteProject() {
   if (typeof whRequireOnline === 'function'
       && !whRequireOnline('Deleting this project', (m) => showToast(m, 'error'))) return;
   if (!_detail) return;
-  if (!(await window.whConfirm('Soft-delete project ' + _detail.project_code + '? It will be hidden from views.', { okLabel: 'Delete', cancelLabel: 'Cancel' }))) return;
+  if (!(await window.whConfirm('Hide project ' + _detail.project_code + '? It disappears from every view, and its record is kept so it can be brought back.', { okLabel: 'Delete', cancelLabel: 'Cancel' }))) return;
   const { error } = await db.from('projects')
     .update({ deleted_at: new Date().toISOString() })
     .eq('id', _detail.id).eq('hive_id', HIVE_ID);
-  if (error) { showToast('Delete failed: ' + error.message, 'error'); return; }
+  if (error) { showToast(whWriteError(error, 'Nothing was deleted - it is all still here. Try again.'), 'error'); return; }
   // ★'Deleted.' CONTRADICTED THIS PAGE'S OWN CONFIRM. The dialog above is admirably precise -
   // 'Soft-delete project <code>? It will be hidden from views.' - and then the confirmation collapsed
   // that into a word that means the opposite. This is an UPDATE stamping deleted_at, not a DELETE: the
@@ -2024,7 +2060,7 @@ async function openDetail(id) {
   const { data, error } = await db.from('projects')
     .select('id, hive_id, worker_name, auth_uid, project_code, name, project_type, status, priority, owner_name, description, start_date, end_date, meta, created_at, updated_at, closed_at, deleted_at')
     .eq('id', id).is('deleted_at', null).maybeSingle();
-  if (error || !data) { showToast('Could not load project', 'error'); return; }
+  if (error || !data) { showToast(whReadError(error, 'this project'), 'error'); return; }
   _detail = data;
   pushRecent(data);
   $('list-view').style.display = 'none';
@@ -2096,9 +2132,16 @@ function pushAIContext() {
     _detail.start_date && _detail.end_date ? `Period: ${_detail.start_date} to ${_detail.end_date}` : null,
     `Scope items: ${_items.length} total, ${_items.filter(i => i.status === 'done').length} done, ${_items.filter(i => i.status === 'blocked').length} blocked`,
     r.pct_complete != null ? `Progress: ${r.pct_complete}% complete (${r.hours_actual || 0}h actual / ${r.hours_estimated || 0}h estimated)` : null,
-    ev?.available ? `EVM: SPI ${ev.spi}, CPI ${ev.cpi}, status ${ev.status} (BAC ₱${ev.bac}, EV ₱${ev.ev})` : null,
-    cp?.total_days ? `Critical path: ${cp.total_days}d, ${cp.item_ids.length} of ${_items.length} items on critical path` : null,
-    _logs.length ? `${_logs.length} progress log(s), ${blockedLogs} reporting an active blocker` : 'No progress logs yet',
+    // T177 (2026-08-26): this line showed a supervisor six acronyms - EVM, SPI, CPI, BAC, EV - and
+    // the platform explained none of them anywhere. Every other domain term it puts on the glass is
+    // taught in the learn cluster (MTBF, MTTR, OEE, RCM, FMEA, RPN, CPM, LOTO, SOP, P-F all have a
+    // guide); earned value was the one that was not, so "SPI 0.87" was a number a reader could not
+    // act on or argue with. Expanded at FIRST USE, in the line itself, which is where the reader
+    // meets it - a glossary they have to go and find is a glossary they do not read.
+    ev?.available ? `Earned value (EVM): schedule performance SPI ${ev.spi}, cost performance CPI ${ev.cpi}, `
+      + `status ${ev.status} (budget at completion ₱${ev.bac}, earned value ₱${ev.ev})` : null,
+    cp?.total_days ? `Critical path: ${cp.total_days}d, ${cp.item_ids.length} of ${_items.length} item${_items.length === 1 ? '' : 's'} on critical path` : null,
+    _logs.length ? `${_logs.length} progress log${_logs.length === 1 ? '' : 's'}, ${blockedLogs} reporting an active blocker` : 'No progress logs yet',
     _changeOrders.length ? `${_changeOrders.length} change order(s); ${_changeOrders.filter(c => c.status === 'pending').length} pending approval` : null,
   ].filter(Boolean);
   window.WHAssistant.setContext({
@@ -2236,16 +2279,19 @@ async function cycleScopeStatus(id, ev) {
   const pct = next === 'done' ? 100 : next === 'in_progress' ? Math.max(it.pct_complete || 0, 50) : 0;
   const { error } = await db.from('project_items')
     .update({ status: next, pct_complete: pct }).eq('id', id);
-  if (error) { showToast(error.message, 'error'); return; }
+  if (error) { showToast(whWriteError(error, 'The task status was not saved.'), 'error'); return; }
   await refreshDetail();
 }
 
 function renderScope() {
   if (!_items.length) {
     $('pane-scope')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
-      <div class="row" style="justify-content: space-between; margin-bottom: 10px;">
+      <div class="row" style="justify-content: space-between; margin-bottom: 10px; flex-wrap: wrap; gap: 6px;">
         <div class="small" style="color: var(--muted);">No scope items yet. Add the first work breakdown item to start tracking.</div>
-        <button class="btn primary small" onclick="openNewScope()">+ Add scope item</button>
+        <div class="row" style="gap:6px;">
+          <button class="btn ghost small" onclick="openBomImport()">&#10515; Import BOM from Eng. Design</button>
+          <button class="btn primary small" onclick="openNewScope()">+ Add scope item</button>
+        </div>
       </div>`;
     return;
   }
@@ -2297,11 +2343,84 @@ function renderScope() {
         ${_items.length} scope item(s) · ${_items.filter(i => i.status === 'done').length} done
         · click any status pill to cycle pending → in progress → done
       </div>
-      <button class="btn primary small" onclick="openNewScope()">+ Add scope item</button>
+      <div class="row" style="gap:6px;">
+        <button class="btn ghost small" onclick="openBomImport()">&#10515; Import BOM from Eng. Design</button>
+        <button class="btn primary small" onclick="openNewScope()">+ Add scope item</button>
+      </div>
     </div>
     <div style="overflow-x:auto;">${sections}</div>
     <div class="small" style="margin-top: 8px; color: var(--muted);">Rows highlighted red are on the critical path.</div>
   `;
+}
+
+// T36 (2026-08-25): calc -> BOM -> project, without retyping a number. Lists the hive's saved
+// engineering calcs that carry bom_data; the chosen calc's items land as project_items with
+// qty + unit kept in the title and provenance in the notes. Additive only - importing twice
+// adds twice (visible immediately in the list), which is honest and undoable via Edit/delete.
+async function openBomImport() {
+  if (!_detailId) { showToast('Open a project first.', 'error'); return; }
+  openModal('modal-bom-import');
+  const list = $('bom-import-list');
+  const status = $('bom-import-status');
+  list.innerHTML = '';
+  status.textContent = 'Loading saved calculations…';
+  const { data, error } = await db.from('engineering_calcs')
+    .select('id, calc_type, project_name, created_at, bom_data')
+    .eq('hive_id', HIVE_ID)
+    .not('bom_data', 'is', null)
+    .order('created_at', { ascending: false })
+    .order('id')
+    .limit(30);
+  if (error) {
+    status.textContent = (typeof whReadError === 'function')
+      ? whReadError(error, 'the saved calculations') : 'Could not load the saved calculations: ' + error.message;
+    return;
+  }
+  const rows = (data || []).filter(r => Array.isArray(r.bom_data) && r.bom_data.length);
+  if (!rows.length) {
+    status.textContent = 'No saved calculations carry a BOM yet. In Engineering Design, run a calculation, generate its BOM + SOW, and save it to history - it will appear here.';
+    return;
+  }
+  status.textContent = '';
+  rows.forEach(r => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'btn ghost';
+    btn.style.cssText = 'justify-content:flex-start; text-align:left; width:100%; min-height:44px;';
+    const when = (typeof whFmtDate === 'function') ? whFmtDate(r.created_at) : String(r.created_at).slice(0, 10);
+    btn.textContent = `${r.calc_type || 'Calculation'} - ${r.project_name || 'Untitled'} · ${r.bom_data.length} item(s) · ${when}`;
+    btn.addEventListener('click', () => importBomItems(r, btn));
+    list.appendChild(btn);
+  });
+}
+
+async function importBomItems(calcRow, btn) {
+  const status = $('bom-import-status');
+  if (btn) { btn.disabled = true; }
+  status.textContent = `Importing ${calcRow.bom_data.length} item(s)…`;
+  const base = _items.length;
+  const payload = calcRow.bom_data.map((it, i) => ({
+    project_id: _detailId,
+    hive_id: HIVE_ID,
+    title: `${it.item || it.description || 'BOM item'} - ${it.qty ?? '?'} ${it.unit || ''}`.trim(),
+    status: 'pending',
+    pct_complete: 0,
+    notes: [it.spec, it.remarks, `Imported from Engineering Design: ${calcRow.calc_type || 'calc'} - ${calcRow.project_name || 'Untitled'}`]
+      .filter(Boolean).join(' · '),
+    sort_order: base + i,
+  }));
+  const { error } = await db.from('project_items').insert(payload);
+  if (error) {
+    if (btn) btn.disabled = false;
+    status.textContent = whWriteError(error, 'The import did NOT run, so nothing was added. Your file is unchanged; try again.');
+    return;
+  }
+  closeModal('modal-bom-import');
+  showToast(`${payload.length} scope item(s) imported from ${calcRow.calc_type || 'the calculation'}.`, 'success');
+  await refreshDetail();
+  // refreshDetail re-opens on the Overview tab, which would HIDE the import's receipt — land
+  // the user back on Scope where the new items are visible.
+  if (typeof setActivePane === 'function') setActivePane('scope');
 }
 
 function openNewScope() {
@@ -2373,7 +2492,12 @@ async function saveScopeItem() {
   } else {
     ({ error: err } = await db.from('project_items').insert(payload));
   }
-  if (err) { showToast('Save failed: ' + err.message, 'error'); return; }
+  // T176: the modal stays OPEN on this path, so the typed scope item is still on screen — the
+  // sentence says so rather than echoing the driver and leaving the person guessing.
+  if (err) {
+    showToast(whWriteError(err, 'Could not save that scope item. Nothing changed; your entries are still in this form.'), 'error');
+    return;
+  }
   closeModal('modal-scope');
   showToast('Saved.', 'success');
   // Phase 6.4 — embed scope item for cross-project semantic search
@@ -2414,7 +2538,7 @@ async function linkSuggested(idx) {
   });
   // Arc S C-lens (gap-C-010): project_links_target_uidx makes a double-click
   // benign — 23505 means the link already exists, not a failure.
-  if (error && error.code !== '23505') { showToast(error.message, 'error'); return; }
+  if (error && error.code !== '23505') { showToast(whWriteError(error, 'The link was not saved.'), 'error'); return; }
   showToast('Linked.', 'success');
   await refreshDetail();
 }
@@ -2429,7 +2553,7 @@ function renderLinked() {
     return `<div style="margin-bottom: 12px;">
       <h4 style="font-size: 0.8rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;">${labels[k]}</h4>
       <div>${items.map(l => `
-        <span class="link-pill">${e(l.label || l.link_id || '-')} <button onclick="removeLink('${e(l.id)}')" title="Remove">×</button></span>
+        <span class="link-pill">${e(l.label || l.link_id || '-')} <button onclick="removeLink('${e(l.id)}')" title="Remove" aria-label="Remove link ${e(l.label || l.link_id || '')}">×</button></span>
       `).join('')}</div>
     </div>`;
   }).join('');
@@ -2463,19 +2587,32 @@ async function loadLinkOptions() {
     asset:               () => db.from('asset_nodes').select('id, name').eq('hive_id', HIVE_ID).order('name').order('id').limit(200),
     logbook:             () => db.from('v_logbook_truth').select('id, machine, problem, created_at').eq('hive_id', HIVE_ID).order('created_at', { ascending: false }).order('id').limit(50),
     // canonical-allow: project link picker needs individual completion rows; v_pm_compliance_truth aggregates only
-    pm_completion:       () => db.from('pm_completions').select('id, asset_id, completed_at').eq('hive_id', HIVE_ID).order('completed_at', { ascending: false }).order('id').limit(50),
+    // T189 (2026-08-28): +status. These rows are offered under a group heading that reads "PM
+    // completions" and each was labelled with a bare date, so a SKIPPED PM was selectable as
+    // project evidence of work performed. Milder than the asset timeline (a date is not the
+    // sentence "completed by X"), but the heading supplies the claim the item omits.
+    pm_completion:       () => db.from('pm_completions').select('id, asset_id, completed_at, status').eq('hive_id', HIVE_ID).order('completed_at', { ascending: false }).order('id').limit(50),
     inventory_item:      () => db.from('v_inventory_items_truth').select('id, part_name, part_number').eq('hive_id', HIVE_ID).order('part_name').order('id').limit(200),
     engineering_calc:    () => db.from('engineering_calcs').select('id, calc_type, project_name, created_at').eq('hive_id', HIVE_ID).order('created_at', { ascending: false }).order('id').limit(30),
     marketplace_listing: () => db.from('v_marketplace_listings_truth').select('id, title').eq('hive_id', HIVE_ID).order('created_at', { ascending: false }).order('id').limit(30),
   };
   const fn = queries[t]; if (!fn) { $('l-picker')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = ''; return; }
   const { data, error } = await fn();
-  if (error) { $('l-picker')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `<option>Error: ${e(error.message)}</option>`; return; }
+  // T176: this put a raw Postgres sentence inside an <option>, where it reads as a SELECTABLE
+  // choice — the person can highlight "Error: new row violates row-level security policy" as if
+  // it were a record to link. A failed read is not an empty list and it is not a menu item, so it
+  // says what happened, is disabled so it cannot be chosen, and names the retry.
+  if (error) {
+    $('l-picker')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML =
+      `<option value="" disabled selected>${e(whReadError(error, 'the list of items to link'))}</option>`;
+    return;
+  }
   const labelFor = (r) => {
     if (t === 'asset' || t === 'marketplace_listing') return r.name || r.title || r.id;
     if (t === 'inventory_item') return r.part_name || r.part_number || r.id;
     if (t === 'logbook') return `${r.machine || '?'}: ${(r.problem || '').slice(0, 50)}`;
-    if (t === 'pm_completion') return `PM ${new Date(r.completed_at).toLocaleDateString()}`;
+    if (t === 'pm_completion') return `PM ${new Date(r.completed_at).toLocaleDateString()}`
+      + (r.status === 'skipped' ? ' (skipped, not performed)' : '');
     if (t === 'engineering_calc') return `${r.calc_type}: ${r.project_name || ''}`;
     return r.id;
   };
@@ -2501,7 +2638,7 @@ async function saveLink() {
   }
   const { error } = await db.from('project_links').insert(payload);
   // Arc S C-lens (gap-C-010): 23505 = link already exists (dedup guard) -> benign.
-  if (error && error.code !== '23505') { showToast('Link failed: ' + error.message, 'error'); return; }
+  if (error && error.code !== '23505') { showToast(whWriteError(error, 'The link was NOT created. Nothing changed; try again.'), 'error'); return; }
   showToast('Linked.', 'success');
   closeModal('modal-link');
   await refreshDetail();
@@ -2514,7 +2651,7 @@ async function removeLink(id) {
       && !whRequireOnline('Removing this link', (m) => showToast(m, 'error'))) return;
   if (!(await window.whConfirm('Remove this link?', { okLabel: 'Remove', cancelLabel: 'Keep' }))) return;
   const { error } = await db.from('project_links').delete().eq('id', id);
-  if (error) { showToast(error.message, 'error'); return; }
+  if (error) { showToast(whWriteError(error, 'The link was not removed.'), 'error'); return; }
   await refreshDetail();
 }
 
@@ -2617,7 +2754,7 @@ async function saveProgressLog() {
       showToast('Network problem. Your report is saved on this device and will retry automatically.', 'success');
       return;
     }
-    showToast(error.message, 'error');
+    showToast(whWriteError(error, 'The report was not sent.'), 'error');
     return;
   }
   closeModal('modal-progress');
@@ -2633,7 +2770,7 @@ async function ackLog(id) {
   const { error } = await db.from('project_progress_logs')
     .update({ acknowledged_by: WORKER_NAME, acknowledged_at: new Date().toISOString() })
     .eq('id', id);
-  if (error) { showToast(error.message, 'error'); return; }
+  if (error) { showToast(whWriteError(error, 'Your acknowledgement was not saved.'), 'error'); return; }
   await refreshDetail();
 }
 
@@ -2715,7 +2852,7 @@ function renderCpm() {
       ${_unres.length} dependenc${_unres.length === 1 ? 'y is' : 'ies are'} not being honoured: the predecessor
       is not a scope item on this project, so the schedule below ignores it.</div>` : ''}
     <div class="kpi-row">
-      <div class="kpi"><div class="kpi-label">Critical path</div><div class="kpi-value">${cp.total_days}d</div><div class="kpi-sub">${cp.item_ids.length} of ${_items.length} items on critical path</div></div>
+      <div class="kpi"><div class="kpi-label">Critical path</div><div class="kpi-value">${cp.total_days}d</div><div class="kpi-sub">${cp.item_ids.length} of ${_items.length} item${_items.length === 1 ? '' : 's'} on critical path</div></div>
     </div>
     <h3 style="font-size: 0.92rem;">Gantt</h3>
     <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px;">
@@ -2742,7 +2879,14 @@ function renderRoles() {
       ${grouped[role].map(r => `
         <span class="link-pill">
           ${e(r.worker_name)}
-          ${isSupervisor() ? `<button onclick="removeRole('${e(r.id)}')" title="Remove">×</button>` : ''}
+          <!-- T27/T56 (2026-08-27): WHO put this person on the project. All 36 project_roles rows
+               carry assigned_by and assigned_at; the pill rendered the name alone, so "who assigned
+               me this?" - an accountability question on a shutdown job, and the one a demoted or
+               disputed assignment turns on - had no answer in the app. Same shape as the logbook's
+               LOTO column and the same fix the community's best-answer took ("chosen by X · when"),
+               so the vocabulary matches what the platform already says elsewhere. -->
+          ${r.assigned_by ? `<span style="color: var(--muted); margin-left: 4px; font-size: 0.72rem;">&middot; by ${e(r.assigned_by)}${r.assigned_at ? ' ' + e(fmtDate(r.assigned_at)) : ''}</span>` : ''}
+          ${isSupervisor() ? `<button onclick="removeRole('${e(r.id)}')" title="Remove" aria-label="Remove ${e(r.worker_name)} from this project">×</button>` : ''}
         </span>`).join('')}
     </div>`).join('');
   // Owner from projects.owner_name (legacy) shown if no explicit owner role assigned
@@ -2791,7 +2935,7 @@ async function saveRole() {
     assigned_by: WORKER_NAME,
     notes: $('r-notes').value.trim() || null,
   });
-  if (error) { showToast(error.message, 'error'); return; }
+  if (error) { showToast(whWriteError(error, 'The role was not saved.'), 'error'); return; }
   showToast('Role assigned.', 'success');
   closeModal('modal-role');
   await refreshDetail();
@@ -2809,7 +2953,7 @@ async function removeRole(id) {
       && !whRequireOnline('Removing this role', (m) => showToast(m, 'error'))) return;
   if (!(await window.whConfirm('Remove this role?', { okLabel: 'Remove', cancelLabel: 'Keep' }))) return;
   const { error } = await db.from('project_roles').delete().eq('id', id);
-  if (error) { showToast(error.message, 'error'); return; }
+  if (error) { showToast(whWriteError(error, 'The role was not removed.'), 'error'); return; }
   await refreshDetail();
 }
 
@@ -2885,7 +3029,7 @@ async function saveChangeOrder() {
   if (coBtn) { coBtn.disabled = true; coBtn.setAttribute('aria-busy', 'true'); coBtn.textContent = 'Submitting…'; }
   // Generate CO number via RPC
   const { data: coNum, error: numErr } = await db.rpc('generate_change_order_number', { p_project_id: _detailId });
-  if (numErr) { releaseCO(); showToast('CO number gen failed: ' + numErr.message, 'error'); return; }
+  if (numErr) { releaseCO(); showToast(whWriteError(numErr, 'The change-order number could not be generated, so no change order was created.'), 'error'); return; }
   const { error } = await db.from('project_change_orders').insert({
     project_id: _detailId, hive_id: HIVE_ID,
     co_number: coNum, title, scope_change: scope,
@@ -2895,7 +3039,13 @@ async function saveChangeOrder() {
     status: 'pending',
     requested_by: WORKER_NAME,
   });
-  if (error) { releaseCO(); showToast('Save failed: ' + error.message, 'error'); return; }
+  // T176: a change order is an approval request, so "saved" is the wrong word for what failed —
+  // nothing was SUBMITTED, and the dialog can be reopened with the entries intact.
+  if (error) {
+    releaseCO();
+    showToast(whWriteError(error, 'Could not submit the change order. Nothing was sent for approval; your entries are still in the form.'), 'error');
+    return;
+  }
   releaseCO();   // the dialog closes below, but it can be reopened for the next CO
   // NAMES THE EFFECT AND WHEN. "<CO> submitted for approval" says what happened, not what follows. What this
   // write verifiably sets up is the approval step, whose own confirm text states the consequence ("Cost /
@@ -2922,7 +3072,7 @@ async function approveCO(id) {
   const { data: updated, error } = await db.from('project_change_orders')
     .update({ status: 'approved', approved_by: WORKER_NAME, approved_at: new Date().toISOString() })
     .eq('id', id).eq('status', 'pending').select('id');
-  if (error) { showToast(error.message, 'error'); return; }
+  if (error) { showToast(whWriteError(error, 'The change order was not approved.'), 'error'); return; }
   if (!updated || !updated.length) { showToast('That change order was already decided by another supervisor.'); await refreshDetail(); return; }
   showToast('Approved.', 'success');
   await refreshDetail();
@@ -2944,7 +3094,7 @@ async function rejectCO(id) {
   const { data: updated, error } = await db.from('project_change_orders')
     .update({ status: 'rejected', approved_by: WORKER_NAME, approved_at: new Date().toISOString(), rejection_reason: reason })
     .eq('id', id).eq('status', 'pending').select('id');
-  if (error) { showToast(error.message, 'error'); return; }
+  if (error) { showToast(whWriteError(error, 'The change order was not rejected.'), 'error'); return; }
   if (!updated || !updated.length) { showToast('That change order was already decided by another supervisor.'); await refreshDetail(); return; }
   showToast('Rejected.', 'success');
   await refreshDetail();
@@ -2974,7 +3124,7 @@ async function cancelCO(id) {
   const { data: updated, error } = await db.from('project_change_orders')
     .update({ status: 'cancelled', approved_by: WORKER_NAME, approved_at: new Date().toISOString() })
     .eq('id', id).eq('status', 'pending').select('id');
-  if (error) { showToast(error.message, 'error'); return; }
+  if (error) { showToast(whWriteError(error, 'The change order was not cancelled.'), 'error'); return; }
   if (!updated || !updated.length) { showToast('That change order was already decided and can no longer be cancelled.'); await refreshDetail(); return; }
   showToast('Change order cancelled.', 'success');
   await refreshDetail();
@@ -3067,7 +3217,7 @@ async function aiDraftLessons() {
     const { data, error } = await db.functions.invoke('project-orchestrator', {
       body: { phase: 'lessons_draft', project_id: _detailId, hive_id: HIVE_ID },
     });
-    if (error) { showToast(whAiError(error, 'AI failed'), 'error'); return; }
+    if (error) { showToast(await window.whFnError(error, 'The project assistant did not run. Nothing was changed; try again in a moment.'), 'error'); return; }
     if (data?._unavailable) { showToast('AI: ' + (data.reason || 'unavailable'), 'error'); return; }
     if (!data?.lessons_text) { showToast('AI returned no draft'); return; }
     $('lessons-text').value = data.lessons_text;
@@ -3081,7 +3231,7 @@ async function aiDraftLessons() {
     showToast('AI draft loaded: review and Save lessons to keep it.', 'success');
   } catch (e) {
     console.error('project-manager AI failed:', e);
-    showToast('AI failed: ' + e.message, 'error');
+    showToast(whAiError(e, 'The lessons draft did not run. Nothing was changed.'), 'error');
   }
 }
 
@@ -3110,7 +3260,7 @@ async function saveLessons() {
     .update({ meta }).eq('id', _detail.id).eq('hive_id', HIVE_ID);
   if (_detail.updated_at) q = q.eq('updated_at', _detail.updated_at);
   const { data, error } = await q.select('id, updated_at, meta');
-  if (error) { showToast('Save failed: ' + error.message, 'error'); return; }
+  if (error) { showToast(whWriteError(error, 'Nothing was saved. Your changes are still on the form; try again.'), 'error'); return; }
   if (!data || data.length === 0) {
     showToast('This project changed since you opened it, reloading.', 'error');
     await openDetail(_detail.id);
@@ -3145,19 +3295,35 @@ async function markComplete() {
   // Phase 6.6 — guard against marking complete with open scope items;
   // produces a sign-off-ready report instead of an internally inconsistent one.
   const open = _items.filter(i => i.status !== 'done' && i.status !== 'skipped');
+  // T27 (2026-08-28) — two things were wrong with these confirms, and both were about the way BACK.
+  //
+  // ★THE CONFIRM NAMED A CONTROL THAT DOES NOT EXIST. It said "Subsequent edits will need to reopen
+  // it", and there is no Reopen anywhere on this page: the actions beside Mark complete are Put on
+  // hold and Archive, both of which stay enabled on a completed project and both of which move the
+  // status off 'complete'. The way back is real but it is not called what the confirm called it, so
+  // a supervisor reading that sentence goes looking for a button that was never built. Same class
+  // as a refusal whose named remedy is not a walkable path — name the control the user will
+  // actually see.
+  //
+  // ★AND THE RISKIER BRANCH SAID LESS. Completing WITH open scope items is the more consequential
+  // of the two, and it was the one that omitted the reversibility sentence entirely: it explained
+  // best practice and never said what completing would cost. The branch that needs the consequence
+  // most was the branch without it.
+  const WAY_BACK = 'You can put it back on hold later if you need to edit it.';
   if (open.length) {
     const msg = `${open.length} scope item${open.length === 1 ? ' is' : 's are'} still open (pending / in progress / blocked). ` +
-                `Best practice: close them or mark them 'skipped' before marking the project complete.\n\nContinue anyway?`;
+                `Best practice: close ${open.length === 1 ? 'it' : 'them'} or mark ${open.length === 1 ? 'it' : 'them'} 'skipped' before marking the project complete.\n\n` +
+                `Completing now leaves ${open.length === 1 ? 'it' : 'them'} open in the record. ${WAY_BACK}\n\nContinue anyway?`;
     if (!(await window.whConfirm(msg, { okLabel: 'Confirm', cancelLabel: 'Cancel' }))) return;
   } else {
-    if (!(await window.whConfirm('Mark project as complete? Subsequent edits will need to reopen it.', { okLabel: 'Complete', cancelLabel: 'Cancel' }))) return;
+    if (!(await window.whConfirm(`Mark project as complete? ${WAY_BACK}`, { okLabel: 'Complete', cancelLabel: 'Cancel' }))) return;
   }
   await markStatus('complete', { closed_at: new Date().toISOString() });
 }
 async function markStatus(status, extra = {}) {
   const { error } = await db.from('projects')
     .update({ status, ...extra }).eq('id', _detail.id).eq('hive_id', HIVE_ID);
-  if (error) { showToast(error.message, 'error'); return; }
+  if (error) { showToast(whWriteError(error, 'The project status was not saved.'), 'error'); return; }
   showToast('Status: ' + status, 'success');
   await openDetail(_detail.id);
   await loadProjects();
@@ -3206,9 +3372,22 @@ async function clientRollup(projectId) {
       items_done: items.filter(i => i.status === 'done').length,
       hours_estimated: hoursEst, hours_actual: hoursActual,
       days_elapsed: daysElapsed, days_total: daysTotal,
+      // T27 (2026-08-25): this CLIENT fallback runs because the edge engine was unreachable -
+      // its null EVM is "could not compute", never "your inputs are missing". Without this
+      // marker the budget pane fell to the add-a-budget message and blamed the user's inputs
+      // for an infrastructure absence (two notices, two truth conditions).
+      evm_reason: 'unavailable',
     },
     earned_value: earnedValue,
-    critical_path: { item_ids: [], total_days: 0, slack_per_item: {} },  // CPM only via edge fn
+    // T198 (2026-08-26): this was `{ item_ids: [], total_days: 0, slack_per_item: {} }`, and that
+    // EMPTY OBJECT defeated the PJ8 honesty guard written for exactly this path. renderCpm() asks
+    // `if (!cp)` to tell "could not compute" from "computed, nothing is critical" - and an empty
+    // object is TRUTHY, so the guard never fired when the edge engine was unreachable. The pane then
+    // rendered every task as non-critical with ZERO SLACK, which is the self-contradiction PJ8's own
+    // comment warns about: zero slack is normally what MAKES a task critical. The EVM half of this
+    // same fallback got its marker (evm_reason: 'unavailable'); the CPM half was left behind.
+    // null, not {}, so the existing message speaks. Every consumer already uses optional chaining.
+    critical_path: null,   // CPM is edge-only; absent means UNCOMPUTED, never "nothing is critical"
     latest_logs: _logs,
   };
 }
@@ -3346,5 +3525,12 @@ document.addEventListener('keydown', ev => {
   <script defer src="connectivity-widget.js"></script>
   <script defer src="session-timeout.js"></script>
   <script defer src="device-fingerprint.js"></script>
+
+<script>/* T130 (2026-08-25): a cap that stops accepting keystrokes with no explanation reads as a broken
+   keyboard - state the limit BEFORE refusal (community's counter idiom, adopted on the 4 biggest caps). */
+[['wiz-desc',2000],['f-desc',2000],['s-notes',1000],['co-scope',2000]].forEach(function (p) {
+  var el = document.getElementById(p[0]), c = document.getElementById(p[0] + '-count');
+  if (el && c) el.addEventListener('input', function () { c.textContent = this.value.length + ' / ' + p[1]; });
+});</script>
 </body>
 </html>

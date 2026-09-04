@@ -266,7 +266,10 @@ await browser.close();
 
 const graded = results.filter((r) => r.ok !== null);
 const bad = graded.filter((r) => !r.ok);
-writeFileSync('modal_escape_live_report.json', JSON.stringify({
+// A NARROWED RUN MUST NOT CLOBBER THE FULL ONE: this file is read downstream (gates and
+// bank_prover_reports), so a --page/--case spot-check overwriting a whole sweep's verdicts
+// corrupts the BANK, not just a log. Measured on prove_retry_path 2026-08-27.
+writeFileSync((ONE ? 'modal_escape_live_report.partial.json' : 'modal_escape_live_report.json'), JSON.stringify({
   half: '2 of 2 — BEHAVIOUR. Adoption is proven from source by prove_modal_escape_adoption.mjs.',
   totals: { targets: results.length, graded: graded.length,
             ungraded: results.filter((r) => r.ok === null).length, failing: bad.length,

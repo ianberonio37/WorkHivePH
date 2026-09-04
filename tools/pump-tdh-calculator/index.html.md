@@ -26,11 +26,11 @@ How do I calculate pump head?Add static head + friction head + velocity head. Fr
 What motor size do I need for a 200 L/min pump?For a typical 200 L/min duty at ~18 m TDH, a 1.1 kW (1.5 HP) motor is usually enough after applying pump and motor efficiency and a service-factor margin. Always confirm against the manufacturer curve.
 What is NPSH available and why does it matter?NPSH available is the suction-side pressure margin before cavitation. It must exceed the pump's NPSH required, or the pump cavitates and wears out. It falls with elevation and hot water.
 Run it on your own numbers
-[Open the interactive Pump TDH Calculator in WorkHive](https://workhiveph.com/engineering-design.html): free, no sign-up needed for the calculators.
+[Open the interactive Pump TDH Calculator in WorkHive (free sign-in)](https://workhiveph.com/engineering-design.html): free with a WorkHive account. Sign-up takes about 30 seconds.
 Related calculators
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
 [Pipe Sizing Calculator](https://workhiveph.com/tools/pipe-sizing-calculator/)
 [Roof Drain Sizing Calculator](https://workhiveph.com/tools/roof-drain-calculator/)
 [Predictive maintenance on a budget](https://workhiveph.com/learn/predictive-maintenance-on-a-budget-philippines/)
 
-<!-- md-twin source-sha: 5874d532207fe89a -->
+<!-- md-twin source-sha: ae9bdb67cc5dfc0f -->

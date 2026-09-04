@@ -43,7 +43,7 @@ const PAGES_THIS_TURN = [
 
 const LOCAL_FN_URL = 'http://127.0.0.1:54321/functions/v1/agentic-rag-loop';
 const LOCAL_KEY    = 'sb_publishable_ACJWlzQHlZjBrEguHvfOxg_3BJgxAaH';
-const TEST_HIVE_ID = process.env.WH_FLYWHEEL_HIVE_ID || '7b785f99-2776-430f-be28-fc21db1d41a6';   // Manila Electronics Assembly (real local hive w/ data)
+const TEST_HIVE_ID = process.env.WH_FLYWHEEL_HIVE_ID || 'b4f7fe63-92e1-4f8d-b96e-625c3f85ba61';   // Manila Electronics Assembly (real local hive w/ data)
 const TEST_WORKER  = process.env.WH_FLYWHEEL_WORKER  || 'Pablo Aguilar';
 const DRY_RUN      = process.env.WH_FLYWHEEL_DRY === '1';
 

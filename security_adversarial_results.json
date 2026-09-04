@@ -1,10 +1,10 @@
 {
-  "scored_at": "2026-08-22T13:08:30+00:00",
+  "scored_at": "2026-09-04T00:40:43+00:00",
   "lenses": {
     "X": {
       "title": "Injection & XSS",
-      "pct": 100.0,
-      "passed": 4,
+      "pct": 75.0,
+      "passed": 3,
       "total": 4,
       "floor": 100,
       "cells": [
@@ -12,7 +12,7 @@
           "key": "xss_eschtml",
           "validator": "validate_xss",
           "owasp": "A03",
-          "status": "PASS",
+          "status": "TIMEOUT",
           "note": "escHtml coverage on render paths",
           "covered": true
         },
@@ -44,8 +44,8 @@
     },
     "Z": {
       "title": "AuthZ / Access",
-      "pct": 100.0,
-      "passed": 17,
+      "pct": 70.6,
+      "passed": 12,
       "total": 17,
       "floor": 100,
       "cells": [
@@ -53,7 +53,7 @@
           "key": "gateway_bypass",
           "validator": "validate_gateway_bypass",
           "owasp": "A01",
-          "status": "PASS",
+          "status": "FINDINGS",
           "note": "gateway tenancy not bypassable",
           "covered": true
         },
@@ -69,7 +69,7 @@
           "key": "definer_tenant_gate",
           "validator": "validate_definer_tenant_gate",
           "owasp": "A01",
-          "status": "PASS",
+          "status": "FINDINGS",
           "note": "DEFINER RPCs self-scope (IDOR)",
           "covered": true
         },
@@ -101,7 +101,7 @@
           "key": "rls_no_permissive",
           "validator": "validate_rls_no_permissive_bypass",
           "owasp": "A04",
-          "status": "PASS",
+          "status": "FINDINGS",
           "note": "no permissive USING(true) bypass",
           "covered": true
         },
@@ -117,7 +117,7 @@
           "key": "anon_key_retirement",
           "validator": "validate_anon_key_retirement",
           "owasp": "A01",
-          "status": "PASS",
+          "status": "FINDINGS",
           "note": "anon reads 0 from hive tables",
           "covered": true
         },
@@ -125,7 +125,7 @@
           "key": "realtime_isolation",
           "validator": "validate_realtime_subscription_isolation",
           "owasp": "A01",
-          "status": "PASS",
+          "status": "FINDINGS",
           "note": "published-table RLS (4th path)",
           "covered": true
         },
@@ -270,8 +270,8 @@
     },
     "P": {
       "title": "Prompt & AI security",
-      "pct": 100.0,
-      "passed": 3,
+      "pct": 66.7,
+      "passed": 2,
       "total": 3,
       "floor": 90,
       "cells": [
@@ -287,7 +287,7 @@
           "key": "ai_retrieval_isolation",
           "validator": "validate_ai_retrieval_isolation",
           "owasp": "A01",
-          "status": "PASS",
+          "status": "FINDINGS",
           "note": "RAG hive-scoped (no x-tenant)",
           "covered": true
         },
@@ -305,7 +305,7 @@
   "owasp_top10": {
     "A01": {
       "scanners": 14,
-      "clean": true,
+      "clean": false,
       "covered": true
     },
     "A02": {
@@ -315,12 +315,12 @@
     },
     "A03": {
       "scanners": 6,
-      "clean": true,
+      "clean": false,
       "covered": true
     },
     "A04": {
       "scanners": 2,
-      "clean": true,
+      "clean": false,
       "covered": true
     },
     "A05": {
@@ -354,10 +354,16 @@
       "covered": true
     }
   },
-  "floors_ok": true,
-  "regressions": [],
-  "infra_errors": [],
+  "floors_ok": false,
+  "regressions": [
+    "X: 75.0 < baseline 100.0",
+    "Z: 70.6 < baseline 100.0",
+    "P: 66.7 < baseline 100.0"
+  ],
+  "infra_errors": [
+    "X/xss_eschtml=TIMEOUT"
+  ],
   "baseline_error": false,
   "baseline_missing": false,
-  "exit_code": 0
+  "exit_code": 1
 }

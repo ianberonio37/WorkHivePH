@@ -27,10 +27,10 @@ What is a good OEE score?85% is considered world-class. Most plants start betwee
 Why is my OEE lower than my availability?Because availability is only one of three factors. A line that is available 90% of the time but runs slow and scraps 5% of output lands near 80% OEE. Measuring availability alone is the most common OEE mistake.
 Do I need sensors to measure OEE?No. You can calculate OEE from shift records: planned time, downtime, counts produced, and rejects. A disciplined logbook is enough to start; sensors improve resolution later.
 Run it on your own numbers
-[Open the interactive OEE Calculator in WorkHive](https://workhiveph.com/engineering-design.html): free, no sign-up needed for the calculators.
+[Open the interactive OEE Calculator in WorkHive (free sign-in)](https://workhiveph.com/engineering-design.html): free with a WorkHive account. Sign-up takes about 30 seconds.
 Related calculators
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
 [MTBF & MTTR Calculator](https://workhiveph.com/tools/mtbf-calculator/)
 [What is OEE and how to calculate it](https://workhiveph.com/learn/what-is-oee-how-to-calculate/)
 
-<!-- md-twin source-sha: 8b7c61b0dd4f5963 -->
+<!-- md-twin source-sha: db5842b37f9d9bd5 -->

@@ -178,7 +178,7 @@ def _blank_block_comments(text):
     line numbers stay identical for accurate reporting."""
     def repl(m):
         return "".join(ch if ch == "\n" else " " for ch in m.group(0))
-    return re.sub(r"/\*.*?\*/", repl, text, flags=re.S)
+    return re.sub(r"/\*(?![\"']).*?\*/", repl, text, flags=re.S)
 
 def scan(path):
     raw  = path.read_text(encoding="utf-8", errors="ignore")

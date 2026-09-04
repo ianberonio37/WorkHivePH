@@ -60,7 +60,7 @@
     if (path.includes('achievements'))  return { page: 'achievements',  label: 'Achievements',           hint: 'Ask me about your achievement levels, how to earn XP in each domain (Wrench Chronicle, Uptime Guardian, Safety Sentinel, etc.), what the tier system means, or how close you are to your next level.' };
     if (path.includes('skillmatrix'))   return { page: 'skillmatrix',   label: 'Skill Matrix',           hint: 'Ask about discipline requirements, exam tips, or how to progress through skill levels.' };
     if (path.includes('resume'))        return { page: 'resume',        label: 'Resume / CV Builder',    hint: 'Ask how to build your resume from your WorkHive skills, badges and logbook, how to upload files (photo, PDF, Word, Excel) so the details fill in automatically, or how to export a clean ATS-friendly PDF. Everything you add is editable and you choose what to keep.' };
-    if (path.includes('engineering-design')) return { page: 'engineering-design', label: 'Eng. Design Calculator', hint: 'Ask about any of the 46 calc types (HVAC, Electrical, Structural, Machine Design, Plumbing, Fire), formula inputs, Philippine standards (PEC 2017, PSME, NSCP, ASHRAE, NFPA, IEC, ASME), how to interpret results, or generate BOM/SOW and engineering diagrams.' };
+    if (path.includes('engineering-design')) return { page: 'engineering-design', label: 'Eng. Design Calculator', hint: 'Ask about any of the 55 calc types (HVAC, Electrical, Structural, Machine Design, Plumbing, Fire), formula inputs, Philippine standards (PEC 2017, PSME, NSCP, ASHRAE, NFPA, IEC, ASME), how to interpret results, or generate BOM/SOW and engineering diagrams.' };
     if (path.includes('analytics-report')) return { page: 'analytics-report', label: 'Analytics Report',    hint: 'Ask me to explain any section of your Analytics Report — RAG tiles (P1/P2/On-Track), the Findings tables, the Predictive outlook, or the SOW-format Action Plan. I can also help you draft cover-page text or rephrase clauses for a contractor brief.' };
     if (path.includes('analytics'))     return { page: 'analytics',     label: 'Analytics Engine',       hint: 'Ask me to explain your MTBF (ISO 14224), MTTR (ISO 14224), Availability, or OEE (ISO 22400-2 / Nakajima TPM) results. I can interpret PM compliance scores (SMRP Best Practices v5.0), explain failure trends, or walk you through the AI Action Plan. Use the PDF Report button to open the print-ready version, or Send to email it to your team.' };
     if (path.includes('report-sender')) return { page: 'report-sender', label: 'Report Sender',          hint: 'Ask me about the Report Sender tool. I can help you choose which reports to send (PM Overdue, Failure Digest, Shift Handover, Predictive), explain what each report contains, guide you through adding contacts, using voice context, or installing the app on your phone.' };
@@ -155,12 +155,34 @@
   // to bind the chat to a specific entity. Switching context swaps history.
   let _ragContext = null;        // { key, summary, badge }
   function _historyKey(k) { return 'wh_ai_history_' + (k || 'default'); }
+
+  /* ★AI HISTORY MUST BE OWNED (T121, 2026-08-27). This store had NO notion of who typed it: the
+     default key is literally 'global', and on load the widget repaints the persisted turns. On the
+     plant reality this platform is built for - ONE tablet at the station, workers signing in and
+     out through a shift - worker A could ask the companion about a machine, a mistake, or a person,
+     sign OUT, and worker B would open any page and find A's conversation sitting in the widget.
+     whAutoSaveDraft already solved exactly this for compose boxes by stamping the draft with its
+     owner and refusing to restore someone else's; the lesson simply never reached this store
+     (companion-launcher.js contained zero references to wh_last_worker / __owner). The fix is the
+     same shape, deliberately: stamp on save, refuse on load, and preserve A's history FOR A rather
+     than purging it - purge-on-sign-out destroys real work, ownership does not.
+     Legacy entries carry no owner and are therefore not restored: a one-time cost, and the safe
+     direction. */
+  function _historyOwner() {
+    try { return String(localStorage.getItem('wh_last_worker') || localStorage.getItem('wh_worker_name') || ''); }
+    catch (_) { return ''; }
+  }
   function _loadHistoryFor(key) {
-    try { return JSON.parse(localStorage.getItem(_historyKey(key)) || '[]'); }
-    catch { return []; }
+    try {
+      const raw = JSON.parse(localStorage.getItem(_historyKey(key)) || '[]');
+      if (Array.isArray(raw)) return [];                       // legacy, unowned -> do not restore
+      if (!raw || !Array.isArray(raw.turns)) return [];
+      if (String(raw.__owner || '') !== _historyOwner()) return [];   // someone else's words
+      return raw.turns;
+    } catch { return []; }
   }
   function _saveHistoryFor(key, h) {
-    try { localStorage.setItem(_historyKey(key), JSON.stringify((h || []).slice(-config.maxHistory))); } catch { /* empty-catch-allow: best-effort silent swallow */ }
+    try { localStorage.setItem(_historyKey(key), JSON.stringify({ __owner: _historyOwner(), turns: (h || []).slice(-config.maxHistory) })); } catch { /* empty-catch-allow: best-effort silent swallow */ }
   }
   function _setContext(rag) {
     // rag: { key, summary, badge } or null
@@ -862,7 +884,7 @@ PLATFORM TOOLS (so you can answer "where do I find X?" questions):
 - PM Scheduler (pm-scheduler.html): Register assets, assign PM scope checklists by category, set Monthly/Quarterly/Semi-Annual/Yearly frequencies, track due dates. Completing a PM optionally creates a linked Logbook entry.
 - Skill Matrix (skillmatrix.html): Competency tracking across 5 disciplines (Mechanical, Electrical, Instrumentation, Facilities Management, Production Lines). 5 levels (Awareness to Master). Pass exams, earn badges, view radar chart.
 - Resume / CV Builder (resume.html): Build a professional, ATS-friendly resume from your WorkHive skills, badges and logbook. Upload a photo, PDF, Word, or Excel file and AI fills the details into an editable checklist you control. Export to PDF or JSON. Free for every worker.
-- Engineering Design Calculator (engineering-design.html): 46 calc types across Mechanical, HVAC, Electrical, Fire Protection, Plumbing, Structural, Machine Design. BOM and Scope of Works reports. Engineering diagrams. Philippine standards (PEC 2017, PSME, NSCP, ASHRAE, NFPA).
+- Engineering Design Calculator (engineering-design.html): 55 calc types across Mechanical, HVAC, Electrical, Fire Protection, Plumbing, Structural, Machine Design. BOM and Scope of Works reports. Engineering diagrams. Philippine standards (PEC 2017, PSME, NSCP, ASHRAE, NFPA).
 - Day Planner (dayplanner.html): DILO/WILO/MILO/YILO multi-resolution scheduler for daily, weekly, monthly, and yearly maintenance work planning. Add tasks, set durations, drag to reorder.
 - My Work Assistant (assistant.html): Full AI assistant with access to the worker's own logbook records for personalised insights.
 - Marketplace (marketplace.html): Browse and post Parts, Training, and Jobs listings for Philippine industrial plants. A free, contact-only directory: buyers reach sellers via phone or email through the inquiry form, with no platform fees or payment processing. Verified sellers carry a trust badge.
@@ -1478,7 +1500,11 @@ happens to know maintenance, not a manual.`;
     // turns. Pages that need scoped history call setContext() later, which
     // swaps to a per-key history (project:<id>, asset:<uuid>, ...).
     try {
-      const saved = JSON.parse(/* storage-key-allow: prefix only; runtime key is wh_ai_history_<sessionId> */ localStorage.getItem('wh_ai_history_' + GLOBAL_HISTORY_KEY) || '[]');
+      /* Routed through _loadHistoryFor so the OWNERSHIP check applies here too. This read
+         bypassed the helper and went straight to localStorage, so stamping the store alone
+         would have left the one path that actually paints the widget on load still restoring
+         another worker's conversation - the fix-every-path shape this codebase keeps meeting. */
+      const saved = _loadHistoryFor(GLOBAL_HISTORY_KEY);
       if (Array.isArray(saved) && saved.length) history = saved.slice(-config.maxHistory);
     } catch (_) { /* fall back to empty history */ /* empty-catch-allow: best-effort silent swallow */ }
     buildWidget();

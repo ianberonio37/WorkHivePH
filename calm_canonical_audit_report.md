@@ -6,10 +6,10 @@ CANONICAL / DRIFT / GAP / ALLOWED. Run by `tools/audit_calm_dashboard_canonical.
 ## Summary
 
 - Calm-opted-in pages: **13**
-- Fully compliant pages (0 drift + 0 gap): **10** (76%)
-- Canonical reads (✅): **46**
+- Fully compliant pages (0 drift + 0 gap): **9** (69%)
+- Canonical reads (✅): **48**
 - Drift reads (⚠️ wrapper exists, page reads raw): **0**
-- Gap reads (❌ no wrapper exists yet): **5**
+- Gap reads (❌ no wrapper exists yet): **8**
 - Allowed reads (legitimate raw): **50**
 - Truth views in registry: **45**
 
@@ -25,7 +25,7 @@ CANONICAL / DRIFT / GAP / ALLOWED. Run by `tools/audit_calm_dashboard_canonical.
 | `asset-hub.html` | 10 | 0 | 0 | 11 | ✓ | ✅ |
 | `dayplanner.html` | 2 | 0 | 0 | 2 | ✓ | ✅ |
 | `founder-console.html` | 5 | 0 | 3 | 7 | ✓ | ❌ |
-| `hive.html` | 10 | 0 | 0 | 9 | ✓ | ✅ |
+| `hive.html` | 12 | 0 | 3 | 9 | ✓ | ❌ |
 | `index.html` | 9 | 0 | 0 | 4 | ✓ | ✅ |
 | `ph-intelligence.html` | 0 | 0 | 0 | 2 | — | ✅ |
 | `plant-connections.html` | 1 | 0 | 0 | 5 | ✓ | ✅ |
@@ -40,6 +40,9 @@ CANONICAL / DRIFT / GAP / ALLOWED. Run by `tools/audit_calm_dashboard_canonical.
 | `marketplace_listings` | 1 | `v_marketplace_listing_truth` (suggested) |
 | `service_credit_topups` | 1 | `v_service_credit_topup_truth` (suggested) |
 | `v_credit_posture` | 1 | `v_v_credit_posture_truth` (suggested) |
+| `rcm_fmea_modes` | 1 | `v_rcm_fmea_mode_truth` (suggested) |
+| `rcm_strategies` | 1 | `v_rcm_strategie_truth` (suggested) |
+| `v_hive_value_summary` | 1 | `v_v_hive_value_summary_truth` (suggested) |
 
 ## Top DRIFT tables (wrapper exists, pages still reading raw)
 
@@ -87,9 +90,10 @@ CANONICAL / DRIFT / GAP / ALLOWED. Run by `tools/audit_calm_dashboard_canonical.
 **Gap** (3): `marketplace_listings`, `service_credit_topups`, `v_credit_posture`
 **Allowed raw** (7): `ai_cost_log`, `analytics_events`, `hive_audit_log`, `marketplace_sellers`, `platform_feedback`, `service_voucher_redemptions`, `service_vouchers`
 
-### `hive.html` — ✅ compliant
+### `hive.html` — ❌ not compliant
 
-**Canonical** (10): `v_ai_reports_truth`, `v_alert_truth`, `v_hives_truth`, `v_inventory_items_truth`, `v_knowledge_freshness_truth`, `v_logbook_truth`, `v_pm_compliance_truth`, `v_pm_scope_items_truth`, `v_skill_badges_truth`, `v_worker_truth`
+**Canonical** (12): `v_ai_reports_truth`, `v_alert_truth`, `v_amc_truth`, `v_hives_truth`, `v_inventory_items_truth`, `v_knowledge_freshness_truth`, `v_logbook_truth`, `v_pm_compliance_truth`, `v_pm_scope_items_truth`, `v_skill_badges_truth`, `v_worker_assignment_truth`, `v_worker_truth`
+**Gap** (3): `rcm_fmea_modes`, `rcm_strategies`, `v_hive_value_summary`
 **Allowed raw** (9): `asset_nodes`, `community_xp`, `hive_audit_log`, `hive_benchmarks`, `hive_members`, `hives`, `logbook`, `network_benchmarks`, `pm_completions`
 
 ### `index.html` — ✅ compliant

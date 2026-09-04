@@ -64,7 +64,12 @@ def _check_file(path: Path) -> list:
     escaped_vars: set[str] = set()
     var_def_re = re.compile(
         r"(?:const|let|var)\s+(\w+)\s*=\s*[^\n;]*?"
-        r"(?:escapeLike|likeEscape|escapeLikePattern"
+        # whSafeSearchTerm is the central helper (utils.js): it escapes % and _ AND removes
+        # the PostgREST or() delimiters , ( ) \ - strictly stronger than the inline replace
+        # chain this gate already accepts. Added 2026-08-27 after a comma in a search term was
+        # measured returning HTTP 400 ("failed to parse logic tree"), which escaping alone
+        # never prevented. Teaching the gate the stronger helper, not loosening the rule.
+        r"(?:whSafeSearchTerm|escapeLike|likeEscape|escapeLikePattern"
         r"|\.replace\s*\(\s*/\[%_\]/"
         r"|\.replace\s*\(\s*/%/[\w]*\s*,\s*['\"]\\\\%['\"])",
         re.IGNORECASE | re.DOTALL,

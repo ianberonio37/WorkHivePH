@@ -29,6 +29,12 @@ if sys.platform == "win32" and sys.stdout.encoding and sys.stdout.encoding.lower
     import io
     sys.stdout = io.TextIOWrapper(sys.stdout.detach(), encoding="utf-8", errors="replace")
 
+# The presence check below (has_gate = any signal in the file) proves a guard EXISTS — not that it COVERS
+# the all-hives DRAIN path. A roster-drainer can nest its guard inside `if (hive_id)` and leave the no-hive
+# fan-out anon/authed-open (the amc-orchestrator cluster, 2026-09-01). Reuse the write-authz gate's
+# brace-matched detector so this sweep catches that too. sys.path[0] is this tools/ dir when run directly.
+from validate_public_fn_write_authz import drain_unguarded  # noqa: E402
+
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 FUNCS = ROOT / "supabase" / "functions"
 CONFIG = ROOT / "supabase" / "config.toml"
@@ -51,6 +57,12 @@ EXEMPT = {
     # Verified by code inspection 2026-07-20 (per-page bughunt v3 L6):
     "resume-extract":      "hive_id accepted for back-compat but IGNORED; reads no hive data.",
     "resume-polish":       "hive_id accepted for back-compat but IGNORED; reads no hive data.",
+    # Verified by code inspection 2026-09-03 (VEHICLE SEED VM2): mirrors resume-extract exactly —
+    # the only hive_id references are COMMENTS restating Pillar P ('never key a rate-limit on a
+    # client hive_id'); the body reads {kind, payload, auth_uid, miner_only}, touches ONLY
+    # rate_limits via checkSoloRateLimit keyed on auth_uid/IP, and returns extracted JSON.
+    # No tenant table is read or written.
+    "vehicle-doc-extract": "hive_id appears only in Pillar-P comments; reads no hive data.",
     "voice-journal-agent": "hive_id used ONLY as ai_cost_log telemetry tag; no tenant read/write.",
     # SIGNED WEBHOOK, reviewed 2026-08-20. Unlike the three above it DOES write a tenant row
     # (automation_log), so it is exempted on a different and narrower basis: the hive_id is
@@ -86,6 +98,7 @@ def main() -> int:
         return 1
     jwt_gated = verify_jwt_fns()
     ungated: list[str] = []
+    drain_open: list[str] = []
     checked = 0
     for d in sorted(FUNCS.iterdir()):
         if not d.is_dir() or d.name == "_shared":
@@ -103,17 +116,25 @@ def main() -> int:
         has_gate = any(re.search(s, src) for s in AUTH_SIGNALS) or d.name in jwt_gated
         if not has_gate:
             ungated.append(d.name)
+        # Even WITH a gate marker present, a roster-drainer whose guard sits only inside `if (hive_id)`
+        # leaves its all-hives DRAIN path open (the amc-orchestrator cluster). Coverage, not presence.
+        elif drain_unguarded(src):
+            drain_open.append(d.name)
 
     print("=" * 70)
-    print("  per-page bughunt v3 · L6 — every hive-touching edge fn must gate its caller")
+    print("  per-page bughunt v3 · L6 — every hive-touching edge fn must gate its caller (drain path incl.)")
     print("=" * 70)
-    if ungated:
+    if ungated or drain_open:
         for n in ungated:
             print(f"  {RED}FAIL{RST}  {n}: references hive_id but has NO caller gate "
                   f"(add resolveTenancy/requireServiceRole/getUser or verify_jwt=true)")
-        print(f"\n  Summary: {len(ungated)} ungated fn(s) of {checked} checked — cross-tenant injection risk")
+        for n in drain_open:
+            print(f"  {RED}FAIL{RST}  {n}: roster-drainer whose caller gate sits ONLY inside `if (hive_id)` — "
+                  f"the no-hive DRAIN path fans out over ALL hives ungated (add a service-role gate on !hive_id)")
+        print(f"\n  Summary: {len(ungated)} ungated + {len(drain_open)} drain-path-open of {checked} checked "
+              f"— cross-tenant injection risk")
         return 1
-    print(f"  {GREEN}PASS{RST} — every tenant-touching edge fn gates its caller "
+    print(f"  {GREEN}PASS{RST} — every tenant-touching edge fn gates its caller, drain path included "
           f"({checked} fns scanned, {len(jwt_gated)} via verify_jwt, {len(EXEMPT)} exempt)")
     return 0
 

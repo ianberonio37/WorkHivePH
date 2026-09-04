@@ -13,6 +13,11 @@ function bodyOf(name) {
   // (helpers like bumpSoloBucket are module-private, not exported).
   let sig = src.indexOf('export async function ' + name);
   if (sig < 0) sig = src.indexOf('async function ' + name);
+  // ...and SYNCHRONOUS helpers, which this only needed once a refactor moved the 429 body's
+  // retry_after_seconds into `export function secondsToWindowEnd(...)`. Async forms are still tried
+  // first, so an async function can never be matched by the narrower sync probe.
+  if (sig < 0) sig = src.indexOf('export function ' + name);
+  if (sig < 0) sig = src.indexOf('function ' + name);
   if (sig < 0) throw new Error('not found: ' + name);
   let i = src.indexOf('{', src.indexOf(')', sig));   // first { after the param list
   let depth = 0;
@@ -24,6 +29,14 @@ function bodyOf(name) {
 }
 
 const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
+
+// SAME SHAPE AS bumpSoloBucket BELOW, one refactor later (2026-08-28): checkAIRateLimit now builds its
+// 429 body with `secondsToWindowEnd(...)`, a SEPARATE exported helper in rate-limit.ts. An extracted
+// body sees only globals + its params, so the call threw `ReferenceError: secondsToWindowEnd is not
+// defined` and C3 reported "Node decision test FAILED/absent" - which reads as a product regression in
+// the daily ceiling when the product was fine and the harness had simply not followed the refactor.
+// It is SYNCHRONOUS (`export function`), so a plain Function, not an AsyncFunction.
+globalThis.secondsToWindowEnd = new Function('windowStart', 'spanSeconds', bodyOf('secondsToWindowEnd'));
 const checkAIRateLimit = new AsyncFunction('db', 'hiveId', 'limitPerHour', 'limitPerDay', bodyOf('checkAIRateLimit'));
 // checkSoloRateLimit was refactored to DELEGATE its bucket logic to a bumpSoloBucket helper, so it is
 // no longer self-contained. Extract that helper too and expose it as a global (AsyncFunction bodies see

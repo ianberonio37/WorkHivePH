@@ -37,7 +37,42 @@ ASSISTANT_HTML = "assistant.html"
 VOICE_JS       = "voice-handler.js"
 SKILL_CONTENT  = "skill-content.js"
 
-CORRECT_CALC_COUNT = 46
+# ★THE SAME STALE CONSTANT LIVED IN TWO GATES, AND FIXING ONE MADE THE OTHER FAIL LOUDER
+# (2026-08-28). Both this file and validate_ai_context.py hardcoded 46 while CALC_TYPES_UI held 55.
+# Correcting the product copy to 55 turned this gate from "the surfaces disagree" into "BOTH
+# surfaces are wrong" - two failures aimed at the only two places that had just become right.
+#
+# ★DERIVED HERE RATHER THAN IMPORTED, and the reason is a bug I caused and then measured: importing
+# _derive_calc_count from validate_ai_context detaches THIS script's stdout, because that module
+# rewraps sys.stdout at import time for Windows UTF-8. The import "worked" and then every print()
+# raised "I/O operation on closed file". A module with an import-time side effect is not a library,
+# whatever its functions look like. So the logic is duplicated deliberately - what must never be
+# duplicated is the NUMBER, and neither copy contains one.
+def _derive_calc_count():
+    """Count calculators from engineering-design.js's CALC_TYPES_UI registry, never from a literal."""
+    try:
+        with open("engineering-design.js", encoding="utf-8", errors="replace") as fh:
+            src = fh.read()
+        i = src.find("const CALC_TYPES_UI = {")
+        if i < 0:
+            return None
+        j, depth, started = i + len("const CALC_TYPES_UI = "), 0, False
+        while j < len(src):
+            ch = src[j]
+            if ch == "{":
+                depth += 1
+                started = True
+            elif ch == "}":
+                depth -= 1
+                if started and depth == 0:
+                    break
+            j += 1
+        return len(re.findall(r"\{\s*id:\s*'", src[i:j + 1])) or None
+    except Exception:
+        return None
+
+
+CORRECT_CALC_COUNT = _derive_calc_count()
 
 DRAFT_ARTIFACTS = [
     "TODO", "FIXME", "[PLACEHOLDER]", "[INSERT",

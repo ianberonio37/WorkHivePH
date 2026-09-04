@@ -5,7 +5,7 @@ import { getCorsHeaders } from "../_shared/cors.ts";
 import { handleHealth } from "../_shared/health.ts";
 import { log } from "../_shared/logger.ts";
 // Pillar I (Gateway Spine): verify hive membership on the manual (browser) path.
-import { resolveIdentity, resolveTenancy } from "../_shared/tenant-context.ts";
+import { resolveIdentity, resolveTenancy, requireServiceRole } from "../_shared/tenant-context.ts";
 // A5 (FULLSTACK_COMPONENT_LIBRARY Layer A): per-person rate limit on the browser path.
 import { checkSoloRateLimit, soloRateLimitKey, soloRateLimitedResponse } from "../_shared/rate-limit.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
@@ -57,6 +57,21 @@ serveObserved("embed-entry", async (req) => {
 
     // ── Auto-detect: Supabase DB webhook vs manual call ──────────────────────
     if (body.type === "INSERT" && body.record) {
+      // ★The DB-webhook shape (INSERT + record) writes a RAG-index row keyed on the CALLER-SUPPLIED
+      // record.hive_id on a service-role client, and this fn is deployed --no-verify-jwt. Without a gate,
+      // an anon POST {type:"INSERT",table:"logbook",record:{hive_id:"<victim>",problem:…}} injects attacker
+      // text into ANY hive's fault_knowledge/skill_knowledge/pm_knowledge — cross-tenant RAG poisoning that
+      // the victim's AI companion then retrieves (a safety concern on a maintenance platform). Live-confirmed
+      // reachable: an anon spoofed webhook reached the embed logic (skipped only by the content-length guard).
+      // The only legit callers of this shape are internal (the embedding relay / DB triggers, which hold the
+      // service-role key — the browser callers use the manual {type,hive_id,entry} shape below); require it.
+      const _g = await requireServiceRole(db, req);
+      if (!_g.ok) {
+        return new Response(
+          JSON.stringify({ error: _g.message, code: _g.code }),
+          { status: _g.status, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        );
+      }
       const record = body.record;
 
       if (body.table === "logbook") {
@@ -125,7 +140,20 @@ serveObserved("embed-entry", async (req) => {
           // same placement as voice-model-call, the reference adopter).
           const _ip = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
           const _rl = await checkSoloRateLimit(db, soloRateLimitKey(authUid, _ip), undefined, undefined, _ip);
-          if (!_rl.allowed) return soloRateLimitedResponse(corsHeaders);
+          if (!_rl.allowed) return soloRateLimitedResponse(corsHeaders, _rl.retry_after_seconds);
+        }
+      } else {
+        // ★No hive_id on the manual path is NOT a browser member call — every browser caller
+        // (embedSkillEntry/embedFaultEntry/embedPMEntry/voice-handler) POSTs its own hive_id + a JWT.
+        // The only legit no-hive caller is internal/service-role. Without this, an anon POST
+        // {type:"fault",entry:{…}} passes straight to the embed — burning provider tokens and writing an
+        // orphan RAG row — with no auth and no rate limit (both were nested in if(hive_id)). Live-confirmed.
+        const _g = await requireServiceRole(db, req);
+        if (!_g.ok) {
+          return new Response(
+            JSON.stringify({ error: _g.message, code: _g.code }),
+            { status: _g.status, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+          );
         }
       }
 

@@ -71,7 +71,7 @@ For mature manufacturing-compliance workflows, a large integration catalogue, an
 
 Yes, and many plants do. Keep the incumbent as the enterprise system of record and use WorkHive for floor-level capture where seats are expensive or the network is unreliable.
 
-**[Try WorkHive free](https://workhiveph.com/#join)**: Free at the worker tier, offline-first, built for Philippine plants.
+**[Try WorkHive free](https://workhiveph.com/?signup=1)**: Free at the worker tier, offline-first, built for Philippine plants.
 
 ## Sources
 
@@ -81,4 +81,4 @@ Yes, and many plants do. Keep the incumbent as the enterprise system of record a
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 26b930685e008564 -->
+<!-- md-twin source-sha: fade62b5eca52113 -->

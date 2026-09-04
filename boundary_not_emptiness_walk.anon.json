@@ -1,0 +1,13 @@
+{
+ "index.html": {
+  "absence": true,
+  "refusal": true,
+  "absenceMatch": "No email required Not ready yet",
+  "refusalMatch": "Join the Hive",
+  "absenceContext": "ur Free Account Free at the worker tier, forever · About 30 seconds · No email required Not ready yet? Get product updates by email: Work email Get updates Adds you to the",
+  "refusalContext": "ory, skill matrix, engineering calculators, and an AI work assistant. Join the Hive See How It Works FREE TO USE, SIGN UP TO START: Logbook · PM Schedule",
+  "len": 14307,
+  "sample": "Skip to main content Sign In THE HIVE IS OPEN · PHILIPPINES Access Your Memory Free Industrial Tools for Every Filipino Worker Free industrial tools for every Filipino worker: digital logbook, PM scheduler, spare-parts inventory, skill matrix, engineering calc",
+  "verdict": "REFUSAL NAMED"
+ }
+}

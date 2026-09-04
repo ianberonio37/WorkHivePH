@@ -335,7 +335,10 @@ const graded = results.filter((r) => r.ok !== null);
 const bad = graded.filter((r) => !r.ok);
 const vGraded = viewResults.filter((r) => r.ok !== null);
 const vBad = vGraded.filter((r) => !r.ok);
-writeFileSync('why_refused_report.json', JSON.stringify({
+// A NARROWED RUN MUST NOT CLOBBER THE FULL ONE: this file is read downstream (gates and
+// bank_prover_reports), so a --page/--case spot-check overwriting a whole sweep's verdicts
+// corrupts the BANK, not just a log. Measured on prove_retry_path 2026-08-27.
+writeFileSync((ONE ? 'why_refused_report.partial.json' : 'why_refused_report.json'), JSON.stringify({
   injected: { status: 403, code: '42501' },
   totals: { pages: results.length, graded: graded.length,
             ungraded: results.filter((r) => r.ok === null).length, failing: bad.length,

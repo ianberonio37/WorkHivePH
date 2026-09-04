@@ -10,7 +10,7 @@ By **WorkHive Editorial Team**
 ·
 Published 17 May 2026
 ·
-Updated 17 May 2026
+Updated 24 Aug 2026
 ·
 10 min read
 
@@ -72,7 +72,7 @@ The tool this guide is about
 
 Filipino, English, or Taglish. Reads your hive's logbook history, skill matrix, PM schedule, and asset register so answers are specific to your plant, not generic ChatGPT replies. Cites the senior technician whose entries it learned from. Free at the worker tier forever; ramps up to predictive features at Stage 3.
 
-No hive yet? [Join WorkHive](https://workhiveph.com/#join) first (free, takes 30 seconds).
+No hive yet? [Join WorkHive](https://workhiveph.com/?signup=1) first (free, takes 30 seconds).
 
 ## Why this is different from ChatGPT or Gemini
 
@@ -162,4 +162,4 @@ It will, sometimes. Always cross-check against three things: (1) the OEM service
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 9917dcc4b0196186 -->
+<!-- md-twin source-sha: ef2811c83be68549 -->

@@ -346,29 +346,59 @@ _DEAD_PERSONA_FN = re.compile(r"window\.getCurrentPersona\b")
 _WRONG_PERSONA_KEY = re.compile(r"getItem\(\s*['\"]wh_persona['\"]")
 
 
+# ★T85 WIDENED THE SCOPE (2026-08-26). This check guarded the LAUNCHER alone, and the very
+# same bug was sitting in assistant.html - fixed there by hand, with nothing to stop it
+# returning. One file was where CL9 happened to look, never where the class lives: any
+# surface that sends a persona can resolve it wrongly, and the failure is silent because
+# the wrong answer IS the default.
+_PERSONA_SURFACES = ("companion-launcher.js", "assistant.html", "index.html",
+                     "voice-journal.html", "voice-handler.js")
+
+# ★AND THE THIRD FORM OF THE SAME MISTAKE: a CONSTANT written to a persona column.
+# voice-handler's _logTTSMetrics stamped persona:'zaniah' on every tts_quality_log row
+# (measured: 13 rows, 13 zaniah). That column exists to answer "does one companion's voice
+# fail or lag more?", and a constant does not merely fail to answer it - it answers WRONGLY,
+# reporting Hezekiah has zero TTS problems because Hezekiah has zero rows. A dead resolver
+# lies to the USER; a constant stamp lies to whoever later reads the metric.
+_WRITE_BLOCK = re.compile(r"\.(insert|update|upsert)\s*\(\s*\{(?:[^{}]|\{[^{}]*\})*?\}", re.S)
+_PERSONA_CONST = re.compile(r"""persona\w*\s*:\s*['"](\w+)['"]""")
+
+
 def check_persona_resolution() -> dict:
-    p = ROOT / _LAUNCHER
     violations: list[dict] = []
-    if p.exists():
+    for name in _PERSONA_SURFACES:
+        p = ROOT / name
+        if not p.exists():
+            continue
         code = _strip_js_comments(p.read_text(encoding="utf-8", errors="ignore"))
         for m in _DEAD_PERSONA_FN.finditer(code):
             violations.append({
-                "file": _LAUNCHER, "line": code[:m.start()].count("\n") + 1,
-                "code": "window.getCurrentPersona — never defined",
-                "why": "persona resolver calls an undefined fn → always falls through to the default 'zaniah'; "
-                       "use window.getPersonaKey() (wh-persona.js)",
+                "file": name, "line": code[:m.start()].count("\n") + 1,
+                "code": "window.getCurrentPersona - never defined",
+                "why": "persona resolver calls an undefined fn -> always falls through to the default "
+                       "'zaniah'; use window.getPersonaKey() (wh-persona.js)",
             })
         for m in _WRONG_PERSONA_KEY.finditer(code):
             violations.append({
-                "file": _LAUNCHER, "line": code[:m.start()].count("\n") + 1,
-                "code": "localStorage.getItem('wh_persona') — wrong key",
-                "why": "the canonical persona key is 'wh_voice_journal_persona'; 'wh_persona' is never set → "
-                       "always 'zaniah', so the worker's Hezekiah/Zaniah selection is ignored by the backend",
+                "file": name, "line": code[:m.start()].count("\n") + 1,
+                "code": "localStorage.getItem('wh_persona') - wrong key",
+                "why": "the canonical persona key is 'wh_voice_journal_persona'; 'wh_persona' is never set "
+                       "-> always 'zaniah', so the worker's selection is ignored by the backend",
             })
+        for w in _WRITE_BLOCK.finditer(code):
+            for c in _PERSONA_CONST.finditer(w.group(0)):
+                violations.append({
+                    "file": name, "line": code[:w.start() + c.start()].count("\n") + 1,
+                    "code": c.group(0) + " - a constant written to a persona column",
+                    "why": "the row records WHICH companion acted; a literal makes every row agree and the "
+                           "metric answers wrongly (the other persona looks flawless, having no rows). "
+                           "Stamp the resolved persona the caller already holds",
+                })
     return {
         "count": len(violations),
         "violations": violations,
-        "fix": "resolve persona via window.getPersonaKey() with a 'wh_voice_journal_persona' fallback",
+        "fix": "resolve persona via window.getPersonaKey() (canonical key 'wh_voice_journal_persona'), "
+               "and stamp the RESOLVED value on persona columns - never a literal",
     }
 
 

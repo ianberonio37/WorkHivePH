@@ -10,7 +10,7 @@ By **WorkHive Editorial Team**
 ·
 Published 7 July 2026
 ·
-Updated 7 July 2026
+Updated 24 Aug 2026
 ·
 12 min read
 
@@ -133,7 +133,7 @@ The tool this guide is about
 
 Two experts in one tap, answers from your own hive records with the source shown, hands-free voice in ten Philippine languages, memory across days, and paperwork drafted for you. Free forever, no paid tiers, working alongside the systems you already have.
 
-No hive yet? [Join WorkHive](https://workhiveph.com/#join) first (free, takes 30 seconds).
+No hive yet? [Join WorkHive](https://workhiveph.com/?signup=1) first (free, takes 30 seconds).
 
 ## Frequently asked questions
 
@@ -178,4 +178,4 @@ It grounds its safety guidance in Philippine rules: the workplace-safety law RA 
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: b9a0f8bddb790f3c -->
+<!-- md-twin source-sha: c5119e8a004a51bc -->

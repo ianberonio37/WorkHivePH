@@ -22,7 +22,7 @@
   <meta property="og:type" content="article" />
   <meta property="og:site_name" content="WorkHive" />
   <meta property="article:published_time" content="2026-05-17T00:00:00+08:00" />
-  <meta property="article:modified_time" content="2026-08-17T00:00:00+08:00" />
+  <meta property="article:modified_time" content="2026-08-24T00:00:00+08:00" />
   <meta property="article:author" content="WorkHive Editorial Team" />
   <meta property="article:section" content="Engineering" />
 
@@ -45,7 +45,7 @@
         "author": { "@type": "Organization", "name": "WorkHive Editorial Team", "url": "https://workhiveph.com/" },
         "publisher": { "@id": "https://workhiveph.com/#organization" },
         "datePublished": "2026-05-17",
-        "dateModified": "2026-08-17",
+        "dateModified": "2026-08-24",
         "mainEntityOfPage": "https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/",
         "inLanguage": "en-PH",
         "articleSection": "Engineering",
@@ -133,7 +133,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = { theme: { extend: { colors: {
@@ -270,7 +270,8 @@
     <nav class="flex items-center gap-6">
       <a href="/" class="nav-link">Home</a>
       <a href="/learn/" class="nav-link">Learn</a>
-      <a href="/#join" class="nav-link">Join the Hive</a>
+      <a href="/?signin=1" class="nav-link">Sign In</a>
+      <a href="/?signup=1" class="nav-link">Sign Up Free</a>
     </nav>
   </div>
 </header>
@@ -292,7 +293,7 @@
       <span class="opacity-40">·</span>
       <span>Published <time datetime="2026-05-17">17 May 2026</time></span>
       <span class="opacity-40">·</span>
-      <span>Updated <time datetime="2026-08-17">17 Aug 2026</time></span>
+      <span>Updated <time datetime="2026-08-24">24 Aug 2026</time></span>
       <span class="opacity-40">·</span>
       <span>10 min read</span>
     </div>
@@ -345,7 +346,7 @@
       <p>A standards-referenced calculator fixes all four. It uses the current standard, the right tropical constants, the same formula for every junior engineer in the team, and produces a structured report the senior engineer can verify in 60 seconds. This is the same productivity case that the digital logbook makes for technicians at <a href="/learn/start-digital-logbook-philippine-factory/">Stage 1</a>: replace ad-hoc memory with structured records.</p>
 
       <h2 id="disciplines">The 8 disciplines covered</h2>
-      <table>
+      <div data-table-scroll style="overflow-x:auto;-webkit-overflow-scrolling:touch;" role="region" aria-label="Scrollable table" tabindex="0"><table>
         <thead><tr><th>Discipline</th><th>Calculators included</th></tr></thead>
         <tbody>
           <tr><td><strong>Electrical &amp; Power</strong> (15)</td><td><a href="/tools/transformer-sizing-calculator/">Transformer sizing</a>, <a href="/tools/wire-sizing-calculator/">cable and conductor sizing</a> (PEC 2017), <a href="/tools/voltage-drop-calculator/">voltage drop</a>, <a href="/tools/short-circuit-calculator/">short circuit</a>, <a href="/tools/power-factor-correction-calculator/">power factor correction</a>, <a href="/tools/generator-sizing-calculator/">generator sizing</a>, <a href="/tools/solar-pv-calculator/">solar PV</a></td></tr>
@@ -357,12 +358,12 @@
           <tr><td><strong>Vertical Transport</strong> (2)</td><td><a href="/tools/elevator-traffic-calculator/">Elevator traffic</a>, <a href="/tools/hoist-capacity-calculator/">hoist capacity</a></td></tr>
           <tr><td><strong>Boiler &amp; Utilities</strong> (2)</td><td><a href="/tools/boiler-steam-calculator/">Boiler and steam duty</a>, <a href="/tools/boiler-system-calculator/">boiler system sizing</a></td></tr>
         </tbody>
-      </table>
+      </table></div>
       <p>Total: 60 specific calculators across 8 disciplines, each tagged with its applied standard (PEC 2017, ASHRAE, PSME, NFPA, ISO).</p>
 
       <h2 id="tropical-constants">Tropical constants: why the temperate defaults are wrong here</h2>
       <p>Most engineering design software ships with default constants from temperate climates (20 degree C, sea level). The Philippines runs at 30 to 35 degree C with humidity well above the temperate default. The difference matters for any calculation that depends on air density, viscosity, or saturation pressure.</p>
-      <table>
+      <div data-table-scroll style="overflow-x:auto;-webkit-overflow-scrolling:touch;" role="region" aria-label="Scrollable table" tabindex="0"><table>
         <thead><tr><th>Property</th><th>Temperate (20 degree C)</th><th>Tropical (35 degree C, PH)</th><th>Affects</th></tr></thead>
         <tbody>
           <tr><td>Air density rho</td><td>1.204 kg/m3</td><td>1.15 kg/m3 (4% lower)</td><td>Fan sizing, duct pressure</td></tr>
@@ -370,7 +371,7 @@
           <tr><td>Kinematic viscosity nu</td><td>1.505e-5 m2/s</td><td>1.652e-5 m2/s (10% higher)</td><td>Duct sizing K constant</td></tr>
           <tr><td>Saturation pressure</td><td>~2.3 kPa</td><td>~5.6 kPa</td><td>Cooling load, condensate</td></tr>
         </tbody>
-      </table>
+      </table></div>
       <p>The duct-sizing K constant in the equal-friction formula is K = 0.01811 for temperate, K = 0.01740 for tropical. Using the temperate K in a Philippine project gives undersized duct, 5 to 10 percent low fan static, and a fan motor that struggles in real ambient. The WorkHive HVAC calculator uses tropical K by default.</p>
 
       <h2 id="worked-hvac">Worked example: HVAC duct sizing for a 100 kW office cooling load</h2>
@@ -407,9 +408,15 @@ NOT 541 mm. Use 467 mm in Darcy-Weisbach.</pre>
       <div class="cta-box">
         <p class="cta-eyebrow">The tool this guide is about</p>
         <h4 aria-level="3">WorkHive Engineering Design replaces 30 minutes of spreadsheet work with 30 seconds</h4>
-        <p>60 standards-referenced calculators across 8 disciplines (HVAC and cooling, mechanical, electrical, plumbing, fire protection, machine design). Each output is tagged with its applied standard (PEC 2017, ASHRAE, PSME, NFPA, ISO) and Philippine tropical constants where they matter. PDF report ready for licensed PME or PEE sign-off. Saved designs build your engineering portfolio. Free at the worker tier forever.</p>
+        <!-- T162 (2026-08-28): this parenthetical used to name SIX disciplines under a count of
+             EIGHT -- it had been filled in from the in-app suite's 6 groupings (CALC_TYPES_UI) while
+             the sentence, and the table above, describe the 60 PUBLIC tool pages grouped in 8. The
+             two sets are different decompositions, not a drifted number: the table's 15+14+10+10+5+
+             2+2+2 sums to exactly 60, and the app's registry gate reports 55 across 6. Listing the
+             app's six here made a true count read as self-refuting. Names now match the table. -->
+        <p>60 standards-referenced calculators across 8 disciplines (electrical and power, plumbing and pumps, HVAC and cooling, mechanical and machine design, fire protection, reliability and metrics, vertical transport, boiler and utilities). Each output is tagged with its applied standard (PEC 2017, ASHRAE, PSME, NFPA, ISO) and Philippine tropical constants where they matter. PDF report ready for licensed PME or PEE sign-off. Saved designs build your engineering portfolio. Free at the worker tier forever.</p>
         <a href="/engineering-design.html" class="cta-btn">Open Engineering Design</a>
-        <p class="cta-secondary">No hive yet? <a href="/#join">Join WorkHive</a> first (free, takes 30 seconds).</p>
+        <p class="cta-secondary">No hive yet? <a href="/?signup=1">Join WorkHive</a> first (free, takes 30 seconds).</p>
       </div>
 
       
@@ -501,7 +508,7 @@ NOT 541 mm. Use 467 mm in Darcy-Weisbach.</pre>
       </ul>
 
       <h2 id="standards-table">Standards referenced by each calculator</h2>
-      <table>
+      <div data-table-scroll style="overflow-x:auto;-webkit-overflow-scrolling:touch;" role="region" aria-label="Scrollable table" tabindex="0"><table>
         <thead><tr><th>Calculator</th><th>Primary standard</th></tr></thead>
         <tbody>
           <tr><td>HVAC duct sizing</td><td>ASHRAE 2021 Fundamentals Ch 21, SMACNA HVAC Duct Construction</td></tr>
@@ -520,7 +527,7 @@ NOT 541 mm. Use 467 mm in Darcy-Weisbach.</pre>
           <tr><td>Structural beam</td><td>NSCP 2015 (Philippine), AISC 360</td></tr>
           <tr><td>Control valve sizing</td><td>ISA-75.01, IEC 60534</td></tr>
         </tbody>
-      </table>
+      </table></div>
 
       <h2 id="sign-off">Calculator versus licensed engineer sign-off</h2>
       <p>A common question: "If the calculator gives me the answer, do I still need a PME or PEE to sign?"</p>
@@ -623,11 +630,11 @@ NOT 541 mm. Use 467 mm in Darcy-Weisbach.</pre>
 
 <footer class="py-10 border-t border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
   <div class="max-w-4xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">
-    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-08-17">17 Aug 2026</time></p>
+    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-08-24">24 Aug 2026</time></p>
     <div class="flex items-center gap-6">
       <a href="/" class="hover:text-white/60 transition-colors">Home</a>
       <a href="/#faq" class="hover:text-white/60 transition-colors">FAQ</a>
-      <a href="/#join" class="hover:text-white/60 transition-colors">Join the Hive</a>
+      <a href="/?signup=1" class="hover:text-white/60 transition-colors">Join the Hive</a>
     </div>
   </div>
 </footer>

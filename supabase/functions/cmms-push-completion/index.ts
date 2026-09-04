@@ -76,7 +76,7 @@ serveObserved("cmms-push-completion", async (req) => {
         // A5: rate-limit the browser path (service-role/internal callers skip) — reference: voice-model-call/embed-entry.
         const _ip = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
         const _rl = await checkSoloRateLimit(db, soloRateLimitKey(authUid, _ip), undefined, undefined, _ip);
-        if (!_rl.allowed) return soloRateLimitedResponse(getCorsHeaders(req));
+        if (!_rl.allowed) return soloRateLimitedResponse(getCorsHeaders(req), _rl.retry_after_seconds);
       }
     }
 
@@ -183,10 +183,23 @@ serveObserved("cmms-push-completion", async (req) => {
     } else {
       // F3: durable failure marker. The old code only wrote automation_log and returned
       // ok:false to a fire-and-forget caller, so a transient CMMS outage silently lost the
-      // completion. Leave the row in sync_status='failed' so a retry (cron / next sync) can
-      // re-attempt it instead of dropping it.
+      // completion. Leave the row in a failed state so a retry can re-attempt it rather than
+      // dropping it.
+      //
+      // ★T63 (2026-08-28): THIS WROTE 'failed', WHICH NO READER IN THE SYSTEM KNOWS. The status
+      // CHECK permits five values ('active','deleted','error','failed','success') but
+      // v_external_sync_truth — the view whose whole job is classifying sync state — buckets only
+      // three: is_active ('active'), is_deleted ('deleted'), is_error ('error'). A row left at
+      // 'failed' is none of them, so the durable marker built to make a lost completion VISIBLE
+      // landed in the one value that made it invisible to the truth view as well. The seeder
+      // settles the intended vocabulary independently: it seeds 'error' precisely because "a sync
+      // that is FAILING is the state a dashboard should show". Writing 'error' so the row is at
+      // least classifiable as one.
+      //
+      // (The retry this comment promises is still not real — nothing anywhere selects a failed
+      // sync row to re-attempt it. Recorded on T63 rather than invented here.)
       await db.from("external_sync")
-        .update({ last_synced_at: new Date().toISOString(), sync_status: "failed" })
+        .update({ last_synced_at: new Date().toISOString(), sync_status: "error" })
         .eq("hive_id", hive_id)
         .eq("external_id", extId);
     }

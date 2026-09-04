@@ -1,7 +1,7 @@
 {
   "summary": {
-    "files_scanned": 131,
-    "total_calls": 774,
+    "files_scanned": 132,
+    "total_calls": 813,
     "total_unbounded": 0,
     "baseline": 0
   },
@@ -484,6 +484,10 @@
     },
     {
       "file": "supabase/functions/tts-speak/index.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase/functions/vehicle-doc-extract/index.ts",
       "issues": []
     },
     {

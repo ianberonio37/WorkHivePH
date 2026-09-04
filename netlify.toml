@@ -1,6 +1,16 @@
 [build]
   publish = "."
 
+# T1 root hygiene: _fixtures/ holds dev test/backup page copies kept ONLY as negative fixtures
+# for detector calibration (resurrection proofs run detectors against them). publish="." would
+# serve them; force=true 404s them even though the files exist on disk. Ordered BEFORE the
+# catch-all — Netlify applies the first matching rule.
+[[redirects]]
+  from = "/_fixtures/*"
+  to = "/index.html"
+  status = 404
+  force = true
+
 # Custom 404: any unknown path shows the homepage
 [[redirects]]
   from = "/*"

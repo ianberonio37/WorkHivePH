@@ -1,10 +1,10 @@
 {
   "_doc": "Redundant-display detector (Phase C). Value-identity = shared terminus table (reliable, from registry adjacency). Verdicts are proposals; Ian disposes.",
   "totals": {
-    "value_identity_clusters": 13,
+    "value_identity_clusters": 14,
     "kpi_metric_clusters": 2,
     "semantic_units_in_corpus": 6,
-    "verdicts_curated": 13,
+    "verdicts_curated": 14,
     "verdicts_pending_review": 0
   },
   "value_identity_clusters": [
@@ -127,6 +127,28 @@
       "why": "Stock shown on 7 surfaces (alert-hub stock alert, logbook parts picker, hive low-stock) = legitimate context; all read v_inventory_items_truth.is_low_stock. Keep."
     },
     {
+      "terminus_table": "asset_nodes",
+      "is_infra": false,
+      "display_pages": [
+        "asset-hub",
+        "assistant",
+        "hive",
+        "integrations",
+        "inventory",
+        "logbook",
+        "pm-scheduler",
+        "project-manager"
+      ],
+      "page_count": 8,
+      "via_canonical_views": [
+        "v_asset_truth"
+      ],
+      "verdict": "KEEP",
+      "canonical_home": "asset-hub.html",
+      "ux_law": "Jakob's Law (consistency)",
+      "why": "Asset registry referenced on 7 pages (pickers, links) = necessary context, one v_asset_truth. Keep."
+    },
+    {
       "terminus_table": "pm_scope_items",
       "is_infra": false,
       "display_pages": [
@@ -146,27 +168,6 @@
       "canonical_home": "pm-scheduler.html",
       "ux_law": "NN/g #6 Recognition-over-Recall",
       "why": "PM due/overdue on 5 surfaces, all v_pm_scope_items_truth. Reinforcement is fine; deep-link all to pm-scheduler; enforce is_overdue/is_due_soon."
-    },
-    {
-      "terminus_table": "asset_nodes",
-      "is_infra": false,
-      "display_pages": [
-        "asset-hub",
-        "hive",
-        "integrations",
-        "inventory",
-        "logbook",
-        "pm-scheduler",
-        "project-manager"
-      ],
-      "page_count": 7,
-      "via_canonical_views": [
-        "v_asset_truth"
-      ],
-      "verdict": "KEEP",
-      "canonical_home": "asset-hub.html",
-      "ux_law": "Jakob's Law (consistency)",
-      "why": "Asset registry referenced on 7 pages (pickers, links) = necessary context, one v_asset_truth. Keep."
     },
     {
       "terminus_table": "marketplace_sellers",
@@ -243,6 +244,22 @@
       "canonical_home": "plant-connections.html",
       "ux_law": "context read",
       "why": "CMMS/sensor sync status shown where relevant; KEEP (Ian 2026-06-29)."
+    },
+    {
+      "terminus_table": "pm_assets",
+      "is_infra": false,
+      "display_pages": [
+        "assistant",
+        "integrations",
+        "logbook",
+        "pm-scheduler"
+      ],
+      "page_count": 4,
+      "via_canonical_views": [],
+      "verdict": "KEEP-context",
+      "canonical_home": "pm-scheduler.html",
+      "ux_law": "context read",
+      "why": "PM asset list referenced by pickers; KEEP (Ian 2026-06-29)."
     },
     {
       "terminus_table": "skill_badges",

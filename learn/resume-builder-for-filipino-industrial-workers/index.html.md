@@ -106,6 +106,8 @@ Yes. Every line stays editable with provenance, and Undo reverses a change you d
 
 Your resume lives in your WorkHive account and is not shared with employers or other members. You can download a JSON copy any time and keep it offline.
 
+**Keep reading:** [build the portable portfolio behind it](https://workhiveph.com/learn/ofw-engineer-portable-portfolio/), or [ground it in a skill matrix](https://workhiveph.com/learn/skill-matrix-for-maintenance-technicians/).
+
 ## Sources
 
 - Ladders, Inc. Eye-Tracking Study (2018): recruiters average 7.4 seconds on an initial resume screen
@@ -113,4 +115,4 @@ Your resume lives in your WorkHive account and is not shared with employers or o
 - Harvard University career services: Resumes and Cover Letters guide, on quantified accomplishment statements
 - TESDA National Certification framework (NC I to NC IV): the credential levels Filipino industrial workers list under certifications
 
-<!-- md-twin source-sha: ff093c70224768ca -->
+<!-- md-twin source-sha: 74525cf85b51c876 -->

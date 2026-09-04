@@ -5,7 +5,9 @@
 -- expect: overall_equals_parts \| t
 -- expect: per_asset_covers \| t
 CREATE TEMP TABLE _cr AS
-SELECT get_pm_compliance_smrp((SELECT hive_id FROM v_pm_scope_items_truth LIMIT 1)) AS j;
+-- a HIVE-scoped item: the vehicle seed added SOLO (hive_id NULL) scope items, and the solo path of
+-- get_pm_compliance_smrp(NULL) RAISEs without a signed-in caller (this recipe runs as postgres).
+SELECT get_pm_compliance_smrp((SELECT hive_id FROM v_pm_scope_items_truth WHERE hive_id IS NOT NULL LIMIT 1)) AS j;
 SELECT 'standard_named | ' || ((SELECT j->>'standard' FROM _cr) ILIKE 'SMRP%');
 SELECT 'overall_equals_parts | ' || (
   SELECT (j->>'total_scheduled')::numeric > 0 AND

@@ -2,9 +2,14 @@
  * Tier 1 — Authentication & Identity (5 scenarios, P0)
  *
  * Without these, no other journey works. Test identity per
- * reference_playwright_test_identity:
- *   - Pablo Aguilar (supervisor), hive 586fd158-42d1-4853-a406-64a4695e71c4
- *   - Leandro Marquez is NOT in any hive (negative tests)
+ * reference_playwright_test_identity: RESOLVED, never pinned — take the `hiveId` fixture from
+ * ./_fixtures, which reads the signed-in worker's current hive from live hive_members.
+ *
+ * The header used to name "Pablo Aguilar (supervisor), hive 586fd158…" and assert "Leandro Marquez
+ * is NOT in any hive (negative tests)". Checked against the live DB on 2026-08-27, BOTH halves had
+ * inverted: that hive no longer exists, Leandro IS a supervisor (Baguio Textile Mills), and Pablo is
+ * a worker. A negative test written on that description would have asserted against the wrong person
+ * and passed for the wrong reason — so identities are resolved here, not described.
  *
  * Scaffolds use test.fixme until DB setup is wired in. Real assertions
  * land when the auth flow data fixtures are seeded.
@@ -15,7 +20,6 @@ import { readFileSync } from 'fs';
 import { resolve } from 'path';
 
 const ROOT = resolve(__dirname, '..');
-const HIVE_ID_BAGUIO = '586fd158-42d1-4853-a406-64a4695e71c4';
 const SEVEN_IDENTITY_KEYS = [
   'wh_last_worker', 'wh_worker_name', 'workerName',
   'wh_active_hive_id', 'wh_hive_id', 'wh_hive_role', 'wh_hive_name',

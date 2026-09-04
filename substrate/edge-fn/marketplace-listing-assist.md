@@ -2,7 +2,7 @@
 name: edge-fn-marketplace-listing-assist
 type: edge-fn
 source: file:supabase/functions/marketplace-listing-assist/index.ts
-source_sha: 987ff83422f74256
+source_sha: afd89419d1f643b9
 last_verified: 2026-07-13
 supersedes: null
 ---

@@ -14,10 +14,11 @@
   <meta name="description" content="Send maintenance reports to stakeholders by email. Reports arrive as a branded HTML summary with a link back to the source page; recipient list per hive." />
   <meta property="og:title" content="Report Sender · WorkHive" />
   <meta property="og:image" content="https://workhiveph.com/brand_assets/og-social.png" />
-  <link rel="canonical" href="https://workhiveph.com/workhive/report-sender.html" />
+  <link rel="canonical" href="https://workhiveph.com/report-sender.html" />
   <!-- capture: voice_report_intent_v1 (voice) -->
   <!-- dashboard-allow: report-sending tool; no analytics tiles, just AI report metadata. -->
   <link rel="manifest" href="report-sender-manifest.json" />
+  <script src="browser-floor.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
   <script src="utils.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -843,11 +844,20 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
     // ── Report definitions ────────────────────────────────────────────────────────
     // phase3: true = wired when analytics-orchestrator integration ships in Phase 3
+    /* T23 (2026-08-27): EACH CHIP NOW SAYS WHAT PERIOD IT COVERS. The four selectable reports span
+       wildly different windows - Shift Handover is the last EIGHT HOURS, Predictive is the last
+       NINETY DAYS - and the chip showed a coloured dot and a label, so a supervisor could send both
+       to their boss with nothing on screen distinguishing an 8-hour snapshot from a quarter of
+       history. The window was never unknown: send-report-email's REPORT_META has carried it all
+       along and prints it INSIDE the email. It simply never reached the person choosing.
+       ★THESE STRINGS ARE A SECOND COPY OF SERVER TRUTH, which is the hazard this codebase already
+       has a name for (two windows, one metric name). The gate report-window-parity asserts this
+       array against REPORT_META, so the two cannot drift apart in silence. */
     const REPORTS = [
-      { id: 'pm_overdue',      label: 'PM Overdue',       color: '#F7A21B' },
-      { id: 'failure_digest',  label: 'Failure Digest',   color: '#f87171' },
-      { id: 'shift_handover',  label: 'Shift Handover',   color: '#29B6D9' },
-      { id: 'predictive',      label: 'Predictive',        color: '#a78bfa' },
+      { id: 'pm_overdue',      label: 'PM Overdue',       color: '#F7A21B', window: 'current status as of this report' },
+      { id: 'failure_digest',  label: 'Failure Digest',   color: '#f87171', window: 'last 7 days' },
+      { id: 'shift_handover',  label: 'Shift Handover',   color: '#29B6D9', window: 'last 8 hours' },
+      { id: 'predictive',      label: 'Predictive',        color: '#a78bfa', window: 'last 90 days' },
       { id: 'oee',             label: 'OEE Summary',       color: '#4ade80', phase3: true },
       { id: 'descriptive',     label: 'Weekly Analytics',  color: '#29b6d9', phase3: true },
     ];
@@ -865,6 +875,27 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
     // ── Supabase client ───────────────────────────────────────────────────────────
     const db = getDb(SUPABASE_URL, SUPABASE_KEY);
+    /* ★THE FOURTH STATE (2026-08-31). This card already models three - CHECKING (not settled), UNKNOWN
+       (read failed: "Unknown right now, not zero"), and a saved-copy fallback - which makes it the most
+       careful version of this pattern on the platform. The one it cannot see is a read that SETTLED with
+       zero because RLS FILTERED the rows: report_contacts is hive-scoped, so a removed member gets a
+       clean 200 with an empty array and the card says "No contacts saved yet, add one above" - an
+       instruction to fix a problem they do not have, about a hive they are no longer in. */
+    let _rsHiveLost = false;
+    (async () => {
+      try {
+        if (typeof whHiveMembershipLost !== 'function') return;
+        if (await whHiveMembershipLost(db, HIVE_ID, WORKER_NAME)) {
+          _rsHiveLost = true;
+          if (typeof whHiveContextNotice === 'function') {
+            whHiveContextNotice(localStorage.getItem('wh_hive_name') || '');
+          }
+          // re-render, or the flag arrives after the card has already painted its settled-zero text
+          try { if (typeof renderReportSenderSummary === 'function') renderReportSenderSummary(); }
+          catch (_) { /* empty-catch-allow: the notice carries the fact */ }
+        }
+      } catch (_) { /* empty-catch-allow: the page must render without the probe */ }
+    })();
 
     // Auth C4: refresh WORKER_NAME from Supabase Auth session if localStorage was
     // empty or stale. Must run AFTER `db` is declared — `typeof db` on a not-yet-
@@ -877,8 +908,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     // session has actually been consulted. A name means we stay; '' means there is genuinely no session.
     if (!WORKER_NAME) {
       _identityRestored
-        .then(_n => { if (!_n) window.location.href = 'index.html?signin=1'; })
-        .catch(() => { window.location.href = 'index.html?signin=1'; });
+        .then(_n => { if (!_n) whSignInWall(); })
+        .catch(() => { whSignInWall(); });
     }
     // AU2: kick the JWT attach early so init's gated reads don't race it (cold-load-401 class)
     if (typeof db !== 'undefined' && db.auth) db.auth.getUser().catch(() => {});
@@ -950,7 +981,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
                 aria-pressed="${_selected.has(r.id)}"
                 ${r.phase3 ? 'aria-disabled="true"' : ''}>
           <span class="chip-dot" style="background:${r.color}"></span>
-          <span class="chip-label">${escHtml(r.label)}</span>
+          <span class="chip-label">${escHtml(r.label)}${r.window
+            ? `<span style="display:block;font-size:0.66rem;opacity:0.7;font-weight:400;">${escHtml(r.window)}</span>`
+            : ''}</span>
           ${r.phase3
             ? `<span class="phase-badge">Phase 3</span>`
             : `<span class="ic ic-check" aria-hidden="true"></span>`
@@ -1035,6 +1068,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         // authored default (:576) rather than inventing a placeholder, so the pending state looks
         // like the page before it spoke rather than like an answer.
         setCard('contacts', '—', 'Checking your saved contacts…', 'CHECKING', 'grey');
+      } else if (_rsHiveLost) {
+        // Settled, and empty because it was REFUSED - not because nobody has saved a contact. "Add one
+        // above" would be advice about a hive this person is no longer a member of.
+        setCard('contacts', '—',
+          (typeof whHiveContextLost === 'function')
+            ? whHiveContextLost('this hive')
+            : 'You are no longer a member of this hive, so its contacts are not shown.',
+          'NOT SHOWN', 'grey');
       } else if (_rsReadFailed && !_contacts.length) {
         setCard('contacts', '—',
           'Could not load your contacts. Unknown right now, not zero. Reload before adding one.',
@@ -1242,6 +1283,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
               recipient_email: email,
               reports:         [{ type: reportType, summary }],
               sent_at:         new Date().toISOString(),
+              // T111: the recipient of an outward, irreversible email deserves to know WHICH
+              // person sent it (rendered in the footer with the stop-path line). Display-only;
+              // auth still gates the send server-side.
+              sender_name:     WORKER_NAME || '',
             },
           });
           // The function's own sentence ("Sign-in required.", a rate-limit message, a relay rejection) is
@@ -1259,7 +1304,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           showToast('Resend failed: ' + (results[0]?.reason?.message || 'unknown error'));
         }
       } catch (err) {
-        showToast('Resend failed: ' + escHtml(err.message || 'unknown'));
+        showToast(whWriteError(err, 'The report was NOT re-sent. Nothing went out; try again.'));
       }
 
       btn.textContent = 'Resend';
@@ -1468,7 +1513,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       if (HIVE_ID) {
         const { error } = await db.from('report_contacts').delete()
           .eq('id', id).eq('hive_id', HIVE_ID);
-        if (error) showToast('Could not delete from server');
+        if (error) showToast(whWriteError(error, 'The contact was NOT removed - it is still saved and will still receive reports.'));
       }
     }
 
@@ -1533,7 +1578,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         const { data, error } = await db.from('report_contacts')
           .insert({ ...payload, hive_id: HIVE_ID })
           .select('id, name, email, label').single();
-        if (error) { errEl.textContent = 'Could not save. Try again.'; if (saveBtn) saveBtn.disabled = false; return; }
+        if (error) { errEl.textContent = whWriteError(error, 'The contact did NOT save. Nothing was added; check the email and try again.'); if (saveBtn) saveBtn.disabled = false; return; }
         _contacts.push(data);
       } else {
         _contacts.push({ id: crypto.randomUUID(), ...payload });
@@ -1615,7 +1660,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         };
         _recognition.onerror = (e) => {
           setMicState('ready');
-          if (e.error !== 'no-speech') showToast('Mic error: ' + e.error);
+          // T176: was 'Mic error: ' + e.error, which handed the raw Web Speech code to the person.
+          if (e.error !== 'no-speech') showToast(whVoiceError(e.error));
         };
         _recognition.onend = () => {
           if (_micState === 'listening') setMicState('ready');
@@ -1672,7 +1718,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     function startListening() {
       if (_recognition) {
         try { _recognition.start(); setMicState('listening'); }
-        catch (e) { showToast('Could not start microphone'); }
+        catch (e) { showToast('The microphone could not start. Type instead, or check that the browser has mic permission.'); }
       } else if (_useMediaRecorder) {
         startMediaRecorder();
       }
@@ -1780,14 +1826,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         // With no user it degrades to IP-keyed limiting, which is the designed anonymous path, not a bug.
         // Verified per-FUNCTION rather than per-file, because a grep for the bearer accuses this call
         // exactly as loudly as the three real ones.
-        const resp = await fetch(`${SUPABASE_URL}/functions/v1/voice-transcribe`, {
-          method:  'POST',
-          headers: {
-            'apikey':        SUPABASE_KEY,
-            'Authorization': `Bearer ${SUPABASE_KEY}`,
-          },
-          body: form,
-        });
+        // T146 (2026-08-26): bounded - an unbounded transcribe leaves the control spinning forever.
+        const _opts = { method: 'POST',
+          headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` },
+          body: form };
+        const resp = (typeof fetchWithTimeout === 'function')
+          ? await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/voice-transcribe`, _opts, 45000)
+          : await fetch(`${SUPABASE_URL}/functions/v1/voice-transcribe`, _opts);
+        if (!resp) throw new Error('That took too long to transcribe. Try again, or type it instead.');
 
         if (!resp.ok) {
           const data = await resp.json().catch(() => ({}));
@@ -2121,7 +2167,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         // specific, actionable cause. The per-report errors are already captured in `results`, so the
         // cause is available here — it just was not being read.
         const msgs = Object.values(results).map((v) => String((v && v.message) || '')).join(' ');
-        const rateLimited = /429|rate.?limit|too many requests/i.test(msgs);
+        const rateLimited = /\b429\b|rate.?limit|too many requests/i.test(msgs);
         showToast(rateLimited
           ? (window.whAiError ? window.whAiError({ message: '429' }) : 'You have hit the AI rate limit.')
             + ' Your selection and recipients are still here.'

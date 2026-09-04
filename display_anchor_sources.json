@@ -1,16 +1,16 @@
 {
   "_doc": "Display anchor -> upstream source resolution (Phase B). RESOLVED* = anchor traces to a formula contract / kpi_source metric / Read-VERIFIED element-id->source bind (verified_anchor_binds.json). EXCLUDED_CHROME = a UI control/label/counter with no data provenance (excluded from the data denominator). NEEDS_JS_PARSE = data anchor not yet bound. resolved_pct is over DATA anchors (total - chrome) so it is honest, never chrome-inflated.",
   "totals": {
-    "anchors": 105,
+    "anchors": 111,
     "chrome_excluded": 37,
-    "data_anchors": 68,
-    "resolved": 64,
-    "resolved_pct": 94.1,
-    "resolved_pct_of_all": 61.0,
+    "data_anchors": 74,
+    "resolved": 65,
+    "resolved_pct": 87.8,
+    "resolved_pct_of_all": 58.6,
     "resolved_by_formula_or_kpi": 0,
-    "resolved_by_js_heuristic": 6,
+    "resolved_by_js_heuristic": 7,
     "resolved_by_verified_bind": 58,
-    "needs_js_parse": 4
+    "needs_js_parse": 9
   },
   "anchors": [
     {
@@ -125,7 +125,7 @@
         "via": "js_parse_heuristic",
         "source": "v_logbook_truth",
         "source_kind": "table/view",
-        "confidence": "high"
+        "confidence": "medium"
       }
     },
     {
@@ -792,6 +792,19 @@
     },
     {
       "page": "community.html",
+      "id": "reply-char-count",
+      "token": "count",
+      "bucket": "raw",
+      "status": "RESOLVED_JS",
+      "source": {
+        "via": "js_parse_heuristic",
+        "source": "notify_reply_posted",
+        "source_kind": "rpc",
+        "confidence": "high"
+      }
+    },
+    {
+      "page": "community.html",
       "id": "report-char-count",
       "token": "count",
       "bucket": "raw",
@@ -924,6 +937,14 @@
         "source_kind": "edge_fn",
         "confidence": "high"
       }
+    },
+    {
+      "page": "marketplace.html",
+      "id": "post-desc-count",
+      "token": "count",
+      "bucket": "raw",
+      "status": "RAW_NEEDS_JS_PARSE",
+      "source": null
     },
     {
       "page": "marketplace.html",
@@ -1087,6 +1108,22 @@
     },
     {
       "page": "project-manager.html",
+      "id": "co-scope-count",
+      "token": "count",
+      "bucket": "raw",
+      "status": "RAW_NEEDS_JS_PARSE",
+      "source": null
+    },
+    {
+      "page": "project-manager.html",
+      "id": "f-desc-count",
+      "token": "count",
+      "bucket": "raw",
+      "status": "RAW_NEEDS_JS_PARSE",
+      "source": null
+    },
+    {
+      "page": "project-manager.html",
       "id": "pm-verdict-label",
       "token": "-verdict-label",
       "bucket": "raw",
@@ -1107,6 +1144,22 @@
           }
         ]
       }
+    },
+    {
+      "page": "project-manager.html",
+      "id": "s-notes-count",
+      "token": "count",
+      "bucket": "raw",
+      "status": "RAW_NEEDS_JS_PARSE",
+      "source": null
+    },
+    {
+      "page": "project-manager.html",
+      "id": "wiz-desc-count",
+      "token": "count",
+      "bucket": "raw",
+      "status": "RAW_NEEDS_JS_PARSE",
+      "source": null
     },
     {
       "page": "project-manager.html",

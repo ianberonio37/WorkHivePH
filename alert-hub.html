@@ -9,12 +9,13 @@
   <meta name="description" content="Alert hub for supervisors: critical risk, anomaly engine, AMC briefings, parts staging recommendations." />
   <meta property="og:title" content="Alert Hub · WorkHive" />
   <meta property="og:image" content="https://workhiveph.com/brand_assets/og-social.png" />
-  <link rel="canonical" href="https://workhiveph.com/workhive/alert-hub.html" />
+  <link rel="canonical" href="https://workhiveph.com/alert-hub.html" />
   <!-- capability: alert_dashboard -->
   <link rel="manifest" href="manifest.json" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet" />
+  <script src="browser-floor.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
   <script src="utils.js"></script>
   <script src="maturity-gate.js"></script>
@@ -108,9 +109,18 @@
        CONTENT dims (icon/title/msg), keeping the badge + action buttons at full
        contrast (so Unsee stays usable; parent-opacity would dim them too). */
     .alert.seen { background: rgba(22,32,50,0.5); }
+    /* T116 (2026-08-28): 0.5 dimmed a SEEN alert's message past legibility. .alert-msg is
+       rgba(255,255,255,0.80), so opacity 0.5 gave an effective alpha of 0.40, compositing to
+       #717780 on #131d2b - 3.75:1, under WCAG AA's 4.5:1 for normal text, and the message is 9pt
+       so the large-text 3:1 allowance does not apply. Measured by prove_page_contrast, which found
+       it the platform's ONLY axe contrast violation across 26 pages. 0.65 gives an effective 0.52
+       and about 5.4:1, with margin. The point of `seen` is to de-emphasise a handled alert, not to
+       make it unreadable - a supervisor re-checking what they already cleared is exactly who this
+       state is for. Applied to the children rather than the card (see the note above) so Unsee
+       stays usable. */
     .alert.seen .alert-icon,
     .alert.seen .alert-title,
-    .alert.seen .alert-msg { opacity: 0.5; }
+    .alert.seen .alert-msg { opacity: 0.65; }
     .alert-seen-badge {
       font-size: .5rem; font-weight: 800; text-transform: uppercase; letter-spacing: .08em;
       padding: .15rem .45rem; border-radius: 5px; flex-shrink: 0;
@@ -330,10 +340,20 @@
       </div>
       <div id="amc-headline" class="amc-headline"></div>
       <div id="amc-summary" class="amc-summary"></div>
+      <!-- T81/T19 (2026-08-28): the first tile's data-rag-label said "AMC assets checked" while the
+           tile itself reads "High Risk", and the two are opposite readings of the same zero — one
+           means the brief examined nothing, the other means it found nothing wrong. The data
+           settles which: the value is brief.asset_count falling back to top_assets.length, and
+           today's row carries asset_count 0, top_assets [], headline "Routine shift: 5 PM task(s)
+           due, no risk escalations" — so it counts ESCALATED assets and the visible label was the
+           correct one. data-rag-label feeds the RAG grounding, so a wrong name here is how an
+           assistant ends up telling a supervisor their brief checked no assets on a morning it
+           checked them and found them fine. (Comment sits ABOVE the element, not between its
+           attributes — a comment inside a tag is parsed as bogus attributes.) -->
       <div class="amc-stats">
         <div class="amc-stat"><div id="amc-stat-assets" class="amc-stat-num"
     data-rag-tile="alert-hub:amc_assets"
-    data-rag-label="AMC assets checked">0</div><div class="amc-stat-label">High Risk</div></div>
+    data-rag-label="AMC high-risk assets">0</div><div class="amc-stat-label">High Risk</div></div>
         <div class="amc-stat"><div id="amc-stat-pms"    class="amc-stat-num"
     data-rag-tile="alert-hub:amc_pms"
     data-rag-label="AMC PMs flagged">0</div><div class="amc-stat-label">PMs Due</div></div>
@@ -437,7 +457,7 @@
     const { data: _s } = await db.auth.getSession();
     if (_s?.session) { WORKER_NAME = await restoreIdentityFromSession(db); }
   }
-  if (!WORKER_NAME) { window.location.href = 'index.html?signin=1'; return; }
+  if (!WORKER_NAME) { whSignInWall(); return; }
 
   // IDENTITY SURVIVING IS NOT THE SESSION SURVIVING. The redirect above fires only when we cannot name
   // the worker at all — but WORKER_NAME is restored from cached identity, so it outlives the JWT. When
@@ -469,6 +489,31 @@
     pill.textContent = '🐝 ' + HIVE_NAME;
     pill.style.display = 'inline-block';
   }
+
+  /* ★THE FOURTH STATE THIS PAGE NEVER MODELLED (2026-08-31). The gate above catches "no hive at all".
+     It does NOT catch a hive the viewer is no longer a MEMBER of: HIVE_ID is still in localStorage, every
+     read returns a perfectly ordinary 200 with zero rows because RLS refuses by FILTERING, and this page
+     then announced "All clear - No active alerts in your hive right now." to someone who cannot see a
+     single row of that hive. On the alert surface that sentence is not an empty state, it is a SAFETY
+     ASSURANCE, and it was the strongest claim on the platform made at the moment of least knowledge.
+     This page had already learned the shape twice - :512 for the read that FAILED, :568 for the read that
+     is NOT BACK YET (`_anomalyCount = null` = "not yet known"). The refused read is the third sibling.
+     Unlike pm-scheduler and inventory, alert-hub carries NO membership read at all, so the question has
+     to be asked before it can be answered. Failing OPEN on a DB error is deliberate and matches the other
+     two pages: an unreachable database must not manufacture a removal that did not happen. */
+  let _hiveLost = false;
+  (async () => {
+    if (!HIVE_ID || !WORKER_NAME) return;
+    try {
+      // Shared probe (utils.js), not a fourth hand-rolled copy - it already fails open on a DB error.
+      if (typeof whHiveMembershipLost !== 'function') return;
+      if (await whHiveMembershipLost(db, HIVE_ID, WORKER_NAME)) {
+        _hiveLost = true;
+        if (typeof whHiveContextNotice === 'function') whHiveContextNotice(HIVE_NAME);
+        try { renderFeed(); } catch (_) { /* empty-catch-allow: the notice already carries the fact */ }
+      }
+    } catch (_) { /* empty-catch-allow: fail open, as above */ }
+  })();
 
   // ── Module state ───────────────────────────────────────────────────────────
   const KINDS = [
@@ -627,12 +672,44 @@
     };
   }
 
-  function renderAmcCard(brief) {
+  function renderAmcCard(brief, historic) {
     const e = escHtml;
     const card = document.getElementById('amc-card');
     if (!card) return;
     if (!brief) {
-      card.style.display = 'none';
+      // ★T81 (2026-08-26): THE CARD USED TO VANISH. The 6am PHT cron writes one row per shift_date
+      // and this panel reads only TODAY's, which is correct - yesterday's brief must never pose as
+      // this morning's. But when the cron misses, there is no row, and hiding the card left the
+      // supervisor unable to tell "no brief ran today" from "this feature does not exist" or "the
+      // page is still loading". Worse: a skeleton is shown here on first load, so the sequence was
+      // a loading state that resolved into NOTHING - an answer erasing itself.
+      //
+      // The absence is the news on a surface whose whole promise is a brief every morning. Say it,
+      // name the cadence so the reader knows what was missed, and point at the most recent one,
+      // which this page has already fetched.
+      const _loading = document.getElementById('amc-loading');
+      if (_loading) _loading.remove();
+      const _prev = Array.isArray(historic) && historic.length ? historic[0] : null;
+      const _meta = document.getElementById('amc-shift-meta');
+      const _head = document.getElementById('amc-headline');
+      const _sum  = document.getElementById('amc-summary');
+      const _pill = document.getElementById('amc-status-pill');
+      if (_pill) { _pill.textContent = 'not generated'; _pill.className = 'alert-tag tag-info'; }
+      if (_meta) _meta.textContent = 'no brief for this shift';
+      if (_head) _head.textContent = 'No brief was generated for this shift.';
+      if (_sum) {
+        _sum.textContent = _prev && _prev.shift_date
+          ? ('The brief is written at 6am PHT and has not run for today. The most recent one covers '
+             + _prev.shift_date + '; it is below, and it is not a substitute for today.')
+          : 'The brief is written at 6am PHT and has not run for today.';
+      }
+      // the figure tiles belong to a brief that does not exist - blank them rather than leaving
+      // the previous render's numbers standing under a "not generated" header
+      ['amc-stat-assets', 'amc-stat-pms', 'amc-stat-parts'].forEach(function (id) {
+        const el = document.getElementById(id);
+        if (el) el.textContent = '\u2014';
+      });
+      card.style.display = 'block';
       _amcBrief = null;
       return;
     }
@@ -699,8 +776,25 @@
           body: { phase: 'prescriptive', hive_id: HIVE_ID, horizon: 'today' },
         });
         const ap = data && data.action_plan;
-        if (ap) summaryEl./* xss-allow: renderActionBrief escHtml's every field (utils.js) */ innerHTML =
-          renderActionBrief(ap, { title: 'Action Brief', horizon: 'today', ragTile: 'alert-hub:action_brief' });
+        if (ap) {
+          summaryEl./* xss-allow: renderActionBrief escHtml's every field (utils.js) */ innerHTML =
+            renderActionBrief(ap, { title: 'Action Brief', horizon: 'today', ragTile: 'alert-hub:action_brief' });
+          // T39 (2026-08-26): the meta above this summary is stamped "stored brief, generated <6am>"
+          // by renderAmcCard, which is exactly right while the stored copy is what is showing. The
+          // upgrade REPLACES that summary with a live compose and left the stamp untouched, so a
+          // supervisor reading a freshly computed brief was told it came from this morning's stored
+          // row. The failure path is honest by construction - it keeps the stored summary AND the
+          // stored stamp, which now agree - so only the success path needed saying.
+          try {
+            const _meta = document.getElementById('amc-shift-meta');
+            if (_meta && /stored brief/i.test(_meta.textContent || '')) {
+              const _now = new Date();
+              _meta.textContent = (_meta.textContent || '').replace(
+                /·\s*stored brief[^·]*/i,
+                '· refreshed live ' + _now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ' ');
+            }
+          } catch (_) { /* empty-catch-allow: a stamp must never break the brief it labels */ }
+        }
       } catch (_) { /* empty-catch-allow: engine action-brief render failed → intentionally keep the stored amc_briefings.brief summary as the fallback */ }
       finally { _refreshHint.remove(); }
     })();
@@ -1420,7 +1514,7 @@
           if (_c) _c.style.display = 'none';
         }
       }
-      renderAmcCard(amcRes.todayBrief);
+      renderAmcCard(amcRes.todayBrief, amcRes.historic);
       for (const b of (amcRes.historic || [])) {
         const head = (b.brief && b.brief.headline) ? String(b.brief.headline) : '(no headline)';
         // ★A BRIEF STILL AWAITING A DECISION WAS FILED AS NEWS. The map sent anything not rejected or expired
@@ -1529,7 +1623,7 @@
       if (fm && typeof whFreshnessChip === 'function') {
         whFreshnessChip(fm, Date.now(), { suffix: '· ' + (window._t ? _t('Auto-refresh every minute', 'Awtomatikong nagre-refresh bawat minuto') : 'Auto-refresh every minute') });
       } else if (fm) {
-        fm.textContent = `Last refreshed ${fmtTime(new Date())} · Auto-refresh every minute`;
+        fm.textContent = `Last refreshed ${fmtTime(new Date())} PHT · Auto-refresh every minute`; // T28 sibling (2026-09-02): Manila-pinned stamp now says so (qualifier-beside-figure; audit-log got the same fix in the Cluster-1 sweep)
       }
     }
   }
@@ -1612,7 +1706,7 @@
       delete _dismissals[key];
       _alerts = prev;                                   // roll back the optimistic removal
       renderFeed(); renderAlertSummary();
-      showToast('Could not save, alert restored');
+      showToast(_t('Could not save, alert restored', 'Hindi na-save, ibinalik ang alert'));
     }
   }
   window.dismissAlert = dismissAlert;
@@ -1637,19 +1731,34 @@
         const { error } = await db.from('alert_dismissals')
           .delete().eq('hive_id', HIVE_ID).eq('alert_key', key).eq('action', 'acknowledged');
         if (error) throw error;
+        // T19: un-marking was SILENT. It deletes the hive's row, so the alert returns to unseen for
+        // everyone - a state change on shared data with nothing said about it. The dismissal path
+        // has announced its scope since it was written; this one had a toast on the way in and
+        // nothing on the way out, so the crew could see an alert reappear with no idea who or why.
+        showToast(_t('No longer marked seen → it is unseen for your whole hive again.',
+                     'Hindi na nakamarkang nakita → hindi na ito nakita para sa buong hive.'));
       } else {
         const { error } = await db.from('alert_dismissals')
           .upsert({ hive_id: HIVE_ID, alert_key: key, action: 'acknowledged', actor: WORKER_NAME, snooze_until: null },
                   { onConflict: 'hive_id,alert_key' });
         if (error) throw error;
         writeAuditLog('alert_acknowledged', 'alert', key, key, {});
-        showToast('Marked seen');
+        // T19: 'Marked seen' said nothing about SCOPE, and the scope is the whole hive. The upsert
+        // right above is keyed onConflict: 'hive_id,alert_key' - identical to dismissAlert's - so
+        // acknowledging is HIVE state, not a personal bookmark. Everything around it reads
+        // personal: the local map is `_seen`, the control is an aria-pressed toggle, the old copy
+        // was two words. That is exactly the failure dismissAlert's own comment warns about, "a
+        // plant alert quietly blinded for the whole crew by someone who thought they were tidying
+        // their own view" - the sibling control still had it. It also records actor: WORKER_NAME,
+        // so saying so is what makes the scope read as deliberate rather than accidental.
+        showToast(_t('Marked seen → your whole hive sees it as seen, under your name.',
+                     'Minarkahang nakita → makikita ito ng buong hive bilang nakita, nakapangalan sa iyo.'));
       }
     } catch (e) {
       console.error('alert-hub mark-seen failed:', e);
       if (wasSeen) _seen[key] = true; else delete _seen[key];   // roll back the optimistic toggle
       renderFeed();
-      showToast('Could not save, restored');
+      showToast(_t('Could not save, restored', 'Hindi na-save, ibinalik'));
     }
   }
   window.acknowledgeAlert = acknowledgeAlert;
@@ -1896,7 +2005,15 @@
       // remain — that's dishonest. Only the unfiltered (all) empty is truly "all clear".
       const emptyTitle = empty.querySelector('.empty-title');
       const emptySub   = empty.querySelector('.empty-sub');
-      if (_activeKind !== 'all' && _alerts.length) {
+      if (_hiveLost) {
+        // Ahead of both other cases on purpose: if we cannot see the hive, we cannot know whether it is
+        // quiet, and "All clear" would be a claim about rows we were refused rather than rows that do
+        // not exist. Same reasoning as F40 below, one step further out.
+        if (emptyTitle) emptyTitle.textContent = 'Alerts not shown';
+        if (emptySub)   emptySub.textContent = (typeof whHiveContextLost === 'function')
+          ? whHiveContextLost(HIVE_NAME ? ('the ' + HIVE_NAME) : 'this hive')
+          : 'You are no longer a member of this hive, so its alerts are not shown.';
+      } else if (_activeKind !== 'all' && _alerts.length) {
         if (emptyTitle) emptyTitle.textContent = 'None under this filter';
         if (emptySub)   emptySub.textContent = `No ${_activeKind} alerts. ${_alerts.length} alert${_alerts.length === 1 ? '' : 's'} under other filters. Tap "All" to see them.`;
       } else {
@@ -1990,7 +2107,7 @@
             // JA1 arrival fidelity (§12): if the machine we were sent to focus has no alert in the
             // current feed, SAY so. Silently showing the generic feed reads as "here is your alert"
             // and the user may act on the wrong row (the same silent-drop class fixed in asset-hub).
-            showToast('No current alert for "' + _focus + '": showing all alerts');
+            showToast(_t('No current alert for "' + _focus + '": showing all alerts', 'Walang kasalukuyang alert para sa "' + _focus + '": ipinapakita ang lahat'));
           }
         }
       } catch (_) { /* empty-catch-allow: best-effort focus; feed still renders */ }

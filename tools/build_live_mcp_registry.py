@@ -665,6 +665,20 @@ ORACLES = {
     "wrong_then_fix":        "a wrong entry can be corrected without starting over",
     "did_it_land":           "after a slow action the person can tell whether it landed, without guessing",
 
+    # ── FAMILY CV · conversion visibility (Trajectory T1, 2026-08-24). Born from a dead primary
+    # CTA under a 790-gate green board: every oracle below names a CLICKED consequence or a
+    # DB-verified crossing, because existence checks are exactly what the dead bar passed. ──────
+    "cta_activation":    "a primary-styled CTA, clicked as anon at 390 and 1280, produces an observable "
+                         "consequence (navigation | modal | scroll | focus | mutation burst); a control "
+                         "still [inert] after the reveal gesture is the defect, not an exemption",
+    "signup_affordance": "every surface that offers sign-in offers sign-up beside it, and every auth "
+                         "refusal carries BOTH doors as clickable controls, not as words in a toast",
+    "signup_deeplink":   "?signup=1 opens the real signup panel and ?return= survives the crossing into "
+                         "the honored slot - validated at write AND redemption, hostile values dropped",
+    "funnel_complete":   "cold anon -> primary CTA -> signup -> a worker_profiles row psql-verified -> "
+                         "signed-in value, with the entry door recorded (sticky/hero/nav/...)",
+    "claim_honesty":     "no public page claims 'no sign-up needed' about a gated destination; the claim "
+                         "class is banned unless scoped to the embedded on-page tool",
 }
 
 

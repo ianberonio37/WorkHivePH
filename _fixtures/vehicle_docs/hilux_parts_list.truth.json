@@ -1,0 +1,30 @@
+{
+ "doc": "hilux_parts_list",
+ "hand_read": "2026-09-03. Synthesized xlsx (openpyxl) with REAL Toyota Hilux OEM part numbers - real online xlsx/docx were not reachable via available tools (Socrata/CKAN refuse the xlsx accessType, scribd needs login, GitHub MCP unauthenticated); this proves the CLIENT SheetJS extraction path (VD12), not extraction accuracy (11 real PDFs own that). The SheetJS path must yield the 8 part names + numbers as text. MINER-FLOOR NOTE: pure-numeric-dash-numeric OEM numbers (Spark Plug 90919-01247) are indistinguishable from a year/range to a deterministic miner, so they are MODEL-territory (the live walk extracted all 8 via the model); the floor truth below is the 4 alnum-coded numbers the miner parses deterministically.",
+ "pm_items": [],
+ "parts": [
+  {
+   "match": "Oil Filter",
+   "part_number": "90915-YZZE1"
+  },
+  {
+   "match": "Air Filter Element",
+   "part_number": "17801-0C010"
+  },
+  {
+   "match": "Fuel Filter",
+   "part_number": "23300-0L041"
+  },
+  {
+   "match": "Front Brake Pads",
+   "part_number": "04465-0K260"
+  }
+ ],
+ "pm_must_not_match": [
+  "reorder",
+  "qty"
+ ],
+ "parts_must_not_match": [],
+ "must_not_contain": [],
+ "expect_injection": false
+}

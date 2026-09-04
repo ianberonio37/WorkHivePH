@@ -19,7 +19,10 @@
  * Closes PRODUCTION_FIXES #52 Phase D (runner wired) -- the cron was
  * scheduled in Phase B/C but the endpoint it called did not exist.
  *
- * AI_ASSET_VERSION: 4
+ * AI_ASSET_VERSION: 5
+ *   (v5, 2026-08-31: the judge asset's hash moved without a bump — an earlier-today edit to this
+ *   function's judge content shipped silently; the C5 gate caught it as silent_change 4069c6b9→
+ *   5ebffd9e. This bump ANNOUNCES that edit; no judge behavior is changed by the bump itself.)
  * C5 (Self-Improving Gate) — bump this integer whenever JUDGE_PROMPT,
  * judge model id, score rubric, or pass-threshold changes. C2's eval
  * gate scores against this judge's verdicts, so an unannounced edit
@@ -253,7 +256,7 @@ serveObserved("ai-eval-runner", async (req) => {
       const _ip = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
       if (_ip) {
         const _rl = await checkSoloRateLimit(db, soloRateLimitKey(_id.authUid, _ip), 12);
-        if (!_rl.allowed) return soloRateLimitedResponse(corsHeaders);
+        if (!_rl.allowed) return soloRateLimitedResponse(corsHeaders, _rl.retry_after_seconds);
       }
     }
   }

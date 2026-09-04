@@ -134,4 +134,4 @@ Yes, RCM can be integrated with existing Computerized Maintenance Management Sys
 - SMRP (2015). CMRP BoK (Body of Knowledge). Society for Maintenance and Reliability Professionals.
 - DOLE OSHS (2019). Guidelines on Occupational Safety and Health Standards. Department of Labor and Employment.
 
-<!-- md-twin source-sha: 9a864d2c32b70364 -->
+<!-- md-twin source-sha: 8dc0a6faeefa4899 -->

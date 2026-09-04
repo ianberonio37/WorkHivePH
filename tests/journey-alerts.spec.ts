@@ -21,7 +21,10 @@ test.beforeEach(async ({ whPage }) => {
   await bypassMaturityGate(whPage);
 });
 
-const HIVE_ID = process.env.WH_TEST_HIVE_ID || '586fd158-42d1-4853-a406-64a4695e71c4';
+// Module scope, so it cannot take the resolved `hiveId` fixture (fixtures exist per-test). The env
+// override is the way to point this at another hive; the literal is only the fallback, refreshed
+// 2026-08-27 off the reseeded-away 586fd158 so it names a hive that exists.
+const HIVE_ID = process.env.WH_TEST_HIVE_ID || '084c113b-99c0-45c6-a8e8-b4b8349da46d';
 
 const PAGE = '/workhive/alert-hub.html';
 

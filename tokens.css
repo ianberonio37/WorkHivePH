@@ -43,8 +43,19 @@ img { max-width: 100%; }
    border-box (padding-inclusive), and a textarea only grows from 44px. */
 input.wh-input, select.wh-select, textarea.wh-input,
 input.wh-select, select.wh-input { min-height: 44px; box-sizing: border-box; }
-/* Shared secondary/ghost buttons meet the same 44px tap floor (element+class wins over per-page defs). */
-a.btn-secondary, button.btn-secondary, a.btn-ghost, button.btn-ghost { min-height: 44px; box-sizing: border-box; }
+/* Shared secondary/ghost buttons meet the same 44px tap floor (element+class wins over per-page defs).
+   cursor:pointer belongs here for the same reason the height does. These classes are used on 16
+   pages, and 15 of them happened to declare their own cursor in a local rule; marketplace never
+   did, so its "Preview as buyer" button rendered at cursor:default -- the one control out of 589
+   live interactive elements across 12 pages that did not invite the click it accepts (T179
+   affordance parity, measured 2026-08-27). Patching marketplace would have left the same trap
+   armed for the next page that uses .btn-ghost without a local rule, which is exactly how this
+   one got here. The shared contract carries it instead. */
+a.btn-secondary, button.btn-secondary, a.btn-ghost, button.btn-ghost { min-height: 44px; box-sizing: border-box; cursor: pointer; }
+/* ...and a disabled control must NOT invite the click it will refuse. */
+a.btn-secondary[disabled], button.btn-secondary[disabled],
+a.btn-ghost[disabled], button.btn-ghost[disabled],
+button.btn-secondary:disabled, button.btn-ghost:disabled { cursor: not-allowed; }
 
 :root {
   --wh-orange:       #F7A21B;

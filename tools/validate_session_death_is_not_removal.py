@@ -113,7 +113,10 @@ def audit(text):
             reasons.append('`%s` is resolved but never gated on' % var)
             continue
         gpos = pos + gate.start()
-        if SIGNIN not in text[gpos:gpos + 400]:
+        # T2 (2026-08-24): whSignInWall() is the canonical route — it redirects to
+        # index.html?signin=1 AND carries ?return=<this page> (utils.js). The bare literal
+        # stays accepted for any page not yet migrated.
+        if SIGNIN not in text[gpos:gpos + 400] and 'whSignInWall(' not in text[gpos:gpos + 400]:
             reasons.append('gate on `%s` does not route to sign-in' % var)
             continue
         gdepth = depth_at(clean, gpos)

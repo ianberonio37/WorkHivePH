@@ -366,10 +366,10 @@ serveObserved("project-orchestrator", async (req: Request) => {
     // Denies ONLY when an explicit hive_route_quotas row exists (rq.per_route), so this stays
     // a no-op until an admin sets a cap - while always counting for attribution.
     // This fn builds CORS inline per response, so call the shared helper the same way.
-    if (_rq.per_route && !_rq.allowed) return routeRateLimitedResponse(getCorsHeaders(req), "project-orchestrator", _rq.cap);
+    if (_rq.per_route && !_rq.allowed) return routeRateLimitedResponse(getCorsHeaders(req), "project-orchestrator", _rq.cap, _rq.retry_after_seconds);
   } catch { /* empty-catch-allow: per-surface quota bookkeeping must never fail a real request */ }
   const rl = await checkAIRateLimit(db, body.hive_id || "");
-  if (!rl.allowed) return rateLimitedResponse(getCorsHeaders(req));
+  if (!rl.allowed) return rateLimitedResponse(getCorsHeaders(req), rl.scope ?? "hour", rl.retry_after_seconds);
 
   try {
     if (phase === 'narrative') {

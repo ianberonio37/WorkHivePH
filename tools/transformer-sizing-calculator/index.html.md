@@ -7,7 +7,7 @@ Source: https://workhiveph.com/tools/transformer-sizing-calculator/
 Transformer Sizing Calculator
 **The Transformer Sizing Calculator picks the standard kVA rating for a load with spare capacity and reports the resulting loading. Example: for a 100 kVA load on a 13.8 kV / 400 V 3-phase supply with 25% spare, Rated size = 150 kVA, Required = 125 kVA, Loading = 66.7 % (per PEC 2017 Art. 4.50 | IEC 60076-1:2011).**
 How it works
-Computed from your inputs per PEC 2017 Art. 4.50 | IEC 60076-1:2011.
+Computed per PEC 2017 Art. 4.50 | IEC 60076-1:2011.
 Worked example (Electrical & Power)
 Inputs: a 100 kVA load on a 13.8 kV / 400 V 3-phase supply with 25% spare.
 ResultValue
@@ -21,14 +21,14 @@ The calculator returns Rated size, Required, Loading, computed per PEC 2017 Art.
 Check the worked example to confirm the method matches how you would do it by hand, then run your own numbers in the interactive tool.
 FAQ
 What is a transformer sizing calculator kVA?The Transformer Sizing Calculator is a free online tool that computes picks the standard kVA rating for a load with spare capacity and reports the resulting loading. It shows the formula and a fully worked example so you can check the method, not just the number.
-How is it calculated?The result is computed from your inputs following PEC 2017 Art. 4.50 | IEC 60076-1:2011. The worked example on this page shows a real computation with real numbers.
-Is the calculator free?Yes. WorkHive's engineering calculators are free to use, no sign-up needed for the tools. WorkHive is a free, offline-first maintenance platform built for Philippine industrial plants.
+How is it calculated?The result is computed following PEC 2017 Art. 4.50 | IEC 60076-1:2011. The worked example on this page shows a real computation with real numbers.
+Is the calculator free?Yes. WorkHive's engineering calculators are free: the worked example on this page shows the full calculation with real numbers, and the interactive calculator runs in WorkHive's free Engineering Design suite. A free account takes about 30 seconds. WorkHive is a free, offline-first maintenance platform built for Philippine industrial plants.
 Run it on your own numbers
-[Open the interactive Transformer Sizing Calculator in WorkHive](https://workhiveph.com/engineering-design.html): free, no sign-up needed for the calculators.
+[Open the interactive Transformer Sizing Calculator in WorkHive (free sign-in)](https://workhiveph.com/engineering-design.html): free with a WorkHive account. Sign-up takes about 30 seconds.
 Related calculators
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
 [Wire Sizing Calculator](https://workhiveph.com/tools/wire-sizing-calculator/)
 [Power Factor Correction Calculator](https://workhiveph.com/tools/power-factor-correction-calculator/)
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/)
 
-<!-- md-twin source-sha: a33c2c8fbb228dda -->
+<!-- md-twin source-sha: 1ac24f0d6e09f0d3 -->

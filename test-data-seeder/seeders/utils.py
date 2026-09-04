@@ -72,6 +72,39 @@ def to_iso(dt: datetime) -> str:
     return dt.astimezone(timezone.utc).isoformat()
 
 
+def submitted_before(approved_at, rng: random.Random | None = None):
+    """A created_at that PRECEDES its approval, so a seeded row is not its own paradox.
+
+    ★MEASURED 2026-08-28: 549 of 550 approved rows across five tables (asset_nodes,
+    inventory_items, project_change_orders, rcm_fmea_modes, rcm_strategies) recorded an approval
+    BEFORE the submission it approved. Not clock skew - created_at was left to DEFAULT now(), so
+    every row in a table carried the identical seed-run instant while approved_at was deliberately
+    backdated to a realistic history. The fixture said, on almost every row, that a supervisor
+    signed off weeks before the worker submitted.
+
+    ★AND THE UNIFORMITY IS WHAT GAVE IT AWAY. 549/550 is not an environmental fault - a real clock
+    problem is intermittent. An impossibly CONSISTENT violation is a structural one, and reading it
+    as skew would have sent someone hunting a bug in the product instead of in the fixture.
+
+    It matters because `approved_at >= created_at` is an invariant a real audit checks, and on this
+    fixture it can only ever FAIL - so a gate holding it is untestable locally, and any walk reading
+    the age of an item reads a number the seeder invented. Same class of fiction the asset_brain
+    seeder already forbids for approver-without-status, one axis over: TIME.
+
+    Returns an ISO submission time 1-14 days before the approval; None when there is no approval to
+    precede, so pending and rejected rows keep the natural default.
+    """
+    if not approved_at:
+        return None
+    r = rng or random
+    try:
+        ts = approved_at if isinstance(approved_at, datetime) else datetime.fromisoformat(
+            str(approved_at).replace("Z", "+00:00"))
+    except Exception:  # noqa: BLE001
+        return None
+    return to_iso(ts - timedelta(days=r.randint(1, 14), hours=r.randint(0, 23)))
+
+
 def batch_insert(client, table: str, rows: list, chunk: int = 500) -> int:
     """Insert rows in batches; returns total inserted count."""
     inserted = 0

@@ -21,6 +21,7 @@
   <meta name="twitter:description" content="Verified seller on WorkHive Marketplace" id="tw-description" />
 
   <!-- JSON-LD will be injected by JS when seller data loads (Person + ItemList of listings) -->
+  <script src="browser-floor.js"></script>
   <script type="application/ld+json" id="seller-ld-json"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -581,7 +582,7 @@
         ? 'Silver: 11 or more completed sales. Gold at 51. Set by WorkHive from completed sales, not self-assigned.'
         : 'Bronze: where every seller starts. Silver at 11 completed sales, Gold at 51. Set by WorkHive from completed sales, not self-assigned.';
       const parts = [`<span class="badge-tier ${e(tier)}" title="${e(_tierWhy)}" aria-label="${e(_tierWhy)}">${tier.charAt(0).toUpperCase() + tier.slice(1)}</span>`];
-      if (_seller?.kyb_verified) {
+      if (whIdVerified(_seller)) {   // T70: same central rule the card and detail sheet now use
         parts.push(`<span class="badge-verified"><span class="ic ic-check" aria-hidden="true"></span>ID Verified</span>`);
       }
       // MK1/J11 (2026-07-24): a verification badge requires the thing it verifies. Central rule in

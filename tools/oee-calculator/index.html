@@ -11,6 +11,13 @@
 <meta property="og:description" content="The OEE Calculator computes Overall Equipment Effectiveness as Availability x Performance x Quality, the single number for how much saleable output a line actually produced versus its maximum. Free online, with a worked example. Built for Philippine plants by WorkHive.">
 <meta property="og:url" content="https://workhiveph.com/tools/oee-calculator/">
 <meta property="og:type" content="website">
+<meta property="og:image" content="https://workhiveph.com/brand_assets/og-social.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:alt" content="WorkHive: Free industrial tools for every Filipino worker">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://workhiveph.com/brand_assets/og-social.png">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -119,7 +126,7 @@
 </script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = { theme: { extend: { colors: {
@@ -182,7 +189,8 @@
     <nav class="flex items-center gap-6">
       <a href="/" class="nav-link">Home</a>
       <a href="/learn/" class="nav-link">Learn</a>
-      <a href="/#join" class="nav-link">Join the Hive</a>
+      <a href="/?signin=1" class="nav-link">Sign In</a>
+      <a href="/?signup=1" class="nav-link">Sign Up Free</a>
     </nav>
   </div>
 </header>
@@ -203,7 +211,7 @@
     <section aria-labelledby="worked">
       <h2 id="worked">Worked example (Reliability &amp; Metrics)</h2>
       <p>Inputs: a bottling line available 90% of planned time, running at 95% of rated speed, producing 98% good bottles.</p>
-      <table>
+      <div data-table-scroll style="overflow-x:auto;-webkit-overflow-scrolling:touch;" role="region" aria-label="Scrollable table" tabindex="0"><table>
         <thead><tr><th>Result</th><th>Value</th></tr></thead>
         <tbody>
           <tr><td>OEE</td><td>83.8 %</td></tr>
@@ -212,7 +220,7 @@
           <tr><td>Quality</td><td>98 %</td></tr>
           <tr><td>World-class benchmark</td><td>85 %</td></tr>
         </tbody>
-      </table>
+      </table></div>
       <p><small>Computed live by WorkHive's calculation engine; standard: Nakajima TPM | ISO 22400-2.</small></p>
     </section>
 
@@ -235,7 +243,7 @@
 
     <section aria-labelledby="try">
       <h2 id="try">Run it on your own numbers</h2>
-      <p><a href="/engineering-design.html" class="cta">Open the interactive OEE Calculator in WorkHive</a>: free, no sign-up needed for the calculators.</p>
+      <p><a href="/engineering-design.html" class="cta">Open the interactive OEE Calculator in WorkHive (free sign-in)</a>: free with a WorkHive account. Sign-up takes about 30 seconds.</p>
     </section>
 
     <section aria-labelledby="related">
@@ -252,11 +260,11 @@
 
 <footer class="py-10 border-t border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
   <div class="max-w-4xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">
-    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-08-05">2026-08-05</time></p>
+    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-08-24">2026-08-24</time></p>
     <div class="flex items-center gap-6">
       <a href="/" class="hover:text-white/60 transition-colors">Home</a>
       <a href="/#faq" class="hover:text-white/60 transition-colors">FAQ</a>
-      <a href="/#join" class="hover:text-white/60 transition-colors">Join the Hive</a>
+      <a href="/?signup=1" class="hover:text-white/60 transition-colors">Join the Hive</a>
     </div>
   </div>
 </footer>

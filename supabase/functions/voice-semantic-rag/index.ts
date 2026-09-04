@@ -94,7 +94,7 @@ serveObserved("voice-semantic-rag", async (req) => {
     // LLM10 unbounded-consumption: per-user rate-limit (personal voice search; embed + RPC are not free).
     // Identity-keyed (no hive context); the verified auth_uid is the bucket.
     const _rl = await checkUserRateLimit(db, "", auth_uid);
-    if (!_rl.allowed) return userRateLimitedResponse(corsHeaders, _rl.user_cap);
+    if (!_rl.allowed) return userRateLimitedResponse(corsHeaders, _rl.user_cap, _rl.retry_after_seconds);
 
     // Phase 1.5: Try semantic search via pgvector if embeddings are available
     let results: any[] = [];

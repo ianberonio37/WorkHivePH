@@ -42,6 +42,23 @@ def main() -> int:
     if not PROBE.is_file():
         print(f"{YEL}SKIP{RST}  probe not found: {PROBE.name}")
         return 0
+
+    # --selftest FORWARDS to the probe's own teeth (2026-08-28). U2 carries one relaxation - an inline
+    # link inside a sentence is exempt, per WCAG 2.5.5/2.5.8 - and a carve-out with nothing pinning it
+    # is how a detector quietly stops detecting. The probe's self-test proves the exemption excuses ONLY
+    # that shape: a 23px button, an inline-BLOCK link in the same sentence, and an inline link that is
+    # the whole line must all still be caught. Costs ~1s and needs no seeder.
+    if "--selftest" in sys.argv or "--self-test" in sys.argv:
+        try:
+            r = subprocess.run(["node", str(PROBE), "--selftest"], cwd=str(ROOT), capture_output=True,
+                               text=True, encoding="utf-8", errors="replace", timeout=120)
+        except Exception as e:                       # noqa: BLE001 - a missing runner is a SKIP, not a fail
+            print(f"{YEL}SKIP{RST}  self-test could not run: {e}")
+            return 0
+        for line in (r.stdout or "").splitlines():
+            if line.strip():
+                print("  " + line.strip())
+        return 0 if r.returncode == 0 else 1
     try:
         r = subprocess.run(["node", str(PROBE)], cwd=str(ROOT), capture_output=True,
                            text=True, encoding="utf-8", errors="replace", timeout=600)

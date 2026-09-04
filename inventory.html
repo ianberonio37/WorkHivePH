@@ -248,14 +248,27 @@
   <!-- NAVBAR -->
   <nav class="relative z-10 border-b border-white/[0.06]" style="background: rgba(22,32,50,0.85); backdrop-filter: blur(16px);">
     <div class="max-w-5xl mx-auto px-5 sm:px-8 h-14 flex items-center justify-between">
-      <div class="flex items-center gap-3">
+      <!-- T113 (2026-08-27): min-w-0 so this group may SHRINK. Without it a flex item refuses to go
+           below its content width, so "Inventory Monitor" held the row open and pushed the Back link
+           +45px past a 390 viewport — part of a tappable control off-screen, and invisible to every
+           check because the page itself never scrolls horizontally. -->
+      <div class="flex items-center gap-3 min-w-0">
         <a href="index.html" class="flex items-center justify-center min-h-[44px] min-w-[44px]" aria-label="WorkHive home">
           <img src="brand_assets/workhive-logo-transparent.png" alt="WorkHive" class="h-8 w-auto" />
         </a>
         <div class="w-px h-4 bg-white/15"></div>
-        <span class="text-xs font-semibold text-white/80 uppercase tracking-widest">Inventory Monitor</span>
+        <span class="text-xs font-semibold text-white/80 uppercase tracking-widest truncate">Inventory Monitor</span>
+        <!-- T125/T51 (2026-08-25): the hive stamp — same pattern as logbook/pm-scheduler.
+             Screenshots of this page must carry WHOSE hive they show; a multi-hive contractor
+             must see which hive is on the glass. Hidden until wh_hive_name resolves. -->
+        <div id="hive-chip" class="hidden items-center gap-1.5 px-2.5 py-1 rounded-full text-xs" style="background:rgba(247,162,27,0.1);border:1px solid rgba(247,162,27,0.25);color:var(--wh-orange-text);">
+          <span class="ic ic-community" aria-hidden="true"></span>
+          <span id="hive-chip-name" class="font-semibold truncate max-w-[110px]"></span>
+        </div>
       </div>
-      <a href="index.html#evolution" class="btn-secondary text-xs py-2 px-4">← Back to Basic Worker</a>
+      <!-- T1 link-gate find: #evolution named a section index.html no longer has — the anchor
+           scrolled nowhere. The destination IS the home surface; link it plainly. -->
+      <a href="index.html" class="btn-secondary text-xs py-2 px-4 whitespace-nowrap flex-shrink-0">← Back to Home</a>
     </div>
   </nav>
 
@@ -363,6 +376,12 @@
         </datalist>
         <select id="filter-status" aria-label="Filter parts by stock level" class="wh-input sm:w-40">
           <option value="">All stock</option>
+          <!-- T19: the composite the ops-home low-stock tile counts. That tile's number is
+               out + critical + low, and every option below is a SINGLE band, so tapping it could
+               not land on the set it had just counted - it linked to the bare page and the
+               supervisor had to rebuild the filter by eye. One option that means "below reorder
+               point" lets the tile hand off exactly what it showed. -->
+          <option value="below">Below reorder point</option>
           <option value="out">Out of stock</option>
           <option value="critical">Critical low</option>
           <option value="low">Low stock</option>
@@ -492,7 +511,11 @@
           </div>
         </div>
         <div>
-          <label for="f-notes" class="wh-label"><span data-i="notes">Notes</span> <span class="text-white/80 font-normal normal-case" data-i="notehint">(install tips, specs, gotchas)</span></label>
+          <!-- T166 (2026-08-27): who reads this. inventory_items' read policy admits every ACTIVE
+               MEMBER of the item's hive, so a note here is written for the crew, not for oneself -
+               which is the opposite of the planner's notes and exactly why each composer has to say
+               so rather than leaving people to guess from the surrounding page. -->
+          <label for="f-notes" class="wh-label"><span data-i="notes">Notes</span> <span class="text-white/80 font-normal normal-case" data-i="notehint">(install tips, specs, gotchas)</span> <span class="text-white/80 font-normal normal-case">- visible to your hive</span></label>
           <textarea aria-label="e.g. Torque seal bolts to 25 Nm. Always replace bearing pairs together." id="f-notes" maxlength="2000" class="wh-input" placeholder="e.g. Torque seal bolts to 25 Nm. Always replace bearing pairs together."></textarea>
         </div>
         <div>
@@ -585,7 +608,8 @@
     </div>
   </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
+<script src="browser-floor.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
 <script src="utils.js"></script>
 <script>
   // Grounded Sweep C7 retrofit: dialog a11y bar on inventory's 4 hand-rolled modals
@@ -618,6 +642,7 @@ let WORKER_NAME = whWorker() || /* storage-key-allow: legacy worker-name fallbac
 // C4: redirect deferred to async init — checks auth session first
 let HIVE_ID   = whHiveId();
 let HIVE_ROLE = localStorage.getItem('wh_hive_role') || '';
+let HIVE_NAME = localStorage.getItem('wh_hive_name') || '';
 
 // localStorage keys: migration source only, removed after first run
 const INV_KEY    = 'wh_inventory_'  + WORKER_NAME;
@@ -716,7 +741,7 @@ function saveInventory(arr) {
       // view-only fields before persisting.
       const { is_out_of_stock, is_low_stock, is_critical_low, reorder_point, ...row } = item;
       db.from('inventory_items').upsert({ ...row, worker_name: row.worker_name || WORKER_NAME, auth_uid: _authUid || null })
-        .then(({ error }) => { if (error) { console.error('inv sync:', error.message); showToast('Inventory save failed: ' + error.message); } });
+        .then(({ error }) => { if (error) { console.error('inv sync:', error.message); showToast(whWriteError(error, 'This part did not save to the hive. It is still on this device; try again when you are back online.')); } });
     }
   });
 }
@@ -726,7 +751,7 @@ function saveTransactions(arr) {
   const last = arr[arr.length - 1];
   if (last) {
     db.from('inventory_transactions').insert(last) /* attribution-allow: `last` = element of the txns array built by addTransaction(), which sets auth_uid (verified live 2026-07-06) */
-      .then(({ error }) => { if (error) { console.error('txn sync:', error.message); showToast('Transaction save failed: ' + error.message); } });
+      .then(({ error }) => { if (error) { console.error('txn sync:', error.message); showToast(whWriteError(error, 'The stock movement did not save to the hive. The count on this device is ahead of the hive until it syncs.')); } });
   }
 }
 
@@ -969,7 +994,22 @@ function renderInventorySummary(items, lowCount, outCount, criticalCount) {
       text = 'No parts registered. Click "Add Part" to start your spare-parts inventory. Even rough quantities are better than nothing for kicking off the reorder loop.';
       setCta('Review the parts list →', { scroll: '#parts-list' });
     } else if (outCount > 0) {
-      text = `Filter to "Out of stock" using the chip below and restock these ${outCount} part${outCount === 1 ? '' : 's'} first. This blocks every job that needs them.`;
+      // ci_domain_truth CI1+CI2 (2026-09-03): this branch WINS whenever anything is out of stock,
+      // and it too is a reorder suggestion — so it names the threshold for the low remainder and
+      // states the real lead times, exactly like the low-only branch below. The prover measured
+      // this hive rendering the out branch with neither half (out=1 masked low=2's vocabulary).
+      const _urgent = items.filter(i => stockStatus(i) === 'out' || i.is_low_stock === true
+        || (i.is_low_stock === undefined && Number(i.min_qty) > 0
+            && Number(i.qty_on_hand) <= Number(i.min_qty)));
+      const _leads = _urgent.map(i => Number(i.lead_time_days)).filter(n => Number.isFinite(n) && n >= 0);
+      const _maxLead = _leads.length ? Math.max(..._leads) : null;
+      const _leadNote = _leads.length
+        ? ` Longest lead time among them: ${_maxLead} day${_maxLead === 1 ? '' : 's'}. Order the long-lead parts first.`
+        : ' Lead time is not recorded for these parts; confirm delivery time with your supplier when ordering.';
+      const _lowNote = lowCount > 0
+        ? ` ${lowCount} more part${lowCount === 1 ? ' is' : 's are'} at or below the reorder threshold; order those in the same pass.`
+        : '';
+      text = `Filter to "Out of stock" using the chip below and restock these ${outCount} part${outCount === 1 ? '' : 's'} first. This blocks every job that needs them.${_lowNote}${_leadNote}`;
       setCta(`Restock ${outCount} out-of-stock →`, { scroll: '#parts-list' });
     } else if (pendingCount > 5) {
       text = `${pendingCount} parts are awaiting your approval. Filter to "Pending approval" and clear the backlog: Use and Restock are locked until you sign off.`;
@@ -1111,6 +1151,10 @@ function renderParts() {
   let filtered = items.filter(item => {
     if (catF    && item.category !== catF)             return false;
     const st = stockStatus(item);
+    // T19: 'below' is the composite the ops-home tile counts (out + critical + low) — the same
+    // three bands the stats above sum as "at or below min_qty". Kept as its own branch rather than
+    // widening 'low', because a supervisor filtering to Low stock still means only Low.
+    if (statusF === 'below' && st !== 'out' && st !== 'critical' && st !== 'low') return false;
     if (statusF === 'out' && st !== 'out')             return false;
     if (statusF === 'critical' && st !== 'critical')   return false;
     if (statusF === 'low' && st !== 'low')             return false;
@@ -1123,7 +1167,7 @@ function renderParts() {
       .map(uuid => _nodeIdToAssetId[uuid] || '')
       .join(' ').toLowerCase();
     return [item.part_number, item.part_name, item.bin_location, linked]
-      .some(f => f && f.toLowerCase().includes(query));
+      .some(f => f && whFold(f).includes(whFold(query)));
   });
 
   // Sort: out first, then critical, low, ok, surplus last; alpha within each group
@@ -1172,7 +1216,7 @@ function renderParts() {
             <div class="flex items-center gap-2 flex-wrap">
               <span class="font-black text-sm tracking-wide text-white">${pn}</span>
               ${catBadge(item.category)}
-              ${statusBadge(st)}
+              ${HIVE_ID && item.status && item.status !== 'approved' ? '' : statusBadge(st)}
               ${approvalBadge(item)}
             </div>
             <button onclick="openDetailModal('${item.id}')" aria-label="Open item details" class="text-white/80 hover:text-white/60 transition-colors flex-shrink-0 p-1 flex items-center justify-center" style="min-height:44px;min-width:44px;">
@@ -1180,6 +1224,9 @@ function renderParts() {
             </button>
           </div>
           <p class="text-sm text-white/85 font-medium mb-2">${nm}</p>
+          ${HIVE_ID && item.status === 'rejected' && item.rejection_reason
+            ? `<p class="text-[11px] mb-2" style="color:var(--wh-red);"><strong>Why rejected:</strong> ${escHtml(item.rejection_reason)} <span class="text-white/60">- fix it and resubmit via Edit.</span></p>`
+            : ''}
           <div class="flex items-center gap-2 flex-wrap mb-3">
             ${item.bin_location ? `<span class="text-[11px] text-white/80 flex items-center gap-1">
               <span class="ic ic-location" aria-hidden="true"></span>
@@ -1421,13 +1468,35 @@ function openAddModal(prefillId) {
 
   renderAssetLinker();
   document.getElementById('part-modal').style.display = 'flex';
+  // T42: hardware Back now closes this modal instead of leaving the page (whModalHistory).
+  if (window.whModalHistory) whModalHistory.opened(function () { closePartModal(true); });
 }
 
-function closePartModal() {
+function closePartModal(fromBack) {
+  // T42: an explicit close (X / backdrop) consumes the history entry Back would have used;
+  // a Back-driven close (fromBack) already consumed it.
+  if (!fromBack && window.whModalHistory) whModalHistory.closed();
   document.getElementById('part-modal').style.display = 'none';
   editingItemId    = null;
   selectedAssetIds = new Set();
   currentPhotoData = null;
+}
+
+// T14 (2026-08-25) — lazy queue ensure, the pm-scheduler race class: an immediate async init
+// can reach a one-shot `if (window.whCreateQueue)` before the deferred offline-queue.js has
+// executed, silently never creating the queue (measured live on pm-scheduler: 2 of 5 runs).
+// Ensure at init AND at every use site.
+function _ensureInvQueue() {
+  if (!window._whInvQueue && window.whCreateQueue) {
+    window._whInvQueue = window.whCreateQueue({
+      db: 'wh_inventory_offline', table: 'inventory_items',
+      identityKey: 'worker_name', identityFn: () => WORKER_NAME,
+      postSync: () => { try { initData(); } catch (_) { /* empty-catch-allow: post-sync refresh is best-effort */ } },
+    });
+    window.whRegisterQueue('inventory', window._whInvQueue);
+    window._whInvQueue.startAutoSync(db);
+  }
+  return window._whInvQueue || null;
 }
 
 async function submitPart() {
@@ -1500,8 +1569,23 @@ async function submitPart() {
     const updated = { ...prev, ...payload, photo: currentPhotoData || prev.photo || null };
     // Optimistic concurrency guard (PRODUCTION_FIXES #43). Use the row's
     // last-seen updated_at to detect a parallel edit. If conflict, abort
-    // and ask the user to refresh. inventory_items already auto-touches
-    // updated_at on every UPDATE so this works without a trigger change.
+    // and ask the user to refresh.
+    //
+    // WHY THIS WORKS, stated precisely (T138, 2026-08-28): the stamp moves because THE PAYLOAD
+    // ABOVE CARRIES `updated_at: now`, not because the table auto-touches it. Verified by racing
+    // two product-shaped writers with the trigger removed: A wrote, B held A's pre-edit stamp and
+    // matched 0 rows, so the conflict below fires correctly on the strength of the payload alone.
+    //
+    // The older wording here ("inventory_items already auto-touches updated_at on every UPDATE")
+    // named the wrong mechanism for a true conclusion, and that imprecision cost a full false
+    // investigation: a probe that updated the row WITHOUT the payload's updated_at showed the
+    // stamp frozen and looked exactly like a guard that could never fire. Right reading, wrong
+    // subject - the probe tested a shape this page never sends.
+    //
+    // Migration 20260828000000 since adds tg_inventory_items_touch_updated as defence in depth,
+    // which is a real improvement for a reason unrelated to the guard: it makes updated_at
+    // SERVER-authoritative instead of trusting `new Date()` on a device whose clock may be wrong,
+    // and it keeps the guard working if a future caller forgets to send the field.
     if (prev.updated_at && typeof ocUpdate === 'function') {
       const ocRes = await ocUpdate(db, 'inventory_items', editingItemId, payload, prev.updated_at);
       if (ocRes.conflict) {
@@ -1555,7 +1639,7 @@ async function submitPart() {
 
     // Await DB insert before adding transaction: FK constraint requires item to exist first
     const _row = { ...item, worker_name: WORKER_NAME, auth_uid: _authUid || null };
-    if (!navigator.onLine && window._whInvQueue) {
+    if (!navigator.onLine && _ensureInvQueue()) {
       // Arc S D-001: offline -> queue the create (drains on reconnect). The item is
       // already in the local cache (_items), so the worker sees it immediately.
       await window._whInvQueue.enqueue({ id: item.id, op: 'insert', payload: _row });
@@ -1575,7 +1659,7 @@ async function submitPart() {
           document.getElementById('f-part-number').focus();
           return;
         }
-        if (window._whInvQueue) {  // network hiccup while "online": queue it, don't lose the write
+        if (_ensureInvQueue()) {  // network hiccup while "online": queue it, don't lose the write
           await window._whInvQueue.enqueue({ id: item.id, op: 'insert', payload: _row });
           showToast('Network issue: saved offline, will retry automatically.');
         } else {
@@ -1654,12 +1738,19 @@ function openUseModal(id) {
   // two on the shelf": the person needs to know where the other one went.
   const _resv = (typeof getReservedQty === 'function') ? getReservedQty(item.id) : 0;
   const _unit = item.unit || 'pcs';
+  // CI7 clamp (critic C2, 2026-09-02): after a staged unit is consumed, on_hand − staged goes
+  // NEGATIVE and this line rendered "Available: -1 pcs" — an arithmetic artifact on glass. Clamp
+  // at 0 and NAME the shortfall instead: a negative free-count means a staged unit was already
+  // spent and the restock is owed.
+  const _free = Math.max(0, Number(item.qty_on_hand) - _resv);
+  const _shortfall = _resv > 0 && (Number(item.qty_on_hand) - _resv) < 0;
   document.getElementById('use-qty-available').textContent =
     !hasQty(item.qty_on_hand)
       ? 'Available: not known right now. Reload before recording a use.'
       : _resv > 0
-        ? `Available: ${Number(item.qty_on_hand) - _resv} ${_unit} `
+        ? `Available: ${_free} ${_unit} `
           + `(${item.qty_on_hand} on hand − ${_resv} staged for a predicted failure)`
+          + (_shortfall ? ' - a staged unit was already consumed; restock owed.' : '')
         : `Available: ${item.qty_on_hand} ${_unit}`;
   document.getElementById('use-modal-error').classList.add('hidden');
   document.getElementById('use-modal').style.display = 'flex';
@@ -1702,8 +1793,16 @@ async function submitUse() {
     errEl.classList.remove('hidden'); return;
   }
   if (_uResv > 0 && qty > (Number(items[idx].qty_on_hand) - _uResv)) {
-    showToast(`Heads up: ${_uResv} ${_uUnit} of this part is staged for a predicted failure. `
-      + `Taking ${qty} spends some of it.`, 'warn', 6000);
+    // C2 (critic deepwalk, 2026-09-02): the warn above used to FIRE-AND-CONTINUE — the staged unit
+    // was spent in the same motion that mentioned it ("Confirm consumed the staged unit silently and
+    // the toast celebrated the stockout"). The documented ruling stands — a reservation is a
+    // RECOMMENDATION, not a lock, and the person at the machine outranks the algorithm — so this is
+    // NOT a block: it is one explicit tap that names the stakes before the staged unit is spent.
+    const _spendStaged = await window.whConfirm(
+      `${_uResv} ${_uUnit} of this part is staged for a predicted failure. Taking ${qty} spends the `
+      + `staged unit - when that failure comes, there may be no part for it. Use it anyway?`,
+      { okLabel: 'Use it anyway', cancelLabel: 'Keep it staged' });
+    if (!_spendStaged) return;
   }
 
   // The Use modal captures a Job Reference (for the audit trail), not a free note.
@@ -1733,19 +1832,35 @@ async function submitUse() {
     // stale client compute) and do NOT client-upsert an absolute qty. subscribeInventoryRealtime()
     // reconciles _txns + other members' caches. Solo/offline keep the client path (no concurrency).
     let newQty;
+    let movedQty = qty;   // what the shelf ACTUALLY gave up; see the short-move check below
     try {
+      // T11 (2026-08-27): p_txn_id lets this find out what actually moved. The RPC CLAMPS rather
+      // than refusing - GREATEST(0, qty - p_qty) - so a Use for more than remains returns normally
+      // having moved less, or nothing at all. `deductErr` cannot see that, and the cache line below
+      // recorded -qty (what was ASKED), so the page's own transaction list would claim a movement
+      // the database never made.
+      const txnId = (window.crypto && crypto.randomUUID) ? crypto.randomUUID()
+        : 'txn-' + Date.now() + '-' + Math.random().toString(36).slice(2, 10);
       const { data, error: deductErr } = await db.rpc('inventory_deduct',
-        { p_item_id: activeItemId, p_qty: qty, p_type: 'use', p_job_ref: jobRef });
+        { p_item_id: activeItemId, p_qty: qty, p_type: 'use', p_job_ref: jobRef, p_txn_id: txnId });
       if (deductErr) throw deductErr;
       newQty = Number(data);
+      const mv = await whDeductMoved(db, txnId, qty);
+      if (mv) {
+        movedQty = mv.moved;
+        if (mv.short) showToast(whShortMoveNotice(items[idx].part_name, mv.moved, mv.requested));
+      }
     } catch (e) {
       console.error('inventory use failed:', e);
-      errEl.textContent = 'Use failed: ' + (e.message || e); errEl.classList.remove('hidden'); return;
+      errEl.textContent = whWriteError(e, 'The stock was NOT deducted. Nothing changed - check the quantity and try again.'); errEl.classList.remove('hidden'); return;
     }
     items[idx].qty_on_hand = newQty;
     items[idx].updated_at  = new Date().toISOString();
     _items = items;                                                   // cache; RPC persisted qty+txn to DB
-    addTransaction(activeItemId, 'use', -qty, newQty, '', jobRef, { serverWritten: true });    // RPC wrote the txn; cache-only
+    // T11: -movedQty, not -qty. The RPC clamps, so when the shelf was short the database wrote a
+    // smaller (or zero) qty_change; recording -qty here would put a movement in this page's own
+    // transaction list that the database never made.
+    addTransaction(activeItemId, 'use', -movedQty, newQty, '', jobRef, { serverWritten: true });    // RPC wrote the txn; cache-only
   } else {
     // Solo (localStorage only) OR offline (single-user — no concurrency race): client read-modify-write.
     items[idx].qty_on_hand -= qty;
@@ -1830,7 +1945,7 @@ async function submitRestock() {
       const { data, error: rsErr } = await db.rpc('inventory_restock', { p_item_id: activeItemId, p_qty: qty, p_note: note || null });
       if (rsErr) throw rsErr;
       newQty = Number(data);
-    } catch (e) { console.error('inventory restock failed:', e); showToast('Restock failed: ' + (e.message || e), 'warn'); return; }
+    } catch (e) { console.error('inventory restock failed:', e); showToast(whWriteError(e, 'The restock did NOT go through. The count is unchanged; try again.'), 'warn'); return; }
     items[idx].qty_on_hand = newQty;
     items[idx].updated_at  = new Date().toISOString();
     _items = items;                                            // cache; RPC persisted qty+txn to DB
@@ -2029,7 +2144,7 @@ async function confirmDeleteItem(id) {
     if (item.status !== 'rejected') { showToast('Supervisors only.', 'warn'); return; }
     if (item.worker_name !== WORKER_NAME) { showToast('You can only remove your own rejected parts.', 'warn'); return; }
   }
-  const proceed = await window.whConfirm(`Remove "${item.part_name}" (${item.part_number}) from inventory? This cannot be undone.`, { title: 'Remove part', confirmLabel: 'Remove', tone: 'danger' });
+  const proceed = await window.whConfirm(`Remove "${item.part_name}" (${item.part_number}) from inventory? This cannot be undone.`, { okLabel: 'Remove', cancelLabel: 'Keep' });
   if (!proceed) return;
 
   if (HIVE_ID) {
@@ -2037,12 +2152,12 @@ async function confirmDeleteItem(id) {
     let q = db.from('inventory_items').delete().eq('id', id).eq('hive_id', HIVE_ID);
     if (HIVE_ROLE !== 'supervisor') q = q.eq('worker_name', WORKER_NAME);
     const { error } = await q;
-    if (error) { showToast('Could not remove part: ' + error.message); return; }
+    if (error) { showToast(whWriteError(error, 'The part was NOT removed. It is still in your inventory.')); return; }
     _items = _items.filter(i => i.id !== id);
   } else {
     const { error } = await db.from('inventory_items').delete()
       .eq('id', id).eq('worker_name', WORKER_NAME);
-    if (error) { showToast('Could not remove part: ' + error.message); return; }
+    if (error) { showToast(whWriteError(error, 'The part was NOT removed. It is still in your inventory.')); return; }
     _items = _items.filter(i => i.id !== id);
   }
 
@@ -2377,10 +2492,17 @@ async function validateHiveMembership() {
     return true; // fail open: DB unreachable, trust cached role
   }
   if (!membership || membership.status === 'kicked') {
+    // ★AND TELL THE PERSON (2026-08-31). "solo mode: inventory still usable for own items" is a good
+    // decision and stays. What was missing is that it happened SILENTLY: walked live as a removed
+    // member, this page went on to render "5 parts - 1 low - 0 out" and advised "order them before the
+    // next shift planning" for a scope the viewer did not know they had left. A confident dashboard for
+    // the WRONG scope is worse than a blank one, because it hands someone numbers to act on.
+    var _lostHive = (typeof HIVE_NAME !== 'undefined' && HIVE_NAME) ? HIVE_NAME : '';
     console.warn('Worker is no longer an active hive member. Clearing hive state.');
     ['wh_active_hive_id','wh_hive_id','wh_hive_role','wh_hive_name'].forEach(k => localStorage.removeItem(k));
     HIVE_ID = null;
     HIVE_ROLE = '';
+    if (typeof whHiveContextNotice === 'function') whHiveContextNotice(_lostHive);
     return true; // solo mode: inventory still usable for own items
   }
   if (membership.role !== HIVE_ROLE) {
@@ -2396,9 +2518,9 @@ async function validateHiveMembership() {
 (async () => {
   if (!WORKER_NAME) { WORKER_NAME = await restoreIdentityFromSession(db); }
   try { const { data: { session } } = await db.auth.getSession(); _authUid = session?.user?.id || null; } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
-  if (!WORKER_NAME) { window.location.href = 'index.html?signin=1'; return; }
+  if (!WORKER_NAME) { whSignInWall(); return; }
   // Phase B (auth migration): require authenticated session — see PRODUCTION_FIXES.md #37.
-  if (!_authUid) { window.location.href = 'index.html?signin=1'; return; }
+  if (!_authUid) { whSignInWall(); return; }
   // Auth-attachment race fix (2026-05-20): getSession() returns the session
   // from localStorage but Supabase's HTTP layer may not have the JWT attached
   // to the next .from(...).select() call yet. getUser() forces a server
@@ -2413,15 +2535,7 @@ async function validateHiveMembership() {
   // brownout write queues to IndexedDB and drains on reconnect (offline-queue.js
   // was loaded but never wired = dead code; this resolves it for inventory). The
   // connectivity widget reads whGetQueueDepth() to show the pending-writes badge.
-  if (window.whCreateQueue) {
-    window._whInvQueue = window.whCreateQueue({
-      db: 'wh_inventory_offline', table: 'inventory_items',
-      identityKey: 'worker_name', identityFn: () => WORKER_NAME,
-      postSync: () => { try { initData(); } catch (_) { /* empty-catch-allow: post-sync refresh is best-effort */ } },
-    });
-    window.whRegisterQueue('inventory', window._whInvQueue);
-    window._whInvQueue.startAutoSync(db);
-  }
+  _ensureInvQueue();
   // E2 consistent states: a failed load shows an inline error + Retry (shared
   // whListError) plus the platform toast, never a blank or stuck skeleton.
   try {
@@ -2455,6 +2569,20 @@ async function validateHiveMembership() {
     }
   } catch (_) { /* empty-catch-allow: best-effort deep-link; full list still renders */ }
 
+  // T19 — deep-link via ?status=<band>, so the ops-home low-stock tile can hand off the SET it
+  // counted instead of dropping the reader on the unfiltered page to rebuild the filter by eye.
+  // Only values the select actually offers are honoured: an unknown band would otherwise set a
+  // value no option matches, and the list would silently render as if no filter were applied.
+  try {
+    const deepStatus = new URLSearchParams(window.location.search).get('status');
+    const sel = document.getElementById('filter-status');
+    if (deepStatus && sel && [...sel.options].some(o => o.value === deepStatus)) {
+      sel.value = deepStatus;
+      sel.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+  } catch (_) { /* empty-catch-allow: best-effort deep-link; full list still renders */ }
+
+
   // Deep-link via ?receive=1&pn=<part_number>&name=<title> — the Marketplace listing
   // detail's "Received this? Add to your inventory" lands here to CLOSE the parts-flow
   // loop. If we already stock that part → open Restock (add the received qty to existing
@@ -2483,6 +2611,14 @@ async function validateHiveMembership() {
 </script>
   <script src="nav-hub.js"></script>
 <script>window.addEventListener('load', function () { if (window.whAutoSaveDraft) whAutoSaveDraft('invpart', ['f-notes']); });</script>
+<!-- T8/G5a (2026-08-27): inventory remembered NOTHING. It has three filter controls and ten other
+     pages already adopt whAutoRememberFilters, so a storeman who narrowed to a category and then
+     lost their session re-applied the filter by hand on every return - the exact re-work G5 exists
+     to remove. The list mirrors logbook's reference adoption: the durable filters, NOT the
+     free-text search, because pre-filling yesterday's query makes a list look wrong for a reason
+     the reader cannot see. The helper is owner-stamped, so on a shared station tablet worker B
+     does not inherit worker A's view. -->
+<script>window.addEventListener('load', function () { if (window.whAutoRememberFilters) whAutoRememberFilters('inventory-filters', ['filter-category', 'filter-status']); });</script>
   <script src="companion-launcher.js"></script>
   <script src="impact-preview.js"></script><!-- Phase D2: pre-commit "updates N pages" hint -->
   <script src="qr-scanner.js"></script>
@@ -2544,6 +2680,9 @@ async function validateHiveMembership() {
   // N1: static-label Filipino dict, applied by utils.js whI18nApply() when WH_LANG=fil.
   window.WH_FIL_PAGE = {
     pagetitle: 'Inventory ng Spare Parts',
+    // T45 census: these two were the only inventory labels a FIL reader still saw in English.
+    leadtime: 'Lead Time (araw)',
+    leadtimehint: '(oras ng delivery ng supplier, ipinapakita kapag may iminumungkahing reorder)',
     inv_use: 'Gamitin', inv_sellsurplus: 'Ibenta ang sobra', inv_findmkt: 'Hanapin sa Marketplace',
     addpart: 'Magdagdag ng Part',
     outofstock: 'Ubos ang stock',
@@ -2580,6 +2719,19 @@ async function validateHiveMembership() {
     note: 'Tala',
     confirmrestock: 'Kumpirmahin ang Restock',
   };
+</script>
+<script>
+// T125/T51: light the hive stamp from the stored name (cleared on membership loss).
+(function () {
+  try {
+    const _hn = localStorage.getItem('wh_hive_name');
+    const _chip = document.getElementById('hive-chip');
+    if (_hn && _chip) {
+      _chip.classList.remove('hidden'); _chip.classList.add('flex');
+      const n = document.getElementById('hive-chip-name'); if (n) n.textContent = _hn;
+    }
+  } catch (_) { /* empty-catch-allow: best-effort chrome */ }
+})();
 </script>
 </body>
 </html>

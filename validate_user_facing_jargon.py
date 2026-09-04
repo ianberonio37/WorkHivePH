@@ -108,6 +108,14 @@ RULES = [
     ("snake_id", re.compile(r"\b[a-z][a-z0-9]*(?:_[a-z0-9]+)+\b")),
     ("upper_id", re.compile(r"\b[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)+\b")),
     ("camel_id", re.compile(r"\b_?[a-z]+[A-Z][A-Za-z0-9]*\b")),
+    # DEVELOPER COMPOUNDS THAT READ LIKE ENGLISH. Every rule above catches an
+    # IDENTIFIER - snake_case, camelCase, fn(), *.md, a truth view, a named edge fn -
+    # so a phrase made of ordinary words with a hyphen walks straight past them.
+    # "Soft-delete" did exactly that, in a delete CONFIRM on a page this gate already
+    # covered: the supervisor deciding whether to press it had to know what a developer
+    # means by "soft". Name the behaviour ("hidden, kept, can be brought back"), never
+    # the technique. Kept deliberately short - this is for terms with no user meaning.
+    ("dev_compound", re.compile(r"\bsoft[- ]delet(?:e|ed|ion)\b|\bhard[- ]delet(?:e|ed|ion)\b|\bupsert(?:s|ed|ing)?\b|\bbackfill(?:s|ed|ing)?\b|\bidempotent\b", re.IGNORECASE)),
 ]
 
 # A few legitimate user-facing tokens that the broad patterns would otherwise

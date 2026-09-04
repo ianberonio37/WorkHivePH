@@ -1,0 +1,82 @@
+{
+  "_meta": {
+    "author": "T120 walk, 2026-08-25 (the account-vs-device split, documented so continuity is predictable)",
+    "note": "each remembered thing labeled account (follows the person across devices) or device (lives in this browser). The split is PRINCIPLED: identity + persona sync; working state (filters, drafts, queues) is deliberately device-local - a phone draft must never surprise a PC session.",
+    "sources": "worker_profiles (cloud) - storage_key_registry.json canonical keys (device)",
+    "scope_dimensions": "device vs account is only the FIRST axis. Within a device, remembered state also has an OWNER (shared station tablets) and sometimes a HIVE (multi-hive contractors). A row that names only its store answers 'where does this live' and not 'who may see it back'."
+  },
+  "account_level": [
+    {
+      "thing": "identity (username, display_name, email)",
+      "store": "worker_profiles"
+    },
+    {
+      "thing": "companion persona choice",
+      "store": "worker_profiles.preferred_persona (legacy value mapping on read)"
+    },
+    {
+      "thing": "hive memberships + roles",
+      "store": "hive_members (server truth; wh_hives is only a cache rebuilt from it)"
+    },
+    {
+      "thing": "all records (logbook, PMs, XP, journal, credits)",
+      "store": "postgres tables, RLS-scoped"
+    }
+  ],
+  "device_level": [
+    {
+      "thing": "remembered filters/views/tabs (G5)",
+      "store": "localStorage wh-* filter keys",
+      "rationale": "a wall-display's filter must not follow the supervisor home",
+      "scoped_within_device": "owner AND hive. whAutoRememberFilters carries the same __owner/__hive stamps: a filter pinned to hive A's asset matches nothing in hive B and renders an EMPTY LIST, which this platform has taught people to read as 'there is nothing here'."
+    },
+    {
+      "thing": "form drafts (X2 whAutoSaveDraft) + logbook page-local draft",
+      "store": "localStorage draft keys. TWO stores, not one: the shared whAutoSaveDraft keys, and logbook's own 'wh_logbook_draft_<hiveId>_<worker>' which does NOT go through the helper.",
+      "rationale": "unsent text is the device's secret until sent - but WHOSE secret, and about WHICH plant, are separate questions the store must also answer",
+      "scoped_within_device": "owner AND hive. __owner (T121) refuses a draft belonging to another person on a shared tablet; __hive (T51) refuses one typed against a different plant, because a logbook entry names THAT hive's machines. logbook keys by hive+worker instead of stamping, so each hive keeps its own draft rather than one being refused."
+    },
+    {
+      "thing": "offline write queues",
+      "store": "IndexedDB per page",
+      "rationale": "the queue belongs to the device that captured it"
+    },
+    {
+      "thing": "active hive selection",
+      "store": "localStorage wh_active_hive_id",
+      "rationale": "a contractor can be in hive A on the phone and hive B on the desk PC"
+    },
+    {
+      "thing": "language EN/FIL, TTS toggles",
+      "store": "localStorage",
+      "rationale": "device context (a shared tablet may serve FIL speakers)"
+    },
+    {
+      "thing": "one-shot notices (wh_removed_notice, wh_pending_action)",
+      "store": "sessionStorage",
+      "rationale": "die with the tab by design"
+    },
+    {
+      "thing": "notification-tray seen-marker (T107)",
+      "store": "localStorage wh_notifs_read_<hiveId>",
+      "rationale": "the tray is NOT an inbox - its contents are re-derived from live plant data on every page load, so the marker records 'this device has looked at the board since these conditions were true', which is a per-device fact. An account-level read state would be wrong here: clearing it on the phone would hide a still-true overdue-PM summary from the PC."
+    },
+    {
+      "thing": "dismissal flags (onboarding ladder, CMMS setup guide, per-page guide chip)",
+      "store": "localStorage wh_onboarding_dismissed, wh_cmms_guide_dismissed, wh_guide_link_dismissed_<page> - all through whIsDismissed()/whSetDismissed()",
+      "scoped_within_device": "owner, NOT hive - a person who has been introduced to a page stays introduced at every plant they work in",
+      "rationale": "these leak the OPPOSITE way from the content stores and so were missed by the sweep that fixed those: nothing of A's is exposed to B, what crosses is A's DECISION, and it reaches B as an ABSENCE - no card, no chip, nothing to notice or report. Stored as the literal '1' until 2026-08-28, which made them the browser's. A legacy '1' is treated as nobody's, so help returns once: re-showing a card costs a tap, hiding it costs the introduction."
+    },
+    {
+      "thing": "exam progress (skillmatrix)",
+      "store": "localStorage wh_exam_draft_<worker>_<discipline>_<level>",
+      "scoped_within_device": "owner and exam - deliberately NOT hive",
+      "rationale": "a welding exam describes the PERSON, not a plant, so hive-scoping it would lose a contractor's half-finished attempt at every site switch. The scope follows what the data BELONGS to."
+    }
+  ],
+  "known_tensions": [
+    "notification read-state is device-local today (T107) - CLOSED 2026-08-26 as CORRECT, not a gap: the tray re-derives its contents from live data every load rather than holding delivered messages, so the marker means 'seen on this device', and per-device is the honest scope for that. The tray now also names its two lanes (Waiting on you / Plant conditions) so the bell's meaning does not depend on read-state at all.",
+    "started-on-phone drafts are invisible on PC - CLOSED 2026-08-26: whAutoSaveDraft now announces it ONCE per browser, and only when a draft actually returns ('Drafts live on the device you typed them on, so this one will not appear on your other devices'), so the explanation arrives at the moment it explains something rather than as a nag",
+    "T121: drafts SURVIVE sign-out by design (work preservation) - CLOSED 2026-08-26 by OWNERSHIP rather than the proposed purge: whAutoSaveDraft stamps the owner and refuses to restore another person's draft, so A's work is preserved AND B never sees it. Measured before the fix: A's note appeared in B's compose box on a shared device, submittable under B's name."
+  ]
+}

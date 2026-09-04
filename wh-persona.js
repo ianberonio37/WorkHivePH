@@ -199,9 +199,16 @@
   // the 2.2MB source PNGs at brand_assets/James.png + Rosa.png.
   const PORTRAIT_URLS = {
     // 2026-07-03: the legacy james-256.jpg / rosa-256.jpg were never created (404 on every
-    // page). Point at the real renamed portraits that DO exist in brand_assets.
-    hezekiah: 'brand_assets/hezekiah.png',
-    zaniah:   'brand_assets/zaniah.png',
+    // page), so this was repointed at the full-size source PNGs to stop the 404.
+    // ★2026-08-28: that traded a broken image for a 4 MB one. hezekiah.png and zaniah.png are
+    // 1254x1254 masters weighing 2016 KB and 1997 KB, and BOTH sit in sw.js SHELL_FILES — so every
+    // installed PWA precached ~3.9 MB of portrait to render a ~56px avatar, on a platform built for
+    // Philippine plant workers on phones. The 256px derivatives this comment always described now
+    // actually exist (9.6 KB and 9.8 KB, progressive JPEG — the portraits carry no alpha, so JPEG
+    // was the right call all along). The masters stay in brand_assets for print and for
+    // explainer_studio; they are simply no longer shipped to every device.
+    hezekiah: 'brand_assets/hezekiah-256.jpg',
+    zaniah:   'brand_assets/zaniah-256.jpg',
   };
   const PORTRAIT_EMOJI = {
     hezekiah: '🧔',  // matches the existing voice-journal chip
@@ -245,11 +252,46 @@
       + inner + '</span>';
   }
 
+  // T85 (2026-08-26): the persona lives in TWO places - localStorage (what every renderer
+  // and prompt-builder reads) and worker_profiles.preferred_persona (the account-level
+  // choice that should follow the worker across devices). Only index.html and
+  // voice-journal.html bridged them, each with its own copy of the query, so a worker who
+  // picked Hezekiah on their phone and opened assistant.html directly on a PC got ZANIAH
+  // answers while their account said Hezekiah - the selection silently ignored because the
+  // page it was stored on was never visited.
+  //
+  // ★AND THE COPY IT REPLACES CLOBBERED ON FAILURE. It destructured `{ data: profile }`
+  // without checking the error, so a transient network blip left profile null, fell through
+  // to 'zaniah', and WROTE that to localStorage - permanently resetting a Hezekiah user to
+  // the default because one read failed. An absent or unreadable preference is not evidence
+  // of a preference. This writes ONLY when the cloud actually names one, and returns what it
+  // resolved so a caller can re-render.
+  async function hydratePersonaFromCloud(db) {
+    try {
+      if (!db || !db.auth) return getPersonaKey();
+      const { data: { user } = {} } = await db.auth.getUser();
+      if (!user) return getPersonaKey();
+      // canonical-allow: worker_profiles is the identity anchor (per tenant-context.ts); preferred_persona
+      // is the user's own UI preference, not a KPI truth — v_worker_truth does not carry it.
+      const { data: profile, error } = await db.from('worker_profiles')
+        .select('preferred_persona').eq('auth_uid', user.id).maybeSingle();
+      if (error) return getPersonaKey();              // read failed -> keep what we have
+      const raw = profile && profile.preferred_persona;
+      if (!raw) return getPersonaKey();               // no stored choice -> nothing to apply
+      const key = clampPersona(raw);                  // clamps legacy james/rosa too
+      try { localStorage.setItem(PERSONA_STORAGE_KEY, key); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
+      return key;
+    } catch (_) {
+      return getPersonaKey();
+    }
+  }
+
   // Expose globally for inline scripts.
   window.PERSONAS              = PERSONAS;
   window.DEFAULT_PERSONA       = DEFAULT_PERSONA;
   window.clampPersona          = clampPersona;
   window.getPersonaKey         = getPersonaKey;
+  window.hydratePersonaFromCloud = hydratePersonaFromCloud;
   window.getPersona            = getPersonaKey;  // Alias for voice-handler compatibility
   window.getCompanionBlock     = getCompanionBlock;
   window.buildCompanionBlock   = buildCompanionBlock;

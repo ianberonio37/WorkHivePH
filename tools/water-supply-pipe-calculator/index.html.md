@@ -7,7 +7,7 @@ Source: https://workhiveph.com/tools/water-supply-pipe-calculator/
 Water Supply Pipe Sizing Calculator
 **The Water Supply Pipe Sizing Calculator picks the supply pipe diameter from the water fixture units (WFU) and available pressure. Example: for a flush-valve supply serving 10 WCs and 8 lavatories over 40 m, Recommended diameter = 32 mm, Peak flow = 76.1 L/min, Velocity = 1.58 m/s (per Philippine Plumbing Code Table A-2/A-3).**
 How it works
-Computed from your inputs per Philippine Plumbing Code Table A-2/A-3.
+Computed per Philippine Plumbing Code Table A-2/A-3.
 Worked example (Plumbing & Pumps)
 Inputs: a flush-valve supply serving 10 WCs and 8 lavatories over 40 m.
 ResultValue
@@ -21,14 +21,14 @@ The calculator returns Recommended diameter, Peak flow, Velocity, computed per P
 Check the worked example to confirm the method matches how you would do it by hand, then run your own numbers in the interactive tool.
 FAQ
 What is a water supply pipe sizing calculator WFU?The Water Supply Pipe Sizing Calculator is a free online tool that computes picks the supply pipe diameter from the water fixture units (WFU) and available pressure. It shows the formula and a fully worked example so you can check the method, not just the number.
-How is it calculated?The result is computed from your inputs following Philippine Plumbing Code Table A-2/A-3. The worked example on this page shows a real computation with real numbers.
-Is the calculator free?Yes. WorkHive's engineering calculators are free to use, no sign-up needed for the tools. WorkHive is a free, offline-first maintenance platform built for Philippine industrial plants.
+How is it calculated?The result is computed following Philippine Plumbing Code Table A-2/A-3. The worked example on this page shows a real computation with real numbers.
+Is the calculator free?Yes. WorkHive's engineering calculators are free: the worked example on this page shows the full calculation with real numbers, and the interactive calculator runs in WorkHive's free Engineering Design suite. A free account takes about 30 seconds. WorkHive is a free, offline-first maintenance platform built for Philippine industrial plants.
 Run it on your own numbers
-[Open the interactive Water Supply Pipe Sizing Calculator in WorkHive](https://workhiveph.com/engineering-design.html): free, no sign-up needed for the calculators.
+[Open the interactive Water Supply Pipe Sizing Calculator in WorkHive (free sign-in)](https://workhiveph.com/engineering-design.html): free with a WorkHive account. Sign-up takes about 30 seconds.
 Related calculators
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
 [Pump TDH Calculator](https://workhiveph.com/tools/pump-tdh-calculator/)
 [Pipe Sizing Calculator](https://workhiveph.com/tools/pipe-sizing-calculator/)
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/)
 
-<!-- md-twin source-sha: f82272cc3196de35 -->
+<!-- md-twin source-sha: 485230ed950e7fbd -->

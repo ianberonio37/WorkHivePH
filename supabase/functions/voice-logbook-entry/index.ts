@@ -154,10 +154,10 @@ serveObserved("voice-logbook-entry", async (req) => {
       const _rq = await checkRouteRateLimit(db, hive_id || "" || "", "voice-logbook-entry");
       // Denies ONLY when an explicit hive_route_quotas row exists (rq.per_route), so this stays
       // a no-op until an admin sets a cap - while always counting for attribution.
-      if (_rq.per_route && !_rq.allowed) return routeRateLimitedResponse(cors, "voice-logbook-entry", _rq.cap);
+      if (_rq.per_route && !_rq.allowed) return routeRateLimitedResponse(cors, "voice-logbook-entry", _rq.cap, _rq.retry_after_seconds);
     } catch { /* empty-catch-allow: per-surface quota bookkeeping must never fail a real request */ }
     const rl = await checkAIRateLimit(db, hive_id || "");
-    if (!rl.allowed) return rateLimitedResponse(cors);
+    if (!rl.allowed) return rateLimitedResponse(cors, rl.scope ?? "hour", rl.retry_after_seconds);
 
     const raw = await callAI(safe, {
       systemPrompt: LOGBOOK_SYSTEM,

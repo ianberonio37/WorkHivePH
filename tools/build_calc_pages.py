@@ -748,7 +748,7 @@ def _default_faqs(data: dict) -> list[tuple[str, str]]:
     return [
         (f"What is a {kw}?", f"The {title} is a free online tool that computes {data['blurb'][len(data['title']) + 5:].strip() or 'the result'} It shows the formula and a fully worked example so you can check the method, not just the number."),
         (f"How is it calculated?", f"{data.get('formula', 'The result is computed from your inputs')} following {std or 'recognised engineering practice'}. The worked example on this page shows a real computation with real numbers."),
-        ("Is the calculator free?", "Yes. WorkHive's engineering calculators are free to use — no sign-up needed for the tools. WorkHive is a free, offline-first maintenance platform built for Philippine industrial plants."),
+        ("Is the calculator free?", "Yes. WorkHive is free: this worked example is open to everyone, and the interactive calculator runs inside the free Engineering Design suite after a free sign-up (your work is saved to your account). WorkHive is a free, offline-first maintenance platform built for Philippine industrial plants."),
     ]
 
 
@@ -774,10 +774,14 @@ def _steps(data: dict) -> list[str]:
         return list(data["steps"])
     labels = ", ".join(l for l, *_ in data["headline"])
     std = data.get("standard", "the applicable standard")
+    # T153 (2026-08-25): the old default steps narrated a phantom on-page UI ("Enter the
+    # figures... run your own numbers in the interactive tool") while these pages carry ZERO
+    # inputs — they teach the method with a worked example, and the INTERACTIVE calculator
+    # lives inside Engineering Design. The steps now describe what the page actually offers.
     return [
-        f"Enter the figures for the duty you are sizing — the worked example below uses {data['example_desc']}.",
-        f"The calculator returns {labels}, computed per {std}.",
-        "Check the worked example to confirm the method matches how you would do it by hand, then run your own numbers in the interactive tool.",
+        f"Read the worked example — it uses {data['example_desc']} and shows every number in the method.",
+        f"Follow the formula with your own figures: it returns {labels}, computed per {std}.",
+        f"To compute interactively, open the {data['title']} inside WorkHive's free Engineering Design suite (link below) — it runs the same method with your inputs.",
     ]
 
 
@@ -885,7 +889,7 @@ def _html_page(slug: str, data: dict) -> tuple[str, list]:
 
     <section aria-labelledby="try">
       <h2 id="try">Run it on your own numbers</h2>
-      <p><a href="/engineering-design.html" class="cta">Open the interactive {e(data['title'])} in WorkHive</a> — free, no sign-up needed for the calculators.</p>
+      <p><a href="/engineering-design.html" class="cta">Open the interactive {e(data['title'])} in WorkHive</a> — free; a free sign-up saves your calculations, BOMs and scope-of-works to your account.</p>
     </section>
 
     <section aria-labelledby="related">

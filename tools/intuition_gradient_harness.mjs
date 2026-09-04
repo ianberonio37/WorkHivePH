@@ -46,7 +46,7 @@ const ROOT = path.resolve(__dirname, '..');
 
 const BASE   = process.env.WH_TEST_BASE_URL || 'http://127.0.0.1:5000';
 const SB_URL = process.env.WH_SUPABASE_URL  || 'http://127.0.0.1:54321';
-const HIVE   = process.env.WH_TEST_HIVE     || '636cf7e8-431a-4907-8a9f-43dd4cc216d6'; // hive fallback only — signIn resolves the real hive from the live membership
+const HIVE   = process.env.WH_TEST_HIVE     || '084c113b-99c0-45c6-a8e8-b4b8349da46d'; // hive fallback only — signIn resolves the real hive from the live membership
 
 // Real auth accounts (live DB): worker + supervisor only. engineer == supervisor session.
 const ACCOUNTS = {

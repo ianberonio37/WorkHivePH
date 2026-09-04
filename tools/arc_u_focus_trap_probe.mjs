@@ -14,7 +14,7 @@ const SEEDER = process.env.WH_TEST_BASE_URL || 'http://127.0.0.1:5000';
 const SUPABASE_URL = process.env.WH_SUPABASE_URL || 'http://127.0.0.1:54321';
 const PASSWORD = process.env.WH_TEST_PASSWORD || 'test1234';
 // pabloaguilar's REAL active hive (reseed-proof: the FB2 HIVES.lucena constant is stale).
-const PERSONA = { email: 'pabloaguilar@auth.workhiveph.com', worker: 'Pablo Aguilar', role: 'supervisor', hive: 'b86f9ef6-b0a6-477d-b9c6-ca865c3b9dba' };
+const PERSONA = { email: 'pabloaguilar@auth.workhiveph.com', worker: 'Pablo Aguilar', role: 'supervisor', hive: '4eec150e-4837-417b-bdd8-009b0192acfe' };
 
 // Each target: navigate, click the opener, then the modal container should trap focus.
 const TARGETS = [

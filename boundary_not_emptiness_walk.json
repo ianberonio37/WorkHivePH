@@ -1,0 +1,134 @@
+{
+ "pm-scheduler.html": {
+  "absence": true,
+  "refusal": true,
+  "absenceMatch": "Nothing due",
+  "refusalMatch": "no longer a member",
+  "absenceContext": " 0 of 7 OVERDUE 6 6 of 7 assets past due STACKING UP DUE SOON (14D) 0 Nothing due in the next 14 days NONE ON TRACK 0 0 of 7 on track now · 0% PM compl",
+  "refusalContext": "anical HIGH No scheduled tasks 0 PM tasks DASHBOARD ADD ASSET You are no longer a member of this hive, so its data is not shown. Your session is fine. Showing",
+  "len": 1962,
+  "sample": "Skip to main content Pablo Aguilar PM Scheduler Track all your equipment PM tasks in one place. Live · refreshed on load · Based on your PM assets, PM tasks & PM completions How this is computed ⚠ PM compliance is in the red 6 assets are overdue. Each one lowe",
+  "verdict": "REFUSAL NAMED"
+ },
+ "inventory.html": {
+  "absence": false,
+  "refusal": true,
+  "absenceMatch": null,
+  "refusalMatch": "no longer a member",
+  "absenceContext": null,
+  "refusalContext": "rts Inventory: WorkHive 📖 New to this page? Read the guide × You are no longer a member of this hive, so its data is not shown. Your session is fine. Showing",
+  "len": 1729,
+  "sample": "Skip to main content INVENTORY MONITOR ← Back to Basic Worker Spare-Parts Inventory Track spare parts stock, link parts to assets, and know before you run out. Live · refreshed on load · Based on your inventory & stock movements How this is computed 5 parts 1 ",
+  "verdict": "REFUSAL NAMED"
+ },
+ "logbook.html": {
+  "absence": false,
+  "refusal": true,
+  "absenceMatch": null,
+  "refusalMatch": "Join a WorkHive",
+  "absenceContext": null,
+  "refusalContext": "Skip to main content DIGITAL LOGBOOK ← Back to Basic Worker Join a WorkHive First The Logbook is a team tool. Create or join a Hive to start logg",
+  "len": 1066,
+  "sample": "Skip to main content DIGITAL LOGBOOK ← Back to Basic Worker Join a WorkHive First The Logbook is a team tool. Create or join a Hive to start logging repairs with your team. Go to WorkHive Board You'll be brought back here once you're set up. Your Repair Logboo",
+  "verdict": "REFUSAL NAMED"
+ },
+ "dayplanner.html": {
+  "absence": true,
+  "refusal": true,
+  "absenceMatch": "EMPTY",
+  "refusalMatch": "no longer a member",
+  "absenceContext": "ems scheduled for today OPEN THIS WEEK 0 No items scheduled this week EMPTY OVERDUE 14 14 items past their scheduled date STACKING WHAT TO DO NEX",
+  "refusalContext": "M 8 PM 9 PM 10 PM 11 PM ▸ About this dashboard's data sources You are no longer a member of this hive, so its data is not shown. Your session is fine. Showing",
+  "len": 1152,
+  "sample": "Skip to main content Maintenance Day Planner: WorkHive Day Planner Day Week Month Year Today Today, Monday, August 31, 2026 + Schedule Live · refreshed on each view switch · Based on your schedule & logbook How this is computed ⚠ 14 items overdue Close them ou",
+  "verdict": "REFUSAL NAMED"
+ },
+ "achievements.html": {
+  "absence": false,
+  "refusal": false,
+  "absenceMatch": null,
+  "refusalMatch": null,
+  "absenceContext": null,
+  "refusalContext": null,
+  "len": 2768,
+  "sample": "Skip to main content Growth ← Skills Achievements Live · refreshed on load · Based on your achievements, XP history & worker · XP this week: points earned in the last 7 days · Total level: your levels added up across all domains (max 1,200 = 12 domains × level",
+  "verdict": "neither"
+ },
+ "skillmatrix.html": {
+  "absence": false,
+  "refusal": false,
+  "absenceMatch": null,
+  "refusalMatch": null,
+  "absenceContext": null,
+  "refusalContext": null,
+  "len": 1608,
+  "sample": "Skip to main content ✓ Growth Primary: Steam Systems · Pablo Aguilar Private to you: your skills, badges and exam attempts are visible only to you, not to your supervisor or teammates. Skills Achievements → Live · refreshed on load · Based on your skills & ski",
+  "verdict": "neither"
+ },
+ "asset-hub.html": {
+  "absence": false,
+  "refusal": true,
+  "absenceMatch": null,
+  "refusalMatch": "needs a hive",
+  "absenceContext": null,
+  "refusalContext": "Skip to main content Asset Hub needs a hive Asset Brain works only inside a team hive. Join or create one to see ",
+  "len": 258,
+  "sample": "Skip to main content Asset Hub needs a hive Asset Brain works only inside a team hive. Join or create one to see your equipment graph and the events tied to it. Go to Hive ▸ About this dashboard's data sources Hive Board 📖 New to this page? Read the guide ×",
+  "verdict": "REFUSAL NAMED"
+ },
+ "alert-hub.html": {
+  "absence": true,
+  "refusal": true,
+  "absenceMatch": "All clear",
+  "refusalMatch": "no longer a member",
+  "absenceContext": "k scores · PM overdue: counted once per asset, matches PM Scheduler ✓ All clear No critical alerts, anomalies, or pending briefs for your hive right ",
+  "refusalContext": " Staging 0 🧬 Pattern 0 ⚙️ System 0 Alerts ✓ Alerts not shown You are no longer a member of this hive, so its data is not shown. Your session is fine. Showing",
+  "len": 1395,
+  "sample": "Skip to main content Alert Hub Everything that needs your attention, in one place. Live data · Based on your risk scores · PM overdue: counted once per asset, matches PM Scheduler ✓ All clear No critical alerts, anomalies, or pending briefs for your hive right",
+  "verdict": "REFUSAL NAMED"
+ },
+ "community.html": {
+  "absence": false,
+  "refusal": true,
+  "absenceMatch": null,
+  "refusalMatch": "no longer a member",
+  "absenceContext": null,
+  "refusalContext": " post earns 3 reactions. Voice-of-the-Hive badge at 10 posts. You are no longer a member of this hive, so its data is not shown. Your session is fine. Showing",
+  "len": 2035,
+  "sample": "Skip to main content Pablo Aguilar ✓ Community Your hive's discussion board Live · updates automatically · Based on your community posts, replies, reactions, leaderboard & trade · Your hive’s posts · public posts are visible across hives ONLINE NOW Green dot =",
+  "verdict": "REFUSAL NAMED"
+ },
+ "analytics.html": {
+  "absence": false,
+  "refusal": true,
+  "absenceMatch": null,
+  "refusalMatch": "does not have access",
+  "absenceContext": null,
+  "refusalContext": "› Analytics Engine Some of this page could not be shown: your account does not have access to it. Your session is fine. Ask a supervisor if you need it. 📖 New ",
+  "len": 1381,
+  "sample": "Skip to main content Analytics Engine ISO 14224 · SMRP Metrics · Stage 3 Cyborg Worker EN FIL Stage 3 Recomputed just now · Based on your logbook · last 90 days (rolling, ending now) How this is computed 30 days 90 days 180 days 1 year 🔄 Refresh 📄 PDF Report",
+  "verdict": "REFUSAL NAMED"
+ },
+ "project-manager.html": {
+  "absence": false,
+  "refusal": true,
+  "absenceMatch": null,
+  "refusalMatch": "Join a hive",
+  "absenceContext": null,
+  "refusalContext": "Skip to main content Join a hive first Project Manager is team data. Join or create a hive to plan and",
+  "len": 729,
+  "sample": "Skip to main content Join a hive first Project Manager is team data. Join or create a hive to plan and track projects with your crew. Go to Hive Project Manager 📄 Print Report Plan, track and close out maintenance projects. Handles work-order bundles, shutdow",
+  "verdict": "REFUSAL NAMED"
+ },
+ "shift-brain.html": {
+  "absence": false,
+  "refusal": true,
+  "absenceMatch": null,
+  "refusalMatch": "needs a hive",
+  "absenceContext": null,
+  "refusalContext": "Skip to main content Shift Brain needs a hive The autonomous shift planner runs hive-by-hive. Join or create a hive",
+  "len": 245,
+  "sample": "Skip to main content Shift Brain needs a hive The autonomous shift planner runs hive-by-hive. Join or create a hive to see briefings for your team. Go to Hive ▸ About this dashboard's data sources Hive Board 📖 New to this page? Read the guide ×",
+  "verdict": "REFUSAL NAMED"
+ }
+}

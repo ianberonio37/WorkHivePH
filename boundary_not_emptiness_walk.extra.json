@@ -1,0 +1,25 @@
+{
+ "engineering-design.html": {
+  "absence": false,
+  "refusal": false,
+  "absenceMatch": null,
+  "refusalMatch": null,
+  "absenceContext": "nits: Metric (SI) Select a calculation type first. Run Calculation 📐 No Report Yet Fill in the inputs on the left and click Run Calculation to generate ",
+  "refusalContext": null,
+  "len": 1844,
+  "sample": "Skip to main content Engineering Design Design Calculation Tool Calculated on demand · Based on your saved calculations, standard formulas & engineering standards · 6 disciplines: HVAC / Mechanical / Electrical / Plumbing / Fire / Machine · Formulas anchored t",
+  "absenceExempt": "No Report Yet",
+  "verdict": "neither"
+ },
+ "report-sender.html": {
+  "absence": true,
+  "refusal": true,
+  "absenceMatch": "No contacts yet",
+  "refusalMatch": "no longer a member",
+  "absenceContext": "ys OEE Summary Phase 3 Weekly Analytics Phase 3 SEND TO + Add contact No contacts yet, tap Add contact Or type an email: Tap to speak context Send Reports ",
+  "refusalContext": "0 Pick a saved contact or type an email NONE SAVED CONTACTS — You are no longer a member of this hive, so its data is not shown. Your session is fine. Showing",
+  "len": 1560,
+  "sample": "Skip to main content WORKHIVE Reports Select reports. Add email. Send. How this page works ← Analytics report Send / schedule Live · contacts refreshed on load, history on load · Based on your AI reports & report contacts · Reports: your hive’s AI reports, new",
+  "verdict": "REFUSAL NAMED"
+ }
+}

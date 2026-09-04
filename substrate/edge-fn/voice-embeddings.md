@@ -2,7 +2,7 @@
 name: edge-fn-voice-embeddings
 type: edge-fn
 source: file:supabase/functions/voice-embeddings/index.ts
-source_sha: d1fdfea215990994
+source_sha: 1933f041d0f4c9d1
 last_verified: 2026-07-13
 supersedes: null
 ---

@@ -38,7 +38,7 @@ import { getCorsHeaders } from "../_shared/cors.ts";
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 import { checkAIRateLimit, rateLimitedResponse, checkRouteRateLimit, routeRateLimitedResponse } from "../_shared/rate-limit.ts";
 // Pillar I (Gateway Spine): verify hive membership on the single-hive path.
-import { resolveIdentity, resolveTenancy } from "../_shared/tenant-context.ts";
+import { resolveIdentity, resolveTenancy, requireServiceRole } from "../_shared/tenant-context.ts";
 // Persona Contract: briefing-signature mode — the shift briefing is an
 // autonomous hive-level artifact (no per-worker context), so it wears the
 // persona only as a footer signature keyed off hives.preferred_persona,
@@ -346,10 +346,26 @@ serveObserved("shift-planner-orchestrator", async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "",
     );
 
+    // ★Drain path (single_hive=null) fans out planForHive (a callAI briefing per hive) + writes shift_plans
+    // over EVERY active hive on a service-role client. This fn is deployed --no-verify-jwt, so without an
+    // explicit gate a public POST {shift_window} runs the whole all-hives LLM fan-out (BFLA + unbounded LLM
+    // cost — the amc-orchestrator drain class; this fn "works exactly like amc-orchestrator"). The comment
+    // below claimed the cron path "is reached only by service-role callers", but nothing ENFORCED that the
+    // single_hive=null caller holds a service-role bearer (declared-but-never-wired). The pg_cron caller
+    // passes a service-role bearer, so requiring service credentials on the drain path leaves it unbroken.
+    if (!single_hive) {
+      const g = await requireServiceRole(db, req);
+      if (!g.ok) {
+        return new Response(
+          JSON.stringify({ error: g.message, code: g.code }),
+          { status: g.status, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        );
+      }
+    }
+
     // Pillar I: the single-hive (manual / companion) path is scoped by the
     // client hive_id on a service-role client — verify membership. The cron
-    // path (single_hive=null) fans out over ALL hives and is reached only by
-    // service-role callers, so it is left untouched. Service-role callers skip.
+    // path (single_hive=null) is now gated to service-role above.
     if (single_hive) {
       const { authUid, isServiceRole } = await resolveIdentity(db, req);
       if (!isServiceRole) {
@@ -378,10 +394,10 @@ serveObserved("shift-planner-orchestrator", async (req) => {
         const _rq = await checkRouteRateLimit(db, single_hive || "", "shift-planner-orchestrator");
         // Denies ONLY when an explicit hive_route_quotas row exists (rq.per_route), so this stays
         // a no-op until an admin sets a cap - while always counting for attribution.
-        if (_rq.per_route && !_rq.allowed) return routeRateLimitedResponse(corsHeaders, "shift-planner-orchestrator", _rq.cap);
+        if (_rq.per_route && !_rq.allowed) return routeRateLimitedResponse(corsHeaders, "shift-planner-orchestrator", _rq.cap, _rq.retry_after_seconds);
       } catch { /* empty-catch-allow: per-surface quota bookkeeping must never fail a real request */ }
       const rl = await checkAIRateLimit(db, single_hive);
-      if (!rl.allowed) return rateLimitedResponse(corsHeaders);
+      if (!rl.allowed) return rateLimitedResponse(corsHeaders, rl.scope ?? "hour", rl.retry_after_seconds);
     }
 
     let targetHives: string[];

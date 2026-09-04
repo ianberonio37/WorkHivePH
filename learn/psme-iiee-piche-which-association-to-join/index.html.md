@@ -130,6 +130,8 @@ You can stay updated on industry developments and trends by attending conference
 
 The ASEAN Federation of Engineering Organizations (AFEFO) aims to promote engineering excellence and cooperation among ASEAN member countries. Filipino engineers can benefit from AFEFO's initiatives and resources.
 
+**Keep reading:** [build a portable engineering portfolio](https://workhiveph.com/learn/ofw-engineer-portable-portfolio/), or [map TESDA NCs to a skill matrix](https://workhiveph.com/learn/tesda-nc-mapping-to-skill-matrix/).
+
 ## Sources
 
 - DOLE OSHS (Department of Labor and Employment, Occupational Safety and Health Standards)
@@ -137,4 +139,4 @@ The ASEAN Federation of Engineering Organizations (AFEFO) aims to promote engine
 - ISO 14224 (International Organization for Standardization, Petroleum, Petrochemical and Natural Gas Industries - Reliability, Availability and Maintainability)
 - SMRP CMRP BoK (Society for Maintenance and Reliability Professionals, Certified Maintenance and Reliability Professional Body of Knowledge)
 
-<!-- md-twin source-sha: 4e0e8fe73479d0fd -->
+<!-- md-twin source-sha: f4fff118add281d5 -->

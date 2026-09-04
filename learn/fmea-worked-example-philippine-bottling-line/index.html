@@ -22,7 +22,7 @@
   <meta property="og:type" content="article" />
   <meta property="og:site_name" content="WorkHive" />
   <meta property="article:published_time" content="2026-05-18T00:00:00+08:00" />
-  <meta property="article:modified_time" content="2026-05-18T00:00:00+08:00" />
+  <meta property="article:modified_time" content="2026-08-24T00:00:00+08:00" />
   <meta property="article:author" content="WorkHive Editorial Team" />
   <meta property="article:section" content="Maintenance" />
 
@@ -45,7 +45,7 @@
         "author": { "@type": "Organization", "name": "WorkHive Editorial Team", "url": "https://workhiveph.com/" },
         "publisher": { "@id": "https://workhiveph.com/#organization" },
         "datePublished": "2026-05-18",
-        "dateModified": "2026-05-18",
+        "dateModified": "2026-08-24",
         "mainEntityOfPage": "https://workhiveph.com/learn/fmea-worked-example-philippine-bottling-line/",
         "inLanguage": "en-PH",
         "articleSection": "Maintenance",
@@ -79,7 +79,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -139,7 +139,8 @@
     <div class="flex items-center gap-5 text-xs sm:text-sm">
       <a href="/learn/" class="text-white/55 hover:text-white transition-colors">Learn</a>
       <a href="/" class="text-white/55 hover:text-white transition-colors">Home</a>
-      <a href="/#join" class="bg-orange-wh text-navy-wh px-4 py-1.5 rounded-lg font-semibold text-xs hover:bg-orange-light transition-colors">Join</a>
+      <a href="/?signin=1" class="nav-link" style="font-size:0.75rem;">Sign In</a>
+      <a href="/?signup=1" class="bg-orange-wh text-navy-wh px-4 py-1.5 rounded-lg font-semibold text-xs hover:bg-orange-light transition-colors">Join</a>
     </div>
   </div>
 </nav>
@@ -201,7 +202,7 @@
       <h2 id="calculating-rpn">Calculating RPN</h2>
       <p>To calculate the Risk Priority Number (RPN) for each failure mode, we multiply three key ratings: Severity, Occurrence, and Detection. At the Calabarzon bottling line in Cabuyao, Laguna, a plant supervisor would want to prioritize failure modes with the highest RPN values. In Asset Hub, these ratings are scored on a scale of 1-10, with 10 being the most severe, frequent, or difficult to detect.</p>
       <p>For example, consider the filler machine at the Cabuyao bottling line, which operates 24/7:</p>
-      <table>
+      <div data-table-scroll style="overflow-x:auto;-webkit-overflow-scrolling:touch;" role="region" aria-label="Scrollable table" tabindex="0"><table>
         <thead><tr><th>Rating</th><th>Value</th><th>Basis</th></tr></thead>
         <tbody>
           <tr><td>Severity</td><td>8</td><td>PHP 180,000 in lost production per hour</td></tr>
@@ -209,7 +210,7 @@
           <tr><td>Detection</td><td>3</td><td>difficult to detect, 30-minute delay</td></tr>
           <tr><td><strong>RPN</strong></td><td><strong>96</strong></td><td>8 x 4 x 3</td></tr>
         </tbody>
-      </table>
+      </table></div>
       <p>The shift in-charge would use this data to prioritize maintenance tasks.</p>
       <p>In Asset Hub, you can easily calculate RPN values for each failure mode using our FMEA worksheet template. Simply input the ratings for Severity, Occurrence, and Detection, and the tool will compute the RPN value for you. This helps maintenance planners in Philippine plants like Calabarzon focus on the most critical failure modes and schedule proactive maintenance during off-peak hours, such as between 02:30 and 14:45.</p>
       <p>By prioritizing failure modes with high RPN values, plant teams can efficiently allocate resources and minimize downtime costs. For instance, if Pump P-204B at the bottling line has a high RPN value, the maintenance team can schedule a replacement during a planned shutdown, reducing the likelihood of unexpected failures and costly repairs.</p>

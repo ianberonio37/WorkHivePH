@@ -1,7 +1,7 @@
 {
-  "ran": "2026-07-21T13:51:05.368Z",
+  "ran": "2026-08-27T02:11:27.910Z",
   "seeder": "http://127.0.0.1:5000",
-  "hive": "636cf7e8-431a-4907-8a9f-43dd4cc216d6",
+  "hive": "084c113b-99c0-45c6-a8e8-b4b8349da46d",
   "preflight": {
     "seeder": 200,
     "gotrue": 200,
@@ -51,7 +51,7 @@
         "opsHidden": true,
         "hero": "Access Your\n          Memory\n          Free Industrial Tools",
         "cta": true,
-        "joinTarget": true
+        "modalExists": true
       },
       "err": null
     },
@@ -61,7 +61,7 @@
       "page": "index.html",
       "role": "anon",
       "state": "landing-anon",
-      "title": "Visitor joins the early-access waitlist and gets confirmation (→ early_access_emails)",
+      "title": "Visitor subscribes to email updates via the demoted #join block (→ early_access_emails; T1: the waitlist stopped being the primary CTA)",
       "lenses": [
         "R",
         "J",
@@ -97,7 +97,7 @@
       ],
       "evidence": {
         "btnTxt": "You're on the list!",
-        "email": "k1-probe-1784641877287@plant.test",
+        "email": "k1-probe-1787796697547@plant.test",
         "db_count": 1,
         "db_path": "service-role psql (anon is write-only)",
         "recoverable": true
@@ -185,11 +185,288 @@
       "evidence": {
         "rowText": "Free to use, sign up to start:",
         "honestLabel": true,
-        "ctas": 4,
+        "ctas": 8,
         "signupOpen": true,
         "signupTab": true,
         "stillAnon": true,
         "note": "free-platform: tool CTAs open signup (truthful), no stale guest promise"
+      },
+      "err": null
+    },
+    {
+      "id": "LA7",
+      "phase": "K1",
+      "page": "index.html",
+      "role": "anon",
+      "state": "landing-anon",
+      "title": "Ian's phone leg: the sticky mobile CTA reveals after ONE screen of scroll and its tap opens the real signup",
+      "lenses": [
+        "R",
+        "J",
+        "X"
+      ],
+      "ufai": [
+        "U",
+        "F"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": null,
+        "C": null,
+        "X": true
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "X"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "X"
+      ],
+      "evidence": {
+        "present": true,
+        "inert": false,
+        "parked": false,
+        "revealed": true,
+        "tapHits": true,
+        "modalOpen": true,
+        "signupTab": true,
+        "src": "sticky"
+      },
+      "err": null
+    },
+    {
+      "id": "LA8",
+      "phase": "K1",
+      "page": "index.html",
+      "role": "anon",
+      "state": "landing-anon",
+      "title": "Sign-in wall reciprocity: facing the sign-in panel offers \"Create one — free\", and the signup panel offers the way back (Ian verbatim)",
+      "lenses": [
+        "R",
+        "J",
+        "X"
+      ],
+      "ufai": [
+        "U",
+        "F"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": null,
+        "C": null,
+        "X": true
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "X"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "X"
+      ],
+      "evidence": {
+        "modalOpen": true,
+        "reciprocity": true,
+        "label": "Create one for free",
+        "signupShown": true,
+        "wayBack": true
+      },
+      "err": null
+    },
+    {
+      "id": "LA9",
+      "phase": "K1",
+      "page": "index.html",
+      "role": "anon",
+      "state": "landing-anon",
+      "title": "The ?signup=1 deep link opens the signup panel directly, and ?return= lands in the honored sessionStorage slot",
+      "lenses": [
+        "R",
+        "J",
+        "X"
+      ],
+      "ufai": [
+        "F",
+        "A"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": null,
+        "C": null,
+        "X": true
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "X"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "X"
+      ],
+      "evidence": {
+        "modalOpen": true,
+        "signupTab": true,
+        "returnStored": "public-feed.html",
+        "hostileStored": "public-feed.html"
+      },
+      "err": null
+    },
+    {
+      "id": "LA11",
+      "phase": "K1",
+      "page": "index.html",
+      "role": "anon",
+      "state": "landing-anon",
+      "title": "J6 conversion funnel: ?signup=1 → account created through the REAL modal → row in worker_profiles (psql) → cleaned up, anon restored",
+      "lenses": [
+        "R",
+        "J",
+        "T",
+        "X"
+      ],
+      "ufai": [
+        "F",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": true,
+        "C": null,
+        "X": true
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "T",
+        "X"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "T",
+        "X"
+      ],
+      "evidence": {
+        "uname": "j6probe_mtaw0cfd",
+        "modalOpen": true,
+        "converted": true,
+        "dbCount": 1,
+        "cleaned": true
+      },
+      "err": null
+    },
+    {
+      "id": "LA12",
+      "phase": "K1",
+      "page": "learn/start-digital-logbook-philippine-factory/index.html",
+      "role": "anon",
+      "state": "learn-anon",
+      "title": "T2 anon-from-learn funnel: search-landed reader -> nav Sign Up Free -> real signup -> account (psql) -> cleaned, anon restored",
+      "lenses": [
+        "R",
+        "J",
+        "T",
+        "X"
+      ],
+      "ufai": [
+        "F",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": true,
+        "C": null,
+        "X": true
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "T",
+        "X"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "T",
+        "X"
+      ],
+      "evidence": {
+        "uname": "j6learn_mtaw0ts4",
+        "article": true,
+        "signupNav": true,
+        "signinNav": true,
+        "modalOpen": true,
+        "signupTab": true,
+        "converted": true,
+        "dbCount": 1,
+        "cleaned": true
+      },
+      "err": null
+    },
+    {
+      "id": "LA10",
+      "phase": "K1",
+      "page": "marketplace.html",
+      "role": "anon",
+      "state": "marketplace-anon",
+      "title": "A gated marketplace action refuses with CLICKABLE doors (sign in / create account) carrying ?return= — not a dead toast",
+      "lenses": [
+        "R",
+        "J",
+        "X"
+      ],
+      "ufai": [
+        "U",
+        "F"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": null,
+        "C": null,
+        "X": true
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "X"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "X"
+      ],
+      "evidence": {
+        "heartClicked": true,
+        "toast": true,
+        "signinDoor": true,
+        "signupDoor": true,
+        "returned": true,
+        "masthead": true
       },
       "err": null
     },
@@ -239,8 +516,85 @@
         "recovered": true,
         "opsShown": true,
         "mktHidden": true,
-        "navName": "Good evening, Bryan 👋\n\n",
+        "navName": "Good morning, Bryan 👋\n\n",
         "lwSet": true
+      },
+      "err": null
+    },
+    {
+      "id": "ENG1",
+      "phase": "K1",
+      "page": "index.html",
+      "role": "supervisor",
+      "state": "home-authed",
+      "title": "T52: the Engineer lens is set once and survives the whole design-and-reliability lane, and hiding a tool never denies access to it",
+      "lenses": [
+        "R",
+        "J",
+        "T",
+        "X"
+      ],
+      "ufai": [
+        "U",
+        "A"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": true,
+        "C": null,
+        "X": true
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "T",
+        "X"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "T",
+        "X"
+      ],
+      "evidence": {
+        "perPage": [
+          {
+            "page": "engineering-design.html",
+            "hub": true,
+            "mode": "engineer",
+            "lanePresent": true,
+            "fieldHidden": true,
+            "self": true
+          },
+          {
+            "page": "analytics.html",
+            "hub": true,
+            "mode": "engineer",
+            "lanePresent": true,
+            "fieldHidden": true,
+            "self": true
+          },
+          {
+            "page": "asset-hub.html",
+            "hub": true,
+            "mode": "engineer",
+            "lanePresent": true,
+            "fieldHidden": true,
+            "self": true
+          },
+          {
+            "page": "project-manager.html",
+            "hub": true,
+            "mode": "engineer",
+            "lanePresent": true,
+            "fieldHidden": true,
+            "self": true
+          }
+        ],
+        "hiddenStillReachable": true
       },
       "err": null
     },
@@ -282,8 +636,8 @@
       "evidence": {
         "ops": true,
         "mktHidden": true,
-        "greeting": "Good evening, Bryan 👋",
-        "date": "Tuesday, Jul 21 · Evening Shift",
+        "greeting": "Good morning, Bryan 👋",
+        "date": "Thursday, Aug 27 · Morning Shift",
         "hiveChip": "🐝 Baguio Textile Mills"
       },
       "err": null
@@ -327,20 +681,20 @@
       "evidence": {
         "rendered": {
           "open": 9,
-          "risk": 6,
-          "pm": 1,
+          "risk": null,
+          "pm": 29,
           "low": 3
         },
         "truth": {
           "open": 9,
-          "risk": 6,
+          "risk": 0,
           "low": 3,
-          "pm": 1
+          "pm": 29
         },
         "cmp": {
           "open": "9 vs db 9 OK",
-          "risk": "6 vs db 6 OK",
-          "pm": "1 vs db 1 OK",
+          "risk": "absent vs db 0 OK(calm)",
+          "pm": "29 vs db 29 OK",
           "low": "3 vs db 3 OK"
         },
         "checked": 4
@@ -370,10 +724,10 @@
         "R": null,
         "J": true,
         "T": true,
-        "C": true,
+        "C": false,
         "X": null
       },
-      "live": true,
+      "live": false,
       "applicable_lenses": [
         "J",
         "T",
@@ -381,8 +735,7 @@
       ],
       "passed_lenses": [
         "J",
-        "T",
-        "C"
+        "T"
       ],
       "evidence": {
         "todayCard": 1,
@@ -393,7 +746,7 @@
         "supActionOk": true,
         "anySignal": true,
         "allClear": false,
-        "today": "!\n          \n            Today · PM Overdue\n      "
+        "today": ""
       },
       "err": null
     },
@@ -420,10 +773,10 @@
         "R": true,
         "J": true,
         "T": null,
-        "C": true,
+        "C": false,
         "X": true
       },
-      "live": true,
+      "live": false,
       "applicable_lenses": [
         "R",
         "J",
@@ -433,7 +786,6 @@
       "passed_lenses": [
         "R",
         "J",
-        "C",
         "X"
       ],
       "evidence": {
@@ -443,8 +795,8 @@
         "toolLinks": 4,
         "analyticsUrl": "http://127.0.0.1:5000/workhive/analytics.html",
         "landed": true,
-        "signedOut": true,
-        "mktBack": true
+        "signedOut": false,
+        "mktBack": false
       },
       "err": null
     },
@@ -629,8 +981,8 @@
       "evidence": {
         "reach": true,
         "cardsBefore": 20,
-        "totalTxt": 300,
-        "dbTotal": "300",
+        "totalTxt": 314,
+        "dbTotal": "314",
         "totalOk": true,
         "filtered": true
       },
@@ -682,8 +1034,8 @@
       "evidence": {
         "reach": true,
         "toggleBar": true,
-        "cards": 30,
-        "teamRows": "900",
+        "cards": 1,
+        "teamRows": "941",
         "note": "team feed query is .eq(hive_id) server-side"
       },
       "err": null
@@ -727,7 +1079,7 @@
         "reach": true,
         "hasExport": true,
         "downloaded": true,
-        "toast": "Exported 200 entries."
+        "toast": "Exported 314 entries."
       },
       "err": null
     },
@@ -777,7 +1129,7 @@
       "evidence": {
         "reach": true,
         "modal": true,
-        "toast": "K2-PART-1784642043807 submitted for supervisor app",
+        "toast": "K2-PART-1787796946042 submitted for supervisor app",
         "persisted": true
       },
       "err": null
@@ -805,12 +1157,12 @@
       "external": false,
       "verdict": {
         "R": true,
-        "J": true,
+        "J": false,
         "T": true,
         "C": true,
         "X": true
       },
-      "live": true,
+      "live": false,
       "applicable_lenses": [
         "R",
         "J",
@@ -820,7 +1172,6 @@
       ],
       "passed_lenses": [
         "R",
-        "J",
         "T",
         "C",
         "X"
@@ -828,7 +1179,7 @@
       "evidence": {
         "clicked": true,
         "modal": true,
-        "toast": "Used 2 pcs of K2-USE-1784642053107 → fee",
+        "toast": "Done.",
         "qtyAfter": "18"
       },
       "err": null
@@ -876,7 +1227,7 @@
       "evidence": {
         "clicked": true,
         "modal": true,
-        "toast": "Restocked 10 pcs of K2-RES-1784642062342",
+        "toast": "Restocked 10 pcs of K2-RES-1787796977027",
         "qtyAfter": "11"
       },
       "err": null
@@ -903,10 +1254,10 @@
         "R": true,
         "J": true,
         "T": null,
-        "C": true,
+        "C": false,
         "X": null
       },
-      "live": true,
+      "live": false,
       "applicable_lenses": [
         "R",
         "J",
@@ -914,12 +1265,11 @@
       ],
       "passed_lenses": [
         "R",
-        "J",
-        "C"
+        "J"
       ],
       "evidence": {
         "reach": true,
-        "before": 8,
+        "before": 0,
         "filtered": true
       },
       "err": null
@@ -945,12 +1295,12 @@
       "external": false,
       "verdict": {
         "R": true,
-        "J": true,
-        "T": true,
-        "C": true,
+        "J": false,
+        "T": false,
+        "C": false,
         "X": null
       },
-      "live": true,
+      "live": false,
       "applicable_lenses": [
         "R",
         "J",
@@ -958,15 +1308,12 @@
         "C"
       ],
       "passed_lenses": [
-        "R",
-        "J",
-        "T",
-        "C"
+        "R"
       ],
       "evidence": {
-        "opened": true,
-        "modal": true,
-        "content": true
+        "opened": false,
+        "modal": false,
+        "content": false
       },
       "err": null
     },
@@ -1166,7 +1513,7 @@
       "evidence": {
         "baseline": 0,
         "after": 1,
-        "verdict": "3 items overdue",
+        "verdict": "128 items overdue",
         "tOk": true
       },
       "err": null
@@ -1268,7 +1615,7 @@
         "X"
       ],
       "evidence": {
-        "probe": "QA-Kick-1784642142770",
+        "probe": "QA-Kick-1787797086174",
         "kickClicked": true,
         "final_status": "kicked"
       },
@@ -1318,7 +1665,7 @@
         "X"
       ],
       "evidence": {
-        "pn": "QA-K3A-1784642156759",
+        "pn": "QA-K3A-1787797099275",
         "approveClicked": true,
         "final_status": "approved"
       },
@@ -1507,10 +1854,10 @@
         "X"
       ],
       "evidence": {
-        "overdue": 1,
-        "duesoon": 28,
-        "ontrack": 1,
-        "dbOverdue": "1",
+        "overdue": 29,
+        "duesoon": 1,
+        "ontrack": 0,
+        "dbOverdue": "29",
         "tOk": true
       },
       "err": null
@@ -1555,7 +1902,7 @@
         "C"
       ],
       "evidence": {
-        "overdueCards": 1,
+        "overdueCards": 10,
         "opened": true,
         "detailShown": true,
         "overallStatus": "Overdue",
@@ -1655,7 +2002,7 @@
         "C"
       ],
       "evidence": {
-        "name": "ARC-K-PM4-1784642231295",
+        "name": "ARC-K-PM4-1787797180202",
         "persisted": true,
         "cnt": "1"
       },
@@ -1705,7 +2052,7 @@
         "X"
       ],
       "evidence": {
-        "nonce": "ArcK-CM1-1784642246316",
+        "nonce": "ArcK-CM1-1787797195022",
         "persisted": true,
         "cnt": "1"
       },
@@ -1803,7 +2150,7 @@
       ],
       "evidence": {
         "pid": "0f78265c-602b-4c5a-b617-1e8d40e47a84",
-        "nonce": "ArcK-CM3-1784642267979",
+        "nonce": "ArcK-CM3-1787797214872",
         "replied": true,
         "cnt": "1"
       },
@@ -1853,7 +2200,7 @@
         "X"
       ],
       "evidence": {
-        "pid": "0adcf4d7-e1b8-4f13-b871-9db6e3840cd2",
+        "pid": "41645d5f-fd2f-446e-84af-3d1a1208cd23",
         "found": true,
         "state": "deleted"
       },
@@ -1897,10 +2244,10 @@
       ],
       "evidence": {
         "verdict": "Reliability KPIs need action",
-        "oee": 86,
-        "mtbf": 5.8,
-        "pm": 87,
-        "action": "CH-001 fails every 5.8 days. C"
+        "oee": 87,
+        "mtbf": 0.6,
+        "pm": 76,
+        "action": "CT-001 fails every 0.6 days. C"
       },
       "err": null
     },
@@ -2104,12 +2451,12 @@
       "external": false,
       "verdict": {
         "R": true,
-        "J": false,
-        "T": false,
-        "C": false,
+        "J": true,
+        "T": true,
+        "C": true,
         "X": null
       },
-      "live": false,
+      "live": true,
       "applicable_lenses": [
         "R",
         "J",
@@ -2117,11 +2464,14 @@
         "C"
       ],
       "passed_lenses": [
-        "R"
+        "R",
+        "J",
+        "T",
+        "C"
       ],
       "evidence": {
-        "answered": false,
-        "typingGone": false,
+        "answered": true,
+        "typingGone": true,
         "note": "grounded LLM reply envelope (deep value = probabilistic, attributed to grounding contract)"
       },
       "err": null
@@ -2162,8 +2512,8 @@
         "C"
       ],
       "evidence": {
-        "shown": 300,
-        "dbCnt": 300,
+        "shown": 314,
+        "dbCnt": 314,
         "tOk": true
       },
       "err": null
@@ -2289,8 +2639,8 @@
         "T"
       ],
       "evidence": {
-        "total": 30,
-        "dbTotal": 30,
+        "total": 25,
+        "dbTotal": 25,
         "critical": 6,
         "dbCrit": 6,
         "tOk": true
@@ -2471,7 +2821,7 @@
       ],
       "evidence": {
         "verdict": "Needs your attention now",
-        "crit": 11
+        "crit": 52
       },
       "err": null
     },
@@ -2559,7 +2909,7 @@
         "X"
       ],
       "evidence": {
-        "mc": "QA-ANOM-1784642514777",
+        "mc": "QA-ANOM-1787797447966",
         "panelVisible": false,
         "clicked": false,
         "acked": false,
@@ -2590,11 +2940,11 @@
       "verdict": {
         "R": null,
         "J": true,
-        "T": true,
+        "T": false,
         "C": true,
-        "X": true
+        "X": false
       },
-      "live": true,
+      "live": false,
       "applicable_lenses": [
         "J",
         "T",
@@ -2603,16 +2953,14 @@
       ],
       "passed_lenses": [
         "J",
-        "T",
-        "C",
-        "X"
+        "C"
       ],
       "evidence": {
-        "today": "2026-07-21",
-        "briefId": "a98bfc65-61b1-4025-ba46-f31468391fa4",
+        "today": "2026-08-27",
+        "briefId": null,
         "hasCard": true,
         "clicked": true,
-        "final_status": "approved"
+        "final_status": "?"
       },
       "err": null
     },
@@ -2658,7 +3006,7 @@
       "evidence": {
         "main": true,
         "entries": 30,
-        "dbCnt": 66,
+        "dbCnt": 3470,
         "note": "auditlog_action__hive_scoped nerve proven"
       },
       "err": null
@@ -2703,8 +3051,8 @@
       ],
       "evidence": {
         "before": 30,
-        "selected": "approve_amc_brief",
-        "after": 10
+        "selected": "alert_acknowledged",
+        "after": 0
       },
       "err": null
     },
@@ -2835,8 +3183,8 @@
       ],
       "evidence": {
         "rows": 8,
-        "count": 12,
-        "dbCnt": 12,
+        "count": 15,
+        "dbCnt": 15,
         "empty": false
       },
       "err": null
@@ -3125,12 +3473,12 @@
       "external": false,
       "verdict": {
         "R": true,
-        "J": true,
-        "T": true,
+        "J": false,
+        "T": false,
         "C": true,
         "X": null
       },
-      "live": true,
+      "live": false,
       "applicable_lenses": [
         "R",
         "J",
@@ -3139,15 +3487,13 @@
       ],
       "passed_lenses": [
         "R",
-        "J",
-        "T",
         "C"
       ],
       "evidence": {
-        "built": true,
-        "exec": true,
-        "findings": true,
-        "pdfReady": true,
+        "built": false,
+        "exec": false,
+        "findings": false,
+        "pdfReady": false,
         "noErr": true
       },
       "err": null
@@ -3185,8 +3531,8 @@
         "T"
       ],
       "evidence": {
-        "pmKpi": 87,
-        "dbPm": 87,
+        "pmKpi": 76,
+        "dbPm": 76,
         "tOk": true
       },
       "err": null
@@ -3251,12 +3597,12 @@
       "external": false,
       "verdict": {
         "R": true,
-        "J": true,
+        "J": false,
         "T": null,
-        "C": true,
-        "X": true
+        "C": false,
+        "X": false
       },
-      "live": true,
+      "live": false,
       "applicable_lenses": [
         "R",
         "J",
@@ -3264,16 +3610,13 @@
         "X"
       ],
       "passed_lenses": [
-        "R",
-        "J",
-        "C",
-        "X"
+        "R"
       ],
       "evidence": {
         "disabledBefore": true,
-        "built": true,
-        "enabledAfter": true,
-        "printed": true
+        "built": false,
+        "enabledAfter": false,
+        "printed": false
       },
       "err": null
     },
@@ -3360,7 +3703,7 @@
         "X"
       ],
       "evidence": {
-        "tag": "ARCK-ED2-1784642726099",
+        "tag": "ARCK-ED2-1787797693257",
         "out": true,
         "persisted": true,
         "cnt": "1"
@@ -3429,12 +3772,12 @@
       "external": false,
       "verdict": {
         "R": true,
-        "J": true,
-        "T": true,
-        "C": true,
+        "J": false,
+        "T": false,
+        "C": false,
         "X": null
       },
-      "live": true,
+      "live": false,
       "applicable_lenses": [
         "R",
         "J",
@@ -3442,15 +3785,12 @@
         "C"
       ],
       "passed_lenses": [
-        "R",
-        "J",
-        "T",
-        "C"
+        "R"
       ],
       "evidence": {
         "out": true,
-        "panel": true,
-        "items": 10
+        "panel": false,
+        "items": 0
       },
       "err": null
     },
@@ -3495,7 +3835,7 @@
         "C"
       ],
       "evidence": {
-        "name": "ARC-K K5 PMK1 1784642775816",
+        "name": "ARC-K K5 PMK1 1787797765964",
         "persisted": true,
         "cnt": "1"
       },
@@ -3542,7 +3882,7 @@
         "C"
       ],
       "evidence": {
-        "pname": "ARC-K-PMK2-1784642784007",
+        "pname": "ARC-K-PMK2-1787797775052",
         "opened": true,
         "persisted": true,
         "cnt": "1"
@@ -3588,7 +3928,7 @@
         "X"
       ],
       "evidence": {
-        "pname": "ARC-K-PMK3-1784642797564",
+        "pname": "ARC-K-PMK3-1787797786317",
         "opened": true,
         "final_status": "done"
       },
@@ -3635,7 +3975,7 @@
         "C"
       ],
       "evidence": {
-        "pname": "ARC-K-PMK4-1784642813269",
+        "pname": "ARC-K-PMK4-1787797799250",
         "opened": true,
         "persisted": true,
         "cnt": "1"
@@ -3946,7 +4286,7 @@
       ],
       "evidence": {
         "name": "Bryan Garcia",
-        "shownLevel": 115,
+        "shownLevel": 128,
         "dbN": 60,
         "tOk": false
       },
@@ -4083,8 +4423,8 @@
         "T"
       ],
       "evidence": {
-        "tag": "K5TEST Bryan 1784642906925",
-        "toast": "✓ Resume saved.",
+        "tag": "K5TEST Bryan 1787797881444",
+        "toast": "✓ Resume saved → backed up to ",
         "persisted": true,
         "cnt": "1"
       },
@@ -4174,7 +4514,7 @@
       "evidence": {
         "cards": 9,
         "dbN": 9,
-        "tabs": 3,
+        "tabs": 4,
         "recover": true
       },
       "err": null
@@ -4401,8 +4741,8 @@
         "opened": true,
         "sheet": true,
         "setOk": true,
-        "toast": "Listing updated. Re-submitted for review",
-        "finalTitle": "K6-MS1-1784642967126 EDITED"
+        "toast": "Listing updated. Submitted for review.",
+        "finalTitle": "K6-MS1-1787797935452 EDITED"
       },
       "err": null
     },
@@ -4444,7 +4784,7 @@
         "C"
       ],
       "evidence": {
-        "lid": "f194818c-99fc-4d7c-a698-e84960ec90cf",
+        "lid": "74213940-4ec1-48e8-9386-20f19a52fb87",
         "rendered": true,
         "clicked": true,
         "finalStatus": "replied"
@@ -4734,8 +5074,8 @@
       ],
       "evidence": {
         "expanded": true,
-        "tables": 2,
-        "cfgN": 9
+        "tables": 3,
+        "cfgN": 14
       },
       "err": null
     }
@@ -4744,6 +5084,84 @@
     {
       "page": "index.html",
       "role": "anon",
+      "layer": "floor",
+      "rule": "cta:inert-primary",
+      "severity": 1,
+      "evidence": "primary-styled control is [inert] at audit time (button.btn-primary.text-sm[\"Get Early Access: It's F\"])",
+      "owner": "frontend"
+    },
+    {
+      "page": "index.html",
+      "role": "anon",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "learn/start-digital-logbook-philippine-factory/index.html",
+      "role": "anon",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "marketplace.html",
+      "role": "anon",
+      "layer": "floor",
+      "rule": "tap-target≥44px",
+      "severity": 2,
+      "evidence": "1/74 interactive <44px",
+      "owner": "mobile-maestro"
+    },
+    {
+      "page": "marketplace.html",
+      "role": "anon",
+      "layer": "heuristic",
+      "rule": "Modal/bottom-sheet must carry role=\"dialog\" + aria-modal=\"true\" + an accessible name (aria-label OR a resolving aria-labelledby)",
+      "basis": "designer / WCAG-4.1.2",
+      "severity": 2,
+      "evidence": "div.sheet-header — role=null aria-modal=null name=MISSING (no aria-label and no resolving aria-labelledby)",
+      "owner": "designer"
+    },
+    {
+      "page": "marketplace.html",
+      "role": "anon",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "index.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "span#toast-icon — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "index.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "span#toast-text — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "index.html",
+      "role": "supervisor",
       "layer": "heuristic",
       "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
       "basis": "designer / WCAG-4.1.3",
@@ -4759,6 +5177,16 @@
       "basis": "designer / WCAG-4.1.3",
       "severity": 1,
       "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "logbook.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "span#toast-icon — auto-update region without role=status/alert or aria-live",
       "owner": "designer"
     },
     {
@@ -4779,6 +5207,16 @@
       "basis": "designer / WCAG-4.1.3",
       "severity": 1,
       "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "logbook.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "span#toast-icon — auto-update region without role=status/alert or aria-live",
       "owner": "designer"
     },
     {
@@ -4835,15 +5273,6 @@
       "page": "dayplanner.html",
       "role": "worker",
       "layer": "floor",
-      "rule": "axe:color-contrast",
-      "severity": 2,
-      "evidence": "1 node(s): .wh-kbd-a11y > div:nth-child(2)",
-      "owner": "qa-tester"
-    },
-    {
-      "page": "dayplanner.html",
-      "role": "worker",
-      "layer": "floor",
       "rule": "axe:target-size",
       "severity": 2,
       "evidence": "1 node(s): div[aria-label=\"Add task at 9 AM\"]",
@@ -4868,15 +5297,6 @@
       "severity": 1,
       "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
       "owner": "designer"
-    },
-    {
-      "page": "hive.html",
-      "role": "supervisor",
-      "layer": "floor",
-      "rule": "tap-target≥44px",
-      "severity": 2,
-      "evidence": "3/42 interactive <44px",
-      "owner": "mobile-maestro"
     },
     {
       "page": "hive.html",
@@ -4957,24 +5377,6 @@
       "severity": 1,
       "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
       "owner": "designer"
-    },
-    {
-      "page": "community.html",
-      "role": "worker",
-      "layer": "floor",
-      "rule": "tap-target≥44px",
-      "severity": 2,
-      "evidence": "1/66 interactive <44px",
-      "owner": "mobile-maestro"
-    },
-    {
-      "page": "community.html",
-      "role": "worker",
-      "layer": "floor",
-      "rule": "axe:color-contrast",
-      "severity": 2,
-      "evidence": "3 node(s): .presence-chip > div:nth-child(2) | #post-0f78265c-602b-4c5a-b617-1e8d40e47a84 ",
-      "owner": "qa-tester"
     },
     {
       "page": "community.html",
@@ -5075,6 +5477,15 @@
       "severity": 1,
       "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
       "owner": "designer"
+    },
+    {
+      "page": "assistant.html",
+      "role": "worker",
+      "layer": "floor",
+      "rule": "tap-target≥44px",
+      "severity": 2,
+      "evidence": "2/14 interactive <44px",
+      "owner": "mobile-maestro"
     },
     {
       "page": "assistant.html",
@@ -5196,15 +5607,6 @@
       "owner": "designer"
     },
     {
-      "page": "analytics-report.html",
-      "role": "supervisor",
-      "layer": "floor",
-      "rule": "axe:color-contrast",
-      "severity": 2,
-      "evidence": "6 node(s): div:nth-child(3) > .sev-chip.red | #ar-predictive > .asset-card-grid > .asset-c",
-      "owner": "qa-tester"
-    },
-    {
       "page": "engineering-design.html",
       "role": "worker",
       "layer": "floor",
@@ -5299,6 +5701,16 @@
       "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
       "basis": "designer / WCAG-4.1.3",
       "severity": 1,
+      "evidence": "div.toast.error — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "project-manager.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
       "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
       "owner": "designer"
     },
@@ -5370,24 +5782,6 @@
       "basis": "qa-tester / WCAG-1.3.1 (axe page-has-heading-one parity)",
       "severity": 0,
       "evidence": "h1 — h1 present in DOM (axe ok) but 0 visible in this state-view — consider a visible heading for SR nav",
-      "owner": "qa-tester"
-    },
-    {
-      "page": "project-report.html",
-      "role": "supervisor",
-      "layer": "floor",
-      "rule": "axe:color-contrast",
-      "severity": 2,
-      "evidence": "2 node(s): .phase-gate | .phase-close",
-      "owner": "qa-tester"
-    },
-    {
-      "page": "project-report.html",
-      "role": "supervisor",
-      "layer": "floor",
-      "rule": "axe:scrollable-region-focusable",
-      "severity": 2,
-      "evidence": "8 node(s): .wh-scroll-x:nth-child(2) | .wh-scroll-x:nth-child(4) | .wh-scroll-x:nth-child(",
       "owner": "qa-tester"
     },
     {
@@ -5512,26 +5906,6 @@
     },
     {
       "page": "marketplace.html",
-      "role": "anon",
-      "layer": "heuristic",
-      "rule": "Modal/bottom-sheet must carry role=\"dialog\" + aria-modal=\"true\" + an accessible name (aria-label OR a resolving aria-labelledby)",
-      "basis": "designer / WCAG-4.1.2",
-      "severity": 2,
-      "evidence": "div.sheet-header — role=null aria-modal=null name=MISSING (no aria-label and no resolving aria-labelledby)",
-      "owner": "designer"
-    },
-    {
-      "page": "marketplace.html",
-      "role": "anon",
-      "layer": "heuristic",
-      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
-      "basis": "designer / WCAG-4.1.3",
-      "severity": 1,
-      "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
-      "owner": "designer"
-    },
-    {
-      "page": "marketplace.html",
       "role": "worker",
       "layer": "heuristic",
       "rule": "Modal/bottom-sheet must carry role=\"dialog\" + aria-modal=\"true\" + an accessible name (aria-label OR a resolving aria-labelledby)",
@@ -5549,6 +5923,15 @@
       "severity": 1,
       "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
       "owner": "designer"
+    },
+    {
+      "page": "marketplace-seller.html",
+      "role": "worker",
+      "layer": "floor",
+      "rule": "cta:inert-primary",
+      "severity": 1,
+      "evidence": "primary-styled control is [inert] at audit time (#btn-save-edit)",
+      "owner": "frontend"
     },
     {
       "page": "marketplace-seller.html",
@@ -5586,7 +5969,7 @@
       "layer": "floor",
       "rule": "tap-target≥44px",
       "severity": 2,
-      "evidence": "5/21 interactive <44px",
+      "evidence": "2/17 interactive <44px",
       "owner": "mobile-maestro"
     },
     {
@@ -5611,20 +5994,34 @@
     }
   ],
   "summary": {
-    "journeys_total": 103,
-    "applicable": 102,
-    "live": 99,
+    "journeys_total": 110,
+    "applicable": 109,
+    "live": 98,
     "external": 1,
-    "live_pct": 97.1,
-    "floor_findings": 12,
-    "heuristic_findings": 76,
+    "live_pct": 89.9,
+    "floor_findings": 9,
+    "heuristic_findings": 83,
     "critic_catalog_rules": 209
   },
   "per_page": [
     {
       "page": "index.html",
-      "live": 9,
-      "applicable": 9,
+      "live": 12,
+      "applicable": 14,
+      "external": 0,
+      "live_pct": 85.7
+    },
+    {
+      "page": "learn/start-digital-logbook-philippine-factory/index.html",
+      "live": 1,
+      "applicable": 1,
+      "external": 0,
+      "live_pct": 100
+    },
+    {
+      "page": "marketplace.html",
+      "live": 6,
+      "applicable": 6,
       "external": 0,
       "live_pct": 100
     },
@@ -5637,10 +6034,10 @@
     },
     {
       "page": "inventory.html",
-      "live": 5,
+      "live": 2,
       "applicable": 5,
       "external": 0,
-      "live_pct": 100
+      "live_pct": 40
     },
     {
       "page": "dayplanner.html",
@@ -5679,10 +6076,10 @@
     },
     {
       "page": "assistant.html",
-      "live": 2,
+      "live": 3,
       "applicable": 4,
       "external": 0,
-      "live_pct": 50
+      "live_pct": 75
     },
     {
       "page": "asset-hub.html",
@@ -5693,10 +6090,10 @@
     },
     {
       "page": "alert-hub.html",
-      "live": 4,
+      "live": 3,
       "applicable": 4,
       "external": 0,
-      "live_pct": 100
+      "live_pct": 75
     },
     {
       "page": "audit-log.html",
@@ -5721,17 +6118,17 @@
     },
     {
       "page": "analytics-report.html",
-      "live": 4,
+      "live": 2,
       "applicable": 4,
       "external": 0,
-      "live_pct": 100
+      "live_pct": 50
     },
     {
       "page": "engineering-design.html",
-      "live": 4,
+      "live": 3,
       "applicable": 4,
       "external": 0,
-      "live_pct": 100
+      "live_pct": 75
     },
     {
       "page": "project-manager.html",
@@ -5769,13 +6166,6 @@
       "live_pct": 100
     },
     {
-      "page": "marketplace.html",
-      "live": 5,
-      "applicable": 5,
-      "external": 0,
-      "live_pct": 100
-    },
-    {
       "page": "marketplace-seller.html",
       "live": 4,
       "applicable": 4,
@@ -5799,29 +6189,29 @@
   ],
   "per_lens": {
     "R": {
-      "applicable": 89,
-      "pass": 89,
+      "applicable": 96,
+      "pass": 96,
       "pct": 100
     },
     "J": {
-      "applicable": 92,
-      "pass": 89,
-      "pct": 96.7
+      "applicable": 99,
+      "pass": 92,
+      "pct": 92.9
     },
     "T": {
-      "applicable": 80,
+      "applicable": 83,
       "pass": 77,
-      "pct": 96.3
+      "pct": 92.8
     },
     "C": {
       "applicable": 71,
-      "pass": 68,
-      "pct": 95.8
+      "pass": 63,
+      "pct": 88.7
     },
     "X": {
-      "applicable": 40,
-      "pass": 40,
-      "pct": 100
+      "applicable": 47,
+      "pass": 45,
+      "pct": 95.7
     }
   }
 }

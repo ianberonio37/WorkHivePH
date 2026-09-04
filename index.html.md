@@ -19,17 +19,17 @@ The Hive is Open · Philippines
 
 Free industrial tools for every Filipino worker: digital logbook, PM scheduler, spare-parts inventory, skill matrix, engineering calculators, and an AI work assistant.
 
-[Join the Hive](#join)
+[Join the Hive](?signup=1)
 [See How It Works](#platform)
 
 Free to use, sign up to start:
-[Logbook](#join)
+[Logbook](?signup=1)
 ·
-[PM Scheduler](#join)
+[PM Scheduler](?signup=1)
 ·
-[Eng. Calculators](#join)
+[Eng. Calculators](?signup=1)
 ·
-[AI Assistant](#join)
+[AI Assistant](?signup=1)
 
 DTI Registered · 8080496
 
@@ -119,7 +119,7 @@ See All Tools
 - [Alert Hub: One chronological inbox: risk, PM, stock, pattern, automation alerts. Plus the AMC Daily Brief at 06:00 PHT, a 5-sub-agent batched recommendation the supervisor approves with one tap.](https://workhiveph.com/alert-hub.html)
 - [Asset Hub: Asset Brain 360 per equipment: live state, full timeline (logbook + PM + inventory + projects), parent and sister machines, parts that fit, AI Q+A grounded in this asset's own history. QR/barcode scan.](https://workhiveph.com/asset-hub.html)
 - [Visual Defect Capture: Snap a photo of rust, leak, crack, burn. Multimodal LLM (Llama-4-Scout / Gemma-3) classifies, OCRs the asset tag, drafts the logbook entry. Inside the logbook flow.](https://workhiveph.com/logbook.html)
-- [Community: Hive forum: categories (general, safety, technical, announcement), reactions, threads, mentions, supervisor moderation, soft-delete with undo.](https://workhiveph.com/community.html)
+- [Community: Hive forum: categories (general, safety, technical, announcement), reactions, threads, mentions, supervisor moderation, delete with a brief undo window.](https://workhiveph.com/community.html)
 - [Public Feed: Cross-hive public posts, opt-in only. Workers gain visibility across plants while hive data stays isolated. Rate-limited at the DB level.](https://workhiveph.com/public-feed.html)
 - [Achievements: 12-domain XP system (Wrench Chronicle, Uptime Guardian, Safety Sentinel, etc.). Tier frames Iron to Legend. XP rewards real work, not clicks.](https://workhiveph.com/achievements.html)
 - [Analytics Engine: MTBF, MTTR, Availability, OEE, PM Compliance, Pareto. 4 phases (descriptive, diagnostic, predictive, prescriptive). ISO 14224 + SMRP + ISA-101 anchored.](https://workhiveph.com/analytics.html)
@@ -136,7 +136,7 @@ See All Tools
 - [Project Report: Print-ready single-project report. Executive cover, scope by phase, linked work tables, S-curve progress timeline, sign-off block, lessons learned. Contractor handover packet.](https://workhiveph.com/project-report.html)
 - [CMMS Integration: SAP PM + IBM Maximo + generic CMMS bridge. Pull work orders, push completions, receive webhooks. WorkHive is the field-worker interface, not the ERP replacement. ISO 14224 field mapping.](https://workhiveph.com/integrations.html)
 - [Marketplace: Buyer-facing parts, training, jobs. PH-anchored: DTI-registered sellers, Messenger contact, verified badges, JSON-LD inquiry templates. Free, contact-only directory with no platform fees.](https://workhiveph.com/marketplace.html)
-- [Marketplace Seller: Become a supplier on the platform. Seller dashboard, listings, inquiries, watchlist, analytics, multi-tier verification badges, public seller profile.](https://workhiveph.com/marketplace-seller.html)
+- [Seller Dashboard: Become a supplier on the platform. Seller dashboard, listings, inquiries, watchlist, analytics, multi-tier verification badges, public seller profile.](https://workhiveph.com/marketplace-seller.html)
 - [AI Quality + ROI: WorkHive AI Quality + ROI dashboard. Honest visibility into AI cost, quality, and predicted savings, gated to Stair 2+ so the numbers only appear when the hive has earned the right to trust them.](https://workhiveph.com/ai-quality.html)
 
 In one paragraph
@@ -246,7 +246,7 @@ Skills guessed at. Wrong person assigned. Job takes 2x longer.
 
 AI matches the best available worker by skill and availability. Done right, first time.
 
-Expert retires. ₱800K–₱2.4M in knowledge walks out the door. Start from scratch.
+Expert retires. ₱800K to ₱2.4M in knowledge walks out the door. Start from scratch.
 
 Every insight captured before they leave. Organizational memory compounds, forever.
 
@@ -343,7 +343,7 @@ English by default, with Filipino (Tagalog) support in the AI work assistant. Wo
 
 ### How do I sign up?
 
-Enter your work email in the Join the Hive form on this page. You will be added to the early-access list and contacted with a hive-join link once your facility is provisioned. Sign-up is free and takes about 30 seconds.
+Tap Sign Up, choose a username and password, and you are in: free, about 30 seconds, no email and no waiting for provisioning. Every tool works immediately in Solo Mode, and you create or join your plant's hive with an invite code whenever your team is ready. Prefer product updates by email first? The Get updates form on this page adds you to the mailing list without creating an account.
 
 ### How do I start today, before my plant is provisioned?
 
@@ -391,7 +391,11 @@ The beehive has been showing us how for 80 million years: every worker valued, e
  purposeful, the whole greater than the sum of its parts. That's the system Philippine industry
  has been missing. Be among the first to build it.
 
-Adds you to the early-access list, not an account yet · Philippines-first · No spam, ever
+Free at the worker tier, forever · About 30 seconds · No email required
+
+Not ready yet? Get product updates by email:
+
+Adds you to the updates list, not an account · Philippines-first · No spam, ever
 
 DTI Registered Business No. 8080496
 
@@ -408,9 +412,19 @@ Predictive
 04
 Leader
 
-[Get Early Access: It's Free](#join)
+Get Early Access: It's Free
 
-Signed in as ****
+T60 (2026-08-26): this read "Signed in as <name>" and the ONLY condition that shows it
+ is `session === null` - a name on this device with no auth session. So the one person
+ who ever sees this banner is told the opposite of their actual state. It matters most
+ for the commonest way to reach it: an EXPIRED session, where the reader is already
+ wondering why things stopped working and is now assured they are signed in.
+
+ The banner is NOT a dead guest-mode remnant - C4 removed account-less access and T1
+ deleted #panel-guest, but this path still fires for a real state. It was mislabelled,
+ not orphaned, so the copy is what changes: name the device-local identity, and let the
+ button (Secure account) mean what it already does. 
+Working as **** on this device, not signed in
  Arc P · Wave 1 (P3): DEMOTED from solid-orange to outlined-amber so this
  housekeeping nudge no longer outshines the page's real primary action (the
  verdict/next-job). Also bumped to the 44px gloved-field tap target. 
@@ -424,8 +438,4 @@ Secure account →
 Sign In
 Sign Up
 
-Account required
-
-WorkHive now requires an account to protect your data. Sign up: it takes 30 seconds.
-
-<!-- md-twin source-sha: 6d594e11de8d41d0 -->
+<!-- md-twin source-sha: 36ee40eaaf62f81d -->

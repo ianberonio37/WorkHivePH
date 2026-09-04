@@ -1,0 +1,44 @@
+{
+ "doc": "royal_enfield_scram411_schedule_pages61_64",
+ "hand_read": "2026-09-03, authored before extraction. Royal Enfield Scram 411 owner's manual pages 61-64 (PERIODICAL MAINTENANCE): a km-milestone MATRIX (I/C/R codes) that pypdf scrambles - only the PROSE intervals are deterministically recoverable, one of which is OCR-corrupted ('every lO,OOO km /12 months' = 10,000 with letter-l/O).",
+ "pm_items": [
+  {
+   "match": "check level",
+   "interval_km": 1000,
+   "interval_months": null,
+   "why": "'Check level at every 1,000 km or earlier as required' (engine oil) - trailing-preposition strip keeps the row"
+  },
+  {
+   "match": "throttle body cleaning",
+   "interval_km": 10000,
+   "interval_months": 12,
+   "why": "'Throttle body cleaning every lO,OOO km /12 months' - OCR digit-confusable l/O must map to 1/0"
+  }
+ ],
+ "parts": [
+  {
+   "match": "Spark plug",
+   "part_number": null
+  },
+  {
+   "match": "Air filter element",
+   "part_number": null
+  },
+  {
+   "match": "Engine oil filter element",
+   "part_number": null
+  }
+ ],
+ "pm_must_not_match": [
+  "prohibited",
+  "free service",
+  "paid service",
+  "whichever is earlier"
+ ],
+ "parts_must_not_match": [
+  "description",
+  "free service"
+ ],
+ "must_not_contain": [],
+ "expect_injection": false
+}

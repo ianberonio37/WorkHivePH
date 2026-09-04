@@ -1,7 +1,7 @@
 {
- "generated": "2026-08-22T08:24:09+00:00",
- "coverage_pct": 100.0,
- "page_pct": 100.0,
+ "generated": "2026-09-04T05:32:45+00:00",
+ "coverage_pct": 98.4,
+ "page_pct": 98.0,
  "ai_surface_pct": 100.0,
  "surfaces": {
   "pages": 98,
@@ -42,8 +42,8 @@
  ],
  "cells_total": 2322,
  "state_counts": {
-  "✅": 1294,
-  "🟡": 0,
+  "✅": 1252,
+  "🟡": 42,
   "⬜": 0,
   "n/a": 1028
  },
@@ -158,69 +158,133 @@
   "mine_validator_patterns",
   "orphan_depth_gate",
   "pre_deploy_gate",
+  "public_surface_gate",
   "seo_technical_gate",
+  "validate_a_busy_button_says_working",
+  "validate_a_deferral_is_not_a_completion",
+  "validate_a_dismissal_belongs_to_a_person",
+  "validate_a_pasted_identifier_still_matches",
+  "validate_a_removed_image_actually_leaves",
+  "validate_a_secret_stays_masked",
+  "validate_a_shown_count_is_not_the_page_size",
+  "validate_absence_guard_reachable",
+  "validate_absent_money_is_not_zero",
   "validate_accessor_load_order",
   "validate_account_deactivation",
+  "validate_ai_context_quality",
+  "validate_ai_draft_shows_its_basis",
   "validate_ai_hive_context",
   "validate_ai_input_caps",
   "validate_ai_live_invoke",
+  "validate_ai_render_provenance",
   "validate_ai_write_provenance",
+  "validate_alert_loop_closes",
+  "validate_alert_scope_is_told",
+  "validate_analytics_cache_freshness",
   "validate_analytics_correctness",
   "validate_analytics_page",
   "validate_analytics_synthesis_grounding",
   "validate_analytics_ufai_scoreboard",
+  "validate_animation_never_hides_content",
+  "validate_announcement_reach_moderation",
   "validate_anomaly_status_forward",
   "validate_anon_key_retirement",
+  "validate_answer_presence",
   "validate_approval_authority",
   "validate_approval_lock",
+  "validate_approval_queue_aggregates",
+  "validate_approval_race",
   "validate_arc_u_focus_trap",
   "validate_arc_x_befamily",
   "validate_arc_x_cfamily",
   "validate_article_taxonomy",
   "validate_artifact_alignment",
   "validate_asset_identity_spine",
+  "validate_asset_pm_handoff_carries_context",
+  "validate_asset_reaches_its_history",
+  "validate_assistant_no_orphan_fragment",
   "validate_attribution_pinned",
   "validate_audit_actor_hive_scoped",
+  "validate_audit_entry_readable",
+  "validate_audit_is_reachable_from_a_record",
+  "validate_audit_log_append_only",
   "validate_auth_live_db",
   "validate_auth_live_flows",
   "validate_auth_live_gotrue",
+  "validate_auto_read_retry",
+  "validate_automation_log_status",
   "validate_axe_live",
   "validate_bom_sow_grounding",
+  "validate_bounce_idempotency",
+  "validate_bounded_list_offers_the_rest",
   "validate_calc_api_serializable",
   "validate_calc_formula_accuracy",
   "validate_calc_live_value",
   "validate_calc_pages",
+  "validate_canonical_resolves",
+  "validate_captured_columns_reach_a_reader",
+  "validate_captured_fields_are_readable",
+  "validate_cascade_confirm_parity",
   "validate_causal_cascade_coverage",
+  "validate_celebration_proportionality",
+  "validate_chain_journey",
   "validate_change_order_immutability",
   "validate_client_singleton",
   "validate_client_write_grants",
   "validate_cls_reservations",
   "validate_cmms_import_rollback",
   "validate_cmms_webhook_security_live",
+  "validate_cold_page_teaches",
+  "validate_collision_is_not_try_again",
   "validate_commission_leakage",
   "validate_committed_env_secret",
+  "validate_community_notifications",
   "validate_community_xp_ledger",
   "validate_companion_output_escaping",
+  "validate_compliance_claim_honesty",
+  "validate_composer_audience",
+  "validate_composer_caps_visible",
+  "validate_conversion_bank",
+  "validate_converted_money_states_its_rate",
   "validate_corrective_definition_parity",
+  "validate_counted_noun_ratchet",
   "validate_credit_guards_refuse",
   "validate_credit_loop_closes",
   "validate_credit_posture",
   "validate_credit_solvency",
+  "validate_critic_registry",
   "validate_cron_batch_gate",
   "validate_cron_health",
+  "validate_cross_tab_identity_propagates",
   "validate_crud_rollback",
   "validate_csp",
+  "validate_csp_covers_what_ships",
   "validate_d9_knob_integrity",
   "validate_data_completeness",
+  "validate_dated_claim_freshness",
+  "validate_day_one_parallel_join",
+  "validate_dead_end_has_a_door",
   "validate_debug_echo_prod_safe",
   "validate_degraded_state_central",
+  "validate_deploy_root_hygiene",
+  "validate_destructive_proportional_confirm",
   "validate_diagram_value_alignment",
+  "validate_dialog_floor",
   "validate_display_correctness_fixes",
+  "validate_dispute_machinery",
   "validate_double_submit_lock",
+  "validate_draft_age_visible",
+  "validate_draft_survives_reauth",
+  "validate_earning_moment_is_announced",
+  "validate_edge_down_admits_it",
+  "validate_edge_refusal_reaches_user",
+  "validate_edge_refusal_survives_client",
   "validate_edge_symbol_imports",
   "validate_embed_auth",
+  "validate_embed_retry_queue",
   "validate_embedding_chain_consistency",
   "validate_embedding_retention",
+  "validate_embedding_source_enqueues",
   "validate_embedding_space_integrity",
   "validate_empty_state_discrimination",
   "validate_engdesign_a11y",
@@ -231,47 +295,105 @@
   "validate_engdesign_units",
   "validate_engdesign_write_isolation",
   "validate_engdesign_xss",
+  "validate_engineer_lens_covers_its_lane",
+  "validate_engineer_lens_is_one_lens",
   "validate_engines_live_value",
+  "validate_erasure_path_intact",
   "validate_error_remedy_actionable",
+  "validate_error_taxonomy_ratchet",
+  "validate_export_reads_its_own_set",
+  "validate_export_supervisor_only",
   "validate_export_value_contract",
+  "validate_fab_anchor_stable",
+  "validate_failed_read_is_not_empty",
   "validate_faithfulness_rail",
   "validate_family_rubric_ratchet",
+  "validate_fee_parity",
+  "validate_feedback_round_trip",
   "validate_fetch_retry_contract",
+  "validate_fil_parity",
   "validate_file_upload_safety",
+  "validate_filter_vocabulary_is_complete",
+  "validate_findability",
+  "validate_first_paint_under_throttle",
+  "validate_fixed_chrome_budget",
   "validate_fixture_capability_coverage",
   "validate_fixture_hive_exists",
+  "validate_flagged_post_tells_its_author",
   "validate_fmea_priority_order",
+  "validate_form_control_named",
+  "validate_founder_console_honest",
+  "validate_freshness_stamp_tracks_content",
+  "validate_funnel_cls",
+  "validate_g5d_reauth_restore",
+  "validate_game_day_capstone",
   "validate_gate_panel_honesty",
   "validate_gateway_bypass",
   "validate_global_ai_budget",
+  "validate_glossary_registry",
   "validate_growth_write_isolation",
   "validate_guard_mutation_score",
   "validate_hail_geo_coverage",
+  "validate_held_credits_are_told",
   "validate_hidden_class_defined",
+  "validate_hive_at_scale",
   "validate_hive_battery",
   "validate_hive_board",
   "validate_hive_capture_invariant",
+  "validate_hive_fk_integrity",
   "validate_hive_isolation",
+  "validate_hive_name_reconciler_wired",
+  "validate_hive_name_reconciles",
+  "validate_hive_rename_reaches",
+  "validate_hive_seating_is_by_identity",
+  "validate_hive_value_card",
+  "validate_hive_value_summary",
   "validate_hive_write_isolation",
   "validate_i18n_coverage",
+  "validate_icon_meaning_registry",
+  "validate_idle_network",
   "validate_improvement_loop_integrity",
   "validate_inline_image_guard",
   "validate_input_validation_guard",
   "validate_integration_configs_authz_live",
   "validate_intelligence_jsonb_shape",
   "validate_intelligence_write_isolation",
+  "validate_interruption_steps",
+  "validate_inventory_listing_handoff",
+  "validate_inventory_tx_attribution",
+  "validate_inventory_txn_actor_attribution",
   "validate_inventory_txn_isolation",
+  "validate_invite_code_is_unguessable",
+  "validate_invite_code_round_trip",
+  "validate_join_lands",
+  "validate_join_names_the_namesake",
+  "validate_journal_says_what_survives",
+  "validate_journal_transcript_is_raw",
+  "validate_journey_na_is_earned",
   "validate_journey_ux_dims",
   "validate_jsonld_truth",
+  "validate_kicked_rejoin_is_explained",
   "validate_knowledge_is_retrievable",
+  "validate_kpi_evidence_links",
+  "validate_kpi_parity",
   "validate_landing",
+  "validate_lang_declared",
+  "validate_last_unit_race_is_told",
+  "validate_learn_graph",
   "validate_leave_audit_ordering",
+  "validate_legal_claim_honesty",
   "validate_lifecycle_state_reachability",
   "validate_lineage_status_drift",
+  "validate_listing_cost_transparency",
+  "validate_listing_preview",
   "validate_live_mcp_bank",
   "validate_local_triggers_dont_call_prod",
+  "validate_locks_are_verified",
   "validate_logbook_quota",
   "validate_login_proxy_lockout",
+  "validate_long_fetch_bounded",
+  "validate_longest_truncates",
+  "validate_lowstock_marketplace_handoff",
   "validate_marketplace_bank_journey",
   "validate_marketplace_deepwalk_classes",
   "validate_marketplace_fraud_signals",
@@ -279,64 +401,144 @@
   "validate_marketplace_state_inducers",
   "validate_marketplace_test_bank",
   "validate_marketplace_trust_integrity",
+  "validate_marketplace_warns_before_payment",
+  "validate_maturity_says_yes_too",
   "validate_md_twins",
+  "validate_media_fails_alone",
   "validate_membership_resolved_by_auth_uid",
   "validate_migration_grant_regression",
+  "validate_migrations_are_additive",
+  "validate_missing_brief_says_so",
   "validate_ml_deps",
+  "validate_modal_back_contract",
+  "validate_modal_back_helper",
+  "validate_money_and_trust_confirmed",
+  "validate_money_columns_numeric",
+  "validate_money_formatting",
+  "validate_na_premise_holds",
+  "validate_name_keyed_aggregates",
+  "validate_narration_rail_holds_every_figure",
   "validate_narrative_grounding",
+  "validate_new_claims_are_opt_in",
   "validate_night_crawler_freshness",
   "validate_no_client_counter_write",
   "validate_no_client_truncate",
+  "validate_no_clock_driven_push",
+  "validate_no_comment_inside_tag",
+  "validate_no_dead_feature_remnants",
+  "validate_no_drag_only",
+  "validate_no_eaten_escapes",
+  "validate_no_future_timestamps",
+  "validate_no_get_mutation",
+  "validate_no_interpolated_filter_injection",
+  "validate_no_probe_residue",
+  "validate_no_raw_enum",
+  "validate_no_write_only_tables",
+  "validate_notification_taxonomy",
+  "validate_noun_slot_takes_a_noun",
+  "validate_numeric_paste",
+  "validate_oc_guard_speaks",
   "validate_oc_updated_at_backed",
   "validate_oee_quality_derivation",
   "validate_offline_queue_confirm",
+  "validate_offline_queued",
   "validate_offline_write_guard",
+  "validate_old_draft_says_its_age",
   "validate_onconflict_index",
+  "validate_one_clock_per_string",
   "validate_optimistic_input_restore",
+  "validate_outbound_email_honesty",
   "validate_outbox_delivery",
   "validate_p6_concurrency_class",
   "validate_page_battery",
+  "validate_page_contrast",
   "validate_page_crud",
+  "validate_page_roster",
   "validate_page_ui_provers",
   "validate_paginated_order_totality",
+  "validate_partial_metric_declares_itself",
+  "validate_password_change_reachable",
   "validate_password_recovery",
   "validate_payment_disclosure",
   "validate_payment_rails",
+  "validate_pending_submission_reach",
+  "validate_permission_asked_in_context",
   "validate_persona_echo_live",
+  "validate_persona_follows_account",
   "validate_persona_knowledge_wiring",
   "validate_persona_task_success",
   "validate_ph_intelligence_benchmark",
+  "validate_photo_survives_queue",
+  "validate_pick_prefills_category",
+  "validate_picker_arrow_keys",
+  "validate_pm_completion_repaints_truth",
   "validate_pm_compliance_weighted",
   "validate_pm_frequency_mapping",
+  "validate_pm_logbook_lineage",
   "validate_pm_ontime_vs_compliance",
+  "validate_pm_shutdown_skip_honesty",
   "validate_pm_write_isolation",
+  "validate_policy_rls_parity",
+  "validate_portable_record_is_portable",
   "validate_post_action_coherence",
+  "validate_power_user_accelerator",
+  "validate_presence_unavailable_is_not_absent",
+  "validate_print_is_readable_on_paper",
+  "validate_printed_truncation_is_disclosed",
+  "validate_profile_no_self_privilege",
   "validate_project_authority",
   "validate_project_guard_spine",
+  "validate_project_report_error_honesty",
   "validate_project_tenancy",
   "validate_projects_correctness",
+  "validate_promo_poster",
+  "validate_provider_availability_driven",
+  "validate_psql_probe_suite",
+  "validate_public_feed_dated",
   "validate_public_read_surface",
+  "validate_pull_help_coverage",
+  "validate_push_dedupe_window",
+  "validate_push_deeplink",
   "validate_push_handler_contract",
   "validate_push_runtime_delivery",
+  "validate_pwa_sw_central_register",
   "validate_python_api_auth",
   "validate_python_api_deps",
   "validate_qty_input_contract",
+  "validate_queue_drain",
+  "validate_queue_survives_restart",
+  "validate_quota_warns_before_the_wall",
+  "validate_rating_admits_refusal",
   "validate_reachable_capability",
   "validate_read_battery",
   "validate_readonly_p6_no_edit",
   "validate_realtime_channel_cap",
+  "validate_realtime_degradation_honest",
   "validate_realtime_live",
   "validate_realtime_subscription_isolation",
+  "validate_records_linked_is_true",
   "validate_redundant_widgets",
   "validate_refresh_retry_dedup",
   "validate_refusal_reason_persists",
+  "validate_rejection_reaches_the_submitter",
   "validate_reliability_correctness",
   "validate_reliability_tenancy",
+  "validate_removal_tells_the_worker",
+  "validate_repaint_spares_typing",
+  "validate_report_clobber_guard",
   "validate_report_email_escaping",
+  "validate_report_link_fidelity",
+  "validate_report_reason_deliberate",
+  "validate_report_window_parity",
   "validate_response_format_validation",
   "validate_resume",
+  "validate_resume_review_sheet",
+  "validate_retention_matches_policy",
   "validate_retired_page_sole_control",
+  "validate_return_promise_survives_reauth",
+  "validate_review_cadence_kept",
   "validate_revoke_actually_revoked",
+  "validate_risk_pm_linkage",
   "validate_rls_coverage",
   "validate_rls_no_permissive_bypass",
   "validate_role_adoption_centralized",
@@ -346,7 +548,15 @@
   "validate_rpc_return_shape",
   "validate_rubric_parity",
   "validate_safety_field_provenance",
+  "validate_safety_isolation_visible",
+  "validate_scenario_matrix",
   "validate_schedule_health_falsifiable",
+  "validate_scheduled_claim_has_a_schedule",
+  "validate_scroll_gate_evaluates_at_open",
+  "validate_search_button_is_not_dead",
+  "validate_search_term_survives_punctuation",
+  "validate_selection_is_exposed",
+  "validate_seller_tier_distinct_counterparties",
   "validate_service_dispatch_isolation",
   "validate_service_geo_privacy",
   "validate_service_idempotency",
@@ -354,32 +564,88 @@
   "validate_service_triage_eval",
   "validate_service_ufai_deep",
   "validate_session_death_is_not_removal",
+  "validate_share_card_completeness",
+  "validate_shared_button_invites_the_click",
+  "validate_shift_brain_no_manual_edit",
+  "validate_shift_window_server_validated",
+  "validate_signout_says_why",
   "validate_signup_bot_protection",
   "validate_signup_enumeration_safety",
   "validate_skeleton_resolves",
+  "validate_skill_privacy_copy_consistent",
   "validate_slo_budget",
+  "validate_soft_delete_not_aggregated",
+  "validate_someone_to_you",
   "validate_source_chip_freshness",
+  "validate_source_chip_names_a_real_relation",
   "validate_sri",
   "validate_ssrf_egress",
+  "validate_staged_stock_guard",
+  "validate_stale_membership_no_access",
   "validate_star_returning",
+  "validate_state_scope_registry",
+  "validate_status_incidents",
+  "validate_status_literals_are_classified",
+  "validate_status_survives_the_outage",
+  "validate_stock_ripple",
   "validate_storage_keys",
+  "validate_storage_object_rls",
+  "validate_structured_data_parity",
   "validate_substrate_freshness",
+  "validate_success_is_checked",
+  "validate_supervisor_hygiene",
+  "validate_symbol_gallery",
+  "validate_taxonomy_speaks_filipino",
+  "validate_team_deeplink_survives",
+  "validate_temporal_answer_names_its_window",
   "validate_tenant_context_contract",
   "validate_test_hive_fixtures",
   "validate_text_cap_coverage",
+  "validate_the_ack_scope_matches_its_promise",
+  "validate_the_calc_count_is_true",
+  "validate_the_concurrency_guard_can_fire",
+  "validate_the_interrupted_action_completes",
+  "validate_the_note_survives_the_reply",
+  "validate_the_photo_cannot_orphan_the_entry",
+  "validate_the_policy_matches_what_ships",
+  "validate_the_return_promise_is_kept_safely",
+  "validate_tile_count_agreement",
+  "validate_timed_journey",
+  "validate_toast_is_readable",
+  "validate_toast_queue",
+  "validate_tools_cta_honesty",
+  "validate_trajectory_registry",
   "validate_trigger_writes_need_definer",
+  "validate_trust_claim_backed",
   "validate_truth_view_read_isolation",
   "validate_truth_view_security_invoker",
+  "validate_typed_work_is_drafted",
   "validate_ufai_deep_u",
+  "validate_unconfirmed_write_is_not_a_failure",
   "validate_unprotected_write_grant",
+  "validate_vehicle_extract_accuracy",
+  "validate_vehicle_foundations",
+  "validate_verdict_needs_a_denominator",
   "validate_view_security_invoker",
   "validate_visual_defect_confidence",
   "validate_voice_alert_order",
   "validate_voice_journal_single_write",
   "validate_voice_kb_context",
   "validate_voice_paraphrase_invariance",
+  "validate_voice_refuses_ambiguous_asset",
   "validate_voice_response_latency",
+  "validate_waiting_is_spoken",
+  "validate_watchlist_says_what_it_does",
+  "validate_webhook_signature_verified",
+  "validate_weibull_small_n_caveat",
+  "validate_width_utilisation",
+  "validate_worker_drift_visible",
   "validate_workflow_states_present",
+  "validate_write_failure_speaks",
+  "validate_xp_belongs_to_one_person",
+  "validate_xp_feedback_reaches_worker",
+  "validate_year_walk_capstone",
+  "validate_your_own_message_is_visible",
   "video_quality_gate",
   "workflow_gate"
  ],
@@ -387,26 +653,13 @@
  "surface_set_hash": "e378067db1f8",
  "oracle_set_hash": "58ef82d9dc70",
  "live_bonus": {
-  "live_cells": 12,
-  "live_cell_ids": [
-   "H12/F",
-   "H15/F",
-   "H2/U",
-   "H3/A",
-   "H3/F",
-   "H3/U",
-   "H4/F",
-   "H4/U",
-   "H5/F",
-   "H5/U",
-   "H8/F",
-   "H8/U"
-  ],
+  "live_cells": 0,
+  "live_cell_ids": [],
   "breaches": 0,
   "fresh": true,
-  "age_days": 1.7,
+  "age_days": 0.2,
   "proven_ever": 32,
-  "this_run": 12
+  "this_run": 0
  },
  "cells": {
   "achievements|D1": {
@@ -445,9 +698,9 @@
    "locked": true
   },
   "achievements|D8": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_definer_tenant_gate",
-   "locked": true
+   "locked": false
   },
   "achievements|D9": {
    "state": "✅",
@@ -540,9 +793,9 @@
    "locked": true
   },
   "agentic-rag-observability|D8": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_definer_tenant_gate",
-   "locked": true
+   "locked": false
   },
   "agentic-rag-observability|D9": {
    "state": "✅",
@@ -635,9 +888,9 @@
    "locked": true
   },
   "ai-quality|D8": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_definer_tenant_gate",
-   "locked": true
+   "locked": false
   },
   "ai-quality|D9": {
    "state": "✅",
@@ -732,9 +985,9 @@
    "locked": true
   },
   "alert-hub|D8": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_definer_tenant_gate",
-   "locked": true
+   "locked": false
   },
   "alert-hub|D9": {
    "state": "✅",
@@ -829,9 +1082,9 @@
    "locked": true
   },
   "analytics-report|D8": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_definer_tenant_gate",
-   "locked": true
+   "locked": false
   },
   "analytics-report|D9": {
    "state": "✅",
@@ -930,9 +1183,9 @@
    "locked": true
   },
   "analytics|D8": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_definer_tenant_gate",
-   "locked": true
+   "locked": false
   },
   "analytics|D9": {
    "state": "✅",
@@ -1031,9 +1284,9 @@
    "locked": true
   },
   "architecture|D8": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_definer_tenant_gate",
-   "locked": true
+   "locked": false
   },
   "architecture|D9": {
    "state": "✅",
@@ -1126,9 +1379,9 @@
    "locked": true
   },
   "asset-hub|D8": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_definer_tenant_gate",
-   "locked": true
+   "locked": false
   },
   "asset-hub|D9": {
    "state": "✅",
@@ -1231,9 +1484,9 @@
    "locked": true
   },
   "assistant|D8": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_definer_tenant_gate",
-   "locked": true
+   "locked": false
   },
   "assistant|D9": {
    "state": "✅",
@@ -1334,9 +1587,9 @@
    "locked": true
   },
   "audit-log|D8": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_definer_tenant_gate",
-   "locked": true
+   "locked": false
   },
   "audit-log|D9": {
    "state": "✅",
@@ -1431,9 +1684,9 @@
    "locked": true
   },
   "community|D8": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_definer_tenant_gate",
-   "locked": true
+   "locked": false
   },
   "community|D9": {
    "state": "✅",
@@ -1528,9 +1781,9 @@
    "locked": true
   },
   "dayplanner|D8": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_definer_tenant_gate",
-   "locked": true
+   "locked": false
   },
   "dayplanner|D9": {
    "state": "✅",
@@ -1623,9 +1876,9 @@
    "locked": true
   },
   "design-system|D8": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_definer_tenant_gate",
-   "locked": true
+   "locked": false
   },
   "design-system|D9": {
    "state": "✅",
@@ -1718,9 +1971,9 @@
    "locked": true
   },
   "engineering-design|D8": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_definer_tenant_gate",
-   "locked": true
+   "locked": false
   },
   "engineering-design|D9": {
    "state": "✅",
@@ -1813,9 +2066,9 @@
    "locked": true
   },
   "founder-console|D8": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_definer_tenant_gate",
-   "locked": true
+   "locked": false
   },
   "founder-console|D9": {
    "state": "✅",
@@ -1910,9 +2163,9 @@
    "locked": true
   },
   "hive|D8": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_definer_tenant_gate",
-   "locked": true
+   "locked": false
   },
   "hive|D9": {
    "state": "✅",
@@ -2015,9 +2268,9 @@
    "locked": true
   },
   "index|D8": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_definer_tenant_gate",
-   "locked": true
+   "locked": false
   },
   "index|D9": {
    "state": "✅",
@@ -2112,9 +2365,9 @@
    "locked": true
   },
   "integrations|D8": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_definer_tenant_gate",
-   "locked": true
+   "locked": false
   },
   "integrations|D9": {
    "state": "✅",
@@ -2211,9 +2464,9 @@
    "locked": true
   },
   "inventory|D8": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_definer_tenant_gate",
-   "locked": true
+   "locked": false
   },
   "inventory|D9": {
    "state": "✅",
@@ -2308,9 +2561,9 @@
    "locked": true
   },
   "llm-observability|D8": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_definer_tenant_gate",
-   "locked": true
+   "locked": false
   },
   "llm-observability|D9": {
    "state": "✅",
@@ -2403,9 +2656,9 @@
    "locked": true
   },
   "logbook|D8": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_definer_tenant_gate",
-   "locked": true
+   "locked": false
   },
   "logbook|D9": {
    "state": "✅",
@@ -2508,9 +2761,9 @@
    "locked": true
   },
   "marketplace-admin|D8": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_definer_tenant_gate",
-   "locked": true
+   "locked": false
   },
   "marketplace-admin|D9": {
    "state": "✅",
@@ -2605,9 +2858,9 @@
    "locked": true
   },
   "marketplace-seller-profile|D8": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_definer_tenant_gate",
-   "locked": true
+   "locked": false
   },
   "marketplace-seller-profile|D9": {
    "state": "✅",
@@ -2702,9 +2955,9 @@
    "locked": true
   },
   "marketplace-seller|D8": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_definer_tenant_gate",
-   "locked": true
+   "locked": false
   },
   "marketplace-seller|D9": {
    "state": "✅",
@@ -2799,9 +3052,9 @@
    "locked": true
   },
   "marketplace|D8": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_definer_tenant_gate",
-   "locked": true
+   "locked": false
   },
   "marketplace|D9": {
    "state": "✅",
@@ -2900,9 +3153,9 @@
    "locked": true
   },
   "offline-fallback|D8": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_definer_tenant_gate",
-   "locked": true
+   "locked": false
   },
   "offline-fallback|D9": {
    "state": "✅",
@@ -2997,9 +3250,9 @@
    "locked": true
   },
   "ph-intelligence|D8": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_definer_tenant_gate",
-   "locked": true
+   "locked": false
   },
   "ph-intelligence|D9": {
    "state": "✅",
@@ -3094,9 +3347,9 @@
    "locked": true
   },
   "plant-connections|D8": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_definer_tenant_gate",
-   "locked": true
+   "locked": false
   },
   "plant-connections|D9": {
    "state": "✅",
@@ -3191,9 +3444,9 @@
    "locked": true
   },
   "platform-actions|D8": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_definer_tenant_gate",
-   "locked": true
+   "locked": false
   },
   "platform-actions|D9": {
    "state": "✅",
@@ -3288,9 +3541,9 @@
    "locked": true
   },
   "pm-scheduler|D8": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_definer_tenant_gate",
-   "locked": true
+   "locked": false
   },
   "pm-scheduler|D9": {
    "state": "✅",
@@ -3387,9 +3640,9 @@
    "locked": true
   },
   "project-manager|D8": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_definer_tenant_gate",
-   "locked": true
+   "locked": false
   },
   "project-manager|D9": {
    "state": "✅",
@@ -3490,9 +3743,9 @@
    "locked": true
   },
   "project-report|D8": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_definer_tenant_gate",
-   "locked": true
+   "locked": false
   },
   "project-report|D9": {
    "state": "✅",
@@ -3591,9 +3844,9 @@
    "locked": true
   },
   "promo-poster|D8": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_definer_tenant_gate",
-   "locked": true
+   "locked": false
   },
   "promo-poster|D9": {
    "state": "✅",
@@ -3684,9 +3937,9 @@
    "locked": true
   },
   "public-feed|D8": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_definer_tenant_gate",
-   "locked": true
+   "locked": false
   },
   "public-feed|D9": {
    "state": "✅",
@@ -3779,9 +4032,9 @@
    "locked": true
   },
   "report-sender|D8": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_definer_tenant_gate",
-   "locked": true
+   "locked": false
   },
   "report-sender|D9": {
    "state": "✅",
@@ -3884,9 +4137,9 @@
    "locked": true
   },
   "resume|D8": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_definer_tenant_gate",
-   "locked": true
+   "locked": false
   },
   "resume|D9": {
    "state": "✅",
@@ -3981,9 +4234,9 @@
    "locked": true
   },
   "shift-brain|D8": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_definer_tenant_gate",
-   "locked": true
+   "locked": false
   },
   "shift-brain|D9": {
    "state": "✅",
@@ -4086,9 +4339,9 @@
    "locked": true
   },
   "skillmatrix|D8": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_definer_tenant_gate",
-   "locked": true
+   "locked": false
   },
   "skillmatrix|D9": {
    "state": "✅",
@@ -4181,9 +4434,9 @@
    "locked": true
   },
   "status|D8": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_definer_tenant_gate",
-   "locked": true
+   "locked": false
   },
   "status|D9": {
    "state": "✅",
@@ -4276,9 +4529,9 @@
    "locked": true
   },
   "symbol-gallery|D8": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_definer_tenant_gate",
-   "locked": true
+   "locked": false
   },
   "symbol-gallery|D9": {
    "state": "✅",
@@ -4369,9 +4622,9 @@
    "locked": true
   },
   "validator-catalog|D8": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_definer_tenant_gate",
-   "locked": true
+   "locked": false
   },
   "validator-catalog|D9": {
    "state": "✅",
@@ -4466,9 +4719,9 @@
    "locked": true
   },
   "voice-journal|D8": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_definer_tenant_gate",
-   "locked": true
+   "locked": false
   },
   "voice-journal|D9": {
    "state": "✅",
@@ -9970,7 +10223,7 @@
   "cells_total": 109,
   "coverage_pct": 100.0
  },
- "delta_vs_last": 0.0,
- "dry_streak": 1,
+ "delta_vs_last": -1.6,
+ "dry_streak": 0,
  "dry": false
 }

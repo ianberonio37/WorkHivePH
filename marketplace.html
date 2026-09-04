@@ -17,7 +17,7 @@
   <meta property="og:title" content="WorkHive Marketplace: Parts, Training, Jobs for Philippine Industrial Plants" />
   <meta property="og:description" content="Connect directly with verified sellers offering spare parts, training, and maintenance services across the Philippines. Free to browse and post." />
   <meta property="og:image" content="https://workhiveph.com/brand_assets/workhive-logo-transparent.png" />
-  <link rel="canonical" href="https://workhiveph.com/workhive/marketplace.html" />
+  <link rel="canonical" href="https://workhiveph.com/marketplace.html" />
   <meta property="og:site_name" content="WorkHive" />
   <meta property="og:locale" content="en_PH" />
 
@@ -28,6 +28,7 @@
   <meta name="twitter:image" content="https://workhiveph.com/brand_assets/workhive-logo-transparent.png" />
 
   <!-- JSON-LD: WebSite + SearchAction (Google Sitelinks Search Box) -->
+  <script src="browser-floor.js"></script>
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -603,6 +604,32 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   <style>/* Arc-W W-lens: breathing room between top-level sections (gRatio 1.2 → ≥1.5) */ main.page > *:not(:last-child){margin-bottom:2rem}</style>
   <div id="no-results" class="empty-state" hidden>No listings match those filters.</div>
 
+  <!-- T1: signed-out masthead. Measured 2026-08-23: this page rendered NO header, nav, or auth
+       control of any kind to an anonymous visitor (:592-646) — the designated word-of-mouth entry
+       ("you can buy parts there") had no door in. In-flow (not fixed) so it cannot fight the
+       wayfinding back-pill band for the reserved top 64px; hidden for signed-in users by the
+       DOMContentLoaded check below (utils.js whWorker loads after this markup). -->
+  <div id="mk-anon-masthead" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:space-between;background:rgba(22,32,50,0.7);border:1px solid rgba(247,162,27,0.25);border-radius:var(--wh-radius-lg, 16px);padding:10px 14px;">
+    <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+      <a href="index.html" style="display:inline-flex;align-items:center;min-height:44px;"><img src="brand_assets/workhive-logo-transparent.png" alt="WorkHive home" style="height:26px;width:auto;" /></a>
+      <span style="font-size:0.78rem;color:rgba(255,255,255,0.8);">Browsing as a guest. Sign in to buy, sell, or hail services</span>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <a href="index.html?signin=1&return=marketplace.html" style="display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:8px 16px;border-radius:var(--wh-radius, 12px);border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.9);font-size:0.8rem;font-weight:700;text-decoration:none;">Sign In</a>
+      <a href="index.html?signup=1&return=marketplace.html" style="display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:8px 16px;border-radius:var(--wh-radius, 12px);background:var(--wh-orange,#F7A21B);color:var(--wh-navy,#162032);font-size:0.8rem;font-weight:700;text-decoration:none;">Sign Up Free</a>
+    </div>
+  </div>
+  <script>
+    // Signed-in users get the wayfinding band + their own chrome; the guest masthead would be noise.
+    document.addEventListener('DOMContentLoaded', function () {
+      try {
+        if (typeof whWorker === 'function' && whWorker()) {
+          var m = document.getElementById('mk-anon-masthead'); if (m) m.style.display = 'none';
+        }
+      } catch (_) { /* empty-catch-allow: masthead stays for an undecidable identity (anon default) */ }
+    });
+  </script>
+
   <div class="page-header">
     <h1 data-i="pagetitle">Marketplace</h1>
     <p>Parts, training and services for Philippine industrial plants</p>
@@ -641,6 +668,13 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     <div class="ac-label">What to do next</div>
     <div class="ac-text" id="mk-action-text">Computing recommendation...</div>
   </div>
+  <!-- T96 (2026-08-26): THE REPLY HOP BACK TO THE BUYER. Sellers answer inquiries into
+       marketplace_inquiries.reply_text (their console writes it, and RLS lets the buyer read
+       their own rows) - but no buyer-facing surface ever READ that column, so an answered
+       inquiry was invisible to the person who asked. Silent work: the seller believes they
+       replied, the buyer sees nothing and concludes the seller ignored them. Rendered only
+       when replies exist (silence-is-golden, no empty tease). -->
+  <div id="mk-my-replies" style="display:none;margin:0 0 0.75rem;"></div>
   <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="mk-summary-details" data-i="showdetails">
     Show details
   </button>
@@ -720,7 +754,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <span class="ic ic-save" aria-hidden="true"></span>
       <span data-i="watchlist">Watchlist</span>
     </button>
-    <button id="btn-saved-searches" style="background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.25);border-radius:8px;color:var(--wh-violet);font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;min-height:44px;padding:0.2rem 0.65rem;cursor:pointer;display:inline-flex;align-items:center;gap:0.3rem;" aria-label="Saved Searches">
+    <!-- --wh-violet-text, not --wh-violet: the brand lilac #a78bfa measures 4.21:1 on this button's
+         computed navy (#283a56) at 11.2px, under the 4.5 small-text bar. tokens.css already carries the
+         accessible twin (#C4B5FD, ~6.2:1) for precisely this case; this control had just never adopted it. -->
+    <button id="btn-saved-searches" style="background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.25);border-radius:8px;color:var(--wh-violet-text);font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;min-height:44px;padding:0.2rem 0.65rem;cursor:pointer;display:inline-flex;align-items:center;gap:0.3rem;" aria-label="Saved Searches">
       <span class="ic ic-saved" aria-hidden="true"></span>
       <span data-i="searches">Searches</span>
       <span id="saved-search-badge" title="New listings matching your saved searches" style="display:none;background:var(--wh-orange);color:#1a1a1a;font-size:0.6rem;font-weight:800;border-radius:999px;padding:0.05rem 0.35rem;min-width:1rem;text-align:center;">0</span>
@@ -884,6 +921,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         </button>
       </div>
       <textarea class="wh-textarea" id="post-desc" maxlength="2000" placeholder="Specs, compatibility, dimensions, quantity available..." required></textarea>
+      <!-- T130 (2026-08-25): a cap that stops accepting keystrokes with no explanation reads as a
+           broken keyboard - state the limit BEFORE refusal (community's counter idiom). -->
+      <p id="post-desc-count" style="text-align:right;font-size:0.7rem;color:rgba(255,255,255,0.80);margin:4px 0 0;">0 / 2000</p>
+      <script>document.getElementById('post-desc').addEventListener('input', function () {
+        document.getElementById('post-desc-count').textContent = this.value.length + ' / 2000';
+      });</script>
       <div id="post-ai-assist-hint" style="font-size:0.68rem;color:var(--wh-steel-bright);margin-top:0.3rem;">AI drafts a category and description from your title, part number, and photo. Always review before posting.</div>
     </div>
     <div class="form-row">
@@ -923,7 +966,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
     <div class="info-notice">
       <span class="ic ic-info" aria-hidden="true"></span>
-      Listings are reviewed before publishing. The marketplace is free: buyers contact you directly via the inquiry form, with no platform fees.
+      <!-- T34 (2026-08-25): "the marketplace is free" was FALSE at the exact commit point - publishing
+           holds 10% of the price in credits (guard_listing_requires_reservation; PHP100 held on a
+           PHP1,000 listing, measured live). No FEE is charged - the hold returns when the listing is
+           removed/redrafted and feeds the reward on a sale - but a hold the seller never heard about
+           until the refusal is the what_does_it_cost break T34 exists to catch. Say the whole truth. -->
+      Listings are reviewed before publishing. No fees are charged on sales: buyers contact you directly via the inquiry form. Publishing holds 10% of your asking price in credits; the hold is returned if you remove the listing, and it funds your reward when it sells.
     </div>
 
     <!-- Quality score widget — updates in real time as the seller types -->
@@ -938,7 +986,21 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <div id="quality-tips" style="margin-top:0.625rem;font-size:0.7rem;color:var(--wh-steel-bright);line-height:1.6;"></div>
     </div>
 
-    <button type="submit" class="btn-primary" id="btn-submit-post" data-i="postlisting">Post Listing</button>
+    <!-- T100 (2026-08-26): PREVIEW BEFORE THE IRREVERSIBLE STEP. The walk found the AI assist sound
+         (it names its inputs and invents no specs) and the cost truth present, and recorded ONE gap:
+         a seller could not see their listing AS A BUYER WILL before publishing it. Posting is a
+         commitment - it spends a credit hold, it goes to moderation, and it is the first thing a
+         stranger judges the seller by - so J3's bar is preview-before-irreversible. Built from the
+         SAME fields the insert reads, so the preview cannot drift from what actually publishes. -->
+    <div id="post-preview" style="display:none;margin-bottom:0.75rem;padding:0.875rem;border:1px solid rgba(255,255,255,0.12);border-radius:0.75rem;background:rgba(255,255,255,0.03);">
+      <p style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--wh-steel-bright);margin:0 0 0.5rem;">How buyers will see this</p>
+      <div id="post-preview-body"></div>
+      <p style="font-size:0.65rem;color:rgba(255,255,255,0.72);margin:0.5rem 0 0;">Nothing is posted yet. Close this to keep editing.</p>
+    </div>
+    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+      <button type="button" class="btn-ghost" id="btn-preview-post" style="flex:1 1 auto;min-width:0;">Preview as buyer</button>
+      <button type="submit" class="btn-primary" id="btn-submit-post" data-i="postlisting" style="flex:1 1 auto;min-width:0;">Post Listing</button>
+    </div>
   </form>
 </div>
 
@@ -1001,6 +1063,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <span>
         <strong>Before you pay:</strong> inspect the item first. Meet at the seller's business address or a public place.
         Avoid paying in full up front to a new seller. WorkHive never holds your payment, so we cannot reverse it.
+        <!-- T101: filled per seller from v_marketplace_sellers_truth, so "a new seller" stops being
+             an abstraction the buyer cannot check against the person in front of them. -->
+        <span id="inq-seller-standing" style="display:none;margin-top:6px;font-weight:700;"></span>
       </span>
     </div>
     <button type="submit" class="btn-primary" id="btn-submit-inquiry" data-i="sendinquiry">Send Inquiry</button>
@@ -1090,6 +1155,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <span class="ic ic-close" aria-hidden="true"></span>
     </button>
   </div>
+  <!-- T95 (2026-08-25): the watch-semantics statement — watching is a saved LIST, not a
+       subscription (no fn consumes marketplace_watchlist for alerts). Say so, so nobody
+       waits for a price-drop ping that will never come. Becomes false the day a notify
+       lane ships — update it in the SAME change. -->
+  <p style="margin:0 0 0.6rem;font-size:0.72rem;color:var(--wh-steel-bright);line-height:1.45;" data-i="watchsemantics">
+    Your saved listings, synced to your account. Check back for price or stock changes -
+    WorkHive doesn't send watchlist alerts yet.
+  </p>
   <div id="watchlist-content">
     <div style="text-align:center;padding:2rem 1rem;color:var(--wh-steel-bright);">
       <span class="ic ic-save ic-xl" aria-hidden="true"></span>
@@ -1605,7 +1678,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   }
 
   async function openSavedSearchesSheet() {
-    if (!WORKER_NAME) { showToast('Sign in to save searches.', 'error'); return; }
+    /* T1: this class of refusal used to be a transient toast that NAMED the remedy and offered no
+       door — measured 2026-08-23: eight gated taps, zero clickable ways to sign in from any of
+       them. whAuthRequiredToast (utils.js) shows both doors (sign in / create account) and
+       carries ?return= so the interrupted intent survives the auth crossing. */
+    if (!WORKER_NAME) { whAuthRequiredToast('save searches'); return; }
 
     /* Toggle the "save current" panel based on whether filters are active */
     const savePanel  = document.getElementById('save-current-panel');
@@ -1669,7 +1746,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
               <span style="font-size:0.85rem;font-weight:700;">${e(s.search_name)}</span>
               <span style="display:inline-flex;gap:0.3rem;align-items:center;">
                 ${matchPill}
-                ${s.email ? '<span style="font-size:0.62rem;color:var(--wh-violet);background:rgba(167,139,250,0.12);border:1px solid rgba(167,139,250,0.25);border-radius:999px;padding:0.1rem 0.45rem;">✉ Alerts on</span>' : ''}
+                ${s.email ? '<span style="font-size:0.62rem;color:var(--wh-violet-text);background:rgba(167,139,250,0.12);border:1px solid rgba(167,139,250,0.25);border-radius:999px;padding:0.1rem 0.45rem;">✉ Alerts on</span>' : ''}
               </span>
             </div>
             <div style="font-size:0.72rem;color:var(--wh-steel-bright);margin-bottom:0.625rem;">${e(pieces.join(' · ') || 'All listings')}</div>
@@ -1820,12 +1897,82 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         .limit(500);
       _watchlist = new Set((data || []).map(r => r.listing_id));
     } catch (_) { _watchlist = new Set(); }
+    // T5: replay the save the person tapped BEFORE signing in (stashed by toggleWatchlist's
+    // anon branch, carried across the auth crossing). The original tap is the consent; the
+    // replay is idempotent-guarded (skip if the listing is already saved) and single-shot
+    // (the key is consumed before the call, so a failure never loops).
+    try {
+      const _pa = sessionStorage.getItem('wh_pending_action') || '';
+      if (WORKER_NAME && _pa.startsWith('watchlist:')) {
+        sessionStorage.removeItem('wh_pending_action');
+        const _pid = _pa.slice('watchlist:'.length);
+        if (/^[0-9a-f-]{36}$/i.test(_pid) && !_watchlist.has(_pid)) await toggleWatchlist(_pid);
+      }
+    } catch (_) { /* empty-catch-allow: a lost replay costs one tap, never a loop */ }
+  }
+
+  /* T96 (2026-08-26): render the seller's REPLY back to the buyer who asked.
+     marketplace_inquiries.reply_text/replied_at are written by the seller console and readable
+     by the buyer under mkt_inq_read (buyer_name IN auth_worker_names) - but nothing on any buyer
+     surface read them, so an answered inquiry looked exactly like an ignored one. Reads the TRUTH
+     VIEW per the canonical-source rule. Bounded (10, newest first with a total order) and
+     best-effort: no replies, or a failed read, renders nothing rather than a broken panel. */
+  async function loadMyInquiryReplies() {
+    const slot = document.getElementById('mk-my-replies');
+    if (!slot || !WORKER_NAME) return;
+    try {
+      let _sess = null;
+      try { _sess = (await db.auth.getSession())?.data?.session || null; } catch (_) { _sess = null; }
+      if (!_sess) return;
+      const { data, error } = await db.from('v_marketplace_inquiries_truth')
+        .select('id, listing_id, message, reply_text, replied_at, seller_name, created_at, status')
+        .eq('buyer_name', WORKER_NAME)
+        /* T96 (2026-08-27): SHOW THE UNANSWERED ONES TOO. This read filtered
+           .not('reply_text','is',null), so a buyer saw a thread only once the SELLER had got
+           round to answering it. Measured with two accounts on this same code: Romeo Beltran
+           (replied) saw his thread; Pablo Aguilar (pending) saw nothing at all - no message, no
+           state, no acknowledgement he had ever asked. An invisible sent message is
+           indistinguishable from one that never sent, so the buyer cannot tell whether to follow
+           up, ask elsewhere, or give up - while the platform holds the answer the whole time.
+           Ordered by created_at so the newest ask leads whether or not it has been answered
+           (replied_at is NULL for pending, and NULLs do not sort usefully as a primary key). */
+        .order('created_at', { ascending: false }).order('id')
+        .limit(10);
+      if (error || !data || !data.length) return;
+      const e = escHtml;
+      slot.innerHTML =
+        '<div class="simple-card" style="padding:0.85rem 1rem;border-left:3px solid var(--wh-orange);">' +
+        '<div style="font-size:0.62rem;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:var(--wh-orange);margin-bottom:6px;">' +
+        'Your inquiries &middot; ' + data.length + '</div>' +
+        data.map(function (r) {
+          var when = r.replied_at ? (typeof whFmtDate === 'function' ? whFmtDate(r.replied_at) : String(r.replied_at).slice(0, 10)) : '';
+          var sent = r.created_at ? (typeof whFmtDate === 'function' ? whFmtDate(r.created_at) : String(r.created_at).slice(0, 10)) : '';
+          return '<div style="padding:6px 0;border-top:1px solid rgba(255,255,255,0.06);">' +
+            '<div style="font-size:0.72rem;opacity:0.75;">You asked: ' + e(String(r.message || '').slice(0, 90)) + '</div>' +
+            (r.reply_text
+              ? '<div style="font-size:0.8rem;margin-top:2px;"><strong>' + e(r.seller_name || 'The seller') + '</strong> replied' +
+                (when ? ' <span style="opacity:0.7;font-size:0.7rem;">' + e(when) + '</span>' : '') + ': ' +
+                e(String(r.reply_text).slice(0, 220)) + '</div>'
+              /* Pending: say it is SENT and waiting, and when - "waiting" with no date is the
+                 same silence one step quieter, since the whole question is how long it has been. */
+              : '<div style="font-size:0.8rem;margin-top:2px;opacity:0.85;">Sent to <strong>' +
+                e(r.seller_name || 'the seller') + '</strong>' + (sent ? ' <span style="opacity:0.7;font-size:0.7rem;">' + e(sent) + '</span>' : '') +
+                ' &middot; waiting for a reply</div>') +
+            (r.listing_id ? '<a href="marketplace.html?listing=' + encodeURIComponent(r.listing_id) + '" style="font-size:0.7rem;color:var(--wh-blue-text);text-decoration:none;display:inline-flex;min-height:44px;align-items:center;">Open the listing &rarr;</a>' : '') +
+            '</div>';
+        }).join('') + '</div>';
+      slot.style.display = 'block';
+    } catch (_) { /* empty-catch-allow: the replies panel is additive; the marketplace works without it */ }
   }
 
   async function toggleWatchlist(listingId) {
     if (!svcRequireOnline('Saving this listing to your watchlist')) return;
     if (!WORKER_NAME) {
-      showToast('Sign in first to save listings.', 'error');
+      // T5 (2026-08-25): stash the INTENT so the tap survives the auth crossing — the return
+      // brought the person back to the PAGE but their save still had to be re-found and re-tapped.
+      // The tap itself is the consent; the replay below (after loadWatchlist) completes it.
+      try { sessionStorage.setItem('wh_pending_action', 'watchlist:' + listingId); } catch (_) { /* empty-catch-allow: private mode */ }
+      whAuthRequiredToast('save listings to your watchlist');   // T1: clickable doors, not a dead toast
       return;
     }
     const isSaved = _watchlist.has(listingId);
@@ -1883,7 +2030,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
   /* Render the My Watchlist sheet */
   async function openWatchlistSheet() {
-    if (!WORKER_NAME) { showToast('Sign in to view your watchlist.', 'error'); return; }
+    if (!WORKER_NAME) { whAuthRequiredToast('view your watchlist'); return; }   // T1
     openSheet('watchlist');
     const content = document.getElementById('watchlist-content');
     if (!content) return;
@@ -2032,7 +2179,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           ${_compareMode ? `<div class="compare-check"><span class="ic ic-check" aria-hidden="true"></span></div>` : ''}
           <div class="card-badges">
             <span class="badge-tier ${e(tier)}">${tier.charAt(0).toUpperCase() + tier.slice(1)}</span>
-            ${item.seller_verified
+            ${/* T70: was item.seller_verified — the listing's own copy, which drifts from the
+                  seller's checked identity. whIdVerified reads the joined seller_kyb_verified so
+                  this card, the detail sheet and the seller profile cannot disagree. */
+              whIdVerified(null, item)
               ? `<span class="badge-verified"><span class="ic ic-check" aria-hidden="true"></span>Verified</span>`
               : ''}
             ${_communityTrustedSellers.has(item.seller_name)
@@ -2162,12 +2312,79 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
        tell you it stopped working. */
 
     let tone, label, sub;
-    if (total === 0 && mine === 0) {
+    // T99 (2026-08-26): the first-run branch used to key on `mine === 0` - so a BUYER searching
+    // for a part they do not stock was told "No parts listings yet - be the first to post",
+    // on a section holding 9 live listings. The GRID learned this discriminator in an earlier
+    // arc (_filterActive at :2436) and the VERDICT card never did: same page, one path fixed.
+    // A filtered zero is a NO-MATCH, never a first-run empty, whatever the viewer sells.
+    const _vFilterActive = (typeof _query === 'string' && _query.trim() !== '')
+                        || (typeof _cat === 'string' && _cat !== 'All');
+    if (total === 0 && mine === 0 && !_vFilterActive) {
       tone = 'empty'; label = `No ${section} listings yet`;
       sub  = `Be the first to post in this section: buyers across the Philippines are looking.`;
     } else if (total === 0) {
       tone = 'watch'; label = `No matches in ${section} for your filter`;
       sub  = 'Try clearing the search box or pick a different section tab.';
+      // T99 (2026-08-25): a one-letter typo ('berring') silently missed in-stock bearings —
+      // real part searches misspell, and a miss with matching stock is a lost sale. Cheap
+      // client-side did-you-mean: closest title word within edit-distance 2 from the live set.
+      try {
+        const _q = (document.getElementById('search-input')?.value || '').trim().toLowerCase();
+        if (_q && _q.length >= 4 && /^[a-z0-9-]+$/.test(_q) && window._mkTitleWords && window._mkTitleWords.size) {
+          const _lev = (a, b) => {
+            if (Math.abs(a.length - b.length) > 2) return 9;
+            const m = Array.from({ length: a.length + 1 }, (_, i) => [i, ...Array(b.length).fill(0)]);
+            for (let j = 1; j <= b.length; j++) m[0][j] = j;
+            for (let i = 1; i <= a.length; i++) for (let j = 1; j <= b.length; j++)
+              m[i][j] = Math.min(m[i - 1][j] + 1, m[i][j - 1] + 1, m[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+            return m[a.length][b.length];
+          };
+          const words = window._mkTitleWords || new Set();
+          let best = null, bestD = 3;
+          words.forEach(w => { const d = _lev(_q, w); if (d < bestD) { bestD = d; best = w; } });
+          if (best && best !== _q) {
+            sub = `No exact matches for "${_q}" - did you mean "${best}"? Otherwise clear the search box or pick a different section tab.`;
+          }
+        }
+      } catch (_) { /* empty-catch-allow: the suggestion is best-effort; the base copy stands */ }
+      // T99 (2026-08-26): a TRUE miss (spelled right, genuinely not stocked in this section)
+      // still dead-ended at "clear the search box" - the X1 next-action bar. Two real
+      // alternatives, checked not asserted: the SAME query counted in the other sections, and
+      // the services door (a part nobody sells is often a job somebody will do).
+      try {
+        const _q2 = (document.getElementById('search-input')?.value || '').trim();
+        const _safe2 = _q2.replace(/[,()%*\\_]/g, ' ').replace(/\s+/g, ' ').trim();
+        if (_safe2 && _safe2.length >= 3) {
+          const _others = ['parts', 'training', 'jobs'].filter(function (s) { return s !== section; });
+          Promise.all(_others.map(function (s) {
+            return db.from('v_marketplace_listings_truth')
+              .select('id', { count: 'exact', head: true })
+              .eq('status', 'published').eq('section', s)
+              .or('title.ilike.%' + _safe2 + '%,description.ilike.%' + _safe2 + '%,part_number.ilike.%' + _safe2 + '%')
+              .then(function (r) { return { s: s, n: (r && !r.error && r.count) || 0 }; }, function () { return { s: s, n: 0 }; });
+          })).then(function (res) {
+            const hit = res.filter(function (r) { return r.n > 0; });
+            const vSb2 = document.getElementById('mk-verdict-sub');
+            if (!vSb2) return;
+            if (hit.length) {
+              vSb2.textContent = 'Nothing in ' + section + ' matches "' + _q2 + '", but ' +
+                hit.map(function (h) { return h.n + ' in ' + h.s; }).join(' and ') +
+                ' does - switch section tab to see them.';
+            } else {
+              // Critic walk T30 (2026-09-02): this copy NAMED two recoveries and wired neither -
+              // advice without affordance (a stocked-out supervisor read it, then had to hunt for
+              // where to hail). Both named actions are now the controls they promise: the services
+              // tab IS the hail flow, and the post dialog takes the wanted/offer listing.
+              vSb2.innerHTML = 'Nothing anywhere in the marketplace matches "' + escHtml(_q2) +
+                '". Nobody is selling it right now - ' +
+                '<button type="button" class="underline font-bold" style="color:var(--wh-blue-light);background:none;border:0;padding:0;cursor:pointer;min-height:44px;" ' +
+                'onclick="document.querySelector(\'.section-tab[data-section=&quot;services&quot;]\')?.click()">hail a service provider</button> instead, or ' +
+                '<button type="button" class="underline font-bold" style="color:var(--wh-blue-light);background:none;border:0;padding:0;cursor:pointer;min-height:44px;" ' +
+                'onclick="(typeof openPostDialog===\'function\'?openPostDialog():(location.search=\'?post=1\'))">post a wanted listing</button>.';
+            }
+          });
+        }
+      } catch (_) { /* empty-catch-allow: alternatives are additive; the base copy already stands */ }
     } else if (mine === 0) {
       tone = 'healthy'; label = `${total} ${section} listing${total === 1 ? '' : 's'} live`;
       sub  = 'Click any listing for details, or post your own from the + Post button.';
@@ -2248,7 +2465,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         // cannot work is worse than none — it converts a dead end into a loop. Offer the remedy that
         // does work, using the same route the rest of this page already uses for sign-in.
         document.getElementById('btn-signin-again')?.addEventListener('click', () => {
-          window.location.href = 'index.html?signin=1';
+          whSignInWall();
         });
         document.getElementById('btn-retry-load')?.addEventListener('click', () => {
           showSkeletons();
@@ -2396,7 +2613,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     try {
       let q = db
         .from('v_marketplace_listings_truth')
-        .select('id,title,description,section,category,condition,price,location,seller_name,seller_verified,completed_sales,seller_tier,rating_avg,image_url,created_at,part_number,status')
+        .select('id,title,description,section,category,condition,price,location,seller_name,seller_verified,seller_kyb_verified,completed_sales,seller_tier,rating_avg,image_url,created_at,part_number,status')
         .eq('status', 'published')
         .eq('section', _section)
         .order('created_at', { ascending: false })
@@ -2442,6 +2659,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
       const rows = data || [];
       _listings = append ? [..._listings, ...rows] : rows;
+      // T99: accumulate a title-word vocabulary across every non-empty load — the
+      // did-you-mean suggester needs words from the CATALOG, while _listings holds only
+      // the current (possibly zero-row) filtered view.
+      try {
+        window._mkTitleWords = window._mkTitleWords || new Set();
+        rows.forEach(l => String(l.title || '').toLowerCase().split(/[^a-z0-9]+/)
+          .forEach(w => { if (w.length >= 4) window._mkTitleWords.add(w); }));
+      } catch (_) { /* empty-catch-allow: vocabulary is best-effort */ }
       _hasMore  = rows.length === PAGE_SIZE;
       _loadError = false;   // P7: a clean fetch clears any prior error state
       _rateLimited = null;  // ...and so does the rate-limit copy, or it outlives the limit itself
@@ -2743,6 +2968,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         ? `<p style="font-size:0.7rem;color:var(--wh-text-muted);margin:-0.25rem 0 0.5rem;">Credits are spent on WorkHive services. They are not cash and cannot be withdrawn. You get them when the job settles.</p>`
         : ''}
       <div class="detail-title">${e(item.title)}</div>
+      <!-- T101 (2026-08-25): the report door. A buyer facing a scam-shaped listing had NO path
+           from the one screen where they judge it (a dedicated report lane needs new schema — a
+           scoped decision — but the platform-wide feedback intake already reaches the founder).
+           Opens the feedback panel with the listing reference prefilled. -->
+      <button type="button" class="wh-report-listing" data-listing-id="${e(item.id)}" data-listing-title="${e(item.title)}"
+              style="background:none;border:none;padding:4px 0;min-height:44px;color:var(--wh-steel-bright);font-size:0.7rem;text-decoration:underline;cursor:pointer;display:inline-flex;align-items:center;">
+        Something wrong with this listing? Report it
+      </button>
 
       <div class="detail-section">
         <div class="detail-section-label">Details</div>
@@ -2808,13 +3041,13 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
                 const ratingAvg   = Number(sp.rating_avg || 0);
                 const isTopRated  = ratingAvg >= 4.5 && ratingCount >= 5;
                 const out = [];
-                if (sp.kyb_verified || item.seller_verified) {
+                if (whIdVerified(sp, item)) {   // T70: was `sp.kyb_verified || item.seller_verified`
                   out.push(`<span class="badge-verified"><span class="ic ic-check" aria-hidden="true"></span>ID Verified</span>`);
                 }
                 // MK1/J11 (2026-07-24): central earned-badge rule (utils.js) — a "Certified" chip
                 // with no certifications on file is an empty claim.
                 if (whCertBadgeEarned(sp)) {
-                  out.push(`<span style="display:inline-flex;align-items:center;gap:0.2rem;padding:0.2rem 0.5rem;border-radius:999px;font-size:0.62rem;font-weight:700;background:rgba(167,139,250,0.15);color:var(--wh-violet);border:1px solid rgba(167,139,250,0.3);"><span class="ic ic-check" aria-hidden="true"></span>Certified</span>`);
+                  out.push(`<span style="display:inline-flex;align-items:center;gap:0.2rem;padding:0.2rem 0.5rem;border-radius:999px;font-size:0.62rem;font-weight:700;background:rgba(167,139,250,0.15);color:var(--wh-violet-text);border:1px solid rgba(167,139,250,0.3);"><span class="ic ic-check" aria-hidden="true"></span>Certified</span>`);
                 }
                 if (isTopRated) {
                   out.push(`<span style="display:inline-flex;align-items:center;gap:0.2rem;padding:0.2rem 0.5rem;border-radius:999px;font-size:0.62rem;font-weight:700;background:rgba(247,162,27,0.15);color:var(--wh-orange-text);border:1px solid rgba(247,162,27,0.3);">★ Top Rated</span>`);
@@ -2830,7 +3063,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
               })()}
             </div>
             ${sellerProfile?.cert_verified && sellerProfile?.certifications
-              ? `<div style="margin-top:0.5rem;font-size:0.7rem;color:var(--wh-steel-bright);line-height:1.5;"><strong style="color:var(--wh-violet);">Certifications:</strong> ${e((sellerProfile.certifications || '').split('\n').filter(c => c.trim()).join(' · '))}</div>`
+              ? `<div style="margin-top:0.5rem;font-size:0.7rem;color:var(--wh-steel-bright);line-height:1.5;"><strong style="color:var(--wh-violet-text);">Certifications:</strong> ${e((sellerProfile.certifications || '').split('\n').filter(c => c.trim()).join(' · '))}</div>`
               : ''}
           </div>
         </div>
@@ -3003,6 +3236,35 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const tplFn = INQUIRY_TEMPLATES[item.section] || INQUIRY_TEMPLATES.parts;
       messageEl.value = tplFn(item);
     }
+    /* T101 (2026-08-26): the safety note warned about "a new seller" generically - the buyer had
+       no way to tell whether THIS one is new. Every fact needed is already in
+       v_marketplace_sellers_truth (created_at, total_sales, kyb_verified), so state THIS seller's
+       standing at the exact step where money risk lives, backed by a query rather than a vibe.
+       Prior-session note corrected: there is no marketplace_fraud_signals table on this platform -
+       the signals that exist are these. Best-effort; the generic warning stands if the read fails. */
+    (function () {
+      const el = document.getElementById('inq-seller-standing');
+      if (!el) return;
+      el.style.display = 'none'; el.textContent = '';
+      const sn = item.seller_name;
+      if (!sn) return;
+      db.from('v_marketplace_sellers_truth')
+        .select('created_at, total_sales, kyb_verified, rating_count')
+        .eq('worker_name', sn).limit(1)
+        .then(function (res) {
+          const s = (res && !res.error && res.data && res.data[0]) || null;
+          if (!s) return;
+          const days = s.created_at ? Math.floor((Date.now() - new Date(s.created_at).getTime()) / 86400000) : null;
+          const isNew = (Number(s.total_sales) || 0) === 0 || (days !== null && days < 30);
+          const bits = [];
+          bits.push((Number(s.total_sales) || 0) === 0 ? 'no completed sales yet'
+                                                       : (Number(s.total_sales) + ' completed sale' + (Number(s.total_sales) === 1 ? '' : 's')));
+          if (days !== null) bits.push(days < 30 ? ('joined ' + days + ' day' + (days === 1 ? '' : 's') + ' ago') : 'on WorkHive since ' + new Date(s.created_at).getFullYear());
+          bits.push(s.kyb_verified ? 'ID-verified' : 'not ID-verified');
+          el.textContent = (isNew ? 'This seller is new here: ' : 'This seller: ') + bits.join(' · ') + '.';
+          el.style.display = 'block';
+        }, function () { /* read failed: the generic warning above still stands */ });
+    })();
     openSheet('inquiry');
   }
 
@@ -3096,7 +3358,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     try {
       sessionStorage.setItem('wh_return_to', location.pathname + location.search + location.hash);
     } catch (_) { /* empty-catch-allow: a private-mode tab just loses the return, never the sign-in */ }
-    setTimeout(function () { window.location.href = 'index.html?signin=1'; }, 2200);
+    setTimeout(function () { whSignInWall(); }, 2200);
     return false;
   }
 
@@ -3386,7 +3648,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     const partNumber = (document.getElementById('post-part-number')?.value  || '').trim();
     const condition  = (document.getElementById('post-condition')?.value    || '').trim();
     if (!title && !partNumber) { showToast('Add a title or part number first, then AI can help.', 'error'); return; }
-    if (!HIVE_ID)              { showToast('Sign in to use AI assist.', 'error'); return; }
+    if (!HIVE_ID)              { whAuthRequiredToast('use AI assist'); return; }   // T1
 
     const prev = label ? label.textContent : '';
     btn.disabled = true; btn.setAttribute('aria-busy', 'true'); btn.style.opacity = '0.6'; if (label) label.textContent = 'Thinking…';
@@ -3803,7 +4065,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     if (fail.mine) {
       html += halfDown('your service requests', fail.mine);
     } else if (!_authUid) {
-      html += '<div class="empty-state" style="padding:1rem;"><p>Sign in to hail a service and track your requests.</p></div>';
+      // T1: the empty state's remedy is now WALKABLE — both auth doors, return carried to services.
+      html += '<div class="empty-state" style="padding:1rem;"><p>Sign in to hail a service and track your requests.</p>'
+        + '<p style="margin-top:0.6rem;"><a href="index.html?signin=1&return=marketplace.html%3Fsection%3Dservices" style="' + _svcGhostC + 'text-decoration:none;display:inline-block;margin-right:0.5rem;">Sign in</a>'
+        + '<a href="index.html?signup=1&return=marketplace.html%3Fsection%3Dservices" style="' + _svcGhostC + 'text-decoration:none;display:inline-block;">Create a free account</a></p></div>';
     } else if (!mine.length) {
       html += '<div class="empty-state" style="padding:1rem;"><p>No requests yet. Hail your first service below - a nearby provider accepts and you track them here.</p></div>';
     } else {
@@ -3880,7 +4145,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           (c.base_rate === null || c.base_rate === undefined || !isFinite(Number(c.base_rate))
             || Number(c.base_rate) <= 0
             ? 'rate unavailable'
-            : '₱' + Number(c.base_rate).toLocaleString() + (c.unit === 'per_hour' ? '/hr' : '/visit')) + ')' +
+            // T133 (2026-08-26): the guard above catches null (Number(null) is 0, so <= 0 fires) but NOT
+            // undefined - Number(undefined) is NaN and NaN <= 0 is FALSE, so an absent rate fell straight
+            // through as "₱NaN" in a buyer's service picker. whFmtPeso handles both, which is why it exists.
+            : (typeof whFmtPeso === 'function' ? whFmtPeso(c.base_rate) : '₱' + Number(c.base_rate).toLocaleString()) + (c.unit === 'per_hour' ? '/hr' : '/visit')) + ')' +
         (c.requires_cert_level ? ' (certified only)' : '') + '</option>').join('') +
       '</select></label>' +
       /* SAY IT BEFORE THE HAIL, NOT AFTER THE TIMEOUT. A cert-gated trade can only be accepted by a
@@ -4109,7 +4377,15 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   const _svcWriteError = e => _svcErrorText(e, true);
 
   async function svcHailNow() {
-    if (!_authUid) { showToast('Sign in first to hail a service'); return; }
+    // T41 (2026-08-26): a double press here was NOT idempotent. service_requests' only business unique is on pm_scope_item_id, which covers AUTO hails; a manual hail carries none, so a second press is a second request to every provider.
+    // Verified against the live schema rather than assumed: the sibling inserts on this sweep
+    // (reactions, vouchers, top-ups, project links, reviews) ARE protected by business-key
+    // uniques and were deliberately left alone. Guard released in a finally so a thrown
+    // error cannot wedge the control shut.
+    if (window._busy_svcHailNow) return;
+    window._busy_svcHailNow = true;
+    try {
+    if (!_authUid) { whAuthRequiredToast('hail a service'); return; }   // T1
     if (!svcRequireOnline('Hailing a provider')) return;
     const itemId = (document.getElementById('svc-hail-item') || {}).value;
     const address = ((document.getElementById('svc-hail-address') || {}).value || '').trim();
@@ -4153,16 +4429,37 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         ...(_svcPin ? { location: 'SRID=4326;POINT(' + _svcPin[0] + ' ' + _svcPin[1] + ')' } : {})
       }).select('id');
       if (error) { showToast(_svcWriteError(error), 'error'); return; }
-      if (!data || !data.length) { showToast('Request didn\'t save - please try again', 'error'); return; }
+      /* T176 (2026-08-27): NO ROWS BACK IS UNCONFIRMED, NOT FAILED. supabase-js resolves with
+         { data: [], error: null } when the INSERT succeeded but the RETURNING read was refused —
+         RLS gates SELECT separately from INSERT — so "didn't save" is a claim this branch cannot
+         support, and "try again" is the dangerous half: re-hailing broadcasts a SECOND job to every
+         nearby provider for work the client wants done once. Both hail paths (catalog and custom
+         scope) carried the same line. The page already speaks correctly a few lines below
+         ("it may have moved on"). */
+      if (!data || !data.length) {
+        showToast('Your request may have been sent - we could not confirm it. Check your requests below before hailing again.', 'error');
+        loadClientServices();
+        return;
+      }
       _svcDraft.clear();          // the entry is committed; the next hail starts blank
       showToast('Hailing - nearby providers are being notified');
       loadClientServices();
     });
+  
+    } finally { window._busy_svcHailNow = false; }
   }
 
   async function svcAskQuotes() {
+    // T41 (2026-08-26): a double press here was NOT idempotent. same table, same gap: a repeated quote request fans out twice.
+    // Verified against the live schema rather than assumed: the sibling inserts on this sweep
+    // (reactions, vouchers, top-ups, project links, reviews) ARE protected by business-key
+    // uniques and were deliberately left alone. Guard released in a finally so a thrown
+    // error cannot wedge the control shut.
+    if (window._busy_svcAskQuotes) return;
+    window._busy_svcAskQuotes = true;
+    try {
     if (!svcRequireOnline('Asking for quotes')) return;
-    if (!_authUid) { showToast('Sign in first to request quotes'); return; }
+    if (!_authUid) { whAuthRequiredToast('request quotes'); return; }   // T1
     const scope = ((document.getElementById('svc-quote-scope') || {}).value || '').trim();
     const budget = Number((document.getElementById('svc-quote-budget') || {}).value) || null;
     const address = ((document.getElementById('svc-quote-address') || {}).value || '').trim();
@@ -4174,11 +4471,24 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         budget: budget, address: address || null, status: 'broadcasting'
       }).select('id');
       if (error) { showToast(_svcWriteError(error), 'error'); return; }
-      if (!data || !data.length) { showToast('Request didn\'t save - please try again', 'error'); return; }
+      /* T176 (2026-08-27): NO ROWS BACK IS UNCONFIRMED, NOT FAILED. supabase-js resolves with
+         { data: [], error: null } when the INSERT succeeded but the RETURNING read was refused —
+         RLS gates SELECT separately from INSERT — so "didn't save" is a claim this branch cannot
+         support, and "try again" is the dangerous half: re-hailing broadcasts a SECOND job to every
+         nearby provider for work the client wants done once. Both hail paths (catalog and custom
+         scope) carried the same line. The page already speaks correctly a few lines below
+         ("it may have moved on"). */
+      if (!data || !data.length) {
+        showToast('Your request may have been sent - we could not confirm it. Check your requests below before hailing again.', 'error');
+        loadClientServices();
+        return;
+      }
       _svcDraft.clear();
       showToast('Posted - providers will send quotes here');
       loadClientServices();
     });
+  
+    } finally { window._busy_svcAskQuotes = false; }
   }
 
   async function svcShowQuotes(requestId) {
@@ -4189,15 +4499,30 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     // offers) - a quote list is negotiation state, not a KPI; single surface, no truth-view fit
     const { data: offers, error } = await db.from('service_offers').select('*')
       .eq('request_id', requestId).eq('kind', 'quote').eq('status', 'pending').limit(50);
-    if (error) { showToast(error.message); return; }
+    // T176 (2026-08-28): sent=false, because this is the READ path - _svcErrorText then omits
+    // ", so nothing was sent", which would be its own small lie when nothing was being sent.
+    if (error) { showToast(_svcErrorText(error, false), 'error'); return; }
     if (!offers || !offers.length) { slot.innerHTML = '<p style="font-size:0.75rem;opacity:0.8;">No quotes yet - check back soon.</p>'; return; }
     const ids = offers.map(o => o.provider_id);
-    const { data: provs } = await db.from('v_service_provider_truth').select('id, display_name, verified, completed_jobs, rating_avg, rating_count, tier').in('id', ids).limit(50);
+    const { data: provs } = await db.from('v_service_provider_truth').select('id, provider_type, display_name, verified, completed_jobs, rating_avg, rating_count, tier').in('id', ids).limit(50);
     const byId = {}; (provs || []).forEach(p => { byId[p.id] = p; });
     slot.innerHTML = offers.map(o => {
       const p = byId[o.provider_id] || {};
       return '<div style="border:1px solid rgba(255,255,255,0.12);border-radius:var(--wh-radius-sm);padding:0.6rem 0.7rem;margin:0.35rem 0;">' +
         '<strong>₱' + Number(o.price || 0).toLocaleString() + '</strong> - ' + e(p.display_name || 'Provider') +
+        /* T70 (2026-08-27): IS THIS A COMPANY OR A PERSON. provider_type ('hive' | 'freelancer')
+           was written at provider signup and rendered nowhere, though v_service_provider_truth has
+           carried it all along - 2 hive and 5 freelancer providers exist. This card is the moment a
+           buyer decides who to let into their plant, and it showed verification, jobs done and a
+           rating while withholding the plainest fact about who they would be dealing with. Backed
+           by the truth view, so it is a trust signal a query enforces rather than a chip that
+           asserts. */
+        (p.provider_type
+          ? ' <span style="font-size:0.72rem;opacity:0.85;" title="' + (p.provider_type === 'hive'
+              ? 'A team operating under a registered hive'
+              : 'An individual providing this service') + '">· '
+            + (p.provider_type === 'hive' ? 'Hive team' : 'Freelancer') + '</span>'
+          : '') +
         (p.verified ? ' <span style="color:var(--wh-green, rgb(74,222,128));font-size:0.72rem;font-weight:700;">✓ Verified</span>' : '') +
         ' <span style="font-size:0.72rem;opacity:0.8;">· ' + Number(p.completed_jobs || 0) + ' jobs done' + (p.rating_avg != null ? ' · ★' + Number(p.rating_avg).toFixed(1) + ' (' + Number(p.rating_count || 0) + ')' : '') + (p.tier === 'gold' ? ' · 🥇 Gold' : p.tier === 'silver' ? ' · 🥈 Silver' : '') + (o.eta_minutes ? ' · ETA ' + (o.eta_minutes >= 1440 ? Math.round(o.eta_minutes / 1440) + 'd' : Math.round(o.eta_minutes / 60) + 'h') : '') + '</span>' +
         (o.message ? '<div style="font-size:0.75rem;opacity:0.85;margin-top:0.2rem;">' + e(o.message) + '</div>' : '') +
@@ -4209,7 +4534,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   async function svcPickQuote(offerId) {
     if (!svcRequireOnline('Choosing a provider')) return;
     const { data, error } = await db.rpc('select_quote', { p_offer_id: offerId });
-    if (error) { showToast(error.message); return; }
+    if (error) { showToast(_svcWriteError(error), 'error'); return; }
     if (data && data.selected) { showToast('Provider chosen - they\'ll head over as agreed'); }
     else { showToast(((data && data.reason) === 'request_closed') ? 'This request already closed' : 'Couldn\'t select this quote'); }
     loadClientServices();
@@ -4364,7 +4689,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
          was ever visible to us. The toast keeps the person moving; the log is how we find out the
          endpoint is down, misconfigured, or rejecting a format people actually use. */
       console.error('[svcReadPayReceipt] receipt OCR failed:', err);
-      showToast((err && err.message) || 'Could not read that receipt. Type the details instead.', 'error');
+      // T176 (2026-08-28): was `(err && err.message) || '<friendly>'`, so the raw string won and the
+      // actionable sentence showed only when the error was empty. The console.error above is where
+      // the endpoint's real wording belongs - it is for us; the toast is for the person, and
+      // "type the details instead" is the whole reason they can keep moving.
+      showToast('Could not read that receipt. Type the details instead.', 'error');
     } finally { if (input) input.value = ''; }
   }
   window.svcReadPayReceipt = svcReadPayReceipt;
@@ -4515,7 +4844,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const { data, error } = await db.from('service_requests')
         .update({ status: 'settled', settled_at: new Date().toISOString(), updated_at: new Date().toISOString() })
         .eq('id', requestId).select('id');
-      if (error) { showToast(error.message, 'error'); return; }
+      if (error) { showToast(_svcWriteError(error), 'error'); return; }
       if (!data || !data.length) { showToast('Couldn\'t update. Refresh and try again.', 'error'); return; }
       showToast('Payment recorded and released. Thanks for confirming!', 'success');
       loadClientServices();
@@ -4560,7 +4889,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     if (!code) { showToast('Enter your voucher code first'); return; }
     if (!svcRequireOnline('Applying a voucher')) return;
     const { data, error } = await db.rpc('redeem_service_voucher', { p_code: code, p_request_id: requestId });
-    if (error) { showToast(error.message); return; }
+    if (error) { showToast(_svcWriteError(error), 'error'); return; }
     if (data && data.redeemed) {
       showToast('Voucher applied: ₱' + Number(data.discount).toLocaleString() + ' off. Pay the provider the discounted amount; the platform covers the rest.');
     } else {
@@ -4666,9 +4995,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const e = escHtml;
       const areas = data.slice(0, 3).map(r =>
         e(r.service_area) + ' (' + Number(r.providers_online) + ')').join(' · ');
+      // T102 (2026-08-26): "online now" is reconciled by a 1-minute cron (service-availability-
+      // reconcile-1min) - state the lag so the claim carries its own freshness window instead of
+      // implying live presence.
       slot.innerHTML = '<div style="font-size:0.76rem;opacity:0.85;display:flex;align-items:center;gap:0.4rem;flex-wrap:wrap;">' +
         '<span aria-hidden="true">🟢</span><span>' + total + ' provider' + (total === 1 ? '' : 's') +
-        ' online now - ' + areas + '</span></div>';
+        ' online now - ' + areas + ' <span style="opacity:0.7;">(refreshed about every minute)</span></span></div>';
     } catch (_) { /* empty-catch-allow: the presence hint is additive; the composer works without it */ }
   }
   window.svcLoadPresence = svcLoadPresence;
@@ -4734,8 +5066,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   async function svcClientCancel(requestId) {
     if (!svcRequireOnline('Cancelling a request')) return;
     if (!(await window.whConfirm('Cancel this request?', { okLabel: 'Cancel request', cancelLabel: 'Keep it' }))) return;
+    // T176 (2026-08-28): the cancel path reported PostgREST's wording verbatim; _svcWriteError
+    // tells a dead session, a rate limit and a lost connection apart, which is the whole point of
+    // the helper this file already defines and had applied to only two of its six write paths.
     const { data, error } = await db.from('service_requests').update({ status: 'cancelled_by_client', cancelled_at: new Date().toISOString(), updated_at: new Date().toISOString() }).eq('id', requestId).select('id');
-    if (error) { showToast(error.message); return; }
+    if (error) { showToast(_svcWriteError(error), 'error'); return; }
     if (!data || !data.length) { showToast('Couldn\'t cancel - it may have moved on. Refreshing.'); }
     else { showToast('Request cancelled'); }
     loadClientServices();
@@ -5008,7 +5343,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         try {
           const { data } = await db
             .from('v_marketplace_listings_truth')
-            .select('id,title,description,section,category,condition,price,location,seller_name,seller_verified,completed_sales,seller_tier,rating_avg,image_url,created_at,part_number,status')
+            .select('id,title,description,section,category,condition,price,location,seller_name,seller_verified,seller_kyb_verified,completed_sales,seller_tier,rating_avg,image_url,created_at,part_number,status')
             .eq('id', payload.new.id)
             .eq('status', 'published')
             .eq('section', _section)
@@ -5049,7 +5384,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     // WORKER_NAME in localStorage without a current Supabase Auth session,
     // their writes (post/inquire/dispute) would 401 once Phase E flips
     // policies. Redirect them to re-signin. See PRODUCTION_FIXES.md #37.
-    if (WORKER_NAME && !_authUid) { window.location.href = 'index.html?signin=1'; return; }
+    if (WORKER_NAME && !_authUid) { whSignInWall(); return; }
 
     // AWAITED, and before anything renders a card. creditsBack() returns null until the knobs land, so
     // firing this off unawaited would paint the first listings with no chip and only the later ones with
@@ -5145,6 +5480,29 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
        is how duplicate handlers accumulate. Resets BOTH halves — the category chip and the search term —
        because the message says "the filters", and a button that clears only half of what it promises is
        the same broken promise in a smaller box. */
+    /* T101: the report door — delegated because detail sheets re-render. Opens the
+       platform feedback panel with the listing reference prefilled so the founder's intake
+       can act on it; a dedicated report lane (schema + moderation queue) is a recorded
+       scoped decision. */
+    document.addEventListener('click', ev => {
+      const rep = ev.target.closest('.wh-report-listing');
+      if (!rep) return;
+      if (window.WHFeedback && window.WHFeedback.open) {
+        window.WHFeedback.open();
+        setTimeout(() => {
+          // gid-allow: wh-fb-subject/wh-fb-body live in the feedback panel wh-feedback-fab.js INJECTS at runtime - no static <id> exists by design
+          const subj = document.getElementById('wh-fb-subject');
+          if (subj && !subj.value) {
+            subj.value = `Report listing: ${rep.dataset.listingTitle || ''} (${rep.dataset.listingId || ''})`.slice(0, 120);
+            subj.dispatchEvent(new Event('input', { bubbles: true }));
+          }
+          document.getElementById('wh-fb-body')?.focus(); // gid-allow: injected by wh-feedback-fab.js at runtime
+        }, 250);
+      } else {
+        showToast('Could not open the report form. You can also email admin@workhiveph.com.', 'error');
+      }
+    });
+
     document.addEventListener('click', ev => {
       if (!ev.target.closest('#mk-clear-filters')) return;
       _cat = 'All';
@@ -5206,7 +5564,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       if (!_listings.some(l => l.id === lid)) {
         try {
           const { data: one } = await db.from('v_marketplace_listings_truth')
-            .select('id,title,description,section,category,condition,price,location,seller_name,seller_verified,completed_sales,seller_tier,rating_avg,image_url,created_at,part_number,status')
+            .select('id,title,description,section,category,condition,price,location,seller_name,seller_verified,seller_kyb_verified,completed_sales,seller_tier,rating_avg,image_url,created_at,part_number,status')
             .eq('id', lid).eq('status', 'published').maybeSingle();
           if (one) _listings.push(one);
         } catch (_) { /* empty-catch-allow: best-effort stage; detail may still render from cache */ }
@@ -5216,6 +5574,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
     /* Load watchlist first so heart states render correctly on first paint */
     await loadWatchlist();
+    /* T96: the buyer's answered inquiries - fire-and-forget so a slow read never delays paint */
+    loadMyInquiryReplies();
 
     /* Arc X A3: restore the browse filters from the URL BEFORE the first load, so a
        reload / view-listing-and-back-nav keeps the user's search + price range. */
@@ -5254,7 +5614,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         if (!_listings.some(l => l.id === deepListing)) {
           const { data: one } = await db
             .from('v_marketplace_listings_truth')
-            .select('id,title,description,section,category,condition,price,location,seller_name,seller_verified,completed_sales,seller_tier,rating_avg,image_url,created_at,part_number,status')
+            .select('id,title,description,section,category,condition,price,location,seller_name,seller_verified,seller_kyb_verified,completed_sales,seller_tier,rating_avg,image_url,created_at,part_number,status')
             .eq('id', deepListing)
             .eq('status', 'published')
             .maybeSingle();
@@ -5365,6 +5725,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   // N1: static-label Filipino dict, applied by utils.js whI18nApply() when WH_LANG=fil.
   window.WH_FIL_PAGE = {
     pagetitle:     'Marketplace',
+    // T45 census: the watchlist's own honesty note was the last unresolved marker on this page —
+    // and it is exactly the kind that must not stay English, because it is the sentence telling a
+    // FIL reader that watching does NOT alert them yet.
+    watchsemantics: 'Mga na-save mong listing, naka-sync sa account mo. Balikan para sa pagbabago ng presyo o stock - hindi pa nagpapadala ng watchlist alerts ang WorkHive.',
     /* An UNRESOLVED data-i marker is a BROKEN translation, not a missing one: whI18nApply leaves
        the English in place while the page around it turns Filipino, so the result reads as a
        half-translated page rather than an English one. Found live - 9 listing cards carried
@@ -5426,6 +5790,45 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     quoterequest:  'Kahilingan ng Quote',
     sendallquotes: 'Ipadala Lahat ng Quote Request',
   };
+
+// T100 (2026-08-26): the preview reads the SAME inputs the insert reads, so it cannot show a
+// seller one thing and publish another. It renders in the buyer's vocabulary - the title, the price
+// as whFmtPeso renders it (which is how a buyer sees "Negotiable" versus a figure), the condition
+// chip and the description - and it states plainly that nothing has been posted, because a preview
+// that looks like a confirmation is worse than none.
+// ★DELEGATED, because the first version was NOT WIRED. It called getElementById at script-parse
+// time and returned early when the button was not there yet - the composer's markup is not
+// necessarily in the DOM when this runs, so the listener attached to nothing and the button read
+// correctly while doing nothing at all. A live probe caught it: the label was right, the click did
+// not open the panel. One delegated listener on the document works whenever the button appears.
+(function whPostPreview() {
+  document.addEventListener('click', function (ev) {
+    var btn = ev.target && ev.target.closest ? ev.target.closest('#btn-preview-post') : null;
+    if (!btn) return;
+    var box = document.getElementById('post-preview');
+    var body = document.getElementById('post-preview-body');
+    if (!box || !body) return;
+    if (box.style.display !== 'none') { box.style.display = 'none'; btn.textContent = 'Preview as buyer'; return; }
+    var g = function (id) { var e = document.getElementById(id); return e ? String(e.value || '').trim() : ''; };
+    var title = g('post-title'), desc = g('post-desc'), part = g('post-part-number');
+    var priceRaw = g('post-price'), cond = g('post-condition');
+    var priceTxt = priceRaw === ''
+      ? 'Negotiable'
+      : (typeof whFmtPeso === 'function' ? whFmtPeso(priceRaw) : '₱' + priceRaw);
+    var e = (typeof escHtml === 'function') ? escHtml : function (s) { return String(s == null ? '' : s); };
+    body.innerHTML =
+      '<p style="font-weight:700;font-size:0.9rem;margin:0 0 0.25rem;">' + (title ? e(title) : '<span style="color:var(--wh-steel-bright);">(no title yet)</span>') + '</p>'
+      + '<p style="font-size:0.8rem;color:var(--wh-orange);font-weight:700;margin:0 0 0.35rem;">' + e(priceTxt) + '</p>'
+      + (cond ? '<span style="display:inline-block;font-size:0.62rem;padding:2px 8px;border-radius:999px;background:rgba(255,255,255,0.08);margin-bottom:0.4rem;">' + e(cond) + '</span>' : '')
+      + (part ? '<p style="font-size:0.7rem;color:rgba(255,255,255,0.72);margin:0.3rem 0 0;">Part no. ' + e(part) + '</p>' : '')
+      + '<p style="font-size:0.75rem;color:rgba(255,255,255,0.82);line-height:1.5;margin:0.4rem 0 0;">'
+      + (desc ? e(desc) : '<span style="color:var(--wh-steel-bright);">(no description yet)</span>') + '</p>';
+    box.style.display = 'block';
+    btn.textContent = 'Hide preview';
+    box.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }, true);
+})();
+
 </script>
   <!-- AV1 (FULLSTACK_COMPONENT_LIBRARY Layer AV): the offline canonical set — ships as one unit -->
   <script src="offline-banner.js"></script>

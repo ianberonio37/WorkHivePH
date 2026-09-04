@@ -9,7 +9,10 @@
 CREATE TEMP TABLE _pm AS
 SELECT (SELECT count(DISTINCT asset_name) FROM v_pm_scope_items_truth WHERE is_overdue) AS overdue,
        (SELECT count(DISTINCT asset_name) FROM v_pm_scope_items_truth) AS scope,
-       (SELECT hive_id FROM v_pm_scope_items_truth LIMIT 1) AS hive_id;
+       -- a HIVE-scoped item: the vehicle seed added SOLO (hive_id NULL) scope items, and
+       -- get_pm_compliance_smrp(NULL) is the solo path that RAISEs without a signed-in caller
+       -- (this recipe runs as postgres). Target a real hive so the fn takes its hive path.
+       (SELECT hive_id FROM v_pm_scope_items_truth WHERE hive_id IS NOT NULL LIMIT 1) AS hive_id;
 SELECT 'scope_positive | ' || ((SELECT scope FROM _pm) > 0);
 SELECT 'overdue_le_scope | ' || ((SELECT overdue FROM _pm) <= (SELECT scope FROM _pm));
 CREATE TEMP TABLE _cmp AS

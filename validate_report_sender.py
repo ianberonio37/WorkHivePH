@@ -150,8 +150,11 @@ def run():
                        "reason": "viewport-fit=cover missing — env(safe-area-inset-*) returns 0 on iPhone"})
 
     # 4. auth gate
+    # T2 (2026-08-24): the canonical redirect is now whSignInWall() (utils.js) — it carries
+    # ?return=<current page> so re-auth lands back here; the old bare index.html?signin=1
+    # literal remains accepted for history but no longer appears on this page.
     if not re.search(r'WORKER_NAME.*\|\|.*\|\|.*\|\|.*[\'"]', page, re.DOTALL) or \
-       "index.html?signin=1" not in page:
+       ("index.html?signin=1" not in page and "whSignInWall()" not in page):
         issues.append({"check": "auth_gate",
                        "reason": "Auth gate pattern missing — unauthenticated users can access the page"})
 

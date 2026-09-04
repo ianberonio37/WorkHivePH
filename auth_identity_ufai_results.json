@@ -4,11 +4,11 @@
   "overall": {
     "applicable": 32,
     "verified": 32,
-    "live": 32,
+    "live": 31,
     "fix": 0,
     "covered_pct": 100.0,
     "verified_pct": 100.0,
-    "live_pct": 100.0
+    "live_pct": 96.9
   },
   "per_lens": {
     "U": {
@@ -35,10 +35,10 @@
       "applicable": 8,
       "na": 0,
       "verified": 8,
-      "live": 8,
+      "live": 7,
       "fix": 0,
       "verified_pct": 100.0,
-      "live_pct": 100.0,
+      "live_pct": 87.5,
       "floor": 85
     },
     "I": {
@@ -98,9 +98,9 @@
     {
       "row": "I2 Session & JWT Lifecycle",
       "lens": "A",
-      "status": "live",
-      "tier": "live",
-      "evidence": "shared-device idle expiry LIVE-PROVEN: idle\u2192soft prompt(name)\u2192Continue keeps session\u2192hard-clear wipes identity + redirects signin (Playwright 4/4 via WH_IDLE_TIMEOUT_OVERRIDE clock-seam) \u2014 validate_auth_idle_timeout_live GREEN"
+      "status": "proof",
+      "tier": "proof",
+      "evidence": "shared-device idle expiry: soft-15m prompt + hard-60m identity clear (session-timeout.js)"
     },
     {
       "row": "I2 Session & JWT Lifecycle",
@@ -311,7 +311,7 @@
     "validate_auth_live_flows": true,
     "validate_auth_live_db": true,
     "validate_auth_live_gotrue": true,
-    "validate_auth_idle_timeout_live": true,
+    "validate_auth_idle_timeout_live": false,
     "validate_auth_role_render_live": true,
     "validate_auth_rate_limit_live": true,
     "validate_auth_role_guard_live": true,

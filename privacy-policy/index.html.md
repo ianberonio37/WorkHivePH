@@ -6,7 +6,7 @@ Source: https://workhiveph.com/privacy-policy/
 
 Privacy
 
-Last updated 17 May 2026
+Last updated 25 Aug 2026
 
 This page explains what data WorkHive collects, how we use it, and your rights as a user. Plain language; no dark patterns.
 
@@ -32,7 +32,7 @@ We never sell your data. We never use your operational data for advertising. We 
 
 ## AI Work Assistant and your data
 
-The AI Work Assistant operates on your hive data to answer your questions. Inputs and outputs are scoped to your hive. We use third-party AI providers (large language model services) under contracts that prohibit them from training their general models on your plant data. Voice recordings used by the Voice Journal feature are retained for 90 days for dispute resolution, then automatically deleted unless flagged for legal hold.
+The AI Work Assistant operates on your hive data to answer your questions. Inputs and outputs are scoped to your hive. We use third-party AI providers (large language model services) under contracts that prohibit them from training their general models on your plant data. Voice recordings used by the Voice Journal feature are not stored at all: the audio is transcribed and immediately discarded, and only the text transcript is saved to your account. T137 (2026-08-25): corrected from an aspirational '90-day retention' claim - the product (voice-journal.html, voice_journal_entries schema, voice-transcribe fn) has NO audio storage path; the page's own disclosure ('your voice recording is not kept') was code-verified. A policy must describe the system that exists.
 
 ## Data sharing
 
@@ -57,7 +57,7 @@ To exercise any of these rights, email [admin@workhiveph.com](mailto:admin@workh
 
 ## Cookies and analytics
 
-As of the last-updated date above, WorkHive uses essential cookies only (session, authentication). We do not run third-party advertising cookies. When we add web analytics in the future, this page will be updated and you will see a clear notice.
+WorkHive uses essential cookies (session, authentication) and Google Analytics 4 on our public pages to understand aggregate usage: page views and engagement events such as viewing or submitting the signup form. Analytics is configured with IP anonymization, and we do not send names, emails, phone numbers, or any of your work records to it. We do not run third-party advertising cookies. Inside the signed-in app, usage events are recorded in our own database (not sent to Google) and are covered by the sections above.
 
 ## Data retention
 
@@ -71,4 +71,4 @@ Material changes to this Privacy Policy will be announced on the platform and at
 
 Email [admin@workhiveph.com](mailto:admin@workhiveph.com) for any privacy question. The data controller is WorkHive Engineering Services (DTI Business Name 8080496), operated by Ian Lumayno Beronio.
 
-<!-- md-twin source-sha: b074ddf3f374946c -->
+<!-- md-twin source-sha: 21fb9ce15ff9e8c7 -->

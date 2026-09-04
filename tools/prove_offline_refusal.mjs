@@ -920,7 +920,10 @@ try {
                       refusedBeforeFiring: fired === 0, saidSo: told,
                       said: said.slice(0, 200), ranAt: new Date().toISOString() };
   const { writeFileSync } = await import('fs');
-  writeFileSync('offline_refusal_report.json', JSON.stringify(rep, null, 1));
+  // A NARROWED RUN MUST NOT CLOBBER THE FULL ONE: this file is read downstream (gates and
+  // bank_prover_reports), so a --page/--case spot-check overwriting a whole sweep's verdicts
+  // corrupts the BANK, not just a log. Measured on prove_retry_path 2026-08-27.
+  writeFileSync((CASE ? 'offline_refusal_report.partial.json' : 'offline_refusal_report.json'), JSON.stringify(rep, null, 1));
 } catch (e) { console.log('  (report write skipped:', String(e.message).slice(0, 60), ')'); }
 await browser.close();
 process.exit(pass ? 0 : 1);

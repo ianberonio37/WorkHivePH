@@ -179,7 +179,10 @@ for (const p of (ONE ? [ONE.replace(/\.html$/, '')] : PAGES)) {
 await browser.close();
 
 const bad = results.filter((r) => r.unlabelledCount > 0);
-writeFileSync('number_labelled_report.json', JSON.stringify({
+// A NARROWED RUN MUST NOT CLOBBER THE FULL ONE: this file is read downstream (gates and
+// bank_prover_reports), so a --page/--case spot-check overwriting a whole sweep's verdicts
+// corrupts the BANK, not just a log. Measured on prove_retry_path 2026-08-27.
+writeFileSync((ONE ? 'number_labelled_report.partial.json' : 'number_labelled_report.json'), JSON.stringify({
   ran: new Date().toISOString(), origin: ORIGIN, role: 'supervisor', view: 'V1',
   pages: results, offending: bad.map((r) => r.page),
   totals: {

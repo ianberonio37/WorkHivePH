@@ -158,12 +158,35 @@ serveObserved("resend-webhook-receiver", async (req: Request) => {
     hiveId = sent?.[0]?.hive_id ?? null;
   }
 
-  await db.from("automation_log").insert({
+  // T112 (2026-08-26): SVIX DELIVERS AT LEAST ONCE and retries on any non-2xx or timeout, and it
+  // carries a stable delivery id in `svix-id` for exactly this purpose - which this function read
+  // to verify the signature and then threw away, so a retry wrote a SECOND bounce row. That is not
+  // cosmetic: the sender-side bounce surface would list one failed send twice, and any count built
+  // on these rows over-reports how bad deliverability is, which is the direction that gets acted
+  // on. The id now rides in detail, guarded by a partial unique index (mig 20260826000004) rather
+  // than a SELECT-then-INSERT, because two concurrent retries both pass a check-before-insert.
+  const svixId = req.headers.get("svix-id") || "";
+  const { error: insErr } = await db.from("automation_log").insert({
     job_name: "report_email_bounce",
     hive_id:  hiveId,
-    status:   type === "email.delivery_delayed" ? "warning" : "failure",
-    detail:   `Report to ${to} ${outcome}${reason ? `: ${reason}` : ""} [resend_id=${messageId}]`,
+    // T112: the vocabulary word is 'failed', not 'failure' - automation_log's CHECK constraint
+    // allows success|failed|skipped|warning, and 'failure' matched none of them, so every bounce
+    // insert would have been refused with 23514 while the unchecked write above reported success.
+    status:   type === "email.delivery_delayed" ? "warning" : "failed",
+    detail:   `Report to ${to} ${outcome}${reason ? `: ${reason}` : ""} [resend_id=${messageId}]`
+              + (svixId ? ` [svix_id=${svixId}]` : ""),
   });
+
+  // A duplicate is SUCCESS, not failure: the event is already safely recorded, and answering
+  // non-2xx would make the provider retry something that is stored - the retry storm this file's
+  // unhandled-event branch already refuses to start.
+  if (insErr && insErr.code === "23505") {
+    log.info(ctx, "webhook_duplicate_ignored", { type, svix_id: svixId });
+    return ok(ctx, { recorded: type, duplicate: true });
+  }
+  if (insErr) {
+    return fail(ctx, "log_write_failed", "could not record the event", { status: 500 });
+  }
 
   log.info(ctx, "webhook_recorded", { type, to });
   return ok(ctx, { recorded: type });

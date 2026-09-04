@@ -20,7 +20,7 @@
 // and input-handler exceptions are caught without any write.
 //
 // USAGE:
-//   WH_TEST_HIVE=636cf7e8-431a-4907-8a9f-43dd4cc216d6 node tools/page_battery.mjs
+//   WH_TEST_HIVE=084c113b-99c0-45c6-a8e8-b4b8349da46d node tools/page_battery.mjs
 //   node tools/page_battery.mjs --page hive.html            # one page
 //   node tools/page_battery.mjs --headed
 // Emits page_battery_results.json (per-page P1/P2/P4/P8 signals + candidate findings).

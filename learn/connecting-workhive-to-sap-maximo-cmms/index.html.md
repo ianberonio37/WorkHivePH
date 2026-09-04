@@ -10,7 +10,7 @@ By **WorkHive Editorial Team**
 ·
 Published 17 May 2026
 ·
-Updated 17 May 2026
+Updated 24 Aug 2026
 ·
 9 min read
 
@@ -93,7 +93,7 @@ The tool this guide is about
 
 The CMMS Integration surface in WorkHive includes SAP PM, IBM Maximo, and generic REST live-sync, plus CSV history import, plus OPC-UA and MQTT for sensor data via a plant edge gateway. The CSV importer includes a visual column-mapping step; REST live-sync uses configurable field maps. The Plant Connections operations console (supervisor-only) shows live integration health, sync status, and any data-quality issues. Free at the worker tier; enterprise SSO and audit features unlock at Stage 4.
 
-No hive yet? [Join WorkHive](https://workhiveph.com/#join) first (free, takes 30 seconds).
+No hive yet? [Join WorkHive](https://workhiveph.com/?signup=1) first (free, takes 30 seconds).
 
 ## Data mapping: where most integrations break
 
@@ -168,4 +168,4 @@ Trying to integrate everything before the WorkHive side has 90 days of stable da
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: f4a16d1baf5b28ca -->
+<!-- md-twin source-sha: e27dd10a2476c498 -->

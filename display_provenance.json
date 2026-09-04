@@ -2,7 +2,7 @@
   "_doc": "Per-page display provenance (Phase E2). Powers the 'where did this come from?' hover. Keyed page -> element-id -> {rung, via, label, lines[]}. ONLY high-confidence anchors appear (formula-contract match sharing a specific token with the formula) so the hover never shows a confidently-WRONG source; loose js-heuristic + no-shared-token matches are the E3 residual (Phase B.2 hardening), excluded not faked. Built by tools/build_display_provenance.py from display_anchor_sources.json + display_ladder.json.",
   "totals": {
     "trustworthy_shown": 58,
-    "excluded_low_confidence": 6,
+    "excluded_low_confidence": 7,
     "pages_with_provenance": 18
   },
   "pages": {
@@ -701,6 +701,12 @@
       "id": "roster-count",
       "kind": "data_needs_bind",
       "fix": "B.2: genuine data value \u2014 bind this element-id to the EXACT query/RPC that writes it (current resolution is nearest-.from() heuristic, verify + promote)."
+    },
+    {
+      "page": "community.html",
+      "id": "reply-char-count",
+      "kind": "ui_chrome",
+      "fix": "E3: this element-id is UI CHROME (control/label/counter), not a data display \u2014 EXCLUDE from the data denominator (no provenance to bind)."
     },
     {
       "page": "marketplace.html",

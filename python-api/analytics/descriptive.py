@@ -199,6 +199,7 @@ def calc_pm_compliance(pm_completions: list[dict], pm_scope_items: list[dict], p
     # caught these falling through to the 30-day default, which compresses
     # the compliance percentage. Lowercased lookup below.
     freq_days_canonical = {
+        "daily": 1,  # entered the live vocabulary with the Vehicles PM templates (daily walk-around, 2026-09-02)
         "weekly": 7, "monthly": 30, "quarterly": 90,
         "semi-annual": 180, "semiannual": 180,
         "annual": 365, "yearly": 365,

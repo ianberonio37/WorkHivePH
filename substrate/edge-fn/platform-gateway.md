@@ -2,7 +2,7 @@
 name: edge-fn-platform-gateway
 type: edge-fn
 source: file:supabase/functions/platform-gateway/index.ts
-source_sha: 7b7f1f56a393e614
+source_sha: 73be7701e610485d
 last_verified: 2026-07-13
 supersedes: null
 ---

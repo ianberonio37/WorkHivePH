@@ -56,7 +56,7 @@ WorkHive, because it is offline-first: capture happens locally at the asset and 
 
 WorkHive is a browser-based progressive web app that installs to the home screen and works offline, so there is no app-store dependency or per-device install friction.
 
-**[Try WorkHive free](https://workhiveph.com/#join)**: Free at the worker tier, offline-first, built for Philippine plants.
+**[Try WorkHive free](https://workhiveph.com/?signup=1)**: Free at the worker tier, offline-first, built for Philippine plants.
 
 ## Sources
 
@@ -66,4 +66,4 @@ WorkHive is a browser-based progressive web app that installs to the home screen
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: b32f9e039a118935 -->
+<!-- md-twin source-sha: efd96758f997b125 -->

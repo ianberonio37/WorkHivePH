@@ -1,0 +1,174 @@
+- generic [ref=f5e1]:
+  - link "Skip to main content" [ref=f5e2] [cursor=pointer]:
+    - /url: "#wh-main-content"
+  - navigation [ref=f5e3]:
+    - generic [ref=f5e4]:
+      - generic [ref=f5e5]:
+        - link "WorkHive home" [ref=f5e6] [cursor=pointer]:
+          - /url: index.html
+          - img "WorkHive" [ref=f5e7]
+        - generic [ref=f5e9]: Inventory Monitor
+        - generic [ref=f5e10]:
+          - generic [ref=f5e11]: 👥
+          - generic [ref=f5e12]: Lucena Pharmaceutical Mfg.
+      - link "← Back to Basic Worker" [ref=f5e13] [cursor=pointer]:
+        - /url: index.html
+  - main [ref=f5e14]:
+    - generic [ref=f5e16]:
+      - generic [ref=f5e17]:
+        - heading "Spare-Parts Inventory" [level=1] [ref=f5e18]
+        - paragraph [ref=f5e19]: Track spare parts stock, link parts to assets, and know before you run out.
+        - paragraph [ref=f5e76]:
+          - status [ref=f5e77]: Live · refreshed on load · Based on your inventory & stock movements
+          - group [ref=f5e78]:
+            - generic "ⓘ How this is computed" [ref=f5e79] [cursor=pointer]
+      - generic [ref=f5e20]:
+        - generic [ref=f5e21]: 27 parts
+        - generic [ref=f5e22]: 3 low
+        - generic [ref=f5e23]: 0 out
+        - button "Add Part" [ref=f5e24] [cursor=pointer]:
+          - generic [ref=f5e25]: ➕
+    - generic [ref=f5e27]:
+      - generic [ref=f5e28]: ⚠
+      - generic [ref=f5e29]:
+        - text: 2 parts critically low
+        - generic [ref=f5e30]: "Below half the minimum: reorder now before they hit zero."
+    - 'progressbar "Parts at healthy stock: 2 of 27" [ref=f5e80]':
+      - generic [ref=f5e81]:
+        - generic [ref=f5e82]: Parts at healthy stock
+        - generic [ref=f5e83]: 2 of 27
+    - generic [ref=f5e32]:
+      - generic [ref=f5e33]:
+        - heading "Out of stock" [level=2] [ref=f5e34]
+        - generic [ref=f5e35]: "0"
+        - generic [ref=f5e36]: No parts at zero qty
+        - generic [ref=f5e37]: CLEAR
+      - generic [ref=f5e38]:
+        - heading "Low stock" [level=2] [ref=f5e39]
+        - generic [ref=f5e40]: "3"
+        - generic [ref=f5e41]: 3 of 27 parts at or below their minimum
+        - generic [ref=f5e42]: PLAN RESTOCK
+      - generic [ref=f5e43]:
+        - heading "Pending parts" [level=2] [ref=f5e44]
+        - generic [ref=f5e45]: "0"
+        - generic [ref=f5e46]: Nothing awaiting supervisor sign-off
+        - generic [ref=f5e47]: CLEAR
+    - generic [ref=f5e48]:
+      - generic [ref=f5e49]: What to do next
+      - generic [ref=f5e50]: "3 parts at or below the reorder threshold. Order them before the next shift planning so they arrive before they hit zero. Longest lead time among them: 7 days. Order the long-lead parts first."
+      - link "Do the recommended next action" [ref=f5e86] [cursor=pointer]:
+        - /url: "#"
+        - text: Order 3 low parts →
+    - button "Show details" [ref=f5e51] [cursor=pointer]
+    - generic [ref=f5e87]:
+      - generic [ref=f5e88]: ←
+      - generic [ref=f5e89]: "2 critically low · 1 running low: restock before the next job."
+    - generic [ref=f5e53]:
+      - generic [ref=f5e54]:
+        - generic [ref=f5e55]: 🔍
+        - textbox "Search part name, number, or linked asset..." [ref=f5e56]: BRG
+      - combobox "Filter parts by category" [ref=f5e57]
+      - combobox "Filter parts by stock level" [ref=f5e58]:
+        - option "All stock" [selected]
+        - option "Below reorder point"
+        - option "Out of stock"
+        - option "Critical low"
+        - option "Low stock"
+        - option "In stock"
+        - option "Surplus"
+    - generic [ref=f5e90]:
+      - generic [ref=f5e93]:
+        - generic [ref=f5e94]:
+          - generic [ref=f5e95]:
+            - generic [ref=f5e96]:
+              - mark [ref=f5e97]: BRG
+              - text: "-6310"
+            - generic [ref=f5e98]: Bearings
+            - generic [ref=f5e99]: Critical Low
+          - button "Open item details" [ref=f5e100] [cursor=pointer]:
+            - generic [ref=f5e101]: →
+        - paragraph [ref=f5e102]: Bearing 6310 C3
+        - generic [ref=f5e103]:
+          - generic [ref=f5e104]:
+            - generic [ref=f5e105]: 📍
+            - text: Bin 7-A
+          - generic [ref=f5e106]: AC-001
+          - generic [ref=f5e107]: BF-001
+          - generic [ref=f5e108]: d577f059
+          - generic [ref=f5e109]: +3 more
+        - generic [ref=f5e110]:
+          - generic [ref=f5e111]:
+            - generic [ref=f5e112]: "2"
+            - generic [ref=f5e113]: pcs
+            - generic [ref=f5e114]: "Min: 4"
+            - generic "Pre-staged for predicted asset failures via Auto-Staging" [ref=f5e115]: 1 reserved
+          - generic [ref=f5e116]:
+            - button "Use" [ref=f5e117] [cursor=pointer]:
+              - generic [ref=f5e118]: ➖
+            - button "Restock" [ref=f5e120] [cursor=pointer]:
+              - generic [ref=f5e121]: ➕
+            - 'button "Below reorder: source this part from other plants on the Marketplace" [ref=f5e123] [cursor=pointer]':
+              - generic [ref=f5e124]: 🔍
+              - generic [ref=f5e125]: Find on Marketplace
+      - generic [ref=f5e128]:
+        - generic [ref=f5e129]:
+          - generic [ref=f5e130]:
+            - generic [ref=f5e131]:
+              - mark [ref=f5e132]: BRG
+              - text: "-6313"
+            - generic [ref=f5e133]: Bearings
+            - generic [ref=f5e134]: Surplus
+          - button "Open item details" [ref=f5e135] [cursor=pointer]:
+            - generic [ref=f5e136]: →
+        - paragraph [ref=f5e137]: Bearing 6313 C3
+        - generic [ref=f5e138]:
+          - generic [ref=f5e139]:
+            - generic [ref=f5e140]: 📍
+            - text: Bin 12-B
+          - generic [ref=f5e141]: AC-001
+          - generic [ref=f5e142]: BF-001
+          - generic [ref=f5e143]: d577f059
+          - generic [ref=f5e144]: +3 more
+        - generic [ref=f5e145]:
+          - generic [ref=f5e146]:
+            - generic [ref=f5e147]: "39"
+            - generic [ref=f5e148]: pcs
+            - generic [ref=f5e149]: "Min: 3"
+          - generic [ref=f5e150]:
+            - button "Use" [ref=f5e151] [cursor=pointer]:
+              - generic [ref=f5e152]: ➖
+            - button "Restock" [ref=f5e154] [cursor=pointer]:
+              - generic [ref=f5e155]: ➕
+            - 'button "You hold 3x or more of your minimum of this part: list the surplus on the Marketplace for another plant" [ref=f5e157] [cursor=pointer]':
+              - generic [ref=f5e158]: 📋
+              - generic [ref=f5e159]: Sell surplus
+    - text: 📦 🔍
+  - text: ✕ 🔍 📷
+  - dialog "Use stock" [ref=f5e160]:
+    - generic [ref=f5e161]:
+      - button "Close" [ref=f5e162] [cursor=pointer]:
+        - generic [ref=f5e163]: ✕
+      - heading "Use Stock" [level=2] [ref=f5e164]
+      - paragraph [ref=f5e165]: "BRG-6310: Bearing 6310 C3"
+      - generic [ref=f5e166]:
+        - generic [ref=f5e167]:
+          - generic [ref=f5e168]: Quantity Used
+          - spinbutton "Quantity Used" [active] [ref=f5e169]: "1"
+          - paragraph [ref=f5e170]: "Available: 1 pcs (2 on hand − 1 staged for a predicted failure)"
+        - generic [ref=f5e171]:
+          - generic [ref=f5e172]: "Job Reference (optional: for audit trail)"
+          - 'textbox "Job Reference (optional: for audit trail)" [ref=f5e173]':
+            - /placeholder: e.g. WO-2042, PM April Batch
+        - generic [ref=f5e174]:
+          - button "Confirm Use" [ref=f5e175] [cursor=pointer]
+          - button "Cancel" [ref=f5e176] [cursor=pointer]
+  - text: ✕ ✕
+  - generic:
+    - button "Back to previous page" [ref=f5e62] [cursor=pointer]:
+      - generic [ref=f5e63]: ←
+      - generic [ref=f5e64]: Back
+    - navigation "breadcrumb" [ref=f5e65]:
+      - link "Home" [ref=f5e66] [cursor=pointer]:
+        - /url: index.html
+      - generic [ref=f5e67]: ›
+      - generic [ref=f5e68]: "Spare-Parts Inventory: WorkHive"

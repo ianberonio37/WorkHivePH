@@ -22,7 +22,7 @@
   <meta property="og:type" content="article" />
   <meta property="og:site_name" content="WorkHive" />
   <meta property="article:published_time" content="2026-05-17T00:00:00+08:00" />
-  <meta property="article:modified_time" content="2026-05-17T00:00:00+08:00" />
+  <meta property="article:modified_time" content="2026-08-24T00:00:00+08:00" />
   <meta property="article:author" content="WorkHive Editorial Team" />
   <meta property="article:section" content="Maintenance" />
 
@@ -45,7 +45,7 @@
         "author": { "@type": "Organization", "name": "WorkHive Editorial Team", "url": "https://workhiveph.com/" },
         "publisher": { "@id": "https://workhiveph.com/#organization" },
         "datePublished": "2026-05-17",
-        "dateModified": "2026-05-17",
+        "dateModified": "2026-08-24",
         "mainEntityOfPage": "https://workhiveph.com/learn/skill-matrix-for-maintenance-technicians/",
         "inLanguage": "en-PH",
         "articleSection": "Maintenance",
@@ -120,7 +120,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = { theme: { extend: { colors: {
@@ -264,7 +264,8 @@
     <nav class="flex items-center gap-6">
       <a href="/" class="nav-link">Home</a>
       <a href="/learn/" class="nav-link">Learn</a>
-      <a href="/#join" class="nav-link">Join the Hive</a>
+      <a href="/?signin=1" class="nav-link">Sign In</a>
+      <a href="/?signup=1" class="nav-link">Sign Up Free</a>
     </nav>
   </div>
 </header>
@@ -286,7 +287,7 @@
       <span class="opacity-40">·</span>
       <span>Published <time datetime="2026-05-17">17 May 2026</time></span>
       <span class="opacity-40">·</span>
-      <span>Updated <time datetime="2026-05-17">17 May 2026</time></span>
+      <span>Updated <time datetime="2026-08-24">24 Aug 2026</time></span>
       <span class="opacity-40">·</span>
       <span>9 min read</span>
     </div>
@@ -339,7 +340,7 @@
 
       <h2 id="four-levels">The 5-level competency scale</h2>
       <p>WorkHive uses a 5-level scale. It separates the technician who can finally work alone (Level 3) from the senior who is the plant's reference (Level 4) and the engineer who sets the standard and plans the discipline across the plant (Level 5). That top-end distinction is what makes the matrix useful for assignment and for career growth, not just pass/fail.</p>
-      <table>
+      <div data-table-scroll style="overflow-x:auto;-webkit-overflow-scrolling:touch;" role="region" aria-label="Scrollable table" tabindex="0"><table>
         <thead><tr><th>Level</th><th>Name</th><th>What it means</th><th>What they can do</th></tr></thead>
         <tbody>
           <tr><td><span class="lvl-cell lvl-1">1</span></td><td><strong>Safety Awareness</strong></td><td>Knows the basics and the safety rules; has done the task once or twice with heavy supervision</td><td>Help, observe, ask questions; cannot work alone</td></tr>
@@ -348,7 +349,7 @@
           <tr><td><span class="lvl-cell lvl-4">4</span></td><td><strong>Senior / Specialist</strong></td><td>The plant's reference for this skill; can train others and update the SOP</td><td>Training, assessment, SOP authorship, mentoring</td></tr>
           <tr><td><span class="lvl-cell lvl-5">5</span></td><td><strong>Engineer / Strategist</strong></td><td>Sets the standard for the discipline and improves it across the plant</td><td>Standards, planning, reliability strategy, cross-team improvement</td></tr>
         </tbody>
-      </table>
+      </table></div>
       <p>Empty cell = not assessed or not relevant for this technician. A blank is honest. A guessed level is dangerous.</p>
 
       <h2 id="disciplines">The disciplines that belong on the matrix</h2>
@@ -368,7 +369,7 @@
 
       <h2 id="example-matrix">Example skill matrix: 6 technicians, 5 disciplines</h2>
       <p>This is what a working maintenance skill matrix looks like for a small Philippine plant team, across the five WorkHive disciplines:</p>
-      <table>
+      <div data-table-scroll style="overflow-x:auto;-webkit-overflow-scrolling:touch;" role="region" aria-label="Scrollable table" tabindex="0"><table>
         <thead>
           <tr>
             <th>Technician</th>
@@ -429,7 +430,7 @@
             <td><span class="lvl-cell lvl-0">-</span></td>
           </tr>
         </tbody>
-      </table>
+      </table></div>
       <p>Reading this matrix:</p>
       <ul>
         <li><strong>Coverage gaps:</strong> Only Santos reaches Level 4 on Instrumentation, and just Santos and Aquino are Level 3 or higher. If Santos is on leave, calibration and loop work leans on one person. Action: train Cruz from Level 2 to 3 on Instrumentation (priority).</li>
@@ -443,7 +444,7 @@
         <h4 aria-level="3">WorkHive Skill Matrix is free and tied to the Logbook</h4>
         <p>Every Logbook entry can be tagged with the competency it demonstrated, building each technician's evidence record automatically. The Skill Matrix dashboard shows gaps, single-point-of-failures, and ready-for-promotion patterns. PM Scheduler reads it for assignment. Free at the worker tier forever.</p>
         <a href="/skillmatrix.html" class="cta-btn">Open the Skill Matrix</a>
-        <p class="cta-secondary">No hive yet? <a href="/#join">Join WorkHive</a> first (free, takes 30 seconds).</p>
+        <p class="cta-secondary">No hive yet? <a href="/?signup=1">Join WorkHive</a> first (free, takes 30 seconds).</p>
       </div>
 
       <h2 id="assess-fairly">How to assess fairly (the 3-input rule)</h2>
@@ -543,11 +544,11 @@
 
 <footer class="py-10 border-t border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
   <div class="max-w-4xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">
-    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-05-17">17 May 2026</time></p>
+    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-08-24">24 Aug 2026</time></p>
     <div class="flex items-center gap-6">
       <a href="/" class="hover:text-white/60 transition-colors">Home</a>
       <a href="/#faq" class="hover:text-white/60 transition-colors">FAQ</a>
-      <a href="/#join" class="hover:text-white/60 transition-colors">Join the Hive</a>
+      <a href="/?signup=1" class="hover:text-white/60 transition-colors">Join the Hive</a>
     </div>
   </div>
 </footer>

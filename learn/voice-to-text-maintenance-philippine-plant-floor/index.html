@@ -22,7 +22,7 @@
   <meta property="og:type" content="article" />
   <meta property="og:site_name" content="WorkHive" />
   <meta property="article:published_time" content="2026-05-17T00:00:00+08:00" />
-  <meta property="article:modified_time" content="2026-05-17T00:00:00+08:00" />
+  <meta property="article:modified_time" content="2026-08-24T00:00:00+08:00" />
   <meta property="article:author" content="WorkHive Editorial Team" />
   <meta property="article:section" content="Maintenance" />
 
@@ -45,7 +45,7 @@
         "author": { "@type": "Organization", "name": "WorkHive Editorial Team", "url": "https://workhiveph.com/" },
         "publisher": { "@id": "https://workhiveph.com/#organization" },
         "datePublished": "2026-05-17",
-        "dateModified": "2026-05-17",
+        "dateModified": "2026-08-24",
         "mainEntityOfPage": "https://workhiveph.com/learn/voice-to-text-maintenance-philippine-plant-floor/",
         "inLanguage": "en-PH",
         "articleSection": "Maintenance",
@@ -120,7 +120,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = { theme: { extend: { colors: {
@@ -255,7 +255,8 @@
     <nav class="flex items-center gap-6">
       <a href="/" class="nav-link">Home</a>
       <a href="/learn/" class="nav-link">Learn</a>
-      <a href="/#join" class="nav-link">Join the Hive</a>
+      <a href="/?signin=1" class="nav-link">Sign In</a>
+      <a href="/?signup=1" class="nav-link">Sign Up Free</a>
     </nav>
   </div>
 </header>
@@ -277,7 +278,7 @@
       <span class="opacity-40">·</span>
       <span>Published <time datetime="2026-05-17">17 May 2026</time></span>
       <span class="opacity-40">·</span>
-      <span>Updated <time datetime="2026-05-17">17 May 2026</time></span>
+      <span>Updated <time datetime="2026-08-24">24 Aug 2026</time></span>
       <span class="opacity-40">·</span>
       <span>8 min read</span>
     </div>
@@ -328,7 +329,7 @@
       <p>Future regional language support (Cebuano, Hiligaynon, Ilocano) is on the WorkHive roadmap once the user base reaches scale in those regions.</p>
 
       <h2 id="noise">Handling plant noise</h2>
-      <table>
+      <div data-table-scroll style="overflow-x:auto;-webkit-overflow-scrolling:touch;" role="region" aria-label="Scrollable table" tabindex="0"><table>
         <thead><tr><th>Environment</th><th>Typical dBA</th><th>Voice usable?</th></tr></thead>
         <tbody>
           <tr><td>Office or control room</td><td>50 to 65</td><td>Excellent</td></tr>
@@ -337,7 +338,7 @@
           <tr><td>Compressor room, screw compressor inlet</td><td>95 to 100</td><td>Marginal: use Bluetooth headset</td></tr>
           <tr><td>Turbine hall, large grinder, pile driver</td><td>100+</td><td>Voice not reliable: fall back to text</td></tr>
         </tbody>
-      </table>
+      </table></div>
       <p>Voice Journal applies noise suppression preprocessing before transcription, which handles typical Philippine plant ambient well. For the loudest 5 to 10 percent of zones, a Bluetooth bone-conduction headset (PHP 1,500 to PHP 3,000) gets voice working again. Above 100 dBA, the regulation says you should be wearing hearing protection and not lingering; type the entry from a quieter spot.</p>
 
       <h2 id="five-use-cases">The 5 use cases that change the day</h2>
@@ -354,7 +355,7 @@
         <h4 aria-level="3">WorkHive Voice Journal turns spoken observations into logbook entries</h4>
         <p>Tap to record, speak in Filipino, English, or Taglish, confirm the transcription in 5 seconds, submit. The entry lands in your hive's Logbook with the right asset tag and timestamp, ready for the AI Assistant to reference and the supervisor to review. Free at the worker tier; 90-day audio retention for compliance dispute resolution.</p>
         <a href="/voice-journal.html" class="cta-btn">Open Voice Journal</a>
-        <p class="cta-secondary">No hive yet? <a href="/#join">Join WorkHive</a> first (free, takes 30 seconds).</p>
+        <p class="cta-secondary">No hive yet? <a href="/?signup=1">Join WorkHive</a> first (free, takes 30 seconds).</p>
       </div>
 
       <h2 id="compliance">Compliance and DOLE OSHS</h2>
@@ -444,11 +445,11 @@
 
 <footer class="py-10 border-t border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
   <div class="max-w-4xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">
-    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-05-17">17 May 2026</time></p>
+    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-08-24">24 Aug 2026</time></p>
     <div class="flex items-center gap-6">
       <a href="/" class="hover:text-white/60 transition-colors">Home</a>
       <a href="/#faq" class="hover:text-white/60 transition-colors">FAQ</a>
-      <a href="/#join" class="hover:text-white/60 transition-colors">Join the Hive</a>
+      <a href="/?signup=1" class="hover:text-white/60 transition-colors">Join the Hive</a>
     </div>
   </div>
 </footer>

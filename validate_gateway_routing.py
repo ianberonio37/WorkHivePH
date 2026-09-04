@@ -69,6 +69,7 @@ GATEWAY_EXEMPT = {
     "fmea-populator":           "internal; called from asset-hub only",
     "failure-signature-scan":   "cron-driven daily",
     "intelligence-report":      "cron-driven scheduled report builder",
+    "vehicle-doc-extract":      "wizard invokes directly like resume-extract (solo doc extraction; not a chat agent)",
     "asset-brain-query":        "(not exempt; included to centralise list)",
     "analytics-orchestrator":   "(not exempt; included to centralise list)",
     "project-orchestrator":     "(not exempt; included to centralise list)",

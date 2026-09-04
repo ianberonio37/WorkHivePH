@@ -41,7 +41,7 @@ PM_PAGE      = "pm-scheduler.html"
 
 VALID_LOGBOOK_CATEGORIES = [
     "Mechanical", "Electrical", "Hydraulic", "Pneumatic",
-    "Instrumentation", "Lubrication", "Other",
+    "Instrumentation", "Lubrication", "Vehicle", "Other",
 ]
 VALID_STATUSES = ["Open", "Closed"]
 VALID_MAINTENANCE_TYPES = [
@@ -219,7 +219,11 @@ def check_delete_scoped_by_worker(content, page):
     if not m:
         return [{"check": "delete_scoped_by_worker", "page": page,
                  "reason": "deleteEntry() function not found"}]
-    body = content[m.start():m.start() + 400]
+    # 2026-08-26: read the WHOLE function by brace-matching, the idiom its sibling
+    # check_update_scoped_by_worker adopted 2026-07-28 for exactly this failure - a fixed
+    # 400-char window went red when a comment + longer confirm copy (T17's reversal-on-glass
+    # wording) pushed the .eq past the window while the scoping itself never moved.
+    body = function_body(content, r"async function deleteEntry\s*\(")
     if not re.search(r"\.eq\s*\(['\"]worker_name['\"],\s*WORKER_NAME\s*\)", body):
         return [{"check": "delete_scoped_by_worker", "page": page,
                  "reason": "deleteEntry() does not scope delete by worker_name — users could delete other workers' entries"}]
@@ -271,8 +275,11 @@ def check_maintenance_type_values(content, page):
     They should match VALID_MAINTENANCE_TYPES exactly.
     """
     found = set(re.findall(r"maintenance_type\s*:\s*['\"]([^'\"]+)['\"]", content))
-    # Exclude field selector references (short strings or UI labels)
-    bad = [v for v in found if len(v) > 3 and v not in VALID_MAINTENANCE_TYPES]
+    # Exclude field selector references (short strings or UI labels). 'Maintenance Type' is the
+    # FIELD'S OWN LABEL (T38's FIELD_LABELS key->label map, not a DB payload value) — the exact
+    # UI-label class this comment always intended to exclude.
+    UI_LABELS = {"Maintenance Type"}
+    bad = [v for v in found if len(v) > 3 and v not in VALID_MAINTENANCE_TYPES and v not in UI_LABELS]
     if bad:
         return [{"check": "maintenance_type_values", "page": page, "bad_values": bad,
                  "reason": f"maintenance_type values {bad} not in VALID_MAINTENANCE_TYPES — entries may have unrecognized types"}]
@@ -565,7 +572,9 @@ def check_required_field_signposting(content, page):
                        "reason": "consequence-required-badge ('required for Breakdown') is never shown (.remove('hidden') missing in the Breakdown branch) — the requirement is invisible until the Save-time toast."})
 
     # (4) stepGo must validate step-2 required fields at the 2->3 boundary.
-    m = re.search(r"function stepGo\(n\)\s*\{(.*?)\n\}", content, re.S)
+    # T42 (2026-08-25): stepGo grew a second param (fromPop, the wizard history-state walk) —
+    # accept any parameter list starting with n.
+    m = re.search(r"function stepGo\(n(?:,[^)]*)?\)\s*\{(.*?)\n\}", content, re.S)
     body = m.group(1) if m else ""
     if "_currentStep === 2" not in body or "f-category" not in body:
         issues.append({"check": "required_field_signposting", "page": page,

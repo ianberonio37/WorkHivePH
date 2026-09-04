@@ -14,7 +14,7 @@ next reseed cannot re-open the drift (kills the cross-session seesaw).
 import random
 from datetime import timedelta
 
-from .utils import text_id, random_timestamp_in_last_n_days, to_iso, batch_insert
+from .utils import text_id, random_timestamp_in_last_n_days, to_iso, batch_insert, submitted_before
 
 PARTS_CATALOG = [
     ("BRG-6310", "Bearing 6310 C3", "Bearings", "pcs", 12, 4),
@@ -182,6 +182,7 @@ def seed_inventory(client, log, ctx: dict) -> dict:
             # Build the ledger FIRST so the stored balance == its latest qty_after.
             final_balance, item_txns = _gen_ledger(target, low_stock)
             item_id = text_id("inv")
+            _ap = to_iso(random_timestamp_in_last_n_days(120))
             item_rows.append({
                 "id": item_id,
                 "worker_name": submitter["worker_name"],
@@ -199,7 +200,11 @@ def seed_inventory(client, log, ctx: dict) -> dict:
                 "hive_id": hive["id"],
                 "submitted_by": submitter["worker_name"],
                 "approved_by": approver["worker_name"],
-                "approved_at": to_iso(random_timestamp_in_last_n_days(120)),
+                "approved_at": _ap,
+                # created_at must PRECEDE the approval (T150, 2026-08-28): left to DEFAULT
+                # now() it landed at seed time while approved_at was backdated, so the row
+                # claimed a sign-off weeks before its own submission.
+                "created_at": submitted_before(_ap),
                 "auth_uid": submitter.get("auth_uid"),
             })
             for t in item_txns:

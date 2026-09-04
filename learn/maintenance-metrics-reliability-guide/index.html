@@ -22,7 +22,7 @@
   <meta property="og:type" content="article" />
   <meta property="og:site_name" content="WorkHive" />
   <meta property="article:published_time" content="2026-08-05T00:00:00+08:00" />
-  <meta property="article:modified_time" content="2026-08-17T00:00:00+08:00" />
+  <meta property="article:modified_time" content="2026-08-24T00:00:00+08:00" />
   <meta property="article:author" content="WorkHive Editorial Team" />
   <meta property="article:section" content="Reliability" />
 
@@ -51,7 +51,7 @@
         "@id": "https://workhiveph.com/#organization"
       },
       "datePublished": "2026-08-05",
-      "dateModified": "2026-08-17",
+      "dateModified": "2026-08-24",
       "mainEntityOfPage": "https://workhiveph.com/learn/maintenance-metrics-reliability-guide/",
       "inLanguage": "en-PH",
       "articleSection": "Reliability",
@@ -132,7 +132,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = { theme: { extend: { colors: {
@@ -228,7 +228,8 @@
     <nav class="flex items-center gap-6">
       <a href="/" class="nav-link">Home</a>
       <a href="/learn/" class="nav-link">Learn</a>
-      <a href="/#join" class="nav-link">Join the Hive</a>
+      <a href="/?signin=1" class="nav-link">Sign In</a>
+      <a href="/?signup=1" class="nav-link">Sign Up Free</a>
     </nav>
   </div>
 </header>
@@ -281,7 +282,7 @@
 
       <h2 id="availability">Availability and how the metrics chain together</h2>
       <p><strong>Availability = MTBF &divide; (MTBF + MTTR).</strong> Using the pump above: 800 &divide; (800 + 8) = <strong>99.0%</strong>. Notice that availability is what OEE&rsquo;s first factor comes from: the metrics are not separate scoreboards, they are one chain: reduce failures (MTBF &uarr;) and speed repairs (MTTR &darr;), and availability, then OEE, then output all rise together.</p>
-      <table><thead><tr><th>Metric</th><th>Formula</th><th>Good target</th></tr></thead><tbody><tr><td>OEE</td><td>Availability &times; Performance &times; Quality</td><td>&ge;85% (world-class)</td></tr><tr><td>MTBF</td><td>Operating hours &divide; failures</td><td>Rising trend</td></tr><tr><td>MTTR</td><td>Repair time &divide; repairs</td><td>Falling trend</td></tr><tr><td>Availability</td><td>MTBF &divide; (MTBF + MTTR)</td><td>&ge;95%</td></tr><tr><td>PM compliance</td><td>PMs on time &divide; PMs scheduled</td><td>&ge;90% (SMRP)</td></tr></tbody></table>
+      <div data-table-scroll style="overflow-x:auto;-webkit-overflow-scrolling:touch;" role="region" aria-label="Scrollable table" tabindex="0"><table><thead><tr><th>Metric</th><th>Formula</th><th>Good target</th></tr></thead><tbody><tr><td>OEE</td><td>Availability &times; Performance &times; Quality</td><td>&ge;85% (world-class)</td></tr><tr><td>MTBF</td><td>Operating hours &divide; failures</td><td>Rising trend</td></tr><tr><td>MTTR</td><td>Repair time &divide; repairs</td><td>Falling trend</td></tr><tr><td>Availability</td><td>MTBF &divide; (MTBF + MTTR)</td><td>&ge;95%</td></tr><tr><td>PM compliance</td><td>PMs on time &divide; PMs scheduled</td><td>&ge;90% (SMRP)</td></tr></tbody></table></div>
 
       <h2 id="pm-compliance">PM compliance: the leading indicator</h2>
       <p>OEE, MTBF, and MTTR are <em>lagging</em> indicators: they tell you what already broke. <strong>PM compliance</strong>: the percentage of preventive tasks done on schedule: is the <em>leading</em> indicator that predicts them. The SMRP benchmark is &ge;90% schedule compliance; plants that hold that line see MTBF climb within a quarter. Start with a real checklist, not a spreadsheet that nobody updates: <a href="/learn/free-pm-checklist-templates/">free PM checklist templates</a>.</p>
@@ -344,11 +345,11 @@
 
 <footer class="py-10 border-t border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
   <div class="max-w-4xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">
-    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-08-17">17 Aug 2026</time></p>
+    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-08-24">24 Aug 2026</time></p>
     <div class="flex items-center gap-6">
       <a href="/" class="hover:text-white/60 transition-colors">Home</a>
       <a href="/#faq" class="hover:text-white/60 transition-colors">FAQ</a>
-      <a href="/#join" class="hover:text-white/60 transition-colors">Join the Hive</a>
+      <a href="/?signup=1" class="hover:text-white/60 transition-colors">Join the Hive</a>
     </div>
   </div>
 </footer>

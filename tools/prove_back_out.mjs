@@ -201,7 +201,10 @@ await browser.close();
 
 const graded = results.filter((r) => r.ok !== null);
 const bad = graded.filter((r) => !r.ok);
-writeFileSync('back_out_report.json', JSON.stringify({
+// A NARROWED RUN MUST NOT CLOBBER THE FULL ONE: this file is read downstream (gates and
+// bank_prover_reports), so a --page/--case spot-check overwriting a whole sweep's verdicts
+// corrupts the BANK, not just a log. Measured on prove_retry_path 2026-08-27.
+writeFileSync((ONE ? 'back_out_report.partial.json' : 'back_out_report.json'), JSON.stringify({
   origin: ORIGIN, view: 'V1',
   totals: { pages: results.length, graded: graded.length,
             na: results.filter((r) => r.ok === null && !r.error).length,

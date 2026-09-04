@@ -29,8 +29,12 @@ const HEADED = args.includes('--headed');
 const ACCEPT = args.includes('--accept');
 const UPDATE_BASELINE = args.includes('--update-baseline');
 const PAGE_ONLY = (() => { const i = args.indexOf('--page'); return i >= 0 ? args[i + 1] : null; })();
-const RESULTS = 'arc_w_results.json';
-const BASELINE = 'arc_w_baseline.json';
+// A narrowed --page run must not wear the full sweep's filename, and must never write its narrowed
+// counts over a forward-only baseline. See tools/live_page_journeys.mjs for the measured case: this
+// exact shape let a one-page run replace a 110-journey sweep with 14 rows, and a gate read it whole.
+const NARROW = PAGE_ONLY ? `page-${PAGE_ONLY}`.replace(/[^\w.-]+/g, '_') : '';
+const RESULTS = NARROW ? `arc_w_results.${NARROW}.json` : 'arc_w_results.json';
+const BASELINE = NARROW ? `arc_w_baseline.${NARROW}.json` : 'arc_w_baseline.json';
 const VIEWPORTS = [{ name: 'desktop', width: 1280, height: 900 }, { name: 'mobile', width: 390, height: 780 }];
 
 // The per-lens ceilings the ratchet enforces. Each must NOT rise above baseline (+tol). tol=0 by

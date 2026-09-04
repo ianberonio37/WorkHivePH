@@ -123,8 +123,11 @@ NEW_RENDER_FUNCTIONS = ["renderOEE", "renderRCMConsequence", "renderAnomalyBasel
 def check_html_auth_gate(html, page):
     if not html:
         return [{"check": "auth_gate", "page": page, "reason": f"{page} not found"}]
+    # T2 (2026-08-24): the canonical gate redirect is whSignInWall() — carries ?return= so
+    # re-auth lands back on analytics. Old bare literals stay accepted for history.
     if "window.location.href = 'index.html?signin=1'" not in html and \
-       'window.location.href = "index.html?signin=1"' not in html:
+       'window.location.href = "index.html?signin=1"' not in html and \
+       "whSignInWall()" not in html:
         return [{"check": "auth_gate", "page": page,
                  "reason": "WORKER_NAME auth gate missing — unauthenticated users will not be redirected"}]
     return []

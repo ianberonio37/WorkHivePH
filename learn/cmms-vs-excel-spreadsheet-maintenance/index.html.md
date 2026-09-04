@@ -67,7 +67,7 @@ Yes: start by importing the asset list to build the register, then let new work 
 
 Lost history and missed PMs. The US Department of Energy's O&M Best Practices Guide puts a preventive programme at roughly 12-18% cheaper than running reactive, with another 8-12% available from a predictive layer, and a spreadsheet has no mechanism to make a due date chase anyone.
 
-**[Open the digital Logbook](https://workhiveph.com/logbook.html)**: the surface that replaces the spreadsheet, with the asset, duration and cause attached to every entry instead of typed into a cell. Free at the worker tier, offline-first, built for Philippine plants. [Join WorkHive](https://workhiveph.com/#join) first if you do not have a hive yet.
+**[Open the digital Logbook](https://workhiveph.com/logbook.html)**: the surface that replaces the spreadsheet, with the asset, duration and cause attached to every entry instead of typed into a cell. Free at the worker tier, offline-first, built for Philippine plants. [Join WorkHive](https://workhiveph.com/?signup=1) first if you do not have a hive yet.
 
 ## Sources
 
@@ -77,4 +77,4 @@ Lost history and missed PMs. The US Department of Energy's O&M Best Practices Gu
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 077ca66ec345135d -->
+<!-- md-twin source-sha: 2f1146f4f0718e10 -->

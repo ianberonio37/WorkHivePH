@@ -259,7 +259,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <a href="http://127.0.0.1:3001/d/workhive-founder-ops" class="btn" style="min-height:44px; display:inline-flex; align-items:center; justify-content:center;">📊 Founder Ops dashboard →</a>
       <a href="platform-actions.html" class="btn" style="min-height:44px; display:inline-flex; align-items:center; justify-content:center;">⚡ Platform Actions →</a>
     </div>
-    <p style="color:var(--wh-cloud); opacity:0.38; font-size:0.72rem; margin-top:1.6rem;">Grafana login: admin · password in <code>infra/mcp/.env.mcp</code></p>
+    <!-- T69 (2026-08-25): the Grafana credential POINTER ('password in infra/mcp/.env.mcp')
+         is removed — this overlay renders for ANY signed-in visitor to the URL, not only the
+         founder, and a credentials location baked into page copy is a screen-share/shoulder
+         hazard even for the right audience (T170 class). The pointer lives in the infra
+         README where operators actually look. -->
+    <p style="color:var(--wh-cloud); opacity:0.38; font-size:0.72rem; margin-top:1.6rem;">Grafana access: see the infra operator notes.</p>
   </div>
 </div>
 
@@ -298,6 +303,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     <div class="stat-card">
       <div class="stat-num yellow" id="stat-draft">-</div>
       <div class="stat-lbl">Pending Review</div>
+      <!-- C12 (critic T55/T57): the COUNT alone hid the latency - drafts had waited 43/71 days
+           while the queue read as a small number. The oldest wait is the number a moderator
+           triages by, so it sits beside the count. -->
+      <div class="stat-lbl" id="stat-draft-age" style="opacity:0.85;"></div>
     </div>
     <div class="stat-card">
       <div class="stat-num green" id="stat-published">-</div>
@@ -315,27 +324,27 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
   <!-- Tab bar -->
   <div class="tab-bar" role="tablist">
-    <button class="tab-btn active" data-tab="draft" role="tab" aria-selected="true">
+    <button class="tab-btn active" data-tab="draft" role="tab" aria-selected="true" id="tab-draft" aria-controls="content-area">
       <span class="ic ic-clock" aria-hidden="true"></span>
       <span data-i="f_pend">Pending</span>
       <span class="tab-count red" id="badge-draft">—</span>
     </button>
-    <button class="tab-btn" data-tab="published" role="tab" aria-selected="false">
+    <button class="tab-btn" data-tab="published" role="tab" aria-selected="false" id="tab-published" aria-controls="content-area">
       <span class="ic ic-check" aria-hidden="true"></span>
       <span data-i="f_pub">Published</span>
       <span class="tab-count" id="badge-published">—</span>
     </button>
-    <button class="tab-btn" data-tab="sellers" role="tab" aria-selected="false">
+    <button class="tab-btn" data-tab="sellers" role="tab" aria-selected="false" id="tab-sellers" aria-controls="content-area">
       <span class="ic ic-community" aria-hidden="true"></span>
       <span data-i="f_sellers">Sellers</span>
       <span class="tab-count" id="badge-sellers">—</span>
     </button>
-    <button class="tab-btn" data-tab="removed" role="tab" aria-selected="false">
+    <button class="tab-btn" data-tab="removed" role="tab" aria-selected="false" id="tab-removed" aria-controls="content-area">
       <span class="ic ic-close" aria-hidden="true"></span>
       <span data-i="f_rem">Removed</span>
       <span class="tab-count" id="badge-removed">0</span>
     </button>
-    <button class="tab-btn" data-tab="disputes" role="tab" aria-selected="false" id="tab-disputes">
+    <button class="tab-btn" data-tab="disputes" role="tab" aria-selected="false" id="tab-disputes" aria-controls="content-area">
       <span class="ic ic-warning" aria-hidden="true"></span>
       <span data-i="f_disp">Disputes</span>
       <span class="tab-count red" id="badge-disputes">0</span>
@@ -350,13 +359,19 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
   <h2 class="wh-section-title" data-i="ma_listings_heading">Listings queue</h2>
   <!-- Content area -->
-  <div id="content-area" class="listing-list"></div>
+  <!-- T125 (2026-08-27): ONE panel, many tabs. Every tab renders into this same container,
+     so the correct ARIA shape is a single role="tabpanel" that each tab aria-controls,
+     with aria-labelledby moved to whichever tab is currently selected (switchTab does
+     that). Pointing tabs at per-tab ids would have been wrong here - the ids that look
+     like panels (stat-draft, badge-draft) are STAT COUNTERS, not panels. -->
+<div id="content-area" class="listing-list" role="tabpanel" aria-labelledby="tab-draft" tabindex="0"></div>
   <div id="admin-load-more-wrap" class="hidden" style="margin-top:0.25rem;padding-bottom:1rem;">
     <button onclick="loadMoreAdmin()" style="width:100%;min-height:44px;padding:0.75rem;border-radius:0.75rem;font-size:0.875rem;font-weight:600;background:rgba(247,162,27,0.1);color:var(--wh-orange-text);border:1px solid rgba(247,162,27,0.3);cursor:pointer;" data-i="loadmore">Load More</button>
   </div>
 </main>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
+<script src="browser-floor.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
 <script src="utils.js"></script>
 <script>
 (function () {
@@ -477,8 +492,15 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         .order('id')   // MR4 tiebreaker: the sort above is not total on its own
         .limit(100);
       if (error) throw error;
-      _listings = data || [];
-    } catch (_err) { _listings = []; if (typeof showToast === 'function') showToast("Couldn't load listings . Check your connection and retry.", 'error'); } // dim-10: don't disguise a load failure as "all reviewed"
+      _listings = data || []; _readFailed.listings = false;
+    } catch (_err) {
+      _listings = []; _readFailed.listings = true;
+      if (typeof showToast === 'function') {
+        showToast(typeof whReadError === 'function'
+          ? whReadError(_err, 'the listings')
+          : "Couldn't load listings. Try again.", 'error');
+      }
+    } // dim-10: don't disguise a load failure as "all reviewed"
     renderListings();
   }
 
@@ -497,8 +519,15 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         .order('id')   // MR4 tiebreaker: the sort above is not total on its own
         .limit(100);
       if (error) throw error;
-      _sellers = data || [];
-    } catch (_err) { _sellers = []; if (typeof showToast === 'function') showToast("Couldn't load seller profiles . Check your connection and retry.", 'error'); } // dim-10: surface load failure
+      _sellers = data || []; _readFailed.sellers = false;
+    } catch (_err) {
+      _sellers = []; _readFailed.sellers = true;
+      if (typeof showToast === 'function') {
+        showToast(typeof whReadError === 'function'
+          ? whReadError(_err, 'the seller profiles')
+          : "Couldn't load seller profiles. Try again.", 'error');
+      }
+    } // dim-10: surface load failure
     renderSellers();
   }
 
@@ -509,8 +538,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     try {
       // Arc L · L2: count-only queries (head:true) — transfer ZERO rows instead of fetching every
       // seller just to tally. unverified = total − kyb_verified (= the original `!s.kyb_verified` falsy set).
-      const [draftRes, pubRes, remRes, sellersRes, verifiedRes] = await Promise.all([
+      const [draftRes, oldestDraftRes, pubRes, remRes, sellersRes, verifiedRes] = await Promise.all([
         db.from('v_marketplace_listings_truth').select('id', { count: 'exact', head: true }).eq('status', 'draft'),
+        db.from('v_marketplace_listings_truth').select('created_at').eq('status', 'draft').order('created_at', { ascending: true }).order('id', { ascending: true }).limit(1).maybeSingle(),
         db.from('v_marketplace_listings_truth').select('id', { count: 'exact', head: true }).eq('status', 'published'),
         db.from('v_marketplace_listings_truth').select('id', { count: 'exact', head: true }).eq('status', 'removed'),
         db.from('v_marketplace_sellers_truth').select('id', { count: 'exact', head: true }),
@@ -525,6 +555,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
          who to trust. Absent is not zero, and it is certainly not "all of them". */
       const n = r => (r && !r.error && r.count !== null && r.count !== undefined) ? r.count : null;
       _stats.draft      = n(draftRes);
+      _stats.oldestDraftDays = (oldestDraftRes && !oldestDraftRes.error && oldestDraftRes.data && oldestDraftRes.data.created_at)
+        ? Math.floor((Date.now() - new Date(oldestDraftRes.data.created_at).getTime()) / 86400000)
+        : null;
       _stats.published  = n(pubRes);
       _stats.removed    = n(remRes);
       _stats.sellers    = n(sellersRes);
@@ -550,6 +583,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     // null means "not read", which must look different from a real 0 on a queue a moderator acts on.
     const show = v => (v === null || v === undefined) ? '—' : String(v);
     if (sd) sd.textContent = show(s.draft);
+    const sda = document.getElementById('stat-draft-age');
+    if (sda) sda.textContent = (s.oldestDraftDays === null || s.oldestDraftDays === undefined || !s.draft)
+      ? '' : (s.oldestDraftDays >= 1 ? `oldest waiting ${s.oldestDraftDays}d` : 'oldest < 1d');
     if (sp) sp.textContent = show(s.published);
     if (ss) ss.textContent = show(s.sellers);
     if (su) su.textContent = show(s.unverified);
@@ -561,6 +597,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   /* ============================================================
      RENDER LISTINGS
   ============================================================ */
+  /* T24/T69 (2026-08-27): which of these three reads FAILED. An empty array and a failed read
+     look identical to a renderer, and on a moderation queue the difference is whether a person
+     keeps looking. */
+  const _readFailed = { listings: false, sellers: false, disputes: false };
+
   function renderListings() {
     const e = escHtml;
     const area = document.getElementById('content-area');
@@ -575,7 +616,16 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     const lmWrap = document.getElementById('admin-load-more-wrap');
 
     if (!filtered.length) {
-      area.innerHTML = `<div class="empty-state">
+      /* T24/T69: "All listings have been reviewed" is a CLAIM, and it must not be made when the
+         read failed - on a moderation queue that sentence is the one that makes someone stop
+         looking. An empty array and an unread table are the same shape here, so the flag decides. */
+      area.innerHTML = _readFailed.listings
+        ? `<div class="empty-state">
+        <span class="ic ic-search" aria-hidden="true"></span>
+        <h3>Could not load the listings</h3>
+        <p>This is not an empty queue - the list could not be read, so there may be listings waiting. Reload to try again.</p>
+      </div>`
+        : `<div class="empty-state">
         <span class="ic ic-search" aria-hidden="true"></span>
         <h3>${_tab === 'draft' ? 'No pending listings' : 'Nothing here'}</h3>
         <p>${_tab === 'draft' ? 'All listings have been reviewed.' : 'No listings with this status.'}</p>
@@ -657,7 +707,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     });
 
     if (!filtered.length) {
-      area.innerHTML = `<div class="empty-state">
+      /* T24/T69: same rule as the listings queue - do not say "none yet" about a table nobody read. */
+      area.innerHTML = _readFailed.sellers
+        ? `<div class="empty-state">
+        <span class="ic ic-community" aria-hidden="true"></span>
+        <h3>Could not load the seller profiles</h3>
+        <p>This is not an empty list - it could not be read. Reload to try again.</p>
+      </div>`
+        : `<div class="empty-state">
         <span class="ic ic-community" aria-hidden="true"></span>
         <h3>No seller profiles yet</h3>
         <p>Sellers appear here after their first listing or Connect onboarding.</p>
@@ -865,8 +922,15 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         .order('id')   // MR4 tiebreaker: the sort above is not total on its own
         .limit(100);
       if (error) throw error;
-      _disputes = data || [];
-    } catch (_) { _disputes = []; if (typeof showToast === 'function') showToast("Couldn't load disputes . Check your connection and retry.", 'error'); } // dim-10: surface load failure, don't disguise as "no disputes"
+      _disputes = data || []; _readFailed.disputes = false;
+    } catch (_e) {
+      _disputes = []; _readFailed.disputes = true;
+      if (typeof showToast === 'function') {
+        showToast(typeof whReadError === 'function'
+          ? whReadError(_e, 'the disputes')
+          : "Couldn't load disputes. Try again.", 'error');
+      }
+    } // dim-10: surface load failure, don't disguise as "no disputes"
 
     const bd = document.getElementById('badge-disputes');
     if (bd) bd.textContent = _disputes.filter(d => d.status === 'open' || d.status === 'seller_responded').length;
@@ -1019,6 +1083,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const active = btn.dataset.tab === tab;
       btn.classList.toggle('active', active);
       btn.setAttribute('aria-selected', active ? 'true' : 'false');
+      /* T125: the panel must say WHICH tab currently labels it, or a screen reader
+         announces the same heading no matter which tab is open. */
+      if (active && btn.id) { const _p = document.getElementById('content-area');
+        if (_p) _p.setAttribute('aria-labelledby', btn.id); }
     });
 
     if (tab === 'sellers')   loadSellers();

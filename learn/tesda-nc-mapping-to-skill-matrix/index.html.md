@@ -126,6 +126,8 @@ The benefits of TESDA NC mapping include improved worker competencies, increased
 
 TESDA NC mapping is not mandatory, but it is highly recommended for Philippine industrial plants. By mapping TESDA NC II and NC III certifications to your skill matrix, you can ensure compliance with industry standards and improve worker competencies.
 
+**Keep reading:** [set up the skill matrix itself](https://workhiveph.com/learn/skill-matrix-for-maintenance-technicians/), or [pick the right association](https://workhiveph.com/learn/psme-iiee-piche-which-association-to-join/).
+
 ## Sources
 
 - [TESDA](https://www.tesda.gov.ph/), **Training Regulations** (Electrical Installation and Maintenance NC II; SMAW NC I/II): competency standards and nominal training hours.
@@ -134,4 +136,4 @@ TESDA NC mapping is not mandatory, but it is highly recommended for Philippine i
 - IIEE. (2019). Code of Ethics and Professional Conduct for Electrical Engineers.
 - ISO. (2016). ISO 14224:2016 Petroleum, Petrochemical and Natural Gas Industries - Reliability, Availability and Maintainability (RAM) Data Exchange.
 
-<!-- md-twin source-sha: 10e4048cd550392f -->
+<!-- md-twin source-sha: 96a1d572d6094505 -->

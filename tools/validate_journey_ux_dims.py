@@ -233,7 +233,7 @@ def measure() -> dict:
         # not find it", so the detector matched MY PROSE, not the code: deleting the real prefill and the
         # real toast still "passed". Evidence must come from executable code only.
         _code = re.sub(r"<!--.*?-->", " ", src, flags=re.S)
-        _code = re.sub(r"/\*.*?\*/", " ", _code, flags=re.S)
+        _code = re.sub(r"/\*(?![\"']).*?\*/", " ", _code, flags=re.S)
         _code = re.sub(r"(?m)^\s*//.*$", " ", _code)
         _dl = list(_DEEPLINK_READ.finditer(_code))
         if _dl:

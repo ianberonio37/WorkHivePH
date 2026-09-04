@@ -86,6 +86,10 @@ Rules:
 4. If a period has zero findings, mention it briefly.
 5. Stay under 180 words.
 6. No em dashes. Use Filipino industrial vocabulary (ISO 14224, PSME) when natural.
+7. OPEN the answer by stating the RESOLVED absolute date range the periods cover, e.g.
+   "Covering Aug 18 to Aug 24, 2026:". A relative phrase like "last week" is ambiguous
+   (trailing 7 days vs calendar week, PHT boundary) and the numbers cannot be audited
+   without the range. (T91, 2026-08-25.)
 
 Respond JSON only:
 { "answer": "<text with [period] citations>", "worst_period": "<label>", "trend": "improving|stable|degrading|mixed" }`;
@@ -95,6 +99,36 @@ const _KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
 if (!_URL || !_KEY) log.warn(null, "[temporal-rag-orchestrator] SUPABASE env missing");
 const _warm = _URL && _KEY ? createClient(_URL, _KEY) : null;
 void _warm;
+
+// ── T91 (2026-08-26): the window is a FACT, so it is stated here, not requested ─────────
+//
+// FOLD_SYSTEM rule 7 asks the model to open with the resolved absolute range, because "last
+// week" is ambiguous (trailing 7 days vs calendar week, PHT boundary) and the numbers cannot
+// be audited without it. That rule is right and it stays - but a prompt instruction is the
+// only thing that was enforcing it, and a model that skips it produces an answer whose
+// numbers belong to a window nobody can name. This is the same trap as two_windows_one_metric,
+// arriving through an LLM instead of a query.
+//
+// The repo's own WAT split already says what to do: compute the hard facts in code and let the
+// model write prose from them (the resume summary synthesis does exactly this). The periods
+// carry their own resolved boundaries, so the range is known before the model is ever called.
+// If the answer already opens with it, leave it alone; if not, put it there. Either way the
+// caller also receives `covering` structurally, so a consumer never has to parse prose to
+// learn which window it is reading.
+function coveringLabel(periods: Array<{ start: string; end: string; label: string }>): string {
+  if (!periods.length) return "";
+  const first = periods[0].start.slice(0, 10);
+  const last  = periods[periods.length - 1].end.slice(0, 10);
+  return first === last ? `Covering ${first}:` : `Covering ${first} to ${last}:`;
+}
+
+function withCovering(answer: string, label: string): string {
+  const a = String(answer || "").trim();
+  if (!label) return a;
+  // already compliant - do not say it twice
+  if (/^covering\b/i.test(a)) return a;
+  return `${label} ${a}`;
+}
 
 // ── Period decomposition ─────────────────────────────────────────────────────
 
@@ -396,8 +430,14 @@ serveObserved("temporal-rag-orchestrator", async (req) => {
 
   const totalLatency = Date.now() - reqStart;
 
+  const covering = coveringLabel(periods);
+
   return new Response(JSON.stringify({
-    answer:       fold.answer || "Could not synthesise a temporal comparison from the available period summaries.",
+    answer:       withCovering(
+                    fold.answer || "Could not synthesise a temporal comparison from the available period summaries.",
+                    covering),
+    covering:     covering ? { from: periods[0].start.slice(0, 10),
+                               to: periods[periods.length - 1].end.slice(0, 10) } : null,
     worst_period: fold.worst_period || null,
     trend:        fold.trend || "unknown",
     per_period:   subResults,

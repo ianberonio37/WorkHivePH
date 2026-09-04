@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-22T16:00:53.605000+00:00",
+  "generated_at": "2026-09-04T00:56:14.286810+00:00",
   "sources": 13,
   "present": 13,
   "absent": 0,
@@ -24,7 +24,7 @@
           "conformance": 0.984,
           "outlier_count": 1,
           "outliers": [
-            "visual-defect-capture"
+            "vehicle-doc-extract"
           ]
         },
         {
@@ -33,58 +33,70 @@
           "conformance": 0.984,
           "outlier_count": 1,
           "outliers": [
-            "visual-defect-capture"
+            "vehicle-doc-extract"
+          ]
+        },
+        {
+          "feature": "has_try_catch",
+          "anti_pattern": false,
+          "conformance": 0.984,
+          "outlier_count": 1,
+          "outliers": [
+            "vehicle-doc-extract"
           ]
         },
         {
           "feature": "reads_supabase_url_env",
           "anti_pattern": false,
-          "conformance": 0.984,
-          "outlier_count": 1,
+          "conformance": 0.968,
+          "outlier_count": 2,
           "outliers": [
-            "gcash-receipt-ocr"
+            "gcash-receipt-ocr",
+            "vehicle-doc-extract"
           ]
         },
         {
           "feature": "reads_service_role_env",
           "anti_pattern": false,
-          "conformance": 0.984,
-          "outlier_count": 1,
+          "conformance": 0.968,
+          "outlier_count": 2,
           "outliers": [
-            "gcash-receipt-ocr"
+            "gcash-receipt-ocr",
+            "vehicle-doc-extract"
           ]
         },
         {
           "feature": "uses_error_envelope",
           "anti_pattern": false,
-          "conformance": 0.934,
+          "conformance": 0.935,
           "outlier_count": 4,
           "outliers": [
             "gcash-receipt-inbound",
             "gcash-receipt-ocr",
             "notify-push",
-            "resend-webhook-receiver"
+            "vehicle-doc-extract"
           ]
         },
         {
           "feature": "sets_content_type_json",
           "anti_pattern": false,
-          "conformance": 0.934,
-          "outlier_count": 4,
+          "conformance": 0.919,
+          "outlier_count": 5,
           "outliers": [
             "gcash-receipt-inbound",
             "gcash-receipt-ocr",
             "notify-push",
-            "resend-webhook-receiver"
+            "resend-webhook-receiver",
+            "vehicle-doc-extract"
           ]
         }
       ],
       "summary": {
-        "fns_scanned": 61,
+        "fns_scanned": 62,
         "features_extracted": 35,
-        "promotion_candidates": 7
+        "promotion_candidates": 8
       },
-      "proposal_count": 7
+      "proposal_count": 8
     },
     {
       "label": "HTML patterns",
@@ -136,7 +148,7 @@
         }
       ],
       "summary": {
-        "files_scanned": 550,
+        "files_scanned": 593,
         "features_extracted": 22,
         "promotion_candidates": 1
       },
@@ -196,7 +208,7 @@
       "present": true,
       "proposals": [],
       "summary": {
-        "files_scanned": 41,
+        "files_scanned": 42,
         "features_extracted": 16,
         "promotion_candidates": 0
       },
@@ -208,7 +220,7 @@
       "present": true,
       "proposals": [],
       "summary": {
-        "files_scanned": 681,
+        "files_scanned": 970,
         "features_extracted": 22,
         "promotion_candidates": 0
       },
@@ -221,8 +233,8 @@
       "summary": {
         "rules_evaluated": 57,
         "rules_with_errors": 0,
-        "promotion_candidates": 20,
-        "critical_violations": 8,
+        "promotion_candidates": 21,
+        "critical_violations": 9,
         "rules_by_source": {
           "skill_md:designer": 2,
           "skill_md:mobile-maestro": 2,
@@ -257,15 +269,15 @@
       "file": "canonical_drift_platform_report.json",
       "present": true,
       "summary": {
-        "files_scanned": 292,
+        "files_scanned": 293,
         "kpi_rendering_pages": 156,
         "truth_math_pages": 0,
         "tier_a_pages": 0,
-        "tier_b_pages": 0,
-        "total_canonical_reads": 321,
-        "total_drift_reads": 0,
+        "tier_b_pages": 2,
+        "total_canonical_reads": 334,
+        "total_drift_reads": 2,
         "total_gap_reads": 0,
-        "total_allowed_reads": 240
+        "total_allowed_reads": 259
       }
     },
     {

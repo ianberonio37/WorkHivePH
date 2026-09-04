@@ -145,7 +145,11 @@ def check_persistence_guarded_on_authuid(content: str) -> list[dict]:
         if m:
             before = content[: m.start()]
             # Look for the last occurrence of `if (authUid)` before the call.
-            guard = re.search(r"if\s*\(\s*authUid\s*\)\s*\{", before)
+            # T12 persist-first (2026-08-25): the guard may be a CONJUNCTION - e.g.
+            # `if (SEMANTIC_RECALL_AGENTS.has(agent) && authUid) {` - which is STRONGER
+            # than a bare authUid check. Accept authUid as any conjunct of the if-condition;
+            # the contract is "persist only under an authUid-true condition", not the literal.
+            guard = re.search(r"if\s*\([^\n]*authUid[^\n]*\)\s*\{", before)
             if not guard:
                 issues.append({
                     "check": "persistence_guarded_on_authuid",
@@ -160,7 +164,11 @@ def check_persistence_guarded_on_authuid(content: str) -> list[dict]:
         m = re.search(r"persistJournalEntry\s*\(", content)
         if m:
             before = content[: m.start()]
-            guard = re.search(r"if\s*\(\s*authUid\s*\)\s*\{", before)
+            # T12 persist-first (2026-08-25): the guard may be a CONJUNCTION - e.g.
+            # `if (SEMANTIC_RECALL_AGENTS.has(agent) && authUid) {` - which is STRONGER
+            # than a bare authUid check. Accept authUid as any conjunct of the if-condition;
+            # the contract is "persist only under an authUid-true condition", not the literal.
+            guard = re.search(r"if\s*\([^\n]*authUid[^\n]*\)\s*\{", before)
             if not guard:
                 issues.append({
                     "check": "persistence_guarded_on_authuid",

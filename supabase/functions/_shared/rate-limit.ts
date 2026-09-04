@@ -38,6 +38,24 @@ export interface RateLimitResult {
   remaining: number;
   /** Set when the DENY was due to the per-day ceiling (vs the hourly window). */
   scope?:    "hour" | "day";
+  /**
+   * Seconds until the exceeded window resets. Set only on a DENY.
+   *
+   * T168 (2026-08-28): the sentence a worker gets is "You have hit the AI rate limit. Wait a
+   * moment and try again" - honest, bilingual, and silent about the one fact that decides what
+   * they do next. "Wait a moment" is exactly what makes someone retry straight away and hit the
+   * wall again. The marketplace surfaces already answer this, via _retryAfterSeconds(), so the
+   * platform knows it matters; the AI path could not, because nothing upstream emitted a window.
+   *
+   * It was computable all along. Every limiter here either truncates to an hour BUCKET (so the
+   * reset is the top of the next hour) or stores a rolling window_start (so it is start + span).
+   * Nothing depends on what an upstream provider chooses to report. It lives on the BASE result
+   * because all six limiters share this shape and any of them can be the one that denies -
+   * notably the per-user limiter, which is the one a worker actually meets first at 25/hour.
+   *
+   * `scope` decides the span: 'day' resets on the daily window, 'hour' on the hourly one.
+   */
+  retry_after_seconds?: number;
 }
 
 export async function checkAIRateLimit(
@@ -67,11 +85,19 @@ export async function checkAIRateLimit(
 
   // Daily ceiling first — the scarcest budget. A hive that has burned its day is
   // blocked even when the hour is fresh.
+  // T168 (2026-08-28): a DENY now says WHEN, not just no. Both windows are rolling from a stored
+  // start, so the wait is start + span - already in hand here, and never computed before.
   if (dayCount >= limitPerDay) {
-    return { allowed: false, remaining: 0, scope: "day" };
+    return {
+      allowed: false, remaining: 0, scope: "day",
+      retry_after_seconds: secondsToWindowEnd(data?.day_window_start, 24 * 60 * 60),
+    };
   }
   if (hourCount >= limitPerHour) {
-    return { allowed: false, remaining: 0, scope: "hour" };
+    return {
+      allowed: false, remaining: 0, scope: "hour",
+      retry_after_seconds: secondsToWindowEnd(data?.window_start, 60 * 60),
+    };
   }
   const nowIso = new Date().toISOString();
   await db.from("ai_rate_limits").upsert({
@@ -84,16 +110,45 @@ export async function checkAIRateLimit(
   return { allowed: true, remaining: limitPerHour - (hourCount + 1) };
 }
 
+/**
+ * T168 (2026-08-28): the 429 now CARRIES ITS WINDOW, two ways.
+ *
+ * Before, the body said "Try again in an hour" whether the window had 59 minutes left or 40
+ * seconds, and no Retry-After header was set at all - so a client had nothing to read even if it
+ * wanted to. The marketplace surfaces already parse retryAfter / retry_after out of an error, so
+ * the client-side capability existed and the server simply never sent anything for it to find.
+ *
+ * `retryAfter` is included under BOTH spellings because the existing client helper looks for both,
+ * and a header is set as well: supabase-js collapses a non-2xx into a FunctionsHttpError, so the
+ * body is the more reliable carrier, but the header is what any ordinary HTTP client will honour.
+ */
 export function rateLimitedResponse(
   corsHeaders: Record<string, string>,
   scope: "hour" | "day" = "hour",
+  retryAfterSeconds?: number,
 ): Response {
+  const secs = typeof retryAfterSeconds === "number" && isFinite(retryAfterSeconds)
+    ? Math.max(1, Math.round(retryAfterSeconds))
+    : undefined;
+  // Say the real number when we have one; fall back to the old wording when we do not, rather
+  // than inventing a duration - a wrong "try again in 2 minutes" is worse than a vague hour.
+  const when = secs === undefined
+    ? (scope === "day" ? "Resets tomorrow." : "Try again in an hour.")
+    : secs >= 3600
+      ? `Try again in about ${Math.round(secs / 3600)} hour${Math.round(secs / 3600) === 1 ? "" : "s"}.`
+      : secs >= 60
+        ? `Try again in about ${Math.ceil(secs / 60)} minute${Math.ceil(secs / 60) === 1 ? "" : "s"}.`
+        : `Try again in ${secs} second${secs === 1 ? "" : "s"}.`;
   const error = scope === "day"
-    ? "Daily AI limit reached for this hive. Resets tomorrow."
-    : "AI call limit reached for this hive. Try again in an hour.";
+    ? `Daily AI limit reached for this hive. ${when}`
+    : `AI call limit reached for this hive. ${when}`;
+  const headers: Record<string, string> = { ...corsHeaders, "Content-Type": "application/json" };
+  if (secs !== undefined) headers["Retry-After"] = String(secs);
   return new Response(
-    JSON.stringify({ error, scope }),
-    { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+    JSON.stringify(secs === undefined
+      ? { error, scope }
+      : { error, scope, retryAfter: secs, retry_after: secs }),
+    { status: 429, headers },
   );
 }
 
@@ -193,6 +248,34 @@ export interface RouteRateLimitResult extends RateLimitResult {
   per_route: boolean;
   /** When false the call is logged but not blocked. */
   enforce:  boolean;
+  // retry_after_seconds is inherited from RateLimitResult - every limiter can set it, and this
+  // one's is exact because its counter bucket is truncated to the hour.
+}
+
+/**
+ * Seconds until the top of the next hour - the exact reset for any limiter whose counter is
+ * bucketed by hour (checkRouteRateLimit). Never returns 0, because "retry in 0 seconds" invites
+ * the immediate retry this field exists to prevent.
+ */
+export function secondsToNextHour(now: Date = new Date()): number {
+  return Math.max(1, 3600 - (now.getMinutes() * 60 + now.getSeconds()));
+}
+
+/**
+ * Seconds until a ROLLING window elapses, for limiters that store a window_start (checkAIRateLimit,
+ * checkUserRateLimit and friends). Falls back to the full span when the start is unreadable, which
+ * over-states the wait rather than under-stating it - the safe direction, since an under-stated
+ * wait sends someone back into the same wall.
+ */
+export function secondsToWindowEnd(windowStart: string | null | undefined, spanSeconds: number): number {
+  try {
+    const started = windowStart ? new Date(windowStart).getTime() : NaN;
+    if (!isFinite(started)) return spanSeconds;
+    const left = Math.ceil((started + spanSeconds * 1000 - Date.now()) / 1000);
+    return Math.min(spanSeconds, Math.max(1, left));
+  } catch (_) {
+    return spanSeconds;
+  }
 }
 
 export async function checkRouteRateLimit(
@@ -253,6 +336,8 @@ export async function checkRouteRateLimit(
       cap,
       per_route: perRoute,
       enforce,
+      // exact here: this counter is bucketed to the hour, so the quota reopens on the hour
+      retry_after_seconds: secondsToNextHour(),
     };
   }
   // Under cap: increment and allow.
@@ -272,18 +357,35 @@ export async function checkRouteRateLimit(
   };
 }
 
+/**
+ * T168 (2026-08-28): "Try again later" replaced with the real number. This limiter's counter is
+ * bucketed to the hour, so its window is the most exactly knowable of the three - the quota reopens
+ * on the hour, and saying "later" was throwing away a figure the code had already computed.
+ */
 export function routeRateLimitedResponse(
   corsHeaders: Record<string, string>,
   route: string,
   cap:   number,
+  retryAfterSeconds?: number,
 ): Response {
+  const secs = typeof retryAfterSeconds === "number" && isFinite(retryAfterSeconds)
+    ? Math.max(1, Math.round(retryAfterSeconds))
+    : undefined;
+  const when = secs === undefined
+    ? "Try again later."
+    : secs >= 60
+      ? `Try again in about ${Math.ceil(secs / 60)} minute${Math.ceil(secs / 60) === 1 ? "" : "s"}.`
+      : `Try again in ${secs} second${secs === 1 ? "" : "s"}.`;
+  const headers: Record<string, string> = { ...corsHeaders, "Content-Type": "application/json" };
+  if (secs !== undefined) headers["Retry-After"] = String(secs);
   return new Response(
     JSON.stringify({
-      error: `Hourly call limit reached for route '${route}' (${cap}/hour). Try again later.`,
+      error: `Hourly call limit reached for route '${route}' (${cap}/hour). ${when}`,
       route,
       cap,
+      ...(secs === undefined ? {} : { retryAfter: secs, retry_after: secs }),
     }),
-    { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+    { status: 429, headers },
   );
 }
 
@@ -330,6 +432,10 @@ export async function checkUserRateLimit(
       remaining:      0,
       user_cap:       userLimit,
       hive_remaining: 0,
+      // T168: carry the hive limiter's own verdict out rather than flattening it - it knows which
+      // window was exceeded and when that window reopens, and this wrapper was dropping both.
+      scope:               hive.scope,
+      retry_after_seconds: hive.retry_after_seconds,
     };
   }
   // Solo / system calls — no user bucket needed.
@@ -368,6 +474,11 @@ export async function checkUserRateLimit(
       remaining:      0,
       user_cap:       userLimit,
       hive_remaining: hive.remaining,
+      // T168: THIS is the deny a worker meets first - the per-user 25/hour, ahead of the hive's 50
+      // - and it was the one saying nothing about when it clears. The user bucket is a rolling
+      // hour from its own window_start, already read above.
+      scope:               "hour",
+      retry_after_seconds: secondsToWindowEnd(data.window_start, 60 * 60),
     };
   }
   // canonical-allow: ai_user_rate_limits infrastructure counter (see lookup site).
@@ -382,17 +493,36 @@ export async function checkUserRateLimit(
   };
 }
 
+/**
+ * T168 (2026-08-28): this is the 429 a worker meets FIRST - the per-user cap binds at 25/hour,
+ * ahead of the hive's 50 - so it is the sentence that most needed a time and had none. It already
+ * did the kindest part, telling the person their teammates are unaffected so they do not think
+ * they broke the platform; it simply never said how long. The window is now computed by
+ * checkUserRateLimit from the user bucket's own rolling window_start and passed through here.
+ */
 export function userRateLimitedResponse(
   corsHeaders: Record<string, string>,
   userCap: number,
+  retryAfterSeconds?: number,
 ): Response {
+  const secs = typeof retryAfterSeconds === "number" && isFinite(retryAfterSeconds)
+    ? Math.max(1, Math.round(retryAfterSeconds))
+    : undefined;
+  const when = secs === undefined
+    ? ""
+    : secs >= 60
+      ? ` Try again in about ${Math.ceil(secs / 60)} minute${Math.ceil(secs / 60) === 1 ? "" : "s"}.`
+      : ` Try again in ${secs} second${secs === 1 ? "" : "s"}.`;
+  const headers: Record<string, string> = { ...corsHeaders, "Content-Type": "application/json" };
+  if (secs !== undefined) headers["Retry-After"] = String(secs);
   return new Response(
     JSON.stringify({
-      error:    `Per-user AI call limit reached (${userCap}/hour). Other hive members are unaffected.`,
+      error:    `Per-user AI call limit reached (${userCap}/hour). Other hive members are unaffected.${when}`,
       user_cap: userCap,
       scope:    "user",
+      ...(secs === undefined ? {} : { retryAfter: secs, retry_after: secs }),
     }),
-    { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+    { status: 429, headers },
   );
 }
 
@@ -469,8 +599,20 @@ async function bumpSoloBucket(
   const hourCount = hourFresh ? data!.call_count : 0;
   const dayCount  = dayFresh  ? (data!.day_count ?? 0) : 0;
 
-  if (dayCount >= limitPerDay)   return { allowed: false, remaining: 0, scope: "day" };
-  if (hourCount >= limitPerHour) return { allowed: false, remaining: 0, scope: "hour" };
+  // T168: same treatment as checkAIRateLimit - the window starts are already read above, so the
+  // deny can say when it reopens instead of leaving the caller to guess.
+  if (dayCount >= limitPerDay) {
+    return {
+      allowed: false, remaining: 0, scope: "day",
+      retry_after_seconds: secondsToWindowEnd(data?.day_window_start, 24 * 60 * 60),
+    };
+  }
+  if (hourCount >= limitPerHour) {
+    return {
+      allowed: false, remaining: 0, scope: "hour",
+      retry_after_seconds: secondsToWindowEnd(data?.window_start, 60 * 60),
+    };
+  }
 
   const nowIso = new Date().toISOString();
   // canonical-allow: ai_user_rate_limits infrastructure counter (see lookup site).
@@ -522,13 +664,32 @@ export async function checkSoloRateLimit(
   return primary;
 }
 
-export function soloRateLimitedResponse(corsHeaders: Record<string, string>): Response {
+/**
+ * T168 (2026-08-28): "in an hour" was a guess dressed as a fact - the solo bucket is a ROLLING
+ * window, so someone 55 minutes in was told to wait an hour when five minutes would do, and someone
+ * one minute in was told the same. checkSoloRateLimit now computes the real remainder.
+ */
+export function soloRateLimitedResponse(
+  corsHeaders: Record<string, string>,
+  retryAfterSeconds?: number,
+): Response {
+  const secs = typeof retryAfterSeconds === "number" && isFinite(retryAfterSeconds)
+    ? Math.max(1, Math.round(retryAfterSeconds))
+    : undefined;
+  const when = secs === undefined
+    ? "Please try again in an hour."
+    : secs >= 60
+      ? `Try again in about ${Math.ceil(secs / 60)} minute${Math.ceil(secs / 60) === 1 ? "" : "s"}.`
+      : `Try again in ${secs} second${secs === 1 ? "" : "s"}.`;
+  const headers: Record<string, string> = { ...corsHeaders, "Content-Type": "application/json" };
+  if (secs !== undefined) headers["Retry-After"] = String(secs);
   return new Response(
     JSON.stringify({
-      error: "AI call limit reached. Please try again in an hour.",
+      error: `AI call limit reached. ${when}`,
       scope: "solo",
+      ...(secs === undefined ? {} : { retryAfter: secs, retry_after: secs }),
     }),
-    { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+    { status: 429, headers },
   );
 }
 
@@ -600,10 +761,18 @@ export async function checkClassedRateLimit(
     allowed = used <= globalCap;
   }
 
+  // T168 (2026-08-28): carry the inner limiter's window and scope OUT. checkAIRateLimit now knows
+  // when the exceeded window reopens, and this wrapper was discarding both one line after
+  // receiving them - so the caller saw a bare deny and could only say "wait a moment". Only
+  // meaningful on a deny, which is why they are spread conditionally rather than always set.
   return {
     allowed,
     remaining:      result.remaining,
     cap_for_class:  capForClass,
     traffic_class:  trafficClass,
+    ...(allowed ? {} : {
+      scope:               result.scope,
+      retry_after_seconds: result.retry_after_seconds,
+    }),
   };
 }

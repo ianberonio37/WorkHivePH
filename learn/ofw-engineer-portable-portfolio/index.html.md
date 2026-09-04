@@ -55,7 +55,11 @@ These Logbook entries are more than just notes - they're evidence of your hands-
 
 When it comes to overseas employment, a well-documented portfolio can make all the difference. Employers want to see proof of your experience and skills, not just claims. A portable portfolio built with Skill Matrix provides this proof, giving you a competitive edge in the job market. In fact, a Filipino plant supervisor with a similar portfolio was able to negotiate a salary of PHP 180,000 per month, a significant increase from their previous salary.
 
-The best part is that your Logbook entries become portable evidence that you can take with you wherever you go. Whether you're applying for a job in Saudi Arabia or looking to advance your career in the Philippines, your Skill Matrix portfolio is a valuable asset. By regularly updating your Logbook and using Skill Matrix to track your experience, you can build a strong portfolio that opens doors to new opportunities.
+The best part is that your Logbook entries become portable evidence, provided you export your
+ portfolio while you are still a member of the hive. The entries themselves belong to the plant's
+ records and stop being readable to you once you leave it, which is what the app tells you when you
+ do (“Your past logbook entries stay in the hive’s records”). Generate and save your
+ résumé before a job change, and the evidence travels with you. Whether you're applying for a job in Saudi Arabia or looking to advance your career in the Philippines, your Skill Matrix portfolio is a valuable asset. By regularly updating your Logbook and using Skill Matrix to track your experience, you can build a strong portfolio that opens doors to new opportunities.
 
 ## What to Expect from a Portfolio Export
 
@@ -125,6 +129,8 @@ Overseas employers look for evidence of maintenance experience, skills, and cert
 
 While the portfolio is designed for OFW-track engineers, you can still use it to demonstrate your skills and experience to potential employers in the Philippines. However, be sure to tailor your portfolio to the specific job requirements and industry standards in the Philippines.
 
+**Keep reading:** [turn the portfolio into a resume](https://workhiveph.com/learn/resume-builder-for-filipino-industrial-workers/), or [map your skills to a matrix](https://workhiveph.com/learn/skill-matrix-for-maintenance-technicians/).
+
 ## Sources
 
 - ISO 14224:2016, 'Reliability maintenance and performance'
@@ -132,4 +138,4 @@ While the portfolio is designed for OFW-track engineers, you can still use it to
 - DOLE OSHS, 'Occupational Safety and Health Standards'
 - IIEE Code, 'Code of Ethics for Electrical Engineers'
 
-<!-- md-twin source-sha: fd47c399fdd2b4a0 -->
+<!-- md-twin source-sha: 762e6766ce930cd0 -->

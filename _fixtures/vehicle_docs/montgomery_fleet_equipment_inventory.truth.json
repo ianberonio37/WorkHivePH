@@ -1,0 +1,17 @@
+{
+ "doc": "VD9-montgomery-fleet-aggregate",
+ "hand_read": "2026-09-03. Real government CSV a fleet user could genuinely upload; it contains NO maintenance intervals and NO parts - the floor must extract nothing (wrong-document honesty at the miner level).",
+ "pm_items": [],
+ "parts": [],
+ "pm_must_not_match": [
+  "license",
+  "vehicle year",
+  "equipment count"
+ ],
+ "parts_must_not_match": [
+  "department",
+  "wheelchair"
+ ],
+ "must_not_contain": [],
+ "expect_injection": false
+}

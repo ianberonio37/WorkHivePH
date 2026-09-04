@@ -1,0 +1,63 @@
+{
+ "_meta": {
+  "author": "T108 walk, 2026-08-25 (hand-enumerated with source receipts; add rows when a new someone->you event type ships)",
+  "note": "every event where person A's action creates work/attention for person B. The T108 bar: each row needs a notification path and a tap that lands ON the item; 'none' rows are the silent-work class to extinguish.",
+  "status_vocab": [
+   "notified",
+   "badge-only",
+   "realtime",
+   "none"
+  ],
+  "last_swept": "2026-08-26 (T108): ALL 8 rows notified. Honest limits recorded per row (free-text names, opt-in push)."
+ },
+ "events": [
+  {
+   "event": "work order assigned to me",
+   "source": "logbook.wo_assigned_to (free text; badge woStateBadge logbook.html:3656)",
+   "notification": "notified",
+   "finding": "FIXED 2026-08-25 (T108): assignment edits now call the guarded notify_wo_assigned RPC (mig 004: member-of-hive caller, recipient resolved from the entry row, self-assign no-op, fixed copy, deep link /logbook.html?status=Open) -> outbox -> notify-push. PROVEN: 'AHU-001 was assigned to you by Leandro Marquez' enqueued. HONEST LIMITS recorded: wo_assigned_to is free text - a name matching no active member resolves to nothing; push reaches opt-in subscribers only. The free-text->member-picker upgrade remains the deeper fix."
+  },
+  {
+   "event": "community mention (@name)",
+   "source": "community_posts.mentions column",
+   "notification": "notified",
+   "finding": "FIXED 2026-08-26 (T108): notify_post_mentions (mig 20260826000002) - the mention array was ALREADY stored on both the create and the edit path and painted by renderContentWithMentions, so being named was a first-class fact that reached everyone except the person named. The RPC resolves the named ACTIVE members server-side, drops the author (naming yourself is not news), and deep-links community.html?post=<id>. PROVEN both ways: a mention pushes, a self-mention is silent. HONEST LIMIT: matched on worker_name, so an @name matching no active member reaches nobody - the same free-text limit wo_assigned_to carries."
+  },
+  {
+   "event": "reply to my post",
+   "source": "community_replies",
+   "notification": "notified",
+   "finding": "FIXED 2026-08-26 (T108): notify_reply_posted (mig 20260826000002) closes T31's finding - the asker had no way to learn an answer arrived except by coming back to look. The reply insert now returns its id (it did not before, so there was nothing to point a notification at), the RPC resolves the POST's author from it, and a self-reply pushes nothing. PROVEN both ways."
+  },
+  {
+   "event": "post reported (to supervisor)",
+   "source": "community submitReport -> flagged",
+   "notification": "notified",
+   "finding": "FIXED 2026-08-25 (T108/T24): the notification lives INSIDE report_community_post (mig 005) - fires only on the FIRST flagging (no supervisor spam on repeat reports), recipients = all active supervisors of the post's hive, resolved server-side; no client wiring, no thenable trap. PROVEN: a real member report enqueued 'A post was reported' to 1 supervisor uid. Reach: opt-in push; the flagged feed remains the always-there surface."
+  },
+  {
+   "event": "pending approval (asset/part submitted)",
+   "source": "hive.html startApprovalRealtime (postgres_changes INSERT on asset_nodes/inventory_items)",
+   "notification": "notified",
+   "finding": "FIXED 2026-08-26 (T108): tg_notify_pending_submission (mig 20260826000003) - a TRIGGER, not a call site, because pending rows come from six-plus paths across five pages including a bulk CMMS upsert, and a missed path is invisible. The realtime subscription on hive.html remains as the live in-board signal; the trigger is what reaches a supervisor who is anywhere else. Copy names NO row so the 2-minute dedupe collapses a bulk import to ONE push (PROVEN: 20 rows -> 0 additional pushes), and the body is wrapped so a broken notifier can never cost someone their submission (PROVEN by renaming enqueue_user_push away: the write still landed)."
+  },
+  {
+   "event": "my submission approved/rejected",
+   "source": "inventory_items.status + rejection_reason (T20)",
+   "notification": "notified",
+   "finding": "FIXED 2026-08-25 (T108): approve/reject now call the guarded notify_submission_decided RPC (supervisor-of-the-hive verified server-side, recipient resolved from the item row, fixed copy) -> service_outbox -> notify-push; reaches submitters who enabled alerts (opt-in web push). The rejection push names the way forward ('open Inventory to see why, fix it, resubmit'), pairing the rejection_reason card. supabase-js lesson en route: rpc builders are THENABLES - un-awaited fire-and-forget never sends; .then() attached."
+  },
+  {
+   "event": "best answer chosen (my reply accepted)",
+   "source": "community reply accept (...062)",
+   "notification": "notified",
+   "finding": "FIXED 2026-08-26 (T108): notify_reply_accepted (mig 20260826000002). The RPC re-reads is_accepted, so only the ACCEPT direction announces and a flip-back sends nothing; accepting your own reply is silent. PROVEN both ways (un-accepted reply stays silent, accepted pushes to the reply's author)."
+  },
+  {
+   "event": "supervisor reset my password",
+   "source": "supervisor-reset-password fn",
+   "notification": "notified",
+   "finding": "WIRED 2026-08-25 (T108): supervisor-reset-password now enqueues a SECURITY push to the worker ('Your password was reset... If this wasn't arranged with you, tell your supervisor immediately') via the outbox, edge-side beside its audit insert - an unauthorized reset becomes visible to its victim. LIVE-PROOF DEFERRED to the close with a THROWAWAY account (a live test resets real fixture credentials); the code path mirrors the proven audit-insert two lines above. Fn redeploy rides the release."
+  }
+ ]
+}

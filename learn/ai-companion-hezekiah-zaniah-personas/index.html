@@ -22,7 +22,7 @@
   <meta property="og:type" content="article" />
   <meta property="og:site_name" content="WorkHive" />
   <meta property="article:published_time" content="2026-06-12T00:00:00+08:00" />
-  <meta property="article:modified_time" content="2026-06-12T00:00:00+08:00" />
+  <meta property="article:modified_time" content="2026-08-24T00:00:00+08:00" />
   <meta property="article:author" content="WorkHive Editorial Team" />
   <meta property="article:section" content="Maintenance" />
 
@@ -45,7 +45,7 @@
         "author": { "@type": "Organization", "name": "WorkHive Editorial Team", "url": "https://workhiveph.com/" },
         "publisher": { "@id": "https://workhiveph.com/#organization" },
         "datePublished": "2026-06-12",
-        "dateModified": "2026-06-12",
+        "dateModified": "2026-08-24",
         "mainEntityOfPage": "https://workhiveph.com/learn/ai-companion-hezekiah-zaniah-personas/",
         "inLanguage": "en-PH",
         "articleSection": "Maintenance",
@@ -124,7 +124,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = { theme: { extend: { colors: {
@@ -248,7 +248,8 @@
     <nav class="flex items-center gap-6">
       <a href="/" class="nav-link">Home</a>
       <a href="/learn/" class="nav-link">Learn</a>
-      <a href="/#join" class="nav-link">Join the Hive</a>
+      <a href="/?signin=1" class="nav-link">Sign In</a>
+      <a href="/?signup=1" class="nav-link">Sign Up Free</a>
     </nav>
   </div>
 </header>
@@ -270,7 +271,7 @@
       <span class="opacity-40">·</span>
       <span>Published <time datetime="2026-06-12">12 June 2026</time></span>
       <span class="opacity-40">·</span>
-      <span>Updated <time datetime="2026-06-12">12 June 2026</time></span>
+      <span>Updated <time datetime="2026-08-24">24 Aug 2026</time></span>
       <span class="opacity-40">·</span>
       <span>8 min read</span>
     </div>
@@ -349,7 +350,7 @@
 
       <h2 id="vs-assistant">Companion vs the page Work Assistant</h2>
       <p>WorkHive has two related AI surfaces, and it helps to know which is which.</p>
-      <table>
+      <div data-table-scroll style="overflow-x:auto;-webkit-overflow-scrolling:touch;" role="region" aria-label="Scrollable table" tabindex="0"><table>
         <thead><tr><th></th><th>AI Work Assistant</th><th>AI Companion</th></tr></thead>
         <tbody>
           <tr><td>Where it lives</td><td>The assistant page chat</td><td>Floating launcher on every page + Voice Journal</td></tr>
@@ -358,7 +359,7 @@
           <tr><td>Voice input</td><td>Text-first</td><td>Voice and text</td></tr>
           <tr><td>Best for</td><td>Plant-floor fault diagnosis from your data</td><td>An expert or strategic second opinion, anywhere</td></tr>
         </tbody>
-      </table>
+      </table></div>
       <p>They share the same models and memory, so a fact you establish in one is available in the other for the same agent. Read the companion guide above and the <a href="/learn/ai-work-assistant-maintenance-technicians/">AI Work Assistant guide</a> together.</p>
 
       <h2 id="voice">Voice, Filipino, and Taglish</h2>
@@ -369,7 +370,7 @@
         <h4 aria-level="3">Ask Hezekiah or Zaniah on any page</h4>
         <p>The AI Companion follows you across WorkHive with two expert personas, grounded in authoritative maintenance knowledge plus your own hive's data. Free at the worker tier. Open the assistant or tap the launcher on any page to start.</p>
         <a href="/assistant.html" class="cta-btn">Open the AI Companion</a>
-        <p class="cta-secondary">No hive yet? <a href="/#join">Join WorkHive</a> first (free, takes 30 seconds).</p>
+        <p class="cta-secondary">No hive yet? <a href="/?signup=1">Join WorkHive</a> first (free, takes 30 seconds).</p>
       </div>
 
       <h2 id="not-good">What it is NOT good at</h2>
@@ -440,11 +441,11 @@
 
 <footer class="py-10 border-t border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
   <div class="max-w-4xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">
-    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-06-12">12 June 2026</time></p>
+    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-08-24">24 Aug 2026</time></p>
     <div class="flex items-center gap-6">
       <a href="/" class="hover:text-white/60 transition-colors">Home</a>
       <a href="/#faq" class="hover:text-white/60 transition-colors">FAQ</a>
-      <a href="/#join" class="hover:text-white/60 transition-colors">Join the Hive</a>
+      <a href="/?signup=1" class="hover:text-white/60 transition-colors">Join the Hive</a>
     </div>
   </div>
 </footer>

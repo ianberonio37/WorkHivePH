@@ -170,7 +170,7 @@ def main() -> int:
     _logo_rule = ""
     _m = re.search(r"\.doc-panel \.doc-logo\s*\{(.*?)\}", rep, re.S)
     if _m:
-        _logo_rule = re.sub(r"/\*.*?\*/", "", _m.group(1), flags=re.S)
+        _logo_rule = re.sub(r"/\*(?![\"']).*?\*/", "", _m.group(1), flags=re.S)
     _logo_color = (re.search(r"color:\s*(#[0-9a-fA-F]{3,6})", _logo_rule) or [None, ""])[1]
     check("C2", bool(_logo_color) and _logo_color.lower() != "#a78bfa",
           f"[report] .doc-logo ink is {_logo_color or 'MISSING'} -- not the dark-shell lilac (~2.6:1 on white print)")

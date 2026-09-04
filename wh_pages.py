@@ -42,8 +42,8 @@ LEARN_HUB_PAGE = "learn/index.html"
 LEARN_ARTICLES = [
     # ── Wave 1 ────────────────────────────────────────────────────────────────
     ("start-digital-logbook-philippine-factory",          "How to Start a Digital Logbook in a Philippine Factory",          "/logbook.html",             "Logbook"),
-    ("what-is-oee-how-to-calculate",                      "What is OEE and How Do I Calculate It?",                          "/analytics-report.html",    "Analytics"),
-    ("mtbf-vs-mttr-for-supervisors",                      "MTBF vs MTTR for Supervisors, Engineers, and Planners",           "/logbook.html",             "Logbook"),
+    ("what-is-oee-how-to-calculate",                      "What is OEE and How Do I Calculate It?",                          "/analytics.html",          "Analytics"),
+    ("mtbf-vs-mttr-for-supervisors",                      "MTBF vs MTTR for Supervisors, Engineers, and Planners",           "/analytics.html",          "Analytics"),
     ("maintenance-shift-handover-template",               "How to Write a Maintenance Shift Handover (Template Included)",   "/shift-brain.html",         "Shift Brain"),
     ("spare-parts-inventory-philippine-plants",           "Spare Parts Inventory for Philippine Plants",                     "/inventory.html",           "Inventory"),
     ("free-pm-checklist-templates",                       "Free PM Checklist Templates for Industrial Maintenance",          "/pm-scheduler.html",        "PM Scheduler"),
@@ -51,20 +51,29 @@ LEARN_ARTICLES = [
     ("dilo-wilo-day-planner-supervisors",                 "DILO, WILO, MILO, YILO: Day Planner Method for Supervisors",      "/dayplanner.html",          "Day Planner"),
     ("free-engineering-calculators-philippine-plants",    "Free Engineering Design Calculators for Philippine Plants",       "/engineering-design.html",  "Engineering Design"),
     ("ai-work-assistant-maintenance-technicians",         "AI Work Assistant for Every Industrial Worker",                   "/assistant.html",           "AI Assistant"),
-    ("predictive-maintenance-on-a-budget-philippines",    "Predictive Maintenance on a Budget (Philippines)",                "/analytics-report.html",    "Analytics"),
-    ("connecting-workhive-to-sap-maximo-cmms",            "Connecting WorkHive to SAP, IBM Maximo, and Other CMMS",          "/hive.html",                "Hive"),
+    ("predictive-maintenance-on-a-budget-philippines",    "Predictive Maintenance on a Budget (Philippines)",                "/analytics.html",          "Analytics"),
+    ("connecting-workhive-to-sap-maximo-cmms",            "Connecting WorkHive to SAP, IBM Maximo, and Other CMMS",          "/integrations.html",       "Integrations"),
     ("voice-to-text-maintenance-philippine-plant-floor",  "Voice-to-Text on the Philippine Plant Floor",                     "/voice-journal.html",       "Voice Journal"),
     ("building-asset-register-zero-budget",               "Building an Asset Register from Scratch (Zero-Budget, ISO 14224)","/asset-hub.html",           "Asset Hub"),
-    ("maintenance-project-planning-template",             "Maintenance Project Planning (Free Template for PH Plants)",      "/hive.html",                "Hive"),
+    # T174 (2026-08-28): tool_path was "/hive.html", and the article it points at is titled "Plant
+    # Turnaround and Maintenance Project Planning". It names "Project Manager" 14 times, headlines
+    # "WorkHive Project Manager runs the 6 steps end to end", and its own CTA is
+    # <a href="/project-manager.html">Open Project Manager</a>. "Hive" appears twice, once inside
+    # "WorkHive". The registry and the article disagreed, and the registry lost.
+    # Consequence while it stood: learn-link.js keys the page-guide chip off tool_path, so the
+    # project-planning guide was offered on the HIVE BOARD and project-manager.html - the most
+    # complex page on the platform - had no guide at all. One of six pages with that gap, and the
+    # only one where the guide already existed and was simply pointed at the wrong door.
+    ("maintenance-project-planning-template",             "Maintenance Project Planning (Free Template for PH Plants)",      "/project-manager.html",     "Project Manager"),
     ("joining-and-growing-your-hive",                     "Joining and Growing Your WorkHive Hive (Multi-Tenant Guide)",     "/hive.html",                "Hive"),
     ("industrial-community-of-practice-philippines",      "Industrial Community of Practice for Philippine Plant Teams",     "/community.html",           "Community"),
-    ("gamifying-maintenance-for-engagement",              "Gamifying Maintenance for Technician Engagement",                 "/hive.html",                "Hive"),
+    ("gamifying-maintenance-for-engagement",              "Gamifying Maintenance for Technician Engagement",                 "/achievements.html",       "Achievements"),
     ("industrial-marketplace-philippine-specialists",     "Industrial Marketplace for Philippine Specialists",               "/marketplace.html",         "Marketplace"),
-    ("predictive-alert-thresholds-plants",                "Predictive Alert Thresholds for Industrial Plants",               "/hive.html",                "Hive"),
+    ("predictive-alert-thresholds-plants",                "Predictive Alert Thresholds for Industrial Plants",               "/alert-hub.html",          "Alert Hub"),
     ("dole-iso-audit-trail-from-logbook",                 "DOLE OSHS and ISO Audit Trail from Your Logbook",                 "/audit-log.html",           "Audit"),
-    ("ai-quality-and-roi-stage-2-plants",                 "Measuring AI Quality and ROI for Stage 2+ Industrial Plants",     "/analytics-report.html",    "Analytics"),
-    ("sensor-cmms-gateway-operations",                    "Sensor and CMMS Gateway Operations for Industrial Plants",        "/hive.html",                "Hive"),
-    ("ph-industrial-benchmarks-intelligence",             "PH Industrial Benchmarks and Intelligence Reports (Free)",        "/analytics-report.html",    "Analytics"),
+    ("ai-quality-and-roi-stage-2-plants",                 "Measuring AI Quality and ROI for Stage 2+ Industrial Plants",     "/ai-quality.html",         "AI Quality"),
+    ("sensor-cmms-gateway-operations",                    "Sensor and CMMS Gateway Operations for Industrial Plants",        "/plant-connections.html",  "Plant Connections"),
+    ("ph-industrial-benchmarks-intelligence",             "PH Industrial Benchmarks and Intelligence Reports (Free)",        "/ph-intelligence.html",    "PH Intelligence"),
     # Gap found by the Content Grounding Gate 2026-06-10: Resume Builder had no
     # article and was invisible to SEO/GEO (nav-only uncovered).
     ("resume-builder-for-filipino-industrial-workers",    "Build an ATS-Ready Resume from Your Plant Work History",          "/resume.html",              "Resume Builder"),
@@ -102,6 +111,8 @@ LEARN_ARTICLES = [
     ("four-phases-maintenance-analytics-philippine-plants","The 4 Phases of Maintenance Analytics: From What Happened to What To Do Next",   "/analytics.html",         "Analytics"),
     ("print-ready-maintenance-analytics-report",          "The Print-Ready Maintenance Report Your Management Actually Reads",              "/analytics-report.html",  "Analytics Report"),
     # ── Wave 6 (2026-07-07): pillar overview + AI companion capabilities ───────
+    # L4-exempt: a platform OVERVIEW legitimately links all 26 tools, and its declared
+    # target is the landing page, which is not a tool anchor - the check cannot apply.
     ("what-is-workhive-complete-platform-guide",          "What is WorkHive? The Complete Guide to the Free Platform for Filipino Industrial Teams", "/index.html",       "WorkHive"),
     ("workhive-ai-companion-complete-capabilities",       "The WorkHive AI Companion: Everything It Can Do (and How to Get the Most From It)",         "/assistant.html",   "AI Companion"),
 ]

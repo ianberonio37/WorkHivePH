@@ -6,12 +6,12 @@ failures (registry entries pointing at non-existent IDs) fail the gate.
 
 | Tier | Registry file | Registered | Discovered | Pending |
 |---|---|---:|---:|---:|
-| F (Fuel) | `canonical/capture_contracts.json` | 494 | 264 | 45 |
+| F (Fuel) | `canonical/capture_contracts.json` | 494 | 274 | 56 |
 | E (Engine) | `canonical/formula_contracts.json` | 24 | 22 | 19 |
-| B (Brain) | `canonical/agent_contracts.json` | 7 | 102 | 14 |
+| B (Brain) | `canonical/agent_contracts.json` | 7 | 103 | 14 |
 | Glue (lineage edges) | `canonical/lineage_edges.json` | 17 | — | — |
 
-## Tier F (Fuel) — pending registrations (45)
+## Tier F (Fuel) — pending registrations (56)
 
 - `cl-text`
 - `f-lead-time`
@@ -24,6 +24,7 @@ failures (registry entries pointing at non-existent IDs) fail the gate.
 - `group-filter`
 - `ideal_cycle_time_seconds`
 - `jd-input`
+- `join-name-input`
 - `post-part-number`
 - `post-source-item-id`
 - `promote-dedupe`
@@ -52,12 +53,16 @@ failures (registry entries pointing at non-existent IDs) fail the gate.
 - `svc-topup-ref-`
 - `svc-vcode-`
 - `type-input`
-- `vm-code`
-- `vm-kind`
-- `vm-maxuses`
-- `vm-segment`
-- `vm-value`
-- `window`
+- `veh-doc-file`
+- `veh-ins`
+- `veh-make`
+- `veh-model`
+- `veh-odo`
+- `veh-plate`
+- `veh-reg`
+- `veh-scope`
+- `veh-vin`
+- `veh-year`
 
 ## Tier E (Engine) — pending registrations (19)
 

@@ -29,7 +29,11 @@ import { writeFileSync, readFileSync, existsSync } from 'fs';
 const SEEDER = process.env.WH_TEST_BASE_URL || 'http://127.0.0.1:5000';
 const EMAIL = process.env.WH_TEST_EMAIL || 'leandromarquez@auth.workhiveph.com';
 const PASSWORD = process.env.WH_TEST_PASSWORD || 'test1234';
-const HIVE = '9b4eaeac-59b0-4b0e-9b0b-0947b45ad1e7'; // Baguio Textile Mills
+// Baguio Textile Mills. Repointed 2026-08-27: the id above it was DEAD - the fixture had been
+// reseeded under a new id and this constant kept the old one while the comment kept the NAME, so it
+// read as correct while measuring an empty world. Verified against public.hive_members: Leandro
+// Marquez is a supervisor here.
+const HIVE = '084c113b-99c0-45c6-a8e8-b4b8349da46d';
 const WORKER = process.env.WH_TEST_WORKER || 'Leandro Marquez';
 const PAGE_QUERY = { 'marketplace-seller-profile.html': '?worker=Bryan%20Garcia' };
 
@@ -44,8 +48,13 @@ const MEDIAN_N = (() => { const i = args.indexOf('--median'); return i >= 0 ? Ma
 // S ratchet tolerance — live CWV jitters ±1-2 even at median-of-N; S may dip this much
 // without a real regression (E/R/B are static/deterministic → zero tolerance).
 const S_TOLERANCE = 2;
-const RESULTS = 'perf_scale_results.json';
-const BASELINE = 'perf_scale_baseline.json';
+// A narrowed --page run must not wear the full sweep's filename, and must never write its narrowed
+// counts over a forward-only baseline. See tools/live_page_journeys.mjs for the measured case: this
+// exact shape let a one-page run replace a 110-journey sweep with 14 rows, and a gate read it whole.
+// (--median only repeats the measurement, so it does not narrow the denominator and takes no suffix.)
+const NARROW = PAGE_ONLY ? `page-${PAGE_ONLY}`.replace(/[^\w.-]+/g, '_') : '';
+const RESULTS = NARROW ? `perf_scale_results.${NARROW}.json` : 'perf_scale_results.json';
+const BASELINE = NARROW ? `perf_scale_baseline.${NARROW}.json` : 'perf_scale_baseline.json';
 
 // 2026 Google "good" CWV thresholds (same as ufai_battery CWV_GOOD).
 const CWV_GOOD = { LCP: 2500, INP: 200, CLS: 0.1 };

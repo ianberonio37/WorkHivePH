@@ -2,7 +2,7 @@
 name: page-architecture
 type: page
 source: file:architecture.html
-source_sha: 845ffbac333da831
+source_sha: 3f83958c38d056aa
 last_verified: 2026-07-13
 supersedes: null
 ---

@@ -10,7 +10,7 @@ By **WorkHive Editorial Team**
 ·
 Published 17 May 2026
 ·
-Updated 17 May 2026
+Updated 24 Aug 2026
 ·
 8 min read
 
@@ -81,7 +81,7 @@ The tool this guide is about
 
 Verified work history pulled from WorkHive Logbook, ID-verified sellers, and dispute mediation backed by documented evidence. 3 high-value patterns: emergency specialist sourcing, recurring consumable supply, one-off project bidding. Free for everyone: no platform fees, no commission, and no payments through WorkHive; you contact sellers directly.
 
-No hive yet? [Join WorkHive](https://workhiveph.com/#join) first (free, takes 30 seconds).
+No hive yet? [Join WorkHive](https://workhiveph.com/?signup=1) first (free, takes 30 seconds).
 
 ## Frequently asked questions
 
@@ -118,4 +118,4 @@ Reviews are tied to completed transactions only (no buying reviews without using
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: f68e930884920818 -->
+<!-- md-twin source-sha: 54e751369b364b70 -->

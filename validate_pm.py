@@ -39,7 +39,9 @@ PM_PAGE = "pm-scheduler.html"
 
 VALID_LOGBOOK_CATEGORIES = [
     "Mechanical", "Electrical", "Hydraulic", "Pneumatic",
-    "Instrumentation", "Lubrication", "Other",
+    "Instrumentation", "Lubrication",
+    "Vehicle",   # VEHICLE SEED (2026-09-02): logbook's #f-category gained it (odometer/fuel templates)
+    "Other",
 ]
 
 PM_COMPLETION_REQUIRED = ["asset_id", "scope_item_id", "hive_id", "worker_name", "status", "completed_at"]

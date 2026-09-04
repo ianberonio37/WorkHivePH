@@ -32,8 +32,12 @@ if sys.platform == "win32":
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
 ROOT = Path(__file__).resolve().parent
+sys.path.insert(0, str(ROOT / "tools" / "lib"))
 BASE = "http://127.0.0.1:54321"
-HIVE = "9b4eaeac-59b0-4b0e-9b0b-0947b45ad1e7"
+# ★NO PINNED HIVE UUID (2026-08-27) - see validate_auth_role_guard_live.py for the full argument.
+# This gate WRITES ai_rate_limits rows keyed by hive_id and deletes them again; against a hive that
+# no longer exists it would seed a counter nothing reads, then "prove" a 429 that the real quota
+# path never produced. The signed-in user's CURRENT hive comes from live hive_members instead.
 DB = "supabase_db_workhive"
 CREDS = {"email": "leandromarquez@auth.workhiveph.com", "password": "test1234"}
 REPORT = "auth_rate_limit_live_report.json"
@@ -71,17 +75,19 @@ def main() -> int:
     if not key:
         return _skip("local anon key not found")
     try:
-        tok = urllib.request.Request(f"{BASE}/auth/v1/token?grant_type=password",
-            data=json.dumps(CREDS).encode(),
-            headers={"Content-Type": "application/json", "apikey": key}, method="POST")
-        jwt = json.loads(urllib.request.urlopen(tok, timeout=15).read())["access_token"]
-    except Exception as e:
-        return _skip(f"GoTrue/seeder unreachable: {type(e).__name__}")
+        from test_identity import resolve_test_identity, TestIdentityError
+    except ImportError as e:
+        return _skip(f"tools/lib/test_identity.py unavailable: {e}")
+    try:
+        ident = resolve_test_identity(CREDS["email"], CREDS["password"], anon=key)
+    except TestIdentityError as e:
+        return _skip(str(e))
+    jwt, hive = ident.jwt, ident.hive_id
 
     # Drive the counter to the boundary (upsert so it exists), then invoke.
     seeded = _psql(
         f"insert into ai_rate_limits (hive_id, call_count, window_start) "
-        f"values ('{HIVE}', {BOUNDARY}, now()) "
+        f"values ('{hive}', {BOUNDARY}, now()) "
         f"on conflict (hive_id) do update set call_count={BOUNDARY}, window_start=now();"
     )
     if not seeded:
@@ -90,7 +96,7 @@ def main() -> int:
     code = None
     try:
         req = urllib.request.Request(f"{BASE}/functions/v1/voice-action-router",
-            data=json.dumps({"transcript": "rate-limit enforcement boundary test", "hive_id": HIVE}).encode(),
+            data=json.dumps({"transcript": "rate-limit enforcement boundary test", "hive_id": hive}).encode(),
             headers={"Content-Type": "application/json", "apikey": key,
                      "Authorization": f"Bearer {jwt}"}, method="POST")
         r = urllib.request.urlopen(req, timeout=30)
@@ -98,10 +104,10 @@ def main() -> int:
     except urllib.error.HTTPError as e:
         code = e.code
     except Exception as e:
-        _psql(f"delete from ai_rate_limits where hive_id='{HIVE}';")
+        _psql(f"delete from ai_rate_limits where hive_id='{hive}';")
         return _skip(f"edge runtime unreachable: {type(e).__name__}")
     finally:
-        _psql(f"delete from ai_rate_limits where hive_id='{HIVE}';")  # leave env clean
+        _psql(f"delete from ai_rate_limits where hive_id='{hive}';")  # leave env clean
 
     ok = (code == 429)
     if ok:

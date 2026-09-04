@@ -60,31 +60,31 @@ test.describe('hierarchical-summarizer — Phase 2 of AGENTIC_RAG_ROADMAP.md', (
     expect((r.body.error || '').toLowerCase()).toContain('hive_id');
   });
 
-  test('rejects missing level with 400', async ({ whPage }) => {
+  test('rejects missing level with 400', async ({ whPage, hiveId }) => {
     await whPage.goto(HOST_PAGE);
     await waitForPageReady(whPage);
 
-    const r = await invoke(whPage, { hive_id: '586fd158-42d1-4853-a406-64a4695e71c4' });
+    const r = await invoke(whPage, { hive_id: hiveId });
     test.skip(skipIfNotDeployed(r), 'hierarchical-summarizer not deployed yet');
     expect(r.status).toBe(400);
     expect((r.body.error || '').toLowerCase()).toContain('level');
   });
 
-  test('rejects invalid level value with 400', async ({ whPage }) => {
+  test('rejects invalid level value with 400', async ({ whPage, hiveId }) => {
     await whPage.goto(HOST_PAGE);
     await waitForPageReady(whPage);
 
-    const r = await invoke(whPage, { hive_id: '586fd158-42d1-4853-a406-64a4695e71c4', level: 'fortnight' });
+    const r = await invoke(whPage, { hive_id: hiveId, level: 'fortnight' });
     test.skip(skipIfNotDeployed(r), 'hierarchical-summarizer not deployed yet');
     expect(r.status).toBe(400);
   });
 
-  test('happy path: level=day default-period rolls up and returns ok shape', async ({ whPage }) => {
+  test('happy path: level=day default-period rolls up and returns ok shape', async ({ whPage, hiveId }) => {
     await whPage.goto(HOST_PAGE);
     await waitForPageReady(whPage);
 
     const r = await invoke(whPage, {
-      hive_id: '586fd158-42d1-4853-a406-64a4695e71c4',
+      hive_id: hiveId,
       level:   'day',
     });
     test.skip(skipIfNotDeployed(r), 'hierarchical-summarizer not deployed yet');
@@ -100,12 +100,12 @@ test.describe('hierarchical-summarizer — Phase 2 of AGENTIC_RAG_ROADMAP.md', (
     }
   });
 
-  test('idempotent: second call for same period returns ok=true (upsert)', async ({ whPage }) => {
+  test('idempotent: second call for same period returns ok=true (upsert)', async ({ whPage, hiveId }) => {
     await whPage.goto(HOST_PAGE);
     await waitForPageReady(whPage);
 
     const payload = {
-      hive_id:      '586fd158-42d1-4853-a406-64a4695e71c4',
+      hive_id:      hiveId,
       level:        'day',
       period_start: '2026-05-01',
       period_end:   '2026-05-01',

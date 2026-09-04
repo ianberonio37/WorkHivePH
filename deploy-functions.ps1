@@ -50,6 +50,7 @@ npx supabase functions deploy walkthrough-analyzer --no-verify-jwt
 npx supabase functions deploy export-hive-data --no-verify-jwt
 npx supabase functions deploy platform-scraper --no-verify-jwt
 npx supabase functions deploy resume-extract --no-verify-jwt
+npx supabase functions deploy vehicle-doc-extract --no-verify-jwt
 npx supabase functions deploy resume-polish --no-verify-jwt
 npx supabase functions deploy voice-embeddings --no-verify-jwt
 npx supabase functions deploy voice-model-call --no-verify-jwt

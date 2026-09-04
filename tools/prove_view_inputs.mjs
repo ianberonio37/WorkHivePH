@@ -251,7 +251,10 @@ for (const p of PAGES) {
   console.log(`  ${p.padEnd(19)} ${String(rec.verdict).padEnd(20)} ${detail}`.slice(0, 168));
   await ctx.close();
 }
-writeFileSync('view_inputs_report.json', JSON.stringify(report, null, 1));
+// A NARROWED RUN MUST NOT CLOBBER THE FULL ONE: this file is read downstream (gates and
+// bank_prover_reports), so a --page/--case spot-check overwriting a whole sweep's verdicts
+// corrupts the BANK, not just a log. Measured on prove_retry_path 2026-08-27.
+writeFileSync((ONE ? 'view_inputs_report.partial.json' : 'view_inputs_report.json'), JSON.stringify(report, null, 1));
 const v = Object.values(report.pages);
 console.log(`\n  wrote view_inputs_report.json — `
   + `${v.filter((x) => x.verdict === 'NO-INPUT-NO-COMMIT').length} inputless, `

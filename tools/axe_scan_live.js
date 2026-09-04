@@ -52,10 +52,13 @@ const PAGES = [
 
 // Seeded supervisor of the test hive (same identity the live deep-walk uses).
 // HIVE_ID fixed 2026-07-19: was the STALE fixture 9b4eaeac (leandromarquez is NOT a member → RLS returned
-// 0 rows → the gate scanned EMPTY pages, missing populated-content a11y). His real hive is 636cf7e8 (the
-// same stale-hive the page-crud/live gates already pin via WH_TEST_HIVE). Now scans REAL rendered content.
+// 0 rows → the gate scanned EMPTY pages, missing populated-content a11y — the failure this pin causes).
+// That 2026-07-19 fix pinned 636cf7e8 and asserted it was "his real hive"; by 2026-08-27 THAT id had been
+// reseeded away too, so the sentence had quietly become false while reading as settled fact. Refreshed to
+// 084c113b (Baguio Textile Mills) and, more to the point, resolveHive() below reads the live membership —
+// a pin that has now rotted twice is documentation of the reseed, not a source of truth.
 const SUPERVISOR = 'leandromarquez';
-const HIVE_ID    = process.env.WH_TEST_HIVE || '636cf7e8-431a-4907-8a9f-43dd4cc216d6'; // hive fallback only — resolveHive() reads live membership
+const HIVE_ID    = process.env.WH_TEST_HIVE || '084c113b-99c0-45c6-a8e8-b4b8349da46d'; // hive fallback only — resolveHive() reads live membership
 const HIVE_NAME  = 'Baguio Textile Mills';
 const WORKER     = 'Leandro Marquez';
 const WCAG_TAGS  = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'];

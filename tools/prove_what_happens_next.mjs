@@ -734,7 +734,10 @@ for (const p of (ONE ? [ONE] : Object.keys(FLOWS))) {
   console.log(`  ${p.padEnd(13)} ${String(rec.status).padEnd(9)} ${rec.why || ''}`.slice(0, 160));
   await ctx.close();
 }
-writeFileSync('what_happens_next_report.json', JSON.stringify(report, null, 1));
+// A NARROWED RUN MUST NOT CLOBBER THE FULL ONE: this file is read downstream (gates and
+// bank_prover_reports), so a --page/--case spot-check overwriting a whole sweep's verdicts
+// corrupts the BANK, not just a log. Measured on prove_retry_path 2026-08-27.
+writeFileSync((ONE ? 'what_happens_next_report.partial.json' : 'what_happens_next_report.json'), JSON.stringify(report, null, 1));
 const v = Object.values(report.pages);
 console.log(`\n  wrote what_happens_next_report.json — ${v.filter((x) => x.status === 'PASS').length} pass, `
   + `${v.filter((x) => x.status === 'PARTIAL').length} partial (recorded, left owed), `

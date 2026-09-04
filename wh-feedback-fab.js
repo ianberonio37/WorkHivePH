@@ -418,8 +418,21 @@
     submit.addEventListener('click', onSubmit);
   }
 
-  function openPanel() {
+  // T193 (2026-08-26): accept an optional PREFILL, so a caller can open this panel already
+  // describing the problem. Before this, open() ignored every argument it was handed — a
+  // "report this" door that opened a blank form put the whole burden of describing a failure
+  // on the person who just hit it, which is how reports become "it doesn't work". Both fields
+  // are optional and only overwrite an EMPTY field, so a half-typed report is never clobbered.
+  function openPanel(prefill) {
     const panel = document.getElementById('wh-feedback-panel');
+    if (prefill && typeof prefill === 'object') {
+      try {
+        const s = document.getElementById('wh-fb-subject');
+        const b = document.getElementById('wh-fb-body');
+        if (s && prefill.subject && !s.value) s.value = String(prefill.subject).slice(0, 200);
+        if (b && prefill.body && !b.value) b.value = String(prefill.body).slice(0, 2000);
+      } catch (_) { /* empty-catch-allow: a prefill must never block the panel from opening */ }
+    }
     panel.setAttribute('aria-hidden', 'false');
     // Next frame so the transform applies as a transition, not a jump
     requestAnimationFrame(() => panel.classList.add('open'));
@@ -536,9 +549,14 @@
         return;
       }
 
-      // Success — show inline confirm, then auto-close after 1.5s
-      setStatus('success', 'Sent! Thanks for the feedback.');
-      setTimeout(() => closePanel(), 1500);
+      // Success — show inline confirm, then auto-close.
+      // T193 (2026-08-26): say WHERE it went and WHAT to expect. "Thanks for the feedback" set no
+      // expectation at all, so a person reporting a blocking problem could not tell whether a human
+      // would ever see it — and the honest answer is good: platform_feedback IS read, on the
+      // founder console's review queue. A reply needs the (optional) email, so name that condition
+      // instead of implying one either way. Give the longer sentence time to be read.
+      setStatus('success', 'Sent - it lands in the founder review queue. If you left an email, you get a reply there; there is no automated response.');
+      setTimeout(() => closePanel(), 4200);
     } catch (e) {
       console.error('[wh-feedback-fab] unexpected error', e);
       setStatus('error', 'Network hiccup, please try again.');

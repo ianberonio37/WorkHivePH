@@ -1567,9 +1567,29 @@ function calcHotWaterDemand(inputs: Record<string, number | string>): Record<str
 // it. Conservative by design — only the OPTIONAL spoken field is affected (the formal report
 // fields are untouched), so a false negative never removes report content, and a real
 // fabrication in the voice line is silenced rather than spoken.
-function narrationQuotesResult(narration: string, results: Record<string, unknown>): boolean {
-  const nums = String(narration).match(/-?\d[\d,]*(?:\.\d+)?/g);
+// ★T83 (2026-08-26): THIS RAIL CHECKED THE OPPOSITE OF WHAT ITS COMMENT CLAIMED. The line above
+// it reads "silence the spoken line if it quotes an unverifiable figure" - ANY unverifiable
+// figure - and the code was `nums.some(...)`, which passes as soon as ONE number matches. So
+// "Provide a 45 kW unit at 380 V" passed on the 380 while the 45 was fabricated, and the
+// fabricated number is the one that gets SPOKEN as the headline, on an engineering calculation
+// an engineer signs. The prompt asks for exactly one headline value quoted verbatim; the check
+// has to hold every quoted figure to that, not just the luckiest one.
+//
+// ★BUT `every` ALONE WOULD SILENCE HONEST NARRATIONS, which is its own failure - a rail that
+// mutes everything teaches people to ignore it. Narrations legitimately carry figures that are
+// not results: the INPUTS they were computed from, small counts ("2 pumps"), and standard numbers
+// ("IEC 62305-3", "PEC 2017"). Those are exempted by name, and everything else must be a computed
+// value within tolerance. A number that is none of those has no source, and no source is the
+// definition of fabricated.
+function narrationQuotesResult(
+  narration: string,
+  results: Record<string, unknown>,
+  inputs?: Record<string, unknown>,
+): boolean {
+  const text = String(narration);
+  const nums = text.match(/-?\d[\d,]*(?:\.\d+)?/g);
   if (!nums) return true;                 // no numeric claim to verify — nothing to fabricate
+
   const ground: number[] = [];
   const collect = (o: unknown) => {
     if (typeof o === "number") ground.push(o);
@@ -1577,10 +1597,30 @@ function narrationQuotesResult(narration: string, results: Record<string, unknow
     else if (o && typeof o === "object") Object.values(o as Record<string, unknown>).forEach(collect);
   };
   collect(results);
-  return nums.some((nStr) => {
-    const n = parseFloat(nStr.replace(/,/g, ""));
-    return ground.some((g) => Math.abs(g - n) <= Math.max(0.05, Math.abs(g) * 0.02));
-  });
+  if (inputs) collect(inputs);            // a value the engineer typed is not a fabrication
+
+  // digits belonging to a standard's designation, e.g. "IEC 62305-3", "PEC 2017", "ASHRAE 62.1"
+  const standardNums = new Set<string>();
+  const STD = /\b(?:NFPA|PEC|ASHRAE|ISO|ASME|IEC|PSME|NSCP|DPWH|DENR|DOH|ASTM|AISI|IEEE|API|ANSI)\s*[-–]?\s*([\d.\-]+)/gi;
+  for (let m = STD.exec(text); m; m = STD.exec(text)) {
+    (m[1].match(/-?\d+(?:\.\d+)?/g) || []).forEach((x) => standardNums.add(x));
+  }
+
+  const grounded = (n: number) =>
+    ground.some((g) => Math.abs(g - n) <= Math.max(0.05, Math.abs(g) * 0.02));
+
+  // EVERY quoted figure must have a source, and at least one must be a computed RESULT -
+  // otherwise a narration that merely echoes the inputs would count as quoting the answer.
+  let quotesAResult = false;
+  for (const nStr of nums) {
+    const clean = nStr.replace(/,/g, "");
+    if (standardNums.has(clean)) continue;
+    const n = parseFloat(clean);
+    if (Number.isInteger(n) && n >= 0 && n <= 12) continue;   // a count, not a design value
+    if (!grounded(n)) return false;
+    quotesAResult = true;
+  }
+  return quotesAResult || nums.every((x) => standardNums.has(x.replace(/,/g, "")));
 }
 
 async function generateReportNarrative(
@@ -1626,7 +1666,7 @@ Respond in JSON format only:
       if (parsed.objective && parsed.assumptions && parsed.recommendations) {
         if (parsed.narration) parsed.narration = String(parsed.narration).trim().slice(0, 280);
         // AI-1 grounding rail: silence the spoken line if it quotes an unverifiable figure.
-        if (parsed.narration && !narrationQuotesResult(parsed.narration, results)) parsed.narration = null;
+        if (parsed.narration && !narrationQuotesResult(parsed.narration, results, inputs)) parsed.narration = null;
         return parsed;
       }
     }
@@ -6047,7 +6087,7 @@ serveObserved("engineering-calc-agent", async (req) => {
     if (!_id.isServiceRole) {
       const _ip = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
       const _rl = await checkSoloRateLimit(_rlDb, soloRateLimitKey(_id.authUid, _ip));
-      if (!_rl.allowed) return soloRateLimitedResponse(corsHeaders);
+      if (!_rl.allowed) return soloRateLimitedResponse(corsHeaders, _rl.retry_after_seconds);
     }
 
     // ─── Python API proxy (Phase 0+) ─────────────────────────────────────────

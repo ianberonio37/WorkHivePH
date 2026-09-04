@@ -323,6 +323,27 @@ def main() -> int:
     except OSError as e:
         rep_note = f"(report skipped: {e})"
 
+    # ★A NO-OP MUST NOT REPORT ITSELF AS AN ACTION (2026-08-26). This printed a green APPLIED
+    # after retiring 0 and changing 0 bytes, while the WARN it exists to clear still stood.
+    # The cause is structural, not a bug in the arithmetic: feedback is never auto-retired
+    # (it is doctrine), and the index has grown to be almost entirely feedback - so the tool
+    # has nothing it is ALLOWED to touch. A future session reads "APPLIED", believes the
+    # index was curated, and the file marches on toward the load cap where entries silently
+    # stop loading. Say plainly that the fix did not fit, and name what is blocking it.
+    changed = len(kept) != len(entries) or nb != size
+    still_over = nb > SOFT_BYTES if "SOFT_BYTES" in globals() else nb > 22000
+    if not changed and still_over:
+        protected = sum(1 for e in entries if "feedback_" in getattr(e, "link", str(e)))
+        print(f"  {Y}NO CHANGE{X}: nothing was retirable, and the index is still {nb/1024:.1f}KB "
+              f"- over budget.")
+        print(f"  why    : {protected} of {len(entries)} entries are feedback, which is doctrine and is "
+              f"never auto-retired.")
+        print(f"  meaning: this command cannot clear the warning. It needs a human pass - shorten hooks, "
+              f"or merge same-class lessons into one family pointer (the topic files stay on disk and "
+              f"stay Memento-retrievable either way).")
+        print(f"  backup : {bak.name}  (identical content; kept so the run is auditable)")
+        return 0
+
     print(f"  {G}APPLIED{X}: {len(entries)}->{len(kept)} entries, {size}->{nb} bytes ({nb/1024:.1f}KB), "
           f"{nlines}->{nl} lines")
     print(f"  backup : {bak.name}")

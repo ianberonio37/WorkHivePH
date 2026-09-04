@@ -6,7 +6,7 @@
     "data_cascades_UNMAPPED": 2,
     "operational_log_writes": 15,
     "self_config_writes": 2,
-    "infra_writes": 9
+    "infra_writes": 10
   },
   "data_cascades_unmapped": [
     {
@@ -43,8 +43,8 @@
         {
           "fn": "agentic-rag-loop",
           "to_table": "agentic_rag_traces",
-          "line": 822,
-          "evidence": "functions/agentic-rag-loop/index.ts:822",
+          "line": 835,
+          "evidence": "functions/agentic-rag-loop/index.ts:835",
           "downstream_pages": [
             "agentic-rag-observability"
           ],
@@ -76,8 +76,8 @@
         {
           "fn": "ai-eval-runner",
           "to_table": "ai_quality_log",
-          "line": 321,
-          "evidence": "functions/ai-eval-runner/index.ts:321",
+          "line": 324,
+          "evidence": "functions/ai-eval-runner/index.ts:324",
           "downstream_pages": [],
           "disposition": "infra"
         }
@@ -146,8 +146,8 @@
         {
           "fn": "batch-risk-scoring",
           "to_table": "asset_risk_scores",
-          "line": 433,
-          "evidence": "functions/batch-risk-scoring/index.ts:433",
+          "line": 437,
+          "evidence": "functions/batch-risk-scoring/index.ts:437",
           "downstream_pages": [
             "alert-hub",
             "asset-hub"
@@ -188,8 +188,8 @@
         {
           "fn": "benchmark-compute",
           "to_table": "automation_log",
-          "line": 290,
-          "evidence": "functions/benchmark-compute/index.ts:290",
+          "line": 306,
+          "evidence": "functions/benchmark-compute/index.ts:306",
           "downstream_pages": [
             "alert-hub",
             "report-sender"
@@ -232,8 +232,8 @@
         {
           "fn": "cmms-push-completion",
           "to_table": "automation_log",
-          "line": 195,
-          "evidence": "functions/cmms-push-completion/index.ts:195",
+          "line": 208,
+          "evidence": "functions/cmms-push-completion/index.ts:208",
           "downstream_pages": [
             "alert-hub",
             "report-sender"
@@ -457,8 +457,8 @@
         {
           "fn": "failure-signature-scan",
           "to_table": "automation_log",
-          "line": 365,
-          "evidence": "functions/failure-signature-scan/index.ts:365",
+          "line": 381,
+          "evidence": "functions/failure-signature-scan/index.ts:381",
           "downstream_pages": [
             "alert-hub",
             "report-sender"
@@ -485,10 +485,11 @@
         {
           "fn": "fmea-populator",
           "to_table": "rcm_fmea_modes",
-          "line": 391,
-          "evidence": "functions/fmea-populator/index.ts:391",
+          "line": 418,
+          "evidence": "functions/fmea-populator/index.ts:418",
           "downstream_pages": [
-            "asset-hub"
+            "asset-hub",
+            "hive"
           ],
           "disposition": "data_mapped"
         }
@@ -521,13 +522,14 @@
         {
           "fn": "hierarchical-summarizer",
           "to_table": "canonical_period_summaries",
-          "line": 334,
-          "evidence": "functions/hierarchical-summarizer/index.ts:334",
+          "line": 343,
+          "evidence": "functions/hierarchical-summarizer/index.ts:343",
           "downstream_pages": [],
           "disposition": "infra"
         }
       ],
       "reads": [
+        "logbook",
         "v_logbook_truth",
         "v_pm_scope_items_truth"
       ],
@@ -699,8 +701,8 @@
         {
           "fn": "resend-webhook-receiver",
           "to_table": "automation_log",
-          "line": 161,
-          "evidence": "functions/resend-webhook-receiver/index.ts:161",
+          "line": 169,
+          "evidence": "functions/resend-webhook-receiver/index.ts:169",
           "downstream_pages": [
             "alert-hub",
             "report-sender"
@@ -772,8 +774,8 @@
         {
           "fn": "send-report-email",
           "to_table": "automation_log",
-          "line": 253,
-          "evidence": "functions/send-report-email/index.ts:253",
+          "line": 275,
+          "evidence": "functions/send-report-email/index.ts:275",
           "downstream_pages": [
             "alert-hub",
             "report-sender"
@@ -855,6 +857,14 @@
             "pm-scheduler"
           ],
           "disposition": "operational"
+        },
+        {
+          "fn": "supervisor-reset-password",
+          "to_table": "service_outbox",
+          "line": 100,
+          "evidence": "functions/supervisor-reset-password/index.ts:100",
+          "downstream_pages": [],
+          "disposition": "infra"
         }
       ],
       "reads": [
@@ -869,8 +879,8 @@
         {
           "fn": "temporal-rag-orchestrator",
           "to_table": "ai_rate_limits",
-          "line": 273,
-          "evidence": "functions/temporal-rag-orchestrator/index.ts:273",
+          "line": 307,
+          "evidence": "functions/temporal-rag-orchestrator/index.ts:307",
           "downstream_pages": [],
           "disposition": "infra"
         }
@@ -909,8 +919,8 @@
         {
           "fn": "visual-defect-capture",
           "to_table": "fault_knowledge",
-          "line": 428,
-          "evidence": "functions/visual-defect-capture/index.ts:428",
+          "line": 434,
+          "evidence": "functions/visual-defect-capture/index.ts:434",
           "downstream_pages": [
             "logbook"
           ],

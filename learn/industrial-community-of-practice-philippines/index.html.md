@@ -10,7 +10,7 @@ By **WorkHive Editorial Team**
 ·
 Published 17 May 2026
 ·
-Updated 17 May 2026
+Updated 24 Aug 2026
 ·
 7 min read
 
@@ -72,7 +72,7 @@ The tool this guide is about
 
 Post questions, answer others, search by asset type or fault category. Hive-scoped or anonymised public modes. AI Assistant pulls Community answers into in-hive diagnostics automatically. Free at the worker tier; moderation in Filipino, English, and Taglish.
 
-No hive yet? [Join WorkHive](https://workhiveph.com/#join) first (free, takes 30 seconds).
+No hive yet? [Join WorkHive](https://workhiveph.com/?signup=1) first (free, takes 30 seconds).
 
 ## Frequently asked questions
 
@@ -109,4 +109,4 @@ Allowed with disclosure (vendor identifies themselves and offers a useful answer
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: ab6cadad39faca27 -->
+<!-- md-twin source-sha: 893a03ba6d30c2b6 -->

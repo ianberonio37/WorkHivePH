@@ -6,7 +6,14 @@
   <title>Engineering Design Calculator: WorkHive</title>
   <!-- capture: eng_calc_bearing_life_v1 ... +57 more eng_calc_*_v1 (form) — Wave 3 captures, see canonical_capture_contracts WHERE source_page='engineering-design.html'. Validates each calc's inputs.get() field set against the registered schema before write. -->
   <meta name="robots" content="noindex, follow" />
-  <meta name="description" content="Standards-grade engineering design calculator with 46 calculation types across Mechanical, HVAC, Electrical, Fire Protection, Plumbing, and Structural disciplines. Generates BOM, SOW, and diagrams." />
+  <!-- T151 (2026-08-28): this said "46 calculation types across ... and Structural". Counted live
+       from CALC_TYPES_UI, the file's own declared sole source of truth: 55 types across SIX
+       disciplines - HVAC & Cooling 10, Mechanical 4, Electrical 14, Plumbing 10, Fire Protection 5,
+       Machine Design 12. There is no Structural discipline in this calculator, so the old text
+       under-counted what exists AND promised a discipline that does not, which is the worse half:
+       a searcher arriving for a structural calculator finds none. Held by the calc-count-is-true
+       gate against the live registry. -->
+  <meta name="description" content="Standards-grade engineering design calculator with 55 calculation types across HVAC &amp; Cooling, Mechanical, Electrical, Plumbing, Fire Protection, and Machine Design. Generates BOM, SOW, and diagrams." />
   <meta property="og:title" content="Engineering Design Calculator: WorkHive" />
   <meta property="og:image" content="https://workhiveph.com/brand_assets/og-social.png" />
   <link rel="manifest" href="manifest.json" />
@@ -895,7 +902,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 <div id="toast" role="alert" aria-live="polite"></div>
 
 <!-- Nav -->
-<script src="utils.js"></script>
+<script src="browser-floor.js"></script>
+  <script src="utils.js"></script>
 <script src="nav-hub.js"></script>
 <script>window.addEventListener('load', function () { if (window.whAutoRememberFilters) whAutoRememberFilters('eng-search', ['calc-search']); });</script><!-- G5a: remember the calc search cross-session -->
 

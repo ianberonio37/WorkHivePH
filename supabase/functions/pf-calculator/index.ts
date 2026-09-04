@@ -165,7 +165,7 @@ serveObserved("pf-calculator", async (req) => {
       // A5: rate-limit the browser path (service-role/internal callers skip) — reference: voice-model-call/embed-entry.
       const _ip = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
       const _rl = await checkSoloRateLimit(db, soloRateLimitKey(authUid, _ip), undefined, undefined, _ip);
-      if (!_rl.allowed) return soloRateLimitedResponse(corsHeaders);
+      if (!_rl.allowed) return soloRateLimitedResponse(corsHeaders, _rl.retry_after_seconds);
     }
 
     // Resolve asset via canonical view

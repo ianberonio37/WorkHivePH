@@ -1,6 +1,6 @@
 # Python Tool Pattern Mining Report
 
-- Files scanned: **681**
+- Files scanned: **970**
 - Features extracted: **22**
 - Promotion threshold: >= 80% conformance, <= 8 outliers
 - Promotion candidates: **0**
@@ -14,25 +14,25 @@
 
 | Feature | Conformance | Positive / Total |
 |---|---:|---|
-| `has_print_calls` | 98% | 671 / 681 |
-| `has_main_guard` | 95% | 647 / 681 |
-| `defines_main` | 85% | 585 / 681 |
-| `uses_pathlib` | 71% | 485 / 681 |
-| `has_shebang` | 68% | 464 / 681 |
-| `uses_future_annotations` | 63% | 432 / 681 |
-| `uses_json_dump` | 56% | 384 / 681 |
-| `uses_sys_argv` | 52% | 359 / 681 |
-| `has_cp1252_guard` | 51% | 351 / 681 |
-| `uses_subprocess` | 32% | 223 / 681 |
-| `has_module_docstring` | 28% | 192 / 681 |
-| `subprocess_has_timeout` | 26% | 181 / 681 |
-| `uses_argparse` | 19% | 132 / 681 |
-| `reads_env_directly` | 9% | 67 / 681 |
-| `passes_request_timeout` | 8% | 60 / 681 |
-| `uses_requests_lib` | 4% | 32 / 681 |
-| `uses_dotenv` | 2% | 17 / 681 |
-| `calls_ai_chain` | 1% | 10 / 681 |
-| `bypasses_chain_with_anthropic` | 0% | 3 / 681 |
-| `uses_httpx` | 0% | 2 / 681 |
-| `bypasses_chain_with_openai` | 0% | 2 / 681 |
-| `uses_logging_module` | 0% | 0 / 681 |
+| `has_print_calls` | 99% | 960 / 970 |
+| `has_main_guard` | 96% | 936 / 970 |
+| `defines_main` | 89% | 871 / 970 |
+| `has_shebang` | 76% | 741 / 970 |
+| `uses_pathlib` | 75% | 734 / 970 |
+| `has_cp1252_guard` | 58% | 566 / 970 |
+| `uses_future_annotations` | 56% | 549 / 970 |
+| `uses_sys_argv` | 51% | 503 / 970 |
+| `uses_json_dump` | 42% | 412 / 970 |
+| `uses_subprocess` | 36% | 349 / 970 |
+| `subprocess_has_timeout` | 30% | 297 / 970 |
+| `has_module_docstring` | 21% | 204 / 970 |
+| `uses_argparse` | 14% | 136 / 970 |
+| `reads_env_directly` | 7% | 76 / 970 |
+| `passes_request_timeout` | 6% | 63 / 970 |
+| `uses_requests_lib` | 3% | 32 / 970 |
+| `uses_dotenv` | 1% | 17 / 970 |
+| `calls_ai_chain` | 1% | 10 / 970 |
+| `bypasses_chain_with_anthropic` | 0% | 3 / 970 |
+| `uses_httpx` | 0% | 2 / 970 |
+| `bypasses_chain_with_openai` | 0% | 2 / 970 |
+| `uses_logging_module` | 0% | 0 / 970 |

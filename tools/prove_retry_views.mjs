@@ -28,6 +28,13 @@ const PAGES = ['hive', 'logbook', 'inventory', 'pm-scheduler', 'project-manager'
 const QUERY = { 'project-report': '?project_id=539e0d9a-9ff7-474b-ab03-9254406ca7dc' };
 const args = process.argv.slice(2);
 const ONE = (() => { const i = args.indexOf('--page'); return i >= 0 ? args[i + 1] : null; })();
+// T40 second lane (2026-08-26): --lane edge blocks **/functions/v1/** instead of REST, closing
+// the scope note that let edge-fed views (analytics-report's generators, project-manager's
+// progress fn) read as justified-silent under a REST-only outage. Every edge invocation is
+// fulfilled locally with a 500 (nothing leaves the browser), so mutating fns are safe to block.
+const LANE = (() => { const i = args.indexOf('--lane'); return i >= 0 ? args[i + 1] : 'rest'; })();
+const BLOCK = LANE === 'edge' ? '**/functions/v1/**' : '**/rest/v1/**';
+const REPORT = LANE === 'edge' ? 'retry_views_edge_report.json' : 'retry_views_report.json';
 
 const readView = (sel) => {
   const el = sel && (document.getElementById(sel) || document.querySelector(`.${CSS.escape(sel)}`));
@@ -78,12 +85,14 @@ for (const pg of (ONE ? [ONE.replace(/\.html$/, '')] : PAGES)) {
       const base = await p.evaluate(readView, t.modal);
       const isNew = (r) => (r.failSents || []).filter((s) => !(base.failSents || []).includes(s));
       let hits = 0;
-      await ctx.route('**/rest/v1/**', (route) => {
+      await ctx.route(BLOCK, (route) => {
         // READ-shaped RPCs travel as POSTs (hive's board loads via POST /rest/v1/rpc/get_* bundles) -
         // a GET-only induction reads an RPC-fed view as "issues no read of its own", a false NA.
         // Fulfilling a 500 here is safe for mutating RPCs too: the request never leaves the browser.
+        // Edge lane: ALL functions/v1 invocations are POSTs; every one is the lane's subject.
         const m = route.request().method();
-        const isRead = /GET|HEAD/i.test(m) || (/POST/i.test(m) && route.request().url().includes('/rpc/'));
+        const isRead = LANE === 'edge'
+          || /GET|HEAD/i.test(m) || (/POST/i.test(m) && route.request().url().includes('/rpc/'));
         if (!isRead) return route.continue();
         hits++;
         return route.fulfill({ status: 500, contentType: 'application/json',
@@ -127,7 +136,7 @@ for (const pg of (ONE ? [ONE.replace(/\.html$/, '')] : PAGES)) {
         continue;
       }
       // heal the network, press the view's own retry, expect recovery
-      await ctx.unroute('**/rest/v1/**').catch(() => {});
+      await ctx.unroute(BLOCK).catch(() => {});
       await p.evaluate(() => document.querySelector('[data-wh-rv="1"]')?.click());
       await p.waitForTimeout(3500);
       const healed = await p.evaluate(readView, t.modal);
@@ -150,9 +159,9 @@ for (const pg of (ONE ? [ONE.replace(/\.html$/, '')] : PAGES)) {
 await browser.close();
 const ok = cells.filter((c) => c.ok === true).length;
 const bad = cells.filter((c) => c.ok === false).length;
-writeFileSync('retry_views_report.json', JSON.stringify({
+writeFileSync(REPORT, JSON.stringify({
   totals: { cells: cells.length, pass: ok, fail: bad, ungraded: cells.length - ok - bad },
   views: cells,
 }, null, 1));
-console.log(`\n  ${cells.length} cell(s): ${ok} PASS · ${bad} FAIL · ${cells.length - ok - bad} ungraded — retry_views_report.json`);
+console.log(`\n  ${cells.length} cell(s): ${ok} PASS · ${bad} FAIL · ${cells.length - ok - bad} ungraded (${LANE} lane) — ${REPORT}`);
 process.exit(bad ? 1 : 0);

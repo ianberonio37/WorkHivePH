@@ -343,6 +343,22 @@
           <span class="wh-voice-elapsed" id="wh-voice-elapsed">0:00</span>
           <span style="margin-left:auto;font-size:0.7rem;color:rgba(255,255,255,0.4);">Tap Stop when done</span>
         </div>
+        <!-- T79 (2026-08-27) VOCABULARY DISCOVERABILITY. This overlay said "Voice command",
+             "Listening..." and "Tap Stop when done" — and never what you may SAY. The router
+             understands a CLOSED set of five intents, so a worker who guesses outside it gets
+             the unknown-intent path, and the only hint in the product fired once, for a first-time worker, via
+             the companion's opening line (_isFirstTimeWorker gates it on an empty journal AND no
+             prior turns). After session one the vocabulary was invisible — on a feature whose
+             write verbs are additionally behind a default-OFF execute lock, so a worker who never
+             learns the commands exist never enables them and the whole capability stays dark.
+             The examples below are written FROM _summariseIntent's own five kinds
+             (logbook.create / inventory.deduct / pm.complete / asset.lookup / query.ask) rather
+             than invented, so the hint cannot promise a command the router does not route.
+             Hidden once a transcript arrives — it is for the moment before you speak. -->
+        <div id="wh-voice-vocab" class="wh-voice-vocab" style="font-size:0.68rem;line-height:1.55;color:rgba(255,255,255,0.62);margin:0.15rem 0 0.55rem;">
+          Try: &ldquo;log a repair on Pump 2&rdquo; &middot; &ldquo;used 2 bearings&rdquo; &middot;
+          &ldquo;PM done on Line 3&rdquo; &middot; &ldquo;what is Pump 2&rsquo;s history&rdquo;
+        </div>
         <div id="wh-voice-transcript" class="wh-voice-transcript" style="display:none;"></div>
         <div id="wh-voice-intents"></div>
         <div id="wh-voice-result" style="display:none;"></div>
@@ -395,6 +411,11 @@
     // clear-on-reset call (_setTranscript('')) doesn't wipe it before a rating.
     if (text) _lastQuestion = String(text);
     const el = document.getElementById('wh-voice-transcript');
+    // The vocabulary hint answers "what can I say", so it belongs to the moment BEFORE speaking.
+    // Once there are words to show it is noise, and it comes back on reset (_setTranscript('')),
+    // which is the same call that clears the transcript between commands.
+    const vocab = document.getElementById('wh-voice-vocab');
+    if (vocab) vocab.style.display = text ? 'none' : '';
     if (!el) return;
     if (!text) { el.style.display = 'none'; el.textContent = ''; return; }
     el.style.display = 'block';
@@ -594,11 +615,20 @@
       fd.append('language', 'en');
       // Pass the active hive so the indigenous ASR primes on + repairs this hive's real asset tags (CL12).
       if (ctx && ctx.hive_id) fd.append('hive_id', ctx.hive_id);
-      const tResp = await fetch(SUPABASE_URL + '/functions/v1/voice-transcribe', {
-        method: 'POST',
-        headers: { 'Authorization': 'Bearer ' + SUPABASE_KEY, 'apikey': SUPABASE_KEY },
-        body: fd,
-      });
+      // T146 (2026-08-26): bounded via the platform's fetchWithTimeout - an unbounded call to a
+      // slow-by-nature endpoint has no failure mode, only a control stuck in its working state.
+      const tResp = (typeof fetchWithTimeout === 'function')
+        ? await fetchWithTimeout(SUPABASE_URL + '/functions/v1/voice-transcribe', {
+            method: 'POST',
+            headers: { 'Authorization': 'Bearer ' + SUPABASE_KEY, 'apikey': SUPABASE_KEY },
+            body: fd,
+          }, 45000)
+        : await fetch(SUPABASE_URL + '/functions/v1/voice-transcribe', {
+            method: 'POST',
+            headers: { 'Authorization': 'Bearer ' + SUPABASE_KEY, 'apikey': SUPABASE_KEY },
+            body: fd,
+          });
+      if (!tResp) throw new Error('That took too long to transcribe. Try again, or type it instead.');
       const tData = await tResp.json();
       if (!tResp.ok) throw new Error(tData.error || 'Transcribe failed');
       const transcript = String(tData.text || '').trim().slice(0, MAX_TRANSCRIPT_CHARS);
@@ -723,6 +753,14 @@
     let anyError = false;
     for (const intent of intents) {
       if (intent.kind === 'unknown' || intent.kind === 'query.ask') continue;
+      // T79: the deterministic guard runs HERE, before anything is written. It used to be
+      // dead code with a passing gate.
+      const pre = _preflightAction(intent.kind, intent.params || {}, ar);
+      if (!pre.ok) {
+        anyError = true;
+        messages.push(_blockerMessage(pre.blocker, ar));
+        continue;
+      }
       try {
         const result = await dispatch(intent, ar);
         if (result && result.message) messages.push(result.message);
@@ -1099,13 +1137,21 @@
   }
 
   // Phase 7: TTS quality metrics + caching
-  async function _logTTSMetrics(db, hiveId, latencyMs, error) {
+  //
+  // T85 (2026-08-26): `persona` was HARDCODED 'zaniah' here, so every one of these rows
+  // claimed Zaniah spoke no matter who actually did - the same mis-stamp CL9 found in
+  // ai_reply_feedback, in a third file. The column exists to answer ONE question ("does
+  // one companion's voice fail or lag more than the other?"), and a constant does not
+  // just fail to answer it - it answers WRONGLY, reporting that Hezekiah has zero TTS
+  // problems because Hezekiah has zero rows. Measured before the fix: 13 rows, 13 zaniah.
+  // The caller has the real value in scope, so it is passed rather than re-resolved.
+  async function _logTTSMetrics(db, hiveId, latencyMs, error, persona) {
     if (!db) return;
     try {
       await db.from('tts_quality_log').insert({
         worker_id: (await db.auth.getUser())?.data?.user?.id,
         hive_id: hiveId,
-        persona: 'zaniah',
+        persona: persona || _getPersonaSafe(),
         latency_ms: latencyMs,
         error_message: error || null,
       });
@@ -2672,25 +2718,70 @@
   // through voice-action-router, run a deterministic preflight:
   // do we have the required slots? is the asset valid-shape?
   // do we hold the voice-execute lock? Returns {ok, blocker}.
-  function _preflightAction(intent, slots) {
+  // ★T79 (2026-08-26): THIS GUARD WAS NEVER CALLED. It was defined here, exported in the
+  // test-helper block, and certified by validate_ai_companion_integration_audit's preflight
+  // check - which asserted the four blocker STRINGS were present in the file. A guard that
+  // returns blockers from a function nobody invokes passes that perfectly while protecting
+  // nothing. Worse, its writeVerbs were slot-style ('log_entry', 'schedule_pm') and the
+  // router emits 'logbook.create' / 'inventory.deduct' / 'pm.complete', so even if it HAD
+  // been called it would have matched nothing. Now it speaks both vocabularies and _confirm
+  // actually runs it.
+  //
+  // ★AND THE HOLE IT NOW CLOSES: asset ambiguity was rendered and never enforced. When the
+  // resolver found two machines matching "Pump 2", the card turned the pill red and appended
+  // "(multiple matches)" - and Confirm still wrote the entry to ar.primary, whichever one
+  // ranked first. A worker's repair record landed on the wrong machine, and the only warning
+  // was a colour. A coin flip is not a resolution: refuse, and let them say which one.
+  const _ROUTER_WRITE_KINDS = new Set(['logbook.create', 'inventory.deduct', 'pm.complete']);
+  const _SLOT_WRITE_VERBS = new Set([
+    'log_entry','schedule_pm','flag_alert','update_status',
+    'log_stop','close_pm','start_pm','log_bearing_change',
+  ]);
+
+  function _preflightAction(intent, slots, assetResolution) {
     const i = String(intent || '');
     const s = (slots && typeof slots === 'object') ? slots : {};
+    const ar = (assetResolution && typeof assetResolution === 'object') ? assetResolution : null;
     if (!i) return { ok: false, blocker: 'no_intent' };
-    // Most write intents need an asset_tag.
-    const writeVerbs = new Set([
-      'log_entry','schedule_pm','flag_alert','update_status',
-      'log_stop','close_pm','start_pm','log_bearing_change',
-    ]);
-    if (writeVerbs.has(i)) {
+
+    if (_SLOT_WRITE_VERBS.has(i)) {
       if (!s.asset_tag) return { ok: false, blocker: 'missing_asset_tag' };
       if (!/^[A-Z]{1,3}-?\d{2,5}$/i.test(String(s.asset_tag))) {
         return { ok: false, blocker: 'malformed_asset_tag' };
       }
     }
+    // A write onto an unresolved "Pump 2" must not silently pick one.
+    if (_ROUTER_WRITE_KINDS.has(i) && ar && ar.ambiguous) {
+      return { ok: false, blocker: 'ambiguous_asset' };
+    }
     if (!_isVoiceExecuteAuth()) {
       return { ok: false, blocker: 'voice_execute_lock' };
     }
     return { ok: true, blocker: null };
+  }
+
+  // Said the way a worker holding a phone in a plant would need to hear it.
+  function _blockerMessage(blocker, assetResolution) {
+    const cands = (assetResolution && Array.isArray(assetResolution.candidates))
+      ? assetResolution.candidates : [];
+    const names = cands.map(c => c && (c.tag || c.name)).filter(Boolean).slice(0, 4);
+    switch (blocker) {
+      case 'ambiguous_asset':
+        return names.length
+          ? ('More than one machine matches: ' + names.join(', ')
+             + '. Nothing was saved. Say the exact tag so this goes on the right one.')
+          : 'More than one machine matches that name. Nothing was saved. Say the exact tag.';
+      case 'missing_asset_tag':
+        return 'That command needs a machine. Nothing was saved. Say which one.';
+      case 'malformed_asset_tag':
+        return 'That machine tag was not understood. Nothing was saved. Try the tag as printed, like P-203.';
+      case 'voice_execute_lock':
+        return 'Voice actions are locked on this device. Nothing was saved.';
+      case 'no_intent':
+        return 'No command was recognised. Nothing was saved.';
+      default:
+        return 'That command was not run. Nothing was saved.';
+    }
   }
 
   // Phase 4.100 (turn #98) IDLE SESSION CLEANUP — when the
@@ -5919,7 +6010,7 @@
     const fetches = await Promise.allSettled([
       db.from('v_kpi_truth').select('machine,mtbf_30d,mttr_30d,total_downtime_30d,failures_30d').eq('hive_id', hiveId).limit(50),
       db.from('v_risk_truth').select('asset_name,risk_score,risk_level,mtbf_days,days_until_failure').eq('hive_id', hiveId).order('risk_score', { ascending: false }).order('asset_name').limit(5),
-      db.from('v_pm_compliance_truth').select('asset_name,category,criticality,last_anchor_date,days_since_last_completion,completions_30d').eq('hive_id', hiveId).limit(20),
+      db.from('v_pm_compliance_truth').select('asset_name,category,criticality,last_anchor_date,days_since_last_completion,completions_30d,skips_90d').eq('hive_id', hiveId).limit(20),
       // Open logbook items (the "open work" backlog — what Day Planner shows in its sidebar)
       db.from('v_logbook_truth').select('machine,category,problem,action,status,date,created_at,worker_name').eq('hive_id', hiveId).eq('status', 'Open').order('created_at', { ascending: false }).order('id').limit(30),
       db.from('v_inventory_items_truth').select('part_name,part_number,qty_on_hand,min_qty,reorder_point').eq('hive_id', hiveId).limit(50),
@@ -5984,6 +6075,22 @@
       const stale = pm.filter(p => p.days_since_last_completion && p.days_since_last_completion > 30).length;
       const recent = pm.filter(p => p.completions_30d && p.completions_30d > 0).length;
       parts.push(`PM compliance: ${recent} completed in last 30d, ${stale} stale (no PM in 30+ days) of ${pm.length} tracked assets`);
+      /* T189 (2026-08-28): SKIPPED PMs ARE PART OF THE PICTURE AND THE COMPANION COULD NOT SEE THEM.
+         v_pm_compliance_truth used to count a skip as a completion, so "N completed" silently
+         included work someone had recorded as NOT done; the view now separates them, and this is
+         where the separated half has to land. Without it the companion answers "how are we doing on
+         PMs?" with a strictly rosier plant than exists — omitting the one fact a maintenance
+         supervisor most needs, since deliberately skipped work is more actionable than merely stale
+         work: somebody already decided not to do it, and the assistant would never mention it.
+         Scoped to the same bounded 20-asset sample as the line above, and stated as skips rather
+         than folded into any total, so the model cannot re-merge what the view just separated. */
+      const skipped = pm.reduce((n, p) => n + (Number(p.skips_90d) || 0), 0);
+      if (skipped > 0) {
+        const skippedAssets = pm.filter(p => Number(p.skips_90d) > 0);
+        parts.push(`  PM SKIPS: ${skipped} scope item(s) recorded as SKIPPED (not done) in the last 90d across ${skippedAssets.length} asset(s)` +
+          (skippedAssets.length ? `:\n    ` + skippedAssets.slice(0, 5).map(p => `${p.asset_name} (${p.criticality}): ${p.skips_90d} skipped`).join('\n    ') : '') +
+          `\n  A skip is recorded NON-PERFORMANCE, not a completion — never report it as work done.`);
+      }
       if (stale > 0) {
         parts.push(`  Stale PMs:\n    ` + pm.filter(p => p.days_since_last_completion && p.days_since_last_completion > 30).slice(0, 5).map(p => `${p.asset_name} (${p.criticality}): ${p.days_since_last_completion} days since last PM`).join('\n    '));
       }
@@ -7959,7 +8066,7 @@
       // Phase 6: Cache snapshot for offline resilience
       _cacheOfflineSnapshot(db, ctx.hive_id, canonicalData);
       // Phase 7: Log TTS metrics (latency + success)
-      _logTTSMetrics(db, ctx.hive_id, ttsLatencyMs, null);
+      _logTTSMetrics(db, ctx.hive_id, ttsLatencyMs, null, persona);
       // Phase 8: Capture conversation analytics
       _captureAnalytics(db, sessionId, _turnNum, newIntentKind || 'unknown', 1, newConfidence);
       // Phase 10: Update avatar state (response generated, neutral emotion by default)
@@ -7991,7 +8098,7 @@
       // Phase 6: Cache snapshot even on failure
       _cacheOfflineSnapshot(db, ctx.hive_id, canonicalData);
       // Phase 7: Log TTS metrics with error marker
-      _logTTSMetrics(db, ctx.hive_id, ttsLatencyMs, String(err && err.message || 'Unknown error'));
+      _logTTSMetrics(db, ctx.hive_id, ttsLatencyMs, String(err && err.message || 'Unknown error'), persona);
       // Phase 8: Capture analytics (quality=-1 for failed responses)
       _captureAnalytics(db, sessionId, _turnNum, 'fallback', -1, 0);
       // Phase 10: Update avatar state (fallback state)
@@ -8039,12 +8146,28 @@
       rateBtns.forEach(function (btn) {
         btn.addEventListener('click', function () {
           const rating = Number(btn.getAttribute('data-rate')) || 0;
+          // T88 (2026-08-26): the buttons used to lock and colour IMMEDIATELY, then fire the
+          // write and swallow whatever came back. Disable while it is in flight (so the tap is
+          // acknowledged and cannot double-fire), but only COMMIT to the accepted colour once
+          // the row has actually landed - and hand the buttons back if it did not, so the
+          // worker can try again rather than believing a rating was recorded that never was.
           rateBtns.forEach(b => { b.disabled = true; b.style.opacity = '0.4'; });
-          btn.style.background = (rating > 0)
-            ? 'rgba(74,222,128,.20)' : 'rgba(248,113,113,.20)';
           // Pass the question (last transcript) + this bubble's answer so the
           // 8.5 harvest can recover what was asked.
-          _recordReplyRating(rating, _lastQuestion, text).catch(function () { /* non-fatal */ /* empty-catch-allow: best-effort silent swallow */ });
+          _recordReplyRating(rating, _lastQuestion, text).then(function (ok) {
+            if (ok) {
+              btn.style.background = (rating > 0)
+                ? 'rgba(74,222,128,.20)' : 'rgba(248,113,113,.20)';
+              btn.setAttribute('aria-pressed', 'true');
+              return;
+            }
+            rateBtns.forEach(b => { b.disabled = false; b.style.opacity = ''; });
+            if (typeof window.showToast === 'function') {
+              window.showToast('That rating did not save. Tap again to retry.', 'info');
+            }
+          }).catch(function () {
+            rateBtns.forEach(b => { b.disabled = false; b.style.opacity = ''; });
+          });
         });
       });
     }
@@ -8062,15 +8185,21 @@
   // this comment for the intelligence validator's persistence-path check.
   async function _recordReplyRating(rating, question, answer) {
     const r = Number(rating);
-    if (r !== 1 && r !== -1) return;
+    if (r !== 1 && r !== -1) return false;
     const db = _getDb();
     const ctx = _ctx();
-    if (!db || !ctx) return;
+    if (!db || !ctx) return false;
     const persona = (typeof _getPersonaSafe === 'function') ? _getPersonaSafe() : null;
     try {
       // auth_uid OMITTED — the table DEFAULT stamps auth.uid() and RLS binds the
       // row to the caller, so a forged identity is rejected at the DB.
-      await db.from('ai_reply_feedback').insert({
+      // T88 (2026-08-26): this discarded the insert result. supabase-js does NOT throw on an RLS
+      // refusal - it returns { error } - so the catch below never fired for the most likely
+      // failure, and an anon or denied rating was treated exactly like a stored one. The comment
+      // above even records that anon callers "silently skip"; the worker was not told, and the
+      // buttons had already turned green before the call was made. A thumbs-down that vanishes is
+      // worse than no thumbs-down: it teaches the worker their feedback is read when it is not.
+      const { error: _fbErr } = await db.from('ai_reply_feedback').insert({
         hive_id:     ctx.hive_id || null,
         worker_name: ctx.worker_name || null,
         agent:       'voice-journal',
@@ -8081,6 +8210,7 @@
         answer:      String(answer == null ? '' : answer).slice(0, 4000),
         rating:      r,
       });
+      if (_fbErr) return false;
       // Phase 4.46 (turn #47) Feedback escalation — if this is a 👎 AND
       // the worker has 3+ negative ratings in the last 7 days, flag for
       // the ai-quality dashboard. The dashboard reads this flag to
@@ -8098,7 +8228,9 @@
           } catch (_) { /* table may not exist yet — non-fatal */ /* empty-catch-allow: best-effort silent swallow */ }
         }
       }
-    } catch (_) { /* swallow — non-fatal */ /* empty-catch-allow: best-effort silent swallow */ }
+      return true;
+    } catch (_) { /* transport failure — the caller restores the buttons */ /* empty-catch-allow: best-effort silent swallow */ }
+    return false;
   }
 
   function _showTalkAgainButton() {
@@ -8446,6 +8578,7 @@
     _emitAuditEvent,
     _isQuietHours,
     _preflightAction,
+    _blockerMessage,
     _scheduleIdleCleanup,
     _cancelIdleCleanup,
     _bumpErrorCount,

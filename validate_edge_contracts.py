@@ -38,6 +38,7 @@ ALL_FUNCTIONS = [
     "login",                       # Arc I I7/A — pre-auth brute-force login proxy
     "supervisor-reset-password",   # Arc I I3/I — supervisor-assisted password reset
     "resume-extract",
+    "vehicle-doc-extract",         # VEHICLE SEED VM2 — resume-extract mirror (doc extraction, miner floor)
     "resume-polish",
     "ai-gateway",
     "ai-eval-runner",
@@ -103,6 +104,7 @@ ALL_FUNCTIONS = [
 
 REQUIRED_FIELDS = {
     "notify-push":  ["title", "body"],   # SERVICE_HAILING P5/G3 push fan-out
+    "vehicle-doc-extract":      ["kind", "payload"],   # VEHICLE SEED VM2 doc extraction
 
     "ai-orchestrator":          ["question"],
     "analytics-orchestrator":   ["phase"],

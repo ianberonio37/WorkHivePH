@@ -10,7 +10,7 @@ By **WorkHive Editorial Team**
 ·
 Published 17 May 2026
 ·
-Updated 17 May 2026
+Updated 24 Aug 2026
 ·
 9 min read
 
@@ -88,7 +88,7 @@ The tool this guide is about
 
 The Predictive Maintenance surface in WorkHive sits inside Analytics. It reads your Logbook history, your PM compliance, and (when added) sensor data from any source: phone app, handheld analyzer export, wireless sensor API. AI anomaly detection unlocks at Stage 3 once your data has 90+ days of history. Free at the worker tier; sensor integrations roll on as you mature.
 
-No hive yet? [Join WorkHive](https://workhiveph.com/#join) first (free, takes 30 seconds).
+No hive yet? [Join WorkHive](https://workhiveph.com/?signup=1) first (free, takes 30 seconds).
 
 ## 12-month rollout sequence
 
@@ -150,4 +150,4 @@ No. PdM reduces unplanned downtime by 35 to 50 percent in mature programs (SMRP 
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 8e34ec8c26e9328d -->
+<!-- md-twin source-sha: 0be1dc550054024d -->

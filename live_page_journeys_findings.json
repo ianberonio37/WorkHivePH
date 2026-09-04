@@ -1,9 +1,87 @@
 {
-  "ran": "2026-07-21T13:51:05.368Z",
+  "ran": "2026-08-27T02:11:27.910Z",
   "findings": [
     {
       "page": "index.html",
       "role": "anon",
+      "layer": "floor",
+      "rule": "cta:inert-primary",
+      "severity": 1,
+      "evidence": "primary-styled control is [inert] at audit time (button.btn-primary.text-sm[\"Get Early Access: It's F\"])",
+      "owner": "frontend"
+    },
+    {
+      "page": "index.html",
+      "role": "anon",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "learn/start-digital-logbook-philippine-factory/index.html",
+      "role": "anon",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "marketplace.html",
+      "role": "anon",
+      "layer": "floor",
+      "rule": "tap-target≥44px",
+      "severity": 2,
+      "evidence": "1/74 interactive <44px",
+      "owner": "mobile-maestro"
+    },
+    {
+      "page": "marketplace.html",
+      "role": "anon",
+      "layer": "heuristic",
+      "rule": "Modal/bottom-sheet must carry role=\"dialog\" + aria-modal=\"true\" + an accessible name (aria-label OR a resolving aria-labelledby)",
+      "basis": "designer / WCAG-4.1.2",
+      "severity": 2,
+      "evidence": "div.sheet-header — role=null aria-modal=null name=MISSING (no aria-label and no resolving aria-labelledby)",
+      "owner": "designer"
+    },
+    {
+      "page": "marketplace.html",
+      "role": "anon",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "index.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "span#toast-icon — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "index.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "span#toast-text — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "index.html",
+      "role": "supervisor",
       "layer": "heuristic",
       "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
       "basis": "designer / WCAG-4.1.3",
@@ -19,6 +97,16 @@
       "basis": "designer / WCAG-4.1.3",
       "severity": 1,
       "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "logbook.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "span#toast-icon — auto-update region without role=status/alert or aria-live",
       "owner": "designer"
     },
     {
@@ -39,6 +127,16 @@
       "basis": "designer / WCAG-4.1.3",
       "severity": 1,
       "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "logbook.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "span#toast-icon — auto-update region without role=status/alert or aria-live",
       "owner": "designer"
     },
     {
@@ -95,15 +193,6 @@
       "page": "dayplanner.html",
       "role": "worker",
       "layer": "floor",
-      "rule": "axe:color-contrast",
-      "severity": 2,
-      "evidence": "1 node(s): .wh-kbd-a11y > div:nth-child(2)",
-      "owner": "qa-tester"
-    },
-    {
-      "page": "dayplanner.html",
-      "role": "worker",
-      "layer": "floor",
       "rule": "axe:target-size",
       "severity": 2,
       "evidence": "1 node(s): div[aria-label=\"Add task at 9 AM\"]",
@@ -128,15 +217,6 @@
       "severity": 1,
       "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
       "owner": "designer"
-    },
-    {
-      "page": "hive.html",
-      "role": "supervisor",
-      "layer": "floor",
-      "rule": "tap-target≥44px",
-      "severity": 2,
-      "evidence": "3/42 interactive <44px",
-      "owner": "mobile-maestro"
     },
     {
       "page": "hive.html",
@@ -217,24 +297,6 @@
       "severity": 1,
       "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
       "owner": "designer"
-    },
-    {
-      "page": "community.html",
-      "role": "worker",
-      "layer": "floor",
-      "rule": "tap-target≥44px",
-      "severity": 2,
-      "evidence": "1/66 interactive <44px",
-      "owner": "mobile-maestro"
-    },
-    {
-      "page": "community.html",
-      "role": "worker",
-      "layer": "floor",
-      "rule": "axe:color-contrast",
-      "severity": 2,
-      "evidence": "3 node(s): .presence-chip > div:nth-child(2) | #post-0f78265c-602b-4c5a-b617-1e8d40e47a84 ",
-      "owner": "qa-tester"
     },
     {
       "page": "community.html",
@@ -335,6 +397,15 @@
       "severity": 1,
       "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
       "owner": "designer"
+    },
+    {
+      "page": "assistant.html",
+      "role": "worker",
+      "layer": "floor",
+      "rule": "tap-target≥44px",
+      "severity": 2,
+      "evidence": "2/14 interactive <44px",
+      "owner": "mobile-maestro"
     },
     {
       "page": "assistant.html",
@@ -456,15 +527,6 @@
       "owner": "designer"
     },
     {
-      "page": "analytics-report.html",
-      "role": "supervisor",
-      "layer": "floor",
-      "rule": "axe:color-contrast",
-      "severity": 2,
-      "evidence": "6 node(s): div:nth-child(3) > .sev-chip.red | #ar-predictive > .asset-card-grid > .asset-c",
-      "owner": "qa-tester"
-    },
-    {
       "page": "engineering-design.html",
       "role": "worker",
       "layer": "floor",
@@ -559,6 +621,16 @@
       "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
       "basis": "designer / WCAG-4.1.3",
       "severity": 1,
+      "evidence": "div.toast.error — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "project-manager.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
       "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
       "owner": "designer"
     },
@@ -630,24 +702,6 @@
       "basis": "qa-tester / WCAG-1.3.1 (axe page-has-heading-one parity)",
       "severity": 0,
       "evidence": "h1 — h1 present in DOM (axe ok) but 0 visible in this state-view — consider a visible heading for SR nav",
-      "owner": "qa-tester"
-    },
-    {
-      "page": "project-report.html",
-      "role": "supervisor",
-      "layer": "floor",
-      "rule": "axe:color-contrast",
-      "severity": 2,
-      "evidence": "2 node(s): .phase-gate | .phase-close",
-      "owner": "qa-tester"
-    },
-    {
-      "page": "project-report.html",
-      "role": "supervisor",
-      "layer": "floor",
-      "rule": "axe:scrollable-region-focusable",
-      "severity": 2,
-      "evidence": "8 node(s): .wh-scroll-x:nth-child(2) | .wh-scroll-x:nth-child(4) | .wh-scroll-x:nth-child(",
       "owner": "qa-tester"
     },
     {
@@ -772,26 +826,6 @@
     },
     {
       "page": "marketplace.html",
-      "role": "anon",
-      "layer": "heuristic",
-      "rule": "Modal/bottom-sheet must carry role=\"dialog\" + aria-modal=\"true\" + an accessible name (aria-label OR a resolving aria-labelledby)",
-      "basis": "designer / WCAG-4.1.2",
-      "severity": 2,
-      "evidence": "div.sheet-header — role=null aria-modal=null name=MISSING (no aria-label and no resolving aria-labelledby)",
-      "owner": "designer"
-    },
-    {
-      "page": "marketplace.html",
-      "role": "anon",
-      "layer": "heuristic",
-      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
-      "basis": "designer / WCAG-4.1.3",
-      "severity": 1,
-      "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
-      "owner": "designer"
-    },
-    {
-      "page": "marketplace.html",
       "role": "worker",
       "layer": "heuristic",
       "rule": "Modal/bottom-sheet must carry role=\"dialog\" + aria-modal=\"true\" + an accessible name (aria-label OR a resolving aria-labelledby)",
@@ -809,6 +843,15 @@
       "severity": 1,
       "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
       "owner": "designer"
+    },
+    {
+      "page": "marketplace-seller.html",
+      "role": "worker",
+      "layer": "floor",
+      "rule": "cta:inert-primary",
+      "severity": 1,
+      "evidence": "primary-styled control is [inert] at audit time (#btn-save-edit)",
+      "owner": "frontend"
     },
     {
       "page": "marketplace-seller.html",
@@ -846,7 +889,7 @@
       "layer": "floor",
       "rule": "tap-target≥44px",
       "severity": 2,
-      "evidence": "5/21 interactive <44px",
+      "evidence": "2/17 interactive <44px",
       "owner": "mobile-maestro"
     },
     {

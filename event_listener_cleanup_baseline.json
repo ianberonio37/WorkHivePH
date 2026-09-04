@@ -1,4 +1,5 @@
 {
-  "risky": 4,
-  "established": true
+  "risky": 5,
+  "established": true,
+  "note": "2026-08-26: project-manager crossed 9->11 adds (T173 BOM-import btn + T130 char counter, both page-lifetime by design; no detach/reattach cycle). Deliberate accept, not a loosen."
 }

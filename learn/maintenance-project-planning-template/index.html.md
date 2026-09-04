@@ -10,7 +10,7 @@ By **WorkHive Editorial Team**
 ·
 Published 17 May 2026
 ·
-Updated 17 May 2026
+Updated 24 Aug 2026
 ·
 9 min read
 
@@ -99,7 +99,7 @@ The tool this guide is about
 
 Project Manager has scope freeze tracking, critical-path Gantt, skill-matrix resource matching, risk register with named owners, per-asset cost allocation that feeds Asset Hub, daily standup template, and per-asset handback checklist. Contractors get scoped access to their assigned jobs. Suppliers see only their consumed parts. Free at the worker tier; SAP PS / Maximo Projects financial integration unlocks at Stage 2.
 
-No hive yet? [Join WorkHive](https://workhiveph.com/#join) first (free, takes 30 seconds).
+No hive yet? [Join WorkHive](https://workhiveph.com/?signup=1) first (free, takes 30 seconds).
 
 ## Critical path explained for plant projects
 
@@ -189,4 +189,4 @@ SAP PS (Project System) and Maximo Project Management handle the financial side:
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 5ae637e3a54d1e64 -->
+<!-- md-twin source-sha: 6ab031bd5258c698 -->

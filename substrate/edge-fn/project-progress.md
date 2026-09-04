@@ -2,7 +2,7 @@
 name: edge-fn-project-progress
 type: edge-fn
 source: file:supabase/functions/project-progress/index.ts
-source_sha: 571269f8425fc8bd
+source_sha: 600ff81863771877
 last_verified: 2026-07-13
 supersedes: null
 ---

@@ -22,7 +22,7 @@
   <meta property="og:type" content="article" />
   <meta property="og:site_name" content="WorkHive" />
   <meta property="article:published_time" content="2026-07-03T00:00:00+08:00" />
-  <meta property="article:modified_time" content="2026-07-03T00:00:00+08:00" />
+  <meta property="article:modified_time" content="2026-08-24T00:00:00+08:00" />
   <meta property="article:author" content="WorkHive Editorial Team" />
   <meta property="article:section" content="Maintenance" />
 
@@ -45,7 +45,7 @@
         "author": { "@type": "Organization", "name": "WorkHive Editorial Team", "url": "https://workhiveph.com/" },
         "publisher": { "@id": "https://workhiveph.com/#organization" },
         "datePublished": "2026-07-03",
-        "dateModified": "2026-07-03",
+        "dateModified": "2026-08-24",
         "mainEntityOfPage": "https://workhiveph.com/learn/four-phases-maintenance-analytics-philippine-plants/",
         "inLanguage": "en-PH",
         "articleSection": "Maintenance",
@@ -79,7 +79,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -147,7 +147,8 @@
     <div class="flex items-center gap-5 text-xs sm:text-sm">
       <a href="/learn/" class="text-white/55 hover:text-white transition-colors">Learn</a>
       <a href="/" class="text-white/55 hover:text-white transition-colors">Home</a>
-      <a href="/#join" class="bg-orange-wh text-navy-wh px-4 py-1.5 rounded-lg font-semibold text-xs hover:bg-orange-light transition-colors">Join</a>
+      <a href="/?signin=1" class="nav-link" style="font-size:0.75rem;">Sign In</a>
+      <a href="/?signup=1" class="bg-orange-wh text-navy-wh px-4 py-1.5 rounded-lg font-semibold text-xs hover:bg-orange-light transition-colors">Join</a>
     </div>
   </div>
 </nav>
@@ -206,7 +207,7 @@
       <h2 id="diagnostic-analytics">Diagnostic Analytics: Why It Happened</h2>
       <p>In the <strong>Diagnostic</strong> phase of WorkHive Analytics, we analyze <strong>what happened</strong> and <strong>why</strong> it happened. This phase provides insights into the root causes of equipment failures and maintenance issues. For example, a 24-hour shift schedule with changing personnel at 06:00, 14:00, and 22:00 can lead to variations in maintenance quality. The Analytics Engine helps identify these patterns.</p>
       <p>The engine provides <strong>Pareto analysis</strong> to highlight the most common causes of failures. This information is crucial for maintenance teams to prioritize tasks and allocate resources effectively. By analyzing data from logbook entries and PM completions, the engine computes key metrics such as <strong>MTBF</strong>, <strong>MTTR</strong>, and <strong>Availability</strong>. These metrics help teams understand the impact of maintenance activities on equipment performance.</p>
-      <table><thead><tr><th>Diagnostic Analytics</th><th>WorkHive Capability</th></tr></thead><tbody><tr><td>Pareto Analysis</td><td>Identifies common causes of failures</td></tr><tr><td>Root-Cause Identification</td><td>Analyzes logbook entries and PM completions</td></tr><tr><td>Failure Mode Analysis</td><td>Computes MTBF, MTTR, and Availability metrics</td></tr></tbody></table>
+      <div data-table-scroll style="overflow-x:auto;-webkit-overflow-scrolling:touch;" role="region" aria-label="Scrollable table" tabindex="0"><table><thead><tr><th>Diagnostic Analytics</th><th>WorkHive Capability</th></tr></thead><tbody><tr><td>Pareto Analysis</td><td>Identifies common causes of failures</td></tr><tr><td>Root-Cause Identification</td><td>Analyzes logbook entries and PM completions</td></tr><tr><td>Failure Mode Analysis</td><td>Computes MTBF, MTTR, and Availability metrics</td></tr></tbody></table></div>
       <figure class="article-fig"><img src="fig-2-bar.svg" alt="Pareto Analysis Example. ISO 14224 (2016). Equipment A. Equipment B. Equipment C" width="660" height="440" loading="lazy" /><figcaption>Pareto Analysis Example Source: ISO 14224 (2016).</figcaption></figure>
       <h2 id="predictive-analytics">Predictive Analytics: What Will Happen</h2>
       <p>The WorkHive Analytics Engine takes maintenance analytics to the next level with predictive analytics, enabling your team to anticipate and prepare for potential equipment failures. For instance, consider Pump P-204B in a Philippine plant. By analyzing historical data, the engine provides failure risk scores and forecasts, giving maintenance teams a proactive edge.</p>

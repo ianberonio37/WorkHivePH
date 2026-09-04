@@ -28,7 +28,9 @@ import { writeFileSync, readFileSync, existsSync } from 'fs';
 const SEEDER = process.env.WH_TEST_BASE_URL || 'http://127.0.0.1:5000';
 const EMAIL = process.env.WH_TEST_EMAIL || 'leandromarquez@auth.workhiveph.com';
 const PASSWORD = process.env.WH_TEST_PASSWORD || 'test1234';
-const HIVE = '9b4eaeac-59b0-4b0e-9b0b-0947b45ad1e7'; // hive fallback only — signIn resolves live membership
+// Baguio Textile Mills — hive fallback only; signIn resolves live membership. Repointed 2026-08-27
+// from a reseeded-away id: a fallback that names a hive which no longer exists is not a fallback.
+const HIVE = '084c113b-99c0-45c6-a8e8-b4b8349da46d';
 const WORKER = process.env.WH_TEST_WORKER || 'Leandro Marquez'; // display_name; set so WORKER_NAME-gated pages (marketplace-seller) render instead of the auth gate
 // Pages whose REAL use requires a query param (deep-link) — measure them in that state,
 // not their empty/bounced no-param default. marketplace-seller-profile reads ?worker=<seller>.
@@ -39,8 +41,12 @@ const HEADED = args.includes('--headed');
 const ACCEPT = args.includes('--accept');
 const UPDATE_BASELINE = args.includes('--update-baseline');
 const PAGE_ONLY = (() => { const i = args.indexOf('--page'); return i >= 0 ? args[i + 1] : null; })();
-const RESULTS = 'frontend_ufai_results.json';
-const BASELINE = 'frontend_ufai_baseline.json';
+// A narrowed --page run must not wear the full sweep's filename, and must never write its narrowed
+// counts over a forward-only baseline. See tools/live_page_journeys.mjs for the measured case: this
+// exact shape let a one-page run replace a 110-journey sweep with 14 rows, and a gate read it whole.
+const NARROW = PAGE_ONLY ? `page-${PAGE_ONLY}`.replace(/[^\w.-]+/g, '_') : '';
+const RESULTS = NARROW ? `frontend_ufai_results.${NARROW}.json` : 'frontend_ufai_results.json';
+const BASELINE = NARROW ? `frontend_ufai_baseline.${NARROW}.json` : 'frontend_ufai_baseline.json';
 
 // REUSE the authoritative Layer-3 battery (axe-core WCAG 2.2 AA + tap-target +
 // focus-visible + input-font + overflow). It's a single arrow fn → invoke as

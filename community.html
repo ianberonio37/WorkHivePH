@@ -534,6 +534,12 @@
 
         <!-- Mod queue panel (supervisor only) -->
         <div id="panel-mod" style="display:none; flex-direction:column; gap:0.75rem;">
+          <!-- T28 (2026-08-26): audit reachability - this lane WRITES audit rows (report_post,
+               moderation verbs) but offered no door to read them back; a decision surface links
+               its history (audit-log honors ?action= deep links). -->
+          <div style="display:flex; justify-content:flex-end;">
+            <a href="audit-log.html?action=report_post" class="text-[11px]" style="color:var(--wh-blue-text); text-decoration:none; min-height:44px; display:inline-flex; align-items:center; padding:0 8px;">Moderation history &rarr;</a>
+          </div>
           <div id="mod-list"></div>
         </div>
       </div>
@@ -605,7 +611,7 @@
              get_hive_trade_peers RPC returns hive-mates who share the worker's trade. -->
         <div class="wh-card" style="padding:1.25rem; display:none;" id="trade-peers-card">
           <p style="font-size:0.65rem; font-weight:800; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.80); margin:0 0 0.2rem;">People in your trade</p>
-          <p style="font-size:0.72rem; color:rgba(255,255,255,0.83); margin:0 0 0.75rem;">Matched on earned skill badges: hive-mates holding a badge at Practitioner level or above in a discipline you also hold one in. A teammate who does the same work but has not earned that badge yet will not appear here.</p>
+          <p style="font-size:0.72rem; color:rgba(255,255,255,0.83); margin:0 0 0.75rem;">Matched on earned skill badges: hive-mates holding a badge at Practitioner level or above, in a discipline you hold one in too. A teammate doing the same work, but without that badge yet, will not appear here.</p>
           <div id="trade-peers-list"></div>
         </div>
 
@@ -751,6 +757,11 @@
       <textarea id="reply-content" class="wh-input" rows="2" placeholder="Write a reply…" maxlength="1000" aria-label="Reply content" style="resize:none;"></textarea>
       <button id="btn-submit-reply" class="btn-primary" style="min-width:80px; padding:0.75rem 1rem;" onclick="submitReply()">Reply</button>
     </div>
+    <!-- T168: the reply box caps at 1000 like the composer above caps at 2000, but only the composer
+         counted. A maxlength with no counter is a silent wall - the textarea simply stops accepting
+         keystrokes, which reads as a broken keyboard rather than a limit. Same pattern as
+         #post-char-count and #report-char-count, so all three composers on this page now say so. -->
+    <p id="reply-char-count" style="text-align:right; font-size:0.7rem; color:rgba(255,255,255,0.80); margin:4px 0 0;">0 / 1000</p>
   </div>
 </div>
 
@@ -769,7 +780,11 @@
     </p>
 
     <label for="report-reason" style="display:block; font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.80); margin-bottom:6px;">Reason</label>
-    <select id="report-reason" class="wh-input" style="margin-bottom:1rem; cursor:pointer;" aria-label="Reason for report" data-select-placeholder-allow="report-reason picker is required field with submit button; UX guards against silent send">
+    <select id="report-reason" class="wh-input" style="margin-bottom:1rem; cursor:pointer;" aria-label="Reason for report" required>
+      <!-- T31 (2026-09-02): the select used to DEFAULT to 'Harassment', so an untouched Send filed
+           the gravest accusation silently. The placeholder makes the reason a deliberate choice;
+           submitReport refuses an empty value with the why. -->
+      <option value="" selected disabled>Choose a reason…</option>
       <option value="harassment">Harassment or bullying</option>
       <option value="unsafe">Unsafe or wrong information</option>
       <option value="spam">Spam or off-topic</option>
@@ -798,7 +813,8 @@
 </div>
 
 <!-- Elements must be before the script block -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
+<script src="browser-floor.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
 <script src="utils.js"></script>
 <script>
   'use strict';
@@ -813,11 +829,39 @@
   // ── Identity (string auth — HIGH security note: spoofable until Supabase Auth migration) ──
   let WORKER_NAME = whWorker() || /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ whWorker() || '';
   const HIVE_ID     = whHiveId() || '';
+  /* ★"No activity yet." TO SOMEONE WHO CANNOT SEE THE HIVE (2026-08-31). This page already fixed the
+     sibling case - :1193 records that `error || empty` once collapsed a FAILED read into that same
+     sentence, "not a smaller claim than the truth, a different and discouraging one". The REFUSED read
+     lands in the identical branch: RLS filters the rows, the response is a clean 200 with an empty
+     array, and a removed member is told their teammates have done nothing. Asked through the shared
+     probe so the four surfaces cannot drift; fails open, so an unreachable DB never accuses anyone. */
+  let _hiveLost = false;
+  (async () => {
+    try {
+      if (typeof whHiveMembershipLost !== 'function') return;
+      if (await whHiveMembershipLost(db, HIVE_ID, WORKER_NAME)) {
+        _hiveLost = true;
+        if (typeof whHiveContextNotice === 'function') {
+          whHiveContextNotice(localStorage.getItem('wh_hive_name') || '');
+        }
+        /* RE-RENDER, or the flag loses a race it will usually lose. The probe is a round trip; the
+           leaderboard paints from its own load and would already have written "No activity yet." by the
+           time the answer arrives, leaving the corrected sentence to appear only on some later refresh.
+           Setting a flag without re-rendering is a fix that works in the debugger and not on screen -
+           alert-hub's copy of this calls renderFeed() for the same reason. */
+        try { if (typeof loadLeaderboard === 'function') Promise.resolve(loadLeaderboard()).catch(() => {}); }
+        catch (_) { /* empty-catch-allow: the notice already carries the fact */ }
+      }
+    } catch (_) { /* empty-catch-allow: the page must still render without the probe */ }
+  })();
   const HIVE_NAME   = localStorage.getItem('wh_hive_name') || '';
   const HIVE_ROLE   = localStorage.getItem('wh_hive_role') || 'worker';
 
   // C4: redirects deferred to DOMContentLoaded — checks auth session first
-  if (!HIVE_ID)     { window.location.href = 'hive.html'; }
+  // T4 (2026-08-25): carry ?return so hive.html's validated Continue banner (the JA2 half that
+  // already exists there) can bring the person BACK to the conversation after join/create —
+  // the membership crossing was dropping the task the same way the auth walls used to.
+  if (!HIVE_ID)     { window.location.href = 'hive.html?return=community.html'; }
 
   // nav-hub activity badge — per-hive "last seen" stamp read by nav-hub.js on every
   // other page to show an unread count on the Community tile + a dot on the FAB.
@@ -897,9 +941,9 @@
     // ?signin=1 opens the sign-in modal on index (index.html:3586). Without it the visitor lands on
     // the marketing page with no prompt and no reason, which reads as "that page does not exist"
     // rather than "you need to sign in". The very next gate below already passed the param.
-    if (!WORKER_NAME) { window.location.href = 'index.html?signin=1'; return; }
+    if (!WORKER_NAME) { whSignInWall(); return; }
     // Phase B (auth migration): require authenticated session — see PRODUCTION_FIXES.md #37.
-    if (!_authUid) { window.location.href = 'index.html?signin=1'; return; }
+    if (!_authUid) { whSignInWall(); return; }
 
     renderProfileCard();
     _initObservers();
@@ -1006,7 +1050,49 @@
   }
 
   // ── Virtual list observers ────────────────────────────────────────────────────
+  /* ★VIRTUALISATION IS AN OPTIMISATION; THE POSTS ARE THE PAGE (T119, 2026-08-27). renderIO expands
+     .vcard-stub placeholders into real cards as they near the viewport, so on an engine without
+     IntersectionObserver _initObservers() threw and NO stub was ever expanded - the feed rendered
+     as a column of empty placeholders. Measured by removing the API: community rendered 1043
+     characters of text against 2691 with it. Nothing reported it, because the page loaded and the
+     list "rendered". The honest degradation is to drop the virtualisation and show every post at
+     once: slower on a long feed, but a slow feed beats an empty one. */
+  function _expandAllStubs() {
+    document.querySelectorAll('.vcard-stub[data-post-id]').forEach(function (el) {
+      var post = _findPost(el.dataset.postId);
+      if (!post || !el.parentNode) return;
+      var tmp = document.createElement('div');
+      tmp.innerHTML = renderPostCard(post);
+      var card = tmp.firstChild;
+      card.dataset.postId = el.dataset.postId;
+      el.parentNode.replaceChild(card, el);
+    });
+  }
+
   function _initObservers() {
+    if (typeof IntersectionObserver !== 'function') {
+      /* STAND-INS rather than leaving these undefined. Eight other call sites do
+         renderIO.observe / collapseIO.unobserve as posts arrive, are filtered or are prepended by
+         realtime, and a bare early return turned the ReferenceError into 'Cannot read properties
+         of undefined (reading observe)' - a different crash in the same place. The stand-in's
+         observe() EXPANDS the stub immediately, which is what "observe" means in a world with no
+         virtualisation, so stubs added AFTER load (a realtime prepend, a filter change) still
+         become real cards. unobserve/disconnect are no-ops because there is nothing to unhook. */
+      var _expandNow = function (el) {
+        if (!el || !el.classList || !el.classList.contains('vcard-stub')) return;
+        var post = _findPost(el.dataset.postId);
+        if (!post || !el.parentNode) return;
+        var tmp = document.createElement('div');
+        tmp.innerHTML = renderPostCard(post);
+        var card = tmp.firstChild;
+        card.dataset.postId = el.dataset.postId;
+        el.parentNode.replaceChild(card, el);
+      };
+      renderIO   = { observe: _expandNow, unobserve: function () {}, disconnect: function () {} };
+      collapseIO = { observe: function () {}, unobserve: function () {}, disconnect: function () {} };
+      _expandAllStubs();
+      return;
+    }
     // renderIO: expands stubs that are within 400px of the viewport
     renderIO = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
@@ -1153,7 +1239,15 @@
       return;
     }
     if (!data || data.length === 0) {
-      el.innerHTML = '<p style="font-size:0.78rem; color:rgba(255,255,255,0.80); text-align:center; padding:1rem 0;">No activity yet.</p>';
+      // A refusal is not an absence: if this viewer is no longer a member, the zero rows are RLS
+      // filtering, not a quiet hive, and "No activity yet" would blame the team for it.
+      const _lbMsg = _hiveLost
+        ? ((typeof whHiveContextLost === 'function')
+            ? whHiveContextLost('this hive')
+            : 'You are no longer a member of this hive, so its activity is not shown.')
+        : 'No activity yet.';
+      el.innerHTML = '<p style="font-size:0.78rem; color:rgba(255,255,255,0.80); text-align:center; padding:1rem 0;">'
+                   + escHtml(_lbMsg) + '</p>';
       return;
     }
 
@@ -1285,12 +1379,20 @@
 
   async function _fetchPage() {
     const raw  = document.getElementById('search-input').value.trim();
-    const safQ = raw.replace(/%/g, '\\%').replace(/_/g, '\\_');
+    // A comma in the phrase used to 400 the feed read: or=(...) splits on top-level commas,
+    // so the delimiters have to be removed, not merely the LIKE wildcards.
+    const safQ = (typeof whSafeSearchTerm === 'function')
+      ? whSafeSearchTerm(raw)
+      : raw.replace(/[,()\\]/g, ' ').replace(/%/g, '\\%').replace(/_/g, '\\_');
     let q = db.from('v_community_posts_truth')
       .select('id, hive_id, author_name, content, category, pinned, flagged, public, created_at, edited_at, mentions, deleted_at, updated_at')
       .eq('hive_id', HIVE_ID).eq('pinned', false).is('deleted_at', null)
       .order('created_at', { ascending: false }).order('id').limit(20);
-    if (HIVE_ROLE !== 'supervisor') q = q.eq('flagged', false);
+    // T24 (2026-08-25): the AUTHOR's own flagged post used to VANISH from their own feed with no
+    // word - an unexplained deletion to the person it matters most to (they re-post or assume a
+    // bug). Workers still never see OTHERS' flagged posts; the author keeps seeing their OWN,
+    // which renders with the under-review notice below.
+    if (HIVE_ROLE !== 'supervisor') q = q.or(`flagged.eq.false,author_name.eq."${WORKER_NAME.replace(/"/g, '')}"`);
     if (activeFilter !== 'all') q = q.eq('category', activeFilter);
     if (safQ) q = q.or(`content.ilike.%${safQ}%,author_name.ilike.%${safQ}%`);
     if (_lastPostCreatedAt) q = q.lt('created_at', _lastPostCreatedAt);
@@ -1383,13 +1485,35 @@
   }
 
   async function loadReplyCounts(postIds) {
+    /* T144 (2026-08-26): THIS COUNTED ROWS UNDER A CAP. Every post's reply count was derived by
+       fetching up to 500 reply ROWS and tallying them in the browser - so in a hive busy enough to
+       pass 500 replies across the visible posts, every count silently reads LOW and nothing says
+       so (the row-cap-is-not-a-count class). The fixture has 0 replies today, so this is latent,
+       which is exactly when it is cheap to fix. Ask for the EXACT count alongside the rows; if the
+       cap bit, fall back to a per-post head-count over the VISIBLE posts only (bounded by the page
+       size, and only on the rare saturated path). Counts still rebuild from the server every load,
+       so a stale or double-counted badge self-corrects - that half was already right. */
+    const CAP = 500;
     // canonical-allow: community_replies is forum thread detail (reply counts for the hive's posts) — single-surface community data, not a cross-surface KPI/aggregate, so no v_*_truth wrapper applies.
-    const { data } = await db.from('community_replies')
-      .select('post_id').eq('hive_id', HIVE_ID).in('post_id', postIds).limit(500);
+    const { data, count } = await db.from('community_replies')
+      .select('post_id', { count: 'exact' }).eq('hive_id', HIVE_ID).in('post_id', postIds).limit(CAP);
     replyCountMap = {};
     if (data) data.forEach(r => {
       replyCountMap[r.post_id] = (replyCountMap[r.post_id] || 0) + 1;
     });
+    if (typeof count === 'number' && count > (data ? data.length : 0)) {
+      // the cap bit: tally each visible post exactly rather than shipping low numbers
+      try {
+        // canonical-allow: same forum thread detail the batched read above is already allowed to
+        // use (single-surface community data, no cross-surface truth view) - this is that read
+        // counted exactly per post, taken only when the batched one saturates its cap.
+        const exact = await Promise.all((postIds || []).map((pid) =>
+          db.from('community_replies').select('post_id', { count: 'exact', head: true })
+            .eq('hive_id', HIVE_ID).eq('post_id', pid)
+            .then((r) => ({ pid, n: (r && !r.error && typeof r.count === 'number') ? r.count : null }))));
+        exact.forEach(({ pid, n }) => { if (n !== null) replyCountMap[pid] = n; });
+      } catch (_) { /* empty-catch-allow: the capped tally still renders; it is only ever low, never wrong-high */ }
+    }
   }
 
   // ── Render feed — full rebuild with virtual stubs ─────────────────────────────
@@ -1464,7 +1588,7 @@
     _isFetchingMore = false;
 
     if (error) {
-      showToast('Could not load more posts', 'error');
+      showToast(whReadError(error, 'more posts'), 'error');
       if (btn) { btn.disabled = false; btn.textContent = 'Load more posts'; }
       return;
     }
@@ -1492,7 +1616,19 @@
     const catClass  = 'cat-' + (p.category === 'announcement' ? 'announcement' : p.category);
 
     const pinnedBadge  = p.pinned  ? `<span class="cat-badge badge-pinned">PINNED</span>` : '';
-    const flaggedBadge = p.flagged ? `<span class="cat-badge badge-mod">FLAGGED</span>` : '';
+    // T24 (2026-08-25): the AUTHOR sees their own flagged post with a truthful state instead of a
+    // silent vanish - what happened, who decides, and that it is hidden from teammates meanwhile.
+    const flaggedBadge = p.flagged
+      ? (HIVE_ROLE === 'supervisor'
+          ? `<span class="cat-badge badge-mod">FLAGGED</span>`
+          : `<span class="cat-badge badge-mod" title="A teammate reported this post. Your supervisor will review it; teammates cannot see it until it is cleared.">UNDER REVIEW</span>`)
+      : '';
+    // T24 (2026-08-26): the supervisor's card carries the REPORTER'S reason (from the report_post
+    // audit meta) - judging a flag without its reason meant tabbing to the audit page first.
+    const _rr = (p.flagged && HIVE_ROLE === 'supervisor' && typeof _reportReasons !== 'undefined') ? _reportReasons[p.id] : null;
+    const reportReasonLine = _rr
+      ? `<p class="text-[11px] mt-1" style="color:var(--wh-orange);">&#9873; Reported: ${escHtml(_rr.reason || 'no reason picked')}${_rr.details ? ' - ' + escHtml(_rr.details) : ''}</p>`
+      : '';
     const publicBadge  = p.public  ? `<span class="cat-badge" style="background:rgba(34,197,94,0.12);color:var(--wh-green);">PUBLIC</span>` : '';
     const catBadge     = `<span class="cat-badge ${catClass}">${escHtml(catLabel)}</span>`;
 
@@ -1526,7 +1662,7 @@
     const _rx = reactionMap[p.id] || {};
     function rxBtn(emoji, label, icon) {
       const d = _rx[emoji] || { count: 0, mine: false };
-      const aria = d.mine ? `${label}, ${d.count} reactions, you reacted` : `${label}, ${d.count} reactions`;
+      const aria = d.mine ? `${label}, ${d.count} ${d.count === 1 ? 'reaction' : 'reactions'}, you reacted` : `${label}, ${d.count} ${d.count === 1 ? 'reaction' : 'reactions'}`;
       return `<button class="reaction-btn${d.mine ? ' active' : ''}" onclick="toggleReaction('${escJsAttr(p.id)}', '${escJsAttr(p.hive_id)}', '${escJsAttr(emoji)}')" aria-label="${aria}" aria-pressed="${d.mine}">${icon} <span id="rxn-${emoji}-${escHtml(p.id)}">${d.count}</span></button>`;
     }
 
@@ -1539,6 +1675,7 @@
             ${catBadge}${pinnedBadge}${flaggedBadge}${publicBadge}
             <span style="font-size:0.7rem; color:rgba(255,255,255,0.80); margin-left:auto;">${escHtml(timeAgo)}${p.edited_at ? ' · <span style="font-style:italic;">edited</span>' : ''}</span>
           </div>
+          ${reportReasonLine}
           <p style="font-size:0.85rem; line-height:1.55; color:rgba(255,255,255,0.82); margin:0 0 0.75rem; word-break:break-word;">${renderContentWithMentions(p.content, p.mentions)}</p>
           <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
             ${rxBtn('thumbs_up','Thumbs up','👍')}
@@ -1549,7 +1686,14 @@
               <span class="ic ic-list" aria-hidden="true"></span>
               <span id="reply-count-${escHtml(p.id)}">${replyCountMap[p.id] || 0}</span>
             </button>
-            <div style="display:flex; gap:4px; align-items:center;">${modActions}</div>
+            <!-- flex-wrap + justify-end: a supervisor looking at their OWN post gets FIVE icon
+                 buttons here (edit, pin, public, flag, delete) instead of four, and Delete also
+                 carries a deliberate 22px Z3 gap so a destructive control is never adjacent to a
+                 routine one. At the 320 floor that fifth button ran 15px off-screen — the delete
+                 confirm was unreachable on exactly the posts its owner is most likely to manage.
+                 Wrapping keeps the Z3 separation AND the control on screen; four-button rows are
+                 unaffected because they still fit on one line. -->
+            <div style="display:flex; flex-wrap:wrap; justify-content:flex-end; gap:4px; align-items:center;">${modActions}</div>
           </div>
         </div>
       </div>
@@ -1614,6 +1758,13 @@
         const n = Math.max(0, parseInt(countEl?.textContent, 10) - 1);
         if (countEl) countEl.textContent = n;
         if (reactionMap[postId]?.[emoji]) { reactionMap[postId][emoji].count = n; reactionMap[postId][emoji].mine = false; }
+      } else {
+        // T147 (2026-08-26): both branches were `if (!error) { paint }` with NO else, so a failed
+        // reaction changed nothing and said nothing. Tapping an emoji and having the count sit still
+        // is indistinguishable from a dead button - and the usual next move is to tap it again, which
+        // is how a silent refusal turns into repeated writes. The page already owns this vocabulary
+        // (submitReply uses whWriteError), so this is that, not a new pattern.
+        showToast(whWriteError(error, 'Your reaction was not removed. Tap again to retry.'), 'error');
       }
     } else {
       const { error } = await db.from('community_reactions')
@@ -1625,6 +1776,13 @@
         if (!reactionMap[postId]) reactionMap[postId] = {};
         if (!reactionMap[postId][emoji]) reactionMap[postId][emoji] = { count: 0, mine: false };
         reactionMap[postId][emoji].count = n; reactionMap[postId][emoji].mine = true;
+      } else {
+        // Same silence on the add path. A duplicate reaction (23505) is the one case where doing
+        // nothing is correct, so it says so plainly rather than reporting a failure the person
+        // cannot act on.
+        showToast(whWriteError(error, error && error.code === '23505'
+          ? 'You have already reacted with this emoji.'
+          : 'Your reaction was not saved. Tap again to retry.'), 'error');
       }
     }
   }
@@ -1674,9 +1832,41 @@
   }
 
   // ── Mod queue (supervisor only) ───────────────────────────────────────────────
+  // T24 (2026-08-26): the reporter's reason travels via hive_audit_log (report_post meta) -
+  // surface it ON the flagged card so the supervisor judges with context, not just a flag.
+  // Best-effort batch fetch; keyed by post id, newest report wins.
+  let _reportReasons = {};
+  async function loadReportReasons(flaggedIds) {
+    if (!flaggedIds.length) return;
+    try {
+      const { data } = await db.from('hive_audit_log')
+        .select('meta, created_at')
+        .eq('hive_id', HIVE_ID).eq('action', 'report_post')
+        .order('created_at', { ascending: false })
+        .order('id')   // MR4 tiebreaker: created_at alone is not total, and this function's whole
+                       // contract is "newest report wins" - among rows sharing a timestamp the
+                       // winner would otherwise be whichever the planner happened to return, so the
+                       // reason shown on a flagged card could change between loads with no edit.
+        .limit(200); // bounded: recent reports only; older reasons age out of the card, not the audit
+      for (const row of (data || []).reverse()) {
+        const m = row.meta || {};
+        if (m.target_id && flaggedIds.includes(m.target_id) && (m.reason || m.details)) {
+          _reportReasons[m.target_id] = { reason: m.reason || '', details: m.details || '' };
+        }
+      }
+    } catch (_) { /* empty-catch-allow: the reason line is context, never gates the queue */ }
+  }
+
   async function loadModQueue() {
     if (HIVE_ROLE !== 'supervisor') return;
     const flagged = [...pinnedPosts, ...allPosts].filter(p => p.flagged);
+    const _rrBefore = Object.keys(_reportReasons).length;
+    await loadReportReasons(flagged.map(p => p.id).filter(id => !(id in _reportReasons)));
+    // T24 S1 (2026-09-02): the MAIN feed renders BEFORE these reasons arrive (loadPosts calls
+    // renderFeed() then loadModQueue()), so the flagged card showed 'FLAGGED' with no reason even
+    // though the line's plumbing exists - the mod tab alone re-rendered after the load. One feed
+    // re-render when new reasons landed closes the race (no recursion: renderFeed never calls back).
+    if (Object.keys(_reportReasons).length > _rrBefore && activeTab !== 'mod') renderFeed();
     const countEl = document.getElementById('mod-count');
     if (flagged.length > 0) {
       countEl.textContent = flagged.length;
@@ -1767,7 +1957,7 @@
     const _rx = reactionMap[p.id] || {};
     function rxBtn(emoji, label, icon) {
       const d = _rx[emoji] || { count: 0, mine: false };
-      const aria = d.mine ? `${label}, ${d.count} reactions, you reacted` : `${label}, ${d.count} reactions`;
+      const aria = d.mine ? `${label}, ${d.count} ${d.count === 1 ? 'reaction' : 'reactions'}, you reacted` : `${label}, ${d.count} ${d.count === 1 ? 'reaction' : 'reactions'}`;
       return `<button class="reaction-btn${d.mine ? ' active' : ''}" onclick="toggleReaction('${escJsAttr(p.id)}', '${escJsAttr(p.hive_id)}', '${escJsAttr(emoji)}')" aria-label="${aria}" aria-pressed="${d.mine}">${icon} <span id="rxn-${emoji}-${escHtml(p.id)}">${d.count}</span></button>`;
     }
     return `<div class="post-card ${catClass}" data-post-id="${escHtml(p.id)}" style="padding:1rem;">
@@ -1808,7 +1998,7 @@
     const { error } = await db.from('community_posts')
       .update({ pinned: !currentlyPinned })
       .eq('id', postId).eq('hive_id', HIVE_ID);
-    if (error) { showToast('Could not update pin', 'error'); return; }
+    if (error) { showToast(whWriteError(error, 'The pin did NOT change - the post is where it was.'), 'error'); return; }
     await writeAuditLog(currentlyPinned ? 'unpin_post' : 'pin_post', postId);
     const post = allPosts.find(p => p.id === postId) || pinnedPosts.find(p => p.id === postId);
     if (post) {
@@ -1835,7 +2025,7 @@
     const { error } = await db.from('community_posts')
       .update({ flagged: !currentlyFlagged })
       .eq('id', postId).eq('hive_id', HIVE_ID);
-    if (error) { showToast('Could not update flag', 'error'); return; }
+    if (error) { showToast(whWriteError(error, 'The flag did NOT change - this post is still in the state it was.'), 'error'); return; }
     await writeAuditLog(currentlyFlagged ? 'unflag_post' : 'flag_post', postId);
     const pa = allPosts.find(p => p.id === postId);
     const pp = pinnedPosts.find(p => p.id === postId);
@@ -1855,7 +2045,7 @@
     const { error } = await db.from('community_posts')
       .update({ public: !currentlyPublic })
       .eq('id', postId).eq('hive_id', HIVE_ID);
-    if (error) { showToast('Could not update visibility', 'error'); return; }
+    if (error) { showToast(whWriteError(error, 'Visibility did NOT change - the post keeps its current audience.'), 'error'); return; }
     await writeAuditLog(currentlyPublic ? 'make_post_private' : 'make_post_public', postId);
     const post = _findPost(postId);
     if (post) { post.public = !currentlyPublic; }
@@ -1898,7 +2088,7 @@
     const { error } = await db.from('community_posts')
       .update({ deleted_at: deletedAt })
       .eq('id', postId).eq('hive_id', HIVE_ID);
-    if (error) { showToast('Could not delete post', 'error'); return; }
+    if (error) { showToast(whWriteError(error, 'The post was NOT deleted - it is still in the feed.'), 'error'); return; }
     if (HIVE_ROLE === 'supervisor') await writeAuditLog('soft_delete_post', postId);
 
     // Local cache + DOM (treat as removed; realtime UPDATE will mirror this on other clients)
@@ -1917,7 +2107,7 @@
     const { error } = await db.from('community_posts')
       .update({ deleted_at: null })
       .eq('id', postId).eq('hive_id', HIVE_ID);
-    if (error) { showToast('Could not undo delete', 'error'); return; }
+    if (error) { showToast(whWriteError(error, 'The undo did NOT go through - the post is still deleted.'), 'error'); return; }
     if (HIVE_ROLE === 'supervisor') await writeAuditLog('restore_post', postId);
 
     // Re-add to local state
@@ -2111,7 +2301,7 @@
       if (_editSnapshot) editQ = editQ.eq('updated_at', _editSnapshot);
       const { data: editRows, error: editErr } = await editQ.select('updated_at');
       btn.disabled = false; btn.textContent = 'Save changes';
-      if (editErr) { showToast('Could not save changes', 'error'); return; }
+      if (editErr) { showToast(whWriteError(editErr, 'Nothing was saved - the post still reads as it did. Your edit is still in the box.'), 'error'); return; }
       if (!editRows || editRows.length === 0) {
         // Conflict: the post changed since it was opened. Reload authoritative state, don't clobber.
         showToast('This post changed since you opened it, reloading', 'error');
@@ -2170,6 +2360,17 @@
 
     _lastPostTs = Date.now(); // start cooldown only after a confirmed insert
     _postDraft.clear();       // X2b: post committed — wipe the draft so the next composer opens fresh
+
+    // T108 (2026-08-26): BEING NAMED IS NOT A SIGNAL UNTIL SOMEONE IS TOLD. parseMentions already
+    // stores the array and renderContentWithMentions already paints it, so the mention was a
+    // first-class fact that reached everyone EXCEPT the person named - the nav-hub badge counts
+    // posts generally, which is a different sentence. The RPC resolves recipients and writes the
+    // copy server-side; the caller names a row and nothing else. Builders are THENABLES and never
+    // send un-awaited (measured on mig 003), hence the explicit .then.
+    if (mentions && mentions.length) {
+      try { db.rpc('notify_post_mentions', { p_post_id: String(_newPostId) }).then(() => {}, () => {}); }
+      catch (_) { /* empty-catch-allow: the post stands; the nudge is best-effort */ }
+    }
 
     // XP toast — DB trigger handles the actual award server-side.
     // TRUE first-post signal = server-truth (0 posts at page load) AND none this session — so a
@@ -2321,6 +2522,7 @@
     document.getElementById('thread-post').innerHTML = renderPostCard(post);
     document.getElementById('thread-replies').innerHTML = '<p style="font-size:0.78rem; color:rgba(255,255,255,0.80);">Loading replies…</p>';
     document.getElementById('reply-content').value = '';
+    document.getElementById('reply-char-count').textContent = '0 / 1000';
     document.getElementById('thread-overlay').classList.add('open');
     if (_focusTrapCleanup) _focusTrapCleanup();
     _focusTrapCleanup = trapFocus(document.getElementById('thread-sheet'));
@@ -2451,8 +2653,21 @@
         && !whRequireOnline(accepted ? 'Marking the best answer' : 'Removing the best answer',
                             (m) => showToast(m, 'error'))) return;
     const { error } = await db.rpc('set_community_best_answer', { p_reply_id: replyId, p_accepted: accepted });
-    if (error) { showToast(error.message || 'Could not update the best answer', 'error'); return; }
+    // T176 (2026-08-28): was `error.message || '<friendly>'` — the raw string FIRST, so the human
+    // sentence appeared only when the error was empty, i.e. almost never. A reader got Postgres
+    // text (and its table and constraint names) instead of being told what happened to their
+    // action. whWriteError maps the error CLASS — session expired, offline, refused — and answers
+    // the question this taxonomy exists for: what happened to my work.
+    if (error) { showToast(whWriteError(error, 'Could not update the best answer.'), 'error'); return; }
     showToast(accepted ? '✓ Marked as the best answer' : 'Best answer removed');
+    // T108 (2026-08-26): the reply author's answer wins, the XP ledger records it, and until now
+    // they found out by revisiting. Only the ACCEPT direction announces - un-accepting someone is
+    // not news worth pushing to them. The RPC re-reads is_accepted, so a race that flipped it back
+    // sends nothing.
+    if (accepted) {
+      try { db.rpc('notify_reply_accepted', { p_reply_id: String(replyId) }).then(() => {}, () => {}); }
+      catch (_) { /* empty-catch-allow: the mark stands; the nudge is best-effort */ }
+    }
     if (activeThreadId) await loadReplies(activeThreadId);
   }
 
@@ -2504,17 +2719,35 @@
       return;
     }
 
+    // T41 (2026-08-26): this button ONLY went disabled while the insert was in flight. A greyed
+    // control is indistinguishable, to the person who just tapped it, from a control that ignored
+    // them - and a screen reader announces "unavailable", not "working". On a plant connection that
+    // gap is where a second tap comes from. The page already owns this idiom (its report button says
+    // 'Sending…' at :2897), so this is that, not a new pattern. Label restored in both exits below.
+    const _replyLabel = btn.textContent;
     btn.disabled = true;
-    const { error } = await db.from('community_replies')
-      .insert({ post_id: replyingToPostId, hive_id: HIVE_ID, author_name: WORKER_NAME, content });
+    btn.textContent = 'Posting…';
+    // T108: the insert now RETURNS its id - notify_reply_posted resolves the asker from it.
+    // Without the select the row landed fine and there was nothing to point the notification at.
+    const { data: _newReply, error } = await db.from('community_replies')
+      .insert({ post_id: replyingToPostId, hive_id: HIVE_ID, author_name: WORKER_NAME, content })
+      .select('id').single();
     btn.disabled = false;
+    btn.textContent = _replyLabel;   // one exit for both paths: the error branch below returns
 
-    if (error) { showToast('Could not post reply', 'error'); return; }
+    if (error) { showToast(whWriteError(error, 'Your reply was NOT posted. It is still in the box - try again.'), 'error'); return; }
     _lastReplyTs = Date.now();
     document.getElementById('reply-content').value = '';
+    document.getElementById('reply-char-count').textContent = '0 / 1000';
     replyCountMap[replyingToPostId] = (replyCountMap[replyingToPostId] || 0) + 1;
     const rcEl = document.getElementById(`reply-count-${replyingToPostId}`);
     if (rcEl) rcEl.textContent = replyCountMap[replyingToPostId];
+    // T108 (2026-08-26): T31's finding - the asker had no way to learn an answer arrived except by
+    // coming back to look. Self-replies push nothing (the RPC checks that server-side).
+    if (_newReply && _newReply.id) {
+      try { db.rpc('notify_reply_posted', { p_reply_id: String(_newReply.id) }).then(() => {}, () => {}); }
+      catch (_) { /* empty-catch-allow: the reply stands; the nudge is best-effort */ }
+    }
     await loadReplies(replyingToPostId);
     // NAMES WHERE IT LANDS AND WHEN, not only the reward. The handler verifiably bumps the post's reply
     // count, reloads the thread so the reply is on screen, and refreshes the XP counter - so the
@@ -2691,7 +2924,7 @@
           if (wasMine) span.closest('.reaction-btn')?.classList.remove('active');
         }
       })
-      .subscribe();
+      .subscribe(typeof rtConn === 'function' ? rtConn() : undefined);
   }
 
   function setConn(state) {
@@ -2743,7 +2976,7 @@
         if (payload.new.flagged) return;
         _addGlobalPostFromRealtime(payload.new.id);
       })
-      .subscribe();
+      .subscribe(typeof rtConn === 'function' ? rtConn() : undefined);
   }
 
   // ── Report (worker → flagged + audit log with reason) ───────────────────────
@@ -2751,7 +2984,9 @@
 
   function openReport(postId) {
     _reportingPostId = postId;
-    document.getElementById('report-reason').value = 'harassment';
+    // T31: reset to the PLACEHOLDER, not 'harassment' - the old reset silently pre-filed the
+    // gravest accusation, defeating the required-choice placeholder in the markup.
+    document.getElementById('report-reason').value = '';
     document.getElementById('report-details').value = '';
     document.getElementById('report-char-count').textContent = '0 / 500';
     document.getElementById('report-overlay').classList.add('open');
@@ -2773,12 +3008,23 @@
     document.getElementById('report-char-count').textContent = `${this.value.length} / 500`;
   });
 
+  document.getElementById('reply-content').addEventListener('input', function () {
+    document.getElementById('reply-char-count').textContent = `${this.value.length} / 1000`;
+  });
+
   async function submitReport() {
     // A REPORT lost offline is the dangerous direction: the reporter believes moderation was alerted.
     if (typeof whRequireOnline === 'function'
         && !whRequireOnline('Reporting this post', (m) => showToast(m, 'error'))) return;
     if (!_reportingPostId) return;
     const reason  = document.getElementById('report-reason').value;
+    // T31: the reason is what the supervisor triages by - an unpicked one must not send
+    // (previously the select defaulted to 'harassment', silently filing the gravest accusation).
+    if (!reason) {
+      showToast('Pick a reason - it is what your supervisor triages by.', 'error');
+      document.getElementById('report-reason').focus();
+      return;
+    }
     const details = document.getElementById('report-details').value.trim();
     const btn     = document.getElementById('btn-submit-report');
 
@@ -2802,7 +3048,10 @@
 
     if (error) { showToast(whWriteError(error, 'Could not send report. Try again.'), 'error'); return; }
 
-    await writeAuditLog('report_post', _reportingPostId, { reason, details });
+    // T31: target_name was blank in the audit row - the supervisor saw a report pointing at
+    // nothing. Name the reported post's author (the audit table's target_name column).
+    const _reportedPost = [...pinnedPosts, ...allPosts].find(p => p.id === _reportingPostId);
+    await writeAuditLog('report_post', _reportingPostId, { reason, details }, _reportedPost ? (_reportedPost.author_name || _reportedPost.worker_name || null) : null);
 
     // Local state: hide the post from this worker's feed (workers don't see flagged)
     const post = _findPost(_reportingPostId);
@@ -2823,12 +3072,13 @@
   }
 
   // ── Audit log ─────────────────────────────────────────────────────────────────
-  async function writeAuditLog(action, targetId, extraMeta) {
+  async function writeAuditLog(action, targetId, extraMeta, targetName) {
     try {
       const { error: _auditErr } = await db.from('hive_audit_log').insert({
         hive_id: HIVE_ID,
         actor:   WORKER_NAME,
         action,
+        target_name: targetName || null,   // T31: the audit row must say WHO/what it is about
         meta:    { target_id: targetId, page: 'community', ...(extraMeta || {}) }
       });
     } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
@@ -2929,7 +3179,7 @@
     const query = m[1].toLowerCase();
     _mentionStartIdx = cursor - m[0].length;
     _mentionResults = _hiveMembers
-      .filter(hm => hm.worker_name.toLowerCase().includes(query))
+      .filter(hm => whFold(hm.worker_name).includes(whFold(query)))   // T128: @Pena finds Pena
       .slice(0, 5);
     _mentionSelected = 0;
     _mentionActive = _mentionResults.length > 0;
@@ -3071,5 +3321,13 @@
   <script defer src="connectivity-widget.js"></script>
   <script defer src="session-timeout.js"></script>
   <script defer src="device-fingerprint.js"></script>
+  <!-- T8/G5a (2026-08-27): community remembered NOTHING either. Its category chips are durable view
+       state - a worker who reads only Safety re-picked it on every return, and after a session
+       expiry the feed came back as All with no sign anything had changed. whAutoRememberTabs is the
+       CHIP variant of the same helper inventory just adopted: it restores by CLICKING the stored
+       chip, so the page's own setFilter() re-applies the filter and there is no second code path to
+       drift. Owner-stamped, so a shared station tablet does not hand worker B worker A's view. The
+       free-text search stays unremembered, matching logbook's reference adoption. -->
+  <script>window.addEventListener('load', function () { if (window.whAutoRememberTabs) whAutoRememberTabs('community-category', '#filter-chips', 'data-cat'); });</script>
 </body>
 </html>

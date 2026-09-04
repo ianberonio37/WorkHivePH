@@ -159,7 +159,17 @@ def page_relations(page):
 # the assistant answers UNGROUNDED for the session, silently" — fixed by forcing getUser() to settle
 # auth before the reads. So the page layer already answers it, and the honest verdict is a PASS that
 # NAMES the mechanism rather than a finding that ignores it.
-GATE_RE = re.compile(r"""signin=1|whRequireAuth|requireAuth\(""")
+# whSignInWall IS the redirect - the detector just knew only its PRE-CENTRALISATION spellings
+# (2026-08-28). T2 moved the sign-in wall into ONE utils.js helper:
+#     function whSignInWall() { window.location.href = 'index.html?signin=1&return=' + here }
+# so the pages that adopted it stopped containing the literal `signin=1` this pattern looks for, and
+# EIGHT of them (analytics, analytics-report, asset-hub, dayplanner, hive, pm-scheduler,
+# project-manager, skillmatrix) were reported as having "no session gate" while each carries 1-3
+# whSignInWall call sites. Verified live the same day: report-sender.html sends an unauthenticated
+# visitor to index.html?signin=1&return=report-sender.html, and after sign-in the browser lands back
+# on the page. A centralised mechanism is still a mechanism; a detector that only knows the old
+# spelling reports the REFACTOR as a regression.
+GATE_RE = re.compile(r"""signin=1|whRequireAuth|requireAuth\(|whSignInWall""")
 ANON_BY_DESIGN = {
     "public-feed": "this IS the public feed; an anon visitor seeing the public set is the product",
     "engineering-design": "the calculators are free public tools, anon is the primary persona",
@@ -468,11 +478,20 @@ def main(argv=None):
                              "note": "an unknown column must produce a 400, or this prober cannot "
                                      "observe a failure at all"}
     pub = next((r for r in results if r["relation"] == "community_posts"), None)
+    # The star-read CANNOT carry this control any more: 20260831000001 revoked auth_uid from anon at
+    # the COLUMN level, and a column revoke makes anon's select=* fail wholesale (42501/401) even
+    # though anon reads of the permitted columns succeed - the exact incident the
+    # a-column-revoke-is-inert-under-a-table-grant lesson records. The star result stays REPORTED
+    # (that 401 is the designed envelope for anon select-star now); the control judges "anon sees
+    # rows" on an explicit permitted-column read, which is what every real anon surface issues.
+    sctl, _, bctl = get("/community_posts?select=id&limit=2", key)
+    ctl_rows = len(bctl) if isinstance(bctl, list) else None
     ctl["anon_not_blanket_denied"] = {
-        "ok": bool(pub and (pub["anon"]["rows"] or 0) > 0),
+        "ok": bool((ctl_rows or 0) > 0),
         "note": "community_posts is the public feed, so an anon caller must see rows - otherwise a "
-                "200 [] on a tenant table would just mean a dead key",
-        "rows": (pub["anon"]["rows"] if pub else None)}
+                "200 [] on a tenant table would just mean a dead key (judged on select=id: anon "
+                "select=* is 401 by design since the auth_uid column revoke)",
+        "rows": ctl_rows, "star_rows": (pub["anon"]["rows"] if pub else None)}
     ctl["personas_differ"] = {
         "ok": any(r["boundary"] == "indistinguishable" or
                   (r["auth"]["rows"] or 0) > (r["anon"]["rows"] or 0) for r in results),

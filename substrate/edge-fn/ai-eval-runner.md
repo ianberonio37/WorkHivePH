@@ -2,7 +2,7 @@
 name: edge-fn-ai-eval-runner
 type: edge-fn
 source: file:supabase/functions/ai-eval-runner/index.ts
-source_sha: 17c2c81ef13ee5da
+source_sha: aeb5c5542a982e04
 last_verified: 2026-07-13
 supersedes: null
 ---

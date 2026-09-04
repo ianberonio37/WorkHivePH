@@ -18,7 +18,7 @@ import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { log } from "../_shared/logger.ts";
 // Pillar I (Gateway Spine): verify hive membership on the single-hive path.
-import { resolveIdentity, resolveTenancy } from "../_shared/tenant-context.ts";
+import { resolveIdentity, resolveTenancy, requireServiceRole } from "../_shared/tenant-context.ts";
 // A5 (FULLSTACK_COMPONENT_LIBRARY Layer A): per-person rate limit on the browser path.
 import { checkSoloRateLimit, soloRateLimitKey, soloRateLimitedResponse } from "../_shared/rate-limit.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
@@ -260,7 +260,23 @@ serveObserved("benchmark-compute", async (req) => {
         // A5: rate-limit the browser path (service-role/internal callers skip) — reference: voice-model-call/embed-entry.
         const _ip = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
         const _rl = await checkSoloRateLimit(db, soloRateLimitKey(authUid, _ip), undefined, undefined, _ip);
-        if (!_rl.allowed) return soloRateLimitedResponse(getCorsHeaders(req));
+        if (!_rl.allowed) return soloRateLimitedResponse(getCorsHeaders(req), _rl.retry_after_seconds);
+      }
+    }
+
+    // ★Drain path (no hive_id) fans out benchmark compute + writes (hive_benchmarks, network_benchmarks,
+    // automation_log) over ALL hives on a service-role client. This fn is deployed --no-verify-jwt, so
+    // without an explicit gate a public `POST {}` runs the whole all-hives compute (BFLA — the same
+    // anon-drain class as amc-orchestrator / pdf-ingest). The membership check above only covers the
+    // single-hive path. The pg_cron job passes a service-role bearer, so requiring service credentials on
+    // the drain path leaves the cron unbroken and shuts the public door.
+    if (!body.hive_id) {
+      const g = await requireServiceRole(db, req);
+      if (!g.ok) {
+        return new Response(
+          JSON.stringify({ error: g.message, code: g.code }),
+          { status: g.status, headers: { ...cors, "Content-Type": "application/json" } },
+        );
       }
     }
 

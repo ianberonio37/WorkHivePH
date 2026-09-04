@@ -1,0 +1,38 @@
+{
+ "doc": "toyota_vios_fulldoc_pdfjs",
+ "hand_read": "2026-09-03, RE-ANCHOR fixture: the SAME real Toyota PDF but extracted with the wizard's own instrument (PDF.js space-joins each page into one giant line - a structurally different payload from pypdf's per-line text). The floor must find the three prose recurrings across all 7 pages and mint NOTHING from the ladder/tier headers.",
+ "pm_items": [
+  {
+   "match": "coolant subsequent replacement",
+   "interval_km": 80000,
+   "interval_months": null
+  },
+  {
+   "match": "cvt",
+   "interval_km": 80000,
+   "interval_months": null,
+   "why": "'CVT Fluid recommended replacement is at every 80,000km' (page 6)"
+  },
+  {
+   "match": "iridium spark plugs",
+   "interval_km": 100000,
+   "interval_months": null,
+   "why": "'Iridium Spark Plugs are replaced at every 100,000 km.' (pages 6-7)"
+  }
+ ],
+ "parts": [],
+ "pm_must_not_match": [
+  "basic",
+  "advance",
+  "compulsory",
+  "first replacement",
+  "model code",
+  "vios"
+ ],
+ "parts_must_not_match": [
+  "lubricants",
+  "package"
+ ],
+ "must_not_contain": [],
+ "expect_injection": false
+}

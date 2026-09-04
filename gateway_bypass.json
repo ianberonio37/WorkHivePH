@@ -72,7 +72,7 @@
       "code": "L",
       "name": "Error Tracking & Logs",
       "gateway_grade": 0.5,
-      "bypass": 16,
+      "bypass": 17,
       "basis": "measured-partial",
       "report": "structured_log_adoption_report.json",
       "note": "structured ndjson logger (beginRequest/log) is the convergence; bypass = edge fn not emitting structured logs (partial-adoption ratchet)"

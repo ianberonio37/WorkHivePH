@@ -82,6 +82,12 @@ SERVER_FED_ALLOW = {
     # only READS it, to surface past repairs for the selected machine. Verified: 0 client
     # .insert/.upsert on the table across every shipped page.
     "fault_knowledge",
+    # Reviewed 2026-08-25 (T17). achievement_xp_log is TRIGGER-fed: trg_logbook_achievement /
+    # trg_pm_achievement / trg_community_achievement / trg_skill_badge_achievement write it as the
+    # source rows land; the client only READS it back (the earning-moment receipts + achievements
+    # page). There is no client insert and there must not be — XP a page could mint is XP a page
+    # could forge. Verified: 0 client .insert/.upsert on the table across shipped pages.
+    "achievement_xp_log",
     # Reviewed 2026-07-28 (service-hailing P3). service_catalog is the platform RATE CARD —
     # admin/seeder-fed (services.py seeder + founder-console later); the provider console only
     # READS it for the category picker. (service_requests was here for the P3 window; REMOVED

@@ -1,58 +1,15 @@
 ---
 name: migration-catalog
 type: migration
-source: dir:supabase/migrations:550
-source_sha: 17cc570710181e32
+source: dir:supabase/migrations:593
+source_sha: 6ce407cc8d11916f
 last_verified: 2026-07-13
 supersedes: null
 ---
-## migration · catalog (550 migrations)
+## migration · catalog (593 migrations)
 
 Append-only DDL history. Search here for 'has this table/policy been fixed' before re-diagnosing.
 
-- `20260718000002_cron_health_view` — (misc DDL/DML)
-- `20260718000003_storage_health_view` — (misc DDL/DML)
-- `20260718000004_register_ops_seller_canonical_sources` — (misc DDL/DML)
-- `20260718000005_db_size_history` — fns:snapshot_db_size · tables:ops_db_size_history
-- `20260719000001_inventory_partnumber_unique` — (misc DDL/DML)
-- `20260719000002_guard_marketplace_order_status` — fns:guard_marketplace_order_status · triggers:trg_guard_marketplace_order_status
-- `20260719000003_seller_rating_verified_only` — fns:update_seller_rating
-- `20260719000004_numeric_nonnegative_bounds` — tables:inventory_items,logbook,marketplace_listings,marketplace_orders
-- `20260720000001_parts_reservation_idempotency` — (misc DDL/DML)
-- `20260720000002_fix_fetch_active_alerts_type` — fns:fetch_active_alerts
-- `20260721000001_text_id_defaults` — tables:inventory_items,inventory_transactions,logbook
-- `20260722000001_grant_select_marketplace_sellers` — (misc DDL/DML)
-- `20260723000001_client_errors_frontend_observability` — policies:client_errors_insert,client_errors_read · tables:client_errors
-- `20260723000002_asset_node_rejection_reason` — tables:asset_nodes
-- `20260724000001_fault_knowledge_ai_provenance` — tables:fault_knowledge
-- `20260724000002_failure_alert_detail_provenance` — tables:failure_signature_alerts
-- `20260724000003_marketplace_listing_moderation_guard` — fns:guard_marketplace_listing_status · triggers:trg_guard_listing_status
-- `20260724000004_marketplace_seller_public_profile` — fns:get_marketplace_seller_public
-- `20260724000005_marketplace_moderation_reason` — tables:marketplace_listings
-- `20260724000006_marketplace_response_stats_computed` — fns:update_seller_response_stats · triggers:trg_update_seller_response_stats
-- `20260724000007_marketplace_rating_backfill_verified_only` — (misc DDL/DML)
-- `20260724000008_marketplace_sales_and_tier_earnable` — fns:recompute_seller_sales_and_tier,trg_listing_sold_recompute · triggers:trg_listing_sold_recompute
-- `20260724000009_marketplace_cert_badge_requires_certs` — (misc DDL/DML)
-- `20260724000010_register_seller_public_canonical_source` — (misc DDL/DML)
-- `20260724000011_marketplace_review_requires_inquiry` — policies:mkt_reviews_insert
-- `20260724000012_marketplace_review_caps` — fns:cap_marketplace_reviews_text,enforce_marketplace_review_daily_cap · triggers:trg_review_daily_cap,trg_text_caps_mkt_reviews
-- `20260728000000_logbook_auth_uid_backfill` — (misc DDL/DML)
-- `20260728000001_fault_knowledge_logbook_fk` — tables:fault_knowledge
-- `20260728000002_inventory_deduct_ledger_truth` — fns:inventory_deduct
-- `20260728000003_logbook_post_close_amendment_audit` — fns:audit_logbook_post_close_amendment · triggers:trg_logbook_post_close_audit
-- `20260728000004_pm_completion_amendment_audit` — fns:audit_pm_completion_amendment · triggers:trg_pm_completion_amendment_audit
-- `20260728000005_pm_ontime_delivery_rpc` — fns:get_pm_ontime_delivery
-- `20260728000006_pm_asset_delete_guard_and_audit` — policies:pm_assets_delete_guard · fns:audit_pm_asset_delete · triggers:trg_pm_asset_delete_audit
-- `20260728000007_pm_completion_scope_parent_guard` — policies:pm_completions_scope_parent_guard
-- `20260728000008_pm_asset_identity_sync_rpc` — fns:sync_pm_asset_identity
-- `20260728000009_pm_asset_update_guard` — policies:pm_assets_update_guard
-- `20260728000010_ensure_pm_asset_for_node_rpc` — fns:ensure_pm_asset_for_node
-- `20260728000011_pm_asset_insert_guard` — policies:pm_assets_insert_guard
-- `20260728000012_pm_scope_item_schedule_audit` — fns:audit_pm_scope_item_schedule_change · triggers:trg_pm_scope_item_schedule_audit
-- `20260728000013_guard_rejection_is_a_reviewer_act` — fns:wh_guard_supervisor_approval
-- `20260728000014_weibull_diagnostic_survives_the_reload` — tables:weibull_fits
-- `20260728000015_asset_approval_decision_audit` — fns:audit_asset_approval_decision · triggers:trg_asset_approval_decision_audit
-- `20260728000016_asset_node_delete_audit` — fns:audit_asset_node_delete · triggers:trg_asset_node_delete_audit
 - `20260728000017_reliability_parent_hive_guard` — policies:pf_intervals_parent_hive_guard,rcm_fmea_modes_parent_hive_guard,rcm_strategies_parent_hive_guard,weibull_fits_parent_hive_guard
 - `20260728000018_sensor_anomaly_flag_that_can_be_true` — tables:sensor_readings
 - `20260728000019_rename_carries_the_whole_identity` — fns:sync_asset_identity,sync_pm_asset_identity
@@ -210,6 +167,49 @@ Append-only DDL history. Search here for 'has this table/policy been fixed' befo
 - `20260820000068_v_sensor_recent_dropped_the_unit_its_reader_needs` — (misc DDL/DML)
 - `20260820000069_xp_reversal_rpcs_were_callable_by_any_signed_in_user` — (misc DDL/DML)
 - `20260821000070_reorder_suggestions_had_no_lead_time` — tables:inventory_items
+- `20260825000001_inventory_rejection_reason` — tables:inventory_items
+- `20260825000002_arm_hierarchical_summaries_cron` — (misc DDL/DML)
+- `20260825000003_notify_submission_decided` — fns:notify_submission_decided
+- `20260825000004_notify_wo_assigned` — fns:notify_wo_assigned
+- `20260825000005_report_notifies_supervisors` — fns:report_community_post
+- `20260825000006_pending_parts_created_at` — fns:get_hive_board_dashboard
+- `20260826000001_push_dedupe_window` — fns:enqueue_user_push
+- `20260826000002_notify_community_lifecycle` — fns:notify_post_mentions,notify_reply_accepted,notify_reply_posted
+- `20260826000003_pending_submission_reaches_supervisors` — fns:tg_notify_pending_submission · triggers:trg_notify_pending_asset,trg_notify_pending_part
+- `20260826000004_bounce_webhook_is_idempotent` — (misc DDL/DML)
+- `20260826000005_automation_log_warning_status` — tables:automation_log
+- `20260826000006_join_names_the_namesake` — fns:join_hive_by_code
+- `20260826000007_set_worker_display_name` — fns:set_worker_display_name
+- `20260826000008_rename_only_before_history` — fns:set_worker_display_name
+- `20260827000000_source_row_ids_match_logbook_key` — tables:canonical_period_summaries
+- `20260828000000_inventory_items_touch_updated_at` — triggers:tg_inventory_items_touch_updated
+- `20260828000001_low_stock_includes_no_stock` — (misc DDL/DML)
+- `20260828000002_pm_compliance_counted_skips_as_completions` — (misc DDL/DML)
+- `20260828000003_asset_truth_pm_completed_counted_skips` — (misc DDL/DML)
+- `20260828000004_schedule_items_empty_time_is_null` — tables:schedule_items
+- `20260828000005_schedule_items_normalize_time_not_reject` — fns:tg_schedule_items_blank_time_is_null · triggers:tg_schedule_items_blank_time_is_null · tables:schedule_items
+- `20260828000006_inventory_ledger_chain_normalize` — fns:tg_inventory_txn_chain_qty_after · triggers:trg_inventory_txn_chain_qty_after
+- `20260831000001_anon_cannot_read_post_author_uid` — (misc DDL/DML)
+- `20260831000002_hive_value_summary_view` — (misc DDL/DML)
+- `20260901000001_hive_fk_integrity` — policies:wh_traces_hive_read · tables:ai_user_rate_limits,alert_dismissals,analytics_events,analytics_snapshots,anomaly_alerts,automation_log
+- `20260901000002_push_digest_coalescing` — fns:enqueue_user_push
+- `20260901000003_revoke_write_on_community_posts_truth_view` — (misc DDL/DML)
+- `20260901000004_revoke_write_on_hive_value_summary` — (misc DDL/DML)
+- `20260902000001_credit_hold_message_audience_neutral` — fns:guard_listing_requires_reservation
+- `20260902000002_inventory_tx_server_attribution` — fns:derive_inventory_tx_attribution · triggers:trg_inventory_tx_attribution
+- `20260902000003_guard_staged_stock` — fns:guard_staged_stock · triggers:trg_guard_staged_stock
+- `20260902000004_asset_nodes_solo_rls` — policies:asset_nodes_read,asset_nodes_write
+- `20260902000005_vehicle_foundations` — fns:roll_vehicle_odometer · triggers:trg_roll_vehicle_odometer · tables:asset_nodes,pm_completions,pm_scope_items
+- `20260902000006_pm_truth_meter_aware` — (misc DDL/DML)
+- `20260902000007_truth_view_invoker_and_solo_reads` — policies:inventory_items_read,pm_scope_items_read
+- `20260902000008_asset_delete_audit_solo_safe` — fns:audit_asset_node_delete
+- `20260902000009_pm_asset_delete_audit_solo_safe` — fns:audit_pm_asset_delete
+- `20260902000010_logbook_contract_vehicle_category` — (misc DDL/DML)
+- `20260902000011_pm_completion_contract_meter` — (misc DDL/DML)
+- `20260902000012_asset_truth_null_safe_hive_join` — (misc DDL/DML)
+- `20260902000013_audit_triggers_solo_safe_new_hive` — fns:audit_asset_approval_decision,audit_logbook_post_close_amendment,audit_pm_scope_item_schedule_change
+- `20260902000014_inventory_deduct_actor_attribution` — fns:inventory_deduct
+- `20260903000001_pm_compliance_solo_lane` — fns:get_pm_compliance_smrp
 
 (showing last 200)
 

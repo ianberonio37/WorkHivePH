@@ -1,0 +1,407 @@
+{
+ "_doc": "T71 status incidents, DERIVED from platform_health.json + automation_log by tools/derive_status_incidents.py. DB-independent so status.html survives the outage.",
+ "generated_from": {
+  "health": "platform_health.json",
+  "automation_log": "public.automation_log"
+ },
+ "open": 41,
+ "resolved": 3,
+ "incidents": [
+  {
+   "id": "auto-project_risk-2026-08-05 06:00:34.928018+00",
+   "source": "automation",
+   "title": "project_risk",
+   "severity": "major",
+   "started_at": "2026-08-05 06:00:34.928018+00",
+   "ended_at": "2026-08-19 06:00:03.366639+00",
+   "status": "resolved"
+  },
+  {
+   "id": "auto-project_risk-2026-07-29 07:22:10.209496+00",
+   "source": "automation",
+   "title": "project_risk",
+   "severity": "major",
+   "started_at": "2026-07-29 07:22:10.209496+00",
+   "ended_at": "2026-08-05 06:00:13.81319+00",
+   "status": "resolved"
+  },
+  {
+   "id": "auto-shift-brain-test-2026-07-20 04:56:35.570917+00",
+   "source": "automation",
+   "title": "shift-brain-test",
+   "severity": "major",
+   "started_at": "2026-07-20 04:56:35.570917+00",
+   "ended_at": "2026-07-20 04:56:35.570917+00",
+   "status": "resolved"
+  },
+  {
+   "id": "gate-status-incidents-derived",
+   "source": "gate",
+   "title": "status-incidents-derived",
+   "severity": "major",
+   "started_at": "2026-09-03T16:27:21.671575+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-destructive-proportional-confirm",
+   "source": "gate",
+   "title": "destructive-proportional-confirm",
+   "severity": "major",
+   "started_at": "2026-09-03T16:27:21.671575+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-gateway-gate-depth",
+   "source": "gate",
+   "title": "gateway-gate-depth",
+   "severity": "major",
+   "started_at": "2026-09-03T16:27:21.671575+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-gateway-bypass",
+   "source": "gate",
+   "title": "gateway-bypass",
+   "severity": "major",
+   "started_at": "2026-09-03T16:27:21.671575+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-auth_role_render_live",
+   "source": "gate",
+   "title": "auth_role_render_live",
+   "severity": "major",
+   "started_at": "2026-09-03T16:27:21.671575+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-memory_write_quality",
+   "source": "gate",
+   "title": "memory_write_quality",
+   "severity": "major",
+   "started_at": "2026-09-03T16:27:21.671575+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-security_adversarial_sweep",
+   "source": "gate",
+   "title": "security_adversarial_sweep",
+   "severity": "major",
+   "started_at": "2026-09-03T16:27:21.671575+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-layer_invariants",
+   "source": "gate",
+   "title": "layer_invariants",
+   "severity": "major",
+   "started_at": "2026-09-03T16:27:21.671575+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-cls_reservations",
+   "source": "gate",
+   "title": "cls_reservations",
+   "severity": "major",
+   "started_at": "2026-09-03T16:27:21.671575+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-cm_why_refused",
+   "source": "gate",
+   "title": "cm_why_refused",
+   "severity": "major",
+   "started_at": "2026-09-03T16:27:21.671575+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-cn_journey",
+   "source": "gate",
+   "title": "cn_journey",
+   "severity": "major",
+   "started_at": "2026-09-03T16:27:21.671575+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-cc_failure_injection",
+   "source": "gate",
+   "title": "cc_failure_injection",
+   "severity": "major",
+   "started_at": "2026-09-03T16:27:21.671575+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-co_dialog_session_died",
+   "source": "gate",
+   "title": "co_dialog_session_died",
+   "severity": "major",
+   "started_at": "2026-09-03T16:27:21.671575+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-cf_effect_visible",
+   "source": "gate",
+   "title": "cf_effect_visible",
+   "severity": "major",
+   "started_at": "2026-09-03T16:27:21.671575+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-cb_did_it_land",
+   "source": "gate",
+   "title": "cb_did_it_land",
+   "severity": "major",
+   "started_at": "2026-09-03T16:27:21.671575+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-live_mcp_bank",
+   "source": "gate",
+   "title": "live_mcp_bank",
+   "severity": "major",
+   "started_at": "2026-09-03T16:27:21.671575+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-tenant-boundary",
+   "source": "gate",
+   "title": "tenant-boundary",
+   "severity": "major",
+   "started_at": "2026-09-03T16:27:21.671575+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-logbook-consistency",
+   "source": "gate",
+   "title": "logbook-consistency",
+   "severity": "major",
+   "started_at": "2026-09-03T16:27:21.671575+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-playwright-smoke",
+   "source": "gate",
+   "title": "playwright-smoke",
+   "severity": "major",
+   "started_at": "2026-09-03T16:27:21.671575+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-locks-are-verified",
+   "source": "gate",
+   "title": "locks-are-verified",
+   "severity": "major",
+   "started_at": "2026-09-03T16:27:21.671575+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-canonical-sources",
+   "source": "gate",
+   "title": "canonical-sources",
+   "severity": "major",
+   "started_at": "2026-09-03T16:27:21.671575+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-arc-u-focus-trap",
+   "source": "gate",
+   "title": "arc-u-focus-trap",
+   "severity": "major",
+   "started_at": "2026-09-03T16:27:21.671575+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-axe-live-authed",
+   "source": "gate",
+   "title": "axe-live-authed",
+   "severity": "major",
+   "started_at": "2026-09-03T16:27:21.671575+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-substrate-freshness",
+   "source": "gate",
+   "title": "substrate-freshness",
+   "severity": "major",
+   "started_at": "2026-09-03T16:27:21.671575+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-md-twins-current",
+   "source": "gate",
+   "title": "md-twins-current",
+   "severity": "major",
+   "started_at": "2026-09-03T16:27:21.671575+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-xp-belongs-to-one-person",
+   "source": "gate",
+   "title": "xp-belongs-to-one-person",
+   "severity": "major",
+   "started_at": "2026-09-03T16:27:21.671575+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-kpi-parity",
+   "source": "gate",
+   "title": "kpi-parity",
+   "severity": "major",
+   "started_at": "2026-09-03T16:27:21.671575+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-read-battery",
+   "source": "gate",
+   "title": "read-battery",
+   "severity": "major",
+   "started_at": "2026-09-03T16:27:21.671575+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-marketplace-test-bank",
+   "source": "gate",
+   "title": "marketplace-test-bank",
+   "severity": "major",
+   "started_at": "2026-09-03T16:27:21.671575+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-knowledge-is-retrievable",
+   "source": "gate",
+   "title": "knowledge-is-retrievable",
+   "severity": "major",
+   "started_at": "2026-09-03T16:27:21.671575+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-guard-mutation-score",
+   "source": "gate",
+   "title": "guard-mutation-score",
+   "severity": "major",
+   "started_at": "2026-09-03T16:27:21.671575+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-marketplace-state-inducers",
+   "source": "gate",
+   "title": "marketplace-state-inducers",
+   "severity": "major",
+   "started_at": "2026-09-03T16:27:21.671575+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-asset-reaches-its-history",
+   "source": "gate",
+   "title": "asset-reaches-its-history",
+   "severity": "major",
+   "started_at": "2026-09-03T16:27:21.671575+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-dialog-floor",
+   "source": "gate",
+   "title": "dialog-floor",
+   "severity": "major",
+   "started_at": "2026-09-03T16:27:21.671575+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-seller-dashboard-is-reachable",
+   "source": "gate",
+   "title": "seller-dashboard-is-reachable",
+   "severity": "major",
+   "started_at": "2026-09-03T16:27:21.671575+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-optimistic-ui-reconciles",
+   "source": "gate",
+   "title": "optimistic-ui-reconciles",
+   "severity": "major",
+   "started_at": "2026-09-03T16:27:21.671575+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-idle-network",
+   "source": "gate",
+   "title": "idle-network",
+   "severity": "major",
+   "started_at": "2026-09-03T16:27:21.671575+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-no-probe-residue",
+   "source": "gate",
+   "title": "no-probe-residue",
+   "severity": "major",
+   "started_at": "2026-09-03T16:27:21.671575+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-hive-name-reconciles",
+   "source": "gate",
+   "title": "hive-name-reconciles",
+   "severity": "major",
+   "started_at": "2026-09-03T16:27:21.671575+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-approval-queue-aggregates",
+   "source": "gate",
+   "title": "approval-queue-aggregates",
+   "severity": "major",
+   "started_at": "2026-09-03T16:27:21.671575+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-psql-probe-suite",
+   "source": "gate",
+   "title": "psql-probe-suite",
+   "severity": "major",
+   "started_at": "2026-09-03T16:27:21.671575+00:00",
+   "ended_at": null,
+   "status": "open"
+  }
+ ]
+}

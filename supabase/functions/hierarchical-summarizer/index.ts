@@ -12,14 +12,17 @@
  *      pm_overdue, downtime_h → structured JSON (TS, deterministic).
  *   3. Generate 1-2 paragraph natural-language digest via callAI (free-tier).
  *
- * Trigger (ACTUAL, corrected 2026-07-12): on-demand only — invoked per (hive, level,
- * period) by the ops tool tools/backfill_hierarchical_summaries.py and chained by
- * semantic-fact-extractor. There is NO pg_cron for it (it takes a required per-hive/level
- * body and has no drain-all-hives mode, so a bare {} cron cannot fan out). The earlier
- * "pg_cron daily at 02:00 PHT" header was aspirational and never scheduled — a cron-honesty
- * gap surfaced by validate_cron_schedule_integrity L5 (ASSET_ALERT_SHIFT_DEEP_ARC).
- * TODO (Ian's call, logged PRODUCTION_FIXES): to auto-refresh the rollups, add a drain mode
- * (loop active hives × due levels on empty body) + a portable-URL cron, like amc-orchestrator.
+ * Trigger (ACTUAL, updated 2026-08-25 — T90 closes the deferred follow-up): TWO modes.
+ * (1) On-demand per (hive, level, period) — the ops backfill tool and the
+ *     semantic-fact-extractor chain, unchanged.
+ * (2) Self-fanning weekly cron ('hierarchical-summaries-weekly', migration
+ *     20260825000002, portable-URL pattern like amc-orchestrator): an EMPTY body from a
+ *     service-role caller rolls up the previous WEEK for every hive with logbook activity
+ *     in that window (+ the previous MONTH during a month's first 7 days). Built because
+ *     three consumers (agentic-rag-loop, ai-gateway, temporal-rag-orchestrator) read
+ *     canonical_period_summaries while nothing produced rows on a schedule — the table
+ *     held ONE row. Cron-honesty: validate_cron_schedule_integrity L5 sees header + cron
+ *     agree again (the 2026-07-12 correction documented the gap this closes).
  *
  * Body:
  *   { hive_id, level, period_start?: ISO-date, period_end?: ISO-date,
@@ -323,13 +326,19 @@ async function rollupOnePeriod(
 
   const digest = await buildDigest(db, hiveId, periodLabel, assetTag, summary);
 
-  // source_row_ids is typed uuid[] in the migration. The local seeder uses
-  // string IDs like "log-XXX" that are NOT valid UUIDs, so filter to UUID
-  // shape only — empty array is fine, traceability degrades gracefully when
-  // the source id format doesn't match. Production logbook IDs (gen_random_uuid())
-  // always pass this filter.
-  const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-  const validSourceIds = rows.map(r => String(r.id || "")).filter(id => UUID_RE.test(id));
+  // ★THIS USED TO DISCARD EVERY ID IT WAS GIVEN (fixed 2026-08-27, T90). The column was uuid[], so
+  // this filtered rows to UUID shape and reassured the reader that "Production logbook IDs
+  // (gen_random_uuid()) always pass this filter." They never did: logbook.id is `text` NOT NULL with
+  // no uuid default (baseline migration :874) and the app writes Date.now().toString()
+  // (logbook.html :4958). So validSourceIds was ALWAYS empty — in production too — and a column whose
+  // comment promises "traceability back to logbook rows" has held nothing since it shipped.
+  //
+  // Migration 20260827000000 widens the column to text[] to match the key its sources actually use.
+  // The filter now drops only what is genuinely unusable — a blank id cannot be traced back to
+  // anything — and keeps the real ones, so a digest can finally name the rows it summarises.
+  const validSourceIds = rows
+    .map((r) => String(r.id ?? "").trim())
+    .filter((id) => id.length > 0);
 
   const { error: upErr } = await db.from("canonical_period_summaries").upsert({
     hive_id:        hiveId,
@@ -376,6 +385,51 @@ serveObserved("hierarchical-summarizer", async (req) => {
       status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
+  // ── T90 (2026-08-25): the self-fanning mode this header's corrected design called for,
+  // now built. An EMPTY body from the weekly cron (service-role only) rolls up the PREVIOUS
+  // WEEK for every hive with logbook activity in that window, plus the previous MONTH during
+  // the first 7 days of a month. Before this, the pipeline was consumed by three fns
+  // (agentic-rag-loop, ai-gateway, temporal-rag-orchestrator) while NOTHING produced rows on
+  // a schedule — canonical_period_summaries held ONE row (a trust signal needs a living
+  // producer). Per-(hive, level) bodies keep working unchanged for on-demand callers.
+  if (!body.hive_id && !body.level) {
+    const dbf = _warm || createClient(_URL, _KEY);
+    const { isServiceRole } = await resolveIdentity(dbf, req);
+    if (!isServiceRole) {
+      return new Response(JSON.stringify({ error: "Missing required field: hive_id" }), {
+        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    const levels: Level[] = ["week"];
+    if (new Date().getUTCDate() <= 7) levels.push("month");
+    const out: Array<{ hive_id: string; level: Level; written: boolean; reason?: string }> = [];
+    for (const level of levels) {
+      const period = previousPeriod(level);
+      // canonical-allow: active-hive enumeration only (distinct hive_id in the period);
+      // no KPI semantics ride on this read, so truth-view filtering is irrelevant here.
+      const { data: active } = await dbf
+        .from("logbook")
+        .select("hive_id")
+        .gte("created_at", period.start)
+        .lt("created_at", period.end)
+        .not("hive_id", "is", null)
+        .limit(2000);
+      const hives = [...new Set((active || []).map((r: { hive_id: string }) => r.hive_id))];
+      for (const hive of hives) {
+        try {
+          const r = await rollupOnePeriod(dbf, hive, level, period, null);
+          out.push({ hive_id: hive, level, written: r.written, reason: r.written ? undefined : r.reason });
+        } catch (e) {
+          out.push({ hive_id: hive, level, written: false, reason: String(e).slice(0, 200) });
+        }
+      }
+    }
+    const written = out.filter((o) => o.written).length;
+    return new Response(JSON.stringify({
+      ok: true, mode: "fan-out", written, skipped: out.length - written, detail: out,
+    }), { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+  }
+
   if (!body.hive_id) {
     return new Response(JSON.stringify({ error: "Missing required field: hive_id" }), {
       status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -415,10 +469,10 @@ serveObserved("hierarchical-summarizer", async (req) => {
         const _rq = await checkRouteRateLimit(db, body.hive_id || "", "hierarchical-summarizer");
         // Denies ONLY when an explicit hive_route_quotas row exists (rq.per_route), so this stays
         // a no-op until an admin sets a cap - while always counting for attribution.
-        if (_rq.per_route && !_rq.allowed) return routeRateLimitedResponse(corsHeaders, "hierarchical-summarizer", _rq.cap);
+        if (_rq.per_route && !_rq.allowed) return routeRateLimitedResponse(corsHeaders, "hierarchical-summarizer", _rq.cap, _rq.retry_after_seconds);
       } catch { /* empty-catch-allow: per-surface quota bookkeeping must never fail a real request */ }
       const _rl = await checkAIRateLimit(db, body.hive_id);
-      if (!_rl.allowed) return rateLimitedResponse(corsHeaders);
+      if (!_rl.allowed) return rateLimitedResponse(corsHeaders, _rl.scope ?? "hour", _rl.retry_after_seconds);
     }
   }
 

@@ -1,34 +1,34 @@
 {
   "summary": {
-    "pages_scanned": 28,
-    "total_links": 290,
+    "pages_scanned": 42,
+    "total_links": 289,
     "total_broken": 0,
     "baseline": 0
   },
   "per_page": [
     {
-      "page": "index.html",
-      "link_count": 65,
-      "broken": []
-    },
-    {
-      "page": "hive.html",
-      "link_count": 27,
-      "broken": []
-    },
-    {
-      "page": "logbook.html",
-      "link_count": 10,
-      "broken": []
-    },
-    {
-      "page": "inventory.html",
-      "link_count": 11,
-      "broken": []
-    },
-    {
-      "page": "pm-scheduler.html",
+      "page": "achievements.html",
       "link_count": 7,
+      "broken": []
+    },
+    {
+      "page": "agentic-rag-observability.html",
+      "link_count": 3,
+      "broken": []
+    },
+    {
+      "page": "ai-quality.html",
+      "link_count": 5,
+      "broken": []
+    },
+    {
+      "page": "alert-hub.html",
+      "link_count": 7,
+      "broken": []
+    },
+    {
+      "page": "analytics-report.html",
+      "link_count": 3,
       "broken": []
     },
     {
@@ -37,38 +37,38 @@
       "broken": []
     },
     {
-      "page": "analytics-report.html",
+      "page": "architecture.html",
+      "link_count": 2,
+      "broken": []
+    },
+    {
+      "page": "asset-hub.html",
+      "link_count": 16,
+      "broken": []
+    },
+    {
+      "page": "assistant.html",
       "link_count": 4,
       "broken": []
     },
     {
-      "page": "skillmatrix.html",
-      "link_count": 8,
+      "page": "audit-log.html",
+      "link_count": 3,
       "broken": []
     },
     {
       "page": "community.html",
-      "link_count": 12,
-      "broken": []
-    },
-    {
-      "page": "public-feed.html",
-      "link_count": 4,
-      "broken": []
-    },
-    {
-      "page": "marketplace.html",
-      "link_count": 13,
-      "broken": []
-    },
-    {
-      "page": "marketplace-seller.html",
       "link_count": 9,
       "broken": []
     },
     {
       "page": "dayplanner.html",
-      "link_count": 6,
+      "link_count": 2,
+      "broken": []
+    },
+    {
+      "page": "design-system.html",
+      "link_count": 0,
       "broken": []
     },
     {
@@ -77,23 +77,63 @@
       "broken": []
     },
     {
-      "page": "assistant.html",
-      "link_count": 3,
+      "page": "founder-console.html",
+      "link_count": 15,
       "broken": []
     },
     {
-      "page": "report-sender.html",
-      "link_count": 6,
+      "page": "hive.html",
+      "link_count": 24,
       "broken": []
     },
     {
-      "page": "project-manager.html",
-      "link_count": 8,
+      "page": "index.html",
+      "link_count": 75,
       "broken": []
     },
     {
       "page": "integrations.html",
+      "link_count": 10,
+      "broken": []
+    },
+    {
+      "page": "inventory.html",
+      "link_count": 7,
+      "broken": []
+    },
+    {
+      "page": "llm-observability.html",
+      "link_count": 1,
+      "broken": []
+    },
+    {
+      "page": "logbook.html",
       "link_count": 8,
+      "broken": []
+    },
+    {
+      "page": "marketplace-admin.html",
+      "link_count": 2,
+      "broken": []
+    },
+    {
+      "page": "marketplace-seller-profile.html",
+      "link_count": 5,
+      "broken": []
+    },
+    {
+      "page": "marketplace-seller.html",
+      "link_count": 10,
+      "broken": []
+    },
+    {
+      "page": "marketplace.html",
+      "link_count": 13,
+      "broken": []
+    },
+    {
+      "page": "offline-fallback.html",
+      "link_count": 4,
       "broken": []
     },
     {
@@ -102,43 +142,73 @@
       "broken": []
     },
     {
-      "page": "project-report.html",
-      "link_count": 6,
-      "broken": []
-    },
-    {
-      "page": "ai-quality.html",
-      "link_count": 7,
-      "broken": []
-    },
-    {
       "page": "plant-connections.html",
-      "link_count": 7,
+      "link_count": 5,
       "broken": []
     },
     {
-      "page": "achievements.html",
-      "link_count": 10,
+      "page": "platform-actions.html",
+      "link_count": 1,
       "broken": []
     },
     {
-      "page": "asset-hub.html",
-      "link_count": 18,
+      "page": "pm-scheduler.html",
+      "link_count": 3,
+      "broken": []
+    },
+    {
+      "page": "project-manager.html",
+      "link_count": 4,
+      "broken": []
+    },
+    {
+      "page": "project-report.html",
+      "link_count": 4,
+      "broken": []
+    },
+    {
+      "page": "promo-poster.html",
+      "link_count": 1,
+      "broken": []
+    },
+    {
+      "page": "public-feed.html",
+      "link_count": 5,
+      "broken": []
+    },
+    {
+      "page": "report-sender.html",
+      "link_count": 2,
+      "broken": []
+    },
+    {
+      "page": "resume.html",
+      "link_count": 0,
       "broken": []
     },
     {
       "page": "shift-brain.html",
-      "link_count": 9,
+      "link_count": 3,
       "broken": []
     },
     {
-      "page": "alert-hub.html",
-      "link_count": 9,
-      "broken": []
-    },
-    {
-      "page": "audit-log.html",
+      "page": "skillmatrix.html",
       "link_count": 5,
+      "broken": []
+    },
+    {
+      "page": "status.html",
+      "link_count": 1,
+      "broken": []
+    },
+    {
+      "page": "symbol-gallery.html",
+      "link_count": 1,
+      "broken": []
+    },
+    {
+      "page": "validator-catalog.html",
+      "link_count": 1,
       "broken": []
     },
     {

@@ -389,7 +389,10 @@ const redirected = results.filter((r) => WIDTHS.some((w) => (r.w[w] || {}).redir
 const unverified = results.filter((r) => WIDTHS.some((w) => (r.w[w] || {}).verified === false));
 const offending = results.filter((r) => WIDTHS.some((w) => (r.w[w] || {}).unclipped));
 const tapBad = results.filter((r) => (r.tap || {}).tooSmall);
-writeFileSync('viewport_overflow_report.json', JSON.stringify({
+// A NARROWED RUN MUST NOT CLOBBER THE FULL ONE: this file is read downstream (gates and
+// bank_prover_reports), so a --page/--case spot-check overwriting a whole sweep's verdicts
+// corrupts the BANK, not just a log. Measured on prove_retry_path 2026-08-27.
+writeFileSync((ONE ? 'viewport_overflow_report.partial.json' : 'viewport_overflow_report.json'), JSON.stringify({
   ran: new Date().toISOString(), origin: ORIGIN, scale, widths: WIDTHS,
   pages: results, unverified: unverified.map((r) => r.page), offending: offending.map((r) => r.page),
   tapOffending: tapBad.map((r) => r.page), redirected: redirected.map((r) => r.page),

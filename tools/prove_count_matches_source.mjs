@@ -125,13 +125,13 @@ const CHECKS = {
       sql: ({ hive }) => `select count(*) from v_inventory_items_truth where hive_id = ${q(hive)}`
         + ` and status in ('approved','pending','rejected')` },
     { label: 'low-stock pill', selector: '#stat-low',
-      // inventory.html:748-756 — the view's OWN derived flag, is_low_stock = min_qty > 0 AND
-      // qty_on_hand <= min_qty. The page prefers this flag over local math precisely so the home
-      // tile and this pill stay in lockstep. Checking against the flag is therefore checking the
-      // page's real contract, and it DISCRIMINATES the domain rule: a hardcoded `qty <= 1`
-      // threshold would show 0 here, not 3.
+      // inventory.html — the view's derived flag is_low_stock (min_qty > 0 AND qty_on_hand <=
+      // min_qty) INCLUDES zero-stock rows, but the page's stockStatus() tests 'out' BEFORE 'low',
+      // so the pill labelled "low" counts LOW-ONLY (criticals in, zero-stock out). The 2026-09-03
+      // CI8 label fix made the tile number mean its label everywhere; this truth query follows
+      // the label's definition, not the raw flag (the flag alone read 3 where the pill said 2).
       sql: ({ hive }) => `select count(*) from v_inventory_items_truth where hive_id = ${q(hive)}`
-        + ` and status in ('approved','pending','rejected') and is_low_stock` },
+        + ` and status in ('approved','pending','rejected') and is_low_stock and not is_out_of_stock` },
     { label: 'out-of-stock pill', selector: '#stat-out',
       // same source, is_out_of_stock = qty_on_hand <= 0
       sql: ({ hive }) => `select count(*) from v_inventory_items_truth where hive_id = ${q(hive)}`

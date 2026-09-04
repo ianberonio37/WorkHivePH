@@ -103,6 +103,7 @@ GATEWAY_BYPASS_OK = {
     "hierarchical-summarizer":    "Server-side summarization pipeline; resolveTenancy gate (Pillar I); 0 frontend callers",
     "platform-scraper":           "Browser-triggered admin scraper; resolveTenancy gate (Pillar I)",
     "resume-extract":             "Public SOLO Resume Builder tool; per-identity rate-limit (checkSoloRateLimit, Pillar P); no hive context; structured JSON-Resume output",
+    "vehicle-doc-extract":        "VEHICLE SEED VM2 - resume-extract mirror (solo doc extraction: deterministic interval/part miners + model pass); per-identity rate-limit, no hive context; the wizard invokes it directly like resume.html does its twin",
     "resume-polish":              "Public SOLO Resume Builder tool; per-identity rate-limit (Pillar P); structured bullet output; no hive context",
     "semantic-fact-extractor":    "Server-side fact-extraction pipeline; resolveTenancy gate (Pillar I); 0 frontend callers",
     "temporal-rag-orchestrator":  "Server-side temporal-RAG orchestration; resolveTenancy gate (Pillar I); forwarded; 0 frontend callers",

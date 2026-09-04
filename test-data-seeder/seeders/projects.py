@@ -416,6 +416,7 @@ def _seed_change_orders(client, log, project_rows: list, workers: list) -> list:
             else:
                 status, approver, approved_at, reject = "cancelled", None, None, None
 
+            _req_at = to_iso(datetime.now(timezone.utc) - timedelta(days=random.randint(21, 60)))
             rows.append({
                 "project_id":           proj["id"],
                 "hive_id":              proj["hive_id"],
@@ -430,8 +431,12 @@ def _seed_change_orders(client, log, project_rows: list, workers: list) -> list:
                 # this table, so nothing here can prove WHO amended a contract — that is the
                 # defect PJK1 exists to close, and the fixture must not paper over it.
                 "requested_by":         requester["worker_name"],
-                "requested_at":         to_iso(datetime.now(timezone.utc)
-                                               - timedelta(days=random.randint(21, 60))),
+                "requested_at":         _req_at,
+                # created_at is the row's own birth and must not follow the request it records, nor
+                # precede... it IS the request (T150, 2026-08-28). Left to DEFAULT now() it landed at
+                # seed time while requested_at and approved_at were both backdated, so every approved
+                # change order claimed a sign-off weeks before the CO existed.
+                "created_at":           _req_at,
                 "approved_by":          approver,
                 "approved_at":          approved_at,
                 "rejection_reason":     reject,

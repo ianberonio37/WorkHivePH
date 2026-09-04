@@ -138,6 +138,15 @@
   async function whValidateCapture(db, captureId, payload) {
     let schema = _schemaCache.get(captureId);
     if (!schema) {
+      // T14 (2026-08-25): offline, the schema fetch cannot succeed — it hangs on the dead
+      // network for ~8s before failing, freezing the caller's locked Save button with no
+      // feedback, and only THEN does the caller's offline queue-and-tell branch run. The
+      // fetch failure already fails open (below), so skip straight to that outcome and let
+      // the offline branch speak immediately. Validation resumes once a fetch can succeed.
+      if (navigator.onLine === false) {
+        console.warn('[wh-capture-validate] offline — skipping schema fetch for', captureId);
+        return { ok: true, capture_id: captureId };
+      }
       try {
         const { data, error } = await db.from('canonical_capture_contracts')
           .select('contract_schema')

@@ -207,7 +207,12 @@
       icon: `<span class="ic ic-calendar" aria-hidden="true"></span>` },
 
     // ── Your Team: team operations and collaboration ──────────────────────────
-    { label: 'WorkHive',     href: 'hive.html',         match: ['hive'],               section: 'Your Team', roles: ['supervisor'],
+    // T173 (2026-08-25): was roles:['supervisor'] — the findability benchmark FAILED
+    // "Where is my team's live board?" for a WORKER, yet hive.html itself declares
+    // <meta name="worker-daily"> (presence, handover, feed, standings are worker-daily
+    // surfaces, and the T7 join flow LANDS workers there). Same unhide shape as
+    // shift-brain's earlier fix. Label carries 'board' so both mental models match.
+    { label: 'Hive Board',   href: 'hive.html',         match: ['hive', 'board', 'team'], section: 'Your Team', roles: ['field','supervisor'],
       icon: `<span class="ic ic-brand" aria-hidden="true"></span>` },
     { label: 'PM Scheduler', href: 'pm-scheduler.html', match: ['pm-scheduler'],       section: 'Your Team', roles: ['field','supervisor'],
       icon: `<span class="ic ic-maintenance" aria-hidden="true"></span>` },
@@ -218,7 +223,10 @@
     // Analytics Report MUST be listed before Analytics — both paths contain
     // 'analytics', and getCurrentTool() returns the first match in iteration order.
     // Phase B: hidden from primary nav, accessible as a button inside analytics.html.
-    { label: 'Reports', href: 'analytics-report.html', match: ['analytics-report', 'report-sender'], section: 'Intelligence', hidden: true, roles: ['supervisor','engineer'],
+    // T173 (2026-08-25): was hidden:true — the report SENDER (email-my-boss, the supervisor's
+    // outward tool) invisible in the supervisor's own spine; reachable only via analytics' Send
+    // button. Same unhide class as Voice Journal: hidden is for internal pages.
+    { label: 'Reports', href: 'report-sender.html', match: ['analytics-report', 'report-sender', 'report'], section: 'Intelligence', roles: ['supervisor','engineer'],
       icon: `<span class="ic ic-reports" aria-hidden="true"></span>` },
     { label: 'Analytics',    href: 'analytics.html',    match: ['analytics'],          section: 'Intelligence', roles: ['supervisor','engineer'],
       icon: `<span class="ic ic-analytics" aria-hidden="true"></span>` },
@@ -248,14 +256,22 @@
     { label: 'Audit Log',    href: 'audit-log.html',    match: ['audit-log'],          section: 'Intelligence', hidden: true, roles: ['supervisor'],
       icon: `<span class="ic ic-audit" aria-hidden="true"></span>` },
     // Phase H.2: hidden, surfaced via the "Voice Journal" button on logbook.html.
-    { label: 'Voice Journal', href: 'voice-journal.html', match: ['voice-journal'],     section: 'Intelligence', hidden: true,
+    // T173 (2026-08-25): was hidden:true — a WORKER-DAILY capture surface (T12's whole story)
+    // invisible in the 'get anywhere fast' spine, reachable only via index QA + logbook links.
+    // hidden: is for genuinely internal pages (audit-log, ai-quality); a daily tool is not one.
+    { label: 'Voice Journal', href: 'voice-journal.html', match: ['voice-journal', 'voice'], section: 'Intelligence', roles: ['field','supervisor'],
       icon: `<span class="ic ic-voice" aria-hidden="true"></span>` },
-    // Phase H.2: hidden, surfaced via the Shift Brain tab inside analytics.html.
-    { label: 'Shift Brain',  href: 'shift-brain.html',  match: ['shift-brain'],        section: 'Intelligence', hidden: true,
+    // Phase H.2 hid this behind the Shift Brain tab inside analytics.html - a SUPERVISOR door.
+    // T13 (2026-08-25) walked the page as the crew's clock-in read: it leads with [SAFETY] active
+    // isolations + permit numbers and addresses the shift directly, yet a field worker had no route
+    // to it (analytics is not their surface). A safety brief nobody can reach is write-only.
+    { label: 'Shift Brain',  href: 'shift-brain.html',  match: ['shift-brain'],        section: 'Intelligence', roles: ['field','supervisor'],
       icon: `<span class="ic ic-brain" aria-hidden="true"></span>` },
 
     // ── Build & Projects: engineering and project work ────────────────────────
-    { label: 'Eng. Design',  href: 'engineering-design.html', match: ['engineering-design'], section: 'Build & Projects', roles: ['engineer'],
+    // T173 (2026-08-25): +supervisor — no separate engineer auth exists (the engineer persona IS
+    // supervisors in practice, T52); a supervisor needing a calc could not find Eng. Design here.
+    { label: 'Eng. Design',  href: 'engineering-design.html', match: ['engineering-design', 'design', 'calc'], section: 'Build & Projects', roles: ['engineer','supervisor'],
       icon: `<span class="ic ic-design" aria-hidden="true"></span>` },
     { label: 'Project Manager', href: 'project-manager.html', match: ['project-manager'], section: 'Build & Projects', roles: ['supervisor','engineer'],
       icon: `<span class="ic ic-project" aria-hidden="true"></span>` },
@@ -272,6 +288,35 @@
     // entry (skillmatrix.html) — reached via the Growth tab bar. Page kept on disk + cached.
 
     // ── Connect: marketplace and integrations ─────────────────────────────────
+    // T55 (2026-08-28): the seller's OWN dashboard had no registry entry AT ALL — not hidden,
+    // absent. So it was missing from the All Tools grid and ALSO unfindable by search, because
+    // search-overlay reads this very registry and filters `!t.hidden`: no query for "seller",
+    // "listings" or "my listings" could reach it from anywhere on the platform. The only route
+    // was remembering to open Marketplace and spotting the "My Listings" pill in its header.
+    // For the supplier persona this page IS their platform, which is exactly the "a daily tool
+    // is not an internal page" class that unhid Voice Journal and Shift Brain under T173.
+    // Universal like Marketplace itself, because anyone may sell — that is T104's whole premise.
+    // ★MUST PRECEDE Marketplace, for the same reason Analytics Report precedes Analytics:
+    // getCurrentTool() returns the FIRST match in iteration order and 'marketplace' is a
+    // substring of this page's path, so listing it after would highlight the wrong entry.
+    // ★AND THE MATCH CARRIES '.html' DELIBERATELY: bare 'marketplace-seller' is also a substring
+    // of marketplace-seller-profile.html — the PUBLIC profile a BUYER reads, a different page
+    // with a different job — and would have mis-claimed it. Label matches the in-marketplace
+    // pill, and its icon, so the two affordances read as one destination.
+    // ★hidden: true IS THE POINT, NOT A RETREAT — and it only became the right answer today.
+    // Registering this universally pushed the home-stack budget over for TWO roles at once (field
+    // 14/13, supervisor 21/20); both were deliberately AT budget, because the cap exists to protect
+    // how many choices a person faces in a primary nav. A seller's dashboard is a real destination
+    // but it is not a daily tool for the plant worker or the supervisor whose slots it would take.
+    // `hidden` used to mean UNFINDABLE — the entry would have vanished from the grid AND from
+    // search, which is the orphaning this whole change set out to fix. It no longer does:
+    // search-overlay now indexes hidden entries (T78, same session), so this page is reachable by
+    // typing "seller", "listings" or "my listings", keeps its correct current-page resolution, and
+    // costs nobody a nav slot. That is exactly the remedy the home-stack gate recommends — hide it
+    // and deep-link from the parent — and the parent link already exists as marketplace.html's
+    // "My Listings" pill.
+    { label: 'My Listings',  href: 'marketplace-seller.html', match: ['marketplace-seller.html'], section: 'Connect', hidden: true, /* universal */
+      icon: `<span class="ic ic-list" aria-hidden="true"></span>` },
     { label: 'Marketplace',  href: 'marketplace.html',  match: ['marketplace'],        section: 'Connect', /* universal */
       icon: `<span class="ic ic-cart" aria-hidden="true"></span>` },
     // Phase B: hidden from primary nav, accessible as the "Send" button inside analytics.html.
@@ -321,6 +366,18 @@
     if (!MODES.some(function(m){ return m.id === id; })) return;
     localStorage.setItem(MODE_KEY, id);
   }
+
+  /* T173/T78 (2026-08-26): expose the tool registry as the ONE page index. The global search
+     overlay indexed DATA only (assets/jobs/parts/PMs), so a wayfinding question - "where are the
+     plant KPIs?" - dead-ended in a records palette while the answer was a PAGE. Rather than
+     duplicating a page list there (clone debt, and two lists drift), publish this registry and
+     let search read it. Read-only copy: callers get the entries, not the array we render from. */
+  try {
+    window.WHNavTools = TOOLS.map(function (t) {
+      return { label: t.label, href: t.href, section: t.section || '', hidden: !!t.hidden,
+               roles: t.roles ? t.roles.slice() : null, match: t.match ? t.match.slice() : [] };
+    });
+  } catch (_) { /* empty-catch-allow: the hub still works if the index cannot be published */ }
 
   function isVisibleInMode(tool, mode) {
     if (tool.hidden) return false;            // Phase B: kept reachable via parent buttons only
@@ -458,6 +515,20 @@
       let postQ = db.from('v_community_posts_truth')
         .select('id', { count: 'exact', head: true })
         .eq('hive_id', hiveId).is('deleted_at', null).gt('created_at', since);
+      // T149 (2026-08-28): a FLAGGED post is removed from a worker's feed by the CLIENT
+      // (community.html renderEntries adds .or('flagged.eq.false,author_name.eq.<me>') for
+      // non-supervisors) -- RLS does NOT do it: the member branch of community_posts_read is
+      // `auth.uid() IS NOT NULL AND hive_id IN (my active hives)` with no flagged test, so a
+      // moderated post is still readable and still COUNTABLE here. Unfiltered, this badge
+      // credits activity the tap cannot show: "3 new" that opens to 2, and a post a supervisor
+      // REMOVED from worker view still announces itself to every worker. The badge already
+      // excludes the reader's own posts (neq author_name below), so the feed's author-sees-
+      // their-own exception needs no mirror -- plain flagged=false is the whole rule. A
+      // supervisor's feed DOES show flagged posts, so their badge must keep counting them.
+      // Absent WHRoles we filter (under-count) rather than resurrect a moderated post.
+      const _isSup = !!(window.WHRoles && typeof window.WHRoles.isSupervisor === 'function'
+        && window.WHRoles.isSupervisor());
+      if (!_isSup) postQ = postQ.eq('flagged', false);
       // canonical-allow: community_replies is forum thread detail (unread-badge reply COUNT for the hive) - single-surface community data, not a cross-surface KPI/aggregate, so no v_*_truth wrapper applies.
       let replyQ = db.from('community_replies')
         .select('post_id', { count: 'exact', head: true })
@@ -481,6 +552,27 @@
       if (tries < 4) setTimeout(attempt, 1200);
     })();
   }
+
+  /* T144 (2026-08-28): the badge was computed ONCE per page load and never again -- no
+     storage/visibility/focus listener, no interval, one call site. localStorage is shared
+     across a browser's tabs, so when community.html stamps wh_community_last_seen on visit
+     the FACT reaches every other tab immediately; nothing was listening. A worker with the
+     dashboard and community both open therefore read the posts and kept seeing "3 new" on
+     the dashboard until they reloaded it -- a badge advertising work already done.
+     The `storage` event fires only in the OTHER tabs, which is exactly the gap: the visiting
+     tab recomputes on its own next load. Debounced because a re-check issues two counted
+     reads, and left event-driven on purpose -- no polling (a timer here would re-read on
+     every open page forever to serve chrome that is best-effort by design). KNOWN REMAINING:
+     this converges a tab whose data went STALE, not one that missed NEW activity; a
+     long-lived page (a wall-mounted display) still shows the count it loaded with. */
+  let _seenDebounce = null;
+  window.addEventListener('storage', function (e) {
+    if (!e || !e.key || e.key.indexOf('wh_community_last_seen:') !== 0) return;
+    clearTimeout(_seenDebounce);
+    _seenDebounce = setTimeout(function () {
+      if (_whNavClient()) checkCommunityActivity();
+    }, 400);
+  });
 
   // ─── Build Widget ─────────────────────────────────────────────────────────────
   function buildWidget() {
@@ -1291,8 +1383,44 @@
     document.head.appendChild(s);
   }
 
+  // ── THE SCROLLBAR GUTTER IS PART OF THE FAB'S ADDRESS (T184, 2026-08-26) ───────────────────────
+  // The hub FAB is the platform's ONE piece of muscle memory: the same corner on all 24 pages, found
+  // by thumb without looking. It was landing in THREE different columns at 390 - x = 303, 312 and 318,
+  // a 15px spread - and the cause was not in this file or in any page's hub styling. Every page had
+  // an identical `#wh-hub { right: 16px }` and an identical 56px FAB.
+  //
+  // A `position: fixed` right-anchored element is measured from the SCROLLPORT, and the reserved
+  // scrollbar gutter narrows it. A virgin `fixed; right: 0` probe proved it directly: its right edge
+  // sat at 375 on community, 384 on inventory, 390 on logbook - while documentElement.clientWidth
+  // read 390 on all three, which is why nothing in the DOM showed the difference. The spread was the
+  // CROSS-PRODUCT of two unrelated per-page decisions:
+  //     components.css:231 `html { scrollbar-gutter: stable }`  - linked by some pages, not others
+  //     `::-webkit-scrollbar { width: 6px }`                    - declared inline by some pages
+  // reserve 15px (gutter, default bar) -> 303 · 6px (gutter + thin bar) -> 312 · none -> 318.
+  // Neither decision was ever made with the FAB in mind, and together they moved it.
+  //
+  // So the rule belongs HERE, for the same reason ensureHubReserveStyle() above lives here and says
+  // so: this is one shared stack, so it takes one shared rule, and a page added later inherits it
+  // instead of shipping the drift again. Both halves must be set together - the gutter alone still
+  // leaves 303-vs-312, because the gutter's WIDTH is the scrollbar's width. 6px + a visible thumb is
+  // not a new choice: it is the idiom inventory and logbook already carry verbatim.
+  // Element-level overrides (marketplace's `scrollbar-width: none` strips, community's presence bar)
+  // are more specific and keep winning.
+  function ensureScrollGutterStyle() {
+    if (document.getElementById('wh-scroll-gutter-style')) return;
+    const s = document.createElement('style');
+    s.id = 'wh-scroll-gutter-style';
+    s.textContent =
+      'html { scrollbar-gutter: stable; }'
+      + '::-webkit-scrollbar { width: 6px; }'
+      + '::-webkit-scrollbar-track { background: transparent; }'
+      + '::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }';
+    document.head.appendChild(s);
+  }
+
   function liftFabStackAboveBottomNav() {
     try {
+      ensureScrollGutterStyle();   // the gutter sets the FAB's column; reserve it identically everywhere
       ensureHubReserveStyle();     // the bar covers the page's last 56px; reserve for it once, here
       ensureFabStackLiftStyle();   // safe-area clearance is owed regardless of any bottom-nav
       const nav = document.querySelector('.bottom-nav');
@@ -1452,11 +1580,51 @@
 
     /* Phase E.3c: Global Search trigger inside the nav-hub panel.
        Mobile users have no Cmd+K so they need a tappable entry point. */
+    // ★T78 (2026-08-26): THIS CLICK COULD DO NOTHING AT ALL, SILENTLY. search-overlay.js is
+    // lazy-loaded async from this file, so window.WHSearch is briefly absent on every page and
+    // PERMANENTLY absent if that request fails - a cache miss, a bad deploy, a flaky connection.
+    // The handler's only branch was the happy one, so the button simply ignored the press.
+    // Measured with search-overlay.js answered 404: overlay never opened, nothing was said, and
+    // zero page errors - the exact shape of a control that looks alive and is not, on the one
+    // element that appears on every page.
+    //
+    // Try once more (the usual cause is a request that had not landed yet), then say so. A search
+    // that cannot open is a small failure; a button that swallows the press teaches the worker the
+    // platform is broken and gives them nothing to do about it.
     document.getElementById('wh-hub-global-search')?.addEventListener('click', function () {
       if (window.WHSearch && typeof window.WHSearch.open === 'function') {
         closeHub();              // tidy: hide the nav-hub before showing the overlay
         window.WHSearch.open();
+        return;
       }
+      const btn = this;
+      const label = btn.textContent;
+      btn.disabled = true;
+      const say = function (msg) {
+        if (typeof window.showToast === 'function') { window.showToast(msg, 'info'); }
+        else { btn.textContent = msg; setTimeout(function () { btn.textContent = label; }, 3000); }
+      };
+      // one retry: drop the marker so the loader below re-injects, then re-check
+      const old = document.querySelector('script[data-wh-search]');
+      if (old) old.remove();
+      const s2 = document.createElement('script');
+      s2.src = 'search-overlay.js';
+      s2.async = true;
+      s2.setAttribute('data-wh-search', '1');
+      s2.onload = function () {
+        btn.disabled = false;
+        if (window.WHSearch && typeof window.WHSearch.open === 'function') {
+          closeHub();
+          window.WHSearch.open();
+        } else {
+          say('Search could not start. Reload the page and try again.');
+        }
+      };
+      s2.onerror = function () {
+        btn.disabled = false;
+        say('Search is unavailable right now. Check your connection, then reload.');
+      };
+      document.head.appendChild(s2);
     });
 
     /* ── FAB-CONSOLIDATION wiring ──────────────────────────────────────────────
@@ -1494,6 +1662,19 @@
     /* Keep the pill live if connectivity flips while the panel is open. */
     window.addEventListener('online',  paintConnPill);
     window.addEventListener('offline', paintConnPill);
+    /* T126/T144 (2026-08-28): regaining the network is the one moment a long-lived page KNOWS its
+       data may be stale, and it was the only such moment nobody used -- this listener repainted the
+       connectivity pill and nothing else, so a tab that sat through a blip kept showing the count it
+       loaded with. That matters most where nobody is holding the device: an unattended wall display
+       cannot press Retry, so its recovery has to be automatic or it does not happen. Reuses the same
+       debounce as the cross-tab path, and checkCommunityActivity already fails closed without a
+       session, so a reconnect on a signed-out page costs nothing. */
+    window.addEventListener('online', function () {
+      clearTimeout(_seenDebounce);
+      _seenDebounce = setTimeout(function () {
+        if (_whNavClient()) checkCommunityActivity();
+      }, 400);
+    });
     /* Silence-is-golden: evaluate connectivity ONCE on load so a genuinely-degraded-on-load link
        surfaces the pill even before the user opens the hub (healthy stays hidden via the markup default). */
     paintConnPill();
@@ -1627,6 +1808,31 @@
       await window.restoreIdentityFromSession(db);
     } catch (_) { /* empty-catch-allow: best-effort. restoreIdentityFromSession already fails closed (clears the cache) when signed out; a client that is not ready yet simply retries on the next page load. */ }
   }
+
+  // ─── T44 (2026-08-25): central service-worker registration ────────────────────────────
+  // The PWA installs from index (manifest + install button live there), but a repo-wide grep
+  // found exactly ONE root-scope `serviceWorker.register` — on report-sender.html, a
+  // supervisor surface a field worker may never open. So an installed app had NO shell
+  // precache, NO offline-fallback navigation shell, and `navigator.serviceWorker.ready`
+  // hung forever on every other page (the marketplace-seller push-alerts hang, 2026-07-30,
+  // was this same hole). Registering here puts the worker on every page that loads nav-hub.
+  //
+  // The path is DERIVED, never hardcoded: locally the Flask tester serves the app under
+  // /workhive/ while production serves the repo root ([[feedback_workhive_url_prefix]]) —
+  // a hardcoded '/workhive/sw.js' 404s in prod, a hardcoded '/sw.js' misses the local scope.
+  function whSwRoot() {
+    return location.pathname.startsWith('/workhive/') ? '/workhive/' : '/';
+  }
+  window.whSwRoot = whSwRoot;
+  (function registerSw() {
+    try {
+      if (!('serviceWorker' in navigator)) return;
+      if (!/^https?:$/.test(location.protocol)) return;
+      const root = whSwRoot();
+      navigator.serviceWorker.register(root + 'sw.js', { scope: root })
+        .catch(function () { /* offline first load or unsupported context — the next online load retries */ });
+    } catch (_) { /* empty-catch-allow: registration is progressive enhancement; the page works without it */ }
+  })();
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);

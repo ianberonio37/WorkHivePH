@@ -77,7 +77,7 @@ serveObserved("voice-transcribe", async (req) => {
     if (!_id.isServiceRole) {
       const _ip = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
       const _rl = await checkSoloRateLimit(_rlDb, soloRateLimitKey(_id.authUid, _ip));
-      if (!_rl.allowed) return soloRateLimitedResponse(corsHeaders);
+      if (!_rl.allowed) return soloRateLimitedResponse(corsHeaders, _rl.retry_after_seconds);
     }
 
     const filename = audioFile.name || "audio.mp4";

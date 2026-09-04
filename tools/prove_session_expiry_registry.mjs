@@ -24,7 +24,7 @@ const ACCTS = {
   buyer:    { email: 'pabloaguilar@auth.workhiveph.com', pw: 'test1234',
               hive: 'b4f7fe63-92e1-4f8d-b96e-625c3f85ba61', worker: 'Pablo Aguilar' },
   provider: { email: 'bryangarcia@auth.workhiveph.com', pw: 'test1234',
-              hive: '636cf7e8-431a-4907-8a9f-43dd4cc216d6', worker: 'Bryan Garcia' },
+              hive: '084c113b-99c0-45c6-a8e8-b4b8349da46d', worker: 'Bryan Garcia' },
 };
 
 const CASES = {
@@ -142,7 +142,10 @@ for (const [name, c] of Object.entries(CASES)) {
 }
 await browser.close();
 const failed = results.filter(r => !r.pass);
-writeFileSync('session_expiry_walk_report.json', JSON.stringify({
+// A NARROWED RUN MUST NOT CLOBBER THE FULL ONE: this file is read downstream (gates and
+// bank_prover_reports), so a --page/--case spot-check overwriting a whole sweep's verdicts
+// corrupts the BANK, not just a log. Measured on prove_retry_path 2026-08-27.
+writeFileSync((onlyCase ? 'session_expiry_walk_report.partial.json' : 'session_expiry_walk_report.json'), JSON.stringify({
   ran_at: new Date().toISOString(), checks: results, pass: results.length - failed.length, fail: failed.length,
 }, null, 1));
 console.log(`\n  ${results.length - failed.length}/${results.length} hold — session_expiry_walk_report.json`);

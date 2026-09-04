@@ -257,6 +257,13 @@ enabled = true
 verify_jwt = false
 entrypoint = "./functions/resume-polish/index.ts"
 
+# VEHICLE SEED VM2 (2026-09-02): the vehicle-document extractor (mirror of resume-extract:
+# public solo feature, rate-limit keyed on identity inside the fn, injection rail + clamps).
+[functions.vehicle-doc-extract]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/vehicle-doc-extract/index.ts"
+
 [functions.equipment-label-ocr]
 enabled = true
 verify_jwt = false

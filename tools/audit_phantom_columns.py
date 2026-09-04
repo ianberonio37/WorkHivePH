@@ -27,6 +27,7 @@ from __future__ import annotations
 import io
 import json
 import re
+from collections import Counter
 import sys
 from collections import defaultdict
 from pathlib import Path
@@ -166,7 +167,57 @@ def _gather_blobs() -> dict[str, str]:
     return blobs
 
 
+# TOKENISE EACH BLOB ONCE INSTEAD OF RE-SCANNING IT PER COLUMN (2026-08-28). This audit was the board's
+# heaviest CPU check - measured 7 minutes and 414 CPU-seconds - because it compiled a word-boundary regex
+# PER COLUMN and ran it across EVERY source blob: O(columns x total source bytes) regex scans over the whole
+# HTML/JS/TS/SQL/PY corpus.
+# WHY THE ANSWER IS IDENTICAL: the pattern is `(?<![A-Za-z0-9_])col(?![A-Za-z0-9_])`, which matches `col`
+# exactly when it appears as a MAXIMAL run of [A-Za-z0-9_]. Splitting a blob on that same character class
+# yields precisely those runs, so "token present" == "regex matches" and the per-token COUNT equals the
+# number of regex matches - which is what the own-migration `>= 2` rule needs. Column names are SQL
+# identifiers, so they never contain characters outside the class. One pass per blob, then dict lookups.
+_TOKEN_COUNTS: dict[str, "Counter[str]"] | None = None
+
+
+def _token_counts(blobs: dict[str, str]) -> dict:
+    """fname -> Counter of identifier tokens. Built once for the whole run."""
+    global _TOKEN_COUNTS
+    if _TOKEN_COUNTS is None:
+        tok = re.compile(r"[A-Za-z0-9_]+")
+        _TOKEN_COUNTS = {fname: Counter(tok.findall(blob)) for fname, blob in blobs.items()}
+    return _TOKEN_COUNTS
+
+
 def _column_has_consumer(table: str, col: str, blobs: dict[str, str], own_migration: str) -> tuple[int, list[str]]:
+    """A column `col` of table `table` has a consumer if its name appears in
+    any non-migration file (or in a migration OTHER than its own DDL site).
+
+    For the own migration: the DDL line itself contributes one match. If the
+    column also appears 2+ times inside the same migration, the extra
+    occurrence is a view / function / trigger consuming the column — count
+    it as alive.
+
+    Word-boundary match: `(?<![A-Za-z0-9_])col(?![A-Za-z0-9_])`, evaluated via the
+    pre-tokenised counts above (identical semantics, one pass instead of per column).
+    """
+    counts = _token_counts(blobs)
+    consumers = []
+    for fname in blobs:
+        n = counts[fname].get(col, 0)
+        if fname == f"mig:{own_migration}":
+            # The DDL declaration is 1 match. View / function / trigger
+            # consumers inside the same migration push the count >=2.
+            if n >= 2:
+                consumers.append(fname)
+            continue
+        if n:
+            consumers.append(fname)
+    return len(consumers), consumers[:8]
+
+
+def _column_has_consumer_regex(table: str, col: str, blobs: dict[str, str], own_migration: str) -> tuple[int, list[str]]:
+    """The ORIGINAL regex implementation, kept as the equivalence oracle for the tokenised one above."""
+    pat = re.compile(r"(?<![A-Za-z0-9_])" + re.escape(col) + r"(?![A-Za-z0-9_])")
     """A column `col` of table `table` has a consumer if its name appears in
     any non-migration file (or in a migration OTHER than its own DDL site).
 

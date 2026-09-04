@@ -10,7 +10,7 @@ By **WorkHive Editorial Team**
 ·
 Published 17 May 2026
 ·
-Updated 17 Aug 2026
+Updated 24 Aug 2026
 ·
 9 min read
 
@@ -112,7 +112,7 @@ The tool this guide is about
 
 Every fault entry in the WorkHive Logbook (stop timestamp, restart timestamp, fault category, resolution notes) flows into the Analytics reliability dashboard. MTBF and MTTR are recomputed monthly per critical asset. No spreadsheets, no per-user CMMS license. Built for Stage 1 of the 4-stage path.
 
-No hive yet? [Join WorkHive](https://workhiveph.com/#join) first (free, takes 30 seconds).
+No hive yet? [Join WorkHive](https://workhiveph.com/?signup=1) first (free, takes 30 seconds).
 
 ## How MTBF and MTTR combine into Availability
 
@@ -185,4 +185,4 @@ No. A digital logbook with structured fault entries (asset name, fault time, res
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: f8f79dddd657dbe5 -->
+<!-- md-twin source-sha: 720bb6b5a7766cfb -->

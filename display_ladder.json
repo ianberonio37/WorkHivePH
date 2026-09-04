@@ -1,18 +1,18 @@
 {
   "_doc": "Display ladder classification (Phase E). Each display anchor tagged on Gartner's Descriptive->Diagnostic->Predictive->Prescriptive ladder. grounded = anchor resolves to a canonical source (Phase B RESOLVED*). Ungrounded predictive/prescriptive tiles claim a higher rung than their data backs = residual to fix.",
   "totals": {
-    "displays": 68,
+    "displays": 74,
     "by_rung": {
       "predictive": 6,
-      "descriptive": 43,
+      "descriptive": 49,
       "diagnostic": 17,
       "prescriptive": 2
     },
-    "grounded": 64,
-    "grounded_pct": 94.1,
+    "grounded": 65,
+    "grounded_pct": 87.8,
     "grounded_by_rung": {
       "predictive": 6,
-      "descriptive": 39,
+      "descriptive": 40,
       "diagnostic": 17,
       "prescriptive": 2
     },
@@ -252,6 +252,14 @@
       "source_via": "verified_bind"
     },
     {
+      "page": "community.html",
+      "id": "reply-char-count",
+      "token": "count",
+      "rung": "descriptive",
+      "grounded": true,
+      "source_via": "js_parse_heuristic"
+    },
+    {
       "page": "marketplace.html",
       "id": "mk-card-total",
       "token": "total",
@@ -290,6 +298,14 @@
       "rung": "descriptive",
       "grounded": true,
       "source_via": "js_parse_heuristic"
+    },
+    {
+      "page": "marketplace.html",
+      "id": "post-desc-count",
+      "token": "count",
+      "rung": "descriptive",
+      "grounded": false,
+      "source_via": null
     },
     {
       "page": "marketplace-seller.html",
@@ -333,11 +349,43 @@
     },
     {
       "page": "project-manager.html",
+      "id": "co-scope-count",
+      "token": "count",
+      "rung": "descriptive",
+      "grounded": false,
+      "source_via": null
+    },
+    {
+      "page": "project-manager.html",
+      "id": "f-desc-count",
+      "token": "count",
+      "rung": "descriptive",
+      "grounded": false,
+      "source_via": null
+    },
+    {
+      "page": "project-manager.html",
       "id": "pm-verdict-label",
       "token": "-verdict-label",
       "rung": "diagnostic",
       "grounded": true,
       "source_via": "verified_bind"
+    },
+    {
+      "page": "project-manager.html",
+      "id": "s-notes-count",
+      "token": "count",
+      "rung": "descriptive",
+      "grounded": false,
+      "source_via": null
+    },
+    {
+      "page": "project-manager.html",
+      "id": "wiz-desc-count",
+      "token": "count",
+      "rung": "descriptive",
+      "grounded": false,
+      "source_via": null
     },
     {
       "page": "integrations.html",

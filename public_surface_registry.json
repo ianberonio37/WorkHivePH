@@ -1,0 +1,578 @@
+{
+  "generated": true,
+  "pages": 114,
+  "violations": 0,
+  "note": "T1.3 instance-cheap lint; template-deep = prove_cta_activation.mjs exemplars",
+  "rows": [
+    {
+      "page": "learn/index.html",
+      "family": "learn",
+      "violations": []
+    },
+    {
+      "page": "learn/ai-companion-hezekiah-zaniah-personas/index.html",
+      "family": "learn",
+      "violations": []
+    },
+    {
+      "page": "learn/ai-quality-and-roi-stage-2-plants/index.html",
+      "family": "learn",
+      "violations": []
+    },
+    {
+      "page": "learn/ai-work-assistant-maintenance-technicians/index.html",
+      "family": "learn",
+      "violations": []
+    },
+    {
+      "page": "learn/asset-brain-360-one-machine-history-philippine-plant/index.html",
+      "family": "learn",
+      "violations": []
+    },
+    {
+      "page": "learn/autonomous-shift-planning-philippine-plants/index.html",
+      "family": "learn",
+      "violations": []
+    },
+    {
+      "page": "learn/best-free-cmms-software-philippines/index.html",
+      "family": "learn",
+      "violations": []
+    },
+    {
+      "page": "learn/bms-facilities-maintenance-peza-buildings/index.html",
+      "family": "learn",
+      "violations": []
+    },
+    {
+      "page": "learn/building-asset-register-zero-budget/index.html",
+      "family": "learn",
+      "violations": []
+    },
+    {
+      "page": "learn/cmms-vs-excel-spreadsheet-maintenance/index.html",
+      "family": "learn",
+      "violations": []
+    },
+    {
+      "page": "learn/connecting-workhive-to-sap-maximo-cmms/index.html",
+      "family": "learn",
+      "violations": []
+    },
+    {
+      "page": "learn/dilo-wilo-day-planner-supervisors/index.html",
+      "family": "learn",
+      "violations": []
+    },
+    {
+      "page": "learn/dole-iso-audit-trail-from-logbook/index.html",
+      "family": "learn",
+      "violations": []
+    },
+    {
+      "page": "learn/fmea-worked-example-philippine-bottling-line/index.html",
+      "family": "learn",
+      "violations": []
+    },
+    {
+      "page": "learn/food-beverage-plant-maintenance-philippines/index.html",
+      "family": "learn",
+      "violations": []
+    },
+    {
+      "page": "learn/four-phases-maintenance-analytics-philippine-plants/index.html",
+      "family": "learn",
+      "violations": []
+    },
+    {
+      "page": "learn/free-engineering-calculators-philippine-plants/index.html",
+      "family": "learn",
+      "violations": []
+    },
+    {
+      "page": "learn/free-pm-checklist-templates/index.html",
+      "family": "learn",
+      "violations": []
+    },
+    {
+      "page": "learn/gamifying-maintenance-for-engagement/index.html",
+      "family": "learn",
+      "violations": []
+    },
+    {
+      "page": "learn/industrial-community-of-practice-philippines/index.html",
+      "family": "learn",
+      "violations": []
+    },
+    {
+      "page": "learn/industrial-marketplace-philippine-specialists/index.html",
+      "family": "learn",
+      "violations": []
+    },
+    {
+      "page": "learn/joining-and-growing-your-hive/index.html",
+      "family": "learn",
+      "violations": []
+    },
+    {
+      "page": "learn/loto-procedures-dole-oshs-template/index.html",
+      "family": "learn",
+      "violations": []
+    },
+    {
+      "page": "learn/maintenance-metrics-reliability-guide/index.html",
+      "family": "learn",
+      "violations": []
+    },
+    {
+      "page": "learn/maintenance-project-planning-template/index.html",
+      "family": "learn",
+      "violations": []
+    },
+    {
+      "page": "learn/maintenance-shift-handover-template/index.html",
+      "family": "learn",
+      "violations": []
+    },
+    {
+      "page": "learn/mtbf-vs-mttr-for-supervisors/index.html",
+      "family": "learn",
+      "violations": []
+    },
+    {
+      "page": "learn/ofw-engineer-portable-portfolio/index.html",
+      "family": "learn",
+      "violations": []
+    },
+    {
+      "page": "learn/ph-industrial-benchmarks-intelligence/index.html",
+      "family": "learn",
+      "violations": []
+    },
+    {
+      "page": "learn/ph-plant-compliance-guide/index.html",
+      "family": "learn",
+      "violations": []
+    },
+    {
+      "page": "learn/plant-alert-inbox-amc-daily-brief/index.html",
+      "family": "learn",
+      "violations": []
+    },
+    {
+      "page": "learn/power-plant-reliability-metrics-philippines/index.html",
+      "family": "learn",
+      "violations": []
+    },
+    {
+      "page": "learn/predictive-alert-thresholds-plants/index.html",
+      "family": "learn",
+      "violations": []
+    },
+    {
+      "page": "learn/predictive-maintenance-on-a-budget-philippines/index.html",
+      "family": "learn",
+      "violations": []
+    },
+    {
+      "page": "learn/print-ready-maintenance-analytics-report/index.html",
+      "family": "learn",
+      "violations": []
+    },
+    {
+      "page": "learn/psme-iiee-piche-which-association-to-join/index.html",
+      "family": "learn",
+      "violations": []
+    },
+    {
+      "page": "learn/ra-11285-energy-efficiency-plant-checklist/index.html",
+      "family": "learn",
+      "violations": []
+    },
+    {
+      "page": "learn/reduce-unplanned-downtime-guide/index.html",
+      "family": "learn",
+      "violations": []
+    },
+    {
+      "page": "learn/reliability-centered-maintenance-philippine-plants/index.html",
+      "family": "learn",
+      "violations": []
+    },
+    {
+      "page": "learn/resume-builder-for-filipino-industrial-workers/index.html",
+      "family": "learn",
+      "violations": []
+    },
+    {
+      "page": "learn/sensor-cmms-gateway-operations/index.html",
+      "family": "learn",
+      "violations": []
+    },
+    {
+      "page": "learn/skill-matrix-for-maintenance-technicians/index.html",
+      "family": "learn",
+      "violations": []
+    },
+    {
+      "page": "learn/spare-parts-inventory-philippine-plants/index.html",
+      "family": "learn",
+      "violations": []
+    },
+    {
+      "page": "learn/start-digital-logbook-philippine-factory/index.html",
+      "family": "learn",
+      "violations": []
+    },
+    {
+      "page": "learn/start-digital-maintenance-guide/index.html",
+      "family": "learn",
+      "violations": []
+    },
+    {
+      "page": "learn/tesda-nc-mapping-to-skill-matrix/index.html",
+      "family": "learn",
+      "violations": []
+    },
+    {
+      "page": "learn/thermography-for-pm-philippine-plants/index.html",
+      "family": "learn",
+      "violations": []
+    },
+    {
+      "page": "learn/vibration-analysis-on-a-phone-budget/index.html",
+      "family": "learn",
+      "violations": []
+    },
+    {
+      "page": "learn/voice-to-text-maintenance-philippine-plant-floor/index.html",
+      "family": "learn",
+      "violations": []
+    },
+    {
+      "page": "learn/what-is-oee-how-to-calculate/index.html",
+      "family": "learn",
+      "violations": []
+    },
+    {
+      "page": "learn/what-is-workhive-complete-platform-guide/index.html",
+      "family": "learn",
+      "violations": []
+    },
+    {
+      "page": "learn/workhive-ai-companion-complete-capabilities/index.html",
+      "family": "learn",
+      "violations": []
+    },
+    {
+      "page": "learn/workhive-vs-maintainx-comparison/index.html",
+      "family": "learn",
+      "violations": []
+    },
+    {
+      "page": "learn/workhive-vs-upkeep-free-cmms-comparison/index.html",
+      "family": "learn",
+      "violations": []
+    },
+    {
+      "page": "tools/ahu-sizing-calculator/index.html",
+      "family": "tools",
+      "violations": []
+    },
+    {
+      "page": "tools/beam-design-calculator/index.html",
+      "family": "tools",
+      "violations": []
+    },
+    {
+      "page": "tools/bearing-life-calculator/index.html",
+      "family": "tools",
+      "violations": []
+    },
+    {
+      "page": "tools/boiler-steam-calculator/index.html",
+      "family": "tools",
+      "violations": []
+    },
+    {
+      "page": "tools/boiler-system-calculator/index.html",
+      "family": "tools",
+      "violations": []
+    },
+    {
+      "page": "tools/bolt-torque-calculator/index.html",
+      "family": "tools",
+      "violations": []
+    },
+    {
+      "page": "tools/cable-tray-sizing-calculator/index.html",
+      "family": "tools",
+      "violations": []
+    },
+    {
+      "page": "tools/chiller-sizing-calculator/index.html",
+      "family": "tools",
+      "violations": []
+    },
+    {
+      "page": "tools/clean-agent-suppression-calculator/index.html",
+      "family": "tools",
+      "violations": []
+    },
+    {
+      "page": "tools/compressed-air-calculator/index.html",
+      "family": "tools",
+      "violations": []
+    },
+    {
+      "page": "tools/cooling-tower-calculator/index.html",
+      "family": "tools",
+      "violations": []
+    },
+    {
+      "page": "tools/domestic-water-demand-calculator/index.html",
+      "family": "tools",
+      "violations": []
+    },
+    {
+      "page": "tools/drainage-pipe-sizing-calculator/index.html",
+      "family": "tools",
+      "violations": []
+    },
+    {
+      "page": "tools/duct-sizing-calculator/index.html",
+      "family": "tools",
+      "violations": []
+    },
+    {
+      "page": "tools/earthing-grounding-calculator/index.html",
+      "family": "tools",
+      "violations": []
+    },
+    {
+      "page": "tools/elevator-traffic-calculator/index.html",
+      "family": "tools",
+      "violations": []
+    },
+    {
+      "page": "tools/expansion-tank-calculator/index.html",
+      "family": "tools",
+      "violations": []
+    },
+    {
+      "page": "tools/fcu-selection-calculator/index.html",
+      "family": "tools",
+      "violations": []
+    },
+    {
+      "page": "tools/fire-alarm-battery-calculator/index.html",
+      "family": "tools",
+      "violations": []
+    },
+    {
+      "page": "tools/fire-pump-calculator/index.html",
+      "family": "tools",
+      "violations": []
+    },
+    {
+      "page": "tools/fire-sprinkler-calculator/index.html",
+      "family": "tools",
+      "violations": []
+    },
+    {
+      "page": "tools/generator-sizing-calculator/index.html",
+      "family": "tools",
+      "violations": []
+    },
+    {
+      "page": "tools/grease-trap-calculator/index.html",
+      "family": "tools",
+      "violations": []
+    },
+    {
+      "page": "tools/harmonic-distortion-calculator/index.html",
+      "family": "tools",
+      "violations": []
+    },
+    {
+      "page": "tools/heat-exchanger-calculator/index.html",
+      "family": "tools",
+      "violations": []
+    },
+    {
+      "page": "tools/hoist-capacity-calculator/index.html",
+      "family": "tools",
+      "violations": []
+    },
+    {
+      "page": "tools/hot-water-demand-calculator/index.html",
+      "family": "tools",
+      "violations": []
+    },
+    {
+      "page": "tools/hvac-cooling-load-calculator/index.html",
+      "family": "tools",
+      "violations": []
+    },
+    {
+      "page": "tools/hydraulic-cylinder-calculator/index.html",
+      "family": "tools",
+      "violations": []
+    },
+    {
+      "page": "tools/lighting-design-calculator/index.html",
+      "family": "tools",
+      "violations": []
+    },
+    {
+      "page": "tools/lightning-protection-calculator/index.html",
+      "family": "tools",
+      "violations": []
+    },
+    {
+      "page": "tools/load-estimation-calculator/index.html",
+      "family": "tools",
+      "violations": []
+    },
+    {
+      "page": "tools/load-schedule-calculator/index.html",
+      "family": "tools",
+      "violations": []
+    },
+    {
+      "page": "tools/mtbf-calculator/index.html",
+      "family": "tools",
+      "violations": []
+    },
+    {
+      "page": "tools/noise-acoustics-calculator/index.html",
+      "family": "tools",
+      "violations": []
+    },
+    {
+      "page": "tools/oee-calculator/index.html",
+      "family": "tools",
+      "violations": []
+    },
+    {
+      "page": "tools/pipe-sizing-calculator/index.html",
+      "family": "tools",
+      "violations": []
+    },
+    {
+      "page": "tools/power-factor-correction-calculator/index.html",
+      "family": "tools",
+      "violations": []
+    },
+    {
+      "page": "tools/pressure-vessel-calculator/index.html",
+      "family": "tools",
+      "violations": []
+    },
+    {
+      "page": "tools/pump-tdh-calculator/index.html",
+      "family": "tools",
+      "violations": []
+    },
+    {
+      "page": "tools/refrigerant-pipe-calculator/index.html",
+      "family": "tools",
+      "violations": []
+    },
+    {
+      "page": "tools/roof-drain-calculator/index.html",
+      "family": "tools",
+      "violations": []
+    },
+    {
+      "page": "tools/septic-tank-calculator/index.html",
+      "family": "tools",
+      "violations": []
+    },
+    {
+      "page": "tools/sewer-drainage-calculator/index.html",
+      "family": "tools",
+      "violations": []
+    },
+    {
+      "page": "tools/shaft-design-calculator/index.html",
+      "family": "tools",
+      "violations": []
+    },
+    {
+      "page": "tools/short-circuit-calculator/index.html",
+      "family": "tools",
+      "violations": []
+    },
+    {
+      "page": "tools/solar-pv-calculator/index.html",
+      "family": "tools",
+      "violations": []
+    },
+    {
+      "page": "tools/stairwell-pressurization-calculator/index.html",
+      "family": "tools",
+      "violations": []
+    },
+    {
+      "page": "tools/storm-drain-calculator/index.html",
+      "family": "tools",
+      "violations": []
+    },
+    {
+      "page": "tools/transformer-sizing-calculator/index.html",
+      "family": "tools",
+      "violations": []
+    },
+    {
+      "page": "tools/ups-sizing-calculator/index.html",
+      "family": "tools",
+      "violations": []
+    },
+    {
+      "page": "tools/v-belt-drive-calculator/index.html",
+      "family": "tools",
+      "violations": []
+    },
+    {
+      "page": "tools/ventilation-ach-calculator/index.html",
+      "family": "tools",
+      "violations": []
+    },
+    {
+      "page": "tools/vibration-isolation-calculator/index.html",
+      "family": "tools",
+      "violations": []
+    },
+    {
+      "page": "tools/voltage-drop-calculator/index.html",
+      "family": "tools",
+      "violations": []
+    },
+    {
+      "page": "tools/wastewater-stp-calculator/index.html",
+      "family": "tools",
+      "violations": []
+    },
+    {
+      "page": "tools/water-softener-calculator/index.html",
+      "family": "tools",
+      "violations": []
+    },
+    {
+      "page": "tools/water-supply-pipe-calculator/index.html",
+      "family": "tools",
+      "violations": []
+    },
+    {
+      "page": "tools/water-treatment-calculator/index.html",
+      "family": "tools",
+      "violations": []
+    },
+    {
+      "page": "tools/wire-sizing-calculator/index.html",
+      "family": "tools",
+      "violations": []
+    }
+  ]
+}

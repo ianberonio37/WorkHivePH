@@ -5,7 +5,7 @@ the platform should obey - and currently no Playwright spec exercises it.
 
 **Check coverage:** 82.8% (274 of 331 per-page checks - HONEST behavioral coverage)
 **Topic coverage:** 93.8% (45 of 48 per-page validators - loose, validator-level)
-**Raw coverage:** 78.6% (323 of 411 validators)
+**Raw coverage:** 78.8% (324 of 411 validators)
 
 Each section below groups uncovered checks by validator. Use the per-check
 list as your test backlog - one scenario per check, not one scenario per
@@ -486,7 +486,7 @@ page would just duplicate the validator with 50x the runtime.
 
 - `validate_user_facing_jargon.py` (1 checks) - validate_user_facing_jargon
 
-## Infrastructure gaps (84)
+## Infrastructure gaps (83)
 
 These validators have no UI surface - they enforce backend / schema /
 edge function / configuration rules. Layer 0 is the right enforcement
@@ -542,7 +542,6 @@ layer; no Playwright scenario is needed.
 - `validate_js_syntax_sanity.py` (1 checks) - validate_js_syntax_sanity
 - `validate_jsonb_drift.py` (4 checks) - validate_jsonb_drift
 - `validate_llm_cache_adoption.py` (1 checks) - validate_llm_cache_adoption
-- `validate_llms_sync.py` (4 checks) - validate_llms_sync
 - `validate_load_resilience.py` (1 checks) - validate_load_resilience
 - `validate_meta_gate.py` (1 checks) - validate_meta_gate
 - `validate_migration_immutability.py` (4 checks) - validate_migration_immutability
@@ -577,4 +576,4 @@ layer; no Playwright scenario is needed.
 - `validate_trigger_reentrancy.py` (4 checks) - validate_trigger_reentrancy
 - `validate_validator_self_coverage.py` (4 checks) - validate_validator_self_coverage
 
-_Generated 11 per-page proposal bundles. Skipped 0 with no extractable tokens. Tagged 1 platform-wide and 84 infrastructure._
+_Generated 11 per-page proposal bundles. Skipped 0 with no extractable tokens. Tagged 1 platform-wide and 83 infrastructure._

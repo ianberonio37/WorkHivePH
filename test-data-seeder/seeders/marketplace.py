@@ -327,3 +327,120 @@ def seed_marketplace_sellers(client, log, ctx: dict) -> dict:
     log(f"  seeded {len(review_rows)} VERIFIED reviews across {rated} listings "
         f"-> ratings are trigger-computed, never invented (sellers without reviews stay unrated)")
     return {"marketplace_sellers_count": len(seller_rows)}
+
+
+def seed_marketplace_orders(client, log, ctx: dict) -> dict:
+    """Seed marketplace_orders — ONE order per lifecycle state (T96).
+
+    Why this exists: marketplace_orders carries a CHECK constraint enumerating a real escrow
+    flow — pending_payment -> escrow_hold -> buyer_confirmed -> released, with refunded and
+    disputed as its two exits — and the table has never held a single row. reset.py knew how to
+    TRUNCATE orders; nothing knew how to make one. So the goods lifecycle was defined and
+    unwalkable: no state transition on this table had ever been exercised, and "the constraint
+    allows it" is not "the product does it".
+
+    One row per state rather than a random spread, because the point is COVERAGE — a two-sided
+    walk needs to find a buyer_confirmed order to look at, not hope one was rolled. Timestamps
+    are set to match each state so a row is internally consistent (a released order has a
+    released_at; a pending one does not), since a fixture that contradicts itself teaches a
+    walker the wrong thing about the schema.
+    """
+    listings = (client.table("marketplace_listings")
+                .select("id, hive_id, title, price, seller_name")
+                .limit(6).execute().data) or []
+    if not listings:
+        log("  marketplace_orders: no listings to reference — run seed_marketplace first")
+        return {"marketplace_orders_count": 0}
+
+    buyers = ["Christine Dizon", "Pablo Aguilar", "Hector Salvador", "Romeo Beltran"]
+    states = [
+        ("pending_payment", {}),
+        ("escrow_hold", {"escrow_release_at": 3}),
+        ("buyer_confirmed", {"escrow_release_at": 1, "buyer_confirmed_at": -1}),
+        ("released", {"buyer_confirmed_at": -3, "released_at": -2}),
+        ("refunded", {"buyer_confirmed_at": -5}),
+        ("disputed", {"escrow_release_at": 2}),
+    ]
+    rows = []
+    for i, (status, stamps) in enumerate(states):
+        lst = listings[i % len(listings)]
+        ts = random_timestamp_in_last_n_days(14)
+        row = {
+            "listing_id": lst.get("id"),
+            "hive_id": lst.get("hive_id"),
+            "buyer_name": buyers[i % len(buyers)],
+            "seller_name": lst.get("seller_name") or "Bryan Garcia",
+            "price": lst.get("price") or 1500,
+            "currency": "PHP",
+            "status": status,
+            "created_at": to_iso(ts),
+            "updated_at": to_iso(ts),
+        }
+        for col, day_offset in stamps.items():
+            row[col] = to_iso(random_timestamp_in_last_n_days(abs(day_offset) or 1))
+        rows.append(row)
+
+    client.table("marketplace_orders").insert(rows).execute()
+    log(f"  inserted {len(rows)} marketplace_orders (one per lifecycle state)")
+    return {"marketplace_orders_count": len(rows)}
+
+
+def seed_marketplace_inquiries(client, log, ctx: dict) -> dict:
+    """Seed marketplace_inquiries — the LIVE goods path (T96).
+
+    ★THIS IS THE TABLE THE PRODUCT ACTUALLY USES, and it matters which one gets seeded.
+    marketplace_orders describes a full escrow flow (pending_payment -> escrow_hold ->
+    buyer_confirmed -> released) and is read by exactly one page, marketplace-admin, which is
+    RETIRED behind an overlay. The live goods flow is contact-only, exactly as this module's
+    own docstring says: a buyer sends an INQUIRY against a listing, the seller replies, contact
+    details are exchanged, and the transaction completes off-platform. marketplace-seller's
+    Inquiries tab reads v_marketplace_inquiries_truth in six places; it never reads orders.
+
+    So this is the fixture that makes the two-sided goods walk possible: pending gives the
+    seller something waiting for a reply, replied gives both parties a thread to compare, and
+    closed gives the walk an end state. A replied row carries BOTH reply_text and replied_at,
+    because a reply with no timestamp is a state the UI cannot render honestly.
+    """
+    listings = (client.table("marketplace_listings")
+                .select("id, hive_id, title, seller_name")
+                .limit(8).execute().data) or []
+    if not listings:
+        log("  marketplace_inquiries: no listings to reference — run seed_marketplace first")
+        return {"marketplace_inquiries_count": 0}
+
+    asks = [
+        ("Christine Dizon", "0917 555 0142", "Is this still available? Can you hold it until Friday?"),
+        ("Pablo Aguilar", "0918 555 0233", "What's the hour meter reading, and do you have the service history?"),
+        ("Hector Salvador", "0920 555 0311", "Can you deliver to Laguna? What would freight cost?"),
+        ("Romeo Beltran", "0921 555 0498", "Is the price negotiable for two units?"),
+        ("Leonardo Romero", "0927 555 0570", "Do you have the calibration certificate for this?"),
+        ("Isidro Suarez", "0939 555 0655", "Any warranty on the refurb work?"),
+    ]
+    replies = [
+        "Yes, still available. I can hold it until Friday noon.",
+        "5,000 hours. Service records are with the unit — I can send photos.",
+        "Delivery to Laguna is fine, freight is around PHP 2,500.",
+    ]
+    rows = []
+    for i, (buyer, contact, msg) in enumerate(asks):
+        lst = listings[i % len(listings)]
+        ts = random_timestamp_in_last_n_days(21)
+        status = "pending" if i < 2 else ("replied" if i < 5 else "closed")
+        row = {
+            "listing_id": lst.get("id"),
+            "hive_id": lst.get("hive_id"),
+            "buyer_name": buyer,
+            "buyer_contact": contact,
+            "seller_name": lst.get("seller_name"),
+            "message": msg,
+            "status": status,
+            "created_at": to_iso(ts),
+        }
+        if status in ("replied", "closed"):
+            row["reply_text"] = replies[i % len(replies)]
+            row["replied_at"] = to_iso(random_timestamp_in_last_n_days(7))
+        rows.append(row)
+
+    client.table("marketplace_inquiries").insert(rows).execute()
+    log(f"  inserted {len(rows)} marketplace_inquiries (pending / replied / closed)")
+    return {"marketplace_inquiries_count": len(rows)}

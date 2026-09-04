@@ -10,7 +10,7 @@ By **WorkHive Editorial Team**
 ·
 Published 17 May 2026
 ·
-Updated 17 May 2026
+Updated 24 Aug 2026
 ·
 7 min read
 
@@ -85,7 +85,7 @@ The tool this guide is about
 
 Quarterly reports on OEE, MTBF, MTTR, PM compliance, downtime cost, and digital adoption by sector. Anonymous aggregation with 8-plant minimum threshold and outlier suppression. Free to read for everyone; opt-in participants see their own metrics alongside the benchmark. Built for Philippine plants by the WorkHive hive of hives.
 
-No hive yet? [Join WorkHive](https://workhiveph.com/#join) first (free, takes 30 seconds).
+No hive yet? [Join WorkHive](https://workhiveph.com/?signup=1) first (free, takes 30 seconds).
 
 ## Frequently asked questions
 
@@ -123,4 +123,4 @@ Yes for the public reports, with attribution to "WorkHive PH Industrial Intellig
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: a0d9eff61353e14e -->
+<!-- md-twin source-sha: f9ba38a5d73154e4 -->

@@ -7,7 +7,7 @@ Source: https://workhiveph.com/tools/boiler-system-calculator/
 Boiler System Sizing Calculator
 **The Boiler System Sizing Calculator finds the boiler capacity (kW/BHP) and fuel consumption from steam demand, pressure, and feedwater temperature. Example: for a steam boiler delivering 500 kg/h at 7 barg from 80 °C feedwater on diesel, Boiler capacity = 422.5 kW, Boiler HP = 43.1 BHP, Fuel use = 49.9 L/h (per ASME BPVC Sec.I/IV | ASME B31.1).**
 How it works
-Computed from your inputs per ASME BPVC Sec.I/IV | ASME B31.1.
+Computed per ASME BPVC Sec.I/IV | ASME B31.1.
 Worked example (Boiler & Utilities)
 Inputs: a steam boiler delivering 500 kg/h at 7 barg from 80 °C feedwater on diesel.
 ResultValue
@@ -21,13 +21,13 @@ The calculator returns Boiler capacity, Boiler HP, Fuel use, computed per ASME B
 Check the worked example to confirm the method matches how you would do it by hand, then run your own numbers in the interactive tool.
 FAQ
 What is a boiler sizing calculator kW fuel consumption?The Boiler System Sizing Calculator is a free online tool that computes finds the boiler capacity (kW/BHP) and fuel consumption from steam demand, pressure, and feedwater temperature. It shows the formula and a fully worked example so you can check the method, not just the number.
-How is it calculated?The result is computed from your inputs following ASME BPVC Sec.I/IV | ASME B31.1. The worked example on this page shows a real computation with real numbers.
-Is the calculator free?Yes. WorkHive's engineering calculators are free to use, no sign-up needed for the tools. WorkHive is a free, offline-first maintenance platform built for Philippine industrial plants.
+How is it calculated?The result is computed following ASME BPVC Sec.I/IV | ASME B31.1. The worked example on this page shows a real computation with real numbers.
+Is the calculator free?Yes. WorkHive's engineering calculators are free: the worked example on this page shows the full calculation with real numbers, and the interactive calculator runs in WorkHive's free Engineering Design suite. A free account takes about 30 seconds. WorkHive is a free, offline-first maintenance platform built for Philippine industrial plants.
 Run it on your own numbers
-[Open the interactive Boiler System Sizing Calculator in WorkHive](https://workhiveph.com/engineering-design.html): free, no sign-up needed for the calculators.
+[Open the interactive Boiler System Sizing Calculator in WorkHive (free sign-in)](https://workhiveph.com/engineering-design.html): free with a WorkHive account. Sign-up takes about 30 seconds.
 Related calculators
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
 [Boiler / Steam Duty Calculator](https://workhiveph.com/tools/boiler-steam-calculator/)
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/)
 
-<!-- md-twin source-sha: ca7ae0ae8d75e282 -->
+<!-- md-twin source-sha: 909c035cd304eb60 -->

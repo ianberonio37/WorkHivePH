@@ -1,0 +1,323 @@
+{
+  "_doc": "T1.4 conversion-funnel bank — cross-page subject keyed by scenario-matrix cell x oracle. Verdicts are NOT stored: the gate re-derives every row's verdict from the live artifacts each run, so a row cannot stay green after its prover stops agreeing.",
+  "frame": "scenario_matrix covered cells x APPLICABILITY(entry)",
+  "total": 20,
+  "rows": [
+    {
+      "id": "CVB-phone-390|anon|cold-direct|convert-cta_activation",
+      "cell": "phone-390|anon|cold-direct|convert",
+      "oracle_key": "cta_activation",
+      "oracle": "a primary-styled CTA, clicked as anon at 390 and 1280, produces an observable consequence (navigation | modal | scroll | focus | mutation burst); a control still [inert] after the reveal gesture is the defect, not an exemption",
+      "evidence": [
+        {
+          "kind": "cta-report",
+          "ref": "cta_activation_report.json"
+        }
+      ],
+      "stamp": "2026-08-24 T1 walk"
+    },
+    {
+      "id": "CVB-phone-390|anon|cold-direct|convert-signup_affordance",
+      "cell": "phone-390|anon|cold-direct|convert",
+      "oracle_key": "signup_affordance",
+      "oracle": "every surface that offers sign-in offers sign-up beside it, and every auth refusal carries BOTH doors as clickable controls, not as words in a toast",
+      "evidence": [
+        {
+          "kind": "journey",
+          "ref": "LA8"
+        },
+        {
+          "kind": "journey",
+          "ref": "LA10"
+        },
+        {
+          "kind": "surface",
+          "ref": "public_surface_registry.json"
+        }
+      ],
+      "stamp": "2026-08-24 T1 walk"
+    },
+    {
+      "id": "CVB-phone-390|anon|cold-direct|convert-signup_deeplink",
+      "cell": "phone-390|anon|cold-direct|convert",
+      "oracle_key": "signup_deeplink",
+      "oracle": "?signup=1 opens the real signup panel and ?return= survives the crossing into the honored slot - validated at write AND redemption, hostile values dropped",
+      "evidence": [
+        {
+          "kind": "journey",
+          "ref": "LA9"
+        }
+      ],
+      "stamp": "2026-08-24 T1 walk"
+    },
+    {
+      "id": "CVB-phone-390|anon|cold-direct|convert-funnel_complete",
+      "cell": "phone-390|anon|cold-direct|convert",
+      "oracle_key": "funnel_complete",
+      "oracle": "cold anon -> primary CTA -> signup -> a worker_profiles row psql-verified -> signed-in value, with the entry door recorded (sticky/hero/nav/...)",
+      "evidence": [
+        {
+          "kind": "journey",
+          "ref": "LA7"
+        },
+        {
+          "kind": "journey",
+          "ref": "LA11"
+        }
+      ],
+      "stamp": "2026-08-24 T1 walk"
+    },
+    {
+      "id": "CVB-phone-390|anon|search-landing|convert-cta_activation",
+      "cell": "phone-390|anon|search-landing|convert",
+      "oracle_key": "cta_activation",
+      "oracle": "a primary-styled CTA, clicked as anon at 390 and 1280, produces an observable consequence (navigation | modal | scroll | focus | mutation burst); a control still [inert] after the reveal gesture is the defect, not an exemption",
+      "evidence": [
+        {
+          "kind": "cta-report",
+          "ref": "cta_activation_report.json"
+        }
+      ],
+      "stamp": "2026-08-24 T1 walk"
+    },
+    {
+      "id": "CVB-phone-390|anon|search-landing|convert-signup_affordance",
+      "cell": "phone-390|anon|search-landing|convert",
+      "oracle_key": "signup_affordance",
+      "oracle": "every surface that offers sign-in offers sign-up beside it, and every auth refusal carries BOTH doors as clickable controls, not as words in a toast",
+      "evidence": [
+        {
+          "kind": "journey",
+          "ref": "LA8"
+        },
+        {
+          "kind": "journey",
+          "ref": "LA10"
+        },
+        {
+          "kind": "surface",
+          "ref": "public_surface_registry.json"
+        }
+      ],
+      "stamp": "2026-08-24 T1 walk"
+    },
+    {
+      "id": "CVB-phone-390|anon|search-landing|convert-claim_honesty",
+      "cell": "phone-390|anon|search-landing|convert",
+      "oracle_key": "claim_honesty",
+      "oracle": "no public page claims 'no sign-up needed' about a gated destination; the claim class is banned unless scoped to the embedded on-page tool",
+      "evidence": [
+        {
+          "kind": "surface",
+          "ref": "public_surface_registry.json"
+        }
+      ],
+      "stamp": "2026-08-24 T1 walk"
+    },
+    {
+      "id": "CVB-phone-390|anon|shared-link|convert-cta_activation",
+      "cell": "phone-390|anon|shared-link|convert",
+      "oracle_key": "cta_activation",
+      "oracle": "a primary-styled CTA, clicked as anon at 390 and 1280, produces an observable consequence (navigation | modal | scroll | focus | mutation burst); a control still [inert] after the reveal gesture is the defect, not an exemption",
+      "evidence": [
+        {
+          "kind": "cta-report",
+          "ref": "cta_activation_report.json"
+        }
+      ],
+      "stamp": "2026-08-24 T1 walk"
+    },
+    {
+      "id": "CVB-phone-390|anon|shared-link|convert-signup_affordance",
+      "cell": "phone-390|anon|shared-link|convert",
+      "oracle_key": "signup_affordance",
+      "oracle": "every surface that offers sign-in offers sign-up beside it, and every auth refusal carries BOTH doors as clickable controls, not as words in a toast",
+      "evidence": [
+        {
+          "kind": "journey",
+          "ref": "LA8"
+        },
+        {
+          "kind": "journey",
+          "ref": "LA10"
+        },
+        {
+          "kind": "surface",
+          "ref": "public_surface_registry.json"
+        }
+      ],
+      "stamp": "2026-08-24 T1 walk"
+    },
+    {
+      "id": "CVB-phone-390|anon|shared-link|convert-signup_deeplink",
+      "cell": "phone-390|anon|shared-link|convert",
+      "oracle_key": "signup_deeplink",
+      "oracle": "?signup=1 opens the real signup panel and ?return= survives the crossing into the honored slot - validated at write AND redemption, hostile values dropped",
+      "evidence": [
+        {
+          "kind": "journey",
+          "ref": "LA9"
+        }
+      ],
+      "stamp": "2026-08-24 T1 walk"
+    },
+    {
+      "id": "CVB-pc-1280|anon|cold-direct|convert-cta_activation",
+      "cell": "pc-1280|anon|cold-direct|convert",
+      "oracle_key": "cta_activation",
+      "oracle": "a primary-styled CTA, clicked as anon at 390 and 1280, produces an observable consequence (navigation | modal | scroll | focus | mutation burst); a control still [inert] after the reveal gesture is the defect, not an exemption",
+      "evidence": [
+        {
+          "kind": "cta-report",
+          "ref": "cta_activation_report.json"
+        }
+      ],
+      "stamp": "2026-08-24 T1 walk"
+    },
+    {
+      "id": "CVB-pc-1280|anon|cold-direct|convert-signup_affordance",
+      "cell": "pc-1280|anon|cold-direct|convert",
+      "oracle_key": "signup_affordance",
+      "oracle": "every surface that offers sign-in offers sign-up beside it, and every auth refusal carries BOTH doors as clickable controls, not as words in a toast",
+      "evidence": [
+        {
+          "kind": "journey",
+          "ref": "LA8"
+        },
+        {
+          "kind": "journey",
+          "ref": "LA10"
+        },
+        {
+          "kind": "surface",
+          "ref": "public_surface_registry.json"
+        }
+      ],
+      "stamp": "2026-08-24 T1 walk"
+    },
+    {
+      "id": "CVB-pc-1280|anon|cold-direct|convert-signup_deeplink",
+      "cell": "pc-1280|anon|cold-direct|convert",
+      "oracle_key": "signup_deeplink",
+      "oracle": "?signup=1 opens the real signup panel and ?return= survives the crossing into the honored slot - validated at write AND redemption, hostile values dropped",
+      "evidence": [
+        {
+          "kind": "journey",
+          "ref": "LA9"
+        }
+      ],
+      "stamp": "2026-08-24 T1 walk"
+    },
+    {
+      "id": "CVB-pc-1280|anon|cold-direct|convert-funnel_complete",
+      "cell": "pc-1280|anon|cold-direct|convert",
+      "oracle_key": "funnel_complete",
+      "oracle": "cold anon -> primary CTA -> signup -> a worker_profiles row psql-verified -> signed-in value, with the entry door recorded (sticky/hero/nav/...)",
+      "evidence": [
+        {
+          "kind": "journey",
+          "ref": "LA7"
+        },
+        {
+          "kind": "journey",
+          "ref": "LA11"
+        }
+      ],
+      "stamp": "2026-08-24 T1 walk"
+    },
+    {
+      "id": "CVB-pc-1280|anon|search-landing|convert-cta_activation",
+      "cell": "pc-1280|anon|search-landing|convert",
+      "oracle_key": "cta_activation",
+      "oracle": "a primary-styled CTA, clicked as anon at 390 and 1280, produces an observable consequence (navigation | modal | scroll | focus | mutation burst); a control still [inert] after the reveal gesture is the defect, not an exemption",
+      "evidence": [
+        {
+          "kind": "cta-report",
+          "ref": "cta_activation_report.json"
+        }
+      ],
+      "stamp": "2026-08-24 T1 walk"
+    },
+    {
+      "id": "CVB-pc-1280|anon|search-landing|convert-signup_affordance",
+      "cell": "pc-1280|anon|search-landing|convert",
+      "oracle_key": "signup_affordance",
+      "oracle": "every surface that offers sign-in offers sign-up beside it, and every auth refusal carries BOTH doors as clickable controls, not as words in a toast",
+      "evidence": [
+        {
+          "kind": "journey",
+          "ref": "LA8"
+        },
+        {
+          "kind": "journey",
+          "ref": "LA10"
+        },
+        {
+          "kind": "surface",
+          "ref": "public_surface_registry.json"
+        }
+      ],
+      "stamp": "2026-08-24 T1 walk"
+    },
+    {
+      "id": "CVB-pc-1280|anon|search-landing|convert-claim_honesty",
+      "cell": "pc-1280|anon|search-landing|convert",
+      "oracle_key": "claim_honesty",
+      "oracle": "no public page claims 'no sign-up needed' about a gated destination; the claim class is banned unless scoped to the embedded on-page tool",
+      "evidence": [
+        {
+          "kind": "surface",
+          "ref": "public_surface_registry.json"
+        }
+      ],
+      "stamp": "2026-08-24 T1 walk"
+    },
+    {
+      "id": "CVB-pc-1280|anon|shared-link|convert-cta_activation",
+      "cell": "pc-1280|anon|shared-link|convert",
+      "oracle_key": "cta_activation",
+      "oracle": "a primary-styled CTA, clicked as anon at 390 and 1280, produces an observable consequence (navigation | modal | scroll | focus | mutation burst); a control still [inert] after the reveal gesture is the defect, not an exemption",
+      "evidence": [
+        {
+          "kind": "cta-report",
+          "ref": "cta_activation_report.json"
+        }
+      ],
+      "stamp": "2026-08-24 T1 walk"
+    },
+    {
+      "id": "CVB-pc-1280|anon|shared-link|convert-signup_affordance",
+      "cell": "pc-1280|anon|shared-link|convert",
+      "oracle_key": "signup_affordance",
+      "oracle": "every surface that offers sign-in offers sign-up beside it, and every auth refusal carries BOTH doors as clickable controls, not as words in a toast",
+      "evidence": [
+        {
+          "kind": "journey",
+          "ref": "LA8"
+        },
+        {
+          "kind": "journey",
+          "ref": "LA10"
+        },
+        {
+          "kind": "surface",
+          "ref": "public_surface_registry.json"
+        }
+      ],
+      "stamp": "2026-08-24 T1 walk"
+    },
+    {
+      "id": "CVB-pc-1280|anon|shared-link|convert-signup_deeplink",
+      "cell": "pc-1280|anon|shared-link|convert",
+      "oracle_key": "signup_deeplink",
+      "oracle": "?signup=1 opens the real signup panel and ?return= survives the crossing into the honored slot - validated at write AND redemption, hostile values dropped",
+      "evidence": [
+        {
+          "kind": "journey",
+          "ref": "LA9"
+        }
+      ],
+      "stamp": "2026-08-24 T1 walk"
+    }
+  ]
+}

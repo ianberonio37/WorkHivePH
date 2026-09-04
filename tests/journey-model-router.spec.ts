@@ -19,7 +19,7 @@ const FN_PATH   = '/functions/v1/agentic-rag-loop';
 
 test.describe('model-router — Phase 4 of AGENTIC_RAG_ROADMAP.md', () => {
 
-  test('agentic-rag-loop emits a non-empty trace with distinct stages', async ({ whPage }) => {
+  test('agentic-rag-loop emits a non-empty trace with distinct stages', async ({ whPage, hiveId }) => {
     await whPage.goto(HOST_PAGE);
     await waitForPageReady(whPage);
 
@@ -33,7 +33,7 @@ test.describe('model-router — Phase 4 of AGENTIC_RAG_ROADMAP.md', () => {
           headers: { 'Content-Type': 'application/json', 'apikey': key, 'Authorization': 'Bearer ' + key },
           body: JSON.stringify({
             question: 'latest entry',
-            hive_id:  '586fd158-42d1-4853-a406-64a4695e71c4',
+            hive_id:  hiveId,
             worker_name: 'Pablo Aguilar',
           }),
         });

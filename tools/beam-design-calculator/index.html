@@ -11,6 +11,13 @@
 <meta property="og:description" content="The RC Beam Design Calculator checks a reinforced-concrete beam&#x27;s moment capacity and demand-capacity ratio against NSCP/ACI. Free online, with a worked example. Built for Philippine plants by WorkHive.">
 <meta property="og:url" content="https://workhiveph.com/tools/beam-design-calculator/">
 <meta property="og:type" content="website">
+<meta property="og:image" content="https://workhiveph.com/brand_assets/og-social.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:alt" content="WorkHive: Free industrial tools for every Filipino worker">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://workhiveph.com/brand_assets/og-social.png">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -70,7 +77,7 @@
           "name": "How is it calculated?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "The result is computed from your inputs following NSCP 2015 | ACI 318. The worked example on this page shows a real computation with real numbers."
+            "text": "The result is computed following NSCP 2015 | ACI 318. The worked example on this page shows a real computation with real numbers."
           }
         },
         {
@@ -78,7 +85,7 @@
           "name": "Is the calculator free?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Yes. WorkHive's engineering calculators are free to use, no sign-up needed for the tools. WorkHive is a free, offline-first maintenance platform built for Philippine industrial plants."
+            "text": "Yes. WorkHive's engineering calculators are free: the worked example on this page shows the full calculation with real numbers, and the interactive calculator runs in WorkHive's free Engineering Design suite. A free account takes about 30 seconds. WorkHive is a free, offline-first maintenance platform built for Philippine industrial plants."
           }
         }
       ]
@@ -111,7 +118,7 @@
 </script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = { theme: { extend: { colors: {
@@ -174,7 +181,8 @@
     <nav class="flex items-center gap-6">
       <a href="/" class="nav-link">Home</a>
       <a href="/learn/" class="nav-link">Learn</a>
-      <a href="/#join" class="nav-link">Join the Hive</a>
+      <a href="/?signin=1" class="nav-link">Sign In</a>
+      <a href="/?signup=1" class="nav-link">Sign Up Free</a>
     </nav>
   </div>
 </header>
@@ -189,20 +197,20 @@
 
     <section aria-labelledby="formula">
       <h2 id="formula">How it works</h2>
-      <p>Computed from your inputs per NSCP 2015 Vol.1 | AISC 360-22 | ACI 318-19 | ASCE 7-22.</p>
+      <p>Computed per NSCP 2015 Vol.1 | AISC 360-22 | ACI 318-19 | ASCE 7-22.</p>
     </section>
 
     <section aria-labelledby="worked">
       <h2 id="worked">Worked example (Mechanical &amp; Machine Design)</h2>
       <p>Inputs: a 6 m RC beam under a 150 kN·m factored moment.</p>
-      <table>
+      <div data-table-scroll style="overflow-x:auto;-webkit-overflow-scrolling:touch;" role="region" aria-label="Scrollable table" tabindex="0"><table>
         <thead><tr><th>Result</th><th>Value</th></tr></thead>
         <tbody>
           <tr><td>Moment capacity φMn</td><td>188.96 kN·m</td></tr>
           <tr><td>Demand/capacity</td><td>0.79</td></tr>
           <tr><td>Steel area</td><td>1256.6 mm²</td></tr>
         </tbody>
-      </table>
+      </table></div>
       <p><small>Computed live by WorkHive's calculation engine; standard: NSCP 2015 Vol.1 | AISC 360-22 | ACI 318-19 | ASCE 7-22.</small></p>
     </section>
 
@@ -218,13 +226,13 @@
     <section aria-labelledby="faq">
       <h2 id="faq">FAQ</h2>
       <details class="faq"><summary>What is a reinforced concrete beam design calculator NSCP?</summary><p>The RC Beam Design Calculator is a free online tool that computes checks a reinforced-concrete beam&#x27;s moment capacity and demand-capacity ratio against NSCP/ACI. It shows the formula and a fully worked example so you can check the method, not just the number.</p></details>
-      <details class="faq"><summary>How is it calculated?</summary><p>The result is computed from your inputs following NSCP 2015 | ACI 318. The worked example on this page shows a real computation with real numbers.</p></details>
-      <details class="faq"><summary>Is the calculator free?</summary><p>Yes. WorkHive&#x27;s engineering calculators are free to use, no sign-up needed for the tools. WorkHive is a free, offline-first maintenance platform built for Philippine industrial plants.</p></details>
+      <details class="faq"><summary>How is it calculated?</summary><p>The result is computed following NSCP 2015 | ACI 318. The worked example on this page shows a real computation with real numbers.</p></details>
+      <details class="faq"><summary>Is the calculator free?</summary><p>Yes. WorkHive&#x27;s engineering calculators are free: the worked example on this page shows the full calculation with real numbers, and the interactive calculator runs in WorkHive's free Engineering Design suite. A free account takes about 30 seconds. WorkHive is a free, offline-first maintenance platform built for Philippine industrial plants.</p></details>
     </section>
 
     <section aria-labelledby="try">
       <h2 id="try">Run it on your own numbers</h2>
-      <p><a href="/engineering-design.html" class="cta">Open the interactive RC Beam Design Calculator in WorkHive</a>: free, no sign-up needed for the calculators.</p>
+      <p><a href="/engineering-design.html" class="cta">Open the interactive RC Beam Design Calculator in WorkHive (free sign-in)</a>: free with a WorkHive account. Sign-up takes about 30 seconds.</p>
     </section>
 
     <section aria-labelledby="related">
@@ -242,11 +250,11 @@
 
 <footer class="py-10 border-t border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
   <div class="max-w-4xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">
-    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-08-05">2026-08-05</time></p>
+    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-08-25">2026-08-25</time></p>
     <div class="flex items-center gap-6">
       <a href="/" class="hover:text-white/60 transition-colors">Home</a>
       <a href="/#faq" class="hover:text-white/60 transition-colors">FAQ</a>
-      <a href="/#join" class="hover:text-white/60 transition-colors">Join the Hive</a>
+      <a href="/?signup=1" class="hover:text-white/60 transition-colors">Join the Hive</a>
     </div>
   </div>
 </footer>

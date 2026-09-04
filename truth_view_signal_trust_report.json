@@ -1,9 +1,9 @@
 {
   "summary": {
-    "view_column_pairs": 335,
+    "view_column_pairs": 347,
     "at_risk": 0,
     "review": 9,
-    "files_scanned": 328
+    "files_scanned": 337
   },
   "pairs": [
     {
@@ -324,6 +324,11 @@
       "view": "v_amc_truth",
       "column": "amc_id",
       "consumers": [
+        {
+          "file": "hive.html",
+          "shape": "direct",
+          "smells": []
+        },
         {
           "file": "index.html",
           "shape": "direct",
@@ -1105,6 +1110,19 @@
     },
     {
       "view": "v_asset_truth",
+      "column": "pm_skipped_count",
+      "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_asset_truth",
       "column": "status",
       "consumers": [
         {
@@ -1871,6 +1889,11 @@
           "file": "supabase/functions/send-report-email/index.ts",
           "shape": "direct",
           "smells": []
+        },
+        {
+          "file": "utils.js",
+          "shape": "direct",
+          "smells": []
         }
       ],
       "smells": [],
@@ -2104,6 +2127,11 @@
       "view": "v_inventory_items_truth",
       "column": "part_number",
       "consumers": [
+        {
+          "file": "hive.html",
+          "shape": "direct",
+          "smells": []
+        },
         {
           "file": "marketplace.html",
           "shape": "mapped_enum",
@@ -2386,6 +2414,11 @@
         },
         {
           "file": "supabase/functions/trigger-ml-retrain/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "utils.js",
           "shape": "direct",
           "smells": []
         }
@@ -2787,6 +2820,11 @@
       "view": "v_logbook_truth",
       "column": "date",
       "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
         {
           "file": "assistant.html",
           "shape": "direct",
@@ -3311,6 +3349,11 @@
       "column": "readings_json",
       "consumers": [
         {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
           "file": "supabase/functions/analytics-orchestrator/index.ts",
           "shape": "direct",
           "smells": []
@@ -3577,6 +3620,11 @@
           "file": "marketplace-seller.html",
           "shape": "direct",
           "smells": []
+        },
+        {
+          "file": "marketplace.html",
+          "shape": "direct",
+          "smells": []
         }
       ],
       "smells": [],
@@ -3603,6 +3651,11 @@
           "file": "marketplace-seller.html",
           "shape": "direct",
           "smells": []
+        },
+        {
+          "file": "marketplace.html",
+          "shape": "direct",
+          "smells": []
         }
       ],
       "smells": [],
@@ -3621,6 +3674,11 @@
           "file": "marketplace-seller.html",
           "shape": "direct",
           "smells": []
+        },
+        {
+          "file": "marketplace.html",
+          "shape": "direct",
+          "smells": []
         }
       ],
       "smells": [],
@@ -3632,6 +3690,24 @@
       "consumers": [
         {
           "file": "marketplace-seller.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "marketplace.html",
+          "shape": "mapped_enum",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_marketplace_inquiries_truth",
+      "column": "seller_name",
+      "consumers": [
+        {
+          "file": "marketplace.html",
           "shape": "direct",
           "smells": []
         }
@@ -3650,6 +3726,11 @@
         },
         {
           "file": "marketplace-seller.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "marketplace.html",
           "shape": "direct",
           "smells": []
         }
@@ -3993,6 +4074,24 @@
     },
     {
       "view": "v_marketplace_listings_truth",
+      "column": "seller_kyb_verified",
+      "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "marketplace.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_marketplace_listings_truth",
       "column": "seller_name",
       "consumers": [
         {
@@ -4043,7 +4142,7 @@
       "consumers": [
         {
           "file": "asset-hub.html",
-          "shape": "mapped_enum",
+          "shape": "direct",
           "smells": []
         },
         {
@@ -4315,7 +4414,7 @@
         },
         {
           "file": "marketplace.html",
-          "shape": "direct",
+          "shape": "mapped_enum",
           "smells": []
         },
         {
@@ -4866,6 +4965,11 @@
       "column": "last_anchor_date",
       "consumers": [
         {
+          "file": "supabase/functions/batch-risk-scoring/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
           "file": "voice-handler.js",
           "shape": "direct",
           "smells": []
@@ -4905,6 +5009,19 @@
         },
         {
           "file": "supabase/functions/trigger-ml-retrain/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_pm_compliance_truth",
+      "column": "skips_90d",
+      "consumers": [
+        {
+          "file": "voice-handler.js",
           "shape": "direct",
           "smells": []
         }
@@ -5136,6 +5253,19 @@
     },
     {
       "view": "v_pm_scope_items_truth",
+      "column": "current_km",
+      "consumers": [
+        {
+          "file": "pm-scheduler.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_pm_scope_items_truth",
       "column": "days_until_due",
       "consumers": [
         {
@@ -5244,6 +5374,32 @@
         },
         {
           "file": "supabase/functions/analytics-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_pm_scope_items_truth",
+      "column": "interval_kind",
+      "consumers": [
+        {
+          "file": "pm-scheduler.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_pm_scope_items_truth",
+      "column": "interval_km",
+      "consumers": [
+        {
+          "file": "pm-scheduler.html",
           "shape": "direct",
           "smells": []
         }
@@ -5427,6 +5583,19 @@
     },
     {
       "view": "v_pm_scope_items_truth",
+      "column": "km_until_due",
+      "consumers": [
+        {
+          "file": "pm-scheduler.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_pm_scope_items_truth",
       "column": "last_completed_at",
       "consumers": [
         {
@@ -5507,6 +5676,19 @@
         "nodata_fallback"
       ],
       "risk": "REVIEW"
+    },
+    {
+      "view": "v_pm_scope_items_truth",
+      "column": "next_due_km",
+      "consumers": [
+        {
+          "file": "pm-scheduler.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
     },
     {
       "view": "v_pm_scope_items_truth",
@@ -7009,6 +7191,19 @@
     },
     {
       "view": "v_service_provider_truth",
+      "column": "provider_type",
+      "consumers": [
+        {
+          "file": "marketplace.html",
+          "shape": "mapped_enum",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_service_provider_truth",
       "column": "rating_avg",
       "consumers": [
         {
@@ -7408,6 +7603,32 @@
     },
     {
       "view": "v_worker_assignment_truth",
+      "column": "last_job_at",
+      "consumers": [
+        {
+          "file": "hive.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_worker_assignment_truth",
+      "column": "last_pm_at",
+      "consumers": [
+        {
+          "file": "hive.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_worker_assignment_truth",
       "column": "open_jobs",
       "consumers": [
         {
@@ -7423,6 +7644,11 @@
       "view": "v_worker_assignment_truth",
       "column": "worker_name",
       "consumers": [
+        {
+          "file": "hive.html",
+          "shape": "direct",
+          "smells": []
+        },
         {
           "file": "supabase/functions/ai-orchestrator/index.ts",
           "shape": "direct",
@@ -7685,11 +7911,6 @@
         },
         {
           "file": "community.html",
-          "shape": "direct",
-          "smells": []
-        },
-        {
-          "file": "index.html",
           "shape": "direct",
           "smells": []
         },

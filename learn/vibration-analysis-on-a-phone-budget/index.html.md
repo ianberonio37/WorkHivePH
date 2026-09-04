@@ -116,10 +116,12 @@ No, not all phone apps are suitable for vibration analysis. Look for apps that a
 
 The Department of Labor and Employment (DOLE) requires plants to implement a predictive maintenance program. Phone vibration analysis can be a part of this program, but ensure that it meets the requirements of DOLE and other relevant regulations.
 
+**Keep reading:** [pair it with thermography](https://workhiveph.com/learn/thermography-for-pm-philippine-plants/), or [give each machine one history](https://workhiveph.com/learn/asset-brain-360-one-machine-history-philippine-plant/).
+
 ## Sources
 
 - ISO 10816-1:2009, Mechanical vibration - Evaluation of machine vibration by measurements on non-rotating parts - Part 1: General guidelines
 - DOLE OSHS, Occupational Safety and Health Standards
 - IIEE Code, Philippine Electrical Code
 
-<!-- md-twin source-sha: 97e946a975dbb1fc -->
+<!-- md-twin source-sha: 85d947e0c81a5ec7 -->

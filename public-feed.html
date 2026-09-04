@@ -7,8 +7,18 @@
   <title>Public Feed: WorkHive</title>
   <meta name="description" content="Public posts from WorkHive maintenance teams worldwide. See what field workers are sharing." />
   <meta property="og:title" content="Public Feed: WorkHive" />
+  <!-- T156 (2026-08-26): this page had og:title and og:image but NO og:description, so a shared link
+       rendered with a headline, a picture, and whatever text the platform chose to guess. The page's
+       own meta description already says what it is; a share card should not have to invent it. -->
+  <meta property="og:description" content="Public posts from WorkHive maintenance teams worldwide. See what field workers are sharing." />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:image" content="https://workhiveph.com/brand_assets/og-social.png" />
+  <!-- T156 (2026-08-28): og:url was missing. This is the platform's designated ANON surface - the
+       one signed-out window onto the community - so it is shared on purpose, and a card without a
+       canonical URL lets each share build its own identity from whatever query string it carried. -->
+  <meta property="og:url" content="https://workhiveph.com/public-feed.html" />
   <meta property="og:image" content="https://workhiveph.com/brand_assets/og-social.png" />
-  <link rel="canonical" href="https://workhiveph.com/workhive/public-feed.html" />
+  <link rel="canonical" href="https://workhiveph.com/public-feed.html" />
   <link rel="manifest" href="manifest.json" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -144,7 +154,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     <h2 class="header-title" style="display:inline;margin:0;font-size:inherit;font-weight:inherit;" data-i="pf_public_feed">Public Feed</h2>
     <span class="header-pill" data-i="pf_readonly">Read-only</span>
   </div>
-  <a href="index.html" class="header-btn" data-i="pf_signin">Sign In →</a>
+  <!-- T1: was a bare index.html link — the modal never opened and the return trip was lost.
+       ?signin=1 opens the sign-in modal; ?return= brings the reader back to this feed after auth. -->
+  <a href="index.html?signin=1&return=public-feed.html" class="header-btn" data-i="pf_signin">Sign In →</a>
 </header>
 
 <!-- Main -->
@@ -154,7 +166,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     <p data-i="pf_subtitle">Public posts from WorkHive maintenance teams. Sign in to join the conversation.</p>
     <!-- A1: this read-only feed's primary action is conversion — a clear filled CTA to sign in
          and post, so a signed-out reader sees the one thing to do (the header link is chrome). -->
-    <a href="index.html" class="header-btn" style="margin-top:0.85rem;" data-i="pf_join_cta">Sign in to post →</a>
+    <a href="index.html?signin=1&return=public-feed.html" class="header-btn" style="margin-top:0.85rem;" data-i="pf_join_cta">Sign in to post →</a>
+    <!-- T1: every sign-in surface must also offer sign-up (Ian verbatim) — the new-reader door. -->
+    <a href="index.html?signup=1&return=public-feed.html" class="header-btn" style="margin-top:0.5rem;margin-left:0.5rem;" data-i="pf_signup_cta">New here? Create a free account →</a>
     <!-- SERVICE_HAILING P8 (§1c acquisition): the public feed is the SEO/anon front porch —
          offer the hail door to visitors who came looking for help, not conversation. -->
     <a href="marketplace.html?section=services" class="header-btn" style="margin-top:0.5rem;margin-left:0.5rem;" data-i="pf_hail_cta">Need a technician? Hail a service →</a>
@@ -192,7 +206,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   </div>
 </main>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
+<script src="browser-floor.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
 <script src="utils.js"></script>
 <script>
   const _DB = getDb(
@@ -201,6 +216,27 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   );
 
   logPageView(_DB);
+
+  // A SIGNED-IN person was being told "Sign in to join the conversation" (VP19, the
+  // signed-in-shown-as-signed-out class): the CTA and subtitle were static conversion copy
+  // that never asked the session. Progressive enhancement - anon keeps the original copy.
+  (async () => {
+    try {
+      const { data } = await _DB.auth.getSession();
+      if (!data || !data.session) return;
+      const inHive = !!(localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id'));
+      const cta = document.querySelector('[data-i="pf_signin"]');
+      const sub = document.querySelector('[data-i="pf_subtitle"]');
+      if (cta) {
+        cta.textContent = inHive ? 'Post in your hive →' : 'Join a hive to post →';
+        cta.setAttribute('href', inHive ? 'community.html' : 'hive.html');
+      }
+      if (sub) sub.textContent = inHive
+        ? 'Public posts from WorkHive maintenance teams. You are signed in - post from your hive’s Community.'
+        : 'Public posts from WorkHive maintenance teams. You are signed in - join a hive to post.';
+    } catch (_) { /* empty-catch-allow: anon copy stands if the session read fails */ }
+  })();
+
   const PAGE_SIZE = 20;
   let _lastCreatedAt = null;
   let _lastId = null;   // MR4b: the cursor must carry the SAME key the order does
@@ -408,6 +444,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   pf_signin: 'Mag-sign In →',
   pf_subtitle: 'Mga pampublikong post mula sa mga maintenance team ng WorkHive. Mag-sign in para sumali sa usapan.',
   pf_join_cta: 'Mag-sign in para mag-post →',    // was marked but had NO dict entry -> stayed EN in FIL
+  pf_signup_cta: 'Bago dito? Gumawa ng libreng account →',   // T1: the signup door beside the sign-in wall
   pf_hail_cta: 'Kailangan ng technician? Tumawag ng serbisyo →',   // SERVICE_HAILING P8 acquisition CTA
   // A marked string with no dict entry stays English in FIL (the exact bug noted on pf_join_cta above),
   // so the what-happens-next line gets its entry in the same change that introduces it.

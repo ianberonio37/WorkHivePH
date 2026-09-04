@@ -1,0 +1,737 @@
+{
+  "_meta": {
+    "name": "scenario_matrix",
+    "version": "1.0.0",
+    "created": "2026-08-24",
+    "description": "T1.2 diversity guarantee: device x auth x entry x intent. A cell is covered only when a live walk proved it (evidence named); planned cells carry their trajectory ids from the 200-catalog; declared_na cells state WHY no user story exists (silence is never coverage). validate_scenario_matrix.py enforces: axes complete, every axis value claimed by >=1 non-na cell, na always reasoned, covered always evidenced.",
+    "axes": {
+      "device": [
+        "phone-390",
+        "pc-1280"
+      ],
+      "auth": [
+        "anon",
+        "signed-in-no-hive",
+        "signed-in-hive-member"
+      ],
+      "entry": [
+        "cold-direct",
+        "search-landing",
+        "shared-link",
+        "pwa-icon"
+      ],
+      "intent": [
+        "convert",
+        "do-a-task",
+        "browse-read"
+      ]
+    },
+    "cell_count": 72
+  },
+  "cells": [
+    {
+      "id": "phone-390|anon|cold-direct|convert",
+      "device": "phone-390",
+      "auth": "anon",
+      "entry": "cold-direct",
+      "intent": "convert",
+      "status": "covered",
+      "trajectories": [
+        "T1"
+      ],
+      "evidence": "cta_activation_report.json + T1 walk (2026-08-24)"
+    },
+    {
+      "id": "phone-390|anon|cold-direct|do-a-task",
+      "device": "phone-390",
+      "auth": "anon",
+      "entry": "cold-direct",
+      "intent": "do-a-task",
+      "status": "planned",
+      "trajectories": []
+    },
+    {
+      "id": "phone-390|anon|cold-direct|browse-read",
+      "device": "phone-390",
+      "auth": "anon",
+      "entry": "cold-direct",
+      "intent": "browse-read",
+      "status": "planned",
+      "trajectories": [
+        "T4",
+        "T5"
+      ]
+    },
+    {
+      "id": "phone-390|anon|search-landing|convert",
+      "device": "phone-390",
+      "auth": "anon",
+      "entry": "search-landing",
+      "intent": "convert",
+      "status": "covered",
+      "trajectories": [
+        "T1",
+        "T2"
+      ],
+      "evidence": "cta_activation_report.json + journey LA12 (anon-from-learn funnel, LIVE 2026-08-25)"
+    },
+    {
+      "id": "phone-390|anon|search-landing|do-a-task",
+      "device": "phone-390",
+      "auth": "anon",
+      "entry": "search-landing",
+      "intent": "do-a-task",
+      "status": "planned",
+      "trajectories": []
+    },
+    {
+      "id": "phone-390|anon|search-landing|browse-read",
+      "device": "phone-390",
+      "auth": "anon",
+      "entry": "search-landing",
+      "intent": "browse-read",
+      "status": "planned",
+      "trajectories": [
+        "T2",
+        "T3"
+      ]
+    },
+    {
+      "id": "phone-390|anon|shared-link|convert",
+      "device": "phone-390",
+      "auth": "anon",
+      "entry": "shared-link",
+      "intent": "convert",
+      "status": "covered",
+      "trajectories": [
+        "T1"
+      ],
+      "evidence": "cta_activation_report.json + T1 walk (2026-08-24)"
+    },
+    {
+      "id": "phone-390|anon|shared-link|do-a-task",
+      "device": "phone-390",
+      "auth": "anon",
+      "entry": "shared-link",
+      "intent": "do-a-task",
+      "status": "planned",
+      "trajectories": []
+    },
+    {
+      "id": "phone-390|anon|shared-link|browse-read",
+      "device": "phone-390",
+      "auth": "anon",
+      "entry": "shared-link",
+      "intent": "browse-read",
+      "status": "planned",
+      "trajectories": [
+        "T4"
+      ]
+    },
+    {
+      "id": "phone-390|anon|pwa-icon|convert",
+      "device": "phone-390",
+      "auth": "anon",
+      "entry": "pwa-icon",
+      "intent": "convert",
+      "status": "planned",
+      "trajectories": [
+        "T44"
+      ]
+    },
+    {
+      "id": "phone-390|anon|pwa-icon|do-a-task",
+      "device": "phone-390",
+      "auth": "anon",
+      "entry": "pwa-icon",
+      "intent": "do-a-task",
+      "status": "declared_na",
+      "na_reason": "an installed-PWA anon doing app tasks has no story: install nudges only fire on product surfaces, and every task surface walls anon to auth first (the convert cell covers that wall)"
+    },
+    {
+      "id": "phone-390|anon|pwa-icon|browse-read",
+      "device": "phone-390",
+      "auth": "anon",
+      "entry": "pwa-icon",
+      "intent": "browse-read",
+      "status": "planned",
+      "trajectories": []
+    },
+    {
+      "id": "phone-390|signed-in-no-hive|cold-direct|convert",
+      "device": "phone-390",
+      "auth": "signed-in-no-hive",
+      "entry": "cold-direct",
+      "intent": "convert",
+      "status": "declared_na",
+      "na_reason": "convert means acquiring an account; a signed-in identity has already converted (upsell/upgrade intents are separate stories, not this axis value)"
+    },
+    {
+      "id": "phone-390|signed-in-no-hive|cold-direct|do-a-task",
+      "device": "phone-390",
+      "auth": "signed-in-no-hive",
+      "entry": "cold-direct",
+      "intent": "do-a-task",
+      "status": "planned",
+      "trajectories": [
+        "T6",
+        "T7"
+      ]
+    },
+    {
+      "id": "phone-390|signed-in-no-hive|cold-direct|browse-read",
+      "device": "phone-390",
+      "auth": "signed-in-no-hive",
+      "entry": "cold-direct",
+      "intent": "browse-read",
+      "status": "planned",
+      "trajectories": []
+    },
+    {
+      "id": "phone-390|signed-in-no-hive|search-landing|convert",
+      "device": "phone-390",
+      "auth": "signed-in-no-hive",
+      "entry": "search-landing",
+      "intent": "convert",
+      "status": "declared_na",
+      "na_reason": "convert means acquiring an account; a signed-in identity has already converted (upsell/upgrade intents are separate stories, not this axis value)"
+    },
+    {
+      "id": "phone-390|signed-in-no-hive|search-landing|do-a-task",
+      "device": "phone-390",
+      "auth": "signed-in-no-hive",
+      "entry": "search-landing",
+      "intent": "do-a-task",
+      "status": "planned",
+      "trajectories": []
+    },
+    {
+      "id": "phone-390|signed-in-no-hive|search-landing|browse-read",
+      "device": "phone-390",
+      "auth": "signed-in-no-hive",
+      "entry": "search-landing",
+      "intent": "browse-read",
+      "status": "planned",
+      "trajectories": []
+    },
+    {
+      "id": "phone-390|signed-in-no-hive|shared-link|convert",
+      "device": "phone-390",
+      "auth": "signed-in-no-hive",
+      "entry": "shared-link",
+      "intent": "convert",
+      "status": "declared_na",
+      "na_reason": "convert means acquiring an account; a signed-in identity has already converted (upsell/upgrade intents are separate stories, not this axis value)"
+    },
+    {
+      "id": "phone-390|signed-in-no-hive|shared-link|do-a-task",
+      "device": "phone-390",
+      "auth": "signed-in-no-hive",
+      "entry": "shared-link",
+      "intent": "do-a-task",
+      "status": "planned",
+      "trajectories": []
+    },
+    {
+      "id": "phone-390|signed-in-no-hive|shared-link|browse-read",
+      "device": "phone-390",
+      "auth": "signed-in-no-hive",
+      "entry": "shared-link",
+      "intent": "browse-read",
+      "status": "planned",
+      "trajectories": []
+    },
+    {
+      "id": "phone-390|signed-in-no-hive|pwa-icon|convert",
+      "device": "phone-390",
+      "auth": "signed-in-no-hive",
+      "entry": "pwa-icon",
+      "intent": "convert",
+      "status": "declared_na",
+      "na_reason": "convert means acquiring an account; a signed-in identity has already converted (upsell/upgrade intents are separate stories, not this axis value)"
+    },
+    {
+      "id": "phone-390|signed-in-no-hive|pwa-icon|do-a-task",
+      "device": "phone-390",
+      "auth": "signed-in-no-hive",
+      "entry": "pwa-icon",
+      "intent": "do-a-task",
+      "status": "planned",
+      "trajectories": []
+    },
+    {
+      "id": "phone-390|signed-in-no-hive|pwa-icon|browse-read",
+      "device": "phone-390",
+      "auth": "signed-in-no-hive",
+      "entry": "pwa-icon",
+      "intent": "browse-read",
+      "status": "planned",
+      "trajectories": []
+    },
+    {
+      "id": "phone-390|signed-in-hive-member|cold-direct|convert",
+      "device": "phone-390",
+      "auth": "signed-in-hive-member",
+      "entry": "cold-direct",
+      "intent": "convert",
+      "status": "declared_na",
+      "na_reason": "convert means acquiring an account; a signed-in identity has already converted (upsell/upgrade intents are separate stories, not this axis value)"
+    },
+    {
+      "id": "phone-390|signed-in-hive-member|cold-direct|do-a-task",
+      "device": "phone-390",
+      "auth": "signed-in-hive-member",
+      "entry": "cold-direct",
+      "intent": "do-a-task",
+      "status": "planned",
+      "trajectories": [
+        "T9",
+        "T10"
+      ]
+    },
+    {
+      "id": "phone-390|signed-in-hive-member|cold-direct|browse-read",
+      "device": "phone-390",
+      "auth": "signed-in-hive-member",
+      "entry": "cold-direct",
+      "intent": "browse-read",
+      "status": "planned",
+      "trajectories": []
+    },
+    {
+      "id": "phone-390|signed-in-hive-member|search-landing|convert",
+      "device": "phone-390",
+      "auth": "signed-in-hive-member",
+      "entry": "search-landing",
+      "intent": "convert",
+      "status": "declared_na",
+      "na_reason": "convert means acquiring an account; a signed-in identity has already converted (upsell/upgrade intents are separate stories, not this axis value)"
+    },
+    {
+      "id": "phone-390|signed-in-hive-member|search-landing|do-a-task",
+      "device": "phone-390",
+      "auth": "signed-in-hive-member",
+      "entry": "search-landing",
+      "intent": "do-a-task",
+      "status": "planned",
+      "trajectories": []
+    },
+    {
+      "id": "phone-390|signed-in-hive-member|search-landing|browse-read",
+      "device": "phone-390",
+      "auth": "signed-in-hive-member",
+      "entry": "search-landing",
+      "intent": "browse-read",
+      "status": "planned",
+      "trajectories": []
+    },
+    {
+      "id": "phone-390|signed-in-hive-member|shared-link|convert",
+      "device": "phone-390",
+      "auth": "signed-in-hive-member",
+      "entry": "shared-link",
+      "intent": "convert",
+      "status": "declared_na",
+      "na_reason": "convert means acquiring an account; a signed-in identity has already converted (upsell/upgrade intents are separate stories, not this axis value)"
+    },
+    {
+      "id": "phone-390|signed-in-hive-member|shared-link|do-a-task",
+      "device": "phone-390",
+      "auth": "signed-in-hive-member",
+      "entry": "shared-link",
+      "intent": "do-a-task",
+      "status": "planned",
+      "trajectories": [
+        "T43"
+      ]
+    },
+    {
+      "id": "phone-390|signed-in-hive-member|shared-link|browse-read",
+      "device": "phone-390",
+      "auth": "signed-in-hive-member",
+      "entry": "shared-link",
+      "intent": "browse-read",
+      "status": "planned",
+      "trajectories": []
+    },
+    {
+      "id": "phone-390|signed-in-hive-member|pwa-icon|convert",
+      "device": "phone-390",
+      "auth": "signed-in-hive-member",
+      "entry": "pwa-icon",
+      "intent": "convert",
+      "status": "declared_na",
+      "na_reason": "convert means acquiring an account; a signed-in identity has already converted (upsell/upgrade intents are separate stories, not this axis value)"
+    },
+    {
+      "id": "phone-390|signed-in-hive-member|pwa-icon|do-a-task",
+      "device": "phone-390",
+      "auth": "signed-in-hive-member",
+      "entry": "pwa-icon",
+      "intent": "do-a-task",
+      "status": "planned",
+      "trajectories": [
+        "T8",
+        "T9",
+        "T44"
+      ]
+    },
+    {
+      "id": "phone-390|signed-in-hive-member|pwa-icon|browse-read",
+      "device": "phone-390",
+      "auth": "signed-in-hive-member",
+      "entry": "pwa-icon",
+      "intent": "browse-read",
+      "status": "planned",
+      "trajectories": []
+    },
+    {
+      "id": "pc-1280|anon|cold-direct|convert",
+      "device": "pc-1280",
+      "auth": "anon",
+      "entry": "cold-direct",
+      "intent": "convert",
+      "status": "covered",
+      "trajectories": [
+        "T1"
+      ],
+      "evidence": "cta_activation_report.json + T1 walk (2026-08-24)"
+    },
+    {
+      "id": "pc-1280|anon|cold-direct|do-a-task",
+      "device": "pc-1280",
+      "auth": "anon",
+      "entry": "cold-direct",
+      "intent": "do-a-task",
+      "status": "planned",
+      "trajectories": []
+    },
+    {
+      "id": "pc-1280|anon|cold-direct|browse-read",
+      "device": "pc-1280",
+      "auth": "anon",
+      "entry": "cold-direct",
+      "intent": "browse-read",
+      "status": "planned",
+      "trajectories": [
+        "T5"
+      ]
+    },
+    {
+      "id": "pc-1280|anon|search-landing|convert",
+      "device": "pc-1280",
+      "auth": "anon",
+      "entry": "search-landing",
+      "intent": "convert",
+      "status": "covered",
+      "trajectories": [
+        "T1",
+        "T2"
+      ],
+      "evidence": "cta_activation_report.json + journey LA12 (anon-from-learn funnel, LIVE 2026-08-25)"
+    },
+    {
+      "id": "pc-1280|anon|search-landing|do-a-task",
+      "device": "pc-1280",
+      "auth": "anon",
+      "entry": "search-landing",
+      "intent": "do-a-task",
+      "status": "planned",
+      "trajectories": []
+    },
+    {
+      "id": "pc-1280|anon|search-landing|browse-read",
+      "device": "pc-1280",
+      "auth": "anon",
+      "entry": "search-landing",
+      "intent": "browse-read",
+      "status": "planned",
+      "trajectories": [
+        "T3"
+      ]
+    },
+    {
+      "id": "pc-1280|anon|shared-link|convert",
+      "device": "pc-1280",
+      "auth": "anon",
+      "entry": "shared-link",
+      "intent": "convert",
+      "status": "covered",
+      "trajectories": [
+        "T1"
+      ],
+      "evidence": "cta_activation_report.json + T1 walk (2026-08-24)"
+    },
+    {
+      "id": "pc-1280|anon|shared-link|do-a-task",
+      "device": "pc-1280",
+      "auth": "anon",
+      "entry": "shared-link",
+      "intent": "do-a-task",
+      "status": "planned",
+      "trajectories": []
+    },
+    {
+      "id": "pc-1280|anon|shared-link|browse-read",
+      "device": "pc-1280",
+      "auth": "anon",
+      "entry": "shared-link",
+      "intent": "browse-read",
+      "status": "planned",
+      "trajectories": [
+        "T73"
+      ]
+    },
+    {
+      "id": "pc-1280|anon|pwa-icon|convert",
+      "device": "pc-1280",
+      "auth": "anon",
+      "entry": "pwa-icon",
+      "intent": "convert",
+      "status": "planned",
+      "trajectories": []
+    },
+    {
+      "id": "pc-1280|anon|pwa-icon|do-a-task",
+      "device": "pc-1280",
+      "auth": "anon",
+      "entry": "pwa-icon",
+      "intent": "do-a-task",
+      "status": "declared_na",
+      "na_reason": "an installed-PWA anon doing app tasks has no story: install nudges only fire on product surfaces, and every task surface walls anon to auth first (the convert cell covers that wall)"
+    },
+    {
+      "id": "pc-1280|anon|pwa-icon|browse-read",
+      "device": "pc-1280",
+      "auth": "anon",
+      "entry": "pwa-icon",
+      "intent": "browse-read",
+      "status": "planned",
+      "trajectories": []
+    },
+    {
+      "id": "pc-1280|signed-in-no-hive|cold-direct|convert",
+      "device": "pc-1280",
+      "auth": "signed-in-no-hive",
+      "entry": "cold-direct",
+      "intent": "convert",
+      "status": "declared_na",
+      "na_reason": "convert means acquiring an account; a signed-in identity has already converted (upsell/upgrade intents are separate stories, not this axis value)"
+    },
+    {
+      "id": "pc-1280|signed-in-no-hive|cold-direct|do-a-task",
+      "device": "pc-1280",
+      "auth": "signed-in-no-hive",
+      "entry": "cold-direct",
+      "intent": "do-a-task",
+      "status": "planned",
+      "trajectories": [
+        "T6"
+      ]
+    },
+    {
+      "id": "pc-1280|signed-in-no-hive|cold-direct|browse-read",
+      "device": "pc-1280",
+      "auth": "signed-in-no-hive",
+      "entry": "cold-direct",
+      "intent": "browse-read",
+      "status": "planned",
+      "trajectories": []
+    },
+    {
+      "id": "pc-1280|signed-in-no-hive|search-landing|convert",
+      "device": "pc-1280",
+      "auth": "signed-in-no-hive",
+      "entry": "search-landing",
+      "intent": "convert",
+      "status": "declared_na",
+      "na_reason": "convert means acquiring an account; a signed-in identity has already converted (upsell/upgrade intents are separate stories, not this axis value)"
+    },
+    {
+      "id": "pc-1280|signed-in-no-hive|search-landing|do-a-task",
+      "device": "pc-1280",
+      "auth": "signed-in-no-hive",
+      "entry": "search-landing",
+      "intent": "do-a-task",
+      "status": "planned",
+      "trajectories": []
+    },
+    {
+      "id": "pc-1280|signed-in-no-hive|search-landing|browse-read",
+      "device": "pc-1280",
+      "auth": "signed-in-no-hive",
+      "entry": "search-landing",
+      "intent": "browse-read",
+      "status": "planned",
+      "trajectories": []
+    },
+    {
+      "id": "pc-1280|signed-in-no-hive|shared-link|convert",
+      "device": "pc-1280",
+      "auth": "signed-in-no-hive",
+      "entry": "shared-link",
+      "intent": "convert",
+      "status": "declared_na",
+      "na_reason": "convert means acquiring an account; a signed-in identity has already converted (upsell/upgrade intents are separate stories, not this axis value)"
+    },
+    {
+      "id": "pc-1280|signed-in-no-hive|shared-link|do-a-task",
+      "device": "pc-1280",
+      "auth": "signed-in-no-hive",
+      "entry": "shared-link",
+      "intent": "do-a-task",
+      "status": "planned",
+      "trajectories": []
+    },
+    {
+      "id": "pc-1280|signed-in-no-hive|shared-link|browse-read",
+      "device": "pc-1280",
+      "auth": "signed-in-no-hive",
+      "entry": "shared-link",
+      "intent": "browse-read",
+      "status": "planned",
+      "trajectories": []
+    },
+    {
+      "id": "pc-1280|signed-in-no-hive|pwa-icon|convert",
+      "device": "pc-1280",
+      "auth": "signed-in-no-hive",
+      "entry": "pwa-icon",
+      "intent": "convert",
+      "status": "declared_na",
+      "na_reason": "convert means acquiring an account; a signed-in identity has already converted (upsell/upgrade intents are separate stories, not this axis value)"
+    },
+    {
+      "id": "pc-1280|signed-in-no-hive|pwa-icon|do-a-task",
+      "device": "pc-1280",
+      "auth": "signed-in-no-hive",
+      "entry": "pwa-icon",
+      "intent": "do-a-task",
+      "status": "planned",
+      "trajectories": []
+    },
+    {
+      "id": "pc-1280|signed-in-no-hive|pwa-icon|browse-read",
+      "device": "pc-1280",
+      "auth": "signed-in-no-hive",
+      "entry": "pwa-icon",
+      "intent": "browse-read",
+      "status": "planned",
+      "trajectories": []
+    },
+    {
+      "id": "pc-1280|signed-in-hive-member|cold-direct|convert",
+      "device": "pc-1280",
+      "auth": "signed-in-hive-member",
+      "entry": "cold-direct",
+      "intent": "convert",
+      "status": "declared_na",
+      "na_reason": "convert means acquiring an account; a signed-in identity has already converted (upsell/upgrade intents are separate stories, not this axis value)"
+    },
+    {
+      "id": "pc-1280|signed-in-hive-member|cold-direct|do-a-task",
+      "device": "pc-1280",
+      "auth": "signed-in-hive-member",
+      "entry": "cold-direct",
+      "intent": "do-a-task",
+      "status": "planned",
+      "trajectories": [
+        "T19",
+        "T20"
+      ]
+    },
+    {
+      "id": "pc-1280|signed-in-hive-member|cold-direct|browse-read",
+      "device": "pc-1280",
+      "auth": "signed-in-hive-member",
+      "entry": "cold-direct",
+      "intent": "browse-read",
+      "status": "planned",
+      "trajectories": []
+    },
+    {
+      "id": "pc-1280|signed-in-hive-member|search-landing|convert",
+      "device": "pc-1280",
+      "auth": "signed-in-hive-member",
+      "entry": "search-landing",
+      "intent": "convert",
+      "status": "declared_na",
+      "na_reason": "convert means acquiring an account; a signed-in identity has already converted (upsell/upgrade intents are separate stories, not this axis value)"
+    },
+    {
+      "id": "pc-1280|signed-in-hive-member|search-landing|do-a-task",
+      "device": "pc-1280",
+      "auth": "signed-in-hive-member",
+      "entry": "search-landing",
+      "intent": "do-a-task",
+      "status": "planned",
+      "trajectories": []
+    },
+    {
+      "id": "pc-1280|signed-in-hive-member|search-landing|browse-read",
+      "device": "pc-1280",
+      "auth": "signed-in-hive-member",
+      "entry": "search-landing",
+      "intent": "browse-read",
+      "status": "planned",
+      "trajectories": []
+    },
+    {
+      "id": "pc-1280|signed-in-hive-member|shared-link|convert",
+      "device": "pc-1280",
+      "auth": "signed-in-hive-member",
+      "entry": "shared-link",
+      "intent": "convert",
+      "status": "declared_na",
+      "na_reason": "convert means acquiring an account; a signed-in identity has already converted (upsell/upgrade intents are separate stories, not this axis value)"
+    },
+    {
+      "id": "pc-1280|signed-in-hive-member|shared-link|do-a-task",
+      "device": "pc-1280",
+      "auth": "signed-in-hive-member",
+      "entry": "shared-link",
+      "intent": "do-a-task",
+      "status": "planned",
+      "trajectories": [
+        "T29",
+        "T43"
+      ]
+    },
+    {
+      "id": "pc-1280|signed-in-hive-member|shared-link|browse-read",
+      "device": "pc-1280",
+      "auth": "signed-in-hive-member",
+      "entry": "shared-link",
+      "intent": "browse-read",
+      "status": "planned",
+      "trajectories": []
+    },
+    {
+      "id": "pc-1280|signed-in-hive-member|pwa-icon|convert",
+      "device": "pc-1280",
+      "auth": "signed-in-hive-member",
+      "entry": "pwa-icon",
+      "intent": "convert",
+      "status": "declared_na",
+      "na_reason": "convert means acquiring an account; a signed-in identity has already converted (upsell/upgrade intents are separate stories, not this axis value)"
+    },
+    {
+      "id": "pc-1280|signed-in-hive-member|pwa-icon|do-a-task",
+      "device": "pc-1280",
+      "auth": "signed-in-hive-member",
+      "entry": "pwa-icon",
+      "intent": "do-a-task",
+      "status": "planned",
+      "trajectories": []
+    },
+    {
+      "id": "pc-1280|signed-in-hive-member|pwa-icon|browse-read",
+      "device": "pc-1280",
+      "auth": "signed-in-hive-member",
+      "entry": "pwa-icon",
+      "intent": "browse-read",
+      "status": "planned",
+      "trajectories": []
+    }
+  ]
+}

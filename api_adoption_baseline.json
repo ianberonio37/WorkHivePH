@@ -1,7 +1,7 @@
 {
   "_doc": "Layer A adoption baseline. Floors are FORWARD-ONLY from any writer (Layer F law).",
-  "generated": "2026-08-22T15:41:07.129967+00:00",
-  "functions": 61,
+  "generated": "2026-09-04T05:48:06.545187+00:00",
+  "functions": 62,
   "rows": [
     {
       "id": "A1",
@@ -10,8 +10,8 @@
       "satisfies": "every response's CORS preamble",
       "mode": "measured",
       "need_rule": "family",
-      "adopters_n": 61,
-      "need_n": 61,
+      "adopters_n": 62,
+      "need_n": 62,
       "pct": 100,
       "adopters": [
         "agent-memory-store",
@@ -64,6 +64,7 @@
         "temporal-rag-orchestrator",
         "trigger-ml-retrain",
         "tts-speak",
+        "vehicle-doc-extract",
         "visual-defect-capture",
         "voice-action-router",
         "voice-embeddings",
@@ -85,8 +86,8 @@
       "satisfies": "canonical success/error JSON envelope",
       "mode": "measured",
       "need_rule": "family",
-      "adopters_n": 58,
-      "need_n": 58,
+      "adopters_n": 59,
+      "need_n": 59,
       "pct": 100,
       "adopters": [
         "agent-memory-store",
@@ -136,6 +137,7 @@
         "temporal-rag-orchestrator",
         "trigger-ml-retrain",
         "tts-speak",
+        "vehicle-doc-extract",
         "visual-defect-capture",
         "voice-action-router",
         "voice-embeddings",
@@ -216,8 +218,8 @@
       "satisfies": "never pin one LLM (feedback_use_ai_chain_always)",
       "mode": "measured",
       "need_rule": "llm",
-      "adopters_n": 27,
-      "need_n": 27,
+      "adopters_n": 28,
+      "need_n": 28,
       "pct": 100,
       "adopters": [
         "agentic-rag-loop",
@@ -241,6 +243,7 @@
         "semantic-fact-extractor",
         "shift-planner-orchestrator",
         "temporal-rag-orchestrator",
+        "vehicle-doc-extract",
         "visual-defect-capture",
         "voice-action-router",
         "voice-journal-agent",
@@ -257,8 +260,8 @@
       "satisfies": "RL layer quota preamble",
       "mode": "measured",
       "need_rule": "family",
-      "adopters_n": 41,
-      "need_n": 45,
+      "adopters_n": 42,
+      "need_n": 46,
       "pct": 91,
       "adopters": [
         "ai-eval-runner",
@@ -293,6 +296,7 @@
         "shift-planner-orchestrator",
         "supervisor-reset-password",
         "tts-speak",
+        "vehicle-doc-extract",
         "voice-embeddings",
         "voice-journal-agent",
         "voice-logbook-entry",
@@ -350,8 +354,8 @@
       "satisfies": "L layer logging envelope",
       "mode": "measured",
       "need_rule": "family",
-      "adopters_n": 61,
-      "need_n": 61,
+      "adopters_n": 62,
+      "need_n": 62,
       "pct": 100,
       "adopters": [
         "agent-memory-store",
@@ -404,6 +408,7 @@
         "temporal-rag-orchestrator",
         "trigger-ml-retrain",
         "tts-speak",
+        "vehicle-doc-extract",
         "visual-defect-capture",
         "voice-action-router",
         "voice-embeddings",
@@ -425,8 +430,8 @@
       "satisfies": "AV G-1 /health endpoint",
       "mode": "measured",
       "need_rule": "family",
-      "adopters_n": 61,
-      "need_n": 61,
+      "adopters_n": 62,
+      "need_n": 62,
       "pct": 100,
       "adopters": [
         "agent-memory-store",
@@ -479,6 +484,7 @@
         "temporal-rag-orchestrator",
         "trigger-ml-retrain",
         "tts-speak",
+        "vehicle-doc-extract",
         "visual-defect-capture",
         "voice-action-router",
         "voice-embeddings",
@@ -508,13 +514,13 @@
     }
   ],
   "floors": {
-    "A1": 61,
-    "A2": 58,
+    "A1": 62,
+    "A2": 59,
     "A3": 42,
-    "A4": 27,
-    "A5": 41,
+    "A4": 28,
+    "A5": 42,
     "A6": 3,
-    "A8": 61,
-    "A9": 61
+    "A8": 62,
+    "A9": 62
   }
 }

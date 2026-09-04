@@ -224,7 +224,10 @@ await browser.close();
 
 const bad = results.filter((r) => r.uncovered > 0);
 const redirected = results.filter((r) => r.redirected);
-writeFileSync('safe_area_report.json', JSON.stringify({
+// A NARROWED RUN MUST NOT CLOBBER THE FULL ONE: this file is read downstream (gates and
+// bank_prover_reports), so a --page/--case spot-check overwriting a whole sweep's verdicts
+// corrupts the BANK, not just a log. Measured on prove_retry_path 2026-08-27.
+writeFileSync((ONE ? 'safe_area_report.partial.json' : 'safe_area_report.json'), JSON.stringify({
   ran: new Date().toISOString(), origin: ORIGIN, method: 'CDP CSS.getMatchedStylesForNode (authored)',
   pages: results, offending: bad.map((r) => r.page), redirected: redirected.map((r) => r.page),
   totals: {

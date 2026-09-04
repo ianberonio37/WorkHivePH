@@ -18,6 +18,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet" />
   <link rel="preconnect" href="https://hzyvnjtisfgbksicrouu.supabase.co" />
+  <script src="browser-floor.js"></script>
   <script src="utils.js"></script>
   <link rel="stylesheet" href="components.css" />  <!-- S11: shared component CSS (loaded before inline <style> so any page override wins) -->
   <script src="asset-qr.js"></script>
@@ -587,6 +588,30 @@
                the provider arrives knowing the machine. -->
           <a id="detail-hail-link" href="#" aria-label="Hail an outside specialist for this asset"
             style="display:none;align-items:center;gap:5px;min-height:44px;padding:0 12px;border-radius:8px;text-decoration:none;font-size:0.72rem;font-weight:700;background:rgba(247,162,27,0.13);color:var(--wh-orange-text);border:1px solid rgba(247,162,27,0.4);">🔧 Hail a specialist</a>
+          <!-- T21 (2026-08-25): the 360 KNOWS the PM state ("33d overdue" in its own risk factors)
+               yet offered no path to ACT on it - schedule-PM meant re-navigating + re-finding the
+               asset in a 91-item list. pm-scheduler already accepts ?tag= (exact) and focuses the
+               action; this completes the asset->PM loop the same way the alerts chip closed asset->alert. -->
+          <a id="detail-pm-link" href="#" aria-label="Open this asset's PM schedule in PM Scheduler"
+            style="display:none;align-items:center;gap:5px;min-height:44px;padding:0 12px;border-radius:8px;text-decoration:none;font-size:0.72rem;font-weight:700;background:rgba(74,222,128,0.12);color:var(--wh-green);border:1px solid rgba(74,222,128,0.35);">🛠 Schedule PM</a>
+          <!-- T28 (2026-08-25): "who changed this?" needs a door AT the record. audit-log.html already
+               honors ?q= (+ actor/action/target) - this is the record-side half of that contract.
+               Supervisor-only, matching audit-log's own gate. -->
+          <a id="detail-audit-link" href="#" aria-label="View this asset's change history in the Audit Log"
+            style="display:none;align-items:center;gap:5px;min-height:44px;padding:0 12px;border-radius:8px;text-decoration:none;font-size:0.72rem;font-weight:700;background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.85);border:1px solid rgba(255,255,255,0.2);">📜 History</a>
+          <!-- T15 (2026-08-27): the asset -> its FAULT HISTORY. This page already COUNTS the
+               asset's logbook entries in the stat card below and offered no way to read them - a
+               number with no door, while T15's whole scenario is a worker at the machine asking
+               "has this failed before, and what fixed it". logbook.html already honors ?q= and
+               ?view=team; this is the asset-side half of that contract.
+               ★TAG, NEVER NAME: logbook.machine stores the TAG ("M-001"), not the asset name
+               ("Siemens Simotics SD 200L"), so the sibling chips' tag-with-name-fallback shape
+               would land a name search on ZERO results for a machine with 47 entries - an empty
+               page that looks like an empty history. No tag means no link, not a broken one.
+               ★AND ?view=team: fault history is the TEAM's history. Without it the reader gets
+               only their own entries and reads a colleague's fix as absent. -->
+          <a id="detail-logbook-link" href="#" aria-label="Read this asset's fault history in the Logbook"
+            style="display:none;align-items:center;gap:5px;min-height:44px;padding:0 12px;border-radius:8px;text-decoration:none;font-size:0.72rem;font-weight:700;background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.85);border:1px solid rgba(255,255,255,0.2);">🔧 Fault history</a>
         </div>
       </div>
 
@@ -682,12 +707,12 @@
           </div>
         </div>
         <div class="reliability-tabs" role="tablist" style="display:flex; gap:4px; margin-bottom:0.6rem; border-bottom:1px solid var(--border); padding-bottom:0.4rem;">
-          <button class="rel-tab active" data-tab="fmea"    role="tab" translate="no" title="FMEA (Failure Modes & Effects Analysis): list the ways this asset can fail, then rate each by Severity x Occurrence x Detection = RPN (Risk Priority Number; higher = act first).">FMEA</button>
-          <button class="rel-tab"        data-tab="weibull" role="tab" translate="no" title="Weibull: fits this asset's failure history to a wear curve. beta (shape) > 1 = wearing out with age; eta (scale) = characteristic life in days. Tells you IF and roughly WHEN it wears out.">Weibull</button>
-          <button class="rel-tab"        data-tab="pf"      role="tab" translate="no" title="P-F interval: the warning window between the first detectable symptom (P) and functional failure (F). Sets how often to inspect so you catch it in time.">P-F</button>
+          <button class="rel-tab active" data-tab="fmea"    role="tab" aria-selected="true"  aria-controls="rel-panel-fmea"    id="rel-tab-fmea"    tabindex="0"  translate="no" title="FMEA (Failure Modes & Effects Analysis): list the ways this asset can fail, then rate each by Severity x Occurrence x Detection = RPN (Risk Priority Number; higher = act first).">FMEA</button>
+          <button class="rel-tab"        data-tab="weibull" role="tab" aria-selected="false" aria-controls="rel-panel-weibull" id="rel-tab-weibull" tabindex="-1" translate="no" title="Weibull: fits this asset's failure history to a wear curve. beta (shape) > 1 = wearing out with age; eta (scale) = characteristic life in days. Tells you IF and roughly WHEN it wears out.">Weibull</button>
+          <button class="rel-tab"        data-tab="pf"      role="tab" aria-selected="false" aria-controls="rel-panel-pf"      id="rel-tab-pf"      tabindex="-1" translate="no" title="P-F interval: the warning window between the first detectable symptom (P) and functional failure (F). Sets how often to inspect so you catch it in time.">P-F</button>
         </div>
         <!-- FMEA panel -->
-        <div id="rel-panel-fmea">
+        <div id="rel-panel-fmea" role="tabpanel" aria-labelledby="rel-tab-fmea" tabindex="0">
           <p class="rel-worked-example"><span class="rwe-tag">Example</span>A pump seal leak rated <b>Severity 7</b> (hurts output) &times; <b>Occurrence 4</b> (a few times a year) &times; <b>Detection 5</b> (only caught on inspection) = <b>RPN 140</b>. A guard rattle at 2&times;6&times;3 = RPN 36. Fix the <b>140 first</b>: a higher RPN means act sooner.</p>
           <!-- ★ THE RANGE AND THE BANDS, STATED. The example above explains what each factor MEANS,
                which is genuinely good and is not the same as saying what its SCALE is or when a score
@@ -712,7 +737,7 @@
         </div>
 
         <!-- Phase R.5: Weibull panel -->
-        <div id="rel-panel-weibull" style="display:none;">
+        <div id="rel-panel-weibull" role="tabpanel" aria-labelledby="rel-tab-weibull" tabindex="0" style="display:none;">
           <p class="rel-worked-example"><span class="rwe-tag">Example</span><b>&beta; (shape) = 2.3</b> means this part wears out with age (&beta; above 1 = age-related); <b>&eta; (life) = 180 days</b> means about <b>63% have failed by ~180 run-days</b>. Read it as: "plan a replacement before ~180 days." (&beta; near 1 = random failures, age-based PM won't help; &beta; below 1 = early-life/infant failures, check install quality.)</p>
           <div id="weibull-summary" style="display:none; flex-direction:column; gap:10px;">
             <div style="display:flex; gap:14px; flex-wrap:wrap; align-items:flex-end;">
@@ -742,7 +767,7 @@
         </div>
 
         <!-- Phase R.6: P-F interval panel -->
-        <div id="rel-panel-pf" style="display:none;">
+        <div id="rel-panel-pf" role="tabpanel" aria-labelledby="rel-tab-pf" tabindex="0" style="display:none;">
           <p class="rel-worked-example"><span class="rwe-tag">Example</span>Vibration starts rising <b>14 days</b> before a bearing seizes, so the <b>P-F window = 14 days</b>. Inspect at <b>half the window = every 7 days</b> so at least one check always lands inside the warning period. <b>Guidance:</b> set the inspection interval to P-F &divide; 2; for safety-critical assets use P-F &divide; 3 (here, every ~5 days). Too long an interval and you miss the warning; too short wastes labour.</p>
           <div id="pf-form" style="display:flex; flex-direction:column; gap:8px; padding:0.6rem; background:rgba(255,255,255,0.02); border:1px solid var(--border); border-radius:0.55rem;">
             <label for="pf-parameter" data-i="parameter" style="font-size:.65rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;">Parameter</label>
@@ -786,6 +811,11 @@
             </div>
             <div id="pf-meta" style="font-size:.7rem; color:var(--muted);"></div>
             <div id="pf-diagnostic" style="font-size:.78rem; line-height:1.45; padding:0.7rem 0.8rem; border-radius:0.55rem; background:rgba(56,189,248,0.06); border:1px solid rgba(56,189,248,0.16);"></div>
+            <!-- T26: the computed interval must reach a SCHEDULE, not die on this pane — same
+                 loop-closing ?tag= contract as #detail-pm-link (T21/T29). Hidden until a
+                 computed interval exists. -->
+            <a id="pf-schedule-link" href="#" style="display:none; align-items:center; gap:6px; font-size:.78rem; font-weight:700; color:var(--wh-blue-text); min-height:44px; padding:8px 12px; border:1px solid rgba(56,189,248,0.35); border-radius:var(--wh-radius-sm); background:rgba(56,189,248,0.12); width:fit-content;"
+               aria-label="Open PM Scheduler for this asset to schedule the recommended inspection interval">Schedule this inspection in PM Scheduler &rarr;</a>
           </div>
           <div id="pf-empty" class="empty-row" style="margin-top:0.6rem; padding:0.85rem; text-align:center; font-size:.78rem; color:var(--muted);">
             Set thresholds and tap Compute to scan sensor readings from corrective logbook entries.
@@ -838,6 +868,13 @@
 
       <!-- Arc Y Y5: "Neighbors / + Add edge" section removed — graph-edge UX (jargon
            edge types, confusing to technicians) CUT per fork#1 (Ian, 2026-06-27). -->
+
+      <!-- VEHICLE SEED (2026-09-02): the vehicle master fields (vehicle_meta) — plate, VIN,
+           odometer, registration/insurance expiry. Shown only for assets carrying vehicle_meta. -->
+      <div class="section-card" id="veh-card" style="display:none; border-left:3px solid var(--gold);">
+        <h2 class="section-title" style="margin:0;">Vehicle</h2>
+        <div id="veh-fields" class="ext-grid"></div>
+      </div>
 
       <div class="section-card" id="ext-card" style="display:none;">
         <h2 class="section-title" data-i="extsystems" style="margin:0;">External systems</h2>
@@ -981,6 +1018,21 @@
     let WORKER_NAME = whWorker()
       || /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ whWorker() || '';
     let HIVE_ID   = whHiveId() || '';
+
+    // VEHICLE SEED (2026-09-02) — SOLO lane: a hive-less signed-in owner (a car owner) sees
+    // THEIR OWN assets (hive_id NULL, auth_uid theirs) on the SAME page. Only the scope key
+    // changes; hive-industrial panels (risk, staging, telemetry, FMEA, marketplace, Asset
+    // Brain) stay dark in solo until their engines learn the lane — their cards all default
+    // display:none, so skipping their loaders leaves no stuck skeletons.
+    const SOLO = () => !HIVE_ID;
+    // VM9 two-home: in hive mode a member's own PERSONAL assets (hive NULL, theirs) ride along —
+    // the logbook precedent; RLS keeps everyone else's personal rows out.
+    const scopeNodes = q => HIVE_ID
+      ? q.or(`hive_id.eq.${HIVE_ID},and(hive_id.is.null,auth_uid.eq.${_authUid})`)
+      : q.is('hive_id', null).eq('auth_uid', _authUid);
+    const scopeHive  = q => HIVE_ID
+      ? q.or(`hive_id.eq.${HIVE_ID},hive_id.is.null`)   // personal assets' history is hive-less; every caller also keys by asset/node id, and RLS backstops
+      : q.is('hive_id', null);
     let HIVE_ROLE = localStorage.getItem('wh_hive_role') || '';
     let _authUid  = null; // attribution FK for pm_assets creation (was dropped)
 
@@ -1098,11 +1150,11 @@
       // #asset-list never flashes blank before cards render (shared whListSkeleton).
       if (typeof whListSkeleton === 'function') whListSkeleton(document.getElementById('asset-list'), 5);
       // Narrow select per performance skill, hive-scoped per multitenant skill.
-      const { data, error } = await db.from('asset_nodes')
-        .select('id, tag, name, level, criticality, location, iso_class, parent_id, pm_asset_id, legacy_asset_id, external_ids, created_at')  // AH17/F18: external_ids was omitted here while loadDetailExternalIds reads node.external_ids,
+      const { data, error } = await scopeNodes(db.from('asset_nodes')
+        .select('id, tag, name, level, criticality, location, iso_class, parent_id, pm_asset_id, legacy_asset_id, external_ids, vehicle_meta, created_at'))  // AH17/F18: external_ids was omitted here while loadDetailExternalIds reads node.external_ids,
         // so `keys.length` was always 0 and #ext-card hid itself on every asset — a card that could
         // never render. Selecting it is the whole fix on the read side.
-        .eq('hive_id', HIVE_ID)
+        // vehicle_meta (2026-09-02): the 360's Vehicle card renders from it.
         .eq('status', 'approved')
         .order('tag', { ascending: true })
         .order('id')   // MR4 tiebreaker: the sort above is not total on its own
@@ -1120,7 +1172,7 @@
           console.warn('asset_nodes (degraded — table or auth not ready):', error.message);
         } else {
           console.error('asset_nodes load:', error.message);
-          showToast('Could not load assets: ' + error.message);
+          showToast(whReadError(error, 'your assets'));
         }
         _allNodes = [];
         _ahReadFailed = true;
@@ -1134,8 +1186,8 @@
       // String(criticality).toLowerCase()==='critical' list filter.
       try {
         const [tot, crit] = await Promise.all([
-          db.from('asset_nodes').select('id', { count: 'exact', head: true }).eq('hive_id', HIVE_ID).eq('status', 'approved'),
-          db.from('asset_nodes').select('id', { count: 'exact', head: true }).eq('hive_id', HIVE_ID).eq('status', 'approved').ilike('criticality', 'critical'),
+          scopeNodes(db.from('asset_nodes').select('id', { count: 'exact', head: true })).eq('status', 'approved').limit(1),  // head:true returns no rows; count stays exact — the limit is the boundedness marker
+          scopeNodes(db.from('asset_nodes').select('id', { count: 'exact', head: true })).eq('status', 'approved').ilike('criticality', 'critical').limit(1),
         ]);
         _assetTotalCount    = tot.error  ? null : (tot.count  ?? null);
         _assetCriticalCount = crit.error ? null : (crit.count ?? null);
@@ -1184,10 +1236,9 @@
       // A supervisor reviews the hive's queue; anyone else sees only what they submitted themselves.
       // Scoped on auth_uid, not worker_name — the name is display text, the uid is the identity the
       // row was bound to on insert (bind_asset_nodes_submitter).
-      let q = db.from('asset_nodes')
-        .select('id, tag, name, level, criticality, location, iso_class, status, submitted_by, created_at, rejection_reason')
-        .eq('hive_id', HIVE_ID)
-        .in('status', ['pending', 'rejected']);
+      let q = scopeNodes(db.from('asset_nodes')
+        .select('id, tag, name, level, criticality, location, iso_class, status, submitted_by, created_at, rejection_reason'))
+        .in('status', ['pending', 'rejected']).limit(50);  // bound stated IN-CHAIN (the scope key moved inside scopeNodes, so the ratchet needs the limit here; the later .limit(50) is a no-op repeat)
       if (HIVE_ROLE !== 'supervisor') q = q.eq('auth_uid', _authUid);
       const { data, error } = await q
         .order('created_at', { ascending: false })
@@ -1205,7 +1256,7 @@
     }
 
     // Layer D — Plain-Read summary for Asset Hub. Reads _allNodes + _pendingNodes.
-    function renderAssetSummary() {
+    async function renderAssetSummary() {   // T19: async for the risk head-count await (sync until first await - cards paint immediately)
       // A FAILED READ MUST NOT BE ROLLED UP AS A FLEET OF ZERO. `_allNodes` is [] when the read failed,
       // so total/critical/pending below would all compute 0 and the verdict would read as an all-clear:
       // "0 critical assets" on the asset-criticality screen is the most consequential false zero in this
@@ -1270,7 +1321,12 @@
       );
       setCard('critical',
         String(critical),
-        critical === 0 ? 'No critical equipment flagged' : `${critical} critical asset${critical === 1 ? '' : 's'}: these drive every reliability KPI`,
+        // T177 (2026-08-28): this read "these drive every reliability KPI" - the one unglossed
+        // acronym the live vocabulary census found on any page. Glossing it in place would have
+        // made the sentence clumsier ("KPI (key performance indicator)") for no gain; the plain
+        // word is simply better copy, and this platform's stated audience includes new graduates
+        // and non-technicians who should not have to already know the abbreviation to read a tile.
+        critical === 0 ? 'No critical equipment flagged' : `${critical} critical asset${critical === 1 ? '' : 's'}: these drive every reliability metric`,
         critical === 0 ? (total > 0 ? 'NONE FLAGGED' : 'NO DATA') : 'TRACKED',
         critical === 0 ? (total > 0 ? 'amber' : 'grey') : 'green'
       );
@@ -1282,8 +1338,25 @@
       );
 
       // Verdict
+      // T19 S2 severity-voice (critic walk, 2026-09-02): ops-home led with 'CRITICAL RISK 91% -
+      // Inspect now' while THIS verdict said 'mostly healthy' for the same plant - because it
+      // weighed registry criticality + approvals but NEVER the live risk SCORES. One narrative:
+      // an active critical/high predicted risk now leads the verdict. Best-effort head-count of
+      // the same view ops-home's tile counts (v_risk_truth critical|high); a failed read changes
+      // nothing (the old verdict stands - degraded, never wrong).
+      let _riskHot = 0;
+      try {
+        if (HIVE_ID) {  // solo: no hive risk model — skip the doomed request, verdict stays registry-only
+          const _rr = await db.from('v_risk_truth').select('asset_name', { count: 'exact', head: true })
+            .eq('hive_id', HIVE_ID).in('risk_level', ['critical', 'high']);
+          if (_rr && !_rr.error && typeof _rr.count === 'number') _riskHot = _rr.count;
+        }
+      } catch (_) { /* empty-catch-allow: verdict degrades to registry-only, as before */ }
       let tone, label, sub;
-      if (pending > 5) {
+      if (_riskHot > 0) {
+        tone = 'attn'; label = `${_riskHot} asset${_riskHot === 1 ? '' : 's'} at critical or high predicted risk`;
+        sub  = 'Open the flagged assets below - the risk factors say why. This outranks routine work until inspected.';
+      } else if (pending > 5) {
         tone = 'attn'; label = `${pending} asset submissions awaiting your approval`;
         sub  = 'Open the Pending Approvals card below: workers are blocked from logging entries against unapproved assets.';
       } else if (pending > 0 || (total > 0 && critical === 0)) {
@@ -1321,7 +1394,14 @@
           text = 'No assets yet. Workers can submit equipment from PM Scheduler or Inventory; when they do, the submission will land in your Pending Approvals card below.';
           hideCta();
         } else if (pending > 5) {
-          text = `${pending} pending asset submissions. Scroll to the Pending Approvals card and approve in bulk: workers can't log breakdowns or PMs against assets that aren't approved.`;
+          // T194 (2026-08-26): ADVICE MUST NOT NAME A CONTROL THAT DOES NOT EXIST. This read
+          // 'approve in bulk' and there is no bulk approve on this page - zero matches for any
+          // select-all or approve-all control. A supervisor with twenty pending assets was told
+          // to do something efficient, told WHY it was urgent (workers cannot log against an
+          // unapproved asset), and then found one-at-a-time buttons. Saying 'clear them' is true
+          // whether or not a bulk control is ever built; naming one that is not there is the
+          // same claim-versus-capability defect as a cadence nobody keeps.
+          text = `${pending} pending asset submissions. Scroll to the Pending Approvals card and clear them: workers can't log breakdowns or PMs against assets that aren't approved.`;
           setCta(`Approve ${pending} submissions →`, '#pending-assets-card');
         } else if (pending > 0) {
           text = `${pending} asset${pending === 1 ? '' : 's'} awaiting your sign-off. Open the Pending Approvals card below and review each one (usually a quick yes/no).`;
@@ -1430,7 +1510,7 @@
       const { data: updated, error } = await db.from('asset_nodes')
         .update({ status: 'approved', approved_by: WORKER_NAME, approved_at: new Date().toISOString() })
         .eq('id', nodeId).eq('hive_id', HIVE_ID).eq('status', 'pending').select('id');
-      if (error) { showToast('Approve failed: ' + error.message); return; }
+      if (error) { showToast(whWriteError(error, 'The approval did not go through. The item is still pending.')); return; }
       if (!updated || !updated.length) { showToast('That asset was already handled by another supervisor.'); await loadAssetNodes(); return; }
       writeAuditLog('approve_asset_node', 'asset_nodes', nodeId,
         (node && (node.label || node.tag)) || nodeId, { node_type: node && node.node_type });
@@ -1455,7 +1535,7 @@
         .update({ status: 'rejected', approved_by: WORKER_NAME, approved_at: new Date().toISOString(),
                   rejection_reason: (String(_reason || '').trim().slice(0, 500)) || null })
         .eq('id', nodeId).eq('hive_id', HIVE_ID).eq('status', 'pending').select('id');
-      if (error) { showToast('Reject failed: ' + error.message); return; }
+      if (error) { showToast(whWriteError(error, 'The rejection did not go through. The item is still pending.')); return; }
       if (!updated || !updated.length) { showToast('That asset was already handled by another supervisor.'); await loadPendingAssets(); return; }
       writeAuditLog('reject_asset_node', 'asset_nodes', nodeId,
         (node && (node.label || node.tag)) || nodeId, { node_type: node && node.node_type });
@@ -1469,7 +1549,7 @@
       const { error } = await db.from('asset_nodes')
         .update({ status: 'pending', approved_by: null, approved_at: null })
         .eq('id', nodeId).eq('hive_id', HIVE_ID);
-      if (error) { showToast('Restore failed: ' + error.message); return; }
+      if (error) { showToast(whWriteError(error, 'The restore did not go through. Nothing changed; try again.')); return; }
       writeAuditLog('restore_asset_node', 'asset_nodes', nodeId,
         (node && (node.label || node.tag)) || nodeId, { node_type: node && node.node_type });
       showToast('Asset moved back to pending.');
@@ -1482,13 +1562,11 @@
       const empty = document.getElementById('list-empty');
       if (!list || !empty) return;
 
-      const q = (document.getElementById('asset-search')?.value || '').trim().toLowerCase();
+      const q = whFold((document.getElementById('asset-search')?.value || '').trim());
       const filtered = _allNodes.filter(n => {
         if (!q) return true;
-        return (n.tag || '').toLowerCase().includes(q)
-            || (n.name || '').toLowerCase().includes(q)
-            || (n.location || '').toLowerCase().includes(q)
-            || (n.iso_class || '').toLowerCase().includes(q);
+        return whFold(n.tag).includes(q) || whFold(n.name).includes(q)
+            || whFold(n.location).includes(q) || whFold(n.iso_class).includes(q);
       });
 
       // Arc P · P2/P5: surface the vital 20% first — order criticality-desc so the
@@ -1592,7 +1670,15 @@
         backBtn.onclick = (ev) => { ev.preventDefault(); closeDetail(); };
       }
 
-      await Promise.allSettled([
+      // SOLO lane (2026-09-02): run only the loaders whose data has a solo home (header,
+      // stats, timeline, external ids, vehicle card). The hive-industrial panels' cards all
+      // default display:none, so skipping their loaders leaves nothing half-rendered.
+      await Promise.allSettled(SOLO() ? [
+        loadDetailHeader(nodeId),
+        loadDetailStats(nodeId),
+        loadDetailTimeline(nodeId),
+        loadDetailExternalIds(nodeId),
+      ] : [
         loadDetailHeader(nodeId),
         loadDetailStats(nodeId),
         loadDetailRisk(nodeId),
@@ -1603,6 +1689,9 @@
         loadDetailMarketplace(nodeId),
         loadDetailExternalIds(nodeId),
       ]);
+      // Ask Asset Brain grounds on hive knowledge — dark in solo until it learns the lane.
+      const askCard = document.getElementById('ask-card');
+      if (askCard) askCard.style.display = SOLO() ? 'none' : '';
       // Arc Y Y5: loadDetailNeighbors + Add-Edge wiring removed (edges feature CUT, fork#1).
 
       // Wire Add FMEA button (Phase R.2). Both workers and supervisors can
@@ -1698,7 +1787,10 @@
         qrBtn.onclick = function () {
           if (!window.WHAssetQR) { showToast('QR generator still loading, try again.'); return; }
           WHAssetQR.printTag(tagCode, node.name, node.location)
-            .catch(function (e) { showToast((e && e.message) || 'Could not generate the QR tag.'); });
+            // T176 (2026-08-28): was `(e && e.message) || '<friendly>'` — raw first, so the human
+            // sentence showed only when the error was empty. Also had no 'error' type, so a
+            // failure rendered as a neutral toast.
+            .catch(function (e) { showToast(whWriteError(e, 'Could not generate the QR tag.'), 'error'); });
         };
       }
 
@@ -1725,6 +1817,42 @@
             hailLink.style.display = 'none';
           }
         }
+        // T21: asset -> its PM program, context carried (?tag= is pm-scheduler's exact-match key,
+        // ?asset= its name fallback). Same loop-closing shape as the alerts chip above.
+        const pmLink = document.getElementById('detail-pm-link');
+        if (pmLink) {
+          if (node.tag) {
+            pmLink.href = 'pm-scheduler.html?tag=' + encodeURIComponent(node.tag);
+            pmLink.style.display = 'inline-flex';
+          } else if (node.name) {
+            pmLink.href = 'pm-scheduler.html?asset=' + encodeURIComponent(node.name);
+            pmLink.style.display = 'inline-flex';
+          } else {
+            pmLink.style.display = 'none';
+          }
+        }
+        // T28: record -> its change history (audit-log honors ?q=). Supervisor-only door,
+        // matching the audit page's own role gate.
+        const auditLink = document.getElementById('detail-audit-link');
+        if (auditLink) {
+          if (HIVE_ROLE === 'supervisor' && tagCode) {
+            auditLink.href = 'audit-log.html?q=' + encodeURIComponent(tagCode);
+            auditLink.style.display = 'inline-flex';
+          } else {
+            auditLink.style.display = 'none';
+          }
+        }
+        // T15: asset -> its FAULT HISTORY. Tag only (logbook.machine stores the tag, so a name
+        // search returns nothing), and ?view=team because a colleague's fix is the point.
+        const logLink = document.getElementById('detail-logbook-link');
+        if (logLink) {
+          if (tagCode) {
+            logLink.href = 'logbook.html?q=' + encodeURIComponent(tagCode) + '&view=team';
+            logLink.style.display = 'inline-flex';
+          } else {
+            logLink.style.display = 'none';
+          }
+        }
       }
       if (critEl) {
         critEl.textContent = node.criticality || 'medium';
@@ -1737,6 +1865,60 @@
           locEl.style.display = 'inline-block';
         } else {
           locEl.style.display = 'none';
+        }
+      }
+
+      // VEHICLE SEED (2026-09-02): the Vehicle card — vehicle_meta rendered as labeled pills
+      // (same visual grammar as External systems). Hidden for every non-vehicle asset.
+      const vehCard = document.getElementById('veh-card');
+      const vehFields = document.getElementById('veh-fields');
+      if (vehCard && vehFields) {
+        const vm = node.vehicle_meta;
+        if (vm && typeof vm === 'object') {
+          const rows = [
+            ['Make & model', [vm.make, vm.model].filter(Boolean).join(' ')],
+            ['Year', vm.year],
+            ['Plate', vm.plate],
+            ['VIN', vm.vin],
+            ['Odometer', vm.odometer_km != null ? Number(vm.odometer_km).toLocaleString() + ' km' : null],
+            ['Registration expires', vm.registration_expiry ? fmtDate(vm.registration_expiry) : null],
+            ['Insurance expires', vm.insurance_expiry ? fmtDate(vm.insurance_expiry) : null],
+          ].filter(r => r[1]);
+          vehFields.innerHTML = rows.map(r =>
+            `<span class="ext-pill"><strong>${e(r[0])}</strong>${e(String(r[1]))}</span>`).join('');
+          vehCard.style.display = rows.length ? '' : 'none';
+          // VEHICLE SEED VM5 (2026-09-02): fuel economy from the vehicle's own fuel logs —
+          // full-to-full: distance between consecutive fills ÷ litres added at the later fill,
+          // averaged. Appends a pill only when ≥2 fills carry both odometer_km and fuel_l;
+          // one fill or none, the card simply doesn't claim an economy (honest-empty).
+          (async () => {
+            try {
+              const { data: fuels } = await scopeHive(db.from('v_logbook_truth')
+                .select('readings_json, date')
+                .eq('asset_node_id', node.id)
+                .not('readings_json', 'is', null))
+                // the user's event date, not created_at — a backdated fill logged later
+                // must still pair in odometer order
+                .order('date', { ascending: true })
+                .order('id')
+                .limit(200);
+              const fills = (fuels || [])
+                .map(r => r.readings_json)
+                .filter(j => j && Number(j.fuel_l) > 0 && Number(j.odometer_km) > 0);
+              if (fills.length < 2) return;
+              let dist = 0, litres = 0;
+              for (let i = 1; i < fills.length; i++) {
+                const d = Number(fills[i].odometer_km) - Number(fills[i - 1].odometer_km);
+                if (d > 0) { dist += d; litres += Number(fills[i].fuel_l); }
+              }
+              if (dist <= 0 || litres <= 0) return;
+              const kml = dist / litres;
+              vehFields.insertAdjacentHTML('beforeend',
+                `<span class="ext-pill"><strong>Fuel economy</strong>${e(kml.toFixed(1))} km/L over ${e(String(dist.toLocaleString()))} km (${fills.length} fills)</span>`);
+            } catch (_) { /* empty-catch-allow: economy pill is best-effort enrichment */ }
+          })();
+        } else {
+          vehCard.style.display = 'none';
         }
       }
 
@@ -1756,10 +1938,9 @@
     async function loadDetailStats(nodeId) {
       // Read aggregate stats from v_asset_truth (canonical asset 360 view,
       // domain=asset_truth in canonical_sources). Supersedes asset_brain_overview.
-      const { data, error } = await db.from('v_asset_truth')
-        .select('lifetime_logbook_entries, pm_completed_count, last_failure_at, edge_count')
-        .eq('asset_id', nodeId)
-        .eq('hive_id', HIVE_ID)
+      const { data, error } = await scopeHive(db.from('v_asset_truth')
+        .select('lifetime_logbook_entries, pm_completed_count, last_failure_at, edge_count, pm_skipped_count')
+        .eq('asset_id', nodeId))
         .maybeSingle();
 
       if (error) {
@@ -1788,7 +1969,18 @@
           pm.setAttribute('data-pm-unlinked', '1');
         } else {
           pm.textContent = _pmv;
-          pm.removeAttribute('title');
+          /* T189 (2026-08-28): this tile used to include SKIPPED PMs in its count, because
+             v_asset_truth.pm_completed_count ran an unfiltered count over pm_completions - 47
+             assets read high. The count is now completions only, and the skips do not vanish
+             with it: a machine with skipped PMs is telling you something, and hiding that while
+             correcting the number would trade an overstatement for a blind spot. */
+          const _pmSkips = Number(data?.pm_skipped_count) || 0;
+          if (_pmSkips > 0) {
+            pm.title = _pmSkips + (_pmSkips === 1 ? ' PM was' : ' PMs were')
+              + ' also recorded as skipped (not performed) on this asset.';
+          } else {
+            pm.removeAttribute('title');
+          }
           pm.removeAttribute('data-pm-unlinked');
         }
       }
@@ -2131,7 +2323,7 @@
       if (insErr || updErr) {
         console.warn('staging accept:', insErr?.message || updErr?.message);
         if (btn) { btn.disabled = false; btn.textContent = 'Stage selected'; }
-        showToast('Could not stage parts: ' + (insErr?.message || updErr?.message));
+        showToast(whWriteError(insErr || updErr, 'The parts were not staged. Nothing changed; try again.'));
         return;
       }
 
@@ -2148,7 +2340,7 @@
         .eq('id', _stagingRec.id).is('acted_at', null);  // P6-C1: only dismiss an un-acted recommendation
       if (error) {
         console.warn('staging dismiss:', error.message);
-        showToast('Could not dismiss: ' + error.message);
+        showToast(whWriteError(error, 'Could not dismiss it. It stays in the list; try again.'));
         return;
       }
       if (card) card.style.display = 'none';
@@ -2169,9 +2361,8 @@
       // legacy_asset_id text bridge was dropped. node.id is the canonical uuid.
       const queries = [];
       queries.push(
-        db.from('v_logbook_truth')
-          .select('id, machine, problem, action, maintenance_type, status, created_at, closed_at')
-          .eq('hive_id', HIVE_ID)
+        scopeHive(db.from('v_logbook_truth')
+          .select('id, machine, problem, action, maintenance_type, status, created_at, closed_at'))
           .eq('asset_node_id', node.id)
           .order('created_at', { ascending: false })
           .order('id')   // MR4 tiebreaker: the sort above is not total on its own
@@ -2179,9 +2370,13 @@
       );
       if (node.pm_asset_id) {
         queries.push(
-          db.from('pm_completions')
-            .select('id, asset_id, completed_at, worker_name, scope_item_id')
-            .eq('hive_id', HIVE_ID)
+          // T189 (2026-08-28): `status` is selected because pm_completions holds done AND
+          // skipped rows, and the timeline below rendered every one of them as "PM completed
+          // by <worker>". A PM someone explicitly recorded as NOT done was appearing in a
+          // machine's service history as work performed - on the page an engineer reads to
+          // decide whether that machine is due.
+          scopeHive(db.from('pm_completions')
+            .select('id, asset_id, completed_at, worker_name, scope_item_id, status'))
             .eq('asset_id', node.pm_asset_id)
             .order('completed_at', { ascending: false })
             .order('id')   // MR4 tiebreaker: the sort above is not total on its own
@@ -2216,7 +2411,11 @@
           rows.forEach(r => events.push({
             kind: 'pm',
             when: r.completed_at,
-            summary: 'PM completed by ' + (r.worker_name || 'unknown'),
+            // a skip stays on the timeline because it IS history worth seeing - the PM came due
+            // and was deliberately not done - but it must not be narrated as service performed
+            summary: (r.status === 'skipped' ? 'PM skipped (not performed) by ' : 'PM completed by ')
+                     + (r.worker_name || 'unknown'),
+            status: r.status,
           }));
         }
       });
@@ -2451,7 +2650,7 @@
           // keeps the anomaly chip accurate.
           loadDetailTelemetry(nodeId);
         })
-        .subscribe();
+        .subscribe(typeof rtConn === 'function' ? rtConn() : undefined);
     }
 
     // ── Reliability Workbench: FMEA tab (Phase R.2) ────────────────────────────
@@ -2514,10 +2713,33 @@
     // view mode. Workers default to the asset SUMMARY (workbench hidden); an engineer
     // toggles it on and the choice persists. Data still LOADS while hidden so it's
     // instant on reveal. _syncAssetView reflects the mode onto the card + the toggle.
+    // ★T52 (2026-08-26): TWO LENSES CALLED "ENGINEER", SHARING NOTHING. nav-hub keeps a role lens in
+    // localStorage 'wh_nav_mode' (all | field | supervisor | engineer) that filters which TOOLS
+    // appear; this page keeps 'wh_asset_view' (worker | engineer) that decides which PANELS appear.
+    // Independent keys, same user-facing word. So someone who picked the Engineer lens in the hub
+    // still landed here in the WORKER view, because an unset wh_asset_view reads as false - they
+    // declared themselves once and had to declare it again, with nothing saying there were two
+    // switches.
+    //
+    // ★NOT a merge of the two: their scopes really are different (a tool filter is not a panel
+    // toggle), and collapsing them would break either the hub's role filtering or this page's
+    // per-device choice. Only the DEFAULT is derived: with no explicit local choice, fall back to
+    // what the worker already told the hub. An explicit toggle here still wins and still persists,
+    // because the last thing someone did on this page is better evidence than a global lens.
+    function _assetViewIsEngineer() {
+      try {
+        var local = localStorage.getItem('wh_asset_view');
+        if (local === 'engineer' || local === 'worker') return local === 'engineer';
+        return localStorage.getItem('wh_nav_mode') === 'engineer';
+      } catch (_) {
+        return false;   /* empty-catch-allow: a view lens must never be the reason a page fails */
+      }
+    }
+
     function _syncAssetView() {
       const card = document.getElementById('reliability-card');
       const btn  = document.getElementById('asset-view-toggle');
-      const eng  = localStorage.getItem('wh_asset_view') === 'engineer';
+      const eng  = _assetViewIsEngineer();
       if (card) card.style.display = eng ? 'block' : 'none';
       if (btn) {
         btn.setAttribute('aria-expanded', eng ? 'true' : 'false');
@@ -2526,9 +2748,21 @@
           : '\u{1F527} Show Reliability Workbench (engineer view)';
       }
     }
+    // ★T52 (2026-08-26): THE TOGGLE LIED ABOUT ITS OWN STATE UNTIL AN ASSET WAS OPENED.
+    // _syncAssetView ran from exactly two places - this click handler, and loadDetailFmea - so on a
+    // fresh page load the button kept its markup default and read "Show Reliability Workbench"
+    // (i.e. off) even for someone whose stored choice was engineer. They would press it to turn on
+    // what was already on, and turn it off. Paint the stored lens once at load, so the control
+    // describes reality before it is touched.
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', _syncAssetView, { once: true });
+    } else {
+      _syncAssetView();
+    }
+
     document.addEventListener('click', (ev) => {
       if (!ev.target.closest || !ev.target.closest('#asset-view-toggle')) return;
-      const eng = localStorage.getItem('wh_asset_view') === 'engineer';
+      const eng = _assetViewIsEngineer();
       localStorage.setItem('wh_asset_view', eng ? 'worker' : 'engineer');
       _syncAssetView();
     });
@@ -2542,7 +2776,7 @@
       // edit their own. v_fmea_truth filters approved-only; for the page
       // we read the underlying table directly + filter by hive_id.
       const { data, error } = await db.from('rcm_fmea_modes')
-        .select('id, asset_id, function_text, failure_mode, effect_text, cause_text, severity, occurrence, detection, rpn, consequence_class, source, ai_confidence, created_by, approved_by, approved_at, created_at, updated_at')
+        .select('id, asset_id, function_text, failure_mode, effect_text, cause_text, severity, occurrence, detection, rpn, consequence_class, source, ai_confidence, notes, created_by, approved_by, approved_at, created_at, updated_at')
         .eq('hive_id', HIVE_ID)
         .eq('asset_id', nodeId)
         .order('rpn', { ascending: false })
@@ -2615,6 +2849,15 @@
           +   '<span>O ' + e(String(m.occurrence ?? '?')) + '</span>'
           +   '<span>D ' + e(String(m.detection ?? '?')) + '</span>'
           + '</span>';
+        // T80 (2026-08-26): the row announced itself as AI-drafted and said nothing about WHAT it
+        // read. Approval is what makes this mode count in v_fmea_truth and drive strategy, so the
+        // engineer being asked to approve it has to be able to check the claim. The populator now
+        // records the cluster it used (how many entries, which root cause, over what window), and
+        // it is shown here - on AI rows only, since a mode an engineer wrote needs no such note.
+        const grounding = (m.source && m.source.startsWith('ai_') && m.notes)
+          ? '<div style="font-size:.65rem; color:var(--muted); margin:4px 0 2px; line-height:1.35;">'
+            + e(m.notes) + '</div>'
+          : '';
         const aiBadge = (m.source && m.source.startsWith('ai_') && m.ai_confidence != null)
           ? ' <span style="font-size:.6rem; color:rgba(255,255,255,0.80);">' + Math.round(Number(m.ai_confidence) * 100) + '% conf</span>'
           : '';
@@ -2688,6 +2931,7 @@
           +     '<span class="fmea-source-pill ' + sourceClass + '">' + e((m.source === 'ai_logbook') ? 'from AI logbook scan' : (m.source || 'manual').replace(/_/g, ' ')) + '</span>'
           +     '<span class="fmea-source-pill ' + statusClass + '">' + statusLabel + '</span>'
           +   '</div>'
+          +   grounding
           +   effect
           +   cause
           +   (fmeaActions ? '<div class="fmea-row-actions">' + fmeaActions + '</div>' : '')
@@ -2796,7 +3040,7 @@
           document.getElementById('fmea-modal')?.classList.remove('open');
           return;
         }
-        showToast('Could not save FMEA: ' + error.message);
+        showToast(whWriteError(error, 'The FMEA row was not saved. Nothing changed; try again.'));
         return;
       }
       // Phase D1 (INTERACTIVE_LINEAGE_ROADMAP) cross-surface receipt — name the ripple.
@@ -2825,7 +3069,7 @@
         .eq('hive_id', HIVE_ID)
         .is('approved_at', null)
         .select('id');
-      if (error) { showToast('Approve failed: ' + error.message); return; }
+      if (error) { showToast(whWriteError(error, 'The approval did not go through. The item is still pending.')); return; }
       if (!updated || !updated.length) { showToast('That FMEA mode was already approved.'); await loadDetailFmea(_selectedNodeId); return; }
       // target_name = the readable failure-mode text (not the uuid) so the Supervisor Action Log
       // on the hive board reads "Approved FMEA mode <mode>" instead of a raw id.
@@ -2841,7 +3085,7 @@
         .delete()
         .eq('id', id)
         .eq('hive_id', HIVE_ID);
-      if (error) { showToast('Delete failed: ' + error.message); return; }
+      if (error) { showToast(whWriteError(error, 'The delete did not go through. The row is still there.')); return; }
       writeAuditLog('delete_fmea_mode', 'rcm_fmea_modes', id, id, { node_id: _selectedNodeId });
       showToast('FMEA mode deleted.');
       await loadDetailFmea(_selectedNodeId);
@@ -3011,7 +3255,7 @@
 
       if (saveBtn) saveBtn.disabled = false;
       if (error) {
-        showToast('Could not save strategy: ' + error.message);
+        showToast(whWriteError(error, 'The strategy was not saved. Nothing changed; try again.'));
         return;
       }
       showToast(autoApproved ? 'Strategy saved (approved).' : 'Strategy saved (pending supervisor approval).');
@@ -3030,7 +3274,7 @@
         .eq('hive_id', HIVE_ID)
         .is('approved_at', null)
         .select('id');
-      if (error) { showToast('Approve failed: ' + error.message); return; }
+      if (error) { showToast(whWriteError(error, 'The approval did not go through. The item is still pending.')); return; }
       if (!updated || !updated.length) { showToast('That strategy was already approved.'); if (_selectedNodeId) await loadDetailFmea(_selectedNodeId); return; }
       writeAuditLog('approve_rcm_strategy', 'rcm_strategies', strategyId, strategyId,
         { node_id: _selectedNodeId });
@@ -3043,7 +3287,7 @@
       if (!(await window.whConfirm('Delete this RCM strategy? Linked PM scope item will remain in PM Scheduler (unlink only).', { okLabel: 'Delete', cancelLabel: 'Keep' }))) return;
       const { error } = await db.from('rcm_strategies')
         .delete().eq('id', strategyId).eq('hive_id', HIVE_ID);
-      if (error) { showToast('Delete failed: ' + error.message); return; }
+      if (error) { showToast(whWriteError(error, 'The delete did not go through. The row is still there.')); return; }
       writeAuditLog('delete_rcm_strategy', 'rcm_strategies', strategyId, strategyId,
         { node_id: _selectedNodeId });
       showToast('Strategy deleted.');
@@ -3112,7 +3356,7 @@
         })
         .select('id').single();
       if (scopeErr || !scope) {
-        showToast('PM scope insert failed: ' + (scopeErr && scopeErr.message || 'unknown'));
+        showToast(whWriteError(scopeErr, 'The PM scope items were not created. Re-run the handoff to retry.'));
         return;
       }
 
@@ -3121,7 +3365,7 @@
         .update({ written_to_pm_scope_item_id: scope.id })
         .eq('id', strategyId).eq('hive_id', HIVE_ID);
       if (linkErr) {
-        showToast('Linked PM created, but strategy update failed: ' + linkErr.message);
+        showToast(whWriteError(linkErr, 'Linked PM created, but the strategy link was not saved - re-run to relink.'));
         return;
       }
 
@@ -3138,11 +3382,16 @@
       if (btn) { btn.disabled = true; btn.textContent = 'Analyzing logbook...'; }
       if (status) status.textContent = 'Clustering corrective entries by root cause...';
       try {
+        // T82 (2026-08-26): these three used whAiError(error, ...), which cannot help here -
+        // supabase-js hands it the placeholder "Edge Function returned a non-2xx status code",
+        // and whAiError keys on /429|rate.?limit|quota/, so EVERY failure produced the generic
+        // fallback. A rate-limited engineer was told "try again" when the real answer was "in an
+        // hour". whFnError reads error.context, so the function's own sentence survives.
         const { data, error } = await db.functions.invoke('fmea-populator', {
           body: { hive_id: HIVE_ID, asset_id: nodeId },
         });
         if (error) {
-          showToast('Suggest failed: ' + (error.message || 'unknown error'));
+          showToast(await whFnError(error, 'The AI suggestion did not run. Your rows are unchanged; try again.'));
           if (status) status.textContent = '';
           return;
         }
@@ -3165,7 +3414,7 @@
         }
         await loadDetailFmea(nodeId);
       } catch (err) {
-        showToast('Suggest failed: ' + (err && err.message ? err.message : 'network error'));
+        showToast(whAiError(err, 'The AI suggestion did not run. Your rows are unchanged; try again.'));
         if (status) status.textContent = '';
       } finally {
         if (btn) { btn.disabled = false; btn.textContent = 'Suggest from history (AI)'; }
@@ -3180,16 +3429,46 @@
         weibull: document.getElementById('rel-panel-weibull'),
         pf:      document.getElementById('rel-panel-pf'),
       };
+      // These carry role="tab" inside a role="tablist", so ARIA owes three things the class
+      // alone never said: WHICH tab is selected (aria-selected -- a violet background is
+      // invisible to a screen reader and to a forced-colors user), which panel each tab owns
+      // (aria-controls -> role="tabpanel"), and arrow-key movement between them. Shipping the
+      // roles without them is the half-widget analytics.html explicitly refused to build
+      // ("partial ARIA is worse than none") -- it chose aria-pressed toggles instead. This set
+      // genuinely IS tabs over three panels, so it gets completed rather than downgraded.
+      // aria-selected is set in the SAME statement as .active for the reason recorded there:
+      // set separately, the two drift.
+      const selectTab = (tab, moveFocus) => {
+        const which = tab.getAttribute('data-tab');
+        tabs.forEach(t => {
+          const on = (t === tab);
+          t.classList.toggle('active', on);
+          t.setAttribute('aria-selected', on ? 'true' : 'false');
+          // Roving tabindex: one stop for the whole group, arrows move within it.
+          t.tabIndex = on ? 0 : -1;
+        });
+        Object.keys(panels).forEach(k => {
+          if (panels[k]) panels[k].style.display = (k === which) ? 'block' : 'none';
+        });
+        if (moveFocus) tab.focus();
+        if (which === 'weibull') loadLatestWeibull(nodeId);
+        if (which === 'pf')      loadPfPanel(nodeId);
+      };
+      const enabled = () => Array.prototype.filter.call(tabs, t => !t.disabled);
       tabs.forEach(tab => {
         if (tab.disabled) return;
-        tab.onclick = () => {
-          tabs.forEach(t => t.classList.toggle('active', t === tab));
-          const which = tab.getAttribute('data-tab');
-          Object.keys(panels).forEach(k => {
-            if (panels[k]) panels[k].style.display = (k === which) ? 'block' : 'none';
-          });
-          if (which === 'weibull') loadLatestWeibull(nodeId);
-          if (which === 'pf')      loadPfPanel(nodeId);
+        tab.onclick = () => selectTab(tab, false);
+        tab.onkeydown = (ev) => {
+          const k = ev.key;
+          if (k !== 'ArrowRight' && k !== 'ArrowLeft' && k !== 'Home' && k !== 'End') return;
+          const list = enabled();
+          const i = list.indexOf(tab);
+          if (i < 0) return;
+          ev.preventDefault();
+          const next = k === 'Home' ? list[0]
+                     : k === 'End'  ? list[list.length - 1]
+                     : list[(i + (k === 'ArrowRight' ? 1 : list.length - 1)) % list.length];
+          selectTab(next, true);
         };
       });
     }
@@ -3231,10 +3510,27 @@
         // detail table below already says "Failures observed"/"Right-censored", so match it.
         metaEl.textContent = `failures ${fit.n_failures || 0} · right-censored ${fit.n_censored || 0} · window ${fit.source_window_days || '--'}d${ll}${when ? ' · last fit ' + when : ''}`;
       }
-      if (diagEl) diagEl.textContent = fit.diagnostic || '';
+      if (diagEl) {
+        diagEl.textContent = fit.diagnostic || '';
+        // T26 (2026-08-25) — statistical honesty at small n. Measured on M-001: two fits a
+        // month apart flipped beta 1.29 -> 0.71 (wearout -> infant, eta 448d -> 13d) on 8-9
+        // failures — the label INVERTS the maintenance recommendation, yet the pane stated
+        // two-decimal point estimates with no caveat. A supervisor defending the number in a
+        // meeting needs the uncertainty on the glass. Rendered client-side so fits stored
+        // before the fn wrote diagnostics get the caveat too.
+        const nF = Number(fit.n_failures || 0);
+        if (nF > 0 && nF < 15 && fit.failure_pattern !== 'insufficient_data') {
+          const strength = nF < 8 ? 'a very rough estimate' : 'a rough estimate';
+          const caveat = document.createElement('div');
+          caveat.style.cssText = 'margin-top:0.5rem; padding-top:0.5rem; border-top:1px dashed rgba(167,139,250,0.3); color:var(--muted);';
+          caveat.textContent = `Confidence note: only ${nF} failure${nF === 1 ? '' : 's'} inform this fit, so beta is ${strength} and the pattern label can flip as new failures land. Treat it as indicative, act on it together with the failure history, and re-fit as records grow (15+ failures makes the label stable).`;
+          diagEl.appendChild(caveat);
+        }
+      }
     }
 
     async function loadLatestWeibull(nodeId) {
+      if (SOLO()) return; // reliability workbench is hive-industrial; its card stays hidden in solo
       const { data, error } = await db.from('v_weibull_truth')
         .select('beta, eta_days, failure_pattern, n_failures, n_censored, log_likelihood, source_window_days, diagnostic, generated_at')
         .eq('hive_id', HIVE_ID)
@@ -3290,7 +3586,7 @@
           body: { hive_id: HIVE_ID, asset_id: nodeId },
         });
         if (error) {
-          showToast('Weibull fit failed: ' + (error.message || 'unknown error'));
+          showToast(await whFnError(error, 'The Weibull fit did not run. Nothing changed; try again.'));
           if (status) status.textContent = '';
           return;
         }
@@ -3318,7 +3614,7 @@
           data && data.failure_pattern === 'insufficient_data' ? undefined : 6000);
         await loadLatestWeibull(nodeId);
       } catch (err) {
-        showToast('Weibull fit failed: ' + (err && err.message ? err.message : 'network error'));
+        showToast(whAiError(err, 'The Weibull fit did not run. Nothing changed; try again.'));
         if (status) status.textContent = '';
       } finally {
         if (btn) { btn.disabled = false; btn.textContent = 'Compute Weibull fit'; }
@@ -3407,6 +3703,21 @@
           + (when ? ' · last computed ' + when : '');
       }
       if (diagEl) diagEl.textContent = result.diagnostic || '';
+      // T26 (2026-08-25): close the loop — a computed inspection interval that dies on this
+      // pane is knowledge without a consequence. Offer the T21/T29 ?tag= handoff into the
+      // asset's PM program, where the recommended interval becomes a scheduled task.
+      const schedLink = document.getElementById('pf-schedule-link');
+      if (schedLink) {
+        const node = (_allNodes || []).find(n => n.id === _selectedNodeId);
+        if (node && (node.tag || node.name)) {
+          schedLink.href = node.tag
+            ? 'pm-scheduler.html?tag=' + encodeURIComponent(node.tag)
+            : 'pm-scheduler.html?asset=' + encodeURIComponent(node.name);
+          schedLink.style.display = 'inline-flex';
+        } else {
+          schedLink.style.display = 'none';
+        }
+      }
     }
 
     async function _loadLatestPfFor(nodeId, parameter) {
@@ -3470,7 +3781,7 @@
           },
         });
         if (error) {
-          showToast('P-F compute failed: ' + (error.message || 'unknown error'));
+          showToast(await whFnError(error, 'The P-F compute did not run. Nothing changed; try again.'));
           if (status) status.textContent = '';
           return;
         }
@@ -3496,7 +3807,7 @@
           _renderPfResult({ ...data, parameter, generated_at: new Date().toISOString() });
         }
       } catch (err) {
-        showToast('P-F compute failed: ' + (err && err.message ? err.message : 'network error'));
+        showToast(whAiError(err, 'The P-F compute did not run. Nothing changed; try again.'));
         if (status) status.textContent = '';
       } finally {
         if (btn) { btn.disabled = false; btn.textContent = 'Compute P-F interval'; }
@@ -3557,7 +3868,7 @@
           try { w.focus(); w.print(); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
         });
       } catch (err) {
-        showToast('Report failed: ' + (err && err.message ? err.message : 'unknown error'));
+        showToast(whAiError(err, 'The report did not generate. Try again.'));
       } finally {
         if (btn) { btn.disabled = false; btn.textContent = 'Print Report'; }
       }
@@ -3821,7 +4132,7 @@
       const safeClass = String(node.iso_class).replace(/%/g, '\\%').replace(/_/g, '\\_');
 
       const { data, error } = await db.from('v_marketplace_listings_truth')
-        .select('id, title, section, category, price, condition, location, seller_name, seller_verified, status')
+        .select('id, title, section, category, price, condition, location, seller_name, seller_verified, seller_kyb_verified, status')
         .eq('status', 'active')
         .ilike('category', '%' + safeClass + '%')
         .order('created_at', { ascending: false })
@@ -3843,7 +4154,7 @@
             <div class="mk-title">
               <span class="mk-section-pill">${e(r.section || 'parts')}</span>${e(r.title || 'Untitled')}
             </div>
-            <div class="mk-meta">${e(r.seller_name || 'unknown seller')}${r.seller_verified ? ' &middot; verified' : ''}${r.location ? ' &middot; ' + e(r.location) : ''}${r.condition ? ' &middot; ' + e(r.condition) : ''}</div>
+            <div class="mk-meta">${e(r.seller_name || 'unknown seller')}${/* T70: the seller's checked identity, not the listing's drifting copy */ whIdVerified(null, r) ? ' &middot; verified' : ''}${r.location ? ' &middot; ' + e(r.location) : ''}${r.condition ? ' &middot; ' + e(r.condition) : ''}</div>
           </a>
           <div class="mk-price">${r.price != null ? whFmtPeso(r.price) : ''}</div>
         </div>
@@ -4124,7 +4435,17 @@
             body: { question, asset_id: nodeId, hive_id: HIVE_ID, persona },
           });
           if (error) {
-            ansEl.innerHTML = '<span style="color:var(--wh-red-text);">' + e('Could not reach Asset Brain: ' + (error.message || 'unknown error')) + '</span>';
+            // T82 (2026-08-26): this said "Could not reach Asset Brain: Edge Function returned a
+            // non-2xx status code" for EVERY failure, because supabase-js collapses all of them
+            // into that one message. The most common one here is a 429, and rate-limit.ts words
+            // it carefully - "AI call limit reached for this hive. Try again in an hour." - naming
+            // the cause AND when it clears. A worker got a connection-flavoured sentence instead
+            // and went to check their signal. whFnError reads error.context, so the function's own
+            // sentence survives; only a body-less failure falls back to the status taxonomy.
+            const msg = (typeof window.whFnError === 'function')
+              ? await window.whFnError(error, 'Could not reach Asset Brain.')
+              : ('Could not reach Asset Brain: ' + (error.message || 'unknown error'));
+            ansEl.innerHTML = '<span style="color:var(--wh-red-text);">' + e(msg) + '</span>';
             return;
           }
           if (!data || data.error) {
@@ -4176,7 +4497,13 @@
         }
 
         if (metaEl && typeof remaining === 'number') {
-          metaEl.textContent = remaining + ' AI calls remaining this hour';
+          // T89: the same number, said as a warning once it is nearly gone. A flat count reads the
+          // same at 12 as at 1, and the worker only learned the limit existed by hitting it.
+          var _q = (typeof window.whQuotaNotice === 'function')
+            ? window.whQuotaNotice(remaining)
+            : { text: remaining + ' AI calls remaining this hour', level: 'ok' };
+          metaEl.textContent = _q.text;
+          metaEl.style.color = (_q.level === 'out' || _q.level === 'low') ? 'var(--wh-amber-text, #f7a21b)' : '';
         }
       } catch (err) {
         ansEl.innerHTML = '<span style="color:var(--wh-red-text);">' + e('Network error: ' + (err && err.message ? err.message : 'unknown')) + '</span>';
@@ -4237,7 +4564,7 @@
       const pageWrap = document.getElementById('page-wrap');
       if (!WORKER_NAME) {
         if (pageWrap) pageWrap.style.display = 'none';
-        window.location.href = 'index.html?signin=1';
+        whSignInWall();
         return;
       }
 
@@ -4250,28 +4577,30 @@
          valid, so a null uid here means the session is genuinely gone (2026-08-20). */
       if (!_authUid) {
         if (pageWrap) pageWrap.style.display = 'none';
-        window.location.href = 'index.html?signin=1';
+        whSignInWall();
         return;
       }
 
-      // Hard hive gate per architect rule.
-      if (!HIVE_ID) {
-        if (pageWrap) pageWrap.style.display = 'none';
-        document.getElementById('hive-gate').style.display = 'flex';
-        return;
-      }
-
-      const memberState = await validateHiveMembership();
-      if (memberState === 'no-session') {
-        // Their hive is untouched; they simply need to sign in again.
-        if (pageWrap) pageWrap.style.display = 'none';
-        window.location.href = 'index.html?signin=1';
-        return;
-      }
-      if (memberState !== 'ok') {
-        if (pageWrap) pageWrap.style.display = 'none';
-        document.getElementById('hive-gate').style.display = 'flex';
-        return;
+      // Hive gate — SOLO lane (2026-09-02): a signed-in user with no hive is a valid
+      // SOLO owner (vehicle seed), not a gate case. _authUid is guaranteed non-null here
+      // (the sign-in wall above returned otherwise), so solo scoping is always keyed.
+      // Membership validation only applies when there IS a hive to be a member of.
+      if (HIVE_ID) {
+        const memberState = await validateHiveMembership();
+        if (memberState === 'no-session') {
+          // Their hive is untouched; they simply need to sign in again.
+          if (pageWrap) pageWrap.style.display = 'none';
+          whSignInWall();
+          return;
+        }
+        if (memberState !== 'ok') {
+          if (pageWrap) pageWrap.style.display = 'none';
+          document.getElementById('hive-gate').style.display = 'flex';
+          return;
+        }
+      } else {
+        const sub = document.getElementById('page-sub');
+        if (sub) sub.textContent = '360 view of everything you own';
       }
 
       // Wire the Plain-Read details toggle (shared — utils.js wireDetailToggle, STREAMLINE S10).

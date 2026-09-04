@@ -1,0 +1,109 @@
+{
+  "_meta": {
+    "generator": "tools/build_param_route_registry.py",
+    "note": "every ?param each served root page reads (URLSearchParams .get). T43's sweep denominator: cold-start x auth-state per (page, param)."
+  },
+  "routes": {
+    "alert-hub.html": [
+      "asset",
+      "focus",
+      "kind",
+      "tag"
+    ],
+    "asset-hub.html": [
+      "node_id",
+      "tag"
+    ],
+    "assistant.html": [
+      "q"
+    ],
+    "audit-log.html": [
+      "action",
+      "actor",
+      "q",
+      "target"
+    ],
+    "community.html": [
+      "cat",
+      "person",
+      "phive",
+      "post",
+      "q"
+    ],
+    "dayplanner.html": [
+      "add",
+      "cat",
+      "date",
+      "kind",
+      "ref",
+      "title"
+    ],
+    "hive.html": [
+      "return"
+    ],
+    "index.html": [
+      "reason",
+      "return",
+      "signin",
+      "signup"
+    ],
+    "inventory.html": [
+      "name",
+      "pn",
+      "q",
+      "receive",
+      "status"
+    ],
+    "logbook.html": [
+      "cat",
+      "id",
+      "new",
+      "q",
+      "status",
+      "view"
+    ],
+    "marketplace-admin.html": [
+      "tab"
+    ],
+    "marketplace-seller-profile.html": [
+      "listing",
+      "worker"
+    ],
+    "marketplace-seller.html": [
+      "status",
+      "tab"
+    ],
+    "marketplace.html": [
+      "asset",
+      "from_inventory",
+      "listing",
+      "max",
+      "min",
+      "post",
+      "q",
+      "scope",
+      "section"
+    ],
+    "pm-scheduler.html": [
+      "asset",
+      "asset_id",
+      "cat",
+      "filter",
+      "pm_id",
+      "tag"
+    ],
+    "project-report.html": [
+      "project_id"
+    ],
+    "promo-poster.html": [
+      "v"
+    ],
+    "voice-journal.html": [
+      "embedded",
+      "filter",
+      "q"
+    ]
+  },
+  "total_pages": 18,
+  "total_params": 63
+}

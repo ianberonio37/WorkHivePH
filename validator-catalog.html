@@ -6,6 +6,7 @@
   <meta name="robots" content="noindex, nofollow">
   <title>WorkHive — Validator Catalog</title>
   <meta name="description" content="Searchable catalog of every WorkHive Layer 0 validator with last-run status, severity, group, and linked specs.">
+  <script src="browser-floor.js"></script>
   <script>
     // Founder-only page (Ian 2026-06-10: architecture/validator-catalog/symbol-gallery
     // are personal pages, not for public). Mirrors founder-console.html's gate:
@@ -96,14 +97,14 @@
   <main>
     <div class="controls">
       <input type="search" id="q" aria-label="Filter validators by id, label, or group" placeholder="Filter by id, label, or group...">
-      <select id="status-filter">
+      <select id="status-filter" aria-label="Filter validators by status">
         <option value="">All statuses</option>
         <option value="PASS">PASS only</option>
         <option value="FAIL">FAIL only</option>
         <option value="WARN">WARN only</option>
         <option value="SKIP">SKIP only</option>
       </select>
-      <select id="group-filter">
+      <select id="group-filter" aria-label="Filter validators by group">
         <option value="">All groups</option>
       </select>
       <span class="stat" id="count-stat">—</span>

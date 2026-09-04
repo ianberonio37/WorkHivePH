@@ -36,6 +36,9 @@
   .card.down { border-left-color: var(--wh-red); }
   .card.slow { border-left-color: var(--wh-amber); }
   .card.nohealth { border-left-color: var(--wh-grey); }
+  /* T198: silence is amber, never red — a probe that timed out did not observe an outage. */
+  .card.timeout { border-left-color: var(--wh-amber); }
+  .dot.timeout { background: var(--wh-amber); }
   .dot.nohealth { background: var(--wh-grey); }
   .fn { font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
   .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--wh-grey); display: inline-block; }
@@ -73,6 +76,21 @@
   <summary>How this page works</summary>
   <p>Each row is one live health check. Green means the service answers within its target. Press Refresh to re-check now.</p>
 </details>
+<!-- T119 (2026-08-26): the SUPPORTED-BROWSER FLOOR, stated where a person can read it. The floor
+     was already enforced in code (browser-floor.js eval-probes ES2020 and paints a banner on an
+     older engine) and named in that file's header, but nowhere a user or an IT admin could look
+     it up - "degrade defined, not discovered" needs the definition to be READABLE. Status is the
+     right home: it is the page someone opens when something will not work, and it loads even
+     when the backend is down. Update this WITH the canary if the floor ever moves. -->
+<details class="wh-help">
+  <summary>Which browsers WorkHive supports</summary>
+  <p>WorkHive needs a <strong>2020-or-newer browser engine</strong> (Chrome/Edge 80+, Safari 14+,
+     Firefox 74+, or Android System WebView updated since 2020). On an older engine the app cannot
+     run, and it says so with a banner instead of showing a blank page - if you see that banner,
+     update Chrome or Android System WebView from the Play Store.</p>
+  <p>On a supported browser, everything else here degrades gracefully: offline entries queue and
+     sync, and failed reads say what failed rather than showing empty screens.</p>
+</details>
   <div class="bar">
     <button id="refresh" onclick="runChecks()" data-i="refresh">Refresh</button>
     <span class="summary" id="summary" role="status" aria-live="polite">Checking…</span>
@@ -99,6 +117,10 @@
     // Local-first: default to the local stack; prod overrides via window.WH_EDGE_BASE.
     var EDGE = (window.WH_EDGE_BASE || 'http://127.0.0.1:54321') + '/functions/v1';
     var SLOW_MS = 2000; // amber if /health round-trip exceeds the interactive SLO
+    // The probe's patience. Deliberately shorter than utils.js's 30s cold-start budget — a status
+    // page must answer quickly — which is exactly why exceeding it is reported as SILENCE and not
+    // as an outage (see pingHealth).
+    var PROBE_MS = 8000;
 
     // The gateway front doors + a representative set of specialists that expose /health.
     var FUNCTIONS = [
@@ -129,11 +151,23 @@
     //   slow     — 200 + body.ok, but round-trip > SLOW_MS
     //   nohealth — fn is UP but exposes no /health probe (a 4xx on the probe path);
     //              a coverage gap (health-probe adoption), NOT an outage
-    //   down     — 5xx, network failure, or TIMEOUT (a genuine outage)
+    //   timeout  — no answer inside PROBE_MS. NOT an outage: see below.
+    //   down     — 5xx or network failure (a genuine outage)
+    //
+    // ★T198 (2026-08-28): A TIMEOUT USED TO BE CLASSIFIED 'down', AND THAT IS A DIFFERENT CLAIM
+    // FROM THE ONE THE PROBE CAN SUPPORT. Edge functions cold-start; utils.js sets its default
+    // budget to 30s precisely because that is the documented cold-start allowance, while this page
+    // waits 8s. So the most likely cause of a timeout here is a function that is perfectly healthy
+    // and has not run recently — and this page, whose entire job is telling people whether the
+    // platform is up, was publishing that as "DOWN" in red. Reporting a cold start as an outage on
+    // the status page is worse than saying nothing: it is the surface people check to decide
+    // whether to trust the rest, and a false outage there costs more than a slow answer.
+    // Silence is now reported AS silence — "no answer in 8s", amber, excluded from the DOWN count
+    // and from the healthy numerator, because the honest reading is that we do not know.
     async function pingHealth(fn) {
       var t0 = performance.now();
       try {
-        var res = await fetchWithTimeout(EDGE + '/' + fn + '/health', { method: 'GET' }, 8000);
+        var res = await fetchWithTimeout(EDGE + '/' + fn + '/health', { method: 'GET' }, PROBE_MS);
         var ms = Math.round(performance.now() - t0);
         var body = null; try { body = await res.json(); } catch (e) { /* empty-catch-allow: non-JSON health body → body stays null, handled by the status checks below */ }
         var state;
@@ -142,11 +176,18 @@
         else                                                  state = 'nohealth'; // 4xx = no probe
         return { fn: fn, state: state, status: res.status, ms: ms, deps: (body && body.deps) || [] };
       } catch (e) {
-        return { fn: fn, state: 'down', status: 0, ms: Math.round(performance.now() - t0), deps: [], err: String(e) };
+        // The local wrapper rethrows the AbortError, so a timeout is distinguishable from a
+        // refused connection here — which is the whole distinction this state exists to make.
+        var aborted = e && (e.name === 'AbortError' || e.code === 20);
+        return { fn: fn, state: aborted ? 'timeout' : 'down', status: 0,
+                 ms: Math.round(performance.now() - t0), deps: [],
+                 err: aborted ? '' : String(e) };
       }
     }
 
-    var LABEL = { ok: 'healthy', slow: 'slow', nohealth: 'no /health probe', down: 'DOWN' };
+    var LABEL = { ok: 'healthy', slow: 'slow', nohealth: 'no /health probe',
+                  timeout: 'no answer in ' + Math.round(PROBE_MS / 1000) + 's (may be cold-starting)',
+                  down: 'DOWN' };
 
     function render(rows) {
       var grid = document.getElementById('grid');
@@ -171,10 +212,15 @@
       var ok = rows.filter(function (r) { return r.state === 'ok' || r.state === 'slow'; }).length;
       var down = rows.filter(function (r) { return r.state === 'down'; }).length;
       var noh = rows.filter(function (r) { return r.state === 'nohealth'; }).length;
-      var probed = rows.length - noh;
+      // A timed-out probe answers neither question, so it is counted as neither: it leaves the
+      // healthy numerator AND the DOWN count, and is named on its own. Folding it into either one
+      // would be the page asserting something it did not observe.
+      var tmo = rows.filter(function (r) { return r.state === 'timeout'; }).length;
+      var probed = rows.length - noh - tmo;
       var avail = probed ? Math.round(100 * ok / probed) : 0;
       sum.textContent = ok + '/' + probed + ' probed surfaces healthy (' + avail + '%)' +
         (down ? ' · ' + down + ' DOWN' : '') +
+        (tmo ? ' · ' + tmo + ' did not answer in time (not counted either way)' : '') +
         (noh ? ' · ' + noh + ' without /health' : '') +
         ' · ' + (typeof whFmtDate === 'function' ? whFmtDate(new Date(), { timeOnly: true }) : new Date().toLocaleTimeString());
       btn.disabled = false;
@@ -195,3 +241,4 @@
 </script>
 </body>
 </html>
+

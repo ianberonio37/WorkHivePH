@@ -1,0 +1,124 @@
+TM 9-2320-289-10
+Table 2-1. Preventive Maintenance Checks and Services for Model CUCV
+Location
+Item Interval Crewmember
+No. Item to Procedure
+ChecK
+Not Fully Mission
+Capable If:
+I I Service I
+WARNING
+Always Remember The
+WARNINGS, CAUTIONS And
+NOTES Before Operating
+This Vehicle And Prior to
+PMCS.
+Perform all PMCS checks if:
+a. You are the assigned
+driver but have not oper-
+ated the vehicle since the
+last weekly inspection.
+b. You are operating the
+vehicle for the first time.
+c. See separate manuals
+for Smoke Generator, Tow
+Launcher and Radios.
+2-8 Change 4
+TM 9-2320-289-10
+Table 2-1. Preventive Maintenance Checks and Services Model CUCV
+Location
+Item Interval
+Item to
+Crewmember Not Fully Mission
+No.
+Check/
+Procedure Capable If:
+Service
+1 Before Left Front, NOTE
+Side Exte- If leakage is detected, further
+rior investigation is needed to de-
+termine the location and cause
+of the leak.
+a. Check underneath vehi- a. Class Ill leak of
+cle for evidence of fluid oil, fuel or coolant.
+leakage.
+b. Visually check left side b. Any damage that
+of vehicle for obvious dam- will prevent opera-
+age that would impair op- tion.
+eration.
+2 Before Left Side WARNING
+Tires Operating a vehicle with a
+tire in an under-inflated con-
+dition or with a questionable
+defect, may lead to prema-
+ture tire failure and may
+cause equipment damage,
+injury or death to personnel.
+Visually check tire for presence Tire missing, deflated
+and under-inflation, or unserviceable.
+Change 4
+ 2-9
+TM 9-2320-289-10
+Table 2-1. Preventive Maintenance Checks and Services for Model CUCV
+Interval
+Before
+Before
+Before
+Before
+2-10 
+Location
+Item to
+Check/
+Service
+Rear Ex-
+terior
+Right
+Front and
+Side Exte
+rior
+Right Side
+Tires
+Front
+Crewmember
+Procedure
+‘ DRIVER
+Check rear of vehicle for obvi-
+ous damage that would impair
+operation.
+NOTE
+If leakage is detected, further
+investigation is needed to de-
+termine the location and cause
+of the leak.
+Check right side of vehicle for
+obvious damage that would im-
+pair operation.
+Visually check tires for pres-
+ence and under-inflation.
+NOTE
+If leakage is detected, investi-
+gation is needed to determine
+the location and cause of the
+leak.
+a. Check body for visual dam-
+age that would impair opera-
+tion of the vehicle.
+b. Look under vehicle for evi-
+dence of fluid leakage.
+Not Fully Mission
+Capable If:
+Any damage that
+will prevent opera-
+tion.
+Any damage that
+will prevent opera-
+tion.
+Tire missing, de-
+flated or unservice-
+able.
+a. Any damage that
+will prevent opera-
+tion.
+b. Class Ill leak of
+oil, fuel or coolant.
+Change 4

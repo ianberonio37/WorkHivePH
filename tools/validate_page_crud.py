@@ -29,7 +29,7 @@ def _resolve_live_hive() -> str:
         from test_identity import resolve_test_identity
         return resolve_test_identity("leandromarquez@auth.workhiveph.com").hive_id
     except Exception:
-        return "636cf7e8-431a-4907-8a9f-43dd4cc216d6"   # hive fallback (stale-known)
+        return "084c113b-99c0-45c6-a8e8-b4b8349da46d"   # hive fallback (stale-known)
 LIVE_HIVE = _resolve_live_hive()
 
 

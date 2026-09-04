@@ -21,7 +21,7 @@
   <meta property="og:type" content="article" />
   <meta property="og:site_name" content="WorkHive" />
   <meta property="article:published_time" content="2026-05-17T00:00:00+08:00" />
-  <meta property="article:modified_time" content="2026-05-17T00:00:00+08:00" />
+  <meta property="article:modified_time" content="2026-08-24T00:00:00+08:00" />
   <meta property="article:author" content="WorkHive Editorial Team" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="DOLE OSHS and ISO Audit Trail from Your Logbook" />
@@ -46,7 +46,7 @@
         "@id": "https://workhiveph.com/#organization"
       },
       "datePublished": "2026-05-17",
-      "dateModified": "2026-05-17",
+      "dateModified": "2026-08-24",
       "mainEntityOfPage": "https://workhiveph.com/learn/dole-iso-audit-trail-from-logbook/",
       "inLanguage": "en-PH",
       "articleSection": "Maintenance",
@@ -94,7 +94,7 @@
           "name": "Can a worker request their own audit log if they leave the plant?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Yes. WorkHive Audit Log lets a worker export their personal contribution history (entries they authored, PMs they completed, training records, achievements earned) at any time. This is the portable career record that supports OFW applications and salary disputes. The plant's broader audit log stays scoped to the hive."
+            "text": "Yes. WorkHive Audit Log lets a worker export their personal contribution history (entries they authored, PMs they completed, training records, achievements earned) for as long as they are a member of that hive. Export before a job change: the entries stay in the plant's records and stop being readable to a departed worker, which is what the app says when you leave. Skill badges and certifications are held against the worker and do travel. This is the portable career record that supports OFW applications and salary disputes. The plant's broader audit log stays scoped to the hive."
           }
         },
         {
@@ -134,7 +134,7 @@
 }</script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = { theme: { extend: { colors: {
@@ -265,7 +265,8 @@
     <nav class="flex items-center gap-6">
       <a href="/" class="nav-link">Home</a>
       <a href="/learn/" class="nav-link">Learn</a>
-      <a href="/#join" class="nav-link">Join the Hive</a>
+      <a href="/?signin=1" class="nav-link">Sign In</a>
+      <a href="/?signup=1" class="nav-link">Sign Up Free</a>
     </nav>
   </div>
 </header>
@@ -281,7 +282,7 @@
       <span class="opacity-40">·</span>
       <span>Published <time datetime="2026-05-17">17 May 2026</time></span>
       <span class="opacity-40">·</span>
-      <span>Updated <time datetime="2026-05-17">17 May 2026</time></span>
+      <span>Updated <time datetime="2026-08-24">24 Aug 2026</time></span>
       <span class="opacity-40">·</span>
       <span>7 min read</span>
     </div>
@@ -312,34 +313,37 @@
       <h2 id="three-guarantees">The 3 immutability guarantees</h2>
       <ul><li><strong>Server-side timestamp.</strong> Every entry is stamped at the moment it hits the server, not the client. A worker cannot backdate by adjusting their phone clock.</li><li><strong>Authenticated authorship.</strong> Entries are tied to the worker's account (which is tied to their DOLE-acceptable identity). No anonymous edits.</li><li><strong>Append-only edits.</strong> If an entry needs correction, the original stays in the audit log with the correction appended (who, when, what changed, why). Auditors see the full history, not just the current state.</li></ul>
       <h2 id="retention">Retention rules per record type</h2>
-      <table><thead><tr><th>Record type</th><th>DOLE OSHS minimum</th><th>ISO recommendation</th><th>WorkHive default</th></tr></thead><tbody>
+      <div data-table-scroll style="overflow-x:auto;-webkit-overflow-scrolling:touch;" role="region" aria-label="Scrollable table" tabindex="0"><table><thead><tr><th>Record type</th><th>DOLE OSHS minimum</th><th>ISO recommendation</th><th>WorkHive default</th></tr></thead><tbody>
       <tr><td>Safety observations</td><td>5 years</td><td>3+ years</td><td>10 years</td></tr>
       <tr><td>Incident investigations</td><td>10 years</td><td>5+ years</td><td>15 years</td></tr>
       <tr><td>PM completion records</td><td>3 years</td><td>3 years per cycle</td><td>10 years</td></tr>
       <tr><td>Logbook entries (general)</td><td>3 years</td><td>3 years</td><td>10 years</td></tr>
       <tr><td>Permit to work records</td><td>3 years</td><td>3 years</td><td>10 years</td></tr>
       <tr><td>Training records</td><td>For employment duration + 3 years</td><td>For employment duration + 3 years</td><td>For employment duration + 10 years</td></tr>
-      </tbody></table>
+      </tbody></table></div>
       <p>WorkHive defaults exceed the minimum because storage is cheap and the worker may need the history years after leaving the plant (for OFW applications, promotion cases, regulatory disputes).</p>
       <h2 id="export">PDF export patterns auditors accept</h2>
       <p>Three export patterns that satisfy DOLE OSHS and ISO auditors:</p>
       <ul><li><strong>Date-range PDF:</strong> all entries in a window (typically 30 days for a sample). Includes timestamp, author, asset, category, and entry text. Auditor marks sampled pages.</li><li><strong>Asset-history PDF:</strong> all entries for a specific asset over its lifecycle. Used when the auditor is investigating a specific failure or compliance gap.</li><li><strong>Compliance-mapping PDF:</strong> entries grouped by ISO clause or DOLE rule. Used for management review meetings and surveillance audits.</li></ul>
       <p>All three include a footer with the WorkHive entry IDs so the auditor can request live verification of any specific entry if they wish.</p>
       <h2 id="per-standard">Mapping to ISO 9001, 14001, 45001</h2>
-      <ul><li><strong>ISO 9001 (Quality):</strong> WorkHive Logbook entries with corrective-action tags satisfy Clause 10.2 nonconformity and corrective action. PM compliance dashboard satisfies Clause 7.1.5 monitoring and measuring resources.</li><li><strong>ISO 14001 (Environment):</strong> Logbook entries with environmental-aspect tags (spill, leak, emission) satisfy Clause 9.1.1 monitoring of environmental performance.</li><li><strong>ISO 45001 (OH&amp;S):</strong> Safety observations, near-miss logs, and incident investigations satisfy Clause 9.1.1 monitoring, measurement, analysis, and performance evaluation, and Clause 10.2 incident investigation.</li></ul>
+      <p class="callout">A clause is satisfied by your management system, not by a tool. What software can do is
+      hold the <em>evidence</em> an auditor samples against that clause, so read the list below as
+      &ldquo;where your records for this clause live&rdquo;, not as conformity you can buy.</p>
+      <ul><li><strong>ISO 9001 (Quality):</strong> WorkHive Logbook entries with corrective-action tags give you the records Clause 10.2 (nonconformity and corrective action) asks you to retain. The PM compliance dashboard evidences Clause 7.1.5 monitoring and measuring resources.</li><li><strong>ISO 14001 (Environment):</strong> Logbook entries with environmental-aspect tags (spill, leak, emission) evidence Clause 9.1.1 monitoring of environmental performance.</li><li><strong>ISO 45001 (OH&amp;S):</strong> Safety observations, near-miss logs, and incident investigations evidence Clause 9.1.1 monitoring, measurement, analysis and performance evaluation, and Clause 10.2 incident investigation.</li></ul>
       <div class="cta-box">
         <p class="cta-eyebrow">The tool this guide is about</p>
         <h4 aria-level="3">WorkHive Audit Log makes DOLE and ISO audits a 1-hour exercise</h4>
         <p>Server-side timestamps, authenticated authorship, append-only edits, 10-year default retention. Date-range, asset-history, and compliance-mapping PDF exports. Direct mapping to ISO 9001 / 14001 / 45001 clauses and DOLE OSHS rules. Free at the worker tier; advanced compliance reporting unlocks at Stage 4 enterprise tier.</p>
         <a href="/audit-log.html" class="cta-btn">Open Audit Log</a>
-        <p class="cta-secondary">No hive yet? <a href="/#join">Join WorkHive</a> first (free, takes 30 seconds).</p>
+        <p class="cta-secondary">No hive yet? <a href="/?signup=1">Join WorkHive</a> first (free, takes 30 seconds).</p>
       </div>
       <h2 id="faq">Frequently asked questions</h2>
       <details class="faq-item"><summary>Does DOLE accept digital logbooks for OSHS Rule 1063?</summary><div class="faq-answer">Yes, when the digital record satisfies time-of-event recording, worker identification, and non-editability after submission. DOLE OSHS Rule 1063 on Safety and Health Records does not require paper; it requires a record an inspector can sample. WorkHive Audit Log satisfies all three properties and produces PDF exports inspectors accept.</div></details>
       <details class="faq-item"><summary>What are the immutability guarantees?</summary><div class="faq-answer">Three: (1) server-side timestamp (worker cannot backdate by adjusting phone clock), (2) authenticated authorship (entry tied to the worker's account, not anonymous), (3) append-only edits (original stays in the audit log with corrections appended, including who, when, what changed, and why). Auditors see the full history, not just the current state.</div></details>
       <details class="faq-item"><summary>How long should I retain records?</summary><div class="faq-answer">DOLE minimums vary by record type: 5 years for safety observations, 10 years for incident investigations, 3 years for PM and general logbook entries, employment duration plus 3 years for training. WorkHive defaults exceed the minimums (10 years for most record types, 15 years for incident investigations) because storage is cheap and the worker may need the history years after leaving the plant.</div></details>
       <details class="faq-item"><summary>What PDF export does an ISO auditor want?</summary><div class="faq-answer">Three patterns work: (1) date-range PDF for sampling a window (typically 30 days), (2) asset-history PDF for investigating a specific failure, (3) compliance-mapping PDF for management review meetings showing entries grouped by ISO clause or DOLE rule. All three include WorkHive entry IDs so the auditor can request live verification if needed.</div></details>
-      <details class="faq-item"><summary>Can a worker request their own audit log if they leave the plant?</summary><div class="faq-answer">Yes. WorkHive Audit Log lets a worker export their personal contribution history (entries they authored, PMs they completed, training records, achievements earned) at any time. This is the portable career record that supports OFW applications and salary disputes. The plant's broader audit log stays scoped to the hive.</div></details>
+      <details class="faq-item"><summary>Can a worker request their own audit log if they leave the plant?</summary><div class="faq-answer">Yes. WorkHive Audit Log lets a worker export their personal contribution history (entries they authored, PMs they completed, training records, achievements earned) for as long as they are a member of that hive. Export before a job change: the entries stay in the plant's records and stop being readable to a departed worker, which is what the app says when you leave. Skill badges and certifications are held against the worker and do travel. This is the portable career record that supports OFW applications and salary disputes. The plant's broader audit log stays scoped to the hive.</div></details>
       <details class="faq-item"><summary>How does this map to ISO 9001 / 14001 / 45001?</summary><div class="faq-answer">ISO 9001 Clause 10.2 corrective action: logbook entries with corrective-action tags. ISO 9001 Clause 7.1.5 monitoring resources: PM compliance dashboard. ISO 14001 Clause 9.1.1 environmental monitoring: logbook entries with environmental-aspect tags. ISO 45001 Clause 9.1.1 OH&S monitoring + Clause 10.2 incident investigation: safety observations and incident logs. WorkHive Audit Log exports group entries by these clauses for management review meetings.</div></details>
       <h2 id="sources">Sources</h2>
       <ul><li>Department of Labor and Employment (DOLE), <strong>Occupational Safety and Health Standards (OSHS) Rule 1063</strong>: Safety and Health Records.</li>
@@ -363,11 +367,11 @@
 </article>
 <footer class="py-10 border-t border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
   <div class="max-w-4xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">
-    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-05-17">17 May 2026</time></p>
+    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-08-24">24 Aug 2026</time></p>
     <div class="flex items-center gap-6">
       <a href="/" class="hover:text-white/60 transition-colors">Home</a>
       <a href="/#faq" class="hover:text-white/60 transition-colors">FAQ</a>
-      <a href="/#join" class="hover:text-white/60 transition-colors">Join the Hive</a>
+      <a href="/?signup=1" class="hover:text-white/60 transition-colors">Join the Hive</a>
     </div>
   </div>
 </footer>

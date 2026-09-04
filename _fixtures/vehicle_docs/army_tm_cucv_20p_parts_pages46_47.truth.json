@@ -1,0 +1,18 @@
+{
+ "doc": "army_tm_cucv_20p_parts_pages46_47",
+ "hand_read": "2026-09-03, authored before extraction. TM 9-2320-289-20P parts catalog pages whose OCR FUSED the SMR/CAGE/part-number columns ('PAOZZ246179419327' is three fields run together) - the real part numbers are not deterministically recoverable, so the floor must extract NOTHING (the model path + human review own this shape); any mined 'part' here would be a fabrication.",
+ "pm_items": [],
+ "parts": [],
+ "pm_must_not_match": [
+  "group",
+  "section"
+ ],
+ "parts_must_not_match": [
+  "uoc",
+  "usable on",
+  "paozz",
+  "moozz"
+ ],
+ "must_not_contain": [],
+ "expect_injection": false
+}

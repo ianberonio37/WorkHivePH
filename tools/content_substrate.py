@@ -60,7 +60,20 @@ VIDEO_BACKLOG = ROOT / ".tmp" / "video_ideas_backlog.json"
 # is legitimate (it has backing), NOT "feature drift" (invented/renamed feature).
 # Keep in sync with nav-hub.js: report-sender is folded under "Reports"; public-feed
 # is the public-only page; marketplace-seller is the seller side of Marketplace.
-LANDING_AUX_PAGES = {"report-sender.html", "public-feed.html", "marketplace-seller.html"}
+#       analytics-report.html   — the SAME shape as report-sender above, and nav-hub says so in two
+#                                 places: the 'Reports' entry carries
+#                                 match: ['analytics-report', 'report-sender', 'report'], and its
+#                                 own comment reads "entry (analytics-report.html) — reached via the
+#                                 Reports tab bar. Page kept on disk." So the catalog generator,
+#                                 which derives features from nav, correctly does NOT list it as a
+#                                 standalone feature - while index links it and its JSON-LD
+#                                 featureList claims "Analytics Report". That is a folded sub-page
+#                                 being linked, not an invented or renamed feature, which is the
+#                                 drift this check is aimed at. Exempted alongside its sibling
+#                                 rather than by unhiding the page or dropping the link, because
+#                                 both of those would change the PRODUCT to satisfy a check.
+LANDING_AUX_PAGES = {"report-sender.html", "public-feed.html", "marketplace-seller.html",
+                     "analytics-report.html"}
 
 
 # ── Surface scanners ──────────────────────────────────────────────────────────

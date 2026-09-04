@@ -58,7 +58,10 @@ P6_REJECT_LOCK  = re.compile(r"""status:\s*['"]rejected['"][^;]{0,300}?\.eq\(\s*
 # needs to name the remedy (401 -> sign in, 429 -> wait), and truthiness consumers are unchanged.
 # The property locked is "a failed approval read SETS the flag", not the flag's type.
 P7_DEGRADED_SET      = re.compile(r"""_approvalReadErr\s*=\s*(?:!!\(|assetsRes\.error\s*\|\|\s*partsRes\.error)""")
-P7_DEGRADED_CONSUMED = re.compile(r"""total\s*===\s*0\s*&&\s*!_approvalReadErr""")
+P7_DEGRADED_CONSUMED = re.compile(
+    # additional emptiness clauses may sit between (the 2026-09-02 aggregate added
+    # `elsewhere === 0 &&`); the invariant is that !_approvalReadErr still gates the hide
+    r"""total\s*===\s*0\s*&&(?:[^;\n]{0,80}&&)?\s*!_approvalReadErr""")
 
 
 def check_text(html: str) -> list[str]:

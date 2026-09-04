@@ -33,7 +33,7 @@ if sys.platform == "win32" and sys.stdout.encoding and sys.stdout.encoding.lower
 ROOT = Path(__file__).resolve().parent.parent
 DB = "supabase_db_workhive"
 BASE = "http://127.0.0.1:54321"
-_HIVE_FALLBACK = "636cf7e8-431a-4907-8a9f-43dd4cc216d6"  # Baguio Textile Mills — stable canonical test hive (Leandro=supervisor, Bryan=worker)
+_HIVE_FALLBACK = "084c113b-99c0-45c6-a8e8-b4b8349da46d"  # Baguio Textile Mills — stable canonical test hive (Leandro=supervisor, Bryan=worker)
 GREEN, RED, YEL = "\033[92m", "\033[91m", "\033[93m"; RST = "\033[0m"
 SELF_TEST = "--self-test" in sys.argv[1:]
 

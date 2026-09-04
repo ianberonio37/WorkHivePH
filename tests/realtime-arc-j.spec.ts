@@ -19,8 +19,15 @@ import { test, expect, Page } from '@playwright/test';
 import { adminClient } from './_db-cleanup';
 
 const BASE = 'http://127.0.0.1:5000/workhive';
-const MANILA = process.env.WH_TEST_HIVE_ID || 'ba383fb9-1e76-420e-a8cd-8ecf45bfe5a7'; // Hector + Romeo
-const LUCENA = '3792d7f0-59e2-42e6-b04f-6e6ef4e4713d';                                  // foreign hive
+// ★BOTH IDS HAD BEEN RESEEDED AWAY, AND FOR A CROSS-TENANT TEST THAT IS NOT A COSMETIC PROBLEM.
+// This spec proves RLS refuses a subscription filtered to a hive the signed-in user is not in. If
+// the FOREIGN hive does not exist, the expected "0 rows" arrives for the wrong reason — there is no
+// such hive — and the assertion passes without RLS ever being exercised. An isolation test needs a
+// foreign hive that is REAL and simply not yours. Repointed 2026-08-27 against live hive_members:
+// Hector Salvador (supervisor) and Romeo Beltran (worker) are both in Manila Electronics Assembly,
+// and neither is a member of Lucena Pharmaceutical — which exists and has its own members.
+const MANILA = process.env.WH_TEST_HIVE_ID || 'b4f7fe63-92e1-4f8d-b96e-625c3f85ba61'; // Hector + Romeo
+const LUCENA = '4eec150e-4837-417b-bdd8-009b0192acfe';                                  // foreign hive
 const PASS = process.env.WH_TEST_PASSWORD || 'test1234';
 const HECTOR = 'hectorsalvador', HECTOR_NAME = 'Hector Salvador';
 const ROMEO = 'romeobeltran',   ROMEO_NAME  = 'Romeo Beltran';

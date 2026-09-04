@@ -18,11 +18,20 @@ Detection
 
   Filter:
     - Skip external URLs (http://, https://, mailto:, tel:)
-    - Skip in-page anchors (#X)
     - Skip dynamic refs (templates, variables — we only check literal
       string ".html" suffixes)
 
   Flag any target whose file doesn't exist.
+
+  T1 (2026-08-24) — the anchor blind spot is CLOSED. "Skip in-page anchors (#X)"
+  was the exact regex hole that let the landing page's sticky CTA point at #join
+  while every gate stayed green: an <a href="#frag"> whose id does not exist is a
+  dead tap, the same defect class as a missing file. Now:
+    7. href="#frag"                — in-page anchor: id/name "frag" must exist
+                                     in the SAME page
+    8. href="X.html#frag"          — cross-page anchor: X.html must exist AND
+                                     carry id/name "frag"
+  A fragment created dynamically by JS needs a `link-allow:` marker naming that.
 
 Allow markers
   Inline `<!-- link-allow: <reason> -->` or `// link-allow: <reason>`
@@ -51,18 +60,14 @@ REPORT_PATH   = ROOT / "link_target_existence_report.json"
 BASELINE_PATH = ROOT / "link_target_existence_baseline.json"
 
 
-PAGES = [
-    "index.html", "hive.html", "logbook.html", "inventory.html",
-    "pm-scheduler.html", "analytics.html", "analytics-report.html",
-    "skillmatrix.html", "community.html", "public-feed.html",
-    "marketplace.html", "marketplace-seller.html", "dayplanner.html",
-    "engineering-design.html", "assistant.html", "report-sender.html",
-    "platform-health.html", "project-manager.html", "integrations.html",
-    "ph-intelligence.html", "project-report.html", "predictive.html",
-    "ai-quality.html", "plant-connections.html", "achievements.html",
-    "asset-hub.html", "shift-brain.html", "alert-hub.html",
-    "audit-log.html", "voice-journal.html",
-]
+# T1 (2026-08-24): the roster is DERIVED, not declared. The old hardcoded 30-name list carried
+# two pages deleted months ago (platform-health.html, predictive.html) which the loop's silent
+# `if not page.exists(): continue` skipped without a word, and MISSED 14 real served root pages
+# (publish="." serves every root .html). A roster is a silent claim about scope — this one now
+# states it: every .html at the repo root, exactly what production serves as top-level routes.
+# (_fixtures/ dev copies moved out of root the same day and are therefore out of scope by
+# construction; learn/ and tools/ subdirectory pages are the public_surface_gate's denominator.)
+PAGES = sorted(p.name for p in Path(__file__).resolve().parent.glob("*.html"))
 
 
 # Match any string literal ending in `.html` that's referenced as a link target.
@@ -78,8 +83,21 @@ LINK_PATTERNS = [
     re.compile(r"""\bhref\s*:\s*['"`](?P<target>[^'"`\s#?]+\.html(?:[?#][^'"`]*)?)['"`]"""),
 ]
 
+# T1: in-page anchor links — href="#frag" (bare href="#" is deliberately NOT this gate's
+# subject: a placeholder href is a dead-CTA behavior question, ufai_battery's deadHref rule).
+PURE_ANCHOR_RE = re.compile(r"""\bhref\s*=\s*['"`]#(?P<frag>[A-Za-z0-9_\-:.]+)['"`]""")
+
 # Allow markers — within ±200 chars of the link match
 ALLOW_RE = re.compile(r"link-allow", re.IGNORECASE)
+
+
+def _has_fragment(text: str, frag: str) -> bool:
+    """True when the document declares the fragment target: id= or name=, any quote style.
+    A static-text check on purpose — an id minted only by JS must carry a link-allow marker,
+    because a reader with JS disabled (or before that script runs) taps into nothing."""
+    return re.search(
+        r"""\b(?:id|name)\s*=\s*["']?""" + re.escape(frag) + r"""["'\s>]""", text
+    ) is not None
 
 
 def _strip_target_query(t: str) -> str:
@@ -126,14 +144,23 @@ def main() -> int:
     total_links  = 0
     seen_broken: set[tuple[str, str]] = set()  # (page, target)
 
+    # Cross-page fragment checks read the target page too — cache those reads.
+    _text_cache: dict[Path, str] = {}
+
+    def _read(p: Path) -> str:
+        if p not in _text_cache:
+            try:
+                _text_cache[p] = p.read_text(encoding="utf-8", errors="replace")
+            except Exception:
+                _text_cache[p] = ""
+        return _text_cache[p]
+
     for name in PAGES:
         page = ROOT / name
-        if not page.exists():
-            continue
-        try:
-            body = page.read_text(encoding="utf-8", errors="replace")
-        except Exception:
-            continue
+        # The roster is derived from disk (glob), so a missing page is an internal
+        # contradiction, not a skippable condition — the old silent `continue` here hid
+        # two phantom roster entries for months.
+        body = _read(page)
 
         broken: list[dict] = []
         page_link_count = 0
@@ -151,16 +178,48 @@ def main() -> int:
                 resolved = _resolve(page, target)
                 if resolved is None:
                     continue
+                key = (name, target)
+                if key in seen_broken:
+                    continue
                 if not resolved.exists():
-                    key = (name, target)
-                    if key in seen_broken:
-                        continue
                     seen_broken.add(key)
                     broken.append({
                         "target":   target,
+                        "reason":   "file missing",
                         "resolved": str(resolved.relative_to(ROOT)) if resolved.is_absolute() and resolved.is_relative_to(ROOT) else str(resolved),
                         "offset":   m.start(),
                     })
+                    continue
+                # T1: the file exists — if the link names a #fragment, the fragment must too.
+                if "#" in target:
+                    frag = target.split("#", 1)[1].split("?", 1)[0]
+                    if frag and not _has_fragment(_read(resolved), frag):
+                        seen_broken.add(key)
+                        broken.append({
+                            "target":   target,
+                            "reason":   f"anchor #{frag} not declared in target",
+                            "resolved": str(resolved.relative_to(ROOT)) if resolved.is_absolute() and resolved.is_relative_to(ROOT) else str(resolved),
+                            "offset":   m.start(),
+                        })
+
+        # T1: in-page anchors — a tap that scrolls nowhere is a dead link on the SAME page.
+        for m in PURE_ANCHOR_RE.finditer(body):
+            frag = m.group("frag")
+            page_link_count += 1
+            win = body[max(0, m.start() - 200):m.end() + 200]
+            if ALLOW_RE.search(win):
+                continue
+            if not _has_fragment(body, frag):
+                key = (name, "#" + frag)
+                if key in seen_broken:
+                    continue
+                seen_broken.add(key)
+                broken.append({
+                    "target":  "#" + frag,
+                    "reason":  "in-page anchor with no matching id/name",
+                    "resolved": name,
+                    "offset":  m.start(),
+                })
 
         per_page.append({
             "page":        name,

@@ -322,7 +322,10 @@ await browser.close();
 
 const graded = results.filter((r) => r.ok !== null);
 const bad = graded.filter((r) => !r.ok);
-writeFileSync('dialog_a11y_report.json', JSON.stringify({
+// A NARROWED RUN MUST NOT CLOBBER THE FULL ONE: this file is read downstream (gates and
+// bank_prover_reports), so a --page/--case spot-check overwriting a whole sweep's verdicts
+// corrupts the BANK, not just a log. Measured on prove_retry_path 2026-08-27.
+writeFileSync((ONE ? 'dialog_a11y_report.partial.json' : 'dialog_a11y_report.json'), JSON.stringify({
   oracles: ['icon_only_name', 'focus_visible', 'reduced_motion'],
   notMeasured: { contrast_wcag: 'not computable from the CSSOM here — uncomposited alpha reads 1.00 and a '
                  + 'gradient defeats a single-colour sample; those rows stay OWED rather than banked wrong',

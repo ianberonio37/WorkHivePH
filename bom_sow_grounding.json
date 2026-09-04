@@ -2,73 +2,28 @@
   "tool": "tools/validate_bom_sow_grounding.py",
   "subject": "engineering-bom-sow LLM artifact grounds the calc's primary sized values (live)",
   "cells_total": 7,
-  "cells_grounded": 7,
-  "cells_skipped": 0,
+  "cells_grounded": 0,
+  "cells_skipped": 7,
   "detail": {
     "Pump Sizing (TDH)": {
-      "bom_http": 200,
-      "bom_len": 8810,
-      "cells": {
-        "motor kW": {
-          "value": 0.18,
-          "as": "0.18",
-          "grounded": true
-        },
-        "TDH": {
-          "value": 25.0,
-          "as": "25",
-          "grounded": true
-        }
-      }
+      "bom_http": 503,
+      "skipped": "service/transient (non-200) \u2014 not a grounding signal"
     },
     "Transformer Sizing": {
-      "bom_http": 200,
-      "bom_len": 6185,
-      "cells": {
-        "rated kVA": {
-          "value": 1000,
-          "as": "1000",
-          "grounded": true
-        }
-      }
+      "bom_http": 503,
+      "skipped": "service/transient (non-200) \u2014 not a grounding signal"
     },
     "AHU Sizing": {
-      "bom_http": 200,
-      "bom_len": 14195,
-      "cells": {
-        "coil kW": {
-          "value": 75.12,
-          "as": "75.12",
-          "grounded": true
-        }
-      }
+      "bom_http": 503,
+      "skipped": "service/transient (non-200) \u2014 not a grounding signal"
     },
     "Fire Pump Sizing": {
-      "bom_http": 200,
-      "bom_len": 8464,
-      "cells": {
-        "flow L/min": {
-          "value": 2840,
-          "as": "2840",
-          "grounded": true
-        },
-        "motor HP": {
-          "value": 100.5,
-          "as": "100.5",
-          "grounded": true
-        }
-      }
+      "bom_http": 503,
+      "skipped": "service/transient (non-200) \u2014 not a grounding signal"
     },
     "Generator Sizing": {
-      "bom_http": 200,
-      "bom_len": 7961,
-      "cells": {
-        "rated kVA": {
-          "value": 87.5,
-          "as": "87.5",
-          "grounded": true
-        }
-      }
+      "bom_http": 503,
+      "skipped": "service/transient (non-200) \u2014 not a grounding signal"
     }
   },
   "result": "PASS"

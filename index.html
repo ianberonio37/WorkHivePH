@@ -17,6 +17,64 @@
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="https://workhiveph.com/" />
   <link rel="manifest" href="manifest.json" />
+  <!-- T119: ES5 old-browser canary — must load BEFORE any ES2020 script so a pre-2020
+       engine gets a plain-language banner instead of a wordless white page. -->
+  <script src="browser-floor.js"></script>
+  <!-- T155 (2026-08-25): the 404 notice. Netlify serves THIS page (status 404, path preserved)
+       for every unknown URL — SEO-correct, but the visitor at /old-bookmark saw the homepage
+       with zero words about their dead link. Detect the foreign path and say so. ES5 inline so
+       it also speaks on old engines. -->
+  <script>
+  (function () {
+    try {
+      var p = location.pathname;
+      var known = /^\/(index\.html)?$/.test(p) || /^\/workhive\/(index\.html)?$/.test(p);
+      if (known) return;
+      // A real page that exists is served AS itself, never through this file — so any other
+      // path reaching index.html's code IS the 404 rewrite.
+      // T155 (2026-08-28): the notice used to end "use the navigation or search below" — and this
+      // page has no search box at all, so the one message whose entire job is helping a lost
+      // visitor was pointing at something that does not exist. It now CARRIES a real search that
+      // hands off to the learn hub's own filter (?q=, taught this same day), pre-filled with the
+      // slug the visitor actually asked for — so the common case needs no typing, just Enter.
+      var base = p.indexOf('/workhive/') === 0 ? '/workhive' : '';
+      var guess = '';
+      try {
+        var segs = p.replace(/\/+$/, '').split('/');
+        guess = (segs[segs.length - 1] || '').replace(/\.html?$/i, '').replace(/[-_]+/g, ' ').trim();
+      } catch (e2) { guess = ''; }
+
+      document.addEventListener('DOMContentLoaded', function () {
+        var d = document.createElement('div');
+        d.setAttribute('role', 'alert');
+        d.style.cssText = 'background:#7c2d12;color:#fff;padding:10px 16px;font-size:13px;line-height:1.5;text-align:center;';
+        var msg = document.createElement('span');
+        // textContent, never innerHTML: the path comes from the URL and is attacker-controllable.
+        msg.textContent = 'The page "' + p + '" doesn’t exist (it may have moved). You’re on the WorkHive homepage. Search the guides:';
+        d.appendChild(msg);
+
+        var f = document.createElement('form');
+        f.setAttribute('method', 'get');
+        f.setAttribute('action', base + '/learn/');
+        f.style.cssText = 'display:inline-flex; gap:6px; margin-left:10px; vertical-align:middle; flex-wrap:wrap; justify-content:center;';
+        var lab = document.createElement('label');
+        lab.setAttribute('for', 'wh-404-q');
+        lab.textContent = 'Search the guides';
+        lab.style.cssText = 'position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap;';
+        var q = document.createElement('input');
+        q.id = 'wh-404-q'; q.name = 'q'; q.type = 'search'; q.value = guess;
+        q.setAttribute('placeholder', 'Search the guides');
+        q.style.cssText = 'min-height:36px; padding:4px 10px; border-radius:8px; border:1px solid rgba(255,255,255,.45); background:rgba(0,0,0,.25); color:#fff; font-size:13px;';
+        var go = document.createElement('button');
+        go.type = 'submit'; go.textContent = 'Search';
+        go.style.cssText = 'min-height:36px; padding:4px 14px; border-radius:8px; border:1px solid rgba(255,255,255,.5); background:rgba(255,255,255,.12); color:#fff; font-size:13px; font-weight:600; cursor:pointer;';
+        f.appendChild(lab); f.appendChild(q); f.appendChild(go);
+        d.appendChild(f);
+        document.body.insertBefore(d, document.body.firstChild);
+      }, false);
+    } catch (e) { /* empty-catch-allow: the 404 notice is decorative; a failure paints nothing on a page that must still work */ }
+  })();
+  </script>
   <!-- Open Graph -->
   <meta property="og:title" content="WorkHive | Free Industrial Tools for Every Filipino Worker" />
   <meta property="og:description" content="Free industrial tools for Filipino workers at every level. Digital logbook, PM scheduler, inventory, skill matrix, and AI assistant. Built for the plant floor." />
@@ -133,6 +191,7 @@
           "AI Work Assistant",
           "Philippine Industrial Intelligence Report",
           "Asset Hub",
+          "Seller Dashboard",
           "Predictive Analytics",
           "Alert Hub",
           "Audit Log",
@@ -147,7 +206,8 @@
           "CMMS Integration",
           "Predictive Maintenance",
           "Achievements",
-          "Shift Handover Report"
+          "Shift Handover Report",
+          "Report Sender"
         ],
         "offers": {
           "@type": "Offer",
@@ -247,7 +307,7 @@
             "name": "How do I sign up?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Enter your work email in the Join the Hive form on this page. You will be added to the early-access list and contacted with a hive-join link once your facility is provisioned. Sign-up is free and takes about 30 seconds."
+              "text": "Tap Sign Up, choose a username and password, and you are in: free, about 30 seconds, no email and no waiting for provisioning. Every tool works immediately in Solo Mode, and you create or join your plant's hive with an invite code whenever your team is ready. Prefer product updates by email first? The Get updates form on this page adds you to the mailing list without creating an account."
             }
           },
           {
@@ -1037,7 +1097,7 @@
           </div>
         </div>
       </div>
-      <a href="#join"      class="btn-primary text-sm py-2.5 px-6">Join WorkHive</a>
+      <a href="?signup=1" data-wh-cta="nav" class="btn-primary text-sm py-2.5 px-6" data-i="signup">Sign Up</a>
     </div>
 
     <!-- Mobile Sign In (always visible on mobile) -->
@@ -1077,7 +1137,7 @@
         <span data-i="installwh">Install WorkHive</span>
       </button>
       <button type="button" onclick="openSignIn(event)" class="signin-btn btn-ghost text-sm text-center" data-i="signin">Sign In</button>
-      <a href="#join" class="btn-primary text-sm text-center">Join WorkHive</a>
+      <a href="?signup=1" data-wh-cta="mobile-menu" class="btn-primary text-sm text-center" data-i="signup">Sign Up</a>
     </div>
   </div>
 </nav>
@@ -1186,6 +1246,17 @@
           <button type="button" data-lang="en" class="on" aria-pressed="true" translate="no">EN</button>
           <button type="button" data-lang="fil" aria-pressed="false" translate="no">FIL</button>
         </div>
+        <!-- T59 (2026-08-26): password change had NO entry point for a signed-in user. The only
+             password write on the platform runs inside the PASSWORD_RECOVERY event, so changing it
+             meant leaving the app, finding "Forgot your password?" on the landing page and waiting
+             for an email - and nothing anywhere said so, leaving a security-conscious user hunting
+             for a settings page that does not exist. The roadmap's bar is "findable and walkable,
+             OR honestly stated absent"; this was neither. This does not BUILD the account surface
+             (that stays Ian's call, along with sessions and 2FA) - it surfaces the flow that
+             already works, in the one place the platform keeps account actions, beside Sign Out.
+             forgotPassword() is already window-scoped and states its own caveat for the many field
+             workers who have no email on file: ask your supervisor. -->
+        <button type="button" onclick="forgotPassword(event)" class="oh-signout" data-i="changepwd" style="font-size:.7rem; font-weight:600; padding:6px 14px; background:rgba(255,255,255,.05); color:rgba(255,255,255,.7); border:1px solid rgba(255,255,255,.1); border-radius:8px; font-family:inherit; cursor:pointer;">Change Password</button>
         <button onclick="signOut()" class="oh-signout" data-i="signout" style="font-size:.7rem; font-weight:600; padding:6px 14px; background:rgba(255,255,255,.05); color:rgba(255,255,255,.7); border:1px solid rgba(255,255,255,.1); border-radius:8px; font-family:inherit; cursor:pointer;">Sign Out</button>
       </div>
     </div>
@@ -1342,7 +1413,7 @@
         </p>
 
         <div class="flex flex-wrap items-center gap-4 mb-5">
-          <a href="#join" class="btn-primary text-base cta-pulse">Join the Hive</a>
+          <a href="?signup=1" data-wh-cta="hero" class="btn-primary text-base cta-pulse">Join the Hive</a>
           <a href="#platform" class="cta-text-link">
             See How It Works
             <span class="ic ic-next" aria-hidden="true"></span>
@@ -1354,13 +1425,13 @@
              visitor to a gated tool page. The promise stays truthful: free to use, sign up to start. -->
         <div class="flex flex-wrap items-center gap-x-3 gap-y-2 mb-7 text-xs">
           <span class="text-white/80 font-medium uppercase tracking-wider">Free to use, sign up to start:</span>
-          <a href="#join" onclick="openSignUp(event)" class="text-orange-wh hover:text-white transition-colors font-semibold inline-flex items-center min-h-[44px]">Logbook</a>
+          <a href="?signup=1" data-wh-cta="free-tools" class="text-orange-wh hover:text-white transition-colors font-semibold inline-flex items-center min-h-[44px]">Logbook</a>
           <span class="text-white/15" aria-hidden="true">·</span>
-          <a href="#join" onclick="openSignUp(event)" class="text-orange-wh hover:text-white transition-colors font-semibold inline-flex items-center min-h-[44px]">PM Scheduler</a>
+          <a href="?signup=1" data-wh-cta="free-tools" class="text-orange-wh hover:text-white transition-colors font-semibold inline-flex items-center min-h-[44px]">PM Scheduler</a>
           <span class="text-white/15" aria-hidden="true">·</span>
-          <a href="#join" onclick="openSignUp(event)" class="text-orange-wh hover:text-white transition-colors font-semibold inline-flex items-center min-h-[44px]">Eng. Calculators</a>
+          <a href="?signup=1" data-wh-cta="free-tools" class="text-orange-wh hover:text-white transition-colors font-semibold inline-flex items-center min-h-[44px]">Eng. Calculators</a>
           <span class="text-white/15" aria-hidden="true">·</span>
-          <a href="#join" onclick="openSignUp(event)" class="text-orange-wh hover:text-white transition-colors font-semibold inline-flex items-center min-h-[44px]">AI Assistant</a>
+          <a href="?signup=1" data-wh-cta="free-tools" class="text-orange-wh hover:text-white transition-colors font-semibold inline-flex items-center min-h-[44px]">AI Assistant</a>
         </div>
 
         <!-- Trust chip row: 3 short proof points. DTI = authority, Free = pricing clincher, PDPA = data trust. -->
@@ -1572,7 +1643,7 @@
       <li><a href="/alert-hub.html">Alert Hub: One chronological inbox: risk, PM, stock, pattern, automation alerts. Plus the AMC Daily Brief at 06:00 PHT, a 5-sub-agent batched recommendation the supervisor approves with one tap.</a></li>
       <li><a href="/asset-hub.html">Asset Hub: Asset Brain 360 per equipment: live state, full timeline (logbook + PM + inventory + projects), parent and sister machines, parts that fit, AI Q+A grounded in this asset's own history. QR/barcode scan.</a></li>
       <li><a href="/logbook.html">Visual Defect Capture: Snap a photo of rust, leak, crack, burn. Multimodal LLM (Llama-4-Scout / Gemma-3) classifies, OCRs the asset tag, drafts the logbook entry. Inside the logbook flow.</a></li>
-      <li><a href="/community.html">Community: Hive forum: categories (general, safety, technical, announcement), reactions, threads, mentions, supervisor moderation, soft-delete with undo.</a></li>
+      <li><a href="/community.html">Community: Hive forum: categories (general, safety, technical, announcement), reactions, threads, mentions, supervisor moderation, delete with a brief undo window.</a></li>
       <li><a href="/public-feed.html">Public Feed: Cross-hive public posts, opt-in only. Workers gain visibility across plants while hive data stays isolated. Rate-limited at the DB level.</a></li>
       <li><a href="/achievements.html">Achievements: 12-domain XP system (Wrench Chronicle, Uptime Guardian, Safety Sentinel, etc.). Tier frames Iron to Legend. XP rewards real work, not clicks.</a></li>
       <li><a href="/analytics.html">Analytics Engine: MTBF, MTTR, Availability, OEE, PM Compliance, Pareto. 4 phases (descriptive, diagnostic, predictive, prescriptive). ISO 14224 + SMRP + ISA-101 anchored.</a></li>
@@ -1589,7 +1660,7 @@
       <li><a href="/project-report.html">Project Report: Print-ready single-project report. Executive cover, scope by phase, linked work tables, S-curve progress timeline, sign-off block, lessons learned. Contractor handover packet.</a></li>
       <li><a href="/integrations.html">CMMS Integration: SAP PM + IBM Maximo + generic CMMS bridge. Pull work orders, push completions, receive webhooks. WorkHive is the field-worker interface, not the ERP replacement. ISO 14224 field mapping.</a></li>
       <li><a href="/marketplace.html">Marketplace: Buyer-facing parts, training, jobs. PH-anchored: DTI-registered sellers, Messenger contact, verified badges, JSON-LD inquiry templates. Free, contact-only directory with no platform fees.</a></li>
-      <li><a href="/marketplace-seller.html">Marketplace Seller: Become a supplier on the platform. Seller dashboard, listings, inquiries, watchlist, analytics, multi-tier verification badges, public seller profile.</a></li>
+      <li><a href="/marketplace-seller.html">Seller Dashboard: Become a supplier on the platform. Seller dashboard, listings, inquiries, watchlist, analytics, multi-tier verification badges, public seller profile.</a></li>
       <li><a href="/ai-quality.html">AI Quality + ROI: WorkHive AI Quality + ROI dashboard. Honest visibility into AI cost, quality, and predicted savings, gated to Stair 2+ so the numbers only appear when the hive has earned the right to trust them.</a></li>
     <!--/CATALOG:tool_catalog_mirror-->
   </ul>
@@ -1991,7 +2062,7 @@
 
       <details class="faq-item">
         <summary>How do I sign up?</summary>
-        <div class="faq-answer">Enter your work email in the Join the Hive form on this page. You will be added to the early-access list and contacted with a hive-join link once your facility is provisioned. Sign-up is free and takes about 30 seconds.</div>
+        <div class="faq-answer">Tap Sign Up, choose a username and password, and you are in: free, about 30 seconds, no email and no waiting for provisioning. Every tool works immediately in Solo Mode, and you create or join your plant's hive with an invite code whenever your team is ready. Prefer product updates by email first? The Get updates form on this page adds you to the mailing list without creating an account.</div>
       </details>
 
       <details class="faq-item">
@@ -2135,10 +2206,18 @@
       has been missing. Be among the first to build it.
     </p>
 
-    <!-- email signup. Role dropdown is OPTIONAL (never required) so the form
-         stays one-tap-to-submit for the visitor in a hurry. The role lets us
-         segment Phase 3 outreach by audience (field worker copy lands very
-         differently from plant manager copy). -->
+    <!-- T1: PRIMARY action here = the free account (the product's real front door; signup is
+         instant, username + password, no provisioning). The email form below is DEMOTED to an
+         honest secondary "Get updates" block — it adds you to a mailing list, not an account,
+         and its copy says exactly that. Waitlist-primary remains a one-edit revisit via
+         window.WH_CONVERSION_MODE = 'waitlist' (utils.js whPrimaryCta). The role <select> was
+         removed with it: a decorative field on a demoted form is friction without a consumer. -->
+    <div class="mb-10">
+      <a href="?signup=1" data-wh-cta="join-section" class="btn-primary text-base cta-pulse">Create Your Free Account</a>
+      <p class="text-xs text-white/80 mt-3">Free at the worker tier, forever · About 30 seconds · No email required</p>
+    </div>
+
+    <p class="text-sm text-white/80 font-semibold mb-3">Not ready yet? Get product updates by email:</p>
     <form id="joinForm" data-ga4-signup class="max-w-md mx-auto mb-3" onsubmit="handleSignup(event)">
       <div class="flex flex-col sm:flex-row gap-3 mb-3">
         <label for="join-email" class="sr-only-none" style="display:block;font-size:0.75rem;font-weight:600;color:rgba(255,255,255,0.86);margin-bottom:4px;">Work email</label>
@@ -2152,32 +2231,11 @@
           class="flex-1 px-5 py-3.5 rounded-xl text-white wh-ph text-sm font-medium border border-white/[0.12] focus:outline-none focus:border-orange-wh/60 focus:ring-2 focus:ring-orange-wh/20 transition-colors"
           style="background: rgba(42,61,88,0.7);"
         />
-        <button type="submit" class="btn-primary text-sm whitespace-nowrap" data-i="joinhivebtn">Join the Hive</button>
+        <button type="submit" class="btn-ghost text-sm whitespace-nowrap">Get updates</button>
       </div>
-      <label for="join-role" class="sr-only" data-i="yourrole">Your role (optional)</label>
-      <select
-        id="join-role"
-        name="role"
-        aria-label="Your role (optional)"
-        class="w-full px-5 py-3 rounded-xl text-white text-sm font-medium border border-white/[0.10] focus:outline-none focus:border-orange-wh/60 focus:ring-2 focus:ring-orange-wh/20 transition-colors appearance-none"
-        style="background: rgba(42,61,88,0.5); background-image: url('data:image/svg+xml;utf8,<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;12&quot; height=&quot;8&quot; viewBox=&quot;0 0 12 8&quot;><path fill=&quot;%23F7A21B&quot; d=&quot;M6 8 0 0h12z&quot;/></svg>'); background-position: right 1rem center; background-repeat: no-repeat; padding-right: 2.5rem;"
-      >
-        <option value="">Your role (optional): helps us send the right starter pack</option>
-        <option value="field_worker">Field worker / Operator</option>
-        <option value="technician">Maintenance Technician</option>
-        <option value="supervisor">Supervisor / Shift Lead</option>
-        <option value="engineer">Engineer (Reliability / Design / Process)</option>
-        <option value="planner">Planner / Maintenance Planner</option>
-        <option value="manager">Plant Manager / Operations Manager</option>
-        <option value="supplier">Supplier / Vendor</option>
-        <option value="contractor">Contractor / Specialist</option>
-        <option value="graduate">New Graduate / Student</option>
-        <option value="upskiller">Upskilling worker (career switch)</option>
-        <option value="other">Other</option>
-      </select>
     </form>
 
-    <p class="text-xs text-white/80 mb-12">Adds you to the early-access list, not an account yet · Philippines-first · No spam, ever</p>
+    <p class="text-xs text-white/80 mb-12">Adds you to the updates list, not an account · Philippines-first · No spam, ever</p>
 
     <div class="flex flex-wrap items-center justify-center gap-8 pt-8 border-t border-white/[0.07]">
       <div class="flex items-center gap-3">
@@ -2299,16 +2357,29 @@
     });
   });
 
-  // ---- Scroll reveal: JS IntersectionObserver, all browsers ----
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('visible');
-        observer.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
-  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+  // ---- Scroll reveal ----
+  // ★AN ANIMATION'S ABSENCE MUST NEVER HIDE CONTENT (T119, 2026-08-27). The old comment here said
+  // "all browsers", which was an assumption rather than a check, and the consequence was not a
+  // missing animation — it was a blank page. `.reveal` starts at opacity:0 and is only made visible
+  // when this observer adds `.visible`, so on an engine without IntersectionObserver the
+  // constructor THREW, the rest of this block never ran, and all 14 .reveal elements stayed
+  // invisible forever. Measured by removing the API: index rendered 525 characters of text where
+  // every other page rendered 1146+. Nothing reported it, because the page "loaded fine".
+  // So: feature-detect, and when it is missing REVEAL EVERYTHING IMMEDIATELY. Losing the fade is a
+  // cosmetic downgrade; losing the content is the landing page.
+  if (typeof IntersectionObserver === 'function') {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+  } else {
+    document.querySelectorAll('.reveal').forEach(el => el.classList.add('visible'));
+  }
 
   // ---- Smooth scroll ----
   document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -2323,41 +2394,19 @@
     });
   });
 
-  // ---- Email signup (via Formspree, no API key exposed) ----
+  // ---- Email updates signup (T1: demoted secondary — the primary CTA is the free account;
+  //      the role <select> went with the demotion, so this is back to one field, one tap) ----
   async function handleSignup(e) {
     e.preventDefault();
     const btn   = e.target.querySelector('button[type="submit"]');
     const input = e.target.querySelector('input[type="email"]');
-    const roleSelect = e.target.querySelector('select[name="role"]');
-    const role = roleSelect ? (roleSelect.value || '') : '';
 
     btn.textContent = 'Joining...';
     btn.disabled = true;
     input.disabled = true;
-    if (roleSelect) roleSelect.disabled = true;
-
-    // Persist role locally so we can attribute the signup even if the backend
-    // helper signature does not yet accept it. _supabaseSignup is called with
-    // (email, role) so future updates pick it up; older versions ignore the
-    // extra arg gracefully.
-    if (role) {
-      // storage-key-allow: write-ahead persistence hook; future backend
-      // helper will read this value when signup signature accepts role.
-      try { localStorage.setItem('wh.signup_role', role); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
-    }
-
-    // Fire the GA4 conversion event with role as a custom param. The
-    // signup_form_submit event in wh-ga4.js auto-fires on any joinForm
-    // submission; this adds the optional role for richer segmentation.
-    if (window.gtag && role) {
-      window.gtag('event', 'signup_role_captured', {
-        event_category: 'conversion',
-        role: role,
-      });
-    }
 
     try {
-      await window._supabaseSignup(input.value, role);
+      await window._supabaseSignup(input.value, 'join_updates_block');
 
       btn.textContent = "You're on the list!";
       btn.style.background = 'linear-gradient(135deg, #29B6D9 0%, #1A9ABF 100%)';
@@ -2366,7 +2415,6 @@
       btn.textContent = 'Try again';
       btn.disabled = false;
       input.disabled = false;
-      if (roleSelect) roleSelect.disabled = false;
     }
   }
 
@@ -2506,7 +2554,7 @@
         { name: 'Alert Hub',               desc: 'One chronological inbox: risk, PM, stock, pattern, automation alerts. Plus the AMC Daily Brief at 06:00 PHT, a 5-sub-agent batched recommendation the supervisor approves with one tap.',                          link: 'alert-hub.html',       icon: 'M18 8a6 6 0 00-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0' },
         { name: 'Asset Hub',               desc: 'Asset Brain 360 per equipment: live state, full timeline (logbook + PM + inventory + projects), parent and sister machines, parts that fit, AI Q+A grounded in this asset\'s own history. QR/barcode scan.',     link: 'asset-hub.html',       icon: 'M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16zM3.27 6.96L12 12.01l8.73-5.05M12 22.08V12' },
         { name: 'Visual Defect Capture',   desc: 'Snap a photo of rust, leak, crack, burn. Multimodal LLM (Llama-4-Scout / Gemma-3) classifies, OCRs the asset tag, drafts the logbook entry. Inside the logbook flow.',                                            link: 'logbook.html',         icon: 'M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9zM15 13a3 3 0 11-6 0 3 3 0 016 0z' },
-        { name: 'Community',         desc: 'Hive forum: categories (general, safety, technical, announcement), reactions, threads, mentions, supervisor moderation, soft-delete with undo.',                                                                  link: 'community.html',       icon: 'M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z' },
+        { name: 'Community',         desc: 'Hive forum: categories (general, safety, technical, announcement), reactions, threads, mentions, supervisor moderation, delete with a brief undo window.',                                                                  link: 'community.html',       icon: 'M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z' },
         { name: 'Public Feed',             desc: 'Cross-hive public posts, opt-in only. Workers gain visibility across plants while hive data stays isolated. Rate-limited at the DB level.',                                                                       link: 'public-feed.html',     icon: 'M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064' },
         { name: 'Achievements',            desc: '12-domain XP system (Wrench Chronicle, Uptime Guardian, Safety Sentinel, etc.). Tier frames Iron to Legend. XP rewards real work, not clicks.',                                                                   link: 'achievements.html',    icon: 'M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z' },
       ]
@@ -2543,7 +2591,7 @@
         { name: 'Project Report',          desc: 'Print-ready single-project report. Executive cover, scope by phase, linked work tables, S-curve progress timeline, sign-off block, lessons learned. Contractor handover packet.',                                  link: 'project-report.html',     icon: 'M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' },
         { name: 'CMMS Integration',           desc: 'SAP PM + IBM Maximo + generic CMMS bridge. Pull work orders, push completions, receive webhooks. WorkHive is the field-worker interface, not the ERP replacement. ISO 14224 field mapping.',                       link: 'integrations.html',       icon: 'M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1' },
         { name: 'Marketplace',                 desc: 'Buyer-facing parts, training, jobs. PH-anchored: DTI-registered sellers, Messenger contact, verified badges, JSON-LD inquiry templates. Free, contact-only directory with no platform fees.',                              link: 'marketplace.html',        icon: 'M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z' },
-        { name: 'Marketplace Seller',          desc: 'Become a supplier on the platform. Seller dashboard, listings, inquiries, watchlist, analytics, multi-tier verification badges, public seller profile.',                                                         link: 'marketplace-seller.html', icon: 'M3 9l1-4h16l1 4M3 9h18M3 9v11a1 1 0 001 1h4v-7h4v7h8a1 1 0 001-1V9' },
+        { name: 'Seller Dashboard',          desc: 'Become a supplier on the platform. Seller dashboard, listings, inquiries, watchlist, analytics, multi-tier verification badges, public seller profile.',                                                         link: 'marketplace-seller.html', icon: 'M3 9l1-4h16l1 4M3 9h18M3 9v11a1 1 0 001 1h4v-7h4v7h8a1 1 0 001-1V9' },
       ]
     }
   };
@@ -2693,8 +2741,11 @@
   <script src="qr-scanner.js"></script>
 
 <!-- ── Sticky mobile CTA bar ── -->
+<!-- T1: was <a href="#join"> — a dead tap on the page's most prominent phone control (the anchor
+     scroll was swallowed while the bar itself sat inert/aria-hidden). Now a real button through
+     whPrimaryCta (utils.js): the primary action IS the signup, and the tap is attributable. -->
 <div id="sticky-mobile-cta" class="md:hidden" aria-hidden="true" inert>
-  <a href="#join" class="btn-primary text-sm w-full text-center block">Get Early Access: It's Free</a>
+  <button type="button" data-wh-cta="sticky" class="btn-primary text-sm w-full text-center block">Get Early Access: It's Free</button>
 </div>
 
 <!-- ── SIGN IN MODAL ── -->
@@ -2702,7 +2753,17 @@
 <div id="upgrade-banner" style="display:none; position:fixed; bottom:96px; left:50%; transform:translateX(-50%); z-index:40; white-space:nowrap; max-width:calc(100vw - 2rem);"
      role="status" aria-live="polite">
   <div style="background:rgba(22,32,50,0.97); border:1px solid rgba(247,162,27,0.3); border-radius:999px; padding:10px 18px; display:flex; align-items:center; gap:10px; box-shadow:0 8px 32px rgba(0,0,0,0.4); font-size:0.78rem;">
-    <span style="color:rgba(255,255,255,0.80);">Signed in as <strong id="upgrade-banner-name" style="color:white;"></strong></span>
+    <!-- T60 (2026-08-26): this read "Signed in as <name>" and the ONLY condition that shows it
+         is `session === null` - a name on this device with no auth session. So the one person
+         who ever sees this banner is told the opposite of their actual state. It matters most
+         for the commonest way to reach it: an EXPIRED session, where the reader is already
+         wondering why things stopped working and is now assured they are signed in.
+
+         The banner is NOT a dead guest-mode remnant - C4 removed account-less access and T1
+         deleted #panel-guest, but this path still fires for a real state. It was mislabelled,
+         not orphaned, so the copy is what changes: name the device-local identity, and let the
+         button (Secure account) mean what it already does. -->
+    <span style="color:rgba(255,255,255,0.80);">Working as <strong id="upgrade-banner-name" style="color:white;"></strong> on this device, not signed in</span>
     <!-- Arc P · Wave 1 (P3): DEMOTED from solid-orange to outlined-amber so this
          housekeeping nudge no longer outshines the page's real primary action (the
          verdict/next-job). Also bumped to the 44px gloved-field tap target. -->
@@ -2761,6 +2822,13 @@
     <!-- Wrapped in <form> so password managers attach autofill + save flow.
          onsubmit returns false because submitSignIn() handles the POST via JS. -->
     <form id="panel-signin" role="tabpanel" aria-labelledby="tab-signin" onsubmit="event.preventDefault(); submitSignIn(); return false;">
+      <!-- T8 (2026-08-26): why the worker is looking at this screen. An unexplained sign-in modal is
+           indistinguishable from being logged out at random, and the question in a mid-task worker's
+           head is "did I lose what I was doing?" - so the answer is given here, and it is true:
+           session-timeout clears only the IDENTITY keys, never the whAutoSaveDraft entries, and
+           saved work is in the database. Populated from ?reason= (idle | othertab); stays hidden
+           when the person simply chose to sign in. -->
+      <p id="si-reason" role="status" class="hidden" style="margin:0 0 0.9rem;font-size:0.72rem;line-height:1.5;color:rgba(255,255,255,0.78);background:rgba(41,182,217,0.10);border:1px solid rgba(41,182,217,0.22);border-radius:var(--wh-radius-sm, 0.6rem);padding:0.6rem 0.7rem;"></p>
       <div class="space-y-3 mb-3">
         <label for="si-username" class="block text-xs mb-1" style="color:rgba(255,255,255,0.86);font-weight:600;">Username</label>
         <input id="si-username" type="text" placeholder="Username" autocomplete="username"
@@ -2795,6 +2863,14 @@
           Enterprise SSO (Okta / Azure AD)
         </button>
       </div>
+      <!-- T1 (Ian verbatim): "when you face the sign in, there should also be a sign up." The tab
+           above says it structurally; this says it in words, at the moment of facing the wall. -->
+      <p class="text-center text-xs" style="margin-top:14px; color:rgba(255,255,255,0.80);">
+        Don&#39;t have an account?
+        <button type="button" data-wh-authtab="signup"
+          style="background:none;border:none;padding:0 2px;min-height:44px;cursor:pointer;font-family:inherit;font-size:inherit;font-weight:700;color:var(--wh-orange-text);text-decoration:underline;">
+          Create one for free</button>
+      </p>
     </form>
 
     <!-- Sign Up panel -->
@@ -2843,20 +2919,36 @@
         class="w-full rounded-xl py-3 text-sm font-bold"
         style="background:var(--wh-orange); color:var(--wh-navy);" data-i="createaccount">Create Account</button>
       <p class="text-center text-xs mt-2" style="color:rgba(255,255,255,0.80);">Username cannot be changed later</p>
+      <!-- T172 (2026-08-28): the terms open "By using WorkHive, you agree to these terms", but the
+           signup form linked NEITHER the terms nor the privacy policy. The only copies on this page
+           sit ~580 lines away in other regions, so a person could create an account without the
+           agreement ever being present at the moment of consent. Links open in a new tab on purpose:
+           this form holds a typed username, password and display name, and navigating away in-place
+           would discard all of it to read the thing you are agreeing to. NOTE ON ELIGIBILITY: the
+           terms state no age or legal-capacity requirement anywhere, so there is deliberately no
+           "I am 18" line here -- signup must not assert a rule the terms do not make. -->
+      <!-- 0.80, matching the sibling note above rather than the 0.70 I first picked: this panel's
+           established value for secondary text is 0.80, and a legal agreement is the last line that
+           should be the dimmest thing on the screen. -->
+      <p class="text-center text-xs" style="margin-top:8px; color:rgba(255,255,255,0.80);">
+        By creating an account you agree to our
+        <a href="/terms-of-service/" target="_blank" rel="noopener noreferrer"
+           style="color:var(--wh-orange-text); text-decoration:underline;">Terms of Service</a>
+        and
+        <a href="/privacy-policy/" target="_blank" rel="noopener noreferrer"
+           style="color:var(--wh-orange-text); text-decoration:underline;">Privacy Policy</a>.
+      </p>
+      <!-- T1 reciprocity: the sign-up wall offers the sign-in door, same as the reverse. -->
+      <p class="text-center text-xs" style="margin-top:10px; color:rgba(255,255,255,0.80);">
+        Already have an account?
+        <button type="button" data-wh-authtab="signin"
+          style="background:none;border:none;padding:0 2px;min-height:44px;cursor:pointer;font-family:inherit;font-size:inherit;font-weight:700;color:var(--wh-orange-text);text-decoration:underline;" data-i="signin">
+          Sign In</button>
+      </p>
     </form>
 
-    <!-- Guest panel removed (C4: all access now requires auth) -->
-    <div id="panel-guest" class="hidden">
-      <div style="text-align:center; padding:1rem 0;">
-        <p style="color:rgba(255,255,255,0.80); font-size:0.875rem; margin-bottom:0.5rem;">Account required</p>
-        <p style="color:rgba(255,255,255,0.80); font-size:0.75rem; line-height:1.5; margin-bottom:1.25rem;">
-          WorkHive now requires an account to protect your data. Sign up: it takes 30 seconds.
-        </p>
-        <button onclick="switchAuthTab('signup')" style="background:var(--wh-orange);color:var(--wh-navy);border:none;border-radius:0.75rem;padding:0.75rem 2rem;font-size:0.875rem;font-weight:700;cursor:pointer;" data-i="createaccountgo">
-          Create Account →
-        </button>
-      </div>
-    </div>
+    <!-- T1: #panel-guest deleted — it was an orphan (no tab reached it since C4 removed guest
+         access) whose Enter-key branch and switchAuthTab entry survived as dead code. -->
   </div>
 </div>
 
@@ -2928,7 +3020,7 @@
       const dispEl = document.getElementById('su-displayname');
       if (dispEl) { dispEl.readOnly = false; dispEl.style.opacity = ''; dispEl.title = ''; }
     }
-    ['signin','signup','guest'].forEach(t => {
+    ['signin','signup'].forEach(t => {
       document.getElementById('panel-' + t)?.classList.toggle('hidden', t !== tab);
       const btn = document.getElementById('tab-' + t);
       if (btn) {
@@ -2951,18 +3043,33 @@
         btn.setAttribute('aria-selected', active ? 'true' : 'false');
       }
     });
-    const firstInput = { signin: 'si-username', signup: 'su-username', guest: 'guest-input' }[tab];
+    const firstInput = { signin: 'si-username', signup: 'su-username' }[tab];
     if (firstInput) setTimeout(() => document.getElementById(firstInput)?.focus(), 50);
     if (tab === 'signup') mountTurnstile();  // Arc I I7/I: render the bot-protection widget (no-op if unconfigured)
   }
 
+  // T1/CSP: ONE delegated listener for the conversion CTAs + the modal reciprocity buttons —
+  // data-wh-cta / data-wh-authtab attributes instead of inline onclick, so the CSP inline-
+  // handler ratchet stays frozen (11 new inline handlers would have RAISED the frozen debt).
+  document.addEventListener('click', function (e) {
+    const cta = e.target.closest && e.target.closest('[data-wh-cta]');
+    if (cta) { whPrimaryCta(cta.getAttribute('data-wh-cta'), e); return; }
+    const tab = e.target.closest && e.target.closest('[data-wh-authtab]');
+    if (tab) switchAuthTab(tab.getAttribute('data-wh-authtab'));
+  });
+
   // ── Open / Close ───────────────────────────────────────────────────────────
   // a11y: remember who opened the dialog so ESC / close can restore focus to it.
   let _signinOpener = null;
-  function openSignIn(e) {
+  function openSignIn(e, force) {
     if (e) e.preventDefault();
     const name = whWorker() || '';
-    if (name) { toggleUserMenu(e); return; }
+    // T8 (2026-08-25, measured): the cached name OUTLIVES the session, so after a session death
+    // the ?signin=1 deep link (incl. the session-dead banner's own "Sign in" link) hit this
+    // guard and toggled the USER MENU instead of opening the modal — the sign-in door jammed
+    // for exactly the people who need it. The resolver passes force=true to bypass the cache;
+    // a live-session user who follows such a link just sees the modal, which is honest too.
+    if (name && !force) { toggleUserMenu(e); return; }
     _signinOpener = (e && e.currentTarget) || document.activeElement;
     document.getElementById('signin-modal').classList.remove('hidden');
     switchAuthTab('signin');
@@ -2971,10 +3078,10 @@
   // Free-platform CTA: the tools are free to USE but need a (free) account (C4 removed
   // account-less guest access). Open the modal straight to the SIGN-UP tab so the landing's
   // "Free to use — sign up to start" tool links resolve truthfully instead of dead-bouncing.
-  function openSignUp(e) {
+  function openSignUp(e, force) {
     if (e) e.preventDefault();
     const name = whWorker() || '';
-    if (name) { toggleUserMenu(e); return; }   // already signed in → user menu, not signup
+    if (name && !force) { toggleUserMenu(e); return; }   // already signed in → user menu, not signup (force: see openSignIn's T8 note)
     _signinOpener = (e && e.currentTarget) || document.activeElement;
     document.getElementById('signin-modal').classList.remove('hidden');
     switchAuthTab('signup');
@@ -3021,12 +3128,25 @@
     btn.textContent = 'Redirecting to your identity provider...';
     try {
       const { data, error } = await db.auth.signInWithSSO({ domain: domain.trim().toLowerCase() });
-      if (error) { btn.disabled = false; btn.textContent = 'Enterprise SSO (Okta / Azure AD)'; showToast('SSO error: ' + error.message + '\n\nEnsure your IT team has configured WorkHive as an SSO application in your identity provider.', 'error'); return; }
+      // T171 (2026-08-28): this branch used to toast 'SSO error: ' + error.message, EN-only, with
+      // the provider's raw string pasted in front of the guidance -- while the catch branch three
+      // lines below already said the same thing cleanly and bilingually. The asymmetry mattered
+      // because THIS is the common path: Supabase RETURNS an error object for a domain with no
+      // registered IdP rather than throwing, so the rougher of the two messages was the one an
+      // evaluating IT admin actually saw. The raw message now goes to the console where it helps
+      // whoever is debugging, and the person gets the same sentence either way.
+      if (error) {
+        console.error('index enterprise-SSO refused:', error);
+        btn.disabled = false; btn.textContent = 'Enterprise SSO (Okta / Azure AD)';
+        showToast(_t('SSO is not set up for this domain yet. Ask your IT team to register WorkHive as an SSO application in your identity provider.',
+                     'Hindi pa naka-set up ang SSO para sa domain na ito. Ipa-register sa IT team ninyo ang WorkHive bilang SSO application sa inyong identity provider.'), 'error');
+        return;
+      }
       if (data?.url) window.location.href = data.url;
     } catch (e) {
       console.error('index enterprise-SSO failed:', e);
       btn.disabled = false; btn.textContent = 'Enterprise SSO (Okta / Azure AD)';
-      showToast('SSO not available for this domain. Contact your IT administrator.', 'error');
+      showToast(_t('SSO not available for this domain. Contact your IT administrator.', 'Hindi available ang SSO para sa domain na ito. Makipag-ugnayan sa IT administrator ninyo.'), 'error');
     }
   }
 
@@ -3038,17 +3158,35 @@
   // canonical resolution, reusing the SAME v_worker_truth / v_hives_truth views.
   // It ALWAYS clears the hive keys first, so identity B never inherits identity A's
   // hive, then sets them only from B's own membership truth (solo mode if none).
-  async function resolveActiveHiveContext(db, displayName) {
+  async function resolveActiveHiveContext(db, displayName, authUid) {
     // Clear up front: never inherit the previous identity's tenant context.
     ['wh_active_hive_id','wh_hive_id','wh_hive_name','wh_hive_role','wh_hive_code','wh_hives']
       .forEach(k => localStorage.removeItem(k));
     if (!displayName) return null;
     try {
+      /* T185 (2026-08-26): seat this session by IDENTITY, never by NAME. This used to filter
+         .eq('worker_name', displayName) - and worker_name in v_worker_truth is
+         worker_profiles.display_name, so the query asked "which memberships belong to this NAME"
+         and relied entirely on the profiles_read_own RLS policy (auth_uid = auth.uid()) to turn
+         that into "which are MINE". Correct today - measured: a caller sees exactly 1 profile row -
+         but the safety lived in the policy, not in the query, so widening profile reads even a
+         little (a co-member roster, say) would have let a NAMESAKE's memberships resolve here and
+         seated someone in a hive they do not belong to. The view already joins membership on
+         hm.auth_uid = wp.auth_uid, so filtering by name bought nothing that the identity does not
+         buy more safely. Same defect family as the join that refused a second Juan Dela Cruz and
+         the signup notice that counted its own freshly-written profile row: a name is not an
+         identity. No authUid means no seating - solo mode is the safe answer, never a name guess. */
+      let _uid = authUid;
+      if (!_uid) {
+        try { _uid = (await db.auth.getUser()).data?.user?.id || null; } catch (_) { _uid = null; }
+      }
+      if (!_uid) return null;
+
       // Canonical: v_worker_truth wraps hive_members; RLS scopes to the auth session.
       const { data: memberships, error: recErr } = await db
         .from('v_worker_truth')
         .select('hive_id, role')
-        .eq('worker_name', displayName)
+        .eq('auth_uid', _uid)
         .neq('hive_status', 'kicked')
         .limit(500);  // one worker's memberships are bounded-by-nature; insurance cap
       // On error or no membership: stay cleared = solo mode (honest-empty, not wrong-tenant).
@@ -3185,7 +3323,7 @@
     // Arc X X0 (Issue #1): resolve the user's REAL hive from membership truth before
     // rendering the dashboard, so the front door shows the correct hive (not the
     // solo-mode fallback) and never inherits the previous user's tenant.
-    await resolveActiveHiveContext(db, displayName);
+    await resolveActiveHiveContext(db, displayName, data.user.id);
     closeSignIn();
     updateNavbarName(displayName);
     // Flip from marketing wrap to personal dashboard. The DOMContentLoaded
@@ -3200,7 +3338,11 @@
       const back = sessionStorage.getItem('wh_return_to');
       if (back) {
         sessionStorage.removeItem('wh_return_to');
-        if (/^\/workhive\/[A-Za-z0-9._~\-\/?=&%#]*$/.test(back) && !back.startsWith('//')) {
+        // Two accepted shapes: the marketplace's /workhive/-scoped absolute path, and the bare
+        // relative page.html[?...][#...] form the ?return= deep link (whAuthRequiredToast) writes.
+        if (!back.startsWith('//')
+            && (/^\/workhive\/[A-Za-z0-9._~\-\/?=&%#+,:]*$/.test(back)
+                || /^[A-Za-z0-9._~\-]+\.html([?#][A-Za-z0-9._~\-\/?=&%#+,:]*)?$/.test(back))) {
           window.location.href = back;
           return;
         }
@@ -3301,7 +3443,26 @@
     // Arc X X0 (Issue #1): resolve any existing hive membership (a returning worker
     // claiming their records may already belong to a hive) before rendering the
     // dashboard; a brand-new account with no membership stays in solo mode.
-    await resolveActiveHiveContext(db, displayName);
+    // T185: its return value is ALSO the only honest basis for the records-linked notice below -
+    // it is non-null exactly when a membership was actually found and linked.
+    const _linkedHive = await resolveActiveHiveContext(db, displayName, data.user.id);
+    // T1 attribution: which door produced this account (sticky/hero/nav/… — whPrimaryCta wrote it).
+    try {
+      const _src = sessionStorage.getItem('wh_signup_source');
+      if (_src && window.gtag) window.gtag('event', 'signup_completed', { event_category: 'conversion', source: _src });
+    } catch (_) { /* empty-catch-allow: analytics best-effort */ }
+    // Same return contract as sign-in: an account created mid-task goes BACK to the task (the
+    // records-link notice yields to the stronger promise — records link server-side either way).
+    try {
+      const _back = sessionStorage.getItem('wh_return_to');
+      if (_back && !_back.startsWith('//')
+          && (/^\/workhive\/[A-Za-z0-9._~\-\/?=&%#+,:]*$/.test(_back)
+              || /^[A-Za-z0-9._~\-]+\.html([?#][A-Za-z0-9._~\-\/?=&%#+,:]*)?$/.test(_back))) {
+        sessionStorage.removeItem('wh_return_to');
+        window.location.href = _back;
+        return;
+      }
+    } catch (_) { /* empty-catch-allow: no return stored, fall through to the dashboard */ }
     // Mirror the signin success transition: flip from marketing wrap to
     // personal dashboard. The DOMContentLoaded handler already fired before
     // signup so we do it manually here.
@@ -3313,20 +3474,25 @@
       if (typeof _initDashboard === 'function') _initDashboard(displayName).then(() => { if (typeof whFreshnessFooter === 'function' && document.getElementById('ops-home')?.style.display !== 'none') whFreshnessFooter(); }); // G1 (FAMILY F3)
     }
 
-    // C2: Check if display_name matches existing hive records.
-    // Canonical: v_worker_truth wraps hive_members + worker_profiles.
-    const { count } = await db.from('v_worker_truth')
-      .select('worker_name', { count: 'exact', head: true })
-      .eq('worker_name', displayName);
-
-    if (count > 0) {
+    /* C2: confirm linked records ONLY when records were actually linked.
+       T185 (2026-08-26, measured): this used to COUNT v_worker_truth rows matching displayName -
+       but that view exposes worker_profiles.display_name and is security_invoker, so under RLS a
+       new user can see exactly one row: the profile this very flow inserted moments earlier. The
+       count was therefore ALWAYS >= 1 and the panel told every brand-new signup that their
+       "existing records are now linked", which for someone who had none is simply false - and for
+       a namesake it claims another person's history. Measured on a fresh identity with no hive:
+       c2_count = 1, visible_rows = 1. The check could never answer its own question.
+       resolveActiveHiveContext above already does the real work and returns the hive it linked, or
+       null - so the claim now rests on the linking itself and NAMES the hive it landed in. */
+    if (_linkedHive) {
       // Existing worker: show records-linked confirmation before closing
       document.getElementById('panel-signup')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
         <div style="text-align:center; padding:0.5rem 0 1rem;">
           <div style="font-size:2.5rem; margin-bottom:0.75rem;">&#10003;</div>
           <p style="color:white; font-weight:800; font-size:1rem; margin:0 0 0.5rem;">Account secured!</p>
           <p style="color:rgba(255,255,255,0.80); font-size:0.8rem; margin:0 0 1.5rem; line-height:1.5;">
-            Your existing records as <strong style="color:var(--wh-orange);">${escHtml(displayName)}</strong>
+            Your records as <strong style="color:var(--wh-orange);">${escHtml(displayName)}</strong>
+            in <strong style="color:var(--wh-orange);">${escHtml(_linkedHive.name || 'your hive')}</strong>
             are now linked to your account.
           </p>
           <button onclick="closeSignIn()" style="background:var(--wh-orange);color:var(--wh-navy);border:none;border-radius:0.75rem;padding:0.75rem 2rem;font-size:0.875rem;font-weight:700;cursor:pointer;width:100%;">
@@ -3336,11 +3502,6 @@
     } else {
       closeSignIn();
     }
-  }
-
-  // ── Guest (C4: redirects to Sign Up: no account-less access) ────────────
-  function submitGuest() {
-    switchAuthTab('signup'); // C4: guest access removed: redirect to signup
   }
 
   // ── Username availability check ────────────────────────────────────────────
@@ -3429,19 +3590,55 @@
   // email) and revokes hive access, while PRESERVING operational records for the team. Irreversible,
   // so it is confirm-gated; on success we sign out.
   async function deactivateAccount() {
-    const ok = window.confirm(
-      'Deactivate your account?\n\n' +
-      'Your name and email will be permanently anonymized and you will lose access to all hives. ' +
-      'Your past maintenance records stay with the team (anonymized). This cannot be undone.');
+    /* T164 (2026-08-28): the SCOPE STATEMENT here was already right - it names what is anonymized
+       (name, email), what is revoked (hive access), what is RETAINED and why (past maintenance
+       records stay with the team), and that it cannot be undone. That is the hard part of a
+       deletion flow and it was done properly.
+       What was wrong was the DIALOG. This used native window.confirm while every other destructive
+       action goes through whConfirm - and a native dialog cannot be translated. So the most
+       consequential, least reversible decision on the platform was the ONE screen a
+       Filipino-speaking worker could read only in English, in a file that already ships _t() copy
+       on 44 other strings. Now bilingual, and styled like every other confirm rather than the
+       browser interrupting. */
+    const ok = await window.whConfirm(
+      _t('Deactivate your account? Your name and email will be permanently anonymized and you will '
+         + 'lose access to all hives. Your past maintenance records stay with the team (anonymized). '
+         + 'This cannot be undone.',
+         'I-deactivate ang account mo? Permanenteng ia-anonymize ang pangalan at email mo, at '
+         + 'mawawala ang access mo sa lahat ng hive. Mananatili sa team ang mga naitala mong '
+         + 'maintenance record (naka-anonymize). Hindi na ito maibabalik.'),
+      { okLabel: _t('Deactivate', 'I-deactivate'), cancelLabel: _t('Cancel', 'Kanselahin') });
     if (!ok) return;
     try {
+      // whWriteError names the CLASS (session expired / offline / refused) instead of pasting
+      // PostgREST at someone who has just tried to erase themselves. alert() is kept rather than a
+      // toast on purpose: it blocks, and a failure on THIS action must not be missed.
       const { error } = await _getDb().rpc('deactivate_my_account');
-      if (error) { window.alert('Could not deactivate: ' + error.message); return; }
+      if (error) {
+        window.alert(typeof whWriteError === 'function'
+          ? whWriteError(error, _t('Your account was NOT deactivated. Nothing was changed.',
+                                   'HINDI na-deactivate ang account mo. Walang nabago.'))
+          : 'Could not deactivate: ' + error.message);
+        return;
+      }
     } catch (err) {
-      window.alert('Could not deactivate: ' + (err && err.message ? err.message : err)); return;
+      // MK11: "Please try again" is only true for SOME failures. A throw here is most often a dead
+      // session or a lost connection, and retrying a dead session lands on the same refusal - the
+      // remedy is offered to someone it cannot help. whWriteError names the CLASS (session expired /
+      // offline / refused) exactly as the `if (error)` branch above already does; the old sentence
+      // stays as its fallback, so a browser without utils still gets a truthful message.
+      window.alert(typeof whWriteError === 'function'
+        ? whWriteError(err, _t('Your account was NOT deactivated. Nothing was changed.',
+                               'HINDI na-deactivate ang account mo. Walang nabago.'))
+        : _t('Your account was NOT deactivated. Nothing was changed. Please try again.',
+             'HINDI na-deactivate ang account mo. Walang nabago. Subukan ulit.'));
+      return;
     }
     await signOut();
-    window.alert('Your account has been deactivated and your personal data anonymized.');
+    // bilingual for the same reason as the confirm: this is the last thing the platform ever says
+    // to this person, and it is the sentence that tells them it actually worked
+    window.alert(_t('Your account has been deactivated and your personal data anonymized.',
+                    'Na-deactivate na ang account mo at na-anonymize na ang personal na data mo.'));
   }
   window.deactivateAccount = deactivateAccount;
 
@@ -3581,7 +3778,6 @@
     if (e.key !== 'Enter') return;
     if (!document.getElementById('panel-signin').classList.contains('hidden')) submitSignIn();
     else if (!document.getElementById('panel-signup').classList.contains('hidden')) submitSignUp();
-    else if (!document.getElementById('panel-guest').classList.contains('hidden')) submitGuest();
   });
 
   document.addEventListener('click', function(e) {
@@ -3624,14 +3820,70 @@
             updateNavbarName(profile.display_name);
           }
         }
+        // A SIGNED-IN SOLO owner still saw Sign In / Sign Up (VP1's walk): the pre-paint
+        // wh-signed-in class keys on name+HIVE, so the hiveless lane lands on marketing with
+        // auth CTAs. Swap them for the doors that actually serve a signed-in person.
+        try {
+          document.querySelectorAll('.signin-btn, [onclick*="openSignIn"], [onclick*="openSignUp"]').forEach((b) => {
+            if (!/sign\s?(in|up)/i.test(b.textContent)) return;
+            const a = document.createElement('a');
+            a.href = 'asset-hub.html';
+            a.className = b.className;
+            a.textContent = (typeof _t === 'function') ? _t('Open my workspace', 'Buksan ang workspace ko') : 'Open my workspace';
+            b.replaceWith(a);
+          });
+        } catch (_) { /* empty-catch-allow: CTA swap is polish; auth flows stay intact for anon */ }
       } else if (name && !sessionStorage.getItem('upgrade_banner_dismissed')) {
         // Guest worker (has name, no auth session): show upgrade nudge after 3s
         setTimeout(() => _showUpgradeBanner(name), 3000);
       }
     } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
 
-    if (new URLSearchParams(window.location.search).get('signin') === '1') {
-      openSignIn(null);
+    // T1: two auth deep links, one return contract. ?signup=1 joins ?signin=1 (every sign-in
+    // surface must offer sign-up — Ian verbatim), and a ?return= companion feeds the SAME
+    // sessionStorage slot the sign-in success path already honors (wh_return_to), so satellite
+    // pages' auth walls preserve intent through EITHER door. The value is validated here AND at
+    /* T8 (2026-08-26): + , : are IN the query/fragment class because the platform writes them.
+       URLSearchParams.set() encodes a space as '+', and audit-log.html mirrors its filters into
+       the URL - including actor, which is a worker's NAME. Measured round trip: a supervisor
+       filtering the audit log by 'Leandro Marquez' expires, re-authenticates, and lands on the
+       dashboard, because ?actor=Leandro+Marquez failed this guard and the return was dropped in
+       silence. Same for ?q=pump+seal. That is T28's exact scenario - someone mid-investigation
+       into who changed what - losing their place to a token refresh.
+       These three characters cannot widen the open-redirect surface: the anchor already requires
+       the value to begin with <name>.html or /workhive/, so they can only ever appear AFTER the
+       ? or #, where a colon cannot read as a scheme and a plus is just a space. The guard's real
+       job - no scheme, no protocol-relative //, no foreign absolute path - is untouched. */
+    // redemption: a bare relative page.html[?...][#...] or a /workhive/-scoped absolute path;
+    // anything with a scheme, //, or a foreign absolute path is dropped (open-redirect guard).
+    const _entry = new URLSearchParams(window.location.search);
+    const _ret = _entry.get('return') || '';
+    if (_ret && !_ret.startsWith('//')
+        && (/^[A-Za-z0-9._~\-]+\.html([?#][A-Za-z0-9._~\-\/?=&%#+,:]*)?$/.test(_ret)
+            || /^\/workhive\/[A-Za-z0-9._~\-\/?=&%#+,:]*$/.test(_ret))) {
+      try { sessionStorage.setItem('wh_return_to', _ret); } catch (_) { /* empty-catch-allow: private mode */ }
+    }
+    /* T8: say WHY they are here. session-timeout.js sends a ?reason= because its one clear-identity
+       path serves three different events, and a worker who pressed Sign out must not be told their
+       session expired. The reassurance is checked, not decorative: clearIdentityHard removes only
+       the identity keys (wh_last_worker + the hive keys), so whAutoSaveDraft entries survive on the
+       device, and anything already submitted is in the database. */
+    (function _siReason() {
+      const _r = _entry.get('reason') || '';
+      const _copy = {
+        idle: 'This device sat idle, so we signed you out to keep your account safe on a shared tablet. '
+            + 'Anything you saved is safe and your drafts are still here. Sign in to pick up where you left off.',
+        othertab: 'You signed out in another tab, so this one signed out too. '
+            + 'Anything you saved is safe. Sign in to carry on here.',
+      }[_r];
+      if (!_copy) return;
+      const _el = document.getElementById('si-reason');
+      if (_el) { _el.textContent = _copy; _el.classList.remove('hidden'); }
+    })();
+    if (_entry.get('signin') === '1') {
+      openSignIn(null, true);   // T8: force past the cached-name guard — the link's intent IS the modal
+    } else if (_entry.get('signup') === '1') {
+      openSignUp(null, true);
     }
 
     // ── Operational Home Dashboard ─────────────────────────────────────────────
@@ -3751,7 +4003,9 @@
   }
 
   /* ── Stagger-wrap reveal ── */
-  if (reducedMotion) {
+  /* The reducedMotion branch is already the fail-open path (it just fires everything), so an
+     engine with no IntersectionObserver takes the SAME road rather than needing a new one. */
+  if (reducedMotion || typeof IntersectionObserver !== 'function') {
     document.querySelectorAll('.stagger-wrap').forEach(function(el) { el.classList.add('fired'); });
   } else {
     var staggerObs = new IntersectionObserver(function(entries) {
@@ -3764,7 +4018,10 @@
 
   /* ── Before/after row stagger ── */
   var baSection = document.querySelector('.space-y-4');
-  if (baSection) {
+  if (baSection && typeof IntersectionObserver !== 'function') {
+    /* No observer to trigger the stagger, so show the rows instead of leaving them mid-animation. */
+    baSection.querySelectorAll('.before-after-row').forEach(function(row) { row.classList.add('in'); });
+  } else if (baSection) {
     var baObs = new IntersectionObserver(function(entries) {
       if (!entries[0].isIntersecting) return;
       baSection.querySelectorAll('.before-after-row').forEach(function(row, i) {
@@ -3779,14 +4036,24 @@
   (function() {
     const cta = document.getElementById('sticky-mobile-cta');
     if (!cta) return;
-    const hero = document.querySelector('section');
-    if (!hero) return;
+    /* T1 (measured 2026-08-24): the old target was the whole first <section> at threshold
+       0.15 — but that hero is ~1950px tall at 390w, so it stays >15% visible until ~y1700
+       (live reading: isIntersecting true, ratio 0.199 at y=1560). A phone user was TWO FULL
+       SCREENS past the hero's CTA with this bar still parked off-screen AND inert — tapping
+       where it appeared did nothing, which is the "dead sticky bar" Ian felt. The bar's whole
+       job is to keep the primary action reachable the moment the hero's own CTA scrolls away —
+       so observe THAT element, at threshold 0. */
+    const heroCta = document.querySelector('section .cta-pulse') || document.querySelector('section');
+    if (!heroCta) return;
+    /* The bar's visibility is driven ENTIRELY by this observer; with none, leave it in its
+       default visible state rather than throwing and taking the rest of this script with it. */
+    if (typeof IntersectionObserver !== 'function') return;
     new IntersectionObserver(function(entries) {
       var hidden = entries[0].isIntersecting;
       cta.style.transform = hidden ? 'translateY(100%)' : 'translateY(0)';
       cta.setAttribute('aria-hidden', hidden ? 'true' : 'false');
       cta.inert = hidden;  // WCAG 4.1.2: a hidden CTA must not be Tab-focusable (axe aria-hidden-focus)
-    }, { threshold: 0.15 }).observe(hero);
+    }, { threshold: 0 }).observe(heroCta);
   })();
 
   /* ── Stage cards: keyboard a11y (WCAG 2.1.1 - onclick divs need role + key) + micro-bounce ── */
@@ -3811,8 +4078,11 @@
   });
 
   /* ── Nav active section highlight ── */
+  /* Purely a wayfinding nicety: without an observer the nav simply shows no active section, which
+     costs nothing. Guarded because this loop runs once PER SECTION, so on an engine without the
+     API it was the loudest thrower on the page. */
   const navLinks = document.querySelectorAll('.nav-link[href^="#"]');
-  document.querySelectorAll('section[id]').forEach(function(s) {
+  if (typeof IntersectionObserver === 'function') document.querySelectorAll('section[id]').forEach(function(s) {
     new IntersectionObserver(function(entries) {
       if (entries[0].isIntersecting) {
         navLinks.forEach(function(l) { l.classList.remove('active'); });
@@ -3884,9 +4154,11 @@
   // Shared singleton (utils.js): was creating a separate GoTrueClient.
   const _db = window.getDb(SUPABASE_URL, SUPABASE_KEY);
   logPageView(_db);
-  window._supabaseSignup = async function(email) {
+  // T1: source names the ENTRY POINT (which block/door collected this email), so the updates
+  // list is attributable the same way account signups now are (wh_signup_source → GA4).
+  window._supabaseSignup = async function(email, source) {
     const { error } = await _db.from('early_access_emails')
-      .insert({ email: email.trim().toLowerCase(), source: 'landing_page' });
+      .insert({ email: email.trim().toLowerCase(), source: source || 'landing_page' });
     if (error && error.code !== '23505') throw error;
   };
 })();
@@ -3933,7 +4205,7 @@
     todayglance:'Ngayong Araw sa Isang Tingin', quickactions:'Mabilisang Aksyon',
     logajob:'Mag-log ng Trabaho', pmscheduler:'PM Scheduler', analytics:'Analytics',
     askai:'Tanungin ang AI', voicejournal:'Voice Journal', scanasset:'I-scan ang Asset',
-    signout:'Mag-sign Out', priv:'Privacy', terms:'Terms',
+    signout:'Mag-sign Out', changepwd:'Palitan ang Password', priv:'Privacy', terms:'Terms',
     // N1: static-label keys for the marketing landing + auth modal (same engine,
     // selector widened to [data-i] so the whole page swaps on EN/FIL toggle).
     signin:'Mag-sign In', signup:'Mag-sign Up', signoutmenu:'Mag-sign out',
@@ -3957,10 +4229,12 @@
     guideai:'Ang AI companion: lahat ng kaya nitong gawin',
     guideoee:'Ano ang OEE at paano ito kalkulahin?',
     jointhehive:'Sumali sa hive.', buildfuture:'Buuin ang kinabukasan.',
-    joinhivebtn:'Sumali sa Hive', yourrole:'Ang iyong role (opsyonal)',
+    // T1: joinhivebtn/yourrole/createaccountgo retired with the waitlist demotion + guest-panel
+    // deletion (their elements are gone). New T1 strings (Get updates, Create Your Free Account,
+    // the reciprocity lines) are EN-only for now — FIL parity is Trajectory T45's ledger.
     stfoundation:'Pundasyon', stdiscipline:'Disiplina', stpredictive:'Predictive', stleader:'Lider',
     secureaccount:'I-secure ang account →', forgotpwd:'Nakalimutan ang password?',
-    createaccount:'Gumawa ng Account', createaccountgo:'Gumawa ng Account →'
+    createaccount:'Gumawa ng Account'
   };
   // Verdict-card fixed phrases (label + cta from renderTodaysOneThing's candidate set).
   window._ohVerdict = {
@@ -3995,20 +4269,35 @@
   });
 
   function _greeting(name) {
-    const h = new Date().getHours();
+    // T46 walk receipt (2026-09-02): at 09:53 Manila the header read "Magandang hapon ... Umaga
+    // Shift (PHT)" — afternoon greeting, morning shift, ONE line. The greeting still used the
+    // viewer's local hours after the Cluster-1 fix pinned the shift line to the plant. The
+    // "greeting is personal" ruling didn't survive being rendered: the platform speaks PLANT
+    // time everywhere, greeting included, or the header contradicts itself for any viewer whose
+    // clock differs from Manila.
+    const ph = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Manila' }));
+    const h = ph.getHours();
     const time = h < 12 ? _t('morning','umaga') : h < 17 ? _t('afternoon','hapon') : _t('evening','gabi');
     const first = name.split(' ')[0];
     return `${_t('Good','Magandang')} ${time}, ${escHtml(first)} 👋`;
   }
 
   function _dateStr() {
+    // Cluster-1 clock discipline (2026-09-02): a SHIFT belongs to the PLANT's clock, not the
+    // viewer's phone. This line used local getHours()/getDay(), so at one moment ops-home said
+    // "Morning Shift" (viewer-local midnight), shift-brain said "Afternoon 14-22" (Asia/Manila)
+    // and the logbook card mixed both — three answers to "what shift is it" (walked live at
+    // GMT+12). The date+shift line now derives wholly from Asia/Manila and says so ("PHT",
+    // matching asset-hub's "Daily snapshot at 13:00 PHT"); the greeting word above stays
+    // viewer-local on purpose — "Good morning" is a personal pleasantry, the shift is the plant's.
     const d = new Date();
+    const ph = new Date(d.toLocaleString('en-US', { timeZone: 'Asia/Manila' }));
     const days   = window.WH_LANG === 'fil'
       ? ['Linggo','Lunes','Martes','Miyerkoles','Huwebes','Biyernes','Sabado']
       : ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
     const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    const shift = d.getHours() < 12 ? _t('Morning','Umaga') : d.getHours() < 17 ? _t('Afternoon','Hapon') : _t('Evening','Gabi');
-    return `${days[d.getDay()]}, ${months[d.getMonth()]} ${d.getDate()} · ${shift} ${_t('Shift','Shift')}`;
+    const shift = ph.getHours() < 12 ? _t('Morning','Umaga') : ph.getHours() < 17 ? _t('Afternoon','Hapon') : _t('Evening','Gabi');
+    return `${days[ph.getDay()]}, ${months[ph.getMonth()]} ${ph.getDate()} · ${shift} ${_t('Shift','Shift')} (PHT)`;
   }
 
   window._initDashboard = async function(workerName) {
@@ -4047,23 +4336,15 @@
     if (_ohJobs && !_ohJobs.childElementCount && typeof whListSkeleton === 'function') whListSkeleton(_ohJobs, 3);
 
     // Persona Contract Phase 5: hydrate the companion toggle from
-    // worker_profiles.preferred_persona (account-level) so the choice
-    // follows the worker across devices. localStorage is the renderer's
-    // source-of-truth; we just refresh it from the cloud value first.
-    try {
-      const { data: { user } } = await db.auth.getUser();
-      if (user) {
-        const { data: profile } = await db.from('worker_profiles')
-          .select('preferred_persona').eq('auth_uid', user.id).maybeSingle();
-        // Legacy james/rosa values from pre-rename rows still map cleanly.
-        const raw = profile && profile.preferred_persona;
-        let cloudKey = 'zaniah';
-        if (raw === 'hezekiah' || raw === 'zaniah') cloudKey = raw;
-        else if (raw === 'james') cloudKey = 'hezekiah';
-        else if (raw === 'rosa')  cloudKey = 'zaniah';
-        try { localStorage.setItem('wh_voice_journal_persona', cloudKey); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
-      }
-    } catch (_) { /* fall through to localStorage default */ /* empty-catch-allow: best-effort silent swallow */ }
+    // worker_profiles.preferred_persona (account-level) so the choice follows the worker
+    // across devices. T85 (2026-08-26): this was an inline copy of the query, and it
+    // CLOBBERED on failure - a null profile (absent row OR a failed read) fell through to
+    // 'zaniah' and wrote it, resetting a Hezekiah user permanently because one read blipped.
+    // Now one helper in wh-persona.js, shared with assistant.html, which writes only when
+    // the cloud actually names a preference.
+    if (typeof window.hydratePersonaFromCloud === 'function') {
+      await window.hydratePersonaFromCloud(db);
+    }
     if (typeof _renderPersonaToggle === 'function') _renderPersonaToggle();
 
     // Hive button
@@ -4071,7 +4352,15 @@
       const hiveBtn = document.getElementById('oh-hive-btn');
       if (hiveBtn) {
         hiveBtn.style.display = 'inline-flex'; // inline-flex so the mobile min-height:44 tap-target centers (Arc K K1)
-        hiveBtn.textContent = `🐝 ${HIVE_NAME}`;
+        // T19/C11 (2026-09-02): the name lives in a data-wh-hive-name span so whReconcileHiveName's
+        // repaint can correct a stale cached name IN PLACE (the walk saw another plant's name render
+        // from wh_hive_name and survive because this render was untagged - the reconciler fixed the
+        // CACHE but not the glass). textContent on the span, so the name is never parsed as HTML.
+        hiveBtn.textContent = '🐝 ';
+        const _hn = document.createElement('span');
+        _hn.setAttribute('data-wh-hive-name', '');
+        _hn.textContent = HIVE_NAME;
+        hiveBtn.appendChild(_hn);
       }
     }
 
@@ -4406,14 +4695,14 @@
       const statsEl = document.getElementById('oh-stats');
       if (!statsEl) return;
       const tiles = [
-        { kpi: 'open-jobs',   num: jobsCount,       label: _t('Open Jobs','Bukas na Trabaho'),   color: '#F7A21B', href: 'logbook.html'      },
-        { kpi: 'risk-alerts', num: risksCount,      label: _t('Risk Alerts','Alerto sa Panganib'), color: '#f87171', href: 'asset-hub.html'    },
+        { kpi: 'open-jobs',   num: jobsCount,       label: _t('Open Jobs','Bukas na Trabaho'),   color: '#F7A21B', href: 'logbook.html?view=team&status=Open' }, // T19: the tile counts the HIVE window (get_hive_dashboard) - land on the team view whose number it is
+        { kpi: 'risk-alerts', num: risksCount,      label: _t('Risk Alerts','Alerto sa Panganib'), color: '#f87171', href: 'alert-hub.html?kind=risk' },  // T19 S2: carry the FILTER context (was bare asset-hub - the supervisor re-found the 4 by hand; siblings carry ?filter=/?status=)
         { kpi: 'pm-overdue',  num: pmOverdueCount,  label: (Number.isFinite(_pmAssetTotal) && _pmAssetTotal > 0)
             ? `${_t('PM Overdue','Lumipas na PM')} (${pmOverdueCount} ${_t('of','sa')} ${_pmAssetTotal} ${_t('assets','makina')})`
-            : `${_t('PM Overdue','Lumipas na PM')} (${_t('assets','makina')})`,  color: '#29B6D9', href: 'pm-scheduler.html' },
+            : `${_t('PM Overdue','Lumipas na PM')} (${_t('assets','makina')})`,  color: '#29B6D9', href: 'pm-scheduler.html?filter=overdue' }, // T19: land ON the overdue view the number names
         // the label carries the NOUN (parts): a tile reading "LOW STOCK / 3" reads as a stock
         // LEVEL of 3, not as 3 parts running low - the units_visible counted-noun discipline
-        { kpi: 'low-stock',   num: _lowStockTotal, label: _outOfStock > 0 ? `${_t('Parts','Piyesa')} (${_outOfStock} ${_t('out','ubos')} · ${_lowOnly} ${_t('low','kulang')})` : _t('Low-stock parts','Kulang na piyesa'), color: '#f7a21b', href: 'inventory.html'    },
+        { kpi: 'low-stock',   num: _lowStockTotal, label: _outOfStock > 0 ? `${_t('Parts','Piyesa')} (${_outOfStock} ${_t('out','ubos')} · ${_lowOnly} ${_t('low','kulang')})` : _t('Low-stock parts','Kulang na piyesa'), color: '#f7a21b', href: 'inventory.html?status=below'    },
         // A tile whose count could not be READ (null) must not be filtered out alongside the real
         // zeros — that is how an unreadable "Risk Alerts 3" became no tile at all, which reads as
         // "no risk alerts". Keep it, and let it show a gap.
@@ -4550,7 +4839,7 @@
           headline: 'Approve today\'s autonomous maintenance brief',
           detail: (amcSummary || 'Open Alert Hub to review the day plan and sign off.').slice(0, 120),
           cta: 'Open Alert Hub',
-          href: 'alert-hub.html#amc',
+          href: 'alert-hub.html#amc-card',   // T1 link-gate find: #amc was nobody's id; the AMC brief card is #amc-card
         });
       }
 
@@ -4745,15 +5034,22 @@
     // The completion checks reuse already-fetched data (jobs, pmDoneToday)
     // plus the HIVE_ID localStorage flag -- no extra round-trip.
     (function renderOnboardingLadder() {
-      const dismissed = localStorage.getItem('wh_onboarding_dismissed') === '1';
+      // T121 (2026-08-28): the flag is now owner-stamped, so one worker dismissing this on a
+      // shared station tablet no longer denies the next person their first-run introduction.
+      const dismissed = (typeof whIsDismissed === 'function')
+        ? whIsDismissed('wh_onboarding_dismissed')
+        : localStorage.getItem('wh_onboarding_dismissed') === '1';
       if (dismissed) return;
       const el = document.getElementById('oh-onboarding');
       if (!el) return;
       const steps = [
         {
+          // T6 (2026-08-26): was cta 'Go to home' href '#' - a dead anchor ON the home page
+          // (T1's exact dead-CTA class, inside the onboarding ladder itself). The name is set
+          // through the Hive Board identity flows, so point the rare no-name state there.
           id: 1, label: _t('Set your name','Itakda ang pangalan mo'),
           done: !!(workerName && workerName.trim()),
-          cta: _t('Go to home','Pumunta sa home'), href: '#',
+          cta: _t('Open Hive Board','Buksan ang Hive Board'), href: 'hive.html',
         },
         {
           id: 2, label: _t('Log your first repair','I-log ang unang repair'),
@@ -4779,7 +5075,7 @@
               <p style="font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--wh-orange); margin:0;">${_t('Getting Started','Pagsisimula')} &middot; ${done} ${_t('of','ng')} ${steps.length}</p>
               <p style="font-size:.78rem; font-weight:600; color:rgba(255,255,255,.7); margin:2px 0 0;">${_t('Finish these three steps to unlock the platform.','Tapusin ang tatlong hakbang para ma-unlock ang platform.')}</p>
             </div>
-            <button type="button" onclick="(function(){ try{localStorage.setItem('wh_onboarding_dismissed','1');}catch(_){ /* empty-catch-allow: best-effort silent swallow */ }; document.getElementById('oh-onboarding').style.display='none'; })()"
+            <button type="button" onclick="(function(){ try{ if(typeof whSetDismissed==='function'){ whSetDismissed('wh_onboarding_dismissed'); } else { localStorage.setItem('wh_onboarding_dismissed','1'); } }catch(_){ /* empty-catch-allow: best-effort silent swallow */ }; document.getElementById('oh-onboarding').style.display='none'; })()"
                     style="font-size:.62rem; color:rgba(255,255,255,.6); background:none; border:none; cursor:pointer; padding:6px 8px; min-height:44px;">
               ${_t('Dismiss','I-dismiss')} &times;
             </button>
@@ -4789,7 +5085,7 @@
           </div>
           <div style="display:flex; flex-direction:column; gap:8px;">
             ${steps.map(s => `
-              <a href="${escHtml(s.href)}" style="display:flex; align-items:center; gap:12px; padding:10px 12px; min-height:44px; background:rgba(255,255,255,${s.done ? '.02' : '.04'}); border-radius:8px; text-decoration:none; ${s.done ? 'opacity:.55;' : ''}">
+              <a ${s.done ? '' : `href="${escHtml(s.href)}"`} style="display:flex; align-items:center; gap:12px; padding:10px 12px; min-height:44px; background:rgba(255,255,255,${s.done ? '.02' : '.04'}); border-radius:8px; text-decoration:none; ${s.done ? 'opacity:.55;' : ''}">
                 <div style="width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; ${s.done ? 'background:rgba(74,222,128,.18); color:var(--wh-green);' : 'background:rgba(247,162,27,.15); color:var(--wh-orange); border:1px solid rgba(247,162,27,.4);'} font-size:.7rem; font-weight:800;">
                   ${s.done ? '&#10003;' : s.id}
                 </div>

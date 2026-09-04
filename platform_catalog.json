@@ -1,7 +1,7 @@
 {
   "generator": "platform_catalog.py",
   "version": 1,
-  "generated_at": "2026-08-22T23:56:30+00:00",
+  "generated_at": "2026-08-24T18:22:46+00:00",
   "features": [
     {
       "id": "index",
@@ -127,11 +127,13 @@
       "articles": [
         "ai-work-assistant-maintenance-technicians",
         "best-free-cmms-software-philippines",
+        "bms-facilities-maintenance-peza-buildings",
         "building-asset-register-zero-budget",
         "cmms-vs-excel-spreadsheet-maintenance",
         "connecting-workhive-to-sap-maximo-cmms",
         "dilo-wilo-day-planner-supervisors",
         "dole-iso-audit-trail-from-logbook",
+        "food-beverage-plant-maintenance-philippines",
         "free-engineering-calculators-philippine-plants",
         "free-pm-checklist-templates",
         "gamifying-maintenance-for-engagement",
@@ -766,6 +768,7 @@
         "asset-brain-360-one-machine-history-philippine-plant",
         "autonomous-shift-planning-philippine-plants",
         "best-free-cmms-software-philippines",
+        "bms-facilities-maintenance-peza-buildings",
         "building-asset-register-zero-budget",
         "cmms-vs-excel-spreadsheet-maintenance",
         "connecting-workhive-to-sap-maximo-cmms",
@@ -796,6 +799,8 @@
         "spare-parts-inventory-philippine-plants",
         "start-digital-logbook-philippine-factory",
         "start-digital-maintenance-guide",
+        "thermography-for-pm-philippine-plants",
+        "vibration-analysis-on-a-phone-budget",
         "voice-to-text-maintenance-philippine-plant-floor",
         "what-is-oee-how-to-calculate",
         "what-is-workhive-complete-platform-guide",
@@ -1060,6 +1065,7 @@
         "skill-matrix-for-maintenance-technicians",
         "spare-parts-inventory-philippine-plants",
         "start-digital-logbook-philippine-factory",
+        "vibration-analysis-on-a-phone-budget",
         "voice-to-text-maintenance-philippine-plant-floor",
         "what-is-oee-how-to-calculate",
         "what-is-workhive-complete-platform-guide",
@@ -1290,6 +1296,7 @@
         "intel"
       ],
       "articles": [
+        "ofw-engineer-portable-portfolio",
         "resume-builder-for-filipino-industrial-workers",
         "what-is-workhive-complete-platform-guide"
       ]
@@ -1588,7 +1595,7 @@
       "slug": "ai-companion-hezekiah-zaniah-personas",
       "title": "Meet the WorkHive AI Companion: Hezekiah and Zaniah (Two Expert Personas)",
       "url": "/learn/ai-companion-hezekiah-zaniah-personas/",
-      "date_modified": "2026-06-12",
+      "date_modified": "2026-08-24",
       "maps_to": null,
       "maps_to_label": null,
       "features_referenced": [
@@ -1612,7 +1619,7 @@
       "slug": "ai-quality-and-roi-stage-2-plants",
       "title": "Measuring AI Quality and ROI for Stage 2+ Industrial Plants",
       "url": "/learn/ai-quality-and-roi-stage-2-plants/",
-      "date_modified": "2026-05-17",
+      "date_modified": "2026-08-24",
       "maps_to": "ai-quality",
       "maps_to_label": "AI Quality + ROI",
       "features_referenced": [
@@ -1638,7 +1645,7 @@
       "slug": "ai-work-assistant-maintenance-technicians",
       "title": "AI Work Assistant for Every Industrial Worker (Plain-English Guide)",
       "url": "/learn/ai-work-assistant-maintenance-technicians/",
-      "date_modified": "2026-05-17",
+      "date_modified": "2026-08-24",
       "maps_to": "assistant",
       "maps_to_label": "AI Assistant",
       "features_referenced": [
@@ -1664,7 +1671,7 @@
       "slug": "asset-brain-360-one-machine-history-philippine-plant",
       "title": "Equipment History in One QR Scan: Asset Brain 360",
       "url": "/learn/asset-brain-360-one-machine-history-philippine-plant/",
-      "date_modified": "2026-08-20",
+      "date_modified": "2026-08-24",
       "maps_to": null,
       "maps_to_label": null,
       "features_referenced": [
@@ -1678,7 +1685,7 @@
       "slug": "autonomous-shift-planning-philippine-plants",
       "title": "Autonomous Shift Planning: the AI Brief That Tells Your Crew What to Fix First",
       "url": "/learn/autonomous-shift-planning-philippine-plants/",
-      "date_modified": "2026-08-20",
+      "date_modified": "2026-08-24",
       "maps_to": null,
       "maps_to_label": null,
       "features_referenced": [
@@ -1693,7 +1700,7 @@
       "slug": "best-free-cmms-software-philippines",
       "title": "Best Free CMMS Software for Philippine Plants (2026 Comparison)",
       "url": "/learn/best-free-cmms-software-philippines/",
-      "date_modified": "2026-08-05",
+      "date_modified": "2026-08-24",
       "maps_to": null,
       "maps_to_label": null,
       "features_referenced": [
@@ -1710,13 +1717,15 @@
       "slug": "bms-facilities-maintenance-peza-buildings",
       "title": "BMS and Facilities Maintenance in PEZA Buildings",
       "url": "/learn/bms-facilities-maintenance-peza-buildings/",
-      "date_modified": "2026-05-18",
+      "date_modified": "2026-08-25",
       "maps_to": null,
       "maps_to_label": null,
       "features_referenced": [
         "index",
+        "logbook",
         "dayplanner",
         "ai-quality",
+        "asset-hub",
         "alert-hub"
       ]
     },
@@ -1724,7 +1733,7 @@
       "slug": "building-asset-register-zero-budget",
       "title": "Building an Asset Register from Scratch (Zero-Budget, ISO 14224)",
       "url": "/learn/building-asset-register-zero-budget/",
-      "date_modified": "2026-05-17",
+      "date_modified": "2026-08-24",
       "maps_to": "asset-hub",
       "maps_to_label": "Asset Hub",
       "features_referenced": [
@@ -1752,7 +1761,7 @@
       "slug": "cmms-vs-excel-spreadsheet-maintenance",
       "title": "CMMS vs Excel Spreadsheet for Maintenance: When to Switch",
       "url": "/learn/cmms-vs-excel-spreadsheet-maintenance/",
-      "date_modified": "2026-08-20",
+      "date_modified": "2026-08-24",
       "maps_to": null,
       "maps_to_label": null,
       "features_referenced": [
@@ -1769,7 +1778,7 @@
       "slug": "connecting-workhive-to-sap-maximo-cmms",
       "title": "Connecting WorkHive to SAP, IBM Maximo, and Other CMMS",
       "url": "/learn/connecting-workhive-to-sap-maximo-cmms/",
-      "date_modified": "2026-05-17",
+      "date_modified": "2026-08-24",
       "maps_to": "integrations",
       "maps_to_label": "CMMS Integration",
       "features_referenced": [
@@ -1795,7 +1804,7 @@
       "slug": "dilo-wilo-day-planner-supervisors",
       "title": "DILO, WILO, MILO, YILO: Day Planner for Supervisors, Engineers, and Planners",
       "url": "/learn/dilo-wilo-day-planner-supervisors/",
-      "date_modified": "2026-05-17",
+      "date_modified": "2026-08-24",
       "maps_to": "dayplanner",
       "maps_to_label": "Day Planner",
       "features_referenced": [
@@ -1821,7 +1830,7 @@
       "slug": "dole-iso-audit-trail-from-logbook",
       "title": "DOLE OSHS and ISO Audit Trail from Your Logbook",
       "url": "/learn/dole-iso-audit-trail-from-logbook/",
-      "date_modified": "2026-05-17",
+      "date_modified": "2026-08-24",
       "maps_to": "audit-log",
       "maps_to_label": "Audit Log",
       "features_referenced": [
@@ -1846,7 +1855,7 @@
       "slug": "fmea-worked-example-philippine-bottling-line",
       "title": "FMEA Worked Example: a Philippine Bottling Line",
       "url": "/learn/fmea-worked-example-philippine-bottling-line/",
-      "date_modified": "2026-05-18",
+      "date_modified": "2026-08-24",
       "maps_to": null,
       "maps_to_label": null,
       "features_referenced": [
@@ -1859,11 +1868,12 @@
       "slug": "food-beverage-plant-maintenance-philippines",
       "title": "Maintenance in Philippine Food and Beverage Plants",
       "url": "/learn/food-beverage-plant-maintenance-philippines/",
-      "date_modified": "2026-05-18",
+      "date_modified": "2026-08-25",
       "maps_to": null,
       "maps_to_label": null,
       "features_referenced": [
         "index",
+        "logbook",
         "dayplanner",
         "ai-quality",
         "asset-hub"
@@ -1873,7 +1883,7 @@
       "slug": "four-phases-maintenance-analytics-philippine-plants",
       "title": "The 4 Phases of Maintenance Analytics: From What Happened to What To Do Next",
       "url": "/learn/four-phases-maintenance-analytics-philippine-plants/",
-      "date_modified": "2026-07-03",
+      "date_modified": "2026-08-24",
       "maps_to": null,
       "maps_to_label": null,
       "features_referenced": [
@@ -1891,7 +1901,7 @@
       "slug": "free-engineering-calculators-philippine-plants",
       "title": "Free Engineering Design Calculators for Philippine Plants",
       "url": "/learn/free-engineering-calculators-philippine-plants/",
-      "date_modified": "2026-08-17",
+      "date_modified": "2026-08-24",
       "maps_to": "engineering-design",
       "maps_to_label": "Engineering Design",
       "features_referenced": [
@@ -1921,7 +1931,7 @@
       "slug": "free-pm-checklist-templates",
       "title": "Free PM Checklist Templates for Industrial Maintenance",
       "url": "/learn/free-pm-checklist-templates/",
-      "date_modified": "2026-05-17",
+      "date_modified": "2026-08-24",
       "maps_to": "pm-scheduler",
       "maps_to_label": "PM Scheduler",
       "features_referenced": [
@@ -1949,7 +1959,7 @@
       "slug": "gamifying-maintenance-for-engagement",
       "title": "Gamifying Maintenance for Technician Engagement (PH Plants)",
       "url": "/learn/gamifying-maintenance-for-engagement/",
-      "date_modified": "2026-05-17",
+      "date_modified": "2026-08-24",
       "maps_to": "achievements",
       "maps_to_label": "Achievements",
       "features_referenced": [
@@ -1975,7 +1985,7 @@
       "slug": "industrial-community-of-practice-philippines",
       "title": "Industrial Community of Practice for Philippine Plant Teams",
       "url": "/learn/industrial-community-of-practice-philippines/",
-      "date_modified": "2026-05-17",
+      "date_modified": "2026-08-24",
       "maps_to": "community",
       "maps_to_label": "Community",
       "features_referenced": [
@@ -2000,7 +2010,7 @@
       "slug": "industrial-marketplace-philippine-specialists",
       "title": "Industrial Marketplace for Philippine Specialists, Parts, and Services",
       "url": "/learn/industrial-marketplace-philippine-specialists/",
-      "date_modified": "2026-05-17",
+      "date_modified": "2026-08-24",
       "maps_to": "marketplace",
       "maps_to_label": "Marketplace",
       "features_referenced": [
@@ -2025,7 +2035,7 @@
       "slug": "joining-and-growing-your-hive",
       "title": "How to Join WorkHive and Grow Your Hive (Multi-Tenant Guide)",
       "url": "/learn/joining-and-growing-your-hive/",
-      "date_modified": "2026-05-17",
+      "date_modified": "2026-08-24",
       "maps_to": "hive",
       "maps_to_label": "Hive",
       "features_referenced": [
@@ -2051,7 +2061,7 @@
       "slug": "loto-procedures-dole-oshs-template",
       "title": "Lock-Out Tag-Out (LOTO) Procedures: DOLE OSHS Template",
       "url": "/learn/loto-procedures-dole-oshs-template/",
-      "date_modified": "2026-05-18",
+      "date_modified": "2026-08-24",
       "maps_to": null,
       "maps_to_label": null,
       "features_referenced": [
@@ -2065,7 +2075,7 @@
       "slug": "maintenance-metrics-reliability-guide",
       "title": "Maintenance Metrics Guide: OEE, MTBF, MTTR & Reliability for Philippine Plants",
       "url": "/learn/maintenance-metrics-reliability-guide/",
-      "date_modified": "2026-08-17",
+      "date_modified": "2026-08-24",
       "maps_to": null,
       "maps_to_label": null,
       "features_referenced": [
@@ -2084,7 +2094,7 @@
       "slug": "maintenance-project-planning-template",
       "title": "Plant Turnaround and Maintenance Project Planning (Free Template)",
       "url": "/learn/maintenance-project-planning-template/",
-      "date_modified": "2026-05-17",
+      "date_modified": "2026-08-24",
       "maps_to": "project-manager",
       "maps_to_label": "Project Manager",
       "features_referenced": [
@@ -2112,7 +2122,7 @@
       "slug": "maintenance-shift-handover-template",
       "title": "How to Write a Maintenance Shift Handover (Template Included)",
       "url": "/learn/maintenance-shift-handover-template/",
-      "date_modified": "2026-05-17",
+      "date_modified": "2026-08-24",
       "maps_to": "shift-brain",
       "maps_to_label": "Shift Brain",
       "features_referenced": [
@@ -2141,7 +2151,7 @@
       "slug": "mtbf-vs-mttr-for-supervisors",
       "title": "MTBF vs MTTR for Supervisors, Engineers, and Planners",
       "url": "/learn/mtbf-vs-mttr-for-supervisors/",
-      "date_modified": "2026-08-17",
+      "date_modified": "2026-08-24",
       "maps_to": null,
       "maps_to_label": null,
       "features_referenced": [
@@ -2169,7 +2179,7 @@
       "slug": "ofw-engineer-portable-portfolio",
       "title": "How OFW-Track Engineers Build a Portable Maintenance Portfolio",
       "url": "/learn/ofw-engineer-portable-portfolio/",
-      "date_modified": "2026-05-18",
+      "date_modified": "2026-08-25",
       "maps_to": null,
       "maps_to_label": null,
       "features_referenced": [
@@ -2177,6 +2187,7 @@
         "dayplanner",
         "asset-hub",
         "skillmatrix",
+        "resume",
         "achievements"
       ]
     },
@@ -2184,7 +2195,7 @@
       "slug": "ph-industrial-benchmarks-intelligence",
       "title": "PH Industrial Benchmarks and Intelligence Reports (Free)",
       "url": "/learn/ph-industrial-benchmarks-intelligence/",
-      "date_modified": "2026-05-17",
+      "date_modified": "2026-08-24",
       "maps_to": "ph-intelligence",
       "maps_to_label": "PH Intelligence",
       "features_referenced": [
@@ -2212,7 +2223,7 @@
       "slug": "ph-plant-compliance-guide",
       "title": "Philippine Plant Compliance Guide: DOLE OSHS, LOTO & RA 11285 Records",
       "url": "/learn/ph-plant-compliance-guide/",
-      "date_modified": "2026-08-05",
+      "date_modified": "2026-08-24",
       "maps_to": null,
       "maps_to_label": null,
       "features_referenced": [
@@ -2229,7 +2240,7 @@
       "slug": "plant-alert-inbox-amc-daily-brief",
       "title": "One Alert Inbox for the Whole Plant: Risk, PM, Stock, and the 6 AM Brief",
       "url": "/learn/plant-alert-inbox-amc-daily-brief/",
-      "date_modified": "2026-08-20",
+      "date_modified": "2026-08-24",
       "maps_to": null,
       "maps_to_label": null,
       "features_referenced": [
@@ -2243,7 +2254,7 @@
       "slug": "power-plant-reliability-metrics-philippines",
       "title": "Power Plant Reliability Metrics in the Philippines",
       "url": "/learn/power-plant-reliability-metrics-philippines/",
-      "date_modified": "2026-05-18",
+      "date_modified": "2026-08-24",
       "maps_to": null,
       "maps_to_label": null,
       "features_referenced": [
@@ -2256,7 +2267,7 @@
       "slug": "predictive-alert-thresholds-plants",
       "title": "ISO 10816 Vibration Thresholds and Predictive Alert Limits for Plants",
       "url": "/learn/predictive-alert-thresholds-plants/",
-      "date_modified": "2026-05-17",
+      "date_modified": "2026-08-24",
       "maps_to": "alert-hub",
       "maps_to_label": "Alert Hub",
       "features_referenced": [
@@ -2282,7 +2293,7 @@
       "slug": "predictive-maintenance-on-a-budget-philippines",
       "title": "Predictive Maintenance on a Budget (Philippines)",
       "url": "/learn/predictive-maintenance-on-a-budget-philippines/",
-      "date_modified": "2026-05-17",
+      "date_modified": "2026-08-24",
       "maps_to": "predictive",
       "maps_to_label": "Predictive Maintenance",
       "features_referenced": [
@@ -2307,7 +2318,7 @@
       "slug": "print-ready-maintenance-analytics-report",
       "title": "The Print-Ready Maintenance Report Your Management Actually Reads",
       "url": "/learn/print-ready-maintenance-analytics-report/",
-      "date_modified": "2026-07-03",
+      "date_modified": "2026-08-24",
       "maps_to": null,
       "maps_to_label": null,
       "features_referenced": [
@@ -2321,7 +2332,7 @@
       "slug": "psme-iiee-piche-which-association-to-join",
       "title": "PSME, IIEE, PIChE: Which Philippine Engineering Association?",
       "url": "/learn/psme-iiee-piche-which-association-to-join/",
-      "date_modified": "2026-05-18",
+      "date_modified": "2026-08-25",
       "maps_to": null,
       "maps_to_label": null,
       "features_referenced": [
@@ -2334,7 +2345,7 @@
       "slug": "ra-11285-energy-efficiency-plant-checklist",
       "title": "RA 11285 Energy Efficiency: a Plant-Floor Compliance Checklist",
       "url": "/learn/ra-11285-energy-efficiency-plant-checklist/",
-      "date_modified": "2026-05-18",
+      "date_modified": "2026-08-24",
       "maps_to": null,
       "maps_to_label": null,
       "features_referenced": [
@@ -2348,7 +2359,7 @@
       "slug": "reduce-unplanned-downtime-guide",
       "title": "How to Reduce Unplanned Equipment Downtime in a Factory",
       "url": "/learn/reduce-unplanned-downtime-guide/",
-      "date_modified": "2026-08-20",
+      "date_modified": "2026-08-24",
       "maps_to": null,
       "maps_to_label": null,
       "features_referenced": [
@@ -2365,7 +2376,7 @@
       "slug": "reliability-centered-maintenance-philippine-plants",
       "title": "Reliability-Centered Maintenance (RCM) for Philippine Plants",
       "url": "/learn/reliability-centered-maintenance-philippine-plants/",
-      "date_modified": "2026-05-18",
+      "date_modified": "2026-08-24",
       "maps_to": null,
       "maps_to_label": null,
       "features_referenced": [
@@ -2379,7 +2390,7 @@
       "slug": "resume-builder-for-filipino-industrial-workers",
       "title": "Build an ATS-Ready Resume from Your Plant Work History",
       "url": "/learn/resume-builder-for-filipino-industrial-workers/",
-      "date_modified": "2026-06-10",
+      "date_modified": "2026-08-25",
       "maps_to": null,
       "maps_to_label": null,
       "features_referenced": [
@@ -2392,7 +2403,7 @@
       "slug": "sensor-cmms-gateway-operations",
       "title": "Connecting IoT Sensors to a CMMS: Gateway Operations Guide",
       "url": "/learn/sensor-cmms-gateway-operations/",
-      "date_modified": "2026-05-17",
+      "date_modified": "2026-08-24",
       "maps_to": "integrations",
       "maps_to_label": "Plant Connections",
       "features_referenced": [
@@ -2417,7 +2428,7 @@
       "slug": "skill-matrix-for-maintenance-technicians",
       "title": "How to Build a Skill Matrix for Industrial Workers (Field, Engineering, Contractor)",
       "url": "/learn/skill-matrix-for-maintenance-technicians/",
-      "date_modified": "2026-05-17",
+      "date_modified": "2026-08-24",
       "maps_to": "skillmatrix",
       "maps_to_label": "Skill Matrix",
       "features_referenced": [
@@ -2444,7 +2455,7 @@
       "slug": "spare-parts-inventory-philippine-plants",
       "title": "Spare Parts Inventory for Philippine Plants (ABC, FIFO, Reorder Points)",
       "url": "/learn/spare-parts-inventory-philippine-plants/",
-      "date_modified": "2026-05-17",
+      "date_modified": "2026-08-24",
       "maps_to": "inventory",
       "maps_to_label": "Inventory",
       "features_referenced": [
@@ -2472,7 +2483,7 @@
       "slug": "start-digital-logbook-philippine-factory",
       "title": "How to Start a Digital Logbook in a Philippine Factory",
       "url": "/learn/start-digital-logbook-philippine-factory/",
-      "date_modified": "2026-05-17",
+      "date_modified": "2026-08-24",
       "maps_to": null,
       "maps_to_label": null,
       "features_referenced": [
@@ -2500,7 +2511,7 @@
       "slug": "start-digital-maintenance-guide",
       "title": "How to Start Digital Maintenance in a Philippine Factory (Zero-Budget Guide)",
       "url": "/learn/start-digital-maintenance-guide/",
-      "date_modified": "2026-08-05",
+      "date_modified": "2026-08-24",
       "maps_to": null,
       "maps_to_label": null,
       "features_referenced": [
@@ -2516,7 +2527,7 @@
       "slug": "tesda-nc-mapping-to-skill-matrix",
       "title": "Mapping TESDA NC II and NC III to Your Skill Matrix",
       "url": "/learn/tesda-nc-mapping-to-skill-matrix/",
-      "date_modified": "2026-05-18",
+      "date_modified": "2026-08-25",
       "maps_to": null,
       "maps_to_label": null,
       "features_referenced": [
@@ -2528,34 +2539,37 @@
       "slug": "thermography-for-pm-philippine-plants",
       "title": "Thermography for Preventive Maintenance in Philippine Plants",
       "url": "/learn/thermography-for-pm-philippine-plants/",
-      "date_modified": "2026-05-18",
+      "date_modified": "2026-08-25",
       "maps_to": null,
       "maps_to_label": null,
       "features_referenced": [
         "index",
         "dayplanner",
-        "pm-scheduler"
+        "pm-scheduler",
+        "asset-hub"
       ]
     },
     {
       "slug": "vibration-analysis-on-a-phone-budget",
       "title": "Vibration Analysis on a Phone Budget (Philippine PdM)",
       "url": "/learn/vibration-analysis-on-a-phone-budget/",
-      "date_modified": "2026-05-18",
+      "date_modified": "2026-08-25",
       "maps_to": null,
       "maps_to_label": null,
       "features_referenced": [
         "index",
         "dayplanner",
+        "asset-hub",
         "alert-hub",
-        "voice-journal"
+        "voice-journal",
+        "shift-brain"
       ]
     },
     {
       "slug": "voice-to-text-maintenance-philippine-plant-floor",
       "title": "Voice-to-Text on the Philippine Plant Floor (Filipino, English, Taglish)",
       "url": "/learn/voice-to-text-maintenance-philippine-plant-floor/",
-      "date_modified": "2026-05-17",
+      "date_modified": "2026-08-24",
       "maps_to": "voice-journal",
       "maps_to_label": "Voice Journal",
       "features_referenced": [
@@ -2581,7 +2595,7 @@
       "slug": "what-is-oee-how-to-calculate",
       "title": "What is OEE and How Do I Calculate It? (Worked Philippine Example)",
       "url": "/learn/what-is-oee-how-to-calculate/",
-      "date_modified": "2026-08-17",
+      "date_modified": "2026-08-24",
       "maps_to": null,
       "maps_to_label": null,
       "features_referenced": [
@@ -2607,7 +2621,7 @@
       "slug": "what-is-workhive-complete-platform-guide",
       "title": "What is WorkHive? The Complete Guide to the Free Platform for Filipino Industrial Teams",
       "url": "/learn/what-is-workhive-complete-platform-guide/",
-      "date_modified": "2026-08-17",
+      "date_modified": "2026-08-24",
       "maps_to": null,
       "maps_to_label": null,
       "features_referenced": [
@@ -2644,7 +2658,7 @@
       "slug": "workhive-ai-companion-complete-capabilities",
       "title": "The WorkHive AI Companion: Everything It Can Do (and How to Get the Most From It)",
       "url": "/learn/workhive-ai-companion-complete-capabilities/",
-      "date_modified": "2026-07-07",
+      "date_modified": "2026-08-24",
       "maps_to": null,
       "maps_to_label": null,
       "features_referenced": [
@@ -2672,7 +2686,7 @@
       "slug": "workhive-vs-maintainx-comparison",
       "title": "WorkHive vs MaintainX: Free vs Mobile-First CMMS (2026)",
       "url": "/learn/workhive-vs-maintainx-comparison/",
-      "date_modified": "2026-08-05",
+      "date_modified": "2026-08-24",
       "maps_to": null,
       "maps_to_label": null,
       "features_referenced": [
@@ -2687,7 +2701,7 @@
       "slug": "workhive-vs-upkeep-free-cmms-comparison",
       "title": "WorkHive vs UpKeep: Free Alternative Compared (2026)",
       "url": "/learn/workhive-vs-upkeep-free-cmms-comparison/",
-      "date_modified": "2026-08-05",
+      "date_modified": "2026-08-24",
       "maps_to": null,
       "maps_to_label": null,
       "features_referenced": [

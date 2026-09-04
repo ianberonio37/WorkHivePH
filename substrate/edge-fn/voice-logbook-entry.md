@@ -2,7 +2,7 @@
 name: edge-fn-voice-logbook-entry
 type: edge-fn
 source: file:supabase/functions/voice-logbook-entry/index.ts
-source_sha: 336963df310a7573
+source_sha: 748c79336c0707ec
 last_verified: 2026-07-13
 supersedes: null
 ---

@@ -597,17 +597,37 @@ def cron_audit_trail_complete():
     # because the 24h window still contained the failures the restart cured. A gate that stays red
     # over a fixed problem is a gate people learn to ignore. So the window that DECIDES is the one
     # since the postmaster came up; the older failures are still reported, as history.
+    # …and the BOOT TICK belongs to the cured side of that line (2026-09-03): a restart fires
+    # every due 1-min job while workers are still initializing, so the first tick can 'job
+    # startup timeout' regardless of configuration. The window that DECIDES starts one minute
+    # after the postmaster; boot-tick failures are reported as history like the pre-restart
+    # ones. (NOTE, same day: the 4 failures that prompted this were NOT boot-tick — they were
+    # stamped 84min after postmaster start, during a full-board + outbox-drain + solo-gate
+    # load burst saturating the 8 workers. The grace below is kept because the boot-tick case
+    # is real, but it deliberately did NOT excuse those 4 — load-window startup timeouts are
+    # steady-state signal and must stay red until judged on a quiet system.)
     since_start = one("""select count(*) from cron.job_run_details
-                          where status <> 'succeeded' and start_time > pg_postmaster_start_time()""")
+                          where status <> 'succeeded'
+                            and start_time > pg_postmaster_start_time() + interval '60 seconds'""")
+    boot_tick = one("""select count(*) from cron.job_run_details
+                        where status <> 'succeeded'
+                          and start_time >  pg_postmaster_start_time()
+                          and start_time <= pg_postmaster_start_time() + interval '60 seconds'""")
     runs_since = one("""select count(*) from cron.job_run_details
                          where start_time > pg_postmaster_start_time()""")
     if int(since_start) > 0:
         names = q("""select distinct j.jobname from cron.job_run_details d
                       join cron.job j on j.jobid = d.jobid
-                     where d.status <> 'succeeded' and d.start_time > pg_postmaster_start_time()
+                     where d.status <> 'succeeded'
+                       and d.start_time > pg_postmaster_start_time() + interval '60 seconds'
                      order by 1""")
         return "fail", (f"{since_start} of {runs_since} cron runs have failed since this postmaster "
-                        f"started, across {len(names)} job(s): " + ", ".join(r[0] for r in names[:6]))
+                        f"started (boot tick excluded), across {len(names)} job(s): "
+                        + ", ".join(r[0] for r in names[:6]))
+    if int(boot_tick) > 0 and int(failed) == int(boot_tick):
+        return "pass", (f"{active} active jobs; {runs_since} runs since this postmaster started — "
+                        f"the only {boot_tick} failure(s) are boot-tick startup timeouts in the "
+                        f"restart's first minute, reported as history, not as a live fault.")
     if int(failed) > 0:
         return "pass", (f"{active} active jobs; {runs_since} runs since this postmaster started, none "
                         f"failed. ({failed} older failures remain inside the 24h window — they "
@@ -1053,6 +1073,12 @@ def seam_partial_write():
 
     So the pattern is not "does it talk to the outside world" but "does it talk to the outside world
     NOW, rather than queueing the intent in a table that shares this transaction's fate"."""
+    # ★2026-09-01: pg_get_functiondef in a bare WHERE is PLAN-FRAGILE — the planner may evaluate the
+    # predicate on the pg_proc scan BEFORE the join to pg_trigger, calling pg_get_functiondef on every
+    # function including AGGREGATES (array_agg), which raises '"array_agg" is an aggregate function'.
+    # It passed for months on one plan and errored when the catalog changed under a migration wave.
+    # The CASE guard has GUARANTEED evaluation order: pg_get_functiondef only runs for prokind='f'
+    # (plain functions — every trigger function is one), so the query is plan-independent.
     rows = qjson("""
         select p.proname as fn
           from pg_trigger t
@@ -1060,7 +1086,7 @@ def seam_partial_write():
           join pg_class c on c.oid = t.tgrelid
           join pg_namespace n on n.oid = c.relnamespace and n.nspname='public'
          where not t.tgisinternal
-           and (pg_get_functiondef(p.oid) ~ 'dblink'
+           and ((case when p.prokind = 'f' then pg_get_functiondef(p.oid) else '' end) ~ 'dblink'
                 or p.prolang in (select oid from pg_language where lanname in ('plpythonu','plperlu')))
          group by p.proname""")
     if rows:
@@ -1069,7 +1095,8 @@ def seam_partial_write():
                         f"untrusted language — the row can roll back while the effect cannot: {names}")
     n = one("select count(*) from pg_trigger where not tgisinternal")
     queued = one("""select count(distinct p.proname) from pg_trigger t join pg_proc p on p.oid=t.tgfoid
-                     where not t.tgisinternal and pg_get_functiondef(p.oid) ~ 'net\\.http_'""")
+                     where not t.tgisinternal
+                       and (case when p.prokind = 'f' then pg_get_functiondef(p.oid) else '' end) ~ 'net\\.http_'""")
     return "pass", (f"none of the {n} triggers escape the transaction; the {queued} that call out do "
                     f"it by queueing into net.http_request_queue, which rolls back with the row")
 
@@ -1593,6 +1620,20 @@ def main(argv):
         counts[status] = counts.get(status, 0) + 1
         results.append({"layer": layer, "state": state, "status": status, "detail": detail,
                         "depends_on": DEPENDS_ON.get(layer, [])})
+
+    # Per-run artifact so bank rows citing THIS harness can be honestly re-stamped: the recency
+    # rail compares the artifact's mtime against each row's dep mtimes, and a harness with no
+    # artifact has no word (the no-artifact-no-word rule). money_lifecycle + identity_boundaries
+    # got theirs 2026-08-21; this one was missed, leaving 126 rows citing it un-restampable even
+    # after it re-ran green. Atomic write (temp+replace) so a concurrent reader never sees a torn file.
+    try:
+        _art = os.path.join(ROOT, "layer_invariants_report.json")
+        _tmp = _art + ".tmp"
+        with open(_tmp, "w", encoding="utf-8") as _f:
+            json.dump({"counts": counts, "results": results}, _f, indent=1)
+        os.replace(_tmp, _art)
+    except OSError:
+        pass
 
     if a.json:
         print(json.dumps(results, indent=1))

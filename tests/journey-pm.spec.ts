@@ -15,7 +15,7 @@ import { test, expect } from './_fixtures';
 import { waitForPageReady, readToast } from './_helpers';
 import { adminClient } from './_db-cleanup';
 
-const HIVE_ID = process.env.WH_TEST_HIVE_ID || '586fd158-42d1-4853-a406-64a4695e71c4';
+const HIVE_ID = process.env.WH_TEST_HIVE_ID || '084c113b-99c0-45c6-a8e8-b4b8349da46d';
 
 const PAGE = '/workhive/pm-scheduler.html';
 const SETTLE = 12000;

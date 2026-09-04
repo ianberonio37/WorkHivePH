@@ -16,7 +16,15 @@
     // Never show it on the learn hub or inside an article (already in the library).
     if (location.pathname.indexOf('/learn/') !== -1) return;
     var DISMISS_KEY = 'wh_guide_link_dismissed_' + page;
-    try { if (localStorage.getItem(DISMISS_KEY)) return; } catch (e) { /* empty-catch-allow: localStorage blocked (private mode); show the bar */ }
+    /* T121 (2026-08-28): owner-stamped. This chip rides EVERY page, so an unowned flag was the
+       widest of the three dismissal leaks - a worker who dismissed the guide on eight pages left
+       the next person on that station tablet with no page-guide affordance anywhere, and nothing
+       on screen to explain why. whIsDismissed treats a legacy '1' as not-dismissed, so the chip
+       returns once per page for its rightful owner too. */
+    try {
+      if (typeof whIsDismissed === 'function') { if (whIsDismissed(DISMISS_KEY)) return; }
+      else if (localStorage.getItem(DISMISS_KEY)) return;
+    } catch (e) { /* empty-catch-allow: localStorage blocked (private mode); show the bar */ }
 
     fetch('/learn_links.json').then(function (r) { return r.json(); }).then(function (map) {
       var guides = map && map[page];
@@ -72,7 +80,10 @@
       // fails on the MIN dimension, so both axes must clear it.
       x.style.cssText = 'flex:0 0 auto;display:flex;align-items:center;justify-content:center;background:none;border:none;color:rgba(255,255,255,0.6);font-size:1.1rem;line-height:1;cursor:pointer;padding:4px;min-width:44px;min-height:44px;';
       x.addEventListener('click', function () {
-        try { localStorage.setItem(DISMISS_KEY, '1'); } catch (e) { /* empty-catch-allow: localStorage blocked; dismissal is best-effort */ }
+        try {
+          if (typeof whSetDismissed === 'function') whSetDismissed(DISMISS_KEY);
+          else localStorage.setItem(DISMISS_KEY, '1');
+        } catch (e) { /* empty-catch-allow: localStorage blocked; dismissal is best-effort */ }
         bar.remove();
       });
 

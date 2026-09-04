@@ -92,6 +92,22 @@ serveObserved("supervisor-reset-password", async (req) => {
     });
   } catch (_e) { /* audit best-effort */ }
 
+  // T108 (2026-08-25): the last silent someone->you row — a push telling the WORKER their
+  // password was reset. Security value first: an UNAUTHORIZED reset becomes visible to its
+  // victim instead of silent (the legitimate flow is in-person hand-over, where the push is
+  // a harmless receipt). Outbox -> notify-push; reaches opt-in subscribers; best-effort.
+  try {
+    await admin.from("service_outbox").insert({
+      consumer: "notify-push",
+      payload: {
+        auth_uids: [tgt.auth_uid],
+        title: "Your password was reset",
+        body: `A supervisor (${actor.worker_name}) reset your WorkHive password. If this wasn't arranged with you, tell your supervisor immediately.`,
+        url: "/index.html",
+      },
+    });
+  } catch (_e) { /* push best-effort; the reset stands */ }
+
   return json(200, { ok: true, worker_name: target, temp_password: pw,
     message: "Temporary password set. Share it with the worker; they should change it after signing in." });
 });

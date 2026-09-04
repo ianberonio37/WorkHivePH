@@ -1,6 +1,6 @@
 {
   "_doc": "Component adoption baseline (Layer F). Floors are FORWARD-ONLY: validate_component_adoption.py fails any drop and auto-tightens any rise. Regenerate view: python tools/component_adoption_census.py",
-  "generated": "2026-08-22T15:41:06.882454+00:00",
+  "generated": "2026-09-04T05:48:05.865344+00:00",
   "family_pages": 32,
   "rows": [
     {
@@ -355,9 +355,9 @@
       "satisfies": "N1",
       "mode": "measured",
       "need_rule": "renders-date",
-      "adopters_n": 19,
+      "adopters_n": 20,
       "need_n": 20,
-      "pct": 95,
+      "pct": 100,
       "adopters": [
         "alert-hub.html",
         "analytics.html",
@@ -370,6 +370,7 @@
         "integrations.html",
         "inventory.html",
         "logbook.html",
+        "marketplace.html",
         "plant-connections.html",
         "pm-scheduler.html",
         "project-manager.html",
@@ -379,9 +380,7 @@
         "status.html",
         "voice-journal.html"
       ],
-      "gap": [
-        "marketplace.html"
-      ],
+      "gap": [],
       "status": "built"
     },
     {
@@ -392,8 +391,8 @@
       "mode": "measured",
       "need_rule": "renders-number",
       "adopters_n": 5,
-      "need_n": 7,
-      "pct": 71,
+      "need_n": 11,
+      "pct": 45,
       "adopters": [
         "agentic-rag-observability.html",
         "ai-quality.html",
@@ -403,7 +402,11 @@
       ],
       "gap": [
         "asset-hub.html",
-        "marketplace-seller.html"
+        "audit-log.html",
+        "hive.html",
+        "logbook.html",
+        "marketplace-seller.html",
+        "pm-scheduler.html"
       ],
       "status": "built"
     },
@@ -674,7 +677,7 @@
     "FI1": 31,
     "FI2": 16,
     "FF1": 29,
-    "FD1a": 19,
+    "FD1a": 20,
     "FD1b": 5,
     "FD1c": 9,
     "FD1e": 14,

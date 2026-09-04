@@ -1,4 +1,4 @@
 {
-  "dead": 19,
-  "_doc": "forward-only: registered instruments pinned to a hive that no longer resolves. Recorded 2026-07-30 after read-battery's dead fallback produced six phantom page failures. Each repointing (or better, dynamic resolution) ratchets this down; a NEW one FAILs."
+  "dead": 2,
+  "_doc": "forward-only: pinned hives that no longer resolve"
 }

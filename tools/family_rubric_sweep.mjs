@@ -11,8 +11,11 @@
 //   - :5000 seeder serves pages already repointed to local 127.0.0.1:54321
 //   - sign in ONCE on shift-brain; session persists same-origin
 //   - navigate each page, settle, inject survey_ufai_rubric.js, survey()
-// Identity = pabloaguilar (supervisor) on hive c9def338… — the SAME identity
-// the §16 scoreboard was measured with, so runs stay comparable.
+// Identity = pabloaguilar (supervisor) — the SAME identity the §16 scoreboard was measured with,
+// so runs stay comparable. The hive is now named by ROLE rather than by uuid: the id this comment
+// used to carry (c9def338…) was reseeded away, and Pablo holds supervisor in Lucena Pharmaceutical
+// while being only a worker in Manila — so a repoint to the wrong one of his two hives would have
+// kept the sweep running while quietly measuring it without supervisor-scoped surfaces.
 //
 // USAGE:
 //   node tools/family_rubric_sweep.mjs                 # all 32 pages
@@ -29,7 +32,7 @@ import { writeFileSync, readFileSync } from 'fs';
 const SEEDER = process.env.WH_TEST_BASE_URL || 'http://127.0.0.1:5000';
 const EMAIL = process.env.WH_TEST_EMAIL || 'pabloaguilar@auth.workhiveph.com';
 const PASSWORD = process.env.WH_TEST_PASSWORD || 'test1234';
-const HIVE = process.env.WH_TEST_HIVE || 'c9def338-fd73-4b19-8ef1-ee57625953d6'; // hive fallback only — signIn resolves live membership
+const HIVE = process.env.WH_TEST_HIVE || '4eec150e-4837-417b-bdd8-009b0192acfe'; // hive fallback only — signIn resolves live membership
 const WORKER = process.env.WH_TEST_WORKER || 'Pablo Aguilar';
 
 // Deep-link state a page's REAL use requires (never measure a bounced shell).

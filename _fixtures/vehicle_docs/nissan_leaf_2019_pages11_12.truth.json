@@ -1,0 +1,27 @@
+{
+  "doc": "nissan_leaf_2019_pages11_12",
+  "hand_read": "2026-09-03, authored from the PDF pages BEFORE extraction. 2019 LEAF Service & Maintenance Guide pages 11-12 (EXPLANATION OF SCHEDULED MAINTENANCE ITEMS): wrapped US prose with fi/fl ligature splits, MILES-based intervals, and the doc's own km given in parens for coolant. One-time factory-fill mention (125,000 mi / 200,000 km) must NOT mine as recurring.",
+  "pm_items": [
+    { "match": "coolant", "interval_km": 120000, "interval_months": null,
+      "why": "'Subsequent replacement ... should occur every 75,000 miles (120,000 km) or 5 years' - the doc's OWN km in parens must be used verbatim, not a conversion" },
+    { "match": "rotated", "interval_km": 12070, "interval_months": null,
+      "why": "'Tires should be rotated every 7,500 miles' - pure miles, exact conversion 7,500 x 1.60934 = 12,070 km (rounded to 10)" }
+  ],
+  "parts": [
+    { "match": "In-Cabin Microfilter", "part_number": null,
+      "why": "the heading arrives as 'In-Cabin Microfi lter' - the ligature-split artifact must be rejoined" },
+    { "match": "Reduction Gear Oil", "part_number": null },
+    { "match": "Brake Pads", "part_number": null }
+  ],
+  "pm_must_not_match": [
+    "factory",
+    "maintenance log",
+    "whichever comes"
+  ],
+  "parts_must_not_match": [
+    "report",
+    "factory"
+  ],
+  "must_not_contain": [],
+  "expect_injection": false
+}

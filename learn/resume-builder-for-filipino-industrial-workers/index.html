@@ -22,7 +22,7 @@
   <meta property="og:type" content="article" />
   <meta property="og:site_name" content="WorkHive" />
   <meta property="article:published_time" content="2026-06-10T00:00:00+08:00" />
-  <meta property="article:modified_time" content="2026-06-10T00:00:00+08:00" />
+  <meta property="article:modified_time" content="2026-08-25T00:00:00+08:00" />
   <meta property="article:author" content="WorkHive Editorial Team" />
   <meta property="article:section" content="Maintenance" />
 
@@ -45,7 +45,7 @@
         "author": { "@type": "Organization", "name": "WorkHive Editorial Team", "url": "https://workhiveph.com/" },
         "publisher": { "@id": "https://workhiveph.com/#organization" },
         "datePublished": "2026-06-10",
-        "dateModified": "2026-06-10",
+        "dateModified": "2026-08-25",
         "mainEntityOfPage": "https://workhiveph.com/learn/resume-builder-for-filipino-industrial-workers/",
         "inLanguage": "en-PH",
         "articleSection": "Maintenance",
@@ -79,7 +79,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -147,7 +147,8 @@
     <div class="flex items-center gap-5 text-xs sm:text-sm">
       <a href="/learn/" class="text-white/55 hover:text-white transition-colors">Learn</a>
       <a href="/" class="text-white/55 hover:text-white transition-colors">Home</a>
-      <a href="/#join" class="bg-orange-wh text-navy-wh px-4 py-1.5 rounded-lg font-semibold text-xs hover:bg-orange-light transition-colors">Join</a>
+      <a href="/?signin=1" class="nav-link" style="font-size:0.75rem;">Sign In</a>
+      <a href="/?signup=1" class="bg-orange-wh text-navy-wh px-4 py-1.5 rounded-lg font-semibold text-xs hover:bg-orange-light transition-colors">Join</a>
     </div>
   </div>
 </nav>
@@ -215,7 +216,7 @@
       <p>That is the entire loop. The two steps people get wrong are what to feed the auto-fill and how to tailor without keyword stuffing; the next two sections cover exactly those.</p>
       <h2 id="evidence">Where each resume line comes from</h2>
       <p>The builder does not invent experience. Every line traces to something you already recorded on WorkHive or typed yourself. That provenance is what makes it fast for someone who never kept a resume current but has years of real work behind them.</p>
-      <table>
+      <div data-table-scroll style="overflow-x:auto;-webkit-overflow-scrolling:touch;" role="region" aria-label="Scrollable table" tabindex="0"><table>
         <thead>
           <tr><th>You recorded it as</th><th>It becomes</th></tr>
         </thead>
@@ -225,7 +226,7 @@
           <tr><td>Photos of paper certificates: TESDA NCs, safety and equipment training</td><td>A certifications section, typed out by the AI</td></tr>
           <tr><td>Anything you type or edit by hand</td><td>Stays exactly as you wrote it</td></tr>
         </tbody>
-      </table>
+      </table></div>
       <p>If your plant history is thin on WorkHive, start logging now. A maintenance planner in Cabuyao who logs daily has a resume that updates itself; <strong>✨ Polish my experience wording</strong> then turns raw entries into clean bullets without changing the facts.</p>
       <h2 id="tailoring">Tailor to the job ad, not to a template</h2>
       <p>Generic resumes lose on keywords. Paste the job description into the <strong>Tailor to a job</strong> field and the builder compares your content against what the ad asks for, scores the match, and suggests skills to surface. Keep only the suggestions that are true. The score tells you what to make explicit; it is not an invitation to claim work you have not done.</p>
@@ -260,6 +261,7 @@
       <details class="faq-item"><summary>Can I edit my resume after it's been generated?</summary><div class="faq-answer">Yes. Every line stays editable with provenance, and Undo reverses a change you did not mean to make.</div></details>
       <details class="faq-item"><summary>Is my resume data private?</summary><div class="faq-answer">Your resume lives in your WorkHive account and is not shared with employers or other members. You can download a JSON copy any time and keep it offline.</div></details>
 
+      <p><strong>Keep reading:</strong> <a href="/learn/ofw-engineer-portable-portfolio/">build the portable portfolio behind it</a>, or <a href="/learn/skill-matrix-for-maintenance-technicians/">ground it in a skill matrix</a>.</p>
       <h2 id="sources">Sources</h2>
       <ul class="sources-list">
         <li>Ladders, Inc. Eye-Tracking Study (2018): recruiters average 7.4 seconds on an initial resume screen</li>

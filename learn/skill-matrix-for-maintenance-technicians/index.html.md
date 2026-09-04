@@ -10,7 +10,7 @@ By **WorkHive Editorial Team**
 ·
 Published 17 May 2026
 ·
-Updated 17 May 2026
+Updated 24 Aug 2026
 ·
 9 min read
 
@@ -95,7 +95,7 @@ The tool this guide is about
 
 Every Logbook entry can be tagged with the competency it demonstrated, building each technician's evidence record automatically. The Skill Matrix dashboard shows gaps, single-point-of-failures, and ready-for-promotion patterns. PM Scheduler reads it for assignment. Free at the worker tier forever.
 
-No hive yet? [Join WorkHive](https://workhiveph.com/#join) first (free, takes 30 seconds).
+No hive yet? [Join WorkHive](https://workhiveph.com/?signup=1) first (free, takes 30 seconds).
 
 ## How to assess fairly (the 3-input rule)
 
@@ -172,4 +172,4 @@ Yes. The matrix gives an objective answer to who has earned the next role. A tec
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: a7c299e7a08d614e -->
+<!-- md-twin source-sha: 4846458088dc6ffc -->

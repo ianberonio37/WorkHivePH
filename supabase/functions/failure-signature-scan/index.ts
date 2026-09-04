@@ -27,7 +27,7 @@ import { getCorsHeaders } from "../_shared/cors.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 // Pillar I (Gateway Spine): verify hive membership on the manual single-hive path.
-import { resolveIdentity, resolveTenancy } from "../_shared/tenant-context.ts";
+import { resolveIdentity, resolveTenancy, requireServiceRole } from "../_shared/tenant-context.ts";
 import { checkAIRateLimit, rateLimitedResponse, checkRouteRateLimit, routeRateLimitedResponse } from "../_shared/rate-limit.ts"; // Arc L: per-hive AI cap (member-spam hardening; service-role exempt)
 
 // Warm module-scope Supabase client. Reused across request invocations
@@ -327,10 +327,26 @@ serveObserved("failure-signature-scan", async (req) => {
         const _rq = await checkRouteRateLimit(db, String(body.hive_id || ""), "failure-signature-scan");
         // Denies ONLY when an explicit hive_route_quotas row exists (rq.per_route), so this stays
         // a no-op until an admin sets a cap - while always counting for attribution.
-        if (_rq.per_route && !_rq.allowed) return routeRateLimitedResponse(cors, "failure-signature-scan", _rq.cap);
+        if (_rq.per_route && !_rq.allowed) return routeRateLimitedResponse(cors, "failure-signature-scan", _rq.cap, _rq.retry_after_seconds);
       } catch { /* empty-catch-allow: per-surface quota bookkeeping must never fail a real request */ }
       const _rl = await checkAIRateLimit(db, String(body.hive_id));
-      if (!_rl.allowed) return rateLimitedResponse(cors);
+      if (!_rl.allowed) return rateLimitedResponse(cors, _rl.scope ?? "hour", _rl.retry_after_seconds);
+    }
+  }
+
+  // ★Drain path (no hive_id) runs the generative signature scan + writes (failure_signature_alerts,
+  // automation_log) over ALL hives on a service-role client. This fn is deployed --no-verify-jwt, so
+  // without an explicit gate a public `POST {}` runs the whole all-hives generative scan (BFLA +
+  // unbounded LLM cost — the same anon-drain class as amc-orchestrator / pdf-ingest). The membership
+  // check above only covers the single-hive path. The pg_cron daily job passes a service-role bearer,
+  // so requiring service credentials on the drain path leaves the cron unbroken and shuts the public door.
+  if (!body.hive_id) {
+    const g = await requireServiceRole(db, req);
+    if (!g.ok) {
+      return new Response(
+        JSON.stringify({ error: g.message, code: g.code }),
+        { status: g.status, headers: { ...cors, "Content-Type": "application/json" } },
+      );
     }
   }
 

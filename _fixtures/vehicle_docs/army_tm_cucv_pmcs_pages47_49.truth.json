@@ -1,0 +1,19 @@
+{
+ "doc": "army_tm_cucv_pmcs_pages47_49",
+ "hand_read": "2026-09-03, authored before extraction. 1986 Army TM 9-2320-289-10 PMCS table pages (messy OCR: 'ChecK', 'I I Service I', broken columns). The PMCS is CONDITION/time-coded (B/D/A/W/M), it contains NO km or mile intervals - the deterministic floor must extract NOTHING rather than fabricate.",
+ "pm_items": [],
+ "parts": [],
+ "pm_must_not_match": [
+  "pmcs",
+  "warning",
+  "crewmember",
+  "mission capable"
+ ],
+ "parts_must_not_match": [
+  "interval",
+  "procedure",
+  "warning"
+ ],
+ "must_not_contain": [],
+ "expect_injection": false
+}

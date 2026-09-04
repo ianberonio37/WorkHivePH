@@ -22,7 +22,7 @@
   <meta property="og:type" content="article" />
   <meta property="og:site_name" content="WorkHive" />
   <meta property="article:published_time" content="2026-05-18T00:00:00+08:00" />
-  <meta property="article:modified_time" content="2026-05-18T00:00:00+08:00" />
+  <meta property="article:modified_time" content="2026-08-25T00:00:00+08:00" />
   <meta property="article:author" content="WorkHive Editorial Team" />
   <meta property="article:section" content="Maintenance" />
 
@@ -45,7 +45,7 @@
         "author": { "@type": "Organization", "name": "WorkHive Editorial Team", "url": "https://workhiveph.com/" },
         "publisher": { "@id": "https://workhiveph.com/#organization" },
         "datePublished": "2026-05-18",
-        "dateModified": "2026-05-18",
+        "dateModified": "2026-08-25",
         "mainEntityOfPage": "https://workhiveph.com/learn/psme-iiee-piche-which-association-to-join/",
         "inLanguage": "en-PH",
         "articleSection": "Maintenance",
@@ -79,7 +79,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -139,7 +139,8 @@
     <div class="flex items-center gap-5 text-xs sm:text-sm">
       <a href="/learn/" class="text-white/55 hover:text-white transition-colors">Learn</a>
       <a href="/" class="text-white/55 hover:text-white transition-colors">Home</a>
-      <a href="/#join" class="bg-orange-wh text-navy-wh px-4 py-1.5 rounded-lg font-semibold text-xs hover:bg-orange-light transition-colors">Join</a>
+      <a href="/?signin=1" class="nav-link" style="font-size:0.75rem;">Sign In</a>
+      <a href="/?signup=1" class="bg-orange-wh text-navy-wh px-4 py-1.5 rounded-lg font-semibold text-xs hover:bg-orange-light transition-colors">Join</a>
     </div>
   </div>
 </nav>
@@ -214,14 +215,14 @@
       <h2 id="chooser-matrix">Chooser Matrix: Which Association is Right for You?</h2>
       <p>Choosing the right Philippine engineering association can be a challenge. To help you decide, we've created a chooser matrix. Consider your work location, such as the Calabarzon region, and your role, like a plant supervisor. The matrix will guide you in selecting the best fit among PSME, IIEE, PIChE, and others.</p>
       <p>Our chooser matrix evaluates key factors like membership cost, CPD credits, exam pathways, and networking events. You can discuss these costs and benefits with fellow engineers in the WorkHive Community.</p>
-      <table>
+      <div data-table-scroll style="overflow-x:auto;-webkit-overflow-scrolling:touch;" role="region" aria-label="Scrollable table" tabindex="0"><table>
         <thead><tr><th>Association</th><th>Annual membership</th><th>Discipline focus</th></tr></thead>
         <tbody>
           <tr><td>PSME</td><td>around PHP 5,000</td><td>Mechanical engineering</td></tr>
           <tr><td>IIEE</td><td>around PHP 3,500</td><td>Electrical engineering</td></tr>
           <tr><td>PIChE</td><td>around PHP 4,000</td><td>Chemical engineering</td></tr>
         </tbody>
-      </table>
+      </table></div>
       <p>We also considered the types of equipment and systems you work with. Are you a mechanical engineer overseeing Pump P-204B at a Batangas plant? Or an electrical engineer managing the 02:30 to 14:45 shift at a Bulacan facility? Our matrix helps you match your expertise with the right association. You might find that PSME's mechanical focus aligns with your experience, or IIEE's electrical emphasis suits your skills better.</p>
       <p>The chooser matrix also looks at continuing professional development opportunities. For instance, PIChE offers CPD credits for chemical engineers working on projects like the PHP 180,000 upgrade of Boiler B-1 at a Pampanga plant. By joining the right association, you can stay up-to-date with industry developments and advance your career as a maintenance planner or shift in-charge.</p>
       <p>Ultimately, the right association for you will depend on your specific needs and goals. That's why we've included a range of factors in our chooser matrix. Take a look and see which association comes out on top for you. You can also join the discussion in the WorkHive Community to hear from other engineers who have chosen PSME, IIEE, PIChE, or other associations.</p>
@@ -245,6 +246,7 @@
       <details class="faq-item"><summary>How do I stay updated on industry developments and trends?</summary><div class="faq-answer">You can stay updated on industry developments and trends by attending conferences, seminars, and workshops organized by your chosen association. Additionally, WorkHive Community provides a platform for discussing industry topics and sharing knowledge.</div></details>
       <details class="faq-item"><summary>What is the role of ASEAN Federation in Philippine engineering associations?</summary><div class="faq-answer">The ASEAN Federation of Engineering Organizations (AFEFO) aims to promote engineering excellence and cooperation among ASEAN member countries. Filipino engineers can benefit from AFEFO's initiatives and resources.</div></details>
 
+      <p><strong>Keep reading:</strong> <a href="/learn/ofw-engineer-portable-portfolio/">build a portable engineering portfolio</a>, or <a href="/learn/tesda-nc-mapping-to-skill-matrix/">map TESDA NCs to a skill matrix</a>.</p>
       <h2 id="sources">Sources</h2>
       <ul class="sources-list">
         <li>DOLE OSHS (Department of Labor and Employment, Occupational Safety and Health Standards)</li>

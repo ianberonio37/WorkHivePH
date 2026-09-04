@@ -43,6 +43,10 @@ const PERSONAS = {
 
 const args = process.argv.slice(2);
 const only = (() => { const i = args.indexOf('--persona'); return i >= 0 ? args[i + 1] : null; })();
+// A --persona spot-check must not overwrite the full sweep's verdicts: bank_prover_reports.py reads
+// this file and cannot tell one persona from all of them. Narrowed runs get their own report.
+const REPORT = only ? `services_pane_report.persona-${only}.json`.replace(/[^\w.-]+/g, '_')
+                    : 'services_pane_report.json';
 
 const results = [];
 function check(persona, name, pass, detail) {
@@ -150,7 +154,7 @@ for (const [persona, acct] of Object.entries(PERSONAS)) {
 await browser.close();
 
 const failed = results.filter(r => !r.pass);
-writeFileSync('services_pane_report.json', JSON.stringify({
+writeFileSync(REPORT, JSON.stringify({
   ran_at: new Date().toISOString(), origin: ORIGIN,
   checks: results, pass: results.length - failed.length, fail: failed.length,
 }, null, 1));

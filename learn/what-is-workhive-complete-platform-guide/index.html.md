@@ -10,7 +10,7 @@ By **WorkHive Editorial Team**
 ·
 Published 7 Jul 2026
 ·
-Updated 17 Aug 2026
+Updated 24 Aug 2026
 ·
 12 min read
 
@@ -119,7 +119,7 @@ A few tools do double duty. The Asset Hub, for example, both records each machin
 
 ### Every calculator also has its own page, no sign-up
 
-All 60 engineering calculators now exist twice: inside the hive, and as 60 standalone pages you can open without an account. Each standalone page shows the formula, the Philippine standard it follows, and a fully worked example with real numbers, so you can check a figure in about 30 seconds, on a phone, at the machine, before you decide whether the rest of the platform is for you.
+The engineering suite exists in two places: 55 calculators across 6 disciplines inside the hive, and 60 standalone pages you can open without an account. Each standalone page shows the formula, the Philippine standard it follows, and a fully worked example with real numbers, so you can check a figure in about 30 seconds, on a phone, at the machine, before you decide whether the rest of the platform is for you.
 
 They span eight disciplines:
 
@@ -140,7 +140,7 @@ The platform this guide is about
 
 28 connected tools, from the digital logbook to 60 engineering calculators to the AI helper, all in one browser app that works offline on any phone. No per-seat charge, no credit card. Sign up, start logging, and watch the intelligence build as your records grow.
 
-Ready now? [Join the Hive](https://workhiveph.com/#join) (free, takes about 30 seconds).
+Ready now? [Join the Hive](https://workhiveph.com/?signup=1) (free, takes about 30 seconds).
 
 ## The maturity stairs: five levels, 0 to 4
 
@@ -315,4 +315,4 @@ Prefer to read first? [Meet Hezekiah and Zaniah](https://workhiveph.com/learn/ai
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: b9aa2759befb0bd3 -->
+<!-- md-twin source-sha: 161dfb5306fc6b9d -->

@@ -22,7 +22,7 @@
   <meta property="og:type" content="article" />
   <meta property="og:site_name" content="WorkHive" />
   <meta property="article:published_time" content="2026-08-05T00:00:00+08:00" />
-  <meta property="article:modified_time" content="2026-08-20T00:00:00+08:00" />
+  <meta property="article:modified_time" content="2026-08-24T00:00:00+08:00" />
   <meta property="article:author" content="WorkHive Editorial Team" />
   <meta property="article:section" content="Comparison" />
 
@@ -51,7 +51,7 @@
         "@id": "https://workhiveph.com/#organization"
       },
       "datePublished": "2026-08-05",
-      "dateModified": "2026-08-20",
+      "dateModified": "2026-08-24",
       "mainEntityOfPage": "https://workhiveph.com/learn/cmms-vs-excel-spreadsheet-maintenance/",
       "inLanguage": "en-PH",
       "articleSection": "Comparison",
@@ -132,7 +132,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = { theme: { extend: { colors: {
@@ -228,7 +228,8 @@
     <nav class="flex items-center gap-6">
       <a href="/" class="nav-link">Home</a>
       <a href="/learn/" class="nav-link">Learn</a>
-      <a href="/#join" class="nav-link">Join the Hive</a>
+      <a href="/?signin=1" class="nav-link">Sign In</a>
+      <a href="/?signup=1" class="nav-link">Sign Up Free</a>
     </nav>
   </div>
 </header>
@@ -271,7 +272,7 @@
       <ol><li><strong>Single owner.</strong> The file lives with one person. When they resign, the formulas, the conventions, and the context leave with them.</li><li><strong>No triggers.</strong> A due-date in a cell does not notify anyone. PM compliance quietly drops because nothing chases it, and PM compliance is the leading indicator that drives MTBF (see the <a href="/learn/maintenance-metrics-reliability-guide/">metrics guide</a>).</li><li><strong>Concurrent edits.</strong> Two people editing means version conflicts, and the fix is usually "send me the latest copy," which is how history diverges.</li><li><strong>No audit trail.</strong> A cell can be changed with no record of who changed it or when. That is exactly what a DOLE OSHS or ISO auditor is trying to verify: see <a href="/learn/ph-plant-compliance-guide/">PH plant compliance</a>.</li></ol>
 
       <h2 id="matrix">Spreadsheet vs CMMS: side-by-side comparison</h2>
-      <table><thead><tr><th>Attribute</th><th>Spreadsheet</th><th>CMMS</th></tr></thead><tbody>
+      <div data-table-scroll style="overflow-x:auto;-webkit-overflow-scrolling:touch;" role="region" aria-label="Scrollable table" tabindex="0"><table><thead><tr><th>Attribute</th><th>Spreadsheet</th><th>CMMS</th></tr></thead><tbody>
         <tr><td>Cost</td><td>Effectively free</td><td>Free (WorkHive worker tier) to ~$20+/user/month</td></tr>
         <tr><td>Setup time</td><td>Minutes</td><td>Days to weeks</td></tr>
         <tr><td>Multi-user editing</td><td>Conflict-prone</td><td>Built for it</td></tr>
@@ -280,7 +281,7 @@
         <tr><td>History survives turnover</td><td>Only if the file does</td><td>Yes</td></tr>
         <tr><td>Offline floor capture</td><td>Phone notes, retyped later</td><td>Direct capture (offline-first in WorkHive)</td></tr>
         <tr><td>Best for</td><td>One person, few assets, short horizon</td><td>Teams, PM discipline, audits, retained history</td></tr>
-        </tbody></table>
+        </tbody></table></div>
 
       <h2 id="migrating">Migrating from a spreadsheet to a CMMS</h2>
       <p>Do not attempt a full-plant migration. The pattern that works is one critical line first: logbook in week 1, asset register in week 2, PM schedule in week 3, handover in week 4: then expand. The full sequence is in <a href="/learn/start-digital-maintenance-guide/">how to start digital maintenance</a>, and the asset hierarchy method is in <a href="/learn/building-asset-register-zero-budget/">building an asset register on zero budget</a>.</p><p>Keep the spreadsheet running in parallel for the first month. It costs almost nothing and it removes the fear that stalls most rollouts.</p>
@@ -308,7 +309,7 @@
         <div class="faq-answer">Lost history and missed PMs. The US Department of Energy&#x27;s O&amp;M Best Practices Guide puts a preventive programme at roughly 12-18% cheaper than running reactive, with another 8-12% available from a predictive layer, and a spreadsheet has no mechanism to make a due date chase anyone.</div>
       </details>
 
-      <div class="callout"><strong><a href="/logbook.html">Open the digital Logbook</a></strong>: the surface that replaces the spreadsheet, with the asset, duration and cause attached to every entry instead of typed into a cell. Free at the worker tier, offline-first, built for Philippine plants. <a href="/#join">Join WorkHive</a> first if you do not have a hive yet.</div>
+      <div class="callout"><strong><a href="/logbook.html">Open the digital Logbook</a></strong>: the surface that replaces the spreadsheet, with the asset, duration and cause attached to every entry instead of typed into a cell. Free at the worker tier, offline-first, built for Philippine plants. <a href="/?signup=1">Join WorkHive</a> first if you do not have a hive yet.</div>
 
       <h2 id="sources">Sources</h2>
       <ul>
@@ -336,11 +337,11 @@
 
 <footer class="py-10 border-t border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
   <div class="max-w-4xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">
-    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-08-20">2026-08-20</time></p>
+    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-08-24">2026-08-24</time></p>
     <div class="flex items-center gap-6">
       <a href="/" class="hover:text-white/60 transition-colors">Home</a>
       <a href="/#faq" class="hover:text-white/60 transition-colors">FAQ</a>
-      <a href="/#join" class="hover:text-white/60 transition-colors">Join the Hive</a>
+      <a href="/?signup=1" class="hover:text-white/60 transition-colors">Join the Hive</a>
     </div>
   </div>
 </footer>

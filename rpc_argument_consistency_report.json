@@ -1,10 +1,10 @@
 {
   "summary": {
-    "files_scanned": 172,
-    "total_calls": 91,
+    "files_scanned": 174,
+    "total_calls": 102,
     "total_drift": 0,
     "baseline": 0,
-    "rpcs_known": 286
+    "rpcs_known": 298
   },
   "per_file": [
     {
@@ -129,6 +129,10 @@
     },
     {
       "file": "asset-qr.js",
+      "issues": []
+    },
+    {
+      "file": "browser-floor.js",
       "issues": []
     },
     {
@@ -649,6 +653,10 @@
     },
     {
       "file": "supabase\\functions\\tts-speak\\index.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\vehicle-doc-extract\\index.ts",
       "issues": []
     },
     {

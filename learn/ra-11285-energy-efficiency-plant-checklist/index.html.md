@@ -133,4 +133,4 @@ The WorkHive Audit Log captures energy-related actions, such as energy consumpti
 - International Organization for Standardization (ISO). (2016). ISO 14224:2016.
 - Society for Maintenance and Reliability Professionals (SMRP). (2019). CMRP Body of Knowledge.
 
-<!-- md-twin source-sha: cf7667a3eb40f6df -->
+<!-- md-twin source-sha: 5911977abc227732 -->

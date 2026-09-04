@@ -96,7 +96,10 @@ await browser.close();
 const nOK = cells.filter((c) => c.numbers?.ok === true).length;
 const nBad = cells.filter((c) => c.numbers?.ok === false).length;
 const vBad = cells.filter((c) => c.vocab?.ok === false).length;
-writeFileSync('number_views_report.json', JSON.stringify({
+// A NARROWED RUN MUST NOT CLOBBER THE FULL ONE: this file is read downstream (gates and
+// bank_prover_reports), so a --page/--case spot-check overwriting a whole sweep's verdicts
+// corrupts the BANK, not just a log. Measured on prove_retry_path 2026-08-27.
+writeFileSync((ONE ? 'number_views_report.partial.json' : 'number_views_report.json'), JSON.stringify({
   totals: { cells: cells.length, numbersPass: nOK, numbersFail: nBad, vocabFail: vBad },
   views: cells,
 }, null, 1));

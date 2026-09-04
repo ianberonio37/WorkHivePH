@@ -22,7 +22,7 @@
   <meta property="og:type" content="article" />
   <meta property="og:site_name" content="WorkHive" />
   <meta property="article:published_time" content="2026-07-03T00:00:00+08:00" />
-  <meta property="article:modified_time" content="2026-08-20T00:00:00+08:00" />
+  <meta property="article:modified_time" content="2026-08-24T00:00:00+08:00" />
   <meta property="article:author" content="WorkHive Editorial Team" />
   <meta property="article:section" content="Maintenance" />
 
@@ -45,7 +45,7 @@
         "author": { "@type": "Organization", "name": "WorkHive Editorial Team", "url": "https://workhiveph.com/" },
         "publisher": { "@id": "https://workhiveph.com/#organization" },
         "datePublished": "2026-07-03",
-        "dateModified": "2026-08-20",
+        "dateModified": "2026-08-24",
         "mainEntityOfPage": "https://workhiveph.com/learn/plant-alert-inbox-amc-daily-brief/",
         "inLanguage": "en-PH",
         "articleSection": "Maintenance",
@@ -79,7 +79,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -147,7 +147,8 @@
     <div class="flex items-center gap-5 text-xs sm:text-sm">
       <a href="/learn/" class="text-white/55 hover:text-white transition-colors">Learn</a>
       <a href="/" class="text-white/55 hover:text-white transition-colors">Home</a>
-      <a href="/#join" class="bg-orange-wh text-navy-wh px-4 py-1.5 rounded-lg font-semibold text-xs hover:bg-orange-light transition-colors">Join</a>
+      <a href="/?signin=1" class="nav-link" style="font-size:0.75rem;">Sign In</a>
+      <a href="/?signup=1" class="bg-orange-wh text-navy-wh px-4 py-1.5 rounded-lg font-semibold text-xs hover:bg-orange-light transition-colors">Join</a>
     </div>
   </div>
 </nav>
@@ -208,7 +209,7 @@
       <h2 id="amc-daily-brief">The 6 AM Brief: Prioritized Recommendations for Supervisors</h2>
       <p>Every morning at 6:00 AM, the AMC Daily Brief lands in your Alert Hub inbox. This prioritized list helps you tackle the most critical alerts first. For example, at a Philippine plant, Pump P-204B's increased vibration triggered a risk alert. The AI includes this in the brief, along with other pressing issues like PM-due alerts and low-stock warnings. You can quickly scan and approve the brief with one tap, letting the AI draft the initial response.</p>
       <p>The AMC Daily Brief is a 5-sub-agent batched recommendation that your AI compiles overnight. This means you start the day with a clear plan, focusing on the most urgent issues. By approving the brief, you're directing the AI to take initial action. You can then review and act on each alert in more detail using the Alert Hub's 'Show details' feature. This streamlined process saves you time and helps you respond to plant issues promptly.</p>
-      <table><thead><tr><th>Alert Type</th><th>AMC Daily Brief Priority</th></tr></thead><tbody><tr><td>Asset Risk Alerts</td><td>High</td></tr><tr><td>PM-Due Alerts</td><td>Medium</td></tr><tr><td>Low-Stock/Reorder Alerts</td><td>Medium</td></tr></tbody></table>
+      <div data-table-scroll style="overflow-x:auto;-webkit-overflow-scrolling:touch;" role="region" aria-label="Scrollable table" tabindex="0"><table><thead><tr><th>Alert Type</th><th>AMC Daily Brief Priority</th></tr></thead><tbody><tr><td>Asset Risk Alerts</td><td>High</td></tr><tr><td>PM-Due Alerts</td><td>Medium</td></tr><tr><td>Low-Stock/Reorder Alerts</td><td>Medium</td></tr></tbody></table></div>
       <figure class="article-fig"><img src="fig-2-bar.svg" alt="Daily Brief Statistics. Alerts Reviewed. Alerts Approved. Alerts Deferred" width="660" height="440" loading="lazy" /><figcaption>Illustrative daily-brief triage split: alerts reviewed, approved, and deferred in a morning check.</figcaption></figure>
       <h2 id="implementation-zero-budget">Zero-Budget Rollout: Improving Alerts Over Time</h2>
       <p>As you use Alert Hub in WorkHive, its alerts get sharper over time, with no extra budget needed. For example, a plant in Calabarzon, known for its industrial estates, started with basic alerts. But as they logged more issues and performed preventive maintenance, their alerts became more accurate. This is because Alert Hub learns from your plant's history, improving its alerts without requiring additional spending.</p>

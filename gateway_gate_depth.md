@@ -71,7 +71,7 @@ _The corrected figure Ian asked for: a Gateway (prevention chokepoint / PEP) AND
 - **Prod-real 0.5** — s: app-cache prod-real; CDN-edge config is external
 
 ### Error Tracking & Logs — 33.3%
-- **Gateway 0.5** — m: bypass=16 via structured_log_adoption_report.json (measured-partial)
+- **Gateway 0.5** — m: bypass=17 via structured_log_adoption_report.json (measured-partial)
 - **Gate 0.5** — a: structured-log-adoption ratchet but sampled
 - **Prod-real 0.0** — f: PROD aggregation (Loki/Sentry) is external -- local ndjson only
 

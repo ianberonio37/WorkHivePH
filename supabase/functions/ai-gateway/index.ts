@@ -68,6 +68,7 @@ import { generateEmbedding } from "../_shared/embedding-chain.ts";
 import {
   loadJournalRecall,
   persistJournalEntry,
+  updateJournalReply,
 } from "../_shared/journal-recall.ts";
 // 2026-05-30 memory-stack flywheel Turn 1 (layer 02 Episodic): durable
 // long-term memory for the non-journal conversational specialists. Recalled
@@ -894,6 +895,34 @@ serveObserved("ai-gateway", async (req) => {
     (context as Record<string, unknown>).persona = accountPersona;
   }
 
+  // T12 work_survives_quota (2026-08-25): PERSIST THE JOURNAL NOTE **BEFORE** THE QUOTA
+  // GATES. The voice-journal row used to be written only after the specialist replied
+  // (below, in the semantic-recall archive step) — so every 429 / budget refusal / specialist
+  // failure destroyed the worker's note itself, not just the companion's reply. The note is
+  // the worker's WORK; the reply is an enhancement (schema agrees: reply is nullable).
+  // skipEmbed: recall re-embeds moments later on the success path, which then completes the
+  // row via updateJournalReply; a quota-blocked row simply keeps reply=null (backfillable).
+  let journalRowId: string | null = null;
+  if (SEMANTIC_RECALL_AGENTS.has(agent) && authUid) {
+    try {
+      const langField = context && typeof context === "object"
+        ? (context as Record<string, unknown>).lang : null;
+      journalRowId = await persistJournalEntry(adminClient, {
+        auth_uid:    authUid,
+        worker_name,
+        hive_id:     verifiedHiveId ?? (typeof hive_id === "string" && hive_id ? hive_id : null),
+        transcript:  message,
+        reply:       null,
+        lang:        typeof langField === "string" && langField.trim() ? langField.trim().toLowerCase() : null,
+        skipEmbed:   true,
+        meta:        { pending_reply: true },
+      });
+    } catch (err) {
+      console.warn("[ai-gateway] persist-first journal write failed (non-fatal):",
+        err instanceof Error ? err.message : err);
+    }
+  }
+
   // Rate gate ONCE per request — now BOTH hive-level AND user-level (P1
   // roadmap 2026-05-26). The per-user inner cap stops one noisy worker
   // inside a hive from starving their teammates while the hive cap protects
@@ -919,7 +948,16 @@ serveObserved("ai-gateway", async (req) => {
   // bucket on their own identity/IP via the solo gate. Keying on the raw client
   // `hive_id` here let an anon caller drain a victim hive's shared bucket by
   // spoofing its id — closed.
-  let rl: { allowed: boolean; remaining: number; hive_remaining?: number; user_cap?: number };
+  /* T168 (2026-08-28): this inline type used to stop at hive_remaining/user_cap, and that is why
+     nothing downstream could ever say WHEN a limit clears. The limiters return `scope` (hour vs
+     day) and now `retry_after_seconds`, but an annotation narrower than the value discards them at
+     the door - so rateLimitedResponse was called with neither, its `scope` parameter defaulted to
+     "hour", and a DAILY limit reported "Try again in an hour". Widened to admit what the functions
+     already produce. */
+  let rl: {
+    allowed: boolean; remaining: number; hive_remaining?: number; user_cap?: number;
+    scope?: "hour" | "day"; retry_after_seconds?: number;
+  };
   const rlScope: "hive" | "solo" = verifiedHiveId ? "hive" : "solo";
   if (verifiedHiveId) {
     rl = await checkUserRateLimit(
@@ -955,9 +993,13 @@ serveObserved("ai-gateway", async (req) => {
       } catch { /* fall through to 429 */ }
     }
     // Distinguish scope so the frontend can show a clearer message.
-    if (rlScope === "solo") return soloRateLimitedResponse(corsHeaders);
-    if (rl.hive_remaining === 0) return rateLimitedResponse(corsHeaders);
-    return userRateLimitedResponse(corsHeaders, rl.user_cap ?? RL_USER_OVERRIDE);
+    if (rlScope === "solo") return soloRateLimitedResponse(corsHeaders, rl.retry_after_seconds);
+    // pass the SCOPE (so a daily ceiling stops claiming it resets in an hour) and the computed
+    // window, so the refusal can say when rather than "wait a moment"
+    if (rl.hive_remaining === 0) {
+      return rateLimitedResponse(corsHeaders, rl.scope ?? "hour", rl.retry_after_seconds);
+    }
+    return userRateLimitedResponse(corsHeaders, rl.user_cap ?? RL_USER_OVERRIDE, rl.retry_after_seconds);
   }
 
   // Q6 (2026-07-05): GLOBAL org-shared LLM-pool guard. Runs AFTER the per-tenant
@@ -1003,7 +1045,7 @@ serveObserved("ai-gateway", async (req) => {
       const rq = await checkRouteRateLimit(adminClient, verifiedHiveId, agent);
       if (rq.per_route && !rq.allowed) {
         log.warn(ctx, "route_quota_hit", { agent, cap: rq.cap });
-        return routeRateLimitedResponse(corsHeaders, agent, rq.cap);
+        return routeRateLimitedResponse(corsHeaders, agent, rq.cap, rq.retry_after_seconds);
       }
     } catch { /* never let per-route bookkeeping break the request */ }
   }
@@ -1666,23 +1708,33 @@ serveObserved("ai-gateway", async (req) => {
     // retention; voice_journal_entries is the permanent journal store and
     // the source of truth for the history UI. Reuses the embedding we
     // already generated during recall, so this is a single insert call.
-    if (SEMANTIC_RECALL_AGENTS.has(agent)) {
+    // Anon contract: voice_journal_entries is RLS-keyed on auth_uid, so an anon
+    // turn must never attempt the archive (if (authUid) is the 4-layer guard).
+    if (SEMANTIC_RECALL_AGENTS.has(agent) && authUid) {
       const langField = context && typeof context === "object"
         ? (context as Record<string, unknown>).lang
         : null;
       const lang = typeof langField === "string" && langField.trim()
         ? langField.trim().toLowerCase()
         : null;
-      await persistJournalEntry(adminClient, {
-        auth_uid:    authUid,
-        worker_name,
-        hive_id,
-        transcript:  message,
-        reply:       hydratedAnswer,
-        lang,
-        embedding:   recallEmbedding,
-        meta:        { target_fn: route.fn, latency_ms: Date.now() - t0 },
-      });
+      // T12 work_survives_quota: the note row was banked BEFORE the quota gates
+      // (persist-first above) — complete it with the reply + the recall embedding.
+      // Fallback insert only if that early write failed (keeps the old guarantee).
+      if (journalRowId) {
+        await updateJournalReply(adminClient, journalRowId, hydratedAnswer, recallEmbedding,
+          { target_fn: route.fn, latency_ms: Date.now() - t0 });
+      } else {
+        await persistJournalEntry(adminClient, {
+          auth_uid:    authUid,
+          worker_name,
+          hive_id,
+          transcript:  message,
+          reply:       hydratedAnswer,
+          lang,
+          embedding:   recallEmbedding,
+          meta:        { target_fn: route.fn, latency_ms: Date.now() - t0 },
+        });
+      }
     }
   }
 

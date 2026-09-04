@@ -18,7 +18,7 @@
 | `has_cp1252_stdout_guard` | 100% | 411 / 411 |
 | `has_main_guard` | 99% | 407 / 411 |
 | `defines_main` | 94% | 388 / 411 |
-| `has_module_docstring` | 85% | 351 / 411 |
+| `has_module_docstring` | 85% | 352 / 411 |
 | `writes_report_json` | 74% | 305 / 411 |
 | `has_check_names_const` | 69% | 284 / 411 |
 | `uses_future_annotations` | 67% | 277 / 411 |

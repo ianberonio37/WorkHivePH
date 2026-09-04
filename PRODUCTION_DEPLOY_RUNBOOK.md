@@ -134,6 +134,72 @@ is safe to apply and trivially reversible by re-granting.
     revokes only *direct client* EXECUTE; the trigger path is unaffected, so XP must behave exactly
     as before. If it does not, re-grant and investigate rather than leaving XP frozen.
 
+## ★ Post-deploy smoke — COMPREHENSIVE (standing procedure, 2026-09-04) — SUPERSEDES the 5-flow §5
+
+The old §5/§6 smoke was five happy-path flows. That proves the critical PATH is alive; it says nothing
+about the other ~35 pages a person can open. A deploy can leave the five green while a build error, a
+missing asset, a stale `_headers`/CSP, or a bad edit dead-renders `learn/*`, `resume`,
+`engineering-design`, or an admin console — and nobody sees it until a user does (this is exactly the
+class `smoke_pages.mjs` was written for: a page whose chrome paints while its body threw at parse
+time). **Run ALL tiers.** A Tier-0 fail, or an unexplained Tier-1/2 FAIL, triggers `ROLLBACK_RUNBOOK.md`.
+
+**Tier 0 — critical path (rollback-triggering, ~3 min, manual):** the five deep flows —
+1) sign in; 2) create a logbook entry (quota trigger allows honest use); 3) fire one AI action
+(`ai-gateway` + budget guard); 4) marketplace: accept a parts-staging rec **twice fast** (proves the
+`parts_staged_reservations` UNIQUE idempotency); 5) watch Supabase logs for `54000`/`23505`/`500`
+spikes. Any fail → roll back immediately, do not proceed to the wider tiers.
+
+**Tier 1 — EVERY public page loads (anon, automated):** sweeps **every `sitemap.xml` URL** (index,
+marketing, about/privacy/terms, public-feed, status, and all ~53 `learn/*` articles) → HTTP 200 +
+renders (not a stuck skeleton, counting both text AND controls) + **0 pageerror**. This is the
+coverage the five-flow smoke never had, and where a broken build shows first. It also honors
+**"Leg C ships more than this release"** — Netlify publishes all of `master`, so the smoke walks the
+WHOLE public surface, not just this release's changed pages.
+
+**Tier 2 — EVERY app page renders (authed, automated):** signs in with a **prod test account** and
+loads every interactive app page (the ~26 nav-tool/app surfaces: logbook, pm-scheduler, asset-hub,
+inventory, analytics(-report), alert-hub, assistant, achievements, community, dayplanner, shift-brain,
+skillmatrix, voice-journal, project-manager/-report, report-sender, resume, audit-log,
+engineering-design, marketplace(-seller), integrations, ph-intelligence, hive, index) → renders its
+own UI (not thin, not signed-out) + **0 console error**. A `SIGNED-OUT` result means the probe never
+got in (re-run / fix creds), NOT a page defect.
+
+**Tiers 1 + 2 are ONE command** — `tools/post_deploy_smoke.mjs`. It is **base-URL configurable so it
+is rehearsed against the LOCAL stack before it is ever pointed at prod** (a smoke you cannot rehearse
+is theatre — `ROLLBACK_RUNBOOK.md` §7). Same code both runs; only the env differs:
+
+```bash
+# PROD (post-deploy):
+WH_SMOKE_BASE=https://workhiveph.com \
+  WH_SMOKE_EMAIL=<prod test account> WH_SMOKE_PASS=<pw> EXPECT_SW=<new sw.js version> \
+  node tools/post_deploy_smoke.mjs
+
+# LOCAL rehearsal first (verify the smoke itself, against the running tester stack):
+WH_SMOKE_BASE=http://127.0.0.1:5000 \
+  WH_SMOKE_EMAIL=leandromarquez@auth.workhiveph.com WH_SMOKE_PASS=test1234 \
+  node tools/post_deploy_smoke.mjs
+# scope while triaging: --tier=public | --tier=app ; faster: --learn-sample=8
+```
+
+Exit 0 = every page in scope loaded clean; a FAIL names the page and its first errors. Writes
+`post_deploy_smoke_report.json` — **attach it to the release record** (the pre-flight `platform_health`
+snapshot + this smoke report are the deploy's evidence).
+
+**Tier 3 — cross-cutting (prod-only behaviors, ~2 min, manual):** these do **not** reproduce locally
+because `_headers` is prod-only ([[feedback_headers_file_is_prod_only_behavior]]):
+1) response headers carry the CSP + `Permissions-Policy` (mic/camera not killed; GA4 host allowed and
+firing); 2) each **changed** edge fn `/health` returns 200; 3) the `sw.js` served is the new version
+(the `EXPECT_SW` check above flags a stale cached build); 4) open **one page from an OLDER commit** in
+the push (SEO/landing/learn), since the publish ships all of `master`, not just this release.
+
+**Per-release sections add release-SPECIFIC action checks ON TOP of these tiers** — e.g. this
+release's items 8–10 above (delete-own-logbook `…061`, hive-scoped sensor panel `…068`, community XP
+`…069`). The tiers are the floor; the release items are the delta.
+
+> Rehearsal status: `tools/post_deploy_smoke.mjs` passes `node --check`; a full local Playwright
+> rehearsal (`WH_SMOKE_BASE=http://127.0.0.1:5000`) is run once the board frees the browser/stack,
+> and its result recorded here before the next prod deploy relies on it.
+
 ## 0d. ★FRONTEND — a lapsed session was DELETING the user's hive (2026-08-20)
 
 Found while walking the signed-out state, not from the diff. Under RLS an **expired session returns
@@ -948,3 +1014,43 @@ Neither blocks the push; the marketplace + SLO **security** fixes above are the 
 3. Fire one AI action (proves `ai-gateway` + global budget guard passes at normal load).
 4. Open the marketplace (proves the Stripe-removal didn't break the page).
 5. Watch Supabase logs for `54000` SQLSTATE spikes (a too-tight cap blocking real users).
+
+---
+
+## 0z. Migrations created AFTER Leg A's measured window — status against prod UNVERIFIED
+
+**Read this heading literally.** §0's pending-migration table was measured against prod with
+`npx supabase migration list` on **2026-08-20** and must not be edited — a measured claim stops being
+one the moment someone extends it from memory. Everything below was authored *after* that measurement,
+so its prod-applied status is **unknown until someone re-runs `migration list`**. That re-run is the
+first step of the next deploy, not something to infer from this file.
+
+Twenty-four migrations exist with a stamp of `20260821` or later
+(`20260821000070` … `20260831000001`). Only the newest is described here, because it is the only one
+carrying a **security** change and the only one that alters a shared view — the rest are behavioural
+fixes documented in their own headers.
+
+| migration | why it exists | blast radius to re-check on deploy |
+|---|---|---|
+| `20260831000001_anon_cannot_read_post_author_uid` | **An anonymous visitor could read the author's internal `auth_uid` off every public post.** `public-feed.html` was innocent (it fetches five named columns); `anon` held a table-wide SELECT on `community_posts`, and PostgREST executes as the `anon` role, so any holder of the publishable key could request the column the page declines to show. Measured pre-fix: 15 of 15 public posts, 7 distinct authors, 2 hives. `auth_uid` is stable, so this was a **correlation key**, not a single id. | **Higher than it looks — verify all three after applying.** (1) The migration drops the table-wide grant and re-grants an **explicit column allowlist**; a column-level revoke alone is a no-op underneath a table grant. (2) It **drops and recreates `v_community_posts_truth`** without `auth_uid`, because that view is `security_invoker` and its own SELECT list is privilege-checked — revoking the column without touching the view takes the **entire public feed** down with `permission denied`. `CREATE OR REPLACE VIEW` cannot remove a column, so this is a real DROP; grants are restored in the same migration (`anon`, `authenticated`, `grafana_reader` SELECT; `postgres`, `service_role` ALL). (3) Seven call sites read that view (community.html ×6, nav-hub.js, public-feed.html) — all name their columns and **none** selects `auth_uid`, which is what makes the drop safe. |
+
+**Post-deploy verification for `…0831000001`** — the same four checks used locally, in this order:
+1. anon reads the feed: `id, author_name, content, category, created_at` from `v_community_posts_truth`
+   → **rows returned** (locally 15). *If this is empty or errors, the view drop did not land correctly —
+   that is the failure mode with real user impact.*
+2. anon asks for `auth_uid` on `community_posts` → **42501 permission denied**.
+3. anon asks for `auth_uid` on the view → **42703 column does not exist**.
+4. a signed-in member's community.html column lists → **unchanged row counts**.
+
+**Re-runnability: VERIFIED, not assumed.** The migration was applied a second time inside a
+transaction (`SET lock_timeout='3s'`, rolled back) and succeeded — `DROP VIEW IF EXISTS` +
+`CREATE VIEW`, and REVOKE/GRANT, are all idempotent, so a repeat apply leaves the view present with
+`auth_uid` still absent. On a fresh database the ordering is safe too: the earlier migration creates
+the view and this one recreates it without the column.
+
+`tools/psql_probes/public-feed__public_identity_only.sql` asserts 1–3 mechanically and is executed by
+the `psql-probe-suite` gate on every board run, so this is a regression lock rather than a one-time
+check. **The open half is a product decision, not a defect:** `hive_id` and `hive_name` remain
+anon-readable and cannot simply be revoked (the truth view LEFT JOINs `hives` on `hive_id`, so every
+anon read would fail). Whether a public post should carry visible hive attribution is Ian's call —
+see the conversion-pass findings in `UFAI_TRAJECTORY_ROADMAP.md`.

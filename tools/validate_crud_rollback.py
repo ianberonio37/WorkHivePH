@@ -39,7 +39,7 @@ def _resolve_worker():
         return i.user_id, i.hive_id
     except Exception:
         return ("4153311f-624d-4ec0-b509-e69cb5a8f4cd",   # uid fallback (stale-known)
-                "636cf7e8-431a-4907-8a9f-43dd4cc216d6")   # hive fallback (stale-known)
+                "084c113b-99c0-45c6-a8e8-b4b8349da46d")   # hive fallback (stale-known)
 WORKER_UID, HIVE = _resolve_worker()
 
 # Per table (fully data-driven): the INSERT, a WHERE `marker`, an `update`+`update_check`, and a `verify`

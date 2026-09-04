@@ -39,6 +39,14 @@ EXHAUSTION_SIGNATURES = [
      "the browser died before a single assertion ran"),
     (r"net::ERR_INSUFFICIENT_RESOURCES",
      "Chromium refused further requests for want of resources"),
+    # THE AUTH ENDPOINT WENT AWAY MID-WALK (2026-08-28). prove_dialog_layout graded three dialogs, then
+    # died on `SIGN-IN FAILED: Failed to fetch` when the next page's sign-in could not reach the stack —
+    # observed while three jobs hammered it at once. dialog-floor reported that as "a dialog overflows or
+    # has an under-44px target", sending a reader to hunt CSS for a defect the run never measured.
+    # The prover was RIGHT to abort (it refuses to walk signed-out rather than fabricate auth-gated
+    # readings); a runner that cannot sign in has measured nothing, and nothing is a SKIP, never a RED.
+    (r"SIGN-IN FAILED: (Failed to fetch|no session|NetworkError|fetch failed)",
+     "the runner could not reach the auth endpoint, so nothing was measured — not a page defect"),
 ]
 
 # Above this many live chrome/node processes, a browser gate is competing with leftovers rather than

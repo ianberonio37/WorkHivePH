@@ -1,44 +1,52 @@
 {
   "summary": {
     "pages_scanned": 29,
-    "risky_pages": 4,
-    "baseline": 4
+    "risky_pages": 5,
+    "baseline": 5
   },
   "per_page": [
     {
       "page": "index.html",
-      "add": 28,
+      "add": 30,
       "remove": 0,
-      "add_raw": 28,
+      "add_raw": 30,
       "rebuild_scoped": 0,
       "risky": true
     },
     {
       "page": "hive.html",
-      "add": 48,
+      "add": 50,
       "remove": 0,
-      "add_raw": 49,
+      "add_raw": 51,
       "rebuild_scoped": 1,
       "risky": true
     },
     {
       "page": "logbook.html",
-      "add": 71,
+      "add": 75,
       "remove": 0,
-      "add_raw": 72,
+      "add_raw": 76,
       "rebuild_scoped": 1,
       "risky": true
     },
     {
       "page": "inventory.html",
-      "add": 26,
+      "add": 27,
       "remove": 0,
-      "add_raw": 27,
+      "add_raw": 28,
       "rebuild_scoped": 1,
       "risky": true
     },
     {
       "page": "pm-scheduler.html",
+      "add": 5,
+      "remove": 0,
+      "add_raw": 5,
+      "rebuild_scoped": 0,
+      "risky": false
+    },
+    {
+      "page": "analytics.html",
       "add": 4,
       "remove": 0,
       "add_raw": 4,
@@ -46,18 +54,10 @@
       "risky": false
     },
     {
-      "page": "analytics.html",
-      "add": 2,
-      "remove": 0,
-      "add_raw": 2,
-      "rebuild_scoped": 0,
-      "risky": false
-    },
-    {
       "page": "analytics-report.html",
-      "add": 1,
+      "add": 3,
       "remove": 1,
-      "add_raw": 1,
+      "add_raw": 3,
       "rebuild_scoped": 0,
       "risky": false
     },
@@ -71,9 +71,9 @@
     },
     {
       "page": "community.html",
-      "add": 18,
+      "add": 20,
       "remove": 1,
-      "add_raw": 18,
+      "add_raw": 20,
       "rebuild_scoped": 0,
       "risky": false
     },
@@ -137,17 +137,17 @@
     },
     {
       "page": "project-manager.html",
-      "add": 9,
+      "add": 11,
       "remove": 0,
-      "add_raw": 9,
+      "add_raw": 11,
       "rebuild_scoped": 0,
-      "risky": false
+      "risky": true
     },
     {
       "page": "integrations.html",
-      "add": 4,
+      "add": 5,
       "remove": 0,
-      "add_raw": 4,
+      "add_raw": 5,
       "rebuild_scoped": 0,
       "risky": false
     },
@@ -193,9 +193,9 @@
     },
     {
       "page": "asset-hub.html",
-      "add": 11,
+      "add": 12,
       "remove": 2,
-      "add_raw": 11,
+      "add_raw": 12,
       "rebuild_scoped": 0,
       "risky": false
     },

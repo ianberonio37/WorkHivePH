@@ -1666,6 +1666,48 @@ The listing detail did not surface (a) the `part_number` that identifies exactly
 
 ---
 
+### 62. Audit timestamps are written from the DEVICE clock, not the server
+
+**Discovered:** 2026-08-28 — T150 (clock skew) scan while auditing seeded approval data
+
+**What's wrong:**
+69 write payloads across 17 files set a timestamp column from the CLIENT clock
+(`new Date().toISOString()` / `Date.now()`). A phone with a wrong clock — common, and the reason
+this trajectory exists — writes a wrong timestamp into the record, and nothing downstream can tell.
+The columns include `approved_at` (12 sites), `created_at` (11), `updated_at` (18), plus
+`acknowledged_at`, `acted_at`, `closed_at`, `resolved_at`, `sent_at`.
+
+`approved_at` is the sharpest: an approval time is accountability data. A device 30 minutes fast
+records a sign-off that appears to precede the submission it approves, and an auditor reading that
+row cannot distinguish a skewed phone from a back-dated approval.
+
+Not all 69 are defects — `offline-queue.js` legitimately records when a write HAPPENED offline, and
+some are local UI state. The audit-relevant subset is what matters.
+
+**Where:**
+- `voice-handler.js` (15), `project-manager.html` (10), `asset-hub.html` (9),
+  `marketplace-seller.html` (8), `marketplace.html` (5), `alert-hub.html` (4), `logbook.html` (3),
+  `hive.html` (2), `marketplace-admin.html` (2), `report-sender.html` (2), `skillmatrix.html` (2),
+  and others
+- Precedent for the fix: `supabase/migrations/20260828000000_inventory_items_touch_updated_at.sql`
+  makes `inventory_items.updated_at` server-authoritative with a `touch_updated_at()` trigger
+
+**How to fix:**
+1. Classify the 69 sites: server-should-own (approval, resolution, send, update) vs
+   legitimately-client (offline queue capture time).
+2. For server-should-own columns, drop the client value from the payload and set it with a
+   `BEFORE INSERT/UPDATE` trigger, as `inventory_items` now does — the client cannot be trusted
+   with a clock and does not need to be.
+3. Where a client time is genuinely meaningful (offline capture), keep it but store it in a
+   DISTINCT column from the server time, so the two are never confused.
+
+**Workaround in seeder/test:** none — this is a production behaviour, not a fixture issue. (The
+separate seeder bug where `created_at` defaulted to seed time while `approved_at` was backdated is
+fixed in `seeders/utils.py::submitted_before` and is NOT a production defect.)
+
+**Status:** TO DO
+
+
 ## Template for new entries
 
 ```

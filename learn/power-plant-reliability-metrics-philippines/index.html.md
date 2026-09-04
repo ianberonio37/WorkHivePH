@@ -124,4 +124,4 @@ WorkHive Analytics provides a comprehensive platform for tracking and analyzing 
 - ISO. (2016). ISO 14224:2016 Petroleum, Petrochemical and Natural Gas Industries - Reliability, Availability and Maintainability (RAM) Data Exchange.
 - SMRP. (2019). CMRP Body of Knowledge.
 
-<!-- md-twin source-sha: 431497d7e99768ca -->
+<!-- md-twin source-sha: 0d3b552e9c914665 -->

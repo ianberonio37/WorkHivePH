@@ -7,10 +7,10 @@ each as contracted / uncontracted / raw / unknown.
 ## Summary
 
 - Pages scanned:           **29**
-- Display anchors found:   **105**
+- Display anchors found:   **111**
 - Contracted ✅:           **21** (anchor maps to a registered formula)
 - **Uncontracted ⚠️:**     **0** (domain-meaningful metric, no formula registered)
-- Raw (counts/dates):      **84** (no contract needed)
+- Raw (counts/dates):      **90** (no contract needed)
 - Unknown:                 **0** (couldn't classify from id alone)
 - Formula registry:        **24** entries
 
@@ -25,15 +25,15 @@ each as contracted / uncontracted / raw / unknown.
 | `analytics.html` | 6 | 1 | 0 | 5 | 0 |
 | `analytics-report.html` | 0 | 0 | 0 | 0 | 0 |
 | `skillmatrix.html` | 3 | 2 | 0 | 1 | 0 |
-| `community.html` | 7 | 0 | 0 | 7 | 0 |
+| `community.html` | 8 | 0 | 0 | 8 | 0 |
 | `public-feed.html` | 0 | 0 | 0 | 0 | 0 |
-| `marketplace.html` | 8 | 3 | 0 | 5 | 0 |
+| `marketplace.html` | 9 | 3 | 0 | 6 | 0 |
 | `marketplace-seller.html` | 2 | 1 | 0 | 1 | 0 |
 | `dayplanner.html` | 4 | 0 | 0 | 4 | 0 |
 | `engineering-design.html` | 1 | 0 | 0 | 1 | 0 |
 | `assistant.html` | 1 | 0 | 0 | 1 | 0 |
 | `report-sender.html` | 3 | 0 | 0 | 3 | 0 |
-| `project-manager.html` | 2 | 0 | 0 | 2 | 0 |
+| `project-manager.html` | 6 | 0 | 0 | 6 | 0 |
 | `integrations.html` | 4 | 0 | 0 | 4 | 0 |
 | `ph-intelligence.html` | 1 | 0 | 0 | 1 | 0 |
 | `project-report.html` | 0 | 0 | 0 | 0 | 0 |

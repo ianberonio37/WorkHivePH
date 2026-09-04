@@ -1,0 +1,630 @@
+{
+  "_doc": "T1.4 unified page roster \u2014 the ONE scope artifact every page-consuming instrument is checked against (validate_page_roster.py). Regenerate with --build after adding/removing a page.",
+  "count": 156,
+  "pages": [
+    {
+      "path": "achievements.html",
+      "kind": "root"
+    },
+    {
+      "path": "agentic-rag-observability.html",
+      "kind": "root"
+    },
+    {
+      "path": "ai-quality.html",
+      "kind": "root"
+    },
+    {
+      "path": "alert-hub.html",
+      "kind": "root"
+    },
+    {
+      "path": "analytics-report.html",
+      "kind": "root"
+    },
+    {
+      "path": "analytics.html",
+      "kind": "root"
+    },
+    {
+      "path": "architecture.html",
+      "kind": "root"
+    },
+    {
+      "path": "asset-hub.html",
+      "kind": "root"
+    },
+    {
+      "path": "assistant.html",
+      "kind": "root"
+    },
+    {
+      "path": "audit-log.html",
+      "kind": "root"
+    },
+    {
+      "path": "community.html",
+      "kind": "root"
+    },
+    {
+      "path": "dayplanner.html",
+      "kind": "root"
+    },
+    {
+      "path": "design-system.html",
+      "kind": "root"
+    },
+    {
+      "path": "engineering-design.html",
+      "kind": "root"
+    },
+    {
+      "path": "founder-console.html",
+      "kind": "root"
+    },
+    {
+      "path": "hive.html",
+      "kind": "root"
+    },
+    {
+      "path": "index.html",
+      "kind": "root"
+    },
+    {
+      "path": "integrations.html",
+      "kind": "root"
+    },
+    {
+      "path": "inventory.html",
+      "kind": "root"
+    },
+    {
+      "path": "llm-observability.html",
+      "kind": "root"
+    },
+    {
+      "path": "logbook.html",
+      "kind": "root"
+    },
+    {
+      "path": "marketplace-admin.html",
+      "kind": "root"
+    },
+    {
+      "path": "marketplace-seller-profile.html",
+      "kind": "root"
+    },
+    {
+      "path": "marketplace-seller.html",
+      "kind": "root"
+    },
+    {
+      "path": "marketplace.html",
+      "kind": "root"
+    },
+    {
+      "path": "offline-fallback.html",
+      "kind": "root"
+    },
+    {
+      "path": "ph-intelligence.html",
+      "kind": "root"
+    },
+    {
+      "path": "plant-connections.html",
+      "kind": "root"
+    },
+    {
+      "path": "platform-actions.html",
+      "kind": "root"
+    },
+    {
+      "path": "pm-scheduler.html",
+      "kind": "root"
+    },
+    {
+      "path": "project-manager.html",
+      "kind": "root"
+    },
+    {
+      "path": "project-report.html",
+      "kind": "root"
+    },
+    {
+      "path": "promo-poster.html",
+      "kind": "root"
+    },
+    {
+      "path": "public-feed.html",
+      "kind": "root"
+    },
+    {
+      "path": "report-sender.html",
+      "kind": "root"
+    },
+    {
+      "path": "resume.html",
+      "kind": "root"
+    },
+    {
+      "path": "shift-brain.html",
+      "kind": "root"
+    },
+    {
+      "path": "skillmatrix.html",
+      "kind": "root"
+    },
+    {
+      "path": "status.html",
+      "kind": "root"
+    },
+    {
+      "path": "symbol-gallery.html",
+      "kind": "root"
+    },
+    {
+      "path": "validator-catalog.html",
+      "kind": "root"
+    },
+    {
+      "path": "voice-journal.html",
+      "kind": "root"
+    },
+    {
+      "path": "learn/index.html",
+      "kind": "learn"
+    },
+    {
+      "path": "learn/ai-companion-hezekiah-zaniah-personas/index.html",
+      "kind": "learn"
+    },
+    {
+      "path": "learn/ai-quality-and-roi-stage-2-plants/index.html",
+      "kind": "learn"
+    },
+    {
+      "path": "learn/ai-work-assistant-maintenance-technicians/index.html",
+      "kind": "learn"
+    },
+    {
+      "path": "learn/asset-brain-360-one-machine-history-philippine-plant/index.html",
+      "kind": "learn"
+    },
+    {
+      "path": "learn/autonomous-shift-planning-philippine-plants/index.html",
+      "kind": "learn"
+    },
+    {
+      "path": "learn/best-free-cmms-software-philippines/index.html",
+      "kind": "learn"
+    },
+    {
+      "path": "learn/bms-facilities-maintenance-peza-buildings/index.html",
+      "kind": "learn"
+    },
+    {
+      "path": "learn/building-asset-register-zero-budget/index.html",
+      "kind": "learn"
+    },
+    {
+      "path": "learn/cmms-vs-excel-spreadsheet-maintenance/index.html",
+      "kind": "learn"
+    },
+    {
+      "path": "learn/connecting-workhive-to-sap-maximo-cmms/index.html",
+      "kind": "learn"
+    },
+    {
+      "path": "learn/dilo-wilo-day-planner-supervisors/index.html",
+      "kind": "learn"
+    },
+    {
+      "path": "learn/dole-iso-audit-trail-from-logbook/index.html",
+      "kind": "learn"
+    },
+    {
+      "path": "learn/fmea-worked-example-philippine-bottling-line/index.html",
+      "kind": "learn"
+    },
+    {
+      "path": "learn/food-beverage-plant-maintenance-philippines/index.html",
+      "kind": "learn"
+    },
+    {
+      "path": "learn/four-phases-maintenance-analytics-philippine-plants/index.html",
+      "kind": "learn"
+    },
+    {
+      "path": "learn/free-engineering-calculators-philippine-plants/index.html",
+      "kind": "learn"
+    },
+    {
+      "path": "learn/free-pm-checklist-templates/index.html",
+      "kind": "learn"
+    },
+    {
+      "path": "learn/gamifying-maintenance-for-engagement/index.html",
+      "kind": "learn"
+    },
+    {
+      "path": "learn/industrial-community-of-practice-philippines/index.html",
+      "kind": "learn"
+    },
+    {
+      "path": "learn/industrial-marketplace-philippine-specialists/index.html",
+      "kind": "learn"
+    },
+    {
+      "path": "learn/joining-and-growing-your-hive/index.html",
+      "kind": "learn"
+    },
+    {
+      "path": "learn/loto-procedures-dole-oshs-template/index.html",
+      "kind": "learn"
+    },
+    {
+      "path": "learn/maintenance-metrics-reliability-guide/index.html",
+      "kind": "learn"
+    },
+    {
+      "path": "learn/maintenance-project-planning-template/index.html",
+      "kind": "learn"
+    },
+    {
+      "path": "learn/maintenance-shift-handover-template/index.html",
+      "kind": "learn"
+    },
+    {
+      "path": "learn/mtbf-vs-mttr-for-supervisors/index.html",
+      "kind": "learn"
+    },
+    {
+      "path": "learn/ofw-engineer-portable-portfolio/index.html",
+      "kind": "learn"
+    },
+    {
+      "path": "learn/ph-industrial-benchmarks-intelligence/index.html",
+      "kind": "learn"
+    },
+    {
+      "path": "learn/ph-plant-compliance-guide/index.html",
+      "kind": "learn"
+    },
+    {
+      "path": "learn/plant-alert-inbox-amc-daily-brief/index.html",
+      "kind": "learn"
+    },
+    {
+      "path": "learn/power-plant-reliability-metrics-philippines/index.html",
+      "kind": "learn"
+    },
+    {
+      "path": "learn/predictive-alert-thresholds-plants/index.html",
+      "kind": "learn"
+    },
+    {
+      "path": "learn/predictive-maintenance-on-a-budget-philippines/index.html",
+      "kind": "learn"
+    },
+    {
+      "path": "learn/print-ready-maintenance-analytics-report/index.html",
+      "kind": "learn"
+    },
+    {
+      "path": "learn/psme-iiee-piche-which-association-to-join/index.html",
+      "kind": "learn"
+    },
+    {
+      "path": "learn/ra-11285-energy-efficiency-plant-checklist/index.html",
+      "kind": "learn"
+    },
+    {
+      "path": "learn/reduce-unplanned-downtime-guide/index.html",
+      "kind": "learn"
+    },
+    {
+      "path": "learn/reliability-centered-maintenance-philippine-plants/index.html",
+      "kind": "learn"
+    },
+    {
+      "path": "learn/resume-builder-for-filipino-industrial-workers/index.html",
+      "kind": "learn"
+    },
+    {
+      "path": "learn/sensor-cmms-gateway-operations/index.html",
+      "kind": "learn"
+    },
+    {
+      "path": "learn/skill-matrix-for-maintenance-technicians/index.html",
+      "kind": "learn"
+    },
+    {
+      "path": "learn/spare-parts-inventory-philippine-plants/index.html",
+      "kind": "learn"
+    },
+    {
+      "path": "learn/start-digital-logbook-philippine-factory/index.html",
+      "kind": "learn"
+    },
+    {
+      "path": "learn/start-digital-maintenance-guide/index.html",
+      "kind": "learn"
+    },
+    {
+      "path": "learn/tesda-nc-mapping-to-skill-matrix/index.html",
+      "kind": "learn"
+    },
+    {
+      "path": "learn/thermography-for-pm-philippine-plants/index.html",
+      "kind": "learn"
+    },
+    {
+      "path": "learn/vibration-analysis-on-a-phone-budget/index.html",
+      "kind": "learn"
+    },
+    {
+      "path": "learn/voice-to-text-maintenance-philippine-plant-floor/index.html",
+      "kind": "learn"
+    },
+    {
+      "path": "learn/what-is-oee-how-to-calculate/index.html",
+      "kind": "learn"
+    },
+    {
+      "path": "learn/what-is-workhive-complete-platform-guide/index.html",
+      "kind": "learn"
+    },
+    {
+      "path": "learn/workhive-ai-companion-complete-capabilities/index.html",
+      "kind": "learn"
+    },
+    {
+      "path": "learn/workhive-vs-maintainx-comparison/index.html",
+      "kind": "learn"
+    },
+    {
+      "path": "learn/workhive-vs-upkeep-free-cmms-comparison/index.html",
+      "kind": "learn"
+    },
+    {
+      "path": "tools/ahu-sizing-calculator/index.html",
+      "kind": "tools"
+    },
+    {
+      "path": "tools/beam-design-calculator/index.html",
+      "kind": "tools"
+    },
+    {
+      "path": "tools/bearing-life-calculator/index.html",
+      "kind": "tools"
+    },
+    {
+      "path": "tools/boiler-steam-calculator/index.html",
+      "kind": "tools"
+    },
+    {
+      "path": "tools/boiler-system-calculator/index.html",
+      "kind": "tools"
+    },
+    {
+      "path": "tools/bolt-torque-calculator/index.html",
+      "kind": "tools"
+    },
+    {
+      "path": "tools/cable-tray-sizing-calculator/index.html",
+      "kind": "tools"
+    },
+    {
+      "path": "tools/chiller-sizing-calculator/index.html",
+      "kind": "tools"
+    },
+    {
+      "path": "tools/clean-agent-suppression-calculator/index.html",
+      "kind": "tools"
+    },
+    {
+      "path": "tools/compressed-air-calculator/index.html",
+      "kind": "tools"
+    },
+    {
+      "path": "tools/cooling-tower-calculator/index.html",
+      "kind": "tools"
+    },
+    {
+      "path": "tools/domestic-water-demand-calculator/index.html",
+      "kind": "tools"
+    },
+    {
+      "path": "tools/drainage-pipe-sizing-calculator/index.html",
+      "kind": "tools"
+    },
+    {
+      "path": "tools/duct-sizing-calculator/index.html",
+      "kind": "tools"
+    },
+    {
+      "path": "tools/earthing-grounding-calculator/index.html",
+      "kind": "tools"
+    },
+    {
+      "path": "tools/elevator-traffic-calculator/index.html",
+      "kind": "tools"
+    },
+    {
+      "path": "tools/expansion-tank-calculator/index.html",
+      "kind": "tools"
+    },
+    {
+      "path": "tools/fcu-selection-calculator/index.html",
+      "kind": "tools"
+    },
+    {
+      "path": "tools/fire-alarm-battery-calculator/index.html",
+      "kind": "tools"
+    },
+    {
+      "path": "tools/fire-pump-calculator/index.html",
+      "kind": "tools"
+    },
+    {
+      "path": "tools/fire-sprinkler-calculator/index.html",
+      "kind": "tools"
+    },
+    {
+      "path": "tools/generator-sizing-calculator/index.html",
+      "kind": "tools"
+    },
+    {
+      "path": "tools/grease-trap-calculator/index.html",
+      "kind": "tools"
+    },
+    {
+      "path": "tools/harmonic-distortion-calculator/index.html",
+      "kind": "tools"
+    },
+    {
+      "path": "tools/heat-exchanger-calculator/index.html",
+      "kind": "tools"
+    },
+    {
+      "path": "tools/hoist-capacity-calculator/index.html",
+      "kind": "tools"
+    },
+    {
+      "path": "tools/hot-water-demand-calculator/index.html",
+      "kind": "tools"
+    },
+    {
+      "path": "tools/hvac-cooling-load-calculator/index.html",
+      "kind": "tools"
+    },
+    {
+      "path": "tools/hydraulic-cylinder-calculator/index.html",
+      "kind": "tools"
+    },
+    {
+      "path": "tools/lighting-design-calculator/index.html",
+      "kind": "tools"
+    },
+    {
+      "path": "tools/lightning-protection-calculator/index.html",
+      "kind": "tools"
+    },
+    {
+      "path": "tools/load-estimation-calculator/index.html",
+      "kind": "tools"
+    },
+    {
+      "path": "tools/load-schedule-calculator/index.html",
+      "kind": "tools"
+    },
+    {
+      "path": "tools/mtbf-calculator/index.html",
+      "kind": "tools"
+    },
+    {
+      "path": "tools/noise-acoustics-calculator/index.html",
+      "kind": "tools"
+    },
+    {
+      "path": "tools/oee-calculator/index.html",
+      "kind": "tools"
+    },
+    {
+      "path": "tools/pipe-sizing-calculator/index.html",
+      "kind": "tools"
+    },
+    {
+      "path": "tools/power-factor-correction-calculator/index.html",
+      "kind": "tools"
+    },
+    {
+      "path": "tools/pressure-vessel-calculator/index.html",
+      "kind": "tools"
+    },
+    {
+      "path": "tools/pump-tdh-calculator/index.html",
+      "kind": "tools"
+    },
+    {
+      "path": "tools/refrigerant-pipe-calculator/index.html",
+      "kind": "tools"
+    },
+    {
+      "path": "tools/roof-drain-calculator/index.html",
+      "kind": "tools"
+    },
+    {
+      "path": "tools/septic-tank-calculator/index.html",
+      "kind": "tools"
+    },
+    {
+      "path": "tools/sewer-drainage-calculator/index.html",
+      "kind": "tools"
+    },
+    {
+      "path": "tools/shaft-design-calculator/index.html",
+      "kind": "tools"
+    },
+    {
+      "path": "tools/short-circuit-calculator/index.html",
+      "kind": "tools"
+    },
+    {
+      "path": "tools/solar-pv-calculator/index.html",
+      "kind": "tools"
+    },
+    {
+      "path": "tools/stairwell-pressurization-calculator/index.html",
+      "kind": "tools"
+    },
+    {
+      "path": "tools/storm-drain-calculator/index.html",
+      "kind": "tools"
+    },
+    {
+      "path": "tools/transformer-sizing-calculator/index.html",
+      "kind": "tools"
+    },
+    {
+      "path": "tools/ups-sizing-calculator/index.html",
+      "kind": "tools"
+    },
+    {
+      "path": "tools/v-belt-drive-calculator/index.html",
+      "kind": "tools"
+    },
+    {
+      "path": "tools/ventilation-ach-calculator/index.html",
+      "kind": "tools"
+    },
+    {
+      "path": "tools/vibration-isolation-calculator/index.html",
+      "kind": "tools"
+    },
+    {
+      "path": "tools/voltage-drop-calculator/index.html",
+      "kind": "tools"
+    },
+    {
+      "path": "tools/wastewater-stp-calculator/index.html",
+      "kind": "tools"
+    },
+    {
+      "path": "tools/water-softener-calculator/index.html",
+      "kind": "tools"
+    },
+    {
+      "path": "tools/water-supply-pipe-calculator/index.html",
+      "kind": "tools"
+    },
+    {
+      "path": "tools/water-treatment-calculator/index.html",
+      "kind": "tools"
+    },
+    {
+      "path": "tools/wire-sizing-calculator/index.html",
+      "kind": "tools"
+    }
+  ]
+}

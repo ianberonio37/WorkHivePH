@@ -10,8 +10,9 @@
   <meta name="description" content="Philippine Industrial Maintenance Intelligence Report. Monthly anonymized benchmarking across Filipino plants." />
   <meta property="og:title" content="Philippine Industrial Intelligence Report · WorkHive" />
   <meta property="og:image" content="https://workhiveph.com/brand_assets/og-social.png" />
-  <link rel="canonical" href="https://workhiveph.com/workhive/ph-intelligence.html" />
+  <link rel="canonical" href="https://workhiveph.com/ph-intelligence.html" />
   <link rel="manifest" href="manifest.json" />
+  <script src="browser-floor.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=optional" rel="stylesheet" />
   <link rel="stylesheet" href="components.css" />  <!-- S11 shared component CSS -->
@@ -104,6 +105,8 @@
   </style>
 </head>
 <body>
+<!-- T66 (2026-08-26): this page claimed a MONTHLY cadence in four places and nothing generates these reports on a schedule - 26 cron jobs, none touching intelligence-report, which runs only when someone presses the button on this page. The freshness card itself is good and stays: it shows the report's age with FRESH / AGEING / STALE and an honest NO DATA state. What was wrong was promising a rhythm nobody keeps, which is the same defect fixed on integrations.html under T63 - and finding it here is why that gate's page scope was widened rather than left pointed at the page where it was first noticed. -->
+
 <main>
   <!-- List View Contract: declarative empty-state anchor (L-1.5) -->
   <div id="empty-state" class="empty-state" hidden>No intelligence data yet for this hive.</div>
@@ -116,13 +119,13 @@
   <div class="hero">
     <div class="hero-badge" id="report-period-badge">Loading...</div>
     <h1 translate="no">Philippine Industrial<br>Maintenance Intelligence</h1><!-- publication name: EN by design -->
-    <p>Anonymized benchmarking data from manufacturing plants across the Philippines using WorkHive. Published monthly.</p>
+    <p>Anonymized benchmarking data from manufacturing plants across the Philippines using WorkHive. Each report covers a period and is generated on demand; the card below shows how old the current one is.</p>
   </div>
 <details class="wh-help">
   <summary>How this page works</summary>
   <p>Compare your hive with anonymous plants in your segment. Benchmarks unlock at 5+ hives in a segment and 30 days of your own history.</p>
 </details>
-<p class="wh-source-chip" style="font-size:.62rem;color:rgba(255,255,255,0.80);margin:0;padding:3px 0 0;line-height:1.35;">Updated monthly &middot; Based on your logbook history + anonymized segment benchmarks (N&ge;5 privacy guard)</p>
+<p class="wh-source-chip" style="font-size:.62rem;color:rgba(255,255,255,0.80);margin:0;padding:3px 0 0;line-height:1.35;">Updated when a report is generated &middot; Based on your logbook history + anonymized segment benchmarks (N&ge;5 privacy guard)</p>
 
   <!-- Loading state -->
   <div id="loading-state" class="card loading-state" style="text-align:center; padding:32px;">
@@ -172,7 +175,7 @@
       <ul style="margin:0;padding-left:20px;">
         <li><strong>Plants in network</strong>: number of distinct hives contributing anonymised data to this report.</li>
         <li><strong>Top failure cause</strong>: the most-common root cause across all hives in the period.</li>
-        <li><strong>Report freshness</strong>: days since the report was generated (refreshes monthly).</li>
+        <li><strong>Report freshness</strong>: days since the report was generated. Nothing regenerates it on a schedule, so this is the number to read before trusting the figures.</li>
         <li><strong>Verdict</strong>: green when report has 3+ plants and was generated in last 45 days; empty otherwise.</li>
       </ul>
       <p style="margin-top:8px;color:rgba(255,255,255,0.80);font-size:11px;">Only members of a hive that opted into anonymised contributions see "Your Plant vs Network" below.</p>
@@ -248,7 +251,7 @@
   <!-- No report state -->
   <div id="no-report-state" class="card hidden" style="text-align:center; padding:32px;">
     <p style="font-weight:700; margin-bottom:8px;">No report generated yet</p>
-    <p style="font-size:.78rem; color:var(--muted); margin-bottom:16px;">Reports are generated monthly once enough hives are contributing data.</p>
+    <p style="font-size:.78rem; color:var(--muted); margin-bottom:16px;">Reports can be generated once enough hives are contributing data.</p>
     <button class="btn-gold" onclick="generateReport()" data-i="generatenow">Generate Now</button>
     <!-- FCh3: the report BODY is an EN publication by design (masthead translate="no");
          the CTA is the translatable UI chrome. -->
@@ -284,7 +287,19 @@
   // async gate-replace races the async report render and the render fns crash on the
   // now-removed report DOM (report-period-badge / your-plant-card / etc.).
   async function maturityGateCheck() {
-    if (!HIVE_ID || !window.checkMaturityGate || !window.renderMaturityHonestEmpty) return false;
+    if (!HIVE_ID) {
+      // REFUSAL, not absence (the refused-read fourth-state): a viewer with no hive has no hive
+      // to report ON — that is a permission boundary, not an empty report. Say "join or create a
+      // hive" so it is never mistaken for "your hive has no PH Intelligence data yet". Static
+      // markup, no interpolated user data (XSS-safe).
+      const main = document.querySelector('main') || document.body;
+      if (main) main.innerHTML =
+        '<div class="empty-state" style="padding:40px 24px;text-align:center;max-width:560px;margin:0 auto">' +
+        '<p style="font-weight:700;margin-bottom:8px">Join or create a hive to see PH Intelligence</p>' +
+        '<p style="opacity:.75;line-height:1.5">PH Intelligence benchmarks your plant against anonymised peers. It is a team tool, so you need a hive first. This is not an empty report; there is no hive to report on yet.</p></div>';
+      return true;
+    }
+    if (!window.checkMaturityGate || !window.renderMaturityHonestEmpty) return false;
     const gate = await window.checkMaturityGate(db, HIVE_ID, 3);
     if (gate.blocked) {
       const main = document.querySelector('main') || document.body;
@@ -372,14 +387,14 @@
       setCard('cause', '-', 'No failure cause data this period', 'NO DATA', 'grey');
     } else {
       const short = topCause.length > 32 ? topCause.slice(0, 30) + '…' : topCause;
-      setCard('cause', short, `${topCount} occurrences across the network`, 'TOP RANK', 'amber');
+      setCard('cause', short, `${topCount} ${topCount === 1 ? 'occurrence' : 'occurrences'} across the network`, 'TOP RANK', 'amber');
     }
     if (days == null) {
       setCard('fresh', '-', 'No report generated yet', 'NO DATA', 'grey');
     } else {
       setCard('fresh',
         `${days}d`,
-        days <= 45 ? 'Report from this month or last' : `Report ${days} days old (refreshes monthly)`,
+        days <= 45 ? 'Report from this month or last' : `Report ${days} days old`,
         days <= 45 ? 'FRESH' : days <= 90 ? 'AGEING' : 'STALE',
         days <= 45 ? 'green' : days <= 90 ? 'amber' : 'red'
       );
@@ -388,11 +403,11 @@
     let tone, label, sub;
     if (plants === 0) {
       tone = 'empty'; label = 'No regional data yet';
-      sub  = 'Reports generate monthly once 3+ plants have opted into anonymised data sharing.';
+      sub  = 'Reports can be generated once 3+ plants have opted into anonymised data sharing.';
     } else if (plants < 3 || (days != null && days > 90)) {
       tone = 'watch'; label = 'Report is thin or aging';
       sub  = plants < 3 ? `Only ${plants} plant${plants === 1 ? '' : 's'} contributing, so patterns are noisy at this scale.`
-                        : `Report is ${days} days old; next monthly refresh due soon.`;
+                        : `Report is ${days} days old. Nothing regenerates it automatically, so it will stay this old until someone generates a new one.`;
     } else {
       tone = 'healthy'; label = `${plants}-plant report${days != null ? ', ' + days + 'd old' : ''}`;
       sub  = topCause ? `Top failure cause across the network: ${topCause}.` : 'Network in healthy state. Explore by category below.';
@@ -407,7 +422,7 @@
     if (actBox) {
       let text;
       if (plants === 0) {
-        text = 'No regional report yet. Encourage other supervisors in your industry to opt into anonymised data sharing. Once 3+ plants contribute, monthly benchmarks unlock.';
+        text = 'No regional report yet. Encourage other supervisors in your industry to opt into anonymised data sharing. Once 3+ plants contribute, benchmarks unlock.';
       } else if (plants < 3) {
         text = `Only ${plants} plant${plants === 1 ? '' : 's'} contributing. Benchmark numbers below are directional only: wait for the network to grow before using them in decisions.`;
       } else if (days != null && days > 90) {
@@ -531,7 +546,10 @@
     const { error } = await db.functions.invoke('intelligence-report', { body: {} });
     if (error) {
       btn.textContent = 'Generate Now'; btn.disabled = false;
-      showToast('Generation failed: ' + error.message);
+      // T39 (2026-08-26): error.message is supabase-js's placeholder, so pressing Generate Now
+      // and failing said 'Generation failed: Edge Function returned a non-2xx status code' -
+      // on the only control that produces this page's content. whFnError carries the reason.
+      showToast('Generation failed: ' + await window.whFnError(error, 'the report engine did not respond.'));
       return;
     }
     location.reload();

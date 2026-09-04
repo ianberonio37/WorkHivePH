@@ -7,9 +7,10 @@
   <meta name="description" content="CMMS / ERP integration: SAP PM, IBM Maximo, and generic REST live-sync, CSV history import, inbound webhooks, and hive API keys. Plant sensor feeds (OPC-UA / MQTT) arrive via a plant edge gateway." />
   <meta property="og:title" content="CMMS Integration · WorkHive" />
   <meta property="og:image" content="https://workhiveph.com/brand_assets/og-social.png" />
-  <link rel="canonical" href="https://workhiveph.com/workhive/integrations.html" />
+  <link rel="canonical" href="https://workhiveph.com/integrations.html" />
   <!-- capture: cmms_import_v1 (import) — CSV/JSON CMMS sync -->
   <link rel="manifest" href="manifest.json" />
+  <script src="browser-floor.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
   <!-- A4 CWV: PapaParse (CSV) + SheetJS (xlsx) total ~0.8MB and are only needed AFTER a file
        is picked at Step 2, so they are LAZY-loaded on demand (loadScriptOnce in handleFile),
@@ -18,7 +19,18 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=optional" rel="stylesheet" />
   <link rel="stylesheet" href="components.css" />  <!-- S11 shared component CSS -->
+  <script>
+    // VEHICLE SEED VM10 (2026-09-02): pre-paint role gate. The async supervisor gate strips the
+    // CMMS console AFTER first paint for non-supervisors, which measured CLS 0.17 on the worker
+    // view. This synchronous class hides the console before it ever paints; the async gate then
+    // removes the hidden nodes and appends the wall with nothing left to shift. Same source of
+    // truth (wh_hive_role) as the gate itself; RLS remains the real backstop either way.
+    if ((localStorage.getItem('wh_hive_role') || '') !== 'supervisor') {
+      document.documentElement.classList.add('wh-nonsup');
+    }
+  </script>
   <style>
+    .wh-nonsup main .page > :not(#vehicle-add):not(#toast):not(#veh-sup-wall) { display: none; }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
       --bg: #0f1923; --surface: var(--wh-navy); --card: #1d2e44;
@@ -139,6 +151,8 @@
 
     /* Hidden */
     .hidden { display: none !important; }
+    .veh-box { border-radius: var(--wh-radius-sm); }   /* wizard boxes/buttons - the canonical radius token */
+    .veh-chip { border-radius: var(--wh-radius-sm); }  /* FROM YOUR DOC provenance badges */
     /* Plain-Read summary (Layer D — UX Contract) */
     .verdict { display:flex; align-items:center; gap:12px; padding:14px 16px; margin-bottom:16px; border-radius:12px; border:1px solid; }
     .verdict-icon { font-size:1.5rem; line-height:1; font-weight:800; }
@@ -174,10 +188,101 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 <body>
 <main>
 
+<div class="page" style="padding-top: 70px;">
 
+<!-- #toast FIRST in the DOM: it is position-fixed (order is invisible), and probes address the
+     page's live message region as `querySelector('#toast, .toast, [role=alert]')` — the wizard's
+     role=alert validation line below must never shadow it (found live: the import-undo prover
+     read an empty '' from #veh-step1-err while the real toast held the count). -->
 <div id="toast" role="status" aria-live="polite"></div>
 
-<div class="page" style="padding-top: 70px;">
+<!-- ═══ ADD A VEHICLE (VEHICLE SEED, plan-approved 2026-09-02) ══════════════════════════════════
+     A car is an ASSET: this wizard seeds asset_nodes(+vehicle_meta) -> pm_assets('Vehicles') +
+     scope items (km + calendar intervals) -> starter parts, on the SAME pages workers use.
+     Available to EVERY signed-in user (solo owners included) - the supervisor/IT gate below
+     covers only the CMMS console. Template path only in iteration 1 (doc extraction comes later,
+     behind measured accuracy - Ian's explicit sequencing). -->
+<section id="vehicle-add" class="card" style="max-width:900px; margin:0 auto 1.25rem; padding:20px 22px;">
+  <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+    <span style="font-size:1.6rem;" aria-hidden="true">🚗</span>
+    <div style="flex:1; min-width:14rem;">
+      <h2 style="margin:0; font-size:1.05rem;">Add a Vehicle</h2>
+      <!-- B3 (rubric, 2026-09-03): split from one 29-word sentence into three short ones (each <20w, grade <=8) -->
+      <p style="margin:2px 0 0; font-size:.78rem; color:rgba(255,255,255,0.82);">Your car becomes an asset. Its service schedule lands in the PM Scheduler with km intervals, and its parts in Inventory. Every job you log builds its maintenance history.</p>
+    </div>
+    <button id="veh-open" class="btn-primary" style="min-height:44px;" onclick="vehOpenWizard()">Add my vehicle</button>
+  </div>
+
+  <div id="veh-wizard" class="hidden" style="margin-top:16px; border-top:1px solid var(--border); padding-top:16px;">
+    <!-- Step 1: the vehicle -->
+    <div id="veh-step-1">
+      <p style="font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:rgba(255,255,255,0.80); margin:0 0 10px;">Step 1 · Your vehicle</p>
+      <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px;">
+        <button type="button" class="wh-toggle" id="veh-preset-ranger" onclick="vehApplyRangerPreset()" class="veh-box" style="min-height:44px; padding:0 14px; border:1px solid rgba(247,162,27,0.4); background:rgba(247,162,27,0.08); color:var(--gold); font-weight:700; cursor:pointer;">Ford Ranger 2026 XLT preset</button>
+        <span style="font-size:.72rem; color:rgba(255,255,255,0.75); align-self:center;">or fill the fields yourself - everything stays editable.</span>
+      </div>
+      <!-- Scope choice — hive members only (solo users have exactly one home). Workers can only
+           add PERSONAL vehicles: pm_assets_insert_guard refuses worker inserts of hive rows, so
+           offering "fleet" to a worker would fail at Create with a confusing refusal. -->
+      <div id="veh-scope-wrap" class="hidden" style="margin-bottom:10px; display:flex; flex-direction:column; gap:6px; font-size:.75rem;">
+        <label style="display:flex; align-items:center; gap:8px; min-height:44px;"><input type="radio" name="veh-scope" id="veh-scope-hive" value="hive" aria-label="Fleet vehicle: everyone in this hive sees and services it" style="width:18px; height:18px;" /> Fleet vehicle - everyone in this hive sees and services it</label>
+        <label style="display:flex; align-items:center; gap:8px; min-height:44px;"><input type="radio" name="veh-scope" id="veh-scope-personal" value="personal" aria-label="My personal vehicle: only I see it" style="width:18px; height:18px;" /> My personal vehicle - only I see it</label>
+        <span id="veh-scope-note" class="hidden" style="font-size:.68rem; color:rgba(255,255,255,0.70);">Fleet vehicles are added by supervisors - yours will be personal.</span>
+      </div>
+      <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(11rem,1fr)); gap:10px;">
+        <label for="veh-make" style="font-size:.72rem;">Make<input id="veh-make" class="wh-input" placeholder="Ford" maxlength="40" /></label>
+        <label for="veh-model" style="font-size:.72rem;">Model &amp; trim<input id="veh-model" class="wh-input" placeholder="Ranger XLT" maxlength="60" /></label>
+        <label for="veh-year" style="font-size:.72rem;">Year<input id="veh-year" class="wh-input" inputmode="numeric" placeholder="2026" maxlength="4" /></label>
+        <label for="veh-plate" style="font-size:.72rem;">Plate number<input id="veh-plate" class="wh-input" placeholder="ABC 1234" maxlength="12" /></label>
+        <label for="veh-vin" style="font-size:.72rem;">VIN (optional)<input id="veh-vin" class="wh-input" placeholder="17 characters" maxlength="17" /></label>
+        <label for="veh-odo" style="font-size:.72rem;">Current odometer (km)<input id="veh-odo" class="wh-input" inputmode="numeric" placeholder="12500" maxlength="7" /></label>
+        <label for="veh-reg" style="font-size:.72rem;">Registration expiry (optional)<input id="veh-reg" class="wh-input" type="date" /></label>
+        <label for="veh-ins" style="font-size:.72rem;">Insurance expiry (optional)<input id="veh-ins" class="wh-input" type="date" /></label>
+      </div>
+      <!-- VM2 doc path (2026-09-02, behind the measured accuracy gate vehicle-extract-accuracy):
+           upload the SCOPED pages, never the whole manual. Extraction only PROPOSES — the
+           step-2/3 checklists stay the review rail between the reader and every write. -->
+      <div class="veh-box" style="margin-top:12px; padding:10px 12px; border:1px dashed rgba(255,255,255,0.2);">
+        <p style="font-size:.72rem; color:rgba(255,255,255,0.80); margin:0 0 8px;">Have the manual? Upload just the <strong>maintenance-schedule</strong> or <strong>parts-list</strong> pages (PDF, Word, Excel, or text) and the schedule below fills itself from your own book - every row stays editable.</p>
+        <input type="file" id="veh-doc-file" accept=".pdf,.docx,.xlsx,.xls,.csv,.txt" style="font-size:.72rem; max-width:100%;" onchange="vehHandleDocFile(this)" aria-label="Upload maintenance schedule or parts list pages" />
+        <p id="veh-doc-status" role="status" style="min-height:1em; font-size:.7rem; color:rgba(255,255,255,0.75); margin:6px 0 0;"></p>
+      </div>
+      <p id="veh-step1-err" role="alert" style="min-height:1em; font-size:.72rem; color:var(--wh-red, #f87171); margin:8px 0 0;"></p>
+      <div style="display:flex; gap:8px; margin-top:10px;">
+        <button class="btn-primary" style="min-height:44px;" onclick="vehToStep2()">Next: service schedule →</button>
+        <button class="wh-toggle" style="min-height:44px; min-width:44px; padding:0 12px; background:none; border:none; color:rgba(255,255,255,0.75); cursor:pointer;" onclick="vehCloseWizard()">Cancel</button>
+      </div>
+    </div>
+
+    <!-- Step 2: the PM starter (every row editable + tickable; km rows carry an editable interval) -->
+    <div id="veh-step-2" class="hidden">
+      <p style="font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:rgba(255,255,255,0.80); margin:0 0 6px;">Step 2 · Service schedule</p>
+      <p style="font-size:.72rem; color:rgba(255,255,255,0.78); margin:0 0 10px;">A starter schedule from the manufacturer-interval pattern. Untick what you don't want; edit any km interval - your manual's numbers win. Time-based rows keep you honest between odometer updates.</p>
+      <div id="veh-pm-list" style="display:flex; flex-direction:column; gap:6px;"></div>
+      <div style="display:flex; gap:8px; margin-top:12px;">
+        <button class="btn-primary" style="min-height:44px;" onclick="vehToStep3()">Next: starter parts →</button>
+        <button class="wh-toggle" style="min-height:44px; background:none; border:none; color:rgba(255,255,255,0.75); cursor:pointer;" onclick="vehBack(1)">← Back</button>
+      </div>
+    </div>
+
+    <!-- Step 3: parts starter (unticked by default - part numbers vary by market) -->
+    <div id="veh-step-3" class="hidden">
+      <p style="font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:rgba(255,255,255,0.80); margin:0 0 6px;">Step 3 · Starter parts (optional)</p>
+      <p style="font-size:.72rem; color:rgba(255,255,255,0.78); margin:0 0 10px;">Tick the consumables you want tracked in Inventory. Part numbers vary by market - edit them to match your manual; you can add the rest in Inventory any time.</p>
+      <div id="veh-parts-list" style="display:flex; flex-direction:column; gap:6px;"></div>
+      <div style="display:flex; gap:8px; margin-top:12px;">
+        <button id="veh-create" class="btn-primary" style="min-height:44px;" onclick="vehCreate()">Create my vehicle</button>
+        <button class="wh-toggle" style="min-height:44px; background:none; border:none; color:rgba(255,255,255,0.75); cursor:pointer;" onclick="vehBack(2)">← Back</button>
+      </div>
+    </div>
+
+    <!-- Receipt -->
+    <div id="veh-receipt" class="hidden veh-box" style="border:1px solid rgba(74,222,128,0.3); background:rgba(74,222,128,0.06); padding:14px 16px; margin-top:4px;">
+      <h3 style="margin:0 0 8px; font-size:.95rem; color:var(--wh-green, #4ade80);">Vehicle created ✓</h3>
+      <div id="veh-receipt-body" style="font-size:.78rem; line-height:1.6;"></div>
+    </div>
+  </div>
+</section>
 
   <!-- Plain-Read summary (Layer D — UX Contract).
        Populated by renderIntegrationsSummary() from the live integration_configs fetch. -->
@@ -257,7 +362,16 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
             <span style="width:22px; height:22px; border-radius:50%; background:rgba(41,182,217,0.15); border:1px solid rgba(41,182,217,0.35); color:var(--blue); font-size:.65rem; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0;">2</span>
             <p style="font-size:.75rem; font-weight:700; color:var(--blue);">Live Sync</p>
           </div>
-          <p style="font-size:.7rem; color:rgba(255,255,255,0.80); line-height:1.5;">After the import, turn on Live Sync. New SAP work orders then flow in daily, with no CSV exports. WorkHive also pushes finished jobs back to SAP.</p>
+          <!-- T63 (2026-08-26): this said "New SAP work orders then flow in daily, with no CSV
+               exports." Measured: nothing schedules an inbound sync. There are 26 cron jobs and
+               not one touches cmms-sync, which runs only when someone presses Sync now or Test
+               connection on this page. "Flow in daily" describes a scheduled poll that does not
+               exist, and an evaluator choosing WorkHive on that sentence would find a button.
+               What IS real: the webhook URL in this tab, which their CMMS can post to as work
+               orders are raised (that is genuinely automatic, from their side), and the push
+               back, which cmms-push-completion fires from logbook.html when a job is closed.
+               Copy now says those two things and stops promising the poll. -->
+          <p style="font-size:.7rem; color:rgba(255,255,255,0.80); line-height:1.5;">After the import, turn on Live Sync. Give your CMMS the webhook address in this tab and new work orders arrive as they are raised, with no CSV exports. You can also run a sync yourself at any time. WorkHive pushes finished jobs back to SAP automatically, as each one is closed.</p>
           <button onclick="switchTab('sync')" style="margin-top:10px; width:100%; padding:6px; min-height:44px; background:rgba(41,182,217,0.1); color:var(--blue); border:1px solid rgba(41,182,217,0.3); border-radius:var(--wh-radius-sm); font-size:.7rem; font-weight:600; cursor:pointer; font-family:inherit;" data-i="setupsync">Set up sync →</button>
         </div>
 
@@ -518,7 +632,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           <div id="patterns-list"></div>
         </div>
 
-        <div id="import-error-section" class="card-sm hidden" style="margin-top:10px; border-color:rgba(248,113,113,0.2);">
+        <!-- T48 (2026-08-28): role="alert" was missing. This section is revealed when a CMMS import
+             SKIPS rows, so a sighted user sees a red panel appear and a screen-reader user was told
+             nothing at all - they would believe the import succeeded whole. The reveal order here
+             already suits a live region (the section is un-hidden BEFORE #error-detail's text is
+             set, so the change fires inside a region that is already in the accessibility tree);
+             only the region itself was absent. assertive by role, because rows silently dropped
+             from an equipment import is not something to mention at the next convenient pause. -->
+        <div id="import-error-section" class="card-sm hidden" role="alert" aria-live="assertive" style="margin-top:10px; border-color:rgba(248,113,113,0.2);">
           <p style="font-size:.7rem; color:var(--red); margin-bottom:6px;">⚠ Some rows were skipped (missing required field):</p>
           <p id="error-detail" style="font-size:.7rem; color:rgba(255,255,255,0.80);"></p>
         </div>
@@ -590,7 +711,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     <div style="margin-bottom:1.5rem;">
       <span style="display:inline-block; font-size:.6rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; padding:.2rem .6rem; border-radius:999px; background:rgba(41,182,217,0.12); color:var(--blue); border:1px solid rgba(41,182,217,0.3); margin-bottom:.5rem;">Tier 2 · Scheduled API Sync</span>
       <h2 style="font-size:1.1rem; font-weight:800;">Live Sync Configuration</h2>
-      <p style="font-size:.75rem; color:var(--muted); margin-top:.25rem;">WorkHive polls your CMMS API daily and syncs only new/changed records. No CSV exports needed.</p>
+      <!-- T63 (2026-08-26): said "WorkHive polls your CMMS API daily". It does not poll at all:
+           26 cron jobs, none touching cmms-sync, which runs only when someone presses a button
+           on this page. The incremental part was true and is kept. -->
+      <p style="font-size:.75rem; color:var(--muted); margin-top:.25rem;">Run a sync whenever you need one, or point your CMMS at the webhook address below so records arrive as they change. Either way only new and changed records are synced. No CSV exports.</p>
     </div>
 
     <!-- Existing configs -->
@@ -631,11 +755,19 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         </div>
         <div>
           <label for="sc-freq" class="wh-label">Sync Schedule</label>
+          <!-- T63 (2026-08-26): this defaulted to Daily, saved sync_freq, and plant-connections
+               rendered that value in its status table - three surfaces agreeing on a cadence that
+               NOTHING runs. Nothing reads sync_freq: not a cron, not an edge function. The options
+               stay so the setting is ready when a scheduler exists, but they no longer claim to be
+               running, and the default is now the one that is actually true. -->
           <select id="sc-freq" class="wh-input">
-            <option value="manual">Manual only</option>
-            <option value="daily" selected>Daily</option>
-            <option value="hourly">Hourly</option>
+            <option value="manual" selected>Manual only</option>
+            <option value="daily">Daily (scheduled sync not available yet)</option>
+            <option value="hourly">Hourly (scheduled sync not available yet)</option>
           </select>
+          <p style="font-size:.65rem; color:var(--muted); margin-top:.3rem; line-height:1.4;">
+            Scheduled syncing is not running yet. Today a sync happens when you run one here, or when
+            your CMMS posts to the webhook address above.</p>
         </div>
       </div>
 
@@ -689,7 +821,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     if (!WORKER_NAME && typeof restoreIdentityFromSession === 'function') {
       WORKER_NAME = await restoreIdentityFromSession(db);
     }
-    if (!WORKER_NAME) { window.location.href = 'index.html?signin=1'; return; }
+    if (!WORKER_NAME) { whSignInWall(); return; }
     // CMMS-INTEGRATIONS PDDA I2/A3 role gate: this is a supervisor/IT console —
     // managing connections exposes endpoint URLs, plaintext bearer tokens, and API-key
     // generation. RLS (integration_configs_supervisor_all) now blocks a worker's
@@ -697,21 +829,37 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     // the token fields or the wizard (client role is spoofable — RLS is the real backstop).
     const HIVE_ROLE = localStorage.getItem('wh_hive_role') || '';
     if (HIVE_ROLE !== 'supervisor') {
-      const _m = document.querySelector('main');
-      if (_m) _m.innerHTML = '<div class="page" style="padding-top:70px;">'
-        + '<div class="card" style="text-align:center; padding:32px; max-width:560px; margin:40px auto;">'
-        + '<h2 style="margin:0 0 10px;">Supervisor access only</h2>'
-        + '<p style="color:rgba(255,255,255,0.83); margin:0;">CMMS Integrations is a supervisor / IT surface for '
-        + 'connecting WorkHive to SAP PM, Maximo, sensors, and webhooks. Ask your hive supervisor if you need a '
-        + 'connection set up.</p></div></div>';
+      // VEHICLE SEED (2026-09-02): the Add-a-Vehicle wizard serves EVERY signed-in user —
+      // solo car owners are by definition not hive supervisors — so the gate now removes
+      // only the CMMS console's elements instead of nuking <main>. RLS remains the real
+      // backstop for the console's data either way.
+      const _pg = document.querySelector('main .page');
+      if (_pg) {
+        Array.from(_pg.children).forEach(el => {
+          if (el.id !== 'vehicle-add' && el.id !== 'toast') el.remove();
+        });
+        const _wall = document.createElement('div');
+        _wall.id = 'veh-sup-wall';   // exempt from the pre-paint .wh-nonsup hide
+        _wall.className = 'card';
+        _wall.style.cssText = 'text-align:center; padding:32px; max-width:560px; margin:24px auto;';
+        _wall.innerHTML = '<h2 style="margin:0 0 10px;">Supervisor access only</h2>'
+          + '<p style="color:rgba(255,255,255,0.83); margin:0;">CMMS Integrations is a supervisor / IT surface for '
+          + 'connecting WorkHive to SAP PM, Maximo, sensors, and webhooks. Ask your hive supervisor if you need a '
+          + 'connection set up. The vehicle wizard above is yours to use.</p>';
+        _pg.appendChild(_wall);
+      }
       return;
     }
     if (!HIVE_ID) {
       document.getElementById('hive-gate').classList.remove('hidden');
       document.getElementById('wizard').classList.add('hidden');
     }
-    // Show Getting Started guide unless explicitly dismissed via the Dismiss link
-    if (!localStorage.getItem('wh_cmms_guide_dismissed')) {
+    // Show Getting Started guide unless explicitly dismissed via the Dismiss link.
+    // T121 (2026-08-28): owner-stamped, so one evaluator's dismissal on a shared machine
+    // does not hide the setup guide from the next person who opens this page.
+    if (!(typeof whIsDismissed === 'function'
+            ? whIsDismissed('wh_cmms_guide_dismissed')
+            : localStorage.getItem('wh_cmms_guide_dismissed'))) {
       document.getElementById('cmms-guide').style.display = 'block';
     }
 
@@ -722,6 +870,17 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       try {
         const { data, error } = await db.from('integration_configs').select('*').eq('hive_id', HIVE_ID).limit(500);
         if (error) throw error;
+        // T63 (2026-08-28): count the records whose sync actually FAILED, before rendering the
+        // verdict. cmms-push-completion leaves a durable marker on every completion that did not
+        // reach the CMMS, and until now no surface on the platform read it — the page could show a
+        // green, healthy integration while finished jobs were silently not arriving in SAP. The
+        // marker is only useful if something looks at it.
+        try {
+          const { count } = await db.from('v_external_sync_truth')
+            .select('external_id', { count: 'exact', head: true })
+            .eq('hive_id', HIVE_ID).eq('is_error', true);
+          if (typeof count === 'number') _syncErrorCount = count;
+        } catch (_) { /* empty-catch-allow: the error COUNT is an extra signal; failing to read it must not cost the verdict itself */ }
         renderIntegrationsSummary(data || []);
       } catch (_) { renderIntegrationsLoadError(); }
     } else {
@@ -733,9 +892,455 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   })();
 
   function dismissGuide() {
-    localStorage.setItem('wh_cmms_guide_dismissed', '1');
+    if (typeof whSetDismissed === 'function') whSetDismissed('wh_cmms_guide_dismissed');
+    else localStorage.setItem('wh_cmms_guide_dismissed', '1');
     document.getElementById('cmms-guide').style.display = 'none';
   }
+
+  // ── ADD A VEHICLE (VEHICLE SEED, 2026-09-02) ──────────────────────────────
+  // Template path only (doc extraction lands later, behind measured accuracy).
+  // Seeds pm_assets('Vehicles') -> asset_nodes(+vehicle_meta) -> pm_scope_items
+  // (interval_km rides the meter-aware truth view) -> starter inventory rows.
+  // Mirrors pm-scheduler's PM_TEMPLATES['Vehicles'] so both doors teach the same schedule.
+  const VEH_PM_STARTER = [
+    { text: 'Daily walk-around: tires, lights, fluids, leaks', freq: 'Daily',       km: null   },
+    { text: 'General inspection',                              freq: 'Quarterly',   km: 5000   },
+    { text: 'Engine oil and filter change',                    freq: 'Semi-annual', km: 10000  },
+    { text: 'Major inspection: belts, hoses, brakes, suspension', freq: 'Annual',   km: 20000  },
+    { text: 'Transmission service and brake overhaul',         freq: 'Annual',      km: 40000  },
+    { text: 'Air filter replacement',                          freq: 'Semi-annual', km: null   },
+    { text: 'Cabin filter replacement',                        freq: 'Semi-annual', km: null   },
+    { text: 'Tire rotation and tread-depth check',             freq: 'Quarterly',   km: 10000  },
+    { text: 'Battery terminals, voltage and load test',        freq: 'Quarterly',   km: null   },
+    { text: 'Coolant level and condition check',               freq: 'Monthly',     km: null   },
+    { text: 'Wiper blades and washer fluid',                   freq: 'Quarterly',   km: null   },
+    { text: 'Registration renewal check',                      freq: 'Annual',      km: null   },
+    { text: 'Insurance renewal check',                         freq: 'Annual',      km: null   },
+    { text: 'Major scheduled maintenance',                     freq: 'Annual',      km: 100000 },
+  ];
+  const VEH_PARTS_STARTER = [
+    { name: 'Engine oil filter',        cat: 'Filters',     unit: 'pcs' },
+    { name: 'Engine oil (5W-30)',       cat: 'Fluids',      unit: 'L'   },
+    { name: 'Air filter',               cat: 'Filters',     unit: 'pcs' },
+    { name: 'Cabin filter',             cat: 'Filters',     unit: 'pcs' },
+    { name: 'Wiper blades (front pair)', cat: 'Consumables', unit: 'pcs' },
+    { name: 'Battery (12V)',            cat: 'Electrical',  unit: 'pcs' },
+  ];
+  let _vehCreated = null; // { pm_asset, node, scope: [], parts: [] } — for undo
+  // VM2 (2026-09-02): the checklists render from MUTABLE rows so the doc path can propose
+  // into them. Starters seed the rows on open; an uploaded document replaces/extends them.
+  // Row: { text, freq, km, months?, kind?, on } / part: { name, cat, unit, pn, on }
+  let _vehPmRows = [];
+  let _vehPartRows = [];
+
+  function vehOpenWizard() {
+    document.getElementById('veh-wizard').classList.remove('hidden');
+    document.getElementById('veh-open').classList.add('hidden');
+    document.getElementById('veh-receipt').classList.add('hidden');
+    // Scope choice appears only for hive members; a worker's radio locks to personal
+    // (pm_assets_insert_guard would refuse a worker's hive insert at Create).
+    const scopeWrap = document.getElementById('veh-scope-wrap');
+    if (scopeWrap) {
+      scopeWrap.classList.toggle('hidden', !HIVE_ID);
+      if (HIVE_ID) {
+        const isSup = (localStorage.getItem('wh_hive_role') || '') === 'supervisor';
+        const rHive = document.getElementById('veh-scope-hive');
+        const rPers = document.getElementById('veh-scope-personal');
+        rHive.disabled = !isSup;
+        rHive.checked = isSup;
+        rPers.checked = !isSup;
+        document.getElementById('veh-scope-note').classList.toggle('hidden', isSup);
+      }
+    }
+    _vehPmRows = VEH_PM_STARTER.map(r => ({ text: r.text, freq: r.freq, km: r.km, on: true }));
+    _vehPartRows = VEH_PARTS_STARTER.map(p => ({ name: p.name, cat: p.cat, unit: p.unit, pn: '', on: false }));
+    const st = document.getElementById('veh-doc-status');
+    if (st) st.textContent = '';
+    const fi = document.getElementById('veh-doc-file');
+    if (fi) fi.value = '';
+    vehBack(1);
+    vehRenderPmList();
+    vehRenderPartsList();
+    document.getElementById('veh-make').focus();
+  }
+  function vehCloseWizard() {
+    document.getElementById('veh-wizard').classList.add('hidden');
+    document.getElementById('veh-open').classList.remove('hidden');
+  }
+  function vehBack(step) {
+    [1, 2, 3].forEach(n => document.getElementById('veh-step-' + n).classList.toggle('hidden', n !== step));
+  }
+  function vehApplyRangerPreset() {
+    document.getElementById('veh-make').value  = 'Ford';
+    document.getElementById('veh-model').value = 'Ranger XLT';
+    document.getElementById('veh-year').value  = '2026';
+    showToast('Ford Ranger 2026 XLT filled in - add your plate and odometer, everything stays editable.');
+  }
+  function vehToStep2() {
+    const make  = document.getElementById('veh-make').value.trim();
+    const model = document.getElementById('veh-model').value.trim();
+    const year  = document.getElementById('veh-year').value.trim();
+    const odo   = document.getElementById('veh-odo').value.trim();
+    const err   = document.getElementById('veh-step1-err');
+    if (!make || !model) { err.textContent = 'Make and model are needed so your vehicle has a name on every page.'; return; }
+    if (year && !/^(19[5-9]\d|20\d\d)$/.test(year)) { err.textContent = 'Year looks off - a 4-digit year like 2026.'; return; }
+    if (odo && !/^\d{1,7}$/.test(odo)) { err.textContent = 'Odometer should be a whole number of kilometres.'; return; }
+    err.textContent = '';
+    vehBack(2);
+  }
+  function vehToStep3() { vehBack(3); }
+
+  function vehRenderPmList() {
+    const e = escHtml;
+    document.getElementById('veh-pm-list').innerHTML = _vehPmRows.map((r, i) =>
+      '<div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">'
+      // 44px label wrapper = the Mobile-Maestro tap-target floor; the box alone is 20px
+      + `<label style="min-width:44px; min-height:44px; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; cursor:pointer;"><input type="checkbox" id="veh-pm-on-${i}" ${r.on ? 'checked' : ''} style="width:20px; height:20px;" aria-label="Include: ${e(r.text)}" /></label>`
+      + `<input id="veh-pm-text-${i}" class="wh-input" value="${e(r.text)}" maxlength="120" style="flex:1; min-width:12rem; font-size:.78rem;" aria-label="Task description" />`
+      + (r.km !== null && r.km !== undefined
+          ? `<label style="font-size:.7rem; display:inline-flex; align-items:center; gap:4px;">every <input id="veh-pm-km-${i}" class="wh-input" value="${r.km}" inputmode="numeric" maxlength="6" style="width:5.5rem; font-size:.78rem;" aria-label="Kilometre interval for ${e(r.text)}" /> km</label>`
+            // miles provenance (VD2: US manuals): the doc said miles; the km is our exact
+            // conversion, shown so the person can verify against their own manual
+            + (r.miOrig ? `<span style="font-size:.65rem; color:rgba(255,255,255,0.65);">(your document says every ${Number(r.miOrig).toLocaleString()} mi; converted)</span>` : '')
+          : `<span style="font-size:.7rem; color:rgba(255,255,255,0.70);">${e(String(r.freq || '').toLowerCase())}</span>`)
+      + (r.src === 'doc' ? '<span class="veh-chip" style="font-size:.6rem; font-weight:700; letter-spacing:.05em; color:var(--gold); border:1px solid rgba(247,162,27,0.35); padding:2px 6px;">FROM YOUR DOC</span>' : '')
+      + '</div>').join('');
+  }
+  function vehRenderPartsList() {
+    const e = escHtml;
+    document.getElementById('veh-parts-list').innerHTML = _vehPartRows.map((p, i) =>
+      '<div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">'
+      + `<label style="min-width:44px; min-height:44px; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; cursor:pointer;"><input type="checkbox" id="veh-part-on-${i}" ${p.on ? 'checked' : ''} style="width:20px; height:20px;" aria-label="Track: ${e(p.name)}" /></label>`
+      + `<input id="veh-part-name-${i}" class="wh-input" value="${e(p.name)}" maxlength="80" style="flex:1; min-width:10rem; font-size:.78rem;" aria-label="Part name" />`
+      + `<input id="veh-part-pn-${i}" class="wh-input" value="${e(p.pn || '')}" placeholder="Part number (from your manual)" maxlength="40" style="width:14rem; font-size:.78rem;" aria-label="Part number for ${e(p.name)}" />`
+      + (p.src === 'doc' ? '<span class="veh-chip" style="font-size:.6rem; font-weight:700; letter-spacing:.05em; color:var(--gold); border:1px solid rgba(247,162,27,0.35); padding:2px 6px;">FROM YOUR DOC</span>' : '')
+      + '</div>').join('');
+  }
+
+  // ── VM2: the doc path (client extracts text -> vehicle-doc-extract proposes -> rows) ──
+  function vehLoadScript(src) {
+    return new Promise((res, rej) => {
+      if (document.querySelector(`script[src="${src}"]`)) return res();
+      const s = document.createElement('script');
+      s.src = src; s.onload = res; s.onerror = () => rej(new Error('Could not load ' + src));
+      document.head.appendChild(s);
+    });
+  }
+  async function vehExtractText(file) {
+    const name = (file.name || '').toLowerCase();
+    if (name.endsWith('.pdf')) {
+      await vehLoadScript('https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js');
+      window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+      const pdf = await window.pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
+      let text = '';
+      const maxPages = Math.min(pdf.numPages, 10);
+      for (let i = 1; i <= maxPages; i++) {
+        const content = await (await pdf.getPage(i)).getTextContent();
+        text += content.items.map(it => it.str).join(' ') + '\n';
+      }
+      return { text, note: pdf.numPages > maxPages ? `read the first ${maxPages} of ${pdf.numPages} pages` : '' };
+    }
+    if (name.endsWith('.docx')) {
+      await vehLoadScript('https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js');
+      const r = await window.mammoth.extractRawText({ arrayBuffer: await file.arrayBuffer() });
+      return { text: (r && r.value) || '', note: '' };
+    }
+    if (name.endsWith('.xlsx') || name.endsWith('.xls') || name.endsWith('.csv')) {
+      await vehLoadScript('https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js');
+      const wb = window.XLSX.read(await file.arrayBuffer(), { type: 'array' });
+      let text = '';
+      wb.SheetNames.slice(0, 6).forEach(n => { text += '# ' + n + '\n' + window.XLSX.utils.sheet_to_csv(wb.Sheets[n]) + '\n'; });
+      return { text, note: wb.SheetNames.length > 6 ? `read the first 6 of ${wb.SheetNames.length} sheets` : '' };
+    }
+    return { text: await file.text(), note: '' };
+  }
+  function vehFreqFromMonths(m) {
+    if (m == null) return null;
+    if (m <= 1) return 'Monthly';
+    if (m <= 3) return 'Quarterly';
+    if (m <= 6) return 'Semi-annual';
+    if (m <= 12) return 'Annual';
+    return null; // >12 months has no calendar vocab — the km half (kind 'meter') carries it
+  }
+  async function vehHandleDocFile(input) {
+    const file = input.files && input.files[0];
+    if (!file) return;
+    const st = document.getElementById('veh-doc-status');
+    if (file.size > 15 * 1024 * 1024) { st.textContent = 'File too large (15 MB cap). Upload just the schedule/parts pages.'; return; }
+    st.textContent = 'Reading ' + (file.name || 'file') + '…';
+    try {
+      const { text, note } = await vehExtractText(file);
+      if (!text || text.trim().length < 40) { st.textContent = 'Could not read text from that file. Try a text-based PDF or a clearer export.'; return; }
+      st.textContent = 'Extracting your schedule…';
+      // plain fetch, the resume-extract client precedent (db.functions.invoke measured
+      // failing-to-send from this page while a direct fetch returns 200)
+      const { data: sdata } = await db.auth.getSession();
+      const _tok = sdata && sdata.session && sdata.session.access_token;
+      const _base = db.functionsUrl || 'http://127.0.0.1:54321/functions/v1';
+      let res, raw;
+      try {
+        // fetchWithTimeout: the platform's hung-server bound (resilience gate) — 60s ceiling
+        const _doFetch = (typeof fetchWithTimeout === 'function') ? fetchWithTimeout : fetch;
+        res = await _doFetch(_base + '/vehicle-doc-extract', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...(_tok ? { 'Authorization': 'Bearer ' + _tok } : {}) },
+          body: JSON.stringify({ kind: 'text', payload: text.slice(0, 60000),
+                                 auth_uid: sdata && sdata.session && sdata.session.user ? sdata.session.user.id : null }),
+        }, 60000);
+        if (!res) throw new Error('timed out');
+        raw = await res.json();
+        // envelope-aware (fn returns {ok, data|error} since the _shared/envelope adoption);
+        // legacy flat shape still parses — a cached shell page must not break on the new fn
+        if (raw && typeof raw === 'object' && ('ok' in raw) && (raw.data || raw.error)) {
+          raw = raw.ok ? (raw.data || {}) : { error: (raw.error && raw.error.message) || 'request failed' };
+        }
+      } catch (e) {
+        console.error('vehicle-doc-extract call failed:', e);  // L-layer: surface AND capture
+        st.textContent = (typeof whReadError === 'function'
+                           ? whReadError(e, 'the document reader')
+                           : 'The document reader could not be reached.')
+          + ' The template below still works.';
+        return;
+      } finally { clearTimeout(_t); }
+      if (!res.ok || !raw || raw.error) {
+        // taxonomy: route through whReadError so the cause + next step read like the platform's
+        // other failures; the wizard adds its degrade honesty (the template path still works)
+        const _e = { message: String((raw && raw.error) || ('HTTP ' + res.status)), status: res.status };
+        st.textContent = (typeof whReadError === 'function'
+                           ? whReadError(_e, 'the document reader')
+                           : 'The document reader failed (' + _e.message + ').')
+          + ' The template below still works.';
+        return;
+      }
+      const f = raw.fields || {};
+      // vehicle fields: fill EMPTY inputs only — never overwrite what the person typed
+      const setIfEmpty = (id, v) => { const el = document.getElementById(id); if (el && !el.value.trim() && v) el.value = String(v); };
+      const v = f.vehicle || {};
+      setIfEmpty('veh-make', v.make); setIfEmpty('veh-model', v.model); setIfEmpty('veh-year', v.year);
+      setIfEmpty('veh-vin', v.vin); setIfEmpty('veh-plate', v.plate);
+      // schedule rows: the DOC's rows lead (ticked, badged); starter rows that do not overlap
+      // stay as unticked suggestions
+      const nrm = s => String(s || '').toLowerCase().replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim();
+      const docItems = (f.pm_items || []).map(it => ({
+        text: it.item_text, km: it.interval_km ?? null, months: it.interval_months ?? null,
+        freq: vehFreqFromMonths(it.interval_months) || (it.interval_km ? 'Annual' : 'Monthly'),
+        kind: it.interval_km ? (vehFreqFromMonths(it.interval_months) ? 'both' : 'meter') : 'calendar',
+        miOrig: (it.interval_unit === 'mi' && it.interval_orig) ? it.interval_orig : null,
+        on: true, src: 'doc',
+      }));
+      if (docItems.length) {
+        const docKeys = docItems.map(d => nrm(d.text));
+        const keep = _vehPmRows.filter(r => !docKeys.some(k => k.includes(nrm(r.text)) || nrm(r.text).includes(k)))
+          .map(r => ({ ...r, on: false }));
+        _vehPmRows = docItems.concat(keep);
+        vehRenderPmList();
+      }
+      const docParts = (f.parts || []).map(p => ({ name: p.part_name, cat: 'Vehicle parts', unit: 'pcs', pn: p.part_number || '', on: true, src: 'doc' }));
+      if (docParts.length) {
+        const pnKeys = new Set(docParts.map(p => nrm(p.pn)).filter(Boolean));
+        const keepP = _vehPartRows.filter(p => !pnKeys.has(nrm(p.pn)) || !p.pn).map(p => ({ ...p, on: false }));
+        _vehPartRows = docParts.concat(keepP);
+        vehRenderPartsList();
+      }
+      // honesty: what was read, what was stripped, what degraded
+      // zero-case honesty (VD11's walk: a 185-page manual whose first pages are the table of
+      // contents read "Found 0 ... review them" - nothing to review): say what to do instead
+      const bits = [(docItems.length || docParts.length)
+        ? `Found ${docItems.length} schedule row${docItems.length === 1 ? '' : 's'} and ${docParts.length} part${docParts.length === 1 ? '' : 's'} in your document - review them in the next steps.`
+        : 'No schedule rows or parts could be read from those pages. For a big manual, upload just the maintenance-schedule or parts-list pages - the template below still works.'];
+      if (note) bits.push('Note: ' + note + '.');
+      if (raw.partial) bits.push(`Only ${raw.chunks_read} of ${raw.chunks_total} sections could be read - trailing rows may be missing.`);
+      if (raw.miner_fallback) bits.push('The AI reader was unavailable; the table reader alone did this pass.');
+      if (raw.injection_stripped) bits.push(`${raw.injection_stripped} suspicious instruction line${raw.injection_stripped === 1 ? ' was' : 's were'} ignored.`);
+      st.textContent = bits.join(' ');
+    } catch (err) {
+      console.error('vehicle doc extraction failed:', err);  // L-layer: surface AND capture
+      st.textContent = (typeof whReadError === 'function' ? whReadError(err, 'that file') : 'That file did not open (' + ((err && err.message) || 'unknown') + ').') + ' Try a text-based PDF, or use the template below.';
+    }
+  }
+
+  async function vehCreate() {
+    // online-only: a 4-table seed has no offline queue; say so up front instead of a
+    // half-failed create + rollback (the pm-scheduler whRequireOnline pattern)
+    if (typeof whRequireOnline === 'function'
+        && !whRequireOnline('Creating a vehicle', m => showToast(m))) return;
+    const btn = document.getElementById('veh-create');
+    btn.disabled = true; btn.textContent = 'Creating…';
+    const created = { pm_asset: null, node: null, scope: [], parts: [] };
+    try {
+      const { data: udata } = await db.auth.getUser();
+      const uid = udata && udata.user && udata.user.id;
+      if (!uid) throw new Error('Adding a vehicle needs a signed-in account - sign in first so the vehicle belongs to you.');
+
+      const make  = document.getElementById('veh-make').value.trim();
+      const model = document.getElementById('veh-model').value.trim();
+      const year  = document.getElementById('veh-year').value.trim();
+      const plate = document.getElementById('veh-plate').value.trim();
+      const vin   = document.getElementById('veh-vin').value.trim();
+      const odo   = parseInt(document.getElementById('veh-odo').value.trim(), 10);
+      const reg   = document.getElementById('veh-reg').value || null;
+      const ins   = document.getElementById('veh-ins').value || null;
+      const vName = [year, make, model].filter(Boolean).join(' ');
+      // hive members choose fleet vs personal (workers are locked to personal); solo is personal
+      const _rHive = document.getElementById('veh-scope-hive');
+      const hive  = (HIVE_ID && _rHive && _rHive.checked) ? HIVE_ID : null;
+      const today = new Date().toISOString().slice(0, 10);
+      const wname = WORKER_NAME || 'Owner';
+
+      // 1. PM asset — the schedule's parent (category 'Vehicles' groups it on pm-scheduler)
+      const { data: pmA, error: e1 } = await db.from('pm_assets')
+        .insert({ hive_id: hive, auth_uid: uid, worker_name: wname, asset_name: vName,
+                  tag_id: plate || null, category: 'Vehicles', criticality: 'Major' })
+        .select('id').single();
+      if (e1) throw e1;
+      created.pm_asset = pmA.id;
+
+      // 2. Asset node — the vehicle master (vehicle_meta carries VIN/plate/odometer;
+      //    odometer_baseline_km anchors km-due before the first completion)
+      const meta = { make, model, year: year || null, vin: vin || null, plate: plate || null,
+                    odometer_km: Number.isFinite(odo) ? odo : 0,
+                    odometer_baseline_km: Number.isFinite(odo) ? odo : 0,
+                    registration_expiry: reg, insurance_expiry: ins };
+      const { data: node, error: e2 } = await db.from('asset_nodes')
+        .insert({ hive_id: hive, auth_uid: uid, worker_name: wname, level: 'equipment',
+                  tag: plate || (make + '-' + (year || 'VEH')).toUpperCase(), name: vName,
+                  criticality: 'medium', manufacturer: make, model: model,
+                  serial_no: vin || null, pm_asset_id: pmA.id, vehicle_meta: meta })
+        .select('id').single();
+      if (e2) throw e2;
+      created.node = node.id;
+
+      // 3. Scope items — ticked rows; km rows seed interval_km (kind 'both': date OR meter,
+      //    whichever first); registration/insurance anchor to the expiry the user gave
+      const rows = [];
+      _vehPmRows.forEach((r, i) => {
+        const onEl = document.getElementById('veh-pm-on-' + i);
+        if (!onEl || !onEl.checked) return;
+        let text = document.getElementById('veh-pm-text-' + i).value.trim();
+        if (!text) return;
+        let km = null;
+        if (r.km !== null && r.km !== undefined) {
+          km = parseInt(document.getElementById('veh-pm-km-' + i).value, 10);
+          if (!Number.isFinite(km) || km <= 0) km = r.km;
+          text += ' (every ' + km.toLocaleString() + ' km)';
+        }
+        let anchor = today;
+        // pure UTC date parts — new Date(d+'T00:00:00').toISOString() shifts a day for any
+        // UTC+ timezone (found live: PH owner's renewal landed 04-14 for an 04-15 expiry)
+        const yearAgo = d => { const p = d.split('-').map(Number); return new Date(Date.UTC(p[0] - 1, p[1] - 1, p[2])).toISOString().slice(0, 10); };
+        if (reg && /Registration/i.test(text)) anchor = yearAgo(reg);
+        if (ins && /Insurance/i.test(text))    anchor = yearAgo(ins);
+        // doc rows carry an explicit kind: km-only manual rows are 'meter' (no false calendar
+        // half firing yearly on a 100,000 km service); frequency still satisfies NOT NULL
+        rows.push({ asset_id: pmA.id, hive_id: hive, item_text: text, frequency: r.freq || 'Annual',
+                    anchor_date: anchor, is_custom: false,
+                    interval_km: km, interval_kind: r.kind || (km ? 'both' : 'calendar') });
+      });
+      if (rows.length) {
+        const { data: sc, error: e3 } = await db.from('pm_scope_items').insert(rows).select('id');
+        if (e3) throw e3;
+        created.scope = (sc || []).map(s => s.id);
+      }
+
+      // 4. Starter parts — ticked rows land in Inventory linked to the vehicle
+      const parts = [];
+      _vehPartRows.forEach((p, i) => {
+        const onEl = document.getElementById('veh-part-on-' + i);
+        if (!onEl || !onEl.checked) return;
+        const pname = document.getElementById('veh-part-name-' + i).value.trim();
+        if (!pname) return;
+        // number-less doc parts (VD15's fleet walk): part_number is NOT NULL and UNIQUE per
+        // hive, so two ''-numbered parts 23505'd the whole create (and NULL is refused 23502;
+        // a partial index would break the import upsert's onConflict). The NAME stands in as
+        // the number - visible, editable, never an invented number-shaped token - and the
+        // row's notes say so.
+        const pnRaw = document.getElementById('veh-part-pn-' + i).value.trim();
+        parts.push({ worker_name: wname, auth_uid: uid, hive_id: hive,
+                    part_number: pnRaw || pname,
+                    part_name: pname, category: p.cat || 'Vehicle parts', unit: p.unit || 'pcs',
+                    qty_on_hand: 0, min_qty: 1,
+                    linked_asset_node_ids: [node.id],
+                    notes: (p.src === 'doc' ? 'From the uploaded document' : 'Starter item')
+                           + ' - Add-a-Vehicle (' + vName + ')'
+                           + (pnRaw ? '' : ' - no part number in the document; the name stands in until you edit it') });
+      });
+      if (parts.length) {
+        const { data: pv, error: e4 } = await db.from('inventory_items').insert(parts).select('id');
+        if (e4) throw e4;
+        created.parts = (pv || []).map(x => x.id);
+      }
+
+      _vehCreated = created;
+      vehShowReceipt(vName, rows.length, parts.length);
+    } catch (err) {
+      console.error('vehCreate failed (rolling back):', err);  // L-layer: surface AND capture
+      const failed = await vehRollback(created);
+      document.getElementById('veh-step1-err').textContent = '';
+      // taxonomy: whWriteError names the CAUSE + next step; the wizard adds its work-state honesty
+      showToast((typeof whWriteError === 'function'
+                  ? whWriteError(err, 'Could not create the vehicle.')
+                  : 'Could not create the vehicle: ' + ((err && err.message) || 'unknown error') + '.')
+        + (failed.length ? ' Partial data may remain (' + failed.join(', ') + ').' : ' Nothing was saved.'), 6000);
+      btn.disabled = false; btn.textContent = 'Create my vehicle';
+    }
+  }
+
+  async function vehUndoCreate() {
+    if (!_vehCreated) return;
+    // T139 cascade-confirm: the undo is DESTRUCTIVE and inventory rows cascade (stock
+    // movements recorded against a part go with it) — say the blast radius before acting.
+    const sure = await whConfirm(
+      'Remove everything this wizard just created? This deletes the vehicle, its PM schedule '
+      + 'tasks, and its starter parts - any stock movements already recorded against those '
+      + 'parts are removed with them. This cannot be undone.',
+      { okLabel: 'Remove it all', cancelLabel: 'Keep the vehicle' });
+    if (!sure) return;
+    const failedSteps = await vehRollback(_vehCreated);
+    if (failedSteps.length) {
+      showToast('Undo was only partial - could not remove: ' + failedSteps.join(', ') + '. The rest was removed.', 6000);
+      return; // keep _vehCreated so retrying Undo targets the survivors
+    }
+    _vehCreated = null;
+    document.getElementById('veh-receipt').classList.add('hidden');
+    const btn = document.getElementById('veh-create');
+    btn.disabled = false; btn.textContent = 'Create my vehicle';
+    vehBack(1);
+    showToast('Undone - the vehicle, its schedule and its parts were removed.');
+  }
+
+  async function vehRollback(c) {
+    // reverse order; keeps going past a failed step but REPORTS it — the VM1 walk proved a
+    // silent swallow here turns "Undone" into a lie (two deletes were aborting on a trigger
+    // while the toast claimed success)
+    const failed = [];
+    const step = async (label, q) => {
+      try { const { error } = await q; if (error) failed.push(label); }
+      catch (_) { failed.push(label); }
+    };
+    if (c.parts.length) await step('parts',    db.from('inventory_items').delete().in('id', c.parts));
+    if (c.scope.length) await step('schedule', db.from('pm_scope_items').delete().in('id', c.scope));
+    if (c.node)         await step('asset',    db.from('asset_nodes').delete().eq('id', c.node));
+    if (c.pm_asset)     await step('PM asset', db.from('pm_assets').delete().eq('id', c.pm_asset));
+    return failed;
+  }
+
+  function vehShowReceipt(vName, nScope, nParts) {
+    const e = escHtml;
+    [1, 2, 3].forEach(n => document.getElementById('veh-step-' + n).classList.add('hidden'));
+    document.getElementById('veh-receipt').classList.remove('hidden');
+    document.getElementById('veh-receipt-body').innerHTML =
+      `<strong>${e(vName)}</strong> is now on your platform:`
+      + '<ul style="margin:6px 0 10px; padding-left:20px;">'
+      + `<li>1 asset in <a href="asset-hub.html" style="color:var(--gold);">Asset Hub</a> (with VIN, plate and odometer)</li>`
+      + `<li>${nScope} service task${nScope === 1 ? '' : 's'} in the <a href="pm-scheduler.html" style="color:var(--gold);">PM Scheduler</a> - km-based ones come due by odometer, whichever of date or km arrives first</li>`
+      + (nParts ? `<li>${nParts} starter part${nParts === 1 ? '' : 's'} in <a href="inventory.html" style="color:var(--gold);">Inventory</a>, linked to the vehicle</li>` : '')
+      + '</ul>'
+      + '<p style="margin:0 0 10px; color:rgba(255,255,255,0.78);">Log fuel and odometer readings in the <a href="logbook.html" style="color:var(--gold);">Logbook</a> - each odometer entry moves your service countdowns.</p>'
+      + '<button class="wh-toggle veh-box" style="min-height:44px; background:none; border:1px solid var(--border); color:rgba(255,255,255,0.82); padding:0 14px; cursor:pointer;" onclick="vehUndoCreate()">Undo - remove everything just created</button>';
+  }
+
+  // (vehUndoCreate is defined above vehRollback so the cascade-confirm look-back
+  //  from the delete sites finds its consequence-naming whConfirm.)
 
   // ── State ─────────────────────────────────────────────────────────────────
   let _step       = 1;
@@ -824,7 +1429,22 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   };
 
   // ── Step navigation ───────────────────────────────────────────────────────
+  /* T42 (2026-08-28) - BACK used to throw someone clean out of the import, mid-mapping.
+     utils.js fixed this platform-wide for OVERLAYS (whOverlayBackDismiss pushes an entry when a
+     .sheet-overlay/.modal-overlay opens and closes it on Back), but this wizard is not an overlay:
+     it is five in-page sections toggled by `hidden`, and this page carries ZERO overlay classes,
+     so the central helper never engages here. A shape the central fix did not reach.
+     The cost was real - Back at step 3 or 4 abandoned the chosen source, the parsed headers and the
+     entire column mapping, and Back is the universal "go back one" gesture, the ONLY one on Android
+     gesture nav where it is a swipe rather than a deliberate press.
+     ONE entry is pushed per FORWARD step, so Back unwinds the wizard a step at a time and, at step
+     1, leaves the page exactly as it always did. Stepping back is safe to re-render:
+     buildMappingTable() repopulates from _mapping (every option takes `selected` from it), so the
+     user's mapping survives the round trip and only the cosmetic confidence hints recompute -
+     checked before wiring this, because a Back that silently discarded the mapping would be worse
+     than the eject it replaces. */
   function goStep(n) {
+    const _prev = _step;
     if (n === 3) buildMappingTable();
     if (n === 4) buildPreview();
     for (let i = 1; i <= 5; i++) {
@@ -834,7 +1454,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     }
     _step = n;
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    try { if (n > _prev) history.pushState({ whImportStep: n }, ''); } catch (_) { /* empty-catch-allow: history is an enhancement, never a dependency */ }
   }
+
+  // Back pops the entry the forward step pushed; step back instead of navigating away. Guarded on
+  // _step > 1 so Back on the first step still leaves the page, which is what a person expects there.
+  window.addEventListener('popstate', function () {
+    try { if (_step > 1) goStep(_step - 1); } catch (_) { /* empty-catch-allow: never trap the user in a loop */ }
+  });
 
   // ── Step 1: Source selection ──────────────────────────────────────────────
   function selectSource(type) {
@@ -961,7 +1588,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
             <p style="font-size:.65rem; color:var(--muted);">${escHtml(f.desc)}</p>
           </td>
           <td><span class="${f.required ? 'req-badge' : 'opt-badge'}">${f.required ? 'Required' : 'Optional'}</span></td>
-          <td><select class="wh-input" data-field="${escHtml(f.key)}" onchange="onMappingChange(this)" style="font-size:.78rem;">${options}</select></td>
+          <td><select class="wh-input" data-field="${escHtml(f.key)}" onchange="onMappingChange(this)" aria-label="Source column for ${escHtml(f.label)}" style="font-size:.78rem;">${options}</select></td>
           <td id="conf-${escHtml(f.key)}" style="font-size:.65rem; white-space:nowrap;"></td>
         </tr>`);
     });
@@ -1105,6 +1732,29 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
     // ── Dry-run summary ───────────────────────────────────────────────────────
     const issues = [];
+
+    // T135 (2026-08-28): the preview warned when a WORKHIVE FIELD had no source column, and never
+    // when a SOURCE COLUMN had no WorkHive field. The first protects the schema; the second
+    // protects the user's data — and carrying data across IS what a legacy import is for.
+    //
+    // MEASURED: a 4-column Maximo export whose EQTYPE header is in neither dictionary imported
+    // three assets that all landed iso_class 'General', the equipment type simply gone, under a
+    // preview that read "3 rows · 3 ready to import · all valid" with an empty warnings box. The
+    // dictionary was right to decline to guess at a header it does not know; the silence about
+    // having dropped the column is the defect. Someone importing five years of plant history has
+    // no other moment to notice a column did not make the trip.
+    //
+    // Info, not a warning: an unmapped column is very often deliberate (spare notes, an internal
+    // ID nobody wants). It has to be SAID, not made alarming — and it names the columns, because
+    // "some columns were skipped" would leave the reader to diff the file themselves.
+    try {
+      const used = new Set(Object.values(_mapping || {}).filter(Boolean));
+      const dropped = (_headers || []).filter(h => !used.has(h));
+      if (dropped.length) {
+        const shown = dropped.slice(0, 6).join(', ') + (dropped.length > 6 ? `, +${dropped.length - 6} more` : '');
+        issues.push({ level: 'info', msg: `${dropped.length} column${dropped.length === 1 ? '' : 's'} in your file ${dropped.length === 1 ? 'is' : 'are'} not mapped and will not be imported: ${shown}. Go back to Step 3 if any of these should be kept.` });
+      }
+    } catch (e) { /* empty-catch-allow: the dropped-column notice is advisory; a failure here must never block a preview the user can otherwise read */ }
     if (_entityType === 'work_order') {
       const knownStatuses = new Set(Object.keys(STATUS_NORM[_systemType] || STATUS_NORM.generic || {}));
       const rawStatusCol  = _mapping.status;
@@ -1114,7 +1764,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           return raw && !knownStatuses.has(raw) && !['open','closed','cancelled'].includes(raw.toLowerCase());
         });
         if (unknownStatus.length)
-          issues.push({ level: 'warn', msg: `${unknownStatus.length} rows have unrecognized status codes (e.g. "${unknownStatus[0][rawStatusCol]}"); they will import with status "Open" (the original code is kept in the sync record)` });
+          issues.push({ level: 'warn', msg: `${unknownStatus.length} ${unknownStatus.length === 1 ? 'row has' : 'rows have'} unrecognized status codes (e.g. "${unknownStatus[0][rawStatusCol]}"); they will import with status "Open" (the original code is kept in the sync record)` });
       }
       const noMachine = allNorm.filter(r => r.external_id && !r.machine).length;
       if (noMachine)
@@ -1165,6 +1815,25 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
   // ── Step 5: Import ────────────────────────────────────────────────────────
   async function startImport() {
+    /* T41 (2026-08-27): THE LAST UNGUARDED COMMITTING CONTROL, and the most expensive one to press
+       twice. The sweep that guarded svcHailNow, svcAskQuotes, saveSyncConfig and saveNewTask left
+       this one open because its insert target did not resolve statically. It is a BULK import: a
+       second press re-runs the whole CSV, and `_batchId = 'import-' + Date.now()` mints a NEW batch
+       id for the second run rather than colliding with the first, so nothing downstream can tell
+       the duplicates apart or roll them back together - every row lands twice under two batch ids.
+       The button is a bare onclick with no disabled state, so the only thing between a double-tap
+       and a doubled plant register was how fast someone's finger was. Guard released in a finally
+       so a throw cannot wedge the control shut, matching saveSyncConfig above. */
+    if (window._busy_startImport) return;
+    window._busy_startImport = true;
+    try {
+      return await _startImportInner();
+    } finally {
+      window._busy_startImport = false;
+    }
+  }
+
+  async function _startImportInner() {
     goStep(5);
     _batchId = 'import-' + Date.now();
     const validRows  = _csvRows.map(normalizeRow).filter(r => r.external_id);
@@ -1179,7 +1848,16 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     const CHUNK  = 500;
 
     // Determine correct workhive_table per entity type
-    const WH_TABLE = { work_order:'logbook', asset:'assets', pm_schedule:'pm_assets', inventory:'inventory_items' };
+    /* T41 (2026-08-27): 'assets' NAMES A TABLE THAT NO LONGER EXISTS. to_regclass('public.assets')
+       is null - it was dropped in Phase 5c - and this import writes asset_nodes. The ROLLBACK map
+       twelve hundred lines below was corrected for exactly this ("the legacy 'assets' table was
+       dropped in Phase 5c... rolling back 'assets' silently no-op'd - C1 fix 2026-07-06"); the
+       IMPORT map it mirrors was not, so the fix never reached its sibling. This value is not used
+       to route the write (that is hard-coded to asset_nodes) - it is stored on external_sync and
+       RENDERED to the user in plant-connections' sync table, so an asset import labelled its own
+       ledger row with a table nobody can look in. The 16 rows already in external_sync all say
+       asset_nodes, so this line disagreed with the data as well as the schema. */
+    const WH_TABLE = { work_order:'logbook', asset:'asset_nodes', pm_schedule:'pm_assets', inventory:'inventory_items' };
 
     // Build external_sync rows (same shape for all entity types)
     const syncRows = validRows.map(r => ({
@@ -1329,7 +2007,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
               is_custom:   false,
             }));
             const { error: scopeErr } = await db.from('pm_scope_items').insert(scopeRows);
-            if (scopeErr) { console.error('pm_scope_items insert failed:', scopeErr); showToast('PM scope items failed: ' + scopeErr.message); }
+            if (scopeErr) { console.error('pm_scope_items insert failed:', scopeErr); showToast(whWriteError(scopeErr, 'PM scope items were not saved. Re-run the import to retry them.')); }
           }
           imported += sBatch.length;
         } catch (e) { console.error('batch error:', e); failed += sBatch.length; }
@@ -1567,6 +2245,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   let _editingConfigId = null;
   let _editingConfigUpdatedAt = null;   // P6: OC snapshot for the shared per-hive connector config
 
+  // Records whose sync failed durably (v_external_sync_truth.is_error). Read once on load; 0 until
+  // then, so a page that never got the count simply does not raise the alarm rather than guessing.
+  let _syncErrorCount = 0;
+
   // Layer D — Plain-Read summary for Integrations.
   function renderIntegrationsSummary(configs) {
     const now = Date.now();
@@ -1629,12 +2311,29 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     const actBox = document.getElementById('it-action-text');
     if (actBox) {
       let text;
-      if (configs.length === 0) {
+      // ★A COMPLETION THAT NEVER ARRIVED OUTRANKS A STALE CONFIG, so this branch goes first. The
+      // page promises "WorkHive pushes finished jobs back to SAP automatically, as each one is
+      // closed" — and when a push fails, the worker's save succeeds, the sync badge appears, and
+      // the supervisor's Live Sync card stays green, because cmms-push-completion writes its
+      // failure to external_sync and never touches integration_configs.last_sync_status (the only
+      // status this page used to read). The one signal that a finished job never reached the CMMS
+      // now reaches the person who can do something about it.
+      if (_syncErrorCount > 0) {
+        text = `${_syncErrorCount} record${_syncErrorCount === 1 ? '' : 's'} failed to sync with your CMMS `
+             + `(finished jobs pushed back, or records pulled in, that did not go through). `
+             + `These are kept and can be re-synced. Check the connection in the Live Sync tab below, then run a sync.`;
+      } else if (configs.length === 0) {
         text = 'No integrations yet. Click the "Import File" tab below. Drop a CSV from your CMMS. You get history on day one. Then turn on Live Sync for daily updates.';
       } else if (stale.length > 0) {
         text = `${stale.length} stale integration${stale.length === 1 ? '' : 's'}. Open the Live Sync tab below, click the row, and check (1) API key not expired, (2) endpoint URL still reachable, (3) auth method still matches the CMMS side.`;
       } else if (disabled.length > 0 && active.length > 0) {
         text = 'Some integrations are disabled. If you no longer need them, delete the config row to keep this page clean. If they are paused, re-enable from the Live Sync tab.';
+      } else if (disabled.length > 0) {
+        // T63 (2026-08-25): with 12 disabled and 0 active, the old else said "Everything is
+        // syncing." directly under a hero reading "No integrations syncing right now" - two
+        // verdicts disagreeing on one screen. All-off is its own truth with its own next step.
+        text = 'All ' + disabled.length + ' integration' + (disabled.length === 1 ? ' is' : 's are')
+             + ' switched off, so nothing is syncing. Re-enable from the Live Sync tab, or delete the configs you no longer need.';
       } else {
         text = 'Everything is syncing. Use the API Keys tab if you need to give Power BI or a custom app read access to your benchmark data.';
       }
@@ -1721,6 +2420,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   }
 
   async function saveSyncConfig() {
+    // T41 (2026-08-26): a double press here was NOT idempotent. integration_configs has nothing but a primary key, so a double press leaves two live configs pointed at the same endpoint - and both would sync.
+    // Verified against the live schema rather than assumed: the sibling inserts on this sweep
+    // (reactions, vouchers, top-ups, project links, reviews) ARE protected by business-key
+    // uniques and were deliberately left alone. Guard released in a finally so a thrown
+    // error cannot wedge the control shut.
+    if (window._busy_saveSyncConfig) return;
+    window._busy_saveSyncConfig = true;
+    try {
     if (!HIVE_ID) { showToast('Join a hive first.'); return; }
     const label    = document.getElementById('sc-label').value.trim();
     const type     = document.getElementById('sc-type').value;
@@ -1735,11 +2442,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       let _q = db.from('integration_configs').update(row).eq('id', _editingConfigId);
       if (_editingConfigUpdatedAt) _q = _q.eq('updated_at', _editingConfigUpdatedAt);
       const { data: _updRows, error: updErr } = await _q.select('id');
-      if (updErr) { showToast('Could not update config: ' + updErr.message); return; }
+      if (updErr) { showToast(whWriteError(updErr, 'Could not update the config. Nothing changed; try again.')); return; }
       if (_updRows && _updRows.length === 0) { showToast('This connector was changed by someone else, reload and re-edit.'); return; }
     } else {
       const { error: insErr } = await db.from('integration_configs').insert(row);
-      if (insErr) { showToast('Could not save config: ' + insErr.message); return; }
+      if (insErr) { showToast(whWriteError(insErr, 'Could not save the config. Nothing was stored; try again.')); return; }
     }
     _editingConfigId = null;
     document.getElementById('sc-label').value = '';
@@ -1747,6 +2454,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     document.getElementById('sc-token').value = '';
     showToast('Sync config saved.');
     loadSyncConfigs();
+  
+    } finally { window._busy_saveSyncConfig = false; }
   }
 
   async function testSyncConfig() {
@@ -1772,7 +2481,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
     if (error || data?.results?.[0]?.error) {
       resEl.style.background = 'rgba(248,113,113,0.08)'; resEl.style.border = '1px solid rgba(248,113,113,0.2)'; resEl.style.color = 'var(--red)';
-      resEl.textContent = '✗ ' + (data?.results?.[0]?.error || error?.message || 'Connection failed');
+      // T39 (2026-08-26): error?.message here is supabase-js's placeholder, so a failed TEST
+    // CONNECTION reported 'Edge Function returned a non-2xx status code' - on the one control
+    // whose entire job is telling someone why their endpoint did not answer. The function's own
+    // per-result error is preferred first, as before; only the fallback changes.
+    resEl.textContent = '✗ ' + (data?.results?.[0]?.error
+      || (error ? await window.whFnError(error, 'Connection failed') : 'Connection failed'));
     } else {
       resEl.style.background = 'rgba(74,222,128,0.08)'; resEl.style.border = '1px solid rgba(74,222,128,0.2)'; resEl.style.color = 'var(--green)';
       resEl.textContent = '✓ Connected: found ' + (data?.results?.[0]?.synced || 0) + ' records. Ready to sync.';
@@ -1786,9 +2500,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     showToast('Sync started...');
     try {
       const { data, error } = await db.functions.invoke('cmms-sync', { body: { hive_id: HIVE_ID, config_id: configId } });
-      if (error) { showToast('Sync error: ' + error.message); return; }
+      if (error) { showToast(whWriteError(error, 'The sync did not start. Check the config row and try again.')); return; }
       const r = data?.results?.[0];
-      if (r?.error) showToast('Sync failed: ' + r.error);
+      // r.error is the sync fn's own sentence (server-composed, human) - surface it; fall back if empty.
+      if (r?.error) showToast(String(r.error).length < 200 ? ('Sync failed: ' + r.error) : 'The sync failed on the CMMS side. Open the Live Sync tab and check the config row.');
       else showToast('✓ Synced ' + (r?.synced || 0) + ' records → new work orders in Logbook · feeds Analytics & Shift Brain.');
       loadSyncConfigs();
     } finally { _runSyncBusy.delete(configId); }
@@ -1829,7 +2544,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     const { error } = await db.from('api_keys').insert({
       hive_id: HIVE_ID, key_prefix: prefix, key_hash: keyHash, label, enabled: true
     });
-    if (error) { showToast('Error: ' + error.message); return; }
+    if (error) { showToast(whWriteError(error, 'That did not go through. Nothing changed; try again.')); return; }
 
     const resEl = document.getElementById('new-key-result');
     resEl.style.display = 'block';
@@ -1911,38 +2626,148 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     const windowEnd = new Date(batchTime.getTime() + 300000).toISOString();  // +5 min window
 
     try {
-      // 1. Delete from external_sync (safe — always reversible by re-importing)
-      await db.from('external_sync')
-        .delete()
-        .eq('hive_id', HIVE_ID)
-        .eq('entity_type', entityType === 'work_order' ? 'work_order' : entityType)
-        .gte('last_synced_at', createdAt)
-        .lte('last_synced_at', windowEnd);
+      /* T176 (2026-08-27): A RESOLVED PROMISE IS NOT A SUCCESSFUL WRITE, and this function said
+         "Import rolled back successfully." on the strength of one. supabase-js does NOT throw when
+         a write is refused - it RESOLVES with { error } - so an RLS refusal on any of the three
+         steps below sailed past the try/catch (which only ever sees thrown errors) and the person
+         was told their import had been undone while every imported row was still there. On a
+         REVERSAL that is the worst possible lie: they stop looking, and the bad data stays.
+         Each step's error is captured now, and any one of them takes the same honest path the
+         catch already had. */
+      const _rbErrors = [];
 
-      // 2. Best-effort: delete matching target table rows created in the batch window.
-      // asset -> asset_nodes (the legacy 'assets' table was dropped in Phase 5c; the import
-      // writes asset_nodes at ~line 1219, so rolling back 'assets' silently no-op'd — C1 fix 2026-07-06).
-      const targetTable = { work_order:'logbook', asset:'asset_nodes', inventory:'inventory_items', pm_schedule:'pm_assets' }[entityType];
-      if (targetTable && triggeredBy) {
-        await db.from(targetTable)
-          .delete()
+      /* T135 (2026-08-28): THE ROLLBACK COULD NOT DELETE THE ROWS IT CREATED, AND COULD DELETE ROWS
+         IT DID NOT. Step 2 used to match target rows by worker_name + created_at BETWEEN the audit
+         row's timestamp and +5min. Both halves fail, and they fail in opposite directions:
+
+           * The audit row is written AFTER the data rows — measured at 51ms — so every imported row
+             sits just BEFORE the window and .gte() excludes it. Imported assets survived a rollback
+             that reported "Import rolled back successfully."
+           * A logbook row from a work-order import carries the SOURCE system's created_at, often
+             years old, so it can never land inside an import-time window at all.
+           * Meanwhile ANYTHING the same person creates in the next five minutes IS inside the
+             window. Measured: a hand-made asset created 10s after an import was destroyed by
+             undoing that import, while the two imported assets it was supposed to remove stayed.
+
+         Matching by BATCH MEMBERSHIP instead. external_sync holds one row per imported record with
+         its external_id and the original payload, so the key each entity was written under can be
+         recomputed exactly as the import computed it — no time window, nothing to miss, no
+         bystanders. external_sync must therefore be READ before it is deleted, which is why the
+         order below is read → targets → sync → audit rather than the old sync-first. */
+      /* ★AND THE WINDOW HAS TO RUN BACKWARDS, WHICH IS THE WHOLE BUG IN ONE LINE. The batch's rows
+         are written BEFORE the audit entry that records them — measured 88ms for external_sync and
+         51ms for the data rows — so any window that STARTS at the audit timestamp excludes exactly
+         the rows it was written to find. It is bounded by the batch's own recorded row count rather
+         than by a duration: the last `rows_written` sync rows at-or-before the audit stamp ARE this
+         batch, and the limit stops it from ever reaching into an earlier one.
+
+         (external_sync carries a workhive_id column meant for precisely this linkage and the
+         importer never populates it. Filling it at import time would make this exact instead of
+         merely bounded — recorded as the follow-up rather than done here, because it changes the
+         write path for every entity type and this fix is already load-bearing.) */
+      const { data: _auditRow } = await db.from('cmms_audit_log')
+        .select('rows_written').eq('batch_id', batchId).eq('hive_id', HIVE_ID).maybeSingle();
+      const _batchSize = (_auditRow && _auditRow.rows_written) || 0;
+
+      let _batchRows = [], _readErr = null;
+      if (_batchSize > 0) {
+        // Reads the canonical view rather than external_sync directly: the drift gate enforces a
+        // single read path per domain, and this read had opened a second one. Verified safe before
+        // switching — v_external_sync_truth is a straight projection with NO WHERE clause (16 = 16
+        // row parity against the base table), so it exposes classification flags without hiding
+        // rows. That mattered here: this read gathers the keys a ROLLBACK will delete, and a view
+        // that quietly filtered (is_deleted, is_error) would have narrowed the undo into missing
+        // exactly the rows it exists to remove. The DELETE below still targets the entity table.
+        const res = await db.from('v_external_sync_truth')
+          .select('external_id, sync_payload')
           .eq('hive_id', HIVE_ID)
-          .eq('worker_name', triggeredBy)
-          .gte('created_at', createdAt)
-          .lte('created_at', windowEnd);
+          .eq('entity_type', entityType === 'work_order' ? 'work_order' : entityType)
+          .lte('last_synced_at', windowEnd)
+          .order('last_synced_at', { ascending: false })
+          .order('external_id')                    // total order: last_synced_at ties across a chunk
+          // ★AND `id` LAST, BECAUSE THE READ MOVED TO A VIEW. On external_sync, external_id is
+          // unique per (hive, entity_type) and closed the order by itself; a VIEW carries no
+          // constraints, so neither the totality gate nor Postgres can rely on that — two rows
+          // could tie and page nondeterministically, which for a ROLLBACK means deleting a
+          // different set than the one counted. `id` is the base-table primary key and the view
+          // exposes it, so this closes the order provably rather than by inherited convention.
+          .order('id')
+          .limit(_batchSize);
+        _batchRows = res.data || [];
+        _readErr = res.error || null;
+      }
+      if (_readErr) _rbErrors.push(_readErr);
+
+      // The key each entity's target row was written under, mirroring the import's own expressions:
+      //   asset        -> asset_nodes.tag        = r.external_id
+      //   inventory    -> inventory_items.part_number = r.external_id
+      //   pm_schedule  -> pm_assets.tag_id       = r.asset_tag || r.external_id
+      //   work_order   -> logbook has NO external-id column, so its rows cannot be identified.
+      const TARGET = {
+        asset:       { table: 'asset_nodes',     col: 'tag',         key: r => r.external_id },
+        inventory:   { table: 'inventory_items', col: 'part_number', key: r => r.external_id },
+        pm_schedule: { table: 'pm_assets',       col: 'tag_id',      key: r => (r.sync_payload && r.sync_payload.asset_tag) || r.external_id },
+      }[entityType];
+
+      let _removed = 0, _manual = 0;
+      if (TARGET && _batchRows && _batchRows.length) {
+        const keys = [...new Set(_batchRows.map(r => TARGET.key(r)).filter(Boolean))];
+        if (keys.length) {
+          const { data: _gone, error: _rb2 } = await db.from(TARGET.table)
+            .delete()
+            .eq('hive_id', HIVE_ID)
+            .in(TARGET.col, keys)
+            .select('id');
+          if (_rb2) _rbErrors.push(_rb2); else _removed = (_gone || []).length;
+        }
+      } else if (entityType === 'work_order') {
+        // ★HONEST ABOUT WHAT IT CANNOT DO. logbook keeps no external id, so there is no way to tell
+        // an imported entry from one somebody typed. Saying so beats a silent no-op that reads as
+        // a completed rollback — the person can then decide, rather than discover it later.
+        _manual = (_batchRows || []).length;
       }
 
-      // 3. Mark audit log entry as rolled back
-      await db.from('cmms_audit_log')
+      // Now the sync rows can go (safe — always reversible by re-importing). Deleted by the SAME
+      // external_ids the targets were matched on, so the two steps can never disagree about which
+      // rows the batch contained — the old version used the inverted window here too, and so
+      // removed nothing while reporting a completed rollback.
+      if (_batchRows.length) {
+        const _ids = [...new Set(_batchRows.map(r => r.external_id).filter(Boolean))];
+        const _rb1 = await db.from('external_sync')
+          .delete()
+          .eq('hive_id', HIVE_ID)
+          .eq('entity_type', entityType === 'work_order' ? 'work_order' : entityType)
+          .in('external_id', _ids);
+        if (_rb1 && _rb1.error) _rbErrors.push(_rb1.error);
+      }
+
+      // Mark audit log entry as rolled back
+      const _rb3 = await db.from('cmms_audit_log')
         .update({ operation: 'file_import_rolled_back' })
         .eq('batch_id', batchId)
         .eq('hive_id', HIVE_ID);
+      if (_rb3 && _rb3.error) _rbErrors.push(_rb3.error);
 
-      showToast('Import rolled back successfully.');
+      if (_rbErrors.length) {
+        console.error('integrations rollback refused:', _rbErrors.map(e => e.message).join(' | '));
+        showToast(typeof whWriteError === 'function'
+          ? whWriteError(_rbErrors[0], 'The rollback did not complete. Some imported records may still be present - check Live Sync and retry.')
+          : 'The rollback did not complete. Some imported records may still be present - check Live Sync and retry.', 'error');
+        await loadImportHistory();
+        return;
+      }
+
+      // ★THE MESSAGE NOW REPORTS WHAT HAPPENED, not that something happened. The old flat "Import
+      // rolled back successfully." was true of the sync rows and false of everything else, which is
+      // precisely how a rollback that deleted none of the imported data still read as done.
+      showToast(_manual
+        ? `Sync records removed. ${_manual} imported logbook ${_manual === 1 ? 'entry' : 'entries'} could NOT be removed automatically. Imported entries are not marked as such, so please delete them by hand in the Logbook.`
+        : `Import rolled back. ${_removed} imported ${_removed === 1 ? 'row' : 'rows'} removed.`,
+        _manual ? 'error' : 'success');
       await loadImportHistory();
     } catch (e) {
       console.error('integrations rollback failed:', e);
-      showToast('Rollback failed: ' + e.message);
+      showToast(whWriteError(e, 'The rollback did not complete. The import batch may still be present; check Live Sync and retry.'));
     }
   }
 
@@ -2037,7 +2862,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         // SAP wins: bring the logbook entry into line with the external record.
         const { data, error } = await db.from('logbook')
           .update({ status }).eq('id', logId).select('id');
-        if (error) { showToast('Resolution failed: ' + error.message); return; }
+        if (error) { showToast(whWriteError(error, 'The resolution was not recorded. Nothing changed; try again.')); return; }
         if (!data || data.length === 0) {
           showToast('Could not update that entry. A logbook entry can only be changed by the worker who wrote it, so ask them to set it to "' + status + '".', '⚠️');
           return;
@@ -2049,7 +2874,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         const { data, error } = await db.from('external_sync')
           .update({ status }).eq('external_id', extId).eq('hive_id', HIVE_ID)
           .eq('entity_type', 'work_order').select('external_id');
-        if (error) { showToast('Resolution failed: ' + error.message); return; }
+        if (error) { showToast(whWriteError(error, 'The resolution was not recorded. Nothing changed; try again.')); return; }
         if (!data || data.length === 0) {
           showToast('Could not update the external record: it is no longer present for this hive.', '⚠️');
           return;
@@ -2059,7 +2884,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       loadConflicts();
     } catch (e) {
       console.error('integrations resolution failed:', e);
-      showToast('Resolution failed: ' + e.message);
+      showToast(whWriteError(e, 'The resolution was not recorded. Nothing changed; try again.'));
     }
   }
 

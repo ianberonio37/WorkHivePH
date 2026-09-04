@@ -28,7 +28,7 @@ from __future__ import annotations
 
 import random
 from datetime import datetime, timedelta, timezone
-from .utils import batch_insert
+from .utils import batch_insert, submitted_before
 
 
 # ── Vocabulary buckets ─────────────────────────────────────────────────────────
@@ -763,6 +763,7 @@ def seed_reliability(client, log, ctx: dict) -> dict:
             is_ai = random.random() < 0.30
             # Mix approval state: 85% approved (fresh seed), 15% pending
             is_approved = random.random() < 0.85
+            _fmea_ap = _between_days(1, 30) if is_approved else None
             ai_conf = round(random.uniform(0.55, 0.92), 3) if is_ai else None
             fmea_rows.append({
                 "hive_id":           n["hive_id"],
@@ -779,7 +780,11 @@ def seed_reliability(client, log, ctx: dict) -> dict:
                 "ai_confidence":     ai_conf,
                 "created_by":        n.get("worker_name") or "seed",
                 "approved_by":       (n.get("worker_name") or "seed") if is_approved else None,
-                "approved_at":       _between_days(1, 30) if is_approved else None,
+                "approved_at":       _fmea_ap,
+                # created_at must PRECEDE its approval (T150, 2026-08-28). Left to DEFAULT now() it
+                # landed at seed time while approved_at was backdated, so all 245 approved FMEA modes
+                # claimed a sign-off weeks before the mode was raised.
+                **({"created_at": submitted_before(_fmea_ap)} if _fmea_ap else {}),
             })
 
     fmea_inserted = 0
@@ -828,6 +833,7 @@ def seed_reliability(client, log, ctx: dict) -> dict:
             # REFUSAL has never once been exercised — the guard could have been inverted or dead and
             # nothing would have shown it. A state with no rows is a state nobody has walked.
             strategy_approved = random.random() < 0.85
+            _strat_ap = _between_days(0, 14) if strategy_approved else None
             strategy_rows.append({
                 "hive_id":      m["hive_id"],
                 "fmea_mode_id": m["id"],
@@ -839,7 +845,10 @@ def seed_reliability(client, log, ctx: dict) -> dict:
                 # Kept together so they cannot disagree: an unapproved strategy has NEITHER an
                 # approver nor a timestamp, the same coherence rule the asset_nodes states follow.
                 "approved_by":  "seed" if strategy_approved else None,
-                "approved_at":  _between_days(0, 14) if strategy_approved else None,
+                "approved_at":  _strat_ap,
+                # created_at must PRECEDE its approval (T150, 2026-08-28) - all 146 approved
+                # strategies claimed a sign-off before the strategy existed.
+                **({"created_at": submitted_before(_strat_ap)} if _strat_ap else {}),
             })
 
     rcm_inserted = 0

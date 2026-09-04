@@ -306,7 +306,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 <body>
 <main>
 
-<script>
+<script src="browser-floor.js"></script>
+  <script>
   // Companion Streamline Step C: detect embedded mode early so the
   // page renders without flashing its standalone chrome.
   try {
@@ -360,6 +361,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         <p>Record or type a note. The assistant turns it into a structured entry and replies. Your note is
            <strong>saved as soon as the assistant replies</strong> — there is no separate save step, and an
            entry cannot be edited or removed here afterwards, so leave out anything you would not want kept.
+           To have your personal data erased, send a Data Rights Request to
+           <a href="mailto:admin@workhiveph.com?subject=Data%20Rights%20Request">admin@workhiveph.com</a>.
            Use the voice buttons above to control spoken replies. Your past entries stay in the list below.</p>
         <!-- ★ THE PAGE RECORDED SOMEONE'S VOICE AND NEVER SAID WHAT HAPPENED TO THE AUDIO. Measured:
              with this disclosure OPEN, the rendered page contained no "audio", no "stored", no
@@ -442,6 +445,19 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         <summary>Prefer to type? Write your note instead</summary>
         <label for="type-input" class="block text-xs text-white/80 mb-1 mt-2">Write your journal note
           <span class="text-white/70">(up to 2000 characters)</span></label>
+        <!-- T166 (2026-08-26): WHO SEES THIS, SAID WHERE IT IS WRITTEN. This is the platform's most
+             private surface - voice_journal_entries carries auth.uid() = auth_uid on read, update and
+             delete, so nobody else in the hive can reach a single row - and the page never said so.
+             The only place a worker was told lived on hive.html's join-flow welcome card, seen once,
+             on a different page, at a moment they were not writing anything personal. A privacy
+             guarantee a person cannot see is a guarantee they cannot rely on, and the write surface is
+             where the decision to be candid is actually made. Wording read off the RLS policies, not
+             from memory - this trajectory's own lesson, after a welcome card claimed the journal was
+             the ONLY private surface and the policies said otherwise. -->
+        <p class="text-xs mb-1" style="color:rgba(255,255,255,0.72);">
+          <span aria-hidden="true">🔒</span> Private to you. Nobody else in your hive can read your
+          journal notes - not your supervisor, not your teammates.
+        </p>
         <!-- maxlength is stated in the label rather than left to enforce itself silently: a cap that
              stops accepting keystrokes with no explanation reads as a broken keyboard. This textarea is
              the page's only data-entry field, so it is also the only place a constraint can live. -->
@@ -767,7 +783,13 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     async function speakAzure(text, persona) {
       if (!_ttsOn || !text) return false;
       try {
-        const resp = await fetch(SUPABASE_URL + '/functions/v1/tts-speak', {
+        /* T40 (2026-08-27): BOUNDED, so the fallback this function was built for can actually
+           happen. speakAzure returns false on failure precisely so the caller can fall back to the
+           browser's own speech - but an UNBOUNDED fetch never returns false, it never returns at
+           all, so a hung tts-speak left the await pending and the fallback unreachable: the reader
+           got silence rather than a different voice. The page already uses fetchWithTimeout in four
+           other places; this was the one raw call left. 15s is generous for a sentence of speech. */
+        const _ttsOpts = {
           method: 'POST',
           headers: {
             'Authorization': 'Bearer ' + SUPABASE_KEY,
@@ -775,8 +797,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
             'Content-Type':  'application/json',
           },
           body: JSON.stringify({ text: String(text), persona: persona || 'zaniah' }),
-        });
-        if (!resp.ok) return false;
+        };
+        const _ttsUrl = SUPABASE_URL + '/functions/v1/tts-speak';
+        const resp = (typeof fetchWithTimeout === 'function')
+          ? await fetchWithTimeout(_ttsUrl, _ttsOpts, 15000)
+          : await fetch(_ttsUrl, _ttsOpts);
+        if (!resp || !resp.ok) return false;
         const data = await resp.json();
         if (!data || !data.url) return false;
         // Stop any prior playback so a new entry doesn't overlap.
@@ -892,7 +918,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         return true;
       } catch (err) {
         console.error('bootstrapIdentity:', err);
-        showToast('Could not verify session. Try again.');
+        showToast(_t('Could not verify session. Try again.', 'Hindi na-verify ang session. Subukan muli.'));
         return false;
       }
     }
@@ -999,9 +1025,17 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       // Whisper sometimes mis-tags short phrases (en/fil/null all clamp to
       // "English"); without this group-by-display, the chip row shows
       // "English (3) English (3) English (1)" as 3 separate buttons.
+      // ★THE COUNT AND THE FILTER WERE READING DIFFERENT ROWS. This loop skipped every entry with
+      // no lang; renderHistory's predicate does the opposite on purpose — its own comment says "the
+      // 'English' chip catches en/fil/null/anything-clamped", because langName() returns 'English'
+      // for any code it does not know. So on a real account with 15 entries (2 en, 3 tl, 10 NULL)
+      // the chip read "English (2)" and selected TWELVE: measured, entry-count said "12 entries".
+      // A label wrong by a factor of six, on the control whose only job is telling you how many
+      // there are. Counting through langName() too makes one rule serve both, and the chips now
+      // PARTITION the journal — Filipino (3) + English (12) = All (15) — instead of summing to a
+      // third of it and leaving the rest reachable only by accident.
       const seenByDisplay = {};
       for (const p of _entries) {
-        if (!p.lang) continue;
         const display = langName(p.lang);
         seenByDisplay[display] = (seenByDisplay[display] || 0) + 1;
       }
@@ -1070,7 +1104,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         : '';
       const _si = $('search-input');
       if (_si) {
-        _si.placeholder = _capped ? `Search the latest ${_entries.length} entries…` : 'Search your entries...';
+        _si.placeholder = _capped ? `Search the latest ${_entries.length} entr${_entries.length === 1 ? 'y' : 'ies'}…` : 'Search your entries...';
         _si.setAttribute('aria-label', _si.placeholder);
       }
 
@@ -1137,13 +1171,36 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
     async function startRecording() {
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        showToast('Voice not supported on this browser.');
+        showToast(_t('Voice not supported on this browser.', 'Hindi supportado ang voice sa browser na ito.'));
         return;
       }
+      // T12 S2 (critic walk 2026-09-02): in a prompt-suppressed context getUserMedia NEVER SETTLES
+      // — no reject, so none of the cause-named toasts below ever ran and the tap changed NOTHING
+      // on glass (the promise-that-never-settles class). Two repairs: the state line changes
+      // IMMEDIATELY on tap (the visible acknowledgement the walk missed), and the await is BOUNDED
+      // (8s race) so a hung prompt lands in the could-not-start branch instead of silence.
+      $('mic-state').textContent = _t('Waiting for microphone permission…', 'Hinihintay ang pahintulot ng mikropono…');
       try {
-        _stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        _stream = await Promise.race([
+          navigator.mediaDevices.getUserMedia({ audio: true }),
+          new Promise((_, rej) => setTimeout(() => rej(Object.assign(new Error('mic permission timeout'), { name: 'TimeoutError' })), 8000)),
+        ]);
       } catch (err) {
-        showToast('Microphone permission denied.');
+        $('mic-state').textContent = _t('Tap the mic to start.', 'I-tap ang mic para magsimula.');
+        // T12 (2026-08-26): one message blamed "permission" for EVERY failure — a mic-less
+        // desktop was told permission was denied (wrong cause), and no branch named the next
+        // move even though the typed composer sits on this same page. Name cause + remedy.
+        const _n = (err && err.name) || '';
+        if (_n === 'NotAllowedError' || _n === 'SecurityError') {
+          showToast(_t('Microphone permission denied. Type your note below instead, or allow the mic in your browser settings.',
+                       'Hindi pinayagan ang mikropono. I-type na lang ang tala mo sa ibaba, o payagan ang mic sa browser settings.'));
+        } else if (_n === 'NotFoundError' || _n === 'OverconstrainedError') {
+          showToast(_t('No microphone found on this device. Type your note below instead.',
+                       'Walang mikropono sa device na ito. I-type na lang ang tala mo sa ibaba.'));
+        } else {
+          showToast(_t('The microphone could not start. Type your note below instead.',
+                       'Hindi ma-start ang mikropono. I-type na lang ang tala mo sa ibaba.'));
+        }
         return;
       }
       _chunks = [];
@@ -1151,7 +1208,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       try {
         _recorder = new MediaRecorder(_stream, { mimeType: mime });
       } catch (err) {
-        showToast('Recording not supported.');
+        showToast(_t('Recording not supported.', 'Hindi supportado ang recording.'));
         return;
       }
       _recorder.ondataavailable = (ev) => { if (ev.data && ev.data.size) _chunks.push(ev.data); };
@@ -1240,8 +1297,21 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       } catch (err) {
         console.error('onStopRecording:', err);
         $('current-reply-loading').style.display = 'none';
-        $('mic-state').textContent = 'Something went wrong. Tap to try again.';
-        showToast(whAiError(err, 'Voice processing failed.'));
+        // The transcript may have been banked by the gateway's persist-first write even though
+        // the reply failed; check before telling the worker their spoken note is gone.
+        const spoken = ($('current-transcript').textContent || '').trim();
+        if (spoken && await noteLanded(spoken)) {
+          $('mic-state').textContent = 'Your note IS saved - see the list below. Only the companion reply failed.';
+          showToast('Note saved. The companion could not reply right now (it may be out of AI quota).');
+          loadHistory().catch(e2 => console.warn('history refresh failed:', e2));
+        } else {
+          // T176: reaching this branch means noteLanded() came back false - the note is genuinely
+          // NOT in the list. "Something went wrong" left that unsaid, so a worker could walk away
+          // believing a spoken note was captured. The typed path already says it plainly one
+          // handler below; the spoken path now matches it.
+          $('mic-state').textContent = 'Your note was not saved. Tap to try again.';
+          showToast(whAiError(err, 'Voice processing failed, and the note was not saved.'));
+        }
       } finally {
         _busy = false;
         $('mic-btn').disabled = false;
@@ -1253,6 +1323,21 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     // operated on plain text, so the typed path shares this exact tail instead of copying it - two
     // copies of a flow is how the same fix lands on one entrance and not the other.
     // Returns true only when a reply actually arrived, so each caller can leave its own state right.
+    // T12 work_survives_quota (2026-08-25): ai-gateway now persists the note BEFORE its quota
+    // gates, so a 429/failed reply no longer destroys the worker's work. The two catch paths
+    // below must therefore tell the TRUTH per turn: "note saved, reply failed" is a different
+    // sentence from "note not saved" (two notices, two truth conditions). This read is the
+    // page's own eyes on that fact - it checks whether THIS transcript landed in the archive.
+    async function noteLanded(text) {
+      try {
+        const { data } = await db.from('voice_journal_entries')
+          .select('id').eq('transcript', text)
+          .gte('created_at', new Date(Date.now() - 120000).toISOString())
+          .limit(1);
+        return !!(data && data.length);
+      } catch (_) { return false; }
+    }
+
     async function processTurn(text, lang, setStatus, doneMsg) {
       setStatus('Composing reply...');
       $('current-reply-loading').style.display = 'block';
@@ -1289,7 +1374,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       if (_busy || btn.disabled) return;
       const text = ($('type-input').value || '').trim();
       if (!text) {
-        $('type-state').textContent = 'Write a note first, then send it.';
+        $('type-state').textContent = _t('Write a note first, then send it.', 'Magsulat muna ng note, tapos ipadala.');
         $('type-input').focus();
         return;
       }
@@ -1321,8 +1406,15 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       } catch (err) {
         console.error('onSendTyped:', err);
         $('current-reply-loading').style.display = 'none';
-        $('type-state').textContent = 'Something went wrong - your note was not saved. Try sending it again.';
-        showToast(whAiError(err, 'Could not save your note.'));
+        if (await noteLanded(text)) {
+          $('type-state').textContent = 'Your note IS saved - it is in the list below. Only the companion reply failed; you can ask again later.';
+          showToast('Note saved. The companion could not reply right now (it may be out of AI quota).');
+          $('type-input').value = ''; if (_typeDraft) _typeDraft.clear();
+          loadHistory().catch(e2 => console.warn('history refresh failed:', e2));
+        } else {
+          $('type-state').textContent = whWriteError(err, 'Your note was not saved. Try sending it again.');
+          showToast(whAiError(err, 'Could not save your note.'));
+        }
       } finally {
         _busy = false;
         btn.disabled = false;
@@ -1335,14 +1427,28 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const fd = new FormData();
       fd.append('audio', blob, 'journal.webm');
       // No `language` field: let Whisper auto-detect.
-      const resp = await fetch(SUPABASE_URL + '/functions/v1/voice-transcribe', {
-        method: 'POST',
-        headers: {
-          'Authorization': 'Bearer ' + SUPABASE_KEY,
-          'apikey':        SUPABASE_KEY,
-        },
-        body: fd,
-      });
+      // T146 (2026-08-26): AN UNBOUNDED TRANSCRIBE LEAVES THE MIC BUTTON SPINNING FOREVER. This
+      // fetch had no timeout and no abort, so a stalled request - a plant dead spot, a cold edge
+      // function - left the button in its 'processing' ring with no way out and nothing said. That
+      // is the eternal-skeleton shape, on the surface a worker uses hands-free in a noisy plant.
+      // Uses the platform's own fetchWithTimeout (utils.js) rather than a hand-rolled controller:
+      // it already owns the AbortController, the transport-retry policy, and returns NULL on abort.
+      // 45s, because a long spoken entry over a weak uplink is legitimately slow - the bound exists
+      // to end a HANG, not to cut short a slow success.
+      const resp = (typeof fetchWithTimeout === 'function')
+        ? await fetchWithTimeout(SUPABASE_URL + '/functions/v1/voice-transcribe', {
+            method: 'POST',
+            headers: { 'Authorization': 'Bearer ' + SUPABASE_KEY, 'apikey': SUPABASE_KEY },
+            body: fd,
+          }, 45000)
+        : await fetch(SUPABASE_URL + '/functions/v1/voice-transcribe', {
+            method: 'POST',
+            headers: { 'Authorization': 'Bearer ' + SUPABASE_KEY, 'apikey': SUPABASE_KEY },
+            body: fd,
+          });
+      // fetchWithTimeout returns null when it aborted. Say what happened and what survived: the
+      // recording is gone either way, so the honest instruction is to try again, not to wait.
+      if (!resp) throw new Error('That took too long to transcribe. Tap the mic and try again, or type your note instead.');
       const data = await resp.json().catch(() => ({}));
       if (!resp.ok) throw new Error(data.error || 'Transcribe failed');
       const text = String(data.text || '').trim().slice(0, MAX_TRANSCRIPT_CHARS);

@@ -1,17 +1,16 @@
 {
   "clones": 49,
-  "contentDuplicatedLines": 1736,
-  "markupLinesInformational": 1543,
-  "percentage": 18.47,
+  "contentDuplicatedLines": 1804,
+  "markupLinesInformational": 1972,
+  "percentage": 20.25,
   "pairs": {
-    "architecture.html <-> validator-catalog.html": 651,
-    "ai-quality.html <-> plant-connections.html": 600,
-    "ph-intelligence.html <-> plant-connections.html": 347,
+    "ai-quality.html <-> plant-connections.html": 663,
+    "architecture.html <-> llm-observability.html": 647,
+    "ph-intelligence.html <-> plant-connections.html": 362,
     "agentic-rag-observability.html <-> llm-observability.html": 64,
     "engineering-design.html <-> engineering-design.html": 56,
     "architecture.html <-> architecture.html": 19,
     "plant-connections.html <-> plant-connections.html": 16,
-    "agentic-rag-observability.html <-> plant-connections.html": 7,
     "design-system.html <-> design-system.html": 6
   },
   "note": "forward-only ratchet on CONTENT duplicatedLines (css + javascript formats only); markup-format lines are informational: jscpd's markup tokenizer matches only the tag envelope and bills the whole line-span, so on script-heavy pages those counts grow when UNIQUE code is added inside a matched envelope (proven 2026-08-21: replacing public-feed's entire script body with junk left the 527-line project-report<->public-feed 'clone' intact). Collapse duplication then --update-baseline to lower; % informational"

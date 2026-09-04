@@ -2,13 +2,13 @@
 name: page-achievements
 type: page
 source: file:achievements.html
-source_sha: af88657a1fc670ae
+source_sha: 038a556139bf216c
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## page · `achievements.html` — Achievements: WorkHive
 
-Size: 64KB · 27 top-level fns. (Retrieve THIS instead of reading the file.)
+Size: 70KB · 27 top-level fns. (Retrieve THIS instead of reading the file.)
 
 **DB writes** (0): (none detected)
 **RPC calls**: `my_service_provider_ids`

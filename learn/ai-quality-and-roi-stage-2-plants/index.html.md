@@ -10,7 +10,7 @@ By **WorkHive Editorial Team**
 ·
 Published 17 May 2026
 ·
-Updated 17 May 2026
+Updated 24 Aug 2026
 ·
 7 min read
 
@@ -90,7 +90,7 @@ The tool this guide is about
 
 Accuracy tracking from technician-rated outcomes, time-saved estimates per query, cost per useful answer, drift detection across asset types and fault categories. Stair 2+ (plants with 90+ days of Logbook history). Free at the worker tier; full enterprise reporting (per-shift accuracy, cross-hive benchmarks) unlocks at Stage 4.
 
-No hive yet? [Join WorkHive](https://workhiveph.com/#join) first (free, takes 30 seconds).
+No hive yet? [Join WorkHive](https://workhiveph.com/?signup=1) first (free, takes 30 seconds).
 
 ## Frequently asked questions
 
@@ -127,4 +127,4 @@ At Stage 4 enterprise tier, yes (anonymous benchmarking against the cohort of Wo
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: f6fae08d0e54a06c -->
+<!-- md-twin source-sha: 247aae2ed18bd9d4 -->

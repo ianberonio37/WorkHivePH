@@ -1,0 +1,131 @@
+{
+ "_meta": {
+  "author": "T183 census, 2026-08-26",
+  "note": "Every user-adjustable preference, with WHERE it lives and therefore what it promises. 'account' follows the person to any device; 'device' lives in this browser only; 'owned-device' is device storage stamped with the owner so it never crosses between people on shared hardware (T121). A preference whose scope is not stated is a promise nobody made.",
+  "companion": "substrate/reference/state_scope_registry.json holds the broader remembered-state split; this file is the USER-FACING knob subset."
+ },
+ "account_level": [
+  {
+   "pref": "AI companion persona",
+   "store": "worker_profiles.preferred_persona (DB)",
+   "surfaces": [
+    "index.html picker",
+    "voice-journal.html picker"
+   ],
+   "promise": "follows you to any device and drives every AI surface",
+   "verified": "column exists (migration 20260513000020); hive-level default in 20260513000022"
+  }
+ ],
+ "device_level": [
+  {
+   "pref": "Language EN/FIL",
+   "store": "wh_lang",
+   "surfaces": [
+    "shared chrome toggle"
+   ],
+   "promise": "this browser only"
+  },
+  {
+   "pref": "Voice reply language",
+   "store": "wh_voice_lang_pref",
+   "surfaces": [
+    "voice-journal"
+   ],
+   "promise": "this browser only"
+  },
+  {
+   "pref": "Voice brevity",
+   "store": "wh_voice_brevity",
+   "surfaces": [
+    "voice-journal"
+   ],
+   "promise": "this browser only"
+  },
+  {
+   "pref": "Voice-journal persona (local echo)",
+   "store": "wh_voice_journal_persona",
+   "surfaces": [
+    "voice-journal"
+   ],
+   "promise": "local mirror of the account persona; the DB column is the source of truth"
+  },
+  {
+   "pref": "Onboarding ladder dismissed",
+   "store": "wh_onboarding_dismissed",
+   "surfaces": [
+    "index ops-home"
+   ],
+   "promise": "this browser only"
+  },
+  {
+   "pref": "Audit-log first-visit hint seen",
+   "store": "wh_onb_audit_visited",
+   "surfaces": [
+    "audit-log"
+   ],
+   "promise": "this browser only"
+  },
+  {
+   "pref": "Draft-scope notice shown once",
+   "store": "wh_draft_scope_told",
+   "surfaces": [
+    "any draft surface"
+   ],
+   "promise": "this browser only; T120's one-time explanation"
+  },
+  {
+   "pref": "Last report recipient",
+   "store": "wh_last_report_email",
+   "surfaces": [
+    "report-sender"
+   ],
+   "promise": "this browser only"
+  },
+  {
+   "pref": "Resume promote/dedupe choice",
+   "store": "wh_resume_promote_dedupe",
+   "surfaces": [
+    "resume"
+   ],
+   "promise": "this browser only"
+  },
+  {
+   "pref": "Community last-seen marker",
+   "store": "wh_community_last_seen",
+   "surfaces": [
+    "community"
+   ],
+   "promise": "this browser only - why an unread marker differs per device (T107)"
+  }
+ ],
+ "owned_device_level": [
+  {
+   "pref": "Remembered filters (G5a)",
+   "store": "wh_view_<page>_<key> via whAutoRememberFilters",
+   "promise": "this browser AND this person - a teammate signing in on the same device does not inherit your filters",
+   "verified": "T121 live A->B->A: A set 'Mechanical', B inherited '', A returned to 'Mechanical'"
+  },
+  {
+   "pref": "Unsent drafts (X2)",
+   "store": "wh_view_<page>_draft_<key> via whAutoSaveDraft",
+   "promise": "this browser AND this person - your unsent text is never restored into anyone else's form",
+   "verified": "T121 live A->B->A: B saw '', A's note returned for A"
+  },
+  {
+   "pref": "PM recents / groups",
+   "store": "wh_pm_recent_*, wh_pm_groups_*",
+   "promise": "this browser; keyed per worker in the key itself",
+   "verified": "key carries the worker suffix"
+  },
+  {
+   "pref": "Analytics criticality/discipline filters",
+   "store": "wh_analytics_filters (page-local, now owner-stamped)",
+   "promise": "this browser AND this person - a teammate does not inherit a filtered chart",
+   "verified": "T183 live A->B: A set criticality=Critical (stored with __owner), B landed on criticality=all"
+  }
+ ],
+ "known_gaps": [
+  "No single settings HOME exists: preferences are adjusted where they apply (persona at the picker, language in chrome, filters in place). That is defensible - a knob next to the thing it changes beats a distant panel - but it means there is nowhere to review or reset them all. Surfacing decision for Ian.",
+  "Notification read-state is device-local (T107): a badge cleared on the phone stays on the PC."
+ ]
+}

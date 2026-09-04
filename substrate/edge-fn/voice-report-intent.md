@@ -2,7 +2,7 @@
 name: edge-fn-voice-report-intent
 type: edge-fn
 source: file:supabase/functions/voice-report-intent/index.ts
-source_sha: cf77480f28a5aa74
+source_sha: 11c45b7ccec95bf0
 last_verified: 2026-07-13
 supersedes: null
 ---

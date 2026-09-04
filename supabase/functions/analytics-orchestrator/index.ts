@@ -905,10 +905,10 @@ serveObserved("analytics-orchestrator", async (req) => {
       const _rq = await checkRouteRateLimit(db, hive_id || "" || "", "analytics-orchestrator");
       // Denies ONLY when an explicit hive_route_quotas row exists (rq.per_route), so this stays
       // a no-op until an admin sets a cap - while always counting for attribution.
-      if (_rq.per_route && !_rq.allowed) return routeRateLimitedResponse(corsHeaders, "analytics-orchestrator", _rq.cap);
+      if (_rq.per_route && !_rq.allowed) return routeRateLimitedResponse(corsHeaders, "analytics-orchestrator", _rq.cap, _rq.retry_after_seconds);
     } catch { /* empty-catch-allow: per-surface quota bookkeeping must never fail a real request */ }
     const rl = await checkAIRateLimit(db, hive_id || "");
-    if (!rl.allowed) return rateLimitedResponse(corsHeaders);
+    if (!rl.allowed) return rateLimitedResponse(corsHeaders, rl.scope ?? "hour", rl.retry_after_seconds);
 
     const periodDays = Number(period_days) || 90;
 

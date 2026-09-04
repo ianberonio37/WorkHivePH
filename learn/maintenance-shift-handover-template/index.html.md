@@ -10,7 +10,7 @@ By **WorkHive Editorial Team**
 ·
 Published 17 May 2026
 ·
-Updated 17 May 2026
+Updated 24 Aug 2026
 ·
 9 min read
 
@@ -104,7 +104,7 @@ The tool this guide is about
 
 Every entry your team logs during the shift gets categorised and prioritised. At end of shift, Shift Brain auto-fills the 5-section handover. The supervisor edits in 5 minutes instead of writing from scratch in 15, and submits. The incoming supervisor sees it the moment they log in. Free at the worker tier forever.
 
-No hive yet? [Join WorkHive](https://workhiveph.com/#join) first (free, takes 30 seconds).
+No hive yet? [Join WorkHive](https://workhiveph.com/?signup=1) first (free, takes 30 seconds).
 
 ## Common mistakes that make handovers useless
 
@@ -164,4 +164,4 @@ The logbook captures individual events as they happen during the shift. The hand
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 846a21a8cc372dd9 -->
+<!-- md-twin source-sha: d02a23b46f8187fd -->

@@ -40,6 +40,33 @@ def _shell_html():
     return sorted(set(htmls)), versioned
 
 
+def _stale_shell_files():
+    """Shell files edited AFTER the last CACHE_NAME bump.
+
+    ★THE GATE PASSED WHILE THE CACHE WAS STALE (2026-08-28). Asserting that CACHE_NAME is SET
+    proves the mechanism exists; it does not prove it was USED. nav-hub.js is a shell file and was
+    edited three times AFTER that day's bump - so an installed worker would have kept serving the
+    cached copy and received none of the fixes, while browser users got all of them. That is the
+    April stale-nav incident's exact shape, and the existing checks were green throughout it.
+    A precached file newer than sw.js is the whole signal, and it costs one mtime comparison.
+    """
+    if not SW.exists():
+        return []
+    src = SW.read_text(encoding="utf-8", errors="replace")
+    m = re.search(r"(?m)^\s*const\s+SHELL_FILES\s*=\s*\[(.*?)\]", src, re.S)
+    if not m:
+        return []
+    sw_mtime = SW.stat().st_mtime
+    stale = []
+    # every precached asset, not only the HTML pages: the shared chrome (nav-hub.js, utils-side
+    # scripts, tokens.css) is where a silent staleness hurts most, because it ships on every page.
+    for rel in re.findall(r"['\"]\.?/([A-Za-z0-9._-]+\.(?:html|js|css|json))['\"]", m.group(1)):
+        p = ROOT / rel
+        if p.exists() and p.stat().st_mtime > sw_mtime:
+            stale.append(rel)
+    return sorted(set(stale))
+
+
 def _emit_deepwalk_pages(dim, page_stems, all_pass):
     f = ROOT / "deepwalk_layer_pages.json"
     try:
@@ -79,10 +106,22 @@ def main() -> int:
         print(f"  {R}○{X} sw.js has no CACHE_NAME — the shell isn't cache-versioned; a change won't re-prime.")
     for h in missing:
         print(f"  {R}○{X} {h}: in SHELL_FILES but the file is MISSING — the SW precache install 404s → offline shell breaks.")
+    stale = _stale_shell_files()
+    if stale:
+        ok = False
+        print(f"  {R}○{X} {len(stale)} precached shell file(s) are NEWER than sw.js, so CACHE_NAME was")
+        print(f"    not bumped after they changed — an INSTALLED user keeps serving the cached copy")
+        print(f"    and never receives the change, while browser users get it immediately:")
+        for rel in stale[:8]:
+            print(f"      - {rel}")
+        print(f"    Bump CACHE_NAME in sw.js and say in the comment what changed (the file keeps its")
+        print(f"    bump history commented above the active line).")
+
     if not ok:
         print(f"{R}FAIL: SW offline shell is invalid.{X}")
         return 1
-    print(f"{G}PASS - all {len(htmls)} SW-shell pages exist and the shell is cache-versioned (CACHE_NAME set).{X}")
+    print(f"{G}PASS - all {len(htmls)} SW-shell pages exist, the shell is cache-versioned, and no "
+          f"precached file is newer than sw.js.{X}")
     return 0
 
 

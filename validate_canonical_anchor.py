@@ -543,14 +543,34 @@ def check_tier_a_anchor() -> dict:
         }
 
     # If registered, count files that combine worker_profiles + skill_badges
-    # without reading the Tier A view. Search files for both tokens.
+    # without reading the Tier A view.
+    #
+    # The two tokens are matched as WHOLE IDENTIFIERS in CODE, never as substrings anywhere in the
+    # text. Both halves were measured wrong on assistant.html (2026-08-27), which reads
+    # `v_skill_badges_truth` and mentions `worker_profiles` in a comment, and was reported
+    # un-anchored while doing exactly what this layer asks:
+    #   - `skill_badges` is a SUBSTRING of `v_skill_badges_truth`, so a page reading the canonical
+    #     truth view tripped the alarm meant for the base table - the rule inverted, penalising the
+    #     page for complying, with "stop using the truth view" as its apparent remedy.
+    #   - `worker_profiles` appeared in a comment, and prose is not a table reference.
+    # Word boundaries fix the first (a longer identifier no longer matches) and stripping comments
+    # fixes the second. What counts as un-anchored is unchanged.
+    def _code_only(text: str) -> str:
+        text = re.sub(r"/\*.*?\*/", " ", text, flags=re.S)     # block comments
+        text = re.sub(r"^\s*#.*$", " ", text, flags=re.M)       # python comments
+        return re.sub(r"//[^\n]*", " ", text)                  # line comments
+
+    def _names_table(text: str, table: str) -> bool:
+        return re.search(rf"(?<![A-Za-z0-9_]){re.escape(table)}(?![A-Za-z0-9_])", text) is not None
+
     unanchored: list[dict] = []
     for path in list_html_pages() + list_edge_functions() + list_python_api_files():
         content = read_file(path) or ""
-        has_workers = ("worker_profiles" in content) or ("skill_badges" in content)
+        code = _code_only(content)
         has_tier_a  = any(n in content for n in TIER_A_NAMES)
         # Heuristic: both tables referenced AND no Tier A view reference
-        if "worker_profiles" in content and "skill_badges" in content and not has_tier_a:
+        if _names_table(code, "worker_profiles") and _names_table(code, "skill_badges") \
+                and not has_tier_a:
             if "tier-a-allow:" in content: continue
             unanchored.append({
                 "file": path,
@@ -1018,6 +1038,20 @@ HEADER_STRIP_CONTRACT = [
 ]
 
 
+def _strip_js_comments(js: str) -> str:
+    """Drop /* */ and // comments so a chip token must appear in CODE, not in prose ABOUT the code.
+
+    ★MEASURED 2026-08-27, and by causing it: hive.html's readiness chip named `v_maturity_truth`,
+    a relation that does not exist. Fixing the chip to `v_hive_readiness_truth` left an explanatory
+    comment that quoted the old name - and this gate, which requires the token as a literal substring
+    of the populator body, went on passing on the strength of the COMMENT. The contract is about what
+    the chip RENDERS; a sentence mentioning a name is not a chip naming it. The `//` rule skips a
+    slash pair preceded by `:` or a quote so `http://` and in-string slashes survive.
+    """
+    js = re.sub(r"/\*.*?\*/", " ", js, flags=re.S)
+    return re.sub(r"(?<![:'\"\\])//[^\n]*", " ", js)
+
+
 def _extract_fn_body(src: str, fn_name: str) -> str:
     """Return the brace-balanced body of a JS function named fn_name.
 
@@ -1100,7 +1134,7 @@ INSIGHT_PANEL_CONTRACT = [
         "chip_target_id":   "stair-source-chip",
         "populator":        "renderMaturityStairway",
         "required_chip_tokens": [
-            "v_maturity_truth",            # canonical view
+            "v_hive_readiness_truth",      # canonical view (was v_maturity_truth — no such relation)
             "compute_hive_readiness",      # RPC
             "Process",                     # one of the 5 dimensions
             "Resilience",                  # one of the 5 dimensions
@@ -1115,7 +1149,9 @@ INSIGHT_PANEL_CONTRACT = [
             "hive_adoption_score",         # canonical fuel
             "compute_adoption_risk",       # RPC
             "healthy",                     # tier label
-            "at_risk",                     # tier label
+            # Was "at_risk" — a VALUE of this column, not a thing to query. The column is the
+            # anchor: it decides the tier, and it survives its own trace (2026-08-27).
+            "risk_tier",                     # tier label
             "critical",                    # tier label
         ],
     },
@@ -1355,7 +1391,7 @@ def check_insight_panel_contract() -> dict:
                     "reason":    f"Populator function `{populator}` not found in {page}.",
                 })
                 continue
-            haystack = body
+            haystack = _strip_js_comments(body)
         # 4. renderSourceChip must actually be called.
         if "renderSourceChip" not in haystack:
             unanchored.append({

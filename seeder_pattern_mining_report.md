@@ -21,7 +21,7 @@
 | `has_module_constants` | 62% | 27 / 43 |
 | `uses_datetime` | 58% | 25 / 43 |
 | `uses_random_module` | 55% | 24 / 43 |
-| `has_try_except` | 53% | 23 / 43 |
+| `has_try_except` | 55% | 24 / 43 |
 | `calls_insert` | 41% | 18 / 43 |
 | `mentions_reseed` | 20% | 9 / 43 |
 | `scopes_query_to_hive` | 20% | 9 / 43 |

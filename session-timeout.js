@@ -49,7 +49,20 @@
   const CHECK_INTERVAL_MS  = _posMs(_idleOverride.check, 30 * 1000);      // tick every 30s
 
   // Pages that share the same auth identity. The hard-clear redirects here.
+  // T2/T8 (2026-08-24): carry the CURRENT page as ?return= so re-auth lands the person back
+  // where they were working — index's resolver + both submit paths honor it (T1). Computed at
+  // redirect time (not load time), inline rather than via utils.js: this file is precached
+  // shell and must not depend on load order.
   const SIGN_IN_URL = 'index.html?signin=1';
+  /* T8 (2026-08-26): carry the REASON, not just the destination. Arriving at a sign-in modal with no
+     explanation is indistinguishable from being logged out at random - the worker was mid-task, and
+     the question in their head is "did I lose what I was doing?". The answer is no, and it can be
+     said truthfully: clearIdentityHard wipes only the IDENTITY keys (wh_last_worker, the hive keys),
+     never the whAutoSaveDraft entries, and anything already saved is in the database. */
+  const _signInUrlWithReturn = (reason) => SIGN_IN_URL + (reason ? '&reason=' + reason : '')
+    + '&return=' + encodeURIComponent(
+      (window.location.pathname.split('/').pop() || 'index.html')
+      + window.location.search + window.location.hash);
 
   let lastActivity = Date.now();
   let modalShown = false;
@@ -69,7 +82,11 @@
     } catch (_) { return ''; }
   }
 
-  function clearIdentityHard() {
+  /* T8: the reason is a PARAMETER because this one function serves three different events - an
+     automatic idle timeout, the worker deliberately pressing Sign out, and a sign-out in another
+     tab. They are not the same thing to the person arriving at the sign-in screen, and telling a
+     worker who just pressed Sign out that their session 'timed out' is simply false. */
+  function clearIdentityHard(reason) {
     try {
       [
         'wh_last_worker', 'wh_worker_name', 'workerName',
@@ -83,7 +100,7 @@
         window.db.auth.signOut();
       }
     } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
-    window.location.href = SIGN_IN_URL;
+    window.location.href = _signInUrlWithReturn(reason);
   }
 
   function showPrompt() {
@@ -126,7 +143,8 @@
     document.getElementById('wh-idle-continue').addEventListener('click', () => {
       bump(); dismiss();
     });
-    document.getElementById('wh-idle-signout').addEventListener('click', clearIdentityHard);
+    // no reason: this one was deliberate, and the sign-in screen should not explain it away
+    document.getElementById('wh-idle-signout').addEventListener('click', () => clearIdentityHard());
   }
 
   function dismiss() {
@@ -140,7 +158,7 @@
     if (!activeWorker()) return;
     const idle = Date.now() - lastActivity;
     if (idle >= IDLE_HARD_LIMIT_MS) {
-      clearIdentityHard();
+      clearIdentityHard('idle');
       return;
     }
     if (idle >= IDLE_LIMIT_MS) {
@@ -164,12 +182,76 @@
   // Mount when the page is ready. Timer is stored in a named global so it
   // can be cleared on unload (defence-in-depth against leaked timers).
   let _whIdleTickTimer = null;
+  /* Captured AT MOUNT, because by the time the storage event fires localStorage already holds
+     the NEW hive - reading it then would compare the new value against itself and never fire. */
+  var _mountedHiveId = '', _mountedHiveName = '';
+  try {
+    _mountedHiveId   = localStorage.getItem('wh_active_hive_id') || '';
+    _mountedHiveName = localStorage.getItem('wh_hive_name') || '';
+  } catch (_) { /* empty-catch-allow: private mode -> the notice simply never fires */ }
+
   function mount() {
     _attachActivityListeners();
     _whIdleTickTimer = setInterval(tick, CHECK_INTERVAL_MS);
     window.addEventListener('beforeunload', () => {
       if (_whIdleTickTimer) clearInterval(_whIdleTickTimer);
     });
+    // T148 (2026-08-25): sign-out in ANOTHER TAB clears the shared identity keys, but this tab
+    // used to sit painted-and-stale, looking signed in while identity was gone (measured: worker
+    // null, no banner, page content still up). The storage event is the cross-tab signal; route
+    // it through the SAME return-carrying redirect the idle path uses, so the person comes back
+    // to this exact page after signing in again. Writes were already guarded (T38); this closes
+    // the silent-looking half.
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'wh_last_worker' && !e.newValue && !activeWorker()) {
+        window.location.href = _signInUrlWithReturn('othertab');
+      }
+      /* T148 (2026-08-27): the HIVE SWITCH had the same shape and no handler. Measured with two
+         tabs: switching hive in tab A left tab B rendering the OTHER hive's figures while storage
+         already said the new one - the cross-tenant confusion T51 exists to prevent, and worse than
+         a stale number because the person just switched and believes they are looking at the new
+         plant.
+         ★IT TELLS RATHER THAN RELOADS, deliberately. Auto-reloading somebody's other tab would
+         discard a half-typed entry to fix a display problem, and this platform's whole posture on
+         interruption is that typed work survives. So: name the mismatch, name BOTH hives so the
+         reader knows which numbers they are looking at, and let them choose the moment. */
+      if (e.key === 'wh_active_hive_id' && e.newValue && e.newValue !== _mountedHiveId && !document.getElementById('wh-hive-switch-notice')) {
+        /* ★DEFER THE READ: a hive switch writes SEVERAL keys, and the storage events arrive one per
+           key in write order. Reading wh_hive_name the instant the ID event lands read the name the
+           switch had not replaced yet, and the notice said 'You switched to Baguio... still showing
+           Baguio' - naming the same hive twice, which is worse than silence because it reads like a
+           bug in the switch rather than a stale tab. One tick lets the sibling write land. */
+        setTimeout(function () { _showHiveSwitchNotice(); }, 250);
+      }
+    });
+  }
+
+  function _showHiveSwitchNotice() {
+    if (document.getElementById('wh-hive-switch-notice')) return;
+    (function () {
+        var was = _mountedHiveName || 'another hive';
+        var now = '';
+        try { now = localStorage.getItem('wh_hive_name') || ''; } catch (_) { now = ''; }
+        /* If the name still matches what this tab mounted with, the sibling write has not landed or
+           only the id moved - say it neutrally rather than naming one hive twice. */
+        if (!now || now === was) now = 'another hive';
+        var n = document.createElement('div');
+        n.id = 'wh-hive-switch-notice';
+        n.setAttribute('role', 'status');
+        n.style.cssText = 'position:fixed;left:0;right:0;bottom:0;z-index:9998;padding:0.7rem 1rem;'
+          + 'background:rgba(247,162,27,0.14);border-top:1px solid rgba(247,162,27,0.4);'
+          + 'color:var(--wh-orange-text,#F7A21B);font-size:0.76rem;line-height:1.45;text-align:center;';
+        n.textContent = 'You switched to ' + now + ' in another tab. This tab is still showing '
+          + was + '. Reload to catch up.';
+        var r = document.createElement('button');
+        r.type = 'button';
+        r.textContent = 'Reload';
+        r.style.cssText = 'margin-left:0.6rem;min-height:44px;padding:0 0.9rem;border-radius:0.5rem;cursor:pointer;'
+          + 'background:rgba(247,162,27,0.2);border:1px solid rgba(247,162,27,0.5);color:inherit;font:inherit;';
+        r.addEventListener('click', function () { window.location.reload(); });
+        n.appendChild(r);
+        document.body.appendChild(n);
+    })();
   }
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', mount);

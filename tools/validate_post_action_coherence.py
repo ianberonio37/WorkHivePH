@@ -79,7 +79,10 @@ def scan_source(src: str) -> list[str]:
         if DEGRADED_RE.search(src[m.start():m.start() + 160]):
             continue                                  # a degraded/queued notice, not a commit receipt
         # Look at the whole surrounding region for a refresh (before OR after the toast).
-        after = src[m.start():min(len(src), m.start() + 1200)]
+        # 1200 -> 2400 (2026-08-25): T10's defer-path additions (embed guard + comments) pushed
+        # pm-scheduler's closeSheet/renderDetail 2,077 chars past its mirror-failed toast — the
+        # refresh was ALWAYS there; the ruler was short (the fixed-window lesson).
+        after = src[m.start():min(len(src), m.start() + 2400)]
         region = window + after
         if EXEMPT_RE.search(region):
             continue                                  # navigates away / resets / realtime-backed

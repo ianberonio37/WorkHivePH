@@ -261,7 +261,11 @@
     }
 
     // Escape ilike wildcards (security skill rule)
-    const safe = String(query).replace(/%/g, '\\%').replace(/_/g, '\\_').slice(0, 100);
+    // The global search feeds two .or() filters below; a comma in the phrase rejected both
+    // with "failed to parse logic tree", so a search for a real part name looked like an outage.
+    const safe = (typeof whSafeSearchTerm === 'function')
+      ? whSafeSearchTerm(query, 100)
+      : String(query).replace(/[,()\\]/g, ' ').replace(/%/g, '\\%').replace(/_/g, '\\_').slice(0, 100);
 
     const scopeFilter = HIVE_ID ? { col: 'hive_id', val: HIVE_ID }
                                  : { col: 'worker_name', val: WORKER };
@@ -309,6 +313,59 @@
 
     _flatResults = [];
     let html = '';
+
+    /* T173/T78 (2026-08-26): PAGES FIRST. This palette indexed records only, so a wayfinding
+       question ("where are the plant KPIs?") searched assets/jobs/parts/PMs and found nothing -
+       while the answer was a page the nav registry already knew. Pages lead the results because
+       a "where is X" query is answered by a destination, not by rows; record groups follow
+       unchanged. Source is window.WHNavTools (nav-hub's own TOOLS), so there is ONE page list. */
+    try {
+      // the live input is the query source (there is no _lastQuery on this module - checked,
+      // not assumed: a dead read here would silently render zero pages forever)
+      const q = ((_searchInput && _searchInput.value) || '').trim().toLowerCase();
+      /* T78/T28 (2026-08-28): HIDDEN USED TO MEAN UNFINDABLE, WHICH IS NOT WHAT IT IS FOR. The
+         filter here was `!t.hidden`, so the four curated-out pages — Audit Log, AI Quality + ROI,
+         PH Intelligence, Project Report — could not be reached by typing their own names from
+         anywhere on the platform. Audit Log is the sharp case: T28's entire story is a supervisor
+         reconstructing a disputed change, and the page was absent from the grid AND from search,
+         leaving one button on hive.html as its only door. An audit trail nobody can navigate to
+         is the write-only-index failure wearing a curation label.
+
+         `hidden` is a PROMOTION decision — keep the grid a curated set of daily tools — and the
+         grid still honors it via isVisibleInMode(). Search is the opposite instrument: it answers
+         "I know what I want, take me there", which is exactly the request a curated grid cannot
+         serve. This module already takes that stance on the harder axis, indexing role-scoped
+         pages regardless of the viewer's mode (a field worker searching "alerts" finds the
+         supervisor's Alert Hub), because the client nav is a UX convenience and server RLS is the
+         authority. Excluding `hidden` was the one line inconsistent with that.
+
+         VISIBLE FIRST, then hidden, so the 5-cap can only ADD destinations in leftover slots and
+         never displaces a result that already ranked. */
+      const _matches = (t) => q && (
+        (t.label || '').toLowerCase().includes(q) ||
+        (t.href || '').toLowerCase().includes(q) ||
+        (t.match || []).some((m) => String(m).toLowerCase().includes(q)) ||
+        (t.section || '').toLowerCase().includes(q));
+      const _hits = (Array.isArray(window.WHNavTools) ? window.WHNavTools : []).filter(_matches);
+      const tools = _hits.filter((t) => !t.hidden).concat(_hits.filter((t) => t.hidden)).slice(0, 5);
+      if (tools.length) {
+        html += `<p class="ws-section">Pages · ${tools.length}</p>`;
+        for (const t of tools) {
+          const idx = _flatResults.length;
+          _flatResults.push({ kind: 'page', href: t.href });
+          html += `<a class="ws-row" href="${e(t.href)}" data-idx="${idx}">
+            <div class="ws-row-main">
+              <div class="ws-row-icon">🧭</div>
+              <div class="ws-row-text">
+                <div class="ws-row-title">${e(t.label)}</div>
+                <div class="ws-row-meta">${e(t.section || 'Go to this page')}</div>
+              </div>
+            </div>
+            <span class="ws-row-arrow">→</span>
+          </a>`;
+        }
+      }
+    } catch (_) { /* empty-catch-allow: pages are an addition; record results still render */ }
 
     if (r.assets.length) {
       html += `<p class="ws-section">Assets · ${r.assets.length}</p>`;
@@ -386,7 +443,19 @@
     if (!_flatResults.length) {
       _resultsEl.innerHTML = '';
       _emptyEl.style.display = 'block';
-      _emptyEl.textContent = 'No matches. Try a shorter or different query.';
+      // T86 (2026-08-25): this palette is EXACT-KEYWORD over assets/jobs/parts/PMs, while the
+      // platform's semantic (meaning-based) search is reachable only through the AI Assistant's
+      // recall. A natural-language phrase ("that pump seal fix from last month") dead-ended
+      // here with no pointer to the surface that CAN answer it — offer the bridge.
+      _emptyEl.innerHTML = '';
+      const msg = document.createElement('div');
+      msg.textContent = 'No matches. Try a shorter or different query - this search matches exact words in assets, jobs, parts, and PMs.';
+      const bridge = document.createElement('a');
+      bridge.href = 'assistant.html';
+      bridge.textContent = 'Asking in your own words? The AI Assistant searches by meaning →';
+      bridge.style.cssText = 'display:inline-flex; align-items:center; margin-top:8px; min-height:44px; font-weight:700; color:var(--wh-orange, #F7A21B); text-decoration:underline;';
+      _emptyEl.appendChild(msg);
+      _emptyEl.appendChild(bridge);
       _statusEl.textContent = '';
       return;
     }

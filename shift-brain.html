@@ -16,6 +16,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet" />
   <link rel="preconnect" href="https://hzyvnjtisfgbksicrouu.supabase.co" />
+  <script src="browser-floor.js"></script>
   <script src="utils.js"></script>
   <link rel="stylesheet" href="components.css" />  <!-- S11 shared component CSS -->
   <style>
@@ -876,7 +877,7 @@
         };
         let text;
         if (riskCount >= 3) {
-          text = `${riskCount} assets are above the risk threshold. Inspect these first. Root-cause the top one. Pre-stage its parts. That knocks the others down.`;
+          text = `${riskCount} asset${riskCount === 1 ? ' is' : 's are'} above the risk threshold. Inspect ${riskCount === 1 ? 'it' : 'these'} first. Root-cause the top one. Pre-stage its parts.${riskCount === 1 ? '' : ' That knocks the others down.'}`;
           setCta(`Inspect ${riskCount} risk assets →`, '#risk-list');
         } else if (carryCount >= 5) {
           text = `${carryCount} open items carried forward. Close out the simplest ones first to clear the queue, then attack the rest with the freed-up time.`;
@@ -956,8 +957,13 @@
       if (HIVE_ROLE !== 'supervisor') { showToast('Supervisors only.'); return; }
       const btn = document.getElementById('rerun-btn');
       const gen = document.getElementById('generate-btn');
-      const target = btn || gen;
-      if (target) { target.disabled = true; target.textContent = 'Running...'; }
+      // T76 (2026-08-25): disable BOTH entry points, not `btn || gen`. When both buttons
+      // existed, clicking Generate greyed the OTHER one (rerun) and left the clicked button
+      // live — measured: generate-btn still enabled 3s into a ~90s cold-start generation, so
+      // a second press meant two orchestrator runs (double AI spend + racing plan writes).
+      // The finally below already restores both.
+      if (btn) { btn.disabled = true; btn.textContent = 'Running...'; }
+      if (gen) { gen.disabled = true; gen.textContent = 'Running...'; }
       try {
         const { data, error } = await db.functions.invoke('shift-planner-orchestrator', {
           body: { shift_window: _activeWindow, hive_id: HIVE_ID },
@@ -973,7 +979,7 @@
           // planner is not offline, it is busy, and waiting is the only thing that helps. Classified FIRST,
           // because the broader pattern would otherwise swallow it. Says WHEN to retry, in the platform's
           // own condition-shaped form, and confirms nothing was lost.
-          const isRateLimited = /429|rate.?limit|too many requests/i.test(msg)
+          const isRateLimited = /\b429\b|rate.?limit|too many requests/i.test(msg)
             || (error.context && error.context.status === 429);
           if (isRateLimited) {
             // whAiError supplies the shared sentence; this page adds the one fact only it knows.
@@ -990,7 +996,7 @@
           }
           return;
         }
-        if (data && data.error) { showToast('Re-run failed: ' + data.error); return; }
+        if (data && data.error) { showToast(whAiError(data.error, 'The plan was NOT re-generated. The plan on screen is unchanged; try again.')); return; }
         // ★NAME WHAT WAS REBUILT AND THAT IT IS STILL PRIVATE. 'Plan refreshed.' told a supervisor that
         // something happened but not the two things they need: that the plan was rebuilt from CURRENT data,
         // and - critically - that it is still a DRAFT the crew cannot see until Publish. Those are the two
@@ -1004,7 +1010,7 @@
         const msg = err && err.message ? err.message : 'unknown';
         // Same classification on the throw path — a rate limit can arrive either way, and fixing only one
         // branch leaves the same wrong sentence reachable by the other.
-        if (/429|rate.?limit|too many requests/i.test(msg)
+        if (/\b429\b|rate.?limit|too many requests/i.test(msg)
             || (err && err.context && err.context.status === 429)) {
           showToast((window.whAiError ? window.whAiError({ message: '429' })
             : 'You have hit the AI rate limit.') + ' Your current plan is untouched.');
@@ -1049,7 +1055,7 @@
         .eq('id', _activePlan.id)
         .eq('hive_id', HIVE_ID);
       if (error) {
-        showToast('Publish failed: ' + error.message);
+        showToast(whWriteError(error, 'The plan was NOT published, so the crew still cannot see it. Try again.'));
         if (btn) btn.disabled = false;
         return;
       }
@@ -1079,7 +1085,7 @@
         .eq('id', _activePlan.id)
         .eq('hive_id', HIVE_ID);
       if (error) {
-        showToast('Archive failed: ' + error.message);
+        showToast(whWriteError(error, 'The plan was NOT archived - it is still active. Try again.'));
         if (btn) btn.disabled = false;
         return;
       }
@@ -1126,8 +1132,8 @@
          which return zero rows with NO error, so the membership check read it as "you were
          removed" and WIPED the saved hive. getUser() forces a server roundtrip on the current
          JWT, so a null uid here means the session is genuinely gone (2026-08-20). */
-      if (!_authUid) { window.location.href = 'index.html?signin=1'; return; }
-      if (!WORKER_NAME) { window.location.href = 'index.html?signin=1'; return; }
+      if (!_authUid) { whSignInWall(); return; }
+      if (!WORKER_NAME) { whSignInWall(); return; }
       if (!HIVE_ID) {
         document.getElementById('hive-gate').style.display = 'flex';
         _setShiftVerdict('No active hive', 'Join or activate a hive to see shift readiness.');
@@ -1141,7 +1147,7 @@
       if (memberState === 'no-session') {
         // Their hive is untouched; they simply need to sign in again.
         document.getElementById('page-wrap').style.display = 'none';
-        window.location.href = 'index.html?signin=1';
+        whSignInWall();
         return;
       }
       if (memberState !== 'ok') {

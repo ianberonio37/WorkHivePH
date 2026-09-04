@@ -228,7 +228,16 @@ def convert(V, family, gate_id, report_names, look, apply, na_kind=False):
                 continue
             conv += 1
         if conv and apply:
-            json.dump(reg, open(bank_path, "w", encoding="utf-8"), indent=1)
+            # ATOMIC write (2026-08-31): the bare open(bank_path,"w") truncated the bank in place;
+            # a concurrent reader (the board's own validate_live_mcp_bank gate) could read a torn or
+            # empty file and false-FAIL. Temp + os.replace so a reader sees the whole old or whole
+            # new file, never a partial one. Same open_w_truncates fix applied to bank_gate_restamp.
+            tmp = bank_path + ".tmp"
+            with open(tmp, "w", encoding="utf-8") as f:
+                json.dump(reg, f, indent=1)
+                f.flush()
+                os.fsync(f.fileno())
+            os.replace(tmp, bank_path)
         if conv:
             print(f"  {os.path.basename(bank_path):44s} {GREEN}{conv} converted{RST}")
         tot_conv += conv

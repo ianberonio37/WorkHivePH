@@ -21,7 +21,7 @@
   <meta property="og:type" content="article" />
   <meta property="og:site_name" content="WorkHive" />
   <meta property="article:published_time" content="2026-05-17T00:00:00+08:00" />
-  <meta property="article:modified_time" content="2026-05-17T00:00:00+08:00" />
+  <meta property="article:modified_time" content="2026-08-24T00:00:00+08:00" />
   <meta property="article:author" content="WorkHive Editorial Team" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Gamifying Maintenance for Technician Engagement (PH Plants)" />
@@ -46,7 +46,7 @@
         "@id": "https://workhiveph.com/#organization"
       },
       "datePublished": "2026-05-17",
-      "dateModified": "2026-05-17",
+      "dateModified": "2026-08-24",
       "mainEntityOfPage": "https://workhiveph.com/learn/gamifying-maintenance-for-engagement/",
       "inLanguage": "en-PH",
       "articleSection": "Maintenance",
@@ -134,7 +134,7 @@
 }</script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = { theme: { extend: { colors: {
@@ -265,7 +265,8 @@
     <nav class="flex items-center gap-6">
       <a href="/" class="nav-link">Home</a>
       <a href="/learn/" class="nav-link">Learn</a>
-      <a href="/#join" class="nav-link">Join the Hive</a>
+      <a href="/?signin=1" class="nav-link">Sign In</a>
+      <a href="/?signup=1" class="nav-link">Sign Up Free</a>
     </nav>
   </div>
 </header>
@@ -281,7 +282,7 @@
       <span class="opacity-40">·</span>
       <span>Published <time datetime="2026-05-17">17 May 2026</time></span>
       <span class="opacity-40">·</span>
-      <span>Updated <time datetime="2026-05-17">17 May 2026</time></span>
+      <span>Updated <time datetime="2026-08-24">24 Aug 2026</time></span>
       <span class="opacity-40">·</span>
       <span>7 min read</span>
     </div>
@@ -308,14 +309,14 @@
       <p>Most industrial maintenance work is invisible to anyone who is not the person who did it. The technician who prevented a 4-hour downtime by catching a vibration trend gets no visible credit; the technician who got lucky on a panic-buy repair gets celebrated. Over years, this corrodes engagement: the work that compounds (documentation, prevention, mentoring) gets done less, and the work that gets noticed (heroics) gets done more.</p>
       <p>Gamification, done right, makes the invisible visible. A badge for "100 logbook entries with photo evidence" tells the team that documentation is valued. A badge for "first to flag a Tier 1 asset risk" tells them that prevention is valued. The badges do not motivate by themselves; they make the value system explicit so management can recognise the right work in pay reviews and promotions.</p>
       <h2 id="what-works">What gamification actually drives</h2>
-      <table><thead><tr><th>Reward target</th><th>Effect</th><th>Recommended?</th></tr></thead><tbody>
+      <div data-table-scroll style="overflow-x:auto;-webkit-overflow-scrolling:touch;" role="region" aria-label="Scrollable table" tabindex="0"><table><thead><tr><th>Reward target</th><th>Effect</th><th>Recommended?</th></tr></thead><tbody>
       <tr><td>Logbook entry volume</td><td>More entries but quality drops</td><td>No (vanity metric)</td></tr>
       <tr><td>Logbook entry quality (peer-rated useful)</td><td>Slower start, sustained quality improvement</td><td>Yes</td></tr>
       <tr><td>PM completion on time</td><td>Compliance rises 10 to 20 percentage points</td><td>Yes</td></tr>
       <tr><td>Skill matrix level advancement</td><td>Sustained training engagement</td><td>Yes</td></tr>
       <tr><td>Fault-recurrence prevention (logged once, never again)</td><td>The most valuable behaviour gets rewarded</td><td>Yes</td></tr>
       <tr><td>Speed of repair</td><td>Quality drops, safety risks rise</td><td>No (perverse incentive)</td></tr>
-      </tbody></table>
+      </tbody></table></div>
       <h2 id="what-backfires">What backfires and why</h2>
       <ul><li><strong>Leaderboards that rank workers publicly.</strong> Demoralises the bottom 40 percent and triggers gaming of the top metric. Private dashboards with personal targets work better.</li><li><strong>Badges for vanity metrics</strong> (most logins, most clicks). Reward the input, not the outcome.</li><li><strong>Speed badges</strong> ("fastest fault closure"). Trades quality for visibility. Always backfires within 6 months when MTBF drops.</li><li><strong>One-shot launch with no maintenance.</strong> Badges introduced in January and never updated lose meaning by June. Quarterly refresh keeps the system alive.</li></ul>
       <h2 id="badge-design">Badge design that survives 12 months</h2>
@@ -333,7 +334,7 @@
         <h4 aria-level="3">WorkHive Achievements rewards what compounds, not what is shiny</h4>
         <p>XP for documented entries, peer-rated quality, PM on-time, fault-recurrence prevention, skill matrix advancement, Community helpfulness. Badges that survive the rarity test and stack with the Skill Matrix. Worker-owned (portable across employers). Free at the worker tier; corporate roll-up unlocks at Stage 4.</p>
         <a href="/achievements.html" class="cta-btn">Open Achievements</a>
-        <p class="cta-secondary">No hive yet? <a href="/#join">Join WorkHive</a> first (free, takes 30 seconds).</p>
+        <p class="cta-secondary">No hive yet? <a href="/?signup=1">Join WorkHive</a> first (free, takes 30 seconds).</p>
       </div>
       <h2 id="faq">Frequently asked questions</h2>
       <details class="faq-item"><summary>Does gamification really work in industrial maintenance?</summary><div class="faq-answer">Yes, when it rewards behaviours that compound (documentation, prevention, mentoring, skill growth). No, when it rewards vanity metrics (logins, speed, volume without quality). Studies of plants that adopt outcome-tied gamification show 10 to 20 percentage point lifts in PM compliance and 25 to 35 percent more logbook entries within 6 months. Studies of plants that gamify the wrong metrics show no lift and sometimes safety regressions.</div></details>
@@ -362,11 +363,11 @@
 </article>
 <footer class="py-10 border-t border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
   <div class="max-w-4xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">
-    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-05-17">17 May 2026</time></p>
+    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-08-24">24 Aug 2026</time></p>
     <div class="flex items-center gap-6">
       <a href="/" class="hover:text-white/60 transition-colors">Home</a>
       <a href="/#faq" class="hover:text-white/60 transition-colors">FAQ</a>
-      <a href="/#join" class="hover:text-white/60 transition-colors">Join the Hive</a>
+      <a href="/?signup=1" class="hover:text-white/60 transition-colors">Join the Hive</a>
     </div>
   </div>
 </footer>

@@ -38,7 +38,14 @@ const FLOOR = 44;
 // table push past its own content box once the panel gets roomier. Tap targets are measured at 390 only —
 // that is the mobile-first floor the V1 prover used, and a control that clears 44 at 390 does not shrink
 // when the viewport grows.
-const WIDTHS = [390, 641, 1280];
+// T113 (2026-08-26): the sweep is now OVERRIDABLE, default unchanged. 320 is the budget-Android
+// floor the platform targets and no dialog had ever been measured there, but the three widths below
+// are the ones with BANKED owed rows (w390/w641/w1280_overflow) — silently adding a fourth would
+// change what the registered cj_dialog_layout gate means without anyone deciding to. So the floor
+// is measured on demand (WH_DIALOG_WIDTHS=320 node tools/prove_dialog_layout.mjs) and earns a
+// permanent lane only once its findings are fixed and a row exists to hold the claim.
+const WIDTHS = (process.env.WH_DIALOG_WIDTHS || '390,641,1280')
+  .split(',').map((s) => parseInt(s.trim(), 10)).filter(Boolean);
 
 // ONE argument only — page.evaluate passes a single value, so the pair is wrapped.
 const MEASURE = ({ id, floor }) => {
@@ -320,7 +327,15 @@ for (const t of TARGETS.filter((x) => !ONE || x.page === ONE.replace(/\.html$/, 
     }
     await page.setViewportSize({ width: 390, height: 844 });
     rec.byWidth = byWidth;
-    const m = byWidth[390];
+    // The reference reading (tap targets, the present/open checks) is taken at 390, the mobile-first
+    // floor the V1 prover used and the width the banked rows describe. When the sweep is overridden
+    // to a width list that excludes 390, the reference becomes the narrowest width measured -
+    // WITHOUT this, byWidth[390] is undefined and every dialog dies on "reading 'present'", which is
+    // exactly what the first 320 run reported: 0 of 50 graded, and the prover's own rail refused to
+    // call that a pass ("zero failures over an empty denominator is not a pass"). That refusal is
+    // why this was a five-minute probe bug instead of a banked "the floor is clean".
+    const REF = byWidth[390] ? 390 : Math.min(...WIDTHS);
+    const m = byWidth[REF];
     if (!m.present) throw new Error(`#${t.modal} not in the DOM`);
     if (!m.dlgW) throw new Error(`#${t.modal} measured zero width — it did not open`);
     for (const w of WIDTHS) {
@@ -362,7 +377,10 @@ await browser.close();
 
 const graded = results.filter((r) => r.ok !== null);
 const bad = graded.filter((r) => !r.ok);
-writeFileSync('dialog_layout_report.json', JSON.stringify({
+// A NARROWED RUN MUST NOT CLOBBER THE FULL ONE: this file is read downstream (gates and
+// bank_prover_reports), so a --page/--case spot-check overwriting a whole sweep's verdicts
+// corrupts the BANK, not just a log. Measured on prove_retry_path 2026-08-27.
+writeFileSync((ONE ? 'dialog_layout_report.partial.json' : 'dialog_layout_report.json'), JSON.stringify({
   floor: FLOOR, viewport: 390,
   totals: { targets: results.length, graded: graded.length,
             ungraded: results.filter((r) => r.ok === null).length, failing: bad.length },

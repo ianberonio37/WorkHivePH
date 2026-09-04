@@ -1,0 +1,1412 @@
+{
+ "_meta": {
+  "name": "scenario_matrix_v2",
+  "version": "2.0.0",
+  "created": "2026-08-31",
+  "description": "T201-T500 expansion diversity guarantee: viewport x actor x channel x intent. Kept separate from v1 (which stays human-acquisition and cartesian-strict). A cell is planned when an expansion arc will walk it, declared_na when the actor and the intent/channel/viewport are semantically incompatible (a modelling judgement, reasoned), covered when a receipt exists. Built by tools/build_scenario_matrix_v2.py; validate_scenario_matrix.py enforces structure/no-silent-axis/NA-reasoned/covered-evidenced on it exactly as on v1.",
+  "axes": {
+   "viewport": [
+    "narrow-320",
+    "wide-1920",
+    "fixed-kiosk-print"
+   ],
+   "actor": [
+    "adversary",
+    "assistive-tech",
+    "oversight",
+    "machine-client"
+   ],
+   "channel": [
+    "browser-ui",
+    "api-direct",
+    "webhook-inbound"
+   ],
+   "intent": [
+    "attack",
+    "audit",
+    "comply",
+    "operate"
+   ]
+  },
+  "cell_count": 144
+ },
+ "cells": [
+  {
+   "id": "narrow-320|adversary|browser-ui|attack",
+   "viewport": "narrow-320",
+   "actor": "adversary",
+   "channel": "browser-ui",
+   "intent": "attack",
+   "status": "planned",
+   "trajectories": [
+    "T361"
+   ],
+   "evidence": "wave W expansion catalog (specced 2026-08-31)"
+  },
+  {
+   "id": "narrow-320|adversary|browser-ui|audit",
+   "viewport": "narrow-320",
+   "actor": "adversary",
+   "channel": "browser-ui",
+   "intent": "audit",
+   "status": "declared_na",
+   "na_reason": "a adversary actor's intent is ['attack'], not 'audit' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "narrow-320|adversary|browser-ui|comply",
+   "viewport": "narrow-320",
+   "actor": "adversary",
+   "channel": "browser-ui",
+   "intent": "comply",
+   "status": "declared_na",
+   "na_reason": "a adversary actor's intent is ['attack'], not 'comply' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "narrow-320|adversary|browser-ui|operate",
+   "viewport": "narrow-320",
+   "actor": "adversary",
+   "channel": "browser-ui",
+   "intent": "operate",
+   "status": "declared_na",
+   "na_reason": "a adversary actor's intent is ['attack'], not 'operate' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "narrow-320|adversary|api-direct|attack",
+   "viewport": "narrow-320",
+   "actor": "adversary",
+   "channel": "api-direct",
+   "intent": "attack",
+   "status": "planned",
+   "trajectories": [
+    "T361"
+   ],
+   "evidence": "wave W expansion catalog (specced 2026-08-31)"
+  },
+  {
+   "id": "narrow-320|adversary|api-direct|audit",
+   "viewport": "narrow-320",
+   "actor": "adversary",
+   "channel": "api-direct",
+   "intent": "audit",
+   "status": "declared_na",
+   "na_reason": "a adversary actor's intent is ['attack'], not 'audit' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "narrow-320|adversary|api-direct|comply",
+   "viewport": "narrow-320",
+   "actor": "adversary",
+   "channel": "api-direct",
+   "intent": "comply",
+   "status": "declared_na",
+   "na_reason": "a adversary actor's intent is ['attack'], not 'comply' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "narrow-320|adversary|api-direct|operate",
+   "viewport": "narrow-320",
+   "actor": "adversary",
+   "channel": "api-direct",
+   "intent": "operate",
+   "status": "declared_na",
+   "na_reason": "a adversary actor's intent is ['attack'], not 'operate' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "narrow-320|adversary|webhook-inbound|attack",
+   "viewport": "narrow-320",
+   "actor": "adversary",
+   "channel": "webhook-inbound",
+   "intent": "attack",
+   "status": "planned",
+   "trajectories": [
+    "T361"
+   ],
+   "evidence": "wave W expansion catalog (specced 2026-08-31)"
+  },
+  {
+   "id": "narrow-320|adversary|webhook-inbound|audit",
+   "viewport": "narrow-320",
+   "actor": "adversary",
+   "channel": "webhook-inbound",
+   "intent": "audit",
+   "status": "declared_na",
+   "na_reason": "a adversary actor's intent is ['attack'], not 'audit' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "narrow-320|adversary|webhook-inbound|comply",
+   "viewport": "narrow-320",
+   "actor": "adversary",
+   "channel": "webhook-inbound",
+   "intent": "comply",
+   "status": "declared_na",
+   "na_reason": "a adversary actor's intent is ['attack'], not 'comply' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "narrow-320|adversary|webhook-inbound|operate",
+   "viewport": "narrow-320",
+   "actor": "adversary",
+   "channel": "webhook-inbound",
+   "intent": "operate",
+   "status": "declared_na",
+   "na_reason": "a adversary actor's intent is ['attack'], not 'operate' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "narrow-320|assistive-tech|browser-ui|attack",
+   "viewport": "narrow-320",
+   "actor": "assistive-tech",
+   "channel": "browser-ui",
+   "intent": "attack",
+   "status": "declared_na",
+   "na_reason": "a assistive-tech actor's intent is ['operate'], not 'attack' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "narrow-320|assistive-tech|browser-ui|audit",
+   "viewport": "narrow-320",
+   "actor": "assistive-tech",
+   "channel": "browser-ui",
+   "intent": "audit",
+   "status": "declared_na",
+   "na_reason": "a assistive-tech actor's intent is ['operate'], not 'audit' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "narrow-320|assistive-tech|browser-ui|comply",
+   "viewport": "narrow-320",
+   "actor": "assistive-tech",
+   "channel": "browser-ui",
+   "intent": "comply",
+   "status": "declared_na",
+   "na_reason": "a assistive-tech actor's intent is ['operate'], not 'comply' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "narrow-320|assistive-tech|browser-ui|operate",
+   "viewport": "narrow-320",
+   "actor": "assistive-tech",
+   "channel": "browser-ui",
+   "intent": "operate",
+   "status": "planned",
+   "trajectories": [
+    "T385"
+   ],
+   "evidence": "wave X expansion catalog (specced 2026-08-31)"
+  },
+  {
+   "id": "narrow-320|assistive-tech|api-direct|attack",
+   "viewport": "narrow-320",
+   "actor": "assistive-tech",
+   "channel": "api-direct",
+   "intent": "attack",
+   "status": "declared_na",
+   "na_reason": "a assistive-tech actor's intent is ['operate'], not 'attack' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "narrow-320|assistive-tech|api-direct|audit",
+   "viewport": "narrow-320",
+   "actor": "assistive-tech",
+   "channel": "api-direct",
+   "intent": "audit",
+   "status": "declared_na",
+   "na_reason": "a assistive-tech actor's intent is ['operate'], not 'audit' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "narrow-320|assistive-tech|api-direct|comply",
+   "viewport": "narrow-320",
+   "actor": "assistive-tech",
+   "channel": "api-direct",
+   "intent": "comply",
+   "status": "declared_na",
+   "na_reason": "a assistive-tech actor's intent is ['operate'], not 'comply' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "narrow-320|assistive-tech|api-direct|operate",
+   "viewport": "narrow-320",
+   "actor": "assistive-tech",
+   "channel": "api-direct",
+   "intent": "operate",
+   "status": "declared_na",
+   "na_reason": "a assistive-tech actor does not arrive over api-direct — its channels are ['browser-ui']"
+  },
+  {
+   "id": "narrow-320|assistive-tech|webhook-inbound|attack",
+   "viewport": "narrow-320",
+   "actor": "assistive-tech",
+   "channel": "webhook-inbound",
+   "intent": "attack",
+   "status": "declared_na",
+   "na_reason": "a assistive-tech actor's intent is ['operate'], not 'attack' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "narrow-320|assistive-tech|webhook-inbound|audit",
+   "viewport": "narrow-320",
+   "actor": "assistive-tech",
+   "channel": "webhook-inbound",
+   "intent": "audit",
+   "status": "declared_na",
+   "na_reason": "a assistive-tech actor's intent is ['operate'], not 'audit' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "narrow-320|assistive-tech|webhook-inbound|comply",
+   "viewport": "narrow-320",
+   "actor": "assistive-tech",
+   "channel": "webhook-inbound",
+   "intent": "comply",
+   "status": "declared_na",
+   "na_reason": "a assistive-tech actor's intent is ['operate'], not 'comply' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "narrow-320|assistive-tech|webhook-inbound|operate",
+   "viewport": "narrow-320",
+   "actor": "assistive-tech",
+   "channel": "webhook-inbound",
+   "intent": "operate",
+   "status": "declared_na",
+   "na_reason": "a assistive-tech actor does not arrive over webhook-inbound — its channels are ['browser-ui']"
+  },
+  {
+   "id": "narrow-320|oversight|browser-ui|attack",
+   "viewport": "narrow-320",
+   "actor": "oversight",
+   "channel": "browser-ui",
+   "intent": "attack",
+   "status": "declared_na",
+   "na_reason": "a oversight actor's intent is ['audit', 'comply'], not 'attack' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "narrow-320|oversight|browser-ui|audit",
+   "viewport": "narrow-320",
+   "actor": "oversight",
+   "channel": "browser-ui",
+   "intent": "audit",
+   "status": "planned",
+   "trajectories": [
+    "T403"
+   ],
+   "evidence": "wave Y expansion catalog (specced 2026-08-31)"
+  },
+  {
+   "id": "narrow-320|oversight|browser-ui|comply",
+   "viewport": "narrow-320",
+   "actor": "oversight",
+   "channel": "browser-ui",
+   "intent": "comply",
+   "status": "planned",
+   "trajectories": [
+    "T403"
+   ],
+   "evidence": "wave Y expansion catalog (specced 2026-08-31)"
+  },
+  {
+   "id": "narrow-320|oversight|browser-ui|operate",
+   "viewport": "narrow-320",
+   "actor": "oversight",
+   "channel": "browser-ui",
+   "intent": "operate",
+   "status": "declared_na",
+   "na_reason": "a oversight actor's intent is ['audit', 'comply'], not 'operate' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "narrow-320|oversight|api-direct|attack",
+   "viewport": "narrow-320",
+   "actor": "oversight",
+   "channel": "api-direct",
+   "intent": "attack",
+   "status": "declared_na",
+   "na_reason": "a oversight actor's intent is ['audit', 'comply'], not 'attack' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "narrow-320|oversight|api-direct|audit",
+   "viewport": "narrow-320",
+   "actor": "oversight",
+   "channel": "api-direct",
+   "intent": "audit",
+   "status": "planned",
+   "trajectories": [
+    "T403"
+   ],
+   "evidence": "wave Y expansion catalog (specced 2026-08-31)"
+  },
+  {
+   "id": "narrow-320|oversight|api-direct|comply",
+   "viewport": "narrow-320",
+   "actor": "oversight",
+   "channel": "api-direct",
+   "intent": "comply",
+   "status": "planned",
+   "trajectories": [
+    "T403"
+   ],
+   "evidence": "wave Y expansion catalog (specced 2026-08-31)"
+  },
+  {
+   "id": "narrow-320|oversight|api-direct|operate",
+   "viewport": "narrow-320",
+   "actor": "oversight",
+   "channel": "api-direct",
+   "intent": "operate",
+   "status": "declared_na",
+   "na_reason": "a oversight actor's intent is ['audit', 'comply'], not 'operate' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "narrow-320|oversight|webhook-inbound|attack",
+   "viewport": "narrow-320",
+   "actor": "oversight",
+   "channel": "webhook-inbound",
+   "intent": "attack",
+   "status": "declared_na",
+   "na_reason": "a oversight actor's intent is ['audit', 'comply'], not 'attack' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "narrow-320|oversight|webhook-inbound|audit",
+   "viewport": "narrow-320",
+   "actor": "oversight",
+   "channel": "webhook-inbound",
+   "intent": "audit",
+   "status": "declared_na",
+   "na_reason": "a oversight actor does not arrive over webhook-inbound — its channels are ['api-direct', 'browser-ui']"
+  },
+  {
+   "id": "narrow-320|oversight|webhook-inbound|comply",
+   "viewport": "narrow-320",
+   "actor": "oversight",
+   "channel": "webhook-inbound",
+   "intent": "comply",
+   "status": "declared_na",
+   "na_reason": "a oversight actor does not arrive over webhook-inbound — its channels are ['api-direct', 'browser-ui']"
+  },
+  {
+   "id": "narrow-320|oversight|webhook-inbound|operate",
+   "viewport": "narrow-320",
+   "actor": "oversight",
+   "channel": "webhook-inbound",
+   "intent": "operate",
+   "status": "declared_na",
+   "na_reason": "a oversight actor's intent is ['audit', 'comply'], not 'operate' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "narrow-320|machine-client|browser-ui|attack",
+   "viewport": "narrow-320",
+   "actor": "machine-client",
+   "channel": "browser-ui",
+   "intent": "attack",
+   "status": "declared_na",
+   "na_reason": "a machine-client actor's intent is ['audit', 'comply', 'operate'], not 'attack' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "narrow-320|machine-client|browser-ui|audit",
+   "viewport": "narrow-320",
+   "actor": "machine-client",
+   "channel": "browser-ui",
+   "intent": "audit",
+   "status": "declared_na",
+   "na_reason": "a machine-client actor does not arrive over browser-ui — its channels are ['api-direct', 'webhook-inbound']"
+  },
+  {
+   "id": "narrow-320|machine-client|browser-ui|comply",
+   "viewport": "narrow-320",
+   "actor": "machine-client",
+   "channel": "browser-ui",
+   "intent": "comply",
+   "status": "declared_na",
+   "na_reason": "a machine-client actor does not arrive over browser-ui — its channels are ['api-direct', 'webhook-inbound']"
+  },
+  {
+   "id": "narrow-320|machine-client|browser-ui|operate",
+   "viewport": "narrow-320",
+   "actor": "machine-client",
+   "channel": "browser-ui",
+   "intent": "operate",
+   "status": "declared_na",
+   "na_reason": "a machine-client actor does not arrive over browser-ui — its channels are ['api-direct', 'webhook-inbound']"
+  },
+  {
+   "id": "narrow-320|machine-client|api-direct|attack",
+   "viewport": "narrow-320",
+   "actor": "machine-client",
+   "channel": "api-direct",
+   "intent": "attack",
+   "status": "declared_na",
+   "na_reason": "a machine-client actor's intent is ['audit', 'comply', 'operate'], not 'attack' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "narrow-320|machine-client|api-direct|audit",
+   "viewport": "narrow-320",
+   "actor": "machine-client",
+   "channel": "api-direct",
+   "intent": "audit",
+   "status": "declared_na",
+   "na_reason": "a machine client has no viewport; the fixed-kiosk-print cell stands in for its non-visual, headless surface"
+  },
+  {
+   "id": "narrow-320|machine-client|api-direct|comply",
+   "viewport": "narrow-320",
+   "actor": "machine-client",
+   "channel": "api-direct",
+   "intent": "comply",
+   "status": "declared_na",
+   "na_reason": "a machine client has no viewport; the fixed-kiosk-print cell stands in for its non-visual, headless surface"
+  },
+  {
+   "id": "narrow-320|machine-client|api-direct|operate",
+   "viewport": "narrow-320",
+   "actor": "machine-client",
+   "channel": "api-direct",
+   "intent": "operate",
+   "status": "declared_na",
+   "na_reason": "a machine client has no viewport; the fixed-kiosk-print cell stands in for its non-visual, headless surface"
+  },
+  {
+   "id": "narrow-320|machine-client|webhook-inbound|attack",
+   "viewport": "narrow-320",
+   "actor": "machine-client",
+   "channel": "webhook-inbound",
+   "intent": "attack",
+   "status": "declared_na",
+   "na_reason": "a machine-client actor's intent is ['audit', 'comply', 'operate'], not 'attack' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "narrow-320|machine-client|webhook-inbound|audit",
+   "viewport": "narrow-320",
+   "actor": "machine-client",
+   "channel": "webhook-inbound",
+   "intent": "audit",
+   "status": "declared_na",
+   "na_reason": "a machine client has no viewport; the fixed-kiosk-print cell stands in for its non-visual, headless surface"
+  },
+  {
+   "id": "narrow-320|machine-client|webhook-inbound|comply",
+   "viewport": "narrow-320",
+   "actor": "machine-client",
+   "channel": "webhook-inbound",
+   "intent": "comply",
+   "status": "declared_na",
+   "na_reason": "a machine client has no viewport; the fixed-kiosk-print cell stands in for its non-visual, headless surface"
+  },
+  {
+   "id": "narrow-320|machine-client|webhook-inbound|operate",
+   "viewport": "narrow-320",
+   "actor": "machine-client",
+   "channel": "webhook-inbound",
+   "intent": "operate",
+   "status": "declared_na",
+   "na_reason": "a machine client has no viewport; the fixed-kiosk-print cell stands in for its non-visual, headless surface"
+  },
+  {
+   "id": "wide-1920|adversary|browser-ui|attack",
+   "viewport": "wide-1920",
+   "actor": "adversary",
+   "channel": "browser-ui",
+   "intent": "attack",
+   "status": "planned",
+   "trajectories": [
+    "T361"
+   ],
+   "evidence": "wave W expansion catalog (specced 2026-08-31)"
+  },
+  {
+   "id": "wide-1920|adversary|browser-ui|audit",
+   "viewport": "wide-1920",
+   "actor": "adversary",
+   "channel": "browser-ui",
+   "intent": "audit",
+   "status": "declared_na",
+   "na_reason": "a adversary actor's intent is ['attack'], not 'audit' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "wide-1920|adversary|browser-ui|comply",
+   "viewport": "wide-1920",
+   "actor": "adversary",
+   "channel": "browser-ui",
+   "intent": "comply",
+   "status": "declared_na",
+   "na_reason": "a adversary actor's intent is ['attack'], not 'comply' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "wide-1920|adversary|browser-ui|operate",
+   "viewport": "wide-1920",
+   "actor": "adversary",
+   "channel": "browser-ui",
+   "intent": "operate",
+   "status": "declared_na",
+   "na_reason": "a adversary actor's intent is ['attack'], not 'operate' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "wide-1920|adversary|api-direct|attack",
+   "viewport": "wide-1920",
+   "actor": "adversary",
+   "channel": "api-direct",
+   "intent": "attack",
+   "status": "planned",
+   "trajectories": [
+    "T361"
+   ],
+   "evidence": "wave W expansion catalog (specced 2026-08-31)"
+  },
+  {
+   "id": "wide-1920|adversary|api-direct|audit",
+   "viewport": "wide-1920",
+   "actor": "adversary",
+   "channel": "api-direct",
+   "intent": "audit",
+   "status": "declared_na",
+   "na_reason": "a adversary actor's intent is ['attack'], not 'audit' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "wide-1920|adversary|api-direct|comply",
+   "viewport": "wide-1920",
+   "actor": "adversary",
+   "channel": "api-direct",
+   "intent": "comply",
+   "status": "declared_na",
+   "na_reason": "a adversary actor's intent is ['attack'], not 'comply' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "wide-1920|adversary|api-direct|operate",
+   "viewport": "wide-1920",
+   "actor": "adversary",
+   "channel": "api-direct",
+   "intent": "operate",
+   "status": "declared_na",
+   "na_reason": "a adversary actor's intent is ['attack'], not 'operate' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "wide-1920|adversary|webhook-inbound|attack",
+   "viewport": "wide-1920",
+   "actor": "adversary",
+   "channel": "webhook-inbound",
+   "intent": "attack",
+   "status": "planned",
+   "trajectories": [
+    "T361"
+   ],
+   "evidence": "wave W expansion catalog (specced 2026-08-31)"
+  },
+  {
+   "id": "wide-1920|adversary|webhook-inbound|audit",
+   "viewport": "wide-1920",
+   "actor": "adversary",
+   "channel": "webhook-inbound",
+   "intent": "audit",
+   "status": "declared_na",
+   "na_reason": "a adversary actor's intent is ['attack'], not 'audit' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "wide-1920|adversary|webhook-inbound|comply",
+   "viewport": "wide-1920",
+   "actor": "adversary",
+   "channel": "webhook-inbound",
+   "intent": "comply",
+   "status": "declared_na",
+   "na_reason": "a adversary actor's intent is ['attack'], not 'comply' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "wide-1920|adversary|webhook-inbound|operate",
+   "viewport": "wide-1920",
+   "actor": "adversary",
+   "channel": "webhook-inbound",
+   "intent": "operate",
+   "status": "declared_na",
+   "na_reason": "a adversary actor's intent is ['attack'], not 'operate' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "wide-1920|assistive-tech|browser-ui|attack",
+   "viewport": "wide-1920",
+   "actor": "assistive-tech",
+   "channel": "browser-ui",
+   "intent": "attack",
+   "status": "declared_na",
+   "na_reason": "a assistive-tech actor's intent is ['operate'], not 'attack' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "wide-1920|assistive-tech|browser-ui|audit",
+   "viewport": "wide-1920",
+   "actor": "assistive-tech",
+   "channel": "browser-ui",
+   "intent": "audit",
+   "status": "declared_na",
+   "na_reason": "a assistive-tech actor's intent is ['operate'], not 'audit' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "wide-1920|assistive-tech|browser-ui|comply",
+   "viewport": "wide-1920",
+   "actor": "assistive-tech",
+   "channel": "browser-ui",
+   "intent": "comply",
+   "status": "declared_na",
+   "na_reason": "a assistive-tech actor's intent is ['operate'], not 'comply' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "wide-1920|assistive-tech|browser-ui|operate",
+   "viewport": "wide-1920",
+   "actor": "assistive-tech",
+   "channel": "browser-ui",
+   "intent": "operate",
+   "status": "planned",
+   "trajectories": [
+    "T385"
+   ],
+   "evidence": "wave X expansion catalog (specced 2026-08-31)"
+  },
+  {
+   "id": "wide-1920|assistive-tech|api-direct|attack",
+   "viewport": "wide-1920",
+   "actor": "assistive-tech",
+   "channel": "api-direct",
+   "intent": "attack",
+   "status": "declared_na",
+   "na_reason": "a assistive-tech actor's intent is ['operate'], not 'attack' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "wide-1920|assistive-tech|api-direct|audit",
+   "viewport": "wide-1920",
+   "actor": "assistive-tech",
+   "channel": "api-direct",
+   "intent": "audit",
+   "status": "declared_na",
+   "na_reason": "a assistive-tech actor's intent is ['operate'], not 'audit' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "wide-1920|assistive-tech|api-direct|comply",
+   "viewport": "wide-1920",
+   "actor": "assistive-tech",
+   "channel": "api-direct",
+   "intent": "comply",
+   "status": "declared_na",
+   "na_reason": "a assistive-tech actor's intent is ['operate'], not 'comply' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "wide-1920|assistive-tech|api-direct|operate",
+   "viewport": "wide-1920",
+   "actor": "assistive-tech",
+   "channel": "api-direct",
+   "intent": "operate",
+   "status": "declared_na",
+   "na_reason": "a assistive-tech actor does not arrive over api-direct — its channels are ['browser-ui']"
+  },
+  {
+   "id": "wide-1920|assistive-tech|webhook-inbound|attack",
+   "viewport": "wide-1920",
+   "actor": "assistive-tech",
+   "channel": "webhook-inbound",
+   "intent": "attack",
+   "status": "declared_na",
+   "na_reason": "a assistive-tech actor's intent is ['operate'], not 'attack' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "wide-1920|assistive-tech|webhook-inbound|audit",
+   "viewport": "wide-1920",
+   "actor": "assistive-tech",
+   "channel": "webhook-inbound",
+   "intent": "audit",
+   "status": "declared_na",
+   "na_reason": "a assistive-tech actor's intent is ['operate'], not 'audit' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "wide-1920|assistive-tech|webhook-inbound|comply",
+   "viewport": "wide-1920",
+   "actor": "assistive-tech",
+   "channel": "webhook-inbound",
+   "intent": "comply",
+   "status": "declared_na",
+   "na_reason": "a assistive-tech actor's intent is ['operate'], not 'comply' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "wide-1920|assistive-tech|webhook-inbound|operate",
+   "viewport": "wide-1920",
+   "actor": "assistive-tech",
+   "channel": "webhook-inbound",
+   "intent": "operate",
+   "status": "declared_na",
+   "na_reason": "a assistive-tech actor does not arrive over webhook-inbound — its channels are ['browser-ui']"
+  },
+  {
+   "id": "wide-1920|oversight|browser-ui|attack",
+   "viewport": "wide-1920",
+   "actor": "oversight",
+   "channel": "browser-ui",
+   "intent": "attack",
+   "status": "declared_na",
+   "na_reason": "a oversight actor's intent is ['audit', 'comply'], not 'attack' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "wide-1920|oversight|browser-ui|audit",
+   "viewport": "wide-1920",
+   "actor": "oversight",
+   "channel": "browser-ui",
+   "intent": "audit",
+   "status": "planned",
+   "trajectories": [
+    "T403"
+   ],
+   "evidence": "wave Y expansion catalog (specced 2026-08-31)"
+  },
+  {
+   "id": "wide-1920|oversight|browser-ui|comply",
+   "viewport": "wide-1920",
+   "actor": "oversight",
+   "channel": "browser-ui",
+   "intent": "comply",
+   "status": "planned",
+   "trajectories": [
+    "T403"
+   ],
+   "evidence": "wave Y expansion catalog (specced 2026-08-31)"
+  },
+  {
+   "id": "wide-1920|oversight|browser-ui|operate",
+   "viewport": "wide-1920",
+   "actor": "oversight",
+   "channel": "browser-ui",
+   "intent": "operate",
+   "status": "declared_na",
+   "na_reason": "a oversight actor's intent is ['audit', 'comply'], not 'operate' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "wide-1920|oversight|api-direct|attack",
+   "viewport": "wide-1920",
+   "actor": "oversight",
+   "channel": "api-direct",
+   "intent": "attack",
+   "status": "declared_na",
+   "na_reason": "a oversight actor's intent is ['audit', 'comply'], not 'attack' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "wide-1920|oversight|api-direct|audit",
+   "viewport": "wide-1920",
+   "actor": "oversight",
+   "channel": "api-direct",
+   "intent": "audit",
+   "status": "planned",
+   "trajectories": [
+    "T403"
+   ],
+   "evidence": "wave Y expansion catalog (specced 2026-08-31)"
+  },
+  {
+   "id": "wide-1920|oversight|api-direct|comply",
+   "viewport": "wide-1920",
+   "actor": "oversight",
+   "channel": "api-direct",
+   "intent": "comply",
+   "status": "planned",
+   "trajectories": [
+    "T403"
+   ],
+   "evidence": "wave Y expansion catalog (specced 2026-08-31)"
+  },
+  {
+   "id": "wide-1920|oversight|api-direct|operate",
+   "viewport": "wide-1920",
+   "actor": "oversight",
+   "channel": "api-direct",
+   "intent": "operate",
+   "status": "declared_na",
+   "na_reason": "a oversight actor's intent is ['audit', 'comply'], not 'operate' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "wide-1920|oversight|webhook-inbound|attack",
+   "viewport": "wide-1920",
+   "actor": "oversight",
+   "channel": "webhook-inbound",
+   "intent": "attack",
+   "status": "declared_na",
+   "na_reason": "a oversight actor's intent is ['audit', 'comply'], not 'attack' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "wide-1920|oversight|webhook-inbound|audit",
+   "viewport": "wide-1920",
+   "actor": "oversight",
+   "channel": "webhook-inbound",
+   "intent": "audit",
+   "status": "declared_na",
+   "na_reason": "a oversight actor does not arrive over webhook-inbound — its channels are ['api-direct', 'browser-ui']"
+  },
+  {
+   "id": "wide-1920|oversight|webhook-inbound|comply",
+   "viewport": "wide-1920",
+   "actor": "oversight",
+   "channel": "webhook-inbound",
+   "intent": "comply",
+   "status": "declared_na",
+   "na_reason": "a oversight actor does not arrive over webhook-inbound — its channels are ['api-direct', 'browser-ui']"
+  },
+  {
+   "id": "wide-1920|oversight|webhook-inbound|operate",
+   "viewport": "wide-1920",
+   "actor": "oversight",
+   "channel": "webhook-inbound",
+   "intent": "operate",
+   "status": "declared_na",
+   "na_reason": "a oversight actor's intent is ['audit', 'comply'], not 'operate' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "wide-1920|machine-client|browser-ui|attack",
+   "viewport": "wide-1920",
+   "actor": "machine-client",
+   "channel": "browser-ui",
+   "intent": "attack",
+   "status": "declared_na",
+   "na_reason": "a machine-client actor's intent is ['audit', 'comply', 'operate'], not 'attack' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "wide-1920|machine-client|browser-ui|audit",
+   "viewport": "wide-1920",
+   "actor": "machine-client",
+   "channel": "browser-ui",
+   "intent": "audit",
+   "status": "declared_na",
+   "na_reason": "a machine-client actor does not arrive over browser-ui — its channels are ['api-direct', 'webhook-inbound']"
+  },
+  {
+   "id": "wide-1920|machine-client|browser-ui|comply",
+   "viewport": "wide-1920",
+   "actor": "machine-client",
+   "channel": "browser-ui",
+   "intent": "comply",
+   "status": "declared_na",
+   "na_reason": "a machine-client actor does not arrive over browser-ui — its channels are ['api-direct', 'webhook-inbound']"
+  },
+  {
+   "id": "wide-1920|machine-client|browser-ui|operate",
+   "viewport": "wide-1920",
+   "actor": "machine-client",
+   "channel": "browser-ui",
+   "intent": "operate",
+   "status": "declared_na",
+   "na_reason": "a machine-client actor does not arrive over browser-ui — its channels are ['api-direct', 'webhook-inbound']"
+  },
+  {
+   "id": "wide-1920|machine-client|api-direct|attack",
+   "viewport": "wide-1920",
+   "actor": "machine-client",
+   "channel": "api-direct",
+   "intent": "attack",
+   "status": "declared_na",
+   "na_reason": "a machine-client actor's intent is ['audit', 'comply', 'operate'], not 'attack' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "wide-1920|machine-client|api-direct|audit",
+   "viewport": "wide-1920",
+   "actor": "machine-client",
+   "channel": "api-direct",
+   "intent": "audit",
+   "status": "declared_na",
+   "na_reason": "a machine client has no viewport; the fixed-kiosk-print cell stands in for its non-visual, headless surface"
+  },
+  {
+   "id": "wide-1920|machine-client|api-direct|comply",
+   "viewport": "wide-1920",
+   "actor": "machine-client",
+   "channel": "api-direct",
+   "intent": "comply",
+   "status": "declared_na",
+   "na_reason": "a machine client has no viewport; the fixed-kiosk-print cell stands in for its non-visual, headless surface"
+  },
+  {
+   "id": "wide-1920|machine-client|api-direct|operate",
+   "viewport": "wide-1920",
+   "actor": "machine-client",
+   "channel": "api-direct",
+   "intent": "operate",
+   "status": "declared_na",
+   "na_reason": "a machine client has no viewport; the fixed-kiosk-print cell stands in for its non-visual, headless surface"
+  },
+  {
+   "id": "wide-1920|machine-client|webhook-inbound|attack",
+   "viewport": "wide-1920",
+   "actor": "machine-client",
+   "channel": "webhook-inbound",
+   "intent": "attack",
+   "status": "declared_na",
+   "na_reason": "a machine-client actor's intent is ['audit', 'comply', 'operate'], not 'attack' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "wide-1920|machine-client|webhook-inbound|audit",
+   "viewport": "wide-1920",
+   "actor": "machine-client",
+   "channel": "webhook-inbound",
+   "intent": "audit",
+   "status": "declared_na",
+   "na_reason": "a machine client has no viewport; the fixed-kiosk-print cell stands in for its non-visual, headless surface"
+  },
+  {
+   "id": "wide-1920|machine-client|webhook-inbound|comply",
+   "viewport": "wide-1920",
+   "actor": "machine-client",
+   "channel": "webhook-inbound",
+   "intent": "comply",
+   "status": "declared_na",
+   "na_reason": "a machine client has no viewport; the fixed-kiosk-print cell stands in for its non-visual, headless surface"
+  },
+  {
+   "id": "wide-1920|machine-client|webhook-inbound|operate",
+   "viewport": "wide-1920",
+   "actor": "machine-client",
+   "channel": "webhook-inbound",
+   "intent": "operate",
+   "status": "declared_na",
+   "na_reason": "a machine client has no viewport; the fixed-kiosk-print cell stands in for its non-visual, headless surface"
+  },
+  {
+   "id": "fixed-kiosk-print|adversary|browser-ui|attack",
+   "viewport": "fixed-kiosk-print",
+   "actor": "adversary",
+   "channel": "browser-ui",
+   "intent": "attack",
+   "status": "declared_na",
+   "na_reason": "the adversary attacks over the wire, not from a kiosk/print display; its viewport cells are the responsive ones"
+  },
+  {
+   "id": "fixed-kiosk-print|adversary|browser-ui|audit",
+   "viewport": "fixed-kiosk-print",
+   "actor": "adversary",
+   "channel": "browser-ui",
+   "intent": "audit",
+   "status": "declared_na",
+   "na_reason": "a adversary actor's intent is ['attack'], not 'audit' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "fixed-kiosk-print|adversary|browser-ui|comply",
+   "viewport": "fixed-kiosk-print",
+   "actor": "adversary",
+   "channel": "browser-ui",
+   "intent": "comply",
+   "status": "declared_na",
+   "na_reason": "a adversary actor's intent is ['attack'], not 'comply' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "fixed-kiosk-print|adversary|browser-ui|operate",
+   "viewport": "fixed-kiosk-print",
+   "actor": "adversary",
+   "channel": "browser-ui",
+   "intent": "operate",
+   "status": "declared_na",
+   "na_reason": "a adversary actor's intent is ['attack'], not 'operate' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "fixed-kiosk-print|adversary|api-direct|attack",
+   "viewport": "fixed-kiosk-print",
+   "actor": "adversary",
+   "channel": "api-direct",
+   "intent": "attack",
+   "status": "declared_na",
+   "na_reason": "the adversary attacks over the wire, not from a kiosk/print display; its viewport cells are the responsive ones"
+  },
+  {
+   "id": "fixed-kiosk-print|adversary|api-direct|audit",
+   "viewport": "fixed-kiosk-print",
+   "actor": "adversary",
+   "channel": "api-direct",
+   "intent": "audit",
+   "status": "declared_na",
+   "na_reason": "a adversary actor's intent is ['attack'], not 'audit' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "fixed-kiosk-print|adversary|api-direct|comply",
+   "viewport": "fixed-kiosk-print",
+   "actor": "adversary",
+   "channel": "api-direct",
+   "intent": "comply",
+   "status": "declared_na",
+   "na_reason": "a adversary actor's intent is ['attack'], not 'comply' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "fixed-kiosk-print|adversary|api-direct|operate",
+   "viewport": "fixed-kiosk-print",
+   "actor": "adversary",
+   "channel": "api-direct",
+   "intent": "operate",
+   "status": "declared_na",
+   "na_reason": "a adversary actor's intent is ['attack'], not 'operate' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "fixed-kiosk-print|adversary|webhook-inbound|attack",
+   "viewport": "fixed-kiosk-print",
+   "actor": "adversary",
+   "channel": "webhook-inbound",
+   "intent": "attack",
+   "status": "declared_na",
+   "na_reason": "the adversary attacks over the wire, not from a kiosk/print display; its viewport cells are the responsive ones"
+  },
+  {
+   "id": "fixed-kiosk-print|adversary|webhook-inbound|audit",
+   "viewport": "fixed-kiosk-print",
+   "actor": "adversary",
+   "channel": "webhook-inbound",
+   "intent": "audit",
+   "status": "declared_na",
+   "na_reason": "a adversary actor's intent is ['attack'], not 'audit' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "fixed-kiosk-print|adversary|webhook-inbound|comply",
+   "viewport": "fixed-kiosk-print",
+   "actor": "adversary",
+   "channel": "webhook-inbound",
+   "intent": "comply",
+   "status": "declared_na",
+   "na_reason": "a adversary actor's intent is ['attack'], not 'comply' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "fixed-kiosk-print|adversary|webhook-inbound|operate",
+   "viewport": "fixed-kiosk-print",
+   "actor": "adversary",
+   "channel": "webhook-inbound",
+   "intent": "operate",
+   "status": "declared_na",
+   "na_reason": "a adversary actor's intent is ['attack'], not 'operate' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "fixed-kiosk-print|assistive-tech|browser-ui|attack",
+   "viewport": "fixed-kiosk-print",
+   "actor": "assistive-tech",
+   "channel": "browser-ui",
+   "intent": "attack",
+   "status": "declared_na",
+   "na_reason": "a assistive-tech actor's intent is ['operate'], not 'attack' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "fixed-kiosk-print|assistive-tech|browser-ui|audit",
+   "viewport": "fixed-kiosk-print",
+   "actor": "assistive-tech",
+   "channel": "browser-ui",
+   "intent": "audit",
+   "status": "declared_na",
+   "na_reason": "a assistive-tech actor's intent is ['operate'], not 'audit' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "fixed-kiosk-print|assistive-tech|browser-ui|comply",
+   "viewport": "fixed-kiosk-print",
+   "actor": "assistive-tech",
+   "channel": "browser-ui",
+   "intent": "comply",
+   "status": "declared_na",
+   "na_reason": "a assistive-tech actor's intent is ['operate'], not 'comply' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "fixed-kiosk-print|assistive-tech|browser-ui|operate",
+   "viewport": "fixed-kiosk-print",
+   "actor": "assistive-tech",
+   "channel": "browser-ui",
+   "intent": "operate",
+   "status": "planned",
+   "trajectories": [
+    "T385"
+   ],
+   "evidence": "wave X expansion catalog (specced 2026-08-31)"
+  },
+  {
+   "id": "fixed-kiosk-print|assistive-tech|api-direct|attack",
+   "viewport": "fixed-kiosk-print",
+   "actor": "assistive-tech",
+   "channel": "api-direct",
+   "intent": "attack",
+   "status": "declared_na",
+   "na_reason": "a assistive-tech actor's intent is ['operate'], not 'attack' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "fixed-kiosk-print|assistive-tech|api-direct|audit",
+   "viewport": "fixed-kiosk-print",
+   "actor": "assistive-tech",
+   "channel": "api-direct",
+   "intent": "audit",
+   "status": "declared_na",
+   "na_reason": "a assistive-tech actor's intent is ['operate'], not 'audit' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "fixed-kiosk-print|assistive-tech|api-direct|comply",
+   "viewport": "fixed-kiosk-print",
+   "actor": "assistive-tech",
+   "channel": "api-direct",
+   "intent": "comply",
+   "status": "declared_na",
+   "na_reason": "a assistive-tech actor's intent is ['operate'], not 'comply' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "fixed-kiosk-print|assistive-tech|api-direct|operate",
+   "viewport": "fixed-kiosk-print",
+   "actor": "assistive-tech",
+   "channel": "api-direct",
+   "intent": "operate",
+   "status": "declared_na",
+   "na_reason": "a assistive-tech actor does not arrive over api-direct — its channels are ['browser-ui']"
+  },
+  {
+   "id": "fixed-kiosk-print|assistive-tech|webhook-inbound|attack",
+   "viewport": "fixed-kiosk-print",
+   "actor": "assistive-tech",
+   "channel": "webhook-inbound",
+   "intent": "attack",
+   "status": "declared_na",
+   "na_reason": "a assistive-tech actor's intent is ['operate'], not 'attack' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "fixed-kiosk-print|assistive-tech|webhook-inbound|audit",
+   "viewport": "fixed-kiosk-print",
+   "actor": "assistive-tech",
+   "channel": "webhook-inbound",
+   "intent": "audit",
+   "status": "declared_na",
+   "na_reason": "a assistive-tech actor's intent is ['operate'], not 'audit' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "fixed-kiosk-print|assistive-tech|webhook-inbound|comply",
+   "viewport": "fixed-kiosk-print",
+   "actor": "assistive-tech",
+   "channel": "webhook-inbound",
+   "intent": "comply",
+   "status": "declared_na",
+   "na_reason": "a assistive-tech actor's intent is ['operate'], not 'comply' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "fixed-kiosk-print|assistive-tech|webhook-inbound|operate",
+   "viewport": "fixed-kiosk-print",
+   "actor": "assistive-tech",
+   "channel": "webhook-inbound",
+   "intent": "operate",
+   "status": "declared_na",
+   "na_reason": "a assistive-tech actor does not arrive over webhook-inbound — its channels are ['browser-ui']"
+  },
+  {
+   "id": "fixed-kiosk-print|oversight|browser-ui|attack",
+   "viewport": "fixed-kiosk-print",
+   "actor": "oversight",
+   "channel": "browser-ui",
+   "intent": "attack",
+   "status": "declared_na",
+   "na_reason": "a oversight actor's intent is ['audit', 'comply'], not 'attack' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "fixed-kiosk-print|oversight|browser-ui|audit",
+   "viewport": "fixed-kiosk-print",
+   "actor": "oversight",
+   "channel": "browser-ui",
+   "intent": "audit",
+   "status": "planned",
+   "trajectories": [
+    "T403"
+   ],
+   "evidence": "wave Y expansion catalog (specced 2026-08-31)"
+  },
+  {
+   "id": "fixed-kiosk-print|oversight|browser-ui|comply",
+   "viewport": "fixed-kiosk-print",
+   "actor": "oversight",
+   "channel": "browser-ui",
+   "intent": "comply",
+   "status": "planned",
+   "trajectories": [
+    "T403"
+   ],
+   "evidence": "wave Y expansion catalog (specced 2026-08-31)"
+  },
+  {
+   "id": "fixed-kiosk-print|oversight|browser-ui|operate",
+   "viewport": "fixed-kiosk-print",
+   "actor": "oversight",
+   "channel": "browser-ui",
+   "intent": "operate",
+   "status": "declared_na",
+   "na_reason": "a oversight actor's intent is ['audit', 'comply'], not 'operate' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "fixed-kiosk-print|oversight|api-direct|attack",
+   "viewport": "fixed-kiosk-print",
+   "actor": "oversight",
+   "channel": "api-direct",
+   "intent": "attack",
+   "status": "declared_na",
+   "na_reason": "a oversight actor's intent is ['audit', 'comply'], not 'attack' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "fixed-kiosk-print|oversight|api-direct|audit",
+   "viewport": "fixed-kiosk-print",
+   "actor": "oversight",
+   "channel": "api-direct",
+   "intent": "audit",
+   "status": "planned",
+   "trajectories": [
+    "T403"
+   ],
+   "evidence": "wave Y expansion catalog (specced 2026-08-31)"
+  },
+  {
+   "id": "fixed-kiosk-print|oversight|api-direct|comply",
+   "viewport": "fixed-kiosk-print",
+   "actor": "oversight",
+   "channel": "api-direct",
+   "intent": "comply",
+   "status": "planned",
+   "trajectories": [
+    "T403"
+   ],
+   "evidence": "wave Y expansion catalog (specced 2026-08-31)"
+  },
+  {
+   "id": "fixed-kiosk-print|oversight|api-direct|operate",
+   "viewport": "fixed-kiosk-print",
+   "actor": "oversight",
+   "channel": "api-direct",
+   "intent": "operate",
+   "status": "declared_na",
+   "na_reason": "a oversight actor's intent is ['audit', 'comply'], not 'operate' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "fixed-kiosk-print|oversight|webhook-inbound|attack",
+   "viewport": "fixed-kiosk-print",
+   "actor": "oversight",
+   "channel": "webhook-inbound",
+   "intent": "attack",
+   "status": "declared_na",
+   "na_reason": "a oversight actor's intent is ['audit', 'comply'], not 'attack' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "fixed-kiosk-print|oversight|webhook-inbound|audit",
+   "viewport": "fixed-kiosk-print",
+   "actor": "oversight",
+   "channel": "webhook-inbound",
+   "intent": "audit",
+   "status": "declared_na",
+   "na_reason": "a oversight actor does not arrive over webhook-inbound — its channels are ['api-direct', 'browser-ui']"
+  },
+  {
+   "id": "fixed-kiosk-print|oversight|webhook-inbound|comply",
+   "viewport": "fixed-kiosk-print",
+   "actor": "oversight",
+   "channel": "webhook-inbound",
+   "intent": "comply",
+   "status": "declared_na",
+   "na_reason": "a oversight actor does not arrive over webhook-inbound — its channels are ['api-direct', 'browser-ui']"
+  },
+  {
+   "id": "fixed-kiosk-print|oversight|webhook-inbound|operate",
+   "viewport": "fixed-kiosk-print",
+   "actor": "oversight",
+   "channel": "webhook-inbound",
+   "intent": "operate",
+   "status": "declared_na",
+   "na_reason": "a oversight actor's intent is ['audit', 'comply'], not 'operate' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "fixed-kiosk-print|machine-client|browser-ui|attack",
+   "viewport": "fixed-kiosk-print",
+   "actor": "machine-client",
+   "channel": "browser-ui",
+   "intent": "attack",
+   "status": "declared_na",
+   "na_reason": "a machine-client actor's intent is ['audit', 'comply', 'operate'], not 'attack' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "fixed-kiosk-print|machine-client|browser-ui|audit",
+   "viewport": "fixed-kiosk-print",
+   "actor": "machine-client",
+   "channel": "browser-ui",
+   "intent": "audit",
+   "status": "declared_na",
+   "na_reason": "a machine-client actor does not arrive over browser-ui — its channels are ['api-direct', 'webhook-inbound']"
+  },
+  {
+   "id": "fixed-kiosk-print|machine-client|browser-ui|comply",
+   "viewport": "fixed-kiosk-print",
+   "actor": "machine-client",
+   "channel": "browser-ui",
+   "intent": "comply",
+   "status": "declared_na",
+   "na_reason": "a machine-client actor does not arrive over browser-ui — its channels are ['api-direct', 'webhook-inbound']"
+  },
+  {
+   "id": "fixed-kiosk-print|machine-client|browser-ui|operate",
+   "viewport": "fixed-kiosk-print",
+   "actor": "machine-client",
+   "channel": "browser-ui",
+   "intent": "operate",
+   "status": "declared_na",
+   "na_reason": "a machine-client actor does not arrive over browser-ui — its channels are ['api-direct', 'webhook-inbound']"
+  },
+  {
+   "id": "fixed-kiosk-print|machine-client|api-direct|attack",
+   "viewport": "fixed-kiosk-print",
+   "actor": "machine-client",
+   "channel": "api-direct",
+   "intent": "attack",
+   "status": "declared_na",
+   "na_reason": "a machine-client actor's intent is ['audit', 'comply', 'operate'], not 'attack' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "fixed-kiosk-print|machine-client|api-direct|audit",
+   "viewport": "fixed-kiosk-print",
+   "actor": "machine-client",
+   "channel": "api-direct",
+   "intent": "audit",
+   "status": "planned",
+   "trajectories": [
+    "T314"
+   ],
+   "evidence": "wave V expansion catalog (specced 2026-08-31)"
+  },
+  {
+   "id": "fixed-kiosk-print|machine-client|api-direct|comply",
+   "viewport": "fixed-kiosk-print",
+   "actor": "machine-client",
+   "channel": "api-direct",
+   "intent": "comply",
+   "status": "planned",
+   "trajectories": [
+    "T314"
+   ],
+   "evidence": "wave V expansion catalog (specced 2026-08-31)"
+  },
+  {
+   "id": "fixed-kiosk-print|machine-client|api-direct|operate",
+   "viewport": "fixed-kiosk-print",
+   "actor": "machine-client",
+   "channel": "api-direct",
+   "intent": "operate",
+   "status": "planned",
+   "trajectories": [
+    "T314"
+   ],
+   "evidence": "wave V expansion catalog (specced 2026-08-31)"
+  },
+  {
+   "id": "fixed-kiosk-print|machine-client|webhook-inbound|attack",
+   "viewport": "fixed-kiosk-print",
+   "actor": "machine-client",
+   "channel": "webhook-inbound",
+   "intent": "attack",
+   "status": "declared_na",
+   "na_reason": "a machine-client actor's intent is ['audit', 'comply', 'operate'], not 'attack' — that intent belongs to a different actor's story"
+  },
+  {
+   "id": "fixed-kiosk-print|machine-client|webhook-inbound|audit",
+   "viewport": "fixed-kiosk-print",
+   "actor": "machine-client",
+   "channel": "webhook-inbound",
+   "intent": "audit",
+   "status": "planned",
+   "trajectories": [
+    "T314"
+   ],
+   "evidence": "wave V expansion catalog (specced 2026-08-31)"
+  },
+  {
+   "id": "fixed-kiosk-print|machine-client|webhook-inbound|comply",
+   "viewport": "fixed-kiosk-print",
+   "actor": "machine-client",
+   "channel": "webhook-inbound",
+   "intent": "comply",
+   "status": "planned",
+   "trajectories": [
+    "T314"
+   ],
+   "evidence": "wave V expansion catalog (specced 2026-08-31)"
+  },
+  {
+   "id": "fixed-kiosk-print|machine-client|webhook-inbound|operate",
+   "viewport": "fixed-kiosk-print",
+   "actor": "machine-client",
+   "channel": "webhook-inbound",
+   "intent": "operate",
+   "status": "planned",
+   "trajectories": [
+    "T314"
+   ],
+   "evidence": "wave V expansion catalog (specced 2026-08-31)"
+  }
+ ]
+}

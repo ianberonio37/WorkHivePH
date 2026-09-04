@@ -135,7 +135,10 @@ for (const pg of (ONE ? [ONE.replace(/\.html$/, '')] : PAGES)) {
 await browser.close();
 const graded = cells.filter((c) => c.ok === true).length;
 const na = cells.filter((c) => c.na).length;
-writeFileSync('cost_views_report.json', JSON.stringify({
+// A NARROWED RUN MUST NOT CLOBBER THE FULL ONE: this file is read downstream (gates and
+// bank_prover_reports), so a --page/--case spot-check overwriting a whole sweep's verdicts
+// corrupts the BANK, not just a log. Measured on prove_retry_path 2026-08-27.
+writeFileSync((ONE ? 'cost_views_report.partial.json' : 'cost_views_report.json'), JSON.stringify({
   totals: { cells: cells.length, pass: graded, na, ungraded: cells.length - graded - na },
   views: cells,
 }, null, 1));

@@ -9,10 +9,11 @@
   <meta name="description" content="Maintenance analytics: MTBF, MTTR, OEE, PM compliance trends with ISO 14224 / ISO 22400-2 / SMRP-aligned formulas." />
   <meta property="og:title" content="Analytics Engine · WorkHive" />
   <meta property="og:image" content="https://workhiveph.com/brand_assets/og-social.png" />
-  <link rel="canonical" href="https://workhiveph.com/workhive/analytics.html" />
+  <link rel="canonical" href="https://workhiveph.com/analytics.html" />
   <link rel="manifest" href="manifest.json" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=optional" rel="stylesheet" />
+  <script src="browser-floor.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
   <script src="https://cdn.plot.ly/plotly-basic-2.26.0.min.js" integrity="sha384-4zPMCkaV0wO70MQq0L4L61dbpYMWn2Br91U2s3eYnKsTPhwH+2D3PTs0OrvLO8h9" crossorigin="anonymous"></script>
   <link rel="stylesheet" href="tokens.css">
@@ -38,7 +39,12 @@
     /* ── Header ── */
     /* One 8-pt spacing scale across the page: block gaps are 16px, with 24px
        reserved for the header's section break (R1). */
-    .page-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: 1.5rem; }
+    /* flex-wrap because .hdr-right is deliberately flex-shrink:0 (its EN/FIL buttons owe a 44px
+       minimum on BOTH axes, so shrinking them is not an option) — which means at the 320 floor the
+       row had nowhere to give and the "Stage 3" badge sat 10px past the edge. Wrapping lets the
+       right-hand group drop to its own line only when the space genuinely is not there; above the
+       floor there is room and the layout is unchanged. */
+    .page-header { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: 1.5rem; }
     /* The source chip is empty in markup and filled by renderSourceChip() after the
        fetch, so its slot must be reserved or the whole page below it drops (I1/CLS).
        62px = one caption line (16px) + the 44px "How this is computed" tap target. */
@@ -341,6 +347,7 @@
     }
     .role-ai-rec-text {
       font-size: 0.74rem; color:rgba(255,255,255,0.86); line-height: 1.45;
+      max-width: 70ch;  /* generated prose: length varies run to run — cap the container's measure */
     }
     .pm-asset-select {
       font-family:'Poppins',sans-serif; font-size:1rem; font-weight:500;
@@ -464,7 +471,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   <!-- Header -->
   <div class="page-header">
     <div>
-      <h1 translate="no">Analytics Engine</h1>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;"><h1 translate="no" style="margin:0;">Analytics Engine</h1><div id="hive-chip" class="hidden" style="display:none;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;font-size:0.7rem;background:rgba(247,162,27,0.1);border:1px solid rgba(247,162,27,0.25);color:var(--wh-orange-text);"><span class="ic ic-community" aria-hidden="true"></span><span id="hive-chip-name" style="font-weight:600;"></span></div></div>
       <p>ISO 14224 · SMRP Metrics · Stage 3 Cyborg Worker</p>
     </div>
     <div class="hdr-right">
@@ -857,7 +864,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       _cache.predictive = null; _cacheTime.predictive = null;   // freshly written → drop stale cache
       await fetchPhase('predictive');
       if (lbl) lbl.textContent = '✓ Updated';
-      showToast('Risk scores recomputed for this hive');
+      showToast(_t('Risk scores recomputed for this hive', 'Na-recompute na ang risk scores ng hive na ito'));
     } catch (err) {
       console.warn('[analytics] recompute risk failed:', (err && err.message) || err);
       // A REMEDY MUST BE ABLE TO WORK. '⚠ Try again' was set here unconditionally, before anything
@@ -895,8 +902,21 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   // ── Global filter state ───────────────────────────────────────────────────
   // Persisted in localStorage so the user's filter survives a page reload.
   // `all` means no filter on that dimension.
+  /* T183/T121 (2026-08-26): this page-local filter store predates the shared helper and so
+     missed the OWNER STAMP whAutoRememberFilters now applies - on a shared station tablet the
+     next person signed in and inherited whatever criticality/discipline the previous worker had
+     filtered to, meeting a chart that silently excluded most of the plant. Same fix, applied
+     here: remember whose filters these are, and ignore someone else's. */
+  const _anOwner = () => {
+    try { return String(localStorage.getItem('wh_last_worker') || localStorage.getItem('wh_worker_name') || ''); }
+    catch (_) { return ''; }
+  };
   let _filters = (() => {
-    try { return JSON.parse(localStorage.getItem('wh_analytics_filters') || '{}'); } catch { return {}; }
+    try {
+      const s = JSON.parse(localStorage.getItem('wh_analytics_filters') || '{}');
+      if (!s || !s.__owner || s.__owner !== _anOwner()) return {};
+      return s;
+    } catch { return {}; }
   })();
   if (!_filters.criticality) _filters.criticality = 'all';
   if (!_filters.discipline)  _filters.discipline  = 'all';
@@ -906,7 +926,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     const val = btn.dataset.value;
     if (!dim || _filters[dim] === val) return;
     _filters[dim] = val;
-    try { localStorage.setItem('wh_analytics_filters', JSON.stringify(_filters)); } catch { /* empty-catch-allow: best-effort silent swallow */ }
+    try { localStorage.setItem('wh_analytics_filters', JSON.stringify({ ..._filters, __owner: _anOwner() })); } catch { /* empty-catch-allow: best-effort silent swallow */ }
 
     // Update chip active state for this dimension
     document.querySelectorAll(`.filter-chip[data-dim="${dim}"]`).forEach(c => {
@@ -941,7 +961,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   }
   function resetFilters() {
     _filters = { criticality: 'all', discipline: 'all' };
-    try { localStorage.setItem('wh_analytics_filters', JSON.stringify(_filters)); } catch { /* empty-catch-allow: best-effort silent swallow */ }
+    try { localStorage.setItem('wh_analytics_filters', JSON.stringify({ ..._filters, __owner: _anOwner() })); } catch { /* empty-catch-allow: best-effort silent swallow */ }
     document.querySelectorAll('.filter-chip').forEach(c => {
       setActive(c, c.dataset.value === 'all');
     });
@@ -996,7 +1016,13 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       // bearer. apikey stays the anon publishable key for the functions gateway.
       const { data: { session: _sess } } = await db.auth.getSession();
       const _tok = _sess?.access_token || SUPABASE_KEY;
-      const res = await fetch(`${SUPABASE_URL}/functions/v1/analytics-orchestrator`, {
+      // T146 (2026-08-26): THE LONGEST-RUNNING CALL ON THE PLATFORM HAD NO BOUND. An AI analytics
+      // phase legitimately takes tens of seconds, which is exactly what hides a hang: a supervisor
+      // waiting on a report cannot tell "still thinking" from "never coming back", and without a
+      // bound there is no failure to report - only a spinner. Bounded at 120s, sized for the SLOWEST
+      // legitimate generation rather than a developer's patience: a timeout tuned short turns a slow
+      // success into a lottery for the plants furthest from the server.
+      const _orchOpts = {
         method: 'POST',
         headers: {
           'Content-Type':  'application/json',
@@ -1011,7 +1037,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           criticality: _filters.criticality,
           discipline:  _filters.discipline,
         }),
-      });
+      };
+      const res = (typeof fetchWithTimeout === 'function')
+        ? await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/analytics-orchestrator`, _orchOpts, 120000)
+        : await fetch(`${SUPABASE_URL}/functions/v1/analytics-orchestrator`, _orchOpts);
+      if (!res) throw new Error('The analysis took too long to come back. Nothing was changed - try running it again.');
       if (!res.ok) {
         const errBody = await res.json().catch(() => ({}));
         throw new Error(errBody.error || errBody.message || `Server error ${res.status}`);
@@ -1251,7 +1281,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     // and then re-renders the active phase, which lands back here — so this survives a locale swap.
     const _pmPeriod = (data && data.period_days) || _period;
     const _pmLabel = document.getElementById('an-pm-label');
-    if (_pmLabel) _pmLabel.textContent = _t(`PM compliance (${_pmPeriod} days)`, `PM compliance (${_pmPeriod} araw)`);
+    if (_pmLabel) _pmLabel.textContent = _t(`PM compliance (${_pmPeriod} days) · completed in window`, `PM compliance (${_pmPeriod} araw) · nakumpleto sa window`); // T22 S1: name WHICH rate - pm-scheduler shows on-time delivery beside the same source, and the two figures read as one metric without the split word
     // ★THE SAME CLAIM LIVED IN TWO PLACES AND ONLY THE VISIBLE ONE WAS FIXED. #an-card-pm also
     // carries data-rag-label, hardcoded at ":555 as "PM compliance (30d approx)", and that attribute is
     // what the RAG / AI-grounding layer reads. Measured live with the period at 90: the person saw
@@ -1335,7 +1365,32 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const basis = Number.isFinite(fc) && fc > 0
         ? _t(` · from ${fc} failure${fc === 1 ? '' : 's'}`, ` · mula sa ${fc} pagkasira`)
         : '';
-      setCard('mtbf', d + 'd', _t(`${assetLabel} between failures${basis}`, `${assetLabel} sa pagitan ng pagkasira${basis}`), tag, tone);
+      // T26 S2 window-label (2026-09-02): PB-001 read 4.7d HERE and 8d in asset-hub's workbench
+      // ('partial - cal-time') - two methods under one metric name across pages. Each figure now
+      // NAMES its window beside itself (qualifier-beside-figure): this card is the 90-day logbook
+      // window; the workbench names its own cal-time method on its own chip.
+      setCard('mtbf', d + 'd', _t(`${assetLabel} between failures${basis} · 90d window`, `${assetLabel} sa pagitan ng pagkasira${basis} · 90-araw`), tag, tone);
+      // T47 drill-to-evidence (critic walk 2026-09-02): the figure was honest and stated its basis
+      // (asset + failure count) but the card was a DEAD END — a skeptical engineer could only trust
+      // it or hand-count in logbook. The card now IS the drill: click/Enter opens logbook's team
+      // view searched to the named worst asset, where the breakdown entries behind this number
+      // live (the ?view=team&q= deep link is the already-proven T19/T43 machinery). Wired only in
+      // the has-data branch — the CLEAN card has no evidence set to show.
+      const _mtbfCard = document.getElementById('an-card-mtbf');
+      if (_mtbfCard && !_mtbfCard._drillWired) {
+        _mtbfCard._drillWired = true;
+        _mtbfCard.style.cursor = 'pointer';
+        _mtbfCard.setAttribute('role', 'link');
+        _mtbfCard.setAttribute('tabindex', '0');
+        _mtbfCard.setAttribute('aria-label', _t(
+          `Worst MTBF ${d} days - open the logbook entries for ${assetLabel}`,
+          `Pinakamasamang MTBF ${d} araw - buksan ang logbook entries para sa ${assetLabel}`));
+        const _goEvidence = () => { location.href = 'logbook.html?view=team&q=' + encodeURIComponent(assetLabel); };
+        _mtbfCard.addEventListener('click', _goEvidence);
+        _mtbfCard.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); _goEvidence(); }
+        });
+      }
     }
 
     // ── PM compliance ────────────────────────────────────────────────
@@ -1387,6 +1442,23 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         pmSub += _t(` · ${anPmOntime.ontime_pct}% on time`, ` · ${anPmOntime.ontime_pct}% nasa oras`);
       }
       setCard('pm', pmPct + '%', pmSub, tag, tone);
+      // T22 (2026-08-26, measured 78% vs 77% side-by-side): this card painted the ORCHESTRATOR
+      // snapshot's copy of PM compliance while pm-scheduler reads the canonical
+      // get_pm_compliance_smrp live - two sources for one figure, and they drifted a point as
+      // the 90-day window slid between computations. The canonical RPC now patches the hero the
+      // moment it answers (and back-fills the cached summary so re-renders keep it); the
+      // snapshot stays the instant-paint fallback when the RPC cannot answer.
+      try {
+        db.rpc('get_pm_compliance_smrp', { p_hive_id: HIVE_ID, p_period_days: 90 }).then(function (res) {
+          if (res.error || !res.data || typeof res.data.overall_pct !== 'number') return;
+          var live = Math.round(res.data.overall_pct);
+          if (live === pmPct) return;
+          var h = document.getElementById('an-pm-hero');
+          if (h) h.textContent = live + '%';
+          if (typeof _lastSummaryData !== 'undefined' && _lastSummaryData && _lastSummaryData.pm_compliance)
+            _lastSummaryData.pm_compliance.overall_pct = res.data.overall_pct;
+        }, function () { /* RPC unavailable: the snapshot stands, honestly its own vintage */ });
+      } catch (_) { /* empty-catch-allow: the canonical patch is best-effort; the card is already painted */ }
     }
 
     // ── Verdict ──────────────────────────────────────────────────────
@@ -1451,8 +1523,16 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
                   `Nasisira ang ${a} bawat ${worstMTBF.mtbf_days} araw. Tingnan kung tumataas ang panganib nito. Maaaring kailangan ng root-cause review o palitan.`);
         setCta(_t('Open the Predictive tab →','Buksan ang Predictive tab →'), { scroll: '.phase-tabs' });
       } else if (pmBad) {
-        text = _t(`PM compliance at ${pmPct}%, this drags every other KPI. Open PM Scheduler and bulk-assign overdue items across the next two weeks.`,
-                  `Nasa ${pmPct}% ang PM compliance, hinihila nito pababa ang lahat ng ibang KPI. Buksan ang PM Scheduler at i-assign nang sabay-sabay ang mga lumipas na item sa susunod na dalawang linggo.`);
+        // T194 (2026-08-28): this advice used to say "bulk-assign overdue items" (FIL: "i-assign
+        // nang sabay-sabay" - assign them all at once). PM Scheduler has NO bulk or multi-select
+        // control: zero matches for bulk/select-all/multi-select and exactly one checkbox on the
+        // whole page. Its own CTA, "Assign N overdue PMs", scrolls to the filter bar and clicks the
+        // overdue filter - the real affordance is FILTER, then work them. Sending a supervisor to
+        // hunt for a batch button that was never built is the failure asset-hub already warned
+        // about in its own comment: naming a control that is not there. Both languages carried the
+        // same false promise, so both are corrected to describe the path that exists.
+        text = _t(`PM compliance at ${pmPct}%, this drags every other KPI. Open PM Scheduler, filter to the overdue items, and reschedule them across the next two weeks.`,
+                  `Nasa ${pmPct}% ang PM compliance, hinihila nito pababa ang lahat ng ibang KPI. Buksan ang PM Scheduler, i-filter ang mga lumipas na item, at i-reschedule ang mga ito sa susunod na dalawang linggo.`);
         setCta(_t('Open PM Scheduler →','Buksan ang PM Scheduler →'), { href: 'pm-scheduler.html' });
       } else if (oeeBad) {
         text = _t(`OEE at ${oeeAvg}%. Open the Downtime Pareto and Repeat Failures cards below: they pinpoint which assets are consuming the most uptime.`,
@@ -1952,7 +2032,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     return `<div class="card">
       <h2 class="card-title">PM-Failure Correlation <span class="card-standard">Spearman rank (SciPy)</span></h2>
       ${corr !== null ? `
-        <div class="stat-grid" style="grid-template-columns:1fr 1fr 1fr;margin-bottom:0.75rem;">
+        <!-- T113 (2026-08-26): this inline override pinned THREE columns regardless of width, so at
+             the 320 floor its tiles pushed 52px past the results panel. auto-fit keeps three columns
+             wherever they fit and drops to two on a budget phone, which is the same intent expressed
+             in a way the floor can honour. -->
+        <div class="stat-grid" style="grid-template-columns:repeat(auto-fit,minmax(88px,1fr));margin-bottom:0.75rem;">
           <div class="stat-tile"><div class="val ${cls}">${corr}</div><div class="label">Correlation r</div></div>
           <div class="stat-tile"><div class="val" style="color:rgba(255,255,255,0.80)">${d.p_value}</div><div class="label">P-value</div></div>
           <div class="stat-tile"><div class="val" style="color:${sig ? 'var(--wh-red)' : 'var(--wh-green)'}">${sig ? 'YES' : 'NO'}</div><div class="label">Significant?</div></div>
@@ -2040,9 +2124,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         : '';
       return `
       <div style="margin-bottom:0.5rem;padding:0.5rem;background:rgba(248,113,113,0.06);border-radius:var(--wh-radius-sm);border:1px solid rgba(248,113,113,0.15);">
-        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:0.5rem;">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:0.5rem;flex-wrap:wrap;">
+          <!-- flex-wrap (dialog-floor 320, 2026-09-03): the nowrap count span overflowed the
+               282px panel by 3.3px; wrapping drops the whole pill to its own line instead -->
           <span style="font-size:0.75rem;font-weight:600;color:var(--wh-red-text);">${escHtml(s.root_cause)}</span>
-          <span style="font-size:0.65rem;font-weight:700;color:rgba(255,255,255,0.86);white-space:nowrap;">${s.machine_count} machines · ${s.total_occurrences} occurrences</span>
+          <span style="font-size:0.65rem;font-weight:700;color:rgba(255,255,255,0.86);white-space:nowrap;">${s.machine_count} ${s.machine_count === 1 ? 'machine' : 'machines'} · ${s.total_occurrences} occurrences</span>
         </div>
         <div style="font-size:0.65rem;color:rgba(255,255,255,0.80);margin-top:0.2rem;">${head}${more ? ' ' + more : ''}</div>
       </div>`;
@@ -2050,7 +2136,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     return `<div class="card">
       <h2 class="card-title">Repeat Failure Clustering <span class="card-standard">ISO 14224:2016 · ${d.systemic_count} systemic issue(s)</span></h2>
       ${systemic || '<p style="font-size:0.75rem;color:var(--wh-green);">✓ No systemic failures detected across machines.</p>'}
-      <p style="font-size:0.65rem;color:rgba(255,255,255,0.80);margin-top:0.75rem;">${escHtml(d.insight || '')}</p>
+      <!-- max-width 70ch: d.insight is GENERATED prose (the analytics API composes it from live
+           tags), so its length varies run to run — the width gate caught a 78ch line running the
+           card's full width at 1920. Constrain the CONTAINER, not the words. -->
+      <p style="font-size:0.65rem;color:rgba(255,255,255,0.80);margin-top:0.75rem;max-width:70ch;">${escHtml(d.insight || '')}</p>
     </div>`;
   }
 
@@ -2065,7 +2154,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <div style="margin-bottom:0.75rem;padding:0.75rem;background:rgba(247,162,27,0.06);border-radius:0.75rem;border:1px solid rgba(247,162,27,0.15);">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:0.5rem;margin-bottom:0.3rem;">
           <span style="font-size:0.8rem;font-weight:700;color:#fff;">${escHtml(f.machine)}</span>
-          <span class="warn" style="font-size:0.68rem;font-weight:700;">${f.failure_count} failures · ${f.total_downtime_h}h DT</span>
+          <span class="warn" style="font-size:0.68rem;font-weight:700;">${f.failure_count} ${f.failure_count === 1 ? 'failure' : 'failures'} · ${f.total_downtime_h}h DT</span>
         </div>
         <div style="font-size:0.68rem;color:rgba(255,255,255,0.80);">Matched calc: ${escHtml(f.matched_calc)}</div>
         <p style="font-size:0.7rem;color:rgba(255,255,255,0.80);margin-top:0.3rem;">${escHtml(f.recommendation)}</p>
@@ -2426,7 +2515,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       },
     });
     return `<div class="card">
-      <h2 class="card-title">Parts Stockout Risk <span class="card-standard">SMRP inventory · ${d.at_risk_count} parts at risk</span></h2>
+      <h2 class="card-title">Parts Stockout Risk <span class="card-standard">SMRP inventory · ${d.at_risk_count} ${d.at_risk_count === 1 ? 'part' : 'parts'} at risk</span></h2>
       ${list}
     </div>`;
   }
@@ -2516,7 +2605,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     const watchItems = (plan.watch_list || []).map(w => `<span style="font-size:0.7rem;padding:0.2rem 0.5rem;border-radius:999px;background:rgba(247,162,27,0.12);color:var(--wh-orange-text);border:1px solid rgba(247,162,27,0.25);margin-right:0.4rem;">${escHtml(w)}</span>`).join('');
     return `<div class="card" style="border-color:var(--wh-violet-text);background:linear-gradient(145deg,rgba(124,58,237,0.12),rgba(31,46,69,0.7));margin-bottom:1rem;">
       <div class="card-title" style="color:var(--wh-violet-text);">⚡ AI Action Plan <span class="card-standard">WorkHive AI · ISO 55000:2014</span></div>
-      ${plan.summary ? `<p style="font-size:0.8rem;font-weight:600;color:#fff;margin-bottom:0.75rem;">${escHtml(plan.summary)}</p>` : ''}
+      ${plan.summary ? `<p style="font-size:0.8rem;font-weight:600;color:#fff;margin-bottom:0.75rem;max-width:70ch;">${escHtml(plan.summary)}</p>` : ''}
       <ul style="padding-left:1.25rem;font-size:0.75rem;line-height:1.7;">${items}</ul>
       ${watchItems ? `<div style="margin-top:0.75rem;"><p style="font-size:0.65rem;color:rgba(255,255,255,0.80);margin-bottom:0.4rem;">Watch list:</p>${watchItems}</div>` : ''}
     </div>`;
@@ -3130,14 +3219,41 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
     // C4: restore identity from auth session on new device
     if (!WORKER_NAME) { WORKER_NAME = await restoreIdentityFromSession(db); }
-    if (!WORKER_NAME) { window.location.href = 'index.html?signin=1'; return; }
+    if (!WORKER_NAME) { whSignInWall(); return; }
     // Set default role based on HIVE_ROLE
     setRole(_role);
     // G1 (FF1): canonical skeleton replaces the hand-rolled spinner block as the wait
     // state while autoLoad() computes/hydrates (results-panel is fully re-rendered on load).
     const _rp = document.getElementById('results-panel');
     if (_rp && typeof whListSkeleton === 'function') whListSkeleton(_rp, 4);
-    autoLoad();
+    // T37 (2026-08-28): autoLoad was called BARE. Its known read paths are defended -- loadSnapshots
+    // sets _snapshotReadFailed and returns rather than throwing, fetchPhase catches -- but the
+    // function also calls showSkeleton, applySavedFilters, renderPhase, renderRoleQuickView and
+    // _refreshSourceChip with no guard, and an async function invoked without a catch turns any
+    // throw from those into an unhandled rejection. The consequence here is the worst shape a wait
+    // state has: _loading stays true, stopLoadingMessages never runs, the spinner never hides and
+    // the skeleton NEVER RESOLVES -- a page shimmering "Loading analytics..." forever, saying
+    // nothing, which is exactly what the 22-page retry sweep graded SILENT on this page's sibling
+    // analytics-report. A skeleton must resolve or admit failure; this is the admit-failure half.
+    autoLoad().catch((err) => {
+      console.error('analytics autoLoad failed:', err);
+      _loading = false;
+      try { stopLoadingMessages(); } catch (_) { /* empty-catch-allow: cleanup must not mask err */ }
+      const sp = document.getElementById('status-spinner');
+      if (sp) sp.style.display = 'none';
+      // whListError(el, MESSAGE, onRetry) -- a string and a function, not an error object and an
+      // options bag. Passing `err` here would escHtml an Error into "[object Error]" and hand the
+      // reader the one thing less useful than silence: a wait state replaced by machine noise.
+      if (_rp && typeof whListError === 'function') {
+        whListError(_rp, _t('Analytics could not load. Reload to try again.',
+                            'Hindi ma-load ang analytics. I-reload para subukan muli.'),
+                    () => location.reload());
+      } else if (_rp) {
+        _rp.innerHTML = '';
+        showToast(_t('Analytics could not load. Reload to try again.',
+                     'Hindi ma-load ang analytics. I-reload para subukan muli.'));
+      }
+    });
 
     // Plain-Read summary details toggle (shared — utils.js wireDetailToggle, STREAMLINE S10).
     if (typeof wireDetailToggle === 'function') wireDetailToggle();
@@ -3167,5 +3283,18 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   <script defer src="connectivity-widget.js"></script>
   <script defer src="session-timeout.js"></script>
   <script defer src="device-fingerprint.js"></script>
+<script>
+// T125/T51: light the hive stamp from the stored name (cleared on membership loss).
+(function () {
+  try {
+    const _hn = localStorage.getItem('wh_hive_name');
+    const _chip = document.getElementById('hive-chip');
+    if (_hn && _chip) {
+      _chip.classList.remove('hidden'); _chip.style.display = 'inline-flex';
+      const n = document.getElementById('hive-chip-name'); if (n) n.textContent = _hn;
+    }
+  } catch (_) { /* empty-catch-allow: best-effort chrome */ }
+})();
+</script>
 </body>
 </html>

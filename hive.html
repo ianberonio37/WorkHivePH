@@ -400,7 +400,8 @@
   <link rel="canonical" href="https://workhiveph.com/hive.html" />
 </head>
 <body class="text-white">
-<script>
+<script src="browser-floor.js"></script>
+  <script>
   // Arc "Hive Board Deep" (2026-07-10): stamp html.is-supervisor SYNCHRONOUSLY at parse so
   // the supervisor-only CLS reserve below (#supervisor-summary.hidden{min-height:618px}) is
   // gated to supervisors ONLY. Before this, that reserve was role-blind and a WORKER's board
@@ -472,15 +473,25 @@
             .replace(/\b\w/g, function (c) { return c.toUpperCase(); });
           var el = document.getElementById('wh-return-banner');
           if (!el) return;
-          var a = document.createElement('a');
-          a.setAttribute('href', raw);
-          a.className = 'btn-primary';
-          a.style.cssText = 'display:flex;align-items:center;justify-content:center;gap:8px;min-height:44px;text-decoration:none;';
-          a.textContent = 'Continue to ' + label;   // textContent: no HTML injection from the param
+          // Pre-membership the Continue link only LOOPS (the target bounces a hiveless user
+          // straight back here - VP12's walk clicked it in a circle). Before a hive exists,
+          // state the intent and point at the join cards; the live CTA appears once it can work.
+          var hasHive = false;
+          try { hasHive = !!(localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id')); } catch (_) { /* empty-catch-allow */ }
+          if (hasHive) {
+            var a = document.createElement('a');
+            a.setAttribute('href', raw);
+            a.className = 'btn-primary';
+            a.style.cssText = 'display:flex;align-items:center;justify-content:center;gap:8px;min-height:44px;text-decoration:none;';
+            a.textContent = 'Continue to ' + label;   // textContent: no HTML injection from the param
+            el.appendChild(a);
+          }
           var p = document.createElement('p');
           p.style.cssText = 'font-size:0.72rem;color:rgba(255,255,255,0.80);margin:6px 0 0;text-align:center;';
-          p.textContent = 'You were sent here from ' + label + '. Head back any time.';
-          el.appendChild(a); el.appendChild(p);
+          p.textContent = hasHive
+            ? 'You were sent here from ' + label + '. Head back any time.'
+            : label + ' needs a hive. Join or create one below and you’ll head straight back.';
+          el.appendChild(p);
           el.hidden = false;
         } catch (_) { /* empty-catch-allow: return banner is best-effort navigation polish */ }
       })();
@@ -527,6 +538,35 @@
         <h2 id="code-hive-name" class="text-xl font-black text-white mb-6"></h2>
         <p class="text-xs text-white/80 mb-3">Share this code with your team:</p>
         <div class="code-display mb-4" id="code-value"></div>
+        <!-- T6 (2026-08-25): the code panel offered TEXT TO READ ALOUD and nothing else — the
+             briefing-room reality is a supervisor pasting into the group chat, so give the code
+             real hands: Copy always; the system share sheet where the device offers one. -->
+        <div class="flex gap-2 justify-center mb-4">
+          <button id="btn-copy-code" class="btn-ghost text-xs" style="min-height:44px;">Copy code</button>
+          <button id="btn-share-code" class="btn-ghost text-xs hidden" style="min-height:44px;">Share…</button>
+        </div>
+        <script>
+          (function () {
+            var copyBtn = document.getElementById('btn-copy-code');
+            var shareBtn = document.getElementById('btn-share-code');
+            function code() { return (document.getElementById('code-value').textContent || '').trim(); }
+            copyBtn.addEventListener('click', function () {
+              var c = code(); if (!c) return;
+              var done = function () { copyBtn.textContent = 'Copied ✓'; setTimeout(function () { copyBtn.textContent = 'Copy code'; }, 2500); };
+              if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(c).then(done, done); }
+              else { var t = document.createElement('textarea'); t.value = c; document.body.appendChild(t); t.select();
+                     try { document.execCommand('copy'); } catch (_) { /* empty-catch-allow: fallback best-effort */ } t.remove(); done(); }
+            });
+            if (navigator.share) {
+              shareBtn.classList.remove('hidden');
+              shareBtn.addEventListener('click', function () {
+                var c = code(); if (!c) return;
+                navigator.share({ text: 'Join our WorkHive: enter code ' + c + ' at workhiveph.com (Join with Code).' })
+                  .catch(function () { /* empty-catch-allow: user dismissed the sheet */ });
+              });
+            }
+          })();
+        </script>
         <p class="text-[11px] text-white/80 mb-8 leading-relaxed">Read it at briefing or post it in your group chat. Members enter this code to join your hive.</p>
         <button id="btn-enter-board" class="btn-primary">Go to Live Board →</button>
       </div>
@@ -546,6 +586,15 @@
           class="wh-input mb-2 text-center font-black tracking-widest uppercase"
           style="font-size:1.5rem; letter-spacing:0.35em;" />
         <p role="alert" aria-live="assertive" id="join-error" class="text-xs text-red-400 mb-3 hidden"></p>
+        <!-- T185: revealed only when a namesake already holds this worker's name in the hive. Two
+             Juan Dela Cruzes on one crew is ordinary, and the refusal has to be walkable from the
+             screen that raised it - there is no other name field on this form. -->
+        <div id="join-name-fix" class="hidden mb-3 text-left">
+          <label for="join-name-input" class="block text-xs font-semibold text-white/80 uppercase tracking-widest mb-2">The name your team will see</label>
+          <input id="join-name-input" type="text" maxlength="60" autocomplete="off"
+            class="wh-input mb-1" placeholder="e.g. Juan Dela Cruz (Mechanical)" />
+          <p class="text-[11px] text-white/60 leading-relaxed">This goes on everything you log, so two people in a hive cannot share it. Changing it here updates your name everywhere.</p>
+        </div>
         <button id="btn-submit-join" class="btn-primary mt-2">Join Hive</button>
       </div>
     </div>
@@ -572,8 +621,19 @@
         </div>
 
         <div class="rounded-xl p-3 mb-6 text-left" style="background:rgba(41,182,217,0.06); border:1px solid rgba(41,182,217,0.15);">
+          <!-- T7 (2026-08-26): the old text here ("assets and inventory stay on this device...
+               sync in Stage 2") was a stale roadmap claim - both are hive-scoped DB tables today,
+               so it told a new joiner their data was NOT shared when it was. Say what "visible to
+               your team" actually means, plus the one privacy carve-out (journal_private). -->
+          <!-- T166 (2026-08-26): CORRECTED. The first version of this card said "Only your Voice
+               Journal stays private to you" - measured against RLS that is wrong: skill_profiles,
+               skill_badges and skill_exam_attempts are all `auth_uid = auth.uid()`, private to the
+               worker and invisible even to a supervisor. A visibility promise has to be read off
+               the policies, not from memory. -->
           <p class="text-[11px] text-white/80 leading-relaxed">
-            Your registered assets and inventory items stay on this device for now. They'll sync to the hive in Stage 2.
+            What you do here is shared with this hive: repairs you log, parts you use, PM tasks you
+            complete, and assets you register. Your Voice Journal and your Skill Matrix (skills,
+            badges, exam attempts) stay private to you.
           </p>
         </div>
 
@@ -768,7 +828,7 @@
                  An explanation that names different inputs from the ones on screen is worse than no
                  explanation: it is read as authoritative, and it sends someone looking for a Safety
                  score that does not exist. The names now come from the same model the bars render. -->
-            <li><strong>Maturity stair</strong>: latest snapshot from your hive maturity data. Hive must clear 5 dimension gates per stair — <strong>Process</strong>, <strong>Data</strong>, <strong>Resilience</strong>, <strong>Leadership</strong> and <strong>Culture</strong>, each scored out of 100 and shown as the five bars in the Maturity Stairway below. The stair advances only when every gate clears, so the LOWEST dimension is the one holding you back.</li>
+            <li><strong>Maturity stair</strong>: latest snapshot from your hive maturity data. Hive must clear 5 dimension gates per stair: <strong>Process</strong>, <strong>Data</strong>, <strong>Resilience</strong>, <strong>Leadership</strong> and <strong>Culture</strong>, each scored out of 100 and shown as the five bars in the Maturity Stairway below. The stair advances only when every gate clears, so the LOWEST dimension is the one holding you back.</li>
             <li><strong>Adoption health</strong>: the adoption-risk calculation. Healthy &lt; 35, At Risk 35-65, Critical &gt; 65.</li>
             <li><strong>Open issues</strong>: sum of still-open work orders + PM-overdue ASSETS (assets with at least one overdue PM, counted once per asset, matching the PM Scheduler) + stock issues (parts at or below their reorder level, including out of stock).</li>
             <li><strong>Verdict</strong>: red if Adoption is Critical OR &gt; 5 PMs overdue; amber if Adoption is At Risk OR any of (1-5 PMs overdue, &ge;10 open WOs, &ge;1 low-stock item); green when all clear.</li>
@@ -865,7 +925,7 @@
           <p id="stair-blocker" style="font-size:11.5px; color:rgba(255,255,255,0.83); margin-top:6px; line-height:1.45;">Computing your hive's readiness...</p>
         </div>
         <!-- Source chip — anchors the readiness composite + dimension
-             scores to v_maturity_truth so supervisors can trace each
+             scores to v_hive_readiness_truth so supervisors can trace each
              dimension value back to its canonical fuel. Populated by
              renderMaturityStairway(). -->
         <p id="stair-source-chip" style="margin:0 16px 8px;"></p>
@@ -903,6 +963,43 @@
         </div>
         <!-- Evidence drawer (hidden by default) -->
         <div id="stair-evidence" style="display:none; padding:10px 16px 16px; border-top:1px solid rgba(255,255,255,0.06); background:rgba(0,0,0,0.18); font-size:11px; color:rgba(255,255,255,0.83); line-height:1.55;"></div>
+      </div>
+
+      <!-- ─────────────────────────────────────────────────────────────────
+           T188 — Hive Value Summary ("is this worth it?", the renewal moment).
+           Three honest counts of what THIS hive actually did, read from
+           v_hive_value_summary (security_invoker, RLS-scoped) — no invented ROI
+           number. pms_kept (PMs completed; a skipped PM is NOT counted) /
+           faults_resolved (logbook Closed) / knowledge_written (fault_knowledge).
+           The shell renders with "--" placeholders so the card reserves its own
+           height (no CLS); loadValueSummary() fills the values. A brand-new hive
+           sees an encouraging line, not three demotivating zeros dressed up as
+           "value delivered". Paired right under readiness (where you are) so the
+           block answers "where am I / what have I actually got for it".
+           ───────────────────────────────────────────────────────────────── -->
+      <div id="value-summary-card" class="mb-5 rounded-xl overflow-hidden" style="background: linear-gradient(145deg, rgba(34,58,46,0.55), rgba(22,32,50,0.85)); border:1px solid rgba(74,222,128,0.18);">
+        <div style="padding:14px 16px 8px;">
+          <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+            <span style="display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:999px; font-size:10px; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; background:rgba(74,222,128,0.16); color:#86efac;" data-i="hiveValueBadge">Your hive's value</span>
+            <span style="font-size:11px; color:rgba(255,255,255,0.82); letter-spacing:0.02em;" data-i="hiveValueSub">what this hive has delivered so far</span>
+          </div>
+        </div>
+        <div style="display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap:8px; padding:0 16px 10px;">
+          <div style="text-align:center;">
+            <p id="vs-pms" style="font-size:1.6rem; font-weight:900; color:var(--wh-cloud); line-height:1.1; font-variant-numeric:tabular-nums;">--</p>
+            <p style="font-size:10.5px; color:rgba(255,255,255,0.82); margin-top:2px;" data-i="vsPms">PMs kept</p>
+          </div>
+          <div style="text-align:center;">
+            <p id="vs-faults" style="font-size:1.6rem; font-weight:900; color:var(--wh-cloud); line-height:1.1; font-variant-numeric:tabular-nums;">--</p>
+            <p style="font-size:10.5px; color:rgba(255,255,255,0.82); margin-top:2px;" data-i="vsFaults">Faults resolved</p>
+          </div>
+          <div style="text-align:center;">
+            <p id="vs-knowledge" style="font-size:1.6rem; font-weight:900; color:var(--wh-cloud); line-height:1.1; font-variant-numeric:tabular-nums;">--</p>
+            <p style="font-size:10.5px; color:rgba(255,255,255,0.82); margin-top:2px;" data-i="vsKnow">Lessons captured</p>
+          </div>
+        </div>
+        <p id="vs-source-chip" style="margin:0 16px 8px;"></p>
+        <p id="vs-empty" class="hidden" style="font-size:11px; color:rgba(255,255,255,0.82); margin:0 16px 12px; line-height:1.45;" data-i="vsEmpty">Your hive's story starts here: complete a PM, close a fault, and capture what you learned. These counts grow as your team works.</p>
       </div>
 
       <!-- ─────────────────────────────────────────────────────────────────
@@ -1422,7 +1519,7 @@
         <div class="flex items-center justify-between mb-2">
           <p class="text-[11px] font-semibold text-white/80 uppercase tracking-widest">Shift Handover</p>
         </div>
-        <p class="text-xs mb-3" style="color:rgba(255,255,255,0.80);">Auto-generates a summary of this shift (completed jobs, open items, LOTO alerts, and watch list), ready to share with the next team.</p>
+        <p class="text-xs mb-3" style="color:rgba(255,255,255,0.80);">Auto-generates a summary of this shift: completed jobs, open items, LOTO alerts, and watch list. Ready to share with the next team.</p>
         <p id="handover-source-chip" style="margin:0 0 8px;"></p>
         <button class="handover-btn" onclick="generateHandover()">
           <span class="ic ic-doc" aria-hidden="true"></span>
@@ -1489,6 +1586,10 @@
           <span id="pulse-stock-issues">&#8212;</span>
         </div>
         <p id="team-pulse-source-chip" style="margin:8px 0 0;"></p>
+        <!-- T186 (week-one habit / drift): a worker drifting away must be VISIBLE to a supervisor
+             while there is still time to help. The recency data exists (v_worker_assignment_truth);
+             this surfaces it — filled by loadTeamPulse, hidden until it has something to say. -->
+        <p id="pulse-quiet-workers" class="text-[11px]" style="margin:8px 0 0; line-height:1.4; max-width:72ch;" hidden></p><!-- max-width: the quiet-list joins names into one paragraph; capped at a reading measure so the width-utilisation ratchet's longest-prose-line cannot grow with roster size -->
       </div>
 
       <!-- Approval Queue (supervisor only, always open) -->
@@ -1573,6 +1674,26 @@
   // focus-restore + ESC-close — ESC clicks the Close control or falls back to the
   // .hidden toggle these use, matching their existing close behavior).
   document.addEventListener('DOMContentLoaded', function () {
+    // T25: deliver the one-shot removal notice stashed by the kicked-detected branch before its
+    // reload. True on both landings (recovered into another hive, or the create/join onboard):
+    // the worker deserves to hear what happened and that their personal records survive.
+    try {
+      var _rm = sessionStorage.getItem('wh_removed_notice');
+      if (_rm) {
+        sessionStorage.removeItem('wh_removed_notice');
+        setTimeout(function () {
+          if (typeof showToast === 'function') {
+            showToast(_t('You were removed from "' + _rm + '" by a supervisor. Your personal records are still yours. You can join another hive or create your own.', 'Inalis ka sa "' + _rm + '" ng supervisor. Sa iyo pa rin ang mga personal na record mo. Puwede kang sumali sa ibang hive o gumawa ng sarili mo.'));
+            // hive's showToast hides at a fixed 3s - too short for a two-sentence identity event
+            // (the zero-ms-refusal lesson's cousin). Hold THIS notice for 12s.
+            try {
+              clearTimeout(_toastTimer);
+              _toastTimer = setTimeout(function () { document.getElementById('hive-toast').classList.add('hidden'); }, 12000);
+            } catch (_) { /* empty-catch-allow: _toastTimer unreachable -> the fixed 3s hide still spoke the notice */ }
+          }
+        }, 800);
+      }
+    } catch (_) { /* empty-catch-allow: sessionStorage blocked -> skip the notice, never block modal a11y wiring */ }
     if (!window.whModalA11y) return;
     ['handover-sheet', 'modal-hive-switch', 'modal-sup-leave', 'intent-capture'].forEach(function (id) {
       var el = document.getElementById(id);
@@ -1732,7 +1853,18 @@ async function loadMyOpenWork() {
 function genCode() {
   // Omit O, 0, I, 1 for readability when read aloud in a noisy plant
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  return Array.from({length:6}, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+  /* T185 (2026-08-26): the invite code is a CREDENTIAL - it is the whole of what admits someone to
+     a plant's maintenance records - so it comes from the CSPRNG, not Math.random(). Math.random()
+     is a plain PRNG whose internal state can be recovered from a handful of observed outputs, which
+     makes later codes from the same page predictable; that is the wrong property for the only thing
+     standing between a stranger and a hive. No compatibility cost: createHive already REQUIRES
+     crypto.randomUUID() (a null id aborts the create), so this page depends on modern crypto
+     anyway. ★THE MODULO IS UNBIASED ONLY BECAUSE 256 % 32 == 0 - each of the 32 characters gets
+     exactly 8 of the 256 byte values. If the alphabet ever changes length, this needs rejection
+     sampling or it quietly starts favouring the first (256 % n) characters. */
+  const bytes = new Uint8Array(6);
+  crypto.getRandomValues(bytes);
+  return Array.from(bytes, b => chars[b % chars.length]).join('');
 }
 
 function timeAgo(isoStr) { return (typeof whFmtAgo === 'function') ? whFmtAgo(isoStr) : ''; } // FD1e: delegates to canonical utils.js whFmtAgo
@@ -1926,11 +2058,11 @@ document.getElementById('nav-worker').textContent = WORKER_NAME;
   // C4: restore identity from auth session on new device, then get auth_uid
   if (!WORKER_NAME) { WORKER_NAME = await restoreIdentityFromSession(db); }
   try { const { data: { session } } = await db.auth.getSession(); _authUid = session?.user?.id || null; } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
-  if (!WORKER_NAME) { window.location.href = 'index.html?signin=1'; return; }
+  if (!WORKER_NAME) { whSignInWall(); return; }
   // Phase B (auth migration): require authenticated session, not just stale localStorage.
   // Stale WORKER_NAME without _authUid means the worker would 401 once Phase E flips
   // the L3 permissive policies. See PRODUCTION_FIXES.md #37.
-  if (!_authUid) { window.location.href = 'index.html?signin=1'; return; }
+  if (!_authUid) { whSignInWall(); return; }
 
   if (HIVE_ID) {
     // Re-validate against DB. Canonical: v_worker_truth wraps hive_members.
@@ -1942,6 +2074,12 @@ document.getElementById('nav-worker').textContent = WORKER_NAME;
       .maybeSingle();
 
     if (!valErr && (!membership || membership.hive_status === 'kicked')) {
+      // T25 (2026-08-25): the removal used to be a SILENT identity reset - state cleared, page
+      // reloaded, and the worker who had a hive yesterday woke to a fresh-account onboard with no
+      // word about why. Graceful is not honest. Stash a one-shot notice (sessionStorage survives
+      // the reload below, dies with the tab) BEFORE the clears erase the hive's name; the reloaded
+      // page reads it and says what happened and what survived.
+      try { sessionStorage.setItem('wh_removed_notice', HIVE_NAME || 'your hive'); } catch (_) { /* empty-catch-allow: sessionStorage blocked -> the notice is progressive enhancement, the removal itself still lands */ }
       // Kicked or removed from the ACTIVE hive: clear its state, then re-decide from the server.
       ['wh_active_hive_id','wh_hive_id','wh_hive_role','wh_hive_name','wh_hive_code'].forEach(k => localStorage.removeItem(k));
       /* H8 (hive deepwalk 2026-07-27): also drop the is-supervisor paint hint. It is set early from the
@@ -2133,7 +2271,7 @@ async function submitCreate() {
 
   if (error || !newHiveId) {
     btn.textContent = 'Create Hive'; btn.disabled = false;
-    showToast('Could not create hive: ' + (error ? error.message : 'please try again'));
+    showToast(whWriteError(error, _t('Could not create the hive. Nothing was made; try again.', 'Hindi nagawa ang hive. Walang nabuo; subukan ulit.')));
     return;
   }
   const hive = { id: newHiveId, name: nameVal };
@@ -2147,7 +2285,7 @@ async function submitCreate() {
     // P7-01: restore the button so the user isn't stuck on a permanently-disabled 'Creating...'
     // (was: no reset -> a membership-save failure froze the create button forever).
     btn.textContent = 'Create Hive'; btn.disabled = false;
-    showToast('Hive created but membership could not be saved. Please refresh and try again.');
+    showToast(_t('Hive created but membership could not be saved. Please refresh and try again.', 'Nagawa ang hive pero hindi na-save ang membership. I-refresh at subukan ulit.'));
     return;
   }
 
@@ -2264,12 +2402,70 @@ async function submitJoin() {
     if (window.whValidateCapture) {
       const vr = await window.whValidateCapture(db, 'hive_invite_v1', joinPayload);
       if (!vr.ok) {
-        showToast('Cannot join: ' + (vr.errors[0]?.message || 'contract violation'));
+        showToast(_t('Cannot join: ', 'Hindi makasali: ') + (vr.errors[0]?.message || 'contract violation'));
         return;
       }
     }
     // P5-01 fix: join via the SECURITY DEFINER join_hive_by_code RPC (server-verifies the code + kicked-ban); direct hive_members INSERT is now founder-only (mig 20260713000002).
-    const { error: joinErr } = await db.rpc('join_hive_by_code', { p_code: codeVal, p_worker_name: WORKER_NAME });
+    /* T185: if the namesake field is showing, the worker has supplied a distinguishing name and
+       THAT is who they are in this hive - it becomes their attribution name on every later write. */
+    const _nameFix   = document.getElementById('join-name-fix');
+    const _nameInput = document.getElementById('join-name-input');
+    let   joinName   = WORKER_NAME;
+    if (_nameFix && !_nameFix.classList.contains('hidden')) {
+      const typed = (_nameInput && _nameInput.value || '').trim();
+      if (typed.length < 2) {
+        btn.textContent = 'Join Hive'; btn.disabled = false;
+        errEl.textContent = 'Enter the name your teammates should see (at least 2 characters).';
+        errEl.classList.remove('hidden');
+        if (_nameInput) _nameInput.focus();
+        return;
+      }
+      joinName = typed;
+
+      /* T185: rename the PERSON before joining, not just this membership. utils.js
+         restoreIdentityFromSession() reconciles wh_last_worker from worker_profiles.display_name on
+         every identity restore, so a hive-only name would be reverted on the next page load - and
+         from then on this worker's writes would carry the name that, in this very hive, belongs to
+         somebody else. Measured: 18 linked members, 0 rows where a membership name differs from its
+         profile name, so "the name is the person" is a real invariant and this keeps it. The RPC
+         moves the profile and every membership in ONE transaction and refuses by name if a shared
+         hive already has that person. */
+      const { error: renameErr } = await db.rpc('set_worker_display_name', { p_name: joinName });
+      if (renameErr) {
+        btn.textContent = 'Join Hive'; btn.disabled = false;
+        /* HIVE_NAME_HAS_HISTORY is not a failure, it is a boundary: a worker who already belongs to a
+           hive may have records filed under their current name, and the rename cannot follow them
+           everywhere (achievement_xp_log alone carries neither auth_uid nor hive_id, so its rows
+           cannot be located for one person at all). Renaming anyway would disconnect them from their
+           own logbook, XP and standings, so they are told what to do instead of being cut loose. */
+        errEl.textContent = /HIVE_NAME_HAS_HISTORY/.test(renameErr.message || '')
+          ? 'You already have records under "' + WORKER_NAME + '", so your name cannot be changed '
+            + 'here without leaving them behind. Ask your supervisor to add you under a different name.'
+          : /HIVE_NAME_TAKEN/.test(renameErr.message || '')
+          ? 'Someone you already share a hive with goes by "' + joinName + '". Pick another.'
+          : whWriteError(renameErr, 'Could not save that name. Nothing changed; try again.');
+        errEl.classList.remove('hidden');
+        if (_nameInput) _nameInput.focus();
+        return;
+      }
+    }
+
+    const { error: joinErr } = await db.rpc('join_hive_by_code', { p_code: codeVal, p_worker_name: joinName });
+    /* T185: a different person in this hive already answers to this name. The unique index on
+       (hive_id, worker_name) is right - worker_name is the attribution key, and two identical names
+       inside one hive would make every by-name rollup ambiguous - but before this the index spoke
+       to the user directly ('duplicate key value violates unique constraint …'). Name the cause and
+       hand them the way out on the spot, since this form has no other name field. */
+    if (joinErr && /HIVE_NAME_TAKEN/.test(joinErr.message || '')) {
+      btn.textContent = 'Join Hive'; btn.disabled = false;
+      errEl.textContent = 'Someone in this hive already goes by "' + joinName + '". Add something that '
+                        + 'tells you apart, then join again.';
+      errEl.classList.remove('hidden');
+      if (_nameFix) _nameFix.classList.remove('hidden');
+      if (_nameInput) { if (!_nameInput.value) _nameInput.value = joinName; _nameInput.focus(); }
+      return;
+    }
     if (joinErr && /HIVE_MEMBER_KICKED/.test(joinErr.message || '')) {
       btn.textContent = 'Join Hive'; btn.disabled = false;
       errEl.textContent = 'You have been removed from this hive. Contact the supervisor to be re-added.';
@@ -2293,11 +2489,19 @@ async function submitJoin() {
         } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
         errEl.innerHTML = 'Your sign-in session expired (auth was reset). Redirecting you to sign in again…';
         errEl.classList.remove('hidden');
-        setTimeout(() => { window.location.href = 'index.html?signin=1'; }, 1200);
+        setTimeout(() => { whSignInWall(); }, 1200);
         return;
       }
       errEl.textContent = 'Could not join: ' + joinErr.message;
       errEl.classList.remove('hidden'); return;
+    }
+    /* T185: the membership row was written under joinName, so that IS this worker's name in this
+       hive. Carry it into WORKER_NAME and the canonical wh_last_worker key - otherwise the audit
+       entry below, and every later write, would attribute to the name they just disambiguated away
+       from, and the roster and the logbook would disagree about who this person is. */
+    if (joinName && joinName !== WORKER_NAME) {
+      WORKER_NAME = joinName;
+      try { localStorage.setItem('wh_last_worker', joinName); } catch (_) { /* empty-catch-allow: storage blocked; the in-memory name still governs this session */ }
     }
   }
   // Existing active member: just restore localStorage, no upsert needed
@@ -2367,6 +2571,20 @@ async function showWelcome(hive) {
 // ── LEAVE HIVE ──
 document.getElementById('btn-leave-hive').addEventListener('click', async () => {
   if (HIVE_ROLE === 'supervisor') {
+    // T56 (critic walk, 2026-09-02): the hand-over modal's premise — "You run this hive...
+    // without a supervisor, no one can manage" — is FALSE when a CO-SUPERVISOR remains
+    // (Lucena runs two). Forcing the transfer flow then is friction built on misinformation.
+    // With another active supervisor on the roster, leaving is safe: confirm honestly and go.
+    const _coSups = (Array.isArray(window._memberRoster) ? window._memberRoster : [])
+      .filter(m => m && m.role === 'supervisor' && (m.status === 'active' || m.status == null) && m.worker_name !== WORKER_NAME) // role-check-allow: m.role is each listed member's own DB field (counting OTHER supervisors on the roster), not the ambient user role
+      .map(m => m.worker_name);
+    if (_coSups.length) {
+      if (!(await window.whConfirm(
+        `${_coSups[0]}${_coSups.length > 1 ? ' and others' : ''} also supervise${_coSups.length > 1 ? '' : 's'} this hive, so it keeps a supervisor when you go. Leave this hive? You'll lose access to its board; your past logbook entries stay in the hive's records.`,
+        { okLabel: 'Leave', cancelLabel: 'Stay' }))) return;
+      await performLeave();
+      return;
+    }
     const others = memberNames.filter(n => n !== WORKER_NAME);
     if (others.length) {
       const sel = document.getElementById('sup-transfer-select');
@@ -2385,7 +2603,7 @@ document.getElementById('btn-sup-transfer-leave').addEventListener('click', asyn
   const { error: roleErr } = await db.from('hive_members').update({ role: 'supervisor' })
     .eq('hive_id', HIVE_ID).eq('worker_name', target);
   // If the promotion failed, do NOT leave — a hive with no supervisor can't be managed.
-  if (roleErr) { showToast('Could not transfer supervisor: ' + roleErr.message); return; }
+  if (roleErr) { showToast(whWriteError(roleErr, _t('Could not transfer supervisor. You are still the supervisor; nothing changed.', 'Hindi nailipat ang pagka-supervisor. Ikaw pa rin ang supervisor; walang nabago.'))); return; }
   // Audit the supervisor handoff BEFORE performLeave deletes our own membership — once the
   // row is gone, hive_audit_log RLS (active member) rejects the insert, so the audit must
   // precede the self-delete (same ordering as the leave-audit). (Hive Board PDDA I5, 2026-07-10.)
@@ -2395,6 +2613,19 @@ document.getElementById('btn-sup-transfer-leave').addEventListener('click', asyn
 });
 
 document.getElementById('btn-sup-leave-anyway').addEventListener('click', async () => {
+  // T56 (2026-08-25): 'Leave Without Transferring' is fine when ANOTHER active supervisor
+  // remains — but when the leaver is the LAST one, this click orphans the hive (no approvals,
+  // no member management, unrecoverable from inside). The modal's intro says so in passing;
+  // the irreversible branch deserves its own explicit confirm naming the consequence.
+  const _otherSup = (window._whMembersSnapshot || [])
+    .some(m => m.role === 'supervisor' && m.worker_name !== WORKER_NAME && m.status !== 'kicked'); // role-check-allow: m.role is each listed member's own DB field (counting OTHER supervisors), not the ambient user role
+  if (!_otherSup) {
+    const ok = await window.whConfirm(
+      _t('You are the ONLY supervisor. If you leave without transferring, no one can approve submissions, manage members, or run this hive - and it cannot be fixed from inside the hive. Leave anyway?',
+         'Ikaw lang ang supervisor. Kapag umalis ka nang hindi naglilipat, walang makakapag-apruba, makakapag-manage ng miyembro, o magpapatakbo ng hive na ito. Aalis ka pa rin ba?'),
+      { okLabel: _t('Leave anyway', 'Umalis pa rin'), cancelLabel: _t('Go back', 'Bumalik') });
+    if (!ok) return;
+  }
   document.getElementById('modal-sup-leave').classList.add('hidden');
   await performLeave();
 });
@@ -2684,7 +2915,15 @@ async function initBoard() {
   }
 
   // allSettled: never rejects, so startPresence() is always reached even if one data load fails
-  const _boardResults = await Promise.allSettled([checkStockAlert(), loadMembers(), loadFeed(), buildNotifications(), loadApprovalQueue(), loadPMHealth(), loadAuditLog(), loadTodaysBrief(), loadTeamPulse(), loadPatternAlerts(), loadBenchmarks(), loadMaturityStairway(), loadAdoptionCard(), loadOnboardingCard(), maybeShowIntentCapture(), loadKnowledgePipeline(), loadMyOpenWork()]);
+  // T140 (2026-08-26): reconcile the hive's NAME with the server before the board paints. A rename
+  // done on another device cannot reach this one - every page trusts localStorage.wh_hive_name and
+  // nothing re-read hives.name, so a renamed plant kept showing its old name here indefinitely
+  // (wh_hive_name is written at join/switch time). Joins the allSettled so a failed check can never
+  // stop the board loading: the page then simply shows the cached name, which is what it did before.
+  const _boardResults = await Promise.allSettled([whReconcileHiveName(db).then(function (c) {
+    if (c) { HIVE_NAME = c.now; const _t2 = document.getElementById('board-hive-name'); if (_t2) _t2.textContent = c.now;
+             if (typeof updateSwitchButton === 'function') updateSwitchButton(); }
+  }), checkStockAlert(), loadMembers(), loadFeed(), buildNotifications(), loadApprovalQueue(), loadPMHealth(), loadAuditLog(), loadTodaysBrief(), loadTeamPulse(), loadPatternAlerts(), loadBenchmarks(), loadMaturityStairway(), loadValueSummary(), loadAdoptionCard(), loadOnboardingCard(), maybeShowIntentCapture(), loadKnowledgePipeline(), loadMyOpenWork()]);
   _boardResults.forEach((r, i) => { if (r.status === 'rejected') console.error('initBoard step', i, 'failed:', r.reason); });
   // Layer D Plain-Read summary — rolls up loaded data into verdict + 3 cards.
   // Runs AFTER the allSettled so all source state (_lastReadiness, _lastAdoption,
@@ -2776,9 +3015,18 @@ function renderMaturityStairway(row) {
   const card = document.getElementById('maturity-stairway-card');
   if (!card) return;
 
-  // Source chip — anchors composite + 5-dim breakdown to v_maturity_truth.
+  // Source chip — anchors composite + 5-dim breakdown to v_hive_readiness_truth.
   // Doctrine: every readiness number on the page is reproducible by
   // querying this view.
+  //
+  // ★IT NAMED A VIEW THAT DOES NOT EXIST (fixed 2026-08-27). The chip said `v_maturity_truth`,
+  // and there is no such relation - a supervisor who followed this chip to run the ad-hoc query it
+  // promises got `relation "v_maturity_truth" does not exist`. That is the whole point of the chip
+  // failing: a provenance claim is only worth the trace it survives, and this one dead-ended.
+  // The view that actually materializes these numbers is v_hive_readiness_truth - verified to carry
+  // composite_score, current_stair AND the five dimension columns this card renders
+  // (process_maturity / data_quality / infrastructure_resilience / leadership_engagement /
+  // cultural_adoption), which is exactly the weighted breakdown the note below states.
   // source-chip-allow: page renders maturity via compute_hive_readiness RPC,
   // not a direct db.from() — the chip documents the underlying canonical view
   // that materializes the same numbers for ad-hoc queries.
@@ -2794,7 +3042,9 @@ function renderMaturityStairway(row) {
     // the chip documents the underlying canonical view that materializes the same numbers.
     chipEl.innerHTML = renderSourceChip({
       freshness: 'Live · updates automatically',
-      source:    'v_maturity_truth',
+      // Both halves of the trace, in code rather than in a comment: the RPC the page actually calls
+      // and the view that materializes the same numbers for an ad-hoc query.
+      source:    'compute_hive_readiness + v_hive_readiness_truth',
       notes:     [
         'Weighted: Process 25% · Data 20% · Resilience 15% · Leadership 25% · Culture 15% of the score',
       ],
@@ -2880,15 +3130,64 @@ function startReadinessRealtime() {
   // realtime-allow: compute-trigger subscription — page reads maturity via
   // compute_hive_readiness RPC (not hive_readiness directly). The subscription
   // exists so the RPC re-fires when the trigger table is updated by the
-  // scheduled-agents job. Lineage chip docs this with v_maturity_truth.
+  // scheduled-agents job. Lineage chip docs this with v_hive_readiness_truth.
   _readinessChannel = db.channel('hive-readiness:' + HIVE_ID)
     .on('postgres_changes', {
       event: '*', schema: 'public', table: 'hive_readiness',
       filter: 'hive_id=eq.' + HIVE_ID,
     }, async () => { await loadMaturityStairway(); })
-    .subscribe();
+    .subscribe(typeof rtConn === 'function' ? rtConn() : undefined);
   // Cleanup wired into the main beforeunload listener below, not a separate
   // listener — observability validator counts removes per-listener.
+}
+
+// ── T188 HIVE VALUE SUMMARY ("is this worth it?", the renewal moment) ──────
+// Reads v_hive_value_summary (security_invoker, RLS-scoped): three honest counts
+// a supervisor can verify by hand — pms_kept (PMs completed; a skipped PM is NOT
+// counted), faults_resolved (logbook Closed), knowledge_written (fault_knowledge).
+// No invented ROI figure. .eq(hive_id) + the view's RLS keep it to the caller's
+// own hive; one row max, so .maybeSingle() is safe here (single hive, not the
+// multi-hive bounce class). Errors leave the "--" placeholders + console.warn —
+// a silent 0 must never masquerade as a real "zero value delivered".
+async function loadValueSummary() {
+  if (!HIVE_ID) return;
+  const card = document.getElementById('value-summary-card');
+  if (!card) return;
+  let row = null;
+  try {
+    const res = await db.from('v_hive_value_summary')
+      .select('pms_kept, faults_resolved, knowledge_written')
+      .eq('hive_id', HIVE_ID).maybeSingle();
+    if (!res.error) row = res.data;
+    else console.warn('loadValueSummary query error:', res.error.message);
+  } catch (e) {
+    console.warn('loadValueSummary failed:', e?.message || e);
+  }
+  renderValueSummary(row);
+}
+
+function renderValueSummary(row) {
+  const pms = Number(row && row.pms_kept) || 0;
+  const flt = Number(row && row.faults_resolved) || 0;
+  const kno = Number(row && row.knowledge_written) || 0;
+  const set = (id, n) => { const el = document.getElementById(id); if (el) el.textContent = n.toLocaleString(); };
+  set('vs-pms', pms); set('vs-faults', flt); set('vs-knowledge', kno);
+  // Honest empty state: a brand-new hive with nothing yet sees encouragement,
+  // not three zeros dressed up as "value delivered".
+  const empty = document.getElementById('vs-empty');
+  if (empty) empty.classList.toggle('hidden', (pms + flt + kno) > 0);
+  const chip = document.getElementById('vs-source-chip');
+  if (chip && typeof renderSourceChip === 'function') {
+    chip.innerHTML = renderSourceChip({
+      freshness: 'Live data',
+      source: 'v_hive_value_summary',
+      method: [
+        'PMs kept: preventive maintenance completed (a skipped PM is not counted)',
+        'Faults resolved: logbook faults closed',
+        'Lessons captured: knowledge entries written from faults',
+      ],
+    });
+  }
 }
 
 // ─────────────────────────────────────────────────────────────────
@@ -2922,7 +3221,15 @@ async function loadAdoptionCard() {
   if (chipEl && typeof renderSourceChip === 'function') {
     chipEl.innerHTML = renderSourceChip({
       freshness: 'Live · updates automatically',
-      source:    'hive_adoption_score + at_risk',
+      // This chip used to name 'at_risk' as a second SOURCE. It is not a relation - it is a VALUE of
+      // hive_adoption_score.risk_tier - so tracing it as a source led nowhere. The COLUMN is the
+      // honest anchor: it is what decides the tier, and it is a real thing to query.
+      // ★AND THE MACHINE NAMES STAY IN `source:`, NOT IN `notes` (2026-08-27). Putting
+      // "Tiers (risk_tier): ... at_risk ..." into the notes moved snake_case onto the GLASS, which is
+      // the jargon gate's whole subject - the source field is exempt precisely because it is the
+      // canonical-name slot and is label-translated via WH_SOURCE_LABELS. The note below is back to
+      // the words a supervisor reads; the names live where names go.
+      source:    'hive_adoption_score + risk_tier',
       notes:     [
         'Tiers: healthy under 35 · at risk 35–65 · critical over 65',
       ],
@@ -3060,7 +3367,7 @@ function startAdoptionRealtime() {
       event: '*', schema: 'public', table: 'hive_adoption_score',
       filter: 'hive_id=eq.' + HIVE_ID,
     }, async () => { await loadAdoptionCard(); })
-    .subscribe();
+    .subscribe(typeof rtConn === 'function' ? rtConn() : undefined);
 }
 
 // ─────────────────────────────────────────────────────────────────
@@ -3161,7 +3468,15 @@ async function loadSupervisorSummary() {
   // moves from a health-rollup glance to an action-first hero (Ian-approved v4).
   setTile('pm',    overdue,  overdue  > 0, 'is-red');
   const _pmPeak = document.getElementById('ss-pm-peak'); if (_pmPeak) _pmPeak.hidden = !(overdue > 0);
-  setTile('stock', lowStock, lowStock > 0, 'is-amber');
+  // CI8 (2026-09-03): the tile's LABEL says "low on stock", so its NUMBER now matches
+  // inventory's own low tile (at/below minimum AND qty>0) — the two surfaces disagreed
+  // (hive 3 vs inventory 2) because this hero carried the F5 union (low OR out). The union
+  // still decides the amber state and the verdict line ("N stock issues (M out)"), and the
+  // out-of-stock subset is named on the CTA line, so F5's no-missed-outs substance holds.
+  const lowOnlyStock = lowStock - outOfStock;
+  setTile('stock', lowOnlyStock, (lowOnlyStock + outOfStock) > 0, 'is-amber');
+  const _stockCta = document.getElementById('ss-stock-cta');
+  if (_stockCta && outOfStock > 0) _stockCta.textContent = `Restock (${outOfStock} out of stock) →`;
   // Tile 3 = the CURRENT user's OWN open jobs (mockup "Your open jobs"), personal NOT hive-wide
   // (that's the mini-stat "Open work orders" = #stat-open). multitenant L9: membership RLS scopes
   // to the hive, never the individual, so the personal filter (.eq('worker_name', WORKER_NAME)) is
@@ -3205,7 +3520,7 @@ async function loadSupervisorSummary() {
     if (tier === 'critical') {
       sub = 'Adoption signals are critical. Open the Engagement Card breakdown below.';
     } else if (overdue > 5) {
-      sub = `${overdue} asset${overdue === 1 ? '' : 's'} have overdue PMs. Open PM Scheduler to triage.`;
+      sub = `${overdue} asset${overdue === 1 ? '' : 's'} ${overdue === 1 ? 'has' : 'have'} overdue PMs. Open PM Scheduler to triage.`;
     } else {
       sub = `${openWO} open work orders piling up. Open Logbook to clear them.`;
     }
@@ -3246,10 +3561,20 @@ async function loadSupervisorSummary() {
     greet = _isFil ? `Maligayang pagdating, ${_first}. I-setup natin ang hive mo.` : `Welcome, ${_first}. Let's set up your hive.`;
     greetSub = _isFil ? 'Imbitahin ang team mo at i-log ang unang entries. Mapupuno ang board habang umuusad ang hive.' : 'Invite your team and log your first entries. Your board fills in as the hive gets going.';
   } else if (needCount > 0) {
+    // ★T19/T25 (2026-08-28): needCount COUNTS AREAS, NOT ITEMS, and is capped at 3 by construction
+    // ((overdue>0)+(lowStock>0)+(myJobs>0)). "3 things need you" therefore reads as three items to
+    // anyone who has not read the source, while the hive behind it held 5 open work orders, 29
+    // assets with PM overdue and a part below its reorder point - 35 issues, not 3. And it can never
+    // say more than 3 however bad the hive gets, which is a ceiling the reader cannot see. Say AREAS.
     greet = _isFil
-      ? `Magandang ${_todFil}, ${_first}. ${needCount} bagay ang kailangan ng atensyon mo.`
-      : `Good ${_tod}, ${_first}. ${needCount} thing${needCount === 1 ? '' : 's'} need${needCount === 1 ? 's' : ''} you.`;
-    greetSub = `${_weekdayShown} · ${HIVE_NAME || (_isFil ? 'ang hive mo' : 'your hive')}`;
+      ? `Magandang ${_todFil}, ${_first}. ${needCount} bahagi ang kailangan ng atensyon mo.`
+      : `Good ${_tod}, ${_first}. ${needCount} area${needCount === 1 ? '' : 's'} need${needCount === 1 ? 's' : ''} you.`;
+    // ★AND THE SUB-LINE THAT RECONCILES IT WAS BEING OVERWRITTEN. The verdict block above builds
+    // `sub` from the real figures precisely "so the supervisor never reads a green verdict next to
+    // 18 open work orders" - and this greeting replaced it with the weekday and hive name, both of
+    // which the eyebrow already shows ("Hive Board · Friday morning"). The v4 headline was worth
+    // keeping; overwriting the numbers underneath it was not. The detail goes back.
+    greetSub = sub || `${_weekdayShown} · ${HIVE_NAME || (_isFil ? 'ang hive mo' : 'your hive')}`;
   } else {
     greet = _isFil ? `Magandang ${_todFil}, ${_first}. Wala kang dapat asikasuhin.` : `Good ${_tod}, ${_first}. You're all clear.`;
     greetSub = _isFil ? `Wala kang kailangang asikasuhin ngayon · naka-sync na ang ${HIVE_NAME || 'hive mo'}.` : `Nothing needs you right now · ${HIVE_NAME || 'your hive'} all synced.`;
@@ -3294,7 +3619,7 @@ async function loadSupervisorSummary() {
       text = _isFil ? `Kritikal ang adoption. Ipares si ${_lastAdoption.champion_candidate || 'pinakaaktibong worker'} sa mga humihina.` : `Adoption critical. Pair ${_lastAdoption.champion_candidate || 'your top worker'} with whoever's slipping.`;
       cta = { label: _isFil ? 'Tingnan ang adoption signals →' : 'View adoption signals →', href: '#adoption-card' };
     } else if (overdue > 5) {
-      text = _isFil ? `${overdue} asset ang may lumipas na PM. I-bulk assign sa PM Scheduler ngayong linggo.` : `${overdue} asset${overdue === 1 ? '' : 's'} have overdue PMs. Bulk-assign them in PM Scheduler this week.`;
+      text = _isFil ? `${overdue} asset ang may lumipas na PM. Iiskedyul sa PM Scheduler ngayong linggo.` : `${overdue} asset${overdue === 1 ? '' : 's'} ${overdue === 1 ? 'has' : 'have'} overdue PMs. Schedule them in PM Scheduler this week.`;
       cta = { label: _isFil ? `I-assign ang ${overdue} asset →` : `Assign ${overdue} asset${overdue === 1 ? '' : 's'} →`, href: 'pm-scheduler.html' };
     } else if (openWO >= 10) {
       text = _isFil ? `${openWO} work order ang bukas. Unahin ang pinakaluma sa Logbook.` : `${openWO} work orders open. Triage the oldest first in Logbook.`;
@@ -3305,7 +3630,7 @@ async function loadSupervisorSummary() {
                 : (_isFil ? 'Nasa panganib ang adoption. Buksan ang Engagement Card para sa pangunahing signal.' : 'Adoption at risk. Open the Engagement Card for the top signal.');
       cta = { label: _isFil ? 'Tingnan ang adoption signals →' : 'View adoption signals →', href: '#adoption-card' };
     } else if (overdue > 0) {
-      text = _isFil ? `${overdue} asset ang may lumipas na PM. Ayusin ngayong linggo para manatiling green ang Reliability.` : `${overdue} asset${overdue === 1 ? '' : 's'} have overdue PMs. Clear them this week to keep Reliability green.`;
+      text = _isFil ? `${overdue} asset ang may lumipas na PM. Ayusin ngayong linggo para manatiling green ang Reliability.` : `${overdue} asset${overdue === 1 ? '' : 's'} ${overdue === 1 ? 'has' : 'have'} overdue PMs. Clear them this week to keep Reliability green.`;
       cta = { label: _isFil ? 'Buksan ang PM Scheduler →' : `Open PM Scheduler →`, href: 'pm-scheduler.html' };
     } else if (openWO > 0) {
       text = _isFil ? `${openWO} bukas na work order. Isara muna ang pinakaluma sa Logbook.` : `${openWO} open work order${openWO === 1 ? '' : 's'}. Close the oldest first in Logbook.`;
@@ -3726,7 +4051,7 @@ function _openIntentModal(preset) {
     save.addEventListener('click', async () => {
       const checked = document.querySelector('input[name="intent-primary"]:checked');
       const goal = checked ? checked.value : null;
-      if (!goal) { showToast('Pick one to save, or tap Later.'); return; }
+      if (!goal) { showToast(_t('Pick one to save, or tap Later.', 'Pumili ng isa para i-save, o pindutin ang Later.')); return; }
       // ★DOUBLE-SUBMIT GUARD + BUSY STATE. Measured: this button was never disabled and never changed
       // label, so for the whole duration of the update there was NO feedback of any kind — and a second tap
       // fired a SECOND hives.update (write count 1 -> 2). On a plant network a second tap while nothing
@@ -3757,12 +4082,12 @@ function _openIntentModal(preset) {
       } catch (e) {
         console.error('hive save failed:', e);
         _releaseSave();                      // a refusal must leave the button usable, or one failure ends the task
-        showToast('Could not save: ' + (e?.message || e));
+        showToast(whWriteError(e, _t('Could not save. Nothing changed; try again.', 'Hindi na-save. Walang nabago; subukan ulit.')));
         return;
       }
       if (res && res.error) {
         _releaseSave();
-        showToast('Could not save: ' + (res.error.message || JSON.stringify(res.error)));
+        showToast(whWriteError(res.error, _t('Could not save. Nothing changed; try again.', 'Hindi na-save. Walang nabago; subukan ulit.')));
         return;
       }
       // Inline `display:flex` on the modal markup beats Tailwind's .hidden
@@ -3837,6 +4162,12 @@ async function loadMembers() {
   }
 
   memberNames = membersData.map(m => m.worker_name);
+  // T56: the leave branch needs ROLES, not just names (co-supervisor detection); membersData is
+  // loader-local, so publish the roster alongside the existing memberNames global.
+  window._memberRoster = membersData.map(m => ({ worker_name: m.worker_name, role: m.role, status: m.status }));
+  // T56: membersData is local to this loader; the kick confirm and the last-supervisor
+  // leave guard need the roster (role + status) at decision time — snapshot it.
+  window._whMembersSnapshot = membersData;
   const _smEl = document.getElementById('stat-members');
   _smEl.textContent = memberNames.length;
   if (window.hideZeroStat) hideZeroStat(_smEl, memberNames.length);
@@ -3899,14 +4230,23 @@ async function loadMembers() {
 // person: the supervisor triggers it, the server (supervisor-reset-password edge fn) verifies the
 // supervisor + worker membership, sets a temp password via the admin API, and returns it ONCE to show.
 async function resetMemberPassword(workerName) {
-  if (HIVE_ROLE !== 'supervisor') { showToast('Supervisors only.'); return; }
+  if (HIVE_ROLE !== 'supervisor') { showToast(_t('Supervisors only.', 'Para lang sa mga supervisor.')); return; }
   if (!(await window.whConfirm(`Reset ${workerName}'s password? You'll get a one-time temporary password to give them. They should change it after signing in.`, { okLabel: 'Reset password', cancelLabel: 'Cancel' }))) return;
   try {
     const { data, error } = await db.functions.invoke('supervisor-reset-password', {
       body: { hive_id: HIVE_ID, target_worker_name: workerName }
     });
     if (error || !data?.temp_password) {
-      showToast('Could not reset password: ' + (data?.message || error?.message || 'unknown error')); return;
+      // T39 (2026-08-26): whWriteError cannot see WHY this failed. supabase-js collapses every
+      // non-2xx into "Edge Function returned a non-2xx status code", so a 403 (not authorised to
+      // reset someone else's password), a 429 and a 500 all arrived as the same generic sentence -
+      // on an action a supervisor takes on behalf of a worker who is locked out and waiting.
+      // whFnError reads error.context, so the function's own words survive; the no-error-but-no-
+      // password case still falls through to whWriteError, which is the right tool for THAT.
+      const _msg = error
+        ? await window.whFnError(error, _t('Could not reset the password. Nothing changed; try again.', 'Hindi na-reset ang password. Walang nabago; subukan ulit.'))
+        : whWriteError(data, _t('Could not reset the password. Nothing changed; try again.', 'Hindi na-reset ang password. Walang nabago; subukan ulit.'));
+      showToast(_msg);
     }
     // Show the temp password ONCE (the server never stores it in plaintext); supervisor copies + hands over.
     await window.whConfirm(
@@ -3916,21 +4256,34 @@ async function resetMemberPassword(workerName) {
     loadAuditLog();  // the reset is audit-logged server-side; refresh the action log
   } catch (e) {
     console.error('hive reset-password failed:', e);
-    showToast('Could not reset password: ' + (e?.message || 'network error'));
+    showToast(whWriteError(e, _t('Could not reset the password. Nothing changed; try again.', 'Hindi na-reset ang password. Walang nabago; subukan ulit.')));
   }
 }
 
 async function kickMember(workerName) {
-  if (HIVE_ROLE !== 'supervisor') { showToast('Supervisors only.'); return; }
+  if (HIVE_ROLE !== 'supervisor') { showToast(_t('Supervisors only.', 'Para lang sa mga supervisor.')); return; }
   // ★ONLINE-ONLY CLASS, AND IT FIRED OFFLINE WITH NOTHING SAID. Removing a member deletes a hive_members row AND writes an audit trail; a revocation that did not land is the dangerous direction, because the supervisor believes access is gone while it is not.
   // Refused BEFORE the confirmation dialog: asking someone to commit to a decision that cannot
   // be delivered leaves them unable to tell whether it was recorded.
   if (typeof whRequireOnline === 'function'
       && !whRequireOnline('Removing this member', (m) => showToast(m))) return;
-  if (!(await window.whConfirm(`Remove ${workerName} from the hive? They will not be able to rejoin unless a supervisor re-approves them.`, { okLabel: 'Remove', cancelLabel: 'Keep' }))) return;
+  // T56 (2026-08-25): a supervisor CAN remove a fellow supervisor (canKick has no !isSup),
+  // but the confirm never said so — the consequence of removing a peer who runs the hive is
+  // bigger than removing a worker, so the confirm names it (T50 consequence-naming). No orphan
+  // risk on THIS path: the remover is a supervisor and remains one.
+  const _target = (window._whMembersSnapshot || []).find(m => m.worker_name === workerName);
+  // T25 (2026-08-26): the confirm now answers the records-fate question the supervisor is
+  // actually weighing - removal ends ACCESS, it does not erase the person's work: their logbook
+  // entries, PM completions and history stay in the hive's records under their name (the same
+  // answer the leave-hive confirm gives). Access ends immediately.
+  const _recordsFate = ' Their logged work stays in the hive’s records under their name; only their access ends, immediately.';
+  const _kickMsg = ((_target && _target.role === 'supervisor') // role-check-allow: _target.role is the LISTED member's own DB field (the kick target), not the ambient user role
+    ? `Remove ${workerName} from the hive? They are a SUPERVISOR - you would take sole charge of approvals and member management. They cannot rejoin unless re-approved.`
+    : `Remove ${workerName} from the hive? They will not be able to rejoin unless a supervisor re-approves them.`) + _recordsFate;
+  if (!(await window.whConfirm(_kickMsg, { okLabel: 'Remove', cancelLabel: 'Keep' }))) return;
   const { error } = await db.from('hive_members')
     .update({ status: 'kicked' }).eq('hive_id', HIVE_ID).eq('worker_name', workerName);
-  if (error) { showToast('Could not remove member: ' + error.message); return; }
+  if (error) { showToast(whWriteError(error, _t('Could not remove the member. They are still in the hive.', 'Hindi natanggal ang miyembro. Nasa hive pa rin siya.'))); return; }
   writeAuditLog('kick_member', 'hive_members', null, workerName, {});
   await loadMembers();
   await loadFeed();
@@ -4237,14 +4590,22 @@ function _openWorkerProfileDrawer(workerName) {
 
 function renderPresenceFallback() {
   const bar = document.getElementById('presence-bar');
+  /* T141 (2026-08-26): this ran when the REALTIME LINK failed, and said "Members offline" /
+     painted every member with an offline dot - a positive claim about people, made from a fact
+     about the network. Presence unavailable is NOT everyone-absent: the teammate you decide not
+     to call may be standing at the machine. Same class as a failed read rendering as an empty
+     list. Say what is actually known: the link is down, so presence is UNKNOWN. */
+  const _unavailable = '<span class="presence-chip" style="color:var(--wh-orange-text);font-style:italic;">'
+    + _t('Presence unavailable - live link down', 'Hindi makita ang presence - down ang live link') + '</span>';
   if (!memberNames.length) {
-    bar.innerHTML = '<span class="presence-chip" style="color:rgba(255,255,255,0.80);font-style:italic;">' + _t('Members offline', 'Offline ang mga miyembro') + '</span>';
+    bar.innerHTML = _unavailable;
     return;
   }
-  bar.innerHTML = memberNames.map(name => {
+  bar.innerHTML = _unavailable + memberNames.map(name => {
     const isMe = name === WORKER_NAME;
-    return `<div class="presence-chip" role="button" tabindex="0" style="cursor:pointer; min-height:44px;" onclick="_openWorkerProfileDrawer('${escJsAttr(name)}')">
-      <span class="presence-dot offline"></span>
+    // dot styled UNKNOWN (hollow), not offline: we cannot see this person's state right now.
+    return `<div class="presence-chip" role="button" tabindex="0" style="cursor:pointer; min-height:44px;" title="${escHtml(_t('Presence unknown while the live link is down', 'Hindi alam ang presence habang down ang live link'))}" onclick="_openWorkerProfileDrawer('${escJsAttr(name)}')">
+      <span class="presence-dot" style="background:transparent;border:1px solid rgba(255,255,255,0.45);"></span>
       ${escHtml(name)}${isMe ? '&nbsp;<span style="color:rgba(255,255,255,0.80);font-size:0.6rem">' + _t('(you)', '(ikaw)') + '</span>' : ''}
     </div>`;
   }).join('');
@@ -4327,7 +4688,7 @@ function startFeedRealtime() {
         renderFeed();
       }
     })
-    .subscribe();
+    .subscribe(typeof rtConn === 'function' ? rtConn() : undefined);
 
   // parts_records and checklist_records tables retired: feed uses logbook and pm_completions only
 
@@ -4360,7 +4721,7 @@ function startFeedRealtime() {
         showHiveToast(`${who} completed PM: ${task}… on ${asset}`);
       }
     })
-    .subscribe();
+    .subscribe(typeof rtConn === 'function' ? rtConn() : undefined);
 }
 
 // ── INVENTORY REALTIME ──
@@ -4374,7 +4735,7 @@ function startInventoryRealtime() {
     }, () => {
       refreshInventory();
     })
-    .subscribe();
+    .subscribe(typeof rtConn === 'function' ? rtConn() : undefined);
 }
 
 function prependFeed(entry) {
@@ -4392,6 +4753,20 @@ function setConn(state) {
   const dot   = document.getElementById('conn-dot');
   const label = document.getElementById('conn-label');
   const pill  = document.getElementById('conn-pill');
+  // T143 (2026-08-25): under a ws-block probe the conn pill honestly said 'Offline' while the
+  // source chip two lines away still said 'Live data' — two TRUE notices (the chip describes the
+  // LOADED data, the pill the LINK) that read as a contradiction. When the link degrades, patch
+  // the chip's freshness word to match reality; restore it when the link comes back.
+  try {
+    const chip = document.getElementById('board-source-chip');
+    if (chip) {
+      const fresh = [...chip.querySelectorAll('*')].find((el) =>
+        /^(Live data|Loaded data)/.test((el.textContent || '').trim()) && el.children.length === 0);
+      if (fresh) fresh.textContent = (state === 'live')
+        ? 'Live data'
+        : 'Loaded data · live updates paused';
+    }
+  } catch (_) { /* empty-catch-allow: chip patching is best-effort chrome */ }
   dot.className = 'conn-dot ' + state;
   if (state === 'live')         { label.textContent = 'Live';            label.style.color = '#4ade80'; }
   else if (state === 'reconnecting') { label.textContent = 'Reconnecting...'; label.style.color = '#facc15'; } /* D1 a11y: #f7a21b (~2.9:1) → #facc15 ≥4.5:1 */
@@ -4462,17 +4837,42 @@ function renderNotifs() {
     return '<span style="width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.3);flex-shrink:0;margin-top:4px;"></span>';
   };
 
-  list.innerHTML = [..._notifs].reverse().map(n => {
+  /* T107 (2026-08-26): ONE BELL, TWO CONCEPTS. Measured on the live board, the tray held
+     "PM Due Soon", "Assets With PM Overdue", "Open work orders", "Low stock" - every one of them
+     a PLANT CONDITION already painted as a tile on this same page and again in alert-hub - mixed
+     in with the approval items, which are the only entries that are actually about THIS person
+     ("Asset Pending Approval", "Item Approved"). Blending them makes the bell mean nothing in
+     particular: a person cannot tell whether it holds work waiting on them or a restatement of
+     the board behind it. Name the two lanes instead of merging or deleting either - the plant
+     lane still earns its place as a summary, but it says where it comes from. */
+  const _isForYou = t => t === 'approval' || t === 'approval-in';
+  const _render = n => {
     const isUnread = n.ts > readTs;
-    return `<div class="flex gap-3 px-4 py-2.5 hover:bg-white/[0.04] transition-colors" style="${isUnread ? 'background:rgba(255,255,255,0.03);' : ''}">
+    /* T107 (2026-08-26): UNREAD WAS INVISIBLE. The badge counts unread while the list shows
+       everything, and the only unread signal was a 3% white tint on a dark surface - present in
+       code, unperceivable in use, so a badge reading "2" over a list of ten gave no way to see
+       WHICH two are new (the aria-label-only class, in colour). Give unread a marker a person can
+       actually find: an accent left-edge and a dot beside the title, with the tint kept. */
+    return `<div class="flex gap-3 px-4 py-2.5 hover:bg-white/[0.04] transition-colors" style="${isUnread ? 'background:rgba(247,162,27,0.07);border-left:3px solid var(--wh-orange);' : 'border-left:3px solid transparent;'}">
       ${iconFor(n.type)}
       <div class="flex-1 min-w-0">
-        <p class="text-xs font-semibold text-white/80">${escHtml(n.title)}</p>
+        <p class="text-xs font-semibold text-white/80">${isUnread ? '<span aria-hidden="true" style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--wh-orange);margin-right:6px;vertical-align:middle;"></span>' : ''}${escHtml(n.title)}${isUnread ? '<span class="sr-only"> (unread)</span>' : ''}</p>
         <p class="text-[11px] text-white/80 leading-snug mt-0.5">${escHtml(n.body)}</p>
         ${n.link ? `<a href="${escHtml(n.link)}" class="text-[11px] font-semibold mt-1 inline-block" style="color:var(--wh-blue-text);">${escHtml(n.link.replace('.html','').replace('-',' '))} →</a>` : ''}
       </div>
     </div>`;
-  }).join('');
+  };
+
+  const ordered = [..._notifs].reverse();
+  const forYou = ordered.filter(n => _isForYou(n.type));
+  const plant  = ordered.filter(n => !_isForYou(n.type));
+  const head = (label, sub) => `<p class="px-4 pt-3 pb-1 text-[10px] font-bold uppercase tracking-wide text-white/80">${label}</p>`
+    + (sub ? `<p class="px-4 pb-1.5 text-[10px] text-white/80 leading-snug">${sub}</p>` : '');
+  list.innerHTML =
+    (forYou.length ? head('Waiting on you', '') + forYou.map(_render).join('') : '')
+    + (plant.length ? head('Plant conditions', 'Also shown on this board and in the alert hub.')
+        + plant.map(_render).join('')
+        + '<a href="alert-hub.html" class="block px-4 py-2 text-[11px] font-semibold" style="color:var(--wh-blue-text);">Open the alert hub &rarr;</a>' : '');
 }
 
 document.getElementById('notif-bell').addEventListener('click', () => {
@@ -4756,41 +5156,114 @@ async function loadApprovalQueue() {
     _pendingAssets = assetsRes.data || [];
     _pendingParts  = partsRes.data  || [];
   }
+  // T20 (2026-08-26): dedup hinting - a supervisor deciding an approval deserves to know the
+  // submission duplicates something already approved. SAME-IDENTIFIER dupes (tag, part_number)
+  // are impossible - unique indexes asset_nodes_tag_unique_per_hive and
+  // inventory_items_partnumber_hive_uidx refuse them at submission - so the only reachable
+  // collision is the same NAME under a different identifier. Bounded name-only reads,
+  // best-effort: no hints is degraded, never blocking.
+  window._apprExisting = null;
+  if (_pendingAssets.length + _pendingParts.length > 0) {
+    try {
+      const norm = (s) => String(s || '').trim().toUpperCase().replace(/\s+/g, ' ');
+      const [aRes, pRes] = await Promise.all([
+        db.from('asset_nodes').select('tag, name').eq('hive_id', HIVE_ID).eq('status', 'approved').limit(1000),
+        db.from('v_inventory_items_truth').select('part_number, part_name').eq('hive_id', HIVE_ID).eq('status', 'approved').limit(1000),
+      ]);
+      if (!aRes.error && !pRes.error) {
+        window._apprExisting = {
+          assetNames:  new Set((aRes.data || []).map(r => norm(r.name)).filter(Boolean)),
+          partNames:   new Set((pRes.data || []).map(r => norm(r.part_name)).filter(Boolean)),
+          norm,
+        };
+      }
+    } catch (_) { /* empty-catch-allow: dedup hints are best-effort context, never gate the queue */ }
+  }
+  // C12 (critic T55/T57, 2026-09-02): THE INVISIBLE APPROVAL BACKLOG. This card counted only
+  // assets+parts (4 shown for Lucena) while 19 FMEA modes + 9 strategies pended in Asset Hub
+  // with NO surface on the board — the supervisor's one approval view undercounted their real
+  // queue 4 vs 32, and a critical item had waited 44 days with no dwell cue. Two head:true
+  // counts (zero rows transferred), null-honest like the marketplace-admin stats: a failed
+  // read renders NOTHING here rather than a confident wrong number. AMC briefings are NOT
+  // counted — their pending semantic is unverified (approved_by-null matched 24 rows where the
+  // walk receipt says 2; counting them without verifying the predicate would ship a lie).
+  try {
+    const [fmeaRes, stratRes, briefRes] = await Promise.all([
+      db.from('rcm_fmea_modes').select('id', { count: 'exact', head: true }).eq('hive_id', HIVE_ID).is('approved_by', null),
+      db.from('rcm_strategies').select('id', { count: 'exact', head: true }).eq('hive_id', HIVE_ID).is('approved_by', null),
+      // T20 completion (2026-09-02): the walk counted 34 pending decisions, and this aggregate had
+      // 32 - the 2 PENDING AMC briefings (approved on Alert Hub) were the missing type. Pending
+      // only: expired/approved briefings owe nothing.
+      db.from('v_amc_truth').select('amc_id', { count: 'exact', head: true }).eq('hive_id', HIVE_ID).eq('status', 'pending'),  // canonical: v_amc_truth (drift gates flagged the raw read)
+    ]);
+    const nOf = r => (r && !r.error && r.count !== null && r.count !== undefined) ? r.count : null;
+    _pendingElsewhere = { fmea: nOf(fmeaRes), strategies: nOf(stratRes), briefings: nOf(briefRes) };
+  } catch (_) { _pendingElsewhere = { fmea: null, strategies: null, briefings: null }; /* empty-catch-allow: absent, never wrong */ }
   renderApprovalQueue();
 }
+let _pendingElsewhere = { fmea: null, strategies: null, briefings: null };
 
 function renderApprovalQueue() {
   if (HIVE_ROLE !== 'supervisor') return;
   const total  = _pendingAssets.length + _pendingParts.length;
+  // C12: the review load that lives on OTHER pages (FMEA modes + strategies in Asset Hub). The
+  // badge counts EVERYTHING a supervisor owes a decision on — the board undercounting 4 vs 32
+  // was the walked defect — and the card names where the rest lives, with the link to act.
+  const _elseFmea  = _pendingElsewhere.fmea;
+  const _elseStrat = _pendingElsewhere.strategies;
+  const _elseBrief = _pendingElsewhere.briefings;   // T20 completion: pending AMC briefings (Alert Hub)
+  const elsewhere  = (_elseFmea || 0) + (_elseStrat || 0) + (_elseBrief || 0);
   const badge  = document.getElementById('approval-badge');
   const queueEl = document.getElementById('approval-queue');
 
-  badge.textContent = total;
-  badge.classList.toggle('hidden', total === 0);
+  badge.textContent = total + elsewhere;
+  badge.classList.toggle('hidden', total + elsewhere === 0);
   // P2-01 honest-degraded: on a read ERROR keep the section visible to show a "couldn't load" message
-  // (never a fake-empty vanish that hides pending items). A genuinely-empty queue still vanishes (calm board).
-  queueEl.classList.toggle('hidden', total === 0 && !_approvalReadErr);
+  // (never a fake-empty vanish that hides pending items). A genuinely-empty queue still vanishes (calm
+  // board) — but only when the ELSEWHERE backlog is also clear, else 0-here + 28-elsewhere stays invisible.
+  queueEl.classList.toggle('hidden', total === 0 && elsewhere === 0 && !_approvalReadErr);
 
   const list    = document.getElementById('approval-list');
   const emptyEl = document.getElementById('approval-empty');
+  const _elseLine = elsewhere ? `<p class="text-[12px] mt-2" style="color:rgba(255,255,255,0.85);">`
+      + `Also awaiting your review in <a href="asset-hub.html" class="underline font-bold" style="color:var(--wh-orange);">Asset Hub</a>: `
+      + [ _elseFmea ? `${_elseFmea} FMEA mode${_elseFmea === 1 ? '' : 's'}` : '',
+          _elseStrat ? `${_elseStrat} strateg${_elseStrat === 1 ? 'y' : 'ies'}` : '' ].filter(Boolean).join(' · ')
+      + (_elseBrief ? `${(_elseFmea || _elseStrat) ? ' · ' : ''}<a href="alert-hub.html" class="underline font-bold" style="color:var(--wh-orange);">${_elseBrief} shift briefing${_elseBrief === 1 ? '' : 's'}</a> in Alert Hub` : '')
+      + `</p>` : '';
 
   if (!total) {
-    list.innerHTML = '';
+    list.innerHTML = _elseLine;
     emptyEl.querySelector('p').textContent = _approvalReadErr
       ? whReadError(_approvalReadErr, 'the approval queue') + ' A loading problem, not an empty queue.'
-      : 'All caught up: no pending items.';
+      : (elsewhere ? 'Nothing to approve on this board.' : 'All caught up: no pending items.');
     emptyEl.classList.remove('hidden');
     return;
   }
   emptyEl.classList.add('hidden');
 
+  // T20 (2026-08-26): each card carries WHEN it was submitted (age = triage order) and a dedup
+  // hint when the submission collides with something already approved - the two facts a
+  // supervisor otherwise tabs away to check before deciding.
+  // T20 S2 dwell-age (2026-09-02): a CRITICAL approval had waited 44 days looking identical to a
+  // fresh one. Age is the triage cue - state it plainly once it exceeds a week (the T55 pattern:
+  // only what is true, no invented SLA).
+  const _sub = (d) => {
+    if (!d) return '';
+    const days = Math.floor((Date.now() - new Date(d).getTime()) / 86400000);
+    const age = days >= 7 ? ` · <b style="color:var(--wh-orange);">${days} days waiting</b>` : '';
+    return ` · submitted ${(typeof whFmtDate === 'function') ? whFmtDate(d) : new Date(d).toLocaleDateString()}${age}`;
+  };
+  const _hint = (txt) => txt ? `<p class="text-[11px] mt-1" style="color:var(--wh-orange);">&#9888; ${escHtml(txt)}</p>` : '';
+  const _ex = window._apprExisting;
   const assetCards = _pendingAssets.map(a => `
     <div class="rounded-xl p-3" id="appr-asset-${escHtml(a.id)}" style="background:rgba(247,162,27,0.06);border:1px solid rgba(247,162,27,0.18);">
       <div class="flex items-start gap-2 mb-2">
         <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0 mt-0.5" style="background:rgba(41,182,217,0.12);color:var(--wh-blue-text);border:1px solid rgba(41,182,217,0.2);">ASSET</span>
         <div class="flex-1 min-w-0">
           <p class="text-xs font-bold text-white">${escHtml(a.asset_id)}${a.name ? ': ' + escHtml(a.name) : ''}</p>
-          <p class="text-[11px] text-white/80">by ${escHtml(a.submitted_by || a.worker_name)} · ${a.criticality ? escHtml(a.criticality) : 'No criticality set'}${a.location ? ' · ' + escHtml(a.location) : ''}</p>
+          <p class="text-[11px] text-white/80">by ${escHtml(a.submitted_by || a.worker_name)} · ${a.criticality ? escHtml(a.criticality) : 'No criticality set'}${a.location ? ' · ' + escHtml(a.location) : ''}${_sub(a.created_at)}</p>
+          ${_hint(_ex && _ex.assetNames.has(_ex.norm(a.name)) ? 'An approved asset already has this exact name (different tag) - check it is not the same machine twice.' : '')}
         </div>
       </div>
       <div class="flex gap-2">
@@ -4805,7 +5278,8 @@ function renderApprovalQueue() {
         <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0 mt-0.5" style="background:rgba(139,92,246,0.12);color:var(--wh-violet-text);border:1px solid rgba(139,92,246,0.2);">PART</span>
         <div class="flex-1 min-w-0">
           <p class="text-xs font-bold text-white">${escHtml(p.part_number)}: ${escHtml(p.part_name)}</p>
-          <p class="text-[11px] text-white/80">by ${escHtml(p.submitted_by || p.worker_name)} · Qty: ${p.qty_on_hand}${p.category ? ' · ' + escHtml(p.category) : ''}</p>
+          <p class="text-[11px] text-white/80">by ${escHtml(p.submitted_by || p.worker_name)} · Qty: ${p.qty_on_hand}${p.category ? ' · ' + escHtml(p.category) : ''}${_sub(p.created_at)}</p>
+          ${_hint(_ex && _ex.partNames.has(_ex.norm(p.part_name)) ? 'An approved part already has this exact name under a different part number - check it is not the same part twice.' : '')}
         </div>
       </div>
       <div class="flex gap-2">
@@ -4814,7 +5288,7 @@ function renderApprovalQueue() {
       </div>
     </div>`).join('');
 
-  list.innerHTML = assetCards + partCards;
+  list.innerHTML = assetCards + partCards + _elseLine;
 }
 
 // ── AUDIT LOG ──
@@ -4838,7 +5312,7 @@ function writeAuditLog(action, targetType, targetId, targetName, meta = {}) {
 }
 
 async function approveItem(table, id, submittedBy, label) {
-  if (HIVE_ROLE !== 'supervisor') { showToast('Supervisors only.'); return; }
+  if (HIVE_ROLE !== 'supervisor') { showToast(_t('Supervisors only.', 'Para lang sa mga supervisor.')); return; }
   // ★ONLINE-ONLY CLASS, AND IT FIRED OFFLINE WITH NOTHING SAID. This carries an optimistic lock (.eq status='pending') so a concurrent decision cannot be re-flipped - a lock that never reaches the database protects nothing.
   // Refused BEFORE the confirmation dialog: asking someone to commit to a decision that cannot
   // be delivered leaves them unable to tell whether it was recorded.
@@ -4852,9 +5326,9 @@ async function approveItem(table, id, submittedBy, label) {
     approved_by: WORKER_NAME,
     approved_at: new Date().toISOString()
   }).eq('id', id).eq('hive_id', HIVE_ID).eq('status', 'pending').select('id');
-  if (error) { showToast('Approve failed: ' + error.message); return; }
+  if (error) { showToast(whWriteError(error, _t('The approval did not go through. The item is still pending.', 'Hindi natuloy ang approval. Naka-pending pa rin ang item.'))); return; }
   if (!updated || !updated.length) {
-    showToast('That item was already handled by another supervisor.');
+    showToast(_t('That item was already handled by another supervisor.', 'Naunahan ka na ng ibang supervisor diyan.'));
     if (table === 'asset_nodes')          _pendingAssets = _pendingAssets.filter(a => a.id !== id);
     else if (table === 'inventory_items') _pendingParts  = _pendingParts.filter(p => p.id !== id);
     renderApprovalQueue();
@@ -4870,24 +5344,39 @@ async function approveItem(table, id, submittedBy, label) {
   showToast(escHtml(label) + ' approved and published to hive.');
   pushNotif('approval', 'Item Approved', `${label} submitted by ${submittedBy} was approved.`, null);
   writeAuditLog('approve_item', table, id, label, { submitted_by: submittedBy });
+  // T108 (2026-08-25): tell the SUBMITTER, not just this supervisor's own notif list —
+  // the guarded server fn resolves the recipient + verifies this caller's role; push
+  // reaches submitters who enabled alerts (best-effort, never blocks the approval).
+  // .then() attached because supabase-js builders are THENABLES - without it the HTTP
+  // request never fires (measured: the un-awaited call enqueued nothing twice).
+  try { db.rpc('notify_submission_decided', { p_table: table, p_item_id: String(id), p_decision: 'approved' }).then(() => {}, () => {}); }
+  catch (_) { /* empty-catch-allow: the decision stands; the nudge is best-effort */ }
   loadAuditLog();
 }
 
 async function rejectItem(table, id, submittedBy, label) {
-  if (HIVE_ROLE !== 'supervisor') { showToast('Supervisors only.'); return; }
+  if (HIVE_ROLE !== 'supervisor') { showToast(_t('Supervisors only.', 'Para lang sa mga supervisor.')); return; }
   // ★ONLINE-ONLY CLASS, AND IT FIRED OFFLINE WITH NOTHING SAID. Same optimistic lock as approve, and the person who submitted it is told to resubmit - a rejection lost offline strands them waiting.
   // Refused BEFORE the confirmation dialog: asking someone to commit to a decision that cannot
   // be delivered leaves them unable to tell whether it was recorded.
   if (typeof whRequireOnline === 'function'
       && !whRequireOnline('Rejecting this submission', (m) => showToast(m))) return;
-  if (!(await window.whConfirm(`Reject "${label}" submitted by ${submittedBy}? They will need to resubmit.`, { okLabel: 'Reject', cancelLabel: 'Cancel' }))) return;
+  // T20 (2026-08-25): a one-tap reject taught the submitter NOTHING - the worker's card just said
+  // REJECTED with no why, and they "will need to resubmit" blind. asset-hub's reject already captures
+  // rejection_reason and renders "Why: ..." to the submitter; this queue is the OTHER mutating path
+  // and must feed the same loop (both tables carry rejection_reason now). whPrompt cancel = no reject.
+  const _reason = await window.whPrompt(
+    `Reject "${label}" submitted by ${submittedBy}? Tell them why, so they can fix it instead of guessing.`,
+    { okLabel: 'Reject', cancelLabel: 'Cancel', inputLabel: 'Reason (the submitter sees this)' });
+  if (_reason === null || _reason === false) return;
   // P6-C1 optimistic lock: only reject a STILL-pending row so a concurrent approve/reject cannot
   // re-flip an already-resolved item (was last-write-wins with no status guard).
-  const { data: updated, error } = await db.from(table).update({ status: 'rejected' })
+  const { data: updated, error } = await db.from(table)
+    .update({ status: 'rejected', rejection_reason: (String(_reason || '').trim().slice(0, 500)) || null })
     .eq('id', id).eq('hive_id', HIVE_ID).eq('status', 'pending').select('id');
-  if (error) { showToast('Reject failed: ' + error.message); return; }
+  if (error) { showToast(whWriteError(error, _t('The rejection did not go through. The item is still pending.', 'Hindi natuloy ang pag-reject. Naka-pending pa rin ang item.'))); return; }
   if (!updated || !updated.length) {
-    showToast('That item was already handled by another supervisor.');
+    showToast(_t('That item was already handled by another supervisor.', 'Naunahan ka na ng ibang supervisor diyan.'));
     if (table === 'asset_nodes')          _pendingAssets = _pendingAssets.filter(a => a.id !== id);
     else if (table === 'inventory_items') _pendingParts  = _pendingParts.filter(p => p.id !== id);
     renderApprovalQueue();
@@ -4899,6 +5388,13 @@ async function rejectItem(table, id, submittedBy, label) {
   renderApprovalQueue();
   showToast(escHtml(label) + ' rejected.');
   writeAuditLog('reject_item', table, id, label, { submitted_by: submittedBy });
+  // T108 (2026-08-25): the submitter hears the decision too — the push names the way
+  // forward ('open Inventory to see why, fix it, and resubmit'), pairing the
+  // rejection_reason card this session added. Guarded server-side; best-effort.
+  // .then() attached because supabase-js builders are THENABLES - without it the HTTP
+  // request never fires (measured: the un-awaited call enqueued nothing twice).
+  try { db.rpc('notify_submission_decided', { p_table: table, p_item_id: String(id), p_decision: 'rejected' }).then(() => {}, () => {}); }
+  catch (_) { /* empty-catch-allow: the decision stands; the nudge is best-effort */ }
   loadAuditLog();
 }
 
@@ -4961,7 +5457,7 @@ function startApprovalRealtime() {
           if (_pendingParts.length !== before) renderApprovalQueue();
         }
       })
-    .subscribe();
+    .subscribe(typeof rtConn === 'function' ? rtConn() : undefined);
 }
 
 function startWorkerApprovalListener() {
@@ -4974,15 +5470,15 @@ function startWorkerApprovalListener() {
     .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'asset_nodes', filter: 'worker_name=eq.' + WORKER_NAME },
       (payload) => {
         const label = payload.new.tag;
-        if (payload.new.status === 'approved') showToast('Your asset ' + label + ' was approved!');
-        if (payload.new.status === 'rejected') showToast('Your asset ' + label + ' was rejected by supervisor.');
+        if (payload.new.status === 'approved') showToast(_t('Your asset ' + label + ' was approved!', 'Na-approve na ang asset mo na ' + label + '!'));
+        if (payload.new.status === 'rejected') showToast(_t('Your asset ' + label + ' was rejected by supervisor.', 'Na-reject ng supervisor ang asset mo na ' + label + '.'));
       })
     .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'inventory_items', filter: 'worker_name=eq.' + WORKER_NAME },
       (payload) => {
-        if (payload.new.status === 'approved') showToast('Your part ' + payload.new.part_name + ' was approved!');
-        if (payload.new.status === 'rejected') showToast('Your part ' + payload.new.part_name + ' was rejected by supervisor.');
+        if (payload.new.status === 'approved') showToast(_t('Your part ' + payload.new.part_name + ' was approved!', 'Na-approve na ang part mo na ' + payload.new.part_name + '!'));
+        if (payload.new.status === 'rejected') showToast(_t('Your part ' + payload.new.part_name + ' was rejected by supervisor.', 'Na-reject ng supervisor ang part mo na ' + payload.new.part_name + '.'));
       })
-    .subscribe();
+    .subscribe(typeof rtConn === 'function' ? rtConn() : undefined);
 }
 
 
@@ -5240,11 +5736,23 @@ async function loadTodaysBrief() {
     const d = res.value.data; const r = d.report_json || {}; const type = types[i];
     if (type === 'failure_digest' && r.top_risk_machines?.length) {
       const top = r.top_risk_machines[0];
-      bullets.push({ color: '#f87171', text: escHtml(`Top risk: ${top.machine}, ${top.failure_count} failures, ${top.total_downtime_h}h down`) });
+      bullets.push({ color: '#f87171', text: escHtml(`Top risk: ${top.machine}, ${top.failure_count} ${top.failure_count === 1 ? 'failure' : 'failures'}, ${top.total_downtime_h}h down`) });
     }
     if (type === 'predictive' && r.predictions?.length) {
       const high = r.predictions.find(p => p.risk === 'HIGH');
-      if (high) bullets.push({ color: '#F7A21B', text: escHtml(`Predicted failure: ${high.machine} by ${high.predicted_next}`) });
+      if (high) {
+        // T65 (critic walk, 2026-09-02): A PREDICTION FROM THE PAST IS NOT NEWS. The brief led with
+        // 'Predicted failure: CT-001 by 2026-06-15' — 79 days beyond its horizon — under 'Updated 2d
+        // ago', because this line re-served the newest stored predictive report without checking the
+        // horizon against TODAY. A passed horizon means the forecast either came true (the logbook
+        // knows, not this line) or missed; both erode trust when headlined as a live forecast. The
+        // reframe states the fact honestly; a future-dated prediction renders as before.
+        const _horizon = new Date(String(high.predicted_next || ''));
+        const _past = !isNaN(_horizon.getTime()) && _horizon.getTime() < (Date.now() - 86400000);
+        bullets.push({ color: '#F7A21B', text: escHtml(_past
+          ? `${high.machine} was predicted to fail by ${high.predicted_next} - past due; check its recent entries and rerun the prediction`
+          : `Predicted failure: ${high.machine} by ${high.predicted_next}`) });
+      }
     }
     if (type === 'pm_overdue' && r.overdue_assets?.length) {
       const n = r.overdue_assets.length;
@@ -5307,7 +5815,14 @@ async function loadPatternAlerts() {
   if (chipEl && typeof renderSourceChip === 'function') {
     chipEl.innerHTML = renderSourceChip({
       freshness: 'Automatic scan · runs on a schedule',
-      source:    'v_alert_truth (kind=signature)',
+      // The fuel is named in CODE, not only in the comment above: this panel filters v_alert_truth
+      // to kind=signature, and that half of the UNION is failure_signature_alerts — the table a
+      // supervisor needs to reach a signature alert's trigger row.
+      // source-chip-allow: the page reads the UNION view v_alert_truth, never the table directly, so
+      // failure_signature_alerts will not appear as a .from() here. It is named because it is where a
+      // signature alert's trigger row actually lives — the chip documents the fuel behind the view,
+      // which is the same allowance the readiness chip takes for its RPC.
+      source:    'v_alert_truth (kind=signature) + failure_signature_alerts',
       notes:     [
         'Flags repeat failures, rising failure rates, multiple symptoms, and missed PMs',
         'Follows ISO 14224',
@@ -5568,7 +6083,9 @@ async function askCoach() {
       const { data, error } = await db.functions.invoke('ai-orchestrator', {
         body: { question, hive_id: HIVE_ID, worker_name: WORKER_NAME, mode: 'coach' }
       });
-      if (error) throw new Error(error.message);
+      // T39: rethrowing error.message rethrows the placeholder. Carry the real reason instead,
+      // so whatever catches this shows a person something they can act on.
+      if (error) throw new Error(await window.whFnError(error, 'The recommendation engine did not run.'));
       actions = data?.actions;
     }
 
@@ -5663,6 +6180,46 @@ async function loadTeamPulse() {
     if (!_pmHealthErr) hideZeroStat(_ppEl, _pmOverdueCount);  // don't dim the "—" unavailable marker
     hideZeroStat(_psEl, stockIssues);
   }
+
+  // ── T186 (week-one habit / drift): make a worker drifting away VISIBLE while there is time to help. ──
+  // The recency data existed across four truth surfaces but was never surfaced to a supervisor ("the
+  // platform knows who stopped and tells no one"). v_worker_assignment_truth is row-per-member (a
+  // never-engaged new worker has NULL last_job_at/last_pm_at), so this catches BOTH the drifted-away
+  // worker and the week-one abandonment case. Best-effort: it never breaks the panel.
+  try {
+    const qwEl = document.getElementById('pulse-quiet-workers');
+    if (qwEl) {
+      const actRes = await db.from('v_worker_assignment_truth')
+        .select('worker_name, last_job_at, last_pm_at')
+        .eq('hive_id', HIVE_ID).limit(500);   // L2: hive members are bounded-by-nature; insurance cap
+      qwEl.hidden = false;
+      if (actRes.error) {
+        // honest-degraded: an unread activity list must NOT imply everyone is active (a false "all clear")
+        qwEl.style.color = 'rgba(255,255,255,0.55)';
+        qwEl.textContent = _t('Worker activity is unavailable right now.', 'Hindi available ang aktibidad ng manggagawa ngayon.');
+      } else {
+        const now = Date.now(), DAY = 86400000, QUIET_DAYS = 7;
+        const quiet = (actRes.data || []).map(r => {
+          const last = Math.max(r.last_job_at ? new Date(r.last_job_at).getTime() : 0,
+                                r.last_pm_at ? new Date(r.last_pm_at).getTime() : 0, 0);
+          return { name: r.worker_name, days: last ? Math.floor((now - last) / DAY) : null };
+        }).filter(w => w.days === null || w.days >= QUIET_DAYS)
+          .sort((a, b) => (b.days === null ? 1e9 : b.days) - (a.days === null ? 1e9 : a.days));
+        if (!quiet.length) {
+          // Calm Dashboard Contract: a healthy team reads calm, not alarming.
+          qwEl.style.color = 'rgba(255,255,255,0.55)';
+          qwEl.textContent = '✓ ' + _t('Everyone was active in the last week.', 'Aktibo ang lahat nitong nakaraang linggo.');
+        } else {
+          const parts = quiet.slice(0, 6).map(w =>
+            escHtml(w.name) + ' (' + (w.days === null ? _t('no activity', 'walang aktibidad') : w.days + _t('d', 'a')) + ')');
+          const more = quiet.length > 6 ? ' +' + (quiet.length - 6) : '';
+          qwEl.style.color = 'var(--wh-orange-text, #F7A21B)';
+          qwEl.innerHTML = '⚠️ ' + _t('Quiet 7+ days', 'Tahimik 7+ araw') + ': ' + parts.join(' · ') + more;
+        }
+      }
+    }
+  } catch (e) { /* empty-catch-allow: the drift line is a best-effort supervisor aid, never breaks the panel */ }
+
   panel.classList.remove('hidden');
 }
 
@@ -5930,7 +6487,7 @@ function generateHandover() {
 
 function copyHandover() {
   const text = document.getElementById('handover-body').innerText;
-  navigator.clipboard.writeText(text).then(() => showToast('Handover report copied.'));
+  navigator.clipboard.writeText(text).then(() => showToast(_t('Handover report copied.', 'Nakopya na ang handover report.')));
 }
 
 function printHandover() {

@@ -10,7 +10,7 @@ By **WorkHive Editorial Team**
 ·
 Published 17 May 2026
 ·
-Updated 17 May 2026
+Updated 24 Aug 2026
 ·
 9 min read
 
@@ -108,7 +108,7 @@ The tool this guide is about
 
 The Day Planner has separate views for supervisor and engineer modes. The YILO links to the plant's PM compliance, OEE, and MTTR targets so progress is visible. The WILO auto-suggests blocks based on the MILO. The DILO 5-minute morning view shows today's 3 priorities pulled from the WILO and the time-blocks they need. Free at the worker tier forever.
 
-No hive yet? [Join WorkHive](https://workhiveph.com/#join) first (free, takes 30 seconds).
+No hive yet? [Join WorkHive](https://workhiveph.com/?signup=1) first (free, takes 30 seconds).
 
 ## A supervisor day in 5 buckets
 
@@ -183,4 +183,4 @@ Two weeks for personal results (less end-of-day stress, better sleep, fewer carr
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: c4aec2f68eb9b8f6 -->
+<!-- md-twin source-sha: 630f3068fde0f25b -->

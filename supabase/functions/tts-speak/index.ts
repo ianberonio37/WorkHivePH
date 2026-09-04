@@ -185,7 +185,7 @@ serveObserved("tts-speak", async (req) => {
     }
   } catch (_) { /* fall through to IP bucket */ }
   const _rl = await checkSoloRateLimit(_adminClient, soloRateLimitKey(_uid, _ip), undefined, undefined, _ip);
-  if (!_rl.allowed) return soloRateLimitedResponse(corsHeaders);
+  if (!_rl.allowed) return soloRateLimitedResponse(corsHeaders, _rl.retry_after_seconds);
 
   const personaKey = clampPersona(body.persona);
   const voice      = PERSONA_TO_VOICE[personaKey];

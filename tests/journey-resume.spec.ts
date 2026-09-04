@@ -147,6 +147,69 @@ test.describe('resume.html — Resume / CV Builder journey', () => {
     await expect(whPage.locator('#resume-paper.tpl-workhive')).toHaveCount(1);
   });
 
+  /**
+   * The resume-builder skill's grounded checklist, item 6, asks for THREE things from export:
+   * the preview opens and renders, ATS-plain shows NO EMPTY SECTION HEADERS, and the required
+   * ordering is present. The test above covered the first. These cover the other two.
+   *
+   * Why the empty-header half matters more than it looks: an applicant tracking system parses
+   * headings to segment a resume, so a bare "EXPERIENCE" over nothing can make a parser read the
+   * NEXT section's content as work history — a resume that is worse than one which simply omits
+   * the heading. The page already gets this right (every section is emitted behind an
+   * `if (_present(...).length)` guard); it was just never asserted, so nothing stopped a future
+   * refactor from hoisting the headers out of their guards.
+   */
+  test('ATS-plain prints no heading for a section with nothing in it', async ({ whPage }) => {
+    await gotoResume(whPage);
+    // a resume that is ONLY a name: every section is empty
+    await whPage.fill('[data-basics="name"]', 'Pablo Aguilar');
+    await whPage.click('#btn-export');
+    await expect(whPage.locator('#preview-overlay')).toHaveClass(/open/);
+    await whPage.click('.pv-tpl[data-tpl="ats-plain"]');
+    const paper = whPage.locator('#resume-paper');
+    await expect(paper).toContainText('Pablo Aguilar');
+    /* CASE-INSENSITIVE, and that is not a detail. sec() emits "Experience" but .r-sec-title is
+       text-transform:uppercase, and Playwright's innerText APPLIES the transform - so the DOM
+       text is "EXPERIENCE". The first cut of this test asserted .not.toContainText('Experience')
+       and PASSED - vacuously, because that string can never appear either way. A negative
+       assertion whose subject cannot occur is not a test; it is a green light wired to nothing.
+       The sibling ordering test below is the non-vacuity proof: it asserts these same headings DO
+       render once their sections have content, so together they can actually fail. */
+    for (const heading of ['Experience', 'Skills', 'Education', 'Certificates', 'Projects']) {
+      await expect(paper, `empty section "${heading}" must not print a heading`)
+        .not.toContainText(new RegExp(heading, 'i'));   // CONTAIN, not HAVE: toHaveText matches the WHOLE text and would be vacuous again
+    }
+  });
+
+  test('ATS-plain keeps the required section ordering once sections have content', async ({ whPage }) => {
+    await gotoResume(whPage);
+    /* Seed through the in-page API rather than the upload flow: WHResume.set() populates the
+       model, renders and saves LOCALLY (scheduleLocalSave -> localStorage), so this test needs
+       no extract stub, no file round-trip, and — the part that matters — writes no
+       resume_documents row. A live Save here would leave a cloud row that a sibling journey
+       loads on init, reddening the dedupe test (skill §18/§22, learned the hard way). */
+    await whPage.evaluate(() => (window as any).WHResume.set({
+      basics: { name: 'Pablo Aguilar' },
+      work: [{ position: 'Maintenance Supervisor', name: 'Universal Robina', startDate: '2021', endDate: '2024' }],
+      skills: [{ name: 'arc welding' }, { name: 'centrifugal pumps' }],
+      certificates: [{ name: 'TESDA NC II Mechanical', issuer: 'TESDA', date: '2024' }],
+    }));
+    await whPage.click('#btn-export');
+    await whPage.click('.pv-tpl[data-tpl="ats-plain"]');
+    const text = (await whPage.locator('#resume-paper').innerText()) || '';
+    // Experience before Skills before Certificates — the order the page emits, asserted by
+    // POSITION rather than presence, since a parser reads top-down and order is the contract.
+    // uppercase via CSS text-transform, which innerText applies - match case-insensitively
+    const at = (h: string) => text.search(new RegExp(h, 'i'));
+    expect(at('Experience'), 'Experience should render').toBeGreaterThan(-1);
+    expect(at('Skills'), 'Skills should render').toBeGreaterThan(-1);
+    expect(at('Experience'), 'Experience must come before Skills').toBeLessThan(at('Skills'));
+    if (at('Certificates') > -1) {
+      expect(at('Skills'), 'Skills must come before Certificates')
+        .toBeLessThan(at('Certificates'));
+    }
+  });
+
   test('AI polish surfaces ONLY the bullets it actually changed (no no-op rows)', async ({ whPage }) => {
     await stubExtract(whPage);
     await gotoResume(whPage);

@@ -1,0 +1,16 @@
+{
+ "mean": 26.1,
+ "worst": 36.6,
+ "worstPage": "pm-scheduler.html",
+ "perPage": {
+  "index.html": 28.9,
+  "logbook.html": 25.9,
+  "pm-scheduler.html": 36.6,
+  "inventory.html": 25.9,
+  "dayplanner.html": 25.9,
+  "community.html": 18.8,
+  "hive.html": 27.7,
+  "asset-hub.html": 18.8
+ },
+ "established": "2026-08-26"
+}

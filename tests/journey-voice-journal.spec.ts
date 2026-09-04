@@ -162,7 +162,7 @@ test.describe('voice-journal.html — voice journal journey', () => {
     expect(isActive, 'zaniah should be the default persona (Step D)').toBe(true);
   });
 
-  test('ai-gateway anon-allow: voice-journal agent answers without sign-in', async ({ whPage }) => {
+  test('ai-gateway anon-allow: voice-journal agent answers without sign-in', async ({ whPage, hiveId }) => {
     await whPage.goto(PAGE);
     await waitForPageReady(whPage);
     await whPage.waitForTimeout(1500);
@@ -190,7 +190,7 @@ test.describe('voice-journal.html — voice journal journey', () => {
           body: JSON.stringify({
             agent:   'voice-journal',
             message: 'What are the priorities today?',
-            hive_id: '586fd158-42d1-4853-a406-64a4695e71c4',
+            hive_id: hiveId,
             context: { persona: 'zaniah', worker_name: 'Pablo Aguilar', source: 'journey-test' },
           }),
         });
@@ -209,7 +209,7 @@ test.describe('voice-journal.html — voice journal journey', () => {
     expect(result.answer.toLowerCase()).not.toContain('your question is saved');
   });
 
-  test('zaniah-strategist-lens: priorities-question reply uses strategist vocabulary', async ({ whPage }) => {
+  test('zaniah-strategist-lens: priorities-question reply uses strategist vocabulary', async ({ whPage, hiveId }) => {
     await whPage.goto(PAGE);
     await waitForPageReady(whPage);
     await whPage.waitForTimeout(1500);
@@ -229,7 +229,7 @@ test.describe('voice-journal.html — voice journal journey', () => {
           body: JSON.stringify({
             agent:   'voice-journal',
             message: 'What are the priorities today?',
-            hive_id: '586fd158-42d1-4853-a406-64a4695e71c4',
+            hive_id: hiveId,
             context: { persona: 'zaniah', worker_name: 'Pablo Aguilar', source: 'journey-test' },
           }),
         });
@@ -255,7 +255,7 @@ test.describe('voice-journal.html — voice journal journey', () => {
     expect(hit, `Zaniah's reply ("${result.answer.slice(0, 200)}…") must use at least one strategist-lane keyword (${strategistVocab.join(', ')}). If this fails, Step D's domain lens didn't reach the prompt.`).toBeTruthy();
   });
 
-  test('hezekiah-technical-lens: torque-question reply bridges to technical or uses technical vocabulary', async ({ whPage }) => {
+  test('hezekiah-technical-lens: torque-question reply bridges to technical or uses technical vocabulary', async ({ whPage, hiveId }) => {
     await whPage.goto(PAGE);
     await waitForPageReady(whPage);
     await whPage.waitForTimeout(1500);
@@ -275,7 +275,7 @@ test.describe('voice-journal.html — voice journal journey', () => {
           body: JSON.stringify({
             agent:   'voice-journal',
             message: 'What torque should I use for an M20 anchor bolt on a pump baseplate?',
-            hive_id: '586fd158-42d1-4853-a406-64a4695e71c4',
+            hive_id: hiveId,
             context: { persona: 'hezekiah', worker_name: 'Pablo Aguilar', source: 'journey-test' },
           }),
         });

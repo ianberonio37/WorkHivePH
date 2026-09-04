@@ -9,9 +9,10 @@
 <meta name="description" content="WorkHive AI Quality + ROI dashboard. Honest visibility into AI cost, quality, and predicted savings, gated to Stair 2+ so the numbers only appear when the hive has earned the right to trust them." />
   <meta property="og:title" content="AI Quality + ROI · WorkHive" />
   <meta property="og:image" content="https://workhiveph.com/brand_assets/og-social.png" />
-  <link rel="canonical" href="https://workhiveph.com/workhive/ai-quality.html" />
+  <link rel="canonical" href="https://workhiveph.com/ai-quality.html" />
   <link rel="manifest" href="manifest.json" />
   <!-- chip-allow: page is the canonical AI Quality + ROI surface; renders source chip inline in cards -->
+  <script src="browser-floor.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
   <script src="utils.js"></script>
   <script src="maturity-gate.js"></script>
@@ -160,7 +161,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     (async function init() {
       if (!WORKER_NAME) WORKER_NAME = await restoreIdentityFromSession(db);
       try { await db.auth.getUser(); } catch (_) { /* empty-catch-allow: best-effort settle */ } // AU2: settle the JWT attach before gated reads (cold-load-401 class, assistant precedent)
-      if (!WORKER_NAME) { window.location.href = 'index.html?signin=1'; return; }
+      if (!WORKER_NAME) { whSignInWall(); return; }
       HIVE_ID = whHiveId() || '';
       if (!HIVE_ID) { window.location.href = 'hive.html'; return; }
       if (typeof logPageView === 'function') logPageView(db);
@@ -174,7 +175,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           const mainEl = document.querySelector('main') || document.body;
           window.renderMaturityHonestEmpty(mainEl, gate, {
             pageName: 'AI Quality + ROI',
-            why: 'These numbers need real data to be right: steady logs and PMs done on time. Reach Stair 2 and this page fills with your hive\'s actual AI spend, fallback rate, schema compliance, and predicted savings.',
+            // T89 (2026-08-26): the reason given was true of three of the four things it named, and
+            // false of the fourth - the one that costs money. Fallback rate, schema compliance and
+            // predicted savings genuinely need steady logs and PMs before they mean anything. AI
+            // SPEND does not: it is exact from the first call, whatever stair the hive is on.
+            // Telling an owner their spend "needs real data to be right" is not a reason, it is a
+            // WRONG reason, about the figure they are most entitled to. Whether to surface spend
+            // before Stair 2 is a product call; saying something untrue about it is not.
+            why: 'The quality numbers here need real data to be right: steady logs and PMs done on time. Reach Stair 2 and this page fills in. You will see your fallback rate, schema compliance, predicted savings, and what your AI use has cost.',
             alternateSuggestion: 'log 30 days of fault history. Add your top 5 assets. Finish at least one PM. When your hive reaches Stair 2, this page fills with real numbers.',
           });
           return;
@@ -230,25 +238,55 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     // supervisor; USD does not). Sourced as a constant intentionally so
     // we don't depend on a network call from this page; the underlying
     // cost in ai_cost_log stays in USD for auditability.
+    // T89 (2026-08-26): every peso figure on the cost card is derived from this one constant -
+    // the hero, the per-call average, and the MODEST / TYPICAL / HEAVY verdict thresholds - and
+    // the rate was neither dated nor shown. PHP/USD has moved between roughly 50 and 59 in recent
+    // years, so a drifting rate silently shifts both the number and the judgement about it, while
+    // the card reads like a measurement. Building an FX feed is not the job here; saying what the
+    // figure rests on is. Stated on the glass beside the number, the way a source chip states a
+    // window.
     const PHP_PER_USD = 56;
+    const FX_BASIS = 'converted at ₱' + PHP_PER_USD + ' to $1 (fixed rate)';
     // Time-saved heuristic: each useful AI answer (thumbs up) saves ~5 min
     // of diagnosis vs no AI assist. Honest, defensible, easy to explain to
     // a supervisor: "26 useful answers × 5 min = ~2 hours saved this month."
     const MIN_SAVED_PER_THUMBS_UP = 5;
 
+    // ★THE SAME MINIMUM THE TRUST CARD ALREADY ENFORCES, hoisted so the HEADLINE obeys it too
+    // (2026-08-28). The card below reasons this out carefully — "a PERCENTAGE needs a denominator
+    // before it means anything, and below about five ratings a single tap moves it twenty points or
+    // more" — and refuses to dress the number as a verdict until it can support one. computeVerdict
+    // never got that treatment, so it read thumbsPct < 0.5 straight off ONE rating: measured live,
+    // 348 AI calls and a single thumbs-down turned the owner's headline red with "AI is struggling
+    // for your hive", directly above the card saying "0 up / 1 down: too few to judge yet (5+
+    // needed)". Two verdicts about the same data on one screen, and the louder one was the one
+    // without the guard — the guard went where the arithmetic was and skipped the display.
+    const MIN_RATINGS_FOR_VERDICT = 5;
+
     function computeVerdict(s) {
       if (s.totalCalls === 0) return { tone: 'empty', label: 'No AI activity yet', detail: 'Your workers have not used AI tools this month.' };
       const thumbsTotal = s.thumbsUp + s.thumbsDown;
-      const thumbsPct = thumbsTotal > 0 ? s.thumbsUp / thumbsTotal : null;
+      // Below the minimum the ratings carry no verdict — not a good one and not a bad one.
+      const thumbsPct = thumbsTotal >= MIN_RATINGS_FOR_VERDICT ? s.thumbsUp / thumbsTotal : null;
       const fallbackPct = s.totalCalls > 0 ? s.fallbackCount / s.totalCalls : 0;
       const schemaPct = s.schemaTotal > 0 ? s.schemaOk / s.schemaTotal : null;
 
+      // fallbackPct and schemaPct keep their independent say: they are measured over every call
+      // (348 here), so they have the denominator the thumbs lack.
       const bad = (thumbsPct !== null && thumbsPct < 0.5) || fallbackPct > 0.3;
       const watch = (thumbsPct !== null && thumbsPct < 0.7)
                  || fallbackPct > 0.15
                  || (schemaPct !== null && schemaPct < 0.8);
       if (bad)   return { tone: 'attn',    label: 'AI is struggling for your hive' };
       if (watch) return { tone: 'watch',   label: 'AI is working but needs attention' };
+      // ★AND "HELPING" IS ALSO A VERDICT THE DATA MAY NOT SUPPORT. Gating only the BAD branch traded
+      // a false alarm for a false reassurance: with one rating the headline flipped from "AI is
+      // struggling" to "AI is helping your hive" while the line beneath it still read "rated it 0%
+      // useful". When the ratings are too few to judge AND nothing else has flagged, the honest
+      // answer is that there is no verdict yet — not the good one.
+      if (thumbsTotal < MIN_RATINGS_FOR_VERDICT && schemaPct === null) {
+        return { tone: 'empty', label: 'Not enough ratings to judge yet' };
+      }
       return     { tone: 'healthy', label: 'AI is helping your hive' };
     }
 
@@ -260,9 +298,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         line2 = 'Once workers start using AI for logbook drafts, voice journals or visual defect capture, this page will fill in.';
       } else {
         const thumbsTotal = s.thumbsUp + s.thumbsDown;
-        if (thumbsTotal > 0) {
+        if (thumbsTotal >= MIN_RATINGS_FOR_VERDICT) {
           const pct = Math.round(100 * s.thumbsUp / thumbsTotal);
           line2 = `Workers used AI ${s.totalCalls} times this month and rated it ${pct}% useful (${s.thumbsUp} thumbs up / ${s.thumbsDown} down).`;
+        } else if (thumbsTotal > 0) {
+          // A percentage over one or two ratings is noise wearing a number's clothes: one tap moves
+          // it 50 points. State the raw counts, which are true, and say what would make a rate mean
+          // something — the same discipline the trust card below already applies.
+          line2 = `Workers used AI ${s.totalCalls} times this month. Only ${thumbsTotal} rating${thumbsTotal === 1 ? '' : 's'} so far (${s.thumbsUp} up / ${s.thumbsDown} down). Too few for a useful-rate; ${MIN_RATINGS_FOR_VERDICT}+ makes it meaningful.`;
         } else {
           line2 = `Workers used AI ${s.totalCalls} times this month. No thumbs ratings yet: encourage workers to rate answers so this page gets sharper.`;
         }
@@ -283,9 +326,30 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         trust = { hero: '-', sub: 'No thumbs ratings yet', tag: 'NO DATA', tone: 'grey' };
       } else {
         const pct = Math.round(100 * s.thumbsUp / thumbsTotal);
-        const tag = pct >= 70 ? 'HEALTHY' : pct >= 50 ? 'WATCH' : 'LOW TRUST';
-        const tone = pct >= 70 ? 'green' : pct >= 50 ? 'amber' : 'red';
-        trust = { hero: pct + '%', sub: `${s.thumbsUp} thumbs up · ${s.thumbsDown} down`, tag, tone };
+        // ★T65 (2026-08-26): THE VERDICT HAD NO SAMPLE FLOOR. With a single rating this card read
+        // "100% · HEALTHY" in green, or "0% · LOW TRUST" in red - a confident judgement about the
+        // AI, from one tap, on the page an owner uses to decide whether it is worth paying for.
+        // The zero case was already handled honestly ("NO DATA"), and the counts were already shown
+        // beside the figure; what was missing is that a PERCENTAGE needs a denominator before it
+        // means anything, and below about five ratings a single tap moves it twenty points or more.
+        //
+        // The number is still shown - hiding it would be its own dishonesty, and the owner can read
+        // the counts - but it is not dressed as a verdict until it can support one, and the card
+        // says what would make it meaningful. Same discipline the reliability workbench applies to a
+        // Weibull fit with too few failures.
+        const MIN_RATINGS_FOR_VERDICT = 5;
+        if (thumbsTotal < MIN_RATINGS_FOR_VERDICT) {
+          trust = {
+            hero: pct + '%',
+            sub: `${s.thumbsUp} up / ${s.thumbsDown} down: too few to judge yet (${MIN_RATINGS_FOR_VERDICT}+ needed)`,
+            tag: 'TOO FEW RATINGS',
+            tone: 'grey',
+          };
+        } else {
+          const tag = pct >= 70 ? 'HEALTHY' : pct >= 50 ? 'WATCH' : 'LOW TRUST';
+          const tone = pct >= 70 ? 'green' : pct >= 50 ? 'amber' : 'red';
+          trust = { hero: pct + '%', sub: `${s.thumbsUp} thumbs up · ${s.thumbsDown} down`, tag, tone };
+        }
       }
 
       // Card 2 — Cost this month (in pesos)
@@ -296,7 +360,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const costTone = php < 2000 ? 'green' : 'amber';
       const cost = {
         hero: whFmtPeso(php, { decimals: 2 }),
-        sub: `${s.totalCalls} AI calls × avg ${whFmtPeso(php / Math.max(s.totalCalls, 1), { decimals: 2 })} each`,
+        sub: `${s.totalCalls} AI calls × avg ${whFmtPeso(php / Math.max(s.totalCalls, 1), { decimals: 2 })} each · ${FX_BASIS}`,
         tag: costTag,
         tone: costTone,
       };

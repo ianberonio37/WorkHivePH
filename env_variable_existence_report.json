@@ -1,7 +1,7 @@
 {
   "summary": {
-    "files_scanned": 190,
-    "total_refs": 365,
+    "files_scanned": 191,
+    "total_refs": 368,
     "total_missing": 0,
     "baseline": 0,
     "env_names_known": 49
@@ -369,6 +369,10 @@
     },
     {
       "file": "supabase/functions/tts-speak/index.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/vehicle-doc-extract/index.ts",
       "missing": []
     },
     {

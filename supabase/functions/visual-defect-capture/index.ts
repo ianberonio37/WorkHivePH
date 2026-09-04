@@ -181,7 +181,13 @@ async function matchAssetByTag(
   db: SupabaseClient, hiveId: string, tag: string | null,
 ): Promise<{ asset_id: string; tag: string; name: string } | null> {
   if (!tag) return null;
-  const cleaned = tag.trim().toUpperCase().slice(0, 40);
+  /* A tag reaches an .or() ilike below, so it needs the same treatment as any typed term:
+     a comma or a parenthesis ends the or() condition early and PostgREST rejects the whole
+     filter (400, "failed to parse logic tree"), while % and _ would silently widen the
+     match. This had neither. */
+  const cleaned = tag.trim().toUpperCase().slice(0, 40)
+    .replace(/[,()\\]/g, " ").replace(/\s+/g, " ").trim()
+    .replace(/%/g, "\\%").replace(/_/g, "\\_");
   if (!cleaned) return null;
   // Match on tag (case-insensitive) OR name; prefer exact tag match.
   const { data } = await db.from("v_asset_truth")
@@ -293,7 +299,7 @@ serveObserved("visual-defect-capture", async (req) => {
       const _rq = await checkRouteRateLimit(db, hive_id || "", "visual-defect-capture");
       // Denies ONLY when an explicit hive_route_quotas row exists (rq.per_route), so this stays
       // a no-op until an admin sets a cap - while always counting for attribution.
-      if (_rq.per_route && !_rq.allowed) return routeRateLimitedResponse(corsHeaders, "visual-defect-capture", _rq.cap);
+      if (_rq.per_route && !_rq.allowed) return routeRateLimitedResponse(corsHeaders, "visual-defect-capture", _rq.cap, _rq.retry_after_seconds);
     } catch { /* empty-catch-allow: per-surface quota bookkeeping must never fail a real request */ }
     const rl = await checkAIRateLimit(db, hive_id, RATE_LIMIT_PER_HOUR);
     if (!rl.allowed) {

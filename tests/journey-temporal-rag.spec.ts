@@ -33,9 +33,9 @@ const skipIfNotDeployed = (r: any) => r.status === 404 || r.status === 0;
 
 test.describe('temporal-rag-orchestrator — Phase 3 of AGENTIC_RAG_ROADMAP.md', () => {
 
-  test('missing question → 400', async ({ whPage }) => {
+  test('missing question → 400', async ({ whPage, hiveId }) => {
     await whPage.goto(HOST); await waitForPageReady(whPage);
-    const r = await invoke(whPage, { hive_id: '586fd158-42d1-4853-a406-64a4695e71c4' });
+    const r = await invoke(whPage, { hive_id: hiveId });
     test.skip(skipIfNotDeployed(r), 'fn not deployed');
     expect(r.status).toBe(400);
   });
@@ -47,21 +47,21 @@ test.describe('temporal-rag-orchestrator — Phase 3 of AGENTIC_RAG_ROADMAP.md',
     expect(r.status).toBe(400);
   });
 
-  test('invalid from/to range → 400', async ({ whPage }) => {
+  test('invalid from/to range → 400', async ({ whPage, hiveId }) => {
     await whPage.goto(HOST); await waitForPageReady(whPage);
     const r = await invoke(whPage, {
-      question: 'compare years', hive_id: '586fd158-42d1-4853-a406-64a4695e71c4',
+      question: 'compare years', hive_id: hiveId,
       from: '2025-01-01', to: '2024-01-01',  // backwards
     });
     test.skip(skipIfNotDeployed(r), 'fn not deployed');
     expect(r.status).toBe(400);
   });
 
-  test('happy path: 5-year window decomposes to yearly periods', async ({ whPage }) => {
+  test('happy path: 5-year window decomposes to yearly periods', async ({ whPage, hiveId }) => {
     await whPage.goto(HOST); await waitForPageReady(whPage);
     const r = await invoke(whPage, {
       question: 'how have failures trended on P-203?',
-      hive_id:  '586fd158-42d1-4853-a406-64a4695e71c4',
+      hive_id:  hiveId,
       asset_tag: 'P-203',
       from: '2021-01-01', to: '2026-05-01',
     });

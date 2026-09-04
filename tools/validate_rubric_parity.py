@@ -46,7 +46,12 @@ SPEC = REPO / "ufai-rubric-spec.json"
 # context dims hunted live (X/Y) + the behavioral-family cross-page dim (S4) + system dims measured
 # across sessions (G5/J3) — none single-page-static, so exempt from the lens like S2/S3. Z1/Z2/Z3 ARE
 # single-page-static → encoded in the lens (survey_ufai_rubric.js), NOT exempt.
-EXEMPT_CROSS_PAGE = {"S2", "S3", "G5", "J3", "S4", "JA1", "JA2", "JA3", "AI6"}
+EXEMPT_CROSS_PAGE = {"S2", "S3", "G5", "J3", "S4", "JA1", "JA2", "JA3", "AI6", "CV1", "CV2", "CV3"}
+# CV1-CV3 (2026-08-24, Trajectory T1 conversion-visibility) are BEHAVIORAL cross-boundary dims: they
+# CLICK CTAs as anon (CV1: prove_cta_activation.mjs + battery clickAudit), walk auth walls for doors
+# (CV2: prove_journey J1-J3 oracles + LA8/LA10), and complete the whole anon->account funnel with a
+# psql-verified row (CV3: journey LA11). No single-page DOM scan can measure a click's consequence,
+# so they are lens-exempt for the same structural reason as JA*.
 # AI6 (2026-07-24 agentic write accountability) is a BACKEND dim: it grades what an AI edge fn WRITES
 # to the database, which no DOM scan can observe - measured from edge-fn source by
 # validate_ai_write_provenance.py. Exempt from the lens for the same reason as J3/G5/S4/JA*.   # JA1 (2026-07-23 deep-link ARRIVAL fidelity) is
@@ -55,7 +60,7 @@ EXEMPT_CROSS_PAGE = {"S2", "S3", "G5", "J3", "S4", "JA1", "JA2", "JA3", "AI6"}
 # measured from page SOURCE by validate_journey_ux_dims.py, exempt from the lens exactly like G5/J3/S4.   # X3, Y1 (2026-07-22 findability/offline) + X2 (2026-07-23 interruption/draft-survival) + X1, Y2 (2026-07-23 dead-end-states/stress-timing static slices) built as single-page lens dims → no longer exempt
 
 # single-letter A–Z classes + the 2-letter deeper-extension classes (AI/PP/DL/DD, added 2026-07-23).
-_VALID_CLASS = set("ABCDEFGHIJKLMNOPQRSTVWXYZ") | {"AI", "PP", "DL", "DD", "TR", "RE", "JA", "DP"}
+_VALID_CLASS = set("ABCDEFGHIJKLMNOPQRSTVWXYZ") | {"AI", "PP", "DL", "DD", "TR", "RE", "JA", "DP", "CV"}
 
 
 def _class_of(dim: str) -> str:
@@ -142,6 +147,16 @@ def check(doc_text: str, code_text: str, spec_obj: dict | None,
     if spec_obj is not None:
         spec_dims = parse_spec(spec_obj)
         spec = set(spec_dims)
+        # (T1 2026-08-24) _META DRIFT — _meta.classes/_meta.dims are DERIVED facts and must be
+        # re-derived every run: they sat at 21/78 while the body grew to 32/99, because every
+        # dim expansion appended entries without touching _meta, and nothing compared them.
+        _meta = spec_obj.get("_meta", {})
+        _true_dims = len(spec_dims)
+        _true_classes = len({re.match(r"[A-Z]+", k).group() for k in spec_dims})
+        if _meta.get("dims") not in (None, _true_dims):
+            problems.append(f"_meta.dims claims {_meta.get('dims')} but the spec body has {_true_dims}")
+        if _meta.get("classes") not in (None, _true_classes):
+            problems.append(f"_meta.classes claims {_meta.get('classes')} but the spec body has {_true_classes}")
         # dims NOT measured by the single-page lens: cross-page family-sweep dims (S2/S3), the journey-ux
         # source-grep validator dims (J3/G5/S4/JA*, 2026-07-22 — validate_journey_ux_dims.py), and the
         # BACKEND write-provenance dim (AI6, 2026-07-24 — validate_ai_write_provenance.py grades what an

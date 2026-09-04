@@ -23,7 +23,7 @@
   <meta property="og:type" content="article" />
   <meta property="og:site_name" content="WorkHive" />
   <meta property="article:published_time" content="2026-05-16T00:00:00+08:00" />
-  <meta property="article:modified_time" content="2026-05-17T00:00:00+08:00" />
+  <meta property="article:modified_time" content="2026-08-24T00:00:00+08:00" />
   <meta property="article:author" content="WorkHive Editorial Team" />
   <meta property="article:section" content="Maintenance" />
 
@@ -52,7 +52,7 @@
         },
         "publisher": { "@id": "https://workhiveph.com/#organization" },
         "datePublished": "2026-05-16",
-        "dateModified": "2026-05-17",
+        "dateModified": "2026-08-24",
         "mainEntityOfPage": "https://workhiveph.com/learn/start-digital-logbook-philippine-factory/",
         "inLanguage": "en-PH",
         "articleSection": "Maintenance",
@@ -173,7 +173,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -333,7 +333,8 @@
     <nav class="flex items-center gap-6">
       <a href="/" class="nav-link">Home</a>
       <a href="/learn/" class="nav-link">Learn</a>
-      <a href="/#join" class="nav-link">Join the Hive</a>
+      <a href="/?signin=1" class="nav-link">Sign In</a>
+      <a href="/?signup=1" class="nav-link">Sign Up Free</a>
     </nav>
   </div>
 </header>
@@ -359,7 +360,7 @@
       <span class="opacity-40">·</span>
       <span>Published <time datetime="2026-05-16">16 May 2026</time></span>
       <span class="opacity-40">·</span>
-      <span>Updated <time datetime="2026-05-17">17 May 2026</time></span>
+      <span>Updated <time datetime="2026-08-24">24 Aug 2026</time></span>
       <span class="opacity-40">·</span>
       <span>11 min read</span>
     </div>
@@ -477,7 +478,7 @@
         <h4 aria-level="3">WorkHive Logbook is free</h4>
         <p>It runs in the browser, installs as a PWA on Android and iPhone, queues entries offline, and gives the supervisor a real-time view without printing. No credit card, no per-user license. Built for Philippine industrial use as Stage 1 ("Paper to Digital") of a 4-stage path that scales all the way to predictive maintenance and AI.</p>
         <a href="/logbook.html" class="cta-btn">Open the Logbook</a>
-        <p class="cta-secondary">No hive yet? <a href="/#join">Join WorkHive</a> first (free, takes 30 seconds).</p>
+        <p class="cta-secondary">No hive yet? <a href="/?signup=1">Join WorkHive</a> first (free, takes 30 seconds).</p>
       </div>
 
       <h2 id="coexistence">If you already have SAP, Maximo, or Excel</h2>
@@ -535,7 +536,7 @@
 
       <h2 id="tools-compared">Free tools comparison</h2>
       <p>If you are deciding which tool to start with, here is how the common Philippine-factory options compare on the six non-negotiables from earlier:</p>
-      <table>
+      <div data-table-scroll style="overflow-x:auto;-webkit-overflow-scrolling:touch;" role="region" aria-label="Scrollable table" tabindex="0"><table>
         <thead>
           <tr>
             <th>Tool</th>
@@ -575,7 +576,7 @@
             <td>No (per-user license)</td>
           </tr>
         </tbody>
-      </table>
+      </table></div>
       <p>The decision is rarely about features. It is about which tool will still be in use in month 6.</p>
 
       <h2 id="faq">Frequently asked questions</h2>
@@ -646,11 +647,11 @@
 <!-- ── Footer ── -->
 <footer class="py-10 border-t border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
   <div class="max-w-4xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">
-    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-05-17">17 May 2026</time></p>
+    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-08-24">24 Aug 2026</time></p>
     <div class="flex items-center gap-6">
       <a href="/" class="hover:text-white/60 transition-colors">Home</a>
       <a href="/#faq" class="hover:text-white/60 transition-colors">FAQ</a>
-      <a href="/#join" class="hover:text-white/60 transition-colors">Join the Hive</a>
+      <a href="/?signup=1" class="hover:text-white/60 transition-colors">Join the Hive</a>
     </div>
   </div>
 </footer>

@@ -314,6 +314,12 @@ async function walkHandoff(ctx, from, emptySrc) {
     // real labelled navigation to another surface; the bare logo-to-home link is the last resort.
     const link = await page.evaluate((self) => {
       const cands = [];
+      // T1: the `^#` skip below stops being a SILENT skip. In-page anchors are legitimately not
+      // handoff candidates, but a #frag pointing at no live id is a dead tap this walker used to
+      // step right over (the sticky-#join class) — count them so the record carries the finding.
+      const deadAnchors = [...document.querySelectorAll('a[href^="#"]')]
+        .map((a) => (a.getAttribute('href') || '').slice(1).split('?')[0])
+        .filter((f) => f && !document.getElementById(f) && !document.getElementsByName(f).length).length;
       for (const a of document.querySelectorAll('a[href]')) {
         const r = a.getBoundingClientRect(); const s = getComputedStyle(a);
         if (!(r.width > 0 && r.height > 0 && s.visibility !== 'hidden' && s.display !== 'none')) continue;
@@ -330,17 +336,38 @@ async function walkHandoff(ctx, from, emptySrc) {
         cands.push({ href, file, param, text,
                      rank: param ? 3 : (text && file !== 'index') ? 2 : text ? 1 : 0 });
       }
-      if (!cands.length) return { none: true, seen: 0 };
-      const best = cands.reduce((a, b) => (b.rank > a.rank ? b : a));
-      return { ...best, seen: cands.length, files: [...new Set(cands.map((c) => c.file))].slice(0, 6) };
+      if (!cands.length) return { none: true, seen: 0, deadAnchors };
+      // ALL candidates come back, ranked. Choosing here would repeat the bug fixed below: this
+      // runs in the page and cannot see the roster, so it must not be the thing that decides.
+      cands.sort((a, b) => b.rank - a.rank);
+      return { cands: cands.slice(0, 40), seen: cands.length, deadAnchors,
+               files: [...new Set(cands.map((c) => c.file))].slice(0, 6) };
     }, from);
-    if (!link || link.none || !ROSTER.has(link.file)) {
+    // ★PICK THE BEST ROSTER CANDIDATE, NOT THE BEST CANDIDATE (2026-08-27, T29).
+    // This used to `reduce` to the single highest-ranked link and then declare the whole cell
+    // NOT-MEASURED if that one pick happened to sit outside the roster - so hive, which carries
+    // THIRTEEN in-app links including pm-scheduler, inventory, logbook and alert-hub, reported
+    // "no usable in-app link to another product page" because a marketplace-seller link outranked
+    // them and was off-roster. skillmatrix and community failed the same way. Three pages' handoff
+    // cells read as un-measurable while the links they needed were sitting right there.
+    // The ranking answers "which link is the most interesting handoff"; the roster answers "which
+    // links can I walk". Applying the second only to the winner of the first is a fallback chain
+    // that gives up after one link - the same shape as the fragment-mangling bug the comment above
+    // records, which is why the fix is to filter the WHOLE list rather than repair the winner.
+    const rosterCands = (link && link.cands ? link.cands : []).filter((c) => ROSTER.has(c.file));
+    const chosen = rosterCands.length ? rosterCands[0] : null;
+    if (!link || link.none || !chosen) {
       await page.close();
       // An honest NOT-MEASURED says what it saw, so 'no link' can be told apart from 'links to
       // things outside the roster' without a second run.
+      const offRoster = link && link.cands && link.cands.length ? link.cands[0].file : null;
       return { na: `no usable in-app link to another product page (${link ? link.seen : 0} candidate(s)`
-        + `${link && link.files ? ', to: ' + link.files.join('/') : ''}${link && link.file ? `; best was "${link.file}" which is not in the roster` : ''})` };
+        + `${link && link.files ? ', to: ' + link.files.join('/') : ''}`
+        + `${offRoster ? `; none of them in the roster, best was "${offRoster}"` : ''})`,
+        deadAnchors: (link && link.deadAnchors) || 0 };
     }
+    link.href = chosen.href; link.file = chosen.file;
+    link.param = chosen.param; link.text = chosen.text; link.rank = chosen.rank;
 
     await page.goto(new URL(link.href, `${ORIGIN}/${from}.html`).href,
                     { waitUntil: 'domcontentloaded', timeout: 25000 });
@@ -349,7 +376,8 @@ async function walkHandoff(ctx, from, emptySrc) {
     const reading = await page.evaluate(READ, { emptySrc });
     const url = page.url();
     await page.close();
-    return { link, landed, reading, keptParam: link.param ? url.includes(link.param.split('=')[0]) : null };
+    return { link, landed, reading, landedQuery: (() => { try { return new URL(url).search; } catch (_) { return ''; } })(),
+             keptParam: link.param ? url.includes(link.param.split('=')[0]) : null };
   } catch (e) { await page.close().catch(() => {}); return { error: String(e.message || e).slice(0, 120) }; }
 }
 
@@ -380,9 +408,37 @@ async function walkAbandon(ctx, page_, target) {
     if (target.openBy === 'fn' || target.fn) await page.evaluate(target.fn || target.opener).catch(() => {});
     else {
       try { await page.click(target.opener, { timeout: 6000 }); }
-      catch (e) { await page.close();
-        return { na: `the opener ${target.opener} never became clickable — the composer could `
-          + 'not be opened, so there was nothing to abandon' }; }
+      catch (e) {
+        // ★SAY WHICH OF THE THREE IT WAS (2026-08-27, T29). This blamed the OPENER for every click
+        // failure, so three cells read "the opener #fab-post never became clickable" — which is the
+        // sentence a dead button would produce, and cost a real investigation to disprove. All three
+        // were anon personas REDIRECTED TO THE AUTH WALL: they never reached the page, so of course
+        // its composer was not there. A control that is absent because the persona never arrived, a
+        // control missing from the DOM, and a control that is present but never becomes clickable
+        // are three different findings, and only the last one is a defect. Same ethic the handoff
+        // N/A already states: an honest NOT-MEASURED says what it saw.
+        const landed = pageName(page.url());
+        const seen = await page.evaluate((sel) => {
+          const el = document.querySelector(sel);
+          if (!el) return { present: false };
+          const cs = getComputedStyle(el);
+          return { present: true, hidden: cs.display === 'none' || cs.visibility === 'hidden',
+                   disabled: !!el.disabled };
+        }, target.opener).catch(() => null);
+        await page.close();
+        if (landed && landed !== page_) {
+          return { na: `this persona never reached ${page_} — it was sent to "${landed}", so the `
+            + 'composer was not there to abandon' };
+        }
+        if (seen && !seen.present) {
+          return { na: `the opener ${target.opener} is not in the DOM for this persona — nothing `
+            + 'to open, so nothing to abandon' };
+        }
+        const why = seen && seen.hidden ? 'present but not visible'
+                  : seen && seen.disabled ? 'present but disabled' : 'present and never clickable';
+        return { na: `the opener ${target.opener} is ${why} — the composer could `
+          + 'not be opened, so there was nothing to abandon' };
+      }
     }
     await page.waitForTimeout(900);
 
@@ -469,8 +525,13 @@ async function visit(ctx, url, { wipeFirst }) {
   // produced `hive P1 repeat FAIL — still asking "GET STARTED"` for a string that does not occur anywhere
   // in hive.html. A redirect is its own outcome, never a verdict about the page you asked for.
   const landed = pageName(page.url());
+  // T1: the query is part of the wall's QUALITY — index.html?signin=1 opens the auth modal with
+  // both doors; a bare index dump is marketing copy with the intent lost. The anon oracles below
+  // now read this instead of blessing every redirect equally.
+  let landedQuery = '';
+  try { landedQuery = new URL(page.url()).search; } catch (_) { /* leave '' */ }
   await page.close();
-  return { ...reading, restErrors, landed, redirected: landed !== url.replace(/\.html$/, '') };
+  return { ...reading, restErrors, landed, landedQuery, redirected: landed !== url.replace(/\.html$/, '') };
 }
 
 // ── TEETH · both directions, against a REAL page rather than a mocked reading ──────────────────────
@@ -580,11 +641,20 @@ for (const p of (ONE ? [ONE.replace(/\.html$/, '')] : PAGES)) {
 
       if (a1.redirected && anonish) {
         // The auth wall, met by someone with no session. That IS the correct journey for this persona —
-        // they are sent somewhere they can actually do something — so it passes, but it is recorded as a
-        // redirect rather than dressed up as having reached the page's own value.
-        rec.first_run = { ok: a1.actionable >= 3, verdict: `redirected to "${a1.landed}" — the expected `
-          + `auth wall for an ${idA} persona on a private page, and it offers ${a1.actionable} actionable `
-          + `control(s). No claim is made about ${p}'s own content, which this persona never sees.` };
+        // but T1 raised the bar: a wall is only correct WITH A DOOR. "Every redirect passes" was the
+        // exemption that let engineering-design dump anon arrivals on bare marketing copy for months
+        // (no modal, no message, intent lost). A wall landing on index must carry ?signin=1/?signup=1
+        // so the auth modal actually opens; any other landing keeps the old actionable-controls bar.
+        const doored = a1.landed !== 'index' || /[?&]sign(in|up)=1/.test(a1.landedQuery || '');
+        rec.first_run = {
+          ok: a1.actionable >= 3 && doored,
+          verdict: doored
+            ? `redirected to "${a1.landed}${a1.landedQuery || ''}" — the expected auth wall for an ${idA} `
+              + `persona on a private page, and it offers ${a1.actionable} actionable control(s) plus the `
+              + `auth door. No claim is made about ${p}'s own content, which this persona never sees.`
+            : `WALL WITHOUT A DOOR — an ${idA} persona was dumped on bare "${a1.landed}" with no `
+              + `?signin=1/?signup=1, so the auth modal never opens and the intent is lost (the `
+              + 'engineering-design class).' };
       } else if (a1.redirected) {
         // A person WITH a session bounced off the page they asked for.
         rec.first_run = { ok: false, verdict: `BOUNCED — a signed-in "${persona.label}" asked for ${p} and `
@@ -618,8 +688,11 @@ for (const p of (ONE ? [ONE.replace(/\.html$/, '')] : PAGES)) {
         // Same rule as J1: a reading taken on another page cannot settle a claim about this one. For an
         // anon persona the wall is expected and the return visit simply meets it again.
         rec.repeat = anonish
-          ? { ok: true, verdict: `redirected to "${a2.landed}" again — the same expected auth wall, which `
-              + 'is consistent behaviour for a returning visitor with no session' }
+          ? ((a2.landed !== 'index' || /[?&]sign(in|up)=1/.test(a2.landedQuery || ''))
+              ? { ok: true, verdict: `redirected to "${a2.landed}${a2.landedQuery || ''}" again — the same `
+                  + 'expected auth wall (door included), consistent for a returning visitor with no session' }
+              : { ok: false, verdict: `WALL WITHOUT A DOOR on the return visit — bare "${a2.landed}" with `
+                  + 'no ?signin=1/?signup=1 (T1: a redirect only passes when the auth modal opens)' })
           : { ok: false, verdict: `BOUNCED on the return visit — landed on "${a2.landed}" instead of ${p}` };
       } else if (a2.setupDemand && !a1.setupDemand) {
         rec.repeat = { ok: false, verdict: `the RETURN visit demanded setup the first one did not: `
@@ -718,6 +791,10 @@ for (const p of (ONE ? [ONE.replace(/\.html$/, '')] : PAGES)) {
       // ── J3 · cross_surface_handoff — follow a link out and arrive somewhere that works.
       if (wants('j3')) {
       const h = await walkHandoff(ctxA, p, REASONED_EMPTY_SRC);
+      // T1: dead in-page anchors seen while ranking candidates ride along on the record — the
+      // walker used to skip #links silently, which is how a dead #join CTA stayed invisible here.
+      const _da = (h.link && h.link.deadAnchors) || h.deadAnchors || 0;
+      if (_da) rec.handoffDeadAnchors = _da;
       if (h.error) rec.handoff = { ok: false, verdict: `could not be walked: ${h.error}` };
       // Left OWED rather than failed — but the REASON is recorded, because an unexplained gap in
       // coverage is indistinguishable from an oversight when someone reads this later.
@@ -728,9 +805,26 @@ for (const p of (ONE ? [ONE.replace(/\.html$/, '')] : PAGES)) {
       // SUPPOSED to land on sign-in; a members-only destination that let them straight in would be
       // the actual defect.
       else if (h.landed !== h.link.file && anonish && /^index/.test(h.landed))
-        rec.handoff = { ok: true, verdict: `"${h.link.text}" -> the auth wall at "${h.landed}" `
-          + `instead of ${h.link.file}, which is correct for an ${idA} persona following a `
-          + `members-only link; no claim is made about ${h.link.file}'s own content` };
+        // T1: same door test as J1/J2 — a members-only link may wall an anon walker, but the wall
+        // must open the auth modal, not strand them on marketing copy with the destination lost.
+        rec.handoff = /[?&]sign(in|up)=1/.test(h.landedQuery || '')
+          ? { ok: true, verdict: `"${h.link.text}" -> the auth wall at "${h.landed}${h.landedQuery}" `
+              + `instead of ${h.link.file}, which is correct for an ${idA} persona following a `
+              + `members-only link; no claim is made about ${h.link.file}'s own content` }
+          : { ok: false, verdict: `WALL WITHOUT A DOOR — "${h.link.text}" walled an ${idA} persona on `
+              + `bare "${h.landed}" (no ?signin=1/?signup=1): the modal never opens and the promised `
+              + `${h.link.file} intent is lost` };
+      else if (h.landed !== h.link.file && /^index/.test(h.landed) && /[?&]sign(in|up)=1/.test(h.landedQuery || '')) {
+        // T2 (2026-08-24): a SIGNED identity landing on the auth wall WITH its door is the
+        // instrument's own doing — J1's wipeFirst cleared this context's session (name without
+        // session), so the destination's gate correctly walled a caller who no longer has one.
+        // A real signed-in bounce lands somewhere WITHOUT the door and still fails below. OWED
+        // with the reason, never a red banked against the product (not-applicable ≠ failed).
+        rec.handoff = null;
+        rec.handoffNa = `walled at the auth door ("${h.landed}${h.landedQuery}") while holding a `
+          + `${idA} identity — the J1 wipe cleared this context's live session, so the bounce `
+          + 'measures the harness identity, not the product handoff';
+      }
       else if (h.landed !== h.link.file) rec.handoff = { ok: false, verdict: `the link "${h.link.text}" `
         + `promised ${h.link.file} and the walker landed on ${h.landed} — the handoff did not go where `
         + 'the link said it would' };

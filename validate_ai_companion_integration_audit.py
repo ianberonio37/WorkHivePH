@@ -19,6 +19,8 @@ Forward-only L0 ratchet for the tenth 10-turn flywheel batch (2026-05-21).
 
 from __future__ import annotations
 
+import re
+
 import os, sys
 if sys.platform == "win32":
     import io
@@ -49,12 +51,42 @@ def check_quiet_hours(c: str) -> list[dict]:
 
 
 def check_preflight(c: str) -> list[dict]:
+    """The preflight must be CALLED, not merely present.
+
+    ★THIS CHECK WAS VACUOUS UNTIL 2026-08-26 (T79). It asserted the four blocker STRINGS
+    appeared in the file - and they did, inside a function nothing ever invoked. The guard was
+    defined, exported in the test-helper block, certified green, and protecting nothing on the
+    one path that writes to the plant's records by voice. Its writeVerbs were slot-style
+    ('log_entry'), while the router emits 'logbook.create', so even a call would have matched
+    nothing. Presence is not wiring: require a call site that is neither the definition nor
+    the export.
+    """
     issues = []
     if "_preflightAction" not in c:
         issues.append({"check": "preflight", "reason": "_preflightAction missing."})
-    for blocker in ("'no_intent'", "'missing_asset_tag'", "'malformed_asset_tag'", "'voice_execute_lock'"):
+        return issues
+
+    call_sites = [
+        m for m in re.finditer(r"_preflightAction\s*\(", c)
+        if not re.search(r"function\s+_preflightAction\s*\($", c[:m.end()])
+    ]
+    # call_sites already excludes the definition, so anything left is a real invocation
+    if len(call_sites) < 1:
+        issues.append({"check": "preflight",
+                       "reason": "_preflightAction is defined but never CALLED - a guard nothing "
+                                 "invokes protects nothing, on the path that writes by voice."})
+
+    for blocker in ("'no_intent'", "'missing_asset_tag'", "'malformed_asset_tag'",
+                    "'voice_execute_lock'", "'ambiguous_asset'"):
         if blocker not in c:
             issues.append({"check": "preflight", "reason": f"Blocker {blocker} missing from preflight."})
+
+    # the router's own intent kinds must be among what the guard recognises, or write intents
+    # sail straight past it the way they did before T79
+    if not re.search(r"logbook\.create", c):
+        issues.append({"check": "preflight",
+                       "reason": "the preflight does not know the router's write kinds "
+                                 "(logbook.create / inventory.deduct / pm.complete)."})
     return issues
 
 

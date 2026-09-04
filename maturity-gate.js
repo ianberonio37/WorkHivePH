@@ -52,6 +52,42 @@
    *     compositeScore: number | null,
    *   }
    */
+  /* ★T187 (2026-08-26): THIS SYSTEM WAS ONE-DIRECTIONAL. maturity-gate told a hive what it could
+     not have yet - "unlocks at Stair 2", "reach Stair 3" - on every gated surface, and said nothing
+     whatsoever when the hive CROSSED one. A plant that spent three months building logbook history
+     earned Stair 2 in silence: the refusal simply stopped appearing, which nobody notices, because
+     noticing an absence is not how people work. The whole promise of the maturity ladder is that
+     patience is rewarded, and the reward was never announced.
+
+     Detected centrally rather than per-page, because every gated surface already calls
+     checkMaturityGate and only the FIRST one after a crossing should speak. The last stair seen is
+     device-local on purpose (it is a "have you been told" flag, not a fact about the hive - see the
+     account-vs-device split in state_scope_registry.json), and it is keyed by hive so switching
+     hives cannot make one hive's progress announce the other's.
+
+     ★IT ONLY EVER ANNOUNCES A RISE. A stair that goes DOWN - readiness decays if logging stops - is
+     recorded silently: telling someone they have been demoted, unprompted, on whatever page they
+     happened to open, is a different feature and a crueller one. The refusal messages already
+     explain what is missing when they next hit a gate. */
+  function _noteStairProgress(hiveId, cs) {
+    try {
+      if (typeof cs !== 'number' || !hiveId) return;
+      var K = 'wh_last_stair_seen_' + hiveId;
+      var raw = localStorage.getItem(K);
+      var prev = raw === null ? null : Number(raw);
+      localStorage.setItem(K, String(cs));
+      if (prev === null || !isFinite(prev)) return;   // first sight: record, never announce
+      if (cs <= prev) return;                         // no rise, or a decay we stay quiet about
+      var name = STAIR_NAMES[cs] || ('Stair ' + cs);
+      if (typeof window !== 'undefined' && typeof window.showToast === 'function') {
+        window.showToast('Your hive reached Stair ' + cs + ': ' + name +
+                         '. The surfaces that were waiting on this are open now.', 'success');
+      }
+    } catch (_) {
+      /* empty-catch-allow: an unlock notice must never be the reason a gate check fails */
+    }
+  }
+
   async function checkMaturityGate(db, hiveId, requiredStair) {
     if (!db || !hiveId) {
       return {
@@ -76,6 +112,8 @@
       }
       const cs = data && typeof data.current_stair === 'number' ? data.current_stair : 0;
       const blocked = cs < requiredStair;
+      // only with a genuine snapshot: a missing one reads as 0 and would announce a fake climb
+      if (data && typeof data.current_stair === 'number') _noteStairProgress(hiveId, cs);
       return {
         blocked,
         currentStair: data ? cs : null,

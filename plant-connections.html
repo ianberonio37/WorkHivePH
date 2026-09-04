@@ -9,8 +9,9 @@
 <meta name="description" content="Plant Connections Console: supervisor surface unifying CMMS integration configs, external sync activity, sensor topic mappings, and gateway audit. Phase 5 Track C." />
   <meta property="og:title" content="Plant Connections · WorkHive" />
   <meta property="og:image" content="https://workhiveph.com/brand_assets/og-social.png" />
-  <link rel="canonical" href="https://workhiveph.com/workhive/plant-connections.html" />
+  <link rel="canonical" href="https://workhiveph.com/plant-connections.html" />
   <link rel="manifest" href="manifest.json" />
+  <script src="browser-floor.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
   <script src="utils.js"></script>
   <link rel="stylesheet" href="tokens.css">
@@ -160,7 +161,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     (async function init() {
       if (!WORKER_NAME) WORKER_NAME = await restoreIdentityFromSession(db);
       try { await db.auth.getUser(); } catch (_) { /* empty-catch-allow: best-effort settle */ } // AU2: settle the JWT attach before gated reads (cold-load-401 class, assistant precedent)
-      if (!WORKER_NAME) { window.location.href = 'index.html?signin=1'; return; }
+      if (!WORKER_NAME) { whSignInWall(); return; }
       HIVE_ID = whHiveId() || '';
       if (!HIVE_ID) { window.location.href = 'hive.html'; return; }
       HIVE_ROLE = localStorage.getItem('wh_hive_role') || '';
@@ -260,7 +261,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         sensors = { hero: '0 sensors', sub: 'No MQTT/OPC-UA topics mapped: Anomaly Engine sensor source is dark', tag: 'NOT WIRED', tone: 'grey' };
       } else {
         sensors = {
-          hero: `${s.topics.length} sensors`,
+          hero: `${s.topics.length} ${s.topics.length === 1 ? 'sensor' : 'sensors'}`,
           sub: 'Mapped to assets · feeds Anomaly Engine 2.0',
           tag: 'LIVE',
           tone: 'green',
@@ -321,7 +322,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       if (v.tone === 'empty') {
         line2 = 'Most hives start by linking a CMMS (SAP PM, Maximo, or a generic CSV drop) and mapping a few sensor topics. The page fills in from there.';
       } else if (v.tone === 'healthy') {
-        line2 = `CMMS sync fresh · ${s.topics.length} sensors live · ${cards.api.hero.toLowerCase()} API · compliance configured.`;
+        line2 = `CMMS sync fresh · ${s.topics.length} ${s.topics.length === 1 ? 'sensor' : 'sensors'} live · ${cards.api.hero.toLowerCase()} API · compliance configured.`;
       } else if (v.tone === 'watch') {
         const issues = [];
         if (cards.cmms.tone === 'amber') issues.push('CMMS sync catching up');
@@ -380,7 +381,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       } else if (cards.comp.tone === 'amber' && s.sso && s.sso.status === 'pending_review') {
         text = 'SSO is pending IT review. Send your SAML certificate thumbprint to the platform admin to move it from pending_review to active.';
       } else if (cards.comp.tone === 'amber' && !s.retention) {
-        text = 'You are using the platform default retention windows (30 days soft-delete, 1095 days audit, 90 days AI telemetry). Custom retention windows for PDPA are provisioned during enterprise onboarding: contact your platform admin.';
+        text = 'You are using the platform default retention windows (30 days before hidden records are cleared, 1095 days audit, 90 days AI telemetry). Custom retention windows for PDPA are provisioned during enterprise onboarding: contact your platform admin.';
       } else if (cards.api.tone === 'amber') {
         text = 'API error rate is creeping up. Open Show details to see which routes are failing: voice-journal-agent and visual-defect-capture are the usual heavy hitters.';
       } else {
@@ -501,7 +502,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           <p class="meta">PDPA evidence · daily cron at 12:00 PHT purges past retention</p>
           <!-- table-name-allow: plant-connections integration status table --> <div class="wh-scroll-x"><table class="pc-table">
             <tbody>
-              <tr><td>Soft-deleted rows</td><td class="num-right">${escHtml(soft)}</td></tr>
+              <tr><td>Hidden rows (kept, not erased)</td><td class="num-right">${escHtml(soft)}</td></tr>
               <tr><td>Audit trail</td><td class="num-right">${escHtml(audit)}</td></tr>
               <tr><td>AI telemetry (cost / quality)</td><td class="num-right">${escHtml(ai)}</td></tr>
             </tbody>
@@ -562,7 +563,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         return `
           <tr>
             <td><strong>${escHtml(c.label || c.system_type)}</strong> <span style="color:var(--muted); font-size:0.62rem;">${escHtml(c.system_type)}</span></td>
-            <td>${escHtml(c.sync_freq || '-')}</td>
+            <!-- T63 (2026-08-26): sync_freq is stored and shown, and nothing reads it -
+                 no cron, no edge function. A supervisor reading 'daily' here concluded a
+                 scheduler was running. Say what is true until one is. -->
+            <td>${escHtml(c.sync_freq && c.sync_freq !== 'manual'
+                            ? c.sync_freq + ' (not scheduled yet)'
+                            : (c.sync_freq || '-'))}</td>
             <td>${escHtml(c.auth_method || '-')}</td>
             <td><span class="pill ${statusPill}">${escHtml(statusText)}</span></td>
           </tr>

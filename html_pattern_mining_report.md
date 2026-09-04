@@ -40,12 +40,12 @@ outliers are real gaps or legitimate exceptions for that page type.
 | `has_meta_robots` | 57% | 24 / 42 |
 | `has_empty_state_anchor` | 57% | 24 / 42 |
 | `has_verdict_card` | 45% | 19 / 42 |
-| `uses_eschtml_binding` | 33% | 14 / 42 |
+| `uses_eschtml_binding` | 35% | 15 / 42 |
 | `loads_wh_capture_validate` | 14% | 6 / 42 |
 | `validates_hive_membership` | 14% | 6 / 42 |
+| `has_og_description` | 11% | 5 / 42 |
+| `has_twitter_card` | 9% | 4 / 42 |
 | `has_source_chip` | 9% | 4 / 42 |
-| `has_og_description` | 7% | 3 / 42 |
-| `has_twitter_card` | 7% | 3 / 42 |
 | `has_jsonld_schema` | 7% | 3 / 42 |
 | `loads_maturity_gate_js` | 7% | 3 / 42 |
 | `loads_wh_persona_js` | 4% | 2 / 42 |

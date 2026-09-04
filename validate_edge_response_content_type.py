@@ -47,7 +47,12 @@ def _file_helpers_set_ct(body: str) -> set:
     out = set()
     # Pattern: const NAME = { ... "Content-Type": "application/json" ... }
     for m in re.finditer(
-        r"(?:const|let|var)\s+([A-Za-z_][\w]*)\s*=\s*\{[^}]*[Cc]ontent-[Tt]ype[^}]*\}",
+        # A TYPESCRIPT TYPE ANNOTATION SITS BETWEEN THE NAME AND THE `=` (2026-08-28). This is a .ts
+        # scanner, and `const headers: Record<string, string> = { ...cors, "Content-Type": ... }` is
+        # ordinary TypeScript - but the old pattern demanded `=` immediately after the name, so every
+        # annotated headers constant was invisible and its Response was reported as missing the header
+        # it demonstrably sets. The annotation is matched non-greedily and may not cross `=`, `;` or `{`.
+        r"(?:const|let|var)\s+([A-Za-z_][\w]*)\s*(?::[^=;{]*)?=\s*\{[^}]*[Cc]ontent-[Tt]ype[^}]*\}",
         body,
         re.IGNORECASE | re.DOTALL,
     ):
@@ -83,6 +88,12 @@ def _check_file(path: Path) -> list:
         # Allow spread of a helper that sets Content-Type
         spreads = set(SPREAD_RE.findall(opts))
         if spreads & ct_helpers:
+            continue
+        # ...and a plain REFERENCE to one, which is how the shorthand is written. `{ status: 429,
+        # headers }` passes the very object the helper defined; requiring `...headers` instead
+        # rejected correct code for its punctuation. Only names already PROVEN to set Content-Type
+        # (ct_helpers) count, so this widens the evidence without widening what qualifies as proof.
+        if ct_helpers and any(re.search(r"(?<![\w$])" + re.escape(h) + r"(?![\w$])", opts) for h in ct_helpers):
             continue
         line_no = src.count("\n", 0, m.start()) + 1
         issues.append({"file": str(path.relative_to(ROOT)).replace("\\", "/"),

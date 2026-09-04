@@ -121,16 +121,21 @@ export async function persistJournalEntry(
     worker_name: string;
     hive_id:     string | null;
     transcript:  string;
-    reply:       string;
+    // null = persist-first mode (T12 work_survives_quota): the note is banked BEFORE the
+    // AI reply exists, so a 429/specialist failure can no longer destroy the worker's work.
+    reply:       string | null;
     lang:        string | null;
     embedding?:  number[];
+    // persist-first callers skip the embed here (recall generates it moments later on the
+    // success path; a quota-blocked row is backfillable) — one embed per turn, not two.
+    skipEmbed?:  boolean;
     meta?:       Record<string, unknown>;
   },
 ): Promise<string | null> {
   if (!args.auth_uid || !args.transcript.trim()) return null;
 
   let embedding = args.embedding;
-  if (!embedding || embedding.length !== 384) {
+  if ((!embedding || embedding.length !== 384) && !args.skipEmbed) {
     try {
       embedding = await generateEmbedding(args.transcript);
     } catch (err) {
@@ -161,4 +166,22 @@ export async function persistJournalEntry(
     return null;
   }
   return data?.id ?? null;
+}
+
+/**
+ * T12 work_survives_quota: complete a persist-first row once the AI reply exists.
+ * Fills reply + embedding + meta on the row persistJournalEntry banked before the
+ * quota gates. Best-effort like the insert - the note itself is already safe.
+ */
+export async function updateJournalReply(
+  db: SupabaseClient,
+  id: string,
+  reply: string,
+  embedding?: number[],
+  meta?: Record<string, unknown>,
+): Promise<void> {
+  const patch: Record<string, unknown> = { reply, meta: meta ?? {} };
+  if (embedding && embedding.length === 384) patch.embedding = embedding;
+  const { error } = await db.from("voice_journal_entries").update(patch).eq("id", id);
+  if (error) console.warn("[journal-recall] reply update failed:", error.message);
 }

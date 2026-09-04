@@ -27,7 +27,7 @@ import { getCorsHeaders } from "../_shared/cors.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 // Pillar I (Gateway Spine): verify hive membership on the on-demand path.
-import { resolveIdentity, resolveTenancy } from "../_shared/tenant-context.ts";
+import { resolveIdentity, resolveTenancy, requireServiceRole } from "../_shared/tenant-context.ts";
 import { checkAIRateLimit, rateLimitedResponse, checkRouteRateLimit, routeRateLimitedResponse } from "../_shared/rate-limit.ts";
 
 function callGroq(prompt: string, systemPrompt: string): Promise<string> {
@@ -440,9 +440,27 @@ serveObserved("scheduled-agents", async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
+    // ★Drain path (no hive_id) runs the LLM report for EVERY hive + writes ai_reports/automation_log on a
+    // service-role client. This fn is deployed --no-verify-jwt, so without an explicit gate a public
+    // `POST {report_type}` runs the whole all-hives LLM fan-out (BFLA + unbounded LLM cost — the same
+    // anon-drain class as amc-orchestrator / pdf-ingest). The membership checks below only cover the
+    // single-hive path; the drain path had none. The pg_cron jobs pass a service-role bearer with the
+    // report_type and no hive_id (20260510000008_cron_portable_urls.sql), so requiring service
+    // credentials on the drain path leaves the crons unbroken and shuts the public door.
+    if (!hive_id) {
+      const g = await requireServiceRole(db, req);
+      if (!g.ok) {
+        return new Response(
+          JSON.stringify({ error: g.message, code: g.code }),
+          { status: g.status, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        );
+      }
+    }
+
     // Pillar I: the on-demand (Report Sender) path runs for a single client
     // hive_id on a service-role client — verify membership. The pg_cron jobs
-    // pass a service-role bearer AND no hive_id, so they skip twice.
+    // pass a service-role bearer AND no hive_id — the drain gate just above now
+    // requires that bearer, so the no-hive path is service-role-only.
     if (hive_id) {
       const { authUid, isServiceRole } = await resolveIdentity(db, req);
       if (!isServiceRole) {
@@ -472,10 +490,10 @@ serveObserved("scheduled-agents", async (req) => {
           const _rq = await checkRouteRateLimit(db, hive_id || "", "scheduled-agents");
           // Denies ONLY when an explicit hive_route_quotas row exists (rq.per_route), so this stays
           // a no-op until an admin sets a cap - while always counting for attribution.
-          if (_rq.per_route && !_rq.allowed) return routeRateLimitedResponse(corsHeaders, "scheduled-agents", _rq.cap);
+          if (_rq.per_route && !_rq.allowed) return routeRateLimitedResponse(corsHeaders, "scheduled-agents", _rq.cap, _rq.retry_after_seconds);
         } catch { /* empty-catch-allow: per-surface quota bookkeeping must never fail a real request */ }
         const _rl = await checkAIRateLimit(db, hive_id);
-        if (!_rl.allowed) return rateLimitedResponse(corsHeaders);
+        if (!_rl.allowed) return rateLimitedResponse(corsHeaders, _rl.scope ?? "hour", _rl.retry_after_seconds);
       }
     }
 

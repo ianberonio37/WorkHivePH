@@ -584,6 +584,9 @@ for (const p of pages) {
   }
   await c2.close();
 }
-writeFileSync('component_states_scoped_report.json', JSON.stringify(report, null, 1));
+// A NARROWED RUN MUST NOT CLOBBER THE FULL ONE: this file is read downstream (gates and
+// bank_prover_reports), so a --page/--case spot-check overwriting a whole sweep's verdicts
+// corrupts the BANK, not just a log. Measured on prove_retry_path 2026-08-27.
+writeFileSync((ONE ? 'component_states_scoped_report.partial.json' : 'component_states_scoped_report.json'), JSON.stringify(report, null, 1));
 console.log(`\n  wrote component_states_scoped_report.json (${Object.keys(report.pages).length} page(s))`);
 await browser.close();

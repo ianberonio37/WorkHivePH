@@ -64,7 +64,7 @@ import { log } from "../_shared/logger.ts";
 import { buildPersonaBlock, clampPersona } from "../_shared/persona.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 // Pillar I (Gateway Spine): verify hive membership on the single-hive brief path.
-import { resolveIdentity, resolveTenancy } from "../_shared/tenant-context.ts";
+import { resolveIdentity, resolveTenancy, requireServiceRole } from "../_shared/tenant-context.ts";
 import { checkAIRateLimit, rateLimitedResponse, checkRouteRateLimit, routeRateLimitedResponse } from "../_shared/rate-limit.ts"; // Arc L: per-hive AI cap (member-spam hardening; service-role exempt)
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
@@ -664,9 +664,28 @@ serveObserved("amc-orchestrator", async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "",
     );
 
+    // ★Drain mode (no hive_id) is the pg_cron path: it runs the generative morning briefing across
+    // EVERY subscribed hive on a service-role client (RLS-bypassing, LLM-costly, 5 sub-agents/hive).
+    // This fn is deployed --no-verify-jwt, so WITHOUT an explicit gate a public `POST {}` reaches
+    // drain and force-runs the whole fan-out for all hives (BFLA + unbounded-consumption — the same
+    // shape as pdf-ingest's anon drain, Arc R R2). The comment below claimed "the cron path is
+    // service-role and skips", but nothing ENFORCED that the no-hive_id caller actually holds a
+    // service-role bearer (declared-but-never-wired). The pg_cron job DOES pass
+    // Authorization: Bearer <service_role_key> (arm_intelligence_crons.sql 20260712000014), so
+    // requiring service credentials on the drain path leaves the cron unbroken and shuts the door.
+    if (!targetHive) {
+      const g = await requireServiceRole(db, req);
+      if (!g.ok) {
+        return new Response(
+          JSON.stringify({ error: g.message, code: g.code }),
+          { status: g.status, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        );
+      }
+    }
+
     // Pillar I: a single-hive brief (platform-gateway / direct) is scoped by the
     // client hive_id on a service-role client — verify membership. The cron path
-    // (no hive_id → all subscribed hives) is service-role and skips.
+    // (no hive_id → all subscribed hives) is service-role and skips (gated just above).
     if (targetHive) {
       const { authUid, isServiceRole } = await resolveIdentity(db, req);
       if (!isServiceRole) {
@@ -689,10 +708,10 @@ serveObserved("amc-orchestrator", async (req) => {
           const _rq = await checkRouteRateLimit(db, targetHive || "", "amc-orchestrator");
           // Denies ONLY when an explicit hive_route_quotas row exists (rq.per_route), so this stays
           // a no-op until an admin sets a cap - while always counting for attribution.
-          if (_rq.per_route && !_rq.allowed) return routeRateLimitedResponse(corsHeaders, "amc-orchestrator", _rq.cap);
+          if (_rq.per_route && !_rq.allowed) return routeRateLimitedResponse(corsHeaders, "amc-orchestrator", _rq.cap, _rq.retry_after_seconds);
         } catch { /* empty-catch-allow: per-surface quota bookkeeping must never fail a real request */ }
         const _rl = await checkAIRateLimit(db, targetHive);
-        if (!_rl.allowed) return rateLimitedResponse(corsHeaders);
+        if (!_rl.allowed) return rateLimitedResponse(corsHeaders, _rl.scope ?? "hour", _rl.retry_after_seconds);
       }
     }
 

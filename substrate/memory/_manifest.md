@@ -1,16 +1,16 @@
 ---
 name: memory-corpus
 type: memory
-source: memory-curated:783-files
-source_sha: ea041d8aee0e7d79
+source: memory-curated:829-files
+source_sha: bfcd6a384ac2651e
 last_verified: 2026-07-13
 supersedes: null
 ---
-## memory · curated auto-memory (783 durable topic files)
+## memory · curated auto-memory (829 durable topic files)
 
 First-class substrate source. The BODIES live in `memory/*.md` (Memento-indexed for retrieval via `memory_cache.py --retrieve`); this manifest is the freshness/governance record for the CURATED corpus (reference/feedback/project) — transient handoffs are excluded.
 
-**By type:** feedback=402 · project=292 · reference=89
+**By type:** feedback=447 · project=293 · reference=89
 
 **Corpus fingerprint (source_sha):** editing/adding any curated memory changes it → rebuild `build_substrate.py --type memory` (part of the flywheel's persist spoke).
 
@@ -20,12 +20,12 @@ Entries (name · type · sha):
 - `a_roster_is_a_silent_claim_about_scope` · feedback · 7798fd94c68dce02
 - `absence_of_the_helper_is_not_absence_of_the_guard` · feedback · da917ff945ead1c2
 - `bank_last_fix_first_or_you_pay_twice` · feedback · 94ba26579980ce3f
-- `before_recording_a_capability_as_missing_grep_for_it` · feedback · ea2f17926420d747
+- `before_recording_a_capability_as_missing_grep_for_it` · feedback · 54736fdcc4d2e9d7
 - `comparing_two_loads_makes_content_a_variable` · feedback · cf0389349dfce84e
 - `drawing_standards_skill` · reference · 16ac90968a9af898
 - `feedback_401_and_403_are_not_the_same_event` · feedback · 407a21a28d24a086
 - `feedback_42501_told_a_signed_in_buyer_to_sign_in` · feedback · 613c8220d4aa2c12
-- `feedback_a_backtick_in_a_comment_broke_the_page` · feedback · fb908de46c5da65e
+- `feedback_a_backtick_in_a_comment_broke_the_page` · feedback · 2ab16275af463a5f
 - `feedback_a_big_finding_set_is_a_signal_to_check_the_record` · feedback · 664e95e988ba2da8
 - `feedback_a_body_wide_keyword_match_reads_marketing_copy` · feedback · bb11b091b6d6feed
 - `feedback_a_broad_classifier_swallows_the_actionable_cause` · feedback · a3bb5d76468d6873
@@ -34,17 +34,22 @@ Entries (name · type · sha):
 - `feedback_a_claim_must_name_what_it_rests_on` · feedback · 53b626884aebece2
 - `feedback_a_click_that_changes_nothing_logs_as_ok` · feedback · bbb54b4a275f0fd9
 - `feedback_a_clone_metric_that_never_read_the_code` · feedback · ea97b606a37cab98
-- `feedback_a_compliance_export_inherited_the_feeds_row_cap` · feedback · 4dd07fde725fb9f0
+- `feedback_a_column_revoke_is_inert_under_a_table_grant` · feedback · 586a1d4ac609f6ae
+- `feedback_a_compliance_export_inherited_the_feeds_row_cap` · feedback · 07fc281105ddc9e0
 - `feedback_a_config_change_froze_the_marketplace` · feedback · c121cc5285824442
 - `feedback_a_contrast_reading_needs_the_canvas_the_page_paints` · feedback · 9c6d99afad924b13
 - `feedback_a_crashlooping_sidecar_failed_26_tests` · feedback · 5d9635f833659a4e
 - `feedback_a_credential_lived_where_no_gate_looked` · feedback · 89ae2e7af003f369
+- `feedback_a_dead_cascading_delete_is_a_loaded_trap` · feedback · f0abbab4afbfc3bd
 - `feedback_a_dead_fixture_invents_page_defects` · feedback · 4132e64aeb98e099
 - `feedback_a_dead_session_read_as_removal` · feedback · e3da539a1082ef88
 - `feedback_a_declaration_is_not_a_registration` · feedback · 26077d77981fc728
 - `feedback_a_degraded_instrument_is_a_pivot_not_a_ceiling` · feedback · 6019f6569a1dfbd2
 - `feedback_a_demo_that_films_an_empty_state` · feedback · 7341c21a91abf999
 - `feedback_a_discipline_rule_is_about_ordering_not_stopping` · feedback · a769a6790051b6a7
+- `feedback_a_dismissal_leaks_the_other_direction` · feedback · 62807e9fb1a2d126
+- `feedback_a_draft_with_no_owner_leaks_between_users` · feedback · 54ef8600c9d2ddb2
+- `feedback_a_duplicate_id_means_merge_not_register_twice` · feedback · 2518875c9d1ecf5b
 - `feedback_a_failed_read_offered_first_run_onboarding` · feedback · 036155b5fa8927c7
 - `feedback_a_fallback_chain_needs_the_whole_chain` · feedback · c256e859265753b1
 - `feedback_a_false_red_hides_which_cell_broke` · feedback · 38921d8dbd6c2b2f
@@ -53,14 +58,20 @@ Entries (name · type · sha):
 - `feedback_a_gate_reddened_because_the_code_improved` · feedback · 32bf6e2608eaa28a
 - `feedback_a_gate_that_exhausts_its_own_rate_budget` · feedback · 225cf26e51228b75
 - `feedback_a_green_gate_that_globbed_one_directory` · feedback · 5d2ebb0efc83a246
+- `feedback_a_guard_that_could_never_fire` · feedback · 102b9718bb1b7210
 - `feedback_a_guard_that_returns_without_speaking` · feedback · 6950a294f0d27cf4
 - `feedback_a_hand_set_fixture_is_not_a_reachable_state` · feedback · d597a08046039864
 - `feedback_a_layout_shifts_sources_are_its_victims` · feedback · d2fb3a5511081a1c
 - `feedback_a_live_poll_repaint_destroys_focus_but_not_the_draft` · feedback · 523e21d446d18205
+- `feedback_a_lock_nothing_runs_locks_nothing` · feedback · 1f7a7fdfe5431e69
+- `feedback_a_locked_trajectory_still_had_the_defect` · feedback · 5bab23356ce11814
 - `feedback_a_media_query_adds_no_specificity` · feedback · 3b38eb8889861450
 - `feedback_a_metamorphic_relation_needs_a_non_vacuity_check` · feedback · 3ef9b3ad98824df5
 - `feedback_a_migration_expires_every_db_anchored_claim` · feedback · d122ca9d564b03b2
+- `feedback_a_mirror_guarantees_agreement_not_correctness` · feedback · bc5c3bbb3df3713f
 - `feedback_a_mutation_score_is_the_only_teeth_metric` · feedback · 2a14bd543da8cc63
+- `feedback_a_name_is_not_an_identity` · feedback · 1d5baa81a9a1ffaf
+- `feedback_a_new_audience_reveals_the_lane_you_forgot` · feedback · a09bf8f30cb84ea7
 - `feedback_a_new_guard_breaks_the_triggers_that_already_write` · feedback · d3dfa188021986ae
 - `feedback_a_new_roster_kind_must_teach_every_consumer` · feedback · 1a4b1ecd5fe177d6
 - `feedback_a_no_change_save_still_wrote_and_unpublished` · feedback · 5b800ac0bea6c49b
@@ -79,11 +90,13 @@ Entries (name · type · sha):
 - `feedback_a_row_cap_is_not_pagination` · feedback · 4a887686577efcf0
 - `feedback_a_scans_vocabulary_is_the_scan` · feedback · c5462b342941b48a
 - `feedback_a_second_view_must_be_read_inside_itself` · feedback · b7be02d537557222
+- `feedback_a_service_worker_swallowed_the_inducer` · feedback · b3017b0d21d85f9f
 - `feedback_a_shared_css_contract_left_two_pages_behind` · feedback · 636ed252ba336e08
 - `feedback_a_silently_failed_edit_becomes_a_false_report` · feedback · 7975acad3596a373
 - `feedback_a_skipped_partition_reads_as_a_covered_one` · feedback · 9e76bcb4ac3d26c9
 - `feedback_a_stranded_read_is_invisible_to_a_write_gate` · feedback · b077adcb12adc6cb
 - `feedback_a_stuck_skeleton_is_invisible_to_every_gate` · feedback · 6122af5b2c75c651
+- `feedback_a_symptom_gate_passes_when_the_race_is_winning` · feedback · 874ff553e754a2a5
 - `feedback_a_teeth_test_left_a_poisoned_report` · feedback · bdb6223db9e591d5
 - `feedback_a_test_asserting_a_state_it_does_not_control` · feedback · 1699da8f8a49120f
 - `feedback_a_three_option_fork_i_had_already_answered` · feedback · 60863bf3671e3d63
@@ -94,6 +107,7 @@ Entries (name · type · sha):
 - `feedback_a_vocabulary_that_rejects_the_real_fix` · feedback · 25aae3586b5a58bf
 - `feedback_a_walked_cell_is_not_a_banked_cell` · feedback · 5998c3c3aa4126a2
 - `feedback_a_zero_that_was_never_a_fallback` · feedback · 9b6d6bcd589c4c7d
+- `feedback_accept_image_star_broke_comment_stripping` · feedback · 45dd41cb59280fbc
 - `feedback_accessor_before_utils_load_order` · feedback · 33cdfb92667cf8e6
 - `feedback_accountability_beats_refusal_when_both_parties_gain` · feedback · 7bff94a90fd580f4
 - `feedback_admin_bypass_before_party_check_is_selfdeal` · feedback · b1c1a3c0a6717515
@@ -121,12 +135,14 @@ Entries (name · type · sha):
 - `feedback_axe_incomplete_is_a_false_100` · feedback · 1ee90dac3d5ad978
 - `feedback_banking_by_state_name_collapsed_distinct_oracles` · feedback · f032828a96ed114e
 - `feedback_banner_adoption_is_not_write_refusal` · feedback · 526d97dbdf5b1bdc
+- `feedback_batch_promote_when_the_gate_iterates_every_member` · feedback · 7209159efa06b303
 - `feedback_be_proactive_flywheel` · feedback · d90540cf6e6308f8
 - `feedback_bge_local_false_ceiling_own_embedder` · feedback · 0ee89e886beab70e
+- `feedback_board_time_triage_flywheel` · feedback · ec15ca89f3e1e600
 - `feedback_browser_resize_lies_check_innerwidth` · feedback · 4ca4bd7ab6279cbe
 - `feedback_build_own_minimal_dependencies` · feedback · b2c31fd6d026718a
 - `feedback_build_structure_to_make_it_liveable` · feedback · 57d882251cd6bba3
-- `feedback_built_but_never_called_and_excluded_errors` · feedback · 58bb1beb91bd2b8c
+- `feedback_built_but_never_called_and_excluded_errors` · feedback · d24368bf9071a8b4
 - `feedback_calling_it_by_hand_is_not_verifying_the_wiring` · feedback · b24edb1ac1005ae0
 - `feedback_canonical_audit_reflex` · feedback · d9fee199f5963282
 - `feedback_canonical_view_reachability` · feedback · 15168eef96b382a8
@@ -135,6 +151,7 @@ Entries (name · type · sha):
 - `feedback_centralized_icon_library_emoji_first` · feedback · c09e4df4b4f280a0
 - `feedback_changing_the_measurement_is_not_drift` · feedback · dd7df34ccea87f92
 - `feedback_chasing_the_metric_made_the_video_worse` · feedback · 0eed62d85aa7e5d7
+- `feedback_check_the_connected_mcps_before_declaring_a_login_ceiling` · feedback · 692d9a18543015a6
 - `feedback_check_the_premise_before_building_the_pattern` · feedback · 72e99fd91bf80767
 - `feedback_classify_by_evidence_not_heuristic` · feedback · 92f9179e6ac707cd
 - `feedback_cls_late_reserve_and_shared_chrome_dedup` · feedback · 6cbbbdc4be7db3cd
@@ -150,12 +167,16 @@ Entries (name · type · sha):
 - `feedback_contrast_is_not_computable_from_cssom_here` · feedback · 44c80db6b50ad7e4
 - `feedback_coverage_improved_by_deleting_obligations` · feedback · dd378d4ba395ad6c
 - `feedback_cpi_on_labour_only_is_a_category_error` · feedback · e09a412cfa84642d
+- `feedback_create_or_replace_view_drops_security_invoker` · feedback · 0ed6532678011a5e
+- `feedback_create_or_replace_view_strips_invoker` · feedback · 795bd5557061ea69
 - `feedback_cross_page_sibling_sweep_and_registration` · feedback · 597de043f8d242a4
 - `feedback_curated_memory_ranked_below_derived_corpora` · feedback · 482fd969b038374d
 - `feedback_curl_resume_quirk` · feedback · 819de47118f3bfdc
 - `feedback_dead_oc_guard_missing_updated_at_column` · feedback · 1ca7844512948d65
 - `feedback_declared_but_never_wired` · feedback · e4bbb5cd31b89c12
+- `feedback_decoration_guard_fools_the_class_sweep` · feedback · feb9982140ec1bdc
 - `feedback_deep_mcp_walk_every_page` · feedback · d2f6f603bb1c4b73
+- `feedback_defer_ceremonies_sweep_the_roadmap_first` · feedback · a165a7522bdd7d1c
 - `feedback_definer_cron_helper_is_user_callable_by_default` · feedback · 8fae6b18c9124748
 - `feedback_deploy_subst` · feedback · 179166fa7331121e
 - `feedback_dialog_affirmation_bypass` · feedback · 1e94159d8d25950a
@@ -165,12 +186,13 @@ Entries (name · type · sha):
 - `feedback_dont_get_stuck_in_postgres_files_are_truth` · feedback · 3bfbf46a7610fbbb
 - `feedback_dont_kill_inflight_tracked_job` · feedback · 05f55a0800ebbecd
 - `feedback_dont_stop_hold_trajectory_in_memento` · feedback · 207e84b2ef5bf546
+- `feedback_drain_path_guard_nested_in_hive_branch` · feedback · 675e17ad645e3dca
 - `feedback_edge_fn_service_role_hive_id_injection` · feedback · 92092fe9bcec6044
 - `feedback_effect_cost_multiplies_with_output_size` · feedback · d5fdbd545d78eae1
 - `feedback_emoji_component_matches_ascii_digits` · feedback · d6a43bf8ae77d54f
 - `feedback_eng_design_ux` · feedback · 504dc284569e5eec
 - `feedback_engine_a_drives_engine_b_journey_seeds_harvest` · feedback · 5f49337e62b0d128
-- `feedback_error_on_returning_is_not_a_failed_write` · feedback · 0ff58b705a51f9cd
+- `feedback_error_on_returning_is_not_a_failed_write` · feedback · 226c0693c07f5df4
 - `feedback_eval_refusal_detection_multilingual` · feedback · c9a771b27fb1a81b
 - `feedback_every_video_shipped_10db_quiet_no_one_measured` · feedback · ab5fc253b6bc06c2
 - `feedback_expand_dimensions_not_reverify` · feedback · cb9386cdf70a09d6
@@ -196,21 +218,24 @@ Entries (name · type · sha):
 - `feedback_free_tier_only_models` · feedback · a7149c3cbb49a7fc
 - `feedback_fuel_engine_brain_metaphor` · feedback · 156389609ba95129
 - `feedback_full_audience_spectrum` · feedback · 8033eab32bc196cd
-- `feedback_full_suite_live_gates_flake_under_load` · feedback · 00df33cf8f635b55
+- `feedback_full_suite_live_gates_flake_under_load` · feedback · 5954bd7353da458c
 - `feedback_fullpage_capture_dpr_two_thirds_artifact` · feedback · c36dfd79548edf85
 - `feedback_gate_green_is_part_of_done` · feedback · 7993d8ff6dd0822d
 - `feedback_gate_inside_gate_false_fails_use_median` · feedback · cb361d6eb4711b40
 - `feedback_gate_notnull_query_must_exempt_identity_generated` · feedback · 6e947f2fd15b2c46
 - `feedback_gate_parsed_text_not_the_db_false_green` · feedback · fadba3421d2c3d8e
 - `feedback_gate_registration_cascade_exposes_bugs` · feedback · a5f40dfbd74a08b2
+- `feedback_gated_on_the_running_board_is_a_busy_instrument_disguise` · feedback · d01096450868e915
 - `feedback_gates_lock_refusal_not_permission` · feedback · c5541f9108685afc
 - `feedback_gates_that_charge_for_documentation` · feedback · 24d4b9ef4672c1bf
-- `feedback_gates_that_measure_prose_and_ratchets_that_loosen` · feedback · 34397b4f700188a2
+- `feedback_gates_that_measure_prose_and_ratchets_that_loosen` · feedback · f7a626b349377415
+- `feedback_getdb_exists_before_it_works` · feedback · 4385d391fd64392b
 - `feedback_grep_matched_the_comment_not_the_link` · feedback · 6ec5edc64e89c2cb
 - `feedback_handoff_trigger_phrases` · feedback · 291e2bd41d9ee4ad
 - `feedback_handover_report` · feedback · 3d092d6bf0d67b00
 - `feedback_hardening_loop` · feedback · 78e245c6fe28fa12
 - `feedback_headed_playwright_finds_what_headless_hides` · feedback · c26591f4a88e80aa
+- `feedback_headers_file_is_prod_only_behavior` · feedback · 9c3786d9e201911f
 - `feedback_heavy_deterministic_gate_report_back_not_slow_floor` · feedback · e8e8abf71e537a4d
 - `feedback_hidden_block_cls_reserve_and_mockup_port` · feedback · 47cca02f8e721e7f
 - `feedback_home_dashboard_ufai_and_i18n_build` · feedback · 08ed47890b4c13a3
@@ -244,6 +269,7 @@ Entries (name · type · sha):
 - `feedback_local_triggers_called_prod_with_service_key` · feedback · 23f78e4991fb72c6
 - `feedback_lower_cards_rubric_applied_and_verified` · feedback · 071ce814e4717d4c
 - `feedback_make_it_earnable_not_coming_soon` · feedback · 580fc6fddab6aee8
+- `feedback_manufactured_ender_approval_fork_and_pct_gerrymander` · feedback · be016bcea85d4313
 - `feedback_marketplace_moderation_and_identity_deepwalk` · feedback · f41ed251831fe47e
 - `feedback_marketplace_trust_forge_verified_only` · feedback · ce22a69bb392017c
 - `feedback_max_path_260_makes_phantom_files` · feedback · 3e984fcf07a084c4
@@ -273,6 +299,7 @@ Entries (name · type · sha):
 - `feedback_no_remote_push` · feedback · 8ce488e5222fc7ea
 - `feedback_no_setTimeout_in_browser_evaluate` · feedback · 7517e1cb97df1fb2
 - `feedback_no_typescript_in_html` · feedback · 95979ad5bab35b5e
+- `feedback_null_join_zeroes_the_hiveless_lane` · feedback · f07b8aef7d894a22
 - `feedback_oc_guard_on_view_needs_updated_at_on_view` · feedback · edc9866a7cff3ba6
 - `feedback_offer_to_continue_is_the_stop` · feedback · b9cad11d0f1225f5
 - `feedback_onconflict_needs_matching_unique_index` · feedback · a6de5121733f730a
@@ -312,10 +339,11 @@ Entries (name · type · sha):
 - `feedback_pyapi_validators_fail_in_gate_pass_standalone` · feedback · 182a585703d7273d
 - `feedback_pygame_wmi_hang` · feedback · f4bfb92b4be3af86
 - `feedback_python_ai_chain_mirror` · feedback · 5e8b12c240ad4544
-- `feedback_python_heredoc_eats_js_regex_boundaries` · feedback · 4d9f9509001e1922
+- `feedback_python_heredoc_eats_js_regex_boundaries` · feedback · e81031dc74799a88
 - `feedback_quoting_a_comment_is_not_reading_the_code` · feedback · 2e72bbfc1f08d7dc
 - `feedback_r3_shape_vocab_and_lens_instrument_drive` · project · 774ee2c6bb599fca
 - `feedback_rail_grader_correlated_blindspot_2026_06_14` · feedback · 7c06b0def9240439
+- `feedback_real_documents_taught_the_miner_eight_lessons` · feedback · c5842d03ea187873
 - `feedback_recall_the_disposition_before_declaring_a_bug` · feedback · 0cf581764691c269
 - `feedback_records_that_outlive_the_action` · feedback · 28052b4dca8cda3e
 - `feedback_red_gate_may_be_inaccuracy_not_backlog` · feedback · 6f62315a62c1a606
@@ -331,15 +359,17 @@ Entries (name · type · sha):
 - `feedback_retrieve_first_no_workflow_for_known_knowledge` · feedback · b758fa87ccfc4bc2
 - `feedback_reveal_then_sweep` · feedback · 5d8bd29f948c0657
 - `feedback_review_ripple_first` · feedback · 1aef70243094cd25
-- `feedback_review_the_pillar_not_the_gate` · feedback · cac061669cdb2220
+- `feedback_review_the_pillar_not_the_gate` · feedback · 4cb1ef5c32fc5df9
 - `feedback_rls_is_never_consulted_for_truncate` · feedback · ae4c456466239ca3
 - `feedback_rls_probe_needs_the_role_not_just_claims` · feedback · 927d71b637b841bb
+- `feedback_roadmap_header_scoreboard_generated_not_authored` · feedback · 0ed5d9036ba3bd82
 - `feedback_roadmap_percent_is_the_anti_drift_compass` · feedback · fabf57776225b1bb
 - `feedback_rpc_overload_pgrst203_kills_endpoint` · feedback · d5e03cfb65d06cdc
 - `feedback_run_the_battery_dont_hand_roll_probes` · feedback · ee851f13a166f5cf
 - `feedback_same_grant_harmless_130_times_catastrophic_16` · feedback · c9e88bf61f47bd40
 - `feedback_scrollwidth_is_a_rendering_fact_not_a_dom_fact` · feedback · ddffd962fbab0601
 - `feedback_seed_resolved_is_not_roadmap_done` · feedback · a967219b7ce19aec
+- `feedback_sha_anchored_snapshot_beats_guard_timeout` · feedback · 1523670a5e581be6
 - `feedback_shallow_journey_carry_the_full_lens` · feedback · 322f7e0007a19d17
 - `feedback_short_denominator_is_a_false_100` · feedback · bbe8983dd599c8f5
 - `feedback_silence_is_golden_status_chrome` · feedback · 47bcb3e305aeff12
@@ -349,6 +379,7 @@ Entries (name · type · sha):
 - `feedback_spring_physics` · feedback · 8f6da95f2819876b
 - `feedback_squeezed_text_is_invisible_to_overflow` · feedback · eb8c29b1c6297caa
 - `feedback_sse_cursor_pattern` · feedback · f78f592a8f88dd3c
+- `feedback_staging_a_ledger_derived_column_is_reverted_by_its_trigger` · feedback · ace170e0530bf5f9
 - `feedback_stale_hive_fixture_mjs_mirror` · feedback · 33f26fe65d29e357
 - `feedback_stale_html_debugging` · feedback · 5495b355c28d38a4
 - `feedback_states_probe_clicked_a_link_and_navigated` · feedback · 6e1e1bdccbf103b3
@@ -359,33 +390,46 @@ Entries (name · type · sha):
 - `feedback_subprocess_timeout` · feedback · bf6c9a4a50de1dc6
 - `feedback_subprocess_unbuffered` · feedback · e984b66edf54e81e
 - `feedback_substrate_page_maps_beat_fresh_greps` · feedback · b956c79b4b292d4a
+- `feedback_supabase_builders_never_send_unawaited` · feedback · 1f29de3b7558ee9c
 - `feedback_surface_memento_and_token_economy` · feedback · fa98c642bf552899
 - `feedback_survivor_masked_by_sibling_constraint` · feedback · 6aaf2aab0820bb04
 - `feedback_synthesis_not_just_audit` · feedback · 1b2e16d8e405282a
 - `feedback_teach_the_gate_not_bend_the_code` · feedback · 0bbd39de3e64db97
 - `feedback_tester_gate_selection` · feedback · 793ae04c3ff4acff
 - `feedback_tester_streamlined_panes` · feedback · 74ca5120ffd7d3c5
+- `feedback_the_a_fork_escape_weaponized` · feedback · b90c0b8cf739e52b
+- `feedback_the_board_never_finished_so_nothing_could_re_earn` · feedback · 9c5f65c407a28f1a
+- `feedback_the_census_swung_25x_the_walk_never_moved` · feedback · 7b030b75e6745d86
 - `feedback_the_check_and_the_action_read_different_rows` · feedback · 7d1ea2b813e416ad
 - `feedback_the_cl9_fix_never_reached_its_sibling` · feedback · db9dbc2ee299aef8
+- `feedback_the_clean_file_case_caught_them_all` · feedback · 54b2388747062a4d
 - `feedback_the_cure_exists_and_runs_too_late` · feedback · d7dc7cc490a03f73
+- `feedback_the_deno_cache_served_yesterdays_function` · feedback · 8bf0badf55eafffe
 - `feedback_the_fallback_guards_the_decoration` · feedback · 3713c2967283928d
+- `feedback_the_fix_i_added_became_the_next_hole` · feedback · b0bf47f6dad0ed81
 - `feedback_the_fix_must_hang_on_the_path_the_product_takes` · feedback · bc08609831c1d4f0
+- `feedback_the_guard_failed_open_timeout` · feedback · 4b5997e1e75a441c
 - `feedback_the_index_compactor_has_no_lever_left` · feedback · 9a0b6f96afdb55fd
+- `feedback_the_instrument_was_wrong_more_often_than_the_code` · feedback · 2e6aabb6d22161ac
 - `feedback_the_invariant_summed_only_the_side_that_could_not_break` · feedback · 9bb61d16a9250c96
 - `feedback_the_js_overwrote_its_own_correct_markup` · feedback · 73c90266eb4324c5
 - `feedback_the_label_contained_the_verdict_vocabulary` · feedback · ced535a289271de1
 - `feedback_the_lens_measured_three_percent_of_the_page` · feedback · 0de466304eb7b14e
 - `feedback_the_prose_was_stale_the_registry_was_right` · feedback · c4430f86125103dc
 - `feedback_the_reading_was_real_the_subject_was_wrong` · feedback · d76ab0a7a678775f
+- `feedback_the_refused_read_is_the_fourth_state` · feedback · e801bdbf212dd9c4
 - `feedback_the_repair_crossed_the_tenant_boundary` · feedback · 9001a87e34f5c5d1
 - `feedback_the_reversal_ran_as_the_user_the_award_ran_as_definer` · feedback · 9d57cd415690eb98
 - `feedback_the_scope_of_an_outage_is_part_of_the_claim` · feedback · 7e2d713479f45f4c
+- `feedback_the_target_grew_and_the_bind_did_not` · feedback · 11b39d0c2fb1719c
 - `feedback_the_teeth_test_that_never_fired` · feedback · 6fd2f80923ab955d
 - `feedback_the_test_identity_was_an_admin` · feedback · 5604e95f243943b2
 - `feedback_the_walker_measured_a_hive_that_did_not_exist` · feedback · 3ed6d3aead04f521
+- `feedback_the_wrong_answer_was_the_default` · feedback · 4169790f7f2da8ef
 - `feedback_three_false_reds_i_manufactured_measuring` · feedback · ce6a1e41264d9d1e
-- `feedback_three_lens_shapes_three_wrong_verdicts` · feedback · fa47a3e535549208
+- `feedback_three_lens_shapes_three_wrong_verdicts` · feedback · 4442656c7aa2ea58
 - `feedback_three_ways_a_failure_probe_lies` · feedback · c708076098cf78c6
+- `feedback_three_ways_a_lock_is_hollow` · feedback · 05e8ca95115617bc
 - `feedback_trace_the_curve_dont_approximate_with_springs` · feedback · 2e395296070f4863
 - `feedback_trust_signal_needs_a_living_producer` · feedback · 9992a30b60bb2887
 - `feedback_twenty_one_false_findings_all_mine` · feedback · f3eef6acef11dffa
@@ -393,6 +437,7 @@ Entries (name · type · sha):
 - `feedback_two_clocks_in_one_file` · feedback · 98d9cc1a01b1f20d
 - `feedback_two_notices_two_truth_conditions` · feedback · b749d5ae91ee2f60
 - `feedback_two_probes_each_missed_a_different_half` · feedback · a4fd0b7e1f3f5156
+- `feedback_two_refreshers_made_a_90_per_second_storm` · feedback · 91cc3f6c007e3c8e
 - `feedback_two_sided_journeys_need_a_role_pair` · feedback · 22e876fa1f71967e
 - `feedback_two_windows_one_metric_name` · feedback · 90b9346353be3ccb
 - `feedback_ufai_board_100_cls_and_v1_fixes` · feedback · 38eee232d0ee0544
@@ -471,51 +516,6 @@ Entries (name · type · sha):
 - `project_arc_l_performance_scale_2026_06_22` · project · 7eba7147f20e19d4
 - `project_arc_q_domain_correctness_2026_06_23` · project · 120a59d9d791bf25
 - `project_arc_r_security_adversarial_2026_06_24` · project · ce9ea32e0eee7d95
-- `project_arc_s_resilience_dr_2026_06_24` · project · 169b2c82afe95298
-- `project_arc_u_accessibility` · project · b257e1f3870b7d1b
-- `project_arc_v_effortless_2026_06_24` · project · a36c3b1ac7fbaa2c
-- `project_arc_w_visual_uiux_2026_06_25` · project · ca6ac4e068396995
-- `project_article_readability_gate_2026_06_10` · project · 9d8b49b1e8c564a0
-- `project_asset_alert_shift_deep_arc` · project · da103f3d89afd77d
-- `project_auth_identity_ufai_roadmap_2026_06_21` · project · 27cdc24629decdd5
-- `project_auto_discovery_validator` · project · 27058e3c98dddf71
-- `project_avatar_narrator_exploration` · project · 8d71ab30502651d6
-- `project_azure_200_burn_plan` · project · 3f63fa5216902675
-- `project_azure_200_roadmap_doc` · project · 106e91753553c5ff
-- `project_azure_day1_completion` · project · 751112dba9858648
-- `project_azure_day2_3_completion` · project · b89187d0ce5ef955
-- `project_azure_day4_completion` · project · 239f69162195a66f
-- `project_b2_digest_deferred` · project · af83e1a5e08c2a28
-- `project_backend_ufai_roadmap_2026_06_19` · project · d3629d1a09bd6a90
-- `project_battery_campaign_b3_b4_complete` · project · 6d7ae426f0eaed1e
-- `project_battery_intelligence_gaps_closed` · project · adbde0a64a4de8e5
-- `project_bug_class_lockdown_doctrine` · project · 1f13beda02b17013
-- `project_calc_diagram_qa_progress` · project · e2df3e996b22c8a2
-- `project_calc_validator` · project · 1b3e8cb86b5b4feb
-- `project_calm_canonical_audit` · project · b97263b4c8e99526
-- `project_calm_dashboard_contract` · project · 600217f522f61a9a
-- `project_canonical_anchor_gate` · project · 77262425bf6c6db4
-- `project_canonical_lineage_loop` · project · 6adead61dab2238a
-- `project_canonical_page_inventory` · project · 616b528165ee65dc
-- `project_cmms_integrations_deep_arc` · project · 1c4c34e075b292c2
-- `project_cockpit_flywheel_2026_05_28` · project · c1563be653684129
-- `project_cognitive_load_ii_arc_x` · project · e3e98452759be9f7
-- `project_commit_blocked_drift_miner_2026_06_11` · project · 9f8cea38c68a38d2
-- `project_community_badge_bug` · project · 8f826cc7dd3615fb
-- `project_community_deep_arc` · project · 33e6b138b4d49a8a
-- `project_community_done` · project · 0502193adbc17d86
-- `project_companion_100turn_superhuman_2026_05_25` · project · 3a34a2034a673388
-- `project_companion_capability_roadmap_2026_06_14` · project · e5ae5590694ad934
-- `project_companion_delivery_layer_2026_06_11` · project · 356577bf4b45eed5
-- `project_companion_dev_tool_megagate` · project · 71b01c4ac385d8d2
-- `project_companion_fabrication_finding_2026_06_13` · project · 707eca784bef414b
-- `project_companion_fabrication_sweep_2026_06_13` · project · 53b01523c200af81
-- `project_companion_fallback_chain_resilience_2026_06_13` · project · d16bb2af12840833
-- `project_companion_family_P_action_2026_06_14` · project · 71843b037cafc7cf
-- `project_companion_feedback_walk_8_5_plan` · project · 4717b52896ce3390
-- `project_companion_flywheel_comprehensive_2026_05_25` · project · df88d96e1fb5a0a4
-- `project_companion_grounding_doctrine_2026_06_14` · project · 6ace777e44983ef6
-- `project_companion_live_capture_2026_06_10` · project · 25b3bcaa9eb0e00f
-- … +283 more (all included in the fingerprint)
+- … +329 more (all included in the fingerprint)
 
 Links: [[project_platform_knowledge_substrate]] [[reference_pm_attribution_pin]]

@@ -26,10 +26,17 @@ BEGIN;
 SET LOCAL ROLE authenticated;
 SELECT set_config('request.jwt.claims',
   json_build_object('sub', (SELECT me FROM _fa)::text, 'role', 'authenticated')::text, true);
-INSERT INTO ai_reply_feedback (auth_uid, source, rating, agent, question)
-SELECT (SELECT me FROM _fa), 'probe', 1, 'probe-agent', 'probe question';   -- rating is smallint (thumbs = 1/-1)
-SELECT 'own_uid_accepted | ' ||
-  ((SELECT count(*) FROM ai_reply_feedback) = (SELECT n0 + 1 FROM _fa));
+-- ★COUNT THE INSERT ITSELF, never a before/after total (fixed 2026-08-31). n0 is taken as postgres,
+-- who sees every row; this block runs as `authenticated`, whose SELECT policy shows only their OWN
+-- feedback (plus their hive's, as supervisor). Measured: postgres 1 row, this user 0. So the old
+-- `count(*) = n0 + 1` compared two DIFFERENT populations and reported a perfectly good insert as a
+-- refusal - the same "one measurement swept two views" mistake, inside the probe this time.
+-- RETURNING counts what the statement actually wrote, in one visibility, and cannot drift.
+WITH i AS (
+  INSERT INTO ai_reply_feedback (auth_uid, source, rating, agent, question)
+  SELECT (SELECT me FROM _fa), 'probe', 1, 'probe-agent', 'probe question'   -- rating is smallint (thumbs = 1/-1)
+  RETURNING 1)
+SELECT 'own_uid_accepted | ' || (count(*) = 1) FROM i;
 ROLLBACK;
 SELECT 'restored | ' || ((SELECT count(*) FROM ai_reply_feedback) = (SELECT n0 FROM _fa));
 DROP TABLE _fa;

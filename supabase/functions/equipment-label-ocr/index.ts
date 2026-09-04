@@ -265,7 +265,7 @@ serveObserved("equipment-label-ocr", async (req) => {
     if (!_id.isServiceRole) {
       const _ip = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
       const _rl = await checkSoloRateLimit(_rlDb, soloRateLimitKey(_id.authUid, _ip));
-      if (!_rl.allowed) return soloRateLimitedResponse(cors);
+      if (!_rl.allowed) return soloRateLimitedResponse(cors, _rl.retry_after_seconds);
     }
   }
 

@@ -10,7 +10,7 @@ By **WorkHive Editorial Team**
 ·
 Published 16 May 2026
 ·
-Updated 17 May 2026
+Updated 24 Aug 2026
 ·
 11 min read
 
@@ -115,7 +115,7 @@ The tool this guide is about
 
 It runs in the browser, installs as a PWA on Android and iPhone, queues entries offline, and gives the supervisor a real-time view without printing. No credit card, no per-user license. Built for Philippine industrial use as Stage 1 ("Paper to Digital") of a 4-stage path that scales all the way to predictive maintenance and AI.
 
-No hive yet? [Join WorkHive](https://workhiveph.com/#join) first (free, takes 30 seconds).
+No hive yet? [Join WorkHive](https://workhiveph.com/?signup=1) first (free, takes 30 seconds).
 
 ## If you already have SAP, Maximo, or Excel
 
@@ -233,4 +233,4 @@ The opposite is more likely. The technicians most at risk from AI are the ones w
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: d989f624e85d642b -->
+<!-- md-twin source-sha: 08cc5723a94c6dd5 -->

@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "WorkHive Edge API",
-    "version": "2026.08.20",
+    "version": "2026.09.02",
     "description": "Auto-generated from validate_edge_contracts.py (ALL_FUNCTIONS + REQUIRED_FIELDS). The contract source of truth is the validator; this spec is a machine-readable view. Regenerate with tools/gen_openapi.py."
   },
   "servers": [
@@ -4061,6 +4061,91 @@
                 },
                 "required": [
                   "text"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success \u2014 canonical ok envelope",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkEnvelope"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden (cross-tenant / role)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/functions/v1/vehicle-doc-extract": {
+      "post": {
+        "operationId": "vehicle_doc_extract",
+        "summary": "Invoke the vehicle-doc-extract edge function",
+        "tags": [
+          "vehicle"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "description": "Required input: kind"
+                  },
+                  "payload": {
+                    "type": "string",
+                    "description": "Required input: payload"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "payload"
                 ]
               }
             }

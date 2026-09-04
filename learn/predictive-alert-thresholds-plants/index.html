@@ -21,7 +21,7 @@
   <meta property="og:type" content="article" />
   <meta property="og:site_name" content="WorkHive" />
   <meta property="article:published_time" content="2026-05-17T00:00:00+08:00" />
-  <meta property="article:modified_time" content="2026-05-17T00:00:00+08:00" />
+  <meta property="article:modified_time" content="2026-08-24T00:00:00+08:00" />
   <meta property="article:author" content="WorkHive Editorial Team" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="ISO 10816 Vibration Thresholds and Predictive Alert Limits for Plants" />
@@ -34,7 +34,7 @@
     {
       "@type": "Article",
       "@id": "https://workhiveph.com/learn/predictive-alert-thresholds-plants/#article",
-      "headline": "Predictive Alert Thresholds for Industrial Plants",
+      "headline": "ISO 10816 Vibration Thresholds and Predictive Alert Limits for Plants",
       "description": "How to set predictive alert thresholds that actually get acted on, not silenced. Covers escalation rules, alert-fatigue prevention, vibration and temperature thresholds, and the 3-tier alert architecture that works in Philippine plants.",
       "image": "https://workhiveph.com/brand_assets/workhive-logo-transparent.png",
       "author": {
@@ -46,7 +46,7 @@
         "@id": "https://workhiveph.com/#organization"
       },
       "datePublished": "2026-05-17",
-      "dateModified": "2026-05-17",
+      "dateModified": "2026-08-24",
       "mainEntityOfPage": "https://workhiveph.com/learn/predictive-alert-thresholds-plants/",
       "inLanguage": "en-PH",
       "articleSection": "Maintenance",
@@ -134,7 +134,7 @@
 }</script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = { theme: { extend: { colors: {
@@ -265,7 +265,8 @@
     <nav class="flex items-center gap-6">
       <a href="/" class="nav-link">Home</a>
       <a href="/learn/" class="nav-link">Learn</a>
-      <a href="/#join" class="nav-link">Join the Hive</a>
+      <a href="/?signin=1" class="nav-link">Sign In</a>
+      <a href="/?signup=1" class="nav-link">Sign Up Free</a>
     </nav>
   </div>
 </header>
@@ -281,7 +282,7 @@
       <span class="opacity-40">·</span>
       <span>Published <time datetime="2026-05-17">17 May 2026</time></span>
       <span class="opacity-40">·</span>
-      <span>Updated <time datetime="2026-05-17">17 May 2026</time></span>
+      <span>Updated <time datetime="2026-08-24">24 Aug 2026</time></span>
       <span class="opacity-40">·</span>
       <span>7 min read</span>
     </div>
@@ -310,20 +311,20 @@
       <p>Most predictive maintenance programs in Philippine plants fail at the threshold layer, not the sensor layer. The plant buys good sensors, the sensors generate accurate data, and the alerts get silenced because every alert is treated as critical or because the alerts cry wolf and the team learns to ignore them.</p>
       <p>Threshold design is the difference. A well-tuned threshold fires once a quarter, gets acted on, and prevents a real failure. A poorly-tuned threshold fires daily, gets dismissed, and trains the team to ignore the sensor. The sensor is the easy part; the threshold tuning is the discipline.</p>
       <h2 id="three-tier">The 3-tier alert architecture</h2>
-      <table><thead><tr><th>Tier</th><th>Meaning</th><th>Response</th><th>Owner</th></tr></thead><tbody>
+      <div data-table-scroll style="overflow-x:auto;-webkit-overflow-scrolling:touch;" role="region" aria-label="Scrollable table" tabindex="0"><table><thead><tr><th>Tier</th><th>Meaning</th><th>Response</th><th>Owner</th></tr></thead><tbody>
       <tr><td><strong>Notice</strong></td><td>Reading is rising above baseline but still within normal</td><td>Log in WorkHive Logbook for trend tracking; no action this shift</td><td>Operator</td></tr>
       <tr><td><strong>Warning</strong></td><td>Reading crossed first action threshold; degradation in progress</td><td>Schedule investigation within 7 days; trend daily</td><td>Maintenance supervisor</td></tr>
       <tr><td><strong>Action</strong></td><td>Reading crossed second action threshold; failure imminent</td><td>Stop or de-rate asset; investigate this shift</td><td>Reliability engineer + supervisor on call</td></tr>
-      </tbody></table>
+      </tbody></table></div>
       <p>Three tiers, not seven. Many sensor vendor dashboards ship with 5 to 7 alert levels which look sophisticated and fail in practice. Three tiers map to three distinct human responses: keep watching, plan a check, act now.</p>
       <h2 id="iso-10816">ISO 10816 vibration thresholds by asset class</h2>
       <p>ISO 10816 defines vibration severity zones for industrial machinery. The standard is the right starting point; tune from there based on your plant's history.</p>
-      <table><thead><tr><th>Asset class</th><th>Zone A (Good)</th><th>Zone B (Acceptable)</th><th>Zone C (Unsatisfactory)</th><th>Zone D (Unacceptable)</th></tr></thead><tbody>
+      <div data-table-scroll style="overflow-x:auto;-webkit-overflow-scrolling:touch;" role="region" aria-label="Scrollable table" tabindex="0"><table><thead><tr><th>Asset class</th><th>Zone A (Good)</th><th>Zone B (Acceptable)</th><th>Zone C (Unsatisfactory)</th><th>Zone D (Unacceptable)</th></tr></thead><tbody>
       <tr><td>Class I (small motors below 15 kW)</td><td>&lt; 0.71 mm/s</td><td>0.71 to 1.8</td><td>1.8 to 4.5</td><td>&gt; 4.5</td></tr>
       <tr><td>Class II (medium motors 15 to 75 kW)</td><td>&lt; 1.12</td><td>1.12 to 2.8</td><td>2.8 to 7.1</td><td>&gt; 7.1</td></tr>
       <tr><td>Class III (large rigid foundation)</td><td>&lt; 1.8</td><td>1.8 to 4.5</td><td>4.5 to 11.2</td><td>&gt; 11.2</td></tr>
       <tr><td>Class IV (large flexible foundation)</td><td>&lt; 2.8</td><td>2.8 to 7.1</td><td>7.1 to 18.0</td><td>&gt; 18.0</td></tr>
-      </tbody></table>
+      </tbody></table></div>
       <p>Map to the 3-tier system: Notice fires at the Zone A to B transition, Warning at the B to C transition, Action at the C to D transition.</p>
       <h2 id="temperature">Temperature alert design</h2>
       <p>Bearing temperature is the cleanest predictive signal for rotating equipment after vibration. Indicative thresholds for an ambient 30 deg C Philippine plant:</p>
@@ -341,7 +342,7 @@
         <h4 aria-level="3">WorkHive Alert Hub manages the threshold + escalation discipline</h4>
         <p>Define 3-tier thresholds per asset, name owners per tier, configure escalation timing, get the weekly silenced-alert report. Integrates with Predictive Maintenance, Logbook, and Asset Hub. Free at the worker tier; phone-call escalation via SMS/voice gateway unlocks at Stage 3.</p>
         <a href="/alert-hub.html" class="cta-btn">Open Alert Hub</a>
-        <p class="cta-secondary">No hive yet? <a href="/#join">Join WorkHive</a> first (free, takes 30 seconds).</p>
+        <p class="cta-secondary">No hive yet? <a href="/?signup=1">Join WorkHive</a> first (free, takes 30 seconds).</p>
       </div>
       <h2 id="faq">Frequently asked questions</h2>
       <details class="faq-item"><summary>What are the right number of alert tiers?</summary><div class="faq-answer">Three: Notice (log it, keep watching), Warning (plan an investigation within a week), Action (stop or de-rate this shift). Five to seven tiers, which some sensor vendor dashboards ship with, look sophisticated but fail in practice because humans cannot reliably distinguish more than three response modes.</div></details>
@@ -371,11 +372,11 @@
 </article>
 <footer class="py-10 border-t border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
   <div class="max-w-4xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">
-    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-05-17">17 May 2026</time></p>
+    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-08-24">24 Aug 2026</time></p>
     <div class="flex items-center gap-6">
       <a href="/" class="hover:text-white/60 transition-colors">Home</a>
       <a href="/#faq" class="hover:text-white/60 transition-colors">FAQ</a>
-      <a href="/#join" class="hover:text-white/60 transition-colors">Join the Hive</a>
+      <a href="/?signup=1" class="hover:text-white/60 transition-colors">Join the Hive</a>
     </div>
   </div>
 </footer>

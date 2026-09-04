@@ -126,6 +126,8 @@ Food and beverage plants in the Philippines must comply with regulations from th
 
 WorkHive Hive segments work orders into sanitary-zone and utility-zone categories to facilitate effective maintenance planning. Sanitary-zone work orders focus on equipment and areas directly involved in food processing, while utility-zone work orders cover support systems such as utilities and maintenance areas.
 
+**Keep reading:** [measure the line with OEE](https://workhiveph.com/learn/what-is-oee-how-to-calculate/), or [start the digital logbook](https://workhiveph.com/learn/start-digital-logbook-philippine-factory/).
+
 ## Sources
 
 - DOLE OSHS: Occupational Safety and Health Standards for the Philippines
@@ -133,4 +135,4 @@ WorkHive Hive segments work orders into sanitary-zone and utility-zone categorie
 - ISO 14224: Petroleum, Petrochemical and Natural Gas Industries - Reliability-Centered Maintenance (RCM)
 - SMRP CMRP BoK: Society for Maintenance and Reliability Professionals Certified Maintenance and Reliability Professional Body of Knowledge
 
-<!-- md-twin source-sha: 6aa8f4a9ae5f03f2 -->
+<!-- md-twin source-sha: e520996d025d78ba -->

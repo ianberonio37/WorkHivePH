@@ -37,13 +37,17 @@ const ACCTS = {
   buyer:  { email: 'pabloaguilar@auth.workhiveph.com', pw: 'test1234',
             hive: 'b4f7fe63-92e1-4f8d-b96e-625c3f85ba61', worker: 'Pablo Aguilar' },
   seller: { email: 'bryangarcia@auth.workhiveph.com', pw: 'test1234',
-            hive: '636cf7e8-431a-4907-8a9f-43dd4cc216d6', worker: 'Bryan Garcia' },
+            hive: '084c113b-99c0-45c6-a8e8-b4b8349da46d', worker: 'Bryan Garcia' },
   admin:  { email: 'leandromarquez@auth.workhiveph.com', pw: 'test1234',
-            hive: '636cf7e8-431a-4907-8a9f-43dd4cc216d6', worker: 'Leandro Marquez' },
+            hive: '084c113b-99c0-45c6-a8e8-b4b8349da46d', worker: 'Leandro Marquez' },
 };
 
 const args = process.argv.slice(2);
 const only = (() => { const i = args.indexOf('--surface'); return i >= 0 ? args[i + 1] : null; })();
+// A --surface spot-check must not overwrite the full sweep's verdicts: bank_prover_reports.py reads
+// this file and cannot tell one surface from all of them. Narrowed runs get their own report.
+const REPORT = only ? `market_attribution_report.surface-${only}.json`.replace(/[^\w.-]+/g, '_')
+                    : 'market_attribution_report.json';
 const results = [];
 const check = (surface, name, pass, detail) => {
   results.push({ surface, name, pass: !!pass, detail });
@@ -524,7 +528,7 @@ if (!only || only === 'handoff_admin') {
 
 await browser.close();
 const failed = results.filter(r => !r.pass);
-writeFileSync('market_attribution_report.json', JSON.stringify({
+writeFileSync(REPORT, JSON.stringify({
   ran_at: new Date().toISOString(), origin: ORIGIN,
   checks: results, pass: results.length - failed.length, fail: failed.length,
 }, null, 1));

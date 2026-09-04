@@ -79,7 +79,11 @@
  * `function` argument. It is idempotent (re-paste = no-op if same version).
  * ==========================================================================*/
 () => {
-  const V = '1.6.2';
+  // 1.7.0 (T1, 2026-08-24): dead-anchor detection (a #frag with no live id — functionality()
+  // AND clickAudit()), the [inert] amnesty replaced with a cta:inert-primary report, and the
+  // addEventListener click tracker (LISTENER_TRACKER_SRC, injected pre-nav by walkers) so
+  // target() resolution stops being inline-onclick-only.
+  const V = '1.7.0';
   // v1.6.2 (2026-06-18, Arc D D1): input-font<16 (iOS-zoom) check now SCOPES to
   // text-ENTRY fields only — radio/checkbox/range/color/file/button have no text
   // caret to zoom and were false-positives (hive: 6 radios flagged when the page
@@ -453,6 +457,17 @@
         deadHref++;
         if (deadHref <= 12) defects.push(defect('F', 'dead-href', el, `href="${href}"`, 'a real destination or an onclick',
           'point the link at a page, or convert to a <button>', 'Minor'));
+      }
+      // T1: widened past the bare '#'. An <a href="#frag"> whose fragment exists NOWHERE in the
+      // live DOM is the same dead tap — and this is the BEHAVIORAL half the static link gate
+      // (validate_link_target_existence) cannot see: it also judges ids minted by JS at runtime.
+      if (el.tagName === 'A' && !oc && href && href.length > 1 && href.startsWith('#')) {
+        const frag = href.slice(1).split('?')[0];
+        if (frag && !document.getElementById(frag) && !document.getElementsByName(frag).length) {
+          deadHref++;
+          if (deadHref <= 12) defects.push(defect('F', 'dead-anchor', el, `href="${href}" — no element with that id/name in the rendered DOM`,
+            'an anchor whose target id exists', 'the tap scrolls nowhere: a dead CTA wearing a link costume', 'Major'));
+        }
       }
     }
     metrics.wiring = { clickables: clickables.length, deadFn, deadHref };
@@ -1213,6 +1228,13 @@
     const dis = (el) => el.disabled === true || el.getAttribute('aria-disabled') === 'true' || (el.matches && el.matches(':disabled'));
     const inert = (el) => !!(el.inert || (el.closest && el.closest('[inert]')));
     const els = [...document.querySelectorAll(SEL)].filter((el) => vis(el) && !isShell(el) && !dis(el) && !inert(el));
+    // T1: the [inert] filter above was a silent AMNESTY — the landing page's sticky primary CTA
+    // sat inert at audit time, so the ONE rule that judges dead CTAs never looked at the page's
+    // most prominent control. Inert elements stay out of the normal checks (inert is a legal
+    // resting state), but a PRIMARY-styled control that is inert gets REPORTED so a walker must
+    // confirm the state ever lifts (a bar that never un-inerts is a dead CTA no click rule sees).
+    const inertPrimary = [...document.querySelectorAll(SEL)].filter((el) =>
+      inert(el) && !dis(el) && /btn-primary|cta/i.test(String(el.className || '') + ' ' + String((el.closest('[inert]') || {}).className || '')));
     const aName = (el) => {
       const al = el.getAttribute('aria-label'); if (al && al.trim()) return al.trim();
       const t = (el.textContent || '').replace(/\s+/g, ' ').trim(); if (t) return t;
@@ -1226,6 +1248,10 @@
       if (el.tagName === 'A' && el.getAttribute('href')) { const h = el.getAttribute('href'); return h.replace(/^https?:\/\/[^/]+/, '').replace(/[#?].*$/, '') || h; }
       const oc = el.getAttribute('onclick'); if (oc) { const m = oc.match(/([a-zA-Z_$][\w$]*)\s*\(([^)]*)/); return m ? 'fn:' + m[1] + '(' + (m[2] || '').trim().slice(0, 24) + ')' : 'onclick'; }
       const da = el.getAttribute('data-action') || el.getAttribute('data-target'); if (da) return 'data:' + da;
+      // T1: consult the addEventListener tracker (LISTENER_TRACKER_SRC injected pre-navigation
+      // by the walker). Used POSITIVELY only — "this control IS wired" — never to accuse:
+      // delegated listeners on ancestors mean absence-of-a-direct-listener proves nothing.
+      if (el.__ufaiClick) return 'listener:click';
       return null;
     };
     // Walk the FULL ancestor chain — a clickable is a per-list-item action if ANY
@@ -1255,9 +1281,20 @@
     const nativeInteractive = (el) => /^(a|button|summary|input|select|textarea)$/.test(el.tagName.toLowerCase());
     const keyboardReachable = (el) => nativeInteractive(el) || (el.tabIndex >= 0) || el.isContentEditable;
     const defects = [];
+    inertPrimary.forEach((el) =>
+      defects.push(defect('F', 'cta:inert-primary', el,
+        `primary-styled control is [inert] at audit time (${sel(el)})`,
+        'an inert primary CTA whose state provably lifts (e.g. a scroll observer un-inerts it)',
+        'if nothing ever removes inert, this is the page\'s loudest control doing nothing — walk the state transition before calling it fine', 'Minor')));
     const rows = els.map((el) => {
       const name = aName(el), tgt = target(el), li = isListItem(el);
-      const deadHref = el.tagName === 'A' && /^(#|javascript:(void\(0\)?)?;?)$/i.test((el.getAttribute('href') || '').trim());
+      const _href = (el.getAttribute('href') || '').trim();
+      // T1: widened past the bare '#' — a #frag anchor whose id/name exists nowhere in the
+      // rendered DOM is equally dead (the live twin of validate_link_target_existence).
+      const _deadAnchor = el.tagName === 'A' && _href.length > 1 && _href.startsWith('#')
+        && !document.getElementById(_href.slice(1).split('?')[0])
+        && !document.getElementsByName(_href.slice(1).split('?')[0]).length;
+      const deadHref = (el.tagName === 'A' && /^(#|javascript:(void\(0\)?)?;?)$/i.test(_href)) || _deadAnchor;
       if (!name)
         defects.push(defect('F', 'click:no-accessible-name', el, `<${el.tagName.toLowerCase()}> has no text/aria-label/title`,
           'an accessible name (text, aria-label, or title)', 'an icon-only control with no name is unusable by screen readers and ambiguous to everyone', 'Major'));
@@ -1397,6 +1434,16 @@
 
   window.__UFAI = {
     _v: V, _installed: true,
+    // T1: source for context.addInitScript() — walkers inject this BEFORE navigation so every
+    // el.addEventListener('click', …) leaves a countable mark (el.__ufaiClick). clickAudit's
+    // target() then resolves listener-wired controls instead of treating them as unwired.
+    LISTENER_TRACKER_SRC: `(() => {
+      const orig = EventTarget.prototype.addEventListener;
+      EventTarget.prototype.addEventListener = function (type, fn, opts) {
+        try { if (type === 'click' && this && this.nodeType === 1) this.__ufaiClick = (this.__ufaiClick || 0) + 1; } catch (_) {}
+        return orig.call(this, type, fn, opts);
+      };
+    })();`,
     boot, run, full, referee, critic, cwv, enumerateStates, sweepAll,
     usability, functionality, adaptability, internalControl,
     correctness, correctnessInvariants, correctnessParity, correctnessBehavior,

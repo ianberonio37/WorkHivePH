@@ -1205,6 +1205,7 @@
   <!-- Toast -->
   <div id="toast" class="toast" role="alert" aria-live="polite"></div>
 
+  <script src="browser-floor.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
   <script src="utils.js"></script>
   <script>
@@ -1344,7 +1345,7 @@
       } catch (e) {
         if (e && e.name === 'AbortError') return;  // superseded by newer click
         console.warn('refreshAll err:', e && e.message);
-        showToast('Refresh failed: ' + (e && e.message ? e.message : 'unknown error'));
+        showToast(whReadError(e, 'the console figures') + ' The numbers on screen are the last good read, not live.');
         pulse.classList.remove('busy'); pulse.classList.add('fail');
       } finally {
         if (_state.inFlight === ctrl) _state.inFlight = null;
@@ -1989,7 +1990,15 @@
         // actually paid; there is no external cash figure here by design, because the platform holds
         // no third-party money (see MARKETPLACE_CREDIT_ECONOMY §8).
         const cover = liability > 0 ? (topups + earned) / liability : null;
-        const peso = n => '₱' + Number(n || 0).toLocaleString(undefined, { minimumFractionDigits: 2 });
+        // T133 (2026-08-26): `Number(n || 0)` IS the absent-is-zero bug whFmtPeso was written to fix.
+        // Null is not zero: a value the query did not return rendered here as a confident "₱0.00",
+        // and the note further down this file says exactly what that costs - a money number frozen
+        // at ₱0 "does not read as by design, it reads as a feed that died". whFmtPeso prints a gap
+        // for absent and still prints ₱0 for a real zero, which is the distinction an owner needs to
+        // tell "nothing happened" from "we do not know". One line, every call site on this page.
+        const peso = n => (typeof whFmtPeso === 'function')
+          ? whFmtPeso(n, { decimals: 2 })
+          : '₱' + Number(n || 0).toLocaleString(undefined, { minimumFractionDigits: 2 });
         setRagDot('rag-credit-economy',
           cover === null ? 'green' : (cover >= 1 ? 'green' : (cover >= 0.8 ? 'amber' : 'red')));
         const upd = document.getElementById('credit-economy-updated');
@@ -2075,7 +2084,9 @@
         const e = escHtml;
         box.innerHTML = rows.map(r =>
           '<div style="display:flex;flex-wrap:wrap;gap:0.5rem;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,0.08);padding:0.5rem 0;">' +
-          '<div style="font-size:0.8rem;"><strong>₱' + Number(r.amount).toLocaleString() + '</strong> · ref <code>' + e(r.gcash_ref) + '</code>' +
+          // T133: a null amount here rendered "₱NaN" - Number(null) is 0 but Number(undefined) is NaN, and
+          // this row is a GCash top-up, where a wrong or nonsense figure is the worst kind.
+          '<div style="font-size:0.8rem;"><strong>' + (typeof whFmtPeso === 'function' ? whFmtPeso(r.amount) : '₱' + Number(r.amount).toLocaleString()) + '</strong> · ref <code>' + e(r.gcash_ref) + '</code>' +
           '<div style="font-size:0.72rem;opacity:0.8;">' + e(r.provider_display_name || r.account_type) + ' · filed ' + e(new Date(r.created_at).toLocaleString()) + '</div></div>' +
           '<span style="display:inline-flex;gap:0.4rem;">' +
           '<button type="button" onclick="svcTopupDecide(\'' + e(r.id) + '\', true)" style="min-height:44px;padding:0 12px;border-radius:8px;border:1px solid rgba(74,222,128,0.4);background:rgba(74,222,128,0.12);color:rgb(74,222,128);font-weight:700;cursor:pointer;">Verify: mint credits</button>' +
@@ -2088,8 +2099,41 @@
     }
 
     async function svcTopupDecide(id, verify) {
+      // T67/T50 (2026-08-26): this moved MONEY on a single click and asked nothing. Verifying mints
+      // credits into a provider's wallet; rejecting refuses a top-up somebody actually paid for.
+      // Both rows sit in a list where the buttons are 12px apart, so the failure mode is not a
+      // change of mind, it is the wrong ROW - and the person who loses is the one who sent the GCash.
+      // Named consequences rather than "Are you sure?", the way every other confirm here reads.
+      /* T93 (2026-08-28): a REJECTION now carries its reason. The confirm below used to end with
+         "they will need to raise it with you directly" - which was an honest description of a gap,
+         not a design: the update wrote STATUS ONLY, so a provider who had actually sent money saw
+         their top-up flip to "rejected" with nothing to act on, and the only route left was
+         chasing the admin. The row already has a `note` column waiting for exactly this.
+         Mirrors hive.html's approval-queue rejection, which prompts "Tell them why, so they can fix
+         it instead of guessing" - same reason, larger stakes, since this one is about money the
+         person has already parted with. Verify keeps its plain confirm: a mint needs no excuse. */
+      let _reason = null;
+      if (!verify && typeof window.whPrompt === 'function') {
+        _reason = await window.whPrompt(
+          'Reject this top-up? The provider paid for it, so no credits are minted. Tell them why, '
+          + 'so they can fix it or send the right reference instead of guessing.',
+          { okLabel: 'Reject', cancelLabel: 'Cancel', inputLabel: 'Reason (the provider sees this)' });
+        if (_reason === null || _reason === false) return;
+      } else if (typeof window.whConfirm === 'function') {
+        const ok = await window.whConfirm(
+          verify
+            ? 'Verify this top-up? Credits are minted into the provider’s wallet immediately and '
+              + 'spending them cannot be reversed from here.'
+            : 'Reject this top-up? The provider paid for it, so no credits are minted and they will '
+              + 'need to raise it with you directly.',
+          { okLabel: verify ? 'Verify and mint' : 'Reject', cancelLabel: 'Cancel' });
+        if (!ok) return;
+      }
+      const _upd = { status: verify ? 'verified' : 'rejected' };
+      // only on the reject path, and only when something was typed - a blank note is not a reason
+      if (!verify && _reason) _upd.note = String(_reason).trim().slice(0, 500) || null;
       const { data, error } = await db.from('service_credit_topups')
-        .update({ status: verify ? 'verified' : 'rejected' }).eq('id', id).select('id');
+        .update(_upd).eq('id', id).select('id');
       if (error) { showToast(error.message); return; }
       if (!data || !data.length) { showToast('No change saved. Are you signed in as the platform admin?'); return; }
       showToast(verify ? 'Verified. Credits minted to the provider\'s wallet.' : 'Rejected. No credits were minted.');
@@ -2136,7 +2180,11 @@
           const n = used[v.id] || 0;
           const cost = spent[v.id] || 0;
           const cap = v.max_uses ? (n + ' / ' + v.max_uses + ' used') : (n + ' used');
-          const off = v.kind === 'percent' ? (Number(v.value) + '% off') : ('₱' + Number(v.value).toLocaleString() + ' off');
+          // T133 (2026-08-26): a promo knob with no value rendered "₱null off". The helper prints a
+        // gap for absent, so an unset discount reads as unset rather than as a real offer of nothing.
+        const off = v.kind === 'percent'
+          ? (Number(v.value) + '% off')
+          : ((typeof whFmtPeso === 'function' ? whFmtPeso(v.value) : '₱' + Number(v.value).toLocaleString()) + ' off');
           return '<div style="display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,0.08);padding:.5rem 0;">' +
             '<div style="font-size:.8rem;"><strong><code>' + e(v.code) + '</code></strong> · ' + e(off) +
             (v.segment ? ' · ' + e(v.segment) : ' · both segments') +
@@ -2163,6 +2211,32 @@
       if (!kind) { showToast('Pick whether this is a % or a peso discount.'); return; }
       if (!isFinite(value) || value <= 0) { showToast('Set a discount value above zero.'); return; }
       if (kind === 'percent' && value > 100) { showToast('A percentage discount cannot exceed 100.'); return; }
+      /* T67 (2026-08-28): minting a voucher was the ONE money-moving action on this console that
+         asked nothing and recorded nothing. Every other write here already meets the bar - the
+         top-up decide names its consequence, and the listing and seller-badge updates are both
+         confirmed AND audited (T67/T50 fixed those when 'one click granted the badge BUYERS RELY
+         ON, with nothing asked'). This inserts `active: true`, so the code is LIVE the instant it
+         is created and every redemption costs real money; a typo in the value field is a discount
+         someone else gets to keep. The confirm states the actual terms rather than "Are you sure?",
+         and the audit entry means a voucher that turns up in the ledger later can be traced to who
+         minted it and when - which nothing recorded before. */
+      if (typeof window.whConfirm === 'function') {
+        // Money through whFmtPeso, not string concatenation: this confirm is the LAST thing read
+        // before a live discount code exists, so an absent value must show as a gap rather than as
+        // '₱ off' or '₱undefined off' — a sentence a tired owner could accept at 6pm. The helper
+        // prints a gap for absent/non-finite and ₱0 for a real zero, which is exactly the
+        // distinction that matters when the next line says "every redemption is money off a real
+        // job". (Caught by the money-formatting gate on the confirm I added earlier this session —
+        // I hand-rolled the peso while this same file already used the helper six times.)
+        const _terms = kind === 'percent' ? value + '% off' : whFmtPeso(value) + ' off';
+        const _ok = await window.whConfirm(
+          'Mint voucher ' + code + '? It goes live immediately: ' + _terms
+          + (maxUses ? ', up to ' + maxUses + ' use' + (maxUses === 1 ? '' : 's') : ', with no usage limit')
+          + (segment ? ', for ' + segment : '')
+          + '. Every redemption is money off a real job.',
+          { okLabel: 'Mint voucher', cancelLabel: 'Cancel' });
+        if (!_ok) return;
+      }
       const { data, error } = await db.from('service_vouchers')
         .insert({ code: code, kind: kind, value: value, segment: segment, max_uses: maxUses, active: true })
         .select('id');
@@ -2171,6 +2245,24 @@
         return;
       }
       if (!data || !data.length) { showToast('Not saved. Are you signed in as the platform admin?'); return; }
+      /* ★NO AUDIT CALL HERE ON PURPOSE, AND THE REASON IS A REAL GAP WORTH SEEING (T67, 2026-08-28).
+         I started to mirror the listing/seller writes below, which read as audited:
+             if (typeof writeAuditLog === 'function') writeAuditLog('approve_listing', ...)
+         Then checked whether that helper exists on THIS page. It does not. writeAuditLog is defined
+         PER PAGE on nine surfaces (hive, asset-hub, alert-hub, inventory, logbook, marketplace-admin,
+         marketplace-seller, and two with different signatures) and founder-console defines it
+         nowhere and loads no script that does - so its `typeof` guard swallows every call and the
+         console's admin actions are NOT audited, however much the code looks like they are.
+         Confirmed against the data: hive_audit_log holds create_listing / edit_listing /
+         edit_seller_* rows from the SELLER page, and ZERO approve_listing, verify_seller_kyb or
+         verify_seller_cert - the three most privileged actions on the platform, including granting
+         the ID-Verified badge a buyer relies on before sending money.
+         ★AND IT IS NOT FIXABLE BY PASTING THE HELPER IN: this console has no HIVE_ID and no
+         WORKER_NAME, and hive_audit_log.hive_id is NOT NULL. A platform-scope action has no hive to
+         belong to. marketplace-admin works around it by filing under whatever hive the admin happens
+         to be in, tagged meta.scope='platform_admin', which puts platform history into an arbitrary
+         hive's log. Adding a fourth dead call would have made the gap harder to see, so this says it
+         instead. Where platform-admin actions should be recorded is Ian's decision. */
       showToast('Voucher ' + code + ' is live. Clients can apply it on a completed job.');
       document.getElementById('vm-code').value = '';
       document.getElementById('vm-value').value = '';
@@ -2299,6 +2391,22 @@
               : 'Listing rejected. The seller can see your reason and resubmit.',
               act === 'approve-listing' ? 'success' : 'info');
           } else if (act === 'verify-kyb' || act === 'verify-cert') {
+            // T67/T50 (2026-08-26): one click granted the badge BUYERS RELY ON, with nothing asked.
+            // 'ID Verified' is the platform vouching for a stranger to someone about to send money -
+            // the exact claim trust-claim-backed exists to keep honest - and these buttons sit in a
+            // per-seller row list, so a misclick vouches for the wrong person. The confirm names WHO
+            // and WHAT, because the name is the part a misclick gets wrong.
+            if (typeof window.whConfirm === 'function') {
+              const _who = btn.dataset.name || 'this seller';
+              const _ok = await window.whConfirm(
+                act === 'verify-kyb'
+                  ? `Mark ${_who} as ID Verified? Buyers see this badge as WorkHive confirming their `
+                    + `identity, and decide whether to send money on it.`
+                  : `Mark ${_who}'s certifications as verified? Buyers read the badge as WorkHive `
+                    + `having checked their trade credentials.`,
+                { okLabel: 'Verify', cancelLabel: 'Cancel' });
+              if (!_ok) { btn.disabled = false; return; }
+            }
             const nowIso = new Date().toISOString();
             const upd = act === 'verify-kyb'
               ? { kyb_verified: true, kyb_verified_at: nowIso, updated_at: nowIso }
@@ -2616,7 +2724,7 @@
         </div>`;
       }).join('');
       el.innerHTML = `<div class="heat-grid">${tiles}</div>` +
-        renderSourceChip({ freshness:'live', source:'analytics_events', window:'7d page_view rollup', notes:[`${pages.length} pages observed`] });
+        renderSourceChip({ freshness:'live', source:'analytics_events', window:'7d page_view rollup', notes:[`${pages.length} ${pages.length === 1 ? 'page' : 'pages'} observed`] });
     }
 
     function renderMaturity(m) {
@@ -3022,9 +3130,23 @@
       // an explicit confirm so a founder can't expose contact emails / worker names by a
       // stray checkbox click. (Un-publishing or saving a private item is not gated.)
       const wasPublicNow = !!_fb.rows.find(r => r.id === id)?.is_public;
-      if (isPublic && !wasPublicNow &&
-          !confirm('Publish this feedback to the PUBLIC roadmap (/feedback/)?\n\nIt becomes visible to anyone and can be indexed by Google. Make sure it contains nothing private (contact emails, worker names, internal notes).')) {
-        return;
+      // T50 (2026-08-28): this was the LAST native confirm() left on the platform — 48 other call
+      // sites already go through whConfirm, and dayplanner, platform-actions and resume each carry
+      // a comment explaining why they migrated. A native dialog cannot be translated, cannot carry
+      // the platform's confirm vocabulary, and renders as a browser chrome box on the one screen
+      // where the founder is about to make something PUBLIC AND GOOGLE-INDEXABLE. The message and
+      // the proportionality below are unchanged — they were already right: only the newly-public
+      // transition is gated, un-publishing and saving a private item are not. saveDrawerChanges is
+      // already async, so awaiting costs nothing structurally.
+      if (isPublic && !wasPublicNow) {
+        const _pubOk = await window.whConfirm(
+          // No em dash in displayed copy (Arc P): the platform bans it in user-facing strings and
+          // the gate caught both halves of this confirm the same day I wrote them. Colons carry the
+          // same "here is the list" beat without the character.
+          _t('Publish this feedback to the PUBLIC roadmap (/feedback/)? It becomes visible to anyone and can be indexed by Google, so it can stay cached even after un-publishing. Make sure it contains nothing private: contact emails, worker names, internal notes.',
+             'I-publish ang feedback na ito sa PUBLIC roadmap (/feedback/)? Makikita ito ng kahit sino at pwedeng ma-index ng Google, kaya pwede itong manatiling naka-cache kahit na-unpublish na. Siguraduhing walang pribadong laman: contact email, pangalan ng worker, internal notes.'),
+          { okLabel: _t('Publish publicly', 'I-publish nang publiko'), cancelLabel: _t('Cancel', 'Kanselahin') });
+        if (!_pubOk) return;
       }
       btn.disabled = true; btn.textContent = 'Saving…';
       try {
@@ -3059,7 +3181,7 @@
       } catch (e) {
         console.error('[feedback-inbox] save failed', e);
         btn.textContent = 'Save changes'; btn.disabled = false;
-        showToast('Save failed: ' + (e.message || 'check console'));
+        showToast(whWriteError(e, 'Nothing was saved. Your change is still on screen; try again.'));
       }
     }
 

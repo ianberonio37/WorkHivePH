@@ -1,0 +1,28 @@
+{
+  "doc": "toyota_vios_page1",
+  "hand_read": "2026-09-03, authored from the PDF page BEFORE any extraction run (truth precedes output). The page is a Toyota Malaysia Vios (NCP150 Auto) maintenance PACKAGE price list: a month/km service ladder ('whichever comes first'), a coolant prose interval, and a parts/fluids price table WITHOUT part numbers.",
+  "pm_items": [
+    { "match": "coolant subsequent replacement", "interval_km": 80000, "interval_months": null,
+      "why": "prose interval split across two lines: 'Super Long Life Coolant first replacement is at 160,000 km.' / 'Subsequent replacement is at every 80,000km.' — the recurring fact is 80,000 km and the subject lives on the PREVIOUS line (context-carry)" }
+  ],
+  "parts": [
+    { "match": "Oil Filter", "part_number": null },
+    { "match": "Drain Plug Gasket", "part_number": null },
+    { "match": "Air Cleaner Filter Element", "part_number": null },
+    { "match": "Spark Plug", "part_number": null },
+    { "match": "Radiator Drain Plug O-Ring", "part_number": null }
+  ],
+  "pm_must_not_match": [
+    "first replacement",
+    "whichever comes first",
+    "package price",
+    "total amount",
+    "mths"
+  ],
+  "parts_must_not_match": [
+    "lubricants",
+    "package price"
+  ],
+  "must_not_contain": [],
+  "expect_injection": false
+}

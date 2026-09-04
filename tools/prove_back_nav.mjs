@@ -119,11 +119,12 @@ const run = async () => {
         { waitUntil: 'domcontentloaded', timeout: 30000 });
       await page.waitForTimeout(6000);
 
-      // 2. The state BEFORE the sheet — the thing Back must return the person to.
-      const before = await page.evaluate(snapshot, t.modal);
-
       // 3. Reach the state that reveals the opener, if the target needs one. A failed precondition is a
-      //    fact about the page, never a defect of this oracle.
+      //    fact about the page, never a defect of this oracle. RUN THE PRE FIRST: a pre that switches
+      //    view (pm-scheduler's .asset-card click -> detail view) changes the row census, and the old
+      //    order snapshotted the LIST view as "before" while Back returns to the DETAIL view — the
+      //    prover compared its own view switch and called it a defect (18 -> 13, 2026-09-03; the
+      //    one-measurement-swept-two-views class).
       if (t.pre) {
         const preOk = await page.evaluate((src) => {
           try { eval(src); return true; } catch (e) { return String(e.message || e); }
@@ -134,6 +135,9 @@ const run = async () => {
         }
         await page.waitForTimeout(1800);
       }
+
+      // 2->after-pre. The state BEFORE the sheet — the thing Back must return the person to.
+      const before = await page.evaluate(snapshot, t.modal);
 
       // 4. Open the sheet by the path dialog_targets.mjs records for it.
       if (t.openBy === 'click') {

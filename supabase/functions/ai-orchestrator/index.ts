@@ -788,10 +788,10 @@ serveObserved("ai-orchestrator", async (req) => {
         const _rq = await checkRouteRateLimit(db, hive_id || "" || "", "ai-orchestrator");
         // Denies ONLY when an explicit hive_route_quotas row exists (rq.per_route), so this stays
         // a no-op until an admin sets a cap - while always counting for attribution.
-        if (_rq.per_route && !_rq.allowed) return routeRateLimitedResponse(corsHeaders, "ai-orchestrator", _rq.cap);
+        if (_rq.per_route && !_rq.allowed) return routeRateLimitedResponse(corsHeaders, "ai-orchestrator", _rq.cap, _rq.retry_after_seconds);
       } catch { /* empty-catch-allow: per-surface quota bookkeeping must never fail a real request */ }
       const _rl = await checkAIRateLimit(db, hive_id || "");
-      if (!_rl.allowed) return rateLimitedResponse(corsHeaders);
+      if (!_rl.allowed) return rateLimitedResponse(corsHeaders, _rl.scope ?? "hour", _rl.retry_after_seconds);
     }
 
     const result = await orchestrate(question, hive_id || null, worker_name || null, db, mode || "chat", memoryBlock);

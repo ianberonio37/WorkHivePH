@@ -6,8 +6,18 @@
 <title>Project Report | WorkHive</title>
   <meta name="description" content="Project shutdown / overhaul report. Critical-path completion, cost vs budget, risk register, sign-off." />
   <meta property="og:title" content="Project Report · WorkHive" />
+  <!-- T156 (2026-08-28): og:description and og:url were missing. 42 app pages lack OG tags and for
+       almost all of them that is CORRECT - sharing an auth-walled page shows a login wall, so a
+       card would promise something the recipient cannot open. This page is the exception the
+       roadmap already names: a stakeholder, often outside the hive, receives this link deliberately
+       (T73). Its card was rendering a title and an image with no sentence under them - the weakest
+       possible card on the one app page built to be shared. og:url is the BARE page on purpose: the
+       real link carries ?project_id=<uuid>, and putting a specific project's id in a canonical URL
+       would both leak it into link previews and make every project's card claim the same identity. -->
+  <meta property="og:description" content="Project shutdown / overhaul report. Critical-path completion, cost vs budget, risk register, and sign-off — shared from WorkHive." />
+  <meta property="og:url" content="https://workhiveph.com/project-report.html" />
   <meta property="og:image" content="https://workhiveph.com/brand_assets/og-social.png" />
-  <link rel="canonical" href="https://workhiveph.com/workhive/project-report.html" />
+  <link rel="canonical" href="https://workhiveph.com/project-report.html" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <link rel="manifest" href="manifest.json">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -164,6 +174,11 @@
                    border-radius: 3px; overflow: hidden; width: 80px; }
   .progress-mini > div { height: 100%; background: var(--accent); }
   .empty-section { padding: 16px; color: var(--muted); font-style: italic; text-align: center; }
+  /* The truncation marker and its note must PRINT — this page exists to be handed over on paper,
+     and a disclosure that only survives on screen discloses nothing to the person holding the
+     printout. Both are deliberately plain so they read as the document's own voice, not chrome. */
+  .clip-mark { color: var(--muted); font-style: italic; white-space: nowrap; }
+  .clip-note { margin: 6px 2px 0; font-size: 8pt; color: var(--muted); font-style: italic; }
 
   @media print {
     /* @page margin: 0 collapses the area where Chrome / Edge render the
@@ -179,7 +194,15 @@
     body > *:not(#ar-print-wrapper) { display: none !important; }
     #ar-print-wrapper { box-shadow: none; max-width: none; margin: 0; padding: 14mm 12mm; }
     h2 { page-break-after: avoid; }
-    table.doc-table, .signoff-block { page-break-inside: avoid; }
+    /* `avoid` belongs on things that are SHORT BY CONSTRUCTION. The signoff block is one of those.
+       A doc-table is not: the daily-progress table grows with the project, and measured at 96 rows
+       it stands 5049px tall — roughly FIVE A4 pages — while telling the browser to keep it all on
+       one. That is an instruction no engine can honour, and the way they fail it is to push the
+       whole table to a fresh page and overflow anyway, which wastes a sheet and risks clipping the
+       end. The row-level rule below is the one that actually matters on paper: break BETWEEN rows,
+       never through one. The <thead> repeats on every page already — its default
+       display:table-header-group is intact and nothing here overrides it (checked, not assumed). */
+    .signoff-block { page-break-inside: avoid; }
     tr { page-break-inside: avoid; }
   }
   /* ── NARROW-WIDTH OVERRIDES, DELIBERATELY LAST IN THE SHEET ────────────────────────────────────
@@ -286,7 +309,8 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
     <button class="btn primary" onclick="saveAsPdf()" data-i="saveaspdf">Save as PDF</button>
     <!-- FCh3: the report BODY is EN-by-design (formal engineering document, translate="no"
          headings per the N1 disposition); only this toolbar is translatable UI chrome. -->
-    <script>window.WH_FIL_PAGE={print:'I-print',saveaspdf:'I-save bilang PDF'};</script>
+    <script src="browser-floor.js"></script>
+  <script>window.WH_FIL_PAGE={print:'I-print',saveaspdf:'I-save bilang PDF'};</script>
   </div>
 </main>
 
@@ -338,7 +362,7 @@ function getPhase(it) {
   // Consult the SESSION before bouncing. This gate is already inside an async IIFE, so it can simply
   // await the restore rather than race it — the cheapest form of this fix in the roster.
   if (!WORKER_NAME) { await _identityRestored.catch(() => {}); }
-  if (!WORKER_NAME) { window.location.href = 'index.html?signin=1'; return; }
+  if (!WORKER_NAME) { whSignInWall(); return; }
   const params = new URLSearchParams(window.location.search);
   const projectId = params.get('project_id');
   if (!projectId) {
@@ -428,8 +452,14 @@ async function loadAndRender(projectId) {
              + 'border-radius:8px;font-size:0.8rem;font-weight:600;background:rgba(247,162,27,0.12);'
              + 'border:1px solid rgba(247,162,27,0.3);color:var(--wh-orange-text);">Retry</button>' + _back;
     } else {
-      _title = 'Project not found';
-      _body  = 'This project no longer exists.' + _back;
+      // T73 (2026-08-25): a cross-hive open lands HERE, not in _refused — RLS returns zero
+      // rows with NO error, so this branch cannot tell deleted from invisible. It used to
+      // assert 'This project no longer exists.', telling a stakeholder from another hive
+      // that a live project was deleted (boundary rendered as nonexistence). Say both truths.
+      _title = 'Project not found or not visible to you';
+      _body  = 'Either this project was deleted, or it belongs to a hive your account is not a member of '
+             + '(this page can’t tell which). If someone sent you this link, ask them for the exported '
+             + 'PDF, or ask the project’s supervisor to add you to their hive.' + _back;
     }
     $('tb-title').textContent = _title;
     $('exec-summary')/* xss-allow: static branch strings, no user input */.innerHTML =
@@ -738,13 +768,31 @@ function renderLinked(links) {
   $('linked-section').innerHTML = html;
 }
 
+// A cell in this table has to fit a printed column, so long free text is capped — but the cap was
+// a bare .slice(0, 200) with nothing appended, and this page's whole job is to be PRINTED and
+// handed to a stakeholder. On paper there is no hover, no expand, no scroll: a 350-character
+// blocker arrived as a complete-looking 200-character sentence, usually cut mid-word, and the
+// reader had no way to know anything had been removed. Blockers is the field that carries WHY a
+// project is late, so silently shortening it is the T49 class exactly — an artifact that is not
+// truthful about its own completeness. The cap stays (the column is real); what changes is that
+// truncation now SAYS so, and the meta line below states the rule once for the whole table.
+const LOG_TEXT_CAP = 200;
+let _clipped = 0;
+function clip(s) {
+  const v = String(s || '');
+  if (v.length <= LOG_TEXT_CAP) return e(v);
+  _clipped++;
+  return e(v.slice(0, LOG_TEXT_CAP).trimEnd()) + '<span class="clip-mark" title="shortened to fit this column">… (shortened)</span>';
+}
+
 function renderProgress(logs) {
+  _clipped = 0;
   if (!logs.length) { $('progress-section').innerHTML = '<div class="empty-section">No daily progress logs recorded.</div>'; return; }
   const sorted = [...logs].sort((a, b) => (a.log_date || '').localeCompare(b.log_date || ''));
-  $('progress-section').innerHTML = `
-    <!-- table-name-allow: project-report data table --> <div class="wh-scroll-x"><table class="doc-table">
-      <thead><tr><th class="nowrap">Date</th><th>Reported by</th><th style="width:110px;">% complete</th><th class="right">Hours</th><th>Notes</th><th>Blockers</th></tr></thead>
-      <tbody>${sorted.map(l => `
+  // Rows are built BEFORE the markup so _clipped is already final when the note below reads it —
+  // interpolating the note in the same template as the .map() would read the count from before
+  // the rows ran and always report zero.
+  const rows = sorted.map(l => `
         <tr>
           <td class="nowrap">${e(fmtDate(l.log_date))}</td>
           <td>${e(l.reported_by || '-')}</td>
@@ -753,11 +801,17 @@ function renderProgress(logs) {
             <span style="margin-left: 4px; font-size: 8.5pt;">${l.pct_complete || 0}%</span>
           </td>
           <td class="right">${l.hours_worked ?? '-'}</td>
-          <td>${e((l.notes || '').slice(0, 200))}</td>
-          <td style="color: ${l.blockers ? 'var(--red)' : 'var(--muted)'};">${e((l.blockers || '').slice(0, 200))}</td>
-        </tr>`).join('')}
-      </tbody>
-    </table></div>`;
+          <td>${clip(l.notes)}</td>
+          <td style="color: ${l.blockers ? 'var(--red)' : 'var(--muted)'};">${clip(l.blockers)}</td>
+        </tr>`).join('');
+  const clipNote = _clipped
+    ? `<p class="clip-note">${_clipped} entr${_clipped === 1 ? 'y was' : 'ies were'} shortened to ${LOG_TEXT_CAP} characters to fit this table. Open the project in WorkHive to read them in full.</p>`
+    : '';
+  $('progress-section').innerHTML = `
+    <!-- table-name-allow: project-report data table --> <div class="wh-scroll-x"><table class="doc-table">
+      <thead><tr><th class="nowrap">Date</th><th>Reported by</th><th style="width:110px;">% complete</th><th class="right">Hours</th><th>Notes</th><th>Blockers</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table></div>${clipNote}`;
 }
 
 function renderLessons(p) {

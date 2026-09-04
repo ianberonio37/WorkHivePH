@@ -3134,6 +3134,23 @@ def learn_alias(rest):
     return workhive_file(f"learn/{rest}" if rest else "learn/")
 
 
+@app.route("/tools/", defaults={"rest": ""})
+@app.route("/tools/<path:rest>")
+def tools_alias(rest):
+    """Alias /tools/* to /workhive/tools/* for production-URL parity.
+
+    T156 (2026-08-26): this route DID NOT EXIST, and its absence was invisible because nothing
+    complained. /learn/, /about/, /privacy-policy/ and /terms-of-service/ each had an alias; the
+    60-page CALCULATOR cluster did not, and the catch-all /<filename> route matches only a single
+    path segment, so every /tools/<slug>/ request 404'd. The consequence was structural rather than
+    cosmetic: every live probe in this program - journeys, contrast, viewport, CWV, the UFAI battery
+    - was unable to reach the entire top of the funnel, and three trajectories that need those pages
+    live (T3 calculator conversion, T153 calculator SEO, T160 public CWV) had no way to measure them.
+    A cluster the harness cannot serve is a cluster no live gate can ever grade.
+    """
+    return workhive_file(f"tools/{rest}" if rest else "tools/")
+
+
 @app.route("/about/", defaults={"rest": ""})
 @app.route("/about/<path:rest>")
 def about_alias(rest):

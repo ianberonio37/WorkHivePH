@@ -128,6 +128,8 @@ Building owners and facility managers can ensure that their BMS and facilities m
 
 Non-compliance with PEZA regulations can result in penalties, fines, and even cancellation of PEZA registration. Building owners and facility managers must ensure that their BMS and facilities maintenance meet PEZA requirements to avoid these consequences.
 
+**Keep reading:** [build the asset register first](https://workhiveph.com/learn/building-asset-register-zero-budget/), or [start the digital logbook](https://workhiveph.com/learn/start-digital-logbook-philippine-factory/).
+
 ## Sources
 
 - Department of Labor and Employment. (2019). Occupational Safety and Health Standards.
@@ -135,4 +137,4 @@ Non-compliance with PEZA regulations can result in penalties, fines, and even ca
 - ISO. (2016). ISO 14224:2016 - Petroleum, petrochemical and natural gas industries - Reliability, availability and maintainability (RAM) data exchange.
 - SMRP. (2020). CMRP Body of Knowledge.
 
-<!-- md-twin source-sha: fbb3bff150afcbc0 -->
+<!-- md-twin source-sha: ff65122bbeb74ff1 -->

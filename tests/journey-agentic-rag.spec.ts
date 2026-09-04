@@ -103,13 +103,13 @@ test.describe('agentic-rag-loop — Phase 1 of AGENTIC_RAG_ROADMAP.md', () => {
     expect((result.body.error || '').toLowerCase()).toMatch(/hive_id|worker_name|auth_uid/);
   });
 
-  test('happy path: returns answer + route + checker_passed + trace_id shape', async ({ whPage }) => {
+  test('happy path: returns answer + route + checker_passed + trace_id shape', async ({ whPage, hiveId }) => {
     await whPage.goto(HOST_PAGE);
     await waitForPageReady(whPage);
 
     const result = await invokeRag(whPage, {
       question: 'What was the last logbook entry?',
-      hive_id:  '586fd158-42d1-4853-a406-64a4695e71c4',  // canonical seeded test hive
+      hive_id:  hiveId,  // canonical seeded test hive
       worker_name: 'Pablo Aguilar',
     });
     test.skip(skipIfNotDeployed(result), 'agentic-rag-loop not deployed yet');
@@ -131,7 +131,7 @@ test.describe('agentic-rag-loop — Phase 1 of AGENTIC_RAG_ROADMAP.md', () => {
     expect((result.body.retries ?? -1)).toBeLessThanOrEqual(2);
   });
 
-  test('question length cap: oversized question truncated, not 500', async ({ whPage }) => {
+  test('question length cap: oversized question truncated, not 500', async ({ whPage, hiveId }) => {
     await whPage.goto(HOST_PAGE);
     await waitForPageReady(whPage);
 
@@ -139,7 +139,7 @@ test.describe('agentic-rag-loop — Phase 1 of AGENTIC_RAG_ROADMAP.md', () => {
     const huge = 'A '.repeat(1000) + 'what happened?';
     const result = await invokeRag(whPage, {
       question: huge,
-      hive_id:  '586fd158-42d1-4853-a406-64a4695e71c4',
+      hive_id:  hiveId,
       worker_name: 'Pablo Aguilar',
     });
     test.skip(skipIfNotDeployed(result), 'agentic-rag-loop not deployed yet');
@@ -152,13 +152,13 @@ test.describe('agentic-rag-loop — Phase 1 of AGENTIC_RAG_ROADMAP.md', () => {
     }
   });
 
-  test('citation markers present in answer when chunks were graded successfully', async ({ whPage }) => {
+  test('citation markers present in answer when chunks were graded successfully', async ({ whPage, hiveId }) => {
     await whPage.goto(HOST_PAGE);
     await waitForPageReady(whPage);
 
     const result = await invokeRag(whPage, {
       question: 'Show me the latest breakdown',
-      hive_id:  '586fd158-42d1-4853-a406-64a4695e71c4',
+      hive_id:  hiveId,
       worker_name: 'Pablo Aguilar',
     });
     test.skip(skipIfNotDeployed(result), 'agentic-rag-loop not deployed yet');
@@ -173,7 +173,7 @@ test.describe('agentic-rag-loop — Phase 1 of AGENTIC_RAG_ROADMAP.md', () => {
     expect(hasCitation || isAdmission, 'answer must either cite a chunk [c#] or admit no records').toBe(true);
   });
 
-  test('hallucination guard: never invents asset tags not in chunks', async ({ whPage }) => {
+  test('hallucination guard: never invents asset tags not in chunks', async ({ whPage, hiveId }) => {
     await whPage.goto(HOST_PAGE);
     await waitForPageReady(whPage);
 
@@ -181,7 +181,7 @@ test.describe('agentic-rag-loop — Phase 1 of AGENTIC_RAG_ROADMAP.md', () => {
     // it as if it were real; it should admit no records.
     const result = await invokeRag(whPage, {
       question: 'What was the last failure on asset Z-99999-FAKE?',
-      hive_id:  '586fd158-42d1-4853-a406-64a4695e71c4',
+      hive_id:  hiveId,
       worker_name: 'Pablo Aguilar',
     });
     test.skip(skipIfNotDeployed(result), 'agentic-rag-loop not deployed yet');

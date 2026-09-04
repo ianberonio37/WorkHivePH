@@ -2,7 +2,7 @@
 name: table-rls-pm_completions
 type: table-rls
 source: db:pg_policies+pg_trigger:pm_completions
-source_sha: c8d79f38e65d0892
+source_sha: 398c918010d68669
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -11,7 +11,7 @@ supersedes: null
 
 RLS enabled: **True** · has hive_id: True · has auth_uid: True
 
-Columns (*=NOT NULL): id*, asset_id, scope_item_id, hive_id, worker_name*, status, notes, completed_at, auth_uid
+Columns (*=NOT NULL): id*, asset_id, scope_item_id, hive_id, worker_name*, status, notes, completed_at, auth_uid, meter_at_completion
 
 Policies:
 - `pm_completions_scope_parent_guard` [ALL · roles=public] USING=`true` CHECK=`((scope_item_id IS NULL) OR (EXISTS ( SELECT 1 FROM pm_scope_items s WHERE ((s.id = pm_completions.scope_item_id) AND (s`

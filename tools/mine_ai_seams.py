@@ -95,7 +95,23 @@ SKIP_PARTS = {
     # to see functions.invoke and the catalog jumped 177 -> 270 with .emoji_bak/* callers in it.
     # A backup copy is not a production call site.
     ".emoji_bak", ".palette_bak", ".hexvar_bak", ".leftover_bak",
+    # Test FIXTURES are not call sites either, for the same reason as the backups above. T1 moved
+    # index-*-test.html and engineering-design-test.html out of the served root into _fixtures/;
+    # the seams inside them simply changed path and reported as NEW.
+    "_fixtures",
 }
+
+# ★NOR IS THE INSTRUMENT THAT TESTS A SEAM ONE OF ITS CALLERS (2026-08-27). The inventory's whole
+# purpose is stated in the ratchet's own failure text: "a new seam is a new contract surface that
+# needs a test owner". A prover calling ai-gateway to check that a refusal survives the client does
+# not need a test owner - it IS one, and counting it means every test written to cover a seam
+# manufactures a fresh uncovered seam, so the backlog grows as the coverage improves. That is the
+# same inversion the _FN_INVOKE_RE comment above records from the other direction, where a correct
+# migration read as a coverage regression.
+#
+# Scoped to the prove_/validate_ naming this repo uses rigorously rather than to all of tools/,
+# because tools/ also holds production-ish scripts whose calls ARE real seams.
+_INSTRUMENT_PREFIXES = ("prove_", "validate_")
 
 
 _FN_CALL_RE = re.compile(r"/functions/v1/([a-z0-9][a-z0-9-]*)")
@@ -108,7 +124,10 @@ _FN_INVOKE_RE = re.compile(r"""functions\.invoke\(\s*['"]([a-z0-9][a-z0-9-]*)['"
 
 
 def is_skipped(path: Path) -> bool:
-    return any(part in SKIP_PARTS for part in path.parts)
+    if any(part in SKIP_PARTS for part in path.parts):
+        return True
+    # the instrument that exercises a seam is not one of its callers - see _INSTRUMENT_PREFIXES
+    return path.name.startswith(_INSTRUMENT_PREFIXES)
 
 
 def edge_fn_name(p: Path) -> str | None:

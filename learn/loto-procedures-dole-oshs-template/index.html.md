@@ -134,4 +134,4 @@ WorkHive Audit Log helps in LOTO procedures by capturing every LOTO event for in
 - IIEE Code: Philippine Electrical Code
 - ISO 14224: Petroleum, Petrochemical and Natural Gas Industries - Reliability, Availability and Maintainability (RAM) Data Exchange
 
-<!-- md-twin source-sha: 297ea71b859b5a59 -->
+<!-- md-twin source-sha: 0ed38c0fffe85d83 -->

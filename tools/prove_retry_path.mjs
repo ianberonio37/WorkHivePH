@@ -25,7 +25,8 @@
 //               NOT scored as a retry problem
 //
 // USAGE:  node tools/prove_retry_path.mjs [--page <name>]
-// OUTPUT: retry_path_report.json
+// OUTPUT: retry_path_report.json  (a --page run writes retry_path_report.partial.json,
+//         so a spot-check cannot overwrite the full sweep's verdicts)
 
 // ★THE SCOPE OF THE OUTAGE IS PART OF THE CLAIM, AND THIS PROVER OVERSTATED IT (fixed 2026-08-19).
 // The verdict read "under a TOTAL read outage" while the injection breaks only **/rest/v1/**. On
@@ -90,12 +91,19 @@ const readState = (page) => page.evaluate(() => {
   // So: walk the live tree, take only RENDERED leaves, and skip anything inside the toast layer.
   const TOAST = '#toast, #toast-text, .toast, [role="status"], [aria-live]';
   const parts = [];
-  for (const el of document.querySelectorAll('*')) {
-    if (el.children.length) continue;
-    if (el.closest(TOAST)) continue;
+  // ★LEAF-ONLY COLLECTION LOSES MIXED CONTENT (T40, 2026-08-25). The assistant's honest failure
+  // bubble ("I couldn't reach your job records...") formats newlines to <br>, so the bubble div
+  // has element children and `children.length` skipped it — its words live in TEXT NODES between
+  // the <br>s, which the leaf walk never visits. That single hole held the SILENT verdict against
+  // a page that was speaking the whole time. Walk text nodes instead; the toast exclusion and the
+  // rendered-only discipline are unchanged.
+  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  while (walker.nextNode()) {
+    const node = walker.currentNode; const el = node.parentElement;
+    if (!el || el.closest(TOAST)) continue;
     const r = el.getBoundingClientRect(); const cs = getComputedStyle(el);
     if (!(r.height > 0 && r.width > 0) || cs.display === 'none' || cs.visibility === 'hidden') continue;
-    const s = (el.textContent || '').trim();
+    const s = (node.textContent || '').trim();
     if (s) parts.push(s);
   }
   const t = parts.join(' ').replace(/\s+/g, ' ');
@@ -215,8 +223,22 @@ const run = async () => {
         rec.why = 'the page renders no failure under a REST read outage (edge calls were NOT broken) - a different and more '
                 + 'serious finding than a missing retry, and recorded as such rather than conflated';
       } else if (!before.retry.length) {
-        rec.outcome = 'NO-RETRY';
-        rec.why = 'the page says a failure happened and offers nothing to press - advice is not a path';
+        // ★THE CONVERSATIONAL SHAPE (T40, 2026-08-25): a chat surface speaks its failure in a
+        // BUBBLE ("I couldn't reach your job records... try again in a moment") and its retry
+        // path is the COMPOSER itself - asking again IS the retry. Demanding a labeled button
+        // there is the oracle's vocabulary failing the page (an oracle's vocabulary is part of
+        // the oracle). Accept: failure spoken + a visible enabled chat input = a working path.
+        const composer = await page.evaluate(() => {
+          const el = document.querySelector('#chat-input, textarea[id*="chat"], input[id*="chat"]');
+          return !!(el && el.getClientRects().length && !el.disabled);
+        }).catch(() => false);
+        if (composer) {
+          rec.outcome = 'PASS';
+          rec.why = 'conversational surface: the failure is spoken in-thread and the composer is the retry path (ask again)';
+        } else {
+          rec.outcome = 'NO-RETRY';
+          rec.why = 'the page says a failure happened and offers nothing to press - advice is not a path';
+        }
       } else {
         // Release the network, then press. Recovery is the clause that ships broken.
         failing = false;
@@ -274,7 +296,14 @@ const run = async () => {
   }
 
   await browser.close();
-  writeFileSync(path.join(ROOT, 'retry_path_report.json'), JSON.stringify(out, null, 1));
+  // ★A NARROWED RUN MUST NOT CLOBBER THE FULL ONE. This wrote the same filename whether it had
+  // walked 22 pages or 1, so a `--page x` spot-check replaced the whole sweep's report with a
+  // single row - measured 2026-08-27, when one fixture probe reduced a 22-page report to one
+  // UNGRADED entry and the real verdicts were gone. prove_journey.mjs already carries this exact
+  // fix ("a fixed filename let a one-page test DESTROY a 66-persona run"); this prover never got
+  // it. A spot-check should never be able to destroy the run it is checking.
+  const OUT = ONE ? 'retry_path_report.partial.json' : 'retry_path_report.json';
+  writeFileSync(path.join(ROOT, OUT), JSON.stringify(out, null, 1));
   const t = (o) => out.pages.filter((p) => p.outcome === o).length;
   // a gate that cannot fail is not a gate: FAIL outcomes set the exit code (added 2026-08-21 when
   // this prover was promoted from walk instrument to registered gate).

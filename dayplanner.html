@@ -336,6 +336,9 @@
         <span translate="no" style="font-size:1rem;font-weight:800;color:rgba(255,255,255,0.85)">Planner</span>
       </div>
       <div style="flex:1"></div>
+      <!-- T51 (2026-08-26): the current-hive chip - this page renders HIVE-SCOPED data, and a multi-hive contractor could not tell WHICH hive they were acting in (the single most important chrome question for that persona). Same visual pattern as pm-scheduler's chip; self-filling so no page init needs touching. -->
+      <span id="wh-hive-chip" translate="no" style="display:none;align-items:center;gap:4px;padding:3px 10px;border-radius:999px;font-size:.68rem;font-weight:700;background:rgba(247,162,27,0.1);border:1px solid rgba(247,162,27,0.25);color:var(--wh-orange-text);max-width:140px;"><span id="wh-hive-chip-name" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span></span>
+      <script>try{var _hn=localStorage.getItem('wh_hive_name');/* storage-key-allow: pre-utils chip paint */if(_hn){document.getElementById('wh-hive-chip-name').textContent=_hn;document.getElementById('wh-hive-chip').style.display='inline-flex';}}catch(_){/* empty-catch-allow: the chip is context decoration */}</script>
 
       <!-- View tabs -->
       <div class="view-tabs" role="tablist" aria-label="Planner time span">
@@ -476,7 +479,13 @@
         </div>
       </div>
       <div>
-        <label for="m-notes" style="font-size:0.75rem;color:rgba(255,255,255,0.80);display:block;margin-bottom:0.375rem" data-i="notes">Notes</label>
+        <!-- T166 (2026-08-27): the composer says who reads it. schedule_items' read policy is
+             `auth.uid() IS NOT NULL AND auth_uid = auth.uid()` - owner-scoped, so these notes are
+             genuinely private, and saying so is the difference between a planner someone writes
+             honestly in and one they hedge in because they cannot tell who is looking. The claim is
+             checked against the policy by the composer-audience gate, not just asserted here. -->
+        <label for="m-notes" style="font-size:0.75rem;color:rgba(255,255,255,0.80);display:block;margin-bottom:0.375rem" data-i="notes">Notes
+          <span style="font-weight:400;opacity:0.75;text-transform:none;">- private to you; nobody else in your hive can read your planner notes</span></label>
         <textarea class="wh-input" id="m-notes" rows="4" placeholder="Optional details..." style="resize:vertical"></textarea>
       </div>
       <!-- Status row (edit mode only) -->
@@ -503,7 +512,8 @@
   </div>
 </div>
 
-<script>
+<script src="browser-floor.js"></script>
+  <script>
 // ─────────────────────────────────────────────
 // SUPABASE
 // ─────────────────────────────────────────────
@@ -536,7 +546,18 @@ let currentDate = new Date();
 let logbookItems = [];
 let scheduleItems = [];
 let selectedLogbookItem = null;
-let plantWork = [];  // K2: PMs due/overdue composed from v_pm_scope_items_truth for the PULL rail
+let plantWork = [];
+// How many PMs are actually due, as opposed to how many fit on the rail. These are different
+// numbers whenever the hive has more than 30 due, and the header states one of them.
+let plantWorkTotal = 0;  // K2: PMs due/overdue composed from v_pm_scope_items_truth for the PULL rail
+/* ★"Silence is only honest when the read ANSWERED" (the comment in renderPlantWorkSection) is right,
+   and it has a third case it did not know about. A REFUSED read answers: RLS filters the rows and hands
+   back a clean 200 with an empty array, so a worker removed from the hive gets `return ''` and the plant
+   PM rail simply VANISHES - indistinguishable from a quiet day. This page's own personal data (schedule
+   items, keyed by auth_uid) stays correct and is deliberately untouched; only the hive-scoped rail needs
+   to say why it is gone. Asked via the shared probe, which fails open on a DB error. */
+let plantWorkHiveLost = false;
+let plantWorkFailed = false;  // T27/T29: a read that FAILED must not vanish silently
 let editingScheduleId = null;
 
 // ─────────────────────────────────────────────
@@ -662,8 +683,13 @@ function toDBRow(item) {
     auth_uid:    _authUid || null,  // C3b
     title:       item.title,
     date:        item.date,
-    start_time:  item.startTime,
-    end_time:    item.endTime,
+    // T75/T192 (2026-08-28): an untimed task reached the DB as EMPTY STRING, not NULL -- an empty
+    // <input type="time"> yields '' at :1988, and the quick-add path at :2084 coerces to '' outright.
+    // That is what put two spellings of "no time set" in the table. Normalising HERE rather than in
+    // the two item constructors is deliberate: this is the single boundary every write crosses, so a
+    // third constructor added later cannot reintroduce the split.
+    start_time:  item.startTime || null,
+    end_time:    item.endTime   || null,
     category:    item.category,
     notes:       item.notes,
     logbook_ref: item.logbookRef,
@@ -696,6 +722,16 @@ async function loadSchedule() {
       .select('*')
       .eq('worker_name', WORKER_NAME)
       .order('date', { ascending: true })
+      // T75 (2026-08-28): the day was ordered by date then ID, and this form collects a Start Time
+      // (#m-start) -- so two items on the SAME day appeared in neither chronological nor even
+      // creation order: `id` here is a text key like 'svc-<uuid>', so its sort is effectively
+      // arbitrary. A planner that asks when a job starts and then lists 16:00 above 08:00 is not
+      // showing the worker their day. 36 same-date multi-item days exist in local data alone.
+      // start_time is TEXT in zero-padded HH:MM ('07:00','10:30'), so a lexicographic sort IS
+      // chronological. nullsFirst:false matters more than it looks: 126 of 228 rows are untimed,
+      // and ascending-with-nulls-first would float every untimed item above the scheduled ones,
+      // making the common case worse. Timed work reads in order; untimed to-dos follow it.
+      .order('start_time', { ascending: true, nullsFirst: false })
       .order('id')   // MR4 tiebreaker: the sort above is not total on its own
       .limit(1000); // L2: a worker's planner is bounded-by-nature (dozens-hundreds); insurance cap
     if (error) throw error;
@@ -705,7 +741,20 @@ async function loadSchedule() {
     const lsKey = 'wh_lifeplanner_' + WORKER_NAME;
     const lsRaw = localStorage.getItem(lsKey);
     if (lsRaw && scheduleItems.length === 0) {
-      const lsItems = JSON.parse(lsRaw);
+      // GUARD THE ONE-TIME MIGRATION SO IT CANNOT DISCARD THE ROWS WE JUST LOADED (2026-08-28).
+      // scheduleItems was assigned from the database a few lines above. This parse sits inside
+      // loadSchedule's outer try, so a CORRUPT legacy value threw all the way out to the catch —
+      // which then replaced the good server data with a localStorage fallback. The read succeeded
+      // and its result was thrown away by a failure in an unrelated one-time migration.
+      // A legacy key we cannot parse is simply not migratable: skip it, keep the server rows, and
+      // drop the unreadable key so this never runs again.
+      let lsItems;
+      try {
+        lsItems = JSON.parse(lsRaw);
+      } catch (_) {
+        try { localStorage.removeItem(lsKey); } catch (_e) { /* empty-catch-allow: private mode */ }
+        lsItems = [];
+      }
       if (lsItems.length > 0) {
         const rows = lsItems.map(toDBRow);
         const { error: uErr } = await db.from('schedule_items').upsert(rows);
@@ -734,6 +783,25 @@ async function loadSchedule() {
 // handler can suppress the echo of our own change (only OTHER devices' edits
 // should trigger a "live" reload + toast).
 let _dpLastLocalWrite = 0;
+// T14 (2026-08-25) — lazy queue ensure, the pm-scheduler race class: this page inits via an
+// immediate async IIFE while offline-queue.js is `<script defer>`, so a one-shot
+// `if (window.whCreateQueue)` in the IIFE can run before the deferred script exists and the
+// queue is silently never created (measured live on pm-scheduler: 2 of 5 runs lost the race,
+// every offline capture that page-life then fell through to the dead network). Ensure at init
+// AND at every use site.
+function _ensureDpQueue() {
+  if (!window._whDpQueue && window.whCreateQueue) {
+    window._whDpQueue = window.whCreateQueue({
+      db: 'wh_dayplanner_offline', table: 'schedule_items',
+      identityKey: 'worker_name', identityFn: () => WORKER_NAME,
+      postSync: () => { try { loadSchedule(); } catch (_) { /* empty-catch-allow: post-sync refresh best-effort */ } },
+    });
+    window.whRegisterQueue('dayplanner', window._whDpQueue);
+    window._whDpQueue.startAutoSync(db);
+  }
+  return window._whDpQueue || null;
+}
+
 async function syncItemToSupabase(item) {
   _dpLastLocalWrite = Date.now();
   try {
@@ -742,7 +810,7 @@ async function syncItemToSupabase(item) {
     // offline re-edit replaces the pending item) and drains on reconnect — honest label,
     // never a false success. The capture-contract check runs on the online path only (it
     // needs the DB); the queued row is the same toDBRow shape the contract governs.
-    if (!navigator.onLine && window._whDpQueue && row.id) {
+    if (!navigator.onLine && _ensureDpQueue() && row.id) {
       await window._whDpQueue.enqueue({ id: row.id, op: 'upsert', payload: row });
       showToast('Saved offline. Will sync when you reconnect.');
       return;
@@ -759,7 +827,7 @@ async function syncItemToSupabase(item) {
     const { error } = await db.from('schedule_items').upsert(row);
     if (error) {
       // network hiccup while nominally "online": queue it, don't lose the capture
-      if (window._whDpQueue && row.id && /fetch|network|load failed|connection|timeout/i.test(error.message || '')) {
+      if (_ensureDpQueue() && row.id && /fetch|network|load failed|connection|timeout/i.test(error.message || '')) {
         await window._whDpQueue.enqueue({ id: row.id, op: 'upsert', payload: row });
         showToast('Network issue: saved offline, will retry automatically.');
         return;
@@ -769,21 +837,33 @@ async function syncItemToSupabase(item) {
       // because utils.js loads at the BOTTOM of this page (see the note at the top of this block).
       console.warn('Schedule sync failed:', error.message);
       showToast(typeof whWriteError === 'function'
-        ? whWriteError(error, 'Save failed: check your connection')
-        : 'Save failed: check your connection', 'error');
+        /* T176 (2026-08-27): the FALLBACK said "check your connection" while the comment three
+           lines up already established that anything connection-shaped was claimed by the branch
+           above and what reaches here is a REFUSAL. The diagnosis was written and the string was
+           not changed. A refusal answered with "check your connection" sends someone to their wifi
+           for a problem their wifi cannot fix. */
+        ? whWriteError(error, 'Could not save that change. Nothing on your schedule changed.')
+        : 'Could not save that change. Nothing on your schedule changed.', 'error');
     }
   } catch(e) {
     console.warn('Schedule sync error:', e);
-    if (window._whDpQueue && item && item.id) {
+    if (_ensureDpQueue() && item && item.id) {
       try {
         await window._whDpQueue.enqueue({ id: item.id, op: 'upsert', payload: toDBRow(item) });
         showToast('Network issue: saved offline, will retry automatically.');
         return;
       } catch (_) { /* empty-catch-allow: fall through to the honest failure toast */ }
     }
+    /* T176 (2026-08-27): THE THIRD SITE, missed when the other two were fixed. The save's `error`
+       branch and both delete paths were changed to state the outcome; this CATCH kept
+       "check your connection". ★AND HERE THE BLAME IS DOUBLY WRONG: this line is reached only
+       AFTER the offline queue above has already tried and failed to absorb the write, so if the
+       problem really were the network, the queue would have taken it. What reaches this line is a
+       refusal or a bug, and sending someone to their wifi for either wastes the one action they
+       are willing to take. Say the outcome instead, matching its sibling three lines above. */
     showToast(typeof whWriteError === 'function'
-      ? whWriteError(e, 'Save failed: check your connection')
-      : 'Save failed: check your connection', 'error');
+      ? whWriteError(e, 'Could not save that change. Nothing on your schedule changed.')
+      : 'Could not save that change. Nothing on your schedule changed.', 'error');
   }
 }
 
@@ -793,7 +873,7 @@ async function deleteItemFromSupabase(id) {
   // identityKey adds the worker_name guard at drain) — same keyPath id as the item's own
   // pending upsert, so deleting a never-synced offline item REPLACES its pending create
   // with a delete (the drain's .eq(id) then no-ops harmlessly on the absent row).
-  if (!navigator.onLine && window._whDpQueue && id) {
+  if (!navigator.onLine && _ensureDpQueue() && id) {
     try {
       await window._whDpQueue.enqueue({ id, op: 'delete', match: { id } });
       showToast('Deleted offline. Will sync when you reconnect.');
@@ -804,15 +884,17 @@ async function deleteItemFromSupabase(id) {
     const { error } = await db.from('schedule_items').delete().eq('id', id).eq('worker_name', WORKER_NAME);
     if (error) {
       console.warn('Schedule delete failed:', error.message);
+      /* T176: same as the save path - a refusal, not a connection problem. And a failed delete
+         has one certain consequence worth stating: the item is still there. */
       showToast(typeof whWriteError === 'function'
-        ? whWriteError(error, 'Delete failed: check your connection')
-        : 'Delete failed: check your connection', 'error');
+        ? whWriteError(error, 'Could not delete that item. It is still on your schedule.')
+        : 'Could not delete that item. It is still on your schedule.', 'error');
     }
   } catch(e) {
     console.warn('Schedule delete error:', e);
     showToast(typeof whWriteError === 'function'
-      ? whWriteError(e, 'Delete failed: check your connection')
-      : 'Delete failed: check your connection', 'error');
+      ? whWriteError(e, 'Could not delete that item. It is still on your schedule.')
+      : 'Could not delete that item. It is still on your schedule.', 'error');
   }
 }
 
@@ -872,24 +954,53 @@ async function loadLogbook() {
 // view to the worker's hive. Each row is one-tap addable as a GROUNDED task (source_kind='pm').
 async function loadPlantWork() {
   try {
-    const { data, error } = await db.from('v_pm_scope_items_truth')
-      .select('scope_item_id, item_text, asset_name, asset_tag, next_due_date, days_until_due, is_overdue, is_due_soon')
+    // count:'exact' because the .limit(30) below is a DISPLAY slice, and the header next to this
+    // rail states a number. Without the count it stated data.length — so with 80 items overdue or
+    // due soon in this hive it read "30 PMs", which is not a shortened list, it is a WRONG COUNT:
+    // a worker reads it as their plant's PM load and it is off by fifty. The hive board reads the
+    // same view with a 500 cap and reports the real figure, so the two surfaces disagreed about
+    // the same fact. The slice stays (30 urgent cards is a day-planner, not a backlog); the number
+    // beside it now tells the truth about what it is a slice OF.
+    const { data, error, count } = await db.from('v_pm_scope_items_truth')
+      .select('scope_item_id, item_text, asset_name, asset_tag, next_due_date, days_until_due, is_overdue, is_due_soon',
+              { count: 'exact' })
       .or('is_overdue.eq.true,is_due_soon.eq.true')
       .order('is_overdue', { ascending: false })
       .order('next_due_date', { ascending: true })
       .order('id')   // MR4 tiebreaker: the sort above is not total on its own
       .limit(30);
     if (error) throw error;
-    plantWork = data || [];
+    plantWork = data || []; plantWorkFailed = false;
+    plantWorkTotal = (typeof count === 'number') ? count : plantWork.length;
   } catch (e) {
     console.warn('Plant PM work load failed:', e.message || e);
-    plantWork = [];
+    /* T27/T29 (2026-08-27): this blanked the list and the section then rendered '' - so a failed
+       read did not say anything wrong, it said NOTHING, and the whole plant-PM rail simply was not
+       there. A worker cannot tell an absent section from a quiet day. Record the failure so the
+       rail can say why it is empty. */
+    plantWork = []; plantWorkFailed = true; plantWorkTotal = 0;
   }
   renderSidebar();
 }
 
 function renderPlantWorkSection() {
-  if (!plantWork.length) return '';
+  if (!plantWork.length) {
+    /* Silence is only honest when the read ANSWERED. */
+    if (plantWorkFailed) {
+      return '<div class="section-note" style="font-size:0.72rem;opacity:0.8;padding:0.5rem 0;">'
+        + 'Could not load plant PM work, so this rail is empty for a reason that is not "nothing due". Reload to try again.</div>';
+    }
+    if (plantWorkHiveLost) {
+      // The read ANSWERED - with nothing, because it was refused. Vanishing here reads as "no plant work
+      // today" to someone who is simply no longer allowed to see it.
+      return '<div class="section-note" style="font-size:0.72rem;opacity:0.8;padding:0.5rem 0;">'
+        + escHtml((typeof whHiveContextLost === 'function')
+            ? whHiveContextLost('this hive')
+            : 'You are no longer a member of this hive, so its plant PM work is not shown.')
+        + '</div>';
+    }
+    return '';
+  }
   const e = escHtml;
   const today = todayYMD();
   const cards = plantWork.map(pm => {
@@ -917,10 +1028,16 @@ function renderPlantWorkSection() {
     <div style="margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.06)">
       <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
         <span class="ic ic-clock" aria-hidden="true"></span>
-        <span style="font-size:0.72rem;font-weight:700;color:rgba(255,255,255,0.8)">Due from your plant</span>
-        <span style="font-size:0.6rem;color:rgba(255,255,255,0.80)">${plantWork.length} PM${plantWork.length!==1?'s':''}</span>
+        <!-- "your plant" said to a solo car owner read wrong (VP13); "your assets" is true for
+             every persona - plant crew, fleet, or one Ranger -->
+        <span style="font-size:0.72rem;font-weight:700;color:rgba(255,255,255,0.8)">Due from your assets</span>
+        <span style="font-size:0.6rem;color:rgba(255,255,255,0.80)">${plantWorkTotal > plantWork.length
+          ? `${plantWork.length} of ${plantWorkTotal} PMs`
+          : `${plantWork.length} PM${plantWork.length !== 1 ? 's' : ''}`}</span>
       </div>
       ${cards}
+      ${plantWorkTotal > plantWork.length ? `<div class="section-note" style="font-size:0.65rem;opacity:0.8;padding:0.35rem 0 0">
+        Showing the ${plantWork.length} most urgent of ${plantWorkTotal} due across your plant. Open PM Scheduler for the full list.</div>` : ''}
     </div>`;
 }
 
@@ -2065,12 +2182,23 @@ document.addEventListener('keydown', e => {
     // utils.js is loaded by now — re-read the canonical accessor the early block couldn't.
     if (!WORKER_NAME && typeof whWorker === 'function') WORKER_NAME = whWorker() || '';
     if (!WORKER_NAME) { WORKER_NAME = await restoreIdentityFromSession(db); }
-    if (!WORKER_NAME) { window.location.href = 'index.html?signin=1'; return; }
+    try {
+      if (typeof whHiveMembershipLost === 'function') {
+        const _hid = (typeof whHiveId === 'function') ? whHiveId() : '';
+        if (_hid && await whHiveMembershipLost(db, _hid, WORKER_NAME)) {
+          plantWorkHiveLost = true;
+          if (typeof whHiveContextNotice === 'function') {
+            whHiveContextNotice(localStorage.getItem('wh_hive_name') || '');
+          }
+        }
+      }
+    } catch (_) { /* empty-catch-allow: the planner must render without the probe */ }
+    if (!WORKER_NAME) { whSignInWall(); return; }
     // Phase B (auth migration): converted .then() to await so _authUid is populated
     // BEFORE the gate. Without this, the !_authUid check would fire while the
     // session promise was still pending. See PRODUCTION_FIXES.md #37.
     try { const { data: { session } } = await db.auth.getSession(); _authUid = session?.user?.id || null; } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
-    if (!_authUid) { window.location.href = 'index.html?signin=1'; return; }
+    if (!_authUid) { whSignInWall(); return; }
     const _dpChip = document.getElementById('dayplanner-source-chip');
     if (_dpChip && typeof renderSourceChip === 'function') {
       _dpChip.innerHTML = renderSourceChip({
@@ -2086,15 +2214,7 @@ document.addEventListener('keydown', e => {
     // for schedule captures — an offline add/edit/delete queues (upsert = idempotent via the
     // client-stable item.id keyPath) and drains on reconnect. Before this, an offline save
     // survived only in memory and was LOST on refresh (loadSchedule reads DB-only).
-    if (window.whCreateQueue) {
-      window._whDpQueue = window.whCreateQueue({
-        db: 'wh_dayplanner_offline', table: 'schedule_items',
-        identityKey: 'worker_name', identityFn: () => WORKER_NAME,
-        postSync: () => { try { loadSchedule(); } catch (_) { /* empty-catch-allow: post-sync refresh best-effort */ } },
-      });
-      window.whRegisterQueue('dayplanner', window._whDpQueue);
-      window._whDpQueue.startAutoSync(db);
-    }
+    _ensureDpQueue();
     // E2 consistent states: skeleton in the logbook sidebar while it fetches so
     // #sidebar-items never flashes blank before open items render (shared whListSkeleton).
     if (typeof whListSkeleton === 'function') whListSkeleton(document.getElementById('sidebar-items'), 4);

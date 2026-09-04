@@ -1,10 +1,57 @@
+# T167/T169 (2026-08-25) — two prod-only defects fixed in this block:
+#  1. Permissions-Policy denied camera + microphone SITE-WIDE, which kills the voice journal's
+#     mic and the logbook's photo capture + QR scan in production (both shipped features).
+#     (self) allows our own pages while still denying embedded third-party frames.
+#     ★2026-08-28: geolocation=() was the SAME BUG, left behind by that same fix — a THIRD
+#     shipped feature denied. marketplace-seller.html publishes a provider's live location during
+#     an ACTIVE service job (watchPosition, one write per 15s, a visible "Sharing your live
+#     location with this job's client" indicator, stopping when the job set empties). An empty
+#     allowlist denies every origin INCLUDING self, so in production it never started — and it
+#     failed invisibly, because its own error callback HIDES the indicator, making a blocked
+#     permission look exactly like "no active job" while the waiting client saw nothing.
+#     Fixing camera and microphone without auditing the third feature in the same header is how
+#     a policy repeats itself; that is why csp-covers-what-ships now checks this line too.
+#  2. The CSP predated GA4: script-src lacked googletagmanager.com and connect-src lacked the
+#     analytics collection endpoints, so the deliberately-shipped GA4 (wh-ga4.js, funnel events,
+#     anonymize_ip) was silently DEAD in prod — an analytics claim with no living producer.
+#
+# T169 (2026-08-28) — the SAME class again, this time LATENT and armed to fire on a config change.
+# index.html ships a complete Cloudflare Turnstile integration behind a "configure-to-enable"
+# switch documented as two steps: set window.WH_TURNSTILE_SITEKEY, then enable Bot Protection in
+# the Supabase Auth dashboard. There was a silent THIRD step here, in a file nobody flipping that
+# switch would think to open: script-src did not permit challenges.cloudflare.com, and no frame-src
+# was declared at all — so it fell back to default-src 'self' and would have blocked the challenge
+# iframe. Enabling bot defense would therefore have taken SIGNUP DOWN COMPLETELY: the script blocked
+# => window.turnstile never defined => _turnstileToken() returns null => no captchaToken sent, while
+# step two of that very switch tells Supabase to reject exactly that. An outage on the front door,
+# caused by the feature meant to protect it, with a console-only cause and nothing local to
+# reproduce it. The two directives below are Cloudflare's documented requirement; granted now, while
+# the feature is off, so the documented switch is TRUE when someone finally throws it.
+#
+# T169 follow-up, same day — SWEEPING THE CLASS RATHER THAN THE INSTANCE. The Turnstile find was
+# the third prod-only CSP failure recorded in this file, so instead of patching it and moving on,
+# every external host referenced by shipped code was enumerated and checked against this policy.
+# FOUR MORE SHIPPED FEATURES WERE SILENTLY BLOCKED IN PRODUCTION:
+#   analytics.html          loads Plotly from cdn.plot.ly            -> charts never render
+#   engineering-design.html loads html2pdf from cdnjs.cloudflare.com -> PDF export dead
+#   engineering-design.js   calls engineering-calc-api.onrender.com  -> PDF + diagram APIs dead
+#   marketplace.html        loads wh-map.js (MapLibre + OpenFreeMap) -> map dead twice over:
+#                           tiles.openfreemap.org was missing from connect-src, AND MapLibre
+#                           builds its renderer in a Worker from a blob: URL, which needs
+#                           worker-src — absent entirely, so it inherited default-src 'self'.
+# ★THE MAP CASE IS THE ONE TO REMEMBER: wh-map.js states its requirement in its own header
+# ("Prod CSP needs connect-src https://tiles.openfreemap.org + worker-src blob:"). The requirement
+# was written down, by the person who knew it, in the file that needed it — and never reached the
+# file that ENFORCES it. A note in the consumer is not a change in the policy. That is the same
+# shape as the Turnstile switch above, and it is why the class now has a gate
+# (tools/validate_csp_covers_what_ships.py) instead of a fourth comment.
 /*
   X-Frame-Options: DENY
   X-Content-Type-Options: nosniff
   X-XSS-Protection: 1; mode=block
   Referrer-Policy: strict-origin-when-cross-origin
-  Permissions-Policy: camera=(), microphone=(), geolocation=()
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://hzyvnjtisfgbksicrouu.supabase.co https://workhive-assistant.ian-beronio37.workers.dev; frame-ancestors 'none'
+  Permissions-Policy: camera=(self), microphone=(self), geolocation=(self)
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://fonts.googleapis.com https://www.googletagmanager.com https://challenges.cloudflare.com https://cdn.plot.ly https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https: https://www.googletagmanager.com; connect-src 'self' https://hzyvnjtisfgbksicrouu.supabase.co https://workhive-assistant.ian-beronio37.workers.dev https://www.google-analytics.com https://analytics.google.com https://www.googletagmanager.com https://tiles.openfreemap.org https://engineering-calc-api.onrender.com; worker-src 'self' blob:; frame-src 'self' https://challenges.cloudflare.com; frame-ancestors 'none'
 
 # Stale backups + the v3 test page are served from the web root (publish = "."), and
 # each is a near-duplicate of the live homepage or logbook with the same <title>, no
@@ -61,6 +108,22 @@
 /*.html
   Cache-Control: public, max-age=0, must-revalidate
 /*.png
+  Cache-Control: public, max-age=31536000, immutable
+# 2026-08-28 (T160): .jpg was missing from this list while .png/.svg/.webp were on it — invisible
+# until the companion portraits moved from 2 MB PNGs to 9.6 KB progressive JPEGs and quietly lost a
+# year of caching in the process. A format swap inherits the cache policy of its NEW extension, not
+# the old one. (No rule for *.js is deliberate and stays: these scripts are not content-hashed, so
+# immutable caching would make a deploy unpickupable — they must revalidate.)
+/*.jpg
+  Cache-Control: public, max-age=31536000, immutable
+/*.jpeg
+  Cache-Control: public, max-age=31536000, immutable
+# The gap was wider than the two files that exposed it: 51 tracked .jpeg assets had never been
+# covered either, and .ico is fetched on EVERY page load. Enumerated from `git ls-files` rather than
+# from the extensions I happened to be thinking about.
+/*.ico
+  Cache-Control: public, max-age=31536000, immutable
+/*.mp4
   Cache-Control: public, max-age=31536000, immutable
 /*.svg
   Cache-Control: public, max-age=31536000, immutable

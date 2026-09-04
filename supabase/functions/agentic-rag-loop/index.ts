@@ -558,8 +558,14 @@ async function retrieverStage(
   // Lane B: v_logbook_truth canonical view (keyword search via ilike, hive-scoped)
   if (hiveId && route !== "cold_archive") {
     try {
-      // Escape LIKE wildcards in user input (per data-engineer skill)
-      const safeQ = question.trim().slice(0, 80).replace(/%/g, "\\%").replace(/_/g, "\\_");
+      /* Escape LIKE wildcards AND remove the PostgREST or() delimiters. Escaping % and _
+         only stops a wildcard changing WHICH rows match; a COMMA ends the or() condition
+         early and PostgREST rejects the whole filter with 400 "failed to parse logic
+         tree" - measured live 2026-08-26. This lane takes a natural-language QUESTION,
+         so commas are not an edge case here, they are the common case. */
+      const safeQ = question.trim().slice(0, 80)
+        .replace(/[,()\\]/g, " ").replace(/\s+/g, " ").trim()
+        .replace(/%/g, "\\%").replace(/_/g, "\\_");
       let q = db.from("v_logbook_truth")
         .select("id, machine, maintenance_type, category, root_cause, action, downtime_hours, status, created_at")
         .eq("hive_id", hiveId)
@@ -568,7 +574,14 @@ async function retrieverStage(
       if (safeQ) {
         q = q.or(`machine.ilike.%${safeQ}%,root_cause.ilike.%${safeQ}%,action.ilike.%${safeQ}%`);
       }
-      const { data: logs } = await q;
+      /* The error was DESTRUCTURED AWAY here, and supabase-js RETURNS {data:null,error}
+         rather than throwing - so a rejected filter never reached the catch below, and
+         `logs || []` turned it into an ordinary empty result. The AI then answered with
+         less grounding and nothing anywhere said why. Silence is the expensive part. */
+      const { data: logs, error: logErr } = await q;
+      if (logErr) {
+        console.warn("[agentic-rag-loop] logbook lane rejected:", String(logErr.message || logErr).slice(0, 160));
+      }
       for (const row of logs || []) {
         chunks.push({
           id:         `log#${row.id}`,

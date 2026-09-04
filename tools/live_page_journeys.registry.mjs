@@ -43,25 +43,30 @@ export const JOURNEYS = [
       const opsHidden = await displayNone(h, '#ops-home');
       const heroTxt = (await h.qText('h1')) || '';
       const heroOk = /access your|memory/i.test(heroTxt);
-      const cta = await h.exists("a.cta-pulse[href='#join'], a.btn-primary[href='#join']");
-      const joinTarget = await h.exists('#join');
+      // T1: the primary CTA contract changed — every primary routes to the REAL signup
+      // (?signup=1 / whPrimaryCta), not the #join waitlist anchor. The old selector here
+      // would have gone silently stale (asserting a world the retarget deleted).
+      const cta = await h.exists("a.cta-pulse[href='?signup=1'], a.btn-primary[href='?signup=1'], #sticky-mobile-cta button");
+      const modalExists = await page.evaluate(() => !!document.getElementById('signin-modal'));
       return {
-        R: mkt && opsHidden, J: heroOk && cta, T: null, C: null, X: cta && joinTarget,
-        evidence: { mkt, opsHidden, hero: heroTxt.slice(0, 60), cta, joinTarget },
+        R: mkt && opsHidden, J: heroOk && cta, T: null, C: null, X: cta && modalExists,
+        evidence: { mkt, opsHidden, hero: heroTxt.slice(0, 60), cta, modalExists },
         findings: [],
       };
     },
   },
   {
     id: 'LA2', phase: 'K1', page: 'index.html', role: 'anon', state: 'landing-anon',
-    title: 'Visitor joins the early-access waitlist and gets confirmation (→ early_access_emails)',
+    title: 'Visitor subscribes to email updates via the demoted #join block (→ early_access_emails; T1: the waitlist stopped being the primary CTA)',
     lenses: ['R', 'J', 'T', 'C'], ufai: ['U', 'F', 'A', 'I'],
     drive: async (page, h) => {
       await h.goto('index.html');
       const formReachable = await h.exists('#joinForm');
       const recoverable = await h.exists("#joinForm input[type='email'][required], #joinForm input[name='email'][required]");
       const email = `k1-probe-${Date.now()}@plant.test`;
-      await h.click("a[href='#join']").catch(() => {});
+      // T1: the old `h.click("a[href='#join']").catch(() => {})` was a SWALLOWED no-op — after the
+      // CTA retarget that selector matches zero elements, and before it the .catch hid every click
+      // failure. Playwright's fill() auto-scrolls to the form; no decorative click needed.
       await h.fill("#joinForm input[name='email'], #joinForm input[type='email']", email);
       await h.click('#joinForm button[type="submit"]');
       // poll the submit button for the success copy
@@ -123,10 +128,13 @@ export const JOURNEYS = [
         return span ? (span.textContent || '').trim() : '';
       })) || '';
       const honestLabel = /sign up/i.test(rowText);
-      const ctas = await h.count("a[href='#join'][onclick*='openSignUp']");
+      const ctas = await h.count("a[href='?signup=1'][data-wh-cta]");   // CSP conversion: data-attr, not onclick
       const reachable = honestLabel && ctas >= 4;
-      // J: clicking the first tool CTA (Logbook) opens the SIGN-UP modal truthfully
-      await h.click("a[href='#join'][onclick*='openSignUp']");
+      // J: clicking the first tool CTA (Logbook) opens the SIGN-UP modal truthfully.
+      // T1: click the FREE-TOOLS row's own link (onclick names 'free-tools'), not the first
+      // ?signup=1 match in the DOM — that was the nav/masthead anchor, whose actionability
+      // wait timed out and silently skipped the click.
+      await h.click("a[data-wh-cta='free-tools']");
       const signupOpen = await h.waitFor('#su-username', 5000);
       const signupTab = await h.evalIn(() => document.getElementById('tab-signup')?.getAttribute('aria-selected') === 'true');
       const routed = signupOpen && signupTab;
@@ -147,6 +155,209 @@ export const JOURNEYS = [
         R: reachable, J: routed, T: null, C: null, X: stillAnon && routed,
         evidence: { rowText: rowText.slice(0, 50), honestLabel, ctas, signupOpen, signupTab, stillAnon, note: 'free-platform: tool CTAs open signup (truthful), no stale guest promise' },
         findings,
+      };
+    },
+  },
+  // ───────────── T1 conversion journeys (LA7-LA10, 2026-08-24) ─────────────
+  // Born from Ian's phone: the sticky "Get Early Access" bar was a dead tap while 790 gates
+  // sat green. These four lock the conversion contract the T1 fixes established.
+  {
+    id: 'LA7', phase: 'K1', page: 'index.html', role: 'anon', state: 'landing-anon',
+    title: "Ian's phone leg: the sticky mobile CTA reveals after ONE screen of scroll and its tap opens the real signup",
+    lenses: ['R', 'J', 'X'], ufai: ['U', 'F'],
+    drive: async (page, h) => {
+      await page.setViewportSize({ width: 390, height: 780 });
+      await h.goto('index.html');
+      await page.evaluate(() => window.scrollTo(0, 800));   // one screen: the hero CTA has left
+      await page.waitForTimeout(900);
+      const state = await page.evaluate(() => {
+        const bar = document.getElementById('sticky-mobile-cta');
+        return bar ? { present: true, inert: !!bar.inert, parked: getComputedStyle(bar).transform !== 'matrix(1, 0, 0, 1, 0, 0)' } : { present: false };
+      });
+      const revealed = state.present && !state.inert && !state.parked;
+      let tapHits = false, modalOpen = false, signupTab = false, src = null;
+      if (state.present) {
+        tapHits = await page.evaluate(() => {
+          const btn = document.querySelector('#sticky-mobile-cta button');
+          if (!btn) return false;
+          const r = btn.getBoundingClientRect();
+          const hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+          btn.click();
+          return hit === btn || (hit && btn.contains(hit));   // an inert/covered bar fails HERE
+        });
+        await page.waitForTimeout(900);
+        modalOpen = await page.evaluate(() => !document.getElementById('signin-modal').classList.contains('hidden'));
+        signupTab = await page.evaluate(() => !document.getElementById('panel-signup').classList.contains('hidden'));
+        src = await page.evaluate(() => { try { return sessionStorage.getItem('wh_signup_source'); } catch (_) { return null; } });
+      }
+      await page.setViewportSize({ width: 1280, height: 900 });
+      return {
+        R: state.present, J: revealed && tapHits && modalOpen && signupTab, T: null, C: null,
+        X: src === 'sticky',
+        evidence: { ...state, revealed, tapHits, modalOpen, signupTab, src },
+        findings: [],
+      };
+    },
+  },
+  {
+    id: 'LA8', phase: 'K1', page: 'index.html', role: 'anon', state: 'landing-anon',
+    title: 'Sign-in wall reciprocity: facing the sign-in panel offers "Create one — free", and the signup panel offers the way back (Ian verbatim)',
+    lenses: ['R', 'J', 'X'], ufai: ['U', 'F'],
+    drive: async (page, h) => {
+      await h.goto('index.html', '?signin=1');
+      const modalOpen = await h.waitFor('#si-username', 6000);
+      const reciprocity = await h.exists("#panel-signin button[data-wh-authtab='signup']");
+      const label = (await h.qText("#panel-signin button[data-wh-authtab='signup']")) || '';
+      await h.evalIn(() => { const b = document.querySelector("#panel-signin button[data-wh-authtab='signup']"); b && b.click(); });
+      await page.waitForTimeout(600);
+      const signupShown = await h.exists('#panel-signup #su-username');
+      const wayBack = await h.exists("#panel-signup button[data-wh-authtab='signin']");
+      return {
+        R: modalOpen, J: reciprocity && signupShown, T: null, C: null, X: wayBack,
+        evidence: { modalOpen, reciprocity, label: label.slice(0, 30), signupShown, wayBack },
+        findings: [],
+      };
+    },
+  },
+  {
+    id: 'LA9', phase: 'K1', page: 'index.html', role: 'anon', state: 'landing-anon',
+    title: 'The ?signup=1 deep link opens the signup panel directly, and ?return= lands in the honored sessionStorage slot',
+    lenses: ['R', 'J', 'X'], ufai: ['F', 'A'],
+    drive: async (page, h) => {
+      await h.goto('index.html', '?signup=1&return=public-feed.html');
+      const modalOpen = await h.waitFor('#su-username', 6000);
+      const signupTab = await h.evalIn(() => !document.getElementById('panel-signup').classList.contains('hidden'));
+      const returnStored = await h.evalIn(() => { try { return sessionStorage.getItem('wh_return_to'); } catch (_) { return null; } });
+      // the open-redirect guard: a hostile return must be DROPPED, not stored
+      await h.goto('index.html', '?signup=1&return=//evil.example/x');
+      const hostileStored = await h.evalIn(() => { try { return sessionStorage.getItem('wh_return_to'); } catch (_) { return null; } });
+      return {
+        R: modalOpen, J: signupTab && returnStored === 'public-feed.html', T: null, C: null,
+        X: hostileStored !== '//evil.example/x',
+        evidence: { modalOpen, signupTab, returnStored, hostileStored },
+        findings: [],
+      };
+    },
+  },
+  {
+    id: 'LA11', phase: 'K1', page: 'index.html', role: 'anon', state: 'landing-anon',
+    title: 'J6 conversion funnel: ?signup=1 → account created through the REAL modal → row in worker_profiles (psql) → cleaned up, anon restored',
+    lenses: ['R', 'J', 'T', 'X'], ufai: ['F', 'I'],
+    drive: async (page, h) => {
+      const uname = 'j6probe_' + Date.now().toString(36);
+      await h.goto('index.html', '?signup=1');
+      const modalOpen = await h.waitFor('#su-username', 6000);
+      await h.fill('#su-username', uname);
+      await h.fill('#su-password', 'Probe!2026x');
+      await h.fill('#su-confirm', 'Probe!2026x');
+      await h.fill('#su-displayname', 'J6 Probe ' + uname.slice(-4));
+      await h.click('#su-btn');
+      // signed-in value: ops-home flips in (or the records-linked confirmation renders)
+      let converted = false;
+      for (let i = 0; i < 15; i++) {
+        converted = await h.evalIn(() => document.getElementById('ops-home')?.style.display === 'block'
+          || /Account secured/i.test(document.getElementById('panel-signup')?.innerText || ''));
+        if (converted) break;
+        await page.waitForTimeout(900);
+      }
+      // T: the account is REAL — the profile row exists (privileged read; RLS scopes the client)
+      const cntRaw = h.adminQuery(`select count(*) from worker_profiles where username = '${uname}';`);
+      const dbCount = (typeof cntRaw === 'string') ? parseInt(cntRaw, 10) : null;
+      // cleanup: remove the disposable account (profile first, then the auth user), then
+      // sign the context back OUT so every journey after this one is genuinely anon again.
+      h.adminQuery(`delete from worker_profiles where username = '${uname}';`);
+      h.adminQuery(`delete from auth.users where email = '${uname}@auth.workhiveph.com';`);
+      const cleanRaw = h.adminQuery(`select count(*) from worker_profiles where username = '${uname}';`);
+      const cleaned = (typeof cleanRaw === 'string') ? parseInt(cleanRaw, 10) === 0 : false;
+      await h.evalIn(async () => {
+        try { const db = window._whSupabaseClient || (window.getDb && window.getDb()); db && await db.auth.signOut(); } catch (_) {}
+        try { localStorage.clear(); sessionStorage.clear(); } catch (_) {}
+      });
+      return {
+        R: modalOpen, J: converted, T: dbCount === 1, C: null, X: cleaned,
+        evidence: { uname, modalOpen, converted, dbCount, cleaned },
+        findings: [],
+      };
+    },
+  },
+  {
+    id: 'LA12', phase: 'K1', page: 'learn/start-digital-logbook-philippine-factory/index.html', role: 'anon', state: 'learn-anon',
+    title: 'T2 anon-from-learn funnel: search-landed reader -> nav Sign Up Free -> real signup -> account (psql) -> cleaned, anon restored',
+    lenses: ['R', 'J', 'T', 'X'], ufai: ['F', 'I'],
+    drive: async (page, h) => {
+      const uname = 'j6learn_' + Date.now().toString(36);
+      await h.goto('learn/start-digital-logbook-philippine-factory/index.html');
+      // R: the article renders AND offers the auth pair the T1 retarget added (no Sign In
+      // existed on any of the 55 guides before 2026-08-24).
+      const article = await h.evalIn(() => (document.body.innerText || '').length > 2000);
+      const signupNav = await h.exists("a[href='/?signup=1']");
+      const signinNav = await h.exists("a[href='/?signin=1']");
+      // The guides link the SITE-ABSOLUTE /?signup=1 (correct for prod). The local seeder's "/"
+      // is its own console page, so FOLLOWING that link is untestable here by construction —
+      // assert the door exists (R above), then continue the funnel through the same deep-link
+      // resolver prod uses (the D3 local-substitute discipline: swap the hop, keep the contract).
+      await h.goto('index.html', '?signup=1');
+      const modalOpen = await h.waitFor('#su-username', 8000);
+      // NOT optional-chained: a missing #panel-signup must read FALSE, not vacuously true
+      // (the first cut's `!el?.classList.contains()` returned true on the seeder console).
+      const signupTab = await h.evalIn(() => { const el = document.getElementById('panel-signup'); return el ? !el.classList.contains('hidden') : false; });
+      let converted = false, dbCount = null, cleaned = false;
+      if (modalOpen) {
+        await h.fill('#su-username', uname);
+        await h.fill('#su-password', 'Probe!2026x');
+        await h.fill('#su-confirm', 'Probe!2026x');
+        await h.fill('#su-displayname', 'J6L Probe ' + uname.slice(-4));
+        await h.click('#su-btn');
+        for (let i = 0; i < 15; i++) {
+          converted = await h.evalIn(() => document.getElementById('ops-home')?.style.display === 'block'
+            || /Account secured/i.test(document.getElementById('panel-signup')?.innerText || ''));
+          if (converted) break;
+          await page.waitForTimeout(900);
+        }
+        const cntRaw = h.adminQuery(`select count(*) from worker_profiles where username = '${uname}';`);
+        dbCount = (typeof cntRaw === 'string') ? parseInt(cntRaw, 10) : null;
+        h.adminQuery(`delete from worker_profiles where username = '${uname}';`);
+        h.adminQuery(`delete from auth.users where email = '${uname}@auth.workhiveph.com';`);
+        const cleanRaw = h.adminQuery(`select count(*) from worker_profiles where username = '${uname}';`);
+        cleaned = (typeof cleanRaw === 'string') ? parseInt(cleanRaw, 10) === 0 : false;
+        await h.evalIn(async () => {
+          try { const db = window._whSupabaseClient || (window.getDb && window.getDb()); db && await db.auth.signOut(); } catch (_) {}
+          try { localStorage.clear(); sessionStorage.clear(); } catch (_) {}
+        });
+      }
+      return {
+        R: article && signupNav && signinNav, J: modalOpen && signupTab && converted,
+        T: dbCount === 1, C: null, X: cleaned,
+        evidence: { uname, article, signupNav, signinNav, modalOpen, signupTab, converted, dbCount, cleaned },
+        findings: [],
+      };
+    },
+  },
+  {
+    id: 'LA10', phase: 'K1', page: 'marketplace.html', role: 'anon', state: 'marketplace-anon',
+    title: 'A gated marketplace action refuses with CLICKABLE doors (sign in / create account) carrying ?return= — not a dead toast',
+    lenses: ['R', 'J', 'X'], ufai: ['U', 'F'],
+    drive: async (page, h) => {
+      await h.goto('marketplace.html');
+      // Tap a REAL card's heart (save) button as anon — toggleWatchlist is IIFE-scoped (not a
+      // window global; the first draft's window.toggleWatchlist call was a silent no-op), and
+      // the heart's listener is the exact call site the T1 fix converted to whAuthRequiredToast.
+      await page.waitForTimeout(2500);   // listings render async
+      const heartClicked = await h.click('.heart-btn');
+      await page.waitForTimeout(700);
+      const toast = await h.exists('#wh-auth-toast');
+      const signinDoor = await h.exists('#wh-auth-toast a[href*="signin=1"]');
+      const signupDoor = await h.exists('#wh-auth-toast a[href*="signup=1"]');
+      const returned = await h.evalIn(() => {
+        const a = document.querySelector('#wh-auth-toast a[href*="signin=1"]');
+        return a ? /return=/.test(a.getAttribute('href')) : false;
+      });
+      // the masthead half: an anon visitor has a visible way in from page top
+      const masthead = await h.exists('#mk-anon-masthead a[href*="signup=1"]');
+      return {
+        R: toast, J: signinDoor && signupDoor && returned, T: null, C: null, X: masthead,
+        evidence: { heartClicked, toast, signinDoor, signupDoor, returned, masthead },
+        findings: [],
       };
     },
   },
@@ -187,6 +398,62 @@ export const JOURNEYS = [
       return {
         R: modalOpen, J: opsShown && mktHidden && named, T: null, C: recovered, X: opsShown && lwSet,
         evidence: { modalOpen, errTxt: errTxt.slice(0, 50), recovered, opsShown, mktHidden, navName: nameTxt.slice(0, 24), lwSet },
+        findings: [],
+      };
+    },
+  },
+  {
+    id: 'ENG1', phase: 'K1', page: 'index.html', role: 'supervisor', state: 'home-authed',
+    title: 'T52: the Engineer lens is set once and survives the whole design-and-reliability lane, and hiding a tool never denies access to it',
+    lenses: ['R', 'J', 'T', 'X'], ufai: ['U', 'A'],
+    drive: async (page, h) => {
+      // The engineer is a supervisor here - hive_members.role is CHECK-constrained to
+      // worker | supervisor, so 'engineer' is a LENS over the tool list, never an authz role.
+      // Measured before writing this: the hub renders its tiles EAGERLY (no FAB press needed),
+      // and the four modes give 11 / 13 / 20 / 20 tiles for engineer / field / supervisor / all.
+      const LANE = ['engineering-design.html', 'analytics.html', 'asset-hub.html', 'project-manager.html'];
+      const FIELD_ONLY = ['logbook.html', 'inventory.html', 'dayplanner.html'];
+      const tiles = () => h.evalIn(() =>
+        [...document.querySelectorAll('#wh-hub-tiles a.wh-hub-tile')].map(a => a.getAttribute('href')));
+
+      await h.goto('index.html');
+      await h.evalIn(() => { try { localStorage.setItem('wh_nav_mode', 'engineer'); } catch (_) {} });
+
+      // Walk the lane. The lens is declared ONCE; every page must honour it without being told
+      // again - the same "declared myself once, had to declare it again" defect the sibling gate
+      // found between the hub lens and the asset-hub toggle, here across pages instead of switches.
+      const perPage = [];
+      for (const p of LANE) {
+        await h.goto(p);
+        const hrefs = await tiles();
+        const mode = await h.evalIn(() => { try { return localStorage.getItem('wh_nav_mode'); } catch (_) { return null; } });
+        perPage.push({
+          page: p,
+          hub: hrefs.length > 0,
+          mode,
+          lanePresent: hrefs.includes('engineering-design.html'),
+          fieldHidden: FIELD_ONLY.every(f => !hrefs.includes(f)),
+          self: hrefs.includes(p),
+        });
+      }
+      const reached = perPage.every(r => r.hub);
+      const lensHeld = perPage.every(r => r.mode === 'engineer' && r.lanePresent && r.fieldHidden);
+
+      // X - A LENS IS NOT AUTHORIZATION. logbook is hidden from this lens; it must still be
+      // reachable by direct URL, because the engineer IS a supervisor and no role denies it.
+      // A filter that silently became a permission would be the retired-page class: a live
+      // control unreachable because a display preference hid its only door.
+      await h.goto('logbook.html');
+      const hiddenStillReachable = await h.evalIn(() =>
+        !/\/index\.html/.test(location.pathname) && !!document.querySelector('#entries-list, #logbook-form, main'));
+
+      // restore the default so later journeys are not walked through an engineer lens
+      await h.evalIn(() => { try { localStorage.removeItem('wh_nav_mode'); } catch (_) {} });
+
+      return {
+        R: reached, J: lensHeld, T: perPage.every(r => r.mode === 'engineer'), C: null,
+        X: hiddenStillReachable,
+        evidence: { perPage, hiddenStillReachable },
         findings: [],
       };
     },

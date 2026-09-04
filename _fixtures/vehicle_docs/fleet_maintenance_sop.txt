@@ -1,0 +1,9 @@
+Fleet Vehicle Preventive Maintenance SOP
+This standard operating procedure governs preventive maintenance for the company van fleet.
+Service Intervals
+Replace engine oil and oil filter every 10,000 km or 6 months, whichever comes first.
+Rotate tires every 10,000 km to equalise wear.
+Replace the air filter element every 20,000 km.
+Replace brake fluid every 40,000 km or 24 months.
+Replace engine coolant every 100,000 km.
+The first service after purchase is due at 1,000 km (one-time break-in check).

@@ -130,6 +130,7 @@
     .fb-drawer-actions { display:flex; gap:0.5rem; margin-top:1.1rem; flex-wrap:wrap; }
     .fb-drawer-actions .mod-btn { flex:1; text-align:center; text-decoration:none; line-height:1.9; }
   </style>
+  <script src="browser-floor.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
   <script src="utils.js"></script>
 </head>
@@ -517,6 +518,20 @@
            nothing". Same treatment here: say what is happening, and restore on EVERY path, not only
            the error one -- the success path relied on refreshQueues() replacing the node, which is
            true until a refresh fails and leaves a permanently dead control behind. */
+        // T67/T50 (2026-08-26): the same gap fixed on founder-console, present here too - this
+        // console mints credits on a single click. The optimistic lock below stops a DOUBLE press;
+        // it cannot stop a WRONG-ROW press, and these are per-row buttons in a queue worked at
+        // speed. Confirm before the busy state, so a cancel leaves the control exactly as it was.
+        if (typeof window.whConfirm === 'function') {
+          const _okTopup = await window.whConfirm(
+            verify
+              ? 'Verify this top-up? Credits are minted into the provider’s wallet immediately '
+                + 'and spending them cannot be reversed from here.'
+              : 'Reject this top-up? The provider paid for it, so no credits are minted and they '
+                + 'will need to raise it with you directly.',
+            { okLabel: verify ? 'Verify and mint' : 'Reject', cancelLabel: 'Cancel' });
+          if (!_okTopup) return;
+        }
         const _label = btn.textContent;
         const _restore = () => { btn.disabled = false; btn.removeAttribute('aria-busy');
                                  btn.textContent = _label; };
@@ -959,6 +974,19 @@
               : 'Listing rejected. The seller can see your reason and resubmit.',
               act === 'approve-listing' ? 'success' : 'info');
           } else if (act === 'verify-kyb' || act === 'verify-cert') {
+            // T67/T50 (2026-08-26): granting the badge BUYERS RELY ON asked nothing here either.
+            // Names WHO, because in a per-seller row list the name is what a misclick gets wrong.
+            if (typeof window.whConfirm === 'function') {
+              const _who = btn.dataset.name || 'this seller';
+              const _okV = await window.whConfirm(
+                act === 'verify-kyb'
+                  ? `Mark ${_who} as ID Verified? Buyers see this badge as WorkHive confirming their `
+                    + `identity, and decide whether to send money on it.`
+                  : `Mark ${_who}'s certifications as verified? Buyers read the badge as WorkHive `
+                    + `having checked their trade credentials.`,
+                { okLabel: 'Verify', cancelLabel: 'Cancel' });
+              if (!_okV) { btn.disabled = false; return; }
+            }
             const nowIso = new Date().toISOString();
             const upd = act === 'verify-kyb'
               ? { kyb_verified: true, kyb_verified_at: nowIso, updated_at: nowIso }

@@ -33,6 +33,12 @@ from validator_utils import read_file, format_result
 MIGRATIONS_DIR = os.path.join("supabase", "migrations")
 
 LIVE_PAGES = [
+    # wh-persona.js reads worker_profiles via db.from() to hydrate the companion persona from
+    # the cloud. It was outside this list, so schema checks never ran on it - a shared script
+    # touching a real table with no column verification behind it. Added 2026-08-27 after the
+    # pages_in_scope check named it; the point of that check is precisely that a new db.from()
+    # site must not stay unexamined just because it lives in a .js rather than a page.
+    "wh-persona.js",
     "resume.html",
     "index.html",
     "logbook.html",

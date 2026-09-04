@@ -2,7 +2,7 @@
 name: edge-fn-intelligence-report
 type: edge-fn
 source: file:supabase/functions/intelligence-report/index.ts
-source_sha: 76d393e68f26439a
+source_sha: ebc9f1feee27ff12
 last_verified: 2026-07-13
 supersedes: null
 ---

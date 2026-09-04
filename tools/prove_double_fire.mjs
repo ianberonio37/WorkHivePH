@@ -690,7 +690,10 @@ for (const p of PAGES) {
   console.log(`  ${p.padEnd(17)} ${tag.padEnd(9)} ${rec.control ? '"' + rec.control + '" ' : ''}${rec.why || ''}`.slice(0, 160));
   await ctx.close();
 }
-writeFileSync('double_fire_report.json', JSON.stringify(report, null, 1));
+// A NARROWED RUN MUST NOT CLOBBER THE FULL ONE: this file is read downstream (gates and
+// bank_prover_reports), so a --page/--case spot-check overwriting a whole sweep's verdicts
+// corrupts the BANK, not just a log. Measured on prove_retry_path 2026-08-27.
+writeFileSync((ONE ? 'double_fire_report.partial.json' : 'double_fire_report.json'), JSON.stringify(report, null, 1));
 const g = Object.values(report.pages);
 console.log(`\n  wrote double_fire_report.json — ${g.filter((x) => x.status === 'PASS').length} pass, `
   + `${g.filter((x) => x.status === 'FAIL').length} fail, ${g.filter((x) => x.status === 'UNGRADED').length} ungraded`);

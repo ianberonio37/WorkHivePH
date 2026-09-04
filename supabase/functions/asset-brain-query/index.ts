@@ -78,8 +78,11 @@ Your job is to answer the question using ONLY the provided context. Rules:
 4. Prefer the reliability block when answering failure-mode / maintenance-strategy questions; FMEA RPN (IEC 60812:2018), Weibull pattern (wearout / random / infant), and P-F intervals (SAE JA1011 §6) are engineer-validated and outrank raw logbook history.
 5. When Weibull pattern = wearout (beta > 1), age matters; when random (beta ~ 1), age does not predict next failure.
 6. Keep responses under 120 words unless the question explicitly asks for more.
-7. Use Filipino industrial vocabulary (PEC 2017, PSME, ISO 14224) when appropriate.
-8. No em dashes in the response. Use colons, commas, parentheses, or restructure.
+7. Write column names as plain language, never schema vocabulary: say "root cause: wear",
+   not "root_cause: Wear"; say "downtime hours", not "downtime_hours". The reader is a
+   plant worker, not the database. (T82, 2026-08-25.)
+8. Use Filipino industrial vocabulary (PEC 2017, PSME, ISO 14224) when appropriate.
+9. No em dashes in the response. Use colons, commas, parentheses, or restructure.
 
 Output JSON: { "answer": string, "cited": [ { "kind": "logbook"|"pm"|"neighbor"|"stat"|"fmea"|"rcm"|"weibull"|"pf"|"risk"|"risk-factor", "index": number } ], "narration": string }
 
@@ -164,8 +167,19 @@ async function fetchAssetTimeline(
     queries.push(
       // canonical-allow: per-completion timeline rows; the rollup view has no
       // completed_at/worker_name/scope_item_id. (PROJ-DRIFT triage)
+      //
+      // ★`status` IS SELECTED AND IT IS LOAD-BEARING (T189, 2026-08-28). pm_completions holds
+      // done AND skipped rows, and this timeline is what the asset brain answers "when was this
+      // last serviced?" from. Without status every row reads as work PERFORMED, so a deliberately
+      // skipped PM would be reported to an engineer as a completed one - on the surface whose
+      // entire job is an asset's service history, where that judgement decides whether a machine
+      // is due. The logbook timeline in this same object already carried its own status; this one
+      // did not.
+      // canonical-allow: this is the raw per-row PM service timeline WITH status (done vs skipped) that
+      // answers "when was this last serviced?"; v_pm_compliance_truth is a compliance AGGREGATE (pct/counts),
+      // not the per-row history — the view cannot serve this read.
       db.from("pm_completions")
-        .select("id, asset_id, completed_at, worker_name, scope_item_id")
+        .select("id, asset_id, completed_at, worker_name, scope_item_id, status")
         .eq("hive_id", hiveId)
         .eq("asset_id", node.pm_asset_id)
         .order("completed_at", { ascending: false })
@@ -488,10 +502,14 @@ function composeContext(
         downtime_hours: r.downtime_hours,
         status: r.status,
       })),
+      // outcome is stated per row rather than filtered out: a skipped PM is real, useful history
+      // ("this was due and deliberately not done"), but it is NOT service, and the model cannot
+      // tell the difference from a date and a name alone.
       pm: timeline.pm.map((r, i) => ({
         index: i,
         when: r.completed_at,
         worker: r.worker_name,
+        outcome: r.status === "done" ? "performed" : "SKIPPED (not performed)",
       })),
     },
     similar: similar.map((r, i) => ({
@@ -629,7 +647,7 @@ serveObserved("asset-brain-query", async (req) => {
       const _rq = await checkRouteRateLimit(db, hive_id || "", "asset-brain-query");
       // Denies ONLY when an explicit hive_route_quotas row exists (rq.per_route), so this stays
       // a no-op until an admin sets a cap - while always counting for attribution.
-      if (_rq.per_route && !_rq.allowed) return routeRateLimitedResponse(corsHeaders, "asset-brain-query", _rq.cap);
+      if (_rq.per_route && !_rq.allowed) return routeRateLimitedResponse(corsHeaders, "asset-brain-query", _rq.cap, _rq.retry_after_seconds);
     } catch { /* empty-catch-allow: per-surface quota bookkeeping must never fail a real request */ }
     const rl = await checkAIRateLimit(db, hive_id, RATE_LIMIT_PER_HOUR);
     if (!rl.allowed) {

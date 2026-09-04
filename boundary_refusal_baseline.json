@@ -1,0 +1,5 @@
+{
+ "_doc": "Surfaces owning an absence state but NO refusal copy. Forward-only: this list may SHRINK, never grow. Re-baseline only when it shrinks.",
+ "count": 0,
+ "surfaces": []
+}

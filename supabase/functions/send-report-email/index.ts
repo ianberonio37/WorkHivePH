@@ -41,10 +41,21 @@ void _whWarmClient;
 // as "this is the news today" for all four, which is wrong for three of them. `window` is the
 // qualifier, rendered NEXT TO the label rather than in a footer, because a qualifier that sits far
 // from its figure is one the reader has already passed.
+// T106 (2026-08-26): THE LINK DROPPED WHAT THE REPORT WAS ABOUT. Every "View in WorkHive" pointed
+// at a bare page root, so a PM Overdue report - a document whose entire subject is the overdue set -
+// landed the reader on the unfiltered schedule, and both logbook reports landed on the page's
+// default MINE view while the report itself is hive-wide (T19's two-windows-one-metric mismatch,
+// arriving by email this time). Measured before changing anything: ?filter=overdue is a real
+// accepted value on pm-scheduler (chips all/mine/overdue/duesoon/ontrack) and it genuinely filters -
+// live reading gave ontrack 0 rows, duesoon 2, overdue 10 against 10 for bare, so the parameter
+// does work rather than merely highlighting a chip. ?view=team on logbook is T19's own deep link.
+// The remaining five point at analytics.html and project-manager.html, which read NO query params
+// at all (param_route_registry), so their links are already as specific as those pages allow -
+// recorded here so a future reader knows it is a page limit, not an oversight.
 const REPORT_META: Record<string, { label: string; color: string; link: string; window: string }> = {
-  pm_overdue:     { label: "PM Overdue",          color: "#F7A21B", link: "https://workhiveph.com/pm-scheduler.html" , window: "current status as of this report"},
-  failure_digest: { label: "Failure Digest",      color: "#ef4444", link: "https://workhiveph.com/logbook.html"      , window: "last 7 days"},
-  shift_handover: { label: "Shift Handover",      color: "#29B6D9", link: "https://workhiveph.com/logbook.html"      , window: "last 8 hours"},
+  pm_overdue:     { label: "PM Overdue",          color: "#F7A21B", link: "https://workhiveph.com/pm-scheduler.html?filter=overdue" , window: "current status as of this report"},
+  failure_digest: { label: "Failure Digest",      color: "#ef4444", link: "https://workhiveph.com/logbook.html?view=team"      , window: "last 7 days"},
+  shift_handover: { label: "Shift Handover",      color: "#29B6D9", link: "https://workhiveph.com/logbook.html?view=team"      , window: "last 8 hours"},
   predictive:     { label: "Predictive Analysis", color: "#a78bfa", link: "https://workhiveph.com/analytics.html"    , window: "last 90 days"},
   oee:            { label: "OEE Summary",          color: "#22c55e", link: "https://workhiveph.com/analytics.html"    , window: ""},
   descriptive:    { label: "Weekly Analytics",    color: "#6366f1", link: "https://workhiveph.com/analytics.html"    , window: ""},
@@ -72,7 +83,8 @@ function esc(s: unknown): string {
 function buildEmailHtml(
   hiveName: string,
   reports: Array<{ type: string; summary: string }>,
-  sentAt: string
+  sentAt: string,
+  senderName = "",
 ): string {
   const cards = reports.map(r => {
     const meta  = REPORT_META[r.type] ?? { label: r.type, color: "#F7A21B", link: "https://workhiveph.com", window: "" };
@@ -108,7 +120,8 @@ function buildEmailHtml(
 
     <div style="background:#0d1820;border-radius:0 0 12px 12px;padding:16px 28px;border-top:1px solid rgba(255,255,255,0.05);text-align:center;">
       <p style="color:#4a5568;font-size:11px;margin:0;">
-        Sent via <a href="https://workhiveph.com" style="color:#F7A21B;text-decoration:none;">WorkHive</a> Report Sender
+        Sent by ${esc(senderName || "a WorkHive supervisor")} &middot; ${esc(hiveName)} via <a href="https://workhiveph.com" style="color:#F7A21B;text-decoration:none;">WorkHive</a> Report Sender.<br/>
+        To stop receiving these reports, ask the sender to remove you from their recipient list.
       </p>
     </div>
 
@@ -132,7 +145,10 @@ serveObserved("send-report-email", async (req) => {
   logRequestStart(req, "send-report-email");  // I6 observability
 
   try {
-    const { hive_id, recipient_email, reports, sent_at } = await req.json();
+    // T111 (2026-08-25): sender_name is optional and display-only — the recipient of an
+    // outward, irreversible send deserves to know WHICH person sent it and how to stop it;
+    // auth still gates the send (authUid below), so a spoofed name cannot send mail.
+    const { hive_id, recipient_email, reports, sent_at, sender_name } = await req.json();
 
     // Input validation — hive_id is optional (workers without hive context can still send)
     if (!recipient_email || !Array.isArray(reports) || reports.length === 0) {
@@ -191,7 +207,7 @@ serveObserved("send-report-email", async (req) => {
         }
         const _ip = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
         const _rl = await checkSoloRateLimit(db, soloRateLimitKey(authUid, _ip));
-        if (!_rl.allowed) return soloRateLimitedResponse(corsHeaders);
+        if (!_rl.allowed) return soloRateLimitedResponse(corsHeaders, _rl.retry_after_seconds);
       }
     }
 
@@ -231,7 +247,7 @@ serveObserved("send-report-email", async (req) => {
       .map((r: { type: string }) => REPORT_META[r.type]?.label ?? r.type)
       .join(" + ");
     const subject = `[WorkHive] ${reportLabels} - ${sentAt}`;
-    const html    = buildEmailHtml(hiveName, reports, sentAt);
+    const html    = buildEmailHtml(hiveName, reports, sentAt, typeof sender_name === 'string' ? sender_name.slice(0, 80) : '');
 
     // Send via Resend
     // Note: verify workhiveph.com in your Resend dashboard before going live.
@@ -250,10 +266,17 @@ serveObserved("send-report-email", async (req) => {
     // Arc S F-lens (F-010): circuit-breaker — if Resend has been failing, fail fast
     // with a clear "temporarily unavailable" instead of attempting + 502-ing again.
     if (isSlotBlocked("resend")) {
-      await db.from("automation_log").insert({
-        job_name: "send_report_email", hive_id, status: "deferred",
+      // T112 (2026-08-26): this row was never stored. automation_log's CHECK allows
+      // success|failed|skipped|warning, "deferred" matched none, and the insert error was not
+      // read — so the circuit-breaker's own audit trail was refused with 23514 and discarded in
+      // silence. Nobody could learn the breaker had tripped, which is precisely the moment an
+      // operator needs the log. "skipped" is not a compromise here: the breaker's meaning IS
+      // "we did not attempt this", and that word already exists for it.
+      const { error: _brkLogErr } = await db.from("automation_log").insert({
+        job_name: "send_report_email", hive_id, status: "skipped",
         detail: "Resend circuit-breaker open (recent failures) — not attempted",
       });
+      if (_brkLogErr) console.error("automation_log write failed:", _brkLogErr.message);
       return new Response(
         JSON.stringify({ error: "Email service temporarily unavailable — please try again shortly." }),
         { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } }

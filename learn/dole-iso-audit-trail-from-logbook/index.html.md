@@ -10,7 +10,7 @@ By **WorkHive Editorial Team**
 ·
 Published 17 May 2026
 ·
-Updated 17 May 2026
+Updated 24 Aug 2026
 ·
 7 min read
 
@@ -69,9 +69,13 @@ All three include a footer with the WorkHive entry IDs so the auditor can reques
 
 ## Mapping to ISO 9001, 14001, 45001
 
-- **ISO 9001 (Quality):** WorkHive Logbook entries with corrective-action tags satisfy Clause 10.2 nonconformity and corrective action. PM compliance dashboard satisfies Clause 7.1.5 monitoring and measuring resources.
-- **ISO 14001 (Environment):** Logbook entries with environmental-aspect tags (spill, leak, emission) satisfy Clause 9.1.1 monitoring of environmental performance.
-- **ISO 45001 (OH&S):** Safety observations, near-miss logs, and incident investigations satisfy Clause 9.1.1 monitoring, measurement, analysis, and performance evaluation, and Clause 10.2 incident investigation.
+A clause is satisfied by your management system, not by a tool. What software can do is
+ hold the *evidence* an auditor samples against that clause, so read the list below as
+ “where your records for this clause live”, not as conformity you can buy.
+
+- **ISO 9001 (Quality):** WorkHive Logbook entries with corrective-action tags give you the records Clause 10.2 (nonconformity and corrective action) asks you to retain. The PM compliance dashboard evidences Clause 7.1.5 monitoring and measuring resources.
+- **ISO 14001 (Environment):** Logbook entries with environmental-aspect tags (spill, leak, emission) evidence Clause 9.1.1 monitoring of environmental performance.
+- **ISO 45001 (OH&S):** Safety observations, near-miss logs, and incident investigations evidence Clause 9.1.1 monitoring, measurement, analysis and performance evaluation, and Clause 10.2 incident investigation.
 
 The tool this guide is about
 
@@ -79,7 +83,7 @@ The tool this guide is about
 
 Server-side timestamps, authenticated authorship, append-only edits, 10-year default retention. Date-range, asset-history, and compliance-mapping PDF exports. Direct mapping to ISO 9001 / 14001 / 45001 clauses and DOLE OSHS rules. Free at the worker tier; advanced compliance reporting unlocks at Stage 4 enterprise tier.
 
-No hive yet? [Join WorkHive](https://workhiveph.com/#join) first (free, takes 30 seconds).
+No hive yet? [Join WorkHive](https://workhiveph.com/?signup=1) first (free, takes 30 seconds).
 
 ## Frequently asked questions
 
@@ -101,7 +105,7 @@ Three patterns work: (1) date-range PDF for sampling a window (typically 30 days
 
 ### Can a worker request their own audit log if they leave the plant?
 
-Yes. WorkHive Audit Log lets a worker export their personal contribution history (entries they authored, PMs they completed, training records, achievements earned) at any time. This is the portable career record that supports OFW applications and salary disputes. The plant's broader audit log stays scoped to the hive.
+Yes. WorkHive Audit Log lets a worker export their personal contribution history (entries they authored, PMs they completed, training records, achievements earned) for as long as they are a member of that hive. Export before a job change: the entries stay in the plant's records and stop being readable to a departed worker, which is what the app says when you leave. Skill badges and certifications are held against the worker and do travel. This is the portable career record that supports OFW applications and salary disputes. The plant's broader audit log stays scoped to the hive.
 
 ### How does this map to ISO 9001 / 14001 / 45001?
 
@@ -118,4 +122,4 @@ ISO 9001 Clause 10.2 corrective action: logbook entries with corrective-action t
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 77887c8f77db287d -->
+<!-- md-twin source-sha: ed1a455a0d96e4d4 -->

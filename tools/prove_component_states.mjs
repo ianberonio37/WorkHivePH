@@ -186,7 +186,10 @@ await browser.close();
 
 const noCtl = results.filter((r) => r.controlCaught !== true);
 const stuck = results.filter((r) => (r.stuckNow || []).length);
-writeFileSync('component_states_report.json', JSON.stringify({
+// A NARROWED RUN MUST NOT CLOBBER THE FULL ONE: this file is read downstream (gates and
+// bank_prover_reports), so a --page/--case spot-check overwriting a whole sweep's verdicts
+// corrupts the BANK, not just a log. Measured on prove_retry_path 2026-08-27.
+writeFileSync((ONE ? 'component_states_report.partial.json' : 'component_states_report.json'), JSON.stringify({
   ran: new Date().toISOString(), origin: ORIGIN, role: 'supervisor',
   pages: results, controlFailed: noCtl.map((r) => r.page), stuck: stuck.map((r) => r.page),
 }, null, 1));

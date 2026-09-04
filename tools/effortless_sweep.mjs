@@ -27,8 +27,13 @@ const ACCEPT = args.includes('--accept');
 const UPDATE_BASELINE = args.includes('--update-baseline');
 const PHASE_ONLY = (() => { const i = args.indexOf('--phase'); return i >= 0 ? args[i + 1] : null; })();
 const PAGE_ONLY = (() => { const i = args.indexOf('--page'); return i >= 0 ? args[i + 1] : null; })();
-const RESULTS = 'arc_v_results.json';
-const BASELINE = 'arc_v_baseline.json';
+// A narrowed --page/--phase run must not wear the full sweep's filename, and must never write its
+// narrowed counts over a forward-only baseline. See tools/live_page_journeys.mjs for the measured
+// case: this exact shape let a one-page run replace a 110-journey sweep with 14 rows.
+const NARROW = [PHASE_ONLY ? `phase-${PHASE_ONLY}` : '', PAGE_ONLY ? `page-${PAGE_ONLY}` : '']
+  .filter(Boolean).join('.').replace(/[^\w.-]+/g, '_');
+const RESULTS = NARROW ? `arc_v_results.${NARROW}.json` : 'arc_v_results.json';
+const BASELINE = NARROW ? `arc_v_baseline.${NARROW}.json` : 'arc_v_baseline.json';
 const TOL = 2; // small tolerance: a few drives branch on seeded state, so total click-hops can
                // jitter by 1-2 run-to-run. R0 ratchets the TOTAL; per-page debt gets sharp teeth
                // as each sub-arc seeds ideals.

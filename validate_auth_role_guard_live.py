@@ -25,8 +25,14 @@ if sys.platform == "win32":
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
 ROOT = Path(__file__).resolve().parent
+sys.path.insert(0, str(ROOT / "tools" / "lib"))
 BASE = "http://127.0.0.1:54321"
-HIVE = "9b4eaeac-59b0-4b0e-9b0b-0947b45ad1e7"
+# ★NO PINNED HIVE UUID (2026-08-27). The id that sat here was reseeded away - and so was the id a
+# previous session repointed it to, which is the whole argument: a hardcoded fixture hive rots at
+# every reseed, and this gate would keep exiting 0 while posting a hive_id that no longer exists,
+# so a 403 could be earned by the missing hive rather than by the ROLE GUARD it claims to prove.
+# The worker's CURRENT hive comes from live hive_members via resolve_test_identity, which raises
+# rather than let the gate pass vacuously.
 WORKERS = ["bryangarcia", "wilfredomalabanan"]  # seeded worker-role members of the test hive
 SUPERVISOR_ONLY_FN = "export-hive-data"
 REPORT = "auth_role_guard_live_report.json"
@@ -58,28 +64,29 @@ def main() -> int:
     if not key:
         return _skip("local anon key not found")
 
-    jwt = None
-    used = None
+    try:
+        from test_identity import resolve_test_identity, TestIdentityError
+    except ImportError as e:
+        return _skip(f"tools/lib/test_identity.py unavailable: {e}")
+
+    jwt = used = hive = None
+    why = "no seeded worker-role login available (test1234)"
     for w in WORKERS:
         try:
-            tok = urllib.request.Request(f"{BASE}/auth/v1/token?grant_type=password",
-                data=json.dumps({"email": _synth(w), "password": "test1234"}).encode(),
-                headers={"Content-Type": "application/json", "apikey": key}, method="POST")
-            jwt = json.loads(urllib.request.urlopen(tok, timeout=15).read())["access_token"]
-            used = w
+            ident = resolve_test_identity(_synth(w), "test1234", anon=key)
+            jwt, used, hive = ident.jwt, w, ident.hive_id
             break
-        except urllib.error.HTTPError:
+        except TestIdentityError as e:
+            why = str(e)          # carries the real reason: bad login, or no ACTIVE membership
             continue
-        except Exception as e:
-            return _skip(f"GoTrue/seeder unreachable: {type(e).__name__}")
     if not jwt:
-        return _skip("no seeded worker-role login available (test1234)")
+        return _skip(why)
 
     # Worker invokes the supervisor-only fn → must be 403.
     code = None
     try:
         req = urllib.request.Request(f"{BASE}/functions/v1/{SUPERVISOR_ONLY_FN}",
-            data=json.dumps({"hive_id": HIVE}).encode(),
+            data=json.dumps({"hive_id": hive}).encode(),
             headers={"Content-Type": "application/json", "apikey": key,
                      "Authorization": f"Bearer {jwt}"}, method="POST")
         r = urllib.request.urlopen(req, timeout=20)

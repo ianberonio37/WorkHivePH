@@ -61,7 +61,18 @@ WRITE_RE  = re.compile(r"\.(insert|upsert|update|delete)\s*\(|\.rpc\s*\(|functio
 # call site, so a detector that only looked for them inline would go red on exactly the sites that had
 # just been fixed properly. Centralization must not read as a regression.
 AUTHBR_RE = re.compile(
-    r"whWriteError\s*\(|whIsAuthFailure\s*\("
+    # whAiError joined 2026-08-26: the mapper itself now carries the 401/JWT/session branch
+    # (utils.js whAiErrorMapper), so a call site routing through it IS auth-branched.
+    # whFnError joined 2026-08-27, by the same argument one layer along: it unwraps the
+    # FunctionsHttpError that supabase-js collapses into "returned a non-2xx status code", then
+    # hands the recovered STATUS to whAiError - so 401/403/JWT/42501 reach the same branch at
+    # utils.js:77 and produce the same "session has expired, sign in again, then retry" sentence.
+    # When the function sent a body of its own it returns that instead, which is more specific than
+    # the taxonomy, not less. asset-hub's gateway fallback was marked as offering an impossible
+    # remedy for adopting the newer central helper - the same way the rate-limit gate read
+    # project-manager as non-compliant for it. A wrapper that delegates to an accepted mapper is
+    # on the central path; the gate was stale, not the call site.
+    r"whWriteError\s*\(|whIsAuthFailure\s*\(|whAiError\s*\(|whFnError\s*\("
     r"|42501|\b401\b|row-level security|permission denied|not authenticated|JWT|session expired",
     re.I)
 

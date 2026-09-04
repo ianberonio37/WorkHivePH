@@ -22,7 +22,7 @@
   <meta property="og:type" content="article" />
   <meta property="og:site_name" content="WorkHive" />
   <meta property="article:published_time" content="2026-07-02T00:00:00+08:00" />
-  <meta property="article:modified_time" content="2026-08-20T00:00:00+08:00" />
+  <meta property="article:modified_time" content="2026-08-24T00:00:00+08:00" />
   <meta property="article:author" content="WorkHive Editorial Team" />
   <meta property="article:section" content="Maintenance" />
 
@@ -45,7 +45,7 @@
         "author": { "@type": "Organization", "name": "WorkHive Editorial Team", "url": "https://workhiveph.com/" },
         "publisher": { "@id": "https://workhiveph.com/#organization" },
         "datePublished": "2026-07-02",
-        "dateModified": "2026-08-20",
+        "dateModified": "2026-08-24",
         "mainEntityOfPage": "https://workhiveph.com/learn/asset-brain-360-one-machine-history-philippine-plant/",
         "inLanguage": "en-PH",
         "articleSection": "Maintenance",
@@ -79,7 +79,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -147,7 +147,8 @@
     <div class="flex items-center gap-5 text-xs sm:text-sm">
       <a href="/learn/" class="text-white/55 hover:text-white transition-colors">Learn</a>
       <a href="/" class="text-white/55 hover:text-white transition-colors">Home</a>
-      <a href="/#join" class="bg-orange-wh text-navy-wh px-4 py-1.5 rounded-lg font-semibold text-xs hover:bg-orange-light transition-colors">Join</a>
+      <a href="/?signin=1" class="nav-link" style="font-size:0.75rem;">Sign In</a>
+      <a href="/?signup=1" class="bg-orange-wh text-navy-wh px-4 py-1.5 rounded-lg font-semibold text-xs hover:bg-orange-light transition-colors">Join</a>
     </div>
   </div>
 </nav>
@@ -217,7 +218,7 @@
       <h2 id="anchor-predictive">Predictive Risk Score and Health Heatmap</h2>
       <p>In Asset Brain 360, the predictive risk score and Health Heatmap provide early warnings of potential equipment failures. For example, a pump like P-204B in a Cabuyao bottling plant can be assessed for its risk level. This score is calculated based on the asset's maintenance history, operating conditions, and other factors, all of which are tracked in Asset Hub.</p>
       <p>The Health Heatmap, now integrated into Asset Hub, visualizes the risk level of each asset, giving technicians and engineers a quick overview of the asset's health. This feature helps prioritize maintenance tasks and reduce downtime. By scanning the QR code on P-204B, maintenance teams can access its Asset Brain 360 and view its predictive risk score and Health Heatmap, enabling informed decisions.</p>
-      <table><thead><tr><th>Risk Level</th><th>Description</th></tr></thead><tbody><tr><td>High</td><td>Immediate attention required to prevent failure</td></tr><tr><td>Medium</td><td>Monitor asset closely, schedule maintenance</td></tr><tr><td>Low</td><td>Asset operating within normal parameters</td></tr></tbody></table>
+      <div data-table-scroll style="overflow-x:auto;-webkit-overflow-scrolling:touch;" role="region" aria-label="Scrollable table" tabindex="0"><table><thead><tr><th>Risk Level</th><th>Description</th></tr></thead><tbody><tr><td>High</td><td>Immediate attention required to prevent failure</td></tr><tr><td>Medium</td><td>Monitor asset closely, schedule maintenance</td></tr><tr><td>Low</td><td>Asset operating within normal parameters</td></tr></tbody></table></div>
       <figure class="article-fig"><img src="fig-2-bar.svg" alt="Predictive Risk Score Distribution. Low Risk. Medium Risk. High Risk" width="660" height="440" loading="lazy" /><figcaption>Illustrative predictive risk-score distribution across an asset fleet (low / medium / high bands).</figcaption></figure>
       <h2 id="anchor-example">Worked Example: Cabuyao Bottling-Line Pump P-204B</h2>
       <p>Let's consider a real-life example of using Asset Brain 360 in WorkHive Asset Hub. A plant supervisor in Cabuyao, Calabarzon, wants to check the history of a bottling-line pump, P-204B. After scanning the QR code on the pump, the supervisor opens the Asset Brain 360 page in Asset Hub.</p>

@@ -1,0 +1,16 @@
+{
+ "maxCh": {
+  "index.html@768": 36,
+  "index.html@1920": 59,
+  "analytics.html@768": 0,
+  "analytics.html@1920": 0,
+  "logbook.html@768": 93,
+  "logbook.html@1920": 85,
+  "hive.html@768": 85,
+  "hive.html@1920": 85,
+  "pm-scheduler.html@768": 0,
+  "pm-scheduler.html@1920": 0
+ },
+ "established": "2026-08-26",
+ "ratcheted": "auto"
+}

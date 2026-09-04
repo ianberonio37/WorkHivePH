@@ -10,7 +10,7 @@ By **WorkHive Editorial Team**
 ·
 Published 12 June 2026
 ·
-Updated 12 June 2026
+Updated 24 Aug 2026
 ·
 8 min read
 
@@ -91,7 +91,7 @@ The tool this guide is about
 
 The AI Companion follows you across WorkHive with two expert personas, grounded in authoritative maintenance knowledge plus your own hive's data. Free at the worker tier. Open the assistant or tap the launcher on any page to start.
 
-No hive yet? [Join WorkHive](https://workhiveph.com/#join) first (free, takes 30 seconds).
+No hive yet? [Join WorkHive](https://workhiveph.com/?signup=1) first (free, takes 30 seconds).
 
 ## What it is NOT good at
 
@@ -136,4 +136,4 @@ Yes. It accepts English, Filipino, and Taglish and replies in the language you u
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: ff7d8b597e6714df -->
+<!-- md-twin source-sha: 8f519c148807f9cc -->

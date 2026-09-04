@@ -112,7 +112,18 @@ def main(argv):
                 continue
             restamped += 1
         if restamped and a.apply:
-            json.dump(reg, open(bank_path, "w", encoding="utf-8"), indent=1)
+            # ATOMIC write (2026-08-31): the old `open(bank_path,"w")` truncated the bank in place,
+            # so a reader mid-write — the board's own validate_live_mcp_bank gate, which can be
+            # running concurrently — could read a half-written or empty file and false-FAIL. Write a
+            # temp beside it and os.replace() (atomic on Windows and POSIX): a concurrent reader sees
+            # either the whole old file or the whole new one, never a torn one. This is the
+            # open_w_truncates_before_write lesson, and the restamp itself had it.
+            tmp = bank_path + ".tmp"
+            with open(tmp, "w", encoding="utf-8") as f:
+                json.dump(reg, f, indent=1)
+                f.flush()
+                os.fsync(f.fileno())
+            os.replace(tmp, bank_path)
         if restamped or refused:
             print(f"  {os.path.basename(bank_path):44s} {GREEN}{restamped} re-stamped{RST} · "
                   f"{YEL}{refused} refused{RST}")
@@ -121,6 +132,17 @@ def main(argv):
 
     print(f"\n  {GREEN}{total_restamped} row(s) re-stamped{RST} · {YEL}{total_refused} refused{RST}"
           + ("" if a.apply else f"   {YEL}dry run — pass --apply to write{RST}"))
+    # SAY OUT LOUD WHAT WAS NOT CHECKED (2026-08-28). This tool verifies RECENCY, never the gate's
+    # VERDICT - stated in the docstring, invisible at the call site. Demonstrated: http_envelope was
+    # RED and a dry run still offered all 178 of its rows, because a failing gate writes a report just
+    # as fresh as a passing one. mega_cycle3.sh calls restamp UNCONDITIONALLY after each producer -
+    # run() records OK/FAIL and nothing consumes it - so a red producer's rows get stamped green
+    # (ck_component_states alone is 330 rows). Report shapes differ too much for a reliable generic
+    # verdict read (component_states/viewport_overflow carry `totals: null`), so the honest fix is not
+    # to GUESS a verdict but to make the assumption VISIBLE at the moment it is relied on.
+    if total_restamped:
+        print(f"  {YEL}NOT VERIFIED{RST}: the gate's VERDICT was not read - only that {a.report} is"
+              f" newer than the deps. If {a.gate} last ran RED, these rows are now green on a red gate.")
     return 0
 
 

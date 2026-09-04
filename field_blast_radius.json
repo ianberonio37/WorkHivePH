@@ -4,7 +4,7 @@
     "persisted_fields_analyzed": 101,
     "dead_end_fields": 5,
     "fields_with_causal_cascade": 38,
-    "avg_display_fanout": 3.14,
+    "avg_display_fanout": 3.3,
     "max_display_fanout": 8
   },
   "per_page": {
@@ -12,7 +12,7 @@
       "fields": 22,
       "persisted": 13,
       "dead_end": 0,
-      "fanout_sum": 0,
+      "fanout_sum": 13,
       "max_depth": 3
     },
     "community": {
@@ -47,7 +47,7 @@
       "fields": 38,
       "persisted": 11,
       "dead_end": 0,
-      "fanout_sum": 79,
+      "fanout_sum": 82,
       "max_depth": 3
     },
     "marketplace": {
@@ -91,9 +91,11 @@
       "surface": "asset-hub",
       "field": "fmea-cause",
       "terminus": "rcm_fmea_modes.cause_text",
-      "display_fanout": 0,
+      "display_fanout": 1,
       "display_depth": 3,
-      "displayed_on_pages": [],
+      "displayed_on_pages": [
+        "hive"
+      ],
       "displayed_via_views": [
         "v_fmea_truth"
       ],
@@ -129,9 +131,11 @@
       "surface": "asset-hub",
       "field": "fmea-consequence",
       "terminus": "rcm_fmea_modes.consequence_class",
-      "display_fanout": 0,
+      "display_fanout": 1,
       "display_depth": 3,
-      "displayed_on_pages": [],
+      "displayed_on_pages": [
+        "hive"
+      ],
       "displayed_via_views": [
         "v_fmea_truth"
       ],
@@ -167,9 +171,11 @@
       "surface": "asset-hub",
       "field": "fmea-detection",
       "terminus": "rcm_fmea_modes",
-      "display_fanout": 0,
+      "display_fanout": 1,
       "display_depth": 3,
-      "displayed_on_pages": [],
+      "displayed_on_pages": [
+        "hive"
+      ],
       "displayed_via_views": [
         "v_fmea_truth"
       ],
@@ -205,9 +211,11 @@
       "surface": "asset-hub",
       "field": "fmea-effect",
       "terminus": "rcm_fmea_modes.effect_text",
-      "display_fanout": 0,
+      "display_fanout": 1,
       "display_depth": 3,
-      "displayed_on_pages": [],
+      "displayed_on_pages": [
+        "hive"
+      ],
       "displayed_via_views": [
         "v_fmea_truth"
       ],
@@ -243,9 +251,11 @@
       "surface": "asset-hub",
       "field": "fmea-failure-mode",
       "terminus": "rcm_fmea_modes",
-      "display_fanout": 0,
+      "display_fanout": 1,
       "display_depth": 3,
-      "displayed_on_pages": [],
+      "displayed_on_pages": [
+        "hive"
+      ],
       "displayed_via_views": [
         "v_fmea_truth"
       ],
@@ -281,9 +291,11 @@
       "surface": "asset-hub",
       "field": "fmea-function",
       "terminus": "rcm_fmea_modes",
-      "display_fanout": 0,
+      "display_fanout": 1,
       "display_depth": 3,
-      "displayed_on_pages": [],
+      "displayed_on_pages": [
+        "hive"
+      ],
       "displayed_via_views": [
         "v_fmea_truth"
       ],
@@ -319,9 +331,11 @@
       "surface": "asset-hub",
       "field": "fmea-occurrence",
       "terminus": "rcm_fmea_modes",
-      "display_fanout": 0,
+      "display_fanout": 1,
       "display_depth": 3,
-      "displayed_on_pages": [],
+      "displayed_on_pages": [
+        "hive"
+      ],
       "displayed_via_views": [
         "v_fmea_truth"
       ],
@@ -357,9 +371,11 @@
       "surface": "asset-hub",
       "field": "fmea-severity",
       "terminus": "rcm_fmea_modes",
-      "display_fanout": 0,
+      "display_fanout": 1,
       "display_depth": 3,
-      "displayed_on_pages": [],
+      "displayed_on_pages": [
+        "hive"
+      ],
       "displayed_via_views": [
         "v_fmea_truth"
       ],
@@ -395,9 +411,11 @@
       "surface": "asset-hub",
       "field": "rcm-decision",
       "terminus": "rcm_strategies",
-      "display_fanout": 0,
+      "display_fanout": 1,
       "display_depth": 3,
-      "displayed_on_pages": [],
+      "displayed_on_pages": [
+        "hive"
+      ],
       "displayed_via_views": [
         "v_rcm_truth"
       ],
@@ -411,9 +429,11 @@
       "surface": "asset-hub",
       "field": "rcm-interval",
       "terminus": "rcm_strategies",
-      "display_fanout": 0,
+      "display_fanout": 1,
       "display_depth": 3,
-      "displayed_on_pages": [],
+      "displayed_on_pages": [
+        "hive"
+      ],
       "displayed_via_views": [
         "v_rcm_truth"
       ],
@@ -427,9 +447,11 @@
       "surface": "asset-hub",
       "field": "rcm-interval-custom",
       "terminus": "rcm_strategies",
-      "display_fanout": 0,
+      "display_fanout": 1,
       "display_depth": 3,
-      "displayed_on_pages": [],
+      "displayed_on_pages": [
+        "hive"
+      ],
       "displayed_via_views": [
         "v_rcm_truth"
       ],
@@ -443,9 +465,11 @@
       "surface": "asset-hub",
       "field": "rcm-rationale",
       "terminus": "rcm_strategies",
-      "display_fanout": 0,
+      "display_fanout": 1,
       "display_depth": 3,
-      "displayed_on_pages": [],
+      "displayed_on_pages": [
+        "hive"
+      ],
       "displayed_via_views": [
         "v_rcm_truth"
       ],
@@ -459,9 +483,11 @@
       "surface": "asset-hub",
       "field": "rcm-task",
       "terminus": "rcm_strategies",
-      "display_fanout": 0,
+      "display_fanout": 1,
       "display_depth": 3,
-      "displayed_on_pages": [],
+      "displayed_on_pages": [
+        "hive"
+      ],
       "displayed_via_views": [
         "v_rcm_truth"
       ],
@@ -1200,10 +1226,11 @@
       "surface": "logbook",
       "field": "a-location",
       "terminus": "asset_nodes.location",
-      "display_fanout": 6,
+      "display_fanout": 7,
       "display_depth": 3,
       "displayed_on_pages": [
         "asset-hub",
+        "assistant",
         "hive",
         "integrations",
         "inventory",
@@ -1237,10 +1264,11 @@
       "surface": "logbook",
       "field": "a-name",
       "terminus": "asset_nodes.name",
-      "display_fanout": 6,
+      "display_fanout": 7,
       "display_depth": 3,
       "displayed_on_pages": [
         "asset-hub",
+        "assistant",
         "hive",
         "integrations",
         "inventory",
@@ -1274,10 +1302,11 @@
       "surface": "logbook",
       "field": "a-type",
       "terminus": "asset_nodes.type",
-      "display_fanout": 6,
+      "display_fanout": 7,
       "display_depth": 3,
       "displayed_on_pages": [
         "asset-hub",
+        "assistant",
         "hive",
         "integrations",
         "inventory",

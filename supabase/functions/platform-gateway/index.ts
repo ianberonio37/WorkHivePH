@@ -280,7 +280,7 @@ serveObserved("platform-gateway", async (req) => {
         error_class: "rate_limited",
       });
     }
-    return routeRateLimitedResponse(corsHeaders, route, rl.cap);
+    return routeRateLimitedResponse(corsHeaders, route, rl.cap, rl.retry_after_seconds);
   }
 
   // Forward to the downstream fn.

@@ -74,15 +74,227 @@
   window.whAiError = function (err, fallback) {
     var m = '';
     try { m = String((err && (err.message || err.error || err.status || err.code)) || err || ''); } catch (_) { /* empty-catch-allow: err stringify is best-effort, fall through to the generic message */ }
-    if (/\b429\b|rate.?limit|too many|quota|exhaust/i.test(m))
-      return 'You have hit the AI rate limit. Wait a moment and try again.';
+    /* T45 (2026-08-27): the taxonomy speaks Filipino too. Every page is bilingual through
+       _t(en, fil) and this shared layer was not, so a worker on the FIL toggle got Filipino
+       chrome and an English sentence at the exact moment something failed and precision mattered
+       most. _t is defined in this same file and falls back to EN when a phrase has no FIL, so
+       partial coverage can never blank a message. Register matches the platform's existing FIL
+       copy: Taglish, technical nouns left in English (session, AI service, koneksyon). */
+    var T = (typeof window !== 'undefined' && typeof window._t === 'function')
+      ? window._t : function (en) { return en; };
+    if (/\b401\b|\b403\b|jwt|not authenticated|session expired|row-level security|42501|permission denied/i.test(m))
+      return T('Your session has expired. Sign in again, then retry - your typed work is still on this page.',
+               'Nag-expire na ang session mo. Mag-sign in ulit, tapos subukan muli - nasa page pa rin ang na-type mo.');
+    if (/\b429\b|rate.?limit|too many|quota|exhaust/i.test(m)) {
+      /* T39 (2026-08-28): the SERVER knows exactly when the limit clears - every deny in
+         _shared/rate-limit.ts now carries retry_after_seconds and a Retry-After header - and this
+         sentence still said "a moment". "A moment" is the one thing a person cannot act on: they
+         retry too early, get refused again, and conclude the feature is broken rather than busy.
+         The marketplace surfaces already read this field; the AI taxonomy was the layer that had
+         not caught up. Read defensively, because callers pass several error shapes and a missing
+         window must fall back to the old sentence rather than print "in about null". */
+      var secs = null;
+      try {
+        var b = (err && (err.body || err.context || err.data)) || err || {};
+        var v = (b.retry_after_seconds != null) ? b.retry_after_seconds
+              : ((b.retryAfter != null) ? b.retryAfter : null);
+        if (v != null && isFinite(Number(v)) && Number(v) > 0) secs = Math.ceil(Number(v));
+      } catch (_) { /* empty-catch-allow: a missing window is not an error, it is the old message */ }
+      if (secs) {
+        var mins = Math.ceil(secs / 60);
+        return (secs < 90)
+          ? T('The AI is at its limit right now. Try again in about ' + secs + ' seconds.',
+              'Nasa limitasyon ang AI ngayon. Subukan muli pagkalipas ng humigit-kumulang ' + secs + ' segundo.')
+          : T('The AI is at its limit right now. Try again in about ' + mins + ' minutes.',
+              'Nasa limitasyon ang AI ngayon. Subukan muli pagkalipas ng humigit-kumulang ' + mins + ' minuto.');
+      }
+      // T39 attribution fix (2026-09-02): the exhausted window is usually the GLOBAL platform
+      // budget (ai_global_budget), so "You have hit..." blamed the worker for platform demand —
+      // the which-server-sentences class, mild form. Neutral is true in every case. The
+      // "Nothing you typed was lost." reassurance stays with CALLERS (assistant.html appends it)
+      // because only a page that actually preserves the draft may truthfully claim it.
+      return T('The AI is at its limit right now. Wait a moment and try again.',
+               'Nasa limitasyon ang AI ngayon. Maghintay sandali at subukan muli.');
+    }
     if (/\b50[234]\b|unavailable|overloaded|timeout|timed out/i.test(m))
-      return 'The AI service is busy right now. Please try again shortly.';
+      return T('The AI service is busy right now. Please try again shortly.',
+               'Busy ang AI service ngayon. Subukan muli mamaya.');
     if (/network|failed to fetch|offline|connection|name resolution/i.test(m))
-      return 'Network problem: check your connection and try again.';
-    return fallback || 'Something went wrong. Please try again.';
+      return T('Network problem: check your connection and try again.',
+               'May problema sa koneksyon: suriin ang koneksyon at subukan muli.');
+    /* The caller's fallback is their own EN sentence, so it is returned untranslated - a page
+       that wants a Filipino fallback passes one through _t itself. */
+    return fallback || T('Something went wrong. Please try again.', 'May naganap na mali. Subukan muli.');
   };
 })();
+
+// ── Edge-function error unwrap (T82, 2026-08-26) ──────────────────────────────────────────
+// supabase-js collapses EVERY non-2xx from functions.invoke into one FunctionsHttpError whose
+// message is the literal string "Edge Function returned a non-2xx status code". The status and
+// the body are still there, on `error.context` (a Response) - but a caller that only reads
+// `error.message` never sees them.
+//
+// ★THIS SILENTLY UNDOES THE WORK THE FUNCTIONS DID. rate-limit.ts returns 429 with "AI call
+// limit reached for this hive. Try again in an hour." - cause named, clearing time named,
+// exactly the bar whAiError exists to hold. Measured on asset-hub: that refusal reached the
+// worker as "Could not reach Asset Brain: Edge Function returned a non-2xx status code", a
+// CONNECTION-flavoured sentence for a QUOTA event, sending them to check their signal instead
+// of waiting an hour. whAiError could not help either: it keys on /429|rate.?limit|quota/ and
+// the generic string contains none of them, so it fell through to its own fallback.
+//
+// The unwrap was already hand-rolled in companion-launcher, analytics and assistant - three
+// copies, thirteen other files without it. This is that idiom, once.
+//
+// Async because reading the body is; callers are already inside async handlers.
+// Returns the function's OWN sentence when it sent one (it is more specific than anything a
+// generic mapper can produce), else the status-mapped taxonomy line.
+window.whFnError = async function (err, fallback) {
+  var status = 0, body = null;
+  try {
+    if (err && err.context) {
+      if (typeof err.context.status === 'number') status = err.context.status;
+      if (typeof err.context.json === 'function') {
+        try { body = await err.context.clone().json(); }
+        catch (_) { body = null; }   /* empty-catch-allow: a non-JSON body is normal; fall back to status */
+      }
+    }
+  } catch (_) { /* empty-catch-allow: never let diagnostics throw over the real failure */ }
+
+  var own = body && (body.error || body.message);
+  if (typeof own === 'string' && own.trim() && !/non-2xx/i.test(own)) return own.trim();
+
+  // No usable body: hand the STATUS to the taxonomy, since the message never carried it.
+  if (status && typeof window.whAiError === 'function') {
+    return window.whAiError({ message: String(status) }, fallback);
+  }
+  if (typeof window.whAiError === 'function') return window.whAiError(err, fallback);
+  /* T45: the only sentence whFnError owns - its other three paths return the function's OWN
+     message or delegate to whAiError, which is already bilingual. Reached only when there is no
+     status and no body, i.e. nothing anywhere to be specific about. */
+  var T = (typeof window !== 'undefined' && typeof window._t === 'function')
+    ? window._t : function (en) { return en; };
+  return fallback || T('Something went wrong. Please try again.', 'May naganap na mali. Subukan muli.');
+};
+
+// ── What actually left the shelf (T11, 2026-08-27) ─────────────────────────────────────────
+// inventory_deduct CLAMPS rather than refuses: `v_qty := GREATEST(0, v_qty - p_qty)`. Asking for 1
+// when 0 remain therefore RETURNS NORMALLY having moved nothing - measured live: return 0, a ledger
+// row written with qty_change 0, shelf unchanged, no error raised. Every caller checked only
+// `error`, so the loser of a last-unit race was told the save succeeded while their entry claimed a
+// part the shelf never gave up.
+//
+// The RETURN VALUE cannot tell them apart, because it is the new quantity and both "took the last
+// one" and "there were none" end at 0. The LEDGER ROW can, because it records what moved - so the
+// caller passes a p_txn_id (the function has always accepted one) and reads that row back. Verified
+// under RLS that a member can read their own hive's inventory_transactions row.
+//
+// Returns { moved, requested, short } - or null when the row cannot be read, because a failed check
+// must not masquerade as "nothing was short".
+window.whDeductMoved = async function (db, txnId, requested) {
+  try {
+    const want = Number(requested);
+    if (!db || !txnId || !isFinite(want)) return null;
+    /* READ THE TRUTH VIEW, NOT THE RAW TABLE (2026-08-27). This helper was added earlier today
+       reading inventory_transactions directly, and validate_canonical_sources caught it on the
+       board: a canonical view exists, so the raw read is drift by definition - the whole point of
+       the truth views is that one shape of a row is what every consumer sees. The view carries both
+       columns this needs (id, qty_change), is security_invoker=true so RLS still decides what comes
+       back, and is granted to authenticated. Migrating rather than adding a canonical-allow, since
+       there is no reason here that an exemption would have to state. */
+    const { data, error } = await db.from('v_inventory_transactions_truth')
+      .select('qty_change').eq('id', txnId).maybeSingle();
+    if (error || !data) return null;
+    var moved = Math.abs(Number(data.qty_change) || 0);
+    return { moved: moved, requested: want, short: moved < want };
+  } catch (_) {
+    return null;   /* empty-catch-allow: the deduct itself already landed; this only explains it */
+  }
+};
+
+// The sentence for a short move, in one place so all three call sites say it the same way.
+window.whShortMoveNotice = function (partName, moved, requested) {
+  return 'Only ' + moved + ' of ' + requested + ' ' + (partName || 'that part')
+       + ' was on the shelf, so the rest was NOT issued. Someone took it first; check Inventory '
+       + 'before promising it.';
+};
+
+// ── Speech-recognition errors (T176, 2026-08-27) ───────────────────────────────────────────
+// The Web Speech API reports failures as bare codes, and three call sites pasted the code straight
+// into a toast: 'Voice error: network', 'Voice error: audio-capture', 'Mic error: aborted'. Those
+// are strings for a developer. A worker on a plant floor reads "Voice error: network" and has no
+// idea whether the plant wifi died, the mic is broken, or their words were lost.
+//
+// The vocabulary is small, closed and specified, so it maps once here rather than three times badly.
+// Every branch answers the same three questions the taxonomy asks of any failure: what happened,
+// what happened to the WORK, and what to do next. The work answer is the same on every branch and
+// is the one worth saying out loud - dictation failing never discards what is already typed, and a
+// person who is not told that will assume the worst and start over.
+window.whVoiceError = function (code, fallback) {
+  var c = String(code == null ? '' : (code.error || code)).toLowerCase();
+  /* T45: bilingual for the same reason whAiError is - and more sharply here, because the mic is
+     exactly where a Filipino-speaking worker is. _t falls back to EN when a phrase has no FIL. */
+  var T = (typeof window !== 'undefined' && typeof window._t === 'function')
+    ? window._t : function (en) { return en; };
+  if (c === 'not-allowed' || c === 'service-not-allowed') {
+    return T('This browser is blocking the microphone. Allow it from the icon in the address bar, '
+           + 'or just type instead. Nothing you have typed was lost.',
+             'Hinaharangan ng browser ang mikropono. Payagan ito mula sa icon sa address bar, o '
+           + 'mag-type na lang. Walang nawala sa na-type mo.');
+  }
+  if (c === 'audio-capture') {
+    return T('No microphone was found. Plug one in or type instead. Nothing you have typed was lost.',
+             'Walang nakitang mikropono. Magsaksak ng isa o mag-type na lang. Walang nawala sa na-type mo.');
+  }
+  if (c === 'network') {
+    return T('Dictation needs the internet and could not reach it. Type instead. Nothing you have '
+           + 'typed was lost.',
+             'Kailangan ng internet ang dictation at hindi ito maabot. Mag-type na lang. Walang '
+           + 'nawala sa na-type mo.');
+  }
+  if (c === 'language-not-supported') {
+    return T('Dictation does not support this language on this device. Type instead. Nothing you '
+           + 'have typed was lost.',
+             'Hindi supportado ang wikang ito para sa dictation sa device na ito. Mag-type na lang. '
+           + 'Walang nawala sa na-type mo.');
+  }
+  if (c === 'aborted') {
+    return T('Dictation stopped before it heard anything. Nothing you have typed was lost.',
+             'Huminto ang dictation bago pa ito nakarinig. Walang nawala sa na-type mo.');
+  }
+  return fallback || T('Dictation could not run. Type instead. Nothing you have typed was lost.',
+                       'Hindi tumakbo ang dictation. Mag-type na lang. Walang nawala sa na-type mo.');
+};
+
+// ── AI quota notice (T89, 2026-08-26) ──────────────────────────────────────────────────────
+// _shared/rate-limit.ts returns `remaining` on EVERY allowed call, so the platform always knows
+// how close a hive is to its hourly cap. Nothing consumed it: there is no threshold anywhere, and
+// the only signal a worker ever got was the 429 AFTER the wall - mid-task, with the work half
+// done. asset-hub was the one surface that rendered the number at all, and it rendered it flat
+// ("12 AI calls remaining this hour"), which reads the same at 12 as at 1.
+//
+// A count is not a warning. This turns the number the server already sends into one, so a
+// supervisor can finish the question they are on rather than discovering the limit by hitting it.
+// Reset time is named because "wait" without "how long" is not a remedy.
+window.whQuotaNotice = function (remaining) {
+  // null/undefined means the server did not tell us, and Number(null) is 0 - so without this the
+  // helper announced "No AI calls left this hour" to someone whose quota was simply UNKNOWN.
+  // An absent reading is not a reading of zero; say nothing rather than something alarming and false.
+  if (remaining === null || remaining === undefined || remaining === '') {
+    return { text: '', level: 'none' };
+  }
+  var n = Number(remaining);
+  if (!isFinite(n) || n < 0) return { text: '', level: 'none' };
+  if (n === 0) {
+    return { text: 'No AI calls left this hour. The limit resets on the hour.', level: 'out' };
+  }
+  if (n <= 5) {
+    return {
+      text: 'Only ' + n + ' AI call' + (n === 1 ? '' : 's') + ' left this hour. The limit resets on the hour.',
+      level: 'low',
+    };
+  }
+  return { text: n + ' AI calls remaining this hour', level: 'ok' };
+};
 
 // ── Native-app feel fallback (rubric class T · React-Native benchmark, 2026-07-18) ──────────
 // tokens.css carries the native-feel baseline (touch-action:manipulation + overscroll-behavior:
@@ -102,6 +314,76 @@
     } catch (_) { /* empty-catch-allow: best-effort native-feel baseline */ }
   }
   if (document.body) apply(); else document.addEventListener('DOMContentLoaded', apply);
+})();
+
+
+// ============================================================================
+// whNumericPaste — T123 (2026-08-26): a pasted quantity must not vanish.
+//
+// MEASURED, not assumed. Pasting into <input type="number"> on this platform:
+//   "1,500"   -> ""      validity: VALID
+//   " 12 "    -> ""      validity: VALID
+//   "12 pcs"  -> ""      validity: VALID
+// That is the HTML value-sanitization algorithm doing exactly what it is specified to do: a value
+// that is not a valid floating-point number becomes the empty string, and an empty non-required
+// number input is VALID. So the three most common real-world pastes - a thousands separator from a
+// supplier email, stray spaces from a table cell, a unit copied along with the figure - silently
+// EMPTY the field and then report themselves fine. A worker who pastes "1,500" and taps Save is
+// submitting nothing, with no error to read and often no reason to look back at the field.
+//
+// This intercepts the paste, cleans what a person actually copies, and inserts the number:
+//   thousands separators between digits are removed (PH uses comma-thousands, period-decimal),
+//   NBSP/thin/regular spaces are stripped, a trailing unit word is dropped, one leading minus and
+//   one decimal point survive.
+//
+// ★AND WHEN IT CANNOT BE CLEANED, IT SAYS SO. Falling back to the browser's silent empty would
+// re-create the defect for the cases the cleaner does not cover. Anything unparseable leaves the
+// field untouched and announces once - a refusal a person can read beats a blank they cannot see.
+function whCleanNumericPaste(raw) {
+  var s = String(raw == null ? '' : raw);
+  s = s.replace(/[   \s]/g, '');        // NBSP, figure space, narrow NBSP, spaces
+  // Thousands separators, BETWEEN digits only. Written with a capture group rather than a
+  // LOOKBEHIND on purpose: lookbehind is ES2018, and a browser that lacks it throws a SyntaxError
+  // while PARSING this file - which would take ALL of utils.js down, on every page, for those
+  // users. A regex feature that can break the whole platform on one browser is not worth the two
+  // characters it saves. (T119's browser-floor question, answered here instead of discovered there.)
+  s = s.replace(/(\d),(?=\d{3})/g, '$1');
+  var m = s.match(/-?\d*\.?\d+/);                       // the first real number in what was pasted
+  if (!m) return null;
+  var n = Number(m[0]);
+  return Number.isFinite(n) ? m[0] : null;
+}
+if (typeof window !== 'undefined') window.whCleanNumericPaste = whCleanNumericPaste;
+
+(function whNumericPasteInit() {
+  if (typeof document === 'undefined') return;
+  function onPaste(e) {
+    var el = e.target;
+    if (!el || el.tagName !== 'INPUT') return;
+    if ((el.getAttribute('type') || '').toLowerCase() !== 'number') return;
+    var dt = e.clipboardData || (typeof window !== 'undefined' && window.clipboardData);
+    if (!dt) return;
+    var raw = '';
+    try { raw = dt.getData('text') || ''; } catch (_) { return; }
+    if (!raw) return;
+    // already clean: let the browser do its normal thing
+    if (/^-?\d*\.?\d+$/.test(raw.trim()) && raw === raw.trim()) return;
+    e.preventDefault();
+    var cleaned = whCleanNumericPaste(raw);
+    if (cleaned === null) {
+      if (typeof showToast === 'function') {
+        showToast('That does not look like a number: "' + String(raw).slice(0, 24) + '". The box was left as it was.', 'error');
+      }
+      return;
+    }
+    el.value = cleaned;
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+    el.dispatchEvent(new Event('change', { bubbles: true }));
+  }
+  // ONE delegated listener on the document, capturing, so it reaches inputs rendered later by any
+  // page's own JS - the alternative (binding each input at load) misses every dynamically drawn
+  // form, which on this platform is most of them.
+  document.addEventListener('paste', onPaste, true);
 })();
 
 
@@ -1444,6 +1726,158 @@ if (typeof window !== 'undefined') window.whCapRows = whCapRows;
     return p;
   };
 })();
+// whRegisterAutoRetry — T126 (2026-08-26): failed READS recover themselves on reconnect.
+//
+// The write side already does this: offline queues drain on 'online', logbook syncs, banners
+// repaint. Reads were the half left manual, and "manual" assumes somebody is there. A wall-mounted
+// alert board has nobody; a phone in a pocket has nobody at the moment the signal returns.
+//
+// Kept deliberately small and cautious, because an auto-retry that misbehaves is worse than none:
+//   * it fires only on the 'online' event and on a tab becoming visible AFTER an offline spell —
+//     never on a timer, so a genuinely broken backend is not hammered;
+//   * it checks the element is STILL showing the error before re-running, so a section the person
+//     already recovered by hand is left alone;
+//   * one in-flight retry per element, and a 3s floor between attempts;
+//   * an element detached from the document is dropped, so a re-rendered page cannot accumulate
+//     stale callbacks (the listener-lifecycle leak this codebase has a gate for).
+var _whAutoRetry = (typeof WeakMap === 'function') ? new WeakMap() : null;
+var _whAutoRetryEls = [];
+function whRegisterAutoRetry(el, fn) {
+  if (!el || typeof fn !== 'function' || !_whAutoRetry) return;
+  if (!_whAutoRetry.has(el)) _whAutoRetryEls.push(el);
+  _whAutoRetry.set(el, { fn: fn, last: 0, busy: false });
+}
+function whRunAutoRetries(reason) {
+  if (!_whAutoRetry) return 0;
+  var now = Date.now(), ran = 0;
+  _whAutoRetryEls = _whAutoRetryEls.filter(function (el) {
+    if (!el || !el.isConnected) return false;         // gone from the DOM: drop it
+    var rec = _whAutoRetry.get(el);
+    if (!rec) return false;
+    // still in the error state? if the page recovered it another way, do not touch it
+    if (!el.querySelector('.wh-list-error')) return true;
+    if (rec.busy || (now - rec.last) < 3000) return true;
+    rec.busy = true; rec.last = now;
+    try {
+      var out = rec.fn();
+      if (out && typeof out.then === 'function') out.then(function () { rec.busy = false; }, function () { rec.busy = false; });
+      else rec.busy = false;
+      ran++;
+    } catch (_) { rec.busy = false; }
+    return true;
+  });
+  if (ran && typeof console !== 'undefined' && console.info) console.info('[wh] auto-retried ' + ran + ' failed read(s) on ' + reason);
+  return ran;
+}
+if (typeof window !== 'undefined') {
+  window.whRegisterAutoRetry = whRegisterAutoRetry;
+  window.whRunAutoRetries = whRunAutoRetries;
+}
+if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+  var _whWasOffline = false;
+  window.addEventListener('offline', function () { _whWasOffline = true; });
+  window.addEventListener('online', function () { _whWasOffline = false; whRunAutoRetries('reconnect'); });
+  document.addEventListener('visibilitychange', function () {
+    // only after an offline spell: returning to a tab that never lost the network has nothing to fix
+    if (document.visibilityState === 'visible' && _whWasOffline) { _whWasOffline = false; whRunAutoRetries('tab visible after offline'); }
+  });
+}
+
+/**
+ * T197 (2026-08-28) — a stored photo that will not load must SAY so, not leave wreckage.
+ *
+ * The marketplace renders storage-hosted photos at five sites across four pages, every one of
+ * them `<img src="${e(item.image_url)}" alt="${e(item.title)}">` with no error handling. When the
+ * storage layer is down (its own failure mode — the DB and the rest of the page stay up, which is
+ * the whole point of T197) each of those becomes a browser broken-image glyph inside a box that
+ * still occupies its full grid cell: the reader is left to guess whether the listing has no photo,
+ * or the photo is gone, or the page is broken.
+ *
+ * ★ONE CAPTURE-PHASE LISTENER, NOT FIVE INLINE onerror ATTRIBUTES. `error` does not bubble but it
+ * DOES capture, so a single document-level listener covers all five sites, every image rendered
+ * after them, and any page that later shows a stored photo — without touching five template
+ * strings, and without inline handlers that a tightened script-src would refuse.
+ *
+ * ★SCOPED BY SRC, deliberately. It fires only for storage-hosted objects (/storage/v1/object/),
+ * never for a decorative logo or icon: replacing a failed brand mark with "photo unavailable"
+ * would be noise, and a failure the reader can do nothing about is not worth a label. The box
+ * keeps the failed image's own dimensions so the grid does not reflow around it.
+ */
+function whPhotoFallback(img) {
+  if (!img || img.getAttribute('data-wh-photo-failed')) return;
+  img.setAttribute('data-wh-photo-failed', '1');
+  var label = (img.getAttribute('alt') || '').trim();
+  var r = img.getBoundingClientRect();
+  var box = document.createElement('div');
+  box.setAttribute('role', 'img');
+  // The alt text is the listing's title — keep it, so the reader still knows WHICH photo is gone.
+  box.setAttribute('aria-label', label ? (label + ' (photo unavailable)') : 'Photo unavailable');
+  box.className = 'wh-photo-failed';
+  box.style.cssText =
+    'display:flex; align-items:center; justify-content:center; text-align:center;' +
+    'background:rgba(255,255,255,0.04); border:1px dashed rgba(255,255,255,0.18);' +
+    'color:rgba(255,255,255,0.45); font-size:0.7rem; line-height:1.3; padding:6px;' +
+    'border-radius:8px; box-sizing:border-box;' +
+    (r.width  ? 'width:' + r.width  + 'px;' : 'width:100%;') +
+    (r.height ? 'height:' + r.height + 'px;' : 'min-height:80px;');
+  box.textContent = 'Photo unavailable';
+  if (img.parentNode) img.parentNode.replaceChild(box, img);
+}
+
+if (typeof document !== 'undefined') {
+  document.addEventListener('error', function (ev) {
+    var t = ev && ev.target;
+    if (!t || t.tagName !== 'IMG') return;
+    var src = t.getAttribute('src') || '';
+    if (src.indexOf('/storage/v1/object/') === -1) return;   // stored photos only
+    whPhotoFallback(t);
+  }, true);   // capture: `error` does not bubble
+}
+
+/**
+ * whIdVerified — is this seller's IDENTITY verified? (T70, 2026-08-28)
+ *
+ * The "Certified" chip beside this one was centralised in 2026-07 with a comment saying "a
+ * verification badge requires the thing it verifies. Central rule in utils.js so all three surfaces
+ * that render this chip cannot drift apart." The ID-Verified chip standing next to it never got the
+ * same treatment, and drifted across FOUR render sites with FOUR different predicates:
+ *
+ *   marketplace card    : item.seller_verified                        -> "Verified"
+ *   marketplace detail  : sp.kyb_verified || item.seller_verified     -> "ID Verified"
+ *   seller profile      : _seller.kyb_verified                        -> "ID Verified"
+ *   asset-hub mini-card : r.seller_verified                           -> "· verified"
+ *
+ * MEASURED on the fixture: Dennis Aquino carries kyb_verified FALSE on his seller record and
+ * seller_verified TRUE on his listings, so he read as verified on three surfaces and UNVERIFIED on
+ * his own profile page. A trust badge that disagrees with itself is worse than no badge, because
+ * each surface looks authoritative on its own.
+ *
+ * ★THE RULE IS THE CONSERVATIVE ONE, and deliberately. Identity belongs to the SELLER, not to a
+ * listing row: marketplace_sellers.kyb_verified is the checked fact, while
+ * marketplace_listings.seller_verified is a per-row copy that can be stale or set independently.
+ * Reading the seller record is also the direction that cannot OVER-claim — the failure that matters
+ * for a trust signal is showing the badge to someone who has not earned it, not withholding it from
+ * someone who has.
+ *
+ * Pass whichever objects a surface has; a listing-only caller still gets the right answer once its
+ * seller record is loaded, and gets `false` rather than a guess until then.
+ *
+ * Accepts either shape, because the same fact arrives under two names: a seller record carries
+ * `kyb_verified`, while v_marketplace_listings_truth exposes the joined column as
+ * `seller_kyb_verified`. Both are the SELLER's checked identity; neither is the listing's own
+ * `seller_verified` copy, which is the field that drifted.
+ */
+function whIdVerified(seller, listing) {
+  var s = seller && typeof seller === 'object' ? seller : null;
+  if (s && 'kyb_verified' in s) return !!s.kyb_verified;
+  if (s && 'seller_kyb_verified' in s) return !!s.seller_kyb_verified;
+  var l = listing && typeof listing === 'object' ? listing : null;
+  if (l && 'seller_kyb_verified' in l) return !!l.seller_kyb_verified;
+  // Nothing authoritative in hand: do NOT fall back to the listing's seller_verified copy — that
+  // fallback is exactly what produced the drift. Absent evidence is not evidence.
+  return false;
+}
+
 function whListError(el, message, onRetry) {
   if (!el) return;
   var e = escHtml;
@@ -1452,10 +1886,50 @@ function whListError(el, message, onRetry) {
     + '<div class="wh-list-error-icon" aria-hidden="true">⚠️</div>'
     + '<div>' + e(message || "Couldn’t load this. Check your connection and try again.") + '</div>'
     + (onRetry ? '<button type="button" class="wh-list-retry">Retry</button>' : '')
+    // T71 (2026-08-25): "is it me or them?" - every failure state now points at the one page
+    // built to answer that. ONE central edit reaches every whListError adopter (~20 pages);
+    // status.html is static-first, so it loads even when the DB that broke this read is down.
+    // T113 (2026-08-26): this link shipped as a bare inline anchor - 229x12px, well under the 44px
+    // gloved floor - and it rides in EVERY whListError panel, i.e. ~20 pages' read-failure states.
+    // A 12px target is hard for anyone and hopeless in gloves, at the exact moment a person is
+    // already stuck. The idiom was already in this file two functions away (the "All assets" and
+    // "PM Scheduler" links use inline-flex + min-height:44px); this one just did not follow it.
+    + '<div style="margin-top:0.5rem;"><a href="status.html" style="font-size:0.72rem;color:rgba(255,255,255,0.6);text-decoration:underline;text-underline-offset:2px;display:inline-flex;align-items:center;min-height:44px;">Is it just you? Check the platform status page</a>'
+    // T193 (2026-08-26): the ESCALATION DOOR, from the state that needs it. When retry has
+    // failed and status says the platform is fine, the person is stuck with nowhere to go -
+    // "dead ends have a door". The feedback widget already exists on every page; this opens it
+    // with the CONTEXT pre-attached (page, the error sentence the person is looking at, time),
+    // so a report arrives describing the failure instead of "it doesn't work". Rendered only
+    // where the widget is actually present, so it can never be a door onto nothing.
+    + (typeof window !== 'undefined' && window.WHFeedback && typeof window.WHFeedback.open === 'function'
+        ? ' <button type="button" class="wh-list-report" style="font-size:0.72rem;color:rgba(255,255,255,0.6);background:none;border:none;text-decoration:underline;text-underline-offset:2px;cursor:pointer;min-height:44px;padding:0 4px;">Report this problem</button>'
+        : '')
+    + '</div>'
     + '</div>';
   if (onRetry) {
     var btn = el.querySelector('.wh-list-retry');
     if (btn) btn.addEventListener('click', onRetry);
+    // T126 (2026-08-26): A RETRY BUTTON IS USELESS TO A SCREEN NOBODY IS STANDING AT. Reconnect
+    // handlers on this platform drain write QUEUES and repaint banners, but a failed READ just sits
+    // there waiting for a tap. On a wall-mounted alert board that tap never comes, so one network
+    // blip leaves a plant staring at a stale error for the rest of the shift - and the same is true
+    // of a phone that was in a pocket when the signal returned. Remember this element's retry and
+    // re-run it when connectivity comes back.
+    whRegisterAutoRetry(el, onRetry);
+  }
+  var rep = el.querySelector('.wh-list-report');
+  if (rep) {
+    rep.addEventListener('click', function () {
+      try {
+        window.WHFeedback.open({
+          subject: 'Problem loading a page section',
+          body: 'What I saw: ' + (message || 'a load failure') + '\n'
+              + 'Page: ' + (typeof location !== 'undefined' ? location.pathname + location.search : '?') + '\n'
+              + 'When: ' + new Date().toISOString() + '\n\n'
+              + 'What I was trying to do: ',
+        });
+      } catch (_) { /* empty-catch-allow: the widget owns its own failure surface */ }
+    });
   }
 }
 // Self-contained styles (STREAMLINE E2 rollout): inject the .wh-skeleton /
@@ -1514,6 +1988,36 @@ if (typeof document !== 'undefined' && !document.getElementById('wh-method-css')
 // ad-hoc `'₱' + n` / bespoke toLocaleDateString. All null/NaN-safe (never print
 // "₱NaN" / "Invalid Date" on the glass). Guarded by validate_user_facing_jargon
 // sibling lint + the E6 formatter skill rule.
+/* whSafeSearchTerm — make a typed phrase safe to interpolate into a PostgREST .or() filter.
+ *
+ * MEASURED 2026-08-26 against the live REST endpoint: a search term containing a COMMA returns
+ * HTTP 400, "failed to parse logic tree". PostgREST's or=(a,b) grammar splits on top-level commas,
+ * so an unquoted comma inside a value ends the condition early and the whole filter is rejected.
+ * Parentheses do the same, and a bare backslash can strand the LIKE escapes below.
+ *
+ * ★THE TERM THAT BREAKS IT IS THE ORDINARY ONE. "Bearing, spherical roller, 22320 E1 XL C3, SKF" is
+ * how a real part is named - it is the platform's OWN example in the longest-truncates gate - and
+ * typing it into the logbook, community or global search produced a 400 that the page renders as a
+ * failed READ. A legitimate search looked like the system was broken.
+ *
+ * ★TWO DIFFERENT JOBS, both needed, and only one was being done: escaping % and _ stops a wildcard
+ * changing WHICH rows match; removing , ( ) \ stops the filter from failing to parse at all. Pages
+ * were doing the first and not the second. marketplace.html was the exception - it strips the
+ * delimiters - which is why the same phrase searched there and worked.
+ *
+ * Delimiters are removed rather than escaped because PostgREST has no escape for them inside an
+ * unquoted value; a space keeps word boundaries so "Bearing, spherical" still matches "Bearing
+ * spherical". The result is then LIKE-escaped, so a literal % or _ stays literal.
+ */
+function whSafeSearchTerm(raw, maxLen) {
+  var s = String(raw == null ? '' : raw);
+  s = s.replace(/[,()\\]/g, ' ').replace(/\s+/g, ' ').trim();
+  s = s.replace(/%/g, '\\%').replace(/_/g, '\\_');
+  var cap = (typeof maxLen === 'number' && maxLen > 0) ? maxLen : 100;
+  return s.slice(0, cap);
+}
+if (typeof window !== 'undefined') window.whSafeSearchTerm = whSafeSearchTerm;
+
 function whFmtPeso(n, opts) {
   opts = opts || {};
   /* ABSENT IS NOT ZERO (found 2026-08-04, AZ-failure-injection/fail_null_field walk). This helper
@@ -1766,16 +2270,23 @@ if (typeof window !== 'undefined') window.whIsAccessDenied = whIsAccessDenied;
 var _WH_RAW_PG = /violates .*constraint|duplicate key|syntax error|does not exist|out of range|invalid input value/i;
 
 function whWriteError(err, fallback) {
+  /* T45 (2026-08-27): bilingual, same argument as whAiError/whReadError. These four are the
+     highest-stakes sentences in the taxonomy: every one answers "what happened to my work". */
+  var T = (typeof window !== 'undefined' && typeof window._t === 'function')
+    ? window._t : function (en) { return en; };
   if (whIsAuthFailure(err)) {
-    return 'Your session expired, so nothing was saved. Sign in again and redo this step.';
+    return T('Your session expired, so nothing was saved. Sign in again and redo this step.',
+             'Nag-expire ang session mo, kaya walang na-save. Mag-sign in ulit at ulitin ang hakbang na ito.');
   }
   // A 403 write is a refusal, not a dead session — but a DELIBERATE guard's own sentence is better
   // than any generic wording, so let those through below rather than answering them here. Only a
   // 403 with no human sentence behind it lands on this line.
   if (whIsAccessDenied(err) && !(err && err.message && String(err.message).length <= 300
                                  && !_WH_RAW_PG.test(String(err.message)))) {
-    return 'You are not allowed to do that with this account, so nothing was saved. Your session is '
-         + 'fine. Ask a supervisor if you need this.';
+    return T('You are not allowed to do that with this account, so nothing was saved. Your session is '
+           + 'fine. Ask a supervisor if you need this.',
+             'Hindi pinapayagan ang account mo na gawin iyon, kaya walang na-save. Ayos ang session '
+           + 'mo. Magtanong sa supervisor kung kailangan mo ito.');
   }
   // A GUARD THAT TOOK THE TROUBLE TO EXPLAIN ITSELF MUST NOT BE REPLACED BY "TRY AGAIN". The reservation
   // guard says "Listing needs PHP50 credits held (10% of the price) and you have 0 available" — a seller
@@ -1786,7 +2297,26 @@ function whWriteError(err, fallback) {
   var msg  = err && err.message ? String(err.message) : '';
   var deliberate = code === '23514' || code === '42501' || code === 'P0001' || code === 'check_violation';
   if (deliberate && msg && msg.length <= 300 && !_WH_RAW_PG.test(msg)) return msg;
-  return fallback || 'That did not go through. Please try again.';
+  /* A COLLISION IS PERMANENT, AND "TRY AGAIN" IS THE ONE ACTION THAT CANNOT WORK. 23505 is a unique
+     violation - a name, tag, code or username already taken - so the caller's fallback ("The save did
+     not go through. Nothing changed; try again.") sends the person to retype the same value forever.
+     That is exactly the failure the note above describes for policy refusals, and it reaches real
+     surfaces: asset_nodes is UNIQUE (hive_id, tag), so two "P-101"s collide on day one, and
+     worker_profiles is UNIQUE (username), so a signup race lands here too. Measured before fixing:
+     both returned the try-again fallback. The sentence stays GENERIC on purpose - the only clue to
+     WHICH field collided is the constraint name, which is a schema word no reader should be shown
+     ([[feedback_a_zero_that_was_never_a_fallback]] is the sibling lesson: do not dress a real
+     condition as a generic one). Naming the cause and an action that CAN work beats both a Postgres
+     string and a retry that is guaranteed to fail. */
+  if (code === '23505' || /duplicate key value/i.test(msg)) {
+    return T('Something here already uses that name or code, so nothing was saved. Change it to '
+           + 'something different and save again.',
+             'May gumagamit na ng pangalan o code na iyan, kaya walang na-save. Palitan ito ng iba '
+           + 'at i-save muli.');
+  }
+  /* The caller's fallback is the PAGE's own English sentence, so it passes through untouched. */
+  return fallback || T('That did not go through. Please try again.',
+                       'Hindi natuloy iyon. Subukan muli.');
 }
 if (typeof window !== 'undefined') window.whWriteError = whWriteError;
 // whReadError — the READ-side sibling of whWriteError, for a fetch that failed on the way IN.
@@ -1798,8 +2328,99 @@ if (typeof window !== 'undefined') window.whWriteError = whWriteError;
 // again." for all three; the marketplace and the seller profile had each grown their own inline copy of
 // the taxonomy, which is the signal it belongs here. `what` names the thing that could not be read so the
 // sentence stays specific ("the public feed", "your service requests").
+/* whHiveContextLost(what) - THE FOURTH STATE (2026-08-31).
+   This platform already models three answers to "why is there nothing here": the read FAILED
+   (whReadError), the read is NOT BACK YET (alert-hub's `_anomalyCount = null` convention), and there is
+   GENUINELY NOTHING (the empty states). The fourth was never named: the read SUCCEEDED and the server
+   lawfully returned nothing because the viewer may not see it.
+
+   It is invisible by construction. RLS refuses by FILTERING - a `USING` clause returns zero rows and no
+   error - so a foreign or revoked hive arrives as an ordinary 200 with an empty array, byte-identical to
+   an empty hive. Walked live 2026-08-31 as a removed member: alert-hub answered "All clear. No critical
+   alerts, anomalies, or pending briefs for your hive right now", and inventory quietly fell back to a
+   populated personal view advising "order them before the next shift planning". A safety claim and a
+   restock instruction, both about a hive the platform could not see a single row of.
+
+   pm-scheduler and inventory ALREADY detect this - validateHiveMembership() finds no row, clears the
+   hive keys and drops to solo mode, which is a deliberate and defensible design ("inventory still usable
+   for own items"). The defect was never the fallback; it was that the scope of everything on screen
+   changed and the only announcement went to console.warn. This is that announcement.
+
+   Kept beside whReadError on purpose: four surfaces need the same sentence, and four hand-written
+   versions is how the platform's failure voice drifted before centralisation. */
+function whHiveContextLost(what) {
+  var thing = what || 'this hive';
+  var T = (typeof window !== 'undefined' && typeof window._t === 'function')
+    ? window._t : function (en) { return en; };
+  var thingFil = String(thing).replace(/^the\s+/i, '');
+  /* "Your session is fine" is the load-bearing half, exactly as in the access-denied branch above: the
+     failure a person reaches for first is their own login, and sending them to re-authenticate over a
+     membership change wastes their time and teaches them the message is noise. */
+  return T('You are no longer a member of ' + thing + ', so its data is not shown. Your session is fine. '
+         + 'Showing only what belongs to you. Ask a supervisor to add you back if this is wrong.',
+           'Hindi ka na miyembro ng ' + thingFil + ', kaya hindi ipinapakita ang data nito. Ayos ang '
+         + 'session mo. Ang iyong sarili lang ang ipinapakita. Magtanong sa supervisor kung mali ito.');
+}
+if (typeof window !== 'undefined') window.whHiveContextLost = whHiveContextLost;
+
+/* whHiveContextNotice(hiveName) - SHOW the fourth state, in the region the platform already reserves for
+   standing facts. Deliberately NOT a toast: utils.js:940 settled that argument for the sibling case -
+   "A SESSION notice may ride a transient toast; a PERMISSION notice may not. The refusal is a standing
+   fact about this page load, not a momentary event - a toast that fades leaves the person looking at the
+   same unexplained dashes, which is the whole defect." Losing your hive is the same kind of fact: the
+   scope of every number on screen has changed and stays changed.
+   _whShowNotice is module-internal, so this wrapper is what pages call.
+   KNOWN LIMIT, inherited on purpose rather than special-cased: the region self-expires after 30s. That
+   timer exists for a measured reason (a pinned notice survived one failure injection and contaminated
+   the next three probes on four pages), and giving this one notice a different lifetime would fork a
+   mechanism whose behaviour is relied upon elsewhere. The scope change outlives the notice; if that
+   proves too short in use, the fix belongs in _whShowNotice for every caller at once. */
+function whHiveContextNotice(hiveName) {
+  try {
+    var name = hiveName ? ('the ' + String(hiveName).replace(/^the\s+/i, '')) : 'this hive';
+    _whShowNotice('wh-hive-context-lost-notice', whHiveContextLost(name), '160px');
+  } catch (e) { /* empty-catch-allow: a notice that cannot render must not break the load path */ }
+}
+if (typeof window !== 'undefined') window.whHiveContextNotice = whHiveContextNotice;
+
+/* whHiveMembershipLost(db, hiveId, workerName) -> Promise<boolean>
+   ASK the question that RLS answers silently. A revoked membership is invisible to a client: the reads
+   come back 200 with zero rows, identical to a quiet hive, so a page can only tell the two apart by
+   asking hive_members directly. pm-scheduler and inventory each grew their own copy of this probe;
+   alert-hub and community had none, which is exactly why they answered "All clear" and "No activity
+   yet" to a removed member. One copy, so the four surfaces cannot drift apart the way the failure voice
+   did before whReadError centralised it.
+   ★FAILS OPEN, deliberately: a DB error returns false. "I could not ask" is not "you were removed", and
+   manufacturing a removal from an unreachable database would put a false accusation on screen during an
+   ordinary outage - the same reasoning the two existing copies use when they trust the cached role. */
+function whHiveMembershipLost(db, hiveId, workerName) {
+  if (!db || !hiveId || !workerName) return Promise.resolve(false);
+  try {
+    // canonical-allow: auth-check probe on membership row presence; access gate, not a display read
+    return db.from('hive_members')
+      .select('status')
+      .eq('hive_id', hiveId)
+      .eq('worker_name', workerName)
+      .maybeSingle()
+      .then(function (r) {
+        if (r && r.error) return false;                       // could not ask
+        var m = r && r.data;
+        return !m || m.status === 'kicked';
+      }, function () { return false; });
+  } catch (e) { return Promise.resolve(false); }
+}
+if (typeof window !== 'undefined') window.whHiveMembershipLost = whHiveMembershipLost;
+
 function whReadError(err, what) {
   var thing = what || 'this';
+  /* T45 (2026-08-27): the shared failure voice is bilingual; see whAiError. */
+  var T = (typeof window !== 'undefined' && typeof window._t === 'function')
+    ? window._t : function (en) { return en; };
+  /* Filipino carries its own article, so the caller's English one has to come off or the
+     sentence reads 'ang THE activity log'. Callers pass `thing` with the article attached
+     ('the activity log') because the EN sentences need it; the FIL ones do not. */
+  var thingFil = String(thing).replace(/^the\s+/i, '');
+
   var msg  = err && err.message ? String(err.message) : '';
   var hint = String((err && err.hint) || '') + ' ' + String((err && err.details) || '');
   var code = err && err.code != null ? String(err.code) : '';
@@ -1810,21 +2431,34 @@ function whReadError(err, what) {
     // through; saying the session expired without answering that leaves them to guess, and the
     // guess is usually "do it again", which is how a duplicate gets created. This is a READ
     // failure, so the reassurance is simply true: nothing was being written.
-    return 'Your session expired, so ' + thing + ' could not be loaded. Sign in again to see it. '
-         + 'Nothing you did was lost.';
+    return T('Your session expired, so ' + thing + ' could not be loaded. Sign in again to see it. '
+           + 'Nothing you did was lost.',
+             'Nag-expire ang session mo, kaya hindi ma-load ang ' + thingFil + '. Mag-sign in ulit para '
+           + 'makita ito. Walang nawala sa ginawa mo.');
   }
   // Authenticated, and refused. Naming the boundary is the whole point: "not visible with this
   // session" is a different fact from "nothing here", and neither of them is "sign in again".
   if (whIsAccessDenied(err)) {
-    return 'You do not have access to ' + thing + ' with this account. Your session is fine. Ask a '
-         + 'supervisor if you need it.';
+    return T('You do not have access to ' + thing + ' with this account. Your session is fine. Ask a '
+           + 'supervisor if you need it.',
+             'Walang access ang account mo sa ' + thingFil + '. Ayos ang session mo. Magtanong sa '
+           + 'supervisor kung kailangan mo ito.');
   }
   if (st === 429 || code === '429' || /rate ?limit|too many/i.test(msg)) {
     var secs = (msg + ' ' + hint).match(/(\d+)\s*(s|sec|secs|seconds?)\b/i);
-    return 'Too many requests, so ' + thing + ' could not be loaded. Try again in '
-         + (secs ? secs[1] + ' seconds' : 'a moment') + '.';
+    return T('Too many requests, so ' + thing + ' could not be loaded. Try again in '
+           + (secs ? secs[1] + ' seconds' : 'a moment') + '.',
+             'Masyadong maraming request, kaya hindi ma-load ang ' + thingFil + '. Subukan muli sa '
+           + (secs ? secs[1] + ' segundo' : 'ilang sandali') + '.');
   }
-  return 'Couldn’t load ' + thing + '. Check your connection and try again.';
+  // T71 (2026-08-26): the connection fallback now answers "is it me or them?" - every failure
+  // state pointed nowhere, so a plant-wide outage read exactly like bad plant wifi. The Status
+  // page is static-first (loads when the DB cannot), which is what makes the pointer honest.
+  return T('Couldn’t load ' + thing + '. Check your connection and try again. Still failing on good '
+       + 'internet? Open status.html - it shows if WorkHive itself is having trouble.',
+           'Hindi ma-load ang ' + thingFil + '. Suriin ang koneksyon at subukan muli. Hindi pa rin '
+         + 'gumagana kahit maayos ang internet? Buksan ang status.html - ipinapakita nito kung '
+         + 'may problema ang WorkHive mismo.');
 }
 if (typeof window !== 'undefined') window.whReadError = whReadError;
 // whQueryTimeout — an upper bound for a supabase-js READ, so a hung request cannot become an eternal
@@ -1876,6 +2510,115 @@ if (typeof window !== 'undefined') window.whRecentDuplicate = whRecentDuplicate;
 //   var view = whRememberView('filters', function () { return { cat: catEl.value, sort: sortEl.value }; });
 //   view.restore(function (s) { catEl.value = s.cat; sortEl.value = s.sort; applyFilters(); });  // apply saved
 //   [catEl, sortEl].forEach(function (el) { el.addEventListener('change', view.save); });          // persist
+// whClockSkew — T150 (2026-08-26): tell a person their DEVICE CLOCK is wrong, before it
+// corrupts records. 47 `*_at` fields across a dozen pages are written from the BROWSER's clock
+// (approved_at, acknowledged_at, resolved_at, acted_at…), so a phone half an hour fast files an
+// approval half an hour in the future, and "5m ago" lies on every surface. Wrong device time is
+// common on cheap Android handsets after a battery pull — this is a field reality, not an edge.
+// The server's own `Date` response header is a free, exact reference on every request: no RPC,
+// no round-trip of our own, no dependency on a table. Warn only (never auto-correct: silently
+// rewriting a user's timestamps would be its own lie), once per page, past a 3-minute tolerance
+// that comfortably clears normal latency and NTP jitter.
+function whClockSkew(opts) {
+  opts = opts || {};
+  var tolMs = opts.toleranceMs || 180000;   // 3 minutes
+  try {
+    if (window._whClockSkewChecked) return;
+    window._whClockSkewChecked = true;
+    var base = window.WH_SUPABASE_URL || '';
+    if (!base) return;
+    var t0 = Date.now();
+    fetch(base + '/rest/v1/', { method: 'HEAD', cache: 'no-store' }).then(function (res) {
+      var hdr = res && res.headers && res.headers.get('date');
+      if (!hdr) return;
+      var serverMs = new Date(hdr).getTime();
+      if (!isFinite(serverMs)) return;
+      // Compare against the MIDPOINT of our own request window, so the round trip itself
+      // cannot masquerade as skew (the header is stamped somewhere inside that window).
+      var mid = t0 + (Date.now() - t0) / 2;
+      var deltaMs = mid - serverMs;
+      window._whClockDeltaMs = deltaMs;
+      if (Math.abs(deltaMs) < tolMs) return;
+      var mins = Math.round(Math.abs(deltaMs) / 60000);
+      var fast = deltaMs > 0;
+      var d = document.createElement('div');
+      d.id = 'wh-clock-skew';
+      d.setAttribute('role', 'alert');
+      d.style.cssText = 'position:fixed;left:0;right:0;bottom:0;z-index:2147483000;'
+        + 'background:#7c2d12;color:#fff;padding:10px 14px;font:12px/1.45 system-ui,Arial,sans-serif;text-align:center;';
+      d.textContent = 'This device’s clock is about ' + mins + ' minute' + (mins === 1 ? '' : 's') + ' '
+        + (fast ? 'ahead of' : 'behind') + ' real time. Times you see (and times recorded when you approve '
+        + 'or complete work) will be off by that much until you fix the date and time in your device settings.';
+      if (document.body) document.body.appendChild(d);
+    }, function () { /* offline or blocked: no reading, so no claim */ });
+  } catch (_) { /* empty-catch-allow: a clock check must never break a page */ }
+}
+if (typeof window !== 'undefined') {
+  window.whClockSkew = whClockSkew;
+  // Run once per page, after load so it never competes with first paint.
+  if (typeof document !== 'undefined') {
+    if (document.readyState === 'complete') setTimeout(whClockSkew, 1500);
+    else window.addEventListener('load', function () { setTimeout(whClockSkew, 1500); });
+  }
+}
+// whFold — T128 (2026-08-26): diacritic-insensitive search folding, one definition.
+// Philippine names and place names carry diacritics constantly (Peña, Muñoz, Dueñas, Bataán),
+// and every client-side search on the platform was a plain lowercase substring test — so a
+// technician typing "Pena", which is what a plant keyboard and a hurried thumb actually produce,
+// found NOTHING while the record sat right there. NFD splits a letter from its combining mark and
+// the range strip removes the marks, so "Peña" and "Pena" fold to the same key. Case-folding rides
+// along, so callers replace toLowerCase() with this rather than stacking both.
+// Search-only: never fold stored VALUES, only the comparison keys — the record keeps the real name.
+function whFold(s) {
+  try {
+    return String(s == null ? '' : s).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+  } catch (_) {
+    return String(s == null ? '' : s).toLowerCase();   // engines without NFD still get case-folding
+  }
+}
+if (typeof window !== 'undefined') window.whFold = whFold;
+/* T51 (2026-08-27): WHICH HIVE this remembered state belongs to. Reuses whHiveId(), the
+   canonical accessor with the registered-alias fallback chain (wh_active_hive_id, then
+   wh_hive_id), rather than a fourth hand-rolled localStorage read. Returns '' rather than null
+   so a blocked-storage save and a blocked-storage restore compare equal instead of both being
+   null-ish in different ways. */
+function _stateHive() {
+  try { return String((typeof whHiveId === 'function' ? whHiveId() : null) || ''); }
+  catch (_) { return ''; }
+}
+/* WHOSE remembered state this is (T121, 2026-08-28). The same three-line read had been
+   hand-rolled FOUR times by the time this landed - _fOwner (filters), _draftOwner (drafts),
+   _anOwner (analytics), _historyOwner (companion) - each a separate chance to drift. One
+   accessor now, and a place for the next store to reach for instead of writing a fifth. */
+function whStateOwner() {
+  try { return String(localStorage.getItem('wh_last_worker') || localStorage.getItem('wh_worker_name') || ''); }
+  catch (_) { return ''; }
+}
+if (typeof window !== 'undefined') window.whStateOwner = whStateOwner;
+/* ★A DISMISSAL IS PERSON-SCOPED, AND STORING '1' MADE IT DEVICE-WIDE (T121, 2026-08-28).
+   The draft/filter/history leaks all ran one direction - A's CONTENT reaching B. Dismissal flags
+   leak the OTHER way and are easy to miss for exactly that reason: nothing of A's is exposed, so
+   it does not read as a privacy bug. What crosses is A's DECISION. Worker A taps Dismiss on the
+   first-run onboarding ladder, signs out, and worker B - whose three steps are all incomplete,
+   and whose progress the card computes correctly - never sees the card at all, because the flag
+   belongs to the browser. The platform's promise that every page introduces itself is silently
+   void for the second person to use a station tablet, which on this platform is most of them.
+   Storing the OWNER instead of '1' fixes it in the same shape as its siblings: A stays dismissed,
+   B gets introduced. Legacy '1' values carry no owner and so re-show the guide once - the safe
+   direction for help, exactly as unowned history is not restored. */
+function whIsDismissed(key) {
+  try {
+    var v = localStorage.getItem(key);
+    if (!v) return false;
+    if (v === '1') return false;             // legacy, unowned -> not a dismissal by THIS person
+    return v === ('u:' + whStateOwner());
+  } catch (_) { return false; }
+}
+function whSetDismissed(key) {
+  try { localStorage.setItem(key, 'u:' + whStateOwner()); }
+  catch (_) { /* empty-catch-allow: dismissal is best-effort; a blocked store just re-shows the guide */ }
+}
+if (typeof window !== 'undefined') { window.whIsDismissed = whIsDismissed; window.whSetDismissed = whSetDismissed; }
 function whRememberView(key, capture) {
   var K = 'wh_view_' + (typeof location !== 'undefined' ? (location.pathname.split('/').pop() || 'root') : 'root') + '_' + key;
   return {
@@ -1894,8 +2637,21 @@ if (typeof window !== 'undefined') window.whRememberView = whRememberView;
 function whAutoRememberFilters(key, ids) {
   try {
     if (typeof document === 'undefined') return null;
-    var view = whRememberView(key, function () { var o = {}; ids.forEach(function (id) { var el = document.getElementById(id); if (el) o[id] = el.value; }); return o; });
-    view.restore(function (s) { ids.forEach(function (id) { var el = document.getElementById(id); if (el && s[id] != null && s[id] !== '' && !el.value) { el.value = s[id]; el.dispatchEvent(new Event('change', { bubbles: true })); } }); });
+    /* T121 (2026-08-26): filters are OWNED too, for the same shared-device reason as drafts and
+       for a plainer one: on the station tablet, worker B inherited whatever A had filtered to and
+       met a list that looked empty or wrong with no explanation. A filter also leaks intent (a
+       supervisor filtered to one person's name). Stamp the owner; restore only your own. */
+    var _fOwner = function () {
+      try { return String(localStorage.getItem('wh_last_worker') || localStorage.getItem('wh_worker_name') || ''); }
+      catch (_) { return ''; }
+    };
+    var view = whRememberView(key, function () { var o = { __owner: _fOwner(), __hive: _stateHive() }; ids.forEach(function (id) { var el = document.getElementById(id); if (el) o[id] = el.value; }); return o; });
+    view.restore(function (s) { if (!s || !s.__owner || s.__owner !== _fOwner()) return;
+    /* T51: a filter belonging to ANOTHER hive matches nothing on this one, and the page
+       renders that as an empty list - which this platform has taught people to read as
+       "there is nothing here" rather than "your filter is from another plant". */
+    if (s.__hive !== _stateHive()) return;
+    ids.forEach(function (id) { var el = document.getElementById(id); if (el && s[id] != null && s[id] !== '' && !el.value) { el.value = s[id]; el.dispatchEvent(new Event('change', { bubbles: true })); } }); });
     ids.forEach(function (id) { var el = document.getElementById(id); if (el) ['change', 'input'].forEach(function (ev) { el.addEventListener(ev, view.save); }); });
     return view;
   } catch (_) { return null; }
@@ -1942,7 +2698,28 @@ function whAutoSaveDraft(key, ids, opts) {
     // any forEach — they fire on user events, not per-iteration (keeps the timeout_in_loop 4-line-lookback gate green).
     function scheduleSave() { clearTimeout(t); t = setTimeout(view.save, opts.debounce || 500); }
     function scheduleClear(ms) { setTimeout(view.clear, ms); }
-    view = whRememberView('draft_' + key, function () { var o = {}; ids.forEach(function (id) { var el = document.getElementById(id); if (el) o[id] = el.value; }); return o; });
+    /* T121 (2026-08-26): DRAFTS MUST BE OWNED. Measured on a shared device (the plant reality
+       this platform is built for - one tablet at the station, workers signing in and out): worker
+       A typed a private note, signed OUT, worker B signed IN, opened the same page, focused the
+       field - and A's words were sitting in B's compose box. B could submit them under their own
+       name. The registry called this a devtools-level exposure; it is plainer than that, and the
+       fix is not purge-on-sign-out (which destroys real work) but OWNERSHIP: stamp the draft with
+       whoever typed it, and refuse to restore one that belongs to somebody else. A's draft is
+       preserved and comes back for A; B never sees it. Legacy drafts carry no owner and are
+       therefore not restored - a one-time cost, and the safe direction. */
+    var _draftOwner = function () {
+      try { return String(localStorage.getItem('wh_last_worker') || localStorage.getItem('wh_worker_name') || ''); }
+      catch (_) { return ''; }
+    };
+    view = whRememberView('draft_' + key, function () {
+      /* T57 (2026-08-26): stamp WHEN. A draft carried an owner but no age, so one typed three
+         months ago restored into the form exactly like one typed three minutes ago - silently,
+         into fields the worker is about to submit. On a logbook entry that means filing a stale
+         reading against today's shift without ever being told the text was old. */
+      var o = { __owner: _draftOwner(), __hive: _stateHive(), __savedAt: Date.now() };
+      ids.forEach(function (id) { var el = document.getElementById(id); if (el) o[id] = el.value; });
+      return o;
+    });
     // A SELECT IS NEVER "EMPTY", so `!el.value` skipped every one of them. Measured 2026-08-04 on the
     // service hail: the chosen service and the typed address came back after an interruption and the
     // urgency did NOT -- "Critical - production is down" silently reverted to "Normal - within a few
@@ -1956,7 +2733,51 @@ function whAutoSaveDraft(key, ids, opts) {
       var def = el.querySelector('option[selected]') || el.options[0];
       return !def || el.value === def.value;
     };
-    applyDraft = function (s) { ids.forEach(function (id) { var el = document.getElementById(id); if (el && s[id] != null && s[id] !== '' && _isUntouched(el)) { el.value = s[id]; el.dispatchEvent(new Event(el.tagName === 'SELECT' ? 'change' : 'input', { bubbles: true })); } }); };
+    /* T120 (2026-08-26): SAY WHERE DRAFTS LIVE. The account-vs-device split is deliberate and
+       documented (substrate/reference/state_scope_registry.json), but nothing said it in-app: a
+       worker who starts a note on the phone and opens the PC finds an empty box and reasonably
+       concludes their work was lost. Drafts are DEVICE-local by design (they must survive an
+       offline session, which an account-level sync cannot promise). Announce it ONCE per browser,
+       and only when a draft actually comes back - so it lands as an explanation at the moment it
+       explains something, never as a nag. */
+    /* T57: an OLD draft announces its age. Recent ones stay silent - a note from ten minutes ago
+       coming back is the feature working, and narrating it would be noise. The threshold is days
+       rather than hours because interruption resilience (X2) is measured in minutes and hours; a
+       draft that survives a WEEK is no longer an interruption, it is a leftover. Says the age
+       instead of discarding the text, because the work is still the worker's to keep or clear. */
+    var _DRAFT_OLD_MS = 7 * 24 * 60 * 60 * 1000;
+    var _announceAgeIfOld = function (savedAt) {
+      try {
+        var ms = Date.now() - Number(savedAt || 0);
+        if (!isFinite(ms) || !savedAt || ms < _DRAFT_OLD_MS) return;
+        var days = Math.floor(ms / 86400000);
+        if (typeof showToast === 'function') {
+          showToast('This draft is ' + days + ' days old. Check it still matches today before you save.',
+                    'info');
+        }
+      } catch (_) { /* empty-catch-allow: an age notice must never block a restore */ }
+    };
+
+    var _announceScope = function () {
+      try {
+        if (localStorage.getItem('wh_draft_scope_told') === '1') return;
+        localStorage.setItem('wh_draft_scope_told', '1');
+        if (typeof showToast === 'function') {
+          showToast('Draft restored. Drafts live on the device you typed them on, so this one will not appear on your other devices.', 7000);
+        }
+      } catch (_) { /* empty-catch-allow: the notice is an explanation, never a blocker */ }
+    };
+    applyDraft = function (s) { var _any = false;
+      // refuse a draft that belongs to someone else, and legacy drafts whose owner is unknown
+      if (!s || !s.__owner || s.__owner !== _draftOwner()) return;
+      /* T51 (2026-08-27): AND THE SAME HIVE. The owner check passes for a multi-hive worker in
+         BOTH their hives - they are the same person - so a note typed against hive A restored
+         into hive B's form, carrying one plant's machine names into another plant's record.
+         Legacy drafts carry no __hive and are therefore not restored, the same one-time cost
+         and the same safe direction the owner stamp chose. */
+      if (s.__hive !== _stateHive()) return;
+      _announceAgeIfOld(s.__savedAt);
+      ids.forEach(function (id) { var el = document.getElementById(id); if (el && s[id] != null && s[id] !== '' && _isUntouched(el)) { el.value = s[id]; el.dispatchEvent(new Event(el.tagName === 'SELECT' ? 'change' : 'input', { bubbles: true })); _any = true; } }); if (_any) _announceScope(); };
     view.restore(applyDraft);
     ids.forEach(function (id) { var el = document.getElementById(id); if (el) ['input', 'change'].forEach(function (ev) { el.addEventListener(ev, scheduleSave); }); });
     // GENERIC lifecycle (no per-page selectors needed): restore the draft when the user FOCUSES the compose
@@ -2033,6 +2854,182 @@ function whHiveId() {
         || null;
   } catch (_) { return null; /* storage blocked (private mode / disabled) */ }
 }
+// whReconcileHiveName — T140 (2026-08-26): a rename must reach the OTHER devices.
+//
+// MEASURED, and it corrected this trajectory's own record. T140's basis read that hive rename "does
+// not exist - no UI, no update path", and concluded that no stale-name class could exist. Both
+// halves were wrong: hive.html:2661 renames a hive, and a live test showed the consequence - after
+// another device renames the plant, this one keeps showing the OLD name on its board and in its
+// chrome, because every page trusts localStorage.wh_hive_name and nothing re-reads hives.name.
+// wh_hive_name is written at join/switch time, so "eventually" can mean weeks.
+//
+// The rename handler already propagates well LOCALLY (HIVE_NAME, localStorage, the hive list, the
+// board title, the switch button). What it cannot do is reach a session it is not running in. So
+// each page reconciles once on load: ask the server what this hive is called, and if the cached
+// name disagrees, correct the cache and repaint anything showing it.
+//
+// ★ONE CHEAP READ, AND ONLY WHEN IT CAN HELP. It runs once per page load, only with a hive id and a
+// cached name present, and it is entirely best-effort: a page whose read fails keeps the cached
+// name, which is exactly what it would have shown anyway. It must never be the reason a page fails.
+async function whReconcileHiveName(db) {
+  try {
+    var id = whHiveId();
+    if (!id || typeof db !== 'object' || !db) return null;
+    var cached = null;
+    try { cached = localStorage.getItem('wh_hive_name'); } catch (_) { return null; }
+    if (!cached) return null;
+    // Canonical source, not the base table: v_hives_truth is the registered truth view for hive
+    // identity, and reading `hives` directly is exactly the drift validate_canonical_sources
+    // exists to catch. Verified live as the signed-in user - same id, same name.
+    var res = await db.from('v_hives_truth').select('name').eq('id', id).maybeSingle();
+    var live = res && res.data && res.data.name;
+    if (!live || live === cached) return null;
+    try {
+      localStorage.setItem('wh_hive_name', live);
+      // `wh_hives` is the switcher's list - written by saveHiveList() in hive.html, read there and
+      // on index and analytics. This repaint first wrote `wh_hive_list`, a key nothing reads, so a
+      // renamed hive updated the chrome and left the switcher showing the old name: the stale cache
+      // this function exists to reconcile, surviving inside the reconciler. The storage-key registry
+      // caught it as an UNKNOWN key, which is what a one-vocabulary rule is for.
+      var list = JSON.parse(localStorage.getItem('wh_hives') || '[]');
+      if (Array.isArray(list)) {
+        localStorage.setItem('wh_hives', JSON.stringify(
+          list.map(function (h) { return (h && h.id === id) ? Object.assign({}, h, { name: live }) : h; })));
+      }
+    } catch (_) { /* empty-catch-allow: storage may be blocked; the repaint below still helps */ }
+    // repaint the places a hive name is shown, by id and by the data-attribute chrome uses
+    var el = document.getElementById('board-hive-name');
+    if (el) el.textContent = live;
+    document.querySelectorAll('[data-wh-hive-name]').forEach(function (n) { n.textContent = live; });
+    return { was: cached, now: live };
+  } catch (_) { return null; /* a rename check must never break a page */ }
+}
+if (typeof window !== 'undefined') window.whReconcileHiveName = whReconcileHiveName;
+
+// ── whEmbedEntry — the RAG index write that retries instead of vanishing (T10 AI4, 2026-09-02) ──
+// Walked live: embed-entry returned 500 on a PM save's logbook echo and the new entry was SILENTLY
+// missing from the RAG index — console-only, no retry, nothing surfaced (the write-only-index
+// class: the assistant's recall quietly loses exactly the entries saved during a bad minute).
+// Contract: one immediate retry after 2s; on second failure the payload is PERSISTED
+// (wh_embed_retry, capped 20, oldest dropped) and re-sent on a later page load once the client is
+// up. Embedding is idempotent server-side (upsert by entry id), so a duplicate drain is safe.
+// Fire-and-forget stays the calling contract — this must never block a save.
+async function whEmbedEntry(payload, opts) {
+  var o = opts || {};
+  var url = (o.url || (typeof SUPABASE_URL !== 'undefined' ? SUPABASE_URL : '')) + '/functions/v1/embed-entry';
+  var key = o.key || (typeof SUPABASE_KEY !== 'undefined' ? SUPABASE_KEY : '');
+  var tok = o.token || key;
+  var send = function () {
+    // the fallback's fetch rides send()'s own try/retry (below); the inline try satisfies the
+    // line-scoped fetch-error ratchet without altering the rejection path
+    var f = (typeof fetchWithTimeout === 'function') ? fetchWithTimeout : function (u, x) { try { return fetch(u, x); } catch (e) { return Promise.reject(e); } };
+    return f(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': key, 'Authorization': 'Bearer ' + tok },
+      body: JSON.stringify(payload),
+    }, 8000).then(function (r) { if (!r || !r.ok) throw new Error('embed-entry ' + (r ? r.status : 'null')); return r; });
+  };
+  try { return await send(); }
+  catch (e1) {
+    await new Promise(function (r) { setTimeout(r, 2000); });
+    try { return await send(); }
+    catch (e2) {
+      try {
+        var q = JSON.parse(localStorage.getItem('wh_embed_retry') || '[]');
+        q.push({ payload: payload, at: Date.now() });
+        while (q.length > 20) q.shift();
+        localStorage.setItem('wh_embed_retry', JSON.stringify(q));
+        console.warn('[whEmbedEntry] queued for retry after 2 failures:', e2 && e2.message);
+      } catch (_) { /* empty-catch-allow: storage blocked -> the entry stays unindexed, as before */ }
+      return null;
+    }
+  }
+}
+if (typeof window !== 'undefined') {
+  window.whEmbedEntry = whEmbedEntry;
+  // Drain the persisted retry queue once the page's client/keys exist (same lazy pattern as the
+  // hive-name reconciler). Items older than 7 days are dropped — a week-old index miss is better
+  // re-created by a fresh save than replayed blind.
+  (function _whDrainEmbedQueue() {
+    var tries = 0;
+    function attempt() {
+      tries++;
+      try {
+        var q = JSON.parse(localStorage.getItem('wh_embed_retry') || '[]');
+        if (!q.length) return;
+        if (typeof SUPABASE_URL !== 'undefined' && typeof SUPABASE_KEY !== 'undefined') {
+          localStorage.setItem('wh_embed_retry', '[]');
+          q.filter(function (it) { return (Date.now() - (it.at || 0)) < 7 * 86400000; })
+           .forEach(function (it) { whEmbedEntry(it.payload); });
+          return;
+        }
+      } catch (_) { /* empty-catch-allow: storage blocked -> nothing to drain */ return; }
+      if (tries < 8) rescheduleAttempt();
+    }
+    // Hoisted so the setTimeout sits OUTSIDE any loop's lookback window (the timeout_in_loop
+    // gate's documented pattern): this is a bounded RETRY CHAIN (one timer at a time), and the
+    // .forEach four lines up made it read as N-timers-in-a-loop.
+    function rescheduleAttempt() { setTimeout(attempt, 1500); }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { setTimeout(attempt, 1200); });
+    else setTimeout(attempt, 1200);
+  })();
+}
+
+// ── whModalHistory — hardware Back closes the modal, not the page (T42, 2026-09-02) ─────────────
+// Walked live at 390: opening inventory's Add-Part modal pushed NO history entry, so the phone's
+// Back gesture (a constant on Android) NAVIGATED AWAY from the whole page — a worker mid-form lost
+// the task and their input with one natural gesture; no page on the platform wired Back to modal
+// state. The contract: a modal calls .opened(closeFn) when it shows (pushes one history entry) and
+// .closed() when dismissed by its own controls (consumes that entry via history.back()); the
+// popstate listener closes the top modal instead of leaving the page. Back with no modal open
+// behaves exactly as before. Re-entrancy safe: the explicit-close path pops the stack BEFORE
+// calling history.back(), so the resulting popstate finds nothing to close.
+(function () {
+  if (typeof window === 'undefined') return;
+  var _stack = [];
+  window.whModalHistory = {
+    opened: function (closeFn) {
+      if (typeof closeFn !== 'function') return;
+      _stack.push(closeFn);
+      try { history.pushState({ whModal: _stack.length }, ''); } catch (_) { /* empty-catch-allow: history may be sandboxed; Back then simply leaves as before */ }
+    },
+    closed: function () {
+      if (!_stack.length) return;           // popstate path already consumed it (or never opened)
+      _stack.pop();
+      try { history.back(); } catch (_) { /* empty-catch-allow: worst case a spare entry remains */ }
+    },
+  };
+  window.addEventListener('popstate', function () {
+    var fn = _stack.pop();
+    if (fn) { try { fn(); } catch (_) { /* empty-catch-allow: a broken closeFn must not break Back */ } }
+  });
+})();
+// ── C11 AUTO-WIRE (critic deepwalk, 2026-09-02): BUILT-BUT-BARELY-CALLED, closed. ─────────────
+// whReconcileHiveName existed and worked, but only hive.html ever called it — every OTHER page
+// still trusted localStorage.wh_hive_name blindly, which is exactly how the walked receipt
+// happened (Bryan saw 'Lucena Pharmaceutical' chrome over his own correctly-scoped Baguio data
+// after a shared-device divergence). Rather than 23 per-page call sites, utils wires it ONCE:
+// after load, when the page's own getDb() singleton exists, reconcile — same best-effort
+// contract (a failed read changes nothing; it must never be the reason a page breaks). The
+// short retry loop covers pages that create the client a beat after DOMContentLoaded.
+if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+  (function _whAutoReconcileHiveName() {
+    var tries = 0;
+    function attempt() {
+      tries++;
+      try {
+        if (window._whSupabaseClient && localStorage.getItem('wh_hive_name')) {
+          whReconcileHiveName(window._whSupabaseClient);
+          return;
+        }
+      } catch (_) { /* empty-catch-allow: storage blocked → nothing to reconcile */ }
+      if (tries < 8) setTimeout(attempt, 1000);   // client not up yet — retry ~8s then give up
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { setTimeout(attempt, 800); });
+    else setTimeout(attempt, 800);
+  })();
+}
+
 function whWorker() {
   try {
     return localStorage.getItem('wh_last_worker')    // canonical (the only worker key ever written)
@@ -2861,24 +3858,29 @@ if (typeof window !== 'undefined' && !window.WH_STATUS_ENUMS) {
         return el.offsetParent !== null || el.getClientRects().length > 0;
       });
     }
+    // The modal's OWN close path, shared by Escape AND the hardware-Back contract below:
+    // prefer the page's close fn, else click its close control, else strip open-state classes.
+    function closeViaOwnPath() {
+      if (typeof opts.onClose === 'function') { opts.onClose(); return; }
+      // No explicit close fn: click the modal's OWN close control so the page's
+      // real close logic runs (removes .open / adds .hidden / clears state) — no
+      // sticky inline display:none that would break the next open. Fall back to
+      // adding .hidden only if the modal has no close affordance.
+      var closer = null;
+      try { closer = modalEl.querySelector('[data-wh-close],[aria-label="Close" i],.modal-close,.sheet-close'); }
+      catch (_) { /* empty-catch-allow: querySelector case-flag unsupported */ }
+      if (closer) closer.click();
+      // No close affordance (e.g. a sheet whose content — and its Close button —
+      // is injected on open, opened here while empty): close by the overlay's OWN
+      // open-state class so it can't get stuck open. .sheet-overlay opens via
+      // `.open`; some modals via `.active`/`.show`; display-toggle modals via
+      // `.hidden`. Strip the open-state classes AND add .hidden — universal close.
+      else { modalEl.classList.remove('open', 'active', 'show'); modalEl.classList.add('hidden'); }
+    }
     function onKey(e) {
       if (e.key === 'Escape') {
         e.stopPropagation();
-        if (typeof opts.onClose === 'function') { opts.onClose(); return; }
-        // No explicit close fn: click the modal's OWN close control so the page's
-        // real close logic runs (removes .open / adds .hidden / clears state) — no
-        // sticky inline display:none that would break the next open. Fall back to
-        // adding .hidden only if the modal has no close affordance.
-        var closer = null;
-        try { closer = modalEl.querySelector('[data-wh-close],[aria-label="Close" i],.modal-close,.sheet-close'); }
-        catch (_) { /* empty-catch-allow: querySelector case-flag unsupported */ }
-        if (closer) closer.click();
-        // No close affordance (e.g. a sheet whose content — and its Close button —
-        // is injected on open, opened here while empty): close by the overlay's OWN
-        // open-state class so it can't get stuck open. .sheet-overlay opens via
-        // `.open`; some modals via `.active`/`.show`; display-toggle modals via
-        // `.hidden`. Strip the open-state classes AND add .hidden — universal close.
-        else { modalEl.classList.remove('open', 'active', 'show'); modalEl.classList.add('hidden'); }
+        closeViaOwnPath();
       } else if (e.key === 'Tab') {
         var f = focusables();
         if (!f.length) return;
@@ -2892,6 +3894,30 @@ if (typeof window !== 'undefined' && !window.WH_STATUS_ENUMS) {
       keyBound = true;
       lastFocus = document.activeElement;
       document.addEventListener('keydown', onKey, true);
+      // ── MODALS TRAP BACK (critic walk T42, 2026-09-02) ─────────────────────────────
+      // Opening a modal pushed NO history entry, so the phone hardware-Back gesture —
+      // a constant on Android — navigated away from the WHOLE page mid-form (walked
+      // live: inventory Add-Part → Back → landed on logbook, task and input gone).
+      // Contract: each activation pushes one history entry; popstate closes the top
+      // open modal via its OWN close path (same logic as Escape); a close by any
+      // other means (X, backdrop, save) consumes the entry with a suppressed back.
+      // Back now dismisses the modal, and only exits the page when nothing is open.
+      try {
+        window.__whModalBackStack = window.__whModalBackStack || [];
+        if (!window.__whModalBackWired) {
+          window.__whModalBackWired = true;
+          window.addEventListener('popstate', function () {
+            if (window.__whModalBackSuppress) { window.__whModalBackSuppress = false; return; }
+            var stk = window.__whModalBackStack;
+            if (stk && stk.length) {
+              var top = stk.pop();
+              try { top.close(); } catch (_) { /* empty-catch-allow: close best-effort */ }
+            }
+          });
+        }
+        history.pushState({ whModalBack: true }, '');
+        window.__whModalBackStack.push({ el: modalEl, close: closeViaOwnPath });
+      } catch (_) { /* empty-catch-allow: history unavailable → behavior degrades to pre-contract */ }
       // Respect a page that already autofocused something inside the modal
       // (e.g. dayplanner focuses #m-title) — only grab focus if it's outside.
       setTimeout(function() {
@@ -2904,6 +3930,17 @@ if (typeof window !== 'undefined' && !window.WH_STATUS_ENUMS) {
     function deactivate() {
       if (!keyBound) return;
       keyBound = false;
+      // T42 back-contract bookkeeping: if THIS modal's history entry is still on top
+      // (it closed via X / backdrop / save, not via Back), consume the entry with a
+      // suppressed back so the next hardware-Back exits the page, not a ghost state.
+      try {
+        var stk = window.__whModalBackStack;
+        if (stk && stk.length && stk[stk.length - 1].el === modalEl) {
+          stk.pop();
+          window.__whModalBackSuppress = true;
+          history.back();
+        }
+      } catch (_) { /* empty-catch-allow: history unavailable */ }
       try { document.removeEventListener('keydown', onKey, true); } catch (_) { /* empty-catch-allow */ }
       try { if (lastFocus && lastFocus.focus) lastFocus.focus(); } catch (_) { /* empty-catch-allow */ }
     }
@@ -3017,6 +4054,15 @@ if (typeof window !== 'undefined' && !window.WH_STATUS_ENUMS) {
       withInput = false,
       inputLabel = '',
       inputDefault = '',
+      /* T170/T50 (2026-08-27): HONOUR THE INPUT TYPE. index.html asks for a NEW PASSWORD via
+         whPrompt with inputType:'password' - and this helper read only okLabel, cancelLabel,
+         inputLabel and defaultValue, so the option was silently dropped and the field rendered
+         type="text". Measured live: the typed password sat on screen in the clear, on a
+         platform whose station tablet is shared by a whole crew. An unsupported option that
+         throws nothing is the worst kind: the caller asked for masking, believed they got it,
+         and nothing anywhere said otherwise. Allow-listed rather than passed through, so a
+         caller cannot inject an arbitrary type attribute. */
+      inputType = 'text',
       onResolve,
     } = opts;
 
@@ -3052,7 +4098,9 @@ if (typeof window !== 'undefined' && !window.WH_STATUS_ENUMS) {
           : ''
         ) +
         (withInput
-          ? '<input id="' + escHtml(inputId) + '" type="text" ' +
+          ? '<input id="' + escHtml(inputId) + '" type="' +
+            (['text','password','email','number','tel','url'].indexOf(String(inputType)) >= 0 ? inputType : 'text') + '" ' +
+          (String(inputType) === 'password' ? 'autocomplete="new-password" ' : '') +
             (inputLabel ? '' : 'aria-label="' + escHtml(message) + '" ') +
             'value="' + escHtml(inputDefault || '') + '" ' +
             'style="width:100%;padding:9px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.12);' +
@@ -3128,6 +4176,12 @@ if (typeof window !== 'undefined' && !window.WH_STATUS_ENUMS) {
         cancelLabel:  opts.cancelLabel || 'Cancel',
         withInput:    true,
         inputLabel:   opts.inputLabel || '',
+        /* T170 (2026-08-27): FORWARD THE TYPE. _mount honours inputType, but whPrompt built an
+           explicit object and never passed it on - so a caller asking for inputType:'password'
+           had the option dropped at THIS boundary, one level above where it appeared to be
+           ignored. Two places had to agree before masking could work and only one did, which is
+           why the first fix changed nothing and looked like it had. */
+        inputType:    opts.inputType || 'text',
         inputDefault: opts.defaultValue || '',
         onResolve:    resolve,
       });
@@ -4022,3 +5076,109 @@ if (typeof window !== 'undefined') {
     Object.keys(_whPolls).forEach(function (k) { clearInterval(_whPolls[k]); delete _whPolls[k]; });
   });
 }
+
+// whPrimaryCta — the platform's ONE primary-conversion entry point (Trajectory T1)
+// ─────────────────────────────────────────────
+// Born from a dead CTA: the landing page's sticky "Get Early Access" bar was an <a href="#join">
+// that ANOTHER script had marked inert, so on a phone the page's most prominent button did
+// nothing at all — and 790 green gates never noticed, because every CTA oracle checked that the
+// element EXISTS, not that tapping it changes anything. Every primary CTA now routes through this
+// one function so the promise is uniform: the primary action IS the signup.
+//   source : short slug naming the entry point ('sticky' | 'hero' | 'nav' | 'mobile-menu' | …).
+//            Recorded to sessionStorage + GA4 so conversion attribution is measurable per door.
+//   ev     : the click event when called from onclick (so the anchor fallback href never fires).
+// Mode switch (one-edit revisit, decided with Ian 2026-08-24): window.WH_CONVERSION_MODE
+//   'direct'   (default) → open the real sign-UP modal where it exists (index), else deep-link
+//                          to index.html?signup=1 — the account is the product's front door.
+//   'waitlist' → the pre-launch behavior: scroll to the #join email block.
+function whPrimaryCta(source, ev) {
+  if (ev && typeof ev.preventDefault === 'function') ev.preventDefault();
+  var src = String(source || 'unknown');
+  // wh_signup_source: CANONICAL key (storage_key_registry.json) — written here, read by
+  // index.html submitSignUp into the GA4 signup_completed event. No allow-marker on purpose:
+  // a marker within 200 chars EXEMPTS the setItem from the key-consistency count and turned
+  // this write invisible (get-without-set false drift, caught by the gate 2026-08-24).
+  try { sessionStorage.setItem('wh_signup_source', src); } catch (_) { /* empty-catch-allow: private mode */ }
+  try { if (window.gtag) window.gtag('event', 'primary_cta_click', { event_category: 'conversion', source: src }); } catch (_) { /* empty-catch-allow: analytics best-effort */ }
+  var mode = window.WH_CONVERSION_MODE || 'direct';
+  if (mode === 'waitlist') {
+    var join = document.getElementById('join');
+    if (join) { join.scrollIntoView({ behavior: 'smooth', block: 'start' }); return; }
+    window.location.href = 'index.html#join';
+    return;
+  }
+  if (typeof window.openSignUp === 'function') { window.openSignUp(ev || null); return; }
+  // Not on index (no modal here): carry the intent through the deep link the resolver honors.
+  window.location.href = 'index.html?signup=1';
+}
+if (typeof window !== 'undefined') window.whPrimaryCta = whPrimaryCta;
+
+// whAuthRequiredToast — a sign-in refusal whose remedy is CLICKABLE (Trajectory T1)
+// ─────────────────────────────────────────────
+// Replaces the dead-end pattern measured on marketplace 2026-08-23: eight gated actions each
+// showed a transient "Sign in to save items" toast with NO way to sign in from it — the refusal
+// named the remedy and offered no door. This card offers both doors (sign in / create account)
+// and carries ?return= so the interrupted intent survives the auth crossing.
+// Self-contained on purpose: NEITHER whToast nor whBanner exists platform-wide (utils.js:667),
+// so this builds its own DOM instead of assuming a host the page does not have.
+//   action : what the person was trying to do, in their words ('save items', 'send an inquiry').
+//   opts.allowSignup : default true; false renders only the sign-in door (rare: invite-only flows).
+//   opts.returnTo    : where to land after auth; defaults to the CURRENT page + params + hash so
+//                      "come back to what I was doing" is the promise, not the home page.
+// Duration discipline: refusals with remedies must outlive a glance (the 0ms-toast lesson) —
+// this stays 30s or until dismissed/clicked, and Escape closes it (focus is NOT trapped: it is a
+// status card, not a modal).
+function whAuthRequiredToast(action, opts) {
+  opts = opts || {};
+  var allowSignup = opts.allowSignup !== false;
+  var returnTo = opts.returnTo || (window.location.pathname.split('/').pop() || 'index.html') + window.location.search + window.location.hash;
+  var ret = encodeURIComponent(returnTo);
+  var esc = (typeof window.escHtml === 'function') ? window.escHtml : function (s) {
+    return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; });
+  };
+  var old = document.getElementById('wh-auth-toast');
+  if (old) old.remove();
+  var card = document.createElement('div');
+  card.id = 'wh-auth-toast';
+  card.setAttribute('role', 'status');
+  card.setAttribute('aria-live', 'polite');
+  card.style.cssText = 'position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:1200;'
+    + 'width:min(420px,calc(100vw - 24px));background:rgba(22,32,50,0.98);border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27),0.4);'
+    + 'border-radius:var(--wh-radius-lg, 16px);padding:14px 16px;box-shadow:0 12px 40px rgba(0,0,0,0.5);font-size:0.85rem;color:rgba(255,255,255,0.92);';
+  card.innerHTML =
+    '<div style="display:flex;align-items:flex-start;gap:10px;">'
+    + '<div style="flex:1;line-height:1.5;">Sign in to ' + esc(action) + '. '
+    + (allowSignup ? '<span style="color:rgba(255,255,255,0.75);">New here? An account is free.</span>' : '')
+    + '</div>'
+    + '<button type="button" data-wh-auth-close aria-label="Close" style="background:none;border:none;color:rgba(255,255,255,0.8);cursor:pointer;font-size:1.05rem;line-height:1;min-width:44px;min-height:44px;margin:-10px -8px -10px 0;">&times;</button>'
+    + '</div>'
+    + '<div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap;">'
+    + '<a href="index.html?signin=1&return=' + ret + '" style="display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:8px 18px;border-radius:var(--wh-radius, 12px);background:var(--wh-orange,#F7A21B);color:var(--wh-navy,#162032);font-weight:700;text-decoration:none;">Sign in</a>'
+    + (allowSignup
+      ? '<a href="index.html?signup=1&return=' + ret + '" style="display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:8px 18px;border-radius:var(--wh-radius, 12px);background:rgba(var(--wh-orange-rgb, 247, 162, 27),0.12);border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27),0.45);color:var(--wh-orange-text,#FFC65C);font-weight:700;text-decoration:none;">Create a free account</a>'
+      : '')
+    + '</div>';
+  document.body.appendChild(card);
+  var timer = setTimeout(function () { card.remove(); }, 30000);
+  function _close() { clearTimeout(timer); card.remove(); document.removeEventListener('keydown', _onKey); }
+  function _onKey(e) { if (e.key === 'Escape') _close(); }
+  card.querySelector('[data-wh-auth-close]').addEventListener('click', _close);
+  document.addEventListener('keydown', _onKey);
+  return card;
+}
+if (typeof window !== 'undefined') window.whAuthRequiredToast = whAuthRequiredToast;
+
+// whSignInWall — the ONE way a page bounces an unauthenticated caller (Trajectory T2)
+// ─────────────────────────────────────────────
+// Measured 2026-08-24 (T2's first probe): a learn-article reader tapping "Open the Logbook"
+// landed on index.html?signin=1 — modal open (the door exists), but the LOGBOOK intent was
+// gone: ~30 per-page identity gates each hand-rolled the redirect and none carried ?return=,
+// so after auth every one of them dumped the person on the dashboard instead of the page they
+// asked for. index.html's resolver + both submit paths already honor ?return= (T1); this
+// helper is the missing writer side. One function, so the return contract is written once.
+function whSignInWall() {
+  var here = (window.location.pathname.split('/').pop() || 'index.html')
+    + window.location.search + window.location.hash;
+  window.location.href = 'index.html?signin=1&return=' + encodeURIComponent(here);
+}
+if (typeof window !== 'undefined') window.whSignInWall = whSignInWall;

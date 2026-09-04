@@ -683,7 +683,7 @@ Walked the buy path (browse -> View a listing). **REAL defect, and a bad one on 
 
 **FIXED CENTRALLY** in `utils.js` (same shared-chrome home + the same two overlay classes as the Q2 guard): opening pushes ONE history entry; `popstate` closes the overlay instead of navigating; a page-initiated close (X / Esc / backdrop) consumes the entry so history stays balanced. **Live-verified all three ways** - overlay+Back closes and STAYS on the page · page-close leaves no stray entry · **and with NO overlay open Back still navigates normally** (the regression that would have mattered most, explicitly tested).
 
-**★INSTRUMENT TRAP CAUGHT (would have shipped a fake 100%):** the first JA3 build reported **0/0 = "100%"**. `repr(pattern)` showed the word-boundary escapes had become literal **BACKSPACE (``)** characters when written through a Python heredoc - the regex compiled fine and matched NOTHING. Same class as `feedback_python_heredoc_eats_js_regex_boundaries`. Rewritten without them: **JA3 = 7/7 = 100%**, ratcheted with the baseline WRITTEN. **Rule added: when a NEW dim reads 0/0, print `repr(pattern)` before believing it.**
+**★INSTRUMENT TRAP CAUGHT (would have shipped a fake 100%):** the first JA3 build reported **0/0 = "100%"**. `repr(pattern)` showed the word-boundary escapes had become literal **BACKSPACE (`\b`)** characters when written through a Python heredoc - the regex compiled fine and matched NOTHING. Same class as `feedback_python_heredoc_eats_js_regex_boundaries`. Rewritten without them: **JA3 = 7/7 = 100%**, ratcheted with the baseline WRITTEN. **Rule added: when a NEW dim reads 0/0, print `repr(pattern)` before believing it.**
 
 `STATE: 97 dims / 32 classes. Parity doc 97 / lens 89 + 8 exempt / spec 97. sw.js v173.`
 
@@ -811,7 +811,7 @@ Ran the whole suite after 17 edge-fn edits + 2 migrations + shared-chrome change
 
 **★THEN FAULT INJECTION CAUGHT MY OWN GATE LYING.** `--selftest` passed and the gate was green, so I tried to break it on purpose: removed the DAILY ceiling from `_shared/rate-limit.ts` - **exit 0, MISSED.** Cause: `if "limitPerDay" not in src` is a SUBSTRING test, and `"limitPerDay" in "limitPerDayXX"` is True. **A test whose self-test only asserts the happy path proves nothing.** Rewrote with word-boundary regexes over 4 daily-ceiling symbols, then re-injected 3 distinct regressions - **daily-ceiling renamed / day_count dropped / export removed: all 3 CAUGHT**, restores green.
 
-`This is the 5th instrument this session that looked right and was wrong (naive detector ·  backspace regex · wrong-surface probe · hive-scoped tag matcher · substring contract test). The rule earned: a NEW gate's number is not trustworthy until you have broken the thing it guards and watched it fail.`
+`This is the 5th instrument this session that looked right and was wrong (naive detector · \b backspace regex · wrong-surface probe · hive-scoped tag matcher · substring contract test). The rule earned: a NEW gate's number is not trustworthy until you have broken the thing it guards and watched it fail.`
 
 ### §13.18 · LOOP 20 — applied the loop-19 rule to JA1, and the sweep it triggered found the COMPASS itself mis-weighted
 

@@ -8,7 +8,7 @@
   <meta name="description" content="Seller dashboard for the free WorkHive marketplace. Manage listings, reply to buyer inquiries, and track your analytics." />
   <meta property="og:title" content="Seller Dashboard: WorkHive Marketplace" />
   <meta property="og:image" content="https://workhiveph.com/brand_assets/og-social.png" />
-  <link rel="canonical" href="https://workhiveph.com/workhive/marketplace-seller.html" />
+  <link rel="canonical" href="https://workhiveph.com/marketplace-seller.html" />
   <!-- capture: marketplace_listing_v1 (form + upload) -->
   <!-- dashboard-allow: marketplace seller dashboard; reads v_marketplace_sellers_truth. -->
   <!-- Standard: WorkHive Marketplace Seller Score (platform-internal listing-quality composite, 0-100). -->
@@ -319,7 +319,12 @@
          what buyers see. The same silence was measured on four other surfaces; the moderation queue
          was fixed first and this is the shape it proved. -->
     <p class="ps-next" style="margin:0.75rem 0 0;font-size:0.75rem;opacity:0.8;line-height:1.5;">
-      When you post a listing it goes live to buyers straight away, and 10% of its price is HELD from
+      <!-- T68 (critic walk, 2026-09-02): this said "goes live to buyers straight away" — but the
+           moderation guard forbids self-publishing (a listing goes live only after WorkHive review,
+           verified live in T34), and sellers were meeting 'Draft: Pending Review' right after copy
+           promised immediacy. The promise now matches the enforced flow. -->
+      When you post a listing it goes into a quick WorkHive review, then live to buyers - you'll see
+      it as "Pending Review" until then. 10% of its price is HELD from
       the credits below, not spent: the hold comes back in full if it does not sell, and goes to your
       buyer if it does. Taking a listing down releases its hold immediately. Editing your profile or
       certifications changes what buyers see on every listing you have, and a verification you request
@@ -410,21 +415,21 @@
 
   <!-- Tabs -->
   <div class="tab-bar" role="tablist">
-    <button class="tab-btn active" data-tab="listings" role="tab" aria-selected="true">
+    <button class="tab-btn active" data-tab="listings" role="tab" aria-selected="true" id="tab-listings" aria-controls="content-area">
       <span class="ic ic-list" aria-hidden="true"></span>
       <span class="lbl">Listings</span>
       <span class="tab-count" id="badge-listings">0</span>
     </button>
-    <button class="tab-btn" data-tab="inquiries" role="tab" aria-selected="false">
+    <button class="tab-btn" data-tab="inquiries" role="tab" aria-selected="false" id="tab-inquiries" aria-controls="content-area">
       <span class="ic ic-message" aria-hidden="true"></span>
       <span class="lbl">Inquiries</span>
       <span class="tab-count red" id="badge-inquiries">0</span>
     </button>
-    <button class="tab-btn" data-tab="analytics" role="tab" aria-selected="false" aria-label="Analytics"><!-- D1 U5: label hidden at mobile → needs aria-label (button-name) -->
+    <button class="tab-btn" data-tab="analytics" role="tab" aria-selected="false" aria-label="Analytics" id="tab-analytics" aria-controls="content-area"><!-- D1 U5: label hidden at mobile → needs aria-label (button-name) -->
       <span class="ic ic-analytics" aria-hidden="true"></span>
       <span class="lbl">Analytics</span>
     </button>
-    <button class="tab-btn" data-tab="services" role="tab" aria-selected="false" aria-label="Services"><!-- service-hailing provider console (SERVICE_HAILING_ROADMAP.md P3) -->
+    <button class="tab-btn" data-tab="services" role="tab" aria-selected="false" aria-label="Services" id="tab-services" aria-controls="content-area"><!-- service-hailing provider console (SERVICE_HAILING_ROADMAP.md P3) -->
       <span class="ic ic-maintenance" aria-hidden="true"></span>
       <span class="lbl">Services</span>
       <span class="tab-count" id="badge-services">0</span>
@@ -440,7 +445,12 @@
   </div>
 
   <!-- Content -->
-  <div id="content-area" class="item-list"></div>
+  <!-- T125 (2026-08-27): ONE panel, many tabs. Every tab renders into this same container,
+     so the correct ARIA shape is a single role="tabpanel" that each tab aria-controls,
+     with aria-labelledby moved to whichever tab is currently selected (switchTab does
+     that). Pointing tabs at per-tab ids would have been wrong here - the ids that look
+     like panels (stat-draft, badge-draft) are STAT COUNTERS, not panels. -->
+<div id="content-area" class="item-list" role="tabpanel" aria-labelledby="tab-listings" tabindex="0"></div>
   <div id="seller-load-more-wrap" class="hidden" style="margin-top:0.25rem;padding-bottom:1rem;">
     <button onclick="loadMoreSeller()" style="width:100%;padding:0.75rem;border-radius:0.5rem;font-size:0.875rem;font-weight:600;background:rgba(247,162,27,0.1);color:var(--wh-orange-text);border:1px solid rgba(247,162,27,0.3);cursor:pointer;min-height:44px;" data-i="loadmore">Load More</button>
   </div>
@@ -533,7 +543,8 @@
   </form>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
+<script src="browser-floor.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
 <script src="utils.js"></script>
 <script>
   // listener-cleanup-allow: static HTML page — listeners die with page nav; render-scoped listeners attach to elements removed in the same render cycle
@@ -692,6 +703,29 @@
         ${_seller?.kyb_verified
           ? `<span class="badge-kyb"><span class="ic ic-check" aria-hidden="true"></span>ID Verified</span>`
           : `<span class="badge-unverified">Verification Pending</span>`}`;
+      // T98 (2026-08-25): tier progression was ILLEGIBLE — the chip named the tier but never
+      // what advances it, so a seller could not plan toward Silver. The thresholds are per-hive
+      // knobs (a hive can adjust them), so read the REAL values via service_knob rather than
+      // hardcoding the platform defaults; the sentence appears only when both reads land.
+      if (tier !== 'gold') {
+        (async () => {
+          try {
+            const hv = _seller?.hive_id || null;
+            const [sv, gv] = await Promise.all([
+              db.rpc('service_knob', { p_hive: hv, p_key: 'tier_silver_sales' }),
+              db.rpc('service_knob', { p_hive: hv, p_key: 'tier_gold_sales' }),
+            ]);
+            const silver = Number(sv?.data), gold = Number(gv?.data);
+            if (!isFinite(silver) || !isFinite(gold)) return;
+            const nextName = tier === 'bronze' ? 'Silver' : 'Gold';
+            const nextN = tier === 'bronze' ? silver : gold;
+            const note = document.createElement('div');
+            note.style.cssText = 'font-size:0.68rem;opacity:0.75;margin-top:0.3rem;';
+            note.textContent = `${nextName} at ${nextN} sales to distinct buyers (Silver ${silver} · Gold ${gold}).`;
+            badgesEl.appendChild(note);
+          } catch (_) { /* empty-catch-allow: the progression note is best-effort; the chip stands */ }
+        })();
+      }
     }
 
     /* Pre-fill Messenger input + preview from existing profile */
@@ -1052,7 +1086,12 @@
       const held  = numOrNull(row?.reserved);
       const total = numOrNull(row?.total);
       const known = v => v !== null && isFinite(v);
-      const peso = n => '₱' + Number(n).toLocaleString('en-PH', { maximumFractionDigits: 0 });
+      // T133 (2026-08-26): Number(undefined) is NaN, so an absent earnings figure printed "₱NaN" on a
+  // seller's own dashboard. whFmtPeso prints a gap for absent and ₱0 for a real zero — the difference
+  // between "you earned nothing" and "we could not read it", which matters most to the person paid.
+  const peso = n => (typeof whFmtPeso === 'function')
+    ? whFmtPeso(n, { decimals: 0 })
+    : '₱' + Number(n).toLocaleString('en-PH', { maximumFractionDigits: 0 });
       // the gap character spelled the way utils.js spells it, so the Arc-P displayed-em-dash
       // ratchet stays at 0 while the reader still sees a dash
       const pesoOrGap = v => known(v) ? peso(v) : '\u2014';
@@ -1196,6 +1235,16 @@
       removed:   `<span class="meta-chip red">Removed</span>`,
       sold:      `<span class="meta-chip blue">Sold</span>`,
     };
+    // C12 seller-side (critic walk T55, 2026-09-02): review latency was INVISIBLE - listings sat
+    // 'Pending Review' for 43 and 71 days (P23k parked) with no age voice, no expectation, no
+    // reassurance. The chip now carries the wait, and an aged draft says plainly that the wait is
+    // long, that the listing is safe, and that editing keeps its place. Deliberately NO invented
+    // SLA ('reviews take 2 days') - only what is true.
+    const _draftAgeDays = (item) => Math.floor((Date.now() - new Date(item.created_at).getTime()) / 86400000);
+    const _draftChip = (item) => {
+      const d = _draftAgeDays(item);
+      return `<span class="meta-chip yellow">Draft: Pending Review${d >= 1 ? ` · ${e(String(d))}d waiting` : ''}</span>`;
+    };
 
     area.innerHTML = visible.map(item => `
       <div class="listing-item ${e(item.status)}" data-id="${e(item.id)}">
@@ -1208,12 +1257,16 @@
           <div class="li-info">
             <div class="li-title">${e(item.title)}</div>
             <div class="li-meta">
-              ${statusChip[item.status] || ''}
+              ${item.status === 'draft' ? _draftChip(item) : (statusChip[item.status] || '')}
               <span class="meta-chip gold">${e(fmtPrice(item.price))}</span>
               <span class="meta-chip">${e(item.section)}</span>
               <span class="meta-chip">${e(item.category || 'Other')}</span>
               <span class="meta-chip">${e(timeAgo(item.created_at))}</span>
             </div>
+            ${item.status === 'draft' && _draftAgeDays(item) >= 7 ? `
+            <div style="margin-top:0.5rem;padding:0.5rem 0.65rem;border-radius:0.5rem;background:rgba(250,204,21,0.08);border:1px solid rgba(250,204,21,0.25);font-size:0.75rem;color:rgba(255,255,255,0.85);line-height:1.4;">
+              In review for ${e(String(_draftAgeDays(item)))} days - longer than it should be. Your listing is safe and stays in the queue; editing it keeps its place.
+            </div>` : ''}
             ${item.status === 'removed' && item.moderation_reason ? `
             <div role="alert" style="margin-top:0.5rem;padding:0.5rem 0.65rem;border-radius:0.5rem;background:rgba(248,113,113,0.10);border:1px solid rgba(248,113,113,0.30);">
               <div style="font-size:0.7rem;font-weight:700;color:var(--wh-red-text);margin-bottom:0.15rem;">Not approved${item.moderated_at ? ' · ' + e(timeAgo(item.moderated_at)) : ''}</div>
@@ -1285,7 +1338,17 @@
           </div>
           <div class="inq-listing">Re: ${e(listingTitle)}</div>
           <div class="inq-message">${e(inq.message)}</div>
-          <div class="inq-contact">Contact buyer: <strong>${e(inq.buyer_contact || 'Not provided')}</strong></div>
+          <!-- T170 (2026-08-26): the inbox rendered EVERY buyer's phone/email at once, so one
+               screenshot of this list - the platform's own share culture, T125 - hands a stranger
+               the contact details of every person who ever asked about a listing. The seller still
+               needs the number the moment they act, so hide it behind a tap rather than masking it
+               permanently: zero cost when you are calling one buyer, no leak when you are not. -->
+          <div class="inq-contact">Contact buyer:
+            ${inq.buyer_contact
+              ? `<button type="button" class="btn-sm" data-action="reveal-contact" data-contact="${e(inq.buyer_contact)}"
+                   style="min-height:44px;padding:0 10px;border-radius:8px;border:1px solid rgba(255,255,255,0.18);background:rgba(255,255,255,0.06);color:inherit;cursor:pointer;font-size:0.72rem;">Show contact</button>`
+              : `<strong>Not provided</strong>`}
+          </div>
           ${inq.reply_text ? `<div style="font-size:0.72rem;color:var(--wh-green);padding:0.4rem 0.625rem;background:rgba(74,222,128,0.06);border-radius:0.4rem;margin-bottom:0.5rem;">Your reply: ${e(inq.reply_text)}</div>` : ''}
           ${!isReplied ? `
             <div class="reply-area">
@@ -1302,6 +1365,15 @@
       btn.addEventListener('click', () => {
         if (btn.dataset.action === 'reply') handleReply(btn.dataset.id);
         if (btn.dataset.action === 'close') handleCloseInquiry(btn.dataset.id);
+        // T170: reveal ONE buyer's contact, in place, on demand. Replacing the button with
+        // the value keeps it copyable and makes it obvious which buyer it belongs to.
+        if (btn.dataset.action === 'reveal-contact') {
+          const val = btn.dataset.contact || '';
+          const holder = document.createElement('strong');
+          holder.textContent = val;
+          holder.setAttribute('translate', 'no');
+          btn.replaceWith(holder);
+        }
       });
     });
   }
@@ -1613,6 +1685,21 @@
         .eq('seller_name', WORKER_NAME);
       if (error) { if (typeof status !== 'undefined' && status) error._httpStatus = status; throw error; }
 
+      /* T134 (2026-08-26): REPLACING an image orphaned the old one, exactly as deleting a listing
+         did - same public bucket, same permanent URL, and this path runs far more often than a
+         delete. Only remove when the URL actually CHANGED and the old object is ours (a seller may
+         paste an external URL). Best-effort after the row is updated: cleanup must never cost the
+         seller their edit. Shares the delete path's key derivation. */
+      try {
+        const _old = String((_editItem && _editItem.image_url) || '');
+        const _marker = '/' + STORAGE_BUCKET + '/';
+        const _i = _old.indexOf(_marker);
+        if (_old && _old !== imageUrl && _i >= 0) {
+          const _key = decodeURIComponent(_old.slice(_i + _marker.length).split('?')[0]);
+          if (_key) await db.storage.from(STORAGE_BUCKET).remove([_key]);
+        }
+      } catch (_imgErr) { console.warn('replaced-image cleanup skipped:', _imgErr && _imgErr.message); }
+
       writeAuditLog('edit_listing', 'marketplace_listings', id, title,
         { category, price, new_status: 'draft' });
 
@@ -1645,6 +1732,21 @@
     try {
       const { error } = await db.from('marketplace_listings').delete().eq('id', id).eq('seller_name', WORKER_NAME);
       if (error) { if (typeof status !== 'undefined' && status) error._httpStatus = status; throw error; }
+      /* T134/T164 (2026-08-26): DELETE THE PHOTO TOO. Deleting the row left the uploaded image in
+         the marketplace-listings bucket forever - and that bucket is PUBLIC, so the picture stayed
+         reachable by URL after the seller believed they had removed the listing. "This cannot be
+         undone" was true of the row and quietly false of the image. Derive the object key from the
+         public URL we minted at upload (bucket/<uuid>.jpg); best-effort AFTER the row is gone, so a
+         storage hiccup can never block the delete the person asked for. */
+      try {
+        const _u = String(item.image_url || '');
+        const _marker = '/' + STORAGE_BUCKET + '/';
+        const _i = _u.indexOf(_marker);
+        if (_i >= 0) {
+          const _key = decodeURIComponent(_u.slice(_i + _marker.length).split('?')[0]);
+          if (_key) await db.storage.from(STORAGE_BUCKET).remove([_key]);
+        }
+      } catch (_imgErr) { console.warn('listing image cleanup skipped:', _imgErr && _imgErr.message); }
       writeAuditLog('delete_listing', 'marketplace_listings', id, item.title,
         { prev_status: item.status });
       showToast('Listing deleted.', 'success');
@@ -1711,6 +1813,10 @@
       const active = btn.dataset.tab === tab;
       btn.classList.toggle('active', active);
       btn.setAttribute('aria-selected', active ? 'true' : 'false');
+      /* T125: the panel must say WHICH tab currently labels it, or a screen reader
+         announces the same heading no matter which tab is open. */
+      if (active && btn.id) { const _p = document.getElementById('content-area');
+        if (_p) _p.setAttribute('aria-labelledby', btn.id); }
     });
     const filterRow = document.getElementById('listing-filter');
     if (filterRow) filterRow.style.display = tab === 'listings' ? 'flex' : 'none';
@@ -1802,18 +1908,64 @@
       // decides whether to OFFER the control; the guard (mig 46) is the enforcement.
       const done = mine.filter(j => SVC_FINISHED.includes(j.status)).slice(0, 8);
       let ratedIds = new Set();
+      /* T35 (2026-08-27): WHAT WAS I ACTUALLY PAID. service_payments was INSERTED by
+         marketplace.html and read by NOTHING - no page, no view, no edge function. The row is not
+         idle (guard_settle_requires_payment consumes it server-side to gate settlement), but its
+         human content reached no one: amount_paid, how they paid, the GCash reference, and
+         variance_reason - the sentence a payer TYPES to explain paying something other than the
+         agreed figure. All 4 rows in the table carry one, and the provider on the receiving end of
+         an unexpected amount could not read the explanation written FOR them, on the one card that
+         reports their finished work and showed no money at all.
+         ★THE DATABASE ALREADY EXPECTED THIS READER: policy service_payments_read grants SELECT to
+         the client, to marketplace admins, and to the matched provider via
+         matched_provider_id IN my_service_provider_ids(). The access was designed; the UI to use
+         it was never built. Same fetch shape as the ratings above, same degrade-quietly posture -
+         a payment that cannot be read must not blank the finished-jobs list. */
+      let payByReq = new Map();
       if (done.length) {
         try {
           const { data: rvs } = await db.from('marketplace_reviews').select('request_id')
             .in('request_id', done.map(j => j.id)).eq('direction', 'provider_to_client').limit(50);
           ratedIds = new Set((rvs || []).map(r => r.request_id));
         } catch (_) { /* empty-catch-allow: the rate control degrades to shown; the guard still refuses a duplicate */ }
+        /* T105 (2026-08-27): BROWSER PERMISSION IS NOT A SUBSCRIPTION. The push card below renders
+           only while Notification.permission !== 'granted', so the moment permission is granted it
+           disappears forever - and nothing ever checked that a push_subscriptions ROW exists. Those
+           are two different facts. A subscription is lost routinely (the browser rotates the
+           endpoint, the service worker is replaced, the upsert failed, the row was cleared) and
+           permission stays 'granted' through all of it, so the provider is shown NOTHING while
+           believing they will "hear new hails with this tab closed". The table is written by this
+           page and read by nobody, which is how the gap survived. Measured: 0 rows exist today.
+           Read separately from the card so a failed read cannot masquerade as "not subscribed" -
+           null means UNKNOWN, and an unknown never accuses the provider of being unsubscribed. */
+        try {
+          // canonical-allow: the seller's own finished-job cards are the ONLY reader of
+          // service_payments (marketplace.html writes it; nothing else selects it), so a
+          // v_service_payments_truth wrapper would have exactly one consumer and add a layer without
+          // adding a shared contract. Revisit the moment a second surface needs these columns.
+          const { data: pays } = await db.from('service_payments')
+            .select('request_id, amount_paid, method, gcash_ref, variance_reason')
+            .in('request_id', done.map(j => j.id)).limit(50);
+          payByReq = new Map((pays || []).map(p => [p.request_id, p]));
+        } catch (_) { /* empty-catch-allow: the card falls back to its pre-payment shape */ }
+      }
+      let pushRowKnown = null;      // null = could not tell; true/false = measured
+      if (typeof svcPushSupported === 'function' && svcPushSupported() && _authUid) {
+        try {
+          // canonical-allow: an existence probe on the CALLER'S OWN row (eq auth_uid, limit 1) to tell
+          // "subscribed" from "could not tell" — it reads no business figure, so there is nothing for a
+          // truth view to make canonical. This page is also the only reader; it upserts the same table
+          // a few hundred lines below.
+          const { data: subs, error: subErr } = await db.from('push_subscriptions')
+            .select('id').eq('auth_uid', _authUid).limit(1);
+          if (!subErr) pushRowKnown = !!(subs && subs.length);
+        } catch (_) { /* empty-catch-allow: unknown stays unknown, and unknown accuses nobody */ }
       }
       const badge = document.getElementById('badge-services');
       // distinct JOBS, matching the list below it: the feed carries one row per (request x provider
       // identity), so a person with two qualifying identities had the tab badge counting one hail twice
       if (badge) badge.textContent = String(new Set(feed.map(f => f.request_id)).size);
-      renderSvcConsole(area, provs, feed, jobs, done, ratedIds, disputed, closed);
+      renderSvcConsole(area, provs, feed, jobs, done, ratedIds, disputed, closed, payByReq, pushRowKnown);
       /* A quote price is WORK, not a keystroke: the provider adds up materials, travel and hours
          before typing it. Measured 2026-08-05 -- typed 3750, reloaded, and the box came back empty,
          while the buyer's half-written hail (wh_view_marketplace.html_draft_svchail) and the
@@ -1914,7 +2066,15 @@
       availability: 'offline'
     }).select('id');
     if (error) { showToast(whWriteError(error, 'Couldn\'t register your hive as a provider. Nothing was saved.'), 'error'); return; }
-    if (!data || !data.length) { showToast('Registration didn\'t save - please try again', 'error'); return; }
+    /* T176 (2026-08-27): unconfirmed, not failed — the same class as the hail in marketplace.html.
+       An empty data with no error means the row may well exist and only the read-back was refused,
+       and "try again" would register a SECOND provider profile. Both registration paths (hive and
+       freelancer) carried the identical line. Reload is the safe instruction: if it landed, they
+       see it. */
+    if (!data || !data.length) {
+      showToast('Your registration may have gone through - we could not confirm it. Reload this page before registering again.', 'error');
+      return;
+    }
     showToast('Your hive is now a service company. Go Online to receive jobs');
     loadServices();
   }
@@ -1939,7 +2099,15 @@
       availability: 'offline'
     }).select('id');
     if (error) { showToast(whWriteError(error, 'Couldn\'t register you as a provider. Nothing was saved.'), 'error'); return; }
-    if (!data || !data.length) { showToast('Registration didn\'t save - please try again', 'error'); return; }
+    /* T176 (2026-08-27): unconfirmed, not failed — the same class as the hail in marketplace.html.
+       An empty data with no error means the row may well exist and only the read-back was refused,
+       and "try again" would register a SECOND provider profile. Both registration paths (hive and
+       freelancer) carried the identical line. Reload is the safe instruction: if it landed, they
+       see it. */
+    if (!data || !data.length) {
+      showToast('Your registration may have gone through - we could not confirm it. Reload this page before registering again.', 'error');
+      return;
+    }
     showToast('You\'re a provider now - go Online to receive jobs');
     loadServices();
   }
@@ -1976,16 +2144,46 @@
   }
   async function svcWalletHtml(provId, provName) {
     const e = escHtml;
-    let bal = null, lines = [];
+    let bal = null, held = null, lines = [], personTotal = null;
     try {
       const { data } = await db.rpc('provider_credit_balance', { p_provider_id: provId });
       bal = (data == null) ? null : Number(data);
+      /* T94 (2026-08-27): what is HELD, which the balance above does not subtract. Listing credits
+         are reserved against live listings (credit_reservations) and are not spendable - this page
+         says so at listing time, "holds Pxx in credits", and then showed a wallet figure that
+         included them. seller_credit_balance already returns available/reserved/total; only
+         `reserved` is taken, because the headline total must keep coming from
+         provider_credit_balance, which distinguishes a person-owned provider from a hive-owned one
+         (seller_credit_balance is person-keyed, so swapping it would change WHICH ACCOUNT a
+         hive-owned card reports - a second money defect in place of the first). */
+      try {
+        const { data: sb } = await db.rpc('seller_credit_balance', { p_seller: WORKER_NAME });
+        const row = Array.isArray(sb) ? sb[0] : sb;
+        held = (row && row.reserved != null) ? Number(row.reserved) : null;
+        /* T94 (2026-08-27): capture the PERSON's total too, purely to detect one case.
+           provider_credit_balance delegates to person_credit_balance when the provider is
+           person-owned, so when these two agree the headline is the PERSON's money while the
+           ledger below is filtered to the PROVIDER account - two different accounts stacked in
+           one card, which is why a seller adding up the lines gets a different number. Nothing
+           is re-sourced here; the mismatch is only NAMED. */
+        personTotal = (row && row.total != null) ? Number(row.total) : null;
+      } catch (_) { /* empty-catch-allow: the wallet still renders without the held figure */ }
       // Engine view, not the Fuel table (arc §1: the Dashboard never reads Fuel raw). The view
       // re-asserts the own-account boundary; the balance itself still comes from the RPC above.
       const led = await db.from('v_service_credit_ledger_truth').select('entry_type, amount, note, created_at')
         .eq('account_type', 'provider').eq('account_id', provId)
-        .order('created_at', { ascending: false }).order('id').limit(3);
-      lines = led.data || [];
+        /* T68 (2026-08-27): FETCH ONE MORE THAN IS SHOWN, so the card can tell whether it is
+           showing everything. This read was .limit(3) and the list rendered as three bare entries
+           with no heading - while the BALANCE above it is SUM(ledger) over ALL rows via
+           provider_credit_balance(). Today no provider has more than 3 entries so the cap is
+           invisible; the moment one has four, the lines stop reconciling with the total and nothing
+           on screen explains the gap. A seller checking their own money would be looking at a
+           silent slice ([[feedback_a_row_cap_is_not_pagination]]). Peeking a fourth row costs
+           nothing and turns a silent cap into a stated one. */
+        .order('created_at', { ascending: false }).order('id').limit(4);
+      const _all = led.data || [];
+      lines = _all.slice(0, 3);
+      lines._more = _all.length > 3;
     } catch (_) { /* empty-catch-allow: wallet card degrades to the top-up form alone */ }
     /* The provider's OWN filed-but-unverified top-ups. Read separately so a failure here costs the
        receipt, never the wallet balance above it.
@@ -2010,12 +2208,43 @@
       '<span style="font-size:1.05rem;font-weight:800;color:' + (bal != null && bal < 0 ? 'var(--wh-orange-text)' : 'inherit') + ';">' +
       (bal == null ? '-' : '₱' + bal.toLocaleString(undefined, { minimumFractionDigits: 2 })) + '</span></div>' +
       (bal != null && bal < 0 ? '<div style="font-size:0.75rem;color:var(--wh-orange-text);margin-top:0.2rem;">Negative balance: top up to keep accepting jobs.</div>' : '') +
+      /* T94 (2026-08-26): the UNIT stated at the boundary - the balance renders with a peso sign,
+         which is true only because of a rule the glass never stated: 1 WorkHive Credit = PHP1,
+         fixed (migration 20260803000012 forbids a rate column), spendable in WorkHive only, never
+         withdrawable. A money figure whose unit is by-convention is the units_at_boundary debt. */
+      '<div style="font-size:0.68rem;opacity:0.7;margin-top:0.2rem;">WorkHive Credits · 1 credit = ₱1, fixed · spendable in WorkHive only, not withdrawable</div>' +
+      /* T94: held credits are already spoken for. Shown only when there ARE some - a "reserved ₱0"
+         on every wallet is noise, and a card people stop reading is worse than one line shorter. */
+      (held != null && held > 0
+        ? '<div style="font-size:0.72rem;color:var(--wh-orange-text);margin-top:0.25rem;">'
+          + whFmtPeso(held) + ' of this is reserved against your live listings, so it cannot be spent '
+          + 'until they sell or you delist them.</div>'
+        : '') +
       (lines.length ? '<div style="font-size:0.72rem;opacity:0.85;margin-top:0.4rem;">' +
+        /* T68 (2026-08-27): NAME WHAT THIS LIST IS. Three unlabelled amounts sitting under a
+           balance read as the whole story - and the balance is SUM(ledger) over EVERY entry,
+           via provider_credit_balance(). A seller checking their own money deserves to know
+           whether they are looking at all of it. */
+        '<span style="opacity:0.7;">' + (lines._more ? 'Latest 3 entries' : 'Credit activity')
+          + ':</span> ' +
         /* A ledger line whose amount did not arrive used to read "commission +₱0" — a statement that
            the entry moved nothing, which is the most misleading thing a ledger can say. Absent now
            shows a gap and carries no sign; a real 0 still shows ₱0. */
         lines.map(l => e(l.entry_type) + ' ' + (l.amount == null ? '\u2014'
-            : ((Number(l.amount) >= 0 ? '+' : '') + whFmtPeso(l.amount)))).join(' · ') + '</div>' : '') +
+            : ((Number(l.amount) >= 0 ? '+' : '') + whFmtPeso(l.amount)))).join(' · ')
+        + (lines._more ? '<span style="opacity:0.7;"> · earlier entries are not shown here</span>' : '')
+        /* T94: SAY SO WHEN THE TWO PANELS DESCRIBE DIFFERENT ACCOUNTS. A person-owned provider
+           sees a balance that is their personal spendable total above a list of this provider
+           account's movements, and the arithmetic does not close - which on a money surface
+           reads as an error in the product or in their own head. Naming it costs one line and
+           does not touch WHICH account either panel reports (that is the open account-shape
+           question, and changing it silently would be a second money defect in place of the
+           first). Shown only when the delegation is actually detected. */
+        + ((personTotal != null && bal != null && personTotal === bal)
+            ? '<div style="opacity:0.7;margin-top:0.25rem;">These are this seller account’s entries. '
+              + 'The balance above is your personal spendable total, so the two will not add up.</div>'
+            : '')
+        + '</div>' : '') +
       /* MONEY YOU SENT MUST NOT VANISH. Filing a top-up said "Filed." and then showed nothing: no
          pending row, no amount, no time. The provider had sent real pesos to a personal GCash number
          and the product gave them no receipt and no way to tell whether it was stuck -- while the queue
@@ -2131,7 +2360,10 @@
       // reason: the toast keeps the provider moving, the log is how we learn the Azure-billed OCR
       // endpoint is down or rejecting a format people actually use.
       console.error('[svcReadTopupReceipt] receipt OCR failed:', err);
-      showToast((err && err.message) || 'Could not read that receipt. Type the details instead.', 'error');
+      // T176 (2026-08-28): the raw message came FIRST, so the actionable sentence showed only
+      // when the error was empty. Fixed in marketplace.html's identical svcReadPayReceipt at the
+      // same time - the two are clones, and a fix to one of a pair is half a fix.
+      showToast('Could not read that receipt. Type the details instead.', 'error');
     } finally { if (input) input.value = ''; }
   }
   window.svcReadTopupReceipt = svcReadTopupReceipt;
@@ -2160,13 +2392,26 @@
         'error');
       return;
     }
-    if (!data || !data.length) { showToast('Couldn\'t file the top-up. Try again.', 'error'); return; }
-    showToast('Filed. Your credits appear once the founder verifies the transfer.');
+    /* T176 (2026-08-27): unconfirmed, not failed - and on a MONEY action that distinction is the
+       whole point. The comment above already says it about the error branch: "they either re-file
+       and create a duplicate, or assume it landed and wait for credits that are not coming. On a
+       money action that ambiguity IS the damage." This sibling branch still asserted failure.
+       Re-filing is not destructive - service_credit_topups_ref_unique is UNIQUE on gcash_ref, so
+       the same reference is refused - but the reader deserves to know the filing may have landed
+       rather than be told their money went nowhere. */
+    if (!data || !data.length) {
+      showToast('Your top-up may have been filed - we could not confirm it. Check your top-up history before filing this reference again.', 'error');
+      return;
+    }
+    // T93 (2026-08-26): the receipt now sets the WAIT expectation honestly - verification is a
+    // manual founder check with no SLA to promise, so name what IS checkable instead: the pending
+    // row in the Credit wallet card (the money-must-not-vanish fix renders it until decided).
+    showToast('Filed. Verification is a manual check by the founder, so it is not instant - your pending top-up stays listed in the Credit wallet card above until it is decided.');
     loadServices();
   }
   window.svcFileTopup = svcFileTopup;
 
-  function renderSvcConsole(area, provs, feed, jobs, done, ratedIds, disputed, closed) {
+  function renderSvcConsole(area, provs, feed, jobs, done, ratedIds, disputed, closed, payByReq, pushRowKnown) {
     const e = escHtml;
     let html = '';
     provs.forEach(p => {
@@ -2183,11 +2428,28 @@
         '</div>';
     });
 
-    // in-context push ask (G3): renders only while permission is undecided/denied
+    /* in-context push ask (G3). THREE states, not two (T105, 2026-08-27):
+         permission not granted            -> ask, as before;
+         granted but NO subscription row   -> say so - the provider believes alerts are on and
+                                              they are not, which is worse than never asking;
+         granted and a row exists (or we could not tell) -> nothing. */
+    const _pushSilentlyOff = svcPushSupported()
+      && Notification.permission === 'granted' && pushRowKnown === false;
     if (svcPushSupported() && Notification.permission !== 'granted') {
       html += '<div class="simple-card" style="margin-bottom:0.8rem;padding:0.8rem 1rem;display:flex;flex-wrap:wrap;gap:0.6rem;align-items:center;justify-content:space-between;">' +
         '<div style="font-size:0.8rem;">🔔 <strong>Hear new hails with this tab closed</strong><div style="opacity:0.8;font-size:0.74rem;margin-top:0.1rem;">Job offers arrive as notifications, like a ride-hailing driver app.</div></div>' +
         '<button type="button" onclick="_svcJobGuard(this,\'Turning on…\',function(){return svcEnablePush();})" style="' + _svcBtn + '">Enable job alerts</button></div>';
+    }
+    if (_pushSilentlyOff) {
+      html += '<div class="simple-card" style="margin-bottom:0.8rem;padding:0.8rem 1rem;'
+        + 'border:1px solid rgba(247,162,27,0.35);background:rgba(247,162,27,0.08);">'
+        + '<div style="font-size:0.8rem;">🔕 <strong>Job alerts are not actually on</strong>'
+        + '<div style="opacity:0.8;margin-top:0.15rem;">Your browser still allows notifications, but '
+        + 'we have no subscription for this device - so new hails will NOT reach you with this tab '
+        + 'closed. Turning them back on takes one tap.</div></div>'
+        + '<button type="button" onclick="_svcJobGuard(this,\'Turning on…\',function(){return svcEnablePush();})" '
+        + 'style="' + _svcBtn + 'margin-top:0.5rem;">Turn job alerts back on</button>'
+        + '</div>';
     }
     html += '<div id="svc-wallet-slot"></div>';
     /* Disputed work comes FIRST. It is not active and not finished, and it is the only state on this
@@ -2270,6 +2532,28 @@
           '<strong>' + e(j.catalog_name || j.custom_scope || 'Service job') + '</strong>' +
           '<div style="font-size:0.75rem;opacity:0.8;margin:0.2rem 0 0.5rem;">' + e(SVC_STATUS_LABEL[j.status] || j.status) +
           (j.client_worker_name ? ' · for ' + e(j.client_worker_name) : '') + '</div>' +
+          (function () {
+            /* T35: what the client actually paid, and - when it differs from the agreed figure -
+               the reason they typed to explain it. The variance line is the point of this block:
+               a provider seeing an unexpected amount had no way to read the sentence written for
+               them. Rendered as its own bordered note so it is not mistaken for the amount. */
+            const pay = payByReq && payByReq.get ? payByReq.get(j.id) : null;
+            if (!pay) return '';
+            const amt = (typeof whFmtPeso === 'function')
+              ? whFmtPeso(pay.amount_paid)
+              : '₱' + e(String(pay.amount_paid));
+            const how = pay.method ? ' · ' + e(String(pay.method)) : '';
+            const ref = pay.gcash_ref ? ' · ref ' + e(String(pay.gcash_ref)) : '';
+            return '<div style="font-size:0.78rem;margin:0 0 0.5rem;"><strong>' + amt + '</strong>'
+              + '<span style="opacity:0.75;">' + how + ref + '</span></div>'
+              + (pay.variance_reason
+                  ? '<div style="font-size:0.72rem;margin:0 0 0.5rem;padding:0.45rem 0.55rem;'
+                    + 'border-radius:var(--wh-radius-sm);background:rgba(247,162,27,0.10);'
+                    + 'border:1px solid rgba(247,162,27,0.28);">'
+                    + '<span style="opacity:0.8;">Why this amount:</span> '
+                    + e(String(pay.variance_reason)) + '</div>'
+                  : '');
+          })() +
           (rated
             ? '<span style="font-size:0.78rem;opacity:0.75;">✓ You rated this client</span>'
             : '<div id="svc-prate-' + e(j.id) + '" style="margin:0.3rem 0;"></div>' +
@@ -2554,9 +2838,15 @@
       // Scope is `/workhive/` because that is where the app lives and where sw.js's own notificationclick
       // navigates ([[feedback_workhive_url_prefix]]). The race gives the hang a voice: a worker that will
       // not activate now says so instead of leaving a dead button.
-      let reg = await navigator.serviceWorker.getRegistration('/workhive/');
+      // T44 (2026-08-25): the scope is DERIVED, not hardcoded. '/workhive/' is the LOCAL
+      // tester's prefix only — production serves the repo root, so the hardcoded
+      // '/workhive/sw.js' this used to register 404'd in prod and the push flow it was
+      // built to fix stayed broken exactly where it ships ([[feedback_workhive_url_prefix]]).
+      const _swRoot = (typeof whSwRoot === 'function') ? whSwRoot()
+        : (location.pathname.startsWith('/workhive/') ? '/workhive/' : '/');
+      let reg = await navigator.serviceWorker.getRegistration(_swRoot);
       if (!reg) {
-        reg = await navigator.serviceWorker.register('/workhive/sw.js', { scope: '/workhive/' });
+        reg = await navigator.serviceWorker.register(_swRoot + 'sw.js', { scope: _swRoot });
       }
       const activated = await Promise.race([
         navigator.serviceWorker.ready.then(function (r) { return r; }),

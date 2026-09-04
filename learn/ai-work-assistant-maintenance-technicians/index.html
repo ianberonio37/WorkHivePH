@@ -22,7 +22,7 @@
   <meta property="og:type" content="article" />
   <meta property="og:site_name" content="WorkHive" />
   <meta property="article:published_time" content="2026-05-17T00:00:00+08:00" />
-  <meta property="article:modified_time" content="2026-05-17T00:00:00+08:00" />
+  <meta property="article:modified_time" content="2026-08-24T00:00:00+08:00" />
   <meta property="article:author" content="WorkHive Editorial Team" />
   <meta property="article:section" content="Maintenance" />
 
@@ -45,7 +45,7 @@
         "author": { "@type": "Organization", "name": "WorkHive Editorial Team", "url": "https://workhiveph.com/" },
         "publisher": { "@id": "https://workhiveph.com/#organization" },
         "datePublished": "2026-05-17",
-        "dateModified": "2026-05-17",
+        "dateModified": "2026-08-24",
         "mainEntityOfPage": "https://workhiveph.com/learn/ai-work-assistant-maintenance-technicians/",
         "inLanguage": "en-PH",
         "articleSection": "Maintenance",
@@ -133,7 +133,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = { theme: { extend: { colors: {
@@ -270,7 +270,8 @@
     <nav class="flex items-center gap-6">
       <a href="/" class="nav-link">Home</a>
       <a href="/learn/" class="nav-link">Learn</a>
-      <a href="/#join" class="nav-link">Join the Hive</a>
+      <a href="/?signin=1" class="nav-link">Sign In</a>
+      <a href="/?signup=1" class="nav-link">Sign Up Free</a>
     </nav>
   </div>
 </header>
@@ -292,7 +293,7 @@
       <span class="opacity-40">·</span>
       <span>Published <time datetime="2026-05-17">17 May 2026</time></span>
       <span class="opacity-40">·</span>
-      <span>Updated <time datetime="2026-05-17">17 May 2026</time></span>
+      <span>Updated <time datetime="2026-08-24">24 Aug 2026</time></span>
       <span class="opacity-40">·</span>
       <span>10 min read</span>
     </div>
@@ -355,13 +356,13 @@
 
       <h2 id="tagalog-prompting">Filipino, English, and Taglish prompting</h2>
       <p>Most Philippine plant technicians think in Filipino or Taglish on the floor. Forcing English prompts produces worse results because the technician strips out the specific details that did not translate cleanly. Compare:</p>
-      <table>
+      <div data-table-scroll style="overflow-x:auto;-webkit-overflow-scrolling:touch;" role="region" aria-label="Scrollable table" tabindex="0"><table>
         <thead><tr><th>Forced English</th><th>Natural Taglish</th></tr></thead>
         <tbody>
           <tr><td>"Water leak observed at drain valve; corrective action initiated."</td><td>"May tagas sa drain valve ng tank 3, may bagong O-ring na inilagay pero tumutulo pa."</td></tr>
           <tr><td>"Motor overheating, investigation needed."</td><td>"Sobrang init ng motor ng Pump 7, halos hindi mahawakan, pero amps OK at vibration OK."</td></tr>
         </tbody>
-      </table>
+      </table></div>
       <p>The Taglish version gives the AI 3 more specific data points (which O-ring was replaced, that the leak persists, that the asset is on a specific tank). The AI gives a better answer because it has more to work with. The WorkHive AI Assistant accepts Filipino, English, and Taglish and responds in the same language you used.</p>
 
       <h2 id="worked-prompt">A worked plant-floor prompt</h2>
@@ -404,12 +405,12 @@ Want me to draft the logbook entry for this diagnosis?"
         <h4 aria-level="3">WorkHive AI Assistant runs on YOUR plant's data</h4>
         <p>Filipino, English, or Taglish. Reads your hive's logbook history, skill matrix, PM schedule, and asset register so answers are specific to your plant, not generic ChatGPT replies. Cites the senior technician whose entries it learned from. Free at the worker tier forever; ramps up to predictive features at Stage 3.</p>
         <a href="/assistant.html" class="cta-btn">Open the AI Assistant</a>
-        <p class="cta-secondary">No hive yet? <a href="/#join">Join WorkHive</a> first (free, takes 30 seconds).</p>
+        <p class="cta-secondary">No hive yet? <a href="/?signup=1">Join WorkHive</a> first (free, takes 30 seconds).</p>
       </div>
 
       <h2 id="vs-chatgpt">Why this is different from ChatGPT or Gemini</h2>
       <p>ChatGPT and Gemini are general-purpose AI assistants trained on the public internet. They are excellent at general knowledge, terrible at your plant's specifics. Compare what each can tell you about Pump P-204B from the worked example above:</p>
-      <table>
+      <div data-table-scroll style="overflow-x:auto;-webkit-overflow-scrolling:touch;" role="region" aria-label="Scrollable table" tabindex="0"><table>
         <thead><tr><th></th><th>ChatGPT / Gemini</th><th>WorkHive AI Assistant</th></tr></thead>
         <tbody>
           <tr><td>Knows what type of pump it is</td><td>Only if you describe it</td><td>Yes (asset register)</td></tr>
@@ -421,7 +422,7 @@ Want me to draft the logbook entry for this diagnosis?"
           <tr><td>Reads OEM manuals you uploaded</td><td>No (free tier)</td><td>Yes</td></tr>
           <tr><td>Updates as your team logs new entries</td><td>No</td><td>Yes (every entry trains it)</td></tr>
         </tbody>
-      </table>
+      </table></div>
       <p>Same underlying language models in many cases. Very different practical value because of context.</p>
 
       <h2 id="career-protection">The career-protection truth Filipino workers need to hear</h2>
@@ -518,11 +519,11 @@ Want me to draft the logbook entry for this diagnosis?"
 
 <footer class="py-10 border-t border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
   <div class="max-w-4xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">
-    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-05-17">17 May 2026</time></p>
+    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-08-24">24 Aug 2026</time></p>
     <div class="flex items-center gap-6">
       <a href="/" class="hover:text-white/60 transition-colors">Home</a>
       <a href="/#faq" class="hover:text-white/60 transition-colors">FAQ</a>
-      <a href="/#join" class="hover:text-white/60 transition-colors">Join the Hive</a>
+      <a href="/?signup=1" class="hover:text-white/60 transition-colors">Join the Hive</a>
     </div>
   </div>
 </footer>

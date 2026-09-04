@@ -1,0 +1,125 @@
+{
+  "_why": "T164: the erasure path the privacy policy promises. Pins each FK to auth.users to its ON DELETE action. A change in EITHER direction is a failure: CASCADE->SET NULL leaves personal data behind after a purge that reported success; SET NULL->CASCADE destroys the plant history the policy promised to retain. Update deliberately, with the reason.",
+  "columns": {
+    "public.agent_episodic_memory.auth_uid": {
+      "action": "SET NULL",
+      "not_null": false
+    },
+    "public.agent_memory.auth_uid": {
+      "action": "SET NULL",
+      "not_null": false
+    },
+    "public.asset_edges.auth_uid": {
+      "action": "SET NULL",
+      "not_null": false
+    },
+    "public.asset_nodes.auth_uid": {
+      "action": "SET NULL",
+      "not_null": false
+    },
+    "public.auth_session_events.auth_uid": {
+      "action": "SET NULL",
+      "not_null": false
+    },
+    "public.community_posts.auth_uid": {
+      "action": "SET NULL",
+      "not_null": false
+    },
+    "public.engineering_calcs.auth_uid": {
+      "action": "SET NULL",
+      "not_null": false
+    },
+    "public.hive_members.auth_uid": {
+      "action": "SET NULL",
+      "not_null": false
+    },
+    "public.inventory_items.auth_uid": {
+      "action": "SET NULL",
+      "not_null": false
+    },
+    "public.inventory_transactions.auth_uid": {
+      "action": "SET NULL",
+      "not_null": false
+    },
+    "public.logbook.auth_uid": {
+      "action": "SET NULL",
+      "not_null": false
+    },
+    "public.marketplace_inquiries.buyer_auth_uid": {
+      "action": "SET NULL",
+      "not_null": false
+    },
+    "public.mfa_enrollments.auth_uid": {
+      "action": "CASCADE",
+      "not_null": true
+    },
+    "public.platform_feedback.auth_uid": {
+      "action": "SET NULL",
+      "not_null": false
+    },
+    "public.pm_assets.auth_uid": {
+      "action": "SET NULL",
+      "not_null": false
+    },
+    "public.pm_completions.auth_uid": {
+      "action": "SET NULL",
+      "not_null": false
+    },
+    "public.push_subscriptions.auth_uid": {
+      "action": "CASCADE",
+      "not_null": true
+    },
+    "public.resume_documents.auth_uid": {
+      "action": "CASCADE",
+      "not_null": true
+    },
+    "public.resume_versions.auth_uid": {
+      "action": "CASCADE",
+      "not_null": true
+    },
+    "public.schedule_items.auth_uid": {
+      "action": "SET NULL",
+      "not_null": false
+    },
+    "public.service_credit_topups.payer_auth_uid": {
+      "action": "CASCADE",
+      "not_null": true
+    },
+    "public.service_providers.auth_uid": {
+      "action": "SET NULL",
+      "not_null": false
+    },
+    "public.service_requests.client_auth_uid": {
+      "action": "CASCADE",
+      "not_null": true
+    },
+    "public.service_voucher_redemptions.consumer_auth_uid": {
+      "action": "CASCADE",
+      "not_null": true
+    },
+    "public.skill_badges.auth_uid": {
+      "action": "SET NULL",
+      "not_null": false
+    },
+    "public.skill_exam_attempts.auth_uid": {
+      "action": "SET NULL",
+      "not_null": false
+    },
+    "public.skill_profiles.auth_uid": {
+      "action": "SET NULL",
+      "not_null": false
+    },
+    "public.voice_journal_entries.auth_uid": {
+      "action": "CASCADE",
+      "not_null": true
+    },
+    "public.worker_achievements.auth_uid": {
+      "action": "CASCADE",
+      "not_null": false
+    },
+    "public.worker_profiles.auth_uid": {
+      "action": "CASCADE",
+      "not_null": true
+    }
+  }
+}

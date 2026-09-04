@@ -124,6 +124,8 @@ During thermography inspections, make sure to follow proper lockout/tagout proce
 
 To integrate thermography into your plant's PM Scheduler, identify critical equipment and inspection points, and schedule regular thermography inspections. Make sure to also track and analyze results to identify trends and areas for improvement.
 
+**Keep reading:** [add vibration analysis on the same budget](https://workhiveph.com/learn/vibration-analysis-on-a-phone-budget/), or [get the asset register in order first](https://workhiveph.com/learn/building-asset-register-zero-budget/).
+
 ## Sources
 
 - [NETA](https://www.netaworld.org/), **Maintenance Testing Specifications (MTS)**: thermographic ΔT action criteria; and [NFPA 70B](https://www.nfpa.org/codes-and-standards), **Electrical Equipment Maintenance**.
@@ -132,4 +134,4 @@ To integrate thermography into your plant's PM Scheduler, identify critical equi
 - ISO 14224:2016 Condition monitoring and diagnostics of machines
 - SMRP CMRP BoK Section 4: Predictive Maintenance
 
-<!-- md-twin source-sha: 590f4df462547e0b -->
+<!-- md-twin source-sha: 9884c4a1934e24bc -->

@@ -10,7 +10,7 @@ By **WorkHive Editorial Team**
 ·
 Published 17 May 2026
 ·
-Updated 17 Aug 2026
+Updated 24 Aug 2026
 ·
 10 min read
 
@@ -110,7 +110,7 @@ The tool this guide is about
 
 Every shift entry in the WorkHive Logbook (run time, unplanned downtime reasons, units produced, defects) flows into Analytics as A × P × Q. Track per asset, per shift, per day. No spreadsheets, no SCADA, no per-user license. Free at the worker tier forever.
 
-No hive yet? [Join WorkHive](https://workhiveph.com/#join) first (free, takes 30 seconds).
+No hive yet? [Join WorkHive](https://workhiveph.com/?signup=1) first (free, takes 30 seconds).
 
 ## World-class versus Philippine plant reality
 
@@ -182,4 +182,4 @@ No. Utilization only measures how much time the equipment ran versus calendar ti
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 821e387f02545516 -->
+<!-- md-twin source-sha: e406c241f7a8c0bc -->

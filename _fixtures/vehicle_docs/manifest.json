@@ -1,0 +1,127 @@
+{
+ "note": "VD wave real-document fixtures. Binary sources (pdf/docx/xlsx) are gitignored; each entry's provenance names where the real document came from. fixture = the extracted TEXT the client would send (extraction_method says which instrument produced it \u2014 'pypdf-provisional' entries are re-anchored to the browser's PDF.js text during the VD walks). truth = hand-read BEFORE any extraction run.",
+ "fixtures": [
+  {
+   "id": "VD1-toyota-vios-page1",
+   "fixture": "toyota_vios_page1.txt",
+   "truth": "toyota_vios_page1.truth.json",
+   "source_pdf": "toyota_vios_my_maintenance_package.pdf",
+   "provenance": "https://www.toyota.com.my/content/dam/malaysia/price-list-maintenance-packages/vios/toyota-my-vios-maintenance-package-1-may-2022.pdf (Toyota Malaysia official, downloaded 2026-09-03; page 1 of 7; local test fixture, binary gitignored)",
+   "extraction_method": "pypdf-provisional",
+   "shape": "month/km ladder ('whichever comes first') + prose coolant interval split across lines + name-only parts/fluids price table"
+  },
+  {
+   "id": "VD2-nissan-leaf-pages11-12",
+   "fixture": "nissan_leaf_2019_pages11_12.txt",
+   "truth": "nissan_leaf_2019_pages11_12.truth.json",
+   "source_pdf": "nissan_leaf_2019_service_maintenance_guide.pdf",
+   "provenance": "https://owners.nissanusa.com/content/techpub/ManualsAndGuides/LEAF/2019/2019-LEAF-service-maintenance-guide.pdf (Nissan USA official, downloaded 2026-09-03; pages 11-12 of 44; local test fixture, binary gitignored)",
+   "extraction_method": "pypdf-provisional",
+   "shape": "EV guide, wrapped US prose, MILES intervals (pure-mi conversion + doc's-own-km-in-parens preference), fi/fl ligature splits, one-time factory-fill trap"
+  },
+  {
+   "id": "VD3-army-tm-cucv-pmcs",
+   "fixture": "army_tm_cucv_pmcs_pages47_49.txt",
+   "truth": "army_tm_cucv_pmcs_pages47_49.truth.json",
+   "source_pdf": "army_tm_9_2320_289_10_cucv_truck.pdf",
+   "provenance": "http://www.jatonkam35s.com/CUCVTechnicalmanuals/TM9-2320-289-10.pdf (US Army TM, public domain, 1986; pages 47-49 of 185; downloaded 2026-09-03)",
+   "extraction_method": "pypdf-provisional",
+   "shape": "messy 1986 OCR PMCS table, condition-coded (no km/mi) - NOISE FLOOR: the miner must extract nothing"
+  },
+  {
+   "id": "VD4-army-tm-cucv-20p-parts",
+   "fixture": "army_tm_cucv_20p_parts_pages46_47.txt",
+   "truth": "army_tm_cucv_20p_parts_pages46_47.truth.json",
+   "source_pdf": "army_tm_9_2320_289_20p_cucv_parts.pdf",
+   "provenance": "https://www.radionerds.com/images/3/36/TM_9-2320-289-20P.pdf (US Army TM parts catalog, public domain; pages 46-47 of 724; downloaded 2026-09-03)",
+   "extraction_method": "pypdf-provisional",
+   "shape": "OCR-fused SMR/CAGE/part-number columns - NOISE FLOOR for the token pass: no deterministic recovery, no fabrication"
+  },
+  {
+   "id": "VD5-royal-enfield-scram411",
+   "fixture": "royal_enfield_scram411_schedule_pages61_64.txt",
+   "truth": "royal_enfield_scram411_schedule_pages61_64.truth.json",
+   "source_pdf": "royal_enfield_scram411_owners_manual.pdf",
+   "provenance": "https://www.royalenfield.com/content/dam/royal-enfield/india/support/owners-manual/pdf/scram-411.pdf (Royal Enfield official, downloaded 2026-09-03; pages 61-64 of 110)",
+   "extraction_method": "pypdf-provisional",
+   "shape": "motorcycle km/months matrix (scrambled) + prose intervals incl. OCR digit-confusables (lO,OOO km) + trailing-preposition tasks"
+  },
+  {
+   "id": "VD6-mitsubishi-l300",
+   "fixture": "mitsubishi_l300_pages2_54.txt",
+   "truth": "mitsubishi_l300_pages2_54.truth.json",
+   "source_pdf": "mitsubishi_l300_sl_owners_manual_2022.pdf",
+   "provenance": "https://www.mitsubishi-motors.com.ph/content/dam/mitsubishi-motors-ph/images/owners-manual/SL%20Owner's%20Manual_2022.pdf (Mitsubishi Motors PH official, downloaded 2026-09-03; pages 2 + 54 of 65)",
+   "extraction_method": "pypdf-provisional",
+   "shape": "PH-market van, wrapped prose with number/unit split across lines, running-in one-time trap"
+  },
+  {
+   "id": "VD7-toyota-injected",
+   "fixture": "toyota_vios_page1_injected.txt",
+   "truth": "toyota_vios_page1_injected.truth.json",
+   "source_pdf": "toyota_vios_my_maintenance_package.pdf",
+   "provenance": "DERIVED from VD1's real text + one inserted injection line (documented in the truth); tests the sanitize rail on real ink",
+   "extraction_method": "pypdf-provisional+doctored",
+   "shape": "injection-doctored real document (BANANA class)"
+  },
+  {
+   "id": "VD8-nyc-tlc-roster",
+   "fixture": "nyc_fleet_list.csv",
+   "truth": "nyc_fleet_list.truth.json",
+   "source_pdf": null,
+   "provenance": "https://data.cityofnewyork.us/api/views/uuke-pkze/rows.csv (NYC Open Data, downloaded 2026-09-03)",
+   "extraction_method": "raw-csv",
+   "shape": "real fleet roster CSV - wrong-document noise floor"
+  },
+  {
+   "id": "VD9-montgomery-fleet-aggregate",
+   "fixture": "montgomery_fleet_equipment_inventory.csv",
+   "truth": "montgomery_fleet_equipment_inventory.truth.json",
+   "source_pdf": null,
+   "provenance": "https://data.montgomerycountymd.gov/api/views/93vc-wpdr/rows.csv (dataMontgomery, downloaded 2026-09-03)",
+   "extraction_method": "raw-csv",
+   "shape": "real fleet aggregate CSV - wrong-document noise floor"
+  },
+  {
+   "id": "VD1b-toyota-fulldoc-pdfjs",
+   "fixture": "toyota_vios_fulldoc_pdfjs.txt",
+   "truth": "toyota_vios_fulldoc_pdfjs.truth.json",
+   "source_pdf": "toyota_vios_my_maintenance_package.pdf",
+   "provenance": "same Toyota MY PDF as VD1, text extracted via pdfjs-dist 3.11.174 (the wizard's exact library/version) 2026-09-03 - the client-instrument re-anchor the manifest note requires",
+   "extraction_method": "pdfjs-3.11.174",
+   "shape": "space-joined page-lines (one giant line per page); ladder/tier noise floor + 3 prose recurrings across pages"
+  },
+  {
+   "id": "VD12-xlsx-parts",
+   "fixture": "hilux_parts_list.txt",
+   "truth": "hilux_parts_list.truth.json",
+   "source_pdf": null,
+   "provenance": "synthesized xlsx (openpyxl) with real Toyota Hilux OEM part numbers - proves the CLIENT SheetJS extraction path; real online xlsx unreachable via available tools (Socrata/CKAN refuse xlsx accessType, scribd login-walled, GitHub MCP unauthenticated)",
+   "extraction_method": "sheetjs-csv-flatten",
+   "shape": "comma-flattened spreadsheet - CSV-fragment noise guard"
+  },
+  {
+   "id": "VD13-docx-sop",
+   "fixture": "fleet_maintenance_sop.txt",
+   "truth": "fleet_maintenance_sop.truth.json",
+   "source_pdf": null,
+   "provenance": "synthesized docx (python-docx) with prose service intervals - proves the CLIENT mammoth extraction path",
+   "extraction_method": "mammoth-prose",
+   "shape": "prose intervals + one-time break-in trap"
+  }
+ ],
+ "walk_fixtures": [
+  {
+   "id": "VD10-image-only",
+   "file": "toyota_vios_page1_scanned.pdf",
+   "provenance": "DERIVED 2026-09-03: real Toyota page 1 rendered via pdftoppm -r 110 to PNG, wrapped as an image-only PDF (Pillow) - zero text layer, simulating a phone-photographed manual; the wizard must refuse honestly",
+   "phase": "walk (VD10)"
+  },
+  {
+   "id": "VD11-page-cap",
+   "file": "army_tm_9_2320_289_10_cucv_truck.pdf",
+   "provenance": "the full 185-page TM (already sourced) - the wizard's scoped-pages cap + honesty",
+   "phase": "walk (VD11)"
+  }
+ ]
+}

@@ -17,7 +17,17 @@ SELECT scope_item_id, worker_name, completed_at, hive_id, asset_id, auth_uid, 'd
 ROLLBACK;
 BEGIN;
 INSERT INTO pm_completions (scope_item_id, worker_name, completed_at, hive_id, asset_id, auth_uid, status)
-SELECT scope_item_id, worker_name, completed_at + interval '1 day', hive_id, asset_id, auth_uid, 'done' FROM _pm;
+-- ★THE FREE DAY MUST BE COMPUTED, NOT ASSUMED (fixed 2026-08-31). This read `completed_at +
+-- interval '1 day'` and took the refusal that came back as proof the invariant had broken. It had
+-- not: the fixture picks the first completion row, and that worker had completions on CONSECUTIVE
+-- days, so "tomorrow" was already taken and the dedup index refused it exactly as designed - the
+-- probe asserted a same-day clash while standing on one. Anchoring to this pair's LATEST completion
+-- makes the next day free by construction, whatever the seed data looks like.
+SELECT scope_item_id, worker_name,
+       (SELECT max(c.completed_at) FROM pm_completions c
+         WHERE c.scope_item_id = _pm.scope_item_id AND c.worker_name = _pm.worker_name)
+         + interval '1 day',
+       hive_id, asset_id, auth_uid, 'done' FROM _pm;
 SELECT 'next_day_accepted | ' || ((SELECT count(*) FROM pm_completions) = (SELECT n0 + 1 FROM _pm));
 ROLLBACK;
 SELECT 'restored | ' || ((SELECT count(*) FROM pm_completions) = (SELECT n0 FROM _pm));

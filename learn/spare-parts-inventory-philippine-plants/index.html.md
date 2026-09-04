@@ -10,7 +10,7 @@ By **WorkHive Editorial Team**
 ·
 Published 17 May 2026
 ·
-Updated 17 May 2026
+Updated 24 Aug 2026
 ·
 10 min read
 
@@ -97,7 +97,7 @@ The tool this guide is about
 
 Every SKU has a date-received field for FIFO, an ABC class auto-computed from usage value, and a reorder-point alert wired to the supervisor's dashboard. The data comes from your WorkHive Logbook entries automatically; no double-entry. Free at the worker tier forever.
 
-No hive yet? [Join WorkHive](https://workhiveph.com/#join) first (free, takes 30 seconds).
+No hive yet? [Join WorkHive](https://workhiveph.com/?signup=1) first (free, takes 30 seconds).
 
 ## Why this is the cheapest MTTR fix you can buy
 
@@ -157,4 +157,4 @@ No, not for plants with fewer than 1,000 SKUs. A clean spreadsheet or the free W
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 2d252e838e029e60 -->
+<!-- md-twin source-sha: 57d43254fec3c19a -->

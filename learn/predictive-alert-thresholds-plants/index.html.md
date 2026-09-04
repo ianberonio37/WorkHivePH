@@ -10,7 +10,7 @@ By **WorkHive Editorial Team**
 ·
 Published 17 May 2026
 ·
-Updated 17 May 2026
+Updated 24 Aug 2026
 ·
 7 min read
 
@@ -91,7 +91,7 @@ The tool this guide is about
 
 Define 3-tier thresholds per asset, name owners per tier, configure escalation timing, get the weekly silenced-alert report. Integrates with Predictive Maintenance, Logbook, and Asset Hub. Free at the worker tier; phone-call escalation via SMS/voice gateway unlocks at Stage 3.
 
-No hive yet? [Join WorkHive](https://workhiveph.com/#join) first (free, takes 30 seconds).
+No hive yet? [Join WorkHive](https://workhiveph.com/?signup=1) first (free, takes 30 seconds).
 
 ## Frequently asked questions
 
@@ -129,4 +129,4 @@ Start with vendor defaults (or ISO 10816 for vibration), but tune within 90 days
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 5481df9f45857820 -->
+<!-- md-twin source-sha: bfb662019a4da3fb -->

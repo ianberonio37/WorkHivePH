@@ -47,7 +47,7 @@ def defines_general_hidden(css: str) -> bool:
 
     `.action-card .ac-cta.hidden` is a descendant/compound selector and must NOT count: it only ever
     applied to one component's CTA, which is exactly why the general case went unnoticed."""
-    css = re.sub(r"/\*.*?\*/", " ", css, flags=re.S)          # strip comments (they mention .hidden)
+    css = re.sub(r"/\*(?![\"']).*?\*/", " ", css, flags=re.S)          # strip comments (they mention .hidden)
     for m in re.finditer(r"([^{}]+)\{", css):
         for sel in m.group(1).split(","):
             if sel.strip() == ".hidden":

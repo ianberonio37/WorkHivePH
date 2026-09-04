@@ -36,7 +36,7 @@ WORKER_EMAIL = "leandromarquez@auth.workhiveph.com"
 # HIVE is RESOLVED at runtime from the user's live hive_members row (test_identity pattern) —
 # a pinned UUID here rotted TWICE across reseeds (9b4eaeac → 636cf7e8 → deleted). The literal
 # below is only the last-resort fallback if the resolver itself fails.
-_HIVE_FALLBACK = "636cf7e8-431a-4907-8a9f-43dd4cc216d6"
+_HIVE_FALLBACK = "084c113b-99c0-45c6-a8e8-b4b8349da46d"
 def _resolve_hive() -> str:
     try:
         import sys as _s

@@ -57,7 +57,7 @@ def _resolve_hive() -> str:
         from test_identity import resolve_test_identity
         return resolve_test_identity("leandromarquez@auth.workhiveph.com").hive_id
     except Exception:
-        return "c19a6094-a0b7-44b4-b18d-05fdbcfe78fe"   # hive fallback (stale-known)
+        return "084c113b-99c0-45c6-a8e8-b4b8349da46d"   # hive fallback (stale-known)
 HIVE = _resolve_hive()
 CREDS = {"email": "leandromarquez@auth.workhiveph.com", "password": "test1234"}
 REPORT = ROOT / "ai_live_invoke_results.json"

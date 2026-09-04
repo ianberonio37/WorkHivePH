@@ -62,9 +62,31 @@ const readFields = (modalSel) => {
 };
 
 const run = async () => {
-  const browser = await chromium.launch();
-  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  let browser = await chromium.launch();
+  let ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
   await assertSignedIn(signIn(ctx, 'supervisor'));
+
+  /* ★ONE DEAD CONTEXT USED TO END THE WHOLE RUN (2026-08-28). The loop below opens a page per
+     target; when the context died mid-roster (project-manager V3, "Target page, context or browser
+     has been closed") the next newPage() threw and every REMAINING target went unmeasured - the run
+     reported five passes and a stack trace, which is why this prover sits unregistered. A prover
+     that cannot survive one bad surface grades the roster it happened to reach, and a partial
+     roster reported as a result is the skipped-partition problem wearing a crash for a costume.
+     revive() rebuilds the context and re-authenticates so the walk continues and the failure is
+     recorded against the ONE target that caused it. */
+  const revive = async () => {
+    try { await ctx.close(); } catch (_) { /* empty-catch-allow: already dead, that is why we are here */ }
+    // ★THE BROWSER DIES TOO, NOT ONLY THE CONTEXT. Reviving the context alone got two targets
+    // further and then threw "browser.newContext: Target page, context or browser has been closed"
+    // - the process itself was gone, most likely memory pressure after many contexts on this host.
+    // A revival that assumes the layer above it is healthy just moves the crash one target along.
+    if (!browser.isConnected()) {
+      try { await browser.close(); } catch (_) { /* empty-catch-allow: already gone */ }
+      browser = await chromium.launch();
+    }
+    ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
+    await assertSignedIn(signIn(ctx, 'supervisor'));
+  };
   const out = { origin: ORIGIN, targets: [] };
 
   const list = TARGETS.filter((t) => !t.signedOut && !t.unreachable && !t.notDrivable
@@ -72,7 +94,14 @@ const run = async () => {
 
   for (const t of list) {
     const rec = { page: t.page, view: t.view, modal: t.modal };
-    const page = await ctx.newPage();
+    let page;
+    try {
+      page = await ctx.newPage();
+    } catch (e) {
+      // the context died on the PREVIOUS target - rebuild and keep walking the roster
+      await revive();
+      page = await ctx.newPage();
+    }
     // ★TWO WAYS THIS WATCHER OVER-TRIGGERED, both of which would have ungraded the whole roster.
     // (1) It counted every mutation since page creation, including the ones a page makes on LOAD, when
     //     the question is only what TYPING caused — so the window is opened immediately before typing.

@@ -31,16 +31,16 @@ const skip = (r: any) => r.status === 404 || r.status === 0;
 
 test.describe('agent-memory-store — Phase 7 of AGENTIC_RAG_ROADMAP.md', () => {
 
-  test('missing op → 400', async ({ whPage }) => {
+  test('missing op → 400', async ({ whPage, hiveId }) => {
     await whPage.goto(HOST); await waitForPageReady(whPage);
-    const r = await invoke(whPage, { hive_id: '586fd158-42d1-4853-a406-64a4695e71c4' });
+    const r = await invoke(whPage, { hive_id: hiveId });
     test.skip(skip(r), 'fn not deployed');
     expect(r.status).toBe(400);
   });
 
-  test('invalid op → 400', async ({ whPage }) => {
+  test('invalid op → 400', async ({ whPage, hiveId }) => {
     await whPage.goto(HOST); await waitForPageReady(whPage);
-    const r = await invoke(whPage, { op: 'delete', hive_id: '586fd158-42d1-4853-a406-64a4695e71c4' });
+    const r = await invoke(whPage, { op: 'delete', hive_id: hiveId });
     test.skip(skip(r), 'fn not deployed');
     expect(r.status).toBe(400);
   });
@@ -52,18 +52,31 @@ test.describe('agent-memory-store — Phase 7 of AGENTIC_RAG_ROADMAP.md', () => 
     expect(r.status).toBe(400);
   });
 
-  test('recall happy path: returns { ok, memories: [] } shape', async ({ whPage }) => {
+  test('recall happy path: returns { ok, memories: [] } shape', async ({ whPage, hiveId }) => {
     await whPage.goto(HOST); await waitForPageReady(whPage);
-    const r = await invoke(whPage, { op: 'recall', hive_id: '586fd158-42d1-4853-a406-64a4695e71c4', limit: 5 });
+    const r = await invoke(whPage, { op: 'recall', hive_id: hiveId, limit: 5 });
     test.skip(skip(r), 'fn not deployed');
     expect(r.status).toBe(200);
     expect(r.body.ok).toBe(true);
     expect(Array.isArray(r.body.memories)).toBe(true);
   });
 
-  test('store rejects payload with no memories', async ({ whPage }) => {
+  // ★MEASURED 2026-08-27: THIS EXPECTATION DOES NOT MATCH THE FUNCTION'S CONTRACT, and the mismatch
+  // predates the hiveId fixture. `invoke` sends the ANON key (window.SUPABASE_KEY is never assigned by
+  // any page, so the fallback is always used), and agent-memory-store answers an anon caller with
+  // 401 {"error":"Sign-in required.","code":"auth_required"} BEFORE it ever looks at `memories`.
+  // Verified hive-independent: the live hive and the reseeded-away one both return exactly that 401,
+  // so the id in the body changes nothing. The test therefore asserts a VALIDATION refusal [400,500]
+  // against an endpoint that issues an AUTH refusal first, and it can only ever have passed if it was
+  // reaching a different code path than the one its name describes.
+  //
+  // The fix is a decision, not an edit: either sign the call (send the session JWT so it reaches the
+  // no-valid-memories branch this test is named for) or accept 401 as the honest answer for an anon
+  // caller and rename the test. Left failing rather than widened to [400, 401, 500] - a green made by
+  // accepting whatever arrives is exactly how an oracle stops being one.
+  test('store rejects payload with no memories', async ({ whPage, hiveId }) => {
     await whPage.goto(HOST); await waitForPageReady(whPage);
-    const r = await invoke(whPage, { op: 'store', hive_id: '586fd158-42d1-4853-a406-64a4695e71c4', memories: [] });
+    const r = await invoke(whPage, { op: 'store', hive_id: hiveId, memories: [] });
     test.skip(skip(r), 'fn not deployed');
     // Returns 500 with no-valid-memories error per the edge fn contract
     expect([400, 500]).toContain(r.status);

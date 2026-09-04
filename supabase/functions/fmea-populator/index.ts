@@ -134,6 +134,25 @@ function clusterByRootCause(rows: LogEntry[]): Map<string, LogEntry[]> {
 
 // ─── Build the per-cluster prompt payload ────────────────────────────────────
 
+// T80 (2026-08-26): what an AI-drafted FMEA row rests on, in terms a reviewer can act on -
+// how many entries, which root cause, and the window they span, so the engineer can pull the
+// same set up in the logbook and judge whether the failure mode follows from it.
+function fmeaGroundingNote(rootCause: string, entries: LogEntry[]): string {
+  const times = entries
+    .map(e => e.created_at)
+    .filter(Boolean)
+    .map(t => String(t).slice(0, 10))
+    .sort();
+  const span = times.length
+    ? (times[0] === times[times.length - 1]
+        ? ` on ${times[0]}`
+        : ` between ${times[0]} and ${times[times.length - 1]}`)
+    : "";
+  const n = entries.length;
+  return `AI draft from ${n} corrective logbook ${n === 1 ? "entry" : "entries"} `
+    + `(root cause: ${rootCause || "unclassified"})${span}. Review against those entries before approving.`;
+}
+
 function buildClusterPayload(
   rootCause: string,
   entries: LogEntry[],
@@ -270,7 +289,7 @@ serveObserved("fmea-populator", async (req) => {
       const _rq = await checkRouteRateLimit(db, hive_id || "", "fmea-populator");
       // Denies ONLY when an explicit hive_route_quotas row exists (rq.per_route), so this stays
       // a no-op until an admin sets a cap - while always counting for attribution.
-      if (_rq.per_route && !_rq.allowed) return routeRateLimitedResponse(corsHeaders, "fmea-populator", _rq.cap);
+      if (_rq.per_route && !_rq.allowed) return routeRateLimitedResponse(corsHeaders, "fmea-populator", _rq.cap, _rq.retry_after_seconds);
     } catch { /* empty-catch-allow: per-surface quota bookkeeping must never fail a real request */ }
     const rl = await checkAIRateLimit(db, hive_id, RATE_LIMIT_PER_HOUR);
     if (!rl.allowed) {
@@ -381,6 +400,14 @@ serveObserved("fmea-populator", async (req) => {
         detection:         v.detection,
         source:            "ai_logbook",
         ai_confidence:     v.confidence,
+        // T80 (2026-08-26): the row said "from AI logbook scan, 72% conf" and nothing about WHAT
+        // it read. An engineer is asked to APPROVE this - and approval is what makes it count in
+        // v_fmea_truth and drive maintenance strategy - so "check the claim" has to be possible.
+        // The function holds the exact cluster; it simply never recorded it. Same lesson AH15
+        // learned about citations: the one thing a citation is FOR is letting a reader verify.
+        // Written as the window and root cause a person can actually filter the logbook by, not
+        // raw uuids, which no one can check by reading.
+        notes:             fmeaGroundingNote(rootCause, entries),
         // approved_by / approved_at left NULL: engineer must validate before
         // the row appears in v_fmea_truth and counts in dashboards.
       });

@@ -105,9 +105,18 @@ def columns_by_table(cols):
 
 
 def value_scale(rel, col):
-    """-> (n_nonnull, n_le_one, n_gt_one, max) or None. The empirical half of the oracle."""
+    """-> (n_nonnull, n_fraction, n_gt_one, max) or None. The empirical half of the oracle.
+
+    ★FRACTION EVIDENCE IS THE OPEN INTERVAL (0,1), not (0,1] (2026-08-31). The original filter
+    counted a value of EXACTLY 1 as fraction-scale evidence and produced a false MIXED-SCALE
+    accusation against hive_readiness.data_quality_score: its producer provably writes integer
+    points 0-100 (LEAST(100, ...)::int), and the flagged '1' was a legitimate 1-point score on a
+    hive whose fixture data is older than the 30-day window. A value of exactly 1 is valid in BOTH
+    scales (1% whole, or 100% as a fraction) and therefore proves nothing alone — while every value
+    strictly inside (0,1) is non-integer and CAN only be a fraction. The oracle must decline what
+    it cannot know rather than guess (its own stated rule)."""
     try:
-        rows = OT.psql("""select count(%s), count(*) filter (where %s > 0 and %s <= 1),
+        rows = OT.psql("""select count(%s), count(*) filter (where %s > 0 and %s < 1),
                                  count(*) filter (where %s > 1), coalesce(max(%s), 0)
                             from public.%s""" % ('"%s"' % col, '"%s"' % col, '"%s"' % col,
                                                  '"%s"' % col, '"%s"' % col, '"%s"' % rel))
@@ -158,7 +167,7 @@ def analyse():
 
         if mixed:
             verdict = "MIXED-SCALE"
-            detail = ("%d value(s) in (0,1] AND %d value(s) > 1 in one column (max %g): fractions and "
+            detail = ("%d non-integer value(s) in (0,1) AND %d value(s) > 1 in one column (max %g): fractions and "
                       "whole numbers stored together, so two callers can read one column under two "
                       "conventions - the knob-of-10-means-1000%% class, measured rather than suspected"
                       % (scale[1], scale[2], scale[3]))

@@ -70,6 +70,34 @@ def _external_ids_sample(tag: str | None):
     return {"SAP_PM": f"EQ-{t}", "Fiix": f"FX{random.randint(1, 999999):06d}"}
 
 
+def _submitted_before(approved_at):
+    """A created_at that PRECEDES the approval, so the row is not its own paradox.
+
+    ★MEASURED 2026-08-28: 549 of 550 approved rows across five tables recorded an approval BEFORE
+    the submission it approved. Not clock skew - the seeder left created_at to DEFAULT now(), so
+    every row in a table carried the identical seed-run instant while approved_at was deliberately
+    backdated to a realistic history. The fixture said, on almost every row, that a supervisor
+    signed off weeks before the worker submitted.
+
+    That is exactly the fiction this module's own docstring already forbids for approver-without-
+    status; it just had not been extended to TIME. And it is not cosmetic: the invariant
+    `approved_at >= created_at` is one a real audit would check, and on this fixture it can only
+    ever fail - so any gate holding it would be untestable locally, and any walk reading the age of
+    a pending item is reading a number the seeder invented.
+
+    Returns an ISO submission time 1-14 days before the approval, or None when there is no
+    approval to precede (pending/rejected rows keep the natural default).
+    """
+    if not approved_at:
+        return None
+    try:
+        ts = approved_at if isinstance(approved_at, datetime) else datetime.fromisoformat(
+            str(approved_at).replace("Z", "+00:00"))
+    except Exception:  # noqa: BLE001
+        return None
+    return (ts - timedelta(days=random.randint(1, 14), hours=random.randint(0, 23))).isoformat()
+
+
 def _governance_state(a: dict):
     """(status, approved_by, approved_at, rejection_reason) — internally consistent by construction.
 
@@ -163,6 +191,11 @@ def seed_asset_brain(client, log, ctx: dict) -> dict:
             "submitted_by":    a.get("submitted_by"),
             "approved_by":     approver,
             "approved_at":     approved_at,
+            # An approval cannot precede the submission it approves. Left to DEFAULT now(), every
+            # row carried the seed-run instant while approved_at was backdated - so 549 of 550
+            # approved rows across five tables said a supervisor signed off weeks before the worker
+            # submitted. Same class of fiction as an approver on a pending row, one axis over.
+            **({"created_at": _submitted_before(approved_at)} if approved_at else {}),
             "rejection_reason": reject_reason,
         })
 

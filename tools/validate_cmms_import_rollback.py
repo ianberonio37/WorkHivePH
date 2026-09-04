@@ -47,7 +47,7 @@ def _resolve_supervisor():
         i = resolve_test_identity("leandromarquez@auth.workhiveph.com")
         return i.user_id, i.hive_id
     except Exception:
-        return ("00000000-0000-0000-0000-000000000000", "636cf7e8-431a-4907-8a9f-43dd4cc216d6")
+        return ("00000000-0000-0000-0000-000000000000", "084c113b-99c0-45c6-a8e8-b4b8349da46d")
 
 # Static teeth: the fixed import invariants must stay in the page source.
 STATIC_RULES = [

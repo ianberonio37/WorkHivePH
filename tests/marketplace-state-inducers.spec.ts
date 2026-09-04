@@ -25,6 +25,15 @@ import { waitForPageReady } from './_helpers';
 
 const PAGE = '/workhive/marketplace.html';
 
+// THE SERVICE WORKER ATE THE INDUCER (2026-08-28). `page.route()` does not intercept requests that pass
+// through a service worker, and marketplace.html registers one. So the abort below matched NOTHING: the
+// listings read completed normally, the grid filled with real cards, and this gate reported the PAGE as
+// broken for 25 seconds of polling — while the page was doing exactly the right thing. Proven by running
+// the identical abort with and without this line: 0 interceptions and a full grid, vs 25 interceptions and
+// the correct "Couldn't load listings ... Retry" state. Blocking the worker is what makes the network layer
+// reachable, and it is scoped to this file so specs that legitimately exercise the SW are untouched.
+test.use({ serviceWorkers: 'block' });
+
 test.describe('marketplace state inducers (journey lane)', () => {
   test('error: a FAILED listings fetch renders an error, never the first-run CTA', async ({ whPage }) => {
     // Abort only the listings read. Aborting everything would also break auth and the page would fail for
@@ -47,6 +56,19 @@ test.describe('marketplace state inducers (journey lane)', () => {
     // Asserting on `#listing-grid` specifically, never on `body.innerText`: both the error copy and the CTA
     // exist elsewhere in the document as other sections' markup, so a whole-page match would have gone
     // green for the wrong reason. And `innerText` hides anything in an inactive tab.
+    // PROVE THE INSTRUMENT BEFORE JUDGING THE PAGE. This vacuity check used to sit AFTER the poll below,
+    // so when the abort matched nothing the run spent 25s waiting for an error that was never induced and
+    // then failed with "the page never surfaced an error" — accusing the product of the harness's bug.
+    // An assertion that can only fire after the product assertion can never explain it. Order matters:
+    // first prove the failure was induced, only then ask how the page answered it.
+    await expect
+      .poll(() => aborted, {
+        timeout: 15000,
+        message: 'the listings request was never intercepted, so NO failure was induced — this is the ' +
+          "gate's own fault, not the page's (a service worker will swallow page.route; see test.use above)",
+      })
+      .toBeGreaterThan(0);
+
     await expect
       .poll(async () => whPage.evaluate(() => {
         const g = document.getElementById('listing-grid');

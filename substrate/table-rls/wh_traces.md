@@ -2,7 +2,7 @@
 name: table-rls-wh_traces
 type: table-rls
 source: db:pg_policies+pg_trigger:wh_traces
-source_sha: 9c72021ea73c33e4
+source_sha: 435bfc1152ee82a5
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -15,7 +15,7 @@ Columns (*=NOT NULL): trace_id*, route*, hive_id, user_id, status, latency_ms, m
 
 Policies:
 - `wh_traces_grafana_slo_read` [SELECT · roles=grafana_reader] USING=`true` CHECK=`∅`
-- `wh_traces_hive_read` [SELECT · roles=authenticated] USING=`(hive_id = ((current_setting('request.jwt.claims'::text, true))::json ->> 'hive_id'::text))` CHECK=`∅`
+- `wh_traces_hive_read` [SELECT · roles=authenticated] USING=`(hive_id = (((current_setting('request.jwt.claims'::text, true))::json ->> 'hive_id'::text))::uuid)` CHECK=`∅`
 
 **Verdict:** SCOPED — no structural hole detected by rules (verify live before trusting for a fix).
 

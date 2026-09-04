@@ -38,7 +38,7 @@
       },
       "inLanguage": "en-PH",
       "datePublished": "2026-05-17",
-      "dateModified": "2026-05-17"
+      "dateModified": "2026-08-25"
     },
     {
       "@type": "BreadcrumbList",
@@ -149,7 +149,8 @@
     <nav class="flex items-center gap-6">
       <a href="/" class="nav-link">Home</a>
       <a href="/learn/" class="nav-link">Learn</a>
-      <a href="/#join" class="nav-link">Join the Hive</a>
+      <a href="/?signin=1" class="nav-link">Sign In</a>
+      <a href="/?signup=1" class="nav-link">Sign Up Free</a>
     </nav>
   </div>
 </header>
@@ -161,7 +162,7 @@
     </div>
     <p class="pill mb-4">Privacy</p>
     <h1 class="text-3xl sm:text-4xl lg:text-[2.7rem] font-black leading-[1.15] tracking-[-0.02em] mb-5">Privacy Policy</h1>
-    <p class="text-sm text-white/45 mb-8">Last updated <time datetime="2026-05-17">17 May 2026</time></p>
+    <p class="text-sm text-white/45 mb-8">Last updated <time datetime="2026-08-25">25 Aug 2026</time></p>
     <div class="prose-wh"><p>This page explains what data WorkHive collects, how we use it, and your rights as a user. Plain language; no dark patterns.</p>
 
 <h2>What we collect</h2>
@@ -184,7 +185,7 @@
 <p>We never sell your data. We never use your operational data for advertising. We never share your hive data with another hive without your explicit consent.</p>
 
 <h2>AI Work Assistant and your data</h2>
-<p>The AI Work Assistant operates on your hive data to answer your questions. Inputs and outputs are scoped to your hive. We use third-party AI providers (large language model services) under contracts that prohibit them from training their general models on your plant data. Voice recordings used by the Voice Journal feature are retained for 90 days for dispute resolution, then automatically deleted unless flagged for legal hold.</p>
+<p>The AI Work Assistant operates on your hive data to answer your questions. Inputs and outputs are scoped to your hive. We use third-party AI providers (large language model services) under contracts that prohibit them from training their general models on your plant data. Voice recordings used by the Voice Journal feature are not stored at all: the audio is transcribed and immediately discarded, and only the text transcript is saved to your account. <!-- T137 (2026-08-25): corrected from an aspirational '90-day retention' claim - the product (voice-journal.html, voice_journal_entries schema, voice-transcribe fn) has NO audio storage path; the page's own disclosure ('your voice recording is not kept') was code-verified. A policy must describe the system that exists. --></p>
 
 <h2>Data sharing</h2>
 <p>We share data only with:</p>
@@ -207,7 +208,11 @@
 <p>To exercise any of these rights, email <a href="mailto:admin@workhiveph.com">admin@workhiveph.com</a> with the subject line "Data Rights Request".</p>
 
 <h2>Cookies and analytics</h2>
-<p>As of the last-updated date above, WorkHive uses essential cookies only (session, authentication). We do not run third-party advertising cookies. When we add web analytics in the future, this page will be updated and you will see a clear notice.</p>
+<!-- T165 (2026-08-25): the previous paragraph said "when we add web analytics in the future, this
+     page will be updated" while GA4 was already live on the public pages - a stale denial on a
+     legal claim surface. Corrected to describe what actually ships (wh-ga4.js: anonymize_ip,
+     no-PII event params, engagement/conversion events, no advertising cookies). -->
+<p>WorkHive uses essential cookies (session, authentication) and Google Analytics 4 on our public pages to understand aggregate usage: page views and engagement events such as viewing or submitting the signup form. Analytics is configured with IP anonymization, and we do not send names, emails, phone numbers, or any of your work records to it. We do not run third-party advertising cookies. Inside the signed-in app, usage events are recorded in our own database (not sent to Google) and are covered by the sections above.</p>
 
 <h2>Data retention</h2>
 <p>Account and hive data are retained as long as your account is active. After account deletion, personal data is purged within 30 days; aggregated anonymous statistics may be retained indefinitely. Compliance records (DOLE OSHS, ISO audit logs) are retained per WorkHive's audit-log policy of 10 years for general records and 15 years for incident investigations, even after individual account deletion, in compliance with regulatory requirements.</p>
@@ -223,7 +228,7 @@
 
 <footer class="py-10 border-t border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
   <div class="max-w-4xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">
-    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-05-17">17 May 2026</time></p>
+    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-08-25">25 Aug 2026</time></p>
     <div class="flex items-center gap-6">
       <a href="/" class="hover:text-white/60 transition-colors">Home</a>
       <a href="/learn/" class="hover:text-white/60 transition-colors">Learn</a>

@@ -12,6 +12,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=optional" rel="stylesheet" />
   <!-- Supabase CDN MUST be first script (utils.js getDb depends on it) -->
+  <script src="browser-floor.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
   <script src="utils.js"></script>
   <!-- html2pdf for PDF export (P2). pagebreak mode:['css'] only per mobile-maestro rules. -->
@@ -334,6 +335,15 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         <button class="btn btn-ghost btn-sm" id="pv-json" type="button">{ } JSON</button>
       </div>
     </div>
+    <!-- T124/T49 (2026-08-27): the four export buttons above are ALWAYS enabled, and on a resume
+         with nothing in it yet they produce a document containing only a name. Measured live on a
+         fresh account: the whole preview was 15 characters, "Leandro Marquez", with Download PDF,
+         Word, Print and JSON all offered and nothing saying the resume was empty — and a one-line
+         PDF is worse than a refusal, because it is a file the person can send. This notice sits in
+         the overlay CHROME, deliberately NOT inside #resume-paper, because that node is what
+         html2pdf captures: a warning printed onto the artifact would be the artifact. Shown only
+         when the resume really is near-empty, so a finished one carries no false alarm. -->
+    <div id="pv-empty-note" style="display:none;margin:0 0.75rem 0.5rem;padding:0.5rem 0.7rem;border-radius:0.5rem;font-size:0.72rem;line-height:1.5;background:rgba(247,162,27,0.10);border:1px solid rgba(247,162,27,0.28);color:var(--wh-orange-text,#F7A21B);"></div>
     <div class="preview-scroll"><div id="resume-paper" class="resume-paper"></div></div>
   </div>
 
@@ -967,7 +977,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           </div>
           <div class="rm-row-actions">
             ${isCur ? '' : `<button class="btn btn-ghost btn-sm" data-rm-open="${e(d.id)}" type="button" aria-label="Open resume ${e(title)}">Open</button>`}
-            <button class="icon-del" data-rm-del="${e(d.id)}" type="button" aria-label="Delete resume ${e(title)}">✕</button>
+            <!-- T179 (2026-08-26): this was ✕, the same glyph the platform uses for Close and for
+                 Remove. One glyph meaning both "dismiss this" and "permanently delete the resume you
+                 spent an hour on" is how a person loses work: they learn ✕ = go away, and it does not.
+                 🗑 is the platform's own declared delete glyph (audit-log.html:790 maps
+                 edit:'✎', delete:'🗑'), so this adopts the existing convention rather than inventing. -->
+            <button class="icon-del" data-rm-del="${e(d.id)}" type="button" aria-label="Delete resume ${e(title)}">🗑</button>
           </div></div>`;
       }).join('');
     }
@@ -1569,9 +1584,23 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const data = await callResumePolish({ mode: 'tailor_to_jd', jd, summary: resume.basics.summary || '', skills: resume.skills.map(s => s.name).filter(Boolean) });
       if (!data) return;
       const items = [];
-      if (data.summary) items.push({ group: 'Tailored summary', label: 'New professional summary', value: data.summary, checked: true, src: 'AI suggested',
+      // T84 (2026-08-26): two different acts were treated the same. Rewriting the summary the
+      // worker WROTE is an edit, and it shows the old text so they can see what changes.
+      // A "suggested highlight" is a NET-NEW CLAIM ABOUT THEM, generated with the JOB AD in
+      // context - which is exactly the pressure that produces a line they cannot back up in an
+      // interview. Both arrived checked:true, so the default path (Tailor, then Apply) added up
+      // to five such claims without a single deliberate act of accepting one.
+      //
+      // The prompt does tell the model to keep highlights truthful and grounded in stated
+      // skills, and that is worth having - but a prompt is the only thing enforcing it, and
+      // pre-ticking removes the human check that was supposed to be the backstop. New claims
+      // now start UNCHECKED: the worker opts in to each, which costs one tap and is the whole
+      // point of a review sheet.
+      if (data.summary) items.push({ group: 'Tailored summary',
+        label: (resume.basics.summary ? 'Was: ' + resume.basics.summary : 'New professional summary'),
+        value: data.summary, checked: true, src: 'AI suggested',
         apply: (r, val) => { r.basics.summary = val; r.basics._src = r.basics._src || {}; r.basics._src.summary = 'AI suggested'; } });
-      (data.highlights || []).forEach((h) => items.push({ group: 'Suggested highlights', label: '', value: h, checked: true, src: 'AI suggested',
+      (data.highlights || []).forEach((h) => items.push({ group: 'Suggested highlights (tick the ones you can back up)', label: '', value: h, checked: false, src: 'AI suggested',
         apply: (r, val) => { const w0 = ensureWork0(); const nv = _norm(val); if (!(w0.highlights || []).some(h => _norm(h) === nv)) w0.highlights.push(val); } }));  // AI5: re-running tailor must not append a duplicate suggested highlight
       if (!items.length) { toast('No suggestions returned. Try again.'); return; }
       openReview('Review the tailored suggestions', items, (selected) => {
@@ -2006,6 +2035,34 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       paper.className = 'resume-paper tpl-' + _template;
       paper.innerHTML = `<style>${css}</style>${html}`;
       document.querySelectorAll('.pv-tpl').forEach(btn => btn.classList.toggle('active', btn.dataset.tpl === _template));
+      _updateEmptyNote(paper);
+    }
+
+    /* Measure the BUILT paper rather than the model: the exports capture what is on the page, so
+       what is on the page is what must be judged. The name always renders, so it is excluded —
+       counting it would let a resume that is nothing BUT a name read as populated. */
+    function _updateEmptyNote(paper) {
+      const note = document.getElementById('pv-empty-note');
+      if (!note || !paper) return;
+      const name = String((resume && resume.basics && resume.basics.name) || '').trim();
+      /* NOT innerText. renderPaper() runs while the overlay is still display:none, and for an
+         element that is NOT BEING RENDERED innerText falls back to textContent — which here sweeps
+         in the whole inlined <style> block and measured 1820 characters for a resume whose visible
+         content is the 15-character name. The note stayed hidden on exactly the empty resume it
+         exists for. So: walk the real children and skip <style>, which is stable whether or not the
+         node is on screen. */
+      let body = '';
+      paper.childNodes.forEach(function (n) {
+        if (n.nodeType === 1 && n.tagName === 'STYLE') return;
+        body += ' ' + (n.textContent || '');
+      });
+      body = body.replace(/\s+/g, ' ').trim();
+      if (name && body.indexOf(name) === 0) body = body.slice(name.length).trim();
+      if (body.length >= 40) { note.style.display = 'none'; note.textContent = ''; return; }
+      note.textContent = 'This resume is still empty. An export right now would be a page with '
+        + 'little more than your name on it. Add your work history first, or build it from your '
+        + 'WorkHive record, then come back and export.';
+      note.style.display = 'block';
     }
     function openPreview() { _template = resume.meta.template || 'ats-plain'; renderPaper(); document.getElementById('preview-overlay').classList.add('open'); trapFocus(document.getElementById('preview-overlay')); }
     function closePreview() { document.getElementById('preview-overlay').classList.remove('open'); releaseFocusTrap(true); }
@@ -2169,8 +2226,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       logPageView(db);
       if (!WORKER_NAME) WORKER_NAME = await restoreIdentityFromSession(db);
       try { const { data: { session } } = await db.auth.getSession(); _authUid = session && session.user ? session.user.id : null; } catch (_) { /* empty-catch-allow: best-effort session read */ }
-      if (!WORKER_NAME) { window.location.href = 'index.html'; return; }
-      if (!_authUid) { window.location.href = 'index.html?signin=1'; return; }
+      /* T2/CN find (2026-08-24): this first line was a BARE index.html redirect — an anon hit it
+         BEFORE the whSignInWall gate below and got dumped on marketing copy with no modal and no
+         return (the engineering-design class). Both branches now route through the one wall. */
+      if (!WORKER_NAME) { whSignInWall(); return; }
+      if (!_authUid) { whSignInWall(); return; }
 
       // Context pill
       if (HIVE_NAME) { const p = document.getElementById('ctx-pill'); p.style.display = 'inline-flex'; p.textContent = '🏭 ' + HIVE_NAME + (HIVE_ROLE ? ' · ' + HIVE_ROLE : ''); }
@@ -2224,6 +2284,15 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           try { await fn(); } finally { el.disabled = false; el.removeAttribute('aria-busy'); }
         });
       };
+      /* T38 (2026-08-27): resume was the ONE committing surface on the platform with typed work and
+         no draft protection at all — every other page with an insert and a textarea either uses
+         whAutoSaveDraft or, like logbook, carries its own DRAFT_KEY/restoreDraft pair. #jd-input
+         holds a job description the person PASTED in from somewhere else, which is exactly the
+         work that is expensive to reproduce: a session that dies between the paste and the Tailor
+         call sent them back to find the posting again. The shared helper stamps the draft with its
+         owner (so a shared plant tablet never hands one worker's paste to the next) and with its
+         age, and restores only into an EMPTY field, so it can never clobber live typing. */
+      if (typeof whAutoSaveDraft === 'function') whAutoSaveDraft('resume-jd', ['jd-input']);
       _wireBusy('btn-summary', runSummarize);
       _wireBusy('btn-polish', runPolish);
       _wireBusy('btn-tailor', runTailor);

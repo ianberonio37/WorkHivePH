@@ -38,7 +38,17 @@ SCAN_ROOT_FILES = [f for f in os.listdir(ROOT) if f.startswith("validate_") and 
 UUID = re.compile(r"['\"]([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})['\"]")
 # Only lines that actually mean "a hive" — a probe's self-minted row ids are not fixtures to resolve.
 HIVE_HINT = re.compile(r"hive", re.I)
+# ★A UUID SHARING A LINE WITH `hive_id` IS NOT NECESSARILY A HIVE (2026-08-27). The hint is
+# line-level, so `{"asset_id": "b9ba…", "hive_id": USER["hive_id"]}` yielded the ASSET id as a
+# "pinned hive that no longer exists". Both were indeed stale, but naming an asset a hive sends
+# whoever reads the report looking for the wrong kind of row — and this gate's whole value is that
+# its accusation is precise. A uuid introduced by one of these keys is skipped as out of scope.
+NON_HIVE_KEY = re.compile(
+    r"(?:project|asset|user|worker|node|item|part|entry|order|report|listing|service|post|"
+    r"alert|task|job|doc|file|sup|uid[a-z]?)_?id\s*['\"]?\s*[:=]\s*$", re.I)
 ALL_ZERO = "00000000-0000-0000-0000-000000000000"
+# A python selftest body is TEST DATA, not an instrument pin — see the skip in pinned().
+SELFTEST_DEF = re.compile(r"^def\s+_?self_?test\s*\(", re.I)
 
 
 def psql(sql):
@@ -101,12 +111,58 @@ def pinned():
         # is not a seed reference and this gate has no business resolving it.
         minted = set(re.findall(
             r"insert\s+into[^;]{0,400}?['\"]([0-9a-f-]{36})['\"]", body, re.I | re.S))
+        # ★AND MINTED THROUGH A CONSTANT COUNTS TOO (2026-08-27). The match above needs the LITERAL
+        # uuid inside the INSERT, so a file that parks the id in a const and interpolates it —
+        # `const HIVE = 'e1851850-…'; … INSERT INTO public.hive_members … '${HIVE}'` — reads as
+        # pinning a hive it never creates. prove_hive_at_scale, prove_day_one_parallel_join and
+        # validate_join_names_the_namesake all do exactly that, and all three DELETE the hive again
+        # at the end while asserting zero residue ("a fixture that outlives its run starts moving
+        # other gates' numbers"). Their hive is SUPPOSED to be absent between runs; flagging it
+        # inverts that discipline into a defect, which is the same false-red this exemption was
+        # written to prevent — just one indirection deeper.
+        #
+        # Same shape as the localStorage key gate taught the same day: a detector that matches
+        # literals is blind to a value held in a constant.
+        # The keyword was OPTIONAL-ised 2026-08-27: python declares `HIVE = "…"` with no const/let/var,
+        # so validate_join_names_the_namesake.py — which INSERTs its own probe hive and DELETEs it
+        # again — was reported as rot for an id that is supposed not to exist between runs. Widening
+        # the declaration is safe because the exemption is a CONJUNCTION: the file must also INSERT
+        # that id, which no ordinary pinned fixture does.
+        for var, uid in re.findall(
+                r"(?:\b(?:const|let|var)\s+)?\b([A-Za-z_$][\w$]*)\s*=\s*['\"]([0-9a-f-]{36})['\"]", body, re.I):
+            if re.search(r"insert\s+into[^;]{0,600}?\$\{\s*%s\s*\}" % re.escape(var), body, re.I | re.S) \
+               or re.search(r"insert\s+into[^;]{0,600}?\b%s\b" % re.escape(var), body, re.I | re.S):
+                minted.add(uid.lower())
+                minted.add(uid)
+        # ★A SELFTEST BODY IS TEST DATA, NOT AN INSTRUMENT PIN (2026-08-27). This gate was reporting
+        # its OWN selftest constants (aaaaaaaa…/bbbbbbbb… — the pair that proves it can tell a live
+        # pin from a vanished one) and the four synthetic ids validate_test_hive_fixtures.py writes
+        # into a TemporaryDirectory as fake source to scan. None of them names a hive anyone expects
+        # to exist, so none of them can be "measuring an empty world" — the harm this gate exists to
+        # catch. Reporting them asked a maintainer to repoint fixtures whose whole job is to be
+        # unresolvable, and buried the genuinely rotted pins among them.
+        #
+        # This is the same judgement already recorded here for ALL_ZERO ("a deliberate negative
+        # fixture must never be reported as rot"), applied to the blocks where such fixtures live.
+        # Deliberately NOT an allowlist of ids: exclusions that name values are how a denominator
+        # gets quietly shrunk. This names a CONTEXT — a python selftest function — and any id used
+        # for real instrumentation elsewhere in the file is still counted.
+        in_selftest = False
         for n, line in enumerate(body.splitlines(), 1):
+            if SELFTEST_DEF.match(line):
+                in_selftest = True
+            elif in_selftest and line.strip() and not line[:1].isspace():
+                in_selftest = False   # dedent back to column 0 ends the block
+            if in_selftest:
+                continue
             if not HIVE_HINT.search(line):
                 continue
-            for u in UUID.findall(line):
+            for m in UUID.finditer(line):
+                u = m.group(1)
                 if u == ALL_ZERO or u in minted:
                     continue          # deliberately unresolvable, or created by this file itself
+                if NON_HIVE_KEY.search(line[:m.start()]):
+                    continue          # introduced as project_id/asset_id/… — not a hive claim
                 found.setdefault(u, []).append((os.path.relpath(path, ROOT), n))
     return found
 

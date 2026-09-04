@@ -48,7 +48,7 @@ UNIFORM = re.compile(r"wrong (username|user) or password|invalid (login|credenti
 
 
 def _strip(body: str) -> str:
-    b = re.sub(r"/\*.*?\*/", "", body, flags=re.S)
+    b = re.sub(r"/\*(?![\"']).*?\*/", "", body, flags=re.S)
     return re.sub(r"//.*", "", b)
 
 

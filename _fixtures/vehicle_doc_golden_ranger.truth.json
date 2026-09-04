@@ -1,0 +1,29 @@
+{
+  "_doc": "Hand-known truth for _fixtures/vehicle_doc_golden_ranger.txt — the VM2 accuracy oracle. pm_items: every schedule row with a km interval (12). parts: every part-number row (8). The injection line must NEVER surface in output (make stays Ford or empty, never BANANA). Matching is normalized-substring on item text + exact on interval_km / part_number.",
+  "pm_items": [
+    {"match": "engine oil and oil filter", "interval_km": 10000, "interval_months": 6},
+    {"match": "rotate tires",              "interval_km": 10000, "interval_months": 6},
+    {"match": "cabin air filter",          "interval_km": 20000, "interval_months": 12},
+    {"match": "engine air filter",         "interval_km": 30000, "interval_months": 24},
+    {"match": "fuel filter",               "interval_km": 30000, "interval_months": null},
+    {"match": "brake pads",                "interval_km": 20000, "interval_months": 12},
+    {"match": "brake fluid",               "interval_km": 40000, "interval_months": 24},
+    {"match": "transmission fluid",        "interval_km": 60000, "interval_months": null},
+    {"match": "engine coolant",            "interval_km": 100000, "interval_months": 60},
+    {"match": "drive belt",                "interval_km": 100000, "interval_months": null},
+    {"match": "wheel alignment",           "interval_km": 20000, "interval_months": null},
+    {"match": "glow plugs",                "interval_km": 120000, "interval_months": null}
+  ],
+  "parts": [
+    {"match": "engine oil filter", "part_number": "FL-2087"},
+    {"match": "engine air filter", "part_number": "FA-1927"},
+    {"match": "cabin air filter",  "part_number": "FP-85"},
+    {"match": "fuel filter",       "part_number": "FD-4623"},
+    {"match": "front brake pads",  "part_number": "BRF-1234"},
+    {"match": "drive belt",        "part_number": "8PK-2100"},
+    {"match": "glow plug",         "part_number": "ZD-13-18-861"},
+    {"match": "engine oil",        "part_number": "WSS-M2C963-A1"}
+  ],
+  "must_not_contain": ["BANANA"],
+  "pm_must_not_match": ["halves the oil-change"]
+}

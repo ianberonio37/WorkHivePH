@@ -433,10 +433,57 @@
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+    /* T124 (2026-08-26) - THE PRINTABLE SET, decided by what a plant actually carries on paper:
+       pm-scheduler (this shift's PM list, done 2026-08-25), project-report (already had print CSS),
+       and THESE TWO - the logbook day-sheet (what happened, taken to the morning meeting) and the
+       audit-log (dispute evidence, the one surface someone prints to hand to another person).
+       Analytics is deliberately NOT in the set: it is a screen-read with charts that print as ink
+       blocks, and its numbers reach paper through the report sender instead.
+       Print = black-on-white content, chrome gone, no dark-background ink disasters. */
+    @media print {
+      body { background: #fff !important; color: #111 !important; }
+      body * { background: transparent !important; color: #111 !important;
+               box-shadow: none !important; text-shadow: none !important; }
+      #wh-hub-fab, #wh-nav-hub, [id^="wh-hub"], #wh-feedback-fab, #wh-feedback-panel,
+      #toast, .sheet-overlay, .sheet, [role=dialog], button, .btn-primary, .btn-ghost,
+      #offline-banner, .connectivity-widget, #wh-voice-overlay { display: none !important; }
+      a { text-decoration: none !important; }
+      .card, .wh-card, .entry-card { border: 1px solid #bbb !important; page-break-inside: avoid; }
+      table { page-break-inside: auto; }
+      tr { page-break-inside: avoid; page-break-after: auto; }
+    }
   </style>
 </head>
 
 <body class="text-white">
+  <!-- T125/T124 (2026-08-26): the PRINT CONTEXT STAMP. A printed page (or a screenshot passed
+       around Viber) leaves the app carrying none of the context the screen supplies: which hive,
+       which person, when. A page of maintenance records with no date and no plant name is not
+       evidence, it is paper. Print-only (display:none on screen), filled from the identity the
+       page already holds - no read, so it cannot fail or lie about freshness. -->
+  <div id="wh-print-stamp" style="display:none;"></div>
+  <script>
+    (function () {
+      try {
+        var el = document.getElementById('wh-print-stamp');
+        if (!el) return;
+        var hive = localStorage.getItem('wh_hive_name') || '';  /* storage-key-allow: print stamp reads identity only */
+        var who  = localStorage.getItem('wh_last_worker') || localStorage.getItem('wh_worker_name') || '';  /* storage-key-allow: print stamp */
+        var when = new Date().toLocaleString();
+        var bits = [];
+        if (hive) bits.push('Hive: ' + hive);
+        if (who) bits.push('Printed by: ' + who);
+        bits.push('Printed: ' + when);
+        el.textContent = bits.join('  ·  ');
+        var st = document.createElement('style');
+        st.textContent = '@media print { #wh-print-stamp { display:block !important; '
+          + 'font: 11px/1.4 system-ui, Arial, sans-serif; color:#111 !important; '
+          + 'border-bottom:1px solid #bbb; padding:0 0 6px; margin:0 0 10px; } }';
+        document.head.appendChild(st);
+      } catch (_) { /* empty-catch-allow: the stamp is print decoration; never block the page */ }
+    })();
+  </script>
+
 
   <!-- Aurora -->
   <div class="aurora-bg">
@@ -451,18 +498,30 @@
   <!-- ── NAVBAR ── -->
   <nav class="relative z-10 border-b border-white/[0.06]" style="background: rgba(22,32,50,0.85); backdrop-filter: blur(16px);">
     <div class="max-w-6xl mx-auto px-5 sm:px-8 h-14 flex items-center justify-between">
-      <div class="flex items-center gap-3">
+      <!-- T113 (2026-08-27): min-w-0 so this group may SHRINK — a flex item otherwise refuses to go
+           below its content width, so "Digital Logbook" held the row open and pushed the Back link
+           past a 390 viewport. -->
+      <div class="flex items-center gap-3 min-w-0">
         <a href="index.html" class="flex items-center justify-center min-h-[44px] min-w-[44px]" aria-label="WorkHive home">
           <img src="brand_assets/workhive-logo-transparent.png" alt="WorkHive" class="h-8 w-auto" />
         </a>
         <div class="w-px h-4 bg-white/15"></div>
-        <span class="text-xs font-semibold text-white/80 uppercase tracking-widest">Digital Logbook</span>
+        <span class="text-xs font-semibold text-white/80 uppercase tracking-widest truncate">Digital Logbook</span>
+        <!-- T125/T51 (2026-08-25): the hive stamp. Screenshots of this page travel to Viber
+             groups carrying ZERO identity — and a multi-hive contractor could not tell WHICH
+             hive's logbook they were reading (pm-scheduler had the chip; this page did not).
+             Same pattern: hidden until wh_hive_name resolves. -->
+        <div id="hive-chip" class="hidden items-center gap-1.5 px-2.5 py-1 rounded-full text-xs" style="background:rgba(247,162,27,0.1);border:1px solid rgba(247,162,27,0.25);color:var(--wh-orange-text);">
+          <span class="ic ic-community" aria-hidden="true"></span>
+          <span id="hive-chip-name" class="font-semibold truncate max-w-[110px]"></span>
+        </div>
       </div>
       <div class="flex items-center gap-3">
         <span id="sync-badge" class="stat-pill text-white/80 hidden">
           <span class="inline-block w-1.5 h-1.5 rounded-full bg-green-400 mr-1.5"></span>Saved to cloud
         </span>
-        <a href="index.html#evolution" class="btn-secondary text-xs py-2 px-4">← Back to Basic Worker</a>
+        <!-- T1 link-gate find: #evolution named a section index.html no longer has. -->
+        <a href="index.html" class="btn-secondary text-xs py-2 px-4 whitespace-nowrap flex-shrink-0">← Back to Home</a>
       </div>
     </div>
   </nav>
@@ -488,7 +547,7 @@
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 class="text-2xl sm:text-3xl font-black tracking-tight" data-i="pagetitle">Your Repair Logbook</h1>
-          <p class="text-sm text-white/80 mt-1">Every job you log builds your skill profile and plant knowledge base.</p>
+          <p class="text-sm text-white/80 mt-1" data-i="subtitle">Every job you log builds your skill profile and plant knowledge base.</p>
         </div>
         <div class="flex items-center gap-2 flex-wrap">
           <!-- These ship as an em dash, not 0. Measured offline with the shell cache warm: a worker
@@ -496,7 +555,7 @@
                the markup default survived. A 0 here is a claim about someone's work history; the
                honest default is "not known yet", which a successful read replaces. -->
           <span class="stat-pill"><span id="total-count" class="text-orange-wh font-bold">—</span> <span class="text-white/80">entries</span></span>
-          <span class="stat-pill"><span id="machine-count" class="text-blue-wh font-bold">—</span> <span class="text-white/80">assets</span></span>
+          <span class="stat-pill"><span id="machine-count" class="text-blue-wh font-bold">—</span> <span id="machine-count-noun" class="text-white/80">assets</span></span>
           <span class="stat-pill"><span id="open-count" class="text-red-400 font-bold">—</span> <span class="text-white/80">open</span></span>
           <button id="open-asset-modal-btn" class="btn-secondary text-xs py-1.5 px-3 flex items-center gap-1.5 min-h-[44px]">
             <span class="ic ic-add" aria-hidden="true"></span>
@@ -541,6 +600,22 @@
             <div class="step-dot" id="sdot-3">3</div>
           </div>
           <p class="step-label" id="step-label-text">Step 1: Asset & Type</p>
+
+          <!-- T174 (2026-08-26): THE EXPLAINER, on the page that most needed one. 28 surfaces carry
+               a "how this works" disclosure; the LOGBOOK - the most-used page on the platform and
+               the first one a new worker touches - carried none, so the questions it answers here
+               (what happens to my entry, who sees it, what Open vs Closed costs) had nowhere to be
+               asked. Native <details> so it needs no script and prints closed. -->
+          <details class="wh-help" style="margin:0 0 14px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; padding:10px 14px;">
+            <summary style="cursor:pointer; min-height:44px; display:flex; align-items:center; font-size:0.74rem; font-weight:700; color:rgba(255,255,255,0.85);"><span data-i="howworks">How this page works</span></summary>
+            <ul style="margin:8px 0 0; padding-left:18px; font-size:0.74rem; line-height:1.55; color:rgba(255,255,255,0.8);">
+              <li><strong>Three steps</strong>: pick the asset and what kind of work it was, describe the problem and what you did, then save. Your typing is kept as you go, so an interruption does not lose it.</li>
+              <li><strong>Who sees it</strong>: entries are shared with your hive - your team and supervisor read them, and they feed PM compliance and the asset's history.</li>
+              <li><strong>Open vs Closed</strong>: Closed means the job is finished. Open leaves it on your open-jobs list and on the team board until someone closes it.</li>
+              <li><strong>Offline</strong>: if you lose signal mid-entry the save is held on this device and syncs when you reconnect - it tells you when that happens.</li>
+              <li><strong>Parts and photos</strong>: adding a part deducts it from Inventory; a photo can be read by the AI to draft the entry, which you can edit before saving.</li>
+            </ul>
+          </details>
 
           <form id="log-form">
 
@@ -668,7 +743,10 @@
               <!-- Arc V (EFFORTLESS): moved here from step 1 — type/status/workflow belong with
                    "what happened"; this keeps step 1 a single machine-pick for clean auto-advance. -->
               <div>
-                <label for="f-maint-type" class="wh-label">Maintenance Type</label>
+                <!-- The capture contract (logbook_add_entry_v1) requires maintenance_type, so the
+                     label must say so — this was the one step-2 required field with no chip and no
+                     boundary check, so workers met it as a save-time refusal in column-name speak. -->
+                <label for="f-maint-type" class="wh-label">Maintenance Type <span style="color:var(--wh-red);font-size:0.625rem;font-weight:600;text-transform:none;">required</span></label>
                 <select id="f-maint-type" class="wh-input">
                   <option value="">Select type...</option>
                   <option value="Breakdown / Corrective">Breakdown / Corrective</option>
@@ -722,6 +800,10 @@
                   <option value="Pneumatic">Pneumatic</option>
                   <option value="Instrumentation">Instrumentation</option>
                   <option value="Lubrication">Lubrication</option>
+                  <!-- VEHICLE SEED (2026-09-02): unlocks the Vehicle reading templates
+                       (odometer_km / fuel_l) — an odometer entry here rolls the vehicle's
+                       meter forward (trg_roll_vehicle_odometer) and moves every km-based PM. -->
+                  <option value="Vehicle">Vehicle</option>
                   <option value="Other">Other</option>
                 </select>
               </div>
@@ -785,7 +867,11 @@
 
               <!-- Inline save + extras toggle -->
               <div class="flex gap-2 pt-1">
-                <button type="button" class="btn-back" onclick="stepGo(2)">←</button>
+                <!-- T179 (2026-08-26): the accessible name came from the CONTENT, so this announced
+                     as "leftwards arrow" and nothing more - sitting directly beside Save Entry, in a
+                     multi-step form where the difference between going back and saving is the whole
+                     of the user's work. -->
+                <button type="button" class="btn-back" onclick="stepGo(2)" aria-label="Back to step 2">←</button>
                 <button type="submit" id="save-entry-btn" class="btn-primary flex-1">Save Entry</button>
               </div>
 
@@ -1011,8 +1097,8 @@
 
         <!-- Team / My Entries toggle (hive only) -->
         <div id="view-toggle-bar" class="hidden mb-3 flex gap-2">
-          <button id="btn-view-mine" class="flex-1 rounded-xl py-2 text-xs font-bold transition-colors min-h-[44px]" style="background:rgba(247,162,27,0.15);color:var(--wh-orange-text);border:1px solid rgba(247,162,27,0.3);" data-i="myentries">My Entries</button>
-          <button id="btn-view-team" class="flex-1 rounded-xl py-2 text-xs font-bold transition-colors min-h-[44px]" style="background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.80);border:1px solid rgba(255,255,255,0.08);" data-i="teamfeed">Team Feed</button>
+          <button id="btn-view-mine" aria-pressed="true" class="flex-1 rounded-xl py-2 text-xs font-bold transition-colors min-h-[44px]" style="background:rgba(247,162,27,0.15);color:var(--wh-orange-text);border:1px solid rgba(247,162,27,0.3);" data-i="myentries">My Entries</button>
+          <button id="btn-view-team" aria-pressed="false" class="flex-1 rounded-xl py-2 text-xs font-bold transition-colors min-h-[44px]" style="background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.80);border:1px solid rgba(255,255,255,0.08);" data-i="teamfeed">Team Feed</button>
         </div>
 
         <!-- Search + Filter -->
@@ -1094,7 +1180,7 @@
           <span class="ic ic-doc" aria-hidden="true"></span>
           <p class="text-sm text-white/80 font-medium">No entries yet.</p>
           <p class="text-xs text-white/80 mt-1">Log your first repair to get started.</p>
-          <a href="#log-form" onclick="document.getElementById('log-form')?.scrollIntoView({behavior:'smooth'});" class="inline-block mt-4 px-4 py-2 rounded-lg text-xs font-semibold" style="background:rgba(247,162,27,0.12);border:1px solid rgba(247,162,27,0.3);color:var(--wh-orange-text);text-decoration:none;">Log Your First Repair →</a>
+          <a href="#log-form" onclick="document.getElementById('log-form')?.scrollIntoView({behavior:'smooth'});" class="mt-4 px-4 rounded-lg text-xs font-semibold" style="min-height:44px;display:inline-flex;align-items:center;justify-content:center;background:rgba(247,162,27,0.12);border:1px solid rgba(247,162,27,0.3);color:var(--wh-orange-text);text-decoration:none;">Log Your First Repair →</a>
         </div>
 
         <!-- Read-failed state: the third case beside "loaded and empty" and "loaded with entries".
@@ -1170,7 +1256,12 @@
         <!-- Scan nameplate: prefills manufacturer/model/serial_no via Azure Doc Intelligence OCR. -->
         <div class="rounded-lg p-3" style="background: rgba(247,162,27,0.06); border: 1px solid rgba(247,162,27,0.18);">
           <div class="flex items-start gap-2">
-            <input id="a-scan-input" type="file" accept="image/*" capture="environment" class="hidden" />
+            <!-- aria-label for parity with integrations' hidden #file-input: a display:none control is
+                 outside the accessibility tree, so the visible "Scan nameplate" button is what a
+                 screen-reader user meets - but the file-picker dialog itself can surface the input's
+                 own name, and the platform already labels its other hidden picker. -->
+            <input id="a-scan-input" type="file" accept="image/*" capture="environment" class="hidden"
+                   aria-label="Scan equipment nameplate photo" />
             <button id="a-scan-btn" type="button" class="btn-secondary text-xs py-1.5 px-3 flex items-center gap-1.5 min-h-[44px]" style="background: rgba(247,162,27,0.12); border-color: rgba(247,162,27,0.35); color:var(--wh-orange-text);">
               <span class="ic ic-image" aria-hidden="true"></span>
               <span>Scan nameplate</span>
@@ -1403,7 +1494,8 @@
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
+<script src="browser-floor.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
 <script src="utils.js"></script>
 <script src="wh-capture-validate.js"></script>
 <script src="wh-tts.js"></script>
@@ -1434,7 +1526,23 @@ logPageView(db);
 // WORKER NAME (guest identity)
 // ────────────────────────────────────────────
 let WORKER_NAME = whWorker() || /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ whWorker() || '';
+// T125/T51: light the hive stamp as soon as the stored name is known (validateHiveMembership
+// clears wh_hive_name when stale, so a kicked member's next load shows no stamp).
+(function () {
+  try {
+    const _hn = localStorage.getItem('wh_hive_name');
+    const _chip = document.getElementById('hive-chip');
+    if (_hn && _chip) {
+      _chip.classList.remove('hidden'); _chip.classList.add('flex');
+      document.getElementById('hive-chip-name').textContent = _hn;
+    }
+  } catch (_) { /* empty-catch-allow: the stamp is best-effort chrome */ }
+})();
 let HIVE_ID     = whHiveId();
+// Declared here beside the other canonical identity reads: the team-scope notice below names
+// the hive, and using HIVE_NAME without declaring it is a ReferenceError the moment that
+// branch runs (caught by validate_dom_refs, which HEAD passed and this file did not).
+const HIVE_NAME = localStorage.getItem('wh_hive_name') || '';
 let HIVE_ROLE   = localStorage.getItem('wh_hive_role') || '';
 
 // ── AUDIT LOG ──
@@ -1486,8 +1594,26 @@ let _authUid    = null; // C3: populated at init from Supabase Auth session
 // the hive or demoted since their last visit. We re-check the DB on every load.
 // Gate the entire page until validation resolves.
 async function validateHiveMembership() {
-  if (!HIVE_ID || !WORKER_NAME) {
-    // No hive in localStorage: show gate immediately, nothing to validate
+  if (!WORKER_NAME) {
+    // No identity at all: show gate immediately, nothing to validate
+    document.getElementById('hive-gate').style.display = 'flex';
+    return false;
+  }
+  if (!HIVE_ID) {
+    // VEHICLE SEED (2026-09-02) — SOLO lane: a SIGNED-IN owner without a hive uses the
+    // logbook solo (mine-mode is worker-scoped, addEntry writes hive_id null, the asset
+    // picker has a solo branch since Phase 5, and logbook RLS carries the solo branch).
+    // The auth session is required: a stale localStorage worker name with no session
+    // would render a page whose every read RLS silently empties — worse than the gate.
+    let _s = null;
+    try { _s = (await db.auth.getSession()).data.session; } catch (_) { /* empty-catch-allow: treat as signed out */ }
+    if (_s) {
+      // Team view has no meaning without a hive — hide its toggle so solo users
+      // never reach a search that would query hive_id ''.
+      const tt = document.getElementById('btn-view-team');
+      if (tt) tt.style.display = 'none';
+      return true;
+    }
     document.getElementById('hive-gate').style.display = 'flex';
     return false;
   }
@@ -1554,6 +1680,15 @@ function setViewMode(mode) {
   const inactiveStyle = 'background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.80);border:1px solid rgba(255,255,255,0.08);';
   mine.style.cssText = mode === 'mine' ? activeStyle : inactiveStyle;
   team.style.cssText = mode === 'team' ? activeStyle : inactiveStyle;
+  /* T125 (2026-08-27): the active scope was conveyed by COLOUR ALONE - measured aria-pressed,
+     aria-selected and role all null on BOTH buttons, with only the orange background separating
+     them. That is WCAG 1.4.1 (use of colour) and 4.1.2 (name, role, value) on the one control that
+     decides whether the screen shows YOUR work or the WHOLE TEAM'S - which is also a privacy
+     question, because a worker screenshotting "my logbook" for a Viber group may be sharing
+     colleagues' entries. The CSV export already states its scope honestly ("Scope: whole team
+     history for hive ..."); the screen simply had no equivalent for anyone not reading colour. */
+  mine.setAttribute('aria-pressed', mode === 'mine' ? 'true' : 'false');
+  team.setAttribute('aria-pressed', mode === 'team' ? 'true' : 'false');
   _logbookDisplayCount = 20;
 
   const teamRow    = document.getElementById('team-filter-row');
@@ -1579,6 +1714,8 @@ function setViewMode(mode) {
 }
 
 let _allEntries = [];
+let _mineTrueTotal = null;   // T9: true worker-scoped total (count:exact), not the loaded window
+let _mineTrueOpen  = null;   // T9: true worker-scoped open count; closed = total - open
 // True when the entries read failed, so the header pills can show a dash instead of a fabricated 0.
 // Measured 2026-08-08: under an injected 500 this page raised three toasts at 150/150/154ms — all gone
 // by the 13s sample — while "0 entries · 0 machines · 0 open" stayed up against 516/30/6 real values.
@@ -1686,7 +1823,11 @@ async function searchTeam(append = false) {
   }
 
   const rawSearch = document.getElementById('search-input').value.trim();
-  const safeSV    = rawSearch.replace(/%/g, '\\%').replace(/_/g, '\\_');
+  // See the note on the other search site: PostgREST splits or=(...) on commas, so a part
+  // named "Bearing, spherical roller, ..." rejected the entire query before this fix.
+  const safeSV    = (typeof whSafeSearchTerm === 'function')
+    ? whSafeSearchTerm(rawSearch)
+    : rawSearch.replace(/[,()\\]/g, ' ').replace(/%/g, '\\%').replace(/_/g, '\\_');
   const category  = document.getElementById('filter-category').value;
   const status    = document.getElementById('filter-status').value;
   const worker    = document.getElementById('filter-worker').value;
@@ -1705,11 +1846,19 @@ async function searchTeam(append = false) {
   if (worker)   query = query.eq('worker_name', worker);
   if (dateFrom) query = query.gte('date', dateFrom);
   if (dateTo)   query = query.lte('date', dateTo + 'T23:59:59');
-  if (safeSV)   query = query.or(`machine.ilike.%${safeSV}%,problem.ilike.%${safeSV}%,action.ilike.%${safeSV}%,knowledge.ilike.%${safeSV}%,root_cause.ilike.%${safeSV}%`);
+  // T15 S2 term-AND (2026-09-02): the whole phrase used to ride each ilike, so 'bearing
+  // temperature' found only the LITERAL substring -> 0 results while 'bearing' found 5. Diagnostic
+  // questions are naturally multi-word. Each term now matches ANY field; chained .or() calls AND
+  // together in PostgREST, so every term must appear somewhere (any field, any order). Cap 5 terms.
+  if (safeSV) {
+    for (const _term of safeSV.split(/\s+/).filter(Boolean).slice(0, 5)) {
+      query = query.or(`machine.ilike.%${_term}%,problem.ilike.%${_term}%,action.ilike.%${_term}%,knowledge.ilike.%${_term}%,root_cause.ilike.%${_term}%`);
+    }
+  }
   if (append && _teamLastDate) query = query.lt('date', _teamLastDate);
 
   const { data, error } = await query;
-  if (error) { showToast('Search failed: ' + error.message); return; }
+  if (error) { showToast(whReadError(error, 'the team search')); return; }
 
   const mapped = (data || []).map(r => ({
     id: r.id, date: r.date, machine: r.machine || '', category: r.category,
@@ -1732,6 +1881,35 @@ async function searchTeam(append = false) {
   _teamHasMore = mapped.length === TEAM_PAGE;
   if (mapped.length) _teamLastDate = mapped[mapped.length - 1].date;
 
+  // T129 (2026-08-25, found on the aged-hive fixture): a zero-result team search rendered
+  // BLANK - no empty state at all - and never said that the DEFAULT 7-DAY window (set by
+  // loadTeamMembers) was what it had searched. A worker hunting "that thermography note
+  // from months ago" typed the right word, got silence, and concluded it did not exist
+  // (127 matching rows sat outside the window). The window is a deliberate cost bound;
+  // the emptiness must NAME it and offer the widen (the qualifier lives NEXT to the void).
+  if (!append && !mapped.length) {
+    const list = document.getElementById('entries-list');
+    const from = document.getElementById('filter-date-from').value;
+    const to   = document.getElementById('filter-date-to').value;
+    const q    = rawSearch ? ` matching "${escHtml(rawSearch)}"` : '';
+    const win  = (from || to)
+      ? `between ${escHtml(from || 'the beginning')} and ${escHtml(to || 'today')}`
+      : 'in the whole history';
+    list.innerHTML = `<div class="text-center py-10 text-xs" style="color:rgba(255,255,255,0.80);">
+        No team entries${q} ${win}.` +
+      ((from || to) ? `<br>Only that date range was searched - it is not proof the entry does not exist.
+        <div style="margin-top:0.75rem;"><button type="button" id="btn-team-widen"
+          style="min-height:44px;padding:0 1.1rem;border-radius:0.75rem;font-weight:700;cursor:pointer;
+          background:rgba(41,182,217,0.15);color:var(--wh-blue-light);border:1px solid rgba(41,182,217,0.3);">Search all history</button></div>` : '') +
+      `</div>`;
+    document.getElementById('btn-team-widen')?.addEventListener('click', () => {
+      document.getElementById('filter-date-from').value = '';
+      document.getElementById('filter-date-to').value   = '';
+      searchTeam();
+    });
+    return;
+  }
+
   renderEntries(false);
 }
 
@@ -1748,10 +1926,18 @@ async function loadTeamMembers() {
     o.value = m.worker_name; o.textContent = m.worker_name;
     sel.appendChild(o);
   });
-  const today   = new Date().toISOString().slice(0, 10);
-  const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString().slice(0, 10);
-  document.getElementById('filter-date-from').value = weekAgo;
-  document.getElementById('filter-date-to').value   = today;
+  // T29 fix half 2 (2026-09-02): the 7-day default is a browse-load discipline, not a search scope.
+  // This function is ASYNC (roster fetch first), so when a ?q= deep-link has already STARTED a team
+  // search (an asset fault-history hand-off — "has this failed before" means ALL history), landing
+  // these defaults afterwards silently narrowed the next search to a week. Apply the browse default
+  // only when no search has run and the fields are untouched; the scoped-zero card's
+  // "Search all history" widen button stays as the recovery for the browse path.
+  if (!_teamSearched && !document.getElementById('filter-date-from').value) {
+    const today   = new Date().toISOString().slice(0, 10);
+    const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString().slice(0, 10);
+    document.getElementById('filter-date-from').value = weekAgo;
+    document.getElementById('filter-date-to').value   = today;
+  }
 }
 
 // ────────────────────────────────────────────
@@ -2092,7 +2278,16 @@ async function addEntry(entry) {
     try {
       const vr = await window.whValidateCapture(db, 'logbook_add_entry_v1', payload);
       if (!vr.ok) {
-        const firstMsg = (vr.errors && vr.errors[0]?.message) || 'capture contract violation';
+        // The contract speaks column names ("required key 'maintenance_type'"); the worker reads
+        // field labels. Translate the required-key refusals into the label on the form, so the
+        // toast points at something the person can actually see and tap.
+        const FIELD_LABELS = {
+          machine: 'Asset', maintenance_type: 'Maintenance Type',
+          category: 'Discipline / Category', problem: 'Symptom / What was wrong?',
+        };
+        let firstMsg = (vr.errors && vr.errors[0]?.message) || 'capture contract violation';
+        const reqKey = firstMsg.match(/required key '([a-z_]+)'/);
+        if (reqKey && FIELD_LABELS[reqKey[1]]) firstMsg = 'fill in "' + FIELD_LABELS[reqKey[1]] + '" first.';
         showToast('Cannot save: ' + firstMsg);
         console.error('[capture-violation] logbook_add_entry_v1 BLOCKED INSERT', { payload, errors: vr.errors });
         return { ok: false, reason: 'capture_violation', errors: vr.errors };
@@ -2128,7 +2323,22 @@ async function addEntry(entry) {
     // with a friendly message ("You have logged today's free limit (200).
     // Resets at midnight."). Surface that verbatim instead of a generic error.
     const isQuota = error.code === '54000' || /free limit/i.test(error.message || '');
-    showToast(isQuota ? error.message : ('Could not save entry: ' + error.message));
+    // T38 (2026-08-25): a mid-write session expiry surfaced as raw internals ("new row violates
+    // row-level security policy for table logbook") - naming neither the CAUSE (session) nor the
+    // truth that the draft kept their work. Route through whWriteError, and since a dead-session
+    // RLS refusal is 42501 (not a 401 the taxonomy can see), ask the session directly: a write
+    // refusal with NO user behind it is a session event, not a permission event.
+    let _wMsg = isQuota ? error.message
+      : (typeof whWriteError === 'function'
+          ? whWriteError(error, 'Could not save entry. Please try again.')
+          : 'Could not save entry: ' + error.message);
+    if (!isQuota) {
+      try {
+        const { data: _u } = await db.auth.getUser();
+        if (!_u || !_u.user) _wMsg = 'Your session expired, so nothing was saved. Your entry is kept in the draft - sign in again and press Save.';
+      } catch (_) { /* empty-catch-allow: getUser unreachable (connection-shaped) -> keep the taxonomy sentence already chosen */ }
+    }
+    showToast(_wMsg);
     console.error('[logbook.insert] FAILED', { error, payload });
     return { ok: false, reason: isQuota ? 'quota_daily' : 'db_insert', error };
   }
@@ -2224,13 +2434,15 @@ async function embedFaultEntry(entry) {
 }
 
 async function deleteEntry(id) {
-  if (!(await window.whConfirm('Delete this entry? This cannot be undone.', { okLabel: 'Delete', cancelLabel: 'Cancel' }))) return;
+  // T17 (2026-08-26): trg_logbook_xp_reverse takes back the entry's XP on delete - a real
+  // consequence the confirm and receipt both stayed silent about (reversal-on-glass).
+  if (!(await window.whConfirm('Delete this entry? This cannot be undone, and any XP it earned is taken back.', { okLabel: 'Delete', cancelLabel: 'Cancel' }))) return;
   const { data: deleted, error } = await db.from('logbook')
     .delete()
     .eq('id', id)
     .eq('worker_name', WORKER_NAME)
     .select('id');
-  if (error) { showToast('Could not delete: ' + error.message); return; }
+  if (error) { showToast(whWriteError(error, 'The delete did not go through. The entry is still there.')); return; }
   if (!deleted || !deleted.length) {
     showToast('Could not delete: you can only delete your own entries.');
     return;
@@ -2238,7 +2450,7 @@ async function deleteEntry(id) {
   // Close the modal and refresh
   document.getElementById('modal').classList.add('hidden');
   await renderEntries();
-  showToast('Entry deleted.');
+  showToast('Entry deleted. Any XP it earned was reversed.');
 }
 
 // ────────────────────────────────────────────
@@ -2284,25 +2496,14 @@ function _assetToNode(a) {
   return out;
 }
 
-function saveAssets(arr) {
-  const prev = _assets;
-  _assets = arr;
-  // Delete removed assets
-  prev.forEach(a => {
-    if (!arr.find(x => x.id === a.id)) {
-      db.from('asset_nodes').delete().eq('id', a.id)
-        .then(({ error }) => { if (error) { console.error('asset delete:', error.message); showToast('Asset delete failed: ' + error.message); } });
-    }
-  });
-  // Upsert changed/added assets
-  arr.forEach(asset => {
-    const old = prev.find(o => o.id === asset.id);
-    if (!old || JSON.stringify(old) !== JSON.stringify(asset)) {
-      db.from('asset_nodes').upsert(_assetToNode({ ...asset, worker_name: WORKER_NAME }))
-        .then(({ error }) => { if (error) { console.error('asset sync:', error.message); showToast('Asset save failed: ' + error.message); } });
-    }
-  });
-}
+/* T139 (2026-08-26): saveAssets() DELETED here, not annotated. It was dead code with ZERO
+   callers (static and dynamic - checked) that contained an UNCONFIRMED delete on asset_nodes -
+   a table with SEVEN ON DELETE CASCADE children (sensor_readings, weibull_fits, rcm_fmea_modes,
+   pf_intervals, asset_embeddings, asset_edges, sensor_topic_map). Wired up later by someone
+   reading it as the local save path, it would have destroyed an asset's whole reliability
+   history behind no confirm at all. A dead cascading delete is not harmless: it is a loaded
+   trap that passes review because "it already exists". The live save path is the asset picker's
+   own flow; nothing referenced this. Found by the cascade-confirm-parity oracle. */
 
 async function initAssets() {
   let lsAssets = [];
@@ -2325,8 +2526,13 @@ async function initAssets() {
     // assets: injected server fault" in the measured run, and in production that is whatever Postgres
     // said — a PostgREST code or a constraint name. Same class as a bare 42501 reaching a signed-in
     // reader. The detail belongs in console.error, which already has it.
-    if (hiveRes.error) { console.error('assets load (hive):', hiveRes.error.message); showToast('Could not load the hive equipment list. Check your connection.'); }
-    if (myRes.error)  { console.error('assets load (personal):', myRes.error.message); showToast('Could not load your equipment list. Check your connection.'); }
+    // T176: the remedy used to be hard-coded to "check your connection", which is only one of the
+    // three ways this read fails. An expired session and an RLS refusal both land here too, and
+    // both send the person to the wrong fix - checking the wifi will never restore a dead session.
+    // whReadError reads the error and names the real one, while the comment above still holds:
+    // the upstream sentence stays in console.error, never in the notice.
+    if (hiveRes.error) { console.error('assets load (hive):', hiveRes.error.message); showToast(whReadError(hiveRes.error, 'the hive equipment list')); }
+    if (myRes.error)  { console.error('assets load (personal):', myRes.error.message); showToast(whReadError(myRes.error, 'your equipment list')); }
     const seen = new Set();
     for (const a of [...(myRes.data || []), ...(hiveRes.data || [])]) {
       if (!seen.has(a.id)) { seen.add(a.id); sbAssets.push(a); }
@@ -2335,7 +2541,7 @@ async function initAssets() {
     // canonical-allow: solo-mode asset picker — same COLS shape requirement as hive branch above
     const { data, error } = await db.from('asset_nodes').select(COLS)
       .eq('worker_name', WORKER_NAME).is('hive_id', null).limit(500); // Arc L · L2: row cap (solo-mode asset picker; bounded-by-nature)
-    if (error) { console.error('assets load:', error.message); showToast('Could not load your equipment list. Check your connection.'); }
+    if (error) { console.error('assets load:', error.message); showToast(whReadError(error, 'your equipment list')); }
     sbAssets = data || [];
   }
 
@@ -2504,7 +2710,7 @@ async function submitAsset() {
   const { error } = await db.from('asset_nodes').upsert(_assetToNode({ ...asset, worker_name: WORKER_NAME }));
   if (error) {
     console.error('asset save:', error.message);
-    showToast('Save failed: ' + error.message);
+    showToast(whWriteError(error, 'The save did not go through. Nothing changed; try again.'));
     if (_sb) _sb.disabled = false;
     return;
   }
@@ -2543,14 +2749,27 @@ async function deleteAsset(id) {
     }
   }
 
-  if (!(await window.whConfirm('Remove this asset from the registry?', { okLabel: 'Remove', cancelLabel: 'Cancel' }))) return;
+  // T50 (2026-08-26): this asked "Remove this asset from the registry?" and named NO consequence,
+  // while the FK graph says a deleted asset_nodes row CASCADES seven children - asset_edges,
+  // asset_embeddings, pf_intervals, rcm_fmea_modes, sensor_readings, sensor_topic_map, weibull_fits -
+  // and detaches five more (logbook, anomaly_signals, drone_inspections, pm_knowledge, child assets).
+  // A supervisor reaches this on an APPROVED asset, so the reliability history a plant spent months
+  // accumulating can go behind a four-word question. The platform already words this well elsewhere
+  // ("Delete this FMEA failure mode? Linked RCM strategies will cascade."), so this says both halves:
+  // what dies and what survives, because "what survives" is the half that decides whether someone
+  // proceeds. Radius read from pg_constraint, not guessed.
+  if (!(await window.whConfirm(
+      'Remove this asset from the registry? Its reliability history goes with it: Weibull fits, '
+      + 'FMEA modes, P-F intervals, sensor readings and the asset graph are deleted. Logbook entries '
+      + 'and inspections are kept, but stop being linked to this asset. This cannot be undone.',
+      { okLabel: 'Remove', cancelLabel: 'Cancel' }))) return;
 
   // LG9: same confirmation the edit path needs. The role/ownership checks above are CLIENT guards;
   // asset_nodes_write is the real one and keys on auth_uid, so they can disagree. A 0-row delete
   // returns error:null, and without this the page would write a delete_asset audit entry and drop
   // the asset from the visible list while the row survived, reappearing on the next reload.
   const { data: deletedRows, error } = await db.from('asset_nodes').delete().eq('id', id).select('id');
-  if (error) { showToast('Could not remove asset: ' + error.message); return; }
+  if (error) { showToast(whWriteError(error, 'The asset was not removed. It is still registered.')); return; }
   if (!deletedRows || deletedRows.length === 0) {
     showToast('Could not remove that asset. It can only be removed by whoever registered it, or by a supervisor.', '⚠️');
     return;
@@ -2643,7 +2862,7 @@ async function saveEditAsset() {
   // Corrupting a DOLE/ISO audit trail with amendments that did not occur is the worst of the three.
   const { data: updatedRows, error } = await q.select('id');
   if (error) {
-    errEl.textContent = 'Could not save: ' + error.message;
+    errEl.textContent = whWriteError(error, 'Nothing was saved. Your entry is still on the form; try again.');
     errEl.classList.remove('hidden');
     saveBtn.disabled = false;
     saveBtn.textContent = 'Save Changes';
@@ -3044,11 +3263,12 @@ function closeAssetPicker() {
 
 function renderAssetPickerList(query) {
   const assets = loadAssets().filter(a => !a.status || a.status === 'approved');
-  const q = (query || '').toLowerCase();
+  const q = whFold(query);
   const filtered = q ? assets.filter(a =>
-    (a.asset_id || '').toLowerCase().includes(q) ||
-    (a.name || '').toLowerCase().includes(q) ||
-    (a.location || '').toLowerCase().includes(q)
+    // T128: diacritic-folded so an asset named "Peña Line 2" answers to "Pena"
+    whFold(a.asset_id).includes(q) ||
+    whFold(a.name).includes(q) ||
+    whFold(a.location).includes(q)
   ) : assets;
 
   const list = document.getElementById('asset-picker-list');
@@ -3119,7 +3339,15 @@ async function loadMachineHistory(machineId) {
 
   try {
     const q = db.from('fault_knowledge')
-      .select('problem, root_cause, action, knowledge, worker_name, created_at')
+      // T87/AI6 (2026-08-26): `source` and `ai_model` are SELECTED because this panel presents these
+      // rows as a colleague's field experience - "3 past repairs on PUMP-02", attributed by name.
+      // fault_knowledge is a table the AI also writes into (visual-defect-capture declares authorship
+      // on the row, which the AI6 write gate proves 6/6). The write was accountable and the READ threw
+      // the accountability away: without these columns the glass cannot tell a machine-captured
+      // observation from a repair a person actually did, and this is the panel a technician consults
+      // before opening a machine. Today every row is source='manual' (3813 of 3813), so the defect is
+      // latent - which is exactly when to fix it, before the first AI row lands and reads as human.
+      .select('problem, root_cause, action, knowledge, worker_name, created_at, source, ai_model')
       .eq('machine', machineId)
       .not('problem', 'is', null)
       .order('created_at', { ascending: false })
@@ -3132,7 +3360,37 @@ async function loadMachineHistory(machineId) {
     const { data, error } = await q;
     if (error || !data || !data.length) { wrap.style.display = 'none'; return; }
 
-    title.textContent = data.length + ' past repair' + (data.length > 1 ? 's' : '') + ' on ' + machineId;
+    /* ★THE COUNT WAS THE PAGE SIZE, NOT THE HISTORY (2026-08-28). The title read
+       `data.length + ' past repairs on ' + machineId` over a .limit(5) read, so a machine with 77
+       fault_knowledge rows announced "5 past repairs on M-003" - and 94 machines in this fixture
+       exceed the cap. That is the exact class of "a row cap is not pagination": the number is real
+       about the ARRAY and false about the MACHINE, and this is the panel a technician consults
+       BEFORE opening equipment. Under-reporting history to the person deciding how careful to be is
+       the wrong direction to be wrong in.
+       Fixed by asking for the true total separately (head:true, no rows shipped) and saying both
+       numbers, so the cap becomes visible instead of invisible. If the count read fails the title
+       falls back to describing the LIST rather than the machine - never a number it cannot support. */
+    let _total = null;
+    try {
+      let cq = db.from('fault_knowledge')
+        .select('id', { count: 'exact', head: true })
+        .eq('machine', machineId)
+        .not('problem', 'is', null);
+      if (HIVE_ID) cq = cq.eq('hive_id', HIVE_ID);
+      else         cq = cq.eq('worker_name', WORKER_NAME);
+      const { count, error: cErr } = await cq;
+      if (!cErr && typeof count === 'number') _total = count;
+    } catch (_) { _total = null; }
+
+    const _n = data.length;
+    if (_total !== null && _total > _n) {
+      title.textContent = _total + ' past repairs on ' + machineId + ' · showing the latest ' + _n;
+    } else if (_total !== null) {
+      title.textContent = _total + ' past repair' + (_total > 1 ? 's' : '') + ' on ' + machineId;
+    } else {
+      // the total is unknown, so describe the LIST and claim nothing about the machine
+      title.textContent = 'Latest ' + _n + ' repair' + (_n > 1 ? 's' : '') + ' on ' + machineId;
+    }
 
     content.innerHTML = data.map(r => {
       const dt = r.created_at
@@ -3144,7 +3402,19 @@ async function loadMachineHistory(machineId) {
         + (r.action   ? '<p style="color:var(--wh-green); margin-bottom:3px; font-size:0.7rem;"><span style="color:rgba(255,255,255,0.80); font-size:0.65rem; text-transform:uppercase; letter-spacing:0.05em;">Fixed by</span><br>' + escHtml(r.action) + '</p>' : '')
         + (r.knowledge ? '<p style="color:rgba(255,255,255,0.80); font-size:0.68rem; font-style:italic;">' + escHtml(r.knowledge) + '</p>' : '')
         + '<p style="color:rgba(255,255,255,0.80); font-size:0.65rem; margin-top:4px;">'
-        + (r.worker_name ? escHtml(r.worker_name) + ' · ' : '') + dt + '</p>'
+        + (r.worker_name ? escHtml(r.worker_name) + ' · ' : '') + dt
+        // AI6 render half: anything not logged by a person says so, beside the name it would
+        // otherwise borrow. Named model where the row carries one, because "AI-captured" and
+        // "AI-captured by <model>" answer different questions when the entry turns out wrong.
+        // The test is `source LIKE 'ai_%'`, not `!== 'manual'`, because that is the contract the
+        // DATABASE actually enforces: CHECK (source ~~ 'ai\_%') = (ai_model IS NOT NULL). Reading a
+        // row by the same rule the write is held to means the badge cannot drift from the guarantee -
+        // and a future non-AI source like 'import' or 'vendor' will not be mislabelled as a machine.
+        + (/^ai_/.test(String(r.source || ''))
+            ? ' · <span style="color:var(--wh-violet-text, #d8b4fe);">AI-captured'
+              + (r.ai_model ? ' (' + escHtml(String(r.ai_model)) + ')' : '') + '</span>'
+            : '')
+        + '</p>'
         + '</div>';
     }).join('');
 
@@ -3511,6 +3781,28 @@ document.getElementById('logbook-scan-btn')?.addEventListener('click', function 
 document.getElementById('asset-picker-modal-close').addEventListener('click', closeAssetPicker);
 document.getElementById('asset-picker-modal').addEventListener('click', function(e) { if (e.target === this) closeAssetPicker(); });
 document.getElementById('asset-picker-search').addEventListener('input', debounce(function() { renderAssetPickerList(this.value.trim()); }, 200));
+// T48 (2026-08-25): the options are real BUTTONS (Tab+Enter already works), but a keyboard user
+// at the search box reaches for ArrowDown first - measured: ArrowDown+Enter selected nothing.
+// Wire the combobox expectation: ArrowDown from search enters the list; arrows move between
+// options; Enter activates natively (they are buttons); focus is visible via the platform ring.
+document.getElementById('asset-picker-search').addEventListener('keydown', function (e) {
+  if (e.key === 'ArrowDown') {
+    const first = document.querySelector('#asset-picker-list button[data-asset-id]');
+    if (first) { e.preventDefault(); first.focus(); }
+  }
+});
+document.getElementById('asset-picker-list').addEventListener('keydown', function (e) {
+  if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
+  const opts = Array.from(this.querySelectorAll('button[data-asset-id]'));
+  const i = opts.indexOf(document.activeElement);
+  if (i === -1) return;
+  e.preventDefault();
+  if (e.key === 'ArrowDown' && i < opts.length - 1) opts[i + 1].focus();
+  else if (e.key === 'ArrowUp') {
+    if (i > 0) opts[i - 1].focus();
+    else document.getElementById('asset-picker-search').focus();
+  }
+});
 document.getElementById('asset-picker-register-btn').addEventListener('click', function() {
   closeAssetPicker();
   openAssetModal('register');
@@ -3547,7 +3839,8 @@ document.getElementById('open-asset-modal-btn').addEventListener('click', () => 
       const { data, error } = await db.functions.invoke('equipment-label-ocr', {
         body: { image_data_url: dataUrl, hive_id: HIVE_ID || null },
       });
-      if (error) throw error;
+      // T39: the raw error's .message is the placeholder; the catch reads exactly that.
+      if (error) throw new Error(await window.whFnError(error, 'The label could not be read.'));
       const parsed = (data && data.parsed) || {};
       let filled = 0;
       const setField = (id, val) => {
@@ -3587,6 +3880,79 @@ const catColors = {
   Lubrication:     { bg: 'rgba(234,179,8,0.15)',  text: '#facc15', border: 'rgba(234,179,8,0.25)' },
   Other:           { bg: 'rgba(255,255,255,0.07)', text: 'rgba(255,255,255,0.5)', border: 'rgba(255,255,255,0.12)' },
 };
+
+/* T15 (2026-08-27): THE READ PATH SHOWS WHAT THE WRITE PATH CAPTURED.
+
+   These three were declared inside renderEntries, which is why the detail modal could not show
+   the safety flag even though the card did - a page-scoped symbol is invisible to its sibling
+   render. They are top-level now so the entry CARD and the detail MODAL share one definition;
+   a third read surface should call these rather than clone them. */
+
+function lotoBadge(e) {
+  if (!e || (!e.loto_applied && !e.permit_reference)) return '';
+  const ref = e.permit_reference ? ' ' + escHtml(String(e.permit_reference)) : '';
+  return '<span class="text-[10px] font-bold px-2 py-0.5 rounded-full" title="Lock-out / tag-out or a permit to work was applied on this job"'
+    + ' style="background:rgba(247,162,27,0.16);color:var(--wh-orange-text);border:1px solid rgba(247,162,27,0.35);">'
+    + '&#128274; LOTO' + ref + '</span>';
+}
+
+/* failure_consequence is on 1,075 entries and one of its four values is "Safety risk" - the same
+   class of fact as LOTO and equally invisible until now. Severity colours it: a reader scanning
+   history should see a safety consequence at the same glance-distance as the lock-out badge. */
+function consequenceBadge(e) {
+  const v = e && e.failure_consequence;
+  if (!v) return '';
+  const t = String(v).toLowerCase();
+  const severe = t.indexOf('safety') >= 0 || t.indexOf('stopped') >= 0;
+  const mid    = t.indexOf('reduced') >= 0;
+  const style = severe
+    ? 'background:rgba(239,68,68,0.12);color:var(--wh-red);border:1px solid rgba(239,68,68,0.3);'
+    : mid
+      ? 'background:rgba(247,162,27,0.12);color:var(--wh-orange-text);border:1px solid rgba(247,162,27,0.3);'
+      : 'background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.7);border:1px solid rgba(255,255,255,0.12);';
+  return '<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full" title="What this failure did to the plant"'
+    + ' style="' + style + '">' + escHtml(String(v)) + '</span>';
+}
+
+/* readings_json is on 1,767 of 3,811 entries - nearly half the logbook - and was readable by
+   nobody. Comparing today's temperature against the reading taken at the last failure is the
+   whole reason to search fault history, so it renders as labelled values, never as raw JSON
+   (the audit-log lesson: a reader should not have to parse a payload).
+
+   The six keys the table actually contains all carry their unit as a suffix. An unrecognised
+   suffix falls through to the humanised key with the suffix kept, so a future reading type
+   degrades to something readable instead of disappearing. */
+var WH_READING_UNITS = {
+  c: '&deg;C', bar: 'bar', mms: 'mm/s', a: 'A', v: 'V', ma: 'mA',
+  hz: 'Hz', rpm: 'rpm', kw: 'kW', psi: 'psi', mm: 'mm', pct: '%'
+};
+
+function readingsBlock(e) {
+  var r = e && e.readings_json;
+  if (!r) return '';
+  if (typeof r === 'string') { try { r = JSON.parse(r); } catch (_e) { return ''; } }
+  if (typeof r !== 'object' || Array.isArray(r)) return '';
+  var keys = Object.keys(r).filter(function (k) { return r[k] !== null && r[k] !== ''; });
+  if (!keys.length) return '';
+
+  var cells = keys.map(function (k) {
+    var parts = String(k).split('_');
+    var last  = parts.length > 1 ? parts[parts.length - 1].toLowerCase() : '';
+    var unit  = Object.prototype.hasOwnProperty.call(WH_READING_UNITS, last) ? WH_READING_UNITS[last] : '';
+    var label = (unit ? parts.slice(0, -1) : parts).join(' ');
+    label = label.charAt(0).toUpperCase() + label.slice(1);
+    if (!unit && parts.length > 1) label = String(k).split('_').join(' ');
+    return '<div class="rounded-lg px-3 py-2" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);">'
+      + '<p class="text-[10px] uppercase tracking-wider" style="color:rgba(255,255,255,0.55);">' + escHtml(label) + '</p>'
+      + '<p class="text-sm font-semibold text-white/90">' + escHtml(String(r[k])) + (unit ? ' <span class="text-xs font-normal text-white/60">' + unit + '</span>' : '') + '</p>'
+      + '</div>';
+  }).join('');
+
+  return '<div class="mb-5">'
+    + '<p class="text-[10px] text-white/80 uppercase tracking-widest font-semibold mb-2">Readings taken</p>'
+    + '<div class="grid grid-cols-2 gap-2">' + cells + '</div>'
+    + '</div>';
+}
 
 function catBadge(cat) {
   if (!cat) return '';
@@ -3634,9 +4000,15 @@ function highlight(text, query) {
 
 function formatDate(iso) {
   // FD1a: date part = canonical whFmtDate (en-PH + Asia/Manila); the ' · time' layout is kept.
+  // T9/T32 two-clocks fix (2026-09-02): the TIME half used toLocaleTimeString with NO timeZone —
+  // the viewer's local clock — glued to a Manila-pinned DATE. Walked live at GMT+12: a save at
+  // 20:09 Manila rendered "Sep 1 · 12:09 AM" (Manila's date, Auckland's time — a pair no clock on
+  // earth shows). One entry, one clock: both halves now pin Asia/Manila, matching the plant-clock
+  // anchor the asset-hub snapshot chip ("13:00 PHT") and the shift windows already use.
   const d = new Date(iso);
-  const datePart = (typeof whFmtDate === 'function') ? whFmtDate(iso) : d.toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' });
-  return datePart + ' · ' + d.toLocaleTimeString('en-PH', { hour: '2-digit', minute: '2-digit' });
+  if (typeof whFmtDate === 'function') return whFmtDate(iso) + ' · ' + whFmtDate(iso, { timeOnly: true });
+  return d.toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'Asia/Manila' })
+       + ' · ' + d.toLocaleTimeString('en-PH', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Manila' });
 }
 
 // Header stat pills ("Your Repair Logbook") always reflect the worker's OWN
@@ -3654,6 +4026,9 @@ async function updateStatPills() {
   }
   const allMachines = new Set(_allEntries.map(e => (e.machine || '').trim().toUpperCase()).filter(Boolean));
   document.getElementById('machine-count').textContent = allMachines.size;
+  // '1 assets' read wrong on the solo owner's pill (VP5, T131 counted-noun class)
+  const _mcNoun = document.getElementById('machine-count-noun');
+  if (_mcNoun) _mcNoun.textContent = allMachines.size === 1 ? 'asset' : 'assets';
   // total + open must reflect the worker's FULL history, not the capped 200-entry
   // display window (loadEntries .limit(200)). Reading _allEntries.length froze a
   // prolific user at "200 entries" forever and made "open" understate real
@@ -3671,10 +4046,19 @@ async function updateStatPills() {
     let qOpen  = db.from('logbook').select('*', { count: 'exact', head: true }).eq('worker_name', WORKER_NAME).eq('status', 'Open');
     if (HIVE_ID) { qTotal = qTotal.or(`hive_id.eq.${HIVE_ID},hive_id.is.null`); qOpen = qOpen.or(`hive_id.eq.${HIVE_ID},hive_id.is.null`); }
     const [tRes, oRes] = await Promise.all([qTotal, qOpen]);
-    if (tRes.error || tRes.count == null) { _dashPill('total-count'); _lbReadFailed = true; }
-    else document.getElementById('total-count').textContent = tRes.count;
-    if (oRes.error || oRes.count == null) { _dashPill('open-count'); _lbReadFailed = true; }
-    else document.getElementById('open-count').textContent = oRes.count;
+    if (tRes.error || tRes.count == null) { _dashPill('total-count'); _lbReadFailed = true; _mineTrueTotal = null; }
+    else { document.getElementById('total-count').textContent = tRes.count; _mineTrueTotal = tRes.count; }
+    if (oRes.error || oRes.count == null) { _dashPill('open-count'); _lbReadFailed = true; _mineTrueOpen = null; }
+    else { document.getElementById('open-count').textContent = oRes.count; _mineTrueOpen = oRes.count; }
+    // T9 cap-as-total fix (2026-09-02): stash the TRUE worker-scoped counts so the "Jobs closed out"
+    // goal-gradient uses them, not _allEntries.length (a capped ~200-row load window that read
+    // "200 of 200" for a 314-entry worker - a row cap masquerading as a total). renderEntries()
+    // repaints the bar from these when present.
+    // ★fromStatPills breaks a CYCLE (idle-network, 2026-09-03): renderEntries ends with
+    // updateStatPills() in mine-mode, and this T9 repaint call closed the loop —
+    // updateStatPills -> renderEntries -> updateStatPills fired the two head-count queries
+    // at ~90 req/s forever (6,700 idle requests in 75s, measured on a quiet machine).
+    if (typeof renderEntries === 'function' && _allEntries.length) renderEntries(false, true);
     // The window count is a legitimate reading of what IS loaded, so it stays — but only when the
     // count read succeeded and simply disagrees with the capped window is it worth nothing extra.
   } catch {
@@ -3700,7 +4084,7 @@ function _lbSyncFailurePanel() {
   return true;
 }
 
-async function renderEntries(reload = true) {
+async function renderEntries(reload = true, fromStatPills = false) {
   const teamPrompt = document.getElementById('team-prompt');
 
   // A failure already recorded by an earlier read (the init-time personal load, the count queries)
@@ -3738,9 +4122,15 @@ async function renderEntries(reload = true) {
   // (a team-wide bar isn't MY goal); hidden when no entries are loaded.
   const lbProg = document.getElementById('lb-progress');
   if (lbProg) {
-    const closed = _allEntries.filter(en => en.status === 'Closed').length;
+    // T9 cap-as-total fix: prefer the TRUE worker-scoped totals (count:exact) over the loaded
+    // window. _allEntries is capped, so its length is not the denominator - closed = total - open
+    // from the exact counts; fall back to the window only until the counts resolve.
+    const _haveTrue = (typeof _mineTrueTotal === 'number' && typeof _mineTrueOpen === 'number');
+    const total  = _haveTrue ? _mineTrueTotal : _allEntries.length;
+    const closed = _haveTrue ? Math.max(0, _mineTrueTotal - _mineTrueOpen)
+                             : _allEntries.filter(en => en.status === 'Closed').length;
     lbProg.innerHTML = (_viewMode !== 'team' && typeof whProgressStrip === 'function')
-      ? whProgressStrip('Jobs closed out', closed, _allEntries.length) : '';
+      ? whProgressStrip('Jobs closed out', closed, total) : '';
   }
   const query        = document.getElementById('search-input').value.trim().toLowerCase();
   const catFilter    = document.getElementById('filter-category').value;
@@ -3752,14 +4142,20 @@ async function renderEntries(reload = true) {
     const matchStatus = !statusFilter || (e.status || 'Open') === statusFilter;
     if (!matchCat || !matchStatus) return false;
     if (!query) return true;
+    // T128: fold diacritics so "Pena" finds "Peña" (PH names carry them constantly and a plant
+    // keyboard does not). whFold case-folds too, so it replaces toLowerCase rather than stacking.
+    const _fq = (typeof whFold === 'function') ? whFold(query) : query;
     return [e.machine, e.problem, e.action, e.knowledge, e.category, e.root_cause, e.maintenance_type]
-      .some(f => f && f.toLowerCase().includes(query));
+      .some(f => f && ((typeof whFold === 'function') ? whFold(f) : f.toLowerCase()).includes(_fq));
   });
 
   // Stats always reflect personal entries (header cards say "Your Repair Logbook").
   // In team mode the pills are kept current by the init-time personal load +
   // updateStatPills(); they must NOT be overwritten by team-feed counts here.
-  if (_viewMode !== 'team') updateStatPills();
+  // fromStatPills guards the CYCLE: when THIS render was the pills' own T9 goal-bar
+  // repaint, calling back into updateStatPills looped the two head-count queries at
+  // ~90 req/s forever (idle-network, 2026-09-03).
+  if (_viewMode !== 'team' && !fromStatPills) updateStatPills();
 
   const list      = document.getElementById('entries-list');
   const empty     = document.getElementById('empty-state');
@@ -3810,12 +4206,18 @@ async function renderEntries(reload = true) {
 
   if (_viewMode === 'team') {
     wrap.classList.toggle('hidden', !_teamHasMore);
+    // T131 (2026-08-26): a filtered list that finds exactly one match said "1 entries found".
+    // Small, but it is the counter under the search box on the page a worker uses every day, and
+    // software that cannot count to one reads as unfinished. Uses this codebase's own existing
+    // idiom (`${n} asset${n === 1 ? '' : 's'}`) rather than introducing a helper.
+    const _e = (n) => `${n} entr${n === 1 ? 'y' : 'ies'}`;
     lbl.textContent = _teamHasMore
-      ? `Showing ${visible.length} entries (load more below)`
-      : `${visible.length} entries found`;
+      ? `Showing ${_e(visible.length)} (load more below)`
+      : `${_e(visible.length)} found`;
   } else {
     wrap.classList.toggle('hidden', _logbookDisplayCount >= filtered.length);
-    lbl.textContent = `Showing ${visible.length} of ${filtered.length} entries`;
+    const _e2 = (n) => `${n} entr${n === 1 ? 'y' : 'ies'}`;
+    lbl.textContent = `Showing ${visible.length} of ${_e2(filtered.length)}`;
   }
 
   list.innerHTML = visible.map(e => {
@@ -3826,7 +4228,7 @@ async function renderEntries(reload = true) {
     const knowledge = highlight(e.knowledge, q);
 
     return `
-    <div class="card p-5 mb-3 entry-card cursor-pointer hover:border-white/15 transition-colors" onclick="openModal('${e.id}')">
+    <div class="card p-5 mb-3 entry-card cursor-pointer hover:border-white/15 transition-colors" onclick="openModal('${e.id}')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openModal('${e.id}')}" aria-label="Open entry: ${escHtml((e.machine || '') + ' - ' + (e.problem || '').slice(0, 60))}">
       <div class="flex items-start justify-between gap-3 mb-3">
         <div class="flex-1 min-w-0">
           <div class="flex items-center gap-2 flex-wrap mb-1">
@@ -3834,6 +4236,7 @@ async function renderEntries(reload = true) {
             ${catBadge(e.category)}
             ${statusBadge(e.status || 'Open')}
             ${woStateBadge(e.wo_state, e.wo_assigned_to)}
+            ${lotoBadge(e)}${consequenceBadge(e)}
             ${_syncedMachineSource[e.machine] ? `<span class="text-[10px] font-semibold px-1.5 py-0.5 rounded-md" style="background:rgba(41,182,217,0.1);color:var(--wh-blue-light);border:1px solid rgba(41,182,217,0.25);" title="Sourced from CMMS integration">⇄ ${escHtml(_syncedMachineSource[e.machine])}</span>` : ''}
             ${(e._offline || e._pending_edit) ? `<span class="text-[10px] font-semibold px-1.5 py-0.5 rounded-md" style="background:rgba(247,162,27,0.15);color:var(--wh-orange-text);border:1px solid rgba(247,162,27,0.2);">${e._offline ? 'Pending sync' : 'Edit pending sync'}</span>` : ''}
           </div>
@@ -3901,7 +4304,13 @@ async function openModal(id) {
     <div class="flex flex-wrap gap-2 mb-4">
       ${entry.maintenance_type ? `<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full" style="background:rgba(41,182,217,0.12);color:var(--wh-blue-light);border:1px solid rgba(41,182,217,0.2)">${escHtml(entry.maintenance_type)}</span>` : ''}
       ${entry.downtime_hours != null ? `<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full" style="background:rgba(239,68,68,0.1);color:var(--wh-red);border:1px solid rgba(239,68,68,0.2)">${entry.downtime_hours}h downtime</span>` : ''}
-    </div>
+      ${(String(entry.id || '').startsWith('pm-') || entry.pm_completion_id) ? `<a href="pm-scheduler.html?asset=${encodeURIComponent(entry.machine || '')}" class="text-[10px] font-bold px-2 py-0.5 rounded-full underline" style="background:rgba(74,222,128,0.1);color:var(--wh-green);border:1px solid rgba(74,222,128,0.25);min-height:44px;display:inline-flex;align-items:center;" title="This entry was created by a PM completion - open the asset's PM schedule">from PM Schedule → view tasks</a>` : ''}
+      ${lotoBadge(entry)}
+      ${consequenceBadge(entry)}
+    </div><!-- T32: the pm-scheduler mirror mints 'pm-' prefixed ids for traceability; surfacing that
+         marker lets a reader narrate the entry's path (PM completion -> logbook -> analytics)
+         instead of mistaking the mirror for a hand-typed entry. -->
+
     <p class="text-xs text-white/80 mb-5">${formatDate(entry.date)}</p>
 
     ${entry.problem ? `
@@ -3921,6 +4330,8 @@ async function openModal(id) {
       <p class="text-[10px] text-white/80 uppercase tracking-widest font-semibold mb-1.5">Action taken</p>
       <p class="text-sm text-white/85 leading-relaxed">${escHtml(entry.action)}</p>
     </div>` : ''}
+
+    ${readingsBlock(entry)}
 
     ${entry.knowledge ? `
     <div class="rounded-xl px-4 py-4 mb-5" style="background: rgba(247,162,27,0.07); border: 1px solid rgba(247,162,27,0.15);">
@@ -3964,7 +4375,11 @@ async function openModal(id) {
     ${_canWriteEntry(entry) ? `
     <div class="flex gap-2 pt-2 border-t border-white/[0.07] mt-2">
       <button onclick="openEditModal('${entry.id}')" class="btn-primary flex-1 text-sm">Edit Entry</button>
-      <button onclick="confirmDelete('${entry.id}'); document.getElementById('modal').classList.add('hidden');" class="btn-danger px-4 text-sm py-2">Delete</button>
+      <!-- T50/T27 (2026-08-28): the inline modal-hide used to run SYNCHRONOUSLY, immediately after
+           calling an async confirm - so the entry's modal vanished before the person had answered,
+           and cancelling still closed it. deleteEntry closes the modal itself, and only once the
+           delete has actually landed. -->
+      <button onclick="confirmDelete('${entry.id}')" class="btn-danger px-4 text-sm py-2">Delete</button>
     </div>` : `
     <div class="flex items-center gap-2 pt-2 border-t border-white/[0.07] mt-2">
       <span class="ic ic-secure" aria-hidden="true"></span>
@@ -4252,7 +4667,7 @@ async function saveEditFromForm() {
   const { data: updatedRows, error } = await updateQuery.select('id');
   if (error) {
     console.error('logbook edit-save failed:', { error, id, worker_name: WORKER_NAME, updates });
-    showToast('Could not update: ' + error.message);
+    showToast(whWriteError(error, 'The update did not go through. The entry is unchanged; try again.'));
     saveBtn.disabled = false;
     saveBtn.textContent = 'Update Entry';
     return;
@@ -4266,16 +4681,36 @@ async function saveEditFromForm() {
     return;
   }
 
+  // T108 (2026-08-25): if this edit ASSIGNED the work order, tell the ASSIGNEE — the badge
+  // alone was silent work (they discovered their job by scrolling). Guarded server-side
+  // (member-of-hive caller, recipient resolved from the entry, self-assign no-op, free-text
+  // names that match no member resolve to nothing — honest partial reach). .then() attached:
+  // supabase-js builders are thenables and never send un-awaited (measured on mig 003).
+  if (_woAssignedVal) {
+    try { db.rpc('notify_wo_assigned', { p_entry_id: String(id) }).then(() => {}, () => {}); }
+    catch (_) { /* empty-catch-allow: the edit stands; the nudge is best-effort */ }
+  }
+
   // Deduct newly added parts (skip existing — already deducted on original save)
   for (const p of _partsUsed) {
     if (!p.partId || p._existing) continue;
     const item   = _inventoryItems.find(i => i.id === p.partId);
     // Arc S C-lens (gap-C-002): atomic balance+ledger in ONE txn (no partial-write corruption)
+    // T11: the EDIT path deducts too, and had the same blind spot as the save path - it checked
+    // only `error`, and inventory_deduct clamps instead of refusing, so a part that ran out between
+    // the original save and this amendment moved nothing and said nothing.
+    const txnId = (window.crypto && crypto.randomUUID) ? crypto.randomUUID()
+      : 'txn-' + Date.now() + '-' + Math.random().toString(36).slice(2, 10);
     const { data: newQty, error: deductErr } = await db.rpc('inventory_deduct', {
-      p_item_id: p.partId, p_qty: p.qty, p_note: 'Used in job: ' + updates.machine, p_job_ref: updates.machine
+      p_item_id: p.partId, p_qty: p.qty, p_note: 'Used in job: ' + updates.machine, p_job_ref: updates.machine,
+      p_txn_id: txnId
     });
-    if (deductErr) { showToast('Stock update failed for ' + p.partName + ': ' + deductErr.message); continue; }
+    if (deductErr) { showToast(whWriteError(deductErr, 'Stock was NOT deducted for ' + p.partName + '. The shelf count is unchanged - deduct it in Inventory.')); continue; }
     if (item && typeof newQty === 'number') item.qty_on_hand = newQty;
+    const mvEdit = await whDeductMoved(db, txnId, p.qty);
+    if (mvEdit && mvEdit.short) {
+      showToast(whWriteError(null, whShortMoveNotice(p.partName, mvEdit.moved, mvEdit.requested)));
+    }
   }
 
   // LG1 (2026-07-28): the amendment record for the DOLE/ISO trail. It was missing here entirely.
@@ -4310,12 +4745,16 @@ document.getElementById('modal').addEventListener('click', (e) => {
 // ────────────────────────────────────────────
 // DELETE
 // ────────────────────────────────────────────
+/* T50/T27 (2026-08-28): this wrapper used to ASK THE SAME QUESTION AGAIN and then announce success
+   whatever happened. deleteEntry already confirms, already re-renders, already closes the modal,
+   and already speaks honestly on both failure paths - a refused write ("The delete did not go
+   through. The entry is still there.") and an RLS-empty result ("you can only delete your own
+   entries."). Wrapping it in a second confirm made the person answer twice, and the unconditional
+   toast below OVERWROTE those honest failures a moment later with "Entry deleted. Any XP it earned
+   was reversed." - so the one flow that must never lie about whether data is gone announced a
+   deletion that had just been refused, and a reversal that never happened. */
 async function confirmDelete(id) {
-  if (await window.whConfirm('Delete this entry? This cannot be undone.', { okLabel: 'Delete', cancelLabel: 'Cancel' })) {
-    await deleteEntry(id);
-    await renderEntries();
-    showToast('Entry deleted.');
-  }
+  await deleteEntry(id);
 }
 
 // ────────────────────────────────────────────
@@ -4528,7 +4967,7 @@ document.getElementById('log-form').addEventListener('submit', async function(e)
       pickerBtn.style.borderColor = 'rgba(239,68,68,0.6)';
       setTimeout(() => pickerBtn.style.borderColor = '', 2000);
     }
-    showToast('Please select an asset before saving.', '⚠️');
+    showToast(_t('Please select an asset before saving.', 'Pumili ng asset bago mag-save.'), '⚠️');
     saveBtn.disabled = false;
     saveBtn.textContent = 'Save Entry';
     return;
@@ -4539,7 +4978,7 @@ document.getElementById('log-form').addEventListener('submit', async function(e)
     catEl.style.borderColor = 'rgba(239,68,68,0.6)';
     catEl.focus();
     setTimeout(() => { catEl.style.borderColor = ''; }, 2000);
-    showToast('Please select a discipline / category.', '⚠️');
+    showToast(_t('Please select a discipline / category.', 'Pumili ng discipline / kategorya.'), '⚠️');
     saveBtn.disabled = false;
     saveBtn.textContent = 'Save Entry';
     return;
@@ -4553,7 +4992,7 @@ document.getElementById('log-form').addEventListener('submit', async function(e)
     probEl.style.borderColor = 'rgba(239,68,68,0.6)';
     probEl.focus();
     setTimeout(() => { probEl.style.borderColor = ''; }, 2000);
-    showToast('Please describe the problem you observed.', '⚠️');
+    showToast(_t('Please describe the problem you observed.', 'Ilarawan ang problemang napansin mo.'), '⚠️');
     saveBtn.disabled = false;
     saveBtn.textContent = 'Save Entry';
     return;
@@ -4574,14 +5013,20 @@ document.getElementById('log-form').addEventListener('submit', async function(e)
     sect.style.borderRadius = '0.5rem';
     sect.scrollIntoView({ behavior: 'smooth', block: 'center' });
     setTimeout(() => { sect.style.outline = ''; }, 3000);
-    showToast('Please select what was the impact (required for Breakdown entries).', '⚠️');
+    showToast(_t('Please select what was the impact (required for Breakdown entries).', 'Piliin kung ano ang naging impact (kailangan ito para sa Breakdown entries).'), '⚠️');
     saveBtn.disabled = false;
     saveBtn.textContent = 'Save Entry';
     return;
   }
 
   // Duplicate entry soft guard (same worker + machine + today)
-  if (machine && !_duplicateWarned) {
+  // T14 (2026-08-25): navigator.onLine gate. This read is the ONLY network await between the
+  // Save tap and addEntry's offline-queue branch — offline (measured: setOffline + submit) the
+  // fetch never settled, so the whole chain hung at "Saving…" with no toast, no queued row on
+  // the glass, and the honest offline branch at addEntry unreachable. A dead-zone save must
+  // reach the queue; today's-duplicate softness is not worth a hang (addEntry's 30s
+  // whRecentDuplicate still guards the drain).
+  if (machine && !_duplicateWarned && navigator.onLine) {
     const todayStart = new Date(); todayStart.setHours(0,0,0,0);
     const { data: dupeCheck } = await db.from('logbook')
       .select('id').eq('worker_name', WORKER_NAME).eq('machine', machine)
@@ -4663,6 +5108,19 @@ document.getElementById('log-form').addEventListener('submit', async function(e)
     return;
   }
 
+  // T14 (2026-08-25): the entry went to the OFFLINE QUEUE - every side effect below
+  // (pm_completions insert, inventory deduct RPC, the ripple receipt) is a NETWORK call
+  // that would hang the handler in a dead zone exactly like the dupe-check did, leaving
+  // the button at "Saving…" forever. Clean up locally and stop: the queued entry's honest
+  // toast already fired inside addEntry. (Checked PM tasks / parts on an offline save ride
+  // with the entry only, not as separate writes - a queue-drain follow-up, not a hang.)
+  if (addResult && addResult.offline === true) {
+    clearForm();
+    saveBtn.disabled = false;
+    saveBtn.textContent = 'Save Entry';
+    return;
+  }
+
   // Save PM completions for checked PM tasks
   const checkedPM = [...document.querySelectorAll('.pm-task-check:checked')];
   if (checkedPM.length > 0) {
@@ -4679,7 +5137,7 @@ document.getElementById('log-form').addEventListener('submit', async function(e)
     const { error: pmErr } = await db.from('pm_completions').insert(pmPayloads);
     if (pmErr) {
       console.warn('PM completions save failed:', pmErr.message);
-      showToast('Entry saved. PM tasks failed to record: check your connection and retry.');
+      showToast('Entry saved. ' + whWriteError(null, 'Its PM tasks did NOT record, so those PMs still count as due - complete them in PM Scheduler.'));
     }
   }
 
@@ -4688,11 +5146,37 @@ document.getElementById('log-form').addEventListener('submit', async function(e)
     if (!p.partId) continue;
     const item = _inventoryItems.find(i => i.id === p.partId);
     // Arc S C-lens (gap-C-002): atomic balance+ledger in ONE txn (no partial-write corruption)
+    // T11 (2026-08-27): p_txn_id is passed so the CLIENT can find out what actually moved.
+    // inventory_deduct clamps rather than refuses - `v_qty := GREATEST(0, v_qty - p_qty)` - so
+    // losing the last-unit race returns NORMALLY having moved NOTHING. Measured: shelf 0, ask 1,
+    // return 0, a ledger row written with qty_change 0, and no error anywhere. Checking `deductErr`
+    // therefore cannot see it, and the worker is told "Entry saved" while their entry claims a part
+    // the shelf never gave up. The return value alone cannot distinguish "took the last one" from
+    // "there were none": both end at 0. The ledger row can, because it records what moved.
+    const txnId = (window.crypto && crypto.randomUUID) ? crypto.randomUUID()
+      : 'txn-' + Date.now() + '-' + Math.random().toString(36).slice(2, 10);
     const { data: newQty, error: deductErr } = await db.rpc('inventory_deduct', {
-      p_item_id: p.partId, p_qty: p.qty, p_note: 'Used in job: ' + machine, p_job_ref: machine
+      p_item_id: p.partId, p_qty: p.qty, p_note: 'Used in job: ' + machine, p_job_ref: machine,
+      p_txn_id: txnId
     });
-    if (deductErr) { console.error('deduct rpc:', deductErr.message); showToast('Stock update failed for ' + p.partName + ': ' + deductErr.message); continue; }
+    // T176: this echoed the RPC's own sentence, which never says the thing that matters — the
+    // ENTRY landed and the STOCK did not, so the shelf and the system now disagree and only a
+    // person can reconcile them. Same shape as the PM-mirror line above, which already says
+    // "Entry saved." first and then names what did NOT happen and where to finish it.
+    if (deductErr) {
+      console.error('deduct rpc:', deductErr.message);
+      showToast('Entry saved. ' + whWriteError(deductErr, 'Stock for ' + p.partName + ' was NOT deducted, so the shelf and the system disagree - issue it in Inventory.'));
+      continue;
+    }
     if (item && typeof newQty === 'number') item.qty_on_hand = newQty; // update local cache
+    // Did the shelf actually give up what was asked for? whDeductMoved reads the ledger row, the
+    // only honest witness: it carries qty_change = -(what moved), which is 0 when the part was
+    // already gone. A stale local cache cannot answer this - being stale is exactly what the race
+    // does to it - so ask the row.
+    const mv = await whDeductMoved(db, txnId, p.qty);
+    if (mv && mv.short) {
+      showToast('Entry saved. ' + whWriteError(null, whShortMoveNotice(p.partName, mv.moved, mv.requested)));
+    }
   }
   const pmSaved = [...document.querySelectorAll('.pm-task-check:checked')].length;
   const partsDeducted = _partsUsed.filter(p => p.partId).length;
@@ -4712,7 +5196,17 @@ document.getElementById('log-form').addEventListener('submit', async function(e)
   if (pmSaved > 0)       _fx.push(`${pmSaved} PM task${pmSaved > 1 ? 's' : ''} → PM Scheduler compliance`);
   if (partsDeducted > 0) _fx.push(`${partsDeducted} part${partsDeducted > 1 ? 's' : ''} → Inventory + stock alerts`);
   if (_isFault && _machine) _fx.push(`risk score for ${_machine} (next scoring)`);
-  showToast(`✓ Logged: updated ${_fx.join(' · ')}`, _fx.length > 1 ? 6000 : 2800);
+  // T17 (2026-08-25): the trg_logbook_achievement trigger pays XP on this insert (506 awards in the
+  // ledger) and NO earning surface ever said so - the motivation loop fired invisibly. Read back the
+  // just-written award rows so the receipt claims exactly what the ledger holds, nothing invented.
+  let _xpNote = '';
+  try {
+    const { data: _xpRows } = await db.from('achievement_xp_log')
+      .select('xp_earned').eq('source_id', entry.id).is('reversed_at', null).limit(20);  // L2: a source pays a handful of awards at most
+    const _xpSum = (_xpRows || []).reduce((s, r2) => s + (r2.xp_earned || 0), 0);
+    if (_xpSum > 0) _xpNote = ` · +${_xpSum} XP`;
+  } catch (_) { /* empty-catch-allow: xp read failed -> the receipt claims nothing rather than guessing an award */ }
+  showToast(`✓ Logged: updated ${_fx.join(' · ')}${_xpNote}`, _fx.length > 1 ? 6000 : 2800);
   saveBtn.disabled = false;
   saveBtn.textContent = 'Save Entry';
 });
@@ -4722,11 +5216,21 @@ document.getElementById('clear-form').addEventListener('click', clearForm);
 // ── Step form navigation ──────────────────────────────────────────────────────
 
 let _currentStep = 1;
-const STEP_LABELS = {
-  1: 'Step 1: Machine & Type',
-  2: 'Step 2: What Happened',
-  3: 'Step 3: What You Did',
+// L2 (critic T45, 2026-09-02): the wizard's guidance labels stayed English in FIL mode while
+// index localized nearly everything - uneven coverage on the page a field worker lives in.
+// Language-aware like the WH_FIL_PAGE dict below; 'Step' stays as the loanword Taglish uses.
+const STEP_LABELS = (window.WH_LANG === 'fil' || localStorage.getItem('wh_lang') === 'fil') ? {
+  1: 'Step 1: Asset at Uri',
+  2: 'Step 2: Ano ang Nangyari',
+  3: 'Step 3: Ano ang Ginawa Mo',
+} : {
+  1: 'Step 1: Asset & Type',   // 'Asset' per the 2026-08-19 standardization - the static HTML was
+  2: 'Step 2: What Happened',  // renamed then but this map still said 'Machine', so the label
+  3: 'Step 3: What You Did',   // CHANGED WORDS the moment you navigated (caught by the L2 walk)
 };
+// Apply the (possibly localized) label on load too - the static HTML is English-only and was
+// never touched until the first goToStep().
+(function(){ var el = document.getElementById('step-label-text'); if (el) el.textContent = STEP_LABELS[1]; })();
 
 // A wizard refusal has to say WHAT rule stopped it and put the person ON the way out. The step-1
 // gate used to do neither: it flashed the picker's border red for 2s and returned, so a live walk
@@ -4744,7 +5248,7 @@ function stepRefuse(el, msg) {
   showToast(msg, '⚠️');
 }
 
-function stepGo(n) {
+function stepGo(n, fromPop) {
   // Validate step 1 requires machine
   if (n > 1 && !document.getElementById('f-machine').value.trim()) {
     // Colon, not an em dash: the No-Em-Dash gate ratchets DISPLAYED em dashes toward 0 and my first
@@ -4761,15 +5265,32 @@ function stepGo(n) {
   // then got bounced back for category, then again for impact). _currentStep===2 scopes this to the
   // wizard's forward nav (edit-in-place mode collapses the wizard, so it never fires there).
   if (n === 3 && _currentStep === 2) {
+    const mtEl   = document.getElementById('f-maint-type');
     const catEl  = document.getElementById('f-category');
     const probEl = document.getElementById('f-problem');
+    if (mtEl && !mtEl.value) {
+      stepRefuse(mtEl, 'Please select the maintenance type.');
+      return;
+    }
     if (catEl && !catEl.value) {
-      stepRefuse(catEl, 'Please select a discipline / category.');
+      stepRefuse(catEl, _t('Please select a discipline / category.', 'Pumili ng discipline / kategorya.'));
       return;
     }
     if (probEl && !probEl.value.trim()) {
       stepRefuse(probEl, 'Please describe the symptom you observed.');
       return;
+    }
+  }
+
+  // T42 (2026-08-25): phone-Back mid-wizard used to EJECT to the previous PAGE (measured: Back at
+  // step 2 landed on index.html) - the draft survived but the worker lost their place. Per-step
+  // history state makes the hardware gesture walk the wizard: forward advances push a state;
+  // in-page backward nav consumes our own entries via history.go and lets popstate render.
+  if (!fromPop && typeof history !== 'undefined' && history.pushState) {
+    if (n > _currentStep) {
+      try { history.pushState({ whWizStep: n }, ''); } catch (_) { /* empty-catch-allow: history API blocked -> wizard still works, Back just leaves the page as before */ }
+    } else if (n < _currentStep && history.state && history.state.whWizStep === _currentStep) {
+      try { history.go(n - _currentStep); return; } catch (_) { /* empty-catch-allow: history.go blocked -> fall through and render the step directly */ }
     }
   }
 
@@ -4795,6 +5316,18 @@ function stepGo(n) {
   // Scroll form into view on mobile
   document.getElementById('step-label-text').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
+
+// T42: the popstate side of the wizard's history states. Skips when an overlay is open
+// (the central utils.js handler owns that pop) and when the wizard is at rest.
+window.addEventListener('popstate', function (e) {
+  try {
+    if (document.querySelector('.sheet-overlay.open, .modal-overlay.open')) return;
+    const s = e.state && e.state.whWizStep;
+    if (s !== undefined && s !== null) { if (s !== _currentStep) stepGo(s, true); return; }
+    // popped to the base entry while mid-wizard: show step 1 instead of losing the place
+    if (_currentStep > 1) stepGo(1, true);
+  } catch (_) { /* empty-catch-allow: popstate handling is progressive enhancement over the working wizard */ }
+});
 
 function toggleExtras() {
   const drawer = document.getElementById('extras-drawer');
@@ -4954,14 +5487,17 @@ async function startSmartVoice() {
       const res = await db.functions.invoke('voice-logbook-entry', {
         body: { transcript, hive_id: HIVE_ID, worker_name: WORKER_NAME }
       });
-      if (res.error) throw new Error(res.error.message);
+      // T39 (2026-08-26): res.error.message is supabase-js's placeholder, so the catch below
+      // logged and showed the same sentence whether the quota was gone, the session had
+      // expired, or the service was down. Carry the real reason into the throw.
+      if (res.error) throw new Error(await window.whFnError(res.error, 'The voice entry could not be filled in.'));
       const e = res.data?.entry;
       if (!e) throw new Error('No entry returned');
       applySmartVoiceFill(e, transcript);
     } catch (err) {
       console.error('logbook AI-fill failed:', err);
       procDiv.style.display = 'none';
-      showToast('AI fill failed: ' + err.message);
+      showToast(whAiError(err, 'The AI fill did not run. Your fields are unchanged; fill them by hand or try again.'));
     }
   };
 
@@ -4973,8 +5509,9 @@ async function startSmartVoice() {
 
   rec.onerror = function(ev) {
     _smartRecognition = null; recDiv.style.display = 'none';
-    if (ev.error === 'not-allowed') showToast('Microphone permission denied.');
-    else showToast('Voice error: ' + ev.error);
+    // T176: 'Microphone permission denied.' named the cause but no remedy, and the else branch
+    // pasted the raw API code. whVoiceError answers both, and says the typed entry survived.
+    showToast(whVoiceError(ev.error));
   };
 
   rec.start();
@@ -5023,7 +5560,7 @@ function applySmartVoiceFill(e, transcript) {
   }
 
   // Show result preview with side effects
-  let html = `<p style="color:rgba(74,222,128,0.9); font-weight:700; margin-bottom:8px;">✓ Filled ${filled.length} fields: ${filled.join(', ')}</p>`;
+  let html = `<p style="color:rgba(74,222,128,0.9); font-weight:700; margin-bottom:8px;">✓ Filled ${filled.length} ${filled.length === 1 ? 'field' : 'fields'}: ${filled.join(', ')}</p>`;
 
   if (e.loto_detected) {
     html += `<div style="padding:6px 10px; background:rgba(248,113,113,0.1); border:1px solid rgba(248,113,113,0.3); border-radius:6px; margin-bottom:6px; font-size:.72rem; color:var(--wh-red); font-weight:600;">⚠ LOTO/Isolation detected${e.loto_note ? ': ' + escHtml(e.loto_note) : ''} (add to LOTO notes)</div>`;
@@ -5134,7 +5671,7 @@ function vdcWireOnce() {
     } catch (err) {
       _vdcDataUrl = null;
       vdcShowStatus('');
-      showToast('Could not read the photo: ' + (err && err.message ? err.message : 'unknown error'));
+      showToast('That photo could not be read. Nothing was attached; try another photo or a smaller file.');
     }
   });
 
@@ -5171,7 +5708,7 @@ async function vdcAnalyze() {
     if (procDiv) procDiv.style.display = 'none';
     if (analyzeBtn) { analyzeBtn.disabled = false; analyzeBtn.textContent = 'Analyze with AI'; }
 
-    if (error) { showToast('AI analyze failed: ' + (error.message || 'unknown error')); return; }
+    if (error) { showToast(await window.whFnError(error, 'The photo was not analysed. Your entry is unchanged; fill the fields by hand or try again.')); return; }
     if (data && data.error) { showToast(data.error); return; }
     if (!data || !data.draft) { showToast('AI returned no draft.'); return; }
 
@@ -5187,7 +5724,11 @@ async function vdcAnalyze() {
   } catch (err) {
     if (procDiv) procDiv.style.display = 'none';
     if (analyzeBtn) { analyzeBtn.disabled = false; analyzeBtn.textContent = 'Analyze with AI'; }
-    showToast('AI analyze failed: ' + (err && err.message ? err.message : 'network error'));
+    // T176: 'AI analyze failed: ' + err.message defaulted to the word "network error" for every
+    // failure, sending someone to check their signal when the usual cause here is the hourly AI
+    // cap. whAiError reads the status and separates quota from connection from outage, and says
+    // what survived: the photo and the typed entry are untouched, so nothing needs redoing.
+    showToast(whAiError(err, 'The AI could not analyze this photo. Your entry and the photo are untouched; save it now and analyze later.'));
   }
 }
 
@@ -5338,8 +5879,9 @@ function startVoice(targetId) {
 
   recognition.onerror = function(event) {
     stopVoiceUI();
-    if (event.error === 'not-allowed') showToast('Microphone permission denied.');
-    else if (event.error !== 'no-speech') showToast('Voice error: ' + event.error);
+    // T176: 'no-speech' stays silent - the person simply did not say anything yet, and a toast for
+    // that is noise. Every other code goes through the central mapping.
+    if (event.error !== 'no-speech') showToast(whVoiceError(event.error));
   };
 
   recognition.start();
@@ -5411,6 +5953,15 @@ document.getElementById('filter-status').addEventListener('change', () => {
     _setIf('search-input',   _lq.get('q'));
     _setIf('filter-category',_lq.get('cat'));
     _setIf('filter-status',  _lq.get('status'));
+    // T19 (2026-08-26): ?view=team lands the HIVE window. The ops-home "Open Jobs" tile counts
+    // the hive's open entries (get_hive_dashboard), while this page's default mine-view pill
+    // counts only the visitor's own - tapping "9 open" and landing on "2 open" is the
+    // two-windows-one-metric mismatch as UX. The deep link now carries the window it counted,
+    // and the restored filters above ride into the team search.
+    if (_lq.get('view') === 'team' && HIVE_ID && typeof setViewMode === 'function') {
+      setViewMode('team');
+      if (typeof searchTeam === 'function') searchTeam();
+    }
     if (_allEntries && _allEntries.length && _viewMode === 'mine') renderEntries(false);
   } catch (_) { /* empty-catch-allow: best-effort filter restore */ }
 })();
@@ -5439,8 +5990,62 @@ window.addEventListener('offline', () => updateOfflineUI(false));
 // "517 entries" while showing 200 — but the CSV carried no total, no window and no hint of omission,
 // and it is the artifact that leaves the building. An auditor cannot see what is missing from a file.
 // So the export now reads its OWN complete set, paged past the cap, and states the count in the file.
+/* T129/T49 (2026-08-26): THE TEAM EXPORT INHERITED THE FEED'S CAP. The mine-branch export was
+   fixed in an earlier arc to page through the whole history and to SAY SO when it cannot - but
+   the TEAM branch handed over `_teamEntries`, which is only what the feed had loaded (one
+   TEAM_PAGE batch plus whatever Load-more fetched). A supervisor exporting a filtered team view
+   for a DOLE/ISO trail got a file that looked complete and was not: the compliance-export row-cap
+   class, on the one branch nobody had walked. Same pagination, same filters as searchTeam, so the
+   file matches the view the person is looking at - just all of it. */
+const _exportTeamAll = async () => {
+  const PAGE = 500;
+  const rawSearch = (document.getElementById('search-input').value || '').trim();
+  // A comma in the phrase used to 400 the whole read ("failed to parse logic tree") - the
+  // delimiters must go, not just the wildcards. Central helper so the feed and the export agree.
+  const safeSV    = (typeof whSafeSearchTerm === 'function')
+    ? whSafeSearchTerm(rawSearch)
+    : rawSearch.replace(/[,()\\]/g, ' ').replace(/%/g, '\%').replace(/_/g, '\_');
+  const category  = document.getElementById('filter-category').value;
+  const status    = document.getElementById('filter-status').value;
+  const worker    = document.getElementById('filter-worker').value;
+  const dateFrom  = document.getElementById('filter-date-from').value;
+  const dateTo    = document.getElementById('filter-date-to').value;
+  const out = [];
+  for (let from = 0; ; from += PAGE) {
+    let q = db.from('logbook')
+      .select('id, date, machine, category, maintenance_type, root_cause, problem, action, knowledge, downtime_hours, status, closed_at, created_at, failure_consequence, loto_applied, permit_reference, worker_name')
+      .eq('hive_id', HIVE_ID)
+      .order('date', { ascending: false })
+      .order('id')                    // MR4: the sort above is not total on its own
+      .range(from, from + PAGE - 1);
+    if (category) q = q.eq('category', category);
+    if (status)   q = q.eq('status', status);
+    if (worker)   q = q.eq('worker_name', worker);
+    if (dateFrom) q = q.gte('date', dateFrom);
+    if (dateTo)   q = q.lte('date', dateTo + 'T23:59:59');
+    if (safeSV)   q = q.or(`machine.ilike.%${safeSV}%,problem.ilike.%${safeSV}%,action.ilike.%${safeSV}%,knowledge.ilike.%${safeSV}%,root_cause.ilike.%${safeSV}%`);
+    const { data, error } = await q;
+    if (error) throw error;
+    out.push(...(data || []));
+    if (!data || data.length < PAGE) return out;   // short page = last page
+  }
+};
+
 const _exportPageAll = async () => {
   const PAGE = 500;
+  // T49 (critic walk 2026-09-02): the SAME CSV button behaved two ways — the team branch applies
+  // every active filter ("the feed and the export agree", its own words) while this mine branch
+  // dumped the worker's WHOLE history regardless of what the filter bar showed. A worker looking
+  // at "Electrical · Open · pump" who taps CSV received an artifact that does not match the glass.
+  // Mine now honors the same bar (search/category/status/dates; the worker select is team-only).
+  const rawSearch = (document.getElementById('search-input').value || '').trim();
+  const safeSV    = (typeof whSafeSearchTerm === 'function')
+    ? whSafeSearchTerm(rawSearch)
+    : rawSearch.replace(/[,()\\]/g, ' ').replace(/%/g, '\%').replace(/_/g, '\_');
+  const category  = document.getElementById('filter-category').value;
+  const status    = document.getElementById('filter-status').value;
+  const dateFrom  = document.getElementById('filter-date-from') ? document.getElementById('filter-date-from').value : '';
+  const dateTo    = document.getElementById('filter-date-to') ? document.getElementById('filter-date-to').value : '';
   const out = [];
   for (let from = 0; ; from += PAGE) {
     let q = db.from('logbook')
@@ -5450,6 +6055,11 @@ const _exportPageAll = async () => {
       .order('id')                    // MR4: the sort above is not total on its own
       .range(from, from + PAGE - 1);
     if (HIVE_ID) q = q.or(`hive_id.eq.${HIVE_ID},hive_id.is.null`);
+    if (category) q = q.eq('category', category);
+    if (status)   q = q.eq('status', status);
+    if (dateFrom) q = q.gte('date', dateFrom);
+    if (dateTo)   q = q.lte('date', dateTo + 'T23:59:59');
+    if (safeSV)   q = q.or(`machine.ilike.%${safeSV}%,problem.ilike.%${safeSV}%,action.ilike.%${safeSV}%,knowledge.ilike.%${safeSV}%,root_cause.ilike.%${safeSV}%`);
     const { data, error } = await q;
     if (error) throw error;
     out.push(...(data || []));
@@ -5460,7 +6070,14 @@ const _exportPageAll = async () => {
 document.getElementById('btn-export-csv').addEventListener('click', async () => {
   let entries;
   if (_viewMode === 'team') {
-    entries = _teamEntries;
+    try {
+      entries = await _exportTeamAll();
+    } catch (e) {
+      // Never hand over a SHORTER file without saying so - the same rule the mine-branch follows.
+      console.warn('logbook team export: full read failed, falling back to the loaded window', e);
+      entries = _teamEntries;
+      showToast('Could not read the full team history, so this exports the ' + entries.length + ' entries currently loaded.');
+    }
   } else {
     try {
       entries = await _exportPageAll();
@@ -5497,17 +6114,39 @@ document.getElementById('btn-export-csv').addEventListener('click', async () => 
   const _span  = _dates.length
     ? `${whFmtDate(_dates[0])} to ${whFmtDate(_dates[_dates.length - 1])}`
     : 'no dated entries';
+  /* T49 (2026-08-26): the Scope line has to describe what the file NOW contains. It read "team
+     view (current search results)" - true while the team branch exported only the loaded window,
+     and misleading the moment that branch started paging the whole filtered history. State the
+     hive, and name the FILTERS the file was cut with, so a spreadsheet that outlives this screen
+     still says what it is and what it leaves out. */
+  const _filterBits = _viewMode === 'team' ? [
+    (document.getElementById('filter-category') || {}).value && 'category=' + document.getElementById('filter-category').value,
+    (document.getElementById('filter-status') || {}).value && 'status=' + document.getElementById('filter-status').value,
+    (document.getElementById('filter-worker') || {}).value && 'worker=' + document.getElementById('filter-worker').value,
+    (document.getElementById('filter-date-from') || {}).value && 'from=' + document.getElementById('filter-date-from').value,
+    (document.getElementById('filter-date-to') || {}).value && 'to=' + document.getElementById('filter-date-to').value,
+    (document.getElementById('search-input') || {}).value && 'search="' + document.getElementById('search-input').value + '"',
+  ].filter(Boolean) : [];
   const meta = [
     `WorkHive logbook export`,
     `Worker: ${WORKER_NAME}`,
-    `Scope: ${_viewMode === 'team' ? 'team view (current search results)' : 'all personal entries'}`,
+    `Scope: ${_viewMode === 'team'
+      ? 'whole team history for hive ' + (HIVE_NAME || HIVE_ID || 'this hive')
+        + (_filterBits.length ? ', filtered by ' + _filterBits.join(' + ') : ', no filters applied')
+      : 'all personal entries'}`,
     `Entries: ${entries.length}`,
     `Date range: ${_span}`,
     `Exported: ${whFmtDate(new Date().toISOString(), { time: true })}`,
   ].map(l => esc(l)).join('\r\n');
 
   const csv  = [meta, '', cols.map(esc).join(','), ...rows].join('\r\n');
-  const blob = new Blob([csv], { type: 'text/csv' });
+  /* T128/T49 (2026-08-27): EXCEL NEEDS THE BYTE-ORDER-MARK, not a charset in the MIME type.
+     Without a leading BOM, Excel opens a UTF-8 CSV as the system codepage and an asset named
+     "Pena Line 2" (with the tilde n) arrives mojibaked - on a platform whose workers and machines
+     carry that character routinely. The `charset=utf-8` one of these blobs already declared does
+     NOT fix it: Excel ignores the MIME charset and sniffs the bytes, which is why the declaration
+     looked like the fix and was not. Three bytes, invisible to every correct reader. */
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' });
   const url  = URL.createObjectURL(blob);
   const a    = document.createElement('a');
   a.href     = url;
@@ -5537,7 +6176,19 @@ let toastTimer;
 // and every one of those nine REFUSALS would have rendered with a green CHECK once the text became
 // visible. Wrong signal, quieter than the first bug but the same shape. The span now carries the id, and
 // passing an icon clears the CSS glyph classes so the intended '⚠️' actually replaces the check.
+// C7 (critic walk T9, fixed 2026-09-02): a save fires several receipts back-to-back — 'Entry
+// saved', '+15 XP', a badge — and the single toast slot REPLACED each with the next in ~0ms
+// (clearTimeout + overwrite), so the worker read only the last one; the XP receipt they most
+// care about vanished unread. Receipts now QUEUE: each shows for its full TTL, in order. The
+// queue is capped and de-duplicated so a repeating error cannot build an unbounded backlog.
+const _toastQueue = [];
+let _toastShowing = false;
 function showToast(msg, msOrIcon) {
+  if (_toastShowing) {
+    if (_toastQueue.length < 4 && !_toastQueue.some(q => q[0] === msg)) _toastQueue.push([msg, msOrIcon]);
+    return;
+  }
+  _toastShowing = true;
   const toast = document.getElementById('toast');
   document.getElementById('toast-text').textContent = msg;
   const iconEl = document.getElementById('toast-icon');
@@ -5560,7 +6211,12 @@ function showToast(msg, msOrIcon) {
   toast.classList.remove('hidden');
   clearTimeout(toastTimer);
   // Optional longer duration for cross-surface receipts (Phase D1); default unchanged.
-  toastTimer = setTimeout(() => toast.classList.add('hidden'), ms || 2800);
+  toastTimer = setTimeout(() => {
+    toast.classList.add('hidden');
+    _toastShowing = false;
+    const _next = _toastQueue.shift();
+    if (_next) showToast(_next[0], _next[1]);
+  }, ms || 2800);
 }
 
 // ────────────────────────────────────────────
@@ -5858,10 +6514,10 @@ function closePartsPicker() {
 }
 
 function renderPartsPickerList(query) {
-  const q = (query || '').toLowerCase();
+  const q = whFold(query);   // T128: fold the query too, or the folded haystack never matches
   const filtered = q ? _inventoryItems.filter(i =>
-    (i.part_name || '').toLowerCase().includes(q) ||
-    (i.part_number || '').toLowerCase().includes(q)
+    whFold(i.part_name).includes(q) ||
+    whFold(i.part_number).includes(q)
   ) : _inventoryItems;
 
   const list = document.getElementById('parts-picker-list');
@@ -5982,7 +6638,9 @@ function renderOpenJobs(entries) {
     : '';
   list.innerHTML = displayed.map(e => `
     <div class="rounded-xl p-3 mb-2 cursor-pointer" style="background:rgba(239,68,68,0.06); border:1px solid rgba(239,68,68,0.15);"
-      onclick="openModal('${e.id}')"
+      onclick="openModal('${e.id}')" role="button" tabindex="0"
+      onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openModal('${e.id}')}"
+      aria-label="Open entry: ${escHtml(e.machine || 'Unknown machine')}"
       onmouseover="this.style.background='rgba(239,68,68,0.1)'" onmouseout="this.style.background='rgba(239,68,68,0.06)'">
       <div class="flex items-center justify-between gap-2">
         <div class="flex-1 min-w-0">
@@ -6000,7 +6658,15 @@ function renderOpenJobs(entries) {
 // ────────────────────────────────────────────
 // DRAFT SAVE / RESTORE
 // ────────────────────────────────────────────
-const DRAFT_KEY = 'wh_logbook_draft_' + WORKER_NAME;
+/* T51 (2026-08-27): THE HIVE IS PART OF WHO THIS DRAFT BELONGS TO. The key was owner-only, and
+   an owner check passes for a multi-hive worker in BOTH their hives - they are the same person -
+   so a symptom typed against one plant's machine restored into the other plant's entry form,
+   ready to be filed against the wrong hive. Keying by hive AS WELL means each hive keeps its own
+   draft rather than one being refused: nothing is discarded, and a worker who switches back finds
+   their note where they left it. (This store is page-local and does NOT go through
+   whAutoSaveDraft, which is why the shared helper's owner stamp never covered it - the gap was
+   precisely in the store that opted out of the helper.) */
+const DRAFT_KEY = 'wh_logbook_draft_' + (HIVE_ID || 'nohive') + '_' + WORKER_NAME;
 
 function saveDraft() {
   if (_editingId !== null) return; // don't overwrite draft while editing
@@ -6028,7 +6694,13 @@ function saveDraft() {
 function restoreDraft() {
   try {
     const draft = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null');
-    if (!draft || !draft.machine) return;
+    // T8 (2026-08-25, measured): gating on draft.machine DISCARDED the most realistic
+    // interruption — a symptom typed BEFORE the machine was picked (session died mid-entry;
+    // the stored draft read {machine:"", problem:"…"} and this line threw the note away).
+    // A draft is worth restoring when ANY substantive field holds work, not one anointed field.
+    const hasContent = draft && (draft.machine || draft.problem || draft.rootCause
+      || draft.action || draft.knowledge || draft.downtime);
+    if (!hasContent) return;
     document.getElementById('f-machine').value = draft.machine;
     const labelEl = document.getElementById('asset-picker-label');
     if (draft.assetLabel && draft.assetLabel !== 'Select or search asset...') {
@@ -6098,9 +6770,9 @@ document.getElementById('f-category').addEventListener('change', updateTasklistS
   // C4: restore identity from auth session on new device, then get auth_uid
   if (!WORKER_NAME) { WORKER_NAME = await restoreIdentityFromSession(db); }
   try { const { data: { session } } = await db.auth.getSession(); _authUid = session?.user?.id || null; } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
-  if (!WORKER_NAME) { window.location.href = 'index.html?signin=1'; return; }
+  if (!WORKER_NAME) { whSignInWall(); return; }
   // Phase B (auth migration): require authenticated session — see PRODUCTION_FIXES.md #37.
-  if (!_authUid) { window.location.href = 'index.html?signin=1'; return; }
+  if (!_authUid) { whSignInWall(); return; }
 
   const isMember = await validateHiveMembership();
   // Both branches clear the boot interstitial: the gate below renders its own explanation, and past
@@ -6119,8 +6791,13 @@ document.getElementById('f-category').addEventListener('change', updateTasklistS
   if (HIVE_ID) {
     const bar = document.getElementById('view-toggle-bar');
     bar.classList.remove('hidden');
-    // Supervisors default to team view (prompt shown — no auto-load)
-    if (HIVE_ROLE === 'supervisor') setViewMode('team');
+    // Supervisors default to team view (prompt shown — no auto-load).
+    // T29 chain-break fix (2026-09-02): guard on _viewMode — the ?view=team deep-link handler runs
+    // EARLIER and has already started searchTeam(); re-running setViewMode('team') here cleared the
+    // in-flight results and reset to the prompt, so an alert→asset→fault-history hand-off landed on
+    // "Search team entries above" with its seeded query discarded (walked live as Pablo, PV-002,
+    // 36 rows invisible). A worker deep-linking was unaffected — only supervisors hit this branch.
+    if (HIVE_ROLE === 'supervisor' && _viewMode !== 'team') setViewMode('team');
 
     document.getElementById('btn-view-mine').addEventListener('click', () => setViewMode('mine'));
     document.getElementById('btn-view-team').addEventListener('click', () => setViewMode('team'));
@@ -6289,6 +6966,8 @@ document.getElementById('f-category').addEventListener('change', updateTasklistS
                              // old name deliberately, because renaming it would orphan the marker in
                              // every dictionary that still carries it
     clearform: 'I-clear ang form',
+    subtitle: 'Bawat trabahong nila-log mo ay nagpapalago ng iyong skill profile at knowledge base ng planta.',
+    howworks: 'Paano gumagana ang page na ito',
   };
 </script>
 </body>

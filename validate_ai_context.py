@@ -36,7 +36,42 @@ FLOAT_JS        = "companion-launcher.js"
 ASSISTANT_HTML  = "assistant.html"
 MIN_WORDS       = 15
 MIN_HINT        = 12
-CORRECT_CALC_COUNT = 46
+def _derive_calc_count():
+    """Count the calculators from the REGISTRY, never from a number typed here.
+
+    ★THIS CONSTANT WAS ITSELF STALE (2026-08-28). It read 46 while CALC_TYPES_UI held 55 entries,
+    all available: true - so the gate whose entire job is catching a drifted calc count was
+    carrying a drifted calc count, and it FAILED a hint that had just been corrected TO the right
+    number. A hardcoded expectation is the same defect as the one it guards against; it just fails
+    in the other direction, and it fails LOUDLY at exactly the moment someone fixes the real thing.
+
+    Derived from engineering-design.js's CALC_TYPES_UI: brace-matched to the end of the literal,
+    then every `{ id: '...'` inside it. Falls back to None if the registry cannot be read, and the
+    caller then skips the check rather than inventing a number - a count we cannot derive is a
+    check we cannot make, not a licence to assert one.
+    """
+    try:
+        src = io.open("engineering-design.js", encoding="utf-8", errors="replace").read()
+        i = src.find("const CALC_TYPES_UI = {")
+        if i < 0:
+            return None
+        j, depth, started = i + len("const CALC_TYPES_UI = "), 0, False
+        while j < len(src):
+            ch = src[j]
+            if ch == "{":
+                depth += 1
+                started = True
+            elif ch == "}":
+                depth -= 1
+                if started and depth == 0:
+                    break
+            j += 1
+        return len(re.findall(r"\{\s*id:\s*'", src[i:j + 1])) or None
+    except Exception:
+        return None
+
+
+CORRECT_CALC_COUNT = _derive_calc_count()
 
 
 def word_count(text):
@@ -68,7 +103,11 @@ def check_stale_hints(content, page):
         return []
     hint_text = m.group(1)
     count_m = re.search(r"(\d+)\s*calc\s*type", hint_text, re.IGNORECASE)
-    if count_m:
+    if count_m and CORRECT_CALC_COUNT is not None:
+        # ★THE None GUARD IS LOAD-BEARING, and its absence would have been a nastier bug than the
+        # stale constant. Without it `found != None` is ALWAYS true, so a registry we merely failed
+        # to PARSE would fail every hint on the page and report "expected None" - an unreadable
+        # accusation aimed at correct copy. A count we cannot derive is a check we cannot make.
         found = int(count_m.group(1))
         if found != CORRECT_CALC_COUNT:
             return [{"check": "stale_hints", "page": page,

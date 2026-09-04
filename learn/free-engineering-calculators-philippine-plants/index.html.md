@@ -10,7 +10,7 @@ By **WorkHive Editorial Team**
 ·
 Published 17 May 2026
 ·
-Updated 17 Aug 2026
+Updated 24 Aug 2026
 ·
 10 min read
 
@@ -92,9 +92,9 @@ The tool this guide is about
 
 #### WorkHive Engineering Design replaces 30 minutes of spreadsheet work with 30 seconds
 
-60 standards-referenced calculators across 8 disciplines (HVAC and cooling, mechanical, electrical, plumbing, fire protection, machine design). Each output is tagged with its applied standard (PEC 2017, ASHRAE, PSME, NFPA, ISO) and Philippine tropical constants where they matter. PDF report ready for licensed PME or PEE sign-off. Saved designs build your engineering portfolio. Free at the worker tier forever.
+60 standards-referenced calculators across 8 disciplines (electrical and power, plumbing and pumps, HVAC and cooling, mechanical and machine design, fire protection, reliability and metrics, vertical transport, boiler and utilities). Each output is tagged with its applied standard (PEC 2017, ASHRAE, PSME, NFPA, ISO) and Philippine tropical constants where they matter. PDF report ready for licensed PME or PEE sign-off. Saved designs build your engineering portfolio. Free at the worker tier forever.
 
-No hive yet? [Join WorkHive](https://workhiveph.com/#join) first (free, takes 30 seconds).
+No hive yet? [Join WorkHive](https://workhiveph.com/?signup=1) first (free, takes 30 seconds).
 
 ## All 60 calculators
 
@@ -283,4 +283,4 @@ Your saved calculations stay in your hive's project history and can be exported 
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: fbe40dc96580c6ec -->
+<!-- md-twin source-sha: f76c2f9f2703fb03 -->

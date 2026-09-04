@@ -52,8 +52,8 @@ NAV_HUB_PATH = "nav-hub.js"
 MAX_VISIBLE_TOOLS = {
     # Tuned to the post-H.2 state. The ceiling is the *current* count: any
     # future addition trips the gate so accretion gets challenged.
-    "field":      11,   # +1 (2026-06-04): Resume / CV Builder is a mission feature kept visible to every role (phone-first OFW CV-building); deep-linked from Skill Matrix + the OFW learn article.
-    "supervisor": 17,   # +1 (2026-06-04): Resume / CV Builder (see field note).
+    "field":      13,   # +1 (2026-06-04): Resume / CV Builder is a mission feature kept visible to every role (phone-first OFW CV-building); deep-linked from Skill Matrix + the OFW learn article. +2 (2026-08-26, T78/T173): Hive Board + Voice Journal unhidden - both scored as unreachable in the 20-question findability benchmark; hiding them cost real tasks >2 hops.
+    "supervisor": 20,   # +1 (2026-06-04): Resume / CV Builder (see field note). +3 (2026-08-26, T78/T173): Hive Board + Voice Journal + Reports (report-sender) unhidden per the findability benchmark - Reports was a hidden page owning the weekly management send.
     "engineer":   14,
     "all":        25,
 }

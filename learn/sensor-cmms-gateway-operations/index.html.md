@@ -10,7 +10,7 @@ By **WorkHive Editorial Team**
 ·
 Published 17 May 2026
 ·
-Updated 17 May 2026
+Updated 24 Aug 2026
 ·
 8 min read
 
@@ -92,7 +92,7 @@ The tool this guide is about
 
 Daily health dashboard for the edge gateway, current sensor inventory with status, OPC-UA and MQTT subscription management, CMMS sync log, secure outbound-only architecture. Supervisor-only access by default; OT and IT teams get scoped views. Free at the worker tier; multi-site gateway fleet management unlocks at Stage 4.
 
-No hive yet? [Join WorkHive](https://workhiveph.com/#join) first (free, takes 30 seconds).
+No hive yet? [Join WorkHive](https://workhiveph.com/?signup=1) first (free, takes 30 seconds).
 
 ## Frequently asked questions
 
@@ -130,4 +130,4 @@ The gateway continues reading sensor and CMMS data locally and buffers it. Buffe
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: abc7c75ce45b324d -->
+<!-- md-twin source-sha: a42e0918ffb8cad9 -->

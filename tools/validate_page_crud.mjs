@@ -10,7 +10,7 @@
 import { chromium } from 'playwright';
 import { signIn, ACCOUNTS, SEEDER } from './live_page_journeys.mjs';
 
-const HIVE = process.env.WH_TEST_HIVE || '636cf7e8-431a-4907-8a9f-43dd4cc216d6';
+const HIVE = process.env.WH_TEST_HIVE || '084c113b-99c0-45c6-a8e8-b4b8349da46d';
 
 // Per-run token for columns under a UNIQUE constraint (projects.project_code). A fixed literal made the
 // gate non-re-runnable: any run whose cleanup did not complete left the row behind, and every later run

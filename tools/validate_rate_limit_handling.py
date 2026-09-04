@@ -37,7 +37,12 @@ AI_FN = re.compile(r"ai-gateway|ai-orchestrator|agentic-rag|analytics-orchestrat
                    r"asset-brain|project-orchestrator|semantic-search|voice-|listing-assist|-assist|"
                    r"marketplace-listing|benchmark-compute")
 # 429 handled: the central mapper OR an inline rate-limit check
-HANDLED = re.compile(r"whAiError\s*\(|\b429\b|rate.?limit|too many|Retry-After|quota", re.I)
+# whFnError is the newer central wrapper (utils.js, 2026-08-26): it reads the status off the
+# FunctionsHttpError context and delegates a 429 to whAiError, so a page adopting it IS on the
+# central path - arguably further along it, because it also recovers the function's OWN error
+# sentence before falling back. Without this the gate marked project-manager non-compliant for
+# using the BETTER helper: the gate being stale, not the page being wrong.
+HANDLED = re.compile(r"whAiError\s*\(|whFnError\s*\(|\b429\b|rate.?limit|too many|Retry-After|quota", re.I)
 # BEST-EFFORT silent-degrade AI: the invoke is fire-and-forget (a 429 keeps the stored fallback, no raw
 # error surfaced) — graceful by design, no user-facing 429 gap. Documented exemptions (verified live).
 EXEMPT = {

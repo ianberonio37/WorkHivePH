@@ -181,9 +181,21 @@ export type WhFixtures = {
   whPage: Page;
   rawPage: Page;   // unauthenticated — for auth-flow tests
   testMarker: string;
+  hiveId: string;  // the signed-in worker's LIVE hive — never a pinned uuid
 };
 
 export const test = base.extend<WhFixtures>({
+  /** ★THE HIVE A TEST ACTS ON, RESOLVED — NOT PINNED (2026-08-27).
+   *  Eleven specs passed a literal hive_id ('586fd158…') straight into edge-fn calls. That hive was
+   *  reseeded away, so those calls were addressing a hive that does not exist: the fn answers about
+   *  an empty world and the assertion around it stops meaning what it says. A pinned fixture uuid
+   *  has now rotted three times in this repo (9b4eaeac → 636cf7e8 → 586fd158), which is the whole
+   *  case for reading it from live hive_members instead — resolveTestIdentity() already did exactly
+   *  that for the page fixtures, so this just exposes the answer to the specs. */
+  hiveId: async ({}, use) => {
+    const { hiveId } = await resolveTestIdentity();
+    await use(hiveId);
+  },
   /** Unique per-test marker — embedded in 'machine' / 'part_name' /
    *  'title' fields so the cleanup step can find what THIS test created.
    *  After the test finishes (pass OR fail), an admin-client cleanup

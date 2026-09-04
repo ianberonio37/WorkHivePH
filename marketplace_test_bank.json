@@ -4416,7 +4416,7 @@
       "source": "authored",
       "kind": "journey",
       "lane": "journey",
-      "status": "banked",
+      "status": "quarantined",
       "authority": "member",
       "state": "populated",
       "path": "happy",
@@ -4433,7 +4433,12 @@
         "TEETH: WH_TB_FREEZE=1 parks the publisher and the watcher assertion goes RED - proven, not assumed"
       ],
       "walked": "2026-07-29, PASSED via the real page watchPosition path (not the db fallback)",
-      "note": "The tracker POLLS v_service_job_tracking every 10s (marketplace.html ~3584); it is not a Realtime channel. The cell asserts the repaint, which is the user-visible claim, whichever mechanism carries it."
+      "note": "The tracker POLLS v_service_job_tracking every 10s (marketplace.html ~3584); it is not a Realtime channel. The cell asserts the repaint, which is the user-visible claim, whichever mechanism carries it.",
+      "quarantine": {
+        "count": 4,
+        "first_seen": "2026-07-29",
+        "last_reason": "Timeout"
+      }
     },
     {
       "id": "TB-S5-edge-push-delivery-roundtrip",
@@ -5230,7 +5235,7 @@
         "MK5",
         "U3"
       ],
-      "status": "quarantined",
+      "status": "banked",
       "runner": "tools/validate_marketplace_bank_journey.py",
       "spec": "tests/marketplace-bank-two-context.spec.ts",
       "asserts": [
@@ -5244,11 +5249,6 @@
       "ufai_earned": {
         "U3": "the provider's screen stops asserting a job that no longer exists",
         "F6": "the DEGRADED path: work ends unexpectedly and the page reflects it rather than holding the last good state"
-      },
-      "quarantine": {
-        "count": 1,
-        "first_seen": "2026-07-29",
-        "last_reason": "Timeout"
       }
     },
     {
@@ -7208,7 +7208,7 @@
           "tier_from_self_marked": "bronze",
           "sales_from_self_marked": "0",
           "listing_records_buyer": "yes",
-          "orders_rows": "0"
+          "orders_table_in_use": "yes"
         }
       },
       "asserts": [

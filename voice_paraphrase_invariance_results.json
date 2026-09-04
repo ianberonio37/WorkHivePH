@@ -1,5 +1,5 @@
 {
   "validator": "voice_paraphrase_invariance",
   "skipped": true,
-  "reason": "router returned no intent for 'Pump 3 was leaking oil so I replaced the seal, took about two hours' (None) \u2014 model or edge runtime unavailable"
+  "reason": "router returned no intent for 'Pump 3 was leaking oil so I replaced the seal, took about two hours' ({'message': 'name resolution failed'}) \u2014 model or edge runtime unavailable"
 }

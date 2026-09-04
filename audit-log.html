@@ -7,11 +7,12 @@
   <meta name="description" content="Hive audit log: every CRUD + approval + permission change with actor, before/after, and timestamp." />
   <meta property="og:title" content="Audit Log · WorkHive" />
   <meta property="og:image" content="https://workhiveph.com/brand_assets/og-social.png" />
-  <link rel="canonical" href="https://workhiveph.com/workhive/audit-log.html" />
+  <link rel="canonical" href="https://workhiveph.com/audit-log.html" />
   <link rel="manifest" href="manifest.json" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet" />
+  <script src="browser-floor.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
   <script src="utils.js"></script>
   <link rel="stylesheet" href="tokens.css">
@@ -141,10 +142,17 @@
     .entry-meta {
       margin-top: 6px; padding: 8px 10px;
       background: rgba(15,25,35,0.7); border: 1px solid var(--border);
-      border-radius: 6px; font-family: ui-monospace, Menlo, Consolas, monospace;
-      font-size: .68rem; color:rgba(255,255,255,0.83);
-      white-space: pre-wrap; word-break: break-word;
+      border-radius: 6px;
+      /* T28: this held a <pre> of raw JSON, so it was monospaced and pre-wrapped. It now holds
+         labelled lines a person reads, so it takes the page's own typeface. */
+      font-size: .7rem; color:rgba(255,255,255,0.83);
+      word-break: break-word;
       max-height: 240px; overflow: auto;
+    }
+    .entry-meta > div { display: flex; gap: 6px; padding: 1px 0; }
+    .entry-meta .meta-k {
+      color: var(--muted); text-transform: capitalize;
+      flex: 0 0 auto; min-width: 92px;
     }
 
     /* Empty / loading */
@@ -179,9 +187,56 @@
       .entry-time { display: none; }
       .filter-summary { width: 100%; margin-left: 0; }
     }
+    /* T124 (2026-08-26) - THE PRINTABLE SET, decided by what a plant actually carries on paper:
+       pm-scheduler (this shift's PM list, done 2026-08-25), project-report (already had print CSS),
+       and THESE TWO - the logbook day-sheet (what happened, taken to the morning meeting) and the
+       audit-log (dispute evidence, the one surface someone prints to hand to another person).
+       Analytics is deliberately NOT in the set: it is a screen-read with charts that print as ink
+       blocks, and its numbers reach paper through the report sender instead.
+       Print = black-on-white content, chrome gone, no dark-background ink disasters. */
+    @media print {
+      body { background: #fff !important; color: #111 !important; }
+      body * { background: transparent !important; color: #111 !important;
+               box-shadow: none !important; text-shadow: none !important; }
+      #wh-hub-fab, #wh-nav-hub, [id^="wh-hub"], #wh-feedback-fab, #wh-feedback-panel,
+      #toast, .sheet-overlay, .sheet, [role=dialog], button, .btn-primary, .btn-ghost,
+      #offline-banner, .connectivity-widget, #wh-voice-overlay { display: none !important; }
+      a { text-decoration: none !important; }
+      .card, .wh-card, .entry-card { border: 1px solid #bbb !important; page-break-inside: avoid; }
+      table { page-break-inside: auto; }
+      tr { page-break-inside: avoid; page-break-after: auto; }
+    }
   </style>
 </head>
 <body>
+  <!-- T125/T124 (2026-08-26): the PRINT CONTEXT STAMP. A printed page (or a screenshot passed
+       around Viber) leaves the app carrying none of the context the screen supplies: which hive,
+       which person, when. A page of maintenance records with no date and no plant name is not
+       evidence, it is paper. Print-only (display:none on screen), filled from the identity the
+       page already holds - no read, so it cannot fail or lie about freshness. -->
+  <div id="wh-print-stamp" style="display:none;"></div>
+  <script>
+    (function () {
+      try {
+        var el = document.getElementById('wh-print-stamp');
+        if (!el) return;
+        var hive = localStorage.getItem('wh_hive_name') || '';  /* storage-key-allow: print stamp reads identity only */
+        var who  = localStorage.getItem('wh_last_worker') || localStorage.getItem('wh_worker_name') || '';  /* storage-key-allow: print stamp */
+        var when = new Date().toLocaleString();
+        var bits = [];
+        if (hive) bits.push('Hive: ' + hive);
+        if (who) bits.push('Printed by: ' + who);
+        bits.push('Printed: ' + when);
+        el.textContent = bits.join('  ·  ');
+        var st = document.createElement('style');
+        st.textContent = '@media print { #wh-print-stamp { display:block !important; '
+          + 'font: 11px/1.4 system-ui, Arial, sans-serif; color:#111 !important; '
+          + 'border-bottom:1px solid #bbb; padding:0 0 6px; margin:0 0 10px; } }';
+        document.head.appendChild(st);
+      } catch (_) { /* empty-catch-allow: the stamp is print decoration; never block the page */ }
+    })();
+  </script>
+
 <main>
 
 
@@ -287,7 +342,7 @@
                   || /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ whWorker() || '';
   if (!WORKER_NAME) { WORKER_NAME = await restoreIdentityFromSession(db); }
   try { await db.auth.getUser(); } catch (_) { /* empty-catch-allow: best-effort settle */ } // AU2: settle the JWT attach before gated reads (cold-load-401 class, assistant precedent)
-  if (!WORKER_NAME) { window.location.href = 'index.html?signin=1'; return; }
+  if (!WORKER_NAME) { whSignInWall(); return; }
 
   const HIVE_ID   = whHiveId() || '';
   const HIVE_NAME = localStorage.getItem('wh_hive_name') || '';
@@ -322,6 +377,15 @@
     { id: 'all',  label: 'All time', hours: null },
   ];
   let _entries     = [];
+  // Declared with the other module state on purpose: renderDropdowns() runs from an async
+  // load that can start before a later top-level statement has executed, and a `let` further
+  // down the file put this in the temporal dead zone - ReferenceError on first paint, which
+  // no syntax check sees and only a real page load surfaces.
+  let _filterVocab = null;
+  // True once the full-vocabulary read has failed. The filter suggestions then describe only the
+  // entries on this page, and the summary line says so - a partial list that looks complete is how
+  // a reader concludes someone never acted.
+  let _filterVocabPartial = false;
   let _activeRange = '7d';
   let _activeActor = '';
   let _activeAction = '';
@@ -499,10 +563,24 @@
     }
     _entries = data || [];
     renderRangeFilter();
-    renderDropdowns();
+    renderDropdowns();          // paint immediately from what we have
     renderFeed();
+    // ...then complete the filter vocabulary past the feed's cap and repaint the dropdowns only.
+    // Fire-and-forget so the feed is never held up by it, and computed once per load: the option
+    // list is not what the reader is waiting for, but it must not lie about who acted.
+    if (!_filterVocab) {
+      fetchFilterVocab().then(function (v) {
+        if (v) { _filterVocab = v; renderDropdowns(); return; }
+        // A null return means the vocabulary read failed or came back empty. Keeping the capped
+        // list is right - emptying it would be worse - but keeping it SILENTLY is the lie this
+        // fetch exists to prevent: the suggestions would then name only the actors on this page,
+        // and a reader who does not find someone would conclude they never acted.
+        _filterVocabPartial = true;
+        renderFeed();
+      }).catch(function () { _filterVocabPartial = true; renderFeed(); });
+    }
     document.getElementById('footer-meta').textContent =
-      'Last refreshed ' + fmtTime(new Date()) + ' · Live updates on';
+      'Last refreshed ' + fmtTime(new Date()) + ' PHT · Live updates on'; // Cluster-1 sweep (critic T64 walk, 2026-09-02): the time was Manila-pinned but UNLABELED - // a viewer off the plant clock cannot tell whose 10:52 this is. Qualifier beside the figure // (the asset-hub '13:00 PHT' pattern).
   }
 
   // ── Render ─────────────────────────────────────────────────────────────────
@@ -520,10 +598,57 @@
     });
   }
 
+  // ★T64 (2026-08-26): THE FILTER VOCABULARY INHERITED THE FEED'S CAP - the same class this file
+  // already fixed for the CSV export, one function away. These lists were built from `_entries`,
+  // which is a read capped at .limit(500) (right for a scrolling feed), so the choices offered were
+  // whatever happened to appear in the newest 500 rows.
+  //
+  // MEASURED on this hive: 3,402 audit rows, 4 distinct actors and 22 distinct actions overall - but
+  // only 3 actors and 18 actions inside that cap. A supervisor could not filter to one of the four
+  // people who acted, or to 4 of the 22 action types, and nothing said the list was partial. On a
+  // compliance surface "no option for that person" reads as "that person did nothing", which is the
+  // opposite of what an audit trail is for.
+  //
+  // The options now come from their own complete pass, paged past the cap with the same hive scope,
+  // exactly as fetchAllForExport does. Only three short columns are read, so the pass is light, and
+  // it is best-effort: if it fails the dropdowns fall back to the capped set rather than emptying,
+  // because a short list beats no list.
+  async function fetchFilterVocab() {
+    const PAGE = 500;
+    const actors = new Set(), actions = new Set(), targets = new Set();
+    try {
+      for (let from = 0; ; from += PAGE) {
+        const { data, error } = await db.from('hive_audit_log')
+          .select('actor, action, target_type')
+          .eq('hive_id', HIVE_ID)
+          .order('created_at', { ascending: false })
+          .order('id')                 // MR4: the sort above is not total on its own
+          .range(from, from + PAGE - 1);
+        if (error || !data || !data.length) break;
+        data.forEach(function (r) {
+          if (r.actor) actors.add(r.actor);
+          if (r.action) actions.add(r.action);
+          if (r.target_type) targets.add(r.target_type);
+        });
+        if (data.length < PAGE) break;
+        if (from > 50000) break;       // a runaway guard, not a cap on the answer
+      }
+    } catch (_) { return null; }       /* empty-catch-allow: fall back to the capped set below */
+    if (!actors.size && !actions.size && !targets.size) return null;
+    return {
+      actors: Array.from(actors).sort(),
+      actions: Array.from(actions).sort(),
+      targets: Array.from(targets).sort(),
+    };
+  }
+
   function renderDropdowns() {
-    const actors  = Array.from(new Set(_entries.map(e => e.actor).filter(Boolean))).sort();
-    const actions = Array.from(new Set(_entries.map(e => e.action).filter(Boolean))).sort();
-    const targets = Array.from(new Set(_entries.map(e => e.target_type).filter(Boolean))).sort();
+    const actors  = (_filterVocab && _filterVocab.actors)
+      || Array.from(new Set(_entries.map(e => e.actor).filter(Boolean))).sort();
+    const actions = (_filterVocab && _filterVocab.actions)
+      || Array.from(new Set(_entries.map(e => e.action).filter(Boolean))).sort();
+    const targets = (_filterVocab && _filterVocab.targets)
+      || Array.from(new Set(_entries.map(e => e.target_type).filter(Boolean))).sort();
 
     function fillSelect(id, items) {
       // Populate the <datalist> for a filter combobox. The <input> keeps its OWN value across
@@ -552,6 +677,34 @@
     });
   }
 
+  /* T28 (2026-08-27): the details were rendered as raw JSON in a <pre>. This page's own meta
+     description promises "actor, before/after, and timestamp", and the DATA can deliver it - the
+     new_device entries carry changed_fields: {"sh": {"from": 900, "to": 780}}, which is precisely a
+     before and an after. A supervisor reconstructing a disputed change was reading a JSON blob to
+     find it. metaRows turns each entry into a labelled line, and a {from,to} pair into "900 -> 780",
+     which is the shape the description was already claiming. Keys keep their own words (they come
+     from the data, not from us) with underscores opened up so they read as words. */
+  function metaRows(detail) {
+    const show = (v) => (v === null || v === undefined || v === '') ? 'not set'
+      : (typeof v === 'object' ? JSON.stringify(v) : String(v));
+    const label = (k) => String(k).replace(/_/g, ' ');
+    const out = [];
+    for (const k of Object.keys(detail || {})) {
+      const v = detail[k];
+      if (k === 'changed_fields' && v && typeof v === 'object' && !Array.isArray(v)) {
+        for (const f of Object.keys(v)) {
+          const ch = v[f];
+          out.push((ch && typeof ch === 'object' && ('from' in ch || 'to' in ch))
+            ? [label(f), show(ch.from) + ' → ' + show(ch.to)]
+            : [label(f), show(ch)]);
+        }
+        continue;
+      }
+      out.push([label(k), show(v)]);
+    }
+    return out;
+  }
+
   function renderFeed() {
     const items = applyFilters();
     const feed  = document.getElementById('feed');
@@ -559,7 +712,13 @@
     const noResults = document.getElementById('no-results');
     const summary = document.getElementById('filter-summary');
 
-    summary.textContent = items.length + ' of ' + _entries.length + ' entries';
+    // T131 (2026-08-28): the plural belongs to the TOTAL, not the filtered count - a one-entry log
+    // read "1 of 1 entries". The rest of the platform already branches on n===1 in this exact shape
+    // (alert-hub and analytics do it 7 and 6 times respectively); this was the last naive
+    // count + ' <noun>' concatenation left in a user-facing string.
+    summary.textContent = items.length + ' of ' + _entries.length
+      + (_entries.length === 1 ? ' entry' : ' entries')
+      + (_filterVocabPartial ? ' · filter suggestions cover these entries only' : '');
 
     if (!items.length) {
       feed.innerHTML = '';
@@ -609,7 +768,8 @@
                   ? '<button class="entry-meta-toggle" data-id="' + e(en.id) + '" aria-expanded="' + (expanded ? 'true' : 'false') + '" data-i="showdetails">'
                     + (expanded ? '▾ Hide details' : '▸ Show details')
                     + '</button>'
-                    + (expanded ? '<pre class="entry-meta">' + e(JSON.stringify(detail, null, 2)) + '</pre>' : '')
+                    + (expanded ? '<div class="entry-meta">' + metaRows(detail).map(r =>
+                          '<div><span class="meta-k">' + e(r[0]) + '</span> ' + e(r[1]) + '</div>').join('') + '</div>' : '')
                   : '')
            +   '</div>'
            + '</div>';
@@ -709,7 +869,13 @@
       ].map(csvEscape);
       lines.push(row.join(','));
     }
-    const blob = new Blob([lines.join('\r\n')], { type: 'text/csv;charset=utf-8' });
+    /* T128/T49 (2026-08-27): EXCEL NEEDS THE BYTE-ORDER-MARK, not a charset in the MIME type.
+       Without a leading BOM, Excel opens a UTF-8 CSV as the system codepage and an asset named
+       "Pena Line 2" (with the tilde n) arrives mojibaked - on a platform whose workers and machines
+       carry that character routinely. The `charset=utf-8` one of these blobs already declared does
+       NOT fix it: Excel ignores the MIME charset and sniffs the bytes, which is why the declaration
+       looked like the fix and was not. Three bytes, invisible to every correct reader. */
+    const blob = new Blob(['\uFEFF' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' });
     const url  = URL.createObjectURL(blob);
     const a    = document.createElement('a');
     const stamp = new Date().toISOString().slice(0, 10);
@@ -746,7 +912,7 @@
   // ── Helpers ────────────────────────────────────────────────────────────────
   function fmtRelative(iso) { return (typeof whFmtAgo === 'function') ? whFmtAgo(iso) : ''; } // FD1e: delegates to canonical utils.js whFmtAgo
   function fmtTime(d) {
-    return (typeof whFmtDate === 'function') ? whFmtDate(d, { timeOnly: true }) : d.toLocaleTimeString('en-PH', { hour: '2-digit', minute: '2-digit' }); // FD1a canonical
+    return (typeof whFmtDate === 'function') ? whFmtDate(d, { timeOnly: true }) : d.toLocaleTimeString('en-PH', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Manila' }); // FD1a canonical; fallback pinned too (one clock)
   }
 
 })();

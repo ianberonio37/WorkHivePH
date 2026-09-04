@@ -30,7 +30,16 @@
     }
     if (btn.disabled) return;       // single-flight guard
     const original = btn.textContent;
+    /* T41 (2026-08-27): SAY "WORKING", NOT JUST "UNAVAILABLE". disabled + is-loading tells a
+       SIGHTED user the press landed and the work is running; a screen reader announces that same
+       control as "unavailable" - which is also what a control that IGNORED you sounds like, and
+       on a plant connection that is exactly where a second tap comes from. aria-busy is the state
+       that means in-progress. Cleared in the release below beside disabled, so an exception
+       cannot strand a button announcing itself busy forever. Applied to BOTH lock paths in this
+       file, not just the first - a shared helper with one fixed path is a helper that is wrong
+       half the time. */
     btn.disabled = true;
+    btn.setAttribute('aria-busy', 'true');
     btn.classList.add('is-loading');
     if (!btn.dataset.lockOriginal) {
       btn.dataset.lockOriginal = original;
@@ -39,6 +48,7 @@
       return await asyncFn();
     } finally {
       btn.disabled = false;
+      btn.removeAttribute('aria-busy');
       btn.classList.remove('is-loading');
       // Only restore text if it was changed inside the handler
       if (btn.textContent !== original && btn.dataset.lockOriginal === original) {
@@ -58,9 +68,11 @@
     if (!btn) return () => {};
     if (btn.disabled) return () => {};
     btn.disabled = true;
+    btn.setAttribute('aria-busy', 'true');
     btn.classList.add('is-loading');
     return function release() {
       btn.disabled = false;
+      btn.removeAttribute('aria-busy');
       btn.classList.remove('is-loading');
     };
   };

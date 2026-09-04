@@ -134,7 +134,13 @@ function searchCalcs(query) {
   const grid = document.getElementById('calc-type-grid');
   grid.innerHTML = '';
   if (!matches.length) {
-    grid.innerHTML = '<div class="text-sm col-span-2" style="color:rgba(255,255,255,0.35);">No calculations match your search.</div>';
+    /* 0.35 alpha MEASURED at 3.19:1 against this page's background (2026-08-27, T83) - below the
+       4.5:1 WCAG AA floor for body text, on the ONE sentence a person gets when their search found
+       nothing. Guidance to someone already stuck is the worst place to be unreadable, and on a
+       plant floor in daylight it is effectively absent. 0.6 is this file's most common secondary
+       text value and clears the floor. The other 0.35 uses here are left alone: several are
+       decoration rather than text, and sweeping them blind would be a change I could not verify. */
+    grid.innerHTML = '<div class="text-sm col-span-2" style="color:rgba(255,255,255,0.6);">No calculations match your search. Clear the search to see all 55 calculations.</div>';
   } else {
     matches.forEach(ct => grid.appendChild(makeCalcCard(ct, true)));
   }
@@ -31005,8 +31011,28 @@ function downloadBomCsv() {
     `"${(it.remarks || '').replace(/"/g, '""')}"`,
   ].join(','));
 
-  const csv  = [header.join(','), ...rows].join('\n');
-  const blob = new Blob([csv], { type: 'text/csv' });
+  // ★THE FILE STATES ITS OWN SCOPE, and this one especially has to (T49, 2026-08-27). The export is
+  // `_bomItems.filter(it => it.checked !== false)` — a SUBSET — and it was written as bare header+rows,
+  // so a BOM with unchecked lines dropped reached a supplier looking like the whole bill of materials.
+  // An incomplete BOM and a complete one were indistinguishable on disk, which is the same failure the
+  // logbook export was fixed for; this states the count it contains AND the count it was cut from, so
+  // the omission is legible instead of invisible.
+  const _bomMeta = [
+    'WorkHive BOM export',
+    `Project: ${(_lastInputs && _lastInputs.project_name) || '(unnamed)'}`,
+    `Calculation: ${_calcType || '(unknown)'}`,
+    `Items: ${checkedBom.length} of ${_bomItems.length} selected`
+      + (checkedBom.length < _bomItems.length ? ' - unselected lines are NOT in this file' : ''),
+    `Exported: ${new Date().toISOString()}`,
+  ].map(l => `"${String(l).replace(/"/g, '""')}"`).join('\n');
+
+  const csv  = [_bomMeta, '', header.join(','), ...rows].join('\n');
+  /* T128/T49 (2026-08-27): the THIRD csv export, found by auditing every Blob rather than the
+     two I had already fixed. Same defect: no byte-order-mark, so Excel reads a UTF-8 BOM/SOW
+     export as the system codepage and mangles any part name carrying a tilde-n. JSON exports
+     deliberately keep NO bom (it breaks strict parsers) and svg needs none - the mark belongs to
+     the format Excel sniffs, not to every download. */
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' });
   const url  = URL.createObjectURL(blob);
   const a    = document.createElement('a');
   const proj = (_lastInputs?.project_name || 'BOM').replace(/[^a-z0-9]/gi, '_');
@@ -32037,7 +32063,10 @@ async function init() {
   // are pure client-side: the 7 failed calls withhold nothing the person asked for on this view, which
   // is the same "not a constraint" shape alert-hub's load-time orchestrator call has. That makes the CC
   // cells here a SCOPING question for the oracle, not a product defect - recorded rather than patched.
-  if (!WORKER_NAME) { window.location.href = 'index.html'; return; }
+  // T1: was a bare `index.html` redirect — a signed-out arrival (often from a /tools/ calculator
+  // page claiming "no sign-up needed") landed on marketing copy with no modal, no message, and no
+  // way back. Now the sign-in modal opens itself and auth returns the person HERE.
+  if (!WORKER_NAME) { window.location.href = 'index.html?signin=1&return=engineering-design.html'; return; }
   syncCalcCounts();
   const _engChip = document.getElementById('eng-source-chip');
   if (_engChip && typeof renderSourceChip === 'function') {

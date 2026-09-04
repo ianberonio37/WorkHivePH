@@ -1,0 +1,40 @@
+{
+ "doc": "fleet_maintenance_sop",
+ "hand_read": "2026-09-03. Synthesized docx (python-docx) with prose service intervals - proves the CLIENT mammoth extraction path (VD13). Prose intervals must mine; the 1,000 km first-service is one-time and must NOT.",
+ "pm_items": [
+  {
+   "match": "engine oil",
+   "interval_km": 10000,
+   "interval_months": 6
+  },
+  {
+   "match": "rotate tires",
+   "interval_km": 10000,
+   "interval_months": null
+  },
+  {
+   "match": "air filter",
+   "interval_km": 20000,
+   "interval_months": null
+  },
+  {
+   "match": "brake fluid",
+   "interval_km": 40000,
+   "interval_months": 24
+  },
+  {
+   "match": "coolant",
+   "interval_km": 100000,
+   "interval_months": null
+  }
+ ],
+ "parts": [],
+ "pm_must_not_match": [
+  "first service",
+  "break-in",
+  "1,000 km"
+ ],
+ "parts_must_not_match": [],
+ "must_not_contain": [],
+ "expect_injection": false
+}

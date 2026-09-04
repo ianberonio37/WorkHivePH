@@ -51,6 +51,21 @@
     select.wh-input option { background: #1e2d45; color: white; }
     select option { background: #1e2d45; color: white; }
 
+    /* T113 (2026-08-26): AT THE 320 FLOOR THE COMPLETION SHEET'S PRIMARY ACTION OVERFLOWED ITS
+       PANEL BY 21px. btn-primary is width:100% by design (it is a full-width action nearly
+       everywhere), but in the sheet it shares one flex row with Cancel, and 100% + a ~100px Cancel
+       cannot fit a 280px content box. A worker on a budget Android was reaching for a Save button
+       whose right edge was past the sheet. Scoped to this one button so the global full-width rule
+       is untouched: take the space Cancel leaves, and be allowed to shrink into it. */
+    /* Two attempts at making them SHARE the row went 21px -> 10px -> 14px of overflow, which was the
+       measurement saying the row is simply too narrow for both: at 320 the panel's content box is
+       278px and Cancel plus a padded primary cannot fit it, however the remainder is divided.
+       Stacking is the honest answer and the ordinary mobile pattern - full-width buttons, primary
+       first in visual weight, nothing hanging past the sheet. Above the floor they still share a row. */
+    @media (max-width: 360px) {
+      #completion-sheet .sheet-panel > .flex.gap-3 { flex-wrap: wrap; }
+      #completion-sheet .sheet-panel > .flex.gap-3 > button { flex: 1 1 100%; width: 100%; }
+    }
     .btn-primary {
       min-height: 44px;
       background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light));
@@ -303,6 +318,21 @@
     .details-toggle:hover { color:var(--wh-cloud); border-color:rgba(255,255,255,0.18); }
     #pm-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:14px; }
     #pm-summary-details.open { display:block; }
+    /* T124 (2026-08-25): print reality — the PM schedule is the one page plants PIN TO A
+       BOARD, and it printed as a dark dashboard: navy background swallowing toner, nav/FAB
+       chrome, sheets and toasts in the flow. Print = black-on-white content, chrome gone.
+       (project-report already had print CSS; this brings the printable set to two.) */
+    @media print {
+      body { background: #fff !important; color: #111 !important; }
+      body * { background: transparent !important; color: #111 !important;
+               box-shadow: none !important; text-shadow: none !important; }
+      #wh-hub-fab, #wh-nav-hub, [id^="wh-hub"], #wh-feedback-fab, #wh-feedback-panel,
+      #toast, .sheet-overlay, .sheet, #completion-sheet, [role=dialog],
+      button, .btn-primary, .btn-ghost, #offline-banner, .connectivity-widget,
+      #wh-voice-overlay { display: none !important; }
+      a { text-decoration: none !important; }
+      .asset-card, .wh-card { border: 1px solid #bbb !important; page-break-inside: avoid; }
+    }
   </style>
 </head>
 <body class="text-white">
@@ -402,7 +432,7 @@
         <li><strong>Overdue</strong>: scope items where today &gt; last completion + each task's own interval (Weekly=7, Monthly=30, Quarterly=90, Semi-annual=180, Annual=365 days).</li>
         <li><strong>Due soon (14d)</strong>: scope items whose next due date falls within the next 14 days.</li>
         <li><strong>On track</strong>: everything else, including items with no completion history yet.</li>
-        <li><strong>Compliance %</strong>: SMRP Metric 2.1.1, PM occurrences completed on schedule / occurrences due in the window (frequency-aware), via the canonical the SMRP compliance calculation (same value Analytics shows). This is the Stair-2 gate metric, distinct from the "on track now" snapshot count.</li>
+        <li><strong>Compliance %</strong>: SMRP Metric 2.1.1, PM occurrences completed on schedule / occurrences due in the window (frequency-aware), via the canonical SMRP compliance calculation (same value Analytics shows). This is the Stair-2 gate metric, distinct both from the "on track now" snapshot count and from the "done on time" figure below it, which measures each PM against its own interval rather than against the schedule.</li>
       </ul>
       <p style="margin-top:8px;color:rgba(255,255,255,0.80);font-size:11px;">PM compliance feeds the Reliability dimension of your Maturity Stairway. Two consecutive weeks &gt; 80% is the gate to Stair 2.</p>
     </div>
@@ -410,6 +440,10 @@
     <!-- Filter chips -->
     <div id="filter-bar" class="flex gap-2 overflow-x-auto pb-1 mb-4" style="-webkit-overflow-scrolling:touch;scrollbar-width:none;">
       <button class="filter-chip active" data-filter="all" data-i="filterall">All</button>
+      <!-- T10 (2026-08-25): in a hive this list is the TEAM's programs (15 owners in the seeded
+           plant) with no mine-vs-team distinction anywhere on the glass — a worker opening "today's
+           PM" could not find their own. Hidden outside a hive, where every program is already yours. -->
+      <button class="filter-chip" data-filter="mine" id="chip-mine" hidden>Mine</button>
       <button class="filter-chip" data-filter="overdue" data-i="filteroverdue">Overdue</button>
       <button class="filter-chip" data-filter="duesoon" data-i="filterduesoon">Due Soon</button>
       <button class="filter-chip" data-filter="ontrack" data-i="filterontrack">On Track</button>
@@ -480,7 +514,7 @@
         <p id="reg-assets-loading" class="text-xs text-white/80 text-center py-3">Loading assets...</p>
       </div>
 
-      <p class="text-xs text-white/80 mb-4 text-center">— or fill in manually —</p>
+      <p class="text-xs text-white/80 mb-4 text-center">or fill in manually</p>
 
       <div class="space-y-4">
         <div>
@@ -509,6 +543,7 @@
             <option>Utility Systems</option>
             <option>Civil / Structural</option>
             <option>Material Handling</option>
+            <option>Vehicles</option><!-- VEHICLE SEED (2026-09-02): cars/fleet - km-interval templates below -->
           </select>
         </div>
         <div>
@@ -562,7 +597,12 @@
       <div class="wh-card p-5 mb-4">
         <label for="w-anchor" class="block text-xs font-semibold text-white/80 mb-1.5 uppercase tracking-wide" data-i="lastpmdate">Last PM Date</label>
         <input id="w-anchor" type="date" class="wh-input" />
-        <p class="text-xs text-white/80 mt-2">If never serviced before, leave blank: all tasks will show as overdue immediately to prompt action.</p>
+        <!-- T21 (2026-08-26): the old helper said "leave blank: all tasks will show as overdue
+             immediately" - the OPPOSITE of the actual rule. v_pm_scope_items_truth computes
+             next due = COALESCE(last_completed, anchor, created) + one period: blank starts the
+             clock TODAY (first due one period from now), while a months-old date starts longer
+             cycles overdue. Say what the system actually does. -->
+        <p class="text-xs text-white/80 mt-2">Each task counts due one period after this date, so a date months back can start tasks overdue (true to their history). If never serviced or unknown, leave blank: the clock starts today and the first PMs come due one period from now.</p>
       </div>
 
       <!-- Frequency info guide -->
@@ -783,7 +823,12 @@
 
     <!-- Findings textarea -->
     <div class="mb-3">
-      <label for="sheet-findings" class="block text-xs font-semibold text-white/80 uppercase tracking-wide mb-1.5"><span data-i="findings">Findings / Observations</span> <span class="text-white/80 font-normal normal-case" data-i="optional">(optional)</span></label>
+      <!-- T166 (2026-08-27): findings are the maintenance RECORD, not a private note.
+           pm_completions' read policy admits every active member of the hive, and these lines are
+           what a supervisor reads when they ask what was actually done - so the composer says so.
+           Someone who believes they are writing to themselves writes differently, and on a
+           compliance record that difference matters. -->
+      <label for="sheet-findings" class="block text-xs font-semibold text-white/80 uppercase tracking-wide mb-1.5"><span data-i="findings">Findings / Observations</span> <span class="text-white/80 font-normal normal-case" data-i="optional">(optional)</span> <span class="text-white/80 font-normal normal-case">- visible to your hive</span></label>
       <textarea aria-label="e.g. Bearing temperature normal, no leaks observed, greased per schedule..." id="sheet-findings" rows="3" maxlength="2000" class="wh-input" placeholder="e.g. Bearing temperature normal, no leaks observed, greased per schedule..." style="resize:none;"></textarea>
     </div>
 
@@ -815,6 +860,21 @@
         <span id="sheet-save-label" data-i="savecompletion">Save Completion</span>
       </button>
     </div>
+    <!-- T10 (2026-08-25): the DB vocabulary has done/skipped and the history renders "Deferred",
+         but the glass offered NO way to RECORD a deferral - a worker who couldn't open the machine
+         today could only complete falsely or stay silent. The enrichment counts status==='done'
+         only, so a skipped row never satisfies the schedule (deferred stays due, honestly). -->
+    <!-- T177 (2026-08-28): the button explained HOW to defer and never what deferring MEANS. The
+         comment above already says it - "deferred stays due, honestly" - so the CODE knew and the
+         worker did not. "Deferred" reads as cancelled, handled, off my list to anyone who has not
+         been told otherwise, and the one moment that correction matters is the moment they are
+         choosing it. T10 proved and now gates the behaviour (a skipped row never satisfies the
+         schedule); this is the sentence that makes the glass agree with the database. -->
+    <button id="sheet-defer-btn" class="w-full mt-3 text-xs text-white/60 underline underline-offset-2 py-2"
+            type="button">Couldn't do this task today? Record it as deferred (needs a reason; the task stays due)</button>
+    <script src="browser-floor.js"></script>
+  <script>/* listener, not inline onclick: the CSP inline-handler ratchet holds at its floor */
+      document.getElementById('sheet-defer-btn').addEventListener('click', function () { submitCompletion('skipped'); });</script>
   </div>
 </div>
 
@@ -979,6 +1039,26 @@ const PM_TEMPLATES = {
     { text: 'Major repair or re-coating of corroded surfaces', freq: 'Yearly' },
     { text: 'Update building inspection report', freq: 'Yearly' },
   ],
+  'Vehicles': [
+    // VEHICLE SEED (2026-09-02): Ian's manufacturer-interval table as the editable starter set.
+    // km-based items carry their interval in the text; the add-vehicle wizard seeds them with
+    // interval_km so the meter-aware due engine drives them; picked manually here they behave
+    // as calendar PMs until an odometer interval is set.
+    { text: 'Daily walk-around: tires, lights, fluids, leaks', freq: 'Daily' },
+    { text: 'General inspection (every 5,000 km)', freq: 'Quarterly' },
+    { text: 'Engine oil and filter change (every 10,000 km)', freq: 'Semi-annual' },
+    { text: 'Major inspection: belts, hoses, brakes, suspension (every 20,000 km)', freq: 'Annual' },
+    { text: 'Transmission service and brake overhaul (every 40,000 km)', freq: 'Annual' },
+    { text: 'Air filter replacement', freq: 'Semi-annual' },
+    { text: 'Cabin filter replacement', freq: 'Semi-annual' },
+    { text: 'Tire rotation and tread-depth check', freq: 'Quarterly' },
+    { text: 'Battery terminals, voltage and load test', freq: 'Quarterly' },
+    { text: 'Coolant level and condition check', freq: 'Monthly' },
+    { text: 'Wiper blades and washer fluid', freq: 'Quarterly' },
+    { text: 'Registration renewal check', freq: 'Annual' },
+    { text: 'Insurance renewal check', freq: 'Annual' },
+    { text: 'Major scheduled maintenance (every 100,000 km)', freq: 'Annual' },
+  ],
   'Material Handling': [
     { text: 'Inspect conveyor belts for wear, tracking, and damage', freq: 'Monthly' },
     { text: 'Check crane wire ropes and hooks for defects', freq: 'Monthly' },
@@ -1062,6 +1142,20 @@ let selectedCrit  = 'Major';
 
 // Asset type → PM category mapping
 const TYPE_TO_CATEGORY = {
+  // T21 vocabulary fix (critic walk, 2026-09-02): this map was written for a hypothesized
+  // per-machine vocabulary ('Pump', 'Motor', 'HVAC'...) that the platform NEVER uses — the picker
+  // aliases type:iso_class, and the real iso_class values are discipline words ('Mechanical' 58,
+  // 'Electrical' 17, 'Pneumatic' 11, 'Instrumentation', 'Hydraulic', legacy 'PUMP'). Every lookup
+  // missed, so pick-from-registered filled name/tag/location and left the REQUIRED Category empty
+  // (the walked defect — an oracle's vocabulary is part of the oracle). The discipline keys below
+  // map the real vocabulary; the old machine keys stay as harmless extras; the lookup is
+  // case-insensitive so legacy 'PUMP' resolves too. The prefill stays editable — it is a default
+  // the supervisor confirms, not a verdict.
+  'Mechanical':      'Rotating Equipment',
+  'Electrical':      'Electrical',
+  'Instrumentation': 'Instrumentation',
+  'Pneumatic':       'Utility Systems',
+  'Hydraulic':       'Rotating Equipment',
   'Pump':        'Rotating Equipment',
   'Motor':       'Rotating Equipment',
   'Fan / Blower':'Rotating Equipment',
@@ -1072,6 +1166,13 @@ const TYPE_TO_CATEGORY = {
   'Boiler':      'Utility Systems',
   'Generator':   'Electrical',
   'Valve':       'Static Equipment',
+};
+// Case-insensitive resolver over TYPE_TO_CATEGORY (legacy rows carry 'PUMP' etc.).
+const _typeToCategory = (t) => {
+  if (!t) return '';
+  if (TYPE_TO_CATEGORY[t]) return TYPE_TO_CATEGORY[t];
+  const k = Object.keys(TYPE_TO_CATEGORY).find(x => x.toLowerCase() === String(t).trim().toLowerCase());
+  return k ? TYPE_TO_CATEGORY[k] : '';
 };
 
 // ─────────────────────────────────────
@@ -1166,11 +1267,20 @@ async function validateHiveMembership() {
     return; // fail open: DB unreachable, trust cached role
   }
   if (!membership || membership.status === 'kicked') {
+    // ★AND TELL THE PERSON (2026-08-31). Walked live as a removed member: this branch fired, cleared the
+    // hive, dropped to solo scope - and the page then answered "Nothing due in the next 14 days". The
+    // fallback is right; the silence was not. RLS refuses by FILTERING, so the reads come back 200 with
+    // zero rows and NOTHING else on the page can tell the viewer their scope just changed. The sentence
+    // already existed here - addressed to console.warn.
+    // The name is captured BEFORE the clear below, or the notice says "this hive" to someone who wants
+    // to know WHICH hive they lost.
+    var _lostHive = HIVE_NAME;
     console.warn('PM Scheduler: worker is no longer an active hive member. Clearing hive state.');
     ['wh_active_hive_id','wh_hive_id','wh_hive_role','wh_hive_name'].forEach(k => localStorage.removeItem(k));
     HIVE_ID = null;
     HIVE_ROLE = '';
     HIVE_NAME = '';
+    if (typeof whHiveContextNotice === 'function') whHiveContextNotice(_lostHive);
     return;
   }
   if (membership.role !== HIVE_ROLE) {
@@ -1182,17 +1292,16 @@ async function validateHiveMembership() {
 // ─────────────────────────────────────
 // INIT
 // ─────────────────────────────────────
-async function init() {
-  if (!WORKER_NAME) { WORKER_NAME = await restoreIdentityFromSession(db); }
-  try { const { data: { session } } = await db.auth.getSession(); _authUid = session?.user?.id || null; } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
-  if (!WORKER_NAME) { window.location.href = 'index.html?signin=1'; return; }
-  // Phase B (auth migration): require authenticated session — see PRODUCTION_FIXES.md #37.
-  if (!_authUid) { window.location.href = 'index.html?signin=1'; return; }
-  await validateHiveMembership();
-  // Arc S D-lens (D-001/D-006): wire the SHARED offline-write queue (was loaded but
-  // never instantiated). A completion logged during a brownout queues to IndexedDB
-  // and drains on reconnect; the dedup UNIQUE index makes a reconnect re-insert benign.
-  if (window.whCreateQueue) {
+// T14 (2026-08-25) — the queue is ensured LAZILY, not wired once in init. init runs from an
+// immediate async call while offline-queue.js is `<script defer>` at the end of the body: when
+// init's auth awaits resolve fast, its one-shot `if (window.whCreateQueue)` ran BEFORE the
+// deferred script executed, so _whPmQueue was silently never created and every offline
+// completion for that page life fell through to the dead network (measured: 2 of 5 live runs
+// lost the race). Same class project-manager's _pmQueue() accessor already guards against —
+// ensure at init (wins -> autosync starts early) AND at every offline use (guarantees the
+// queue exists at the moment of need; by then the deferred script has long executed).
+function _ensurePmQueue() {
+  if (!window._whPmQueue && window.whCreateQueue) {
     window._whPmQueue = window.whCreateQueue({
       db: 'wh_pm_offline', table: 'pm_completions',
       identityKey: 'worker_name', identityFn: () => WORKER_NAME,
@@ -1207,6 +1316,20 @@ async function init() {
     window.whRegisterQueue('pm', window._whPmQueue);
     window._whPmQueue.startAutoSync(db);
   }
+  return window._whPmQueue || null;
+}
+
+async function init() {
+  if (!WORKER_NAME) { WORKER_NAME = await restoreIdentityFromSession(db); }
+  try { const { data: { session } } = await db.auth.getSession(); _authUid = session?.user?.id || null; } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
+  if (!WORKER_NAME) { whSignInWall(); return; }
+  // Phase B (auth migration): require authenticated session — see PRODUCTION_FIXES.md #37.
+  if (!_authUid) { whSignInWall(); return; }
+  await validateHiveMembership();
+  // Arc S D-lens (D-001/D-006): wire the SHARED offline-write queue (was loaded but
+  // never instantiated). A completion logged during a brownout queues to IndexedDB
+  // and drains on reconnect; the dedup UNIQUE index makes a reconnect re-insert benign.
+  _ensurePmQueue();
   document.getElementById('nav-worker').textContent = WORKER_NAME;
 
   if (HIVE_ID && HIVE_NAME) {
@@ -1354,8 +1477,13 @@ async function loadData() {
   }
 
   // Load assets first: pm_scope_items has no worker_name, must join via asset_id
+  // VEHICLE SEED VM9 (2026-09-02): a hive member's PERSONAL vehicle (hive_id NULL, theirs)
+  // rides along in hive mode — the logbook two-home precedent (.or hive,null). RLS keeps other
+  // members' personal assets out; the auth_uid clause keeps the intent explicit.
   const assetsRes = await (HIVE_ID
-    ? db.from('pm_assets').select('*').eq('hive_id', HIVE_ID).order('created_at', { ascending: true }).order('id').limit(500)
+    ? db.from('pm_assets').select('*')
+        .or(`hive_id.eq.${HIVE_ID},and(hive_id.is.null,auth_uid.eq.${_authUid})`)
+        .order('created_at', { ascending: true }).order('id').limit(500)
     : db.from('pm_assets').select('*').eq('worker_name', WORKER_NAME).order('created_at', { ascending: true }).order('id').limit(500)
   ); // L2: per-branch order+limit (server applies them by query-param, not chain position) so each read is row-bounded
 
@@ -1378,12 +1506,17 @@ async function loadData() {
   // pm_completions stays raw: the detail view needs full completion history,
   // not just the latest one the view exposes. canonical-allow: history list
   let scopeQ = db.from('v_pm_scope_items_truth')
-    .select('id:scope_item_id, asset_id, hive_id, item_text, frequency, anchor_date, is_custom, frequency_days, last_completed_at, last_completed_by, next_due_date, days_until_due, is_overdue, is_due_soon, created_at')
+    .select('id:scope_item_id, asset_id, hive_id, item_text, frequency, anchor_date, is_custom, frequency_days, last_completed_at, last_completed_by, next_due_date, days_until_due, is_overdue, is_due_soon, created_at, interval_km, interval_kind, next_due_km, current_km, km_until_due')  // VEHICLE SEED: the meter half — the view ORs it into is_overdue/is_due_soon; these fields let the labels SAY it
     .in('asset_id', assetIds).order('created_at', { ascending: true }).order('id').limit(500);
   // canonical-allow: detail view needs full completion history (the view only exposes last_completed_at)
   // L2: newest-first cap bounds completion-history egress; 2000 is generous for a hive's recent history (keyset "load older" is the scale fix if ever needed)
   let compsQ = db.from('pm_completions').select('*').in('asset_id', assetIds).order('completed_at', { ascending: false }).order('id').limit(2000);
-  if (HIVE_ID) { scopeQ = scopeQ.eq('hive_id', HIVE_ID); compsQ = compsQ.eq('hive_id', HIVE_ID); }
+  // VM9: scope/completions follow the assets' homes — hive rows OR hive-less rows whose parent
+  // asset already passed the assets filter above (RLS backstops; .in(asset_id) bounds it).
+  if (HIVE_ID) {
+    scopeQ = scopeQ.or(`hive_id.eq.${HIVE_ID},hive_id.is.null`);
+    compsQ = compsQ.or(`hive_id.eq.${HIVE_ID},hive_id.is.null`);
+  }
   const [itemsRes, compRes] = await Promise.all([scopeQ, compsQ]);
 
   scopeItems  = itemsRes.data || [];
@@ -1531,7 +1664,9 @@ function renderPMSummary(enriched, overdue, duesoon, ontrack) {
 
   // Card 2 — Due this week
   setCard('duesoon',
-    duesoon === 0 ? 'Nothing due in the next 14 days' : `${duesoon} asset${duesoon === 1 ? '' : 's'} need PM this week`,
+    // T131: the NOUN was pluralised and the VERB was not, so n=1 read "1 asset need PM this week".
+   // The counted-noun discipline has to carry the whole sentence, not just the word next to the digit.
+   duesoon === 0 ? 'Nothing due in the next 14 days' : `${duesoon} asset${duesoon === 1 ? '' : 's'} need${duesoon === 1 ? 's' : ''} PM this week`,
     duesoon === 0 ? 'NONE' : duesoon > 10 ? 'BUSY WEEK' : 'PLAN AHEAD',
     duesoon === 0 ? 'green' : duesoon > 10 ? 'amber' : 'amber'
   );
@@ -1715,8 +1850,11 @@ function renderDashboard() {
   setPmCompanionContext(enriched, overdueCount, dueSoonCount, onTrackCount);
 
   // Filter
+  const mineChip = document.getElementById('chip-mine');
+  if (mineChip) mineChip.hidden = !HIVE_ID;
   let filtered = enriched;
-  if (activeFilter !== 'all') filtered = filtered.filter(a => a.overall === activeFilter);
+  if (activeFilter === 'mine')     filtered = filtered.filter(a => a.worker_name === WORKER_NAME);
+  else if (activeFilter !== 'all') filtered = filtered.filter(a => a.overall === activeFilter);
   if (catFilter)              filtered = filtered.filter(a => a.category === catFilter);
 
   // Worst-first triage sort (PM PDDA U): overdue → due-soon → on-track → no-data, and within
@@ -1801,7 +1939,7 @@ function renderDashboard() {
 
     return `
       <div class="asset-card ${asset.overall}" onclick="openDetail('${asset.id}')"
-           role="button" tabindex="0" aria-label="Open PM details for ${escHtml(asset.asset_name)}"
+           role="button" tabindex="0" aria-label="Open PM details for ${escHtml(asset.asset_name)}${asset.tag_id ? ', tag ' + escHtml(asset.tag_id) : (asset.location ? ', ' + escHtml(asset.location) : '')}"
            onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
         <div class="flex items-start justify-between gap-3 mb-2">
           <div class="flex-1 min-w-0">
@@ -1818,6 +1956,9 @@ function renderDashboard() {
         <div class="flex flex-wrap items-center gap-1.5 mb-3">
           ${catPill(asset.category)}
           ${critBadge(asset.criticality)}
+          ${HIVE_ID && asset.worker_name ? (asset.worker_name === WORKER_NAME
+            ? '<span class="text-xs font-semibold" style="color:var(--wh-orange);">yours</span>'
+            : `<span class="text-xs text-white/60">${escHtml(asset.worker_name)}</span>`) : ''}
           ${overdueItems > 0 ? `<span class="text-xs font-semibold text-red-400">${overdueItems} task${overdueItems > 1 ? 's' : ''} overdue</span>` : ''}
         </div>
 
@@ -1934,6 +2075,21 @@ function renderDetail(asset) {
             const nextStr  = item.nextDue ? formatDate(item.nextDue) : 'Not set';
             const daysStr  = daysLabel(item.nextDue);
             const lastStr  = item.lastComp ? formatDate(item.lastComp.completed_at) : (asset.last_anchor_date ? `Anchor: ${formatDate(asset.last_anchor_date)}` : 'Never done');
+            // VEHICLE SEED (2026-09-02): the meter half of the due sentence. The view already
+            // folds km into is_overdue/is_due_soon — without this line a km-overdue item showed
+            // a red badge beside a healthy-looking date, an unexplained alarm.
+            let kmLine = '';
+            if (item.interval_km != null && item.next_due_km != null) {
+              const dueAt = `due at ${Number(item.next_due_km).toLocaleString()} km`;
+              const kmCls = (item.km_until_due != null && item.km_until_due < 0) ? 'text-red-400'
+                          : (item.km_until_due != null && item.km_until_due <= 500) ? 'text-yellow-400'
+                          : 'text-white/80';
+              const kmTail = item.current_km == null ? 'no odometer reading yet - log one in the Logbook'
+                           : item.km_until_due < 0 ? `over by ${Math.abs(Number(item.km_until_due)).toLocaleString()} km`
+                           : `${Number(item.km_until_due).toLocaleString()} km away`;
+              const both = item.interval_kind === 'both' ? ' · whichever comes first' : '';
+              kmLine = `<div>Odometer: <span class="${kmCls}">${dueAt} · ${kmTail}</span>${both}</div>`;
+            }
             return `
               <div class="detail-scope-row">
                 <div class="flex items-start justify-between gap-3 mb-2">
@@ -1944,6 +2100,7 @@ function renderDetail(asset) {
                   <div class="text-xs text-white/80 space-y-0.5">
                     <div>Last done: <span class="text-white/80">${lastStr}</span></div>
                     <div>Next due: <span class="${item.itemStatus === 'overdue' ? 'text-red-400' : item.itemStatus === 'duesoon' ? 'text-yellow-400' : 'text-white/80'}">${nextStr} (${daysStr})</span></div>
+                    ${kmLine}
                   </div>
                   <button class="complete-btn ${item.itemStatus === 'ontrack' ? 'done' : ''}"
                     onclick="markDone('${item.id}', this)"
@@ -2022,7 +2179,7 @@ async function toggleAutoHail() {
     .update({ auto_hail: turningOn })
     .eq('asset_id', _autoHailAssetId)
     .select('id');
-  if (error) { showToast(error.message, 'error'); return; }
+  if (error) { showToast(whWriteError(error, 'The recurring-contract setting was not saved.'), 'error'); return; }
   if (!data || !data.length) { showToast('Couldn’t save that - supervisors set recurring contracts.', 'error'); return; }
   _autoHailOn = turningOn;
   const btn = document.getElementById('det-autohail-btn');
@@ -2048,6 +2205,10 @@ const PM_CAT_TO_LOG_CAT = {
   'Utility Systems':    'Mechanical',
   'Civil / Structural': 'Other',
   'Material Handling':  'Mechanical',
+  // VEHICLE SEED (2026-09-03): a completed vehicle PM's logbook mirror carries the Vehicle
+  // discipline (unlocks the odometer/fuel reading fields on that entry) instead of the
+  // 'Mechanical' fallback the validator caught.
+  'Vehicles':           'Vehicle',
 };
 
 function markDone(scopeItemId, btn) {
@@ -2150,7 +2311,7 @@ async function saveEditPMAsset() {
   const { data: pmRows, error } = await pmQuery.select('id');
 
   if (error) {
-    errEl.textContent = 'Could not save: ' + error.message;
+    errEl.textContent = whWriteError(error, 'The asset did NOT save. Nothing changed - check the fields and try again.');
     errEl.classList.remove('hidden');
     saveBtn.disabled = false;
     saveBtn.textContent = 'Save Changes';
@@ -2184,15 +2345,44 @@ async function saveEditPMAsset() {
   saveBtn.textContent = 'Save Changes';
 }
 
-async function submitCompletion() {
+// T17: trg_pm_achievement pays XP on a pm_completions insert, so the earning moment must be
+// VISIBLE at the source rather than only in Achievements. Reads the award BACK from the ledger by
+// source_id instead of recomputing the trigger's rule in JavaScript — a second copy of the rule
+// would be a second source of truth, and this receipt must claim exactly what the ledger holds and
+// nothing invented. Returns '' on any failure, so a failed read makes the receipt quieter, never
+// wrong. Shared by every completion path (see the sibling that used to be silent).
+async function _xpNoteFor(sourceId) {
+  if (!sourceId) return '';
+  try {
+    const { data: rows } = await db.from('achievement_xp_log')
+      .select('xp_earned').eq('source_id', sourceId).is('reversed_at', null).limit(20);  // L2: a source pays a handful of awards at most
+    const sum = (rows || []).reduce((s, r) => s + (r.xp_earned || 0), 0);
+    return sum > 0 ? ' · +' + sum + ' XP' : '';
+  } catch (_) {
+    return '';   // empty-catch-allow: a failed XP read must not invent an award
+  }
+}
+
+async function submitCompletion(kind) {
+  const isDefer   = kind === 'skipped';
   const saveBtn   = document.getElementById('sheet-save-btn');
   const saveLabel = document.getElementById('sheet-save-label');
+  const findings = document.getElementById('sheet-findings').value.trim();
+
+  // A deferral without a reason is noise on the record; the reason IS the deferral's value
+  // (the supervisor reads WHY the schedule slipped). Completions keep findings optional.
+  if (isDefer && !findings) {
+    const fEl = document.getElementById('sheet-findings');
+    fEl.setAttribute('aria-invalid', 'true'); fEl.focus();
+    setTimeout(() => fEl.removeAttribute('aria-invalid'), 2000);
+    showToast('Say why it was deferred (in Findings): the reason is what your supervisor needs.');
+    return;
+  }
   saveBtn.disabled  = true;
   saveLabel.textContent = 'Saving...';
 
-  const findings = document.getElementById('sheet-findings').value.trim();
-  const action   = document.getElementById('sheet-action').value.trim() || 'PM completed per schedule';
-  const logAlso  = document.getElementById('sheet-log-toggle').checked;
+  const action   = document.getElementById('sheet-action').value.trim() || (isDefer ? 'Deferred' : 'PM completed per schedule');
+  const logAlso  = !isDefer && document.getElementById('sheet-log-toggle').checked;
   const now      = new Date().toISOString();
 
   // 1. Save pm_completion
@@ -2208,16 +2398,22 @@ async function submitCompletion() {
     hive_id:       HIVE_ID || null,
     worker_name:   WORKER_NAME,
     auth_uid:      _authUid || null,  // C3b
-    status:        'done',
+    status:        isDefer ? 'skipped' : 'done',
     notes:         findings || null,
     completed_at:  now,
+    // VEHICLE SEED (2026-09-02): stamp the vehicle's current odometer on a km-interval
+    // completion. Without it next_due_km never advances past baseline+interval, so a
+    // completed km-PM would read overdue again the moment the meter passed that first mark.
+    meter_at_completion: (_sheetScopeItem && _sheetScopeItem.interval_km != null
+                          && _sheetScopeItem.current_km != null)
+      ? Number(_sheetScopeItem.current_km) : null,
   };
 
   // Arc S D-001: offline -> queue the completion (the source-of-truth record) so a
   // brownout never loses the worker's PM. It drains on reconnect; the optional
   // logbook mirror is skipped offline (best-effort, re-creatable). The completion
   // shows immediately from the local payload.
-  if (!navigator.onLine && window._whPmQueue) {
+  if (!navigator.onLine && _ensurePmQueue()) {
     await window._whPmQueue.enqueue({ id: compId, op: 'insert', payload: compPayload });
     completions.unshift({ ...compPayload });
     showToast('Saved offline, will sync when you reconnect.');
@@ -2238,6 +2434,25 @@ async function submitCompletion() {
     // saved it, so this is benign (exactly-once), not a failure — tell the
     // worker it's recorded instead of a scary "Failed to save".
     if (compErr.code === '23505') {
+      // The dedup index is (scope_item, worker, date) REGARDLESS of status — so a morning
+      // deferral ("machine was running") would block the afternoon's real completion. A DONE
+      // submit that collides with my own 'skipped' row today SUPERSEDES it: the deferral was
+      // true then, the completion is true now, and done must win on the record.
+      if (!isDefer) {
+        const dayStart = new Date(); dayStart.setUTCHours(0, 0, 0, 0);
+        const { data: upgraded } = await db.from('pm_completions')
+          .update({ status: 'done', notes: findings || null, completed_at: now })
+          .eq('scope_item_id', _sheetScopeItemId).eq('worker_name', WORKER_NAME)
+          .eq('status', 'skipped').gte('completed_at', dayStart.toISOString())
+          .select();
+        if (upgraded && upgraded.length) {
+          showToast('✓ PM done (it replaces this morning’s deferral) → compliance recomputed.', 6000);
+          closeSheet(); renderDetail(currentAsset); renderDashboard();
+          saveBtn.disabled = false;
+          saveLabel.textContent = logAlso ? 'Save + Log in Logbook' : 'Save Completion';
+          return;
+        }
+      }
       showToast('Already recorded for this task today.');
       closeSheet();
       saveBtn.disabled = false;
@@ -2245,7 +2460,7 @@ async function submitCompletion() {
       return;
     }
     console.error('pm_completion insert:', compErr.message);
-    showToast('Failed to save. Please try again.');
+    showToast(whWriteError(compErr, 'The completion did NOT record, so this PM still counts as due. Try again.'));
     saveBtn.disabled = false;
     saveLabel.textContent = logAlso ? 'Save + Log in Logbook' : 'Save Completion';
     return;
@@ -2259,7 +2474,7 @@ async function submitCompletion() {
 
   // Phase 3C — auto-link this completion to any active project that has
   // the asset linked. Fire-and-forget; gentle toast on match.
-  _autoLinkPmToProject(compData, currentAsset).catch(e => console.warn('project auto-link:', e));
+  if (!isDefer) _autoLinkPmToProject(compData, currentAsset).catch(e => console.warn('project auto-link:', e));
 
   // 2. Optionally save logbook entry
   if (logAlso) {
@@ -2309,21 +2524,33 @@ async function submitCompletion() {
     if (logErr) {
       console.warn('logbook insert failed (PM still saved):', logErr.message);
       // PM still wrote pm_completions → compliance recomputes; only the logbook echo failed.
-      showToast('PM saved → PM compliance updated (Hive + Analytics). Logbook entry failed: check connection.', 6000);
+      showToast('PM saved - compliance updated (Hive + Analytics). ' + whWriteError(logErr, 'The logbook echo did not save, so this work is not in the logbook - log it there when you reconnect.'), 6000);
     } else {
       // Phase D1 cross-surface receipt — name the ripple (pm_completions → SMRP compliance).
-      showToast('✓ PM done → PM compliance recomputed (Hive + Analytics SMRP) · logged in Logbook.', 6000);
+      showToast('✓ PM done → PM compliance recomputed (Hive + Analytics SMRP) · logged in Logbook.'
+        + await _xpNoteFor(compData.id), 6000);
       // Index the mirror so it is FINDABLE, not merely stored. Fire-and-forget, like every other
       // embed call on the platform -- a slow RAG pipeline must not block the completion.
       embedPMFaultEntry(logPayload);
     }
+  } else if (isDefer) {
+    // A deferral must never read as a completion: name what it did NOT do.
+    showToast('Deferral recorded with your reason. The task stays due and still counts as overdue until it is done.', 6000);
   } else {
     // Phase D1 cross-surface receipt.
-    showToast('✓ PM done → PM compliance recomputed on Hive + Analytics (SMRP).', 5000);
+    // T17 (2026-08-27): this sibling was SILENT about XP. The award comes from trg_pm_achievement
+    // on pm_completions and does not care whether the worker also mirrored the work to the
+    // logbook — but the receipt did: tick "also log this" and the toast said "+N XP", untick it
+    // and the identical completion earned the identical award and said nothing. Same action, same
+    // trigger, two different receipts, decided by an unrelated toggle. The read-back is now one
+    // helper both paths call, which is the only way the two can no longer drift.
+    showToast('✓ PM done → PM compliance recomputed on Hive + Analytics (SMRP).'
+      + await _xpNoteFor(compData.id), 5000);
   }
 
-  // Embed PM health snapshot in background
-  embedPMEntry({
+  // Embed PM health snapshot in background — completions only: a deferral did not
+  // move last_completed, and embedding "just completed" for it would teach the RAG a lie.
+  if (!isDefer) embedPMEntry({
     asset_id:      currentAsset.id,
     asset_name:    currentAsset.asset_name,
     category:      currentAsset.category,
@@ -2332,6 +2559,19 @@ async function submitCompletion() {
   });
 
   closeSheet();
+  // T10 stale-render fix (critic walk 2026-09-02): this used to re-render from IN-MEMORY state,
+  // so the detail kept 'Last done Jul 18 - Next due Jul 25 (39d overdue)' while
+  // v_pm_scope_items_truth (same session, same user) already said completed-TODAY, next due +period,
+  // is_overdue=false - a worker finishing a PM watched the screen keep calling it overdue. The page's
+  // own rule (line ~1066: the view bakes is_overdue/next_due; client fallbacks WERE the bug) says the
+  // truth view is the only date source, so a WRITE must be followed by a READ of it: refetch, then
+  // paint the detail from the FRESH row. Falls back to the old in-memory paint only if the refetch
+  // itself fails (offline save path) - stale-but-alive beats blank.
+  try {
+    await loadData();
+    const _fresh = assets.find(a => a.id === currentAsset?.id);
+    if (_fresh) currentAsset = _fresh;
+  } catch (_) { /* empty-catch-allow: offline/failed refetch -> render what we have */ }
   renderDetail(currentAsset);
   renderDashboard();
   saveBtn.disabled = false;
@@ -2378,10 +2618,9 @@ async function embedPMFaultEntry(row) {
   try {
     const { data: { session: _s } } = await db.auth.getSession();
     const _tok = _s?.access_token || SUPABASE_KEY;
-    await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/embed-entry`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + _tok },
-      body: JSON.stringify({
+    // T10 AI4 (2026-09-02): routed through whEmbedEntry (retry-once + persisted retry queue) - a
+    // 500 here used to silently drop the entry from the RAG index (write-only-index class).
+    await whEmbedEntry({
         type: 'fault',
         hive_id: HIVE_ID || null,
         entry: {
@@ -2394,8 +2633,7 @@ async function embedPMFaultEntry(row) {
           knowledge:   row.knowledge,
           worker_name: WORKER_NAME,
         }
-      })
-    }, 8000);
+      }, { token: _tok });
   } catch (e) {
     console.warn('embed-entry (pm mirror) skipped:', e.message);
   }
@@ -2515,7 +2753,7 @@ function pickRegisteredAsset(id) {
   document.getElementById('w-location').value = a.location || '';
 
   // Map asset type to PM category
-  const mappedCat = TYPE_TO_CATEGORY[a.type] || '';
+  const mappedCat = _typeToCategory(a.type);
   const catSel    = document.getElementById('w-category');
   if (mappedCat) { catSel.value = mappedCat; onCategoryChange(); }
 
@@ -2593,7 +2831,7 @@ function onCategoryChange() {
 function addCustomItem() {
   const text = document.getElementById('custom-item-text').value.trim();
   const freq = document.getElementById('custom-item-freq').value;
-  if (!text) { showToast('Please enter a task description.'); return; }
+  if (!text) { showToast(_t('Please enter a task description.', 'Maglagay ng task description.')); return; }
   wizardItems.push({ text, freq, isCustom: true });
   document.getElementById('custom-item-text').value = '';
   renderScopeList();
@@ -2619,6 +2857,7 @@ function renderScopeList() {
             ${item.isCustom ? '<span class="text-xs text-orange-400 font-semibold">Custom</span>' : ''}
             <select class="text-xs font-semibold rounded-lg px-2 py-1 border outline-none transition-colors"
               style="background:rgba(255,255,255,0.06);border-color:rgba(255,255,255,0.12);color:rgba(255,255,255,0.83);font-size:16px;"
+              aria-label="Frequency for ${escHtml(item.text)}"
               onchange="updateItemFreq(${idx}, this.value)">
               ${freqOpts}
             </select>
@@ -2672,8 +2911,8 @@ async function goStep(n) {
   if (n === 2) {
     const name = document.getElementById('w-name').value.trim();
     const cat  = document.getElementById('w-category').value;
-    if (!name) { showToast('Please enter an asset name.'); return; }
-    if (!cat)  { showToast('Please select a category.'); return; }
+    if (!name) { showToast(_t('Please enter an asset name.', 'Maglagay ng pangalan ng asset.')); return; }
+    if (!cat)  { showToast(_t('Please select a category.', 'Pumili ng kategorya.')); return; }
 
     // Duplicate check: same machine should not be registered twice
     const nameLower = name.toLowerCase();
@@ -2694,7 +2933,7 @@ async function goStep(n) {
   }
   if (n === 3) {
     const included = wizardItems.filter(i => i.included !== false);
-    if (!included.length) { showToast('Please include at least one PM task.'); return; }
+    if (!included.length) { showToast(_t('Please include at least one PM task.', 'Magsama ng kahit isang PM task.')); return; }
   }
   if (n === 4) {
     renderReview();
@@ -2761,7 +3000,7 @@ async function saveAsset() {
 
   if (assetErr) {
     console.error('save asset:', assetErr.message);
-    showToast('Failed to save asset. Please try again.');
+    showToast(whWriteError(assetErr, 'The asset did NOT save, so no PM schedule was created. Try again.'));
     btn.disabled = false; btn.textContent = 'Save Asset';
     return;
   }
@@ -2780,7 +3019,7 @@ async function saveAsset() {
 
   if (itemsErr) {
     console.error('save scope items:', itemsErr.message);
-    showToast('Asset saved but scope items failed. Please edit and retry.');
+    showToast(whWriteError(itemsErr, 'The asset saved but its PM TASKS did not, so it has an empty schedule. Open it and add the tasks again.'));
   }
 
   // Reload data
@@ -2788,7 +3027,18 @@ async function saveAsset() {
   // NAMES THE EFFECT AND THE MOMENT, the house pattern asset-hub set ("→ feeds this asset's risk score
   // ... on next recompute"). "Added successfully" confirmed only that something happened; a PM asset
   // exists to be scheduled and counted, so saying where it lands answers what the person came to do.
-  showToast(`${name} added → on your PM schedule now, and it counts toward PM compliance from its first due date.`);
+  // T21 (2026-08-26): and WHEN - the toast promised "from its first due date" without saying when
+  // that is. loadData() just refreshed the truth-view rows (next_due_date server-computed), so the
+  // earliest due date for this asset is on hand; name it instead of alluding to it.
+  let _firstDue = '';
+  try {
+    const _mine = (scopeItems || []).filter(si => si.asset_id === asset.id && si.next_due_date);
+    if (_mine.length) {
+      const _d = _mine.map(si => si.next_due_date).sort()[0];
+      _firstDue = ` First PM due ${(typeof whFmtDate === 'function') ? whFmtDate(_d) : _d}.`;
+    }
+  } catch (_) { /* empty-catch-allow: the date is a bonus; the save receipt must never fail on it */ }
+  showToast(`${name} added → on your PM schedule now, and it counts toward PM compliance from its first due date.${_firstDue}`);
   showScreen('dashboard');
   renderDashboard();
 
@@ -2881,6 +3131,14 @@ function pickTaskChip(text, freq) {
 }
 
 async function saveNewTask() {
+    // T41 (2026-08-26): a double press here was NOT idempotent. pm_scope_items has nothing but a primary key, so the same maintenance obligation is created twice and the compliance denominator moves with it.
+    // Verified against the live schema rather than assumed: the sibling inserts on this sweep
+    // (reactions, vouchers, top-ups, project links, reviews) ARE protected by business-key
+    // uniques and were deliberately left alone. Guard released in a finally so a thrown
+    // error cannot wedge the control shut.
+    if (window._busy_saveNewTask) return;
+    window._busy_saveNewTask = true;
+    try {
   // Online-only class: this page registers no offline write queue, so a write fired here
   // while offline reached a dead network with nothing said.
   if (typeof whRequireOnline === 'function'
@@ -2888,7 +3146,7 @@ async function saveNewTask() {
   const text = document.getElementById('add-task-text').value.trim();
   const freq = document.getElementById('add-task-freq').value;
 
-  if (!text) { showToast('Please enter a task description.'); return; }
+  if (!text) { showToast(_t('Please enter a task description.', 'Maglagay ng task description.')); return; }
 
   const existingTexts = scopeItems
     .filter(i => i.asset_id === currentAsset.id)
@@ -2904,13 +3162,15 @@ async function saveNewTask() {
     is_custom:   isCustom,
   }).select().single();
 
-  if (error) { showToast('Failed to add task: ' + error.message); return; }
+  if (error) { showToast(whWriteError(error, 'The task was NOT added to this PM schedule. Try again.')); return; }
 
   scopeItems.push(data);
   closeAddTaskSheet();
   showToast('Task added.');
   renderDetail(currentAsset);
-}
+
+    } finally { window._busy_saveNewTask = false; }
+  }
 
 // ─────────────────────────────────────
 // DELETE ASSET
@@ -2920,7 +3180,22 @@ async function confirmDeleteAsset() {
   if (HIVE_ID && HIVE_ROLE !== 'supervisor' && currentAsset.worker_name !== WORKER_NAME) {
     showToast('Only supervisors can delete other members\' assets.'); return;
   }
-  if (!(await window.whConfirm(`Delete "${currentAsset.asset_name}" and all its PM data? This cannot be undone.`, { okLabel: 'Delete', cancelLabel: 'Cancel' }))) return;
+  // T139 (2026-08-25): enumerate the blast radius — 'all its PM data' names the CLASS, but a
+  // supervisor deciding a deletion deserves the COUNTS. Best-effort: if either count read
+  // fails, fall back to the class wording rather than blocking the (guarded) delete.
+  let _blast = 'all its PM data';
+  try {
+    // canonical-allow: blast-radius counts must enumerate the BASE rows the delete removes,
+    // including any the truth view filters - the confirm must not under-count the damage.
+    const [tRes, cRes] = await Promise.all([
+      db.from('pm_scope_items').select('id', { count: 'exact', head: true }).eq('hive_id', HIVE_ID).eq('asset_id', currentAsset.id),
+      db.from('pm_completions').select('id', { count: 'exact', head: true }).eq('hive_id', HIVE_ID).eq('asset_id', currentAsset.id),
+    ]);
+    if (tRes.count != null && cRes.count != null) {
+      _blast = `${tRes.count} PM task${tRes.count === 1 ? '' : 's'} and ${cRes.count} completion record${cRes.count === 1 ? '' : 's'}`;
+    }
+  } catch (_) { /* empty-catch-allow: enumeration is best-effort; the confirm still guards */ }
+  if (!(await window.whConfirm(`Delete "${currentAsset.asset_name}"? This removes ${_blast}. This cannot be undone.`, { okLabel: 'Delete', cancelLabel: 'Cancel' }))) return;
   await deleteAsset();
 }
 
@@ -2938,7 +3213,7 @@ async function deleteAsset() {
   // states, so a member outside it gets exactly this zero-row answer.
   const { data: deletedRows, error } = await deleteQuery.select('id');
 
-  if (error) { showToast('Delete failed. Please try again.'); return; }
+  if (error) { showToast(whWriteError(error, 'Nothing was deleted - it is all still here. Try again.')); return; }
   if (!Array.isArray(deletedRows) || deletedRows.length === 0) {
     showToast('That asset was not deleted: only a supervisor, or whoever added it, can remove it.');
     return;

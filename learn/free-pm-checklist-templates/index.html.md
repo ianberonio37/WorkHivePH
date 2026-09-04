@@ -10,7 +10,7 @@ By **WorkHive Editorial Team**
 ·
 Published 17 May 2026
 ·
-Updated 17 May 2026
+Updated 24 Aug 2026
 ·
 9 min read
 
@@ -64,7 +64,7 @@ The tool this guide is about
 
 Every PM you upload becomes a scheduled task with the right frequency, assigned to a technician who is qualified per the Skill Matrix, with the checklist on their phone at the asset. PM compliance dashboard updates live. Tie completion to a logbook entry to stop the "ticked but not done" failure mode. Free at the worker tier.
 
-No hive yet? [Join WorkHive](https://workhiveph.com/#join) first (free, takes 30 seconds).
+No hive yet? [Join WorkHive](https://workhiveph.com/?signup=1) first (free, takes 30 seconds).
 
 ## How to set PM frequency
 
@@ -129,4 +129,4 @@ The pattern that works: a PM cannot be marked complete in PM Scheduler unless th
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 2a6fcce7ccf731da -->
+<!-- md-twin source-sha: 322fdf3301a093d1 -->

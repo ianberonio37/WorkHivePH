@@ -12,6 +12,7 @@
   <link rel="manifest" href="manifest.json" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=optional" rel="stylesheet" />
+  <script src="browser-floor.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
   <link rel="stylesheet" href="components.css" />  <!-- S11 shared component CSS -->
@@ -345,6 +346,21 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   <header class="page-header">
     <h1 data-i="growth">Growth</h1>
     <p id="header-sub">Track your industrial competency across all disciplines</p>
+    <!-- T166 (2026-08-26): STATE THE AUDIENCE where the work is done. This page had no visibility
+         statement at all, and the answer is the opposite of what a worker would assume on a team
+         platform: skill_profiles, skill_badges and skill_exam_attempts are all RLS'd to
+         `auth_uid = auth.uid()` - private to you, invisible even to your supervisor. Read off the
+         policies, not assumed. -->
+    <p style="font-size:.7rem;color:var(--wh-steel-bright,rgba(255,255,255,0.72));margin:2px 0 0;">
+      Private to you: your skills, badges and exam attempts are visible only to you, not to your
+      supervisor or teammates.
+    </p>
+    <!-- T51 (2026-08-26): the current-hive chip. This page's own profile data is PRIVATE (above);
+         the chip answers the multi-hive contractor's separate question - which hive am I acting in
+         while I read the hive-scoped lesson content. Same pattern as pm-scheduler's chip;
+         self-filling so no page init needs touching. -->
+    <span id="wh-hive-chip" translate="no" style="display:none;align-items:center;gap:4px;padding:3px 10px;border-radius:999px;font-size:.68rem;font-weight:700;background:rgba(247,162,27,0.1);border:1px solid rgba(247,162,27,0.25);color:var(--wh-orange-text);max-width:140px;"><span id="wh-hive-chip-name" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span></span>
+    <script>try{var _hn=localStorage.getItem('wh_hive_name');/* storage-key-allow: pre-utils chip paint */if(_hn){document.getElementById('wh-hive-chip-name').textContent=_hn;document.getElementById('wh-hive-chip').style.display='inline-flex';}}catch(_){/* empty-catch-allow: the chip is context decoration */}</script>
     <!-- STREAMLINE F5: skillmatrix + achievements are ONE "Growth" surface. This tab bar
          switches Skills ↔ Achievements; one nav entry. Both pages kept on disk. -->
     <div class="wh-growth-tabs" role="tablist" style="display:flex; gap:8px; margin:8px 0 4px; flex-wrap:wrap;">
@@ -385,6 +401,16 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <span id="sm-verdict-icon" class="verdict-icon">·</span>
       <div class="verdict-text"><span id="sm-verdict-label">Computing skill progress...</span><small id="sm-verdict-sub">Counting disciplines on target, quizzes available, and total badges.</small></div>
     </div>
+    <!-- T54 (2026-08-25): the growth LADDER exists (quiz -> badge -> resume) but was only
+         discoverable top-down from the Resume Builder's auto-fill. One line makes it a path a
+         new grad can see from the bottom rung. -->
+    <!-- T45: same repair as achievements' resume line — the data-i marker sat on this <p>, and
+         whI18nApply assigns el.textContent, so translating it would have DELETED the Resume link.
+         Text tagged in spans around the anchor keeps the link and lets both halves turn Filipino. -->
+    <p class="text-xs" style="color:var(--muted); margin:-0.35rem 0 0.9rem;">
+      <span data-i="growthladder_pre">Your growth path: pass a quiz &rarr; earn the skill badge &rarr; it lands on your</span>
+      <a href="resume.html" style="color:var(--wh-orange-text); font-weight:700; text-decoration:underline;">Resume</a><span data-i="growthladder_post"> automatically.</span>
+    </p>
     <!-- U5 heading-order (§11 deepwalk): the sc-label KPI tiles are H3 under the page H1 — a WCAG
          heading-level skip. A screen-reader H2 section heading restores H1→H2→H3, no visual change. -->
     <h2 style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0;">Your skill summary</h2>
@@ -413,7 +439,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     <div class="simple-card" style="margin-top:0.8rem;display:flex;flex-wrap:wrap;align-items:center;gap:0.6rem;justify-content:space-between;padding:0.9rem 1rem;">
       <div>
         <strong>Your skills can earn on the side</strong>
-        <div style="font-size:0.78rem;opacity:0.8;margin-top:0.15rem;">Register as a service provider and get hailed for jobs near you, backed by the skills and badges on this page.</div>
+        <div style="font-size:0.78rem;opacity:0.8;margin-top:0.15rem;">Register as a service provider and get hailed for jobs near you. Your skills and badges on this page back you up.</div>
       </div>
       <a href="marketplace-seller.html?tab=services" style="display:inline-flex;align-items:center;padding:0.55rem 1rem;border-radius:var(--wh-radius-sm);background:linear-gradient(135deg,var(--wh-orange),var(--wh-orange-light));color:var(--wh-navy);font-weight:700;font-size:0.8rem;text-decoration:none;min-height:44px;box-sizing:border-box;">Become a provider →</a>
     </div>
@@ -432,7 +458,13 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <ul style="margin:0;padding-left:20px;">
         <li><strong>On target</strong>: disciplines where your actual level (highest consecutive badge from L1) meets or exceeds your target level.</li>
         <li><strong>Quizzes available</strong>: disciplines where the next level is within reach (actual + 1 &lt;= target + 1) and not yet on cooldown.</li>
-        <li><strong>Total badges</strong>: count of badges for you across all disciplines and levels (max 5 levels × 5 disciplines = 25).</li>
+        <!-- T18 (2026-08-28): "all disciplines" was imprecise, and a real account shows why. Badges
+             exist outside this matrix - Community awards them too - and a worker holding one sees a
+             total that is one lower than the badges they know they have, with nothing on the page
+             accounting for the difference. Measured: Bryan Garcia holds 7 badges across 6
+             disciplines; this page correctly counts 6, because Community is not one of the five
+             SKILL disciplines. The number was right and only the sentence was loose. -->
+        <li><strong>Total badges</strong>: count of your badges across the five skill disciplines and their levels (max 5 levels × 5 disciplines = 25). Badges from elsewhere on WorkHive, such as Community, are not counted here.</li>
         <li><strong>Verdict</strong>: red if primary discipline 2+ levels behind target; amber if any discipline behind; green when every discipline is on target.</li>
       </ul>
     </div>
@@ -646,17 +678,12 @@ const DISCIPLINE_EMOJI = {
 };
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
-async function init() {
-  if (!WORKER_NAME) { WORKER_NAME = await restoreIdentityFromSession(db); }
-  try { const { data: { session } } = await db.auth.getSession(); _authUid = session?.user?.id || null; } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
-  if (!WORKER_NAME) { window.location.href = 'index.html'; return; }
-  // Phase B (auth migration): require authenticated session — see PRODUCTION_FIXES.md #37.
-  if (!_authUid) { window.location.href = 'index.html?signin=1'; return; }
-  // Y1b adoption (2026-07-23): wire the SHARED offline write queue for the skill_profiles
-  // SELF-capture (a worker's own primary-discipline + target levels — worker_name-keyed upsert,
-  // idempotent, NOT approval-coupled; the grade_skill_exam RPC is the separate server-gated
-  // competence write and stays online). Offline goal-setting queues + drains on reconnect.
-  if (window.whCreateQueue) {
+// T14 (2026-08-25) — lazy queue ensure, the pm-scheduler race class: an immediate async init
+// can reach a one-shot `if (window.whCreateQueue)` before the deferred offline-queue.js has
+// executed, silently never creating the queue (measured live on pm-scheduler: 2 of 5 runs).
+// Ensure at init AND at every use site.
+function _ensureSmQueue() {
+  if (!window._whSmQueue && window.whCreateQueue) {
     window._whSmQueue = window.whCreateQueue({
       db: 'wh_skillmatrix_offline', table: 'skill_profiles', onConflict: 'worker_name',
       postSync: () => { try { init(); } catch (_) { /* empty-catch-allow: post-sync refresh best-effort */ } },
@@ -664,6 +691,22 @@ async function init() {
     window.whRegisterQueue('skillmatrix', window._whSmQueue);
     window._whSmQueue.startAutoSync(db);
   }
+  return window._whSmQueue || null;
+}
+
+async function init() {
+  if (!WORKER_NAME) { WORKER_NAME = await restoreIdentityFromSession(db); }
+  try { const { data: { session } } = await db.auth.getSession(); _authUid = session?.user?.id || null; } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
+  /* T2/CN find (2026-08-24): bare index.html dumped an anon on marketing copy BEFORE the
+     whSignInWall gate below could run (the engineering-design class, resume.html's twin). */
+  if (!WORKER_NAME) { whSignInWall(); return; }
+  // Phase B (auth migration): require authenticated session — see PRODUCTION_FIXES.md #37.
+  if (!_authUid) { whSignInWall(); return; }
+  // Y1b adoption (2026-07-23): wire the SHARED offline write queue for the skill_profiles
+  // SELF-capture (a worker's own primary-discipline + target levels — worker_name-keyed upsert,
+  // idempotent, NOT approval-coupled; the grade_skill_exam RPC is the separate server-gated
+  // competence write and stays online). Offline goal-setting queues + drains on reconnect.
+  _ensureSmQueue();
   const _smChip = document.getElementById('skillmatrix-source-chip');
   if (_smChip && typeof renderSourceChip === 'function') {
     _smChip.innerHTML = renderSourceChip({
@@ -828,7 +871,7 @@ function showOnboarding() {
     };
     // Y1b offline-capture: goal-setting queues (upsert, keyPath=worker_name → an offline re-set
     // replaces the pending row, idempotent) and drains on reconnect. Honest label, never false-success.
-    if (!navigator.onLine && window._whSmQueue) {
+    if (!navigator.onLine && _ensureSmQueue()) {
       await window._whSmQueue.enqueue({ id: WORKER_NAME, op: 'upsert', payload: _profileRow });
       _profile = { primary_skill: selectedPrimary, targets };
       document.getElementById('onboarding-section').style.display = 'none';
@@ -839,7 +882,7 @@ function showOnboarding() {
     const { error } = await db.from('skill_profiles').upsert(_profileRow, { onConflict: 'worker_name' });
 
     if (error) {
-      if (window._whSmQueue && /fetch|network|load failed|connection|timeout/i.test(error.message || '')) {
+      if (_ensureSmQueue() && /fetch|network|load failed|connection|timeout/i.test(error.message || '')) {
         await window._whSmQueue.enqueue({ id: WORKER_NAME, op: 'upsert', payload: _profileRow });
         _profile = { primary_skill: selectedPrimary, targets };
         document.getElementById('onboarding-section').style.display = 'none';
@@ -924,7 +967,7 @@ document.getElementById('target-save-btn').addEventListener('click', async () =>
     updated_at: new Date().toISOString(),
   };
   // Y1b offline-capture: same idempotent upsert-queue as onboarding (keyPath=worker_name).
-  if (!navigator.onLine && window._whSmQueue) {
+  if (!navigator.onLine && _ensureSmQueue()) {
     await window._whSmQueue.enqueue({ id: WORKER_NAME, op: 'upsert', payload: _targetRow });
     showToast('Saved offline. Will sync when you reconnect.', '📴');
     btn.disabled = false; btn.textContent = 'Save Targets';
@@ -933,7 +976,7 @@ document.getElementById('target-save-btn').addEventListener('click', async () =>
   const { error } = await db.from('skill_profiles').upsert(_targetRow, { onConflict: 'worker_name' });
 
   if (error) {
-    if (window._whSmQueue && /fetch|network|load failed|connection|timeout/i.test(error.message || '')) {
+    if (_ensureSmQueue() && /fetch|network|load failed|connection|timeout/i.test(error.message || '')) {
       await window._whSmQueue.enqueue({ id: WORKER_NAME, op: 'upsert', payload: _targetRow });
       showToast('Network issue: saved offline, will retry automatically.', '📴');
       btn.disabled = false; btn.textContent = 'Save Targets';
@@ -1266,6 +1309,14 @@ function openLesson(disc, level) {
   }
   scrollEl.addEventListener('scroll', checkScroll);
   scrollEl.scrollTop = 0; // reset scroll on open
+  // T18 (2026-08-26): the exam button was enabled ONLY from inside the scroll handler, so a lesson
+  // whose content FITS the box could never enable it - no overflow means no scroll event, means
+  // checkScroll never runs, and the reader is left staring at a disabled "Take exam" beside a hint
+  // telling them to scroll something that does not scroll. Latent only because every lesson written
+  // so far happens to overflow; lesson bodies are authored content, so the first short one ships the
+  // trap. Evaluating once after the reset costs nothing and closes it: for a non-scrolling box
+  // scrollTop + clientHeight already exceeds scrollHeight - 80, so the check passes immediately.
+  checkScroll();
 
   // Restore draft notification
   if (draft) {
@@ -1468,7 +1519,12 @@ async function submitExam() {
   });
   if (gradeErr || !graded) {
     console.error('grade_skill_exam error:', gradeErr?.message);
-    showToast('Could not save your result. Check connection and try again.', '✗');
+    // T176/T18: this blamed the CONNECTION for every failure of a WRITE that also fails on an
+    // expired session or a refusal, and said nothing about the thing a worker actually fears after
+    // sitting an exam - whether their answers are gone. They are not: the answers live in the
+    // wh_exam_draft_* key and are restored when the exam reopens, so say so. whWriteError names the
+    // real cause (session / not allowed / collision) and this fallback carries the work state.
+    showToast(whWriteError(gradeErr, 'Could not grade your exam. Your answers are saved on this device, so reopen the exam and submit again.'), '✗');
   } else {
     srvScore  = graded.score;
     srvPassed = graded.passed;
@@ -1509,9 +1565,16 @@ function openResult(disc, level, score, passed) {
   // grade_skill_exam and rendered from v_skill_badges_truth, which the hive board also reads, and the
   // platform's own domain truth requires badge counts on skillmatrix, the hive board and achievements to
   // agree. So the confirmation names exactly that, and nothing it cannot back up.
+  // T18 privacy-contradiction fix (2026-09-02): the header promises 'visible only to you, not to
+  // your supervisor or teammates', and the badge tables ARE auth_uid=auth.uid() (RLS confirmed) -
+  // the worker-profile drawer that reads v_skill_badges_truth returns rows ONLY to the worker
+  // viewing their OWN profile; a teammate opening it gets nothing. So the old '...it shows on the
+  // hive board' over-claimed (a reader hears 'others can see it'), contradicting the privacy
+  // promise 60s earlier. The copy now names the private truth: it's on YOUR board view, still
+  // yours alone.
   document.getElementById('result-msg').textContent = passed
     ? `Excellent work! You've demonstrated ${LEVEL_LABELS[level]} competency in ${disc}. `
-      + `Your Level ${level} badge is on your skill matrix now, and it shows on the hive board.`
+      + `Your Level ${level} badge is on your skill matrix now, and on your own hive-board profile - still private to you, as promised.`
     : `You need 7 or more correct answers to pass. Review the module and try again in 24 hours.`;
 
   // Cooldown timer
@@ -1632,6 +1695,9 @@ Promise.resolve(init()).then(() => { if (typeof whFreshnessFooter === 'function'
   // N1: static-label Filipino dict, applied by utils.js whI18nApply() when WH_LANG=fil.
   window.WH_FIL_PAGE = {
     growth:        'Paglago',
+    // T45: the growth-ladder sentence, split around its Resume link so both halves can translate.
+    growthladder_pre:  'Ang landas mo: pumasa sa quiz → makakuha ng skill badge → mapupunta ito sa iyong',
+    growthladder_post: ' nang awtomatiko.',
     chooseprimary: 'Piliin ang Iyong Pangunahing Disiplina',
     setprimary:    'Itakda ang Pangunahing Disiplina →',
     ontarget:      'Nasa target',

@@ -120,11 +120,69 @@ def main() -> int:
                     if ALLOW_RE.search(win): continue
                     key_actions[unique[m.group("var")]][m.group("action")].add(name)
 
+        # Third pass: a key parked in a CONSTANT rather than built by a helper.
+        # `const MODE_KEY = 'wh_nav_mode'; ... localStorage.setItem(MODE_KEY, d)`
+        #
+        # ★THIS IS THE SAME CLASS THE HELPER PASSES ABOVE WERE WRITTEN FOR, and it cost a real false
+        # report before it was added: nav-hub.js declares MODE_KEY and both READS and WRITES through
+        # it, while asset-hub and index read the plain literal 'wh_nav_mode'. The literal-only match
+        # therefore saw two getters, no setter, and reported a working role-filter as a
+        # get-without-set — inviting exactly the "fix" the comment above warns about, on a feature
+        # that already works. Same safety rule as the helper bindings: a name is honoured only when
+        # it resolves to exactly ONE literal in this file, because merging two keys could hide a
+        # genuinely orphaned one and cost the gate its teeth.
+        consts: dict[str, set[str]] = defaultdict(set)
+        for c in re.finditer(r"""\b(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*['"`]([^'"`]+)['"`]\s*[;,\n]""",
+                             body):
+            consts[c.group(1)].add(c.group(2))
+        uniq_consts = {v: next(iter(ks)) for v, ks in consts.items() if len(ks) == 1}
+        if uniq_consts:
+            cre = re.compile(
+                r"""\b(?:local|session)Storage\.(?P<action>setItem|getItem|removeItem)\(\s*"""
+                r"""(?P<var>%s)\s*[,)]""" % "|".join(re.escape(v) for v in sorted(uniq_consts)))
+            # ★AN EXEMPTION ON ONE SIDE MUST NOT ORPHAN THE OTHER. companion-launcher reads
+            # wh_followup_seen through a getter carrying `/* storage-key-allow: proactive follow-up
+            # dedup, id list */` and writes it a few lines below, outside that marker's window. Skip
+            # the marked GET and count the unmarked SET and a deliberately-exempted pair reports as
+            # "set-without-get" — a fresh false positive manufactured by widening the detector, on a
+            # key whose author had already said "not this one". So the marker is read as covering the
+            # KEY in this FILE, which is what someone writing it means, rather than the single call
+            # it happens to sit on.
+            marked = set()
+            for m in cre.finditer(body):
+                win = body[max(0, m.start() - 200):m.end() + 200]
+                if ALLOW_RE.search(win):
+                    marked.add(m.group("var"))
+            for m in cre.finditer(body):
+                if m.group("var") in marked:
+                    continue
+                key_actions[uniq_consts[m.group("var")]][m.group("action")].add(name)
+
     # Drift cases:
     #   1. set with no get anywhere = write-only orphan (probably real bug)
     #   2. get with no set anywhere = read-only orphan (cache key never written)
+    # ★A DELIBERATELY ONE-SIDED KEY NEEDS A DURABLE WAY TO SAY SO (2026-08-27). The only exemption
+    # this gate had was the inline `storage-key-allow` marker, which is matched by PROXIMITY - and
+    # proximity is fragile against edits: adding a ~450-char explanatory comment beside one such read
+    # pushed an UNRELATED access out of another marker's 200-char window and invented a second drift.
+    # Measured, by doing it. The alternative on offer was bumping the baseline count from 0 to 1,
+    # which LOOSENS a forward-only ratchet - the one thing a ratchet must never do.
+    #
+    # So: a named allowlist, each entry carrying the reason it is one-sided. A key here is exempt in
+    # BOTH directions; anything not here is still drift.
+    KNOWN_ONE_SIDED = {
+        "wh_worker_name":
+            "LEGACY READ, deliberately never written. The worker is stored under wh_last_worker now; "
+            "this is the previous build's key, still sitting in the localStorage of anyone who has "
+            "not signed out since - which is why hive.html clears all three generations "
+            "(wh_last_worker, wh_worker_name, workerName) together. Reading it keeps those clients "
+            "naming themselves correctly; WRITING it again would resurrect a key being retired.",
+    }
+
     drift: list[dict] = []
     for key, actions in sorted(key_actions.items()):
+        if key in KNOWN_ONE_SIDED:
+            continue
         set_files = actions.get("setItem", set())
         get_files = actions.get("getItem", set())
         if set_files and not get_files:

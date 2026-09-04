@@ -241,7 +241,7 @@ def check_supervisor_gate(content, func_name, check_id):
 def check_audit_log_on_power_actions(content):
     issues = []
     for func in ("kickMember", "approveItem", "rejectItem"):
-        body = extract_function_body(content, func, window=2400)  # widened 2026-07-13 (P6-C1 branch pushed audit calls down)
+        body = extract_function_body(content, func, window=3400)  # widened 2026-08-25 (T20 whPrompt reason-capture lengthened rejectItem past 2400)
         if body is None:
             continue
         if "writeAuditLog" not in body:
@@ -259,7 +259,7 @@ def check_audit_log_refreshed_after_write(content):
     """
     issues = []
     for func in ("kickMember", "approveItem", "rejectItem"):
-        body = extract_function_body(content, func, window=2400)  # widened 2026-07-13 (P6-C1 branch pushed audit calls down)
+        body = extract_function_body(content, func, window=3400)  # widened 2026-08-25 (T20 whPrompt reason-capture lengthened rejectItem past 2400)
         if body is None:
             continue
         if "writeAuditLog" not in body:

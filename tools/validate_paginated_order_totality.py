@@ -101,7 +101,7 @@ def iter_files():
                 yield os.path.join(dirpath, fn)
 
 
-BLOCK_COMMENT_RE = re.compile(r"/\*.*?\*/", re.S)
+BLOCK_COMMENT_RE = re.compile(r"/\*(?![\"']).*?\*/", re.S)
 LINE_COMMENT_RE = re.compile(r"(?m)^[ \t]*//[^\n]*")
 
 

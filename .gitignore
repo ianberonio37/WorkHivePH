@@ -178,3 +178,25 @@ hive-after-*.png
 index-anon-*.png
 index-ops-home-*.png
 index-viewport-*.png
+
+# Narrowed spot-check artifacts (2026-08-27). A --page / --journey / --persona / --surface run now
+# writes its OWN report so it cannot clobber the full sweep's verdicts - see
+# tools/validate_report_clobber_guard.py. Those copies are throwaway diagnostics for attributing one
+# gap; the banked truth is always the un-suffixed file, which stays tracked.
+*_results.*.json
+*_report.*.json
+.bank_depth_receipt.json
+
+# VD wave: real vehicle documents downloaded for extraction fixtures (binaries stay local;
+# manifest.json + *.truth.json ARE committed - provenance + hand-read truth)
+_fixtures/vehicle_docs/*.pdf
+_fixtures/vehicle_docs/*.docx
+_fixtures/vehicle_docs/*.xlsx
+_fixtures/vehicle_docs/*.xls
+
+# transient board/verify logs (2026-09-04)
+.board_run.log
+board_run*.log
+*_out.log
+crit_verify.log
+triage_out.log

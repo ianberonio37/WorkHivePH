@@ -1,0 +1,14 @@
+{
+ "perPage": {
+  "index.html": 0,
+  "logbook.html": 0,
+  "pm-scheduler.html": 0,
+  "alert-hub.html": 11,
+  "inventory.html": 0,
+  "hive.html": 0,
+  "dayplanner.html": 0,
+  "analytics.html": 0
+ },
+ "watchSeconds": 75,
+ "established": "2026-08-26"
+}
