@@ -80,5 +80,13 @@ SELECT p.id,
   FROM public.community_posts p
   LEFT JOIN public.hives h ON h.id = p.hive_id;
 
-GRANT SELECT ON public.v_community_posts_truth TO anon, authenticated, grafana_reader;
+GRANT SELECT ON public.v_community_posts_truth TO anon, authenticated;
+-- Guarded grant (grafana_reader is created by side-file infra/mcp/grafana/grafana_reader.sql, which
+-- prod has not run — grant only when the role exists, matching the 20260718* migrations' pattern).
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'grafana_reader') THEN
+    GRANT SELECT ON public.v_community_posts_truth TO grafana_reader;
+  END IF;
+END $$;
 GRANT ALL    ON public.v_community_posts_truth TO postgres, service_role;

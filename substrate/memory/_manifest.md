@@ -1,16 +1,16 @@
 ---
 name: memory-corpus
 type: memory
-source: memory-curated:829-files
-source_sha: bfcd6a384ac2651e
+source: memory-curated:830-files
+source_sha: 758ede71c1fb9903
 last_verified: 2026-07-13
 supersedes: null
 ---
-## memory · curated auto-memory (829 durable topic files)
+## memory · curated auto-memory (830 durable topic files)
 
 First-class substrate source. The BODIES live in `memory/*.md` (Memento-indexed for retrieval via `memory_cache.py --retrieve`); this manifest is the freshness/governance record for the CURATED corpus (reference/feedback/project) — transient handoffs are excluded.
 
-**By type:** feedback=447 · project=293 · reference=89
+**By type:** feedback=448 · project=293 · reference=89
 
 **Corpus fingerprint (source_sha):** editing/adding any curated memory changes it → rebuild `build_substrate.py --type memory` (part of the flywheel's persist spoke).
 
@@ -313,6 +313,7 @@ Entries (name · type · sha):
 - `feedback_operate_at_full_capability` · feedback · 187c49ce68044fd2
 - `feedback_ops_views_over_granted_to_anon` · feedback · 6f422d53c4a320f5
 - `feedback_outlasting_the_guard_is_not_an_ender` · feedback · b7168ce6de2d69b2
+- `feedback_over_driving_8gb_host_crashed_docker_and_session` · feedback · e2906b435194f88e
 - `feedback_overflow_clip_hides_real_content_loss` · feedback · a8c2bb93234f31af
 - `feedback_overloaded_word_draft_nearly_mislabelled_user_work` · feedback · c2bec0a1dc682c83
 - `feedback_p6_disposition_gate_and_double_submit` · feedback · 7dfd86aae044c473
@@ -515,7 +516,6 @@ Entries (name · type · sha):
 - `project_arc_k_reverification_stale_hive` · project · 9ce552075fdfceb0
 - `project_arc_l_performance_scale_2026_06_22` · project · 7eba7147f20e19d4
 - `project_arc_q_domain_correctness_2026_06_23` · project · 120a59d9d791bf25
-- `project_arc_r_security_adversarial_2026_06_24` · project · ce9ea32e0eee7d95
-- … +329 more (all included in the fingerprint)
+- … +330 more (all included in the fingerprint)
 
 Links: [[project_platform_knowledge_substrate]] [[reference_pm_attribution_pin]]
