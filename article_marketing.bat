@@ -96,7 +96,10 @@ if /i "!WRITE!"=="y" set "ARGS=!ARGS! --apply"
 echo.
 echo   Working. The AI drafting takes about 20 seconds.
 echo.
-python tools\topic_post.py "%TOPIC%" --notes "%NOTES%" !ARGS!
+:: Delayed expansion here too. %TOPIC% is substituted when the line is PARSED, so a topic
+:: containing & or ) - ordinary punctuation in a headline - would be read as cmd syntax
+:: rather than as text. !TOPIC! is substituted at execution, after quoting applies.
+python tools\topic_post.py "!TOPIC!" --notes "!NOTES!" !ARGS!
 
 :results
 echo.
