@@ -49,6 +49,23 @@ python tools/social_publisher.py --idea idea_020          # safe preview (nothin
 python tools/social_publisher.py --idea idea_020 --live   # publish for real
 ```
 
+## Posting an ARTICLE (no video)
+
+`article_marketing.bat` makes a branded card and a caption from a topic and your photo.
+Those post through the same last mile, as a PHOTO rather than a video:
+
+```
+python tools/social_publisher.py --idea <the-topic-slug> --platforms fb_page
+python tools/social_publisher.py --idea <the-topic-slug> --platforms fb_page --live
+```
+
+The slug is the folder name under `.tmp/topic_posts/`. It needs no platform pack: the
+caption topic_post already wrote and checked is used as-is, link included, because the
+caption was verified as a whole and splitting the link into a first comment would break
+the thing that was checked.
+
+Dry-run is still the default and still never posts.
+
 ## Safety
 
 - **Dry-run is the default and is a true preview** — it never posts and never opens a

@@ -140,15 +140,36 @@ def available_aspects(idea_id: str) -> list[str]:
 
 
 def load_pack(idea_id: str) -> dict:
-    """Return the pack dict (the social copy) for an idea, or {} if not generated."""
+    """Return the pack dict (the social copy) for an idea, or {} if not generated.
+
+    Falls back to a topic_post caption. An ARTICLE post never has a platform pack: it is
+    written by tools/topic_post.py, which produces one checked caption rather than the ten
+    per-platform sections platform_pack.py generates for a video. Without this the last
+    mile refused a post whose copy had already passed every guard it has, on the grounds
+    that it was in the wrong file.
+
+    The link belongs in the caption body here, not the first comment: topic_post writes
+    "Read the full piece: <url>" as the closing line and the caption is checked as a whole
+    (has_link), so splitting it would break the thing that was verified.
+    """
     p = PACK_DIR / f"{idea_id}.json"
-    if not p.exists():
-        return {}
-    try:
-        data = json.loads(p.read_text(encoding="utf-8"))
-        return data.get("pack", {}) or {}
-    except Exception:
-        return {}
+    if p.exists():
+        try:
+            data = json.loads(p.read_text(encoding="utf-8"))
+            pack = data.get("pack", {}) or {}
+            if pack:
+                return pack
+        except Exception:
+            pass
+    cap = ROOT / ".tmp" / "topic_posts" / idea_id / "caption.txt"
+    if cap.exists():
+        try:
+            body = cap.read_text(encoding="utf-8").strip()
+            if body:
+                return {"facebook_page": {"body": body, "first_comment": ""}}
+        except Exception:
+            pass
+    return {}
 
 
 def list_produced_ideas() -> list[dict]:
@@ -255,6 +276,21 @@ def _r(platform: str, status: str, mode: str, detail: str, **extra) -> dict:
 
 # ── AUTO adapter: Facebook Page ──────────────────────────────────────────────
 
+def resolve_card(idea_id: str):
+    """The branded share card tools/topic_post.py renders for a topic, if there is one.
+
+    An ARTICLE post has no video. publish_fb_page was written for the video pipeline and
+    calls it an error when resolve_video finds nothing, so a card and a caption could be
+    produced, checked and reviewed and then had nowhere to go: the last mile only spoke
+    /videos. This is the other half of the same door.
+    """
+    for c in [ROOT / ".tmp" / "topic_posts" / idea_id / "card.png",
+              ROOT / "promo_posters" / "_out" / f"{idea_id}.png"]:
+        if c.exists():
+            return c
+    return None
+
+
 def publish_fb_page(cfg: dict, idea_id: str, pack: dict, live: bool) -> dict:
     if not _has(cfg, "FB_PAGE_ID", "FB_PAGE_ACCESS_TOKEN"):
         return _r("facebook_page", "skipped", "auto",
@@ -262,19 +298,22 @@ def publish_fb_page(cfg: dict, idea_id: str, pack: dict, live: bool) -> dict:
     aspect = (cfg.get("FB_PAGE_ASPECT") or ASPECT_SQUARE).strip()
     video = resolve_video(idea_id, aspect) or resolve_video(idea_id, ASPECT_SQUARE) \
         or resolve_video(idea_id, ASPECT_WIDE) or resolve_video(idea_id, ASPECT_VERTICAL)
-    if not video:
+    card = None if video else resolve_card(idea_id)
+    if not video and not card:
         return _r("facebook_page", "error", "auto",
-                  f"No rendered video found for {idea_id} (looked for {aspect}).")
+                  f"No rendered video or share card found for {idea_id} (looked for {aspect}).")
     body, first_comment = _fb_page_caption(pack)
     if not body:
         return _r("facebook_page", "error", "auto",
                   "No facebook_page caption in the platform pack — generate it first.")
 
+    asset = video or card
+    kind = "video" if video else "photo"
     if not live:
         return _r("facebook_page", "ready", "auto",
-                  f"DRY-RUN: would upload {video.name} to Page {cfg['FB_PAGE_ID']} "
+                  f"DRY-RUN: would upload {kind} {asset.name} to Page {cfg['FB_PAGE_ID']} "
                   f"({len(body)} char caption" + (", + first comment" if first_comment else "") + ").",
-                  video=str(video), caption_preview=body[:160])
+                  **{kind: str(asset)}, caption_preview=body[:160])
 
     if requests is None:
         return _r("facebook_page", "error", "auto", "`requests` not importable; cannot call Graph API.")
@@ -287,13 +326,24 @@ def publish_fb_page(cfg: dict, idea_id: str, pack: dict, live: bool) -> dict:
     data, resp, err = {}, None, None
     for attempt in range(UPLOAD_MAX_ATTEMPTS):
         try:
-            with open(video, "rb") as fh:
-                resp = requests.post(
-                    f"{FB_GRAPH}/{page_id}/videos",
-                    data={"description": body, "access_token": token},
-                    files={"source": (video.name, fh, "video/mp4")},
-                    timeout=600,
-                )
+            with open(asset, "rb") as fh:
+                # A photo is a DIFFERENT endpoint and a different field name: /photos takes
+                # `caption`, /videos takes `description`. Posting a PNG to /videos does not
+                # fail loudly, it fails confusingly, so the branch is explicit.
+                if kind == "photo":
+                    resp = requests.post(
+                        f"{FB_GRAPH}/{page_id}/photos",
+                        data={"caption": body, "access_token": token},
+                        files={"source": (asset.name, fh, "image/png")},
+                        timeout=300,
+                    )
+                else:
+                    resp = requests.post(
+                        f"{FB_GRAPH}/{page_id}/videos",
+                        data={"description": body, "access_token": token},
+                        files={"source": (asset.name, fh, "video/mp4")},
+                        timeout=600,
+                    )
             data = resp.json() if resp.content else {}
             if resp.status_code == 200 and "id" in data:
                 break
@@ -310,16 +360,29 @@ def publish_fb_page(cfg: dict, idea_id: str, pack: dict, live: bool) -> dict:
     if "id" not in data:
         return _r("facebook_page", "error", "auto",
                   f"Upload failed after {UPLOAD_MAX_ATTEMPTS} attempts: {err}")
-    video_id = data["id"]
+    post_id = data.get("post_id") or data["id"]
 
     comment_status = "no first comment"
     if first_comment:
-        comment_status = _fb_comment_when_ready(page_id, video_id, first_comment, token)
-    _log({"platform": "facebook_page", "idea": idea_id, "video_id": video_id,
-          "video": str(video), "comment": comment_status})
+        if kind == "photo":
+            # A photo is available the moment it returns, so there is nothing to poll for.
+            # _fb_comment_when_ready exists because a VIDEO is still encoding and a comment
+            # posted too early is rejected; reusing it here would just wait for nothing.
+            try:
+                cr = requests.post(f"{FB_GRAPH}/{post_id}/comments",
+                                   data={"message": first_comment, "access_token": token},
+                                   timeout=60)
+                comment_status = ("posted" if cr.status_code == 200
+                                  else f"failed ({cr.status_code})")
+            except Exception as exc:
+                comment_status = f"failed ({exc})"
+        else:
+            comment_status = _fb_comment_when_ready(page_id, post_id, first_comment, token)
+    _log({"platform": "facebook_page", "idea": idea_id, "kind": kind, "post_id": post_id,
+          "asset": str(asset), "comment": comment_status})
     return _r("facebook_page", "posted", "auto",
-              f"Posted to Page {page_id} (video {video_id}); first comment: {comment_status}.",
-              video_id=video_id)
+              f"Posted to Page {page_id} ({kind} {post_id}); first comment: {comment_status}.",
+              post_id=post_id)
 
 
 def _fb_comment_when_ready(page_id: str, video_id: str, message: str, token: str,
