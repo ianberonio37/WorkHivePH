@@ -407,6 +407,18 @@ def scaffold_lane_a(slug: str, title: str, bridge: dict, topic: str, notes: str)
         if add_hub_card(slug, title, dek[:180]):
             print("  %slinked from the /learn hub (otherwise it ships an orphan)%s" % (DIM, X))
         report_structure(slug)
+        # A new article moves the catalog's guide count, and index.html carries that number
+        # in three CATALOG marker regions, so the landing gate goes red the moment a Lane A
+        # piece lands. scaffold_article updates the sitemap, llms.txt and GA4 but not this.
+        # render_public_surface owns those regions; the pipeline calls it rather than
+        # leaving a person to notice a red gate an hour later.
+        try:
+            subprocess.run([sys.executable, str(_HERE / "render_public_surface.py"), "--apply"],
+                           cwd=str(ROOT), capture_output=True, timeout=120)
+            print("  %sre-rendered the landing catalog markers%s" % (DIM, X))
+        except Exception as e:
+            print("  %scatalog markers not re-rendered (%s); run "
+                  "render_public_surface.py --apply%s" % (Y, type(e).__name__, X))
     return built
 
 
