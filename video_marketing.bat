@@ -15,6 +15,20 @@ set "PROJ=c:\Users\ILBeronio\Desktop\Industry 4.0\AI Maintenance Engineer\Self-l
 :: Map project root to Z: -- the & in the folder name breaks cmd.exe without this
 subst Z: "%PROJ%" >nul 2>&1
 
+:: Prove the Z: mapping landed in THIS project before running anything. subst is
+:: silenced above because it fails harmlessly when Z: already points here; it fails just
+:: as quietly when Z: is mapped elsewhere, and then the script runs against a stranger's
+:: tree and produces confusing output rather than an error.
+if not exist "Z:\run_platform_checks.py" (
+    echo.
+    echo   PROBLEM: drive Z: is not this project.
+    echo   Z: is probably mapped elsewhere. Free it with:  subst Z: /d
+    echo   then run this file again.
+    echo.
+    pause
+    exit /b 1
+)
+
 :: == First-run social setup: the ONE file Ian pastes his accounts into ========
 :: If social_accounts.env is missing, create it from the template and open it
 :: so he can paste his tokens once. Wait until he saves + closes Notepad.

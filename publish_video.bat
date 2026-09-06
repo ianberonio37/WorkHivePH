@@ -33,6 +33,20 @@ if not exist "%PROJ%\social_accounts.env" (
 Z:
 cd \
 
+:: Prove the Z: mapping landed in THIS project before running anything. subst is
+:: silenced above because it fails harmlessly when Z: already points here; it fails just
+:: as quietly when Z: is mapped elsewhere, and then the script runs against a stranger's
+:: tree and produces confusing output rather than an error.
+if not exist "Z:\run_platform_checks.py" (
+    echo.
+    echo   PROBLEM: drive Z: is not this project.
+    echo   Z: is probably mapped elsewhere. Free it with:  subst Z: /d
+    echo   then run this file again.
+    echo.
+    pause
+    exit /b 1
+)
+
 echo.
 echo ============================================================
 echo  PRODUCED VIDEOS
