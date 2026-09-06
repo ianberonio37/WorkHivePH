@@ -32,6 +32,13 @@ const POSTERS = {
   v3: { file: 'promo_posters/poster-v3.html', w: 1600, h: 900, out: 'workhive-promo-3-mascot-spotlight.png' },
   v4: { file: 'promo_posters/poster-v4.html', w: 1600, h: 900, out: 'workhive-promo-4-command-center.png' },
   v5: { file: 'promo_posters/poster-v5.html', w: 1600, h: 900, out: 'workhive-promo-5-swarm-momentum.png' },
+  // Portrait social card. Unlike the five landscape posters this one is DATA-DRIVEN: it reads
+  // promo_posters/_card.json (written by tools/topic_post.py) for the photo, headline and dek.
+  // `ready` makes the wait explicit rather than trusting the 700ms sleep below - a card that
+  // screenshots before its fetch resolves is a blank panel, which looks like a broken template
+  // instead of a race.
+  socialcard: { file: 'promo_posters/social-card.html', w: 1080, h: 1350,
+                out: 'workhive-social-card.png', ready: '[data-card-ready="1"]' },
 };
 
 const args = process.argv.slice(2);
@@ -64,6 +71,7 @@ for (const name of targets) {
   await page.setViewport({ width: spec.w, height: spec.h, deviceScaleFactor: 2 });
   await page.goto(`http://127.0.0.1:${PORT}/${spec.file}`, { waitUntil: 'networkidle2', timeout: 45000 });
   try { await page.evaluate(() => document.fonts.ready); } catch {}
+  if (spec.ready) { try { await page.waitForSelector(spec.ready, { timeout: 15000 }); } catch {} }
   await new Promise(r => setTimeout(r, 700));
   const el = await page.$('#poster');
   const outPath = path.join(OUT_DIR, spec.out);

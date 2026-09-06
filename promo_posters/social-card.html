@@ -1,0 +1,98 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/>
+<title>WorkHive Social Card</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="poster-kit.css">
+<style>
+/* SOCIAL CARD - portrait 1080x1350, the aspect Facebook's feed gives the most height to.
+   Layout follows the reference Ian supplied (CarBuzz): photo on top, then a light panel
+   carrying an accent rule, an all-caps headline, a plain-language dek, and a brand pill.
+   Why that order: the photo stops the scroll, the headline earns the read, and the pill is
+   the only part that survives a screenshot - a re-share loses the caption and its link, so
+   the DOMAIN has to live in the pixels. Colours come from poster-kit.css so a card sits
+   beside the five existing posters without looking like a different company made it. */
+  #poster{position:relative;width:1080px;height:1350px;overflow:hidden;background:var(--cloud);color:var(--ink)}
+
+  .photo{position:absolute;left:0;top:0;width:1080px;height:700px;overflow:hidden;background:var(--navy)}
+  .photo img{width:100%;height:100%;object-fit:cover;display:block}
+  /* a faint navy wash keeps a bright photo from fighting the headline below it */
+  .photo::after{content:"";position:absolute;inset:0;z-index:2;
+    background:linear-gradient(180deg,rgba(13,25,40,.06) 0%,rgba(13,25,40,0) 40%,rgba(13,25,40,.16) 100%)}
+  /* Logo scrim, painted across the WHOLE photo rather than inside a smaller box. Two earlier
+     attempts (a linear box, then a radial box) both showed the div boundary as a visible line
+     across a mid-tone image, because the gradient was clipped by an edge the eye could find.
+     Spanning the full photo leaves no edge to clip. */
+  .photo::before{content:"";position:absolute;inset:0;z-index:2;
+    background:radial-gradient(760px 560px at 7% 4%,rgba(13,25,40,.66) 0%,rgba(13,25,40,.30) 38%,rgba(13,25,40,0) 72%)}
+
+  .panel{position:absolute;left:0;top:700px;width:1080px;height:650px;background:var(--cloud);
+    padding:56px 72px 0;display:flex;flex-direction:column}
+
+  /* the short thick rule is the reference's strongest brand cue after the pill */
+  .rule{width:132px;height:15px;background:var(--amber);border-radius:2px;flex:0 0 auto}
+
+  .headline{margin-top:34px;font-weight:800;color:var(--navy);text-transform:uppercase;
+    font-size:82px;line-height:1.03;letter-spacing:-.015em;flex:0 0 auto}
+  .dek{margin-top:26px;font-weight:400;color:#3d4d5e;font-size:35px;line-height:1.34;flex:0 0 auto}
+
+  .foot{margin-top:auto;margin-bottom:54px;display:flex;align-items:center;justify-content:space-between}
+  .pill{display:inline-flex;align-items:center;gap:14px;background:var(--amber);color:#241a05;
+    font-weight:700;font-size:33px;padding:17px 34px;border-radius:999px;white-space:nowrap}
+  .pill .arrow{font-size:27px;line-height:1;transform:translateY(-2px)}
+  .series{font-weight:800;font-size:23px;letter-spacing:.16em;color:var(--steel);text-transform:uppercase}
+
+  /* watermark: the reference sets its monogram huge and nearly invisible behind the panel */
+  .wm{position:absolute;right:-60px;bottom:-118px;font-weight:800;font-size:360px;line-height:1;
+    color:rgba(13,25,40,.045);letter-spacing:-.04em;pointer-events:none;user-select:none}
+  /* Top-left with a scrim. Bottom-right put it over the subject on the first render and it
+     vanished into a dark shoulder; a logo that depends on the photo being light is not a logo. */
+  .logo{position:absolute;left:56px;top:50px;height:96px;z-index:4;
+    filter:drop-shadow(0 4px 14px rgba(0,0,0,.55))}
+</style></head>
+<body>
+<div id="poster">
+  <div class="photo"><img id="ph" alt=""/></div>
+  <img class="logo" id="logo" src="/brand_assets/workhive-logo-transparent.png" alt=""/>
+  <div class="panel">
+    <div class="wm" id="wm">WH</div>
+    <div class="rule"></div>
+    <div class="headline" id="hl">HEADLINE GOES HERE</div>
+    <div class="dek" id="dk">The plain-language line that says why this matters.</div>
+    <div class="foot">
+      <span class="pill"><span class="arrow">&#8599;</span><span id="dom">workhiveph.com</span></span>
+      <span class="series" id="sr"></span>
+    </div>
+  </div>
+</div>
+<script>
+/* Data arrives from a sidecar the generator writes, not a query string: render_posters.mjs
+   navigates to a bare path and waits for networkidle2, so a fetch is both simpler and
+   properly awaited. */
+function fit(el, maxH, startPx, minPx) {
+  var size = startPx;
+  el.style.fontSize = size + 'px';
+  /* Shrink until the block fits its allowance. A long headline that overflows would be
+     silently clipped by the panel's overflow, which reads as a rendering bug rather than a
+     long title, so the card must never depend on the author counting characters. */
+  while (el.scrollHeight > maxH && size > minPx) { size -= 2; el.style.fontSize = size + 'px'; }
+}
+fetch('/promo_posters/_card.json', {cache:'no-store'})
+  .then(function (r) { return r.ok ? r.json() : {}; })
+  .catch(function () { return {}; })
+  .then(function (d) {
+    if (d.photo)    document.getElementById('ph').src = d.photo;
+    if (d.headline) document.getElementById('hl').textContent = d.headline;
+    if (d.dek)      document.getElementById('dk').textContent = d.dek;
+    if (d.domain)   document.getElementById('dom').textContent = d.domain;
+    if (d.series)   document.getElementById('sr').textContent = d.series;
+    if (d.watermark) document.getElementById('wm').textContent = d.watermark;
+    if (d.alt)      document.getElementById('ph').alt = d.alt;
+    /* Panel is 650 tall. Fixed cost: 56 pad + 15 rule + 34 + 26 gaps + ~64 foot + 54 margin = 249.
+       That leaves 401 for headline + dek, so 250/140 keeps the pill on the card even when both
+       run long. The first render clipped the pill because these were guessed, not derived. */
+    fit(document.getElementById('hl'), 250, 82, 40);
+    fit(document.getElementById('dk'), 140, 35, 24);
+    document.documentElement.setAttribute('data-card-ready', '1');
+  });
+</script>
+</body></html>
