@@ -369,7 +369,7 @@ Free guides
 
 ## Practical writing for the Philippine plant floor
 
-CATALOG:guide_count53/CATALOG:guide_count in-depth guides covering OEE, MTBF, PM checklists, skill matrix, shift handover, AI assistants, CMMS integrations, and more. Every guide is tool-aligned with WorkHive and free to read.
+CATALOG:guide_count54/CATALOG:guide_count in-depth guides covering OEE, MTBF, PM checklists, skill matrix, shift handover, AI assistants, CMMS integrations, and more. Every guide is tool-aligned with WorkHive and free to read.
 
 [Start Here
 What is WorkHive? The complete platform guide
@@ -381,7 +381,7 @@ The AI companion: everything it can do
 What is OEE and how do I calculate it?
 10 min · worked PH example · 6 FAQs](https://workhiveph.com/learn/what-is-oee-how-to-calculate/)
 
-[See all CATALOG:guide_count53/CATALOG:guide_count guides](https://workhiveph.com/learn/)
+[See all CATALOG:guide_count54/CATALOG:guide_count guides](https://workhiveph.com/learn/)
 
 ## Join the hive.
 
@@ -438,4 +438,4 @@ Secure account →
 Sign In
 Sign Up
 
-<!-- md-twin source-sha: 36ee40eaaf62f81d -->
+<!-- md-twin source-sha: b900970909267858 -->
