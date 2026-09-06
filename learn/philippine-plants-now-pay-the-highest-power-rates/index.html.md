@@ -71,6 +71,12 @@ After you save the calculation, the **History** view lets you compare the new co
 
 **Open the tool:** Engineering Design Calculator is the WorkHive surface this guide funnels into. It is free at the worker tier, works offline, and is built for Philippine plants.
 
+## Where to go next
+
+If the numbers above are the part you want to act on, the workings live in [the free engineering calculators for Philippine plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/), which cover load, power factor and solar sizing with the standards named on each one.
+
+For what "normal" looks like before you argue for spend, see [the Philippine industrial benchmarks](https://workhiveph.com/learn/ph-industrial-benchmarks-intelligence/). And because the cheapest kilowatt-hour is the one a stopped line never draws, [reducing unplanned downtime](https://workhiveph.com/learn/reduce-unplanned-downtime-guide/) is usually the same project wearing a different name.
+
 ## Frequently asked questions
 
 ### Why are Philippine power rates higher than other Southeast Asian countries?
@@ -103,4 +109,4 @@ The DOE publishes the official tariff schedule on its website under the 'Electri
 - Republic Act No. 11285, Energy Efficiency Act of 2019. https://lawphil.net/statutes/repacts/ra2019/ra_11285.html
 - World Bank, Energy Sector Outlook for Southeast Asia 2024. https://www.worldbank.org/en/topic/energy/publication/energy-sector-outlook-southeast-asia
 
-<!-- md-twin source-sha: 02628e5b26f0b5ab -->
+<!-- md-twin source-sha: fe9bd9aeeed104ce -->
