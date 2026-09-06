@@ -89,7 +89,10 @@ BRIDGES = [
     ("Engineering Design Calculator", "/engineering-design.html",
      ["electricity", "power rate", "kwh", "energy", "meralco", "generator", "solar",
       "transformer", "motor", "aircon", "hvac", "cooling", "pump", "diesel", "fuel",
-      "power factor", "brownout", "outage", "load", "watt"]),
+      "power factor", "brownout", "outage", "load", "watt",
+      # added after a real topic scored WEAK on words any energy story uses
+      "electricity rate", "tariff", "grid", "kilowatt", "utility", "power cost",
+      "department of energy", "doe", "consumption", "electric bill"]),
     ("Audit Log & Compliance", "/audit-log.html",
      ["dole", "osh", "oshs", "compliance", "inspection", "audit", "regulation", "law",
       "ra 11058", "ra 11285", "permit", "violation", "penalty", "certification", "iso"]),
@@ -120,14 +123,20 @@ def norm(s: str) -> str:
     return re.sub(r"\s+", " ", (s or "").lower()).strip()
 
 
-def score_bridge(topic: str) -> dict:
+def score_bridge(topic: str, notes: str = "") -> dict:
     """Which module a topic honestly reaches, and how strongly.
 
     Counts DISTINCT matched terms, not occurrences: a post repeating "energy" nine times
     is still one piece of evidence, and letting repetition drive the score would make any
     topic strong if it were verbose enough.
+
+    SCORES THE NOTES TOO, and the first real topic Ian sent proved why. "The Philippines
+    now has the highest electricity rates in Southeast Asia" matched one term and scored
+    WEAK, which is plainly wrong for an energy-cost story. The substance was sitting in the
+    notes ("according to the Department of Energy"), which the first version never read. An
+    oracle that ignores half its input is describing its own blind spot, not the topic.
     """
-    t = " " + norm(topic) + " "
+    t = " " + norm(topic) + " " + norm(notes) + " "
     best = {"module": None, "url": None, "hits": [], "score": 0}
     for module, url, terms in BRIDGES:
         hits = sorted({term for term in terms if term in t})
@@ -259,7 +268,7 @@ def render_card(photo: Path, headline: str, dek: str, out_png: Path) -> bool:
 
 def run_topic(topic: str, photo: Path | None, notes: str = "", apply: bool = False) -> dict:
     slug = slugify(topic)
-    bridge = score_bridge(topic)
+    bridge = score_bridge(topic, notes)
     dest = OUTDIR / slug
     dest.mkdir(parents=True, exist_ok=True)
 
@@ -319,6 +328,14 @@ def self_test() -> int:
     ck(a["module"] == "Engineering Design Calculator", "energy routes to the calculators")
     b = score_bridge("my weekend trip to Palawan was beautiful")
     ck(b["lane"] == "B", "a travel story is WEAK -> Lane B, no page is created")
+    # The real topic that exposed both defects: one matched term in the headline, the rest
+    # of the evidence sitting unread in the notes.
+    real = score_bridge("The Philippines now has the highest electricity rates in Southeast Asia",
+                        "highest electricity rates in Southeast Asia in June, surpassing even "
+                        "Singapore, according to the Department of Energy")
+    ck(real["lane"] == "A", "a real energy headline scores STRONG once notes count (%s)" % real["score"])
+    ck(score_bridge("The Philippines now has the highest electricity rates in Southeast Asia")["score"] >= 2,
+       "the same headline stands on its own vocabulary too")
     c = score_bridge("DOLE inspection found an OSH violation at a plant")
     ck(c["lane"] == "A" and c["module"] == "Audit Log & Compliance", "safety ruling routes to compliance")
     # the guard that matters: repetition must not manufacture strength
