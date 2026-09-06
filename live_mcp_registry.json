@@ -253013,15 +253013,15 @@
    "findings": [],
    "evidence": {
     "kind": "live-walk",
-    "ref": "tests/ux-journeys.spec.ts — 2026-08-21 · /workhive/marketplace.html · journey_first_run_to_value · market: a first-timer reaches value without a dead end",
+    "ref": "tests/ux-journeys.spec.ts — 2026-09-06 · /workhive/marketplace.html · journey_first_run_to_value · market: a first-timer reaches value without a dead end",
     "asserts": "a first-time person reaches the first useful outcome without a dead end",
     "checked": "asserted in a real browser against the live stack; the spec fails rather than skips when its journey cannot be constructed, and reads its effects back with psql as postgres rather than from the screen that claims them",
     "depends_on": [
      "marketplace.html",
      "utils.js"
     ],
-    "sha": "ddaf0f5b259f76e4",
-    "walked_at": "2026-08-21"
+    "sha": "05535140483daa3a",
+    "walked_at": "2026-09-06"
    }
   },
   {
@@ -253038,15 +253038,15 @@
    "findings": [],
    "evidence": {
     "kind": "live-walk",
-    "ref": "tests/ux-journeys.spec.ts — 2026-08-21 · /workhive/marketplace.html · journey_repeat_visit · market: a returning person is not made to redo setup",
+    "ref": "tests/ux-journeys.spec.ts — 2026-09-06 · /workhive/marketplace.html · journey_repeat_visit · market: a returning person is not made to redo setup",
     "asserts": "a returning person resumes where it matters, without redoing setup",
     "checked": "asserted in a real browser against the live stack; the spec fails rather than skips when its journey cannot be constructed, and reads its effects back with psql as postgres rather than from the screen that claims them",
     "depends_on": [
      "marketplace.html",
      "utils.js"
     ],
-    "sha": "ddaf0f5b259f76e4",
-    "walked_at": "2026-08-21"
+    "sha": "05535140483daa3a",
+    "walked_at": "2026-09-06"
    }
   },
   {
@@ -253063,15 +253063,15 @@
    "findings": [],
    "evidence": {
     "kind": "live-walk",
-    "ref": "tests/ux-journeys.spec.ts — 2026-08-21 · /workhive/marketplace.html · journey_cross_surface_handoff · market: the seller you clicked is the seller you land on",
+    "ref": "tests/ux-journeys.spec.ts — 2026-09-06 · /workhive/marketplace.html · journey_cross_surface_handoff · market: the seller you clicked is the seller you land on",
     "asserts": "a flow that spans surfaces carries its context across the handoff",
     "checked": "asserted in a real browser against the live stack; the spec fails rather than skips when its journey cannot be constructed, and reads its effects back with psql as postgres rather than from the screen that claims them",
     "depends_on": [
      "marketplace.html",
      "utils.js"
     ],
-    "sha": "ddaf0f5b259f76e4",
-    "walked_at": "2026-08-21"
+    "sha": "05535140483daa3a",
+    "walked_at": "2026-09-06"
    }
   },
   {
@@ -254872,15 +254872,15 @@
    "findings": [],
    "evidence": {
     "kind": "live-walk",
-    "ref": "tests/ux-journeys.spec.ts — 2026-08-21 · /workhive/marketplace.html · journey_first_run_to_value · market: a first-timer reaches value without a dead end",
+    "ref": "tests/ux-journeys.spec.ts — 2026-09-06 · /workhive/marketplace.html · journey_first_run_to_value · market: a first-timer reaches value without a dead end",
     "asserts": "a first-time person reaches the first useful outcome without a dead end",
     "checked": "asserted in a real browser against the live stack; the spec fails rather than skips when its journey cannot be constructed, and reads its effects back with psql as postgres rather than from the screen that claims them",
     "depends_on": [
      "marketplace.html",
      "utils.js"
     ],
-    "sha": "ddaf0f5b259f76e4",
-    "walked_at": "2026-08-21"
+    "sha": "05535140483daa3a",
+    "walked_at": "2026-09-06"
    }
   },
   {
@@ -254897,15 +254897,15 @@
    "findings": [],
    "evidence": {
     "kind": "live-walk",
-    "ref": "tests/ux-journeys.spec.ts — 2026-08-21 · /workhive/marketplace.html · journey_repeat_visit · market: a returning person is not made to redo setup",
+    "ref": "tests/ux-journeys.spec.ts — 2026-09-06 · /workhive/marketplace.html · journey_repeat_visit · market: a returning person is not made to redo setup",
     "asserts": "a returning person resumes where it matters, without redoing setup",
     "checked": "asserted in a real browser against the live stack; the spec fails rather than skips when its journey cannot be constructed, and reads its effects back with psql as postgres rather than from the screen that claims them",
     "depends_on": [
      "marketplace.html",
      "utils.js"
     ],
-    "sha": "ddaf0f5b259f76e4",
-    "walked_at": "2026-08-21"
+    "sha": "05535140483daa3a",
+    "walked_at": "2026-09-06"
    }
   },
   {
@@ -254922,15 +254922,15 @@
    "findings": [],
    "evidence": {
     "kind": "live-walk",
-    "ref": "tests/ux-journeys.spec.ts — 2026-08-21 · /workhive/marketplace.html · journey_cross_surface_handoff · market: the seller you clicked is the seller you land on",
+    "ref": "tests/ux-journeys.spec.ts — 2026-09-06 · /workhive/marketplace.html · journey_cross_surface_handoff · market: the seller you clicked is the seller you land on",
     "asserts": "a flow that spans surfaces carries its context across the handoff",
     "checked": "asserted in a real browser against the live stack; the spec fails rather than skips when its journey cannot be constructed, and reads its effects back with psql as postgres rather than from the screen that claims them",
     "depends_on": [
      "marketplace.html",
      "utils.js"
     ],
-    "sha": "ddaf0f5b259f76e4",
-    "walked_at": "2026-08-21"
+    "sha": "05535140483daa3a",
+    "walked_at": "2026-09-06"
    }
   },
   {
@@ -256731,15 +256731,15 @@
    "findings": [],
    "evidence": {
     "kind": "live-walk",
-    "ref": "tests/ux-journeys.spec.ts — 2026-08-21 · /workhive/marketplace.html?section=services · journey_first_run_to_value · market_svc: a first-timer reaches value without a dead end",
+    "ref": "tests/ux-journeys.spec.ts — 2026-09-06 · /workhive/marketplace.html?section=services · journey_first_run_to_value · market_svc: a first-timer reaches value without a dead end",
     "asserts": "a first-time person reaches the first useful outcome without a dead end",
     "checked": "asserted in a real browser against the live stack; the spec fails rather than skips when its journey cannot be constructed, and reads its effects back with psql as postgres rather than from the screen that claims them",
     "depends_on": [
      "marketplace.html",
      "utils.js"
     ],
-    "sha": "ddaf0f5b259f76e4",
-    "walked_at": "2026-08-21"
+    "sha": "05535140483daa3a",
+    "walked_at": "2026-09-06"
    }
   },
   {
@@ -256756,15 +256756,15 @@
    "findings": [],
    "evidence": {
     "kind": "live-walk",
-    "ref": "tests/ux-journeys.spec.ts — 2026-08-21 · /workhive/marketplace.html?section=services · journey_repeat_visit · market_svc: a returning person is not made to redo setup",
+    "ref": "tests/ux-journeys.spec.ts — 2026-09-06 · /workhive/marketplace.html?section=services · journey_repeat_visit · market_svc: a returning person is not made to redo setup",
     "asserts": "a returning person resumes where it matters, without redoing setup",
     "checked": "asserted in a real browser against the live stack; the spec fails rather than skips when its journey cannot be constructed, and reads its effects back with psql as postgres rather than from the screen that claims them",
     "depends_on": [
      "marketplace.html",
      "utils.js"
     ],
-    "sha": "ddaf0f5b259f76e4",
-    "walked_at": "2026-08-21"
+    "sha": "05535140483daa3a",
+    "walked_at": "2026-09-06"
    }
   },
   {
@@ -258584,15 +258584,15 @@
    "findings": [],
    "evidence": {
     "kind": "live-walk",
-    "ref": "tests/ux-journeys.spec.ts — 2026-08-21 · /workhive/marketplace.html?section=services · journey_first_run_to_value · market_svc: a first-timer reaches value without a dead end",
+    "ref": "tests/ux-journeys.spec.ts — 2026-09-06 · /workhive/marketplace.html?section=services · journey_first_run_to_value · market_svc: a first-timer reaches value without a dead end",
     "asserts": "a first-time person reaches the first useful outcome without a dead end",
     "checked": "asserted in a real browser against the live stack; the spec fails rather than skips when its journey cannot be constructed, and reads its effects back with psql as postgres rather than from the screen that claims them",
     "depends_on": [
      "marketplace.html",
      "utils.js"
     ],
-    "sha": "ddaf0f5b259f76e4",
-    "walked_at": "2026-08-21"
+    "sha": "05535140483daa3a",
+    "walked_at": "2026-09-06"
    }
   },
   {
@@ -258609,15 +258609,15 @@
    "findings": [],
    "evidence": {
     "kind": "live-walk",
-    "ref": "tests/ux-journeys.spec.ts — 2026-08-21 · /workhive/marketplace.html?section=services · journey_repeat_visit · market_svc: a returning person is not made to redo setup",
+    "ref": "tests/ux-journeys.spec.ts — 2026-09-06 · /workhive/marketplace.html?section=services · journey_repeat_visit · market_svc: a returning person is not made to redo setup",
     "asserts": "a returning person resumes where it matters, without redoing setup",
     "checked": "asserted in a real browser against the live stack; the spec fails rather than skips when its journey cannot be constructed, and reads its effects back with psql as postgres rather than from the screen that claims them",
     "depends_on": [
      "marketplace.html",
      "utils.js"
     ],
-    "sha": "ddaf0f5b259f76e4",
-    "walked_at": "2026-08-21"
+    "sha": "05535140483daa3a",
+    "walked_at": "2026-09-06"
    }
   },
   {
@@ -260437,15 +260437,15 @@
    "findings": [],
    "evidence": {
     "kind": "live-walk",
-    "ref": "tests/ux-journeys.spec.ts — 2026-08-21 · /workhive/marketplace-seller.html · journey_first_run_to_value · seller: a first-timer reaches value without a dead end",
+    "ref": "tests/ux-journeys.spec.ts — 2026-09-06 · /workhive/marketplace-seller.html · journey_first_run_to_value · seller: a first-timer reaches value without a dead end",
     "asserts": "a first-time person reaches the first useful outcome without a dead end",
     "checked": "asserted in a real browser against the live stack; the spec fails rather than skips when its journey cannot be constructed, and reads its effects back with psql as postgres rather than from the screen that claims them",
     "depends_on": [
      "marketplace-seller.html",
      "utils.js"
     ],
-    "sha": "de5426e192f048c8",
-    "walked_at": "2026-08-21"
+    "sha": "74b4d7da4c11ea25",
+    "walked_at": "2026-09-06"
    }
   },
   {
@@ -260462,15 +260462,15 @@
    "findings": [],
    "evidence": {
     "kind": "live-walk",
-    "ref": "tests/ux-journeys.spec.ts — 2026-08-21 · /workhive/marketplace-seller.html · journey_repeat_visit · seller: a returning person is not made to redo setup",
+    "ref": "tests/ux-journeys.spec.ts — 2026-09-06 · /workhive/marketplace-seller.html · journey_repeat_visit · seller: a returning person is not made to redo setup",
     "asserts": "a returning person resumes where it matters, without redoing setup",
     "checked": "asserted in a real browser against the live stack; the spec fails rather than skips when its journey cannot be constructed, and reads its effects back with psql as postgres rather than from the screen that claims them",
     "depends_on": [
      "marketplace-seller.html",
      "utils.js"
     ],
-    "sha": "de5426e192f048c8",
-    "walked_at": "2026-08-21"
+    "sha": "74b4d7da4c11ea25",
+    "walked_at": "2026-09-06"
    }
   },
   {
@@ -262523,15 +262523,15 @@
    "findings": [],
    "evidence": {
     "kind": "live-walk",
-    "ref": "tests/ux-journeys.spec.ts — 2026-08-21 · /workhive/marketplace-seller.html · journey_abandon_resume · seller: abandoning midway leaves nothing half-applied",
+    "ref": "tests/ux-journeys.spec.ts — 2026-09-06 · /workhive/marketplace-seller.html · journey_abandon_resume · seller: abandoning midway leaves nothing half-applied",
     "asserts": "abandoning midway and returning leaves no half-applied state",
     "checked": "asserted in a real browser against the live stack; the spec fails rather than skips when its journey cannot be constructed, and reads its effects back with psql as postgres rather than from the screen that claims them",
     "depends_on": [
      "marketplace-seller.html",
      "utils.js"
     ],
-    "sha": "de5426e192f048c8",
-    "walked_at": "2026-08-21"
+    "sha": "74b4d7da4c11ea25",
+    "walked_at": "2026-09-06"
    }
   },
   {
@@ -262548,15 +262548,15 @@
    "findings": [],
    "evidence": {
     "kind": "live-walk",
-    "ref": "tests/ux-journeys.spec.ts — 2026-08-21 · /workhive/marketplace-seller.html · journey_first_run_to_value · seller: a first-timer reaches value without a dead end",
+    "ref": "tests/ux-journeys.spec.ts — 2026-09-06 · /workhive/marketplace-seller.html · journey_first_run_to_value · seller: a first-timer reaches value without a dead end",
     "asserts": "a first-time person reaches the first useful outcome without a dead end",
     "checked": "asserted in a real browser against the live stack; the spec fails rather than skips when its journey cannot be constructed, and reads its effects back with psql as postgres rather than from the screen that claims them",
     "depends_on": [
      "marketplace-seller.html",
      "utils.js"
     ],
-    "sha": "de5426e192f048c8",
-    "walked_at": "2026-08-21"
+    "sha": "74b4d7da4c11ea25",
+    "walked_at": "2026-09-06"
    }
   },
   {
@@ -262573,15 +262573,15 @@
    "findings": [],
    "evidence": {
     "kind": "live-walk",
-    "ref": "tests/ux-journeys.spec.ts — 2026-08-21 · /workhive/marketplace-seller.html · journey_repeat_visit · seller: a returning person is not made to redo setup",
+    "ref": "tests/ux-journeys.spec.ts — 2026-09-06 · /workhive/marketplace-seller.html · journey_repeat_visit · seller: a returning person is not made to redo setup",
     "asserts": "a returning person resumes where it matters, without redoing setup",
     "checked": "asserted in a real browser against the live stack; the spec fails rather than skips when its journey cannot be constructed, and reads its effects back with psql as postgres rather than from the screen that claims them",
     "depends_on": [
      "marketplace-seller.html",
      "utils.js"
     ],
-    "sha": "de5426e192f048c8",
-    "walked_at": "2026-08-21"
+    "sha": "74b4d7da4c11ea25",
+    "walked_at": "2026-09-06"
    }
   },
   {
@@ -264634,15 +264634,15 @@
    "findings": [],
    "evidence": {
     "kind": "live-walk",
-    "ref": "tests/ux-journeys.spec.ts — 2026-08-21 · /workhive/marketplace-seller.html · journey_abandon_resume · seller: abandoning midway leaves nothing half-applied",
+    "ref": "tests/ux-journeys.spec.ts — 2026-09-06 · /workhive/marketplace-seller.html · journey_abandon_resume · seller: abandoning midway leaves nothing half-applied",
     "asserts": "abandoning midway and returning leaves no half-applied state",
     "checked": "asserted in a real browser against the live stack; the spec fails rather than skips when its journey cannot be constructed, and reads its effects back with psql as postgres rather than from the screen that claims them",
     "depends_on": [
      "marketplace-seller.html",
      "utils.js"
     ],
-    "sha": "de5426e192f048c8",
-    "walked_at": "2026-08-21"
+    "sha": "74b4d7da4c11ea25",
+    "walked_at": "2026-09-06"
    }
   },
   {
@@ -264659,15 +264659,15 @@
    "findings": [],
    "evidence": {
     "kind": "live-walk",
-    "ref": "tests/ux-journeys.spec.ts — 2026-08-21 · /workhive/platform-actions.html · journey_first_run_to_value · admin: a first-timer reaches value without a dead end",
+    "ref": "tests/ux-journeys.spec.ts — 2026-09-06 · /workhive/platform-actions.html · journey_first_run_to_value · admin: a first-timer reaches value without a dead end",
     "asserts": "a first-time person reaches the first useful outcome without a dead end",
     "checked": "asserted in a real browser against the live stack; the spec fails rather than skips when its journey cannot be constructed, and reads its effects back with psql as postgres rather than from the screen that claims them",
     "depends_on": [
      "platform-actions.html",
      "utils.js"
     ],
-    "sha": "fefc0cca0f728d37",
-    "walked_at": "2026-08-21"
+    "sha": "b26f78b5f554062e",
+    "walked_at": "2026-09-06"
    }
   },
   {
@@ -264684,15 +264684,15 @@
    "findings": [],
    "evidence": {
     "kind": "live-walk",
-    "ref": "tests/ux-journeys.spec.ts — 2026-08-21 · /workhive/platform-actions.html · journey_repeat_visit · admin: a returning person is not made to redo setup",
+    "ref": "tests/ux-journeys.spec.ts — 2026-09-06 · /workhive/platform-actions.html · journey_repeat_visit · admin: a returning person is not made to redo setup",
     "asserts": "a returning person resumes where it matters, without redoing setup",
     "checked": "asserted in a real browser against the live stack; the spec fails rather than skips when its journey cannot be constructed, and reads its effects back with psql as postgres rather than from the screen that claims them",
     "depends_on": [
      "platform-actions.html",
      "utils.js"
     ],
-    "sha": "fefc0cca0f728d37",
-    "walked_at": "2026-08-21"
+    "sha": "b26f78b5f554062e",
+    "walked_at": "2026-09-06"
    }
   },
   {
@@ -266861,15 +266861,15 @@
    "findings": [],
    "evidence": {
     "kind": "live-walk",
-    "ref": "tests/ux-journeys.spec.ts — 2026-08-21 · /workhive/platform-actions.html · journey_abandon_resume · admin: abandoning midway leaves nothing half-applied",
+    "ref": "tests/ux-journeys.spec.ts — 2026-09-06 · /workhive/platform-actions.html · journey_abandon_resume · admin: abandoning midway leaves nothing half-applied",
     "asserts": "abandoning midway and returning leaves no half-applied state",
     "checked": "asserted in a real browser against the live stack; the spec fails rather than skips when its journey cannot be constructed, and reads its effects back with psql as postgres rather than from the screen that claims them",
     "depends_on": [
      "platform-actions.html",
      "utils.js"
     ],
-    "sha": "fefc0cca0f728d37",
-    "walked_at": "2026-08-21"
+    "sha": "b26f78b5f554062e",
+    "walked_at": "2026-09-06"
    }
   },
   {
@@ -266886,15 +266886,15 @@
    "findings": [],
    "evidence": {
     "kind": "live-walk",
-    "ref": "tests/ux-journeys.spec.ts — 2026-08-21 · /workhive/platform-actions.html · journey_first_run_to_value · admin: a first-timer reaches value without a dead end",
+    "ref": "tests/ux-journeys.spec.ts — 2026-09-06 · /workhive/platform-actions.html · journey_first_run_to_value · admin: a first-timer reaches value without a dead end",
     "asserts": "a first-time person reaches the first useful outcome without a dead end",
     "checked": "asserted in a real browser against the live stack; the spec fails rather than skips when its journey cannot be constructed, and reads its effects back with psql as postgres rather than from the screen that claims them",
     "depends_on": [
      "platform-actions.html",
      "utils.js"
     ],
-    "sha": "fefc0cca0f728d37",
-    "walked_at": "2026-08-21"
+    "sha": "b26f78b5f554062e",
+    "walked_at": "2026-09-06"
    }
   },
   {
@@ -266911,15 +266911,15 @@
    "findings": [],
    "evidence": {
     "kind": "live-walk",
-    "ref": "tests/ux-journeys.spec.ts — 2026-08-21 · /workhive/platform-actions.html · journey_repeat_visit · admin: a returning person is not made to redo setup",
+    "ref": "tests/ux-journeys.spec.ts — 2026-09-06 · /workhive/platform-actions.html · journey_repeat_visit · admin: a returning person is not made to redo setup",
     "asserts": "a returning person resumes where it matters, without redoing setup",
     "checked": "asserted in a real browser against the live stack; the spec fails rather than skips when its journey cannot be constructed, and reads its effects back with psql as postgres rather than from the screen that claims them",
     "depends_on": [
      "platform-actions.html",
      "utils.js"
     ],
-    "sha": "fefc0cca0f728d37",
-    "walked_at": "2026-08-21"
+    "sha": "b26f78b5f554062e",
+    "walked_at": "2026-09-06"
    }
   },
   {
@@ -269088,15 +269088,15 @@
    "findings": [],
    "evidence": {
     "kind": "live-walk",
-    "ref": "tests/ux-journeys.spec.ts — 2026-08-21 · /workhive/platform-actions.html · journey_abandon_resume · admin: abandoning midway leaves nothing half-applied",
+    "ref": "tests/ux-journeys.spec.ts — 2026-09-06 · /workhive/platform-actions.html · journey_abandon_resume · admin: abandoning midway leaves nothing half-applied",
     "asserts": "abandoning midway and returning leaves no half-applied state",
     "checked": "asserted in a real browser against the live stack; the spec fails rather than skips when its journey cannot be constructed, and reads its effects back with psql as postgres rather than from the screen that claims them",
     "depends_on": [
      "platform-actions.html",
      "utils.js"
     ],
-    "sha": "fefc0cca0f728d37",
-    "walked_at": "2026-08-21"
+    "sha": "b26f78b5f554062e",
+    "walked_at": "2026-09-06"
    }
   },
   {
