@@ -78,6 +78,8 @@ for _s in (sys.stdout, sys.stderr):
     except Exception:
         pass
 
+NL2 = chr(10)
+
 G, R, Y, DIM, B, X = "\033[92m", "\033[91m", "\033[93m", "\033[2m", "\033[1m", "\033[0m"
 
 # ── The bridge map ────────────────────────────────────────────────────────────────────
@@ -169,7 +171,12 @@ def caption_checks(caption: str, link: str, source_facts: str = "") -> dict:
     `[external-reddit-self-promotion-rules-2026-90-10-avoid-ban]`, not Facebook's; it is
     borrowed here as a discipline, not asserted as a Facebook fact.
     """
-    paras = [p.strip() for p in caption.split("\n\n") if p.strip()]
+    # The disclosure names the brand ON PURPOSE, to be honest about who is speaking, so it
+    # must not count as a brand mention in the lead. A short post is only two paragraphs,
+    # which meant the appended disclosure landed inside "the first two" and failed a caption
+    # that led with its topic perfectly well. The rule is about pitching, not about the word.
+    _body = re.sub(r"(?im)^full disclosure:.*$", "", caption).strip()
+    paras = [p.strip() for p in _body.split("\n\n") if p.strip()]
     words = re.findall(r"\w+", caption)
     lead = " ".join(paras[:2])
     framing = re.match(
@@ -209,22 +216,50 @@ def utm(url: str, slug: str) -> str:
 
 
 def draft_caption(topic: str, bridge: dict, link: str, notes: str = "") -> str:
-    """Ask the free chain for the caption; fall back to a usable skeleton if it is down."""
-    prompt = (
-        "You write Facebook posts for a Philippine industrial maintenance platform.\n"
-        "TOPIC: %s\n%s\n"
-        "Write a post of 120-180 words for plant supervisors and technicians in the Philippines.\n"
-        "RULES, all mandatory:\n"
-        "1. The FIRST TWO paragraphs discuss the topic itself with concrete facts. Do NOT name "
-        "any product in them.\n"
-        "2. Do not open with 'Imagine', a rhetorical question, or a product name.\n"
-        "3. Only in the LAST paragraph, turn to how %s helps, in one plain sentence.\n"
-        "4. Never use an em dash. Use a comma or a colon.\n"
-        "5. End with this exact line: Read the full piece: %s\n"
-        "6. Add one line disclosing that Ian built the tool.\n"
-        "Return the post text only, no preamble, no hashtags.\n"
-        % (topic, ("CONTEXT: " + notes) if notes else "", bridge.get("module") or "the platform", link)
-    )
+    """Ask the free chain for the caption; fall back to a usable skeleton if it is down.
+
+    LANE B GETS NO PITCH AT ALL, and the first batch run is why. A Mount Pulag hiking post
+    came back ending "Our platform streamlines maintenance schedules so we can focus on
+    fieldwork, not paperwork" - a non-sequitur bolted onto a sunrise. The lane split exists
+    to prevent exactly that, and the first version still handed the model a module to work
+    in, so it dutifully worked one in.
+
+    WEAK therefore means NO product sentence, not a shorter one. Ian asked for subtle;
+    subtle sometimes means absent. The brand still travels, because the card carries the
+    domain in its pixels, and the 90/10 discipline this borrows from is mostly the 90:
+    posts that earn attention without asking for anything back.
+    """
+    weak = bridge.get("lane") != "A"
+    ctx = ("CONTEXT: " + notes) if notes else ""
+    if weak:
+        prompt = (
+            "You write Facebook posts for a Philippine industrial maintenance platform, but "
+            "THIS post is not about the product at all.\n"
+            "TOPIC: " + topic + "\n" + ctx + "\n"
+            "Write 110-160 words for a Filipino audience. Rules, all mandatory:\n"
+            "1. Write only about the topic. Mention NO product, NO platform, NO software, and "
+            "do not gesture at one. A forced tie-in reads as a non-sequitur and costs trust.\n"
+            "2. Do not open with 'Imagine', a rhetorical question, or a brand name.\n"
+            "3. Never use an em dash. Use a comma or a colon.\n"
+            "4. Do not invent statistics. Use only facts given above.\n"
+            "5. End with this exact line: More from us: " + link + "\n"
+            "Return the post text only, no preamble, no hashtags.\n")
+    else:
+        prompt = (
+            "You write Facebook posts for a Philippine industrial maintenance platform.\n"
+            "TOPIC: " + topic + "\n" + ctx + "\n"
+            "Write a post of 120-180 words for plant supervisors and technicians in the "
+            "Philippines.\nRULES, all mandatory:\n"
+            "1. The FIRST TWO paragraphs discuss the topic itself with concrete facts. Do NOT "
+            "name any product in them.\n"
+            "2. Do not open with 'Imagine', a rhetorical question, or a product name.\n"
+            "3. Only in the LAST paragraph, turn to how "
+            + (bridge.get("module") or "the platform")
+            + " helps, in one plain sentence.\n"
+            "4. Never use an em dash. Use a comma or a colon.\n"
+            "5. Do not invent statistics. Use only facts given above.\n"
+            "6. End with this exact line: Read the full piece: " + link + "\n"
+            "Return the post text only, no preamble, no hashtags.\n")
     try:
         from tools.video_idea_generator import ai_call
         out = (ai_call(prompt, high_quality=True) or "").strip()
@@ -236,10 +271,16 @@ def draft_caption(topic: str, bridge: dict, link: str, notes: str = "") -> str:
     # person, which reads as someone else vouching) and append ours in Ian's own voice.
     out = re.sub(r"(?im)^[ \t]*ian (built|made|created).*$", "", out).strip()
     if len(re.findall(r"\w+", out)) < 40:
-        out = ("%s\n\nThis is worth a closer look than a headline gives it.\n\n"
-               "Where it touches plant work: %s.\n\nRead the full piece: %s\n\n"
-               "I built this tool, so treat that last line as the disclosure it is."
-               % (topic.strip().capitalize(), bridge.get("module") or "day to day maintenance", link))
+        if bridge.get("lane") == "A":
+            out = (topic.strip().capitalize() + NL2 + NL2 +
+                   "This is worth a closer look than a headline gives it." + NL2 + NL2 +
+                   "Where it touches plant work: " +
+                   (bridge.get("module") or "day to day maintenance") + "." + NL2 + NL2 +
+                   "Read the full piece: " + link)
+        else:
+            out = (topic.strip().capitalize() + NL2 + NL2 +
+                   "Worth writing down while it is fresh." + NL2 + NL2 +
+                   "More from us: " + link)
     if not re.search(r"\b(i built|i'm the founder|i am the founder|we built)\b", out, re.I):
         out = out.rstrip() + "\n\nFull disclosure: I built WorkHive, so weigh that last line accordingly."
     return out.strip()
@@ -460,6 +501,15 @@ def run_topic(topic: str, photo: Path | None, notes: str = "", apply: bool = Fal
     link = utm(link_path, slug)
     caption = draft_caption(topic, bridge, link, notes)
     checks = caption_checks(caption, link, topic + " " + notes)
+    if bridge["lane"] != "A":
+        # A WEAK topic earns no product sentence at all. The first batch run ended a Mount
+        # Pulag hiking post with "Our platform streamlines maintenance schedules", which is
+        # the forced bridge the lane split exists to prevent, produced by the very tool that
+        # implements the split. The disclosure line is exempt: it names the brand in order to
+        # be honest about who is speaking, which is the opposite of a pitch.
+        body = re.sub(r"(?im)^full disclosure:.*$", "", caption)
+        body = re.sub(r"https?://\S+", "", body)
+        checks["no_forced_pitch"] = not BRAND.search(body)
 
     headline = topic.strip()
     dek = (notes.strip().split("\n")[0] if notes.strip()
