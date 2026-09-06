@@ -196,9 +196,21 @@ def caption_checks(caption: str, link: str, source_facts: str = "") -> dict:
         return x.replace(",", "").rstrip(".")
     src = _num(norm(source_facts or ""))
     invented = [n for n in re.findall(r"\d[\d,.]*", caption) if _num(n) not in src]
+    # LANGUAGE DRIFT. The model returned a Mount Pulag post written entirely in Tagalog,
+    # unprompted. Plausible for a personal post to a Filipino audience, but it is not a
+    # decision a generator should make silently: the site, the articles and every other
+    # caption are English with Taglish where a supervisor would really use it, and a feed
+    # that flips register at random reads as two different accounts. The prompt now asks
+    # for English, and this checks, because the prompt also asked for a disclosure and got
+    # "Ian built the tool" in the third person.
+    tl = re.findall(r"\b(ang|ng|mga|sa|ay|na|at|ako|ito|para|hindi|may|nang|po|iyong|kanyang"
+                    r"|naman|talaga|kung|dahil|upang)\b", caption, re.I)
+    words_all = re.findall(r"\w+", caption) or [""]
     return {
         "numbers_sourced": not invented,
         "invented_numbers": invented,
+        # A sprinkle of Taglish is the register; a third of the post is a language switch.
+        "language_ok": (len(tl) / max(len(words_all), 1)) < 0.15,
         "topic_leads": not bool(BRAND.search(lead)),
         "not_framing": not bool(framing),
         "self_mention_ok": (len(BRAND.findall(caption)) / max(len(words), 1)) <= 0.10,
@@ -243,6 +255,8 @@ def draft_caption(topic: str, bridge: dict, link: str, notes: str = "") -> str:
             "3. Never use an em dash. Use a comma or a colon.\n"
             "4. Do not invent statistics. Use only facts given above.\n"
             "5. End with this exact line: More from us: " + link + "\n"
+            "Write in English. Natural Taglish is fine where a Filipino supervisor would "
+            "actually use it, but do not write the whole post in Tagalog.\n"
             "Return the post text only, no preamble, no hashtags.\n")
     else:
         prompt = (
@@ -259,6 +273,8 @@ def draft_caption(topic: str, bridge: dict, link: str, notes: str = "") -> str:
             "4. Never use an em dash. Use a comma or a colon.\n"
             "5. Do not invent statistics. Use only facts given above.\n"
             "6. End with this exact line: Read the full piece: " + link + "\n"
+            "Write in English. Natural Taglish is fine where a Filipino supervisor would "
+            "actually use it, but do not write the whole post in Tagalog.\n"
             "Return the post text only, no preamble, no hashtags.\n")
     try:
         from tools.video_idea_generator import ai_call
