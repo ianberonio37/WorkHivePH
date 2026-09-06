@@ -106,6 +106,28 @@ set "OPENIT="
 set /p OPENIT="   Open the results folder? (Y/n): "
 if /i not "%OPENIT%"=="n" start "" "Z:\.tmp\topic_posts"
 
+:: ---- the last mile ------------------------------------------------------
+:: Generating and posting are deliberately separate steps: the whole point of this
+:: pipeline is that Ian READS the caption before it goes out, and a launcher that
+:: posts as part of "generate" would quietly remove the review it exists to protect.
+echo.
+set "PUB="
+set /p PUB="   Preview the Facebook post now? (y/N): "
+if /i "%PUB%"=="y" (
+    echo.
+    echo   Which one? Use the folder name, e.g.
+    echo     philippine-plants-now-pay-the-highest-power-rates
+    set "SLUG="
+    set /p SLUG="   Slug: "
+    if not "!SLUG!"=="" (
+        echo.
+        python tools\social_publisher.py --idea "!SLUG!" --platforms fb_page
+        echo.
+        echo   That was a PREVIEW. Nothing was posted.
+        echo   To post for real, add --live to that command once the caption reads right.
+    )
+)
+
 :done
 echo.
 pause
