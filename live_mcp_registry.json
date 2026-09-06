@@ -231374,15 +231374,15 @@
    "findings": [],
    "evidence": {
     "kind": "live-walk",
-    "ref": "tests/effect-and-agreement.spec.ts — 2026-08-21 · /workhive/marketplace.html · bc_effect_in_db + effect_visible · seller: the save lands in the database and comes back to the person who made it",
+    "ref": "tests/effect-and-agreement.spec.ts — 2026-09-06 · /workhive/marketplace.html · bc_effect_in_db + effect_visible · seller: the save lands in the database and comes back to the person who made it",
     "asserts": "the happy path's effect is present in the database, asserted by psql",
     "checked": "asserted in a real browser against the live stack; the spec fails rather than skips when its journey cannot be constructed, and reads its effects back with psql as postgres rather than from the screen that claims them",
     "depends_on": [
      "marketplace.html",
      "utils.js"
     ],
-    "sha": "ddaf0f5b259f76e4",
-    "walked_at": "2026-08-21"
+    "sha": "05535140483daa3a",
+    "walked_at": "2026-09-06"
    }
   },
   {
@@ -233155,15 +233155,15 @@
    "findings": [],
    "evidence": {
     "kind": "live-walk",
-    "ref": "tests/surface-numbers.spec.ts — 2026-08-21 · /workhive/marketplace.html · surface_numbers · market: every visible number matches its source of truth",
+    "ref": "tests/surface-numbers.spec.ts — 2026-09-06 · /workhive/marketplace.html · surface_numbers · market: every visible number matches its source of truth",
     "asserts": "every count on screen equals the count its own predicate returns - measured with the page's OWN filter, not a guess at it",
     "checked": "asserted in a real browser against the live stack; the spec fails rather than skips when its journey cannot be constructed, and reads its effects back with psql as postgres rather than from the screen that claims them",
     "depends_on": [
      "marketplace.html",
      "utils.js"
     ],
-    "sha": "ddaf0f5b259f76e4",
-    "walked_at": "2026-08-21"
+    "sha": "05535140483daa3a",
+    "walked_at": "2026-09-06"
    }
   },
   {
@@ -234936,15 +234936,15 @@
    "findings": [],
    "evidence": {
     "kind": "live-walk",
-    "ref": "tests/effect-and-agreement.spec.ts — 2026-08-21 · /workhive/marketplace.html · bc_idempotent_repeat · seller: saving the same value twice writes once",
+    "ref": "tests/effect-and-agreement.spec.ts — 2026-09-06 · /workhive/marketplace.html · bc_idempotent_repeat · seller: saving the same value twice writes once",
     "asserts": "repeating the action changes nothing further and the surface says so",
     "checked": "asserted in a real browser against the live stack; the spec fails rather than skips when its journey cannot be constructed, and reads its effects back with psql as postgres rather than from the screen that claims them",
     "depends_on": [
      "marketplace.html",
      "utils.js"
     ],
-    "sha": "ddaf0f5b259f76e4",
-    "walked_at": "2026-08-21"
+    "sha": "05535140483daa3a",
+    "walked_at": "2026-09-06"
    }
   },
   {
@@ -234961,15 +234961,15 @@
    "findings": [],
    "evidence": {
     "kind": "live-walk",
-    "ref": "tests/effect-and-agreement.spec.ts — 2026-08-21 · /workhive/marketplace.html · bc_cross_surface_agreement · market vs profile: the same listing reads the same on both",
+    "ref": "tests/effect-and-agreement.spec.ts — 2026-09-06 · /workhive/marketplace.html · bc_cross_surface_agreement · market vs profile: the same listing reads the same on both",
     "asserts": "the same fact reads the same on every surface that shows it",
     "checked": "asserted in a real browser against the live stack; the spec fails rather than skips when its journey cannot be constructed, and reads its effects back with psql as postgres rather than from the screen that claims them",
     "depends_on": [
      "marketplace.html",
      "utils.js"
     ],
-    "sha": "ddaf0f5b259f76e4",
-    "walked_at": "2026-08-21"
+    "sha": "05535140483daa3a",
+    "walked_at": "2026-09-06"
    }
   },
   {
@@ -234986,15 +234986,15 @@
    "findings": [],
    "evidence": {
     "kind": "live-walk",
-    "ref": "tests/effect-and-agreement.spec.ts — 2026-08-21 · /workhive/marketplace.html?section=services · bc_effect_in_db + effect_visible · seller: the save lands in the database and comes back to the person who made it",
+    "ref": "tests/effect-and-agreement.spec.ts — 2026-09-06 · /workhive/marketplace.html?section=services · bc_effect_in_db + effect_visible · seller: the save lands in the database and comes back to the person who made it",
     "asserts": "the happy path's effect is present in the database, asserted by psql",
     "checked": "asserted in a real browser against the live stack; the spec fails rather than skips when its journey cannot be constructed, and reads its effects back with psql as postgres rather than from the screen that claims them",
     "depends_on": [
      "marketplace.html",
      "utils.js"
     ],
-    "sha": "ddaf0f5b259f76e4",
-    "walked_at": "2026-08-21"
+    "sha": "05535140483daa3a",
+    "walked_at": "2026-09-06"
    }
   },
   {
@@ -236767,15 +236767,15 @@
    "findings": [],
    "evidence": {
     "kind": "live-walk",
-    "ref": "tests/surface-numbers.spec.ts — 2026-08-21 · /workhive/marketplace.html?section=services · surface_numbers · market_svc: every visible number matches its source of truth",
+    "ref": "tests/surface-numbers.spec.ts — 2026-09-06 · /workhive/marketplace.html?section=services · surface_numbers · market_svc: every visible number matches its source of truth",
     "asserts": "every count on screen equals the count its own predicate returns - measured with the page's OWN filter, not a guess at it",
     "checked": "asserted in a real browser against the live stack; the spec fails rather than skips when its journey cannot be constructed, and reads its effects back with psql as postgres rather than from the screen that claims them",
     "depends_on": [
      "marketplace.html",
      "utils.js"
     ],
-    "sha": "ddaf0f5b259f76e4",
-    "walked_at": "2026-08-21"
+    "sha": "05535140483daa3a",
+    "walked_at": "2026-09-06"
    }
   },
   {
@@ -238548,15 +238548,15 @@
    "findings": [],
    "evidence": {
     "kind": "live-walk",
-    "ref": "tests/effect-and-agreement.spec.ts — 2026-08-21 · /workhive/marketplace.html?section=services · bc_idempotent_repeat · seller: saving the same value twice writes once",
+    "ref": "tests/effect-and-agreement.spec.ts — 2026-09-06 · /workhive/marketplace.html?section=services · bc_idempotent_repeat · seller: saving the same value twice writes once",
     "asserts": "repeating the action changes nothing further and the surface says so",
     "checked": "asserted in a real browser against the live stack; the spec fails rather than skips when its journey cannot be constructed, and reads its effects back with psql as postgres rather than from the screen that claims them",
     "depends_on": [
      "marketplace.html",
      "utils.js"
     ],
-    "sha": "ddaf0f5b259f76e4",
-    "walked_at": "2026-08-21"
+    "sha": "05535140483daa3a",
+    "walked_at": "2026-09-06"
    }
   },
   {
@@ -238573,15 +238573,15 @@
    "findings": [],
    "evidence": {
     "kind": "live-walk",
-    "ref": "tests/effect-and-agreement.spec.ts — 2026-08-21 · /workhive/marketplace.html?section=services · bc_cross_surface_agreement · market vs profile: the same listing reads the same on both",
+    "ref": "tests/effect-and-agreement.spec.ts — 2026-09-06 · /workhive/marketplace.html?section=services · bc_cross_surface_agreement · market vs profile: the same listing reads the same on both",
     "asserts": "the same fact reads the same on every surface that shows it",
     "checked": "asserted in a real browser against the live stack; the spec fails rather than skips when its journey cannot be constructed, and reads its effects back with psql as postgres rather than from the screen that claims them",
     "depends_on": [
      "marketplace.html",
      "utils.js"
     ],
-    "sha": "ddaf0f5b259f76e4",
-    "walked_at": "2026-08-21"
+    "sha": "05535140483daa3a",
+    "walked_at": "2026-09-06"
    }
   },
   {
@@ -238598,15 +238598,15 @@
    "findings": [],
    "evidence": {
     "kind": "live-walk",
-    "ref": "tests/effect-and-agreement.spec.ts — 2026-08-21 · /workhive/marketplace-seller.html · bc_effect_in_db + effect_visible · seller: the save lands in the database and comes back to the person who made it",
+    "ref": "tests/effect-and-agreement.spec.ts — 2026-09-06 · /workhive/marketplace-seller.html · bc_effect_in_db + effect_visible · seller: the save lands in the database and comes back to the person who made it",
     "asserts": "the happy path's effect is present in the database, asserted by psql",
     "checked": "asserted in a real browser against the live stack; the spec fails rather than skips when its journey cannot be constructed, and reads its effects back with psql as postgres rather than from the screen that claims them",
     "depends_on": [
      "marketplace-seller.html",
      "utils.js"
     ],
-    "sha": "de5426e192f048c8",
-    "walked_at": "2026-08-21"
+    "sha": "74b4d7da4c11ea25",
+    "walked_at": "2026-09-06"
    }
   },
   {
@@ -240170,15 +240170,15 @@
    "findings": [],
    "evidence": {
     "kind": "live-walk",
-    "ref": "tests/surface-numbers.spec.ts — 2026-08-21 · /workhive/marketplace-seller.html · surface_numbers · seller: every visible number matches its source of truth",
+    "ref": "tests/surface-numbers.spec.ts — 2026-09-06 · /workhive/marketplace-seller.html · surface_numbers · seller: every visible number matches its source of truth",
     "asserts": "every count on screen equals the count its own predicate returns - measured with the page's OWN filter, not a guess at it",
     "checked": "asserted in a real browser against the live stack; the spec fails rather than skips when its journey cannot be constructed, and reads its effects back with psql as postgres rather than from the screen that claims them",
     "depends_on": [
      "marketplace-seller.html",
      "utils.js"
     ],
-    "sha": "de5426e192f048c8",
-    "walked_at": "2026-08-21"
+    "sha": "74b4d7da4c11ea25",
+    "walked_at": "2026-09-06"
    }
   },
   {
@@ -241742,15 +241742,15 @@
    "findings": [],
    "evidence": {
     "kind": "live-walk",
-    "ref": "tests/effect-and-agreement.spec.ts — 2026-08-21 · /workhive/marketplace-seller.html · bc_idempotent_repeat · seller: saving the same value twice writes once",
+    "ref": "tests/effect-and-agreement.spec.ts — 2026-09-06 · /workhive/marketplace-seller.html · bc_idempotent_repeat · seller: saving the same value twice writes once",
     "asserts": "repeating the action changes nothing further and the surface says so",
     "checked": "asserted in a real browser against the live stack; the spec fails rather than skips when its journey cannot be constructed, and reads its effects back with psql as postgres rather than from the screen that claims them",
     "depends_on": [
      "marketplace-seller.html",
      "utils.js"
     ],
-    "sha": "de5426e192f048c8",
-    "walked_at": "2026-08-21"
+    "sha": "74b4d7da4c11ea25",
+    "walked_at": "2026-09-06"
    }
   },
   {
@@ -241767,15 +241767,15 @@
    "findings": [],
    "evidence": {
     "kind": "live-walk",
-    "ref": "tests/effect-and-agreement.spec.ts — 2026-08-21 · /workhive/marketplace-seller.html · bc_cross_surface_agreement · market vs profile: the same listing reads the same on both",
+    "ref": "tests/effect-and-agreement.spec.ts — 2026-09-06 · /workhive/marketplace-seller.html · bc_cross_surface_agreement · market vs profile: the same listing reads the same on both",
     "asserts": "the same fact reads the same on every surface that shows it",
     "checked": "asserted in a real browser against the live stack; the spec fails rather than skips when its journey cannot be constructed, and reads its effects back with psql as postgres rather than from the screen that claims them",
     "depends_on": [
      "marketplace-seller.html",
      "utils.js"
     ],
-    "sha": "de5426e192f048c8",
-    "walked_at": "2026-08-21"
+    "sha": "74b4d7da4c11ea25",
+    "walked_at": "2026-09-06"
    }
   },
   {
@@ -241792,15 +241792,15 @@
    "findings": [],
    "evidence": {
     "kind": "live-walk",
-    "ref": "tests/effect-and-agreement.spec.ts — 2026-08-21 · /workhive/platform-actions.html · bc_effect_in_db + effect_visible · seller: the save lands in the database and comes back to the person who made it",
+    "ref": "tests/effect-and-agreement.spec.ts — 2026-09-06 · /workhive/platform-actions.html · bc_effect_in_db + effect_visible · seller: the save lands in the database and comes back to the person who made it",
     "asserts": "the happy path's effect is present in the database, asserted by psql",
     "checked": "asserted in a real browser against the live stack; the spec fails rather than skips when its journey cannot be constructed, and reads its effects back with psql as postgres rather than from the screen that claims them",
     "depends_on": [
      "platform-actions.html",
      "utils.js"
     ],
-    "sha": "fefc0cca0f728d37",
-    "walked_at": "2026-08-21"
+    "sha": "b26f78b5f554062e",
+    "walked_at": "2026-09-06"
    }
   },
   {
@@ -243206,15 +243206,15 @@
    "findings": [],
    "evidence": {
     "kind": "live-walk",
-    "ref": "tests/surface-numbers.spec.ts — 2026-08-21 · /workhive/platform-actions.html · surface_numbers · admin: every visible number matches its source of truth",
+    "ref": "tests/surface-numbers.spec.ts — 2026-09-06 · /workhive/platform-actions.html · surface_numbers · admin: every visible number matches its source of truth",
     "asserts": "every count on screen equals the count its own predicate returns - measured with the page's OWN filter, not a guess at it",
     "checked": "asserted in a real browser against the live stack; the spec fails rather than skips when its journey cannot be constructed, and reads its effects back with psql as postgres rather than from the screen that claims them",
     "depends_on": [
      "platform-actions.html",
      "utils.js"
     ],
-    "sha": "fefc0cca0f728d37",
-    "walked_at": "2026-08-21"
+    "sha": "b26f78b5f554062e",
+    "walked_at": "2026-09-06"
    }
   },
   {
@@ -244620,15 +244620,15 @@
    "findings": [],
    "evidence": {
     "kind": "live-walk",
-    "ref": "tests/effect-and-agreement.spec.ts — 2026-08-21 · /workhive/platform-actions.html · bc_idempotent_repeat · seller: saving the same value twice writes once",
+    "ref": "tests/effect-and-agreement.spec.ts — 2026-09-06 · /workhive/platform-actions.html · bc_idempotent_repeat · seller: saving the same value twice writes once",
     "asserts": "repeating the action changes nothing further and the surface says so",
     "checked": "asserted in a real browser against the live stack; the spec fails rather than skips when its journey cannot be constructed, and reads its effects back with psql as postgres rather than from the screen that claims them",
     "depends_on": [
      "platform-actions.html",
      "utils.js"
     ],
-    "sha": "fefc0cca0f728d37",
-    "walked_at": "2026-08-21"
+    "sha": "b26f78b5f554062e",
+    "walked_at": "2026-09-06"
    }
   },
   {
@@ -244645,15 +244645,15 @@
    "findings": [],
    "evidence": {
     "kind": "live-walk",
-    "ref": "tests/effect-and-agreement.spec.ts — 2026-08-21 · /workhive/platform-actions.html · bc_cross_surface_agreement · market vs profile: the same listing reads the same on both",
+    "ref": "tests/effect-and-agreement.spec.ts — 2026-09-06 · /workhive/platform-actions.html · bc_cross_surface_agreement · market vs profile: the same listing reads the same on both",
     "asserts": "the same fact reads the same on every surface that shows it",
     "checked": "asserted in a real browser against the live stack; the spec fails rather than skips when its journey cannot be constructed, and reads its effects back with psql as postgres rather than from the screen that claims them",
     "depends_on": [
      "platform-actions.html",
      "utils.js"
     ],
-    "sha": "fefc0cca0f728d37",
-    "walked_at": "2026-08-21"
+    "sha": "b26f78b5f554062e",
+    "walked_at": "2026-09-06"
    }
   },
   {
@@ -244670,15 +244670,15 @@
    "findings": [],
    "evidence": {
     "kind": "live-walk",
-    "ref": "tests/effect-and-agreement.spec.ts — 2026-08-21 · /workhive/marketplace-seller-profile.html?worker=Pablo%20Aguilar · bc_effect_in_db + effect_visible · seller: the save lands in the database and comes back to the person who made it",
+    "ref": "tests/effect-and-agreement.spec.ts — 2026-09-06 · /workhive/marketplace-seller-profile.html?worker=Pablo%20Aguilar · bc_effect_in_db + effect_visible · seller: the save lands in the database and comes back to the person who made it",
     "asserts": "the happy path's effect is present in the database, asserted by psql",
     "checked": "asserted in a real browser against the live stack; the spec fails rather than skips when its journey cannot be constructed, and reads its effects back with psql as postgres rather than from the screen that claims them",
     "depends_on": [
      "marketplace-seller-profile.html",
      "utils.js"
     ],
-    "sha": "56a96c1d48290d24",
-    "walked_at": "2026-08-21"
+    "sha": "20dbb59e486e543b",
+    "walked_at": "2026-09-06"
    }
   },
   {
@@ -245967,15 +245967,15 @@
    "findings": [],
    "evidence": {
     "kind": "live-walk",
-    "ref": "tests/surface-numbers.spec.ts — 2026-08-21 · /workhive/marketplace-seller-profile.html?worker=Pablo%20Aguilar · surface_numbers · profile: every visible number matches its source of truth",
+    "ref": "tests/surface-numbers.spec.ts — 2026-09-06 · /workhive/marketplace-seller-profile.html?worker=Pablo%20Aguilar · surface_numbers · profile: every visible number matches its source of truth",
     "asserts": "every count on screen equals the count its own predicate returns - measured with the page's OWN filter, not a guess at it",
     "checked": "asserted in a real browser against the live stack; the spec fails rather than skips when its journey cannot be constructed, and reads its effects back with psql as postgres rather than from the screen that claims them",
     "depends_on": [
      "marketplace-seller-profile.html",
      "utils.js"
     ],
-    "sha": "56a96c1d48290d24",
-    "walked_at": "2026-08-21"
+    "sha": "20dbb59e486e543b",
+    "walked_at": "2026-09-06"
    }
   },
   {
@@ -247264,15 +247264,15 @@
    "findings": [],
    "evidence": {
     "kind": "live-walk",
-    "ref": "tests/effect-and-agreement.spec.ts — 2026-08-21 · /workhive/marketplace-seller-profile.html?worker=Pablo%20Aguilar · bc_idempotent_repeat · seller: saving the same value twice writes once",
+    "ref": "tests/effect-and-agreement.spec.ts — 2026-09-06 · /workhive/marketplace-seller-profile.html?worker=Pablo%20Aguilar · bc_idempotent_repeat · seller: saving the same value twice writes once",
     "asserts": "repeating the action changes nothing further and the surface says so",
     "checked": "asserted in a real browser against the live stack; the spec fails rather than skips when its journey cannot be constructed, and reads its effects back with psql as postgres rather than from the screen that claims them",
     "depends_on": [
      "marketplace-seller-profile.html",
      "utils.js"
     ],
-    "sha": "56a96c1d48290d24",
-    "walked_at": "2026-08-21"
+    "sha": "20dbb59e486e543b",
+    "walked_at": "2026-09-06"
    }
   },
   {
@@ -247289,15 +247289,15 @@
    "findings": [],
    "evidence": {
     "kind": "live-walk",
-    "ref": "tests/effect-and-agreement.spec.ts — 2026-08-21 · /workhive/marketplace-seller-profile.html?worker=Pablo%20Aguilar · bc_cross_surface_agreement · market vs profile: the same listing reads the same on both",
+    "ref": "tests/effect-and-agreement.spec.ts — 2026-09-06 · /workhive/marketplace-seller-profile.html?worker=Pablo%20Aguilar · bc_cross_surface_agreement · market vs profile: the same listing reads the same on both",
     "asserts": "the same fact reads the same on every surface that shows it",
     "checked": "asserted in a real browser against the live stack; the spec fails rather than skips when its journey cannot be constructed, and reads its effects back with psql as postgres rather than from the screen that claims them",
     "depends_on": [
      "marketplace-seller-profile.html",
      "utils.js"
     ],
-    "sha": "56a96c1d48290d24",
-    "walked_at": "2026-08-21"
+    "sha": "20dbb59e486e543b",
+    "walked_at": "2026-09-06"
    }
   },
   {
