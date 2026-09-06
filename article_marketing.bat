@@ -18,6 +18,22 @@ subst Z: "%PROJ%" >nul 2>&1
 Z:
 cd \
 
+:: PROVE we landed in the project, do not assume. subst is silenced above (it fails
+:: harmlessly when Z: already points here, which is the normal case), but it fails just as
+:: quietly when Z: is mapped to something ELSE - and then `Z:` + `cd \` puts us in a
+:: stranger's tree and python runs against the wrong repo. video_marketing.bat has the same
+:: silenced subst and no check; a wrong-directory run is the kind of failure that produces
+:: confusing output rather than an error.
+if not exist "Z:\tools\topic_post.py" (
+    echo.
+    echo   PROBLEM: drive Z: is not this project.
+    echo   Z: is probably mapped elsewhere. Free it with:  subst Z: /d
+    echo   then run this file again.
+    echo.
+    pause
+    exit /b 1
+)
+
 echo.
 echo ============================================================
 echo   WorkHive Article Marketing
