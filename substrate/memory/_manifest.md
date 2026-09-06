@@ -1,16 +1,16 @@
 ---
 name: memory-corpus
 type: memory
-source: memory-curated:845-files
-source_sha: 67fb61a9a782f001
+source: memory-curated:846-files
+source_sha: 361a291a58213e8e
 last_verified: 2026-07-13
 supersedes: null
 ---
-## memory · curated auto-memory (845 durable topic files)
+## memory · curated auto-memory (846 durable topic files)
 
 First-class substrate source. The BODIES live in `memory/*.md` (Memento-indexed for retrieval via `memory_cache.py --retrieve`); this manifest is the freshness/governance record for the CURATED corpus (reference/feedback/project) — transient handoffs are excluded.
 
-**By type:** feedback=462 · project=294 · reference=89
+**By type:** feedback=463 · project=294 · reference=89
 
 **Corpus fingerprint (source_sha):** editing/adding any curated memory changes it → rebuild `build_substrate.py --type memory` (part of the flywheel's persist spoke).
 
@@ -236,6 +236,7 @@ Entries (name · type · sha):
 - `feedback_gates_that_charge_for_documentation` · feedback · 24d4b9ef4672c1bf
 - `feedback_gates_that_measure_prose_and_ratchets_that_loosen` · feedback · f7a626b349377415
 - `feedback_getdb_exists_before_it_works` · feedback · 4385d391fd64392b
+- `feedback_git_stash_pop_grabbed_another_sessions_stash` · feedback · c3cea3fe2bd1f00f
 - `feedback_grep_matched_the_comment_not_the_link` · feedback · 6ec5edc64e89c2cb
 - `feedback_handoff_trigger_phrases` · feedback · 291e2bd41d9ee4ad
 - `feedback_handover_report` · feedback · 3d092d6bf0d67b00
@@ -515,7 +516,6 @@ Entries (name · type · sha):
 - `project_ai_companion_trust_observability_2026_05_20` · project · cd30b58b439feff9
 - `project_ai_companion_workflow_2026_05_21` · project · 423f39141990618c
 - `project_ai_gateway_memory_layer` · project · e052fb273fb5e22b
-- `project_ai_self_improvement_loop` · project · 67dab5e71633734b
-- … +345 more (all included in the fingerprint)
+- … +346 more (all included in the fingerprint)
 
 Links: [[project_platform_knowledge_substrate]] [[reference_pm_attribution_pin]]
