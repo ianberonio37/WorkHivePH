@@ -7143,6 +7143,40 @@ VALIDATORS = [
         "skip_if_fast": True,
     },
     {
+        # The social pipeline's DISCIPLINE, kept honest. tools/topic_post.py turns a topic and
+        # a photo into a branded card and a value-first caption, and (Lane A) a real /learn
+        # article. Its guards are the whole point, so they run here rather than only when
+        # someone remembers to type --self-test:
+        #   numbers_sourced   every figure traces to the topic or Ian's notes. On run one the
+        #                     model invented "11.8 cent per kilowatt-hour" (wrong currency
+        #                     outright), a "4.5% increase" and "10,950 kWh per year" from notes
+        #                     containing none of them. A fabricated statistic posted under
+        #                     Ian's own name is the failure the article corpus took hours to
+        #                     undo when a made-up DOE claim survived its own correction round.
+        #   lane split        a STRONG topic (energy, compliance, workforce) earns a /learn
+        #                     page; a WEAK one (travel, politics) gets a caption and card only.
+        #                     This is the guard on topical authority: eight clusters, all
+        #                     Philippine industrial maintenance, is exactly what the AIO pillar
+        #                     scores, and publishing travel pages into /learn dilutes it.
+        #   no_forced_pitch   a WEAK post carries NO product sentence. The first batch run
+        #                     ended a Mount Pulag hiking post with "Our platform streamlines
+        #                     maintenance schedules", which is the forced bridge the split
+        #                     exists to stop, produced by the tool that implements the split.
+        #   topic_leads / not_framing / no_em_dash / discloses / has_link
+        # Every one ships with a teeth case, including two for false positives the checks
+        # produced against correct copy (a comma-formatted 500,000 read as invented; a
+        # two-paragraph post putting the disclosure inside "the first two"). Static, offline.
+        "id":      "topic-post-discipline",
+        "script":  "tools/topic_post.py",
+        "args":    ["--self-test"],
+        "label":   "Social topic-post discipline (fabrication guard: every figure traces to the "
+                   "supplied facts; lane split protects /learn's topical authority; a WEAK topic "
+                   "gets no product sentence at all)",
+        "group":   "AI Validation",
+        "report":  None,
+        "skip_if_fast": True,
+    },
+    {
         # AIO scores MULTI-SOURCE CREDIBILITY, and aio-readiness enforces that a source be
         # LINKED rather than merely named. Nothing checked that the link still RESOLVES. A
         # citation pointing at a 404 is worse than no citation: it is a claim a reader can
