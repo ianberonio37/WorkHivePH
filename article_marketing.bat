@@ -30,9 +30,11 @@ echo   4. Open the last results
 echo.
 set "MODE="
 set /p MODE="   Pick 1-4 (or just press Enter for 1): "
-if "%MODE%"=="" set MODE=1
+:: `if "%VAR%"==""` breaks outright if the captured value holds a quote, and set /p
+:: happily captures one. `if not defined` cannot be broken by content.
+if not defined MODE set "MODE=1"
 
-if "%MODE%"=="3" (
+if "!MODE!"=="3" (
     if not exist "Z:\.tmp\topic_queue" mkdir "Z:\.tmp\topic_queue"
     echo.
     echo   Drop a .txt and a matching photo with the SAME name, e.g.
@@ -42,13 +44,13 @@ if "%MODE%"=="3" (
     goto :done
 )
 
-if "%MODE%"=="4" (
+if "!MODE!"=="4" (
     if not exist "Z:\.tmp\topic_posts" mkdir "Z:\.tmp\topic_posts"
     start "" "Z:\.tmp\topic_posts"
     goto :done
 )
 
-if "%MODE%"=="2" (
+if "!MODE!"=="2" (
     echo.
     echo   Running the queue...
     echo.
@@ -60,7 +62,7 @@ if "%MODE%"=="2" (
 echo.
 set "TOPIC="
 set /p TOPIC="   Topic (the headline, in your words): "
-if "%TOPIC%"=="" (
+if not defined TOPIC (
     echo   No topic given, nothing to do.
     goto :done
 )
@@ -77,16 +79,19 @@ echo   Photo (drag the file into this window, then press Enter).
 echo   Leave blank to skip the card.
 set "PHOTO="
 set /p PHOTO="   Photo: "
-:: strip surrounding quotes that drag-and-drop adds
-set PHOTO=%PHOTO:"=%
+:: Strip the quotes drag-and-drop adds, but ONLY if something was typed: cmd's
+:: substring-replace on an UNDEFINED variable is a hard "The syntax of the command is
+:: incorrect", so skipping the photo used to kill the run. Found by actually running the
+:: file rather than reading it.
+if defined PHOTO set "PHOTO=!PHOTO:"=!"
 
 echo.
 set "WRITE="
 set /p WRITE="   Also publish a /learn article if the topic fits? (y/N): "
 
 set "ARGS="
-if not "%PHOTO%"=="" set ARGS=!ARGS! --photo "%PHOTO%"
-if /i "%WRITE%"=="y" set ARGS=!ARGS! --apply
+if defined PHOTO set "ARGS=!ARGS! --photo "!PHOTO!""
+if /i "!WRITE!"=="y" set "ARGS=!ARGS! --apply"
 
 echo.
 echo   Working. The AI drafting takes about 20 seconds.
@@ -104,7 +109,7 @@ echo ============================================================
 echo.
 set "OPENIT="
 set /p OPENIT="   Open the results folder? (Y/n): "
-if /i not "%OPENIT%"=="n" start "" "Z:\.tmp\topic_posts"
+if /i not "!OPENIT!"=="n" start "" "Z:\.tmp\topic_posts"
 
 :: ---- the last mile ------------------------------------------------------
 :: Generating and posting are deliberately separate steps: the whole point of this
@@ -113,7 +118,7 @@ if /i not "%OPENIT%"=="n" start "" "Z:\.tmp\topic_posts"
 echo.
 set "PUB="
 set /p PUB="   Preview the Facebook post now? (y/N): "
-if /i "%PUB%"=="y" (
+if /i "!PUB!"=="y" (
     echo.
     echo   Which one? Use the folder name, e.g.
     echo     philippine-plants-now-pay-the-highest-power-rates
