@@ -2,16 +2,16 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: 11b5ba8f4cca5a91
+source_sha: 258c356127bec437
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (1094) — the 'what's already gated' brain
+## gate · registered validators (1132) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
 
-### AI Validation (121)
+### AI Validation (123)
 - `account_deactivation` ⚡ [fail] — Arc I: account offboarding (self-scoped anonymize, preserve records; GDPR/PDPA)
 - `ai_fabrication_contract` ⚡ [fail] — Arc H: AI action-faithfulness rail centralized (D13, no fabricated completed-write)
 - `ai_input_caps` ⚡ [fail] — Arc R: AI input caps (user text length-capped before LLM; LLM10)
@@ -58,6 +58,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `definer_tenant_gate` [fail] — Arc G: DEFINER tenant-gate (no un-gated cross-tenant DEFINER mutator)
 - `diagram_value_alignment` [fail] — AI Self-Improvement: Diagram-Value Alignment (§13.13 A4, live)
 - `dom_xss_fields` ⚡ [fail] — Arc R: DOM-XSS DB-field escaping (DB free-text in HTML must be escHtml; A03)
+- `edge-contract` [fail] — Edge contract: preflight, refusal, malformed body and method guard on every function (62)
 - `embedding-space-integrity` [fail] — EMBEDDING SPACE INTEGRITY - every corpus must live in exactly ONE vector space, matching its registry pin. Caught live 2026-07-31: fault_knowledge held 534 rows
 - `engdesign_a11y` ⚡ [fail] — Deep-arc P3: Engineering-Design report a11y (contrast U-1/U-4, 44px U-6, label/announce passes U-2/U-3/U-8)
 - `engdesign_ai` ⚡ [fail] — Deep-arc P5: Engineering-Design AI egress integrity (timeout AI-4, honest copy AI-5, disclosure AI-7, friendly errors AI-8, narration grounding AI-1)
@@ -124,6 +125,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `signup_enumeration_safety` ⚡ [fail] — Arc I: account-enumeration resistance (login uniform-response + signup RPC carve-out; ASVS V2.2)
 - `sri_cdn_scripts` ⚡ [fail] — Arc R: SRI on pinned CDN scripts (supply-chain; A08)
 - `ssrf_egress` ⚡ [fail] — Arc R: SSRF egress (tenant-controlled fetch routed through ssrf-guard; A10)
+- `topic-post-discipline` [fail] — Social topic-post discipline (fabrication guard: every figure traces to the supplied facts; lane split protects /learn's topical authority; a WEAK topic gets no
 - `truth_view_security_invoker` [fail] — Arc G: truth-view security_invoker (read path respects RLS, no view RLS-bypass)
 - `view_security_invoker` [fail] — Arc G: view security_invoker (no view bypasses base-table RLS = cross-tenant read)
 - `visual_defect_confidence` ⚡ [fail] — AI Self-Improvement: Visual Defect Confidence
@@ -133,6 +135,9 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `voice_response_latency` ⚡ [fail] — AI Self-Improvement: Voice Response Latency
 - `voice_router_live` [fail] — Arc H: Voice-router LIVE slot-fill guard (no junk-write; runtime path)
 - `voice_router_oracle` ⚡ [fail] — Arc H: Voice-router determinism oracle (routing/tool-selection value-correctness)
+
+### Accessibility (1)
+- `a11y-path` ⚡ [fail] — A11y path (keyboard walk, landmark + heading ladder, live regions present at load)
 
 ### Arc K (1)
 - `live-page-journeys` ⚡ [regression] — Arc K Live-Page Journeys Ratchet (live-as-a-user JTBDs never regress non-live + deterministic floor never grows; reads live_page_journeys_results.json vs baseli
@@ -157,6 +162,10 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `companion_memory_health_gate` ⚡ [fail] — Companion Memory C3.2: memory health gate (structural + procedural-embedding integrity)
 - `companion_memory_reembed` ⚡ [fail] — Companion Memory C2.3: re-embed-retry (null procedural becomes searchable after re-embed)
 - `companion_memory_supersedes` ⚡ [fail] — Companion Memory C2.1: supersedes down-rank (obsolete procedure ranks below its replacement)
+
+### Data (2)
+- `cap-honesty` ⚡ [fail] — Cap honesty (every capped read with rows hidden behind it sits on a page that can admit the cap)
+- `tile-canonical` ⚡ [fail] — Tile == canonical (every headline number on the board equals the v_*_truth query behind it)
 
 ### Data Quality (3)
 - `inventory-integrity` ⚡ [fail] — Inventory Integrity (no negative qty, valid txn types, qty_after accuracy)
@@ -213,6 +222,9 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `memory_supersedes` ⚡ [fail] — Memory M3.2: supersedes down-rank mechanism (superseded memory ranks below its replacement)
 - `memory_write_quality` ⚡ [fail] — Memory M3.1: topic-file write-quality lint (type/name/description, no silent type=unknown)
 
+### Mobile (1)
+- `mobile-deep` [fail] — Mobile deep (thumb-sized targets, safe-area chrome, landscape + tablet, installable shell)
+
 ### P1 Roadmap (24)
 - `doctype-first` ⚡ [blocker] — Doctype First (nothing may precede <!DOCTYPE html> — content there forces quirks mode)
 - `edge-error-capture` ⚡ [regression] — Edge Error-Capture Adoption (Arc T/T2 keystone: every edge fn routes through serveObserved so unhandled throws aggregate to wh_traces via trackError; L1 wrapper
@@ -239,7 +251,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `substrate-manifest` ⚡ [info] — Substrate Manifest (L-1.5: aggregate all 13 pattern miners + drift detectors into one view)
 - `truth-view-contract` ⚡ [blocker] — Truth-View Contract (every v_*_truth declares _source_count/_freshness_ts/_canonical_version)
 
-### Platform (867)
+### Platform (893)
 - `404-notice-helps` [fail] — 404 Notice Helps (a dead path names itself, pre-fills the slug the visitor asked for, and one Enter reaches matching guides; no-match says so; real pages stay s
 - `a-busy-button-says-working` [fail] — T41 (2026-08-28): a locked control announces WORK, not unavailability. button-lock.js is the platform's single-flight guard - withButtonLock disables a committi
 - `a-deferral-is-not-a-completion` [fail] — T10 (2026-08-28): a task put off is not a task done. A worker who cannot do a PM today DEFERS it; one who does it COMPLETES it, and the gap between those is whe
@@ -355,6 +367,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `avatar-state` ⚡ [fail] — Avatar State Management (Phase 10: emotion tracking, animations)
 - `axe-live-authed` [fail] — Axe a11y — AUTHENTICATED write surfaces (LIVE: password-grants a seeded supervisor + scans the 9 Tier-1 write pages [hive/inventory/logbook/pm-scheduler/skillma
 - `benchmark-rollup-faithfulness` [fail] — Cross-hive benchmark rollup faithfulness (LIVE: every `network_benchmarks` cross-tenant rollup must == the EXACT aggregate of the current per-hive `hive_benchma
+- `board-covers-roster` ⚡ [fail] — Family Board Covers the Page Roster (every root page in substrate/reference/page_roster.json is on tools/family_rubric_sweep.mjs PAGES, or allowlisted by name w
 - `bounce-idempotency` [fail] — T112: one delivery id, one bounce row. resend-webhook-receiver ended in a bare INSERT, while Svix (which Resend uses) delivers AT LEAST ONCE, retries on any non
 - `boundary-refusal-ratchet` ⚡ [fail] — T-arc boundary_not_emptiness, held as a forward-only line (2026-08-31). 34 bank rows carry ONE oracle - 'a permission boundary reads as not-visible-with-this-se
 - `bounded-list-offers-the-rest` [fail] — CF: a capped list must admit the rest exists (T129, 2026-08-27). A long list has to be capped - the DOM cannot carry two thousand rows and stay usable - so the 
@@ -463,6 +476,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `correctness-scoreboard` [fail] — CORRECTNESS anti-drift scoreboard — the value-at-the-glass sibling of bughunt-scoreboard. Regenerates CORRECTNESS_SCOREBOARD.md mapping every contracted user-fa
 - `cors-wildcard` ⚡ [fail] — CORS Wildcard Audit (4-layer: hardcoded-* + wildcard-on-data + strategy distribution + echo-without-allowlist)
 - `counted-noun-ratchet` ⚡ [fail] — T131: software that cannot count to one. '1 entries found', '1 assets', '1 parts' - individually trivial, collectively the thing that makes a product feel unfin
+- `coverage-matrix` [fail] — P-program Coverage Matrix (156 pages x 10 page-scoped layers; applicability derived from a NAMED signal in each page's own source, cells credited only by layer-
 - `credit-circuit-sim` ⚡ [fail] — CREDIT CIRCUIT SIMULATION - do the economy's defaults still deserve their values? Every knob in the credit circuit was chosen from simulation rather than instin
 - `credit-economy-simulation` [fail] — CREDIT ECONOMY SIMULATION - generated job lifecycles driven through the REAL guards, triggers and ledger inside ONE transaction that is ROLLED BACK, so no simul
 - `credit-guards-refuse` ⚡ [fail] — CREDIT GUARDS REFUSE - installed is not the same as enforcing, and the credit-posture gate only proves the triggers EXIST. A trigger can be present while its fu
@@ -487,6 +501,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `d9-knob-integrity` ⚡ [fail] — D9 KNOB INTEGRITY - the per-hive service knobs (migrations 20260731000007/8/9) must stay SAFE and stay READ. TIGHTEN-ONLY TRUST: per-hive trust thresholds are a
 - `data-fabric` ⚡ [fail] — Data Fabric Normalizer Phase 5 (9-layer scaffolding: migration + 10 sources + RLS + edge fn + 3 adapters + SHA-256 dedup + hive scoping + duplicate handling + n
 - `data-governance-kb` ⚡ [fail] — Data Governance Validator (ownership, metadata, write path, versioning)
+- `data-honesty` [fail] — Data honesty: a stated basis, agreeing windows, and no cap presented as a total (28 surfaces)
 - `data-quality` ⚡ [fail] — Data Quality Validator (duplicates, incomplete, bias, inconsistent formats)
 - `data-retention` ⚡ [fail] — Data Retention / Right-to-Erasure (4-layer: delete path + helper + PII inventory + retention)
 - `date-arithmetic` ⚡ [fail] — Date Arithmetic Safety (4-layer: space-date + parse-vs-ISO + ms literals + TZ-naive helpers)
@@ -494,6 +509,9 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `day-one-parallel-join` [fail] — T185 slice 1: five workers, one invite code, the same minute (2026-08-26). The scenario the trajectory is named for - a supervisor reads ONE code out at the mor
 - `dayplanner` ⚡ [fail] — Day Planner Validator (Phase 1.9: DILO/WILO/MILO/YILO tabs + schedule_items + nav-hub linkage + auth-aware)
 - `db-adoption` ⚡ [fail] — DB Adoption (canonical RLS/policy/invoker pattern adoption per table/view; forward-only floors, auto-tighten)
+- `db-pages-data-degradation` [fail] — DB pages say so when every data read fails (no stuck skeleton, no blank root) - 21 pages, signed in, 12s envelope
+- `db-pages-degradation` [fail] — Degradation: every surface SAYS SO when its shared scripts never arrive (34 surfaces, no blank root, no stuck skeleton)
+- `db-pages-shared-degradation` [fail] — DB pages still paint (or say so) with every shared script aborted - 21 pages, signed in
 - `dead-end-has-a-door` [fail] — CF: a read-failure state must offer a way OUT, not just a sentence (T193, 2026-08-27). whListError is the shared read-failure panel behind ~24 pages, so what it
 - `deeplink-param-contracts` ⚡ [blocker] — Deep-Link Param Contracts (forward-only: no NEW emitted ?param lacks a .get() reader in its destination — catches the dead-param class from the Phase-6b edge wa
 - `deepwalk-flywheel` [warn] — PLATFORM deep-walk FLYWHEEL v2 (Ian 2026-07-08): the WHOLE-platform quality ruler — GLOB-discovers the grid each cycle (40 pages × 13 oracle dims + 33 AI edge f
@@ -570,6 +588,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `fab-consolidation` ⚡ [blocker] — FAB Consolidation Contract (bottom-right corner stays consolidated into the nav-hub; companion/feedback/connectivity launch from inside the hub, no standalone c
 - `failed-read-is-not-empty` ⚡ [fail] — A read that FAILED must not render as 'there is nothing' (2026-08-27). The shape: a loader catches, blanks its list, toasts, re-renders. The toast FADES; the em
 - `faithfulness-rail` ⚡ [fail] — CL10 faithfulness rails (the assistant/chat brain is read-only advisory; two live-caught fabrication classes must stay guarded before an answer ships: (1) ACTIO
+- `family-rubric-ratchet` ⚡ [fail] — Family-Rubric Adoption Ratchet (F7: the 32-page 90-dim family board vs family_rubric_baseline.json is forward-only — mean and per-page floors may not drop; refu
 - `fee-parity` [fail] — T103: fee-parity gate — T103's stated-vs-charged oracle (2026-08-26). Every fee percentage a page STATES to a user is a promise; the DB is what actually charges
 - `feedback-round-trip` [fail] — T157: feedback-round-trip - T157: the feedback loop actually goes somewhere (2026-08-26). 'Email us with corrections' and a feedback button are TRUST CLAIMS. A 
 - `fetch-error-handling` ⚡ [fail] — fetch() Error Handling (every fetch() is in try/catch or chained to .catch; forward-only ratchet)
@@ -596,6 +615,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `form-submission-target` ⚡ [fail] — <form> Submission Target (every form has action OR onsubmit OR addEventListener('submit'); forward-only ratchet)
 - `formula-invocation` ⚡ [fail] — Formula Invocation Drift (Tier D-f refinement: same formula called with different period_days across consumers)
 - `founder-console-honest` [regression] — T488 (founder console shows honest platform state): founder-gated (isPlatformAdmin), grounded in the v_*_truth canonical views + platform_health across many liv
+- `founder-feedback-backfill` [fail] — founder-console feedback inbox backfills after a realtime drop (live: network cut mid-subscription, DB insert, reconnect -> card appears)
 - `frequency-map-consistency` ⚡ [blocker] — Frequency-Map Consistency (every PM frequency maps to its canonical interval days; live view + code copies agree)
 - `freshness-stamp-tracks-content` [fail] — T39: a freshness stamp tracks its content — alert-hub's background-upgrade oracle (2026-08-26). The AMC card serves the stored 6am brief instantly, then calls a
 - `frontend-floor-cells` [fail] — Frontend floor cells (fix-to-ZERO ratchet over the live-mined F-lens in frontend_ufai_results.json: F1 consoleErrors==0 [D17 SMOKE — page loads clean] + F6 load
@@ -619,6 +639,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `growth-write-isolation` [fail] — Growth-layer write isolation (LIVE, rolled-back: simulates a real authenticated member and asserts a member CANNOT self-mint a skill_badge [competence + 250 XP 
 - `guard-mutation-score` [fail] — GUARD MUTATION SCORE — would the marketplace test bank NOTICE if a guard behaved differently? The bank's SQL lane is 130/130 green and the transition board read
 - `hail-geo-coverage` ⚡ [fail] — HAIL GEO COVERAGE - is the broadcast radius filtering anything? FOUND ON A LIVE CLIENT WALK 2026-08-01: a hail placed through the real UI lands with location IS
+- `handoff-carries-context` [fail] — Hand-off carries context: identity keys + hive name survive the first internal hop and the return (19 pages without a scripted journey)
 - `hardcoded-secrets` ⚡ [fail] — Hardcoded Secret Detector (4-layer: provider tokens + generic assignments + provider distribution + allowlist inventory)
 - `heading-hierarchy` ⚡ [fail] — Heading Hierarchy (no skipped levels, no multiple h1; forward-only ratchet)
 - `held-credits-are-told` [fail] — T94: a wallet must not offer credits that are already spoken for (2026-08-27). Listing HOLDS credits — guard_listing_requires_reservation writes a credit_reserv
@@ -708,6 +729,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `link-target-existence` ⚡ [fail] — Link Target Existence (every <a href>/location.href to a .html target must exist on disk; T1 2026-08-24: roster DERIVED from the served root (42 pages, was a st
 - `listing-cost-transparency` ⚡ [regression] — T34: the listing composer tells the WHOLE cost truth at the commit point - the 10% credit reservation held at publish AND that it returns if the listing does no
 - `listing-preview` [fail] — T100: see it as a buyer before it is a commitment. The walk found the AI listing assist SOUND - it names its own inputs and invented no specs from a bare title 
+- `live-walk-manifest` ⚡ [fail] — Live-walk ledger (CLOSED = walked live + gated; the manifest must match the registry - anti-drift on the two-bucket header)
 - `live_mcp_bank` [fail] — Live-MCP bank honesty (every non-owed scenario carries typed evidence — kind/ref/asserts — and that evidence EXPIRES when a file it depends on changes; forward-
 - `loading-state` ⚡ [fail] — Loading State Coverage (4-layer: async-no-loading + submit-no-preventDefault + mechanism distribution + async density)
 - `loads-utils-js` ⚡ [fail] — Loads-Utils-JS (3-layer: required + allowlist-freshness + census)
@@ -720,6 +742,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `long-fetch-bounded` ⚡ [fail] — T146: a hang must END, not spin forever. A fetch to an AI or transcription edge function is the one a plant floor will hang - a dead spot, a cold function, a sl
 - `longest-truncates` [fail] — CF: the longest realistic value truncates (2026-08-26). Real plants name things badly - a part called 'Bearing, spherical roller, 22320 E1 XL C3, SKF, for kiln 
 - `lowstock-marketplace-handoff` ⚡ [regression] — T30: the low-stock->marketplace buy hop carries context - 'Find on Marketplace' navigates to marketplace.html?section=parts&q=<part> with the part number seeded
+- `mail-delivery` [fail] — Mail delivery (the message actually reaches the outbox, addressed, titled and actionable)
 - `marketplace` ⚡ [fail] — Marketplace Validator (4-layer: schema + edge functions + UI gates + money flow)
 - `marketplace-bank-journey` [fail] — MARKETPLACE TEST BANK — journey lane, TWO BROWSER CONTEXTS (§10). Runs tests/marketplace-bank-two-context.spec.ts: two independent Playwright contexts holding t
 - `marketplace-sim` ⚡ [fail] — MARKETPLACE SIMULATION - 115 live scenarios composed from DECLARED dimensions (Ian 2026-08-02: 'we need around diverse 100+ live simulation tests, and from ther
@@ -767,6 +790,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `no-client-counter-write` ⚡ [fail] — P6 lost-update regression gate (STATIC): asserts NO page HTML writes a value-integrity counter (qty_on_hand/xp_total/total_sales/rating_avg/votes/points/balance
 - `no-clock-driven-push` [fail] — T109: the structural reason this platform needs no quiet hours YET, guarded so it stays true. The walk found no quiet-hours machinery anywhere AND - the part th
 - `no-comment-inside-tag` ⚡ [fail] — No comment inside a tag (an HTML comment opened between an element's attributes is parsed as bogus attributes and silently drops what follows — the browser neve
+- `no-control-bytes` ⚡ [fail] — No stray control bytes in any source file (a mangled escape is invisible in a diff and kills a regex silently)
 - `no-dead-feature-remnants` ⚡ [regression] — T60: a retired feature leaves no orphaned function behind - a top-level page fn defined but referenced NOWHERE is dead weight or a half-removed feature's door; 
 - `no-drag-only` ⚡ [fail] — T117 / WCAG 2.5.7: nothing may become reachable ONLY by dragging. A worker in gloves, a person with a tremor and anyone on a trackpad share one need - no functi
 - `no-eaten-escapes` [fail] — Platform: no eaten escapes — a control character in source is a regex that cannot fire (2026-08-26). Written through nested quoting layers (a shell heredoc, a n
@@ -792,6 +816,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `old-draft-says-its-age` [fail] — T57: an old draft says its age — the dormant-return oracle (2026-08-26). whAutoSaveDraft is X2 interruption resilience, and it is careful work: it refuses a dra
 - `onconflict-index` [fail] — Per-page P3/P4 gate: every supabase-js `.upsert(rows,{onConflict:'a,b'})` in the page HTML must have a MATCHING unique index in the live DB (Postgres ON CONFLIC
 - `one-clock-per-string` ⚡ [fail] — Cluster 1 (critic deepwalk): every rendered timestamp keeps ONE clock, and the ops-home shift line is plant-anchored + labeled. Walked live 2026-09-02 at GMT+12
+- `ops-liveness` [fail] — Ops liveness (every Grafana panel's own query returns data - no observability claim without a producer)
 - `ops-snapshot-agents` [fail] — Ops-Snapshot Agent Coverage (every factual-answer agent is grounded, not just the companion)
 - `optimistic-concurrency` ⚡ [fail] — Optimistic Concurrency (4-layer: content-without-guard + no-defence-available + writer matrix + adoption count)
 - `optimistic-input-restore` ⚡ [fail] — DEEPWALK D4 gate (static teeth) — a chat/message send that clears its input OPTIMISTICALLY (`input.value=''` BEFORE the async turn, to show the user bubble imme
@@ -805,6 +830,8 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `page-battery` [fail] — Platform-wide page battery (LIVE headless Playwright, real Baguio supervisor sign-in) - PER_PAGE_BUGHUNT_ROADMAP section 5 mechanical floor across ALL ~30 inter
 - `page-contrast` [fail] — T116: the contrast zero that IS certified, and the one page where it is not. tools/prove_page_contrast.mjs is a mature TWO-ORACLE instrument - axe for WCAG 2.x,
 - `page-crud` [fail] — Per-page P3 CRUD-at-DB gate (LIVE headless Playwright, real WORKER sign-in via live_page_journeys). Three invariant shapes, because not every entity is a worker
+- `page-health` [fail] — Page health: every DB page paints its main container with no page error (signed in, 23 pages)
+- `page-log-tags` ⚡ [fail] — Reference pages tag every console.error/warn with their own name ([validator-catalog], [symbol-gallery], [design-system], [llm-observability], [founder-console]
 - `page-roster` ⚡ [fail] — Page Roster Parity (T1.4: ONE roster (substrate/reference/page_roster.json), every consumer's scope checked inside it — sw.js SHELL_FILES (a precached 404 fails
 - `paginated-order-totality` ⚡ [fail] — PAGINATED ORDER TOTALITY — every query that pages or truncates must sort by a TOTAL order, i.e. end its ORDER BY with a column unique per row. Found live 2026-0
 - `param-route-registry` ⚡ [regression] — Param-Route Registry current (T43: the param->page routing registry on disk matches a fresh derivation; a changed param route must regenerate it)
@@ -826,6 +853,8 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `pgvector-consistency` ⚡ [fail] — pgvector Consistency (4-layer: dim match + hive filter + embedding RLS + dim distribution)
 - `phantom-captures` ⚡ [fail] — Phantom Capture Auditor (reverse-lineage: every <input>/<select> must have >=1 downstream consumer)
 - `phantom-columns` ⚡ [fail] — Phantom Column Auditor (schema-bloat: every column in registry must have >=1 consumer)
+- `phone-fit` [fail] — Phone fit: at 390x844 no overflow, no wrapped control label, no spilled text, menus inside the viewport (51 pages)
+- `phone-fit-360` [fail] — Phone fit at 360 wide: the P-M lenses on the narrower phone class (51 pages)
 - `photo-survives-queue` [fail] — T14's LAST PROBE (LIVE Playwright): the dead-zone entry a worker most wants to keep is the one with the PICTURE on it — the cracked bearing, the leak, the burnt
 - `pick-prefills-category` ⚡ [fail] — Critic-deepwalk T21 lock: pick-from-registered prefills the REQUIRED Category. Walked live: name/tag/location prefilled but Category stayed empty - TYPE_TO_CATE
 - `picker-arrow-keys` ⚡ [regression] — T48: the logbook asset-picker is a keyboard combobox, not a Tab-only list - ArrowDown/ArrowUp move focus through the options (the keyboard-a11y gap T48 measured
@@ -860,6 +889,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `project_authority` ⚡ [fail] — PJK3 - authority is enforced where the DATA is, not in the renderer. project-manager.html carried three claims only its renderer believed, each probed live as a
 - `project_tenancy` ⚡ [fail] — PJK4 - a project child row's PARENT must live in its own hive. EARNED BY PROBING, not assumed from the AHK4 analogy: reads were measured clean first (as a membe
 - `promo-poster-valid` [regression] — T489 (promo-poster generator produces a valid asset): promo-poster.html has the headline + all 5 product pillars, every local img src resolves to an existing fi
+- `prover-harness-selftest` ⚡ [fail] — Prover harness self-test: psql/psqlAs answer, PAGE_QUERY uses the page's own key, VIS_JS prefers checkVisibility
 - `provider-availability-driven` [regression] — T102 (service-provider availability honesty): availability is DRIVEN end-to-end - accept_service_request SETS service_providers.availability on job-take and syn
 - `provider-bypass` ⚡ [fail] — Direct Provider Bypass (4-layer: client provider + edge bypass + SDK drift + distribution)
 - `psql-probe-suite` ⚡ [fail] — Re-executes EVERY psql recipe in tools/psql_probes/ - the 99 database invariants the page banks stand on. WHY IT EXISTS: 96 bank rows carry evidence kind `psql`
@@ -894,6 +924,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `read-only-lane` [fail] — T53 (2026-08-28): a person who only READS is never forced to write. Not every account operates the plant - a manager, an owner, a client on a site visit signs i
 - `read_idempotency` [fail] — Read idempotency (the same ordered read twice, over two separate connections, returns the same bytes — with a proven-sensitive digest, not a vacuous match)
 - `readonly-p6-no-edit` ⚡ [fail] — Read-only P6 lock (static) — 11 pages VERIFIED to have no client edit surface (no .update/.upsert on a shared row) were scored P6=100 covered-by-nature (no conc
+- `realtime-backfill` [fail] — Reconnect & backfill: hive/community re-read on rejoin, platform-actions/alert-hub catch up by poll (live: network cut, DB insert, reconnect -> row appears)
 - `realtime-channel-cap` ⚡ [fail] — Q5 Realtime Cap + Graceful-429 (whRealtimeSubscribe bounds channels PER CLIENT against the verified 200-concurrent free-tier wall + degrades overflow/offline to
 - `realtime-channel-cleanup` ⚡ [fail] — Realtime Channel Cleanup (every db.channel() has cleanup; forward-only ratchet)
 - `realtime-cleanup` ⚡ [fail] — Realtime Subscription Cleanup (4-layer: cleanup pairing + lifecycle wiring + const-decl warning + asymmetry metric)
@@ -905,6 +936,11 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `realtime-subscription` ⚡ [fail] — Realtime Subscription Consistency (every postgres_changes table must be read by the page; forward-only ratchet)
 - `records-linked-is-true` [fail] — CF: the signup notice may only claim what was actually linked (2026-08-26). After creating an account index.html could announce 'Your existing records as <name>
 - `redundant-widgets` ⚡ [fail] — Redundant status-chrome + duplicate-action widgets (2026-07-22) — the LOCK for the redundant-widget consolidation (Ian: 'redundant displays on every page … onli
+- `reference-claims` [fail] — Reference pages paint the figure their source computes (validator-catalog, founder-console tech checks, design-system purity/keys, learn/index guides)
+- `reference-fourth-state` [fail] — Reference pages say so when their data read fails (validator-catalog, design-system, symbol-gallery, llm-observability; a page with no data read is n/a)
+- `reference-pages-uncapped` ⚡ [fail] — Reference pages: every capped list read is disclosed or annotated cap-ok (validator-catalog, symbol-gallery, design-system, architecture, learn/index, offline-f
+- `reference-repaint-focus` [fail] — Repaint keeps focus + draft: filter inputs (validator-catalog, logbook, marketplace, marketplace-admin, platform-actions) and poll/realtime repaints (hive coach
+- `reference-shared-ripple` [fail] — Reference pages still paint their own content (or say so) with the shared scripts aborted (validator-catalog, design-system, symbol-gallery, llm-observability, 
 - `refresh-retry-dedup` ⚡ [fail] — DEEPWALK D2 gate (static teeth) — a NON-idempotent client write (a fresh-id INSERT or a decrement/increment RPC) has no idempotency key, so a refresh-mid-submit
 - `rejection-reaches-the-submitter` [fail] — T20: a refusal must reach the person who was refused (2026-08-26). A supervisor clearing the approval queue rejects an asset, a part, a change order; the item l
 - `reliability-kpi-faithfulness` [fail] — Reliability-KPI faithfulness (LIVE: precomputed `asset_risk_scores.mtbf_days` must mirror the live canonical `get_mtbf_by_machine` engine — a divergence is allo
@@ -912,6 +948,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `reliability_tenancy` ⚡ [fail] — AHK4 - reliability data is hive-private, PARENT included. FMEA modes, RCM strategies, Weibull fits and P-F intervals are competitive plant knowledge: what break
 - `reload-mid-flow` [fail] — The CF `reload` oracle, measured by actually reloading mid-flow: a half-filled sheet either survives intact or is GONE, never restored into a state the person d
 - `removal-tells-the-worker` [fail] — T25: being removed from a hive must not arrive as an empty screen (2026-08-27). A supervisor kicks someone; the supervisor's side is a confirm and a roster that
+- `render-contract` [fail] — Render contract: templates and tokens resolve, contrast holds, no markup as text (41 surfaces)
 - `repaint-spares-typing` [fail] — T142: a live update must not evict a typist. The recorded incident is precise - a 15-second poll rebuilt a region while somebody was typing in it and the repain
 - `report-clobber-guard` ⚡ [fail] — INSTRUMENT INTEGRITY: a spot-check must never destroy a full sweep's report (2026-08-27). MEASURED, not hypothesised — prove_retry_path.mjs wrote retry_path_rep
 - `report-link-fidelity` ⚡ [fail] — T106's arrival-fidelity oracle for EMAIL. Every 'View in WorkHive' link in send-report-email pointed at a bare page root, so a PM Overdue report - a document wh
@@ -1018,6 +1055,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `supervisor-approval-backstop` ⚡ [fail] — Supervisor-approval backstop (approval-gated tables asset_nodes/rcm_fmea_modes/rcm_strategies carry the tg_guard_approval trigger so a worker cannot self-approv
 - `supervisor-hygiene` [fail] — T190/T56: authority must not outlive membership, and a hive must not lose it. Two invariants, opposite failures, both about who can approve things in a plant. (
 - `svc_pane_populated` [fail] — market_svc populated (the services pane's every visible number attributed to its own label and matched to the security_invoker view the page reads, under the ca
+- `sw-navigation-fallback` [fail] — Offline navigation to a non-precached page lands on offline-fallback.html (live: worker controls, network cut, learn/index + architecture)
 - `sw-offline` ⚡ [fail] — Service Worker Offline Coverage (4-layer: critical-in-shell + offline fallback + resilience + register)
 - `sw-shell-membership` ⚡ [fail] — CA (Caching/CDN) deep-walk cell — every page in the service-worker OFFLINE SHELL (sw.js SHELL_FILES) must (a) exist on disk (a stale entry 404s the SW precache 
 - `symbol-gallery-complete` [regression] — T490 (symbol gallery complete & accurate): every symbol getSymbolList() returns maps to one of the gallery rendered disciplines (electrical/mechanical/pid/lps) 
@@ -1053,7 +1091,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `toast-is-readable` [fail] — T182: a message shown too briefly was never shown. A toast is how this platform says 'saved', 'not saved', 'you cannot do that yet' - the entire receipt for mos
 - `toast-queue` ⚡ [fail] — C7 (critic deepwalk T9): RECEIPT TOASTS QUEUE instead of stomping. Walked live: a logbook save fires 'Entry saved' + '+15 XP' + a badge back-to-back and the sin
 - `tools-cta-honesty` ⚡ [fail] — T3/T153: the calculator pages state the account requirement. The 60 /tools/ pages are the top of the funnel - a searcher looking for 'OEE calculator' lands on o
-- `trajectory-registry` ⚡ [fail] — Trajectory Registry + Header Scoreboard (500-arc program SSOT: ids complete T1-T500, pct honest per status (any other value needs an in-flight status + written 
+- `trajectory-registry` ⚡ [fail] — Trajectory Registry + Header Scoreboard (1,225-arc program SSOT: ids complete T1-T500 + named waves VD/VM/VP + the 2026-09-05 second program P1-P500, pct honest
 - `trigger-function` ⚡ [fail] — Trigger Function Existence (CREATE TRIGGER target functions exist; forward-only ratchet)
 - `trigger-reentrancy` ⚡ [fail] — Trigger Reentrancy Safety (4-layer: self-write guard + indirect loop + inventory + depth adoption)
 - `trust-claim-backed` [blocker] — T70: a verification badge requires the thing it verifies. The seller profile is where a buyer decides whether to trust a stranger with money, so every pixel tha
@@ -1111,6 +1149,9 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 ### Platform Feedback (1)
 - `feedback-widget` ⚡ [fail] — Feedback Widget Validator (3-layer: script wiring + form integrity + schema RLS/rate-limit/resolved_at)
 
+### Realtime (1)
+- `listener-lifecycle` [fail] — Listener lifecycle (a realtime page holds its channel count across repeated hide/show cycles)
+
 ### Resilience / DR (16)
 - `ai_alldown_degrade` ⚡ [fail] — Arc S/F: AI all-down degrade (no silent empty)
 - `atomic_writes` ⚡ [fail] — Arc S/C: atomic multi-step writes (no partial-write corruption)
@@ -1129,6 +1170,10 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `precache_coverage` ⚡ [fail] — Arc S/D: precache + offline navigation fallback (no blank tab)
 - `resilience_dr_sweep` [fail] — Arc S: resilience / DR sweep (4 lenses F/R/C/D, ratcheted)
 
+### SEO (2)
+- `calc-handoff` ⚡ [fail] — Calculator hand-off (every SEO page hands a person to the calculator it NAMED, verified live)
+- `public-arrival` ⚡ [fail] — Public arrival (every public page arrives complete in the RAW served HTML, as a crawler that never runs JS receives it)
+
 ### SEO Closed Loop (8)
 - `ai-chain-mirror` ⚡ [fail] — AI Chain Mirror Validator (4-layer: Python ai_chain.py mirrors TS _shared/ai-chain.ts PROVIDER_CHAIN)
 - `audience-block` ⚡ [fail] — Audience Block Validator (3-layer: every /learn/ article has Who-this-is-for + 4+ roles + beyond-technicians)
@@ -1139,11 +1184,14 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `sitemap-sync` ⚡ [fail] — Sitemap Sync Validator (3-layer: sitemap URLs <-> filesystem in sync + metadata complete)
 - `tool-aligned-cta` ⚡ [fail] — Tool-Aligned CTA Validator (4-layer: every /learn/ article anchors to a /<tool>.html, names the tool, avoids a join-only CTA, and links the tool its REGISTRY EN
 
-### Security (6)
+### Security (9)
+- `destructive-sweep` [fail] — Destructive sweep (every destructive control that can be reached is guarded; unreached surfaces are named)
 - `no-client-truncate` ⚡ [fail] — NO CLIENT TRUNCATE - RLS IS NEVER CONSULTED FOR TRUNCATE, so the grant is the only control. FOUND 2026-08-03 by the live-MCP flywheel, three steps from where it
 - `payment-rails` ⚡ [fail] — PAYMENT RAILS - three GCash accounts meet in this product and only ONE of them may ever be on a given screen. WorkHive has no business registration and therefor
+- `prod-headers` [fail] — Prod headers (every promise in _headers is actually served by the deployed origin)
 - `revoke-actually-revoked` ⚡ [fail] — REVOKE ACTUALLY REVOKED - a `REVOKE EXECUTE ... FROM anon, authenticated` is a NO-OP, because every function is created with EXECUTE granted to PUBLIC and every
 - `session-death-is-not-removal` ⚡ [fail] — SESSION DEATH IS NOT REMOVAL - an expired session returns ZERO ROWS with NO ERROR under RLS, which is indistinguishable from "you were removed from this hive" u
+- `tenant-refusal` ⚡ [fail] — Tenant refusal (a plain member of hive A gets NO row of hive B from PostgREST, and neither does anon)
 - `trigger-writes-need-definer` ⚡ [fail] — DEFINER FOR CLIENT-UNWRITABLE WRITES - a SECURITY INVOKER function that writes a table the end user cannot write raises 42501 INSIDE the trigger and takes the u
 - `unprotected-write-grant` ⚡ [fail] — UNPROTECTED WRITE GRANT — no end-user write privilege may stand on the GRANT alone. FOUND 2026-07-30 by teaching the marketplace test bank's SQL runner the `ano
 
