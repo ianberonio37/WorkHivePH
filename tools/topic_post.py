@@ -240,9 +240,132 @@ def draft_caption(topic: str, bridge: dict, link: str, notes: str = "") -> str:
                "Where it touches plant work: %s.\n\nRead the full piece: %s\n\n"
                "I built this tool, so treat that last line as the disclosure it is."
                % (topic.strip().capitalize(), bridge.get("module") or "day to day maintenance", link))
-    if not re.search(r"(i built|i'm the founder|i am the founder|we built)", out, re.I):
+    if not re.search(r"\b(i built|i'm the founder|i am the founder|we built)\b", out, re.I):
         out = out.rstrip() + "\n\nFull disclosure: I built WorkHive, so weigh that last line accordingly."
     return out.strip()
+
+
+# ── Lane A: the article ───────────────────────────────────────────────────────────────
+# Ian's structure, in his words: state the facts of the topic, then subtly appeal to the
+# emotion of the worker or the working class, then conclusion and suggestions, then subtly
+# align it to what a module addresses.
+#
+# The order is load-bearing and it is the opposite of how the old platform pack wrote. A
+# reader arrives caring about the topic, not the product, so the product cannot be the
+# first thing they meet. Putting the tool last is also what keeps the piece publishable:
+# the extractability gate demands an opener carrying a number, a unit and a named source,
+# and a sales line satisfies none of those.
+#
+# "Appeal to emotion" is written here as: name what the reader already feels and does not
+# get to say out loud, in their own register, without inventing a hardship for effect. The
+# honest version of that is powerful; the dishonest version reads as a charity ad and costs
+# the credibility the rest of the piece is built on.
+ARTICLE_BRIEF = """Write for Philippine plant technicians, supervisors and engineers.
+
+Structure, in this exact order:
+
+1. THE FACTS. Open with the concrete situation and the numbers, naming the source
+   (agency, standard or law). Do not open with a product, a rhetorical question, or the
+   word Imagine. This first block is what a search engine lifts, so it must state
+   something, not promise something.
+
+2. WHAT IT MEANS ON THE FLOOR. Speak to the worker and the working class directly. Name
+   the pressure they already feel: the overtime that is not really optional, the budget
+   that gets cut before the workload does, the blame that lands on the technician for a
+   number set three levels above them. Be honest and specific, never pitying. Invent no
+   hardship for effect.
+
+3. CONCLUSION AND SUGGESTIONS. What a plant can actually do, in concrete steps someone
+   could start on Monday with what they already have. Most of these must cost nothing.
+
+4. WHERE TOOLING HELPS. Only now, and briefly, note where %s fits. One short paragraph.
+   If the honest answer is that tooling barely helps here, say so.
+
+Rules: cite at least two independent external authorities with real links. Use no em
+dashes. Use pesos, not dollars or cents, for Philippine figures. Do not invent statistics:
+use only the facts given below, plus standards you can name exactly.
+
+TOPIC: %s
+FACTS SUPPLIED: %s
+"""
+
+
+def register_slug(slug: str, title: str, tool_path: str, tool_label: str) -> bool:
+    """Append one tuple to wh_pages.LEARN_ARTICLES, idempotently.
+
+    scaffold_article.py refuses a slug that is not registered here, and ten validators read
+    this file to stay in sync, so registration is the real gate on a new page existing.
+    """
+    wp = ROOT / "wh_pages.py"
+    src = wp.read_text(encoding="utf-8")
+    if '("%s"' % slug in src or "('%s'" % slug in src:
+        return False
+    lines = src.split("\n")
+    i = next(k for k, l in enumerate(lines) if l.startswith("LEARN_ARTICLES"))
+    j = next(k for k in range(i, len(lines)) if lines[k].rstrip() == "]")
+    lines.insert(j, '    ("%s", "%s", "%s", "%s"),'
+                 % (slug, title.replace('"', "'"), tool_path, tool_label))
+    wp.write_text("\n".join(lines), encoding="utf-8", newline="")
+    return True
+
+
+NL = chr(10)
+
+
+def add_hub_card(slug: str, title: str, dek: str, pill: str = "Energy") -> bool:
+    """Link the new article from /learn/, idempotently.
+
+    scaffold_article writes the page, the sitemap and llms.txt, but the /learn hub is
+    HAND-MAINTAINED (55 cards, no generator), so a scaffolded article lands with zero
+    crawlable inbound links and the orphan gate fails it. That is not a one-off: every
+    future Lane A piece would orphan the same way, so the pipeline has to do this, not a
+    person remembering to.
+    """
+    hub = ROOT / "learn" / "index.html"
+    s = hub.read_text(encoding="utf-8")
+    if "/learn/%s/" % slug in s:
+        return False
+    anchor = ('<div class="grid sm:grid-cols-1 gap-5" id="lh-grid" '
+              'style="min-height:60vh"><!-- I2: the card grid holds its box while it fills -->'
+              + "%s%s" % (NL, NL))
+    if anchor not in s:
+        return False
+    card = (NL.join([
+        '      <a href="/learn/%s/" class="article-card">' % slug,
+        '        <div class="flex items-center justify-between mb-3">',
+        '          <span class="pill pill-orange">%s</span>' % pill,
+        '          <span class="text-xs text-white/60">6 min read</span>',
+        '        </div>',
+        '        <h3 class="card-title text-xl sm:text-2xl font-black leading-[1.25] mb-2">%s</h3>' % title,
+        '        <p class="text-white/80 text-sm leading-relaxed">%s</p>' % dek,
+        '      </a>', "", "",
+    ]))
+    hub.write_text(s.replace(anchor, anchor + card, 1), encoding="utf-8", newline="")
+    return True
+
+
+def scaffold_lane_a(slug: str, title: str, bridge: dict, topic: str, notes: str) -> bool:
+    """Register the slug, then hand off to the existing scaffolder."""
+    added = register_slug(slug, title, bridge.get("url") or "/index.html",
+                          bridge.get("module") or "WorkHive")
+    print("  %sregistered in wh_pages.LEARN_ARTICLES%s" % (DIM, X) if added
+          else "  %salready registered in wh_pages%s" % (DIM, X))
+    brief = ARTICLE_BRIEF % (bridge.get("module") or "the platform", topic, notes or topic)
+    try:
+        r = subprocess.run([sys.executable, str(_HERE / "scaffold_article.py"), slug,
+                            "--brief", brief],
+                           cwd=str(ROOT), capture_output=True, text=True, timeout=600)
+    except Exception as e:
+        print("  %sscaffold failed: %s%s" % (R, e, X))
+        return False
+    tail = (r.stdout or "")[-600:] + (r.stderr or "")[-300:]
+    print("  %s%s%s" % (DIM, tail.strip()[-500:], X))
+    built = (ROOT / "learn" / slug / "index.html").exists()
+    if built:
+        dek = (notes.strip().split(".")[0] + "." if notes.strip() else topic.strip())
+        if add_hub_card(slug, title, dek[:180]):
+            print("  %slinked from the /learn hub (otherwise it ships an orphan)%s" % (DIM, X))
+    return built
 
 
 def render_card(photo: Path, headline: str, dek: str, out_png: Path) -> bool:
@@ -278,8 +401,11 @@ def run_topic(topic: str, photo: Path | None, notes: str = "", apply: bool = Fal
 
     if bridge["lane"] == "A":
         link_path = "https://%s/learn/%s/" % (DOMAIN, slug)
-        print("  %sLane A would scaffold learn/%s/ via scaffold_article.py%s" % (DIM, slug, X))
-        print("  %s(article creation is gated on Ian's approval; not written in this run)%s" % (DIM, X))
+        if apply:
+            scaffold_lane_a(slug, topic.strip().rstrip("."), bridge, topic, notes)
+        else:
+            print("  %sLane A: would scaffold learn/%s/ (pass --apply to write the page)%s"
+                  % (DIM, slug, X))
     else:
         link_path = "https://%s%s" % (DOMAIN, bridge["url"] or "/")
         print("  %sLane B links an existing surface: %s%s" % (DIM, bridge["url"] or "/", X))

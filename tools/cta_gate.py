@@ -67,7 +67,13 @@ ACTION_RE = re.compile(
     r'/resume\.html|/voice-journal\.html|'
     r'/shift-brain\.html|/integrations\.html|/project-manager\.html|/achievements\.html|'
     r'/audit-log\.html|/ai-quality\.html|/plant-connections\.html|/ph-intelligence\.html|'
-    r'/workhive/[^"]*)"')
+    # A DEEP LINK IS STILL A LINK. The calculator pages point at
+    # /engineering-design.html?calc=ahu-sizing so the workbench opens on the right
+    # calculator, which is strictly better for the reader. The pattern demanded the closing
+    # quote immediately after .html, so 58 pages went from "has a next action" to "has none"
+    # on a change that IMPROVED them. Third time today this gate family has been narrower
+    # than the content it grades.
+    r'/workhive/[^"]*)(?:\?[^"]*)?(?:#[^"]*)?"')
 
 
 def body_region(html: str) -> str:
@@ -158,6 +164,11 @@ def self_test() -> int:
        "footer chrome does not count — it is on every page")
     ck(ctas('<article><a href="/hive.html">a</a><a href="/hive.html">b</a></article>') == {"/hive.html"},
        "two links to one surface is one CTA")
+    ck(ctas('<article><a href="/engineering-design.html?calc=ahu-sizing">Open</a></article>')
+       == {"/engineering-design.html"},
+       "a deep link with a query string still counts, and normalises to its page")
+    ck(ctas('<article><a href="/logbook.html#start">Open</a></article>') == {"/logbook.html"},
+       "a fragment link still counts")
     # THE VOCABULARY GUARD. This gate once reported 13 pages as offering only the generic
     # /#join. Eight of them already ended with a perfectly targeted CTA -- "Open Shift
     # Brain", "Open Audit Log" -- pointing at real tool pages simply absent from ACTION_RE.

@@ -115,6 +115,7 @@ LEARN_ARTICLES = [
     # target is the landing page, which is not a tool anchor - the check cannot apply.
     ("what-is-workhive-complete-platform-guide",          "What is WorkHive? The Complete Guide to the Free Platform for Filipino Industrial Teams", "/index.html",       "WorkHive"),
     ("workhive-ai-companion-complete-capabilities",       "The WorkHive AI Companion: Everything It Can Do (and How to Get the Most From It)",         "/assistant.html",   "AI Companion"),
+    ("philippine-plants-now-pay-the-highest-power-rates", "Philippine plants now pay the highest power rates in Southeast Asia", "/engineering-design.html", "Engineering Design Calculator"),
 ]
 
 

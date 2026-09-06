@@ -7,7 +7,12 @@ Source: https://workhiveph.com/learn/
 
 WorkHive Learn
 
-Practical writing on industrial maintenance, reliability, and operations. Built for every industrial worker, from field to management: technicians, engineers, supervisors, planners, plant managers, suppliers, contractors, and the new graduates and upskilling workers building careers in the AI era. No theory dumps; every guide has worked examples and a download you can use on Monday morning.
+Static · the Learn library index, rendered as of this page load · articles link to their own sources
+
+C5: /70 sat at Lc 64/75 at 18px (2026-09-05) 
+ Practical writing on industrial maintenance, reliability, and operations. Built for every industrial worker, from field to management. Technicians, engineers, supervisors, planners and plant managers.
+
+[Open WorkHive, free](../index.html)
 
 ## Browse the guides
 
@@ -19,54 +24,59 @@ Engineering
 Careers
 Platform
 
+I2: the card grid holds its box while it fills 
+[Energy
+6 min read · 20 Aug 2026
+Philippine plants now pay the highest power rates in Southeast Asia
+The DOE put the Philippines above Singapore in June. Where that cost actually leaks on a plant floor, and what a maintenance team can do about it without a budget.](https://workhiveph.com/learn/philippine-plants-now-pay-the-highest-power-rates/)
 [Reliability
 8 min read · 5 Aug 2026
 How to reduce unplanned equipment downtime
-A four-step, evidence-based path to cutting unplanned downtime: measure it by cause, fix the recurring few at root cause, hold PM compliance above 90%, and monitor the critical assets.](https://workhiveph.com/learn/reduce-unplanned-downtime-guide/)
+Four evidence-based steps to cut unplanned downtime. Measure it by cause, fix the recurring few, then keep them fixed.](https://workhiveph.com/learn/reduce-unplanned-downtime-guide/)
 [Comparison
 6 min read · 5 Aug 2026
 WorkHive vs UpKeep: an honest comparison for small teams
-An honest WorkHive vs UpKeep comparison for small maintenance teams: pricing, free tier, offline capability, and who each one is genuinely best for.](https://workhiveph.com/learn/workhive-vs-upkeep-free-cmms-comparison/)
+WorkHive vs UpKeep for small maintenance teams. Pricing, free tier, offline capability and an honest verdict.](https://workhiveph.com/learn/workhive-vs-upkeep-free-cmms-comparison/)
 [Comparison
 6 min read · 5 Aug 2026
 WorkHive vs MaintainX: free versus mobile-first
-WorkHive vs MaintainX compared for small plants: pricing, free tier limits, offline capture, and an honest verdict on which suits which team.](https://workhiveph.com/learn/workhive-vs-maintainx-comparison/)
+WorkHive vs MaintainX for small plants. Pricing, free-tier limits, offline capture and an honest verdict.](https://workhiveph.com/learn/workhive-vs-maintainx-comparison/)
 [Comparison
 7 min read · 5 Aug 2026
 Best free CMMS software for Philippine plants (2026)
-A comparison of free and freemium CMMS options for small Philippine plants (WorkHive, Coast, MaintainX, Limble, Fiix and Maintenance Care), with what each free tier actually gives you.](https://workhiveph.com/learn/best-free-cmms-software-philippines/)
+Free and freemium CMMS options for small Philippine plants, compared. WorkHive, Coast, MaintainX, Limble and more.](https://workhiveph.com/learn/best-free-cmms-software-philippines/)
 [Comparison
 6 min read · 5 Aug 2026
 CMMS vs Excel spreadsheet for maintenance tracking
-An honest comparison of maintenance spreadsheets versus a CMMS: where spreadsheets still win, the four ways they fail, and how to migrate without pain.](https://workhiveph.com/learn/cmms-vs-excel-spreadsheet-maintenance/)
+Maintenance spreadsheets versus a CMMS, honestly. Where spreadsheets still win, and the four ways they quietly fail.](https://workhiveph.com/learn/cmms-vs-excel-spreadsheet-maintenance/)
 [Reliability
 9 min read · 5 Aug 2026
 Maintenance metrics: OEE, MTBF, MTTR & reliability
-The five metrics every Philippine plant should track (OEE, MTBF, MTTR, availability, and PM compliance), with formulas, worked examples, and free calculators.](https://workhiveph.com/learn/maintenance-metrics-reliability-guide/)
+Five plant metrics, each with a worked example: OEE, MTBF, MTTR, uptime, PM rate.](https://workhiveph.com/learn/maintenance-metrics-reliability-guide/)
 [Getting Started
 8 min read · 5 Aug 2026
 How to start digital maintenance in a Philippine factory
-A four-step, zero-budget path (digital logbook, asset register, PM schedule, shift handover), with free templates and a 30-day rollout.](https://workhiveph.com/learn/start-digital-maintenance-guide/)
+Four steps, zero budget: a logbook, an asset list, a PM plan, a shift handover. Start Monday.](https://workhiveph.com/learn/start-digital-maintenance-guide/)
 [Compliance
 8 min read · 5 Aug 2026
 Philippine plant compliance: DOLE OSHS, LOTO & RA 11285
-How to meet DOLE OSHS, lockout/tagout (DO 198-18), and RA 11285 energy rules, and how a digital audit trail proves it in an inspection.](https://workhiveph.com/learn/ph-plant-compliance-guide/)
+Meet DOLE OSHS, lockout/tagout (DO 198-18) and RA 11285 energy rules. A digital audit trail proves it.](https://workhiveph.com/learn/ph-plant-compliance-guide/)
 [Start Here
 12 min read · 7 Jul 2026
 What is WorkHive? The complete guide to the free platform for Filipino industrial teams
-One map of the whole platform: what WorkHive is, the four gaps it closes, every tool grouped by what it does, the free growth stages, and how one logbook entry makes the whole hive smarter. Start here if you are new.](https://workhiveph.com/learn/what-is-workhive-complete-platform-guide/)
+One map of the whole platform. What WorkHive is, the four gaps it closes, and every tool grouped by job.](https://workhiveph.com/learn/what-is-workhive-complete-platform-guide/)
 [AI Companion
 11 min read · 7 Jul 2026
 The WorkHive AI Companion: everything it can do (and how to get the most from it)
-Meet Hezekiah and Zaniah, your two AI helpers. Answers from your own records with the source shown, hands-free voice in your own language, one spoken sentence that fills a whole work order, and a plain guide to the powerful parts most workers never use.](https://workhiveph.com/learn/workhive-ai-companion-complete-capabilities/)
+Meet Hezekiah and Zaniah, your two AI helpers. Answers from your own records, source shown. Hands-free voice in your own language. One spoken sentence becomes a logbook entry.](https://workhiveph.com/learn/workhive-ai-companion-complete-capabilities/)
 [Analytics
 9 min read · 3 Jul 2026
 The 4 phases of maintenance analytics: from what happened to what to do next
-Your logbook feeds one connected engine that climbs four phases: descriptive (the KPIs), diagnostic (Pareto and root cause), predictive (failure risk), and prescriptive (the AI action plan). See how MTBF, OEE, and PM compliance flow into your predictions, asset views, and reports, and get richer the more you log.](https://workhiveph.com/learn/four-phases-maintenance-analytics-philippine-plants/)
+Your logbook feeds one connected engine that climbs four phases. Descriptive KPIs, diagnostic Pareto, predictive risk, prescriptive actions.](https://workhiveph.com/learn/four-phases-maintenance-analytics-philippine-plants/)
 [Analytics Report
 8 min read · 3 Jul 2026
 The print-ready maintenance report your management actually reads
-One click turns your 4-phase analytics into a signed, audit-ready document: an executive summary, RAG-coloured KPI tiles, an AI action plan, and a sign-off block that mirrors the maintenance audit format. The management deliverable that falls out of the work you already logged, ready for ISO and DOLE reviews.](https://workhiveph.com/learn/print-ready-maintenance-analytics-report/)
+One click turns your 4-phase analytics into a signed, audit-ready document. Executive summary, RAG-coloured findings, action plan.](https://workhiveph.com/learn/print-ready-maintenance-analytics-report/)
 [Alert Hub
 9 min read · 3 Jul 2026
 One alert inbox for the whole plant: risk, PM, stock, and the 6 AM brief
@@ -236,4 +246,4 @@ No guides match that search. Try a different word, or tap **All**.
 
 Show more guides
 
-<!-- md-twin source-sha: e82694f4c4023691 -->
+<!-- md-twin source-sha: f3749118542ca301 -->
