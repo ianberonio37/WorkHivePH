@@ -489,7 +489,8 @@ def render_card(photo: Path, headline: str, dek: str, out_png: Path) -> bool:
     return False
 
 
-def run_topic(topic: str, photo: Path | None, notes: str = "", apply: bool = False) -> dict:
+def run_topic(topic: str, photo: Path | None, notes: str = "", apply: bool = False,
+              card_jobs: list | None = None) -> dict:
     slug = slugify(topic)
     bridge = score_bridge(topic, notes)
     dest = OUTDIR / slug
@@ -533,7 +534,21 @@ def run_topic(topic: str, photo: Path | None, notes: str = "", apply: bool = Fal
 
     card_ok = False
     if photo and photo.exists():
-        card_ok = render_card(photo, headline, dek, dest / "card.png")
+        if card_jobs is None:
+            card_ok = render_card(photo, headline, dek, dest / "card.png")
+        else:
+            # BATCH DEFERS THE RENDER. Chromium costs about 40 seconds to boot and the card
+            # itself takes under a second, so rendering per topic meant ten queued items paid
+            # seven minutes of browser startup for twenty seconds of work. Collect the jobs
+            # and hand them to render_posters --cards, which loops inside ONE browser.
+            rel = "/" + str(photo.resolve().relative_to(ROOT)).replace("\\", "/") \
+                if ROOT in photo.resolve().parents else "/" + str(photo).replace("\\", "/").lstrip("/")
+            card_jobs.append({
+                "data": {"photo": rel, "headline": headline, "dek": dek, "domain": DOMAIN,
+                         "series": SERIES, "watermark": "WH", "alt": headline},
+                "out": str((dest / "card.png").resolve()).replace("\\", "/"),
+            })
+            card_ok = "queued"
     elif photo:
         print("  %sphoto not found: %s%s" % (R, photo, X))
 
@@ -630,6 +645,7 @@ def main(argv) -> int:
         if not jobs:
             print("  nothing queued in %s" % QUEUE)
             return 0
+        card_jobs = []
         for j in jobs:
             lines = j.read_text(encoding="utf-8").splitlines()
             topic = (lines[0] if lines else "").strip()
@@ -637,8 +653,17 @@ def main(argv) -> int:
             photo = next((p for p in QUEUE.glob(j.stem + ".*")
                           if p.suffix.lower() in (".jpg", ".jpeg", ".png", ".webp")), None)
             if topic:
-                run_topic(topic, photo, notes, a.apply)
+                run_topic(topic, photo, notes, a.apply, card_jobs)
                 print()
+        if card_jobs:
+            man = ROOT / ".tmp" / "_card_manifest.json"
+            man.write_text(json.dumps(card_jobs, indent=2), encoding="utf-8")
+            print("rendering %d card(s) in one browser..." % len(card_jobs))
+            try:
+                subprocess.run(["node", str(_HERE / "render_posters.mjs"), "--cards", str(man)],
+                               cwd=str(ROOT), check=True, timeout=600)
+            except Exception as e:
+                print("  %sbatch card render failed: %s%s" % (R, e, X))
         return 0
 
     if not a.topic:

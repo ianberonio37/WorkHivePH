@@ -46,6 +46,17 @@ const toDesktop = args.includes('--desktop');
 const picks = args.filter(a => !a.startsWith('--'));
 const targets = picks.length ? picks.filter(p => POSTERS[p]) : Object.keys(POSTERS).filter(k => k !== 'beetest');
 
+// BATCH CARDS: --cards <manifest.json> renders many social cards in ONE browser.
+// Chromium takes ~40 seconds to boot, and the first version paid that per card because
+// topic_post shelled out once per topic. Ten queued topics meant seven minutes of pure
+// browser startup and about twenty seconds of actual rendering. The loop below already
+// reuses one browser across targets; it just had no way to be handed more than one card.
+// The manifest is [{data: {...card fields...}, out: "abs/path.png"}].
+const cardsIdx = args.indexOf('--cards');
+const CARD_JOBS = cardsIdx !== -1 && args[cardsIdx + 1]
+  ? JSON.parse(fs.readFileSync(args[cardsIdx + 1], 'utf8'))
+  : null;
+
 const OUT_DIR = toDesktop
   ? path.join(os.homedir(), 'Desktop', 'WorkHive Promo Posters')
   : path.join(ROOT, 'promo_posters', '_out');
@@ -64,6 +75,32 @@ const server = http.createServer((req, res) => {
 
 await new Promise(r => server.listen(PORT, r));
 const browser = await puppeteer.launch({ headless: 'new', args: ['--no-sandbox', '--force-color-profile=srgb'] });
+
+if (CARD_JOBS) {
+  const spec = POSTERS.socialcard;
+  const page = await browser.newPage();
+  await page.setViewport({ width: spec.w, height: spec.h, deviceScaleFactor: 2 });
+  for (const job of CARD_JOBS) {
+    // The card reads its own data file, so each job writes it then reloads. Cheap next to
+    // a browser boot, and it keeps social-card.html a single template rather than N copies.
+    fs.writeFileSync(path.join(ROOT, 'promo_posters', '_card.json'),
+                     JSON.stringify(job.data, null, 2), 'utf8');
+    await page.goto(`http://127.0.0.1:${PORT}/${spec.file}?t=${encodeURIComponent(job.out)}`,
+                    { waitUntil: 'networkidle2', timeout: 45000 });
+    try { await page.evaluate(() => document.fonts.ready); } catch {}
+    try { await page.waitForSelector(spec.ready, { timeout: 15000 }); } catch {}
+    await new Promise(r => setTimeout(r, 250));
+    const el = await page.$('#poster');
+    fs.mkdirSync(path.dirname(job.out), { recursive: true });
+    if (el) await el.screenshot({ path: job.out }); else await page.screenshot({ path: job.out });
+    console.log(`  ✓ card -> ${job.out}`);
+  }
+  await page.close();
+  await browser.close();
+  server.close();
+  console.log(`Done. ${CARD_JOBS.length} card(s) in one browser.`);
+  process.exit(0);
+}
 
 for (const name of targets) {
   const spec = POSTERS[name];
