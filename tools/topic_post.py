@@ -495,7 +495,11 @@ def run_topic(topic: str, photo: Path | None, notes: str = "", apply: bool = Fal
             print("  %sLane A: would scaffold learn/%s/ (pass --apply to write the page)%s"
                   % (DIM, slug, X))
     else:
-        link_path = "https://%s%s" % (DOMAIN, bridge["url"] or "/")
+        # No module matched, so there is no honest tool to send a reader to. The /learn hub
+        # is the soft landing: it offers 55 guides without claiming this hiking post has
+        # anything to do with a PM scheduler. The homepage was the first fallback and it is
+        # worse, because a front page is a pitch with no topic attached to it.
+        link_path = "https://%s%s" % (DOMAIN, bridge["url"] or "/learn/")
         print("  %sLane B links an existing surface: %s%s" % (DIM, bridge["url"] or "/", X))
 
     link = utm(link_path, slug)
