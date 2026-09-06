@@ -45,6 +45,12 @@ Start by pulling the plant’s load profile into the Engineering Design Calculat
 
 **Worked example:** In a 500‑kW boiler room, the plant supervisor noticed that the hourly consumption was 12 kWh. By entering this value into the **⚡ Electrical 14** section of the Engineering Design Calculator and clicking **Run Calculation**, the tool identified that the boiler was running 15% above the optimal load. The supervisor then scheduled a maintenance check that reduced consumption by 8%, saving 3,000 pesos per day.
 
+## "We already tried this and it did not stick"
+
+Most plants reading this have run an energy drive before. Someone taped a checklist to the panel room door, the aircon got switched off at lunch for two weeks, and by the next quarter the bill looked the same. That is not a failure of discipline. It is what happens when a saving depends on somebody remembering, because the person who remembers goes on leave, gets reassigned, or simply runs out of shift.
+
+The second objection is fairer still: there is no budget. Rate increases arrive without a matching line item, and a plant told to cut power while its capital request sits unapproved is being asked to solve an accounting problem with a wrench. Which is why the steps below are ordered by cost, and why the first several are free. If the only honest answer for your plant this quarter is measurement rather than replacement, that is still progress: you cannot argue for a capital request you have no numbers for.
+
 ## Conclusion and Suggestions
 
 The first thing you can do on Monday is to capture the actual load profile for the 06:00 shift and compare it with the baseline used for the last audit. Record the kWh per hour, note any non‑essential equipment that runs idle, and flag any demand spikes that occur when the plant is already at full capacity. This simple log gives you data you can feed into the Engineering Design Calculator and shows where you can trim the bill without waiting for a formal audit.
@@ -97,4 +103,4 @@ The DOE publishes the official tariff schedule on its website under the 'Electri
 - Republic Act No. 11285, Energy Efficiency Act of 2019. https://lawphil.net/statutes/repacts/ra2019/ra_11285.html
 - World Bank, Energy Sector Outlook for Southeast Asia 2024. https://www.worldbank.org/en/topic/energy/publication/energy-sector-outlook-southeast-asia
 
-<!-- md-twin source-sha: d2f221065ce75a19 -->
+<!-- md-twin source-sha: 02628e5b26f0b5ab -->

@@ -365,7 +365,54 @@ def scaffold_lane_a(slug: str, title: str, bridge: dict, topic: str, notes: str)
         dek = (notes.strip().split(".")[0] + "." if notes.strip() else topic.strip())
         if add_hub_card(slug, title, dek[:180]):
             print("  %slinked from the /learn hub (otherwise it ships an orphan)%s" % (DIM, X))
+        report_structure(slug)
     return built
+
+
+# The six beats the brief asks for, and the words that show one landed. Ian's original four
+# are the first, third-from-last and last; TRANSLATE and OBJECTION are the two added to make
+# his structure hit harder.
+BEATS = [
+    ("the facts", ["fact", "what happened", "the numbers", "background"]),
+    ("translate the number", ["per shift", "per machine", "what it costs", "in practice",
+                              "on one line", "per month", "translate"]),
+    ("what it means on the floor", ["on the floor", "for the technician", "what it means",
+                                    "for workers", "day to day"]),
+    ("answer the objection", ["already tried", "objection", "does not stick", "no budget",
+                              "you might say", "push back", "but we"]),
+    ("conclusion and suggestions", ["what to do", "suggestion", "conclusion", "steps",
+                                    "start", "this week"]),
+    ("where tooling helps", ["tooling", "software", "where .* helps", "the platform"]),
+]
+
+
+def report_structure(slug: str) -> list:
+    """Say which of the six beats actually reached the page.
+
+    article_generator owns its own section rules (it asks the model for 5-8 sections and
+    carries R1-R6 of its own), and it is shared by 44 published articles and read by ten
+    validators, so rewriting its prompt to force Ian's outline would put those at risk to
+    fix this one. Checking is the cheap half: the brief asks, the generator does what it
+    does, and this reports the gap instead of assuming compliance. The first real run
+    emitted four sections against a six-part brief and nothing said so.
+    """
+    f = ROOT / "learn" / slug / "index.html"
+    if not f.exists():
+        return []
+    body = f.read_text(encoding="utf-8", errors="replace").lower()
+    heads = " | ".join(re.findall(r"<h2[^>]*>([^<]*)", body))
+    missing = []
+    for name, cues in BEATS:
+        hay = heads + " " + body
+        if not any(re.search(c, hay) for c in cues) and name not in heads:
+            missing.append(name)
+    if missing:
+        print("  %sbeats the draft did not cover: %s%s" % (Y, ", ".join(missing), X))
+        print("  %s(article_generator sets its own section shape; add them by hand if they matter)%s"
+              % (DIM, X))
+    else:
+        print("  %sall six beats present%s" % (DIM, X))
+    return missing
 
 
 def render_card(photo: Path, headline: str, dek: str, out_png: Path) -> bool:
