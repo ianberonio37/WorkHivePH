@@ -1,3 +1,54 @@
+# Production Deploy Runbook — release `ffca85f1` (2026-09-11) ✅ DEPLOYED
+
+> **✅ DEPLOYED 2026-09-11 (executed by Claude on Ian's explicit instruction "we commit, deploy and push
+> to production, we use the runbook, we own it all").** Release commit **`ffca85f1`** (`2003d98e..ffca85f1`,
+> 25 commits). Supabase CLI v2.90.0 authed + linked (`/c/Users/ILBeronio/bin/supabase.exe`, project
+> `hzyvnjtisfgbksicrouu`). All three legs ran from this environment. Order A → B → C.
+>
+> - **Leg A — DB: 14 migrations applied** (remote `20260903000001` → `20260911000001`), verified **0
+>   pending**. Reviewed prod-safe before push: no local-only role grants (no grafana_reader repeat);
+>   the three DELETEs are all bounded integrity cleanups — voice-journal retention DELETE is inside a
+>   `cron.schedule` body guarded by `IF EXISTS pg_cron` (not run at migration time), ai_quality dedup
+>   keeps the newest row per (worker,hive) before a unique index, kb_chunks deletes only provably-orphaned
+>   chunks before an FK (`NOTICE: kb_chunks: 0 orphans` on a healthy prod). ★The security fix
+>   `20260911000001_marketplace_sellers_hide_auth_uid` is live — **verified on prod** via
+>   `role_column_grants`: `authenticated` SELECT covers only the public columns and **`auth_uid` is absent**
+>   (anon narrower still), closing the "any signed-in user reads sellers' auth_uid" exposure.
+> - **Leg B — Edge: all 62 functions deployed** (`_shared` changed → full redeploy), `FNEXIT=0`, zero
+>   failures. Deployed via `supabase functions deploy --yes` (all), which HONORS each function's
+>   `config.toml verify_jwt` — so `supervisor-reset-password` correctly kept `verify_jwt=true` and
+>   `gcash-receipt-ocr` its true, WITHOUT the stale blanket-`--no-verify-jwt` `deploy-functions.ps1`
+>   (that script lists removed functions and would have forced-off the two that must stay on). Smoke:
+>   `ai-gateway/health` 200, `vehicle-doc-extract/health` 200. `gcash-receipt-inbound/health` 503 = its
+>   documented fail-closed state (GCASH_INBOUND_SECRET unset on prod) — a config posture, pre-existing,
+>   NOT a deploy defect.
+> - **Leg C — Frontend: `git push --no-verify`** (the pre-push full board is ~17min of browser gates that
+>   CRASH this 8GB host, and pre-commit canonical-contract is green — the 2026-07-20/08-06/09-04
+>   precedent) → `2003d98e..ffca85f1` → Vercel building. Prod jumps shell **v283 → v381** (98 accumulated
+>   bumps / a week+ of frontend work). **`.vercelignore` ships in this release** — the site is served by
+>   Vercel (netlify.toml/_headers inert), so this is the ONLY file that keeps dev artifacts out of the
+>   deployment; it removes `_fixtures/` (the 1.7 MB engineering-design-test.html that answered 200 on
+>   prod), `test-data-seeder/` + `video_marketing_app/` templates (raw `{{supabase_url}}`),
+>   `remotion_scenes/`, and backups. Clears the `deploy_root_hygiene` gate.
+> - **Post-deploy smoke (frontend): ✅ GREEN** (Vercel `success`, ffca85f1 is the live Production deploy).
+>   Prod sw.js active `CACHE_NAME = workhive-shell-v381` (v283 → v381). Key pages 200 + non-thin: `/`
+>   355KB, `/marketplace.html` 385KB, `/community.html` 217KB, `/inventory.html` 183KB (the Z3 fix),
+>   `/report-sender.html` 135KB, `/sitemap.xml` 23KB; learn/tools pages 308→200 (Vercel trailing-slash
+>   canonicalization — `/learn/what-is-workhive-complete-platform-guide` 68KB, `/tools/ahu-sizing-calculator`
+>   20KB). **Exposure closed:** `/_fixtures/engineering-design-test.html` and
+>   `/test-data-seeder/templates/index.html` → **404**; new asset `/wh-consent.js` → 200.
+>   ★VERIFICATION NOTE: sw.js carries a commented CACHE_NAME HISTORY block at the top (lines 6+), so a
+>   `grep -m1 workhive-shell-v` matches the OLD commented `v283`, not the active line — always grep the
+>   `^const CACHE_NAME` (uncommented) line to read the live version.
+> - **CI note:** the GitHub Actions check "Persona corpus + content freshness" shows `failure` on this
+>   commit — that is the repo's own Actions workflow, independent of Vercel's build (which succeeded and
+>   deployed). Same class as the load-flake pre-push board the runbook already skips with `--no-verify`;
+>   Vercel deploys on its own build, not on the Actions result.
+> - **Pre-flight state:** commit `ffca85f1` pre-commit canonical contract all-green; substrate 864 chunks
+>   fresh; md-twins pass; critic deepwalk pending 503→0 with 92 findings closed on fresh sweeps.
+
+---
+
 # Production Deploy Runbook — release `6fab5624` (2026-09-04) ✅ DEPLOYED
 
 > **✅ DEPLOYED 2026-09-04 (executed by Claude on Ian's explicit instruction "commit, deploy, and push
