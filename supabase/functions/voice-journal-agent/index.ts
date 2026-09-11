@@ -432,14 +432,14 @@ serveObserved("voice-journal-agent", async (req) => {
   logRequestStart(req, "voice-journal-agent");  // I6 observability
 
   if (req.method !== "POST") {
-    return json(corsHeaders, 405, { error: "POST only" });
+    return json(corsHeaders, 405, { error: "That request method is not allowed. Reload the page and try again." });
   }
 
   let body: AgentRequest;
   try {
     body = await req.json();
   } catch {
-    return json(corsHeaders, 400, { error: "Invalid JSON" });
+    return json(corsHeaders, 400, { error: "That request could not be read. Reload the page and try again." });
   }
 
   const rawMessage = typeof body.message === "string" ? body.message.trim() : "";
@@ -680,7 +680,7 @@ serveObserved("voice-journal-agent", async (req) => {
       });
     }
     log.error(null, "voice-journal-agent error:", { detail: msg });
-    return json(corsHeaders, 502, { error: `Journal agent failed: ${msg}` });
+    return json(corsHeaders, 502, { error: "The journal assistant could not finish. Try again in a moment." });
   }
 });
 

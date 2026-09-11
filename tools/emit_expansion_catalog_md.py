@@ -38,6 +38,17 @@ WAVE_NAMES = {
 }
 WAVE_ORDER = ["T", "U", "V", "W", "X", "Y", "Z", "AA", "AB", "AC", "AD", "AE", "VM", "VD", "VP"]
 
+# ★SECOND PROGRAM P1-P500 (2026-09-05) — rendered as its OWN section below the first program's
+# catalog. ★×16: the wave names/sizes are IMPORTED from tools/seed_p_program_catalog.py, the one
+# file that declares them, so this generated surface cannot disagree with the seeder or the gate.
+try:
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from seed_p_program_catalog import WAVES as _P_WAVES
+    P_WAVE_NAMES = {w: n for w, n, _ in _P_WAVES}
+    P_WAVE_ORDER = [w for w, _, _ in _P_WAVES]
+except Exception:
+    P_WAVE_NAMES, P_WAVE_ORDER = {}, []
+
 
 def _idnum(tid: str) -> int:
     digits = "".join(c for c in tid if c.isdigit())
@@ -68,6 +79,34 @@ def render() -> str:
         for t in rows:
             ground = (t["pages"][0] if t.get("pages") else "") or t.get("story", "")
             lines.append(f"- **{t['id']}** · {t['title']}" + (f" — _{ground}_" if ground else ""))
+        lines.append("")
+
+    # ── SECOND PROGRAM P1-P500 (2026-09-05) ──────────────────────────────────────────────────
+    # Rendered compactly: 500 one-line rows would bury the doc, so each P wave shows its size,
+    # its id range, its layers and its named probe LENSES (the axis that actually differs
+    # row-to-row), with the per-row detail living in the registry. Same single-writer rule.
+    pex = [t for t in reg["trajectories"] if t["wave"] in P_WAVE_NAMES]
+    if pex:
+        p_by: dict[str, list[dict]] = {}
+        for t in pex:
+            p_by.setdefault(t["wave"], []).append(t)
+        lines += ["## Second program catalog — P1–P500 (specced 2026-09-05)", "",
+                  "The second comprehensive program: **issue-driven, matrix-guided** across the "
+                  "entire sitemap (156 real pages) + the edge-function layer, spanning all 13 "
+                  "full-stack layers and the 102-dim UFAI rubric. Every row is generated as "
+                  "*(a real surface on disk)* × *(a named probe lens)* by "
+                  "`tools/seed_p_program_catalog.py`, which asserts each referenced page/function "
+                  "exists — no phantom surfaces. All 500 enter at the honest `specced` (5%). The "
+                  "deepwalk (Phase 2) FILLS the specifics; this catalog is the structure.", "",
+                  "| Wave | Arcs | Range | Layers | Probe lenses |", "|---|---|---|---|---|"]
+        for w in P_WAVE_ORDER:
+            rows = sorted(p_by.get(w, []), key=lambda t: _idnum(t["id"]))
+            if not rows:
+                continue
+            lenses = list(dict.fromkeys(t["title"].rsplit(" - ", 1)[0] for t in rows))
+            layers = "/".join(rows[0].get("layers") or [])
+            lines.append(f"| **{w}** · {P_WAVE_NAMES[w]} | {len(rows)} | {rows[0]['id']}–"
+                         f"{rows[-1]['id']} | {layers} | " + " · ".join(lenses) + " |")
         lines.append("")
     lines.append(END)
     return "\n".join(lines)

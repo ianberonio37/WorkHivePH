@@ -74,11 +74,17 @@ def main(argv):
     gates, urls = V.gate_ids(), V.surface_urls(reg)
     today = date.today().isoformat()
 
-    banked = refused = failed = missing = 0
+    banked = refused = failed = missing = unmeasured = downgrades = 0
     refusals = []
 
     for res in results:
-        checked = "; ".join(res.get("checked") or [])
+        # ★THE PRODUCER WRITES A STRING AND THIS READ IT AS A LIST (2026-09-10). `bank_page_walk.py`
+        # treats `res["checked"]` as a string in three places; joining it here iterates its CHARACTERS
+        # and produces "V; A; L; U; E; ...". That is not hypothetical - the identical shape destroyed
+        # 43 findings across 16 bank files before it was noticed, and it fails silently because a
+        # string is iterable. One producer, two consumers disagreeing about the type.
+        _checked = res.get("checked") or []
+        checked = _checked if isinstance(_checked, str) else "; ".join(_checked)
         for rid in res.get("ids") or []:
             row = by_id.get(rid)
             if row is None:
@@ -87,6 +93,18 @@ def main(argv):
             # `ok: null` + na is an ABSTAIN, not a failure — the walker's own contract. This test
             # ran BEFORE the na branch below and `null` is falsy, so a measured not-applicable was
             # being re-owed as "FAILED ... no note" (2026-08-21, public-feed what_is_this_number).
+            # UNMEASURED IS NOT NOT-APPLICABLE, and conflating them banks fiction in one direction
+            # or files it in the other. `na` means the lens LOOKED and there is genuinely nothing to
+            # judge (a surface with no numbers, no bottom chrome, no write control declared) — a
+            # measured not-applicable, and a first-class green. `unmeasured` means the probe COULD
+            # NOT judge: its write control was not on screen because an empty queue rendered no card
+            # to open, its click never landed, nothing was rewritten for it to look for. Those rows
+            # must come out exactly as they went in — not green, not owed. Added 2026-09-07 with the
+            # walker's own abstain branches, which had been returning `na` and would have banked
+            # "I could not reach the control" as "this surface has nothing to check".
+            if res.get("unmeasured"):
+                unmeasured += 1
+                continue
             if not res.get("ok") and not res.get("na"):
                 row["status"] = "owed"
                 row["findings"] = [
@@ -115,6 +133,18 @@ def main(argv):
                     "walked_at": today,
                 }
                 banked += 1
+                continue
+            # NEVER TRADE DURABLE EVIDENCE FOR FRAGILE EVIDENCE. A gate-kind or psql-kind row is
+            # re-earned by RUNNING its gate (bank_gate_restamp), so it survives a shared-file edit;
+            # a live-walk row expires the moment any dep's sha moves. Overwriting the first with the
+            # second looks like progress on the day and guarantees the row churns forever after.
+            # Measured 2026-09-07: the 24 market_svc `populated` rows were converted to
+            # gate:svc_pane_populated on 2026-08-21 and this merger had since flattened all 24 back
+            # to live-walk, which is a large part of why the marketplace green kept collapsing on
+            # every edit. A generic structural walk is not a reason to discard a prover's testimony.
+            prior_kind = (row.get("evidence") or {}).get("kind")
+            if prior_kind in ("gate", "psql"):
+                downgrades += 1
                 continue
             before = (row.get("status"), row.get("evidence"), row.get("findings"))
             row["status"] = "green"
@@ -149,6 +179,9 @@ def main(argv):
     print(f"{BOLD}Merging the re-walk into the bank{RST}")
     print(f"  {GREEN}{banked} banked green{RST} · {YEL}{refused} refused (behavioural oracle, "
           f"structural probe){RST} · {RED}{failed} owed from a failed walk{RST}"
+          + (f" · {YEL}{unmeasured} left unmeasured (the probe could not judge){RST}" if unmeasured else "")
+          + (f" · {DIM}{downgrades} kept gate/psql-backed (re-earn with bank_gate_restamp, not a walk){RST}"
+             if downgrades else "")
           + (f" · {missing} unknown ids" if missing else ""))
     if refusals:
         print(f"\n  {DIM}refused, so the gate never sees a green it would reject:{RST}")

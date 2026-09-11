@@ -641,8 +641,32 @@ export async function checkSoloRateLimit(
   limitPerHour: number = DEFAULT_SOLO_RATE_LIMIT_PER_HOUR,
   limitPerDay:  number = DEFAULT_SOLO_RATE_LIMIT_PER_DAY,
   clientIp:     string | null = null,
+  // ★WHERE THE CALL COSTS MONEY, AN UNIDENTIFIABLE CALLER MUST BE REFUSED, NOT WAVED THROUGH
+  // (2026-09-10, W3-FN I-lens on the three hive-less AI functions). The branch below fails OPEN when
+  // there is neither a session nor an x-forwarded-for, and says so plainly — a deliberate choice for a
+  // "rare degenerate case", and the right one for most of the 25 functions that call this, where the
+  // worst outcome is one unmetered read.
+  //
+  // It is NOT obviously the right one for a function that spends a paid provider on the request:
+  // `tts-speak` and `voice-model-call` both reach their provider leg for a caller with no token at all.
+  //
+  // ★AND HERE IS THE HONEST LIMIT OF THAT CLAIM, because the first version of this comment overstated
+  // it. I probed both with no token and read their 502/503 as proof that an unbucketed anonymous caller
+  // reaches the provider. It is not proof. Checking `ai_user_rate_limits` afterwards showed the probe
+  // HAD been bucketed — on `ip:172.18.0.1` — because Kong sets x-forwarded-for on every local request,
+  // exactly as Supabase's gateway does in production. So those calls were anonymous-but-metered, which
+  // is the documented, intended design, and **I never reached the branch below at all.** Its
+  // reachability from the public internet is unestablished; the code path is real, my demonstration of
+  // it was not.
+  //
+  // The change is kept anyway, as defence in depth rather than as a fix for a proven hole, because the
+  // asymmetry decides it: failing closed costs a rare legitimate caller one refusal, failing open costs
+  // unbounded spend on somebody else's key if that header is ever absent or strippable. Opt-in, so the
+  // other 23 callers keep exactly the behaviour they have today.
+  strict = false,
 ): Promise<RateLimitResult> {
   if (!identityKey) {
+    if (strict) return { allowed: false, remaining: 0, scope: "unidentified" };
     // No identity AND no IP header — nothing to bucket on. Fail open; rare
     // degenerate case (no session + no x-forwarded-for).
     return { allowed: true, remaining: limitPerHour };
@@ -669,6 +693,27 @@ export async function checkSoloRateLimit(
  * window, so someone 55 minutes in was told to wait an hour when five minutes would do, and someone
  * one minute in was told the same. checkSoloRateLimit now computes the real remainder.
  */
+/** The `strict` refusal above, answered in words that are TRUE of it.
+ *
+ * ★A LIMIT NOBODY REACHED IS THE WRONG SENTENCE (2026-09-10). The obvious thing was to reuse
+ * `soloRateLimitedResponse` for the strict case, and it would have told an unidentified caller
+ * "AI call limit reached. Please try again in an hour." Both halves are false: they reached no limit,
+ * and an hour changes nothing — they will be exactly as unidentifiable then. It also sends a person to
+ * wait for a problem that waiting cannot fix, which is the same defect as answering a refusal with
+ * "check your connection". 401 is the status that is actually true here, and signing in is the one
+ * thing that resolves it.
+ */
+export function soloUnidentifiedResponse(corsHeaders: Record<string, string>): Response {
+  return new Response(
+    JSON.stringify({
+      error: "Sign in to use this. We could not tell who is making this request, and this feature "
+        + "costs money to run, so it is only available to a signed-in account.",
+      code: "unidentified_caller",
+    }),
+    { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+  );
+}
+
 export function soloRateLimitedResponse(
   corsHeaders: Record<string, string>,
   retryAfterSeconds?: number,

@@ -29,9 +29,33 @@ ROOT = Path(__file__).resolve().parent
 BASELINE = ROOT / "role_check_baseline.json"
 
 # A role-ish identifier compared to a role literal — the raw drift pattern.
+#
+# ★THE RATCHET COULD NOT SEE THE PLATFORM'S OWN ROLE GLOBAL (2026-09-10). `[Rr]ole` matches `role` and
+# `userRole` and misses `HIVE_ROLE`, because the middle letters must be lowercase — and `HIVE_ROLE` is the
+# canonical client global this whole gate was written about. The docstring above names
+# "`HIVE_ROLE === 'supervisor'`" as the drift it holds; the regex has never been able to match that string.
+# Measured on the day it was found: the gate reported a TOTAL of 1, and **94 real comparisons across 15
+# files** were invisible — hive.html 23, community.html 17, asset-hub.html 13, inventory.html 8,
+# logbook.html 8, pm-scheduler.html 7, shift-brain.html 7. A forward-only ratchet anchored to a fictional
+# zero holds nothing: every one of those 94 could have been added yesterday and the board would still have
+# read green.
+#
+# Fixed by matching ROLE case-insensitively, and the baseline RE-WRITTEN to the true count in the same
+# change — this repo's stated ordering is fix-then-enforce, and a gate that turns red the day it ships is
+# one people learn to scroll past. The number is now honest and may only fall.
 _ROLE_CMP = re.compile(
-    r"\b[A-Za-z_]*[Rr]ole[A-Za-z_]*\s*(?:===|!==|==|!=)\s*['\"](?:supervisor|engineer|field|worker|admin|owner)['\"]"
+    r"\b[A-Za-z_]*[Rr][Oo][Ll][Ee][A-Za-z_]*\s*(?:===|!==|==|!=)\s*['\"](?:supervisor|engineer|field|worker|admin|owner)['\"]"
 )
+
+
+# Comments only - never string literals, which can legitimately carry a role name in a MESSAGE.
+_BLOCK_C = re.compile(r"/\*.*?\*/", re.S)
+_LINE_C = re.compile(r"^\s*//.*$", re.M)
+_HTML_C = re.compile(r"<!--.*?-->", re.S)
+
+
+def _strip_comments(text: str) -> str:
+    return _LINE_C.sub("", _BLOCK_C.sub(" ", _HTML_C.sub(" ", text)))
 
 
 def inventory():
@@ -46,6 +70,15 @@ def inventory():
                 continue
             # skip lines carrying `role-check-allow` (exempt-with-reason)
             text = "\n".join(ln for ln in text.splitlines() if "role-check-allow" not in ln)
+            # ★A COMMENT QUOTING A ROLE CHECK IS NOT A ROLE CHECK (2026-09-10). oc-helper.js was reported
+            # as the one file still drifting, on the strength of a line inside a /* … */ block that QUOTES
+            # inventory.html's real code to explain why the helper gained a `filters` argument:
+            # "…`.eq('worker_name', role === 'supervisor' ? prev.worker_name : WORKER_NAME)` - a filter
+            # that deliberately varies by role". The helper itself compares no roles at all. A ratchet that
+            # counts prose punishes the explanation and, worse, invites someone to delete the comment to
+            # make the number fall - which would cost the reasoning and change no behaviour. Strip comments
+            # before counting, as the i18n and oc-adoption gates already do.
+            text = _strip_comments(text)
             n = len(_ROLE_CMP.findall(text))
             if n:
                 rows[fp.name] = n

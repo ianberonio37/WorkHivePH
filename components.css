@@ -284,3 +284,51 @@ html { scrollbar-gutter: stable; }
      outcome than a residual transition. Suppressing the transition PROPERTY (above) already stops the
      movement; the transform itself is where the element is supposed to be. */
 }
+
+/* ── .wh-help — the "How this page works" disclosure ────────────────────────────────────────────
+   Every page that explains itself was repeating the same ~200 characters of inline style, which is
+   how nine new guides added 17 lines of duplicated content and reddened the clone-debt ratchet in one
+   change. The class already existed and carried no rules; it does now, so a guide is markup. Pages
+   that still declare the styles inline keep winning by specificity, so this changes nothing on screen
+   until each one drops its own copy. */
+.wh-help {
+  /* 14px -> 16px (R1, walked 2026-09-10): 14 is not on the declared spacing scale. tokens.css ships
+     --wh-space-* as 4/8/12/16/24/32, and audit-log's root read gaps=[14,16] - the 16 from .page-header,
+     the 14 from this block - so the one off-scale gap on the page came from the SHARED help disclosure,
+     on all 30 pages that carry it. MUST stay byte-identical to the utils.js fallback rule below
+     (utils.js ~L1890): a second, DIFFERENT rule arriving after first paint is the exact layout shift
+     the 2026-09-07 note there records. Both were changed together. */
+  margin: 0 0 16px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--wh-radius, 12px);
+  padding: 10px 14px;
+}
+.wh-help > summary {
+  cursor: pointer;
+  min-height: 44px;            /* the tap target this platform holds every control to */
+  display: flex;
+  align-items: center;
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.85);
+}
+/* I1 CLS (EX-PF F07, 2026-09-07): utils.js used to INJECT a second .wh-help rule after first paint with different
+   margins, padding and a different summary display, so every page carrying the help block shifted (voice-journal's
+   summary read 24px -> 55px at 118 ms). The static rule is the contract; the injection now stands down when this
+   stylesheet is present, and the two rules it also carried live here. */
+.wh-help > p {
+  margin: 0.25rem 0 0.2rem;
+  color: rgba(255, 255, 255, 0.86);
+  line-height: 1.5;
+}
+.wh-back { margin: 0.5rem 0; }
+.wh-back a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 0.5rem; margin-left: -0.5rem; text-decoration: none; }
+html { scrollbar-gutter: stable; }
+.wh-help > ul {
+  margin: 8px 0 0;
+  padding-left: 18px;
+  font-size: 0.74rem;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.8);
+}

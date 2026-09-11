@@ -23,7 +23,8 @@
       }
       window.addEventListener('DOMContentLoaded', function () {
         var s1 = document.createElement('script');
-        s1.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+        s1.src = 'vendor/supabase-js-2.110.0.min.js';
+        s1.integrity = 'sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil';
         s1.onload = function () {
           var s2 = document.createElement('script');
           s2.src = 'utils.js';
@@ -50,7 +51,7 @@
        its source identity is the agentic_rag_traces table (declared in the page header below).
        The "verdict region" contract is satisfied by #summary-cards which renders the
        quality verdict (pass/fail/hallucination counts) once the route table loads. -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
+  <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
   <script src="utils.js"></script>
   <!-- Y1 offline/connectivity resilience: a founder observability dashboard is a backend page — an offline
        viewer must know the metrics are stale. Shared silence-is-golden banner (renders only when offline). -->
@@ -141,19 +142,19 @@
 <div id="wh-retired-overlay" style="position:fixed; inset:0; z-index:100000; background:rgba(11,15,26,0.98); color:rgba(244,246,250,0.92); display:flex; align-items:center; justify-content:center; padding:1.5rem; font-family:'Poppins',system-ui,sans-serif; text-align:center;">
   <div style="max-width:560px;">
     <div style="font-size:2.4rem; margin-bottom:0.5rem;">📊</div>
-    <h2 style="font-size:1.6rem; font-weight:800; margin:0 0 0.6rem; color:rgba(247,162,27,0.95);">Agentic-RAG Observability has moved to Grafana</h2>
-    <p style="color:rgba(244,246,250,0.6); font-size:0.92rem; line-height:1.5; margin:0 0 1.6rem;">RAG trace volume, grader/checker pass rate, citations, retries, latency and token use are live panels on the Founder / Platform Ops dashboard, never stale.</p>
+    <h2 data-i="p_agenticragobservabilityhasmo_a668" style="font-size:1.6rem; font-weight:800; margin:0 0 0.6rem; color:rgba(247,162,27,0.95);">Agentic-RAG Observability has moved to Grafana</h2>
+    <p data-i="p_ragtracevolumegradercheckerp_5031" style="color:rgba(244,246,250,0.6); font-size:0.92rem; line-height:1.5; margin:0 0 1.6rem;">RAG trace volume, grader/checker pass rate, citations, retries, latency and token use are live panels on the Founder / Platform Ops dashboard, never stale.</p>
     <div style="display:flex; gap:0.8rem; justify-content:center; flex-wrap:wrap;">
       <a href="http://127.0.0.1:3001/d/workhive-founder-ops" style="display:inline-flex; align-items:center; gap:0.4rem; padding:0.8rem 1.3rem; background:rgba(52,211,153,0.14); color:rgba(52,211,153,0.95); border:1px solid rgba(52,211,153,0.4); text-decoration:none; font-weight:700; min-height:44px;">📊 Founder Ops dashboard →</a>
     </div>
-    <p style="color:rgba(244,246,250,0.35); font-size:0.72rem; margin-top:1.6rem;">Grafana login: admin · password in <code>infra/mcp/.env.mcp</code></p>
+    <!-- T69 (2026-08-25, extended 2026-09-08): the Grafana credential POINTER ('login: admin · password in infra/mcp/.env.mcp') is removed. It was taken out of marketplace-admin.html on 2026-08-25 and left on three pages that are not auth-gated at all, so it rendered for any visitor. A pointer to where a secret lives is the part worth removing, which is why this is a deletion rather than a rewording. The dashboard link stays. --><!-- was 0.35 = 3.03:1 at 12px, under the 4.5 floor (live-walk render-contract, 2026-09-06) -->
   </div>
 </div>
   <div id="hive-gate" class="hive-gate">
     <div class="box">
-      <h3>Agentic RAG Observability is hive-scoped.</h3>
-      <p style="font-size:0.78rem;color:var(--muted);margin:10px 0 16px;">You need to join or create a hive first to see your agentic-RAG traces.</p>
-      <a href="hive.html">Go to Hive board &rarr;</a>
+      <h3 data-i="p_agenticragobservabilityishiv_ed73">Agentic RAG Observability is hive-scoped.</h3>
+      <p data-i="p_youneedtojoinorcreateahivefi_740b" style="font-size:0.78rem;color:var(--muted);margin:10px 0 16px;">You need to join or create a hive first to see your agentic-RAG traces.</p>
+      <a data-i="p_gotohiveboard_1f78" href="hive.html">Go to Hive board &rarr;</a>
     </div>
   </div>
 
@@ -162,7 +163,7 @@
       <div>
         <a href="index.html" class="wh-back-link" style="display:inline-flex;align-items:center;gap:6px;min-height:44px;font-size:0.8rem;color:rgba(255,255,255,0.65);text-decoration:none;">← Home</a>
         <h1 class="page-title" style="margin:0;" translate="no">Agentic RAG Observability</h1>
-        <div class="page-sub">Every AI answer traced for your hive: route, retries, checks, tokens, and speed.</div>
+        <div data-i="p_everyaianswertracedforyourhi_8941" class="page-sub">Every AI answer traced for your hive: route, retries, checks, tokens, and speed.</div>
       </div>
       <div class="freshness" id="freshness">Live</div>
     </header>
@@ -170,14 +171,14 @@
     <div class="filter-bar">
       <label translate="no">Window:
         <select id="filter-window">
-          <option value="7">Last 7 days</option>
-          <option value="30" selected>Last 30 days</option>
-          <option value="90">Last 90 days</option>
+          <option data-i="p_lastdays_df83" value="7">Last 7 days</option>
+          <option data-i="p_lastdays_6b32" value="30" selected>Last 30 days</option>
+          <option data-i="p_lastdays_c328" value="90">Last 90 days</option>
         </select>
       </label>
       <label translate="no">Route:
         <select id="filter-route">
-          <option value="">All routes</option>
+          <option data-i="p_allroutes_29a9" value="">All routes</option>
           <option value="simple_recency">simple_recency</option>
           <option value="semantic">semantic</option>
           <option value="orchestrator">orchestrator</option>
@@ -195,7 +196,7 @@
          placeholder so the L2 calm-dashboard-behaviour contract holds at
          initial load. -->
     <section class="verdict today-card" id="obs-verdict" data-l2-anchor="verdict-region">
-      <span id="obs-verdict-label">Computing observability verdict…</span>
+      <span data-i="p_computingobservabilityverdic_c9e8" id="obs-verdict-label">Computing observability verdict…</span>
     </section>
 
     <!-- I2 perceived-performance / CLS: reserve the async KPI-card row's height so its
@@ -206,7 +207,7 @@
          primary verdict + summary cards lead. Required by the Calm Dashboard
          contract (<details> ≥ 1). -->
     <details class="engineering-details wh-help">
-      <summary>How this dashboard works (open the engineering panel)</summary>
+      <summary data-i="p_howthisdashboardworksopenthe_ef6a">How this dashboard works (open the engineering panel)</summary>
       <p class="meta">All numbers are computed from the per-hive
          <code>agentic_rag_traces</code> table via a head-only count query in
          the selected window. Hide-zero filter dims any row where calls = 0
@@ -215,30 +216,30 @@
 
     <!-- U5 heading-order (§11 deepwalk): the metric-section H3s sit under the page H1 with no H2 (WCAG
          skip). A screen-reader H2 groups them without a visual change. -->
-    <h2 translate="no" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0;">Observability metrics</h2>
+    <h2 data-i="p_observabilitymetrics_a161" translate="no" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0;">Observability metrics</h2>
     <div class="card">
-      <h3 translate="no">Route breakdown</h3>
+      <h3 data-i="p_routebreakdown_0381" translate="no">Route breakdown</h3>
       <div class="meta">Volume + retry rate + checker pass rate per route. Source: agentic_rag_traces grouped by route in the selected window.</div>
       <div class="wh-scroll-x"><table class="tbl" tabindex="0" id="route-tbl" aria-label="Route breakdown: volume, retry rate, checker pass rate per agentic-RAG route">
-        <thead><tr><th>Route</th><th class="num-right">Calls</th><th class="num-right">Avg retries</th><th class="num-right">Grader %</th><th class="num-right">Checker %</th><th class="num-right">Avg tokens</th><th class="num-right">p95 ms</th></tr></thead>
+        <thead><tr><th>Route</th><th data-i="p_calls_0a19" class="num-right">Calls</th><th data-i="p_avgretries_7097" class="num-right">Avg retries</th><th class="num-right">Grader %</th><th class="num-right">Checker %</th><th data-i="p_avgtokens_8eec" class="num-right">Avg tokens</th><th class="num-right">p95 ms</th></tr></thead>
         <tbody></tbody>
       </table></div>
     </div>
 
     <div class="card">
-      <h3 translate="no">Top 10 most token-heavy queries</h3>
-      <div class="meta">Highest total_tokens in the selected window. Spot prompt drift or runaway retrievers early.</div>
+      <h3 data-i="p_topmosttokenheavyqueries_ca66" translate="no">Top 10 most token-heavy queries</h3>
+      <div data-i="p_highesttotaltokensintheselec_7c41" class="meta">Highest total_tokens in the selected window. Spot prompt drift or runaway retrievers early.</div>
       <div class="wh-scroll-x"><table class="tbl" tabindex="0" id="heavy-tbl" aria-label="Top 10 most token-heavy agentic-RAG queries">
-        <thead><tr><th>Question</th><th>Route</th><th>Retries</th><th>Checker</th><th class="num-right">Tokens</th><th class="num-right">Latency ms</th><th>When</th></tr></thead>
+        <thead><tr><th data-i="p_question_002f">Question</th><th>Route</th><th data-i="p_retries_1309">Retries</th><th>Checker</th><th data-i="p_tokens_c38c" class="num-right">Tokens</th><th class="num-right">Latency ms</th><th data-i="p_when_769b">When</th></tr></thead>
         <tbody></tbody>
       </table></div>
     </div>
 
     <div class="card">
-      <h3 translate="no">Recent traces</h3>
-      <div class="meta">Most recent 20 agentic-rag-loop runs in the selected window.</div>
+      <h3 data-i="p_recenttraces_c291" translate="no">Recent traces</h3>
+      <div data-i="p_mostrecentagenticragloopruns_3624" class="meta">Most recent 20 agentic-rag-loop runs in the selected window.</div>
       <div class="wh-scroll-x"><table class="tbl" tabindex="0" id="recent-tbl" aria-label="Most recent 20 agentic-rag-loop trace entries">
-        <thead><tr><th>When</th><th>Route</th><th>Question</th><th>Retries</th><th>Grader</th><th>Checker</th><th>Citations</th><th class="num-right">Latency ms</th></tr></thead>
+        <thead><tr><th data-i="p_when_769b">When</th><th>Route</th><th data-i="p_question_002f">Question</th><th data-i="p_retries_1309">Retries</th><th>Grader</th><th>Checker</th><th data-i="p_citations_fd32">Citations</th><th class="num-right">Latency ms</th></tr></thead>
         <tbody></tbody>
       </table></div>
     </div>
@@ -284,12 +285,12 @@
 
       // canonical-allow: agent infra observability surface, traces table is the canonical source
       var q = db.from('agentic_rag_traces')
-        .select('id, question, route, retries, grader_passed, checker_passed, citation_count, total_tokens, latency_ms, created_at')
+        .select('id, question, route, retries, grader_passed, checker_passed, citation_count, total_tokens, latency_ms, created_at', { count: 'exact' })
         .eq('hive_id', HIVE_ID)
         .gte('created_at', cutoff)
         .order('created_at', { ascending: false })
         .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-        .limit(500);
+        .limit(500);   // cap-ok: the painted total is the exact count; the rates disclose the 500-row window when it bites
       if (routeFilter) q = q.eq('route', routeFilter);
 
       // dim-10 (deep-walk 2026-07-06): a load failure must NOT render as the "No traces yet" empty
@@ -297,10 +298,26 @@
       var result;
       try { result = await q; } catch (e) { result = { error: e }; }
       if (result && result.error) {
+        console.error('[agentic-rag-observability] trace read failed', (result && result.error && result.error.message) || 'no response');   // page-log-tags (2026-09-05): the failure path is greppable
         var fr = document.getElementById('freshness');
-        if (fr) fr.textContent = 'Could not load traces - check your connection and retry.';
+        if (fr) fr.textContent = _t('Could not load traces - check your connection and retry.', 'Hindi ma-load ang traces - suriin ang koneksyon at subukan muli.');
+        // ★THE COPY SAID "retry" AND GAVE NOBODY ANYTHING TO PRESS (2026-09-06, gate db-pages-data-degradation,
+        // T40). Both sentences below end in "check your connection and retry", and this page shipped no retry
+        // control at all - the only thing on it matching that word was the "Retry rate" summary CARD, which is a
+        // metric, not a button. Telling someone to retry with no way to do it is a dead end dressed as guidance.
+        // The control re-runs loadTraces(), which is the read that failed.
+        var rb = document.getElementById('traces-retry');
+        if (!rb && fr && fr.parentNode) {
+          rb = document.createElement('button');
+          rb.id = 'traces-retry';
+          rb.type = 'button';
+          rb.textContent = 'Retry';
+          rb.style.cssText = 'margin-left:10px;padding:4px 12px;border-radius:8px;font-size:0.72rem;font-weight:600;cursor:pointer;background:rgba(255,255,255,0.08);color:#fff;border:1px solid rgba(255,255,255,0.18);min-height:32px';
+          rb.addEventListener('click', function () { rb.remove(); loadTraces(); });
+          fr.parentNode.insertBefore(rb, fr.nextSibling);
+        }
         var tt = document.getElementById('toast');
-        if (tt) { tt.textContent = 'Failed to load traces. Check your connection and retry.'; tt.style.display = 'block'; tt.setAttribute('role', 'alert'); }
+        if (tt) { tt.textContent = _t('Failed to load traces. Check your connection and retry.', 'Hindi na-load ang traces. Suriin ang koneksyon at subukan muli.'); tt.style.display = 'block'; tt.setAttribute('role', 'alert'); }
         return;
       }
       var rows = result.data || [];
@@ -308,7 +325,9 @@
       renderRouteTable(rows);
       renderHeaviest(rows);
       renderRecent(rows);
-      document.getElementById('freshness').textContent = 'Live - ' + rows.length + ' traces in window';
+      // cap is not a total (2026-09-05): the window count is the exact server count; the rates below are computed over the
+      // rows fetched, so when the 500-row read is full they say so instead of passing off a sample as the window.
+      document.getElementById('freshness').textContent = 'Live - ' + (result.count != null ? result.count : rows.length) + ' traces in the last ' + windowDays + ' days' + (rows.length >= 500 ? ' (rates over the latest 500)' : '');   // window & label agree (2026-09-05): the phrase names the selected window
     }
 
     function renderSummary(rows) {
@@ -392,7 +411,7 @@
     function renderRecent(rows) {
       var tbody = document.querySelector('#recent-tbl tbody');
       if (!rows.length) { tbody.innerHTML = '<tr><td colspan="8" class="empty-state">No recent traces. New AI questions appear here as they run.</td></tr>'; return; }
-      var recent = rows.slice(0, 20);
+      var recent = rows.slice(0, 20);   // cap-ok: the recent-traces list shows the latest 20 rows only; no total painted
       tbody.innerHTML = recent.map(function(r) {
         return '<tr>' +
           '<td>' + escHtml(whenAgo(r.created_at)) + '</td>' +

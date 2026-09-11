@@ -127,7 +127,7 @@ serveObserved("pf-calculator", async (req) => {
     }
     if (!parameter || !PARAMETER_RE.test(parameter)) {
       return new Response(
-        JSON.stringify({ error: "Missing or invalid required field: parameter (alphanumeric + underscore, max 40 chars)." }),
+        JSON.stringify({ error: "The parameter name is wrong. Use letters, digits and underscore, up to 40 long." }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
@@ -204,7 +204,7 @@ serveObserved("pf-calculator", async (req) => {
       .limit(1000);
     if (logErr) {
       return new Response(
-        JSON.stringify({ error: "Logbook query failed", detail: logErr.message }),
+        JSON.stringify({ error: "Could not read the logbook. Try again in a moment.", detail: logErr.message }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
@@ -244,7 +244,7 @@ serveObserved("pf-calculator", async (req) => {
       return new Response(
         JSON.stringify({
           error: "Python Analytics API not configured.",
-          hint:  "Set PYTHON_API_URL in Supabase Edge Function secrets.",
+          hint:  "Ask the platform owner to finish the analytics setup.",   // (2026-09-06) the env name is logged, not returned
         }),
         { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );

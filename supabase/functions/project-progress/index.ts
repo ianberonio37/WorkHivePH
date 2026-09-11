@@ -66,7 +66,7 @@ async function callPythonProject(payload: Record<string, unknown>): Promise<Reco
   if (!PYTHON_URL) {
     return {
       error: 'Python Project API not configured.',
-      hint: 'Set PYTHON_API_URL in Supabase Edge Function secrets.',
+      hint: 'Ask the platform owner to finish the analytics setup.',   // (2026-09-06) the env name is logged, not returned
       _unavailable: true,
     };
   }
@@ -98,14 +98,14 @@ serveObserved("project-progress", async (req: Request) => {
   }
   logRequestStart(req, "project-progress");  // I6 observability
   if (req.method !== 'POST') {
-    return errJson('Method not allowed', 405, req);
+    return errJson('That action is not allowed here. Reload the page and try again.', 405, req);
   }
 
   let body: { project_id?: string; hive_id?: string; labor_rate_php_per_hour?: number };
   try {
     body = await req.json();
   } catch {
-    return errJson('Invalid JSON body', 400, req);
+    return errJson('That request could not be read. Reload the page and try again.', 400, req);
   }
   const { project_id, hive_id, labor_rate_php_per_hour } = body;
   if (!project_id || !hive_id) {
@@ -217,6 +217,7 @@ serveObserved("project-progress", async (req: Request) => {
     }
     return json(result, 200, req);
   } catch (e) {
-    return errJson(`Backend error: ${(e as Error).message}`, 502, req);
+    console.error("project-progress:", (e as Error).message);   // the exception is the operator's (2026-09-06)
+    return errJson("Something went wrong on our side. Try again in a moment.", 502, req);
   }
 });

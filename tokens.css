@@ -385,3 +385,23 @@ html, body { touch-action: manipulation; overscroll-behavior: contain; }
      sheet/dropdown positioning, the hub pill), so killing it would break the page for the very people
      this block serves. Suppressing the transition property already stops the movement. */
 }
+
+/* Scrollbar geometry PRE-PAINT (2026-09-06). nav-hub.js injects the same two rules at runtime; on community the gutter was
+   reserved at the default 15px on first paint and shrank to 6px when the injection landed (~340ms) - the whole centred
+   column moved 4.5px = a 0.07 layout shift on every load. tokens.css is in <head> on most pages, so the first layout already
+   has the 6px bar. Element-level overrides (4px hub panels) keep winning by specificity. */
+html { scrollbar-gutter: stable; }
+::-webkit-scrollbar { width: 6px; }
+
+/* PHONE FIT (P-M, 2026-09-06): a pill/badge/chip is one line by definition - at 390px "gateway 2" wrapped into two lines inside a
+   67px pill. If a pill is wider than its row the fix is the text or the row (the phone-fit prover reports the spill), never a
+   second line. .tag (131 uses, some are paragraphs) is deliberately excluded. */
+.pill, .badge, .chip, [class$="-pill"], [class*="-pill "], .status-badge, .sev-chip, .presence-chip, .meta-chip, .cat-chip, .cat-badge { white-space: nowrap; }
+/* every *-pill class is a pill (header-pill broke 'Read-only' at its hyphen on public-feed); *-chip is NOT generalised - see the source-chip note */
+/* NOT .wh-source-chip: it is a SENTENCE ('Live · contacts refreshed on load, history on load') - nowrap made report-sender and
+   shift-brain lay their whole column out 1067px / 802px wide on a phone within minutes of the rule landing (2026-09-06). */
+
+/* An EMPTY toast host (30 pages carry <div id="toast" role="alert" aria-live="polite">) keeps its 26px padding and read as an
+   orphan void (R4) once fixed elements became visible to the rubric (2026-09-06). Collapse it, never display:none - a live region
+   must exist in the tree BEFORE its first message or screen readers miss the announcement. */
+#toast:empty { height: 0; min-height: 0; padding: 0; margin: 0; overflow: hidden; }

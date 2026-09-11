@@ -34,6 +34,7 @@ import json
 import sys
 import os
 import glob
+from html.parser import HTMLParser
 
 if sys.platform == "win32" and sys.stdout.encoding.lower() not in ("utf-8", "utf8"):
     import io
@@ -234,10 +235,195 @@ def check_hidden_have_deeplinks(tools):
     return issues
 
 
-CHECK_NAMES = ["nav_cardinality", "hidden_have_deeplinks"]
+# ─── L3: a tool a MODE cannot see must still be reachable, or be declared unreachable on purpose ────
+#
+# ★THE SAME DEFECT SHIPPED THREE TIMES IN ONE WEEK BECAUSE NOTHING WAS WATCHING THIS (2026-09-10).
+# Asset Hub (J17), Alert Hub (J26) and Day Planner (engineer) were each entitled by RLS, each rendered
+# for the person with no sign-in wall and no error, and each was reachable by NOBODY in a mode the nav
+# excluded - because the nav was their only unconditional route and the nav is what hid them. Two were
+# found by walking a journey and watching a hop die; the third was found by this check the moment it
+# existed. A walk is an expensive way to learn a link is missing.
+#
+# WHY "STATIC MARKUP" IS THE BAR, and it is the whole point of the check: every route these three DID
+# have was built inside a script and fired only on a condition. Alert Hub's three inbound links are
+# hive.html:5097 (needs a plant-condition notification), hive.html:5454 (inside the supervisor approval
+# queue) and index.html:5058 (only in the read-FAILED state) - all JS string concatenation, none of
+# them a route a person can count on. Marketplace, by contrast, keeps asset-hub.html:898 and
+# community.html:622 as plain <a> tags in the document. So the check strips <script> blocks and asks
+# whether the destination is linked from the STATIC markup of a page that mode's own stack contains.
+# A conditional link is not a route; it is a link that sometimes exists.
+#
+# Declaring an exclusion is a first-class answer - most of these are deliberate. What the check refuses
+# is the SILENT one: a mode losing a destination because a roles list was written years ago and nobody
+# re-read it. Each entry below is (href, mode) -> why that mode is genuinely not the audience.
+ROLE_EXCLUSIONS_BY_DESIGN = {
+    ("report-sender.html", "field"):
+        "Sending a report out of the hive is a supervisor's or engineer's act of record; a worker's "
+        "contribution is the logbook entry it is built from, and Reports is reached from analytics.",
+    ("engineering-design.html", "field"):
+        "Design authoring is the engineer's surface. A worker consumes its output as a work order in "
+        "the logbook and a BOM in inventory, never the design document itself.",
+    ("project-manager.html", "field"):
+        "Project scheduling and change orders are the project manager's and supervisor's; a worker "
+        "meets a project as the jobs it produces, which arrive in the logbook and the day plan.",
+}
+
+
+class _VisibleLinkFinder(HTMLParser):
+    """Collect href targets that are in the document AND not inside a hidden ancestor.
+
+    ★THE GATE HAD THE SAME BLIND SPOT AS THE PERSON WHO WROTE IT (2026-09-10). The first fix for
+    J26 put a static alert-hub card into hive.html's action-card stack, this check went green, and
+    the re-walk came back 4/8 completely unchanged. That stack lives inside
+    `<div id="supervisor-summary" class="hidden">`, revealed only for supervisors - so the link was
+    real markup, present in the file, and invisible to the exact person it was added for. Counting
+    a link without asking who can see its container is how a reachability check certifies an
+    unreachable destination. `hidden` is honoured both as the attribute and as the utility class,
+    because this codebase uses both.
+    """
+
+    # ★A NAIVE TAG STACK READ THE WHOLE PAGE AS HIDDEN (2026-09-10, caught by this check FAILING a
+    # page it should have passed). The first version pushed/popped one entry per element, so a single
+    # unclosed <p> or <li> - which real HTML is full of, and which browsers close implicitly - left
+    # the stack permanently one deep inside whatever container came before. Measured on hive.html: 9
+    # link targets, EIGHT of them reported "hidden", including logbook.html, a card sitting in plain
+    # sight at the top of the worker's board. A checker that answers "hidden" for everything is not
+    # strict, it is broken - and it would have sent me editing a page that was already correct.
+    # The repair is what browsers do: on an end tag, pop DOWN TO the nearest matching open tag, and
+    # ignore an end tag that matches nothing.
+    VOID = {"br", "hr", "img", "input", "meta", "link", "source", "track", "area",
+            "base", "col", "embed", "param", "wbr"}
+
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.stack = []          # (tag, hides) per open element
+        self.visible = set()
+        self.hidden_only = set()
+
+    def _hides(self, attrs):
+        d = dict(attrs)
+        if "hidden" in d:                       # the boolean attribute
+            return True
+        cls = (d.get("class") or "").split()
+        if "hidden" in cls:                     # the utility class
+            return True
+        style = (d.get("style") or "").replace(" ", "").lower()
+        return "display:none" in style
+
+    def _record(self, tag, attrs, hides):
+        if tag != "a":
+            return
+        href = (dict(attrs).get("href") or "").split("?")[0].split("#")[0]
+        if not href:
+            return
+        if hides or any(h for _t, h in self.stack):
+            self.hidden_only.add(href)
+        else:
+            self.visible.add(href)
+
+    def handle_starttag(self, tag, attrs):
+        hides = self._hides(attrs)
+        self._record(tag, attrs, hides)
+        if tag not in self.VOID:
+            self.stack.append((tag, hides))
+
+    def handle_startendtag(self, tag, attrs):     # <foo />
+        self._record(tag, attrs, self._hides(attrs))
+
+    def handle_endtag(self, tag):
+        if tag in self.VOID:
+            return
+        for i in range(len(self.stack) - 1, -1, -1):
+            if self.stack[i][0] == tag:
+                del self.stack[i:]                # pop down to the match, as a browser would
+                return
+        # an end tag matching nothing open is stray; ignoring it keeps the stack honest
+
+
+def _visible_link_targets(html_text):
+    """(targets reachable in visible markup, targets present only inside hidden containers)."""
+    stripped = re.sub(r"<script\b.*?</script>", "", html_text, flags=re.S | re.I)
+    p = _VisibleLinkFinder()
+    try:
+        p.feed(stripped)
+    except Exception:
+        # a parse failure must not silently pass the check - treat the page as offering nothing
+        return set(), set()
+    return p.visible, p.hidden_only
+
+
+def check_role_exclusions_reachable(tools):
+    """A tool excluded from a mode must keep a STATIC route from that mode's own stack,
+    or be declared in ROLE_EXCLUSIONS_BY_DESIGN with a reason."""
+    issues = []
+    visible = [t for t in tools if not t.get("hidden") and t.get("href")]
+
+    static, hidden_only = {}, {}
+    for path in sorted(glob.glob("*.html")):
+        if path.endswith(("-test.html", ".backup.html", "_backup.html")):
+            continue
+        content = read_file(path) or ""
+        if content:
+            # links inside a <script> are built by code and usually behind a condition;
+            # links inside a hidden container are present in the file and not on the screen
+            static[path], hidden_only[path] = _visible_link_targets(content)
+
+    for mode in ("field", "supervisor", "engineer"):
+        stack = [t["href"] for t in visible
+                 if not t.get("roles") or mode in t.get("roles", [])]
+        for t in visible:
+            if not t.get("roles") or mode in t.get("roles", []):
+                continue
+            href = t["href"]
+            if (href, mode) in ROLE_EXCLUSIONS_BY_DESIGN:
+                continue
+            routed_from = [p for p in stack
+                           if p in static and p != href and href in static[p]]
+            buried = [p for p in stack
+                      if p in hidden_only and p != href and href in hidden_only[p]]
+            # ★WHY A BURIED LINK WARNS AND DOES NOT FAIL (2026-09-10). Two containers ship `hidden`
+            # and mean opposite things, and no static reading can separate them: hive.html's
+            # `#view-board` is hidden until the hive loads and is then revealed for EVERYONE (a real
+            # route), while `#supervisor-summary` is revealed only for supervisors (not a route for a
+            # worker). Failing on the attribute alone reddens every page that hides content until it
+            # has data, which is most of them - this check FAILED hive.html for a card sitting in
+            # plain sight before it was softened. So the buried case asks a human to look, and the
+            # journey prover - which sees what actually renders - remains the one that can decide it.
+            if not routed_from and buried:
+                issues.append({
+                    "check": "role_exclusions_reachable", "skip": True,
+                    "reason": (
+                        f"'{t.get('label')}' ({href}) is hidden from the '{mode}' nav, and the only "
+                        f"static link to it in that mode's stack ({', '.join(buried)}) sits inside a "
+                        f"container that ships hidden. That is a real route only if the container is "
+                        f"revealed for THIS mode - #view-board is (it waits for data), "
+                        f"#supervisor-summary is not. Confirm with a journey walk, which sees what "
+                        f"actually renders."
+                    ),
+                })
+                continue
+            if not routed_from:
+                extra = ""
+                issues.append({
+                    "check": "role_exclusions_reachable",
+                    "reason": (
+                        f"'{t.get('label')}' ({href}) is hidden from the '{mode}' nav and no page in "
+                        f"that mode's own stack links to it in static markup, so nobody in that mode "
+                        f"can reach it by any route. Either add '{mode}' to its roles in nav-hub.js "
+                        f"(mind the home-stack budget - pay a seat rather than raise the ceiling), add "
+                        f"a real <a> link from a page that mode already has, or declare it in "
+                        f"ROLE_EXCLUSIONS_BY_DESIGN with the reason that mode is not its audience." + extra
+                    ),
+                })
+    return issues
+
+
+CHECK_NAMES = ["nav_cardinality", "hidden_have_deeplinks", "role_exclusions_reachable"]
 CHECK_LABELS = {
     "nav_cardinality":       "L1  Primary-nav tool count respects per-role home-stack budget [FAIL]",
     "hidden_have_deeplinks": "L2  Hidden tools are reachable from a parent surface          [WARN]",
+    "role_exclusions_reachable":
+                             "L3  A mode that cannot SEE a tool can still REACH it          [FAIL]",
 }
 
 
@@ -258,6 +444,7 @@ def main():
     issues = []
     issues += check_nav_cardinality(tools)
     issues += check_hidden_have_deeplinks(tools)
+    issues += check_role_exclusions_reachable(tools)
 
     n_pass, n_warn, n_fail = format_result(CHECK_NAMES, CHECK_LABELS, issues)
 

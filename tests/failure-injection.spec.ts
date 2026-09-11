@@ -25,6 +25,17 @@
 import { expect } from '@playwright/test';
 import { test } from './_fixtures';
 
+// THE SERVICE WORKER ATE EVERY INTERCEPT. `page.route` does not see requests issued by a service
+// worker, and this site registers one (offline-first). Measured rather than assumed: on a healthy
+// marketplace load, page.on('request') counted 62 supabase reads while page.route counted 0, with
+// navigator.serviceWorker.controller truthy. That is why a first full run reported 41 of 43 tests
+// failing, every one of them on this spec's own "the route never matched - instrument failure"
+// guard: the oracles beneath never ran. Blocking the worker is a FAITHFUL substitution here, not a
+// convenience: sw.js passes REST straight through (`url.includes('supabase.co')` -> plain fetch,
+// no cache) and its only cache write is cache.addAll(SHELL_FILES) at install, so no REST response
+// is ever served from cache. The page therefore receives byte-identical responses either way.
+test.use({ serviceWorkers: 'block' });
+
 // Wide enough to recognise the words this product actually uses. The first version listed only
 // "could not LOAD" and missed marketplace's "…so the marketplace could not be READ", reporting five
 // surfaces as silent when every one of them was speaking clearly:
@@ -197,6 +208,11 @@ const WRITE_CONTROL: Record<string, string> = {
   community: '#btn-submit-post, #fab-post',
   // marketplace-seller-profile declares no write control of its own — it is a public read surface,
   // so there is no write to withhold. Left out deliberately rather than forced.
+  // market_svc is the same PAGE as market (marketplace.html?section=services) and the control named
+  // above, "Send All Quote Requests", is already the services one. Adding a market_svc entry would
+  // re-run an identical click on an identical page and bank it as a second piece of evidence, which
+  // is coverage theatre. Its registry row stays unmatched on purpose; a genuinely distinct services
+  // write is what would earn it.
 };
 
 for (const s of SURFACES.filter(x => WRITE_CONTROL[x.name])) {
@@ -424,6 +440,71 @@ for (const s of NULLABLE_SURFACES) {
  */
 const SKELETON = '[class*="skeleton"], [class*="shimmer"], [aria-busy="true"], [class*="loading"]';
 
+// COUNTING A SKELETON IS NOT SEEING ONE. Playwright's .count() counts elements in the DOM, and this
+// codebase hides its placeholders with `style.display = 'none'` rather than removing them --
+// community.html ships #feed-skeleton with six .skeleton children and toggles display. So the plain
+// selector reports 4 busy indicators on a settled, finished page, and any assertion built on it
+// passes on every page that merely CONTAINS a placeholder. `:visible` is what makes the count mean
+// "the person can see that this is working".
+const SKELETON_VISIBLE = SKELETON.split(', ').map(sel => `${sel}:visible`).join(', ');
+
+// ★ BORROWED, NOT INVENTED. tools/prove_failure_injection.mjs has widened this same predicate five
+// times, and each widening has the same shape: the PRODUCT was right and the ORACLE was narrow. A
+// wait state was a sentence in an id (pm-scheduler's "Loading assets..."); it was three animated
+// dots (assistant's typing indicator); it was a Tailwind utility class; it was a fifth verb
+// ("Checking your saved contacts…"). Writing a sixth narrow copy here is how two provers come to
+// disagree about the same page, so this is that detector's selector list, kept in step deliberately.
+//
+// The SIXTH widening is mine, and platform-actions.html is the page that earned it: refreshQueues()
+// sets #last-sync to "Refreshing…" before its awaits, and marks four content boxes aria-busy -- but
+// on a COLD load those boxes are empty, so they have no box to be visible by, and the only thing a
+// person can actually see is the word. An oracle knowing five verbs failed a page that was speaking
+// plainly in a sixth. `refreshing|updating|syncing` are added for that reason and mirrored back into
+// the prover, so the next widening starts from one list rather than two.
+const BUSY_SELECTOR =
+  '[class*="skeleton"], [class*="shimmer"], [class*="spinner"], [class*="loading"], [id*="loading"],'
+  + ' [id*="skeleton"], [id*="spinner"], [aria-busy="true"], progress, [role="progressbar"],'
+  + ' [id*="typing"], [class*="typing"],'
+  + ' [class*="animate-pulse"], [class*="animate-spin"], [class*="animate-bounce"]';
+const BUSY_TEXT = /^(loading|please wait|working|fetching|checking|refreshing|updating|syncing)\b/i;
+
+/** How many busy affordances a PERSON can see right now, plus what they say -- because a count with
+ *  no quote is a number nobody can act on. */
+async function busySignals(page: import('@playwright/test').Page) {
+  return page.evaluate(({ sel, textSrc }) => {
+    // ★ display:contents HAS NO BOX, AND THE CANONICAL SKELETON USES IT. utils.js ships
+    // `.wh-cardskel{display:contents}` so whCardSkeleton's rows join the parent's flex/grid layout
+    // instead of nesting inside a wrapper -- correct authoring, and the wrapper is where aria-busy
+    // and aria-live live so a screen reader gets one announcement rather than three. But a
+    // display:contents element's getBoundingClientRect() is always 0x0, so a "does it have a box"
+    // filter rejects the very element carrying the semantics. Measured on marketplace-seller: three
+    // skeleton rows plainly on screen from 500ms to 4500ms, aria-busy="true" the whole time, and the
+    // box filter reported ZERO busy affordances. The page was right for the seventh time; the oracle
+    // was measuring the wrong node. So: hidden is hidden, but an element with no box of its own
+    // counts when its DESCENDANTS have one, because that is what the person is looking at.
+    const vis = (el: Element) => {
+      const st = getComputedStyle(el);
+      if (st.visibility === 'hidden' || st.display === 'none') return false;
+      const r = el.getBoundingClientRect();
+      if (r.width > 0 && r.height > 0) return true;
+      return [...el.querySelectorAll('*')].some(c => {
+        const cr = c.getBoundingClientRect();
+        return cr.width > 0 && cr.height > 0;
+      });
+    };
+    const re = new RegExp(textSrc, 'i');
+    const els = [...document.querySelectorAll(sel)].filter(vis);
+    const texts = [...document.querySelectorAll('*')].filter(
+      el => !el.children.length && vis(el) && re.test(((el as HTMLElement).innerText || '').trim()));
+    const all = new Set([...els, ...texts]);
+    return {
+      count: all.size,
+      quotes: [...all].slice(0, 3).map(
+        el => (((el as HTMLElement).innerText || '').trim().slice(0, 60)) || `<${el.tagName.toLowerCase()}>`),
+    };
+  }, { sel: BUSY_SELECTOR, textSrc: BUSY_TEXT.source });
+}
+
 for (const s of SURFACES) {
   test(`az_fail_timeout · ${s.name}: a hung read ends in a stated timeout, not an endless skeleton`,
     async ({ whPage }) => {
@@ -443,7 +524,7 @@ for (const s of SURFACES) {
       await whPage.reload();
       await whPage.waitForTimeout(18000);          // inside the hang, after any sane timeout budget
       const midText = (await whPage.locator('body').innerText()).replace(/\s+/g, ' ');
-      const stillLoading = await whPage.locator(SKELETON).count();
+      const stillLoading = await whPage.locator(SKELETON_VISIBLE).count();
       const rows = await whPage.locator(s.rowSelector).count();
 
       expect(intercepted, `${s.name}: the route never matched — instrument failure`).toBeGreaterThan(0);
@@ -454,6 +535,91 @@ for (const s of SURFACES) {
         `anything — ${stillLoading} loading placeholder(s) still on screen, which is a page that will ` +
         `shimmer until the person gives up`).toBe(true);
     });
+}
+
+/**
+ * az_fail_slow — a read that is merely LATE must not be reported as a read that came back EMPTY.
+ *
+ * Distinct from az_fail_timeout, which hangs the read forever and asks whether anything ever
+ * resolves. Here the read succeeds; it is just slow. The defect this catches is the page that
+ * paints its empty state on first render, before its own request has landed: for a second or two
+ * it tells a person "no listings" while the listings are in flight, and if they act on that they
+ * act on a claim the page could not have known. It is the same shape as the logbook that showed
+ * "0 entries · No entries yet" to a worker holding 516 of them, and it is invisible to every gate
+ * that only reads the page after networkidle -- by then the data has arrived and the lie is gone.
+ *
+ * THE ORACLE IS BUSY-THEN-CONTENT, AND IT IS BORROWED, NOT INVENTED. tools/prove_failure_injection.mjs
+ * already runs exactly this state over the ~20 CC pages this spec deliberately never reaches
+ * (`fail_slow: { kind: 'slow', delay: 6000, want: 'busy-then-content' }`), and that oracle has teeth
+ * on record: it caught public-feed painting its skeleton into a SIBLING outside the list container,
+ * and alert-hub sequencing its busy reveal after awaits the slow backend also delayed -- two real
+ * defects, both fixed. So mid-flight the surface must SAY it is working (a skeleton, a shimmer, an
+ * aria-busy region) and must NOT claim absence; then the read lands and the rows must arrive. A
+ * weaker "just don't say empty" version would let a page pass by rendering nothing at all, and would
+ * make this the third copy of a predicate two provers could disagree about -- which is the mistake
+ * that prover's own header was written to stop.
+ *
+ * Scope is the six AZ rows the registry carries for fail_slow; public-feed has none, so it is not
+ * swept in. Coverage is what the bank asks for, not everything the loop could iterate.
+ */
+const SLOW_DELAY_MS = 6000;   // matches prove_failure_injection.mjs, so the two cannot drift apart
+const SLOW_PEEK_MS = 2000;    // unambiguously inside the delay, with margin on a loaded host
+
+for (const s of SURFACES.filter(x => x.name !== 'public-feed')) {
+  test(`az_fail_slow · ${s.name}: a late read is not rendered as an empty one`, async ({ whPage }) => {
+    await whPage.goto(s.url);
+    await whPage.waitForLoadState('networkidle').catch(() => {});
+    const healthyText = (await whPage.locator('body').innerText()).replace(/\s+/g, ' ');
+    expect(await whPage.locator(s.rowSelector).count(),
+      `${s.name}: healthy load rendered 0 rows; a "did it claim empty" oracle needs a surface that ` +
+      `is genuinely non-empty`).toBeGreaterThan(0);
+    expect(EMPTY_WORDS.test(healthyText),
+      `${s.name}: the HEALTHY page already says ${EMPTY_WORDS.source} somewhere, so finding those ` +
+      `words mid-flight would prove nothing about timing`).toBe(false);
+    // The oracle is a DIFFERENCE on this half too. If a busy indicator is on the SETTLED page, then
+    // finding one mid-flight says nothing about whether the surface reacts to a slow read -- it says
+    // an element with a matching class exists. Six of six passing on a brand-new oracle is exactly
+    // when to check that, not after.
+    expect((await busySignals(whPage)).count,
+      `${s.name}: a busy affordance is visible on the HEALTHY, settled page, so finding one ` +
+      `mid-flight would say an element exists, not that the surface reacts to a slow read`).toBe(0);
+
+    let intercepted = 0;
+    await whPage.route(url => s.table.test(url.toString()), async route => {
+      intercepted++;
+      await new Promise(r => setTimeout(r, SLOW_DELAY_MS));
+      await route.continue();
+    });
+
+    // No waitForLoadState here on purpose: the whole point is to look BEFORE the read lands.
+    await whPage.reload({ waitUntil: 'domcontentloaded' }).catch(() => {});
+    await whPage.waitForTimeout(SLOW_PEEK_MS);
+
+    // Instrument before product, always: 0 interceptions means the page was never made slow.
+    expect(intercepted,
+      `${s.name}: the route never matched ${s.table}, so the read was never delayed — this is an ` +
+      `instrument failure, not a passing surface`).toBeGreaterThan(0);
+
+    const midText = (await whPage.locator('body').innerText()).replace(/\s+/g, ' ');
+    const claimedEmpty = midText.match(EMPTY_WORDS);
+    expect(claimedEmpty,
+      `${s.name}: ${SLOW_PEEK_MS}ms into a read still in flight, the surface printed ` +
+      `"${claimedEmpty?.[0]}" — it is claiming an absence it cannot yet know. Ship the empty state ` +
+      `hidden and let only a completed read reveal it.`).toBeNull();
+
+    const busy = await busySignals(whPage);
+    expect(busy.count,
+      `${s.name}: ${SLOW_PEEK_MS}ms into a read still in flight, nothing on screen said so — no ` +
+      `skeleton, no spinner, no aria-busy region with a box, and no waiting sentence. The person ` +
+      `cannot tell "still loading" from "finished, and this is all there is". Mid-flight text began: ` +
+      `"${midText.slice(0, 160)}"`).toBeGreaterThan(0);
+
+    // ...and the lateness must not have cost the data.
+    await whPage.waitForLoadState('networkidle').catch(() => {});
+    expect(await whPage.locator(s.rowSelector).count(),
+      `${s.name}: the delayed read completed and the rows never arrived, so "not empty yet" was ` +
+      `bought by rendering nothing at all`).toBeGreaterThan(0);
+  });
 }
 
 /**

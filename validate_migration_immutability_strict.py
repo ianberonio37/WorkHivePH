@@ -39,6 +39,9 @@ ALLOWED_MULTI_COMMIT = {
     # canonical_anchor + idempotency validators. Allow re-edit until
     # baseline locks at 0 across the gate suite.
     "20260526000001_p1_roadmap_substrate.sql",
+    # 2026-09-04 — guarded the grafana_reader GRANT for prod (commit 1548378e); see
+    # validate_migration_immutability.py ALLOWED_MULTI_COMMIT for the record.
+    "20260831000001_anon_cannot_read_post_author_uid.sql",
 }
 
 

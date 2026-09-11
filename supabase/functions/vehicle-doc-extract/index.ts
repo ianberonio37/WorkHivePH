@@ -30,7 +30,7 @@
 
 import { serveObserved, failTracked } from "../_shared/observability.ts";
 import { handleHealth } from "../_shared/health.ts";
-import { logRequestStart } from "../_shared/logger.ts";
+import { logRequestStart, log } from "../_shared/logger.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { callAI } from "../_shared/ai-chain.ts";
 import { checkSoloRateLimit, soloRateLimitKey } from "../_shared/rate-limit.ts";
@@ -448,6 +448,11 @@ serveObserved("vehicle-doc-extract", async (req) => {
     const auth_uid = body.auth_uid ? String(body.auth_uid).slice(0, 80) : null;
     const minerOnly = body.miner_only === true;
     const ctx = beginRequest(req, { route: "vehicle-doc-extract", user_id: auth_uid || undefined });
+    // This function IMPORTED the logger and never called it, so it emitted no structured log at all - the 17th
+    // non-adopting edge function, and the one that pushed the Error Tracking & Logs gateway layer past its
+    // bypass ratchet. An import is not adoption; the line that emits is. log.* carries the ctx, so the entry
+    // joins this request's trace_id rather than standing alone.
+    log.info(ctx, "request_start", { method: req.method });
 
     if (!kind || kind !== "text") return fail(ctx, "BAD_KIND", "kind must be 'text' (upload the schedule/parts pages; the client extracts the text)", { status: 400 });
     if (!payload) return fail(ctx, "NO_PAYLOAD", "payload missing", { status: 400 });

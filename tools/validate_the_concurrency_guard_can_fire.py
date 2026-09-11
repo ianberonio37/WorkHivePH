@@ -55,6 +55,13 @@ GUARDED = {
     "platform_feedback":   "founder-console.html + platform-actions.html",
     "integration_configs": "integrations.html config edit",
     "pm_assets":           "pm-scheduler.html asset edit",
+    # Added 2026-09-08 (W3-LC). Both edits were unguarded until this wave, and both are free-text
+    # rewrites rather than idempotent state changes, which is what made losing one silent and costly:
+    # the listing save rewrites NINE fields including the PRICE, and the hive rename replaces a name
+    # every member sees. `hives` had no `updated_at` column at all; `marketplace_listings` had the
+    # column but no trigger, so its stamp moved only because the page remembered to send it.
+    "marketplace_listings": "marketplace-seller.html listing edit (title/price/description/…)",
+    "hives":                "hive.html rename",
 }
 
 TOUCH_SQL = """

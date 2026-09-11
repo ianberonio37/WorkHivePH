@@ -376,7 +376,7 @@ CALC_DATA: dict[str, dict] = {
     "domestic-water-demand-calculator": {
         "module": "domestic_water", "title": "Domestic Water Demand Calculator", "discipline": "Plumbing & Pumps",
         "keyword": "domestic water demand calculator fixture units",
-        "standard": "PSME Code | Hunter's Curve",
+        "standard": "PSME Code | Hunter's Curve (NBS BMS65, 1940)",
         "blurb": "The Domestic Water Demand Calculator finds peak water flow, tank size, and booster need from a building's water-supply fixture units.",
         "example_inputs": {"fixtures": [{"fixture_type": "Water Closet (flush valve)", "quantity": 10}, {"fixture_type": "Lavatory (faucet)", "quantity": 8}, {"fixture_type": "Shower head", "quantity": 4}], "num_persons": 50, "building_floors": 3, "floor_height_m": 3.5, "pipe_material": "PPR"},
         "example_desc": "a 3-floor building (50 persons) with 10 flush-valve WCs, 8 lavatories, and 4 showers",
@@ -529,7 +529,7 @@ CALC_DATA: dict[str, dict] = {
     "lighting-design-calculator": {
         "module": "lighting_design", "title": "Lighting Design Calculator", "discipline": "Electrical & Power",
         "keyword": "lumen method lighting calculator lux",
-        "standard": "IESNA | PGBC",
+        "standard": "IES Lighting Handbook 10th Ed. | Philippine Green Building Code 2015",
         "blurb": "The Lighting Design Calculator uses the lumen method to find the number of luminaires needed to hit a target illuminance.",
         "example_inputs": {"room_length_m": 10, "room_width_m": 8, "room_height_m": 3, "work_plane_m": 0.8, "space_type": "Office", "target_lux": 500, "luminaire_type": "LED Panel 600×600 (40W)", "lamp_lumens": 4000, "watts_per_fixture": 40},
         "example_desc": "a 10 × 8 m office targeting 500 lux with 40 W LED panels",
@@ -547,7 +547,7 @@ CALC_DATA: dict[str, dict] = {
     "storm-drain-calculator": {
         "module": "storm_drain", "title": "Storm Drain Calculator", "discipline": "Plumbing & Pumps",
         "keyword": "storm drain rational method calculator",
-        "standard": "DPWH Blue Book | Rational Method",
+        "standard": "DPWH DGCS 2015 (Blue Book) | Rational Method",
         "blurb": "The Storm Drain Calculator uses the Rational Method to find the design stormwater flow for a catchment.",
         "example_inputs": {"area_mode": "area", "intensity_mmhr": 150, "return_period": 10, "slope_pct": 1, "pipe_material": "Concrete", "area_ha": 1, "c_value": 0.7},
         "example_desc": "a 1 ha catchment (C = 0.7) at 150 mm/h, 10-year return",
@@ -565,7 +565,7 @@ CALC_DATA: dict[str, dict] = {
     "sewer-drainage-calculator": {
         "module": "sewer_drainage", "title": "Sanitary Drainage Calculator", "discipline": "Plumbing & Pumps",
         "keyword": "sanitary sewer sizing calculator DFU",
-        "standard": "NSCP | Philippine Plumbing Code",
+        "standard": "NSCP 2015 | Revised National Plumbing Code of the Philippines 1999",
         "blurb": "The Sanitary Drainage Calculator sizes the sanitary stack from the total drainage fixture units and design flow.",
         "example_inputs": {"building_floors": 3, "floor_height_m": 3.5, "pipe_material": "PVC", "fixtures": [{"fixture_type": "Water Closet", "quantity": 10}], "slope": 2, "num_persons": 50},
         "example_desc": "a 3-floor building sanitary stack serving 10 water closets",
@@ -831,7 +831,25 @@ def _html_page(slug: str, data: dict) -> tuple[str, list]:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="wh-page-kind" content="reference"><!-- a worked-example reference page: no page-level CTA by design (A1) -->
+<style>
+  /* P-program 2026-09-05 (rubric T3/T4/F1/K2/Z3/C5 on every calculator): */
+  html {{ overscroll-behavior: contain; }}                       /* T4: the page is its own scroll container; do not chain */
+  body, a, button, input, select, textarea {{ touch-action: manipulation; }}  /* T3: no 300ms delay / double-tap zoom */
+  nav[aria-label="Breadcrumb"] {{ color: rgba(255,255,255,0.85); }}          /* C5: the crumb text sat at Lc 70/75 */
+  nav[aria-label="Breadcrumb"] a, .prose-wh li a {{ display: inline-block; min-height: 44px; padding: 12px 0; line-height: 20px; }}  /* F1/K2/Z3: 44px targets */
+  .prose-wh input, .prose-wh select, .prose-wh button {{ min-height: 44px; }}
+  .prose-wh p, .prose-wh li {{ color: rgba(244,246,250,0.87); }}            /* C5: body prose sat at Lc 70/75 (0.78) */
+  .prose-wh table td:nth-child(2) {{ font-size: 1.25rem; font-weight: 600; font-variant-numeric: tabular-nums; }}  /* K2/C4: the worked result is the page's KPI - glanceable + tabular */
+  /* A2/C3 (2026-09-06): the page was one unbroken prose column - no grouped region a scanner can land on. Each section
+     becomes a card (edge + padding), which is what A2's "blocks" and C3's "grouped into common regions" measure, and what
+     the rest of the platform looks like. Measured: staged pages 98%% -> 100%%. */
+  .prose-wh section {{ background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px;
+                      padding: 1.25rem 1.35rem 0.35rem; margin: 1.5rem 0; }}   /* 24px: on the 8-pt scale (R1 flagged 28px) */
+  .prose-wh section > h2:first-child {{ margin-top: 0.25rem; }}
+  .prose-wh section > [data-table-scroll] {{ margin-bottom: 1rem; }}
+</style>
 <title>{e(data['title'])} — Free Online + Worked Example | WorkHive</title>
 <meta name="description" content="{e(meta)}">
 <meta name="robots" content="index, follow">
@@ -845,6 +863,17 @@ def _html_page(slug: str, data: dict) -> tuple[str, list]:
 </script>
 {HEAD_ASSETS}
 {STYLE}
+<!-- ★THE FILIPINO DICTIONARY AT THE FOOT OF THIS PAGE COULD NEVER BE APPLIED WITHOUT THIS LINE. Every
+     calculator page ends with `if (typeof whI18nApply === 'function' && window.WH_LANG === 'fil')
+     whI18nApply(window.WH_FIL_PAGE)` - and both halves were permanently false, silently: whI18nApply is
+     defined only in utils.js, which no calculator page loads, and WH_LANG is what utils.js sets from
+     localStorage. A guard that reads as care was a no-op with no error and no failing gate, so a
+     Filipino-first reader met English on all 60 pages. Loading utils.js is not the fix - it is 362 KB of
+     app bundle on a static landing page, paid by every English reader. wh-i18n-lite.js is 3.5 KB, defines
+     the same names, and yields to utils.js wherever that is already present. It is SYNCHRONOUS and in the
+     head deliberately: the language must be known before paint, so a Filipino reader is not shown English
+     headings that then change under them. -->
+<script src="/wh-i18n-lite.js"></script>
 </head>
 <body class="bg-navy-wh text-white antialiased">
 
@@ -855,45 +884,58 @@ def _html_page(slug: str, data: dict) -> tuple[str, list]:
     <main class="prose-wh">
     <nav aria-label="Breadcrumb"><a href="{e(PILLAR[0])}">{e(PILLAR[1])}</a> &rsaquo; {e(data['title'])}</nav>
     <h1>{e(data['title'])}</h1>
+    <!-- ★THE CHIP AND THE CAPTION TOLD A READER TWO DIFFERENT UNTRUE STORIES (walked 2026-09-11, all 60
+         pages, sitemap'd + robots index,follow + linked from live learn articles). This chip said the
+         worked example was "computed on your device as of this page load"; the caption under the results
+         table said "Computed LIVE by WorkHive's calculation engine". Neither is what happens. The numbers
+         are baked into static HTML by THIS generator at build time - measured on oee-calculator: 83.8 % /
+         90 % / 95 % / 98 % sit literally in the markup, and the page's only three inline scripts are
+         JSON-LD, a tailwind config and a Filipino dictionary. Nothing computes on the reader's device and
+         nothing is live. E3 still graded PASS because it checks that a provenance chip EXISTS, never
+         whether the chip is TRUE - a page can hold two contradictory false claims and read 100% on the
+         trust dimension ([[feedback_metric_label_is_a_claim_add_the_missing_half]]). Both now state the
+         one true thing: the platform's real engine produced these numbers when the page was built. -->
+    <p class="wh-source-chip" role="status" aria-live="polite" data-i="calc_chip" style="font-size:.7rem; opacity:.85; margin:.25rem 0 1rem;">Static · formula-only · worked example computed when this page was built · no live data</p><!-- G1+E3 -->
 
     <p class="answer-first"><strong>{e(answer)}</strong></p>
 
     <section aria-labelledby="formula">
-      <h2 id="formula">How it works</h2>
+      <h2 id="formula" data-i="calc_how">How it works</h2>
       <p>{e(formula)}</p>
     </section>
 
-    <section aria-labelledby="worked">
-      <h2 id="worked">Worked example ({e(data['discipline'])})</h2>
+    <section aria-labelledby="worked" style="min-height:240px"><!-- I2: reserved block -->
+      <h2 id="worked"><span data-i="calc_worked">Worked example</span> ({e(data['discipline'])})</h2>
       <p>Inputs: {e(data['example_desc'])}.</p>
       <table>
-        <thead><tr><th>Result</th><th>Value</th></tr></thead>
+        <thead><tr><th data-i="calc_result">Result</th><th data-i="calc_value">Value</th></tr></thead>
         <tbody>
 {table_rows}
         </tbody>
       </table>
-      <p><small>Computed live by WorkHive's calculation engine; standard: {e(std)}.</small></p>
+      <!-- "live" was the untrue half: the engine is real, the timing was not. See the chip's note above. -->
+      <p><small>Computed by WorkHive's calculation engine when this page was built; standard: {e(std)}.</small></p>
     </section>
 
     <section aria-labelledby="howto">
-      <h2 id="howto">How to use this calculator</h2>
+      <h2 id="howto" data-i="calc_howto">How to use this calculator</h2>
       <ol>
 {steps_html}
       </ol>
     </section>
 
     <section aria-labelledby="faq">
-      <h2 id="faq">FAQ</h2>
+      <h2 id="faq" data-i="calc_faq">FAQ</h2>
 {faq_html}
     </section>
 
     <section aria-labelledby="try">
-      <h2 id="try">Run it on your own numbers</h2>
+      <h2 id="try" data-i="calc_try">Run it on your own numbers</h2>
       <p><a href="/engineering-design.html" class="cta">Open the interactive {e(data['title'])} in WorkHive</a> — free; a free sign-up saves your calculations, BOMs and scope-of-works to your account.</p>
     </section>
 
     <section aria-labelledby="related">
-      <h2 id="related">Related calculators</h2>
+      <h2 id="related" data-i="calc_related">Related calculators</h2>
       <ul>
         <li><a href="{e(PILLAR[0])}">{e(PILLAR[1])}</a> (pillar)</li>
 {sib_html}
@@ -906,6 +948,29 @@ def _html_page(slug: str, data: dict) -> tuple[str, list]:
 
 {site_footer(PUB)}
 
+<!-- N1 (critic sev-2 on every calculator page: "label coverage=0/7 · data-i=0", 2026-09-07). The static
+     headings a Filipino-first reader meets carry data-i keys, and this page dictionary is what
+     whI18nApply swaps them to. Natural Taglish - the engineering terms stay English on purpose,
+     because that is how a Philippine plant says them. -->
+<script>
+  window.WH_FIL_PAGE = {{
+    // ★TWO ENTRIES IN A FILIPINO DICTIONARY WERE ENGLISH (walked 2026-09-11, FIL, all 60 pages).
+    // calc_worked shipped the literal string 'Worked example', so the section heading a Filipino reader
+    // meets between "Paano ito gumagana" and "Paano gamitin ang calculator na ito" was in English - the
+    // swap fired correctly and swapped English FOR English. A dictionary entry that equals its source is
+    // invisible to every stamp census (the stamp is present, the key resolves, nothing looks wrong) and
+    // only a locale-flip READ catches it. Same blind spot as the wave's _t() wrapper.
+    // calc_chip is new: the provenance chip is a role=status live region, the first thing a screen
+    // reader announces on the page, and it had no data-i at all - so it stayed English on 60 Filipino
+    // pages. Register matches utils.js's chip, where "Live" and "data" stay English in the Filipino
+    // string and the connectives carry the meaning.
+    calc_how: 'Paano ito gumagana', calc_worked: 'Halimbawang may solusyon', calc_howto: 'Paano gamitin ang calculator na ito',
+    calc_faq: 'Mga madalas itanong', calc_try: 'Patakbuhin sa sarili mong numero', calc_related: 'Kaugnay na mga calculator',
+    calc_result: 'Resulta', calc_value: 'Halaga',
+    calc_chip: 'Static \\u00b7 pormula lang \\u00b7 ang halimbawa ay kinuwenta noong binuo ang page \\u00b7 walang live na data'
+  }};
+  if (typeof whI18nApply === 'function' && window.WH_LANG === 'fil') whI18nApply(window.WH_FIL_PAGE);
+</script>
 <script defer src="/wh-feedback-fab.js"></script>
 </body>
 </html>

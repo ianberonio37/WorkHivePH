@@ -1,0 +1,31 @@
+{
+ "counts": {
+  "achievements.html": 1,
+  "alert-hub.html": 16,
+  "analytics.html": 2,
+  "asset-hub.html": 78,
+  "assistant.html": 5,
+  "audit-log.html": 1,
+  "community.html": 37,
+  "dayplanner.html": 14,
+  "hive.html": 29,
+  "index.html": 22,
+  "integrations.html": 30,
+  "inventory.html": 23,
+  "logbook.html": 60,
+  "marketplace-admin.html": 1,
+  "marketplace-seller-profile.html": 3,
+  "marketplace-seller.html": 54,
+  "marketplace.html": 65,
+  "pm-scheduler.html": 28,
+  "project-manager.html": 52,
+  "public-feed.html": 1,
+  "report-sender.html": 10,
+  "resume.html": 3,
+  "shift-brain.html": 24,
+  "skillmatrix.html": 15,
+  "voice-journal.html": 13
+ },
+ "overwrites": 67,
+ "total": 587
+}

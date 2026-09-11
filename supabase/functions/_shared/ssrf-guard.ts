@@ -138,7 +138,7 @@ export async function safeFetch(rawUrl: string, init: RequestInit = {}, opts: Ss
   let current = await assertPublicUrl(rawUrl, opts);
   const headers = new Headers(init.headers || {});
   for (let i = 0; i <= maxRedirects; i++) {
-    const resp = await fetch(current.toString(), { ...init, headers, redirect: "manual" });
+    const resp = await fetch(current.toString(), { signal: AbortSignal.timeout(10000), ...init, headers, redirect: "manual" });
     const loc = resp.headers.get("location");
     if (resp.status >= 300 && resp.status < 400 && loc) {
       const next = await assertPublicUrl(new URL(loc, current).toString(), opts);

@@ -1,0 +1,16 @@
+{
+  "_doc": "offline-fallback.html: English visible text -> Filipino, authored. Empty = not yet translated. tools/i18n_page_dict.py --apply tags the element and emits WH_FIL_PAGE.",
+  "You're offline": "Offline ka",
+  "This page isn't available offline yet": "Hindi pa available offline ang page na ito",
+  "← Back to WorkHive": "← Balik sa WorkHive",
+  "Your connection dropped. Anything you've already saved is safe. Writes you make on cached pages queue up and sync on their own once you're back online.": "Nawala ang connection mo. Ligtas ang lahat ng na-save mo na. Ang mga isusulat mo sa cached pages ay pipila at magsi-sync nang kusa kapag online ka na ulit.",
+  "What you can do now": "Ano ang puwede mong gawin ngayon",
+  "Why this page appears": "Bakit lumalabas ang page na ito",
+  "Pages you have opened before are stored on this device and keep working offline. This one has not been opened on this device yet, so there is no copy to show.": "Ang mga page na nabuksan mo na ay naka-store sa device na ito at gumagana kahit offline. Hindi pa nabubuksan ang isang ito sa device na ito, kaya walang kopyang maipapakita.",
+  "Open Logbook (works offline)": "Buksan ang Logbook (gumagana offline)",
+  "Open Inventory": "Buksan ang Inventory",
+  "Open PM Scheduler": "Buksan ang PM Scheduler",
+  "Open Asset Hub": "Buksan ang Asset Hub",
+  "Try again": "Subukan ulit",
+  "Connection checked as of page load · waiting for a connection…": "Na-check ang connection noong nag-load ang page · naghihintay ng connection…"
+}

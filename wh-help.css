@@ -1,0 +1,6 @@
+/* wh-help.css - the inline-help disclosure contract for pages that do not load components.css
+   (identical to the .wh-help rules in components.css and to the fallback utils.js injects; 2026-09-07, EX-PF F07).
+   Linked in <head> so the block is styled from first paint - a stylesheet injected after paint was a layout shift. */
+.wh-help { margin: 0 0 14px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 10px 14px; }
+.wh-help > summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; font-size: 0.74rem; font-weight: 700; color: rgba(255,255,255,0.85); }
+.wh-help > p { margin: 0.25rem 0 0.2rem; color: rgba(255,255,255,0.86); line-height: 1.5; }

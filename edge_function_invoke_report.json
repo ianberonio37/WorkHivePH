@@ -1,7 +1,7 @@
 {
   "summary": {
-    "files_scanned": 71,
-    "total_calls": 42,
+    "files_scanned": 73,
+    "total_calls": 43,
     "total_drift": 0,
     "baseline": 0,
     "edge_fns_known": 62
@@ -256,6 +256,10 @@
       "broken": []
     },
     {
+      "page": "wh-consent.js",
+      "broken": []
+    },
+    {
       "page": "wh-feedback-fab.js",
       "broken": []
     },
@@ -265,6 +269,10 @@
     },
     {
       "page": "wh-help.js",
+      "broken": []
+    },
+    {
+      "page": "wh-i18n-lite.js",
       "broken": []
     },
     {

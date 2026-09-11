@@ -2,13 +2,13 @@
 name: page-llm-observability
 type: page
 source: file:llm-observability.html
-source_sha: e4e0e152f09a1f19
+source_sha: 40ad4e133b4caa0d
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## page · `llm-observability.html` — WorkHive: LLM Observability
 
-Size: 18KB · 5 top-level fns. (Retrieve THIS instead of reading the file.)
+Size: 22KB · 5 top-level fns. (Retrieve THIS instead of reading the file.)
 
 **DB writes** (0): (none detected)
 **RPC calls**: (none)

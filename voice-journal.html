@@ -19,6 +19,7 @@
   <link rel="preconnect" href="https://hzyvnjtisfgbksicrouu.supabase.co" />
   <link rel="stylesheet" href="wh-tw.css"><!-- was the Tailwind Play CDN; self-hosted subset, no console warning (tools/tw_extract_build.mjs) -->
   <link rel="stylesheet" href="tokens.css">
+  <link rel="stylesheet" href="wh-help.css"><!-- the inline-help contract, styled before first paint (EX-PF F07, 2026-09-07) -->
   <style>
     * { font-family: 'Poppins', sans-serif; }
     body {
@@ -320,19 +321,19 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   <div class="max-w-2xl mx-auto px-4 pt-5 pb-24" style="padding-bottom: max(6rem, calc(6rem + env(safe-area-inset-bottom)));">
 
     <!-- Header -->
-    <header class="flex items-center justify-between mb-5">
+    <header class="flex items-center justify-between mb-5 flex-wrap gap-y-2">   <!-- phone fit (2026-09-06): four items in one row crushed the two toggles to 35px -->
       <button onclick="history.back()" class="flex items-center gap-2 text-white/80 hover:text-white/70 text-sm font-medium" style="min-height:44px;">
         <span class="ic ic-back" aria-hidden="true"></span>
         <span>Back</span>
       </button>
-      <div class="text-center">
+      <div class="text-center min-w-0">
         <div class="text-[10px] uppercase tracking-widest text-white/80 font-semibold">WorkHive</div>
         <h1 class="text-base font-bold" style="margin:0;" data-i="vj_title">Voice Journal</h1>
       </div>
-      <button id="tts-toggle" class="btn-ghost" aria-pressed="true" title="Toggle voice replies">
+      <button id="tts-toggle" class="btn-ghost" aria-pressed="true" title="Toggle voice replies" style="white-space:nowrap;flex-shrink:0;">
         <span id="tts-toggle-label">Voice On</span>
       </button>
-      <button id="sov-voice-toggle" class="btn-ghost" aria-pressed="false" title="On-device sovereign voice (Piper): the branded voice synthesizes locally and the audio never leaves the plant">
+      <button id="sov-voice-toggle" class="btn-ghost" aria-pressed="false" title="On-device sovereign voice (Piper): the branded voice synthesizes locally and the audio never leaves the plant" style="white-space:nowrap;flex-shrink:0;">
         <span id="sov-voice-label">Cloud voice</span>
       </button>
     </header>
@@ -475,7 +476,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           <span class="text-[10px] uppercase tracking-widest text-white/80 font-semibold">You said</span>
           <span id="current-lang" class="lang-pill" style="display:none;"></span>
         </div>
-        <div id="current-transcript" class="transcript-box empty">Waiting for voice...</div>
+        <div data-user-content id="current-transcript" class="transcript-box empty">Waiting for voice...</div>
 
         <div class="flex items-center justify-between gap-2 mt-3">
           <span class="text-[10px] uppercase tracking-widest text-white/80 font-semibold">Journal reply</span>
@@ -497,13 +498,13 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
       <div id="filter-chips" class="flex flex-wrap gap-1.5 mb-4"></div>
 
-      <div id="history-list" style="min-height:420px;">
+      <div data-user-content id="history-list" style="min-height:420px;">
         <div class="skeleton-row mb-2"></div>
         <div class="skeleton-row mb-2"></div>
         <div class="skeleton-row"></div>
       </div>
-      <div id="history-empty"      class="empty-state text-center text-xs text-white/80 py-6" style="display:none;">No entries yet. Tap the mic above and say something.</div>
-      <div id="history-no-results" class="empty-state text-center text-xs text-white/80 py-6" style="display:none;">No entries match those filters.</div>
+      <div data-user-content id="history-empty"      class="empty-state text-center text-xs text-white/80 py-6" style="display:none;">No entries yet. Tap the mic above and say something.</div>
+      <div data-user-content id="history-no-results" class="empty-state text-center text-xs text-white/80 py-6" style="display:none;">No entries match those filters.</div>
       <div id="voice-load-more-wrap" class="hidden mt-1 pb-4">
         <button onclick="loadMoreVoice()" class="w-full py-3 rounded-lg text-sm font-semibold" style="background:rgba(247,162,27,0.1);color:var(--wh-orange-text);border:1px solid rgba(247,162,27,0.3);" data-i="loadmore">Load More</button>
       </div>
@@ -514,7 +515,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   <div id="toast" class="toast" role="alert" aria-live="polite"></div>
 
   <script src="utils.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
+  <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
   <script src="nav-hub.js"></script>
   <script src="companion-launcher.js" defer></script>
 
@@ -1350,6 +1351,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       }
       $('current-reply').textContent = reply;
       $('current-reply').style.display = 'block';
+      // EX-AT (2026-09-07): the shared "was this right?" row - one press records a wrong reply
+      // against the note it answered, and the chip says what the reply rested on.
+      if (typeof whAiTrustRow === 'function') {
+        whAiTrustRow($('current-reply').parentElement || $('current-reply'), { db, agent: 'voice-journal', source: 'voice', page: 'voice-journal',
+          question: text, answer: reply, groundedOn: _t('your note and the persona you chose', 'ang note mo at ang persona na pinili mo') });
+      }
       $('current-replay').style.display = 'inline-flex';
       $('current-replay').onclick = () => speak(reply, lang || 'en');
 
@@ -1411,6 +1418,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           showToast('Note saved. The companion could not reply right now (it may be out of AI quota).');
           $('type-input').value = ''; if (_typeDraft) _typeDraft.clear();
           loadHistory().catch(e2 => console.warn('history refresh failed:', e2));
+        } else if (/\b429\b|rate.?limit|too many|quota|call limit|limit reached/i.test(String(err && err.message || ''))) {
+          // a spent AI quota is not a failed save: say the limit, and that the note must be sent again later
+          const _lim = whAiError(err, _t('The AI is at its limit right now.', 'Nasa limitasyon ang AI ngayon.'));
+          $('type-state').textContent = _lim + ' ' + _t('Your note was not saved this time - send it again when the limit clears.', 'Hindi na-save ang note mo ngayon - ipadala muli kapag nawala na ang limit.');
+          showToast(_lim);
         } else {
           $('type-state').textContent = whWriteError(err, 'Your note was not saved. Try sending it again.');
           showToast(whAiError(err, 'Could not save your note.'));
@@ -1470,7 +1482,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           hive_id: HIVE_ID || null,
         },
       });
-      if (error) throw new Error(error.message || 'Gateway failed');
+      // EX-AT T4 (2026-09-07): supabase-js collapses a 429 into "Edge Function returned a non-2xx status
+      // code"; whFnError reads error.context so the gateway's OWN sentence ("AI call limit reached for this
+      // hive. Try again in about 12 minutes.") reaches the person instead of "Could not save your note."
+      if (error) throw new Error((typeof window.whFnError === 'function') ? await window.whFnError(error, error.message || 'Gateway failed') : (error.message || 'Gateway failed'));
       if (!data)  throw new Error('Empty gateway response');
       if (data.error) throw new Error(data.error);
       // ai-gateway nests the reply under .data (envelope: { ok, data:{answer} }).

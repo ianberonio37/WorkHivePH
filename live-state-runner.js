@@ -1507,7 +1507,17 @@ export function comprehension() {
       // and scored as saying nothing because the list happened to know `removed`, `undone` and
       // `changed` but not the word this product actually uses for that state (`cancelled_by_client`).
       // Widening the vocabulary of a shape the oracle already claims is not loosening it.
-      saysWhatNext: /(what to do next|next step|we.ll|you.ll (get|receive|hear)|within \d|once (you|the)|after you|goes live|publishes|will be (sent|shown|live|notified)|can still be (removed|undone|changed|cancelled|canceled)|cannot be undone|sees (that|your)|changes what|appears on|notifie[sd]|takes effect)/i.test(body),
+      // SECOND WIDENING, 2026-09-07, and community.html is the page that earned it. Its help panel
+      // says: "Your post appears in this hive's feed straight away and everyone in the hive can see
+      // it. Anyone you @mention gets a notification. You can edit or delete it afterwards, and doing
+      // so updates what everyone sees." That is all four shapes at once — a present-tense verb about
+      // what the action does, a visibility statement, a notification promise, and a reversibility
+      // statement — and it scored as saying NOTHING, because the list knew `appears on` but not
+      // `appears in`, `sees that` but not `can see it`, `notified` but not `gets a notification`,
+      // and `can still be removed` but not `can edit or delete`. Missing by a preposition on four
+      // counts is the oracle measuring its author's phrasing, which is exactly the failure the
+      // paragraph above was written about.
+      saysWhatNext: /(what to do next|next step|we.ll|you.ll (get|receive|hear)|within \d|once (you|the)|after you|goes live|publishes|will be (sent|shown|live|notified)|can still be (removed|undone|changed|cancelled|canceled)|can (edit|delete|remove) (it|them|this)|cannot be undone|sees (that|your)|can see (it|them|this)|changes what|appears (on|in)|notifie[sd]|gets? a notification|takes effect|updates what)/i.test(body),
       hasActionCard: !!m.querySelector('.action-card, #mk-action-text, .ac-text'),
       actionText: (m.querySelector('#mk-action-text, .ac-text') || {}).innerText || null,
     },

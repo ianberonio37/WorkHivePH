@@ -23,7 +23,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 CHECK_NAMES = ["report-reason-deliberate"]
 
-PLACEHOLDER_RE = re.compile(r'<option value="" selected disabled>Choose a reason')
+# attribute-order-agnostic (2026-09-07): the i18n page dictionary tags the option with data-i, which
+# lands before value="" — the placeholder is judged by its three attributes + its words, not their order.
+PLACEHOLDER_RE = re.compile(r'<option\b(?=[^>]*\bvalue=""[^>]*>)(?=[^>]*\bselected\b)(?=[^>]*\bdisabled\b)[^>]*>Choose a reason')
 VALIDATE_RE = re.compile(r"if \(!reason\) \{[\s\S]{0,300}?return;")
 RESET_RE = re.compile(r"function openReport\(postId\) \{[\s\S]{0,600}?report-reason'\)\.value = ''")
 TARGET_RE = re.compile(r"writeAuditLog\('report_post'[^;]{0,220}author_name")

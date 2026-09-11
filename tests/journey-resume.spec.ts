@@ -15,6 +15,18 @@ import { test, expect } from './_fixtures';
 import { adminClient } from './_db-cleanup';
 import type { Page } from '@playwright/test';
 
+// A CONTROLLING SERVICE WORKER MAKES page.route A NO-OP. nav-hub.js registers sw.js with
+// scope '/' and sw.js calls clients.claim(), so every workhive page in this context is
+// controlled -- and Playwright does not intercept requests a service worker issues. The route
+// below then matches NOTHING and the test passes on a page that was never made to fail.
+// Measured on marketplace.html: page.on('request') counted 62 supabase reads while page.route
+// counted 0, with navigator.serviceWorker.controller truthy. Blocking is faithful, not merely
+// convenient: sw.js passes API traffic straight through and its only cache write is
+// cache.addAll(SHELL_FILES) at install, so no response here is ever served from cache.
+// Same fix, same reason, as tests/marketplace-state-inducers.spec.ts.
+test.use({ serviceWorkers: 'block' });
+
+
 // 1x1 PNG — a real, decodable image so compressImage() (Image + canvas) succeeds.
 const PNG_1x1 = Buffer.from(
   'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',

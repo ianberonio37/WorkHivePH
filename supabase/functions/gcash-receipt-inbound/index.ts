@@ -116,7 +116,7 @@ serveObserved(FN_NAME, async (req: Request) => {
      function, logs and DB. I hand-rolled JSON here and skipped it. */
   const ctx = beginRequest(req, { route: FN_NAME });
 
-  if (req.method !== "POST") return fail(ctx, "method_not_allowed", "POST only", { status: 405 });
+  if (req.method !== "POST") return fail(ctx, "method_not_allowed", "That request method is not allowed. Reload the page and try again.", { status: 405 });
 
   const secret = Deno.env.get("GCASH_INBOUND_SECRET") || "";
   // FAIL CLOSED. An intake with no shared secret cannot authenticate its caller, and
@@ -141,11 +141,11 @@ serveObserved(FN_NAME, async (req: Request) => {
        WITHOUT reading raw logs. Deliberately records neither the signature nor the body: the first
        would hand an attacker an oracle, the second would put payment text in the log. */
     log.warn(ctx, "gcash_inbound_bad_signature", { body_bytes: raw.length, ts_skew_ms: Math.abs(Date.now() - tsNum) });
-    return fail(ctx, "bad_signature", "Invalid signature", { status: 401 });
+    return fail(ctx, "bad_signature", "That signature did not match. Check the webhook secret and try again.", { status: 401 });
   }
 
   let body: { text?: string; reference?: string; amount?: number; sender_name?: string; source?: string };
-  try { body = JSON.parse(raw); } catch { return fail(ctx, "bad_json", "Body is not JSON", { status: 400 }); }
+  try { body = JSON.parse(raw); } catch { return fail(ctx, "bad_json", "That request could not be read. Reload the page and try again.", { status: 400 }); }
 
   const parsed = body.text ? parseGcashText(body.text) : { reference: null, amount: null, sender: null };
   const reference = String(body.reference || parsed.reference || "").trim();
@@ -154,15 +154,39 @@ serveObserved(FN_NAME, async (req: Request) => {
 
   // A receipt we cannot read is NOT discarded silently — it is refused loudly, so the
   // founder learns the format drifted instead of wondering why credits stopped.
-  if (!/^\d{13}$/.test(reference) || !isFinite(amount) || amount <= 0) {
-    return fail(ctx, "unparsed",
-      "Could not read a 13-digit reference and an amount from this notification", {
-        status: 422,
-        detail: {
-          got: { reference: reference || null, amount: isFinite(amount) ? amount : null },
-          hint: "Send { reference, amount } explicitly if the notification wording has changed.",
-        },
-      });
+  /* W3-FN (2026-09-09): one sentence used to cover three different failures, and it named the wrong one
+     whenever the fields were PRESENT. A signed probe sending reference "WALKPROBE0001" with amount 250.5
+     was told "Could not find a reference number and an amount" while the detail block directly beneath it
+     read got: { reference: "WALKPROBE0001", amount: 250.5 } - the message contradicting its own evidence.
+     The real rule is that a GCash reference is exactly 13 DIGITS, which the sentence never said, so an
+     integrator whose reference is merely the wrong SHAPE goes hunting for a field that was never missing.
+     Same refusal, same status; it now names which of the three actually happened. */
+  const refMissing = !reference;
+  const refWrongShape = !refMissing && !/^\d{13}$/.test(reference);
+  const amountBad = !isFinite(amount) || amount <= 0;
+  if (refMissing || refWrongShape || amountBad) {
+    /* Say which of the two rules the reference broke, not just its length. The first draft of this
+       reported reference.length against "13 digits" and produced "Expected 13 digits, got 13." for
+       WALKPROBE0001 - thirteen CHARACTERS, none of them the problem. A length is not a character
+       class, and a diagnostic that conflates them is no better than the vague sentence it replaced. */
+    const nonDigits = reference.replace(/\d/g, "").length > 0;
+    const said = refWrongShape && !amountBad
+      ? (nonDigits
+          ? `That reference number is not a GCash reference: it must be digits only, and this one contains other characters.`
+          : `That reference number is not a GCash reference: it must be exactly 13 digits, and this one has ${reference.length}.`)
+      : refMissing && !amountBad
+        ? "Could not find a reference number. Send the reference field."
+        : !refMissing && !refWrongShape
+          ? "Could not find a usable amount. Send the amount field as a positive number."
+          : "Could not find a reference number and an amount. Send them directly.";
+    return fail(ctx, "unparsed", said, {
+      status: 422,
+      detail: {
+        got: { reference: reference || null, amount: isFinite(amount) ? amount : null },
+        expected: { reference: "13 digits", amount: "a positive number" },
+        hint: "Send the reference and amount fields. The wording may have changed.",
+      },
+    });
   }
 
   const db = createClient(

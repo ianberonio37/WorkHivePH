@@ -115,6 +115,49 @@ def load(path):
     return out
 
 
+# The sentences a spec uses to say "this failure is mine, not the product's". They are deliberately
+# specific: a generic /harness|timeout/ would swallow real product timeouts, which is the opposite
+# mistake and a much worse one — it would turn a page that hangs into a row nobody ever files.
+_HARNESS_MARKERS = (
+    "this is the HARNESS, not the surface under test",
+    "instrument failure, not a passing surface",
+    "not judged, not passed",
+    "spawnSync docker ETIMEDOUT",
+)
+
+
+def _is_harness_failure(err: str) -> bool:
+    return any(m.lower() in (err or "").lower() for m in _HARNESS_MARKERS)
+
+
+def _self_test():
+    """The markers must catch what the specs actually emit, and must NOT catch a product failure."""
+    cases = [
+        ("sign-in failed twice — this is the HARNESS, not the surface under test. first: page."
+         "waitForFunction: Timeout 8000ms exceeded.", True, "the real _fixtures.ts sentence"),
+        ("market: the route never matched /marketplace_listings/, so the page was never made to "
+         "fail — this is an instrument failure, not a passing surface", True,
+         "failure-injection's own vacuity guard"),
+        ("Error: spawnSync docker ETIMEDOUT", True, "the psql side-channel timing out"),
+        ("the named write control #fb-d-save is not on this surface — not judged, not passed", True,
+         "a probe that could not reach its control"),
+        ("pressing Save again with the value unchanged sent 1 write(s). The row would be identical, "
+         "but the audit trail then records an edit that never happened", False,
+         "a REAL product defect must still be filed"),
+        ("Timed out 8000ms waiting for expect(locator).toBeVisible()", False,
+         "a product timeout is not a harness excuse"),
+        ("", False, "no message is not a harness claim"),
+    ]
+    bad = 0
+    for err, expect, label in cases:
+        got = _is_harness_failure(err)
+        ok = got == expect
+        bad += (not ok)
+        print(f"  {'ok  ' if ok else 'FAIL'}  {label:52} expected={expect} got={got}")
+    print(f"\n  {'PASS' if not bad else 'FAIL'}  {bad} case(s) failed")
+    return 1 if bad else 0
+
+
 def run_family(key, reg, V, apply):
     cfg = FAMILIES[key]
     seen = load(cfg["json"])
@@ -132,7 +175,7 @@ def run_family(key, reg, V, apply):
     rows = reg["scenarios"] if isinstance(reg, dict) and "scenarios" in reg else reg
     gates, urls = V.gate_ids(), V.surface_urls(reg)
     today = date.today().isoformat()
-    banked = failed = 0
+    banked = failed = abstained = 0
     for row in rows:
         if row.get("category") != cfg["category"] or row.get("state") not in cfg["states"]:
             continue
@@ -142,6 +185,19 @@ def run_family(key, reg, V, apply):
             continue                                   # no test covers this row; leave it as it is
         status, err = seen[title]
         if status not in ("expected", "passed"):
+            # A HARNESS FAILURE IS NOT A PRODUCT VERDICT, and these specs say which is which in their
+            # own error text. _fixtures.ts raises "sign-in failed twice — this is the HARNESS, not the
+            # surface under test" precisely so a fixture that could not sign in is never mistaken for
+            # a surface that misbehaved; filing it owed converts the harness's honesty into a defect
+            # against the page. Measured 2026-09-07: three failures across ux-journeys and
+            # effect-and-agreement carried that exact sentence while the host was running twenty
+            # browser processes, and the one REAL failure in the same run (a no-change save that
+            # still wrote) was fixed and went green. Abstaining leaves the row exactly as it was —
+            # not green, not owed — which is what "we could not measure it" should look like. Same
+            # correction as walk_owed_scenarios' "not judged, not passed" branches.
+            if _is_harness_failure(err):
+                abstained += 1
+                continue
             row["status"] = "owed"
             row["findings"] = [f"{cfg['spec']} FAILED {today} — {title}: {err[:400]}"]
             failed += 1
@@ -172,8 +228,9 @@ def run_family(key, reg, V, apply):
             failed += 1
         else:
             banked += 1
-    print(f"  {key:4} {cfg['category']:14} {GREEN}{banked} green{RST} · {RED}{failed} owed{RST} "
-          f"{DIM}(from {len(seen)} tests){RST}")
+    print(f"  {key:4} {cfg['category']:14} {GREEN}{banked} green{RST} · {RED}{failed} owed{RST}"
+          + (f" · {YEL}{abstained} unmeasured (harness){RST}" if abstained else "")
+          + f" {DIM}(from {len(seen)} tests){RST}")
     return banked, failed
 
 
@@ -181,7 +238,12 @@ def main(argv):
     ap = argparse.ArgumentParser()
     ap.add_argument("--family", default="all", choices=list(FAMILIES) + ["all"])
     ap.add_argument("--apply", action="store_true")
+    ap.add_argument("--self-test", action="store_true",
+                    help="prove the harness-vs-product discrimination, which decides whether a "
+                         "failure is filed against a page or left unmeasured")
     a = ap.parse_args(argv)
+    if a.self_test:
+        return _self_test()
     V = _gate()
     reg = json.load(open(REGISTRY, encoding="utf-8"))
     print(f"{BOLD}Banking from Playwright spec results{RST}")

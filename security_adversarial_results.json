@@ -1,10 +1,10 @@
 {
-  "scored_at": "2026-09-04T00:40:43+00:00",
+  "scored_at": "2026-09-04T17:21:17+00:00",
   "lenses": {
     "X": {
       "title": "Injection & XSS",
-      "pct": 75.0,
-      "passed": 3,
+      "pct": 100.0,
+      "passed": 4,
       "total": 4,
       "floor": 100,
       "cells": [
@@ -12,7 +12,7 @@
           "key": "xss_eschtml",
           "validator": "validate_xss",
           "owasp": "A03",
-          "status": "TIMEOUT",
+          "status": "PASS",
           "note": "escHtml coverage on render paths",
           "covered": true
         },
@@ -44,8 +44,8 @@
     },
     "Z": {
       "title": "AuthZ / Access",
-      "pct": 70.6,
-      "passed": 12,
+      "pct": 88.2,
+      "passed": 15,
       "total": 17,
       "floor": 100,
       "cells": [
@@ -69,7 +69,7 @@
           "key": "definer_tenant_gate",
           "validator": "validate_definer_tenant_gate",
           "owasp": "A01",
-          "status": "FINDINGS",
+          "status": "PASS",
           "note": "DEFINER RPCs self-scope (IDOR)",
           "covered": true
         },
@@ -101,7 +101,7 @@
           "key": "rls_no_permissive",
           "validator": "validate_rls_no_permissive_bypass",
           "owasp": "A04",
-          "status": "FINDINGS",
+          "status": "PASS",
           "note": "no permissive USING(true) bypass",
           "covered": true
         },
@@ -117,7 +117,7 @@
           "key": "anon_key_retirement",
           "validator": "validate_anon_key_retirement",
           "owasp": "A01",
-          "status": "FINDINGS",
+          "status": "PASS",
           "note": "anon reads 0 from hive tables",
           "covered": true
         },
@@ -125,7 +125,7 @@
           "key": "realtime_isolation",
           "validator": "validate_realtime_subscription_isolation",
           "owasp": "A01",
-          "status": "FINDINGS",
+          "status": "PASS",
           "note": "published-table RLS (4th path)",
           "covered": true
         },
@@ -181,7 +181,7 @@
           "key": "login_lockout",
           "validator": "validate_login_proxy_lockout",
           "owasp": "A07",
-          "status": "PASS",
+          "status": "FINDINGS",
           "note": "brute-force login lockout (auth failures)",
           "covered": true
         }
@@ -270,8 +270,8 @@
     },
     "P": {
       "title": "Prompt & AI security",
-      "pct": 66.7,
-      "passed": 2,
+      "pct": 100.0,
+      "passed": 3,
       "total": 3,
       "floor": 90,
       "cells": [
@@ -287,7 +287,7 @@
           "key": "ai_retrieval_isolation",
           "validator": "validate_ai_retrieval_isolation",
           "owasp": "A01",
-          "status": "FINDINGS",
+          "status": "PASS",
           "note": "RAG hive-scoped (no x-tenant)",
           "covered": true
         },
@@ -315,12 +315,12 @@
     },
     "A03": {
       "scanners": 6,
-      "clean": false,
+      "clean": true,
       "covered": true
     },
     "A04": {
       "scanners": 2,
-      "clean": false,
+      "clean": true,
       "covered": true
     },
     "A05": {
@@ -335,7 +335,7 @@
     },
     "A07": {
       "scanners": 1,
-      "clean": true,
+      "clean": false,
       "covered": true
     },
     "A08": {
@@ -356,13 +356,9 @@
   },
   "floors_ok": false,
   "regressions": [
-    "X: 75.0 < baseline 100.0",
-    "Z: 70.6 < baseline 100.0",
-    "P: 66.7 < baseline 100.0"
+    "Z: 88.2 < baseline 100.0"
   ],
-  "infra_errors": [
-    "X/xss_eschtml=TIMEOUT"
-  ],
+  "infra_errors": [],
   "baseline_error": false,
   "baseline_missing": false,
   "exit_code": 1

@@ -2,7 +2,7 @@
 name: edge-fn-voice-action-router
 type: edge-fn
 source: file:supabase/functions/voice-action-router/index.ts
-source_sha: 634c2a17d662a8b9
+source_sha: 55d87eb96cb2e79a
 last_verified: 2026-07-13
 supersedes: null
 ---

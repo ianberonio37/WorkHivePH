@@ -1,0 +1,17 @@
+{
+ "_doc": "audit-log.html: English visible text -> Filipino, authored. Empty = not yet translated. tools/i18n_page_dict.py --apply tags the element and emits WH_FIL_PAGE.",
+ "Only supervisors can open the audit log. It records approvals, rejections and member changes for your hive.": "Mga supervisor lang ang makakabukas ng audit log. Itinatala nito ang mga approval, rejection at pagbabago sa member ng hive mo.",
+ "Every supervisor and worker action in your hive, on the record. Use it for compliance checks and team transparency.": "Bawat aksyon ng supervisor at worker sa hive mo, nakatala. Gamitin para sa compliance check at transparency ng team.",
+ "How this log works": "Paano gumagana ang log na ito",
+ "Join a hive to see the audit log": "Sumali sa hive para makita ang audit log",
+ "The audit log records actions inside your hive. You need to be in a hive to view it.": "Itinatala ng audit log ang mga aksyon sa loob ng hive mo. Kailangan mong nasa hive para makita ito.",
+ "Open Hive Board": "Buksan ang Hive Board",
+ "Supervisors only": "Para sa supervisor lang",
+ "The audit log is visible to hive supervisors so they can review approval, rejection, and member-management decisions.": "Nakikita ng mga hive supervisor ang audit log para ma-review nila ang mga desisyon sa approval, rejection, at pamamahala ng member.",
+ "Back to Home": "Balik sa Home",
+ "Loading audit log...": "Naglo-load ng audit log...",
+ "No audit entries yet": "Wala pang audit entry",
+ "Supervisor and worker actions will appear here as they happen.": "Lalabas dito ang mga aksyon ng supervisor at worker habang nangyayari.",
+ "No entries match those filters": "Walang entry na tumutugma sa mga filter na iyon",
+ "Use the \"Clear filters\" button above to see all entries.": "Gamitin ang \"Clear filters\" na button sa itaas para makita ang lahat ng entry."
+}

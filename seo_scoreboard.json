@@ -1,16 +1,16 @@
 {
-  "generated_at": "2026-08-20T07:42:39+00:00",
+  "generated_at": "2026-09-06T09:53:20+00:00",
   "pillars": {
     "SEO": {
-      "achieved": 714,
-      "total": 717,
+      "achieved": 720,
+      "total": 723,
       "pct": 99.6,
       "local_pct": 100.0,
       "ian_blocked": 3
     },
     "AEO": {
-      "achieved": 212,
-      "total": 212,
+      "achieved": 216,
+      "total": 216,
       "pct": 100.0,
       "local_pct": 100.0,
       "ian_blocked": 0
@@ -30,8 +30,8 @@
       "ian_blocked": 7
     },
     "SXO": {
-      "achieved": 409,
-      "total": 409,
+      "achieved": 412,
+      "total": 412,
       "pct": 100.0,
       "local_pct": 100.0,
       "ian_blocked": 0
@@ -42,54 +42,54 @@
   "weakest": "GEO",
   "point_pct": 98.9,
   "overall": [
-    1352,
-    1367
+    1365,
+    1380
   ],
   "local": [
-    1352,
-    1352
+    1365,
+    1365
   ],
   "components": {
     "SEO": [
       [
         "exactly one H1",
-        119,
-        119,
+        120,
+        120,
         "seo_technical",
         false
       ],
       [
         "every image has alt",
-        119,
-        119,
+        120,
+        120,
         "seo_technical",
         false
       ],
       [
         "JSON-LD parses",
-        119,
-        119,
+        120,
+        120,
         "seo_technical",
         false
       ],
       [
         "sitemap URLs resolve",
-        119,
-        119,
+        120,
+        120,
         "sitemap-page-existence",
         false
       ],
       [
         "markdown twins current",
-        119,
-        119,
+        120,
+        120,
         "md-twins",
         false
       ],
       [
         "no orphans / depth<=3",
-        119,
-        119,
+        120,
+        120,
         "orphan-depth",
         false
       ],
@@ -111,29 +111,29 @@
     "AEO": [
       [
         "answer-first opener",
-        53,
-        53,
+        54,
+        54,
         "extractability",
         false
       ],
       [
         "a statistic present",
-        53,
-        53,
+        54,
+        54,
         "extractability",
         false
       ],
       [
         "a cited source",
-        53,
-        53,
+        54,
+        54,
         "extractability",
         false
       ],
       [
         "opener carries number+unit+entity",
-        53,
-        53,
+        54,
+        54,
         "extractability",
         false
       ]
@@ -215,8 +215,8 @@
       ],
       [
         "a next action on every page",
-        113,
-        113,
+        114,
+        114,
         "cta",
         false
       ],
@@ -229,15 +229,15 @@
       ],
       [
         "CWV measured across the surface",
-        119,
-        119,
+        120,
+        120,
         "cwv",
         false
       ],
       [
         "mobile fitness on the content surface",
-        114,
-        114,
+        115,
+        115,
         "content-mobile",
         false
       ]

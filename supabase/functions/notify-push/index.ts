@@ -72,6 +72,22 @@ serveObserved(FN_NAME, async (req) => {
     return fail(ctx, "missing_title_or_body", "Missing required field: title and body are both required.", { status: 400 });
   }
 
+  /* W3-FN (2026-09-09): `??` guards ABSENCE, not TYPE. The annotation on `body` above says
+     `auth_uids?: string[]`, but it is erased at runtime and `req.json()` returns whatever the caller
+     actually sent - so `auth_uids: "abc"` sailed past `?? []` and threw inside `.filter`, and the
+     caller got a 500 "Something went wrong on our side" with `unhandled_error` in the log. That reads
+     as a fault in the platform when it is a malformed request, it tells the integrator nothing about
+     which field to fix, and it is logged at error level so a caller's typo becomes our alert noise.
+     provider_ids had the same hole one line down, and worse: a bare STRING has a truthy `.length`, so
+     it passed the guard and went into `.in("id", …)` as a non-list. Both now say which field is wrong
+     and answer 400, the status a bad request has always deserved. */
+  for (const f of ["auth_uids", "provider_ids"] as const) {
+    const v = (body as Record<string, unknown>)[f];
+    if (v !== undefined && v !== null && !Array.isArray(v)) {
+      return fail(ctx, "invalid_field", `${f} must be an array of ids.`, { status: 400 });
+    }
+  }
+
   // resolve targets
   const uids = new Set<string>((body.auth_uids ?? []).filter(Boolean));
   if (body.provider_ids && body.provider_ids.length) {

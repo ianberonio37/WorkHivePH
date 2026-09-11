@@ -48,6 +48,19 @@
   const IDLE_HARD_LIMIT_MS = _posMs(_idleOverride.hard,  60 * 60 * 1000); // hard clear at 60 min
   const CHECK_INTERVAL_MS  = _posMs(_idleOverride.check, 30 * 1000);      // tick every 30s
 
+  /* W3-SC (2026-09-09): this file's OWN header says "on a shared Filipino plant tablet", and it was
+     the one interruption on that tablet that spoke only English. utils.js installs `window._t(en, fil)`
+     as a platform-wide locale FLOOR precisely so shared chrome can translate (utils.js whLocaleFloor),
+     and nav-hub.js already takes it for its update notice. session-timeout.js simply never joined --
+     the fix that reached one path. Resolved at CALL time, not bind time: a page with its own engine
+     (analytics/hive/index) defines _t later in the body, and this modal paints minutes after load, so
+     a call-time lookup gets the page's richer dictionary while a bound one would freeze the floor. */
+  const _tt = (en, fil) =>
+    (typeof window._t === 'function') ? window._t(en, fil) : en;
+  // The sentence states the threshold, so it must READ the threshold -- under the test override the
+  // hardcoded "15 minutes" was simply false. Floored at 1 so a 2s harness override never says "0".
+  const _idleMins = Math.max(1, Math.round(IDLE_LIMIT_MS / 60000));
+
   // Pages that share the same auth identity. The hard-clear redirects here.
   // T2/T8 (2026-08-24): carry the CURRENT page as ?return= so re-auth lands the person back
   // where they were working — index's resolver + both submit paths honor it (T1). Computed at
@@ -88,9 +101,14 @@
      worker who just pressed Sign out that their session 'timed out' is simply false. */
   function clearIdentityHard(reason) {
     try {
-      [
+      // ★SAME REASON AS index.html's signOut (T121, 2026-09-07): this list and that one had drifted, and
+      // neither could name `wh_hive_lastseen_<hiveId>` - one key per hive, so unknowable in advance. An
+      // idle timeout on a shared phone is exactly when the next person picks it up, which makes this the
+      // door where residue matters most. The enumeration stays as the fallback if utils has not loaded.
+      if (typeof window.whClearIdentity === 'function') window.whClearIdentity();
+      else [
         'wh_last_worker', 'wh_worker_name', 'workerName',
-        'wh_active_hive_id', 'wh_hive_id', 'wh_hive_name', 'wh_hive_role', 'wh_hive_code',
+        'wh_active_hive_id', 'wh_hive_id', 'wh_hive_name', 'wh_hive_role', 'wh_hive_code', 'wh_hives',
       ].forEach((k) => localStorage.removeItem(k));
     } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
     try {
@@ -128,13 +146,18 @@
     ].join(';');
     card.innerHTML = `
       <div style="font-size:1.85rem;margin-bottom:0.4rem;">🛡️</div>
-      <h3 style="margin:0 0 0.4rem;font-size:1.0rem;font-weight:800;">Are you still ${_esc(name)}?</h3>
+      <h3 style="margin:0 0 0.4rem;font-size:1.0rem;font-weight:800;">${_esc(
+        _tt('Are you still ' + name + '?', 'Ikaw pa ba si ' + name + '?')
+      )}</h3>
       <p style="margin:0 0 1.1rem;font-size:0.78rem;color:rgba(255,255,255,0.7);line-height:1.45;">
-        This tablet has been idle for 15 minutes. Confirm you are still working, or sign out so the next worker can take over.
+        ${_esc(_tt(
+          'This tablet has been idle for ' + _idleMins + ' minutes. Confirm you are still working, or sign out so the next worker can take over.',
+          _idleMins + ' minuto nang walang ginagawa ang tablet na ito. Kumpirmahin na nagtatrabaho ka pa, o mag-sign out para makapasok ang susunod na manggagawa.'
+        ))}
       </p>
       <div style="display:flex;gap:0.5rem;">
-        <button id="wh-idle-continue" type="button" style="flex:1;padding:0.7rem;border-radius:0.6rem;font-weight:700;font-size:0.8rem;color:var(--wh-navy, #162032);background:linear-gradient(135deg,var(--wh-orange, #F7A21B),var(--wh-orange-light, #FDB94A));border:0;cursor:pointer;min-height:44px;">Continue</button>
-        <button id="wh-idle-signout" type="button" style="flex:1;padding:0.7rem;border-radius:0.6rem;font-weight:700;font-size:0.8rem;color:var(--wh-cloud, #F4F6FA);background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);cursor:pointer;min-height:44px;">Sign out</button>
+        <button id="wh-idle-continue" type="button" style="flex:1;padding:0.7rem;border-radius:0.6rem;font-weight:700;font-size:0.8rem;color:var(--wh-navy, #162032);background:linear-gradient(135deg,var(--wh-orange, #F7A21B),var(--wh-orange-light, #FDB94A));border:0;cursor:pointer;min-height:44px;">${_esc(_tt('Continue', 'Ituloy'))}</button>
+        <button id="wh-idle-signout" type="button" style="flex:1;padding:0.7rem;border-radius:0.6rem;font-weight:700;font-size:0.8rem;color:var(--wh-cloud, #F4F6FA);background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);cursor:pointer;min-height:44px;">${_esc(_tt('Sign out', 'Mag-sign out'))}</button>
       </div>
     `;
     overlay.appendChild(card);
@@ -229,23 +252,26 @@
   function _showHiveSwitchNotice() {
     if (document.getElementById('wh-hive-switch-notice')) return;
     (function () {
-        var was = _mountedHiveName || 'another hive';
+        var _anotherHive = _tt('another hive', 'ibang hive');
+        var was = _mountedHiveName || _anotherHive;
         var now = '';
         try { now = localStorage.getItem('wh_hive_name') || ''; } catch (_) { now = ''; }
         /* If the name still matches what this tab mounted with, the sibling write has not landed or
            only the id moved - say it neutrally rather than naming one hive twice. */
-        if (!now || now === was) now = 'another hive';
+        if (!now || now === was) now = _anotherHive;
         var n = document.createElement('div');
         n.id = 'wh-hive-switch-notice';
         n.setAttribute('role', 'status');
         n.style.cssText = 'position:fixed;left:0;right:0;bottom:0;z-index:9998;padding:0.7rem 1rem;'
           + 'background:rgba(247,162,27,0.14);border-top:1px solid rgba(247,162,27,0.4);'
           + 'color:var(--wh-orange-text,#F7A21B);font-size:0.76rem;line-height:1.45;text-align:center;';
-        n.textContent = 'You switched to ' + now + ' in another tab. This tab is still showing '
-          + was + '. Reload to catch up.';
+        n.textContent = _tt(
+          'You switched to ' + now + ' in another tab. This tab is still showing ' + was + '. Reload to catch up.',
+          'Lumipat ka sa ' + now + ' sa ibang tab. Ang tab na ito ay nasa ' + was + ' pa rin. I-reload para maka-sabay.'
+        );
         var r = document.createElement('button');
         r.type = 'button';
-        r.textContent = 'Reload';
+        r.textContent = _tt('Reload', 'I-reload');
         r.style.cssText = 'margin-left:0.6rem;min-height:44px;padding:0 0.9rem;border-radius:0.5rem;cursor:pointer;'
           + 'background:rgba(247,162,27,0.2);border:1px solid rgba(247,162,27,0.5);color:inherit;font:inherit;';
         r.addEventListener('click', function () { window.location.reload(); });

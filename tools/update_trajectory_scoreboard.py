@@ -47,6 +47,52 @@ WAVE_NAMES = {
     "VP": "Production deepwalk (personas x every page)",
 }
 
+# ★SECOND PROGRAM P1-P500 (2026-09-05). ★×16: the wave names are IMPORTED from the one file that
+# declares them (tools/seed_p_program_catalog.py) rather than re-typed here — a second copy of a
+# name is a second thing that can drift, and this header is the anti-drift surface.
+try:
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from seed_p_program_catalog import WAVES as _P_WAVES
+    WAVE_NAMES.update({w: n for w, n, _ in _P_WAVES})
+except Exception:
+    pass
+
+# ★THE LAYER-UX WAVE'S NAMES, derived from its seeder for the same reason the P names are (2026-09-06).
+# Without this the table renderer raised KeyError on the first LX row - a generated document must not
+# depend on someone remembering to add a title when a wave lands.
+try:
+    from seed_layer_ux_wave import WAVES as _LX_WAVES
+    _LX_TITLES = {"CI": "CI/CD & Version Control", "L": "Error Tracking & Logs",
+                  "LB": "Load Balancing & Scaling", "H": "Hosting & Deployment",
+                  "RL": "Rate Limiting", "S": "Security & RLS"}
+    WAVE_NAMES.update({spec["wave"]: f"Layer-UX: {_LX_TITLES.get(code, code)} - what a person feels"
+                       for code, spec in _LX_WAVES.items()})
+except Exception:
+    pass
+
+# The expansion waves' names, from their seeder (2026-09-07) - eight waves, one declaration, and the
+# UFAI dimension each improves is carried on the row rather than on the name.
+try:
+    from seed_expansion_wave import WAVES as _EX_WAVES
+    WAVE_NAMES.update({spec["wave"]: f"Expansion: {spec['name']}" for spec in _EX_WAVES.values()})
+except Exception:
+    pass
+
+# Wave 3's names, from its seeder for the same reason (2026-09-07) - nine directions, the largest of
+# them the full-journey grid, so the name says which one a row belongs to without a lookup.
+try:
+    from seed_expansion_wave3 import CODES as _W3_CODES, PREFIX as _W3_PREFIX
+    WAVE_NAMES.update({f"{_W3_PREFIX}-{c}": f"Wave 3: {n}" for c, (n, _f) in _W3_CODES.items()})
+except Exception:
+    pass
+
+# LX-FN's title, from its own seeder for the same reason (2026-09-07)
+try:
+    from seed_layer_fn_wave import WAVE as _LXFN_W
+    WAVE_NAMES[_LXFN_W] = "Layer-UX: the surfaces the program had never named"
+except Exception:
+    pass
+
 
 def render() -> str:
     reg = json.loads(REGISTRY.read_text(encoding="utf-8"))
@@ -59,6 +105,206 @@ def render() -> str:
     descoped_n = len(ts) - len(scoped)
     overall = sum(t["pct"] for t in scoped) / len(scoped)
     lines = [START, ""]
+    # ★TWO BUCKETS ON LIVE EVIDENCE (Ian, 2026-09-06: "locked / locking / walked ... you are making me
+    # confused ... just closed and open", and he chose the live-evidence rule). The old headline was an
+    # AVERAGE of progress points (locked 100 · locking 90 · fixing 45), which read as "nearly done" while
+    # 746 rows had never been exercised against the running system. This line COUNTS instead:
+    #   CLOSED = walked live AND gated · OPEN = everything else
+    # The classifier is tools/live_walk_manifest.py - one definition, used by the header, the gate and
+    # every walk's no-repeat check, so the three can never disagree.
+    try:
+        sys.path.insert(0, str(ROOT / "tools"))
+        from live_walk_manifest import build as _lwm_build
+        _m = _lwm_build()
+        lines.append(f"**CLOSED {_m['closed']} of {_m['in_scope']} in scope · {_m['pct_closed']:.1f}% "
+                     f"— OPEN {_m['open']}** · closed = walked LIVE against the running system, held by a "
+                     f"registered gate, walked with the instrument its own lens demands, AND not contradicted "
+                     f"by its own walk receipt; open = everything "
+                     f"else, including a row whose live evidence came from a lens that cannot answer it, "
+                     f"and a row whose prover wrote ok:false "
+                     f"(evidence today: "
+                     + " · ".join(f"{v} {k}" for k, v in sorted(_m["by_kind"].items(), key=lambda x: -x[1]))
+                     + "). Ledger: `live_walk_manifest.json` (gate `live-walk-manifest`).")
+        # ★EVERY LAYER, WITH ITS TARGET AND WHAT IS STILL TO BUILD (Ian, 2026-09-06: "improve the UFAI
+        # UI UX for every Full Stack SaaS Layer I have" + "make the numbers of new trajectories be
+        # visible on the roadmap, so that you will update the percentage completion"). Until the
+        # backfill, `layers` was populated on 704 rows and empty on 725 - every persona journey - so a
+        # per-layer count could not be stated at all. Now it can, and the DEFICIT is a number on the
+        # page rather than an intention: seeding a layer's rows moves the denominator, the closed
+        # percentage above DROPS, and it climbs back as each layer is deepwalked. That drop is the
+        # honest direction and the generator computes it - nobody types it.
+        _NAMES = {"F": "Frontend", "CA": "Caching & CDN", "D": "Database & Storage",
+                  "A": "APIs & Backend Logic", "C": "Cloud & Compute", "AU": "Auth & Permissions",
+                  "AV": "Availability & Recovery", "S": "Security & RLS", "RL": "Rate Limiting",
+                  "LB": "Load Balancing & Scaling", "H": "Hosting & Deployment",
+                  "L": "Error Tracking & Logs", "CI": "CI/CD & Version Control"}
+        _TARGET = 90
+        _lc = Counter()
+        for _t in scoped:
+            for _x in (_t.get("layers") or []):
+                _lc[_x] += 1
+        _untagged = sum(1 for _t in scoped if not _t.get("layers"))
+        _deficit = {k: max(0, _TARGET - _lc.get(k, 0)) for k in _NAMES}
+        _to_build = sum(_deficit.values())
+        lines.append("")
+        lines.append(f"**BY FULL-STACK LAYER** (target {_TARGET} rows each · **{_to_build} still to build** "
+                     f"across {sum(1 for v in _deficit.values() if v)} layer(s)"
+                     + (f" · {_untagged} row(s) carry no layer" if _untagged else "")
+                     + "): "
+                     + " · ".join(f"{k} {_lc.get(k, 0)}/{_TARGET}"
+                                  + (f" (+{_deficit[k]})" if _deficit[k] else " ✓")
+                                  for k in sorted(_NAMES, key=lambda z: -_lc.get(z, 0)))
+                     + " — `python tools/backfill_trajectory_layers.py --report`")
+        _fam = list(_m["open_by_family"].items())[:5]
+        if _fam:
+            lines.append("")
+            lines.append("**OPEN BY FAMILY** (the walk queue, largest first): "
+                         + " · ".join(f"{k} {v}" for k, v in _fam)
+                         + f" — `python tools/live_walk_manifest.py --family \"{_fam[0][0]}\"`")
+        # ★UFAI IS THE SPINE (Ian, 2026-09-07: "my goal for this roadmap is the increase the Usability,
+        # Functionality, Adaptability, Internal Control for my user's User Interface and User Experience
+        # ... for each page and full stack saas layers"). Every row now carries `ufai` (one or more of
+        # U/F/A/I, from tools/backfill_trajectory_axes.py), so the question "which page, which layer, is
+        # thin on Internal Control?" is a number here rather than an impression. The first derivation
+        # reported I on 1,016 rows because every row that merely CROSSED the auth layer was stamped
+        # control - a number that generous is the rule, not the program - so layers speak only as a
+        # fallback and the P-program waves carry their own map. Generated; the gate fails on drift.
+        _U = {"U": "Usability", "F": "Functionality", "A": "Adaptability", "I": "Internal Control"}
+        _uc = Counter(x for _t in scoped for x in (_t.get("ufai") or []))
+        _untagged_u = sum(1 for _t in scoped if not _t.get("ufai"))
+        _lay = {}
+        for _t in scoped:
+            for _l in (_t.get("layers") or []):
+                for _x in (_t.get("ufai") or []):
+                    _lay.setdefault(_l, Counter())[_x] += 1
+        _pg = {}
+        for _t in scoped:
+            for _p in (_t.get("pages") or []):
+                if isinstance(_p, str) and _p.endswith(".html") and "/" not in _p:
+                    for _x in (_t.get("ufai") or []):
+                        _pg.setdefault(_p, Counter())[_x] += 1
+        lines.append("")
+        lines.append("**UFAI** (what the rows improve · a row counts once per dimension it declares"
+                     + (f" · {_untagged_u} row(s) carry none" if _untagged_u else "")
+                     + "): " + " · ".join(f"{k} {_U[k]} {_uc.get(k, 0)}" for k in "UFAI")
+                     + " — `python tools/backfill_trajectory_axes.py --report`")
+        lines.append("")
+        lines.append("**UFAI × LAYER** (U/F/A/I per layer): "
+                     + " · ".join(f"{_l} " + "/".join(str(_lay[_l].get(_x, 0)) for _x in "UFAI")
+                                  for _l in sorted(_lay, key=lambda z: -sum(_lay[z].values()))))
+        lines.append("")
+        lines.append("**UFAI × PAGE** (the three thinnest root pages on each dimension — where the next rows belong): "
+                     + " · ".join(f"**{_x}** " + ", ".join(f"{_p[:-5]} {_pg[_p].get(_x, 0)}"
+                                                           for _p in sorted(_pg, key=lambda z: _pg[z].get(_x, 0))[:3])
+                                  for _x in "UFAI"))
+        # ★PERSONA × DEVICE — the axis the method names ("persona × device × entry path × intent") and
+        # the registry never carried as fields until 2026-09-07. `any` is a classification, not a gap:
+        # a lens that applies to everyone on every device says so, and those are exactly the cells the
+        # PX wave fills with device- and persona-specific rows.
+        _pdc = Counter((_t.get("persona") or "?", _t.get("device") or "?") for _t in scoped)
+        _per = Counter(_t.get("persona") or "?" for _t in scoped)
+        _dev = Counter(_t.get("device") or "?" for _t in scoped)
+        _ent = Counter(_t.get("entry") or "?" for _t in scoped)
+        lines.append("")
+        lines.append("**PERSONA × DEVICE × ENTRY** · personas: "
+                     + " · ".join(f"{k} {v}" for k, v in _per.most_common(8))
+                     + " · devices: " + " · ".join(f"{k} {v}" for k, v in _dev.most_common())
+                     + " · entry: " + " · ".join(f"{k} {v}" for k, v in _ent.most_common())
+                     + " · thinnest cells: "
+                     + ", ".join(f"{p}@{d} {n}" for (p, d), n in sorted(_pdc.items(), key=lambda kv: kv[1])
+                                 if p not in ("any", "?") and d not in ("any", "?"))[:0]
+                     + ", ".join(f"{p}@{d} {n}" for (p, d), n in
+                                 sorted(((k, v) for k, v in _pdc.items()
+                                         if k[0] not in ("any", "?") and k[1] not in ("any", "?")),
+                                        key=lambda kv: kv[1])[:6]))
+        # ★EVERY EXPANSION WAVE, WITH ITS OPEN COUNT (Ian, 2026-09-07: "provide the number of new
+        # trajectories, update the open counts in the roadmap"). A wave whose code is not one of the
+        # founding programs' (T letters, P-*, VP/VD/VM, LX-*) is an expansion wave; each gets one line
+        # of seeded / closed / open, derived from the same ledger as the headline so they cannot disagree.
+        try:
+            _closed_ids = {_r["id"] for _r in _m.get("rows", [])
+                           if _r.get("kind") == "live" and _r.get("gated") and not _r.get("needs_mcp_rewalk")}
+        except Exception:
+            _closed_ids = set()
+        _founding = re.compile(r"^(P-|LX-|LX$|VP$|VD$|VM$|[A-Z]{1,2}$)")
+        _exp = {}
+        for _t in scoped:
+            _w = str(_t.get("wave") or "")
+            if _w and not _founding.match(_w):
+                _e = _exp.setdefault(_w, {"seeded": 0, "closed": 0})
+                _e["seeded"] += 1
+                if _t["id"] in _closed_ids:
+                    _e["closed"] += 1
+        if _exp:
+            lines.append("")
+            lines.append("**EXPANSION WAVES** (seeded / closed / open): "
+                         + " · ".join(f"{_w} {_e['seeded']}/{_e['closed']}/{_e['seeded'] - _e['closed']}"
+                                      for _w, _e in sorted(_exp.items()))
+                         + f" — **{sum(_e['seeded'] for _e in _exp.values())} new rows seeded, "
+                         + f"{sum(_e['seeded'] - _e['closed'] for _e in _exp.values())} open**")
+        # ★JOURNEYS (Ian, 2026-09-07: "add also the trajectories for full journeys, diverse" then "we
+        # still have to expand and extend the journeys"). A journey row is one whose walk crosses >=4
+        # pages — before wave 3 the whole program had NINE of them and none crossed five. "Diverse" has
+        # to be a number, so this block counts them by tier, by stage and by the vertical they are cast
+        # in (the platform's own six hives), and names any archetype still carrying no closed row.
+        _jn = [_t for _t in scoped if len(_t.get("pages") or []) >= 4]
+        if _jn:
+            _tier = Counter((_t.get("journey") or {}).get("tier", "-") for _t in _jn)
+            _stage = Counter((_t.get("journey") or {}).get("stage", "-") for _t in _jn)
+            _vert = Counter((_t.get("journey") or {}).get("vertical", "-") for _t in _jn)
+            _arch = {}
+            for _t in _jn:
+                _a = (_t.get("journey") or {}).get("archetype", "-")
+                _e = _arch.setdefault(_a, [0, 0])
+                _e[0] += 1
+                if _t["id"] in _closed_ids:
+                    _e[1] += 1
+            _jclosed = sum(1 for _t in _jn if _t["id"] in _closed_ids)
+            _lang = Counter((_t.get("journey") or {}).get("language", "-") for _t in _jn)
+            _cond = Counter((_t.get("journey") or {}).get("condition", "-") for _t in _jn)
+            lines.append("")
+            lines.append(f"**JOURNEYS** (a row whose walk crosses ≥4 pages · **{_jclosed}/{len(_jn)} closed**, "
+                         + f"{len(_jn) - _jclosed} open) · tiers: "
+                         + " · ".join(f"{k} {v}" for k, v in sorted(_tier.items()))
+                         + " · stages: " + " · ".join(f"{k} {v}" for k, v in _stage.most_common())
+                         + f" · verticals {len(_vert)} · archetypes {len(_arch)} · language: "
+                         + " · ".join(f"{k} {v}" for k, v in _lang.most_common())
+                         + " · condition: " + " · ".join(f"{k} {v}" for k, v in _cond.most_common()))
+            _unwalked = sorted(_a for _a, _e in _arch.items() if _e[1] == 0 and _a not in ("-",))
+            if _unwalked:
+                lines.append("")
+                lines.append(f"**JOURNEY ARCHETYPES WITH NO CLOSED ROW** ({len(_unwalked)}): "
+                             + ", ".join(_unwalked[:40]) + ("…" if len(_unwalked) > 40 else ""))
+        # ★PAGE CLASS — the content pages (54 learn articles, 60 calculators) carried ONE row each and
+        # zero Functionality/Adaptability/Internal-Control rows until wave 3, while root pages carried
+        # dozens. One zero this large is invisible in a single headline, so it gets its own line.
+        def _cls(_p: str) -> str:
+            return ("learn" if _p.startswith("learn/") else "calc" if _p.startswith("tools/")
+                    else "root" if _p.endswith(".html") and "/" not in _p else "other")
+        _pc = {}
+        for _t in scoped:
+            _seen_cls = set()
+            for _p in (_t.get("pages") or []):
+                _k = _cls(_p)
+                if _k in _seen_cls:
+                    continue
+                _seen_cls.add(_k)
+                _e = _pc.setdefault(_k, Counter())
+                _e["rows"] += 1
+                for _x in (_t.get("ufai") or []):
+                    _e[_x] += 1
+        _nofn = sum(1 for _t in scoped if not (_t.get("pages") or []))
+        if _pc:
+            lines.append("")
+            lines.append("**BY PAGE CLASS** (rows · U/F/A/I): "
+                         + " · ".join(f"{_k} {_pc[_k]['rows']} · "
+                                      + "/".join(str(_pc[_k].get(_x, 0)) for _x in "UFAI")
+                                      for _k in ("root", "learn", "calc", "other") if _k in _pc)
+                         + f" · no page (edge functions, shared components) {_nofn}")
+        lines.append("")
+    except Exception as _e:                                  # the header must still render if the ledger breaks
+        lines.append(f"**CLOSED/OPEN unavailable — run `python tools/live_walk_manifest.py` ({str(_e)[:60]})**")
+        lines.append("")
     lines.append(f"**PROGRAM: {overall:.1f}% overall"
                  + (f" (of {len(scoped)} in-scope; {descoped_n} descoped = future org-federation tier)" if descoped_n else "")
                  + f" · {len(ts)} trajectories · "
@@ -85,6 +331,28 @@ def render() -> str:
     except Exception:
         lines.append("")
         lines.append("**↳ CRITIC DEEPWALK (UI/UX extension): registry unreadable — run tools/validate_critic_registry.py**")
+
+    # ★THE INSTRUMENT RULE, IN THE HEADER WHERE IT CANNOT BE MISSED (Ian, 2026-09-09: "what I said in our
+    # roadmap, make a pointer it in our header, that we have to use MCPs for every open trajectories").
+    # §LW.2 already said this and I still reached for a headless sweep twice in one session, because the
+    # doctrine lived a thousand lines below the scoreboard I actually read. It is GENERATED beside the
+    # percentage for the same reason the percentage is: the rule that governs how a number is EARNED
+    # belongs next to the number, not in a section a session can skip.
+    lines.append("")
+    lines.append("**↳ HOW EVERY OPEN ROW IS WALKED: through the MCPs, in real time — playwright for a "
+                 "surface, postgres for the effect, invoke + PostgREST for a contract (§LW.2).** A headless "
+                 "batch is the EXCEPTION, taken only when a sweep is uniform and nothing in it needs "
+                 "deciding mid-flight; it is never the default, because triage that arrives hours later "
+                 "arrives after the rows were already banked wrong.")
+    # ★THE NEXT POINTER (Ian, 2026-09-05: "anti-drift percentage completion on the upper header +
+    # a pointer on what's next"). It is GENERATED from the registry's `next` field for the same
+    # reason the percentages are: a pointer someone types by hand goes stale the moment the work
+    # moves, and a stale pointer is worse than none — it sends the next session at a finished unit.
+    # Advanced by tools/set_trajectory_next.py at each sub-unit, never edited in the doc.
+    nxt = (reg.get("next") or "").strip()
+    lines.append("")
+    lines.append(f"**NEXT: {nxt}**" if nxt else
+                 "**NEXT: _(unset — run `python tools/set_trajectory_next.py \"<the next unit>\"`)_**")
     lines.append("")
     lines.append("| Wave | Completion per trajectory |")
     lines.append("|---|---|")
@@ -95,7 +363,11 @@ def render() -> str:
     # Named waves (VM…, non-numeric ids) sort after the numeric program (★×16: the VM wave).
     def _order(w):
         ns = [int(m.group(1)) for t in by_wave[w] for m in [re.match(r"^T(\d+)$", t["id"])] if m]
-        return min(ns) if ns else 10_000
+        if ns:
+            return min(ns)
+        # LX rows landed last; keep them after the vehicle and P waves, in their own id order
+        lx = [int(m.group(1)) for t in by_wave[w] for m in [re.match(r"^LX(\d+)$", t["id"])] if m]
+        return 20_000 + min(lx) if lx else 10_000
     for w in sorted(by_wave, key=_order):
         cells = []
         for t in by_wave[w]:

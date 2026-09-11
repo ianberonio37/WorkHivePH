@@ -15,7 +15,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "substrate" / "reference" / "destructive_control_registry.json"
-CALL_RX = re.compile(r"wh(?:Confirm|Prompt)\(\s*(?:`([^`]{0,160})|'([^']{0,160})|\"([^\"]{0,160}))")
+# 2026-09-07: the Tagalog-first wave wrapped confirm copy in _t(en, fil) — the roster reads THROUGH the wrapper
+# (the English head stays the roster key) so a bilingual confirm is never mis-read as a lost confirmation.
+CALL_RX = re.compile(r"wh(?:Confirm|Prompt)\(\s*(?:_t\(\s*)?(?:`([^`]{0,160})|'([^']{0,160})|\"([^\"]{0,160}))")
 SKIP_RX = re.compile(r"(backup|-test|_fixtures|design-system)", re.I)
 
 

@@ -53,6 +53,17 @@ LIVE_PAGES = [
     "nav-hub.html",
     "index.html",
     "companion-launcher.js",
+    # in scope 2026-09-10: the W3-SC i18n pass gave this widget `innerHTML` with interpolation
+    # (`${_tt('unknown','hindi alam')}`), and the all_pages_in_scope check correctly objected that
+    # a file doing that was never being examined. Today's interpolation is a literal translation
+    # pair and carries no user data - the point of listing it is the NEXT one, on a widget that
+    # ships on 33 pages.
+    # plant-connections gained its first interpolation on 2026-09-11: its supervisor-only
+    # denial was bare English and translating it introduced ${escHtml(_t(...))}. A literal
+    # translation pair carries no user data, but listing the page is what puts the REST of
+    # its innerHTML under the six layers - the same reason connectivity-widget.js is here.
+    "plant-connections.html",
+    "connectivity-widget.js",
     "nav-hub.js",
     "report-sender.html",
     "community.html",

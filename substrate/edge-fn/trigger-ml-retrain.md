@@ -2,7 +2,7 @@
 name: edge-fn-trigger-ml-retrain
 type: edge-fn
 source: file:supabase/functions/trigger-ml-retrain/index.ts
-source_sha: 5427df6043cd1d0a
+source_sha: 576577406462f567
 last_verified: 2026-07-13
 supersedes: null
 ---

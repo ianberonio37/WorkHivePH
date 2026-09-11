@@ -1,29 +1,15 @@
 ---
 name: migration-catalog
 type: migration
-source: dir:supabase/migrations:593
-source_sha: 89ae9bf285115181
+source: dir:supabase/migrations:607
+source_sha: 906a72ad3d1f0e26
 last_verified: 2026-07-13
 supersedes: null
 ---
-## migration · catalog (593 migrations)
+## migration · catalog (607 migrations)
 
 Append-only DDL history. Search here for 'has this table/policy been fixed' before re-diagnosing.
 
-- `20260728000017_reliability_parent_hive_guard` — policies:pf_intervals_parent_hive_guard,rcm_fmea_modes_parent_hive_guard,rcm_strategies_parent_hive_guard,weibull_fits_parent_hive_guard
-- `20260728000018_sensor_anomaly_flag_that_can_be_true` — tables:sensor_readings
-- `20260728000019_rename_carries_the_whole_identity` — fns:sync_asset_identity,sync_pm_asset_identity
-- `20260728000020_expire_stale_parts_recommendations` — fns:expire_stale_parts_recommendations
-- `20260728000021_register_pm_ontime_delivery_canonical` — (misc DDL/DML)
-- `20260728000022_a_change_order_is_a_contract_not_a_draft` — fns:guard_change_order_terms_immutable · triggers:trg_change_order_terms_immutable
-- `20260728000023_budget_is_supervisor_only_at_the_database` — fns:get_project_budget
-- `20260728000024_close_the_budget_hole` — (misc DDL/DML)
-- `20260728000025_project_child_parent_hive_guard` — policies:IF
-- `20260728000026_deleting_a_project_is_a_supervisor_act_and_is_recorded` — fns:guard_and_audit_project_removal · triggers:trg_project_removal_guard_audit
-- `20260728000027_a_progress_report_is_a_record_not_a_draft` — fns:guard_progress_log_is_a_record · triggers:trg_progress_log_is_a_record
-- `20260728000028_anchor_get_project_budget` — (misc DDL/DML)
-- `20260728000029_a_project_code_is_never_reused` — fns:generate_project_code
-- `20260728000030_budget_write_is_supervisor_only_too` — fns:set_project_budget
 - `20260728000031_lessons_learned_is_signed_content` — fns:guard_lessons_learned_is_supervisor · triggers:trg_lessons_learned_supervisor
 - `20260728000032_one_generate_project_code_not_two` — fns:generate_project_code
 - `20260728000033_a_progress_report_carries_who_filed_it` — fns:guard_progress_log_is_mine · triggers:trg_progress_log_is_mine · tables:project_progress_logs
@@ -210,6 +196,20 @@ Append-only DDL history. Search here for 'has this table/policy been fixed' befo
 - `20260902000013_audit_triggers_solo_safe_new_hive` — fns:audit_asset_approval_decision,audit_logbook_post_close_amendment,audit_pm_scope_item_schedule_change
 - `20260902000014_inventory_deduct_actor_attribution` — fns:inventory_deduct
 - `20260903000001_pm_compliance_solo_lane` — fns:get_pm_compliance_smrp
+- `20260905000002_founder_analytics_rollups` — fns:founder_active_hives,founder_anon_sessions,founder_dau_series,founder_mau,founder_page_heatmap
+- `20260907000001_declare_sold_to_inquiry_delete` — tables:marketplace_listings
+- `20260907000003_dispute_needs_a_party` — policies:mkt_disp_insert
+- `20260907000004_listings_public_view` — (misc DDL/DML)
+- `20260907000005_seller_read_anon_via_definer` — policies:mkt_sellers_read_anon · fns:seller_has_published_listing
+- `20260907000006_sellers_public_view` — (misc DDL/DML)
+- `20260908000001_oc_stamps_for_listings_and_hives` — triggers:tg_hives_touch_updated,tg_marketplace_listings_touch_updated · tables:hives
+- `20260908000002_hives_truth_exposes_updated_at` — (misc DDL/DML)
+- `20260908000003_voice_journal_retention_cron` — (misc DDL/DML)
+- `20260908000004_ai_quality_escalation_one_flag_per_worker` — (misc DDL/DML)
+- `20260908000005_hive_ai_monthly_cost_cap` — tables:hives
+- `20260910000001_schedule_items_edit_stamp` — triggers:tg_schedule_items_touch_updated · tables:schedule_items
+- `20260910000002_kb_chunks_need_their_document` — tables:if,kb_chunks
+- `20260911000001_marketplace_sellers_hide_auth_uid` — (misc DDL/DML)
 
 (showing last 200)
 

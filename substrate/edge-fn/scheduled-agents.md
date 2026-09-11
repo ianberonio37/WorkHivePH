@@ -2,7 +2,7 @@
 name: edge-fn-scheduled-agents
 type: edge-fn
 source: file:supabase/functions/scheduled-agents/index.ts
-source_sha: b0e9aebd2bf0ff41
+source_sha: a6a69c8bdc6f36b5
 last_verified: 2026-07-13
 supersedes: null
 ---

@@ -452,7 +452,13 @@
       table { page-break-inside: auto; }
       tr { page-break-inside: avoid; page-break-after: auto; }
     }
-  </style>
+      /* I1 (2026-09-05): the entries list grows as entries load (CLS 0.114 <- #entries-list); reserve its first-screen height */
+    @media (min-width: 768px) { #entries-list { min-height: 480px; } }
+    @media (max-width: 767px) { #entries-list { min-height: 360px; } }
+    /* R3 (2026-09-05): one silhouette per job - selection controls (chips, tabs, toggles: any control that carries a pressed /
+       selected / checked state) wear the PILL; press buttons keep the 12 px card-family radius. */
+    [aria-pressed], [aria-selected], [aria-checked], [role="tab"], [role="radio"], [role="switch"] { border-radius: 999px; }
+</style>
 </head>
 
 <body class="text-white">
@@ -521,7 +527,7 @@
           <span class="inline-block w-1.5 h-1.5 rounded-full bg-green-400 mr-1.5"></span>Saved to cloud
         </span>
         <!-- T1 link-gate find: #evolution named a section index.html no longer has. -->
-        <a href="index.html" class="btn-secondary text-xs py-2 px-4 whitespace-nowrap flex-shrink-0">← Back to Home</a>
+        <a href="index.html" class="btn-secondary text-xs py-2 px-4 whitespace-nowrap flex-shrink-0">← <span data-i="backtohome">Back to Home</span></a>
       </div>
     </div>
   </nav>
@@ -845,7 +851,7 @@
               </div>
 
               <div class="step-nav">
-                <button type="button" class="btn-back" onclick="stepGo(1)">← Back</button>
+                <button type="button" class="btn-back" onclick="stepGo(1)" data-i="back">← Back</button>
                 <button type="button" class="btn-next" onclick="stepGo(3)">What did you do? →</button>
               </div>
             </div>
@@ -1090,7 +1096,8 @@
                  red fails APCA on the navy shell"); it was simply never adopted here. Verified live:
                  the page went from 1 failing of 214 to 0. -->
             <h3 class="text-xs font-bold uppercase tracking-widest" style="color:var(--wh-red-text);">My Open Jobs</h3>
-            <span id="open-jobs-count" class="text-[10px] font-bold px-2 py-0.5 rounded-full" style="background:rgba(239,68,68,0.1);color:var(--wh-red);"></span>
+            <!-- C2 2026-09-10: --wh-red is the danger FILL; at 10px this measured 4.38:1 against the 4.5 it owes. tokens.css declares --wh-red-text for exactly this. -->
+            <span id="open-jobs-count" class="text-[10px] font-bold px-2 py-0.5 rounded-full" style="background:rgba(239,68,68,0.1);color:var(--wh-red-text);"></span>
           </div>
           <div id="open-jobs-list"></div>
         </div>
@@ -1167,7 +1174,7 @@
 
         <!-- Load More -->
         <div id="logbook-load-more-wrap" class="hidden mt-1 pb-4">
-          <button onclick="loadMoreLogbook()" class="w-full py-3 rounded-xl text-sm font-semibold" style="background:rgba(247,162,27,0.1);color:var(--wh-orange-text);border:1px solid rgba(247,162,27,0.3);">Load More</button>
+          <button onclick="loadMoreLogbook()" class="w-full py-3 rounded-xl text-sm font-semibold" style="background:rgba(247,162,27,0.1);color:var(--wh-orange-text);border:1px solid rgba(247,162,27,0.3);" data-i="loadmore">Load More</button>
           <p id="logbook-count-label" class="text-center text-xs mt-2" style="color:rgba(255,255,255,0.80);"></p>
         </div>
 
@@ -1194,7 +1201,7 @@
                calls loadEntries(), which is the request that failed. The distinction is the whole
                content of the retry_path oracle, and re-rendering is the defect commit 3ddef99d fixed
                on public-feed ("Retry answered 'No public posts yet' on a feed with 15 posts"). -->
-          <button type="button" id="lb-retry-btn" onclick="renderEntries(true);" class="inline-block mt-4 px-4 py-2 rounded-lg text-xs font-semibold" style="background:rgba(247,162,27,0.12);border:1px solid rgba(247,162,27,0.3);color:var(--wh-orange-text);min-height:44px;">Retry</button>
+          <button type="button" id="lb-retry-btn" class="inline-block mt-4 px-4 py-2 rounded-lg text-xs font-semibold" style="background:rgba(247,162,27,0.12);border:1px solid rgba(247,162,27,0.3);color:var(--wh-orange-text);min-height:44px;" data-i="retry">Retry</button>
         </div>
 
         <!-- No results state -->
@@ -1246,7 +1253,7 @@
     <div class="flex gap-1 mb-6 p-1 rounded-xl" style="background: rgba(22,32,50,0.8); border: 1px solid rgba(255,255,255,0.08);">
       <!-- ★TOUCH FLOOR: both asset tabs measured 143x35 inside #asset-modal, under the 44px rule. py-2 -> py-3
            plus an explicit min-height, so the tab keeps its shape when the label wraps. -->
-      <button id="asset-tab-register" class="flex-1 py-3 text-xs font-bold rounded-lg transition-all">Register Asset</button>
+      <button id="asset-tab-register" class="flex-1 py-3 text-xs font-bold rounded-lg transition-all" data-i="registerasset">Register Asset</button>
       <button id="asset-tab-manage" class="flex-1 py-3 text-xs font-bold rounded-lg transition-all">Manage Assets <span id="asset-count-badge" class="ml-1 text-[10px] font-bold px-1.5 py-0.5 rounded-full" style="background:rgba(41,182,217,0.15);color:var(--wh-blue-light);display:none"></span></button>
     </div>
 
@@ -1342,8 +1349,8 @@
           </div>
         </div>
         <div class="flex gap-2 pt-1">
-          <button id="asset-submit-btn" class="btn-primary flex-1">Register Asset</button>
-          <button id="asset-cancel-btn" class="btn-secondary px-4">Cancel</button>
+          <button id="asset-submit-btn" class="btn-primary flex-1" data-i="registerasset">Register Asset</button>
+          <button id="asset-cancel-btn" class="btn-secondary px-4" data-i="cancel">Cancel</button>
         </div>
       </div>
     </div>
@@ -1399,8 +1406,8 @@
     <p role="alert" aria-live="assertive" id="edit-asset-error" class="text-xs text-red-400 mb-3 hidden"></p>
 
     <div class="flex gap-2">
-      <button onclick="saveEditAsset()" id="edit-asset-save-btn" class="btn-primary flex-1">Save Changes</button>
-      <button onclick="closeEditAsset()" class="btn-secondary px-4">Cancel</button>
+      <button onclick="saveEditAsset()" id="edit-asset-save-btn" class="btn-primary flex-1" data-i="savechanges">Save Changes</button>
+      <button onclick="closeEditAsset()" class="btn-secondary px-4" data-i="cancel">Cancel</button>
     </div>
   </div>
 </div>
@@ -1495,7 +1502,7 @@
 </div>
 
 <script src="browser-floor.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
+  <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
 <script src="wh-capture-validate.js"></script>
 <script src="wh-tts.js"></script>
@@ -1634,6 +1641,17 @@ async function validateHiveMembership() {
   }
 
   if (!membership || membership.status === 'kicked') {
+    /* ★A REFUSED READ IS NOT A REMOVAL (2026-09-09). This branch is the harshest of the six copies: it
+       clears the hive AND raises the sign-in gate over the page. But RLS refuses by FILTERING - asked
+       with no session attached, this query answers {data: null, error: null, status: 200}, so the
+       `if (error)` fail-open above never fires and a person whose session has not finished rehydrating
+       is shown the join-a-hive door instead of their own logbook. shift-brain.html fixed exactly this on
+       2026-08-20 and wrote down why; the fix never reached the other five pages that copy the gate. */
+    const { data: _sess } = await db.auth.getSession().catch(() => ({ data: null }));
+    if (!_sess || !_sess.session) {
+      console.warn('Membership read returned no row with no session attached - a refused read, not a removal. Keeping cached scope.');
+      return true;
+    }
     // Worker is no longer a member or was kicked: clear hive state
     console.warn('Worker is no longer a hive member. Clearing hive state.');
     localStorage.removeItem('wh_active_hive_id');
@@ -1734,9 +1752,31 @@ function renderTeamProgressStrip() {
     db.from('logbook').select('id', { count: 'exact', head: true }).eq('hive_id', HIVE_ID),
     db.from('logbook').select('id', { count: 'exact', head: true }).eq('hive_id', HIVE_ID).eq('status', 'Closed'),
   ]).then(([t, c]) => {
-    if (t && t.count) lbTeamProg.innerHTML = whProgressStrip('Team jobs closed out', (c && c.count) || 0, t.count);
+    // A REFUSED read is not an EMPTY hive. supabase-js returns {count:null, error} on a failed
+    // read and an RLS-filtered 0 on a read made before the session is restored -- and a
+    // zero-state painted on either would tell a hive with 1,170 entries "No team jobs logged yet"
+    // and lock it in through _done (the fourth-state bug class: refused != empty). So: an error
+    // or a null count releases _done and renders nothing; only a genuine 0 from an authenticated
+    // read earns the zero-state. This function is called from the boot path AFTER membership is
+    // confirmed for the same reason.
+    if (!t || t.error || t.count == null) { renderTeamProgressStrip._done = false; return; }
+    if (t.count) lbTeamProg.innerHTML = whProgressStrip('Team jobs closed out', (c && c.count) || 0, t.count);
+    // Zero-state (2026-09-05): a hive with no logbook rows used to leave the reserved 58px slot
+    // EMPTY -- a void with no goal-gradient at all. Say so, and name the first step.
+    else lbTeamProg.innerHTML = '<p class="text-xs" style="color:var(--muted);margin:0">'
+      + (typeof _t === 'function'
+          ? _t('No team jobs logged yet. The first entry starts the count.', 'Wala pang naitalang trabaho ng team. Ang unang entry ang magsisimula ng bilang.')
+          : 'No team jobs logged yet. The first entry starts the count.') + '</p>';
   }).catch(() => { renderTeamProgressStrip._done = false; });
 }
+// H1 goal-gradient (rubric sweep 2026-09-05): this strip was only rendered from the TEAM view
+// (setViewMode('team') and the team branch of renderEntries), so the default personal view -- the
+// one every worker lands on, and the one the sweep grades -- showed an EMPTY reserved slot and H1
+// read 0 even with 1,170 rows in the hive. It is a hive-wide count, not a view-specific one, so it
+// is now ALSO rendered from the boot path (see the `isMember` gate in init) -- after the session
+// is restored and membership confirmed, never before: a parse-time or DOMContentLoaded call was
+// tried first and could read an RLS-filtered 0 before auth, which the zero-state would then have
+// painted as an empty hive.
 
 // Team view query state
 let _teamEntries  = [];
@@ -1891,16 +1931,20 @@ async function searchTeam(append = false) {
     const list = document.getElementById('entries-list');
     const from = document.getElementById('filter-date-from').value;
     const to   = document.getElementById('filter-date-to').value;
-    const q    = rawSearch ? ` matching "${escHtml(rawSearch)}"` : '';
+    // The qualifier, the widen offer AND the window description all speak the reader's language: this
+    // message exists so a worker does not mistake a bounded search for proof of absence, and a sentence
+    // half in English is exactly the sentence they would skim past.
+    const q    = rawSearch ? _t(` matching "${escHtml(rawSearch)}"`, ` na tumutugma sa "${escHtml(rawSearch)}"`) : '';
     const win  = (from || to)
-      ? `between ${escHtml(from || 'the beginning')} and ${escHtml(to || 'today')}`
-      : 'in the whole history';
+      ? _t(`between ${escHtml(from || 'the beginning')} and ${escHtml(to || 'today')}`,
+           `sa pagitan ng ${escHtml(from || 'simula')} at ${escHtml(to || 'ngayon')}`)
+      : _t('in the whole history', 'sa buong history');
     list.innerHTML = `<div class="text-center py-10 text-xs" style="color:rgba(255,255,255,0.80);">
-        No team entries${q} ${win}.` +
-      ((from || to) ? `<br>Only that date range was searched - it is not proof the entry does not exist.
+        ${escHtml(_t('No team entries', 'Walang team entries'))}${q} ${win}.` +
+      ((from || to) ? `<br>${escHtml(_t('Only that date range was searched - it is not proof the entry does not exist.', 'Ang date range na iyon lang ang hinanap - hindi ito patunay na wala ang entry.'))}
         <div style="margin-top:0.75rem;"><button type="button" id="btn-team-widen"
           style="min-height:44px;padding:0 1.1rem;border-radius:0.75rem;font-weight:700;cursor:pointer;
-          background:rgba(41,182,217,0.15);color:var(--wh-blue-light);border:1px solid rgba(41,182,217,0.3);">Search all history</button></div>` : '') +
+          background:rgba(41,182,217,0.15);color:var(--wh-blue-light);border:1px solid rgba(41,182,217,0.3);">${escHtml(_t('Search all history', 'Hanapin sa buong history'))}</button></div>` : '') +
       `</div>`;
     document.getElementById('btn-team-widen')?.addEventListener('click', () => {
       document.getElementById('filter-date-from').value = '';
@@ -1918,7 +1962,12 @@ async function loadTeamMembers() {
   if (!HIVE_ID) return;
   // canonical-allow: dropdown picker needs the membership list ordered by name within THIS hive
   const { data } = await db.from('hive_members')
-    .select('worker_name').eq('hive_id', HIVE_ID).order('worker_name').order('id').limit(500); // Arc L · L2: row cap (members/hive ≤ dozens; bounds the dropdown read)
+    .select('worker_name').eq('hive_id', HIVE_ID).order('worker_name').order('id') // limit-as-count-allow: dropdown rows, nothing counts them
+    .limit(500); // Arc L · L2: row cap (members/hive ≤ dozens; bounds the dropdown read)
+  // The rows above fill a dropdown and NOTHING counts them. The count-safety gate
+  // pairs this cap with `actionable.length` further down the file because its window is character-based,
+  // but that length is over the offline queue in IndexedDB (getPendingEntries), not over this read - a
+  // different source entirely. Recorded rather than silently excluded, so the pairing is auditable.
   const sel = document.getElementById('filter-worker');
   sel.innerHTML = '<option value="">All workers</option>';
   (data || []).forEach(m => {
@@ -2067,11 +2116,14 @@ async function syncOfflineQueue() {
   if (synced || unapplied) {
     _allEntries = _allEntries.filter(e => !e._offline && !e._pending_edit);
     await updateOfflineBadge();
-    if (synced) showToast(`${synced} offline ${synced === 1 ? 'change' : 'changes'} synced.`);
+    if (synced) showToast(_t(`${synced} offline ${synced === 1 ? 'change' : 'changes'} synced.`,
+      `${synced} offline na pagbabago ang na-sync.`));
     if (unapplied) {
-      showToast(
+      showToast(_t(
         `${unapplied} offline ${unapplied === 1 ? 'edit' : 'edits'} could not be applied. ` +
-        `${stallReason} Your text is kept on this device.`, '⚠️');
+        `${stallReason} Your text is kept on this device.`,
+        `${unapplied} offline na edit ang hindi naipatupad. ` +
+        `${stallReason} Nananatili ang teksto mo sa device na ito.`), '⚠️');
     }
     await renderEntries();
   }
@@ -2111,7 +2163,7 @@ function _canWriteEntry(entry) {
 async function explainZeroRowWrite(id) {
   try {
     const { data, error } = await db.from('logbook').select('id, auth_uid, updated_at').eq('id', id).maybeSingle();
-    if (error) return 'Could not save. Check your connection and try again.';
+    if (error) return _t('Could not save. Check your connection and try again.', 'Hindi ma-save. Suriin ang koneksyon at subukan muli.');
     if (!data)  return 'That entry no longer exists. It was deleted.';
     if (_authUid && data.auth_uid && data.auth_uid !== _authUid) {
       return 'This entry belongs to someone else, so it cannot be edited from your account.';
@@ -2121,7 +2173,7 @@ async function explainZeroRowWrite(id) {
     }
     return 'Entry was modified by someone else, reload to see the latest version.';
   } catch (_) {
-    return 'Could not save. Check your connection and try again.';
+    return _t('Could not save. Check your connection and try again.', 'Hindi ma-save. Suriin ang koneksyon at subukan muli.');
   }
 }
 
@@ -2187,7 +2239,7 @@ async function loadEntries() {
     pending = await getPendingEntries();
   } catch (e) {
     console.error('offline queue read failed; showing cloud entries only:', e);
-    showToast('Offline queue unavailable, showing saved entries only.');
+    showToast(_t('Offline queue unavailable, showing saved entries only.', 'Hindi available ang offline queue, naka-save na entry lang ang ipinapakita.'));
     pending = [];
   }
   // LB7: a dead-lettered edit was never applied server-side, so merging it would paint a value
@@ -2330,8 +2382,8 @@ async function addEntry(entry) {
     // refusal with NO user behind it is a session event, not a permission event.
     let _wMsg = isQuota ? error.message
       : (typeof whWriteError === 'function'
-          ? whWriteError(error, 'Could not save entry. Please try again.')
-          : 'Could not save entry: ' + error.message);
+          ? whWriteError(error, _t('Could not save entry. Please try again.', 'Hindi ma-save ang entry. Pakisubukan muli.'))
+          : _t('Could not save entry: ', 'Hindi ma-save ang entry: ') + error.message);
     if (!isQuota) {
       try {
         const { data: _u } = await db.auth.getUser();
@@ -2397,7 +2449,8 @@ async function _autoLinkLogbookToProject(entry) {
   const { error: linkErr } = await db.from('project_links').insert(linkRows);
   if (linkErr) { console.warn('project auto-link insert:', linkErr.message); return; }
   if (typeof showToast === 'function') {
-    showToast(`Linked to ${projs.length === 1 ? projs[0].project_code : projs.length + ' active projects'}.`);
+    showToast(_t(`Linked to ${projs.length === 1 ? projs[0].project_code : projs.length + ' active projects'}.`,
+      `Na-link sa ${projs.length === 1 ? projs[0].project_code : projs.length + ' aktibong proyekto'}.`));
   }
 }
 
@@ -2444,7 +2497,7 @@ async function deleteEntry(id) {
     .select('id');
   if (error) { showToast(whWriteError(error, 'The delete did not go through. The entry is still there.')); return; }
   if (!deleted || !deleted.length) {
-    showToast('Could not delete: you can only delete your own entries.');
+    showToast(_t('Could not delete: you can only delete your own entries.', 'Hindi ma-delete: sarili mong entry lang ang puwede mong i-delete.'));
     return;
   }
   // Close the modal and refresh
@@ -2962,8 +3015,9 @@ async function syncToPMAssets(oldTagId, newTagId, newName, nodeId) {
 function criticalityBadge(c) {
   if (!c) return '';
   const map = {
-    Critical: { bg: 'rgba(239,68,68,0.15)',  text: '#f87171', border: 'rgba(239,68,68,0.25)' },
-    Major:    { bg: 'rgba(247,162,27,0.15)',  text: '#F7A21B', border: 'rgba(247,162,27,0.25)' },
+    // same AA-text adoption as catColors below: these render in .badge-category at 0.65rem
+    Critical: { bg: 'rgba(239,68,68,0.15)',  text: 'var(--wh-red-text)',    border: 'rgba(239,68,68,0.25)' },
+    Major:    { bg: 'rgba(247,162,27,0.15)',  text: 'var(--wh-orange-text)', border: 'rgba(247,162,27,0.25)' },
     Minor:    { bg: 'rgba(34,197,94,0.15)',   text: '#4ade80', border: 'rgba(34,197,94,0.25)' },
   };
   const s = map[c] || map.Minor;
@@ -2977,8 +3031,8 @@ function renderAssetList() {
     container.innerHTML = `
       <div class="text-center py-10 empty-state">
         <span class="ic ic-list" aria-hidden="true"></span>
-        <p class="text-sm text-white/80">No assets registered yet.</p>
-        <p class="text-xs text-white/80 mt-1">Register assets to keep your log entries consistent.</p>
+        <p class="text-sm text-white/80">${escHtml(_t('No assets registered yet.', 'Wala pang nakarehistrong asset.'))}</p>
+        <p class="text-xs text-white/80 mt-1">${escHtml(_t('Register assets to keep your log entries consistent.', 'Magrehistro ng asset para manatiling consistent ang mga log entry mo.'))}</p>
       </div>`;
     return;
   }
@@ -2996,9 +3050,9 @@ function renderAssetList() {
           ${a.location ? `<p class="text-[11px] text-white/80">${escHtml(a.location)}</p>` : ''}
         </div>
         <div class="flex gap-2 flex-shrink-0">
-          <button onclick="openAssetDetail('${a.id}')" class="btn-secondary text-[11px] py-1 px-2.5" aria-label="View ${escHtml(a.name || 'asset')} details">View</button>
-          ${(!HIVE_ID || HIVE_ROLE === 'supervisor' || a.worker_name === WORKER_NAME) ? `<button onclick="openEditAsset('${a.id}')" class="btn-secondary text-[11px] py-1 px-2.5" style="color:var(--wh-blue-light);border-color:rgba(41,182,217,0.3);">Edit</button>` : ''}
-          <button onclick="deleteAsset('${a.id}')" class="btn-danger text-[11px] py-1 px-2.5">Remove</button>
+          <button onclick="openAssetDetail('${a.id}')" class="btn-secondary text-[11px] py-1 px-2.5" aria-label="View ${escHtml(a.name || 'asset')} details" data-i="view">View</button>
+          ${(!HIVE_ID || HIVE_ROLE === 'supervisor' || a.worker_name === WORKER_NAME) ? `<button onclick="openEditAsset('${a.id}')" class="btn-secondary text-[11px] py-1 px-2.5" style="color:var(--wh-blue-light);border-color:rgba(41,182,217,0.3);" data-i="edit">Edit</button>` : ''}
+          <button onclick="deleteAsset('${a.id}')" class="btn-danger text-[11px] py-1 px-2.5" data-i="remove">Remove</button>
         </div>
       </div>
     </div>`).join('');
@@ -3121,8 +3175,8 @@ function renderDetailStocked(items) {
   const list = document.getElementById('detail-stocked-list');
   if (!items.length) {
     list.innerHTML = `<div class="text-center py-10">
-      <p class="text-sm text-white/80">No parts linked to this asset.</p>
-      <p class="text-xs text-white/80 mt-1">Link parts in Inventory: edit an item and link it to this asset.</p>
+      <p class="text-sm text-white/80">${escHtml(_t('No parts linked to this asset.', 'Walang parts na naka-link sa asset na ito.'))}</p>
+      <p class="text-xs text-white/80 mt-1">${escHtml(_t('Link parts in Inventory: edit an item and link it to this asset.', 'I-link ang parts sa Inventory: i-edit ang item at i-link ito sa asset na ito.'))}</p>
     </div>`;
     document.getElementById('detail-stocked-view').classList.remove('hidden');
     return;
@@ -3156,8 +3210,8 @@ function renderDetailConsumption(txns, itemsList) {
 
   if (!txns.length) {
     list.innerHTML = `<div class="text-center py-10">
-      <p class="text-sm text-white/80">No parts consumed yet.</p>
-      <p class="text-xs text-white/80 mt-1">Appears here when linked parts are auto-deducted on a job save.</p>
+      <p class="text-sm text-white/80">${escHtml(_t('No parts consumed yet.', 'Wala pang parts na nagamit.'))}</p>
+      <p class="text-xs text-white/80 mt-1">${escHtml(_t('Appears here when linked parts are auto-deducted on a job save.', 'Lalabas dito kapag awtomatikong nabawas ang naka-link na parts sa pag-save ng job.'))}</p>
     </div>`;
     document.getElementById('detail-consumption-view').classList.remove('hidden');
     return;
@@ -3191,8 +3245,8 @@ function renderDetailFaultHistory(entries) {
   const list = document.getElementById('detail-faults-list');
   if (!entries.length) {
     list.innerHTML = `<div class="text-center py-10">
-      <p class="text-sm text-white/80">No fault history yet.</p>
-      <p class="text-xs text-white/80 mt-1">Entries appear here when you select this machine from the asset datalist while logging.</p>
+      <p class="text-sm text-white/80">${escHtml(_t('No fault history yet.', 'Wala pang fault history.'))}</p>
+      <p class="text-xs text-white/80 mt-1">${escHtml(_t('Entries appear here when you select this machine from the asset datalist while logging.', 'Lalabas dito ang mga entry kapag pinili mo ang makinang ito mula sa asset datalist habang naglo-log.'))}</p>
     </div>`;
     document.getElementById('detail-faults-view').classList.remove('hidden');
     return;
@@ -3276,7 +3330,7 @@ function renderAssetPickerList(query) {
   if (filtered.length === 0) {
     list.innerHTML = `<div class="text-center py-8">
       <p class="text-sm" style="color:rgba(255,255,255,0.80);">${q ? 'No assets match &quot;' + escHtml(query) + '&quot;' : 'No assets registered yet.'}</p>
-      <p class="text-xs mt-1" style="color:rgba(255,255,255,0.80);">Use the button below to register this asset.</p>
+      <p class="text-xs mt-1" style="color:rgba(255,255,255,0.80);">${escHtml(_t('Use the button below to register this asset.', 'Gamitin ang button sa ibaba para irehistro ang asset na ito.'))}</p>
     </div>`;
     return;
   }
@@ -3773,7 +3827,8 @@ document.getElementById('logbook-scan-btn')?.addEventListener('click', function 
           search.value = text;
           renderAssetPickerList(text);
         }
-        showToast(`No registered asset matches "${text}". Showing search.`);
+        showToast(_t(`No registered asset matches "${text}". Showing search.`,
+      `Walang nakarehistrong asset na tumutugma sa "${text}". Ipinapakita ang search.`));
       }
     },
   });
@@ -3871,12 +3926,21 @@ document.getElementById('asset-add-another-btn').addEventListener('click', () =>
 // ────────────────────────────────────────────
 // CATEGORY COLOR MAP
 // ────────────────────────────────────────────
+// ★THE BADGES USED THE FILL COLOUR AS TEXT (C2, walked 2026-09-10 as a worker on phone-390). These
+// chips render 0.65rem uppercase text, so WCAG 1.4.3 asks 4.5:1, and the category badges measured
+// "Electrical" 4.2:1 and "Instrumentation" 4.09:1 - a recurring finding across walks, and the same
+// #f87171 fails again on analytics' "Critical" chip at 4.18:1. It was never a colour-picking problem:
+// tokens.css already ships an AA-safe TEXT variant beside every fill (`--wh-red: #f87171; /* alert /
+// danger fill (AA text = --wh-red-text) */`), and these literals used the FILL where the pair exists.
+// So this is ADOPTION, like .wh-help and whListError before it - the contract was already written down.
+// Pneumatic/Lubrication keep their literals: no -text token is declared for green or yellow, and
+// neither was an offender; inventing one here would be a palette decision, not a contrast fix.
 const catColors = {
-  Mechanical:      { bg: 'rgba(247,162,27,0.15)', text: '#F7A21B', border: 'rgba(247,162,27,0.25)' },
-  Electrical:      { bg: 'rgba(41,182,217,0.15)', text: '#29B6D9', border: 'rgba(41,182,217,0.25)' },
-  Hydraulic:       { bg: 'rgba(139,92,246,0.15)', text: '#a78bfa', border: 'rgba(139,92,246,0.25)' },
+  Mechanical:      { bg: 'rgba(247,162,27,0.15)', text: 'var(--wh-orange-text)', border: 'rgba(247,162,27,0.25)' },
+  Electrical:      { bg: 'rgba(41,182,217,0.15)', text: 'var(--wh-blue-text)',   border: 'rgba(41,182,217,0.25)' },
+  Hydraulic:       { bg: 'rgba(139,92,246,0.15)', text: 'var(--wh-violet-text)', border: 'rgba(139,92,246,0.25)' },
   Pneumatic:       { bg: 'rgba(34,197,94,0.15)',  text: '#4ade80', border: 'rgba(34,197,94,0.25)' },
-  Instrumentation: { bg: 'rgba(236,72,153,0.15)', text: '#f87171', border: 'rgba(236,72,153,0.25)' },
+  Instrumentation: { bg: 'rgba(236,72,153,0.15)', text: 'var(--wh-red-text)',    border: 'rgba(236,72,153,0.25)' },
   Lubrication:     { bg: 'rgba(234,179,8,0.15)',  text: '#facc15', border: 'rgba(234,179,8,0.25)' },
   Other:           { bg: 'rgba(255,255,255,0.07)', text: 'rgba(255,255,255,0.5)', border: 'rgba(255,255,255,0.12)' },
 };
@@ -4071,6 +4135,31 @@ async function updateStatPills() {
 // an injected 500 the page lands in TEAM mode and returns early on the team prompt, so the check
 // never ran: pills dashed (their new markup default) while nothing on screen said anything had
 // failed. Showing a search prompt to someone whose data could not load is its own small lie.
+// ★THE RETRY COULD NEVER RE-ISSUE THE READ (2026-09-06, gate db-pages-data-degradation, T40).
+// The button below calls renderEntries(true), and the comment beside it says exactly what that has to
+// do: "Retry must RE-ISSUE the read, not re-render the previous failure." It could not. renderEntries
+// opens with `if (... && _lbSyncFailurePanel()) return;` - a guard added after that comment - and
+// _lbSyncFailurePanel() returns TRUE for as long as _lbReadFailed is set. The only line that clears
+// _lbReadFailed lives inside loadEntries(), after a read succeeds, which the early return guarantees is
+// never reached. So pressing Retry re-painted the same failure panel and returned, forever: the exact
+// defect commit 3ddef99d fixed on public-feed, re-introduced one level up by the guard.
+// Measured: with every Supabase read aborted, the page SAYS so correctly, and pressing Retry issued
+// ZERO new requests. Clearing the flag first is what makes the button a retry.
+// Bound in JS rather than an inline onclick: the retry is a real listener, which keeps it visible to
+// the dead-feature gate (an attribute reference is not scanned) and keeps the button working under the
+// Content-Security-Policy this platform is about to start serving, where inline handlers do not run.
+document.addEventListener('DOMContentLoaded', function () {
+  var _rb = document.getElementById('lb-retry-btn');
+  if (_rb) _rb.addEventListener('click', function () { logbookRetryRead(); });
+});
+
+function logbookRetryRead() {
+  _lbReadFailed = false;                       // optimistic: if the read fails again, loadEntries sets it back
+  const rf = document.getElementById('read-failed-state');
+  if (rf) rf.classList.add('hidden');
+  return renderEntries(true);
+}
+
 function _lbSyncFailurePanel() {
   const rf = document.getElementById('read-failed-state');
   if (!rf) return false;
@@ -4217,7 +4306,7 @@ async function renderEntries(reload = true, fromStatPills = false) {
   } else {
     wrap.classList.toggle('hidden', _logbookDisplayCount >= filtered.length);
     const _e2 = (n) => `${n} entr${n === 1 ? 'y' : 'ies'}`;
-    lbl.textContent = `Showing ${visible.length} of ${_e2(filtered.length)}`;
+    lbl.textContent = _t(`Showing ${visible.length} of ${_e2(filtered.length)}`, `Ipinapakita ang ${visible.length} sa ${_e2(filtered.length)}`);
   }
 
   list.innerHTML = visible.map(e => {
@@ -4379,7 +4468,7 @@ async function openModal(id) {
            calling an async confirm - so the entry's modal vanished before the person had answered,
            and cancelling still closed it. deleteEntry closes the modal itself, and only once the
            delete has actually landed. -->
-      <button onclick="confirmDelete('${entry.id}')" class="btn-danger px-4 text-sm py-2">Delete</button>
+      <button onclick="confirmDelete('${entry.id}')" class="btn-danger px-4 text-sm py-2" data-i="delete">Delete</button>
     </div>` : `
     <div class="flex items-center gap-2 pt-2 border-t border-white/[0.07] mt-2">
       <span class="ic ic-secure" aria-hidden="true"></span>
@@ -5032,7 +5121,8 @@ document.getElementById('log-form').addEventListener('submit', async function(e)
       .select('id').eq('worker_name', WORKER_NAME).eq('machine', machine)
       .gte('date', todayStart.toISOString()).limit(1);
     if (dupeCheck && dupeCheck.length > 0) {
-      showToast(`${machine} already logged today. Submit again to save anyway.`, '⚠️');
+      showToast(_t(`${machine} already logged today. Submit again to save anyway.`,
+      `Na-log na ang ${machine} ngayong araw. Isumite ulit para i-save pa rin.`), '⚠️');
       _duplicateWarned = true;
       saveBtn.disabled = false;
       saveBtn.textContent = 'Save Entry';
@@ -5206,7 +5296,8 @@ document.getElementById('log-form').addEventListener('submit', async function(e)
     const _xpSum = (_xpRows || []).reduce((s, r2) => s + (r2.xp_earned || 0), 0);
     if (_xpSum > 0) _xpNote = ` · +${_xpSum} XP`;
   } catch (_) { /* empty-catch-allow: xp read failed -> the receipt claims nothing rather than guessing an award */ }
-  showToast(`✓ Logged: updated ${_fx.join(' · ')}${_xpNote}`, _fx.length > 1 ? 6000 : 2800);
+  showToast(_t(`✓ Logged: updated ${_fx.join(' · ')}${_xpNote}`,
+      `✓ Na-log: na-update ang ${_fx.join(' · ')}${_xpNote}`), _fx.length > 1 ? 6000 : 2800);
   saveBtn.disabled = false;
   saveBtn.textContent = 'Save Entry';
 });
@@ -5477,7 +5568,7 @@ async function startSmartVoice() {
 
   rec.onresult = async function(event) {
     const transcript = event.results[0]?.[0]?.transcript || '';
-    if (!transcript.trim()) { showToast('No speech detected, try again.'); return; }
+    if (!transcript.trim()) { showToast(_t('No speech detected, try again.', 'Walang narinig na salita, subukan muli.')); return; }
 
     recDiv.style.display = 'none'; procDiv.style.display = 'block';
     btn.innerHTML = '<span class="ic ic-voice" aria-hidden="true"></span> Speak';
@@ -5490,14 +5581,14 @@ async function startSmartVoice() {
       // T39 (2026-08-26): res.error.message is supabase-js's placeholder, so the catch below
       // logged and showed the same sentence whether the quota was gone, the session had
       // expired, or the service was down. Carry the real reason into the throw.
-      if (res.error) throw new Error(await window.whFnError(res.error, 'The voice entry could not be filled in.'));
+      if (res.error) throw new Error(await window.whFnError(res.error, _t('The voice entry could not be filled in.', 'Hindi napunan ang voice entry.')));
       const e = res.data?.entry;
       if (!e) throw new Error('No entry returned');
       applySmartVoiceFill(e, transcript);
     } catch (err) {
       console.error('logbook AI-fill failed:', err);
       procDiv.style.display = 'none';
-      showToast(whAiError(err, 'The AI fill did not run. Your fields are unchanged; fill them by hand or try again.'));
+      showToast(whAiError(err, _t('The AI fill did not run. Your fields are unchanged; fill them by hand or try again.', 'Hindi tumakbo ang AI fill. Hindi nagbago ang mga field mo; punan nang manu-mano o subukan muli.')));
     }
   };
 
@@ -5574,7 +5665,7 @@ function applySmartVoiceFill(e, transcript) {
     html += `<p style="color:var(--wh-blue-light); font-size:.72rem;">📢 Supervisor note: ${escHtml(e.supervisor_alert)}</p>`;
   }
 
-  html += `<button onclick="document.getElementById('vf-result').style.display='none';" style="margin-top:8px; font-size:.68rem; color:rgba(255,255,255,0.80); background:none; border:none; cursor:pointer; font-family:inherit;">Dismiss</button>`;
+  html += `<button onclick="document.getElementById('vf-result').style.display='none';" style="margin-top:8px; font-size:.68rem; color:rgba(255,255,255,0.80); background:none; border:none; cursor:pointer; font-family:inherit;" data-i="dismiss">Dismiss</button>`;
 
   resultDiv.innerHTML = html;
   resultDiv.style.display = 'block';
@@ -5671,7 +5762,7 @@ function vdcWireOnce() {
     } catch (err) {
       _vdcDataUrl = null;
       vdcShowStatus('');
-      showToast('That photo could not be read. Nothing was attached; try another photo or a smaller file.');
+      showToast(_t('That photo could not be read. Nothing was attached; try another photo or a smaller file.', 'Hindi mabasa ang litratong iyon. Walang na-attach; subukan ang ibang litrato o mas maliit na file.'));
     }
   });
 
@@ -5708,7 +5799,7 @@ async function vdcAnalyze() {
     if (procDiv) procDiv.style.display = 'none';
     if (analyzeBtn) { analyzeBtn.disabled = false; analyzeBtn.textContent = 'Analyze with AI'; }
 
-    if (error) { showToast(await window.whFnError(error, 'The photo was not analysed. Your entry is unchanged; fill the fields by hand or try again.')); return; }
+    if (error) { showToast(await window.whFnError(error, _t('The photo was not analysed. Your entry is unchanged; fill the fields by hand or try again.', 'Hindi na-analyze ang litrato. Hindi nagbago ang entry mo; punan ang mga field nang manu-mano o subukan muli.'))); return; }
     if (data && data.error) { showToast(data.error); return; }
     if (!data || !data.draft) { showToast('AI returned no draft.'); return; }
 
@@ -5728,7 +5819,7 @@ async function vdcAnalyze() {
     // failure, sending someone to check their signal when the usual cause here is the hourly AI
     // cap. whAiError reads the status and separates quota from connection from outage, and says
     // what survived: the photo and the typed entry are untouched, so nothing needs redoing.
-    showToast(whAiError(err, 'The AI could not analyze this photo. Your entry and the photo are untouched; save it now and analyze later.'));
+    showToast(whAiError(err, _t('The AI could not analyze this photo. Your entry and the photo are untouched; save it now and analyze later.', 'Hindi ma-analyze ng AI ang litratong ito. Hindi nagalaw ang entry at litrato mo; i-save na ngayon at i-analyze mamaya.')));
   }
 }
 
@@ -5809,7 +5900,7 @@ function vdcApplyDraft(payload) {
         `Confidence: ${confPct}%` +
       `</p>` +
       tagLine +
-      `<button type="button" onclick="document.getElementById('vdc-result').style.display='none';" style="margin-top:8px; font-size:.68rem; color:rgba(255,255,255,0.80); background:none; border:none; cursor:pointer; font-family:inherit;">Dismiss</button>`;
+      `<button type="button" onclick="document.getElementById('vdc-result').style.display='none';" style="margin-top:8px; font-size:.68rem; color:rgba(255,255,255,0.80); background:none; border:none; cursor:pointer; font-family:inherit;" data-i="dismiss">Dismiss</button>`;
     resultDiv.style.display = 'block';
   }
 
@@ -6076,7 +6167,7 @@ document.getElementById('btn-export-csv').addEventListener('click', async () => 
       // Never hand over a SHORTER file without saying so - the same rule the mine-branch follows.
       console.warn('logbook team export: full read failed, falling back to the loaded window', e);
       entries = _teamEntries;
-      showToast('Could not read the full team history, so this exports the ' + entries.length + ' entries currently loaded.');
+      showToast(_t('Could not read the full team history, so this exports the ', 'Hindi mabasa ang buong team history, kaya ang ini-export nito ay ang ') + entries.length + ' entries currently loaded.');
     }
   } else {
     try {
@@ -6086,10 +6177,10 @@ document.getElementById('btn-export-csv').addEventListener('click', async () => 
       // exactly the failure this fix exists to remove.
       console.warn('logbook export: full read failed, falling back to the loaded window', e);
       entries = _allEntries.length ? _allEntries : await loadEntries();
-      showToast('Could not read the full history, so this exports the ' + entries.length + ' entries currently loaded.');
+      showToast(_t('Could not read the full history, so this exports the ', 'Hindi mabasa ang buong history, kaya ang ini-export nito ay ang ') + entries.length + ' entries currently loaded.');
     }
   }
-  if (!entries.length) { showToast('No entries to export.'); return; }
+  if (!entries.length) { showToast(_t('No entries to export.', 'Walang entry na i-export.')); return; }
 
   // Audit-grade columns (DOLE/ISO trail — Extension 3): WHO (Worker) + WHEN signed off (Closed At)
   // are compliance-critical and were missing, making the old export a field-dump rather than an
@@ -6524,8 +6615,8 @@ function renderPartsPickerList(query) {
 
   if (filtered.length === 0) {
     list.innerHTML = `<div class="text-center py-8">
-      <p class="text-sm" style="color:rgba(255,255,255,0.80);">${q ? 'No parts match &quot;' + escHtml(query) + '&quot;' : 'No inventory items yet.'}</p>
-      <p class="text-xs mt-1" style="color:rgba(255,255,255,0.80);">Use the button below to register this part in Inventory.</p>
+      <p class="text-sm" style="color:rgba(255,255,255,0.80);">${q ? 'No parts match &quot;' + escHtml(query) + '&quot;' : _t('No inventory items yet.', 'Wala pang inventory item.')}</p>
+      <p class="text-xs mt-1" style="color:rgba(255,255,255,0.80);">${escHtml(_t('Use the button below to register this part in Inventory.', 'Gamitin ang button sa ibaba para irehistro ang part na ito sa Inventory.'))}</p>
     </div>`;
     return;
   }
@@ -6749,7 +6840,15 @@ document.getElementById('f-category').addEventListener('change', updateTasklistS
      Same fix as hive.html: paint synchronously, before the first await exists to hide behind, and
      claim nothing that is still being determined. loadEntries()/renderEntries() replace it. */
   (() => {
-    const host = document.querySelector('main');
+    // I1/CLS (rubric sweep 2026-09-05, cls_attribution 0.606 isolated): this placeholder used to be
+    // PREPENDED to <main> -- ABOVE #wh-logbook-header -- and then removed when data arrived. A
+    // ~271px block appearing above the header and vanishing again pushed the header + grid down and
+    // pulled them back: two shifts of ~0.15 at 1280 and ~0.25 at 390 (prevH == curH on both --
+    // nothing grew, everything was pushed). The min-height reserves on the header/grid could not
+    // help because the shifter sat OUTSIDE them. Host it where the entries will actually land:
+    // inside the grid (min-height 760px already reserved), so neither its arrival nor its removal
+    // moves anything above it, and loadEntries()/renderEntries() replace it in place.
+    const host = document.getElementById('entries-list') || document.querySelector('main');
     if (!host || document.getElementById('lb-boot-wait')) return;
     const w = document.createElement('div');
     w.id = 'lb-boot-wait';
@@ -6782,6 +6881,9 @@ document.getElementById('f-category').addEventListener('change', updateTasklistS
   if (_lbw) _lbw.remove();
   if (!isMember) return; // gate is showing: stop all data loads
 
+  // H1: the team progress strip is hive-wide; render it here, on the AUTHENTICATED path, in every
+  // view (it used to render only when the team view was opened -- see renderTeamProgressStrip).
+  try { renderTeamProgressStrip(); } catch (e) { console.debug('renderTeamProgressStrip() refused', e); }
   applyRoleUI();
 
   if (!navigator.onLine) updateOfflineUI(false);

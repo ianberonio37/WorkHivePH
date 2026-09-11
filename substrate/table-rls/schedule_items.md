@@ -2,7 +2,7 @@
 name: table-rls-schedule_items
 type: table-rls
 source: db:pg_policies+pg_trigger:schedule_items
-source_sha: a2f89fc4bf4b95ba
+source_sha: feaa8ba9760dab87
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -11,7 +11,7 @@ supersedes: null
 
 RLS enabled: **True** · has hive_id: False · has auth_uid: True
 
-Columns (*=NOT NULL): id*, worker_name*, title, date, start_time, end_time, category, notes, logbook_ref, item_status, created_at, auth_uid, source_kind, source_ref
+Columns (*=NOT NULL): id*, worker_name*, title, date, start_time, end_time, category, notes, logbook_ref, item_status, created_at, auth_uid, source_kind, source_ref, updated_at*
 
 Policies:
 - `schedule_items_write` [ALL · roles=public] USING=`((auth.uid() IS NOT NULL) AND (auth_uid = auth.uid()))` CHECK=`∅`

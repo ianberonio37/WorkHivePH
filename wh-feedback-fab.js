@@ -33,6 +33,14 @@
   if (window._whFeedbackFabMounted) return;
   window._whFeedbackFabMounted = true;
 
+  /* W3-SC (2026-09-09): the panel that asks a person to tell us what is broken, in the language they
+     would say it in. It spoke only English. window._t(en, fil) is the platform locale floor utils.js
+     installs; resolved at CALL time. KINDS carries its Filipino BESIDE each label rather than being
+     translated where it is declared: the array is built at module load, and the panel renders later,
+     so translating at render is the only point where the page's own engine has certainly defined _t. */
+  const _tt = (en, fil) =>
+    (typeof window._t === 'function') ? window._t(en, fil) : en;
+
   // escHtml shim — prefer the shared utils.js helper on pages that load it,
   // otherwise fall back to a minimal local escaper so any user-derived text
   // we choose to render below is XSS-safe. The widget's static templates
@@ -62,18 +70,19 @@
   // Order matters: most-actionable bugs first, then forward-looking ideas,
   // then catch-all kinds. Each kind drives which form fields show.
   const KINDS = [
-    { id: 'bug',      label: 'Bug',      icon: '🐞', hint: 'Something broken or unexpected' },
-    { id: 'idea',     label: 'Idea',     icon: '💡', hint: 'A feature you want' },
-    { id: 'question', label: 'Question', icon: '❓', hint: "Don't know how to do something" },
-    { id: 'review',   label: 'Review',   icon: '⭐', hint: 'Rate WorkHive' },
-    { id: 'praise',   label: 'Praise',   icon: '💛', hint: 'Tell us what you love' },
+    { id: 'bug',      label: 'Bug',      fil: 'Sira',     icon: '🐞', hint: 'Something broken or unexpected' },
+    { id: 'idea',     label: 'Idea',     fil: 'Ideya',    icon: '💡', hint: 'A feature you want' },
+    { id: 'question', label: 'Question', fil: 'Tanong',   icon: '❓', hint: "Don't know how to do something" },
+    { id: 'review',   label: 'Review',   fil: 'Review',   icon: '⭐', hint: 'Rate WorkHive' },
+    { id: 'praise',   label: 'Praise',   fil: 'Papuri',   icon: '💛', hint: 'Tell us what you love' },
   ];
 
   // Friendly map of DB rate-limit error -> user-facing message.
   // The trigger raises SQLSTATE 23P01 (exclusion_violation); the
   // PostgREST response surfaces this as code "23P01".
-  const RATE_LIMIT_MSG =
-    "You've already sent 5 messages this hour. Please try again later.";
+  const RATE_LIMIT_MSG = () => _tt(
+    "You've already sent 5 messages this hour. Please try again later.",
+    'Nakapagpadala ka na ng 5 mensahe ngayong oras. Subukan ulit mamaya.');
 
   // Mount only after DOM is ready, so body exists.
   if (document.readyState === 'loading') {
@@ -139,6 +148,11 @@
         pointer-events: none;        /* off-canvas: no interactions */
         visibility: hidden;          /* keep out of a11y tree until opened */
       }
+      /* Z2/R2 (critic re-sweep 2026-09-07): the closed panel is translated to x=390..780 at phone width, and a transformed
+         fixed box still counts toward the document's scrollable overflow - on pages without overflow-x:hidden (every
+         learn article) the page scrolled sideways by 93px. Closed = zero width, so the off-canvas box has no extent. */
+      .wh-fb-panel:not(.open) { width: 0 !important; padding: 0 !important; overflow: hidden; }
+      .wh-fb-panel:not(.open) > * { display: none !important; }   /* an empty closed box: its children laid out past x=390 still counted toward the document's scroll width */
       .wh-fb-panel.open {
         transform: translateX(0);
         pointer-events: auto;
@@ -154,12 +168,11 @@
       .wh-fb-close {
         background: none; border: none; color: var(--wh-cloud, #F4F6FA);
         font-size: 1.5rem; line-height: 1; cursor: pointer;
-        padding: .25rem .5rem; border-radius: .5rem;
-      }
+        padding: .25rem .5rem; border-radius: .5rem;; min-width:44px; min-height:44px; display:inline-flex; align-items:center; justify-content:center; }
       .wh-fb-close:hover { background: rgba(255,255,255,.08); }
       .wh-fb-close:focus-visible { outline: 2px solid var(--wh-blue, #29B6D9); outline-offset: 2px; }
 
-      .wh-fb-body { padding: 1rem 1.25rem; overflow-y: auto; flex: 1; }
+      .wh-fb-body { padding: 1rem 1.25rem; overflow-y: auto; overscroll-behavior: contain; flex: 1; }
 
       .wh-fb-section-label {
         font-size: .75rem; text-transform: uppercase;
@@ -302,7 +315,7 @@
     btn.className   = 'wh-fb-fab';
     btn.id          = 'wh-feedback-fab';
     btn.type        = 'button';
-    btn.title       = 'Send feedback to WorkHive';
+    btn.title       = _tt('Send feedback to WorkHive', 'Magpadala ng feedback sa WorkHive');
     btn.setAttribute('aria-label', 'Send feedback to WorkHive');
     btn.textContent = '💬';
     document.body.appendChild(btn);
@@ -325,25 +338,25 @@
     // input flows through them here.
     panel.innerHTML = `
       <div class="wh-fb-hdr">
-        <h2 id="wh-fb-title">Send feedback</h2>
-        <button class="wh-fb-close" type="button" aria-label="Close feedback panel">×</button>
+        <h2 id="wh-fb-title">${_tt('Send feedback', 'Magpadala ng feedback')}</h2>
+        <button class="wh-fb-close" type="button" aria-label="${_tt('Close feedback panel', 'Isara ang feedback panel')}">×</button>
       </div>
       <div class="wh-fb-body">
-        <div class="wh-fb-section-label">What kind?</div>
-        <div class="wh-fb-kinds" role="radiogroup" aria-label="Feedback kind">
+        <div class="wh-fb-section-label">${_tt('What kind?', 'Anong klase?')}</div>
+        <div class="wh-fb-kinds" role="radiogroup" aria-label="${_tt('Feedback kind', 'Klase ng feedback')}">
           ${KINDS.map(k => `
             <button class="wh-fb-kind" type="button"
                     data-kind="${k.id}"
                     role="radio" aria-checked="false">
               <span class="icon" aria-hidden="true">${k.icon}</span>
-              <span class="lbl">${k.label}</span>
+              <span class="lbl">${escHtml(_tt(k.label, k.fil))}</span>
             </button>
           `).join('')}
         </div>
 
         <div id="wh-fb-rating-block" class="wh-fb-field" style="display:none">
-          <label>Rating</label>
-          <div class="wh-fb-stars" role="radiogroup" aria-label="Rating from 1 to 5 stars">
+          <label>${_tt('Rating', 'Rating')}</label>
+          <div class="wh-fb-stars" role="radiogroup" aria-label="${_tt('Rating from 1 to 5 stars', 'Rating mula 1 hanggang 5 na bituin')}">
             ${[1,2,3,4,5].map(n => `
               <button class="wh-fb-star" type="button" data-rating="${n}"
                       role="radio" aria-checked="false" aria-label="${n} star${n>1?'s':''}">★</button>
@@ -352,18 +365,18 @@
         </div>
 
         <div class="wh-fb-field">
-          <label for="wh-fb-subject">Subject</label>
+          <label for="wh-fb-subject">${_tt('Subject', 'Paksa')}</label>
           <input id="wh-fb-subject" class="wh-fb-input" type="text"
                  maxlength="200" autocomplete="off" />
         </div>
 
         <div class="wh-fb-field">
-          <label for="wh-fb-body">Tell us more</label>
+          <label for="wh-fb-body">${_tt('Tell us more', 'Ikuwento pa')}</label>
           <textarea id="wh-fb-body" class="wh-fb-textarea" maxlength="4000"></textarea>
         </div>
 
         <div class="wh-fb-field">
-          <label for="wh-fb-email">Email <span class="opt">(optional, so we can reply)</span></label>
+          <label for="wh-fb-email">Email <span class="opt">${_tt('(optional, so we can reply)', '(opsyonal, para masagot ka namin)')}</span></label>
           <input id="wh-fb-email" class="wh-fb-input" type="email"
                  maxlength="200" autocomplete="email" />
         </div>
@@ -372,7 +385,7 @@
         <div id="wh-fb-status"></div>
       </div>
       <div class="wh-fb-actions">
-        <button class="wh-fb-submit" type="button" id="wh-fb-submit-btn">Send feedback</button>
+        <button class="wh-fb-submit" type="button" id="wh-fb-submit-btn">${_tt('Send feedback', 'Ipadala')}</button>
       </div>
     `;
     document.body.appendChild(panel);
@@ -385,7 +398,9 @@
     // (see user_agent below); the user just sees what's attached, in their own language.
     const meta = panel.querySelector('#wh-fb-meta');
     const pageName = (document.title || '').replace(/\s*[·|–—-]\s*WorkHive.*$/i, '').trim() || 'this page';
-    meta.textContent = `Auto-attached: ${pageName} + your device details (helps us reproduce the issue)`;
+    meta.textContent = _tt(
+      `Auto-attached: ${pageName} + your device details (helps us reproduce the issue)`,
+      `Awtomatikong kasama: ${pageName} + ang detalye ng device mo (tumutulong para maulit namin ang problema)`);
   }
 
   // ── State + wiring ─────────────────────────────────────────────────────────
@@ -506,17 +521,17 @@
     const body    = document.getElementById('wh-fb-body').value.trim();
     const email   = document.getElementById('wh-fb-email').value.trim();
 
-    if (!state.kind) return setStatus('error', 'Pick what kind of feedback this is.');
-    if (!subject)    return setStatus('error', 'Add a short subject.');
-    if (!body)       return setStatus('error', 'Tell us a bit more.');
+    if (!state.kind) return setStatus('error', _tt('Pick what kind of feedback this is.', 'Piliin kung anong klaseng feedback ito.'));
+    if (!subject)    return setStatus('error', _tt('Add a short subject.', 'Maglagay ng maikling paksa.'));
+    if (!body)       return setStatus('error', _tt('Tell us a bit more.', 'Magkuwento pa nang kaunti.'));
     if (state.kind === 'review' && !state.rating) {
-      return setStatus('error', 'Tap a star to rate.');
+      return setStatus('error', _tt('Tap a star to rate.', 'Pindutin ang bituin para mag-rate.'));
     }
 
     const submitBtn = document.getElementById('wh-fb-submit-btn');
     state.submitting = true;
     submitBtn.disabled = true;
-    submitBtn.textContent = 'Sending…';
+    submitBtn.textContent = _tt('Sending…', 'Ipinapadala…');
 
     try {
       // Pull identity from localStorage (matches platform identity model)
@@ -541,9 +556,9 @@
       if (error) {
         // 23P01 is our rate-limit trigger; PostgREST returns it as code.
         if (error.code === '23P01' || /rate limit/i.test(error.message || '')) {
-          setStatus('error', RATE_LIMIT_MSG);
+          setStatus('error', RATE_LIMIT_MSG());
         } else {
-          setStatus('error', 'Could not send, please try again in a moment.');
+          setStatus('error', _tt('Could not send, please try again in a moment.', 'Hindi naipadala, subukan ulit maya-maya.'));
           console.error('[wh-feedback-fab] insert failed', error);
         }
         return;
@@ -555,15 +570,15 @@
       // would ever see it — and the honest answer is good: platform_feedback IS read, on the
       // founder console's review queue. A reply needs the (optional) email, so name that condition
       // instead of implying one either way. Give the longer sentence time to be read.
-      setStatus('success', 'Sent - it lands in the founder review queue. If you left an email, you get a reply there; there is no automated response.');
+      setStatus('success', _tt('Sent - it lands in the founder review queue. If you left an email, you get a reply there; there is no automated response.', 'Naipadala na - mapupunta ito sa review queue ng founder. Kung nag-iwan ka ng email, doon ka masasagot; walang automatic na sagot.'));
       setTimeout(() => closePanel(), 4200);
     } catch (e) {
       console.error('[wh-feedback-fab] unexpected error', e);
-      setStatus('error', 'Network hiccup, please try again.');
+      setStatus('error', _tt('Network hiccup, please try again.', 'May problema sa koneksyon, subukan ulit.'));
     } finally {
       state.submitting = false;
       submitBtn.disabled = false;
-      submitBtn.textContent = 'Send feedback';
+      submitBtn.textContent = _tt('Send feedback', 'Ipadala');
     }
   }
 

@@ -68,31 +68,32 @@ _load_env()
 
 PROVIDER_CHAIN = [
     # ── Tier 1: Groq — custom LPU hardware, fastest inference ────────────────
-    # Llama 4 Scout: 30K TPM, 500K TPD (highest on Groq free tier), multimodal
-    {"provider": "groq",     "base_url": "https://api.groq.com/openai/v1",  "model": "meta-llama/llama-4-scout-17b-16e-instruct", "env_key": "GROQ_API_KEY"},
-    # Llama 3.3 70B: proven quality, 6K TPM
-    {"provider": "groq",     "base_url": "https://api.groq.com/openai/v1",  "model": "llama-3.3-70b-versatile",                   "env_key": "GROQ_API_KEY"},
-    # Qwen3 32B: 60 RPM, 500K TPD
-    {"provider": "groq",     "base_url": "https://api.groq.com/openai/v1",  "model": "qwen/qwen3-32b",                            "env_key": "GROQ_API_KEY"},
-    # Llama 3.1 8B: fastest, 500K TPD, high TPM
-    {"provider": "groq",     "base_url": "https://api.groq.com/openai/v1",  "model": "llama-3.1-8b-instant",                      "env_key": "GROQ_API_KEY"},
-    # GPT-OSS 20B: strict JSON-schema adherence, 8K TPM
+    # ★MIRRORED 2026-09-10: seven of the first nine entries named models that no longer exist,
+    # measured against each provider's own /models endpoint with this platform's own keys. The dead
+    # Groq names were meta-llama/llama-4-scout-17b-16e-instruct, llama-3.3-70b-versatile,
+    # qwen/qwen3-32b and llama-3.1-8b-instant; all three Cerebras names were dead too. So every AI
+    # call collected four 404s before openai/gpt-oss-20b answered, and the Cerebras tier was inert.
+    # `validate_groq_fallback.check_models_are_live` now ASKS each provider rather than consulting a
+    # deny-list, so this can be caught the day it happens instead of months later.
+    # Qwen3.8 27B: 131K context, text AND image (the provider reports input_modalities), tools+json.
+    {"provider": "groq",     "base_url": "https://api.groq.com/openai/v1",  "model": "qwen/qwen3.8-27b",                          "env_key": "GROQ_API_KEY"},
+    # Qwen3.6 27B: same shape, one generation back — the vision fallback.
+    {"provider": "groq",     "base_url": "https://api.groq.com/openai/v1",  "model": "qwen/qwen3.6-27b",                          "env_key": "GROQ_API_KEY"},
+    # GPT-OSS 20B: strict JSON-schema adherence (structured_outputs), cheapest per token.
     {"provider": "groq",     "base_url": "https://api.groq.com/openai/v1",  "model": "openai/gpt-oss-20b",                        "env_key": "GROQ_API_KEY"},
-    # GPT-OSS 120B: largest model on Groq free tier, 8K TPM — last Groq resort
+    # GPT-OSS 120B: largest model on Groq free tier — last quality resort.
     {"provider": "groq",     "base_url": "https://api.groq.com/openai/v1",  "model": "openai/gpt-oss-120b",                       "env_key": "GROQ_API_KEY"},
+    # Compound Mini: json_mode only — the fast, small last stop on Groq.
+    {"provider": "groq",     "base_url": "https://api.groq.com/openai/v1",  "model": "groq/compound-mini",                        "env_key": "GROQ_API_KEY"},
 
     # ── Tier 2: Cerebras — 1M tokens/day free, 8K total context cap ──────────
     # NOTE 2026-05-18: both entries below returned 404 "Model X does not exist
     # or you do not have access to it" during the skill-rule extraction run.
-    # Cerebras catalog evolves frequently and free-tier accounts vary in which
-    # models are exposed. Verify model names against your account dashboard at
-    # https://cloud.cerebras.ai when this tier seems dead. Common safe names:
-    # `llama3.1-8b`, `llama-4-scout-17b-16e-instruct`.
-    {"provider": "cerebras", "base_url": "https://api.cerebras.ai/v1",       "model": "llama-3.3-70b",                             "env_key": "CEREBRAS_API_KEY", "max_tokens_cap": 4096},
-    {"provider": "cerebras", "base_url": "https://api.cerebras.ai/v1",       "model": "qwen-3-32b",                                "env_key": "CEREBRAS_API_KEY", "max_tokens_cap": 4096},
-    # Fallback name commonly available on Cerebras free tier (verified safe
-    # against historical 404s on the two entries above).
-    {"provider": "cerebras", "base_url": "https://api.cerebras.ai/v1",       "model": "llama3.1-8b",                               "env_key": "CEREBRAS_API_KEY", "max_tokens_cap": 4096},
+    # ...and on 2026-09-10 all three were 404. Cerebras serves exactly three models and this list
+    # named none of them; these ARE that list, read from https://api.cerebras.ai/v1/models.
+    {"provider": "cerebras", "base_url": "https://api.cerebras.ai/v1",       "model": "gpt-oss-120b",                              "env_key": "CEREBRAS_API_KEY", "max_tokens_cap": 4096},
+    {"provider": "cerebras", "base_url": "https://api.cerebras.ai/v1",       "model": "qwen-3.8-27b",                              "env_key": "CEREBRAS_API_KEY", "max_tokens_cap": 4096},
+    {"provider": "cerebras", "base_url": "https://api.cerebras.ai/v1",       "model": "gemma-4-31b",                               "env_key": "CEREBRAS_API_KEY", "max_tokens_cap": 4096},
 
     # NOTE: SambaNova was evaluated (FreeLLMAPI lists it) but REJECTED — its
     # free tier is $5 of credits that expire in 30 days, not permanently free.
@@ -103,16 +104,16 @@ PROVIDER_CHAIN = [
     {"provider": "google",   "base_url": "https://generativelanguage.googleapis.com/v1beta/openai", "model": "gemini-2.5-flash-lite", "env_key": "GEMINI_API_KEY"},
 
     # ── Tier 4: Mistral — 500K TPM but only 2 RPM, OpenAI-compatible ──────────
-    {"provider": "mistral",  "base_url": "https://api.mistral.ai/v1",        "model": "mistral-large-latest",                      "env_key": "MISTRAL_API_KEY"},
+    {"provider": "mistral",  "base_url": "https://api.mistral.ai/v1",        "model": "mistral-medium-latest",                      "env_key": "MISTRAL_API_KEY"},
     {"provider": "mistral",  "base_url": "https://api.mistral.ai/v1",        "model": "codestral-latest",                          "env_key": "MISTRAL_API_KEY"},
 
     # ── Tier 5: OpenRouter — :free models, $0/token, 200 req/day ─────────────
     {"provider": "openrouter", "base_url": "https://openrouter.ai/api/v1",  "model": "nvidia/nemotron-3-super-120b-a12b:free",    "env_key": "OPENROUTER_API_KEY", "extra_headers": {"HTTP-Referer": "https://workhiveph.com", "X-Title": "WorkHive"}},
     {"provider": "openrouter", "base_url": "https://openrouter.ai/api/v1",  "model": "google/gemma-4-31b-it:free",                "env_key": "OPENROUTER_API_KEY", "extra_headers": {"HTTP-Referer": "https://workhiveph.com", "X-Title": "WorkHive"}},
-    {"provider": "openrouter", "base_url": "https://openrouter.ai/api/v1",  "model": "openai/gpt-oss-120b:free",                  "env_key": "OPENROUTER_API_KEY", "extra_headers": {"HTTP-Referer": "https://workhiveph.com", "X-Title": "WorkHive"}},
+    {"provider": "openrouter", "base_url": "https://openrouter.ai/api/v1",  "model": "nvidia/nemotron-3.5-lightning:free",                  "env_key": "OPENROUTER_API_KEY", "extra_headers": {"HTTP-Referer": "https://workhiveph.com", "X-Title": "WorkHive"}},
     {"provider": "openrouter", "base_url": "https://openrouter.ai/api/v1",  "model": "google/gemma-4-26b-a4b-it:free",            "env_key": "OPENROUTER_API_KEY", "extra_headers": {"HTTP-Referer": "https://workhiveph.com", "X-Title": "WorkHive"}},
-    {"provider": "openrouter", "base_url": "https://openrouter.ai/api/v1",  "model": "meta-llama/llama-3.3-70b-instruct:free",    "env_key": "OPENROUTER_API_KEY", "extra_headers": {"HTTP-Referer": "https://workhiveph.com", "X-Title": "WorkHive"}},
-    {"provider": "openrouter", "base_url": "https://openrouter.ai/api/v1",  "model": "google/gemma-3-27b-it:free",                "env_key": "OPENROUTER_API_KEY", "extra_headers": {"HTTP-Referer": "https://workhiveph.com", "X-Title": "WorkHive"}},
+    {"provider": "openrouter", "base_url": "https://openrouter.ai/api/v1",  "model": "nvidia/nemotron-3-ultra-550b-a55b:free",    "env_key": "OPENROUTER_API_KEY", "extra_headers": {"HTTP-Referer": "https://workhiveph.com", "X-Title": "WorkHive"}},
+    {"provider": "openrouter", "base_url": "https://openrouter.ai/api/v1",  "model": "nex-agi/nex-n2.5-mini:free",                "env_key": "OPENROUTER_API_KEY", "extra_headers": {"HTTP-Referer": "https://workhiveph.com", "X-Title": "WorkHive"}},
 ]
 
 

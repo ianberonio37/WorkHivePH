@@ -230,7 +230,20 @@
     @media (max-width: 480px) {
       .profile-stats { grid-template-columns: repeat(2, 1fr); }
       .form-row { grid-template-columns: 1fr; }
-      .tab-btn span.lbl { display: none; }
+      /* ★THE SAME NAME-LOSS AS marketplace's .tab-label, AND HALF-FIXED (D1, walked 2026-09-10 at 390px).
+         `display:none` removes the label from the ACCESSIBILITY TREE, not just from view. The icon is
+         aria-hidden="true", so under 480px each tab's accessible name fell back to its count: Listings
+         and Inquiries both announced as "0". Analytics and Services do NOT, because they carry an
+         aria-label - someone met this bug and fixed the two tabs they were looking at, which is the
+         partial-fix shape this repo keeps rediscovering. The rubric missed all four here: "0" contains
+         a word character so D1's icon-only test never fired, and Analytics renders no count at all, so
+         its innerText is EMPTY rather than symbol-only. A dim that reads the DATA can miss a defect in
+         the CONTROL. The clip pattern (as .sr-only) restores the name for every tab and contributes no
+         width, so the strip looks exactly as before; the two aria-labels stay and simply win. */
+      .tab-btn span.lbl {
+        position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+        overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border-width: 0;
+      }
     }
   </style>
 </head>
@@ -248,15 +261,15 @@
        (First draft of this fix used `ic-lock`, which does not exist in wh-icons.css and would have
        rendered nothing at all — the icon must be one the library actually defines.) -->
   <span class="ic ic-secure" aria-hidden="true"></span>
-  <h2>Sign In Required</h2>
-  <p>You need to be signed in to view your seller dashboard.</p>
+  <h2 data-i="p_signinrequired_05e7">Sign In Required</h2>
+  <p data-i="p_youneedtobesignedintoviewyou_f5ea">You need to be signed in to view your seller dashboard.</p>
   <!-- `?signin=1` OPENS the sign-in modal. Without it this dropped a provider on the marketing
        homepage with no form open, leaving them to hunt for sign-in after clicking a button labelled
        "Sign In" — measured on a live walk 2026-08-01. -->
-  <a href="index.html?signin=1">Sign In</a>
+  <a data-i="p_signin_f849" href="index.html?signin=1">Sign In</a>
   <!-- ...and a way OUT. This screen had exactly one link, so a signed-out visitor who did not want to
        sign in had nowhere to go but the back button. -->
-  <a href="marketplace.html" style="display:block;margin-top:0.75rem;font-size:0.85rem;opacity:0.75;">Browse the marketplace instead</a>
+  <a data-i="p_browsethemarketplaceinstead_1999" href="marketplace.html" style="display:block;margin-top:0.75rem;font-size:0.85rem;opacity:0.75;">Browse the marketplace instead</a>
 </div>
 
 <div id="toast" role="alert" aria-live="polite"></div>
@@ -269,12 +282,12 @@
     <div class="profile-top">
       <div class="profile-avatar" id="profile-avatar">?</div>
       <div class="profile-info">
-        <h1 class="profile-name" id="profile-name" translate="no">Loading…</h1>
+        <h1 data-i="p_loading_33ce" class="profile-name" id="profile-name" translate="no">Loading…</h1>
         <div class="profile-badges" id="profile-badges"></div>
       </div>
 <details class="wh-help">
-  <summary>How this page works</summary>
-  <p>Manage your listings, answer inquiries, and track views here. Verification badges raise buyer trust. There are no fees.</p>
+  <summary data-i="p_howthispageworks_c540">How this page works</summary>
+  <p data-i="p_manageyourlistingsanswerinqu_e9e5">Manage your listings, answer inquiries, and track views here. Verification badges raise buyer trust. There are no fees.</p>
 </details>
       <a href="marketplace.html" class="back-link" aria-label="Back to marketplace" style="font-size:0.72rem;color:var(--wh-steel-bright);text-decoration:none;white-space:nowrap;display:inline-flex;align-items:center;gap:0.25rem;min-height:44px;"><!-- D1 U2: back-link as a 44px tap target; .back-link so wayfinding recognizes it (no duplicate pill/CLS) + W1 credits it -->
         <span class="ic ic-back" aria-hidden="true"></span>
@@ -293,9 +306,9 @@
       </a>
     </div>
     <div class="profile-stats">
-      <div class="pstat"><div class="pstat-num" id="ps-listings">-</div><div class="pstat-lbl">Listings</div></div>
-      <div class="pstat"><div class="pstat-num" id="ps-sales">-</div><div class="pstat-lbl">Sales</div></div>
-      <div class="pstat"><div class="pstat-num red" id="ps-pending-inq">-</div><div class="pstat-lbl">New Inquiries</div></div>
+      <div class="pstat"><div class="pstat-num" id="ps-listings">-</div><div data-i="p_listings_e539" class="pstat-lbl">Listings</div></div>
+      <div class="pstat"><div class="pstat-num" id="ps-sales">-</div><div data-i="p_sales_d0ed" class="pstat-lbl">Sales</div></div>
+      <div class="pstat"><div class="pstat-num red" id="ps-pending-inq">-</div><div data-i="p_newinquiries_bc54" class="pstat-lbl">New Inquiries</div></div>
     </div>
     <!-- A DASH IS NOT A REASON. When a stat read fails the tiles fall back to an em-dash, which is
          honest but silent: the seller cannot tell "nothing yet" from "we could not look". The toast
@@ -305,7 +318,7 @@
          style="margin:0.35rem 0 0;font-size:0.75rem;color:var(--wh-danger,#d9534f);">
       Couldn't load these numbers, so they're showing as a dash rather than as zero.<span id="ps-gap-why"></span>
       <button type="button" onclick="location.reload()"
-              style="background:none;border:0;color:inherit;text-decoration:underline;cursor:pointer;padding:0;font:inherit;">Retry</button>
+              style="background:none;border:0;color:inherit;text-decoration:underline;cursor:pointer;padding:0;font:inherit;" data-i="retry">Retry</button>
     </div>
 
     <!-- CREDIT WALLET. A seller cannot publish without holding 10% of the price in credits, and being
@@ -323,12 +336,7 @@
            moderation guard forbids self-publishing (a listing goes live only after WorkHive review,
            verified live in T34), and sellers were meeting 'Draft: Pending Review' right after copy
            promised immediacy. The promise now matches the enforced flow. -->
-      When you post a listing it goes into a quick WorkHive review, then live to buyers - you'll see
-      it as "Pending Review" until then. 10% of its price is HELD from
-      the credits below, not spent: the hold comes back in full if it does not sell, and goes to your
-      buyer if it does. Taking a listing down releases its hold immediately. Editing your profile or
-      certifications changes what buyers see on every listing you have, and a verification you request
-      is reviewed by a person before the badge appears.
+      Post a listing and WorkHive reviews it first. It shows as "Pending Review" until it goes live to buyers. 10% of its price is HELD from the credits below, not spent. The hold comes back in full if it does not sell. If it sells, it goes to your buyer. Taking a listing down releases its hold immediately. Edit your profile or certifications and every listing shows the change. A person reviews each verification you request before the badge appears.
     </p>
     <div id="credit-wallet" style="margin-top:1rem;padding-top:1rem;border-top:1px solid rgba(255,255,255,0.07);">
       <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;">
@@ -350,7 +358,7 @@
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(8rem,1fr));gap:0.5rem;">
         <div style="background:rgba(255,255,255,0.04);border-radius:var(--wh-radius-sm);padding:0.55rem 0.7rem;">
           <div id="cw-available" style="font-size:1.05rem;font-weight:700;">-</div>
-          <div style="font-size:0.7rem;opacity:0.75;">Available to list</div>
+          <div data-i="p_availabletolist_06a2" style="font-size:0.7rem;opacity:0.75;">Available to list</div>
           <!-- A NEGATIVE balance had no words at all. The panel handled zero (offer the starter grant)
                and positive (fine), and rendered a bare "₱-200" for below-zero - the one state where
                the seller is BLOCKED and least able to guess why. Filled in by loadCreditWallet. -->
@@ -365,20 +373,17 @@
           <button type="button" id="cw-topup-route"
                   style="display:none;margin-top:0.4rem;min-height:44px;padding:0 0.8rem;font-size:0.72rem;
                          font-weight:700;border-radius:0.5rem;border:1px solid var(--wh-orange);
-                         background:transparent;color:var(--wh-orange-text);cursor:pointer;">
-            Go to top up
-          </button>
+                         background:transparent;color:var(--wh-orange-text);cursor:pointer;" data-i="gototopup">Go to top up</button>
         </div>
         <div style="background:rgba(255,255,255,0.04);border-radius:var(--wh-radius-sm);padding:0.55rem 0.7rem;">
           <div id="cw-reserved" style="font-size:1.05rem;font-weight:700;">-</div>
-          <div style="font-size:0.7rem;opacity:0.75;">Held by live listings</div>
+          <div data-i="p_heldbylivelistings_a446" style="font-size:0.7rem;opacity:0.75;">Held by live listings</div>
         </div>
       </div>
       <p id="cw-note" style="font-size:0.72rem;opacity:0.8;margin:0.5rem 0 0;">
-        Publishing holds 10% of the price in credits. It is not a fee: it comes back in full if the
-        listing does not sell, and goes to your buyer as their reward if it does.
+        Publishing holds 10% of the price in credits. It is not a fee. It comes back in full if the listing does not sell. If it sells, your buyer gets it as their reward.
       </p>
-      <button type="button" id="cw-claim" onclick="claimStarter()" style="display:none;min-height:44px;width:100%;margin-top:0.5rem;padding:0 12px;border-radius:var(--wh-radius-sm);border:1px solid rgba(74,222,128,0.4);background:rgba(74,222,128,0.12);color:rgb(74,222,128);font-weight:700;cursor:pointer;">
+      <button data-i="p_claimyourstartercredits_8029" type="button" id="cw-claim" onclick="claimStarter()" style="display:none;min-height:44px;width:100%;margin-top:0.5rem;padding:0 12px;border-radius:var(--wh-radius-sm);border:1px solid rgba(74,222,128,0.4);background:rgba(74,222,128,0.12);color:rgb(74,222,128);font-weight:700;cursor:pointer;">
         Claim your starter credits
       </button>
     </div>
@@ -390,10 +395,26 @@
         <strong style="font-size:0.82rem;">Facebook Messenger handle</strong>
       </div>
       <p style="font-size:0.72rem;color:var(--wh-steel-bright);margin-bottom:0.5rem;">Buyers see a "Message on Messenger" button on your listings that opens m.me/<your-handle> directly. Find your handle at facebook.com/settings under Username.</p>
-      <label for="messenger-input" style="display:block;font-size:0.72rem;font-weight:700;margin-bottom:0.35rem;color:var(--wh-steel-bright);">Messenger handle</label>
+      <label data-i="messengerhandle" for="messenger-input" style="display:block;font-size:0.72rem;font-weight:700;margin-bottom:0.35rem;color:var(--wh-steel-bright);">Messenger handle</label>
       <div style="display:flex;gap:0.5rem;">
         <input class="wh-input" id="messenger-input" type="text" placeholder="your.handle (without m.me/)" style="flex:1;font-size:1rem;" />
-        <button id="btn-save-messenger" style="padding:0.6rem 1rem;border-radius:0.5rem;border:1px solid transparent;background:linear-gradient(135deg,var(--wh-orange),var(--wh-orange-light));color:var(--wh-navy);font-family:'Poppins',sans-serif;font-size:0.78rem;font-weight:700;cursor:pointer;white-space:nowrap;min-height:44px;box-sizing:border-box;" data-i="save">Save</button>
+        <!-- ★A FIELD-LEVEL SAVE WAS WEARING THE PAGE'S PRIMARY (measured 2026-09-11). This carried the
+             SAME solid orange gradient, weight 700 and 44px height as "Post a listing" - the page's
+             actual call to action - so a seller opening this dashboard met THREE filled orange buttons
+             competing for one glance: post a listing (profile card), save this messenger handle, and the
+             empty state's own "Post a Listing". Saving one text field is not a page-level action.
+             G3 read 0% ("16 controls, 3 primary CTA") and A3 75% ("primaryCta=3/2") for exactly that
+             reason, and those two dims were the only thing holding 51 critic rows open on this page.
+             Measured live before changing anything, by demoting this one control and re-surveying:
+             G3 0 -> 100%, A3 75 -> 100%, page 98 -> 100%. Two CTAs pass; three do not.
+             Uses the page's OWN subordinate vocabulary rather than a new one: `.btn-sm` is its neutral
+             outline (rgba(255,255,255,0.04) fill, steel-bright text, 8px radius) and already carries the
+             44px tap floor this file fixed for Edit/View Live.
+             ★NOT `.btn-sm.primary`, which was tried first and did NOT clear the dim: that modifier is the
+             page's orange-tinted variant, and its class WORD is literally "primary", so the rubric counts
+             it - correctly. A control whose own class declares it primary IS claiming primacy, whatever
+             its fill; the demotion has to be real, not just quieter. -->
+        <button id="btn-save-messenger" class="btn-sm" style="white-space:nowrap;" data-i="save">Save</button>
       </div>
       <div id="messenger-preview" style="display:none;margin-top:0.5rem;font-size:0.72rem;color:var(--wh-green);"></div>
     </div>
@@ -402,8 +423,8 @@
     <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid rgba(255,255,255,0.07);">
       <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;">
         <span class="ic ic-star" aria-hidden="true"></span>
-        <strong id="cert-input-label" style="font-size:0.82rem;">Certifications</strong>
-        <span id="cert-status-pill" style="margin-left:auto;font-size:0.65rem;padding:0.15rem 0.5rem;border-radius:999px;background:rgba(255,255,255,0.06);color:var(--wh-steel-bright);">Not verified</span>
+        <strong data-i="p_certifications_b65e" id="cert-input-label" style="font-size:0.82rem;">Certifications</strong>
+        <span data-i="p_notverified_fbc0" id="cert-status-pill" style="margin-left:auto;font-size:0.65rem;padding:0.15rem 0.5rem;border-radius:999px;background:rgba(255,255,255,0.06);color:var(--wh-steel-bright);">Not verified</span>
       </div>
       <p style="font-size:0.72rem;color:var(--wh-steel-bright);margin-bottom:0.5rem;">List your trade certifications, one per line. Admin reviews before the "Certified" badge appears on your listings. Examples: <em>PRC ME License, TESDA HVAC NC II, Welder NC III</em>.</p>
       <textarea class="wh-textarea" id="cert-input" maxlength="1000" placeholder="PRC Master Electrician License&#10;TESDA Welder NC II&#10;HVAC Technician Certification" aria-labelledby="cert-input-label" style="min-height:90px;font-size:1rem;"></textarea>
@@ -417,12 +438,12 @@
   <div class="tab-bar" role="tablist">
     <button class="tab-btn active" data-tab="listings" role="tab" aria-selected="true" id="tab-listings" aria-controls="content-area">
       <span class="ic ic-list" aria-hidden="true"></span>
-      <span class="lbl">Listings</span>
+      <span data-i="p_listings_e539" class="lbl">Listings</span>
       <span class="tab-count" id="badge-listings">0</span>
     </button>
     <button class="tab-btn" data-tab="inquiries" role="tab" aria-selected="false" id="tab-inquiries" aria-controls="content-area">
       <span class="ic ic-message" aria-hidden="true"></span>
-      <span class="lbl">Inquiries</span>
+      <span data-i="p_inquiries_703e" class="lbl">Inquiries</span>
       <span class="tab-count red" id="badge-inquiries">0</span>
     </button>
     <button class="tab-btn" data-tab="analytics" role="tab" aria-selected="false" aria-label="Analytics" id="tab-analytics" aria-controls="content-area"><!-- D1 U5: label hidden at mobile → needs aria-label (button-name) -->
@@ -431,13 +452,14 @@
     </button>
     <button class="tab-btn" data-tab="services" role="tab" aria-selected="false" aria-label="Services" id="tab-services" aria-controls="content-area"><!-- service-hailing provider console (SERVICE_HAILING_ROADMAP.md P3) -->
       <span class="ic ic-maintenance" aria-hidden="true"></span>
-      <span class="lbl">Services</span>
+      <span data-i="p_services_5cbd" class="lbl">Services</span>
       <span class="tab-count" id="badge-services">0</span>
     </button>
   </div>
 
   <!-- Listings filter chips -->
-  <div class="filter-row" id="listing-filter" role="group" aria-label="Filter listings by status">
+  <h2 data-i="mymarket-h" style="font-size:1rem; margin:0 0 .5rem;">Your listings and inquiries</h2>
+<div class="filter-row" id="listing-filter" role="group" aria-label="Filter listings by status">
     <button class="filter-chip active" data-status="all" data-i="f_all" aria-pressed="true">All</button>
     <button class="filter-chip" data-status="published" data-i="f_pub" aria-pressed="false">Published</button>
     <button class="filter-chip" data-status="draft" data-i="f_draft" aria-pressed="false">Draft</button>
@@ -461,7 +483,7 @@
 <div class="sheet" id="sheet-edit">
   <div class="sheet-handle"></div>
   <div class="sheet-header">
-    <span class="sheet-title" id="title-sheet-edit">Edit Listing</span>
+    <span data-i="p_editlisting_e568" class="sheet-title" id="title-sheet-edit">Edit Listing</span>
     <button class="btn-close-sheet" id="btn-close-edit" aria-label="Close">
       <span class="ic ic-close" aria-hidden="true"></span>
     </button>
@@ -469,35 +491,35 @@
   <form id="form-edit" novalidate>
     <input type="hidden" id="edit-id" value="" />
     <div class="form-group">
-      <label class="form-label" for="edit-title">Title</label>
+      <label data-i="p_title_768e" class="form-label" for="edit-title">Title</label>
       <input class="wh-input" type="text" id="edit-title" required />
     </div>
     <div class="form-row">
       <div class="form-group">
-        <label class="form-label" for="edit-category">Category</label>
+        <label data-i="p_category_a3c6" class="form-label" for="edit-category">Category</label>
         <select class="wh-select" id="edit-category"></select>
       </div>
       <div class="form-group" id="edit-condition-wrap">
-        <label class="form-label" for="edit-condition">Condition</label>
+        <label data-i="p_condition_2f49" class="form-label" for="edit-condition">Condition</label>
         <select class="wh-select" id="edit-condition" data-select-placeholder-allow="default 'new' is the most common listing condition">
-          <option value="new">New</option>
-          <option value="used">Used</option>
+          <option data-i="p_new_6403" value="new">New</option>
+          <option data-i="p_used_02c0" value="used">Used</option>
           <option value="refurb">Refurbished</option>
         </select>
       </div>
     </div>
     <div class="form-group">
-      <label class="form-label" for="edit-desc">Description</label>
+      <label data-i="p_description_55f8" class="form-label" for="edit-desc">Description</label>
       <textarea class="wh-textarea" id="edit-desc" maxlength="2000" required></textarea>
       <div id="edit-draft-offer" role="status"></div>
     </div>
     <div class="form-row">
       <div class="form-group">
-        <label class="form-label" for="edit-price">Price (PHP)</label>
+        <label data-i="p_pricephp_8b6c" class="form-label" for="edit-price">Price (PHP)</label>
         <input class="wh-input" type="number" id="edit-price" min="0" step="0.01" placeholder="Leave blank if negotiable" />
       </div>
       <div class="form-group">
-        <label class="form-label" for="edit-location">Location</label>
+        <label data-i="p_location_d219" class="form-label" for="edit-location">Location</label>
         <input class="wh-input" type="text" id="edit-location" placeholder="City, Province" />
       </div>
     </div>
@@ -522,29 +544,29 @@
 
     <!-- Image picker — same component as the post form -->
     <div class="form-group">
-      <label class="form-label">Photo</label>
+      <label data-i="p_photo_d01d" class="form-label">Photo</label>
       <div id="edit-image-zone" style="position:relative;border:2px dashed rgba(255,255,255,0.15);border-radius:0.625rem;padding:1.25rem;text-align:center;cursor:pointer;">
         <input type="file" id="edit-image-file" accept="image/jpeg,image/jpg,image/png,image/webp" style="position:absolute;inset:0;opacity:0;cursor:pointer;" aria-label="Choose listing photo" />
         <div id="edit-image-empty" style="color:var(--wh-steel-bright);">
           <span class="ic ic-image" aria-hidden="true"></span>
-          <div style="font-size:0.78rem;font-weight:600;color:var(--wh-cloud);">Tap to add or replace photo</div>
-          <div style="font-size:0.7rem;margin-top:0.2rem;">JPEG/PNG/WebP up to 5MB</div>
+          <div data-i="p_taptoaddorreplacephoto_91a0" style="font-size:0.78rem;font-weight:600;color:var(--wh-cloud);">Tap to add or replace photo</div>
+          <div data-i="p_jpegpngwebpuptomb_827e" style="font-size:0.7rem;margin-top:0.2rem;">JPEG/PNG/WebP up to 5MB</div>
         </div>
         <div id="edit-image-preview" style="display:none;">
           <img id="edit-image-preview-img" alt="Preview" style="max-width:100%;max-height:200px;border-radius:0.5rem;display:block;margin:0 auto;" />
           <div id="edit-image-status" style="font-size:0.7rem;color:var(--wh-steel-bright);margin-top:0.5rem;"></div>
-          <button type="button" id="edit-image-remove" style="margin-top:0.5rem;padding:0.35rem 0.75rem;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);border-radius:0.5rem;color:var(--wh-red);font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;cursor:pointer;">Remove photo</button>
+          <button type="button" id="edit-image-remove" style="margin-top:0.5rem;padding:0.35rem 0.75rem;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);border-radius:0.5rem;color:var(--wh-red);font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;cursor:pointer;" data-i="removephoto">Remove photo</button>
         </div>
       </div>
       <input type="hidden" id="edit-image-url" value="" />
     </div>
 
-    <button type="submit" class="btn-primary" id="btn-save-edit" style="min-height:44px;box-sizing:border-box;">Save Changes</button>
+    <button type="submit" class="btn-primary" id="btn-save-edit" style="min-height:44px;box-sizing:border-box;" data-i="savechanges">Save Changes</button>
   </form>
 </div>
 
 <script src="browser-floor.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
+  <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
 <script>
   // listener-cleanup-allow: static HTML page — listeners die with page nav; render-scoped listeners attach to elements removed in the same render cycle
@@ -721,7 +743,8 @@
             const nextN = tier === 'bronze' ? silver : gold;
             const note = document.createElement('div');
             note.style.cssText = 'font-size:0.68rem;opacity:0.75;margin-top:0.3rem;';
-            note.textContent = `${nextName} at ${nextN} sales to distinct buyers (Silver ${silver} · Gold ${gold}).`;
+            note.textContent = _t(`${nextName} at ${nextN} sales to distinct buyers (Silver ${silver} · Gold ${gold}).`,
+      `${nextName} sa ${nextN} benta sa magkakaibang buyer (Silver ${silver} · Gold ${gold}).`);
             badgesEl.appendChild(note);
           } catch (_) { /* empty-catch-allow: the progression note is best-effort; the chip stands */ }
         })();
@@ -737,6 +760,11 @@
       msgPreview.innerHTML = `Live: <a href="https://m.me/${e(_seller.messenger_username)}" target="_blank" rel="noopener" style="color:var(--wh-green);text-decoration:underline;">m.me/${e(_seller.messenger_username)}</a>`;
     }
 
+    /* EX-PF F10 (2026-09-07): what a seller typed into their profile survives a refresh. The listing composer
+       already offers a draft back (edit-draft-offer); the profile fields did not, and a phone call between typing
+       a certification list and pressing Save lost it. Pre-fill runs first, so a saved value is never overridden. */
+    window._whSellerMsgDraft  = (typeof whAutoSaveDraft === 'function') ? whAutoSaveDraft('seller-messenger', ['messenger-input']) : null;
+    window._whSellerCertDraft = (typeof whAutoSaveDraft === 'function') ? whAutoSaveDraft('seller-certs', ['cert-input']) : null;
     /* Pre-fill certifications input + status pill */
     const certInput  = document.getElementById('cert-input');
     const certPill   = document.getElementById('cert-status-pill');
@@ -747,7 +775,10 @@
       if (whCertBadgeEarned(_seller)) {
         certPill.textContent = '✓ Admin verified';
         certPill.style.background = 'rgba(167,139,250,0.15)';
-        certPill.style.color = '#a78bfa';
+        // C2 (rubric sweep 2026-09-05): violet-400 #a78bfa on this pill's composited background
+        // measured 3.93:1 — under the 4.5:1 AA floor for 0.7rem text. violet-300 keeps the hue and
+        // clears it with margin. Scoped to the pill text, NOT a brand token (the C2 fix pattern).
+        certPill.style.color = '#c4b5fd';
       } else if (_seller?.certifications) {
         certPill.textContent = 'Pending admin review';
         certPill.style.background = 'rgba(251,191,36,0.1)';
@@ -829,7 +860,7 @@
                     : Math.round(n / 60) + ' minute' + (Math.round(n / 60) === 1 ? '' : 's'))
                  : 'a moment';
       _lastFailReason = 'Too many requests. Your connection is fine: wait about ' + wait + ', then retry.';
-      return 'Too many requests, so ' + what + " couldn't be read. Your connection is fine: wait about "
+      return 'Too many requests, so ' + what + _t(" couldn't be read. Your connection is fine: wait about ", " ay hindi mabasa. Maayos ang koneksyon mo: maghintay ng mga ")
              + wait + ', then retry.';
     }
     /* 401 IS A DEAD SESSION; 403 IS A LIVE SESSION AND A REFUSED ROW. PostgREST answers 401 when the
@@ -840,7 +871,7 @@
     if (st === 401 || /jwt|token/i.test(String((err && err.message) || ''))
         || (st == null && code === '42501')) {
       _lastFailReason = 'Your session expired. Sign in again to continue; nothing you did was lost.';
-      return 'Your session expired, so ' + what + " couldn't be read. Sign in again to continue. "
+      return 'Your session expired, so ' + what + _t(" couldn't be read. Sign in again to continue. ", " ay hindi mabasa. Mag-sign in muli para magpatuloy. ")
              + 'Nothing you did was lost.';
     }
     if (st === 403 || code === '42501') {
@@ -848,7 +879,7 @@
       return 'This account does not have access to ' + what + '. Your session is fine, so signing in '
              + 'again will not change it. Ask a supervisor if you need access.';
     }
-    return "Couldn't load " + what + '. Check your connection and retry.';
+    return _t("Couldn't load ", "Hindi ma-load ang ") + what + '. Check your connection and retry.';
   }
   const _statOrGap = (failed, value) => (failed ? '\u2014' : String(value));
   let _listingsTotal  = 0;
@@ -996,7 +1027,7 @@
          publishing, on a number nobody ever read. Send it down the unknown path instead. */
       const availRaw = row?.available;
       if (availRaw === null || availRaw === undefined || availRaw === '' || !isFinite(Number(availRaw))) {
-        err = new Error('balance unavailable');
+        err = new Error(_t('balance unavailable', 'walang balance'));
       } else {
         bal = Number(availRaw);
       }
@@ -1008,7 +1039,7 @@
     if (err) {
       rowsEl.innerHTML = _holdRow('Credits held to publish', 'can’t check right now',
                                   { color: 'var(--wh-orange)' });
-      noteEl.textContent = 'Your wallet could not be read, so this figure is unknown rather than zero. '
+      noteEl.textContent = _t('Your wallet could not be read, so this figure is unknown rather than zero. ', 'Hindi mabasa ang wallet mo, kaya hindi alam ang halagang ito, hindi zero. ')
                          + 'It will be checked again when you save.';
       _holdState = { ok: true, reason: 'unknown' };   // do not block on OUR failure to read
       return;
@@ -1160,11 +1191,11 @@
           no_verified_seller_profile: 'Finish setting up your seller profile first, then claim.',
           not_signed_in: 'Sign in again to claim your starter credits.',
           grant_disabled: 'Starter credits are not being offered right now.',
-        }[data?.reason] || 'Could not claim starter credits.';
+        }[data?.reason] || _t('Could not claim starter credits.', 'Hindi ma-claim ang starter credits.');
         showToast(why, 'error');
       }
     } catch (e) {
-      showToast(whWriteError(e, 'Could not claim starter credits.'), 'error');
+      showToast(whWriteError(e, _t('Could not claim starter credits.', 'Hindi ma-claim ang starter credits.')), 'error');
     } finally {
       if (btn) { btn.disabled = false; btn.removeAttribute('aria-busy'); btn.textContent = 'Claim your starter credits'; }
     }
@@ -1204,9 +1235,9 @@
           whListError(area, _failCopy(_readFailErr.listings, 'your listings'), () => loadListings());
         } else {
           area.innerHTML = `<div class="empty-state">
-        <h2>Couldn't load your listings</h2>
-        <p>This is a problem reading them, not an empty shop - nothing of yours has been removed.</p>
-        <button type="button" class="btn-post-now" onclick="svcRetryAll()">Retry</button>
+        <h2>${escHtml(_t("Couldn't load your listings", "Hindi ma-load ang mga listing mo"))}</h2>
+        <p>${escHtml(_t('This is a problem reading them, not an empty shop - nothing of yours has been removed.', 'Problema ito sa pagbasa ng mga ito, hindi walang laman na tindahan - walang naalis sa mga iyo.'))}</p>
+        <button type="button" class="btn-post-now" onclick="svcRetryAll()" data-i="retry">Retry</button>
       </div>`;
         }
         if (lmWrap) lmWrap.classList.add('hidden');
@@ -1214,11 +1245,27 @@
       }
       area.innerHTML = `<div class="empty-state">
         <span class="ic ic-list" aria-hidden="true"></span>
-        <h2>No listings yet</h2>
-        <p>Post your first listing to start selling on WorkHive.</p>
-        <a href="marketplace.html" class="btn-post-now">
+        <h2>${escHtml(_t('No listings yet', 'Wala pang listing'))}</h2>
+        <p>${escHtml(_t('Post your first listing to start selling on WorkHive.', 'I-post ang iyong unang listing para magsimulang magbenta sa WorkHive.'))}</p>
+        <!-- THE ONE CONTROL WHOSE JOB IS THE FIRST LISTING DID NOT START ONE (2026-09-10, walked as
+             a seller with no listings). This empty state says "Post your first listing to start
+             selling" and its button says "Post a Listing" - and it linked to bare marketplace.html,
+             which just shows the market. marketplace.html opens the post sheet when the query string
+             carries post=1 (its deep-link handler calls openPostSheet), which is exactly what this
+             same dashboard's TOP button already uses. So the page had the right link twice over and
+             the empty state used the wrong one: a new seller read the promise, tapped it, and landed
+             on a browse page with no form. Only an empty-seller cast can see it, which is why it
+             survived - every marketplace walk before this one was cast on somebody who had listings.
+             The other bare marketplace.html links in this file are honest about where they go
+             ("Browse the marketplace instead", "Back to marketplace", "View Live", "Find a part")
+             and are left alone.
+             NOTE TO THE NEXT EDITOR: this comment sits INSIDE a JS template literal, so it must
+             contain NO BACKTICKS - the first one ends the literal and the page dies with
+             "SyntaxError: Unexpected token if". That is exactly how the first version of this
+             comment broke the page. -->
+        <a href="marketplace.html?post=1" class="btn-post-now">
           <span class="ic ic-post" aria-hidden="true"></span>
-          Post a Listing
+          ${escHtml(_t('Post a Listing', 'Mag-post ng Listing'))}
         </a>
       </div>`;
       if (lmWrap) lmWrap.classList.add('hidden');
@@ -1280,8 +1327,8 @@
           </div>
         </div>
         <div class="li-actions">
-          ${item.status !== 'removed' ? `<button class="btn-sm primary" data-action="edit" data-id="${e(item.id)}">Edit</button>` : ''}
-          ${item.status === 'draft' ? `<button class="btn-sm danger" data-action="delete" data-id="${e(item.id)}">Delete</button>` : ''}
+          ${item.status !== 'removed' ? `<button data-i="edit" class="btn-sm primary" data-action="edit" data-id="${e(item.id)}">Edit</button>` : ''}
+          ${item.status === 'draft' ? `<button class="btn-sm danger" data-action="delete" data-id="${e(item.id)}" data-i="delete">Delete</button>` : ''}
           ${item.status === 'published' ? `<a href="marketplace.html" class="btn-sm" style="text-decoration:none;display:inline-flex;align-items:center;gap:0.3rem;">View Live</a>` : ''}
         </div>
       </div>`).join('');
@@ -1312,9 +1359,9 @@
           whListError(area, _failCopy(_readFailErr.inquiries, 'your inquiries'), () => loadInquiries());
         } else {
           area.innerHTML = `<div class="empty-state">
-        <h2>Couldn't load your inquiries</h2>
-        <p>This is a problem reading them, not an empty inbox - a buyer may still be waiting.</p>
-        <button type="button" class="btn-post-now" onclick="svcRetryAll()">Retry</button>
+        <h2>${escHtml(_t('Couldn\'t load your inquiries', 'Hindi ma-load ang mga inquiry mo'))}</h2>
+        <p>${escHtml(_t('This is a problem reading them, not an empty inbox - a buyer may still be waiting.', 'Problema ito sa pagbasa ng mga ito, hindi walang laman na inbox - maaaring may buyer na naghihintay pa.'))}</p>
+        <button type="button" class="btn-post-now" onclick="svcRetryAll()" data-i="retry">Retry</button>
       </div>`;
         }
         return;
@@ -1322,7 +1369,7 @@
       area.innerHTML = `<div class="empty-state">
         <span class="ic ic-message" aria-hidden="true"></span>
         <h2 data-i="noinq">No inquiries yet</h2>
-        <p>Buyers will appear here when they contact you about your listings.</p>
+        <p>${escHtml(_t('Buyers will appear here when they contact you about your listings.', 'Lalabas dito ang mga buyer kapag kinontak ka nila tungkol sa mga listing mo.'))}</p>
       </div>`;
       return;
     }
@@ -1346,7 +1393,7 @@
           <div class="inq-contact">Contact buyer:
             ${inq.buyer_contact
               ? `<button type="button" class="btn-sm" data-action="reveal-contact" data-contact="${e(inq.buyer_contact)}"
-                   style="min-height:44px;padding:0 10px;border-radius:8px;border:1px solid rgba(255,255,255,0.18);background:rgba(255,255,255,0.06);color:inherit;cursor:pointer;font-size:0.72rem;">Show contact</button>`
+                   style="min-height:44px;padding:0 10px;border-radius:8px;border:1px solid rgba(255,255,255,0.18);background:rgba(255,255,255,0.06);color:inherit;cursor:pointer;font-size:0.72rem;" data-i="showcontact">Show contact</button>`
               : `<strong>Not provided</strong>`}
           </div>
           ${inq.reply_text ? `<div style="font-size:0.72rem;color:var(--wh-green);padding:0.4rem 0.625rem;background:rgba(74,222,128,0.06);border-radius:0.4rem;margin-bottom:0.5rem;">Your reply: ${e(inq.reply_text)}</div>` : ''}
@@ -1354,8 +1401,8 @@
             <div class="reply-area">
               <textarea class="reply-textarea" placeholder="Type your reply… (optional, you can also reply directly via the buyer's contact)" aria-label="Your reply to this inquiry" data-inq-id="${e(inq.id)}"></textarea>
               <div class="inq-actions">
-                <button class="btn-sm primary" data-action="reply" data-id="${e(inq.id)}">Send Reply + Mark Replied</button>
-                <button class="btn-sm" data-action="close" data-id="${e(inq.id)}">Close</button>
+                <button class="btn-sm primary" data-action="reply" data-id="${e(inq.id)}" data-i="sendreplymarkreplied">Send Reply + Mark Replied</button>
+                <button class="btn-sm" data-action="close" data-id="${e(inq.id)}" data-i="close">Close</button>
               </div>
             </div>` : `<span style="font-size:0.7rem;color:var(--wh-green);">Replied ${e(timeAgo(inq.replied_at))}</span>`}
         </div>`;
@@ -1425,7 +1472,7 @@
           canvas.getContext('2d').drawImage(img, 0, 0, w, h);
           canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('Canvas export failed')), 'image/jpeg', IMAGE_QUALITY);
         };
-        img.onerror = () => reject(new Error('Could not read image.'));
+        img.onerror = () => reject(new Error(_t('Could not read image.', 'Hindi mabasa ang larawan.')));
         img.src = reader.result;
       };
       reader.onerror = () => reject(new Error('File read failed'));
@@ -1575,8 +1622,8 @@
     if (!saved || saved === (item.description || '')) return;   // nothing to offer, or it matches what is saved
     slot.innerHTML = '<p style="font-size:0.75rem;margin:0.35rem 0 0;color:var(--wh-text-muted);">'
       + 'You have an unsaved edit to this description from earlier. '
-      + '<button type="button" id="edit-draft-restore" style="font-size:0.75rem;min-height:44px;padding:0.3rem 0.7rem;border-radius:var(--wh-radius-sm);border:1px solid rgba(255,255,255,0.18);background:transparent;color:inherit;">Restore it</button> '
-      + '<button type="button" id="edit-draft-discard" style="font-size:0.75rem;min-height:44px;padding:0.3rem 0.7rem;border-radius:var(--wh-radius-sm);border:0;background:transparent;color:inherit;text-decoration:underline;">Discard</button></p>';
+      + '<button type="button" id="edit-draft-restore" style="font-size:0.75rem;min-height:44px;padding:0.3rem 0.7rem;border-radius:var(--wh-radius-sm);border:1px solid rgba(255,255,255,0.18);background:transparent;color:inherit;" data-i="restoreit">Restore it</button> '
+      + '<button type="button" id="edit-draft-discard" style="font-size:0.75rem;min-height:44px;padding:0.3rem 0.7rem;border-radius:var(--wh-radius-sm);border:0;background:transparent;color:inherit;text-decoration:underline;" data-i="discard">Discard</button></p>';
     document.getElementById('edit-draft-restore').addEventListener('click', () => {
       descInput.value = saved;
       descInput.dispatchEvent(new Event('input', { bubbles: true }));
@@ -1678,12 +1725,43 @@
     const _wasPublished = _editItem && _editItem.status === 'published';
 
     try {
-      const { error } = await db
+      /* ── W3-LC (2026-09-08): this save rewrites NINE fields at once and was filtered only on the
+         listing id and the seller's name. A seller editing in two tabs, or on a phone and a laptop,
+         lost whichever save landed first — including the PRICE — and neither screen said anything.
+         Five sibling pages already guard an edit by re-sending the row's last-seen `updated_at`;
+         this one did not, and it is the costliest of the unguarded three.
+
+         The filter is ADDED to the existing chain rather than delegated to `ocUpdate`, because that
+         helper filters on id + stamp only and this update must keep `.eq('seller_name', …)` — a
+         concurrency fix that quietly widened who may edit a listing would be a poor trade. */
+      const _stamp = _editItem && _editItem.updated_at;
+      let _q2 = db
         .from('marketplace_listings')
         .update({ title, category, condition, description: desc, price, location, seller_contact: contact, image_url: imageUrl, status: 'draft', updated_at: new Date().toISOString() })
         .eq('id', id)
         .eq('seller_name', WORKER_NAME);
+      if (_stamp) _q2 = _q2.eq('updated_at', _stamp);
+      const { data: _saved, error } = await _q2.select('id');
       if (error) { if (typeof status !== 'undefined' && status) error._httpStatus = status; throw error; }
+      if (_stamp && (!_saved || _saved.length === 0)) {
+        /* ZERO ROWS HAS MORE THAN ONE CAUSE, so do not name the wrong one. It means somebody else
+           saved first, OR the row stopped being ours to edit, OR RLS refused the read entirely —
+           and telling a seller "someone else edited this" when they have actually lost access is a
+           confident sentence about the wrong thing. Ask the row which it was. */
+        // the CANONICAL source, not the base table: this page already reads
+        // v_marketplace_listings_truth twice, and a diagnostic that asks a different relation than the
+        // one the page renders can answer about a row the reader never saw. The view carries id and
+        // updated_at, which is all this question needs.
+        const { data: _cur } = await db.from('v_marketplace_listings_truth')
+          .select('updated_at').eq('id', id).maybeSingle();
+        if (_cur && _cur.updated_at && _cur.updated_at !== _stamp) {
+          showToast('Someone else saved this listing while you were editing it. Nothing of yours was lost, so reopen it to see their version, then make your change again.', 'error');
+        } else {
+          showToast('That listing could not be saved and is unchanged. Reload the page and try again.', 'error');
+        }
+        if (btn) { btn.disabled = false; btn.removeAttribute('aria-busy'); btn.textContent = 'Save changes'; }
+        return;
+      }
 
       /* T134 (2026-08-26): REPLACING an image orphaned the old one, exactly as deleting a listing
          did - same public bucket, same permanent URL, and this path runs far more often than a
@@ -1716,7 +1794,7 @@
       _editItem = null;
       await loadListings();
     } catch (_err) {
-      showToast(whWriteError(_err, 'Save failed. Try again.'), 'error');
+      showToast(whWriteError(_err, _t('Save failed. Try again.', 'Hindi na-save. Subukan muli.')), 'error');
     } finally {
       if (btn) { btn.disabled = false; btn.removeAttribute('aria-busy'); btn.textContent = 'Save Changes'; }
     }
@@ -1753,7 +1831,7 @@
       await loadListings();
     } catch (_err) {
       console.error('marketplace-seller delete failed:', _);
-      showToast(whWriteError(_err, 'Delete failed. Try again.'), 'error');
+      showToast(whWriteError(_err, _t('Delete failed. Try again.', 'Hindi natuloy ang delete. Subukan muli.')), 'error');
     }
   }
 
@@ -1775,7 +1853,7 @@
       showToast('Marked as replied.', 'success');
       await loadInquiries();
     } catch (_err) {
-      showToast(whWriteError(_err, 'Failed. Try again.'), 'error');
+      showToast(whWriteError(_err, _t('Failed. Try again.', 'Hindi natuloy. Subukan muli.')), 'error');
       if (btn) { btn.disabled = false; btn.removeAttribute('aria-busy'); btn.textContent = 'Send Reply + Mark Replied'; }
     }
   }
@@ -1998,8 +2076,8 @@
       // L-layer: a backend failure shown to the user must ALSO reach the console/aggregator,
       // or a services console that starts failing for providers is invisible in observability.
       console.error('services console load failed:', err);
-      area.innerHTML = '<div class="empty-state"><h2>Couldn\'t load services</h2><p>' + escHtml((err && err.message) || 'Please try again.') + '</p>' +
-        '<button type="button" onclick="svcRetryAll()" style="' + _svcBtnGhost + 'margin-top:0.6rem;">Retry</button></div>';
+      area.innerHTML = '<div class="empty-state"><h2>Couldn\'t load services</h2><p>' + escHtml((err && err.message) || _t('Please try again.', 'Pakisubukan muli.')) + '</p>' +
+        '<button type="button" onclick="svcRetryAll()" style="' + _svcBtnGhost + 'margin-top:0.6rem;" data-i="retry">Retry</button></div>';
     }
   }
 
@@ -2020,12 +2098,12 @@
       '<label style="display:block;margin-top:0.9rem;font-size:0.8rem;font-weight:600;">Provider name' +
       '<input id="svc-reg-name" type="text" aria-label="Provider name" value="' + e((WORKER_NAME ? WORKER_NAME + ' ' : '') + 'Services') + '" maxlength="80" style="display:block;width:100%;margin-top:0.3rem;padding:0.6rem;border-radius:var(--wh-radius-sm);border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:inherit;box-sizing:border-box;min-height:44px;"></label>' +
       '<label style="display:block;margin-top:0.7rem;font-size:0.8rem;font-weight:600;">Contact (mobile no.)' +
-      '<input id="svc-reg-contact" type="tel" placeholder="09xx xxx xxxx" maxlength="20" style="display:block;width:100%;margin-top:0.3rem;padding:0.6rem;border-radius:var(--wh-radius-sm);border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:inherit;box-sizing:border-box;min-height:44px;"></label>' +
+      '<input id="svc-reg-contact" type="tel" aria-label="Contact (mobile no.)" placeholder="09xx xxx xxxx" maxlength="20" style="display:block;width:100%;margin-top:0.3rem;padding:0.6rem;border-radius:var(--wh-radius-sm);border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:inherit;box-sizing:border-box;min-height:44px;"></label>' +
       '<label style="display:block;margin-top:0.7rem;font-size:0.8rem;font-weight:600;">City / service area' +
-      '<input id="svc-reg-area" type="text" placeholder="e.g. Baguio" maxlength="60" style="display:block;width:100%;margin-top:0.3rem;padding:0.6rem;border-radius:var(--wh-radius-sm);border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:inherit;box-sizing:border-box;min-height:44px;"></label>' +
+      '<input id="svc-reg-area" type="text" aria-label="Service area" placeholder="e.g. Baguio" maxlength="60" style="display:block;width:100%;margin-top:0.3rem;padding:0.6rem;border-radius:var(--wh-radius-sm);border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:inherit;box-sizing:border-box;min-height:44px;"></label>' +
       '<div style="margin-top:0.9rem;font-size:0.8rem;font-weight:600;">What services do you offer?</div>' +
       '<div id="svc-reg-cats" style="display:flex;flex-wrap:wrap;gap:0.4rem;margin-top:0.4rem;">' + (catBoxes || '<em>Loading categories…</em>') + '</div>' +
-      '<button type="button" onclick="_svcJobGuard(this,\'Registering…\',function(){return svcRegister();})" style="' + _svcBtn + 'width:100%;margin-top:1rem;">Register as a provider</button>' +
+      '<button type="button" onclick="_svcJobGuard(this,\'Registering…\',function(){return svcRegister();})" style="' + _svcBtn + 'width:100%;margin-top:1rem;" data-i="registerasaprovider">Register as a provider</button>' +
       '<p style="font-size:0.72rem;opacity:0.75;margin-top:0.5rem;">Verification is granted by the platform after review. Your profile starts unverified and can take jobs right away.</p>' +
       '<div id="svc-hive-reg" style="margin-top:0.9rem;"></div>' +
       '</div>';
@@ -2072,7 +2150,7 @@
        freelancer) carried the identical line. Reload is the safe instruction: if it landed, they
        see it. */
     if (!data || !data.length) {
-      showToast('Your registration may have gone through - we could not confirm it. Reload this page before registering again.', 'error');
+      showToast(_t('Your registration may have gone through - we could not confirm it. Reload this page before registering again.', 'Baka natuloy ang registration mo - hindi namin makumpirma. I-reload ang page bago mag-register muli.'), 'error');
       return;
     }
     showToast('Your hive is now a service company. Go Online to receive jobs');
@@ -2105,7 +2183,7 @@
        freelancer) carried the identical line. Reload is the safe instruction: if it landed, they
        see it. */
     if (!data || !data.length) {
-      showToast('Your registration may have gone through - we could not confirm it. Reload this page before registering again.', 'error');
+      showToast(_t('Your registration may have gone through - we could not confirm it. Reload this page before registering again.', 'Baka natuloy ang registration mo - hindi namin makumpirma. I-reload ang page bago mag-register muli.'), 'error');
       return;
     }
     showToast('You\'re a provider now - go Online to receive jobs');
@@ -2290,7 +2368,7 @@
          duplicate so no credits are double-minted, but they are then told 'That reference
          number is already filed' about their OWN second tap, which reads as though someone
          else claimed their payment. Lock the button while the write is in flight. */
-      '<button type="button" onclick="withButtonLock(this, function(){ return svcFileTopup(\'' + e(provId) + '\'); })" style="' + _svcBtnGhost + '">File top-up</button></div>' +
+      '<button type="button" onclick="withButtonLock(this, function(){ return svcFileTopup(\'' + e(provId) + '\'); })" style="' + _svcBtnGhost + '" data-i="filetopup">File top-up</button></div>' +
       /* UPLOAD THE SCREENSHOT (Ian: "they can just upload the receipt, for getting a credit").
          The provider already has the receipt in their gallery; reading 13 digits off it by eye is
          where a top-up becomes unmatchable later. Pasting the TEXT stays available too — some
@@ -2438,7 +2516,7 @@
     if (svcPushSupported() && Notification.permission !== 'granted') {
       html += '<div class="simple-card" style="margin-bottom:0.8rem;padding:0.8rem 1rem;display:flex;flex-wrap:wrap;gap:0.6rem;align-items:center;justify-content:space-between;">' +
         '<div style="font-size:0.8rem;">🔔 <strong>Hear new hails with this tab closed</strong><div style="opacity:0.8;font-size:0.74rem;margin-top:0.1rem;">Job offers arrive as notifications, like a ride-hailing driver app.</div></div>' +
-        '<button type="button" onclick="_svcJobGuard(this,\'Turning on…\',function(){return svcEnablePush();})" style="' + _svcBtn + '">Enable job alerts</button></div>';
+        '<button type="button" onclick="_svcJobGuard(this,\'Turning on…\',function(){return svcEnablePush();})" style="' + _svcBtn + '" data-i="enablejobalerts">Enable job alerts</button></div>';
     }
     if (_pushSilentlyOff) {
       html += '<div class="simple-card" style="margin-bottom:0.8rem;padding:0.8rem 1rem;'
@@ -2448,7 +2526,7 @@
         + 'we have no subscription for this device - so new hails will NOT reach you with this tab '
         + 'closed. Turning them back on takes one tap.</div></div>'
         + '<button type="button" onclick="_svcJobGuard(this,\'Turning on…\',function(){return svcEnablePush();})" '
-        + 'style="' + _svcBtn + 'margin-top:0.5rem;">Turn job alerts back on</button>'
+        + 'style="' + _svcBtn + 'margin-top:0.5rem;" data-i="turnjobalertsbackon">Turn job alerts back on</button>'
         + '</div>';
     }
     html += '<div id="svc-wallet-slot"></div>';
@@ -2493,7 +2571,7 @@
           '<strong>' + e(j.catalog_name || j.custom_scope || 'Service job') + '</strong>' +
           '<div style="font-size:0.75rem;opacity:0.8;margin:0.2rem 0 0.5rem;">' + e(SVC_STATUS_LABEL[j.status] || j.status) + ' · ' + e(j.address || '') + (j.client_worker_name ? ' · for ' + e(j.client_worker_name) : '') + '</div>' +
           (nxt ? '<button type="button" onclick="_svcJobGuard(this,\'Updating…\',function(){return svcAdvance(\'' + e(j.id) + '\',\'' + nxt[0] + '\');})" style="' + _svcBtn + 'margin-right:0.4rem;">' + nxt[1] + '</button>' : '') +
-          '<button type="button" onclick="_svcJobGuard(this,\'Cancelling…\',function(){return svcCancelJob(\'' + e(j.id) + '\');})" style="' + _svcBtnGhost + 'margin-right:0.4rem;">Cancel job</button>' +
+          '<button type="button" onclick="_svcJobGuard(this,\'Cancelling…\',function(){return svcCancelJob(\'' + e(j.id) + '\');})" style="' + _svcBtnGhost + 'margin-right:0.4rem;" data-i="canceljob">Cancel job</button>' +
           // dayplanner hook (P5/§1c): the platform's existing ?add=1 deep-link contract
           '<a href="dayplanner.html?add=1&title=' + encodeURIComponent('Service job: ' + (j.catalog_name || (j.custom_scope || 'hailed job').slice(0, 60))) + '&kind=shift&ref=svc-' + e(j.id) + '&cat=CM" style="' + _svcBtnGhost + 'display:inline-flex;align-items:center;text-decoration:none;margin-right:0.4rem;" aria-label="Add this job to my Day Planner">+ Add to my day</a>' +
           // parts cross-sell (P9/§1c): a job that needs a part feeds the parts marketplace
@@ -2557,7 +2635,7 @@
           (rated
             ? '<span style="font-size:0.78rem;opacity:0.75;">✓ You rated this client</span>'
             : '<div id="svc-prate-' + e(j.id) + '" style="margin:0.3rem 0;"></div>' +
-              '<button type="button" onclick="svcRateClient(\'' + e(j.id) + '\')" style="' + _svcBtnGhost + '">Rate client</button>') +
+              '<button type="button" onclick="svcRateClient(\'' + e(j.id) + '\')" style="' + _svcBtnGhost + '" data-i="rateclient">Rate client</button>') +
           '</div>';
       });
     }
@@ -2598,10 +2676,10 @@
           (f.already_responded
             ? '<span style="font-size:0.8rem;opacity:0.75;">Responded. Waiting for the client</span>'
             : (f.mode === 'instant'
-                ? '<button type="button" onclick="_svcJobGuard(this,\'Accepting…\',function(){return svcAccept(\'' + e(f.request_id) + '\');})" style="' + _svcBtn + '">Accept job</button>'
+                ? '<button type="button" onclick="_svcJobGuard(this,\'Accepting…\',function(){return svcAccept(\'' + e(f.request_id) + '\');})" style="' + _svcBtn + '" data-i="acceptjob">Accept job</button>'
                 : '<span style="display:inline-flex;gap:0.4rem;align-items:center;flex-wrap:wrap;">' +
                   '<input id="svc-q-' + e(f.request_id) + '" type="number" min="0" step="50" placeholder="Your price ₱" aria-label="Your quote price in pesos" style="width:9rem;padding:0.55rem;border-radius:var(--wh-radius-sm);border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:inherit;min-height:44px;box-sizing:border-box;">' +
-                  '<button type="button" onclick="_svcJobGuard(this,\'Sending…\',function(){return svcQuote(\'' + e(f.request_id) + '\');})" style="' + _svcBtnGhost + '">Send quote</button></span>')) +
+                  '<button type="button" onclick="_svcJobGuard(this,\'Sending…\',function(){return svcQuote(\'' + e(f.request_id) + '\');})" style="' + _svcBtnGhost + '" data-i="sendquote">Send quote</button></span>')) +
           '</div>';
       });
     }
@@ -2612,7 +2690,7 @@
     if (!svcRequireOnline('Changing your availability')) return;
     const { data, error, status } = await db.from('service_providers').update({ availability: to, updated_at: new Date().toISOString() }).eq('id', providerId).select('id');
     if (error) { showToast(whWriteError(error, 'Couldn\'t change your availability. It is unchanged.'), 'error'); return; }
-    if (!data || !data.length) { showToast('Couldn\'t change availability - refresh and try again', 'error'); return; }
+    if (!data || !data.length) { showToast(_t('Couldn\'t change availability - refresh and try again', 'Hindi mapalitan ang availability - i-refresh at subukan muli'), 'error'); return; }
     showToast(to === 'online' ? 'You\'re Online - jobs in your area will appear here' : 'You\'re Offline');
     loadServices();
   }
@@ -2701,7 +2779,7 @@
       return;
     }
     const { data, error, status } = await db.rpc('accept_service_request', { p_request_id: requestId });
-    if (error) { showToast(whWriteError(error, 'Couldn\'t accept this job. It was NOT accepted - the client is still waiting, so try again.'), 'error'); return; }
+    if (error) { showToast(whWriteError(error, _t('Couldn\'t accept this job. It was NOT accepted - the client is still waiting, so try again.', 'Hindi matanggap ang job na ito. HINDI ito natanggap - naghihintay pa ang client, kaya subukan muli.')), 'error'); return; }
     if (data && data.accepted) {
       showToast('Job is yours. Head over when ready');
     } else {
@@ -2740,7 +2818,7 @@
     const price = inp ? Number(inp.value) : NaN;
     if (!isFinite(price) || price <= 0) { showToast('Enter your price first', 'error'); return; }
     const { data, error, status } = await db.rpc('submit_service_quote', { p_request_id: requestId, p_price: price });
-    if (error) { showToast(whWriteError(error, 'Couldn\'t send the quote. Nothing was sent - your price is still here, so try again.'), 'error'); return; }
+    if (error) { showToast(whWriteError(error, _t('Couldn\'t send the quote. Nothing was sent - your price is still here, so try again.', 'Hindi maipadala ang quote. Walang naipadala - nandito pa ang presyo mo, kaya subukan muli.')), 'error'); return; }
     if (data && data.quoted) {
       // the price committed, so the next visit to this row starts fresh rather than re-offering
       // a number that is already on the client's screen
@@ -2795,7 +2873,7 @@
     if (!(await window.whConfirm('Cancel this job? The client will be notified.', { okLabel: 'Cancel job', cancelLabel: 'Keep it' }))) return;
     const { data, error, status } = await db.from('service_requests').update({ status: 'cancelled_by_provider', cancelled_at: new Date().toISOString(), updated_at: new Date().toISOString() }).eq('id', requestId).select('id');
     if (error) { showToast(whWriteError(error, 'Couldn\'t cancel this job. It is STILL YOURS and the client still expects you.'), 'error'); return; }
-    if (!data || !data.length) { showToast('Couldn\'t cancel - refresh and try again', 'error'); }
+    if (!data || !data.length) { showToast(_t('Couldn\'t cancel - refresh and try again', 'Hindi ma-cancel - i-refresh at subukan muli'), 'error'); }
     else { showToast('Job cancelled'); }
     loadServices();
   }
@@ -2853,7 +2931,7 @@
         new Promise(function (r) { setTimeout(function () { r(null); }, 8000); }),
       ]);
       if (!activated) {
-        showToast('Alerts need the background worker, which did not start. Reload and try again.', 'error');
+        showToast(_t('Alerts need the background worker, which did not start. Reload and try again.', 'Kailangan ng alerts ang background worker, na hindi nag-start. I-reload at subukan muli.'), 'error');
         return;
       }
       reg = activated;
@@ -2867,7 +2945,7 @@
         user_agent: navigator.userAgent.slice(0, 200)
       }, { onConflict: 'endpoint' }).select('id');
       if (error) { showToast(whWriteError(error, 'Couldn\'t turn on job alerts. They stay off, so keep this tab open to see new hails.'), 'error'); return; }
-      if (!data || !data.length) { showToast('Couldn\'t save the alert subscription. Try again.', 'error'); return; }
+      if (!data || !data.length) { showToast(_t('Couldn\'t save the alert subscription. Try again.', 'Hindi ma-save ang alert subscription. Subukan muli.'), 'error'); return; }
       showToast('Job alerts ON. You\'ll hear new hails even with this tab closed');
       loadServices();
     } catch (err) {
@@ -3065,7 +3143,7 @@
       <div style="font-size:0.78rem;font-weight:700;margin-bottom:0.5rem;">Listing Performance</div>`;
 
     if (!myListings.length) {
-      html += `<div class="empty-state" style="padding:1.5rem 1rem;"><p>Post a listing to start tracking performance.</p><button type="button" onclick="switchTab('listings')" style="margin-top:0.6rem;padding:0.45rem 1rem;border-radius:0.5rem;background:rgba(247,162,27,0.12);border:1px solid rgba(247,162,27,0.3);color:var(--wh-orange);font-weight:600;cursor:pointer;">Post a Listing →</button></div>`;
+      html += `<div class="empty-state" style="padding:1.5rem 1rem;"><p>Post a listing to start tracking performance.</p><button type="button" onclick="switchTab('listings')" style="margin-top:0.6rem;padding:0.45rem 1rem;border-radius:0.5rem;background:rgba(247,162,27,0.12);border:1px solid rgba(247,162,27,0.3);color:var(--wh-orange);font-weight:600;cursor:pointer;" data-i="postalisting">Post a Listing →</button></div>`;
     } else {
       const sorted = [...myListings].sort((a, b) => Number(b.view_count || 0) - Number(a.view_count || 0));
       html += `<div style="display:flex;flex-direction:column;gap:0.5rem;">`;
@@ -3151,9 +3229,10 @@
           preview.style.display = 'none';
         }
       }
+      try { window._whSellerMsgDraft && window._whSellerMsgDraft.clear(); } catch (_) { void _; }
       showToast(raw ? 'Messenger handle saved.' : 'Messenger handle cleared.', 'success');
     } catch (_err) {
-      showToast(whWriteError(_err, 'Save failed. Try again.'), 'error');
+      showToast(whWriteError(_err, _t('Save failed. Try again.', 'Hindi na-save. Subukan muli.')), 'error');
     } finally {
       if (btn) { btn.disabled = false; btn.removeAttribute('aria-busy'); btn.textContent = 'Save'; }
     }
@@ -3174,6 +3253,22 @@
       return;
     }
     const normalized = lines.join('\n') || null;
+
+    /* THE SIBLING GOT THIS GUARD AND THIS ONE DID NOT. handleSaveMessenger, four functions up, was
+       given a compare-first early return on 2026-08-05 for a measured reason: _lockClick only holds
+       while the request is in flight, so on a fast connection a double-tap lands a second upsert AND
+       a second writeAuditLog. The upsert is harmless — same values — but the audit trail then records
+       an edit that never happened, and "edited" is a claim about a person's actions. That fix stopped
+       at its own function; the certifications save has been sending the second write ever since, and
+       bc_idempotent_repeat · seller caught it ("pressing Save again with the value unchanged sent 1
+       write(s)"). Same shape, same remedy, same words as the sibling — the cheapest write is the one
+       not made. */
+    const _currentCerts = (_seller && _seller.certifications) || null;
+    if (normalized === _currentCerts) {
+      showToast(normalized ? 'Those are already your saved certifications, so there is nothing to change.'
+                           : 'No certifications saved, and none entered, so there is nothing to change.', 'info');
+      return;
+    }
 
     if (btn) { btn.disabled = true; btn.setAttribute('aria-busy', 'true'); btn.textContent = 'Saving…'; }
     try {
@@ -3210,9 +3305,10 @@
           pill.style.color = '#7B8794';
         }
       }
+      try { window._whSellerCertDraft && window._whSellerCertDraft.clear(); } catch (_) { void _; }
       showToast(normalized ? 'Saved. Admin will review your certifications.' : 'Certifications cleared.', 'success');
     } catch (_err) {
-      showToast(whWriteError(_err, 'Save failed. Try again.'), 'error');
+      showToast(whWriteError(_err, _t('Save failed. Try again.', 'Hindi na-save. Subukan muli.')), 'error');
     } finally {
       if (btn) { btn.disabled = false; btn.removeAttribute('aria-busy'); btn.textContent = 'Save certifications'; }
     }

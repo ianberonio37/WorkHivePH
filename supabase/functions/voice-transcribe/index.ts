@@ -11,7 +11,7 @@ import { getCorsHeaders } from "../_shared/cors.ts";
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { resolveIdentity } from "../_shared/tenant-context.ts";
-import { checkSoloRateLimit, soloRateLimitKey, soloRateLimitedResponse } from "../_shared/rate-limit.ts";
+import { checkSoloRateLimit, soloRateLimitKey, soloRateLimitedResponse, soloUnidentifiedResponse } from "../_shared/rate-limit.ts";
 
 // Receives a multipart audio blob from the browser (iOS MediaRecorder output),
 // transcribes via Groq Whisper fallback chain, and returns plain text plus
@@ -54,7 +54,23 @@ serveObserved("voice-transcribe", async (req) => {
     const hiveId = typeof form.get("hive_id") === "string"
       ? (form.get("hive_id") as string).trim() || null : null;
 
-    if (!audioFile || audioFile.size === 0) {
+    // ★A CAST IS NOT A CHECK, AND `.size` ON A STRING IS `undefined` (2026-09-10, W3-FN F-lens).
+    // `form.get("audio")` returns `File | string | null`; the `as File | null` above only stopped the
+    // type-checker asking. When a caller sends `audio` as a plain TEXT field, this guard let it
+    // through — a non-empty string is truthy, `undefined === 0` is false, and the 10 MB ceiling below
+    // is `undefined > n`, also false. So a non-file sailed past both size guards into transcribeAudio,
+    // where `audioFile.arrayBuffer is not a function` killed the self-host ASR (swallowed as a warning)
+    // and `form.append("file", <string>)` made every Groq model answer 400 `missing_audio_input`.
+    // The chain then exhausted and told the person "All Whisper models unavailable, try again in a
+    // moment" — a 500 blaming the transcription providers for a request that never carried audio.
+    // Checking the SHAPE, not just the truthiness, keeps the wrong-input case a legible 400.
+    if (!(audioFile instanceof Blob)) {
+      return new Response(
+        JSON.stringify({ error: "The audio field must be a file, not a text value" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+    if (audioFile.size === 0) {
       return new Response(
         JSON.stringify({ error: "Missing or empty audio field" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -76,8 +92,21 @@ serveObserved("voice-transcribe", async (req) => {
     const _id   = await resolveIdentity(_rlDb, req);
     if (!_id.isServiceRole) {
       const _ip = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
-      const _rl = await checkSoloRateLimit(_rlDb, soloRateLimitKey(_id.authUid, _ip));
-      if (!_rl.allowed) return soloRateLimitedResponse(corsHeaders, _rl.retry_after_seconds);
+      // Two changes on one line, and they are NOT equally well evidenced - worth separating:
+      //   `_ip` as the fifth argument is a REAL, demonstrable gap being closed. It was simply not being
+      //     passed, so `checkSoloRateLimit`'s CGNAT-aware IP ceiling - the always-on cap that catches a
+      //     single IP rotating spoofed identities - never ran on this function at all. The per-identity
+      //     bucket was doing the whole job alone.
+      //   `strict` is defence in depth for a branch I could not reach: the fail-open case needs BOTH no
+      //     session and no x-forwarded-for, and Kong (like Supabase's gateway) always supplies the
+      //     header - an anonymous probe here was metered on `ip:172.18.0.1`, not waved through.
+      // See the `strict` note in _shared/rate-limit.ts, which states the same limit.
+      const _rl = await checkSoloRateLimit(_rlDb, soloRateLimitKey(_id.authUid, _ip), undefined, undefined, _ip, true);
+      if (!_rl.allowed) {
+        return _rl.scope === "unidentified"
+          ? soloUnidentifiedResponse(corsHeaders)
+          : soloRateLimitedResponse(corsHeaders, _rl.retry_after_seconds);
+      }
     }
 
     const filename = audioFile.name || "audio.mp4";

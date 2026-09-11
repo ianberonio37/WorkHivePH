@@ -16,7 +16,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet" />
   <script src="browser-floor.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
+  <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
   <script src="utils.js"></script>
   <script src="maturity-gate.js"></script>
   <link rel="stylesheet" href="tokens.css">
@@ -37,8 +37,8 @@
     .page { max-width: 880px; margin: 0 auto; padding: 1rem 1rem 0; }
 
     .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
-    .page-title { font-size: 1.3rem; font-weight: 800; }
-    .hive-pill { font-size: .65rem; font-weight: 700; padding: .3rem .8rem; border-radius: 999px; background: rgba(41,182,217,0.12); color: var(--blue); border: 1px solid rgba(41,182,217,0.25); }
+    .page-title { font-size: 1.25rem; font-weight: 800; }
+    .hive-pill { font-size: 0.7rem; font-weight: 700; padding: .3rem .8rem; border-radius: 999px; background: rgba(41,182,217,0.12); color: var(--blue); border: 1px solid rgba(41,182,217,0.25); }
 
     /* Filter chips */
     .filter-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
@@ -46,14 +46,14 @@
       display: inline-flex; align-items: center; gap: 6px;
       padding: 6px 12px; min-height: 44px; background: rgba(22,32,50,0.85);
       border: 1px solid var(--border); border-radius: 999px;
-      font-family: inherit; font-size: .72rem; font-weight: 600;
+      font-family: inherit; font-size: 0.7rem; font-weight: 600;
       color:rgba(255,255,255,0.80); cursor: pointer;
       transition: all .15s;
     }
     .chip:hover { color: var(--text); border-color: rgba(255,255,255,0.18); }
     .chip.active { background: rgba(247,162,27,0.15); color: var(--gold); border-color: rgba(247,162,27,0.3); }
     .chip-count {
-      font-size: .58rem; font-weight: 800; padding: 1px 7px;
+      font-size: .6rem; font-weight: 800; padding: 1px 7px;
       border-radius: 999px; background: rgba(255,255,255,0.08);
     }
     .chip.active .chip-count { background: rgba(0,0,0,0.35); color: var(--gold); }
@@ -71,20 +71,20 @@
     .alert.kind-stock   { border-left-color: var(--yellow); }
     .alert.kind-pattern { border-left-color: var(--purple); }
     .alert.kind-system  { border-left-color: var(--blue); }
-    .alert-icon { font-size: 1.15rem; flex-shrink: 0; line-height: 1.2; }
+    .alert-icon { font-size: 1.125rem; flex-shrink: 0; line-height: 1.2; }
     .alert-body { flex: 1; min-width: 0; }
     .alert-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
-    .alert-tag { font-size: .55rem; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; padding: .2rem .5rem; border-radius: 5px; }
+    .alert-tag { font-size: 0.6rem; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; padding: .2rem .5rem; border-radius: 5px; }
     .tag-critical { background: rgba(248,113,113,0.15); color: var(--red); }
     .tag-high     { background: rgba(251,146,60,0.15); color: var(--amber); }
     .tag-medium   { background: rgba(250,204,21,0.12); color: var(--yellow); }
     .tag-info     { background: rgba(41,182,217,0.12); color: var(--blue); }
-    .alert-title { font-size: .85rem; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; min-width: 0; }
-    .alert-time { font-size: .65rem; color: var(--muted); flex-shrink: 0; }
-    .alert-msg { font-size: .75rem; color:rgba(255,255,255,0.80); line-height: 1.4; margin-top: 2px; }
+    .alert-title { font-size: 0.9rem; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; min-width: 0; }
+    .alert-time { font-size: 0.7rem; color: var(--muted); flex-shrink: 0; }
+    .alert-msg { font-size: 0.8rem; color:rgba(255,255,255,0.80); line-height: 1.4; margin-top: 2px; }
     .alert-action {
       display: inline-flex; align-items: center; gap: 4px; min-height: 44px;
-      font-size: .65rem; font-weight: 700; color: var(--gold);
+      font-size: 0.7rem; font-weight: 700; color: var(--gold);
       text-decoration: none; margin-top: 8px;
       padding: 4px 10px; border: 1px solid rgba(247,162,27,0.25);
       border-radius: var(--wh-radius-sm); background: rgba(247,162,27,0.06);
@@ -95,7 +95,7 @@
     .alert-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
     .alert-dismiss {
       display: inline-flex; align-items: center; gap: 4px; min-height: 44px;
-      font-size: .65rem; font-weight: 700; color:rgba(255,255,255,0.86);
+      font-size: 0.7rem; font-weight: 700; color:rgba(255,255,255,0.86);
       margin-top: 8px; padding: 4px 12px; cursor: pointer;
       border: 1px solid rgba(255,255,255,0.16); border-radius: var(--wh-radius-sm);
       background: rgba(255,255,255,0.05); transition: background .15s;
@@ -122,7 +122,7 @@
     .alert.seen .alert-title,
     .alert.seen .alert-msg { opacity: 0.65; }
     .alert-seen-badge {
-      font-size: .5rem; font-weight: 800; text-transform: uppercase; letter-spacing: .08em;
+      font-size: .6rem; font-weight: 800; text-transform: uppercase; letter-spacing: .08em;
       padding: .15rem .45rem; border-radius: 5px; flex-shrink: 0;
       background: rgba(255,255,255,0.08); color:rgba(255,255,255,0.80);
       border: 1px solid rgba(255,255,255,0.14);
@@ -134,13 +134,13 @@
       background: rgba(22,32,50,0.5); border: 1px solid var(--border);
       border-radius: 12px;
     }
-    .empty-icon { font-size: 2rem; margin-bottom: 8px; }
-    .empty-title { font-size: .95rem; font-weight: 800; color: var(--green); margin-bottom: 4px; }
-    .empty-sub { font-size: .75rem; color: var(--muted); }
-    .loading { text-align: center; padding: 30px; color: var(--muted); font-size: .78rem; }
+    .empty-icon { font-size: 1.5rem; margin-bottom: 8px; }   /* C1: 32px was a lone tier; 24px is the hero-icon tier (2026-09-06) */
+    .empty-title { font-size: 1rem; font-weight: 800; color: var(--green); margin-bottom: 4px; }
+    .empty-sub { font-size: 0.8rem; color: var(--muted); }
+    .loading { text-align: center; padding: 30px; color: var(--muted); font-size: 0.8rem; }
 
     /* Last refreshed */
-    .footer-meta { font-size: .62rem; color: var(--muted); text-align: right; margin-top: 16px; }
+    .footer-meta { font-size: 0.6rem; color: var(--muted); text-align: right; margin-top: 16px; }
 
     /* Auth gate (no hive) */
     .gate-card {
@@ -148,13 +148,23 @@
       background: rgba(22,32,50,0.85); border: 1px solid var(--border);
       border-radius: 14px; margin-top: 40px;
     }
-    .gate-card h2 { font-size: 1.1rem; margin-bottom: 8px; }
+    .gate-card h2 { font-size: 1.125rem; margin-bottom: 8px; }
     .gate-card p { font-size: .8rem; color: var(--muted); margin-bottom: 16px; }
     .gate-btn {
       display: inline-block; padding: 10px 24px;
       background: rgba(41,182,217,0.15); color: var(--blue);
-      border: 1px solid rgba(41,182,217,0.3); border-radius: 8px;
-      text-decoration: none; font-size: .82rem; font-weight: 700;
+      /* ★THE 2026-09-06 NOTE HERE SAID "R3 press = 12px" AND IT WAS WRONG ABOUT THIS PAGE.
+         Measured 2026-09-10 by replicating R3's own roleOf/shapeV against the page root: this
+         page's press shape is 8px, on 60 controls, and it is a DELIBERATE distinction rather than
+         an accident - inside the one component that defines the surface, `.alert-dismiss` renders
+         its ACTIONS ("Snooze 7d", "Handled") at 8px and its TOGGLE ("Seen", aria-pressed) as a
+         pill. Actions are 8px, state is a pill. Only four page-level presses wore 12px - Refresh,
+         two Show-details and Load More - and they are what made R3 read 4 silhouettes for 3 roles.
+         They now join the page's own vocabulary. Same class of finding as C-J on analytics, and the
+         same lesson: standardise toward what the page ALREADY says, measured, not toward a value
+         picked by looking at one control. */
+      border: 1px solid rgba(41,182,217,0.3); border-radius: var(--wh-radius-sm);
+      text-decoration: none; font-size: 0.8rem; font-weight: 700;
     }
 
     @media (max-width: 480px) {
@@ -171,24 +181,24 @@
       margin-bottom: 16px;
     }
     .amc-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
-    .amc-badge { font-size: .58rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--wh-violet-text); padding: 3px 8px; border-radius: var(--wh-radius-sm); background: rgba(167,139,250,0.14); border: 1px solid rgba(167,139,250,0.25); }
-    .amc-headline { font-size: .98rem; font-weight: 800; color: var(--text); line-height: 1.35; }
+    .amc-badge { font-size: .6rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--wh-violet-text); padding: 3px 8px; border-radius: var(--wh-radius-sm); background: rgba(167,139,250,0.14); border: 1px solid rgba(167,139,250,0.25); }
+    .amc-headline { font-size: 1rem; font-weight: 800; color: var(--text); line-height: 1.35; }
     /* CLS: #amc-summary starts empty, fills with a short summary, then is UPGRADED IN PLACE to the
        taller renderActionBrief card — that growth shifted the content below (a full-sweep-contention
        CLS; 0 on a fast isolated load). Reserve the settled brief height so it never shifts, matching
        shift-brain's .briefing-card{min-height:240}. */
-    .amc-summary { font-size: .78rem; color: rgba(255,255,255,0.78); line-height: 1.5; margin: 6px 0 12px; min-height: 176px; }
+    .amc-summary { font-size: 0.8rem; color: rgba(255,255,255,0.78); line-height: 1.5; margin: 6px 0 12px; min-height: 176px; }
     .amc-stats { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 8px; margin: 12px 0; }
     .amc-stat { background: rgba(15,25,35,0.4); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; text-align: center; }
-    .amc-stat-num { font-size: 1.1rem; font-weight: 800; color: var(--text); line-height: 1; }
-    .amc-stat-label { font-size: .55rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); margin-top: 4px; }
+    .amc-stat-num { font-size: 1.125rem; font-weight: 800; color: var(--text); line-height: 1; }
+    .amc-stat-label { font-size: 0.6rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); margin-top: 4px; }
     .amc-details { display: none; margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--border); font-size: .76rem; color:rgba(255,255,255,0.83); }
     .amc-details.open { display: block; }
     .amc-section-title { font-size: .6rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--purple); margin: 10px 0 4px; }
     .amc-row { padding: 4px 0; border-bottom: 1px dotted rgba(255,255,255,0.05); }
     .amc-row:last-child { border-bottom: 0; }
     .amc-actions { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
-    .amc-btn { min-height: 44px; padding: 8px 18px; border-radius: 8px; font-family: inherit; font-size: .78rem; font-weight: 700; cursor: pointer; border: 1px solid transparent; }
+    .amc-btn { min-height: 44px; padding: 8px 18px; border-radius:var(--wh-radius-sm); font-family: inherit; font-size: 0.8rem; font-weight: 700; cursor: pointer; border: 1px solid transparent; }
     .amc-btn-approve { background: rgba(74,222,128,0.16); color: var(--green); border-color: rgba(74,222,128,0.32); }
     .amc-btn-approve:hover:not(:disabled) { background: rgba(74,222,128,0.26); }
     .amc-btn-approve:disabled { opacity: 0.5; cursor: wait; }
@@ -196,8 +206,8 @@
     .amc-btn-reject:hover:not(:disabled) { background: rgba(248,113,113,0.20); }
     .amc-btn-toggle { background: rgba(255,255,255,0.04); color:rgba(255,255,255,0.80); border-color: var(--border); }
     .amc-btn-toggle:hover { background: rgba(255,255,255,0.08); color: var(--text); }
-    .amc-readonly-note { font-size: .68rem; color: var(--muted); margin-left: auto; align-self: center; }
-    .amc-status-msg { font-size: .72rem; color: var(--muted); margin-top: 8px; min-height: 1.1em; }
+    .amc-readonly-note { font-size: 0.7rem; color: var(--muted); margin-left: auto; align-self: center; }
+    .amc-status-msg { font-size: 0.7rem; color: var(--muted); margin-top: 8px; min-height: 1.1em; }
     @media (max-width: 480px) {
       .amc-stats { grid-template-columns: repeat(2, minmax(0,1fr)); }
       .amc-card { padding: 14px; }
@@ -206,8 +216,8 @@
     /* Plain-Read summary (Layer D — UX Contract) */
     .verdict { display:flex; align-items:center; gap:12px; padding:14px 16px; margin-bottom:16px; border-radius:12px; border:1px solid; }
     .verdict-icon { font-size:1.5rem; line-height:1; font-weight:800; }
-    .verdict-text { font-size:0.9rem; font-weight:700; line-height:1.35; }
-    .verdict-text small { display:block; font-size:0.72rem; font-weight:500; color:rgba(255,255,255,0.83); margin-top:3px; }
+    .verdict-text { font-size:1rem; font-weight:700; line-height:1.35; }   /* C1: 14.4px was a lone tier; 16px is the headline tier (2026-09-06) */
+    .verdict-text small { display:block; font-size:0.7rem; font-weight:500; color:rgba(255,255,255,0.83); margin-top:3px; }
     .verdict.healthy { background:rgba(74,222,128,0.07);  border-color:rgba(74,222,128,0.3); }
     .verdict.healthy .verdict-icon { color:var(--wh-green); }
     .verdict.watch   { background:rgba(247,162,27,0.07);  border-color:rgba(247,162,27,0.3); }
@@ -218,20 +228,20 @@
     .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.80); }
     .simple-row { display:grid; grid-template-columns:repeat(auto-fit, minmax(170px, 1fr)); gap:12px; margin-bottom:16px; }
     .simple-card { background:var(--wh-navy); border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:14px 16px; min-height:134px; } /* CLS (Arc L L1): reserve settled card height (placeholder 118px → 134px when sc-sub fills) */
-    .simple-card .sc-label { font-size:0.65rem; font-weight:700; color:rgba(255,255,255,0.80); text-transform:uppercase; letter-spacing:0.06em; }
+    .simple-card .sc-label { font-size:0.7rem; font-weight:700; color:rgba(255,255,255,0.80); text-transform:uppercase; letter-spacing:0.06em; }
     .simple-card .sc-hero  { font-size:1.5rem; font-weight:800; line-height:1.15; margin:4px 0 2px; color:var(--wh-cloud); font-variant-numeric:tabular-nums; }
     .simple-card .sc-sub   { font-size:0.7rem; color:rgba(255,255,255,0.80); line-height:1.4; }
-    .simple-card .sc-tag   { display:inline-block; font-size:0.58rem; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; padding:0.18rem 0.5rem; border-radius:999px; margin-top:7px; }
+    .simple-card .sc-tag   { display:inline-block; font-size:0.6rem; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; padding:0.18rem 0.5rem; border-radius:999px; margin-top:7px; }
     .simple-card.tag-green .sc-tag { background:rgba(74,222,128,0.16);  color:var(--wh-green); }
     .simple-card.tag-amber .sc-tag { background:rgba(247,162,27,0.16);  color:var(--wh-orange); }
     .simple-card.tag-red   .sc-tag { background:rgba(248,113,113,0.16); color:var(--wh-red); }
     .simple-card.tag-grey  .sc-tag { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.80); }
     .action-card { background:rgba(41,182,217,0.06); border:1px solid rgba(41,182,217,0.25); border-radius:12px; padding:14px 16px; margin-bottom:16px; }
-    .action-card .ac-label { font-size:0.65rem; font-weight:800; color:var(--wh-blue-text); text-transform:uppercase; letter-spacing:0.07em; }
-    .action-card .ac-text { font-size:0.75rem; line-height:1.5; margin-top:6px; color:rgba(255,255,255,0.85); min-height:59px; }/* C1: 0.82rem→0.75rem, merge the lone 13px tier into 12px (11→10 distinct sizes) */
+    .action-card .ac-label { font-size:0.7rem; font-weight:800; color:var(--wh-blue-text); text-transform:uppercase; letter-spacing:0.07em; }
+    .action-card .ac-text { font-size:0.8rem; line-height:1.5; margin-top:6px; color:rgba(255,255,255,0.85); min-height:59px; }/* C1: 0.82rem→0.75rem, merge the lone 13px tier into 12px (11→10 distinct sizes) */
 /* Arc P · Wave 1 (P3): the "one primary action" CTA button (this page inlines its
    component CSS — no components.css link — so .ac-cta lives here too). */
-.action-card .ac-cta { display:inline-flex; align-items:center; gap:6px; margin-top:12px; min-height:44px; padding:0.6rem 1.15rem; background:var(--wh-orange); color:var(--wh-navy); font-family:inherit; font-size:0.75rem; font-weight:800; border:none; border-radius:8px; cursor:pointer; text-decoration:none; transition:background 0.2s, transform 0.1s; }
+.action-card .ac-cta { display:inline-flex; align-items:center; gap:6px; margin-top:12px; min-height:44px; padding:0.6rem 1.15rem; background:var(--wh-orange); color:var(--wh-navy); font-family:inherit; font-size:0.8rem; font-weight:800; border:none; border-radius:12px; cursor:pointer; text-decoration:none; transition:background 0.2s, transform 0.1s; }
 .action-card .ac-cta:hover { background:var(--wh-orange-dark); }
 .action-card .ac-cta:active { transform:scale(0.98); }
 .action-card .ac-cta[hidden], .action-card .ac-cta.hidden { display:none; } /* CLS: reserve settled height ("Computing..." 20px → real recommendation 59px) */
@@ -239,11 +249,14 @@
        async-filled alert filter row (#filters empty → ~144px of severity/type chips, the dominant shifter). */
     /* #ah-verdict re-added (UX Contract Layer D) — composite-tone verdict, no KPI-number duplication (styled by .verdict rules above). */
     #filters { min-height:144px; }
-    .details-toggle { display:inline-flex; align-items:center; gap:6px; background:transparent; border:1px solid rgba(255,255,255,0.07); color:rgba(255,255,255,0.80); padding:8px 14px; border-radius:8px; font-family:inherit; font-size:0.7rem; font-weight:600; cursor:pointer; min-height:44px; margin-bottom:16px; }
+    .details-toggle { display:inline-flex; align-items:center; gap:6px; background:transparent; border:1px solid rgba(255,255,255,0.07); color:rgba(255,255,255,0.80); padding:8px 14px; border-radius:var(--wh-radius-sm); font-family:inherit; font-size:0.7rem; font-weight:600; cursor:pointer; min-height:44px; margin-bottom:16px; }
     .details-toggle:hover { color:var(--wh-cloud); border-color:rgba(255,255,255,0.18); }
-    #ah-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:16px; }
+    #ah-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.8rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:16px; }
     #ah-summary-details.open { display:block; }
-  </style>
+      /* R3 (2026-09-05): one silhouette per job - selection controls (chips, tabs, toggles: any control that carries a pressed /
+       selected / checked state) wear the PILL; press buttons keep the 12 px card-family radius. */
+    [aria-pressed], [aria-selected], [aria-checked], [role="tab"], [role="radio"], [role="switch"] { border-radius: 999px; }
+</style>
 </head>
 <body>
 <main>
@@ -254,10 +267,11 @@
   <div class="page-header">
     <div>
       <h1 class="page-title" style="margin:0;" translate="no">Alert Hub</h1>
-      <p style="font-size:.7rem; color:var(--muted); margin-top:2px;" id="page-sub">Everything that needs your attention, in one place.</p>
+      <p style="font-size:.7rem; color:var(--muted); margin-top:2px;" id="page-sub" data-i="ah_sub">Everything that needs your attention, in one place.</p>
       <p id="wh-source-chip"></p>
     </div>
     <span id="hive-pill" class="hive-pill" style="display:none;"></span>
+    <button id="ah-refresh" type="button" data-i="refresh" onclick="if (window._ahRefresh) window._ahRefresh();" style="font-size:.8rem; display:inline-flex; align-items:center; gap:.35rem; min-height:44px; padding:0 1rem; border-radius:var(--wh-radius-sm); border:none; background:#F7A21B; color:#1a1132; font-weight:800; cursor:pointer;" title="Refresh alerts now (they also refresh every 60 s)">&#8635; Refresh</button>
   </div>
 
   <!-- Hive gate (shown when no HIVE_ID) -->
@@ -334,7 +348,7 @@
       <div class="amc-head">
         <div>
           <span class="amc-badge">AMC Daily Brief</span>
-          <span id="amc-shift-meta" style="font-size:.65rem; color:var(--muted); margin-left:6px;"></span>
+          <span id="amc-shift-meta" style="font-size:0.7rem; color:var(--muted); margin-left:6px;"></span>
         </div>
         <span id="amc-status-pill" class="alert-tag tag-info">pending</span>
       </div>
@@ -366,7 +380,7 @@
       </div>
       <div id="amc-details" class="amc-details"></div>
       <div class="amc-actions">
-        <button id="amc-toggle-btn"  class="amc-btn amc-btn-toggle"  type="button" data-i="showdetails">Show details</button>
+        <button id="amc-toggle-btn" aria-expanded="false" aria-controls="amc-details"  class="amc-btn amc-btn-toggle"  type="button" data-i="showdetails">Show details</button>
         <button id="amc-approve-btn" class="amc-btn amc-btn-approve" type="button" style="display:none;" data-i="approvebrief">Approve brief</button>
         <button id="amc-reject-btn"  class="amc-btn amc-btn-reject"  type="button" style="display:none;" data-i="reject">Reject</button>
         <span id="amc-readonly-note" class="amc-readonly-note" style="display:none;">Supervisor approval required.</span>
@@ -384,18 +398,22 @@
       <div class="amc-head">
         <div>
           <span class="amc-badge" data-help="anomaly_signals" tabindex="0" style="background:rgba(167,139,250,0.18); color:var(--wh-violet-text); border-color:rgba(167,139,250,0.3);">Anomaly Engine 2.0</span>
-          <span id="anomaly-engine-meta" style="font-size:.65rem; color:var(--muted); margin-left:6px;"></span>
+          <span id="anomaly-engine-meta" style="font-size:0.7rem; color:var(--muted); margin-left:6px;"></span>
         </div>
         <span id="anomaly-engine-count" class="alert-tag tag-info" style="font-weight:800;">0 signals</span>
       </div>
-      <div id="anomaly-engine-empty" style="font-size:0.74rem; color:rgba(255,255,255,0.80); margin-top:6px; display:none;">No fused anomalies in your hive right now.</div>
+      <div id="anomaly-engine-empty" style="font-size:0.7rem; color:rgba(255,255,255,0.80); margin-top:6px; display:none;">No fused anomalies in your hive right now.</div>
       <div id="anomaly-engine-list" style="margin-top:8px;"></div>
     </div>
 
     <div class="filter-row" id="filters" role="tablist" aria-label="Alert filters"></div>
     <!-- U5 heading-order (§11 deepwalk): the alert-card H3s sit under H1 with no H2 (WCAG skip). A
          screen-reader H2 section heading restores H1→H2→H3 without a visual change. -->
-    <h2 style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0;">Alerts</h2>
+    <!-- Screen-reader-only, and therefore the easiest string in the platform to leave in English:
+         no sighted reader and no visible-text diff can see it. A Filipino screen-reader user heard
+         "Alerts" on a page whose every visible label spoke Filipino. Same channel as v375's nav-hub
+         aria-labels. -->
+    <h2 data-i="ah_alerts" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0;">Alerts</h2>
     <div id="feed" class="feed">
       <div class="loading">Loading alerts...</div>
     </div>
@@ -405,7 +423,7 @@
       <div class="empty-sub">No active alerts in your hive right now.</div>
     </div>
     <div id="alert-load-more-wrap" class="hidden" style="margin-top:0.25rem;padding-bottom:1rem;">
-      <button onclick="loadMoreAlerts()" data-i="loadmore" style="width:100%;min-height:44px;padding:0.75rem;border-radius:0.5rem;font-size:0.875rem;font-weight:600;background:rgba(247,162,27,0.1);color:var(--wh-orange-text);border:1px solid rgba(247,162,27,0.3);cursor:pointer;">Load More</button>
+      <button onclick="loadMoreAlerts()" data-i="loadmore" style="width:100%;min-height:44px;padding:0.75rem;border-radius:var(--wh-radius-sm);font-size:0.875rem;font-weight:600;background:rgba(247,162,27,0.1);color:var(--wh-orange-text);border:1px solid rgba(247,162,27,0.3);cursor:pointer;">Load More</button>
     </div>
     <div id="footer-meta" class="footer-meta"></div>
   </div>
@@ -516,17 +534,29 @@
   })();
 
   // ── Module state ───────────────────────────────────────────────────────────
+  /* ★THE FILTER TABS WERE ENGLISH ON A FILIPINO PAGE (walked 2026-09-11, Christine Dizon, supervisor of
+     Lucena Pharmaceutical Mfg., phone-390 at wh_lang=fil, arriving here as the last hop of J26). The
+     rubric's own N1 note records Ian's 2026-07-17 calibration: technical METRIC titles stay English, and
+     "surrounding chrome (nav, period/phase tabs, filters, actions, labels, empty states) must still be
+     bilingual + IS graded". These are filters, so they are graded - and all eight read English while the
+     provenance chip beside them read Filipino. Translated using ONLY vocabulary the product already
+     uses in its own Filipino prose - "Lahat" (WH_FIL_COMMON.showall), "alerto" (this page's own dict),
+     "Sistema" - and the loanwords the platform itself keeps: AMC and PM are abbreviations, and hive.html
+     writes "Risk, anomalya, shift briefing at parts staging" in Filipino, so Risk / Staging / Pattern
+     stay as they are rather than being given words the platform has never used.
+     The h1 above is `translate="no"` - "Alert Hub" is a declared product NAME, correctly untranslated,
+     and it is why N1 excludes it from its label sample. */
   const KINDS = [
-    { id: 'all',     label: 'All',     icon: '⊞' },
+    { id: 'all',     label: _t('All', 'Lahat'), icon: '⊞' },
     { id: 'amc',     label: 'AMC',     icon: '🤖' },
     { id: 'risk',    label: 'Risk',    icon: '🔴' },
     { id: 'pm',      label: 'PM',      icon: '⚠️' },
     // 'Stock' alone made the chip's count read as a stock LEVEL ("Stock 3" = 3 on hand?) when it
     // counts stock ALERTS - the one tab whose label is itself a quantity word (units_visible catch).
-    { id: 'stock',   label: 'Stock alerts', icon: '📦' },
+    { id: 'stock',   label: _t('Stock alerts', 'Alerto sa stock'), icon: '📦' },
     { id: 'staging', label: 'Staging', icon: '📥' },
     { id: 'pattern', label: 'Pattern', icon: '🧬' },
-    { id: 'system',  label: 'System',  icon: '⚙️' },
+    { id: 'system',  label: _t('System', 'Sistema'),  icon: '⚙️' },
   ];
 
   // The active AMC brief (today's pending row, if any). Loaded by loadAmc()
@@ -696,12 +726,12 @@
       const _pill = document.getElementById('amc-status-pill');
       if (_pill) { _pill.textContent = 'not generated'; _pill.className = 'alert-tag tag-info'; }
       if (_meta) _meta.textContent = 'no brief for this shift';
-      if (_head) _head.textContent = 'No brief was generated for this shift.';
+      if (_head) _head.textContent = 'No brief exists for this shift yet.';
       if (_sum) {
         _sum.textContent = _prev && _prev.shift_date
-          ? ('The brief is written at 6am PHT and has not run for today. The most recent one covers '
+          ? ('The brief runs at 6 am PHT. It has not run today. The most recent one covers '
              + _prev.shift_date + '; it is below, and it is not a substitute for today.')
-          : 'The brief is written at 6am PHT and has not run for today.';
+          : 'The brief runs at 6 am PHT. It has not run today.';
       }
       // the figure tiles belong to a brief that does not exist - blank them rather than leaving
       // the previous render's numbers standing under a "not generated" header
@@ -768,7 +798,7 @@
       const _refreshHint = document.createElement('div');
       _refreshHint.className = 'ah-brief-refreshing';
       _refreshHint.setAttribute('role', 'status');
-      _refreshHint.style.cssText = 'font-size:.68rem;color:var(--muted,rgba(255,255,255,0.6));margin:4px 0 8px;display:flex;align-items:center;gap:6px;';
+      _refreshHint.style.cssText = 'font-size:0.7rem;color:var(--muted,rgba(255,255,255,0.6));margin:4px 0 8px;display:flex;align-items:center;gap:6px;';
       _refreshHint.textContent = '↻ Refreshing this brief with live data…';
       try { summaryEl.parentNode && summaryEl.parentNode.insertBefore(_refreshHint, summaryEl); } catch (_) { /* empty-catch-allow */ }
       try {
@@ -874,9 +904,11 @@
     if (statusMsg) {
       if (brief.status === 'approved' && brief.approved_by) {
         const when = brief.approved_at ? whFmtDate(brief.approved_at, { time: true }) : '';
-        statusMsg.textContent = `Approved by ${brief.approved_by}${when ? ' at ' + when : ''}.`;
+        statusMsg.textContent = _t(`Approved by ${brief.approved_by}${when ? ' at ' + when : ''}.`,
+          `Inaprubahan ni ${brief.approved_by}${when ? ' noong ' + when : ''}.`);
       } else if (brief.status === 'rejected') {
-        statusMsg.textContent = 'Brief rejected. The next 06:00 PHT run will generate a fresh one.';
+        statusMsg.textContent = _t('Brief rejected. The next 06:00 PHT run will generate a fresh one.',
+          'Tinanggihan ang brief. Ang susunod na 06:00 PHT na takbo ay gagawa ng bago.');
       } else if (brief.status === 'expired') {
         statusMsg.textContent = 'Brief expired without action.';
       } else {
@@ -895,6 +927,7 @@
       if (!details || !toggleBtn) return;
       const open = details.classList.toggle('open');
       toggleBtn.textContent = open ? 'Hide details' : 'Show details';
+      toggleBtn.setAttribute('aria-expanded', open ? 'true' : 'false');   // T8: the control states what it toggled (2026-09-05)
     });
 
     approveBtn?.addEventListener('click', () => actOnAmcBrief('approved'));
@@ -939,7 +972,7 @@
     if (rejectBtn)  rejectBtn.disabled  = false;
 
     if (error) {
-      showAmcMsg('Could not save: ' + (error.message || 'unknown error'));
+      showAmcMsg(_t('Could not save: ', 'Hindi ma-save: ') + (error.message || 'unknown error'));
       return;
     }
     if (!updated || !updated.length) {
@@ -990,7 +1023,7 @@
 
   const ANOMALY_SEVERITY = {
     critical: { color: '#f87171', bg: 'rgba(248,113,113,0.15)', label: 'CRITICAL' },
-    warning:  { color: '#F7A21B', bg: 'rgba(247,162,27,0.15)',  label: 'WARNING'  },
+    warning:  { color: 'var(--wh-orange)', bg: 'rgba(247,162,27,0.15)',  label: 'WARNING'  },
     // ★ONE STORED VALUE WAS SHOWING TWO DIFFERENT WORDS. compute_anomaly_signals emits exactly
     // three severities - critical, warning, info - and never 'watch', so the key here was dead.
     // Meanwhile hive.html labels the SAME stored 'info' as 'Watch' (critical/warning/info ->
@@ -1143,20 +1176,20 @@
         ? reasons.map(rr => e(rr.label || rr.signal)).join(' · ')
         : 'Composite signal: open details for breakdown';
       const ackBtn = isSupervisor && r.status === 'active'
-        ? `<button class="amc-btn amc-btn-toggle" data-anomaly-id="${e(r.id)}" data-anomaly-machine="${e(r.machine)}" data-action="acknowledge" data-help="anomaly_acknowledged" type="button" style="font-size:0.7rem; padding:6px 12px;">Acknowledge</button>`
+        ? `<button class="amc-btn amc-btn-toggle" data-anomaly-id="${e(r.id)}" data-anomaly-machine="${e(r.machine)}" data-action="acknowledge" data-help="anomaly_acknowledged" type="button" aria-pressed="false" style="font-size:0.7rem; padding:6px 12px;" data-i="acknowledge">Acknowledge</button>`
         : '';
       const resBtn = isSupervisor && r.status !== 'resolved'
-        ? `<button class="amc-btn amc-btn-approve" data-anomaly-id="${e(r.id)}" data-anomaly-machine="${e(r.machine)}" data-action="resolve" data-help="anomaly_resolved" type="button" style="font-size:0.7rem; padding:6px 12px;">Resolve</button>`
+        ? `<button class="amc-btn amc-btn-approve" data-anomaly-id="${e(r.id)}" data-anomaly-machine="${e(r.machine)}" data-action="resolve" data-help="anomaly_resolved" type="button" style="font-size:0.7rem; padding:6px 12px;" data-i="resolve">Resolve</button>`
         : '';
       const severityHelpKey = `severity_${r.severity}`;
       return `
         <div class="alert-card" style="margin-bottom:8px; border-left:3px solid ${sev.color};">
           <div style="display:flex; align-items:baseline; justify-content:space-between; gap:8px;">
-            <div style="font-weight:800; font-size:0.85rem;">${e(r.machine)}</div>
+            <div style="font-weight:800; font-size:0.9rem;">${e(r.machine)}</div>
             <span class="alert-tag" data-help="${e(severityHelpKey)}" tabindex="0" style="background:${sev.bg}; color:${sev.color}; border:1px solid ${sev.color}33;">${e(sev.label)} · ${e(String(r.composite_score))}/100</span>
           </div>
-          <div style="font-size:0.74rem; color:rgba(255,255,255,0.83); margin-top:6px;">${reasonStr}</div>
-          <div style="font-size:0.62rem; color:rgba(255,255,255,0.4); margin-top:4px;">${e(String(r.source_count))} source${r.source_count === 1 ? '' : 's'} fired · status ${e(r.status)}</div>
+          <div style="font-size:0.7rem; color:rgba(255,255,255,0.83); margin-top:6px;">${reasonStr}</div>
+          <div style="font-size:0.6rem; color:rgba(255,255,255,0.4); margin-top:4px;">${e(String(r.source_count))} source${r.source_count === 1 ? '' : 's'} fired · status ${e(r.status)}</div>
           ${(ackBtn || resBtn) ? `<div style="margin-top:8px; display:flex; gap:6px;">${ackBtn}${resBtn}</div>` : ''}
         </div>
       `;
@@ -1174,6 +1207,10 @@
         try {
           const { error } = await db.from('anomaly_signals').update(updates).eq('id', id);
           if (error) { console.warn('anomaly update:', error.message); return; }
+          // T8 (critic sev-1, 2026-09-07): a toggle that changed state must SAY so to assistive tech
+          // in the moment, not only after the reload that redraws it. The attribute starts false in the
+          // template above; this is the other half of it.
+          if (action === 'acknowledge') btn.setAttribute('aria-pressed', 'true');
           // Audit trail: record the supervisor decision so compliance, the
           // insurance bridge view, and multi-supervisor coordination see it.
           writeAuditLog(
@@ -1203,7 +1240,15 @@
   }
 
   // ── Data load ──────────────────────────────────────────────────────────────
+  // P188 (2026-09-05): the page's feed capture/restore is the shared utils.js pair (whFocusCapture / whFocusRestore)
+  // hoisted declarations (2026-09-05): loadAll runs before this line executes, and a var-assigned helper was undefined at
+  // that moment - every poll threw '_feedFocusCapture is not a function' and the feed never left 'Loading alerts...'
+  function _feedFocusCapture(feed) { return (typeof whFocusCapture === 'function') ? whFocusCapture(feed) : null; }
+  function _feedFocusRestore(feed, cap) { if (typeof whFocusRestore === 'function') whFocusRestore(feed, cap); }
+  window._ahRefresh = function () { return loadAll(); };   // the header's primary action reaches the closure's loader
   async function loadAll() {
+    // P188: the skeleton below rebuilds #feed and would drop a keyboard user to <body>; remember their place first
+    window._feedFocusCap = _feedFocusCapture(document.getElementById('feed')) || window._feedFocusCap || null;
     const dayAgo  = new Date(Date.now() - 24 * 3600 * 1000).toISOString();
     const pmCutoff = new Date(Date.now() - 30 * 86400000).toISOString();
 
@@ -1240,7 +1285,7 @@
         .in('risk_level', ['critical', 'high'])
         .order('risk_score', { ascending: false })
         .order('asset_name')   // MR4 tiebreaker: DISTINCT ON (hive_id, asset_name) is the view's key
-        .limit(20),
+        .limit(20),   // cap-ok: rows only (risk feed)
 
       // Canonical: inventory_items_truth. The view aliases min_qty as
       // reorder_point — the underlying table has no such column, so the
@@ -1250,7 +1295,7 @@
       db.from('v_inventory_items_truth')
         .select('part_name, qty_on_hand, reorder_point, min_qty, is_low_stock, is_critical_low, is_out_of_stock, updated_at')
         .eq('hive_id', HIVE_ID)
-        .limit(150),
+        .limit(150),   // cap-ok: rows only (inventory alerts)
 
       // Canonical (2026-06-09): frequency-aware overdue per SCOPE ITEM via
       // v_pm_scope_items_truth.is_overdue — the SAME source the Hive Board + PM
@@ -1265,16 +1310,17 @@
         .eq('is_overdue', true)
         .order('days_until_due', { ascending: true })
         .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-        .limit(500),
+        .limit(500),   // cap-ok: rows only (PM scope alerts)
 
       db.from('automation_log')
-        .select('job_name, status, detail, triggered_at')
+        .select('job_name, status, detail, triggered_at').limit(200)   // G1 (gate growth-honesty, 2026-09-06): bounded so this read cannot grow without limit
+        
         .eq('hive_id', HIVE_ID)   // F3-arc F5: was RLS-only; every other feed source is hive-filtered
         .eq('status', 'failed')
         .gte('triggered_at', dayAgo)
         .order('triggered_at', { ascending: false })
         .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-        .limit(10),
+        .limit(10),   // cap-ok: rows only (latest automation log lines)
 
       // Phase 3 one-brain (2026-06-10): read the SAME alert composer the Hive
       // Board uses — v_alert_truth (alert_kind='signature') — instead of the raw
@@ -1290,7 +1336,7 @@
         .eq('alert_kind', 'signature')
         .order('detected_at', { ascending: false })
         .order('alert_id')   // MR4 tiebreaker: the sort above is not total on its own
-        .limit(20),
+        .limit(20),   // cap-ok: rows only (alert feed)
 
       db.from('parts_staging_recommendations')
         // failure_mode is stored on every recommendation ('Repeat bearing failure pattern') and was
@@ -1312,7 +1358,7 @@
         .or('expires_at.is.null,expires_at.gt.' + new Date().toISOString())
         .order('generated_at', { ascending: false })
         .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-        .limit(20),
+        .limit(20),   // cap-ok: rows only - no count or sum is derived from this read (classified by the reference-pages-uncapped sweep, 2026-09-05)
     ]);
 
     // Errors must be counted, not skipped. `.value.error` is the half the status check misses.
@@ -1467,7 +1513,7 @@
           dedupeKey: 'staging:' + (r.asset_name || 'unknown'),   // Arc Y Y3: stable dismissal key
           severity: _stagingSev,
           title: r.asset_name || 'Unknown asset',
-          msg: `${partsCount} part${partsCount === 1 ? '' : 's'} recommended (${conf}% confidence)${r.failure_mode ? ' for ' + r.failure_mode : ''}: ${r.rationale || ''}`.slice(0, 220),
+          msg: `${partsCount} part${partsCount === 1 ? '' : 's'} recommended (${conf}% confidence)${r.failure_mode ? ' for ' + r.failure_mode : ''}. ${r.rationale || ''}`.slice(0, 220),   // two sentences, not one colon-joined line (B3)
           time: r.generated_at,
           href: 'asset-hub.html?tag=' + encodeURIComponent(r.asset_name || ''),
           actionLabel: 'Review & stage',
@@ -1580,7 +1626,8 @@
       // handled/snoozed/acknowledged dispositions), read directly to hide/show alerts.
       // It is NOT a KPI/metric, so there is no v_*_truth view to route through.
       const { data: dz } = await db.from('alert_dismissals')
-        .select('alert_key, action, snooze_until').eq('hive_id', HIVE_ID);
+        .select('alert_key, action, snooze_until').limit(500)   // G1 (gate growth-honesty, 2026-09-06): bounded so this read cannot grow without limit
+        .eq('hive_id', HIVE_ID);
       const nowMs = Date.now();
       for (const d of (dz || [])) {
         // 'acknowledged' (seen) is kept in the feed but dimmed — NOT a hide.
@@ -1623,7 +1670,8 @@
       if (fm && typeof whFreshnessChip === 'function') {
         whFreshnessChip(fm, Date.now(), { suffix: '· ' + (window._t ? _t('Auto-refresh every minute', 'Awtomatikong nagre-refresh bawat minuto') : 'Auto-refresh every minute') });
       } else if (fm) {
-        fm.textContent = `Last refreshed ${fmtTime(new Date())} PHT · Auto-refresh every minute`; // T28 sibling (2026-09-02): Manila-pinned stamp now says so (qualifier-beside-figure; audit-log got the same fix in the Cluster-1 sweep)
+        fm.textContent = _t(`Last refreshed ${fmtTime(new Date())} PHT · Auto-refresh every minute`,
+          `Huling na-refresh ${fmtTime(new Date())} PHT · Awtomatikong nagre-refresh bawat minuto`); // T28 sibling (2026-09-02): Manila-pinned stamp now says so (qualifier-beside-figure; audit-log got the same fix in the Cluster-1 sweep)
       }
     }
   }
@@ -1793,7 +1841,7 @@
       const setTxt = (id, txt) => { const e = document.getElementById(id); if (e) e.textContent = txt; };
       ['critical', 'anomaly', 'amc'].forEach(n => {
         setTxt('ah-' + n + '-hero', '—');
-        setTxt('ah-' + n + '-sub', 'Could not read alert state');
+        setTxt('ah-' + n + '-sub', _t('Could not read alert state', 'Hindi mabasa ang alert state'));
         setTxt('ah-' + n + '-tag', 'UNKNOWN');
         const c = document.getElementById('ah-card-' + n);
         if (c) { c.classList.remove('tag-green', 'tag-amber', 'tag-red'); c.classList.add('tag-grey'); }
@@ -1801,7 +1849,7 @@
       const vBox = document.getElementById('ah-verdict');
       if (vBox) { vBox.classList.remove('healthy', 'watch', 'attn', 'empty'); vBox.classList.add('attn'); }
       setTxt('ah-verdict-icon', '⚠');
-      setTxt('ah-verdict-label', 'Could not load your alerts');
+      setTxt('ah-verdict-label', _t('Could not load your alerts', 'Hindi ma-load ang mga alert mo'));
       setTxt('ah-verdict-sub', 'Critical alerts are unknown right now, not zero. Reload before treating this plant as quiet.');
       // ★"RELOAD TO READ YOUR ALERT STATE" IS ADVICE, NOT A PATH. Measured by failing every
       // /rest/v1/ read with a 500: this page said the failure exactly right — "Critical alerts are
@@ -1972,19 +2020,24 @@
         // F3: the feed is now sorted worst-first, so critical/high sit at the TOP — the honest
         // instruction is "start at the top", not "filter to Critical/High using the chips"
         // (there is no severity chip; chips filter by kind only, so that instruction was impossible).
-        text = `${critical} critical/high alert${critical === 1 ? '' : 's'} at the top of the feed. Clear those first, then work down. Tap an alert to open it in its source page.`;
-        setCta(`Clear ${critical} critical/high →`, '#feed');
+        text = _t(`${critical} critical/high alert${critical === 1 ? '' : 's'} at the top of the feed. Clear those first, then work down. Tap an alert to open it in its source page.`,
+          `${critical} critical/high na alert ang nasa itaas ng feed. Unahin ang mga iyon, tapos bumaba. Pindutin ang alert para buksan ito sa pinagmulang page.`);
+        setCta(_t(`Clear ${critical} critical/high →`, `Linisin ang ${critical} critical/high →`), '#feed');
       } else if (anomalyCount > 0) {
-        text = `Open the Anomaly Engine 2.0 panel below: multi-source signals mean a fault is brewing across logbook + sensors + PM drift, not just one signal.`;
-        setCta('Review anomaly signals →', '#feed');
+        text = _t(`Open the Anomaly Engine 2.0 panel below: multi-source signals mean a fault is brewing across logbook + sensors + PM drift, not just one signal.`,
+          `Buksan ang Anomaly Engine 2.0 panel sa ibaba: ang multi-source na signal ay nangangahulugang may fault na nabubuo sa logbook + sensors + PM drift, hindi lang isang signal.`);
+        setCta(_t('Review anomaly signals →', 'Suriin ang anomaly signals →'), '#feed');
       } else if (amcStatus === 'pending') {
-        text = `Today's AMC brief is awaiting your approval. Click "Approve brief" in the AMC card below to dispatch crew suggestions to your workers.`;
-        setCta('Review the AMC brief →', '#amc-card');
+        text = _t(`Today's AMC brief is awaiting your approval. Click "Approve brief" in the AMC card below to dispatch crew suggestions to your workers.`,
+          `Naghihintay ng pag-apruba mo ang AMC brief ngayong araw. Pindutin ang "Approve brief" sa AMC card sa ibaba para ipadala ang mga suhestiyon sa crew mo.`);
+        setCta(_t('Review the AMC brief →', 'Suriin ang AMC brief →'), '#amc-card');
       } else if (total > 0) {
-        text = `${total} open alerts, none critical. Work through them as time permits during your next walkaround.`;
-        setCta(`Work through ${total} alert${total === 1 ? '' : 's'} →`, '#feed');
+        text = _t(`${total} open alerts, none critical. Work through them as time permits during your next walkaround.`,
+          `${total} bukas na alert, walang critical. Asikasuhin ang mga ito kapag may oras sa susunod mong walkaround.`);
+        setCta(_t(`Work through ${total} alert${total === 1 ? '' : 's'} →`, `Asikasuhin ang ${total} alert →`), '#feed');
       } else {
-        text = `Alert Hub is clear. Check back after the next shift change or sensor reading window.`;
+        text = _t(`Alert Hub is clear. Check back after the next shift change or sensor reading window.`,
+          `Malinis ang Alert Hub. Bumalik pagkatapos ng susunod na shift change o sensor reading window.`);
         hideCta();
       }
       actBox.textContent = text;
@@ -2014,10 +2067,11 @@
           ? whHiveContextLost(HIVE_NAME ? ('the ' + HIVE_NAME) : 'this hive')
           : 'You are no longer a member of this hive, so its alerts are not shown.';
       } else if (_activeKind !== 'all' && _alerts.length) {
-        if (emptyTitle) emptyTitle.textContent = 'None under this filter';
-        if (emptySub)   emptySub.textContent = `No ${_activeKind} alerts. ${_alerts.length} alert${_alerts.length === 1 ? '' : 's'} under other filters. Tap "All" to see them.`;
+        if (emptyTitle) emptyTitle.textContent = _t('None under this filter', 'Wala sa ilalim ng filter na ito');
+        if (emptySub)   emptySub.textContent = _t(`No ${_activeKind} alerts. ${_alerts.length} alert${_alerts.length === 1 ? '' : 's'} under other filters. Tap "All" to see them.`,
+          `Walang ${_activeKind} na alert. ${_alerts.length} alert ang nasa ibang filter. Pindutin ang "All" para makita ang mga ito.`);
       } else {
-        if (emptyTitle) emptyTitle.textContent = 'All clear';
+        if (emptyTitle) emptyTitle.textContent = _t('All clear', 'Malinis lahat');
         if (emptySub)   emptySub.textContent = 'No active alerts in your hive right now.';
       }
       empty.style.display = 'block';
@@ -2031,6 +2085,12 @@
     lmWrap.classList.toggle('hidden', visible.length >= items.length);
 
     const e = escHtml;
+    // P188 (2026-09-05): restore the keyboard user's place after this innerHTML rebuild. The capture happened at the START
+    // of loadAll (the skeleton it paints destroys the focused control before this render ever runs) or here if focus is
+    // still inside the feed; the restore prefers the same signature, then the same position among the tag's elements.
+    var _cap = (document.activeElement && feed.contains(document.activeElement)) ? _feedFocusCapture(feed) : window._feedFocusCap;
+    window._feedFocusCap = null;
+    if (_cap) setTimeout(function () { _feedFocusRestore(feed, _cap); }, 0);
     feed.innerHTML = visible.map(a => {
       const sev = a.severity || 'medium';
       // F34: include 'low' (v_alert_truth normalizes some signature severities to it) so it
@@ -2126,8 +2186,8 @@
 
 <!-- Calm Dashboard Contract footer: data-sources disclosure + hideZeroStat helper -->
 <details data-calm-disclosure="data-sources" style="max-width:680px; margin:1rem auto 2rem; padding:0 1rem;">
-  <summary style="cursor:pointer; font-size:.78rem; color:rgba(255,255,255,0.80); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
-  <p style="font-size:.78rem; color:rgba(255,255,255,0.80); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
+  <summary style="cursor:pointer; font-size:0.8rem; color:rgba(255,255,255,0.80); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
+  <p style="font-size:0.8rem; color:rgba(255,255,255,0.80); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
 </details>
 <script>
   window.hideZeroStat = window.hideZeroStat || function(el, val) {
@@ -2140,7 +2200,7 @@
 <!-- U3 status-feedback: persistent polite live region (STREAMLINE E2). showToast/whListError announce here; screen readers get status, never a silent fetch. -->
 <div id="toast" role="alert" aria-live="polite"></div>
 
-<script>window.WH_FIL_PAGE={approvebrief:'Aprubahan ang brief',joinhive:'Sumali sa hive para makita ang mga alerto',ah_seen:'Nakita',ah_seenbtn:'👁 Nakita',ah_snooze:'⏳ Snooze 7d',ah_handled:'✓ Handled'};</script>
+<script>window.WH_FIL_PAGE={approvebrief:'Aprubahan ang brief',joinhive:'Sumali sa hive para makita ang mga alerto',ah_seen:'Nakita',ah_seenbtn:'👁 Nakita',ah_snooze:'⏳ Snooze 7d',ah_handled:'✓ Handled',ah_sub:'Lahat ng nangangailangan ng atensyon mo, sa isang lugar.',ah_alerts:'Mga alerto'};</script>
   <!-- AV1 (FULLSTACK_COMPONENT_LIBRARY Layer AV): the offline canonical set — ships as one unit -->
   <script src="offline-banner.js"></script>
   <script defer src="offline-queue.js"></script>

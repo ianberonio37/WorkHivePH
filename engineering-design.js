@@ -28398,7 +28398,14 @@ async function loadHistory() {
         <div class="flex items-start justify-between gap-3">
           <div class="flex-1 min-w-0">
             <div class="font-semibold text-sm truncate">${escHtml(row.project_name || 'Untitled')}</div>
-            <div class="text-xs mt-0.5" style="color:rgba(255,255,255,0.6);">${escHtml(row.calc_type)} &nbsp;·&nbsp; ${escHtml(row.discipline)}</div>
+            <!-- NOBODY'S NAME WAS ON ANY OF THESE. In a hive this list is hive-scoped, so it shows every
+                 member's saved calculations, and project-manager reads the same table as a project's
+                 engineering JUSTIFICATION with the BOM and SOW attached. A supervisor looking at a
+                 sizing that decided what to buy could not tell who computed it, while worker_name sat
+                 on the row the renderer was already holding. (No backticks in this comment: it lives
+                 INSIDE a template literal, where one would end the string - the same way a backtick in
+                 a comment has broken this platform before.) -->
+            <div class="text-xs mt-0.5" style="color:rgba(255,255,255,0.6);">${escHtml(row.calc_type)} &nbsp;·&nbsp; ${escHtml(row.discipline)}${row.worker_name ? ` &nbsp;·&nbsp; by ${escHtml(row.worker_name)}` : ''}</div>
             ${summary ? `<div class="text-xs mt-1" style="color:#F7A21B;font-weight:600;">Result: ${escHtml(summary)}</div>` : ''}
           </div>
           <div class="text-right flex-shrink-0">
@@ -32066,7 +32073,13 @@ async function init() {
   // T1: was a bare `index.html` redirect — a signed-out arrival (often from a /tools/ calculator
   // page claiming "no sign-up needed") landed on marketing copy with no modal, no message, and no
   // way back. Now the sign-in modal opens itself and auth returns the person HERE.
-  if (!WORKER_NAME) { window.location.href = 'index.html?signin=1&return=engineering-design.html'; return; }
+  if (!WORKER_NAME) {
+    // Carry the requested calculator THROUGH the sign-in round trip. Without this a person who clicked
+    // "Open the interactive Bolt Torque Calculator" on the SEO page signs up and lands on HVAC step 1.
+    const _want = _deepLinkSlug();
+    const _ret  = 'engineering-design.html' + (_want ? '?calc=' + encodeURIComponent(_want) : '');
+    window.location.href = 'index.html?signin=1&return=' + encodeURIComponent(_ret); return;
+  }
   syncCalcCounts();
   const _engChip = document.getElementById('eng-source-chip');
   if (_engChip && typeof renderSourceChip === 'function') {
@@ -32077,7 +32090,38 @@ async function init() {
     });
   }
   renderRecentCalcs();
-  selectDiscipline('HVAC & Cooling');
+  // ★THE HAND-OFF FROM THE SEO PAGES CARRIED NO CALCULATOR (2026-09-06, gate calc-handoff). All 60 pages under
+  // tools/<name>/index.html say "Open the interactive <X> Calculator in WorkHive (free sign-in)" and every one
+  // linked to the bare /engineering-design.html, which read no parameter and always opened HVAC & Cooling at
+  // step 1. That is the platform's own "hand-off carries context" lens failing on its highest-intent path: a
+  // person arrives from a search for one named calculator and has to hunt for it among 55 types across six
+  // disciplines. A deep link names it; the discipline follows from the registry, so nothing here can drift
+  // from CALC_TYPES_UI.
+  const _deep = _resolveDeepLink();
+  if (_deep) { selectDiscipline(_deep.disc); selectCalcType(_deep.id); }
+  else selectDiscipline('HVAC & Cooling');
+}
+
+/** The requested calculator slug, from ?calc= or #calc=. */
+function _deepLinkSlug() {
+  try {
+    const q = new URLSearchParams(window.location.search).get('calc');
+    if (q) return q;
+    const h = (window.location.hash || '').replace(/^#/, '');
+    return /^calc=/.test(h) ? h.slice(5) : '';
+  } catch (_) { return ''; }   // empty-catch-allow: a malformed URL simply means no deep link
+}
+
+/** Match that slug against CALC_TYPES_UI, the file's declared sole source of truth. */
+function _resolveDeepLink() {
+  const want = _deepLinkSlug();
+  if (!want) return null;
+  const slug = (t) => String(t).toLowerCase().replace(/&/g, ' and ').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  const target = slug(want);
+  for (const [disc, calcs] of Object.entries(CALC_TYPES_UI)) {
+    for (const c of calcs) { if (slug(c.id) === target) return { disc, id: c.id }; }
+  }
+  return null;
 }
 
 init();

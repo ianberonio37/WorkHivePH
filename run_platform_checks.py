@@ -95,7 +95,7 @@ VALIDATORS = [
         "id":      "psql-probe-suite",
         "script":  "tools/validate_psql_probe_suite.py",
         "args":    [],
-        "label":   "Re-executes EVERY psql recipe in tools/psql_probes/ - the 99 database invariants the page banks stand on. WHY IT EXISTS: 96 bank rows carry evidence kind `psql`, each naming a recipe file in its `replay` line, and until 2026-08-31 NOTHING RAN THEM. They were proven once at bank time and never again. The bank's freshness machinery expires such a row when its declared deps change, which is right for a claim ABOUT A FILE and says nothing about an invariant living in the DATABASE, where a migration, a policy edit or a dropped grant falsifies a recipe while every file it depends on sits untouched. The gap was not theoretical: public-feed__public_identity_only.sql is a REGRESSION LOCK written the same day, because an anonymous visitor could read every public post author's internal auth_uid (measured: 15 of 15 posts, 7 authors, 2 hives) - and a lock nothing executes locks nothing. ★IT EARNED ITS KEEP ON ITS FIRST FULL RUN: three of 99 recipes no longer held, and all three were INSTRUMENT faults rather than product regressions, which is exactly the split this gate exists to force someone to make. (1) assistant__feedback_attributable compared a before-count taken as postgres against an after-count taken as `authenticated`, whose SELECT policy shows only their own rows - postgres saw 1, the user saw 0 - so a perfectly good insert read as a refusal; it now counts the INSERT itself with RETURNING. (2) logbook__pm_mirror_idempotent assumed `completed_at + 1 day` was free, but its fixture worker had completions on CONSECUTIVE days, so the dedup index refused it exactly as designed and the probe called that a broken invariant; the free day is now computed from that pair's latest completion. (3) registry__ghost_retired asserted `marketplace_orders` holds zero rows - a PROXY for 'this relation is inert to clients' that our own test-data-seeder falsified by writing six lifecycle rows; the count leg is gone, the security legs (anon sees 0, INSERT refused by RLS, view is security_invoker) remain, and the genuinely unresolved half - marketplace-admin.html:1026 UPDATEs the table, so 'retired' is drifting - is recorded for Ian instead of quietly re-greened. ★RETRY-ONCE, REPORTED AS A FLAKE: the recipes take row locks and several SET ROLE, so 99 back-to-back reproduces this repo's known flake-under-load class - assistant__citations_resolve_lawfully failed inside the suite once and then passed three times standalone. A failing recipe is retried exactly once and a flake is PRINTED as a flake, never folded into the pass: a false RED sends someone hunting a defect that is not there and teaches the team to re-run reds until they turn green. Sequential on purpose, ~25s for all 99. No residue by construction - every mutating recipe wraps its teeth in BEGIN/ROLLBACK and most assert their own restoration.",
+        "label":   "Re-executes EVERY psql recipe in tools/psql_probes/ - the database invariants the page banks stand on (the count is whatever the directory holds; it was 99 when this gate was written and is not re-typed here, because a number in a label is a claim that drifts the moment a recipe is added). WHY IT EXISTS: 96 bank rows carry evidence kind `psql`, each naming a recipe file in its `replay` line, and until 2026-08-31 NOTHING RAN THEM. They were proven once at bank time and never again. The bank's freshness machinery expires such a row when its declared deps change, which is right for a claim ABOUT A FILE and says nothing about an invariant living in the DATABASE, where a migration, a policy edit or a dropped grant falsifies a recipe while every file it depends on sits untouched. The gap was not theoretical: public-feed__public_identity_only.sql is a REGRESSION LOCK written the same day, because an anonymous visitor could read every public post author's internal auth_uid (measured: 15 of 15 posts, 7 authors, 2 hives) - and a lock nothing executes locks nothing. ★IT EARNED ITS KEEP ON ITS FIRST FULL RUN: three of 99 recipes no longer held, and all three were INSTRUMENT faults rather than product regressions, which is exactly the split this gate exists to force someone to make. (1) assistant__feedback_attributable compared a before-count taken as postgres against an after-count taken as `authenticated`, whose SELECT policy shows only their own rows - postgres saw 1, the user saw 0 - so a perfectly good insert read as a refusal; it now counts the INSERT itself with RETURNING. (2) logbook__pm_mirror_idempotent assumed `completed_at + 1 day` was free, but its fixture worker had completions on CONSECUTIVE days, so the dedup index refused it exactly as designed and the probe called that a broken invariant; the free day is now computed from that pair's latest completion. (3) registry__ghost_retired asserted `marketplace_orders` holds zero rows - a PROXY for 'this relation is inert to clients' that our own test-data-seeder falsified by writing six lifecycle rows; the count leg is gone, the security legs (anon sees 0, INSERT refused by RLS, view is security_invoker) remain, and the genuinely unresolved half - marketplace-admin.html:1026 UPDATEs the table, so 'retired' is drifting - is recorded for Ian instead of quietly re-greened. ★RETRY-ONCE, REPORTED AS A FLAKE: the recipes take row locks and several SET ROLE, so 99 back-to-back reproduces this repo's known flake-under-load class - assistant__citations_resolve_lawfully failed inside the suite once and then passed three times standalone. A failing recipe is retried exactly once and a flake is PRINTED as a flake, never folded into the pass: a false RED sends someone hunting a defect that is not there and teaches the team to re-run reds until they turn green. Sequential on purpose, ~25s for all 99. No residue by construction - every mutating recipe wraps its teeth in BEGIN/ROLLBACK and most assert their own restoration.",
         "group":   "Platform",
         "severity": "fail",
     },
@@ -3160,9 +3160,8 @@ VALIDATORS = [
         "id":      "md-twins-current",
         "script":  "tools/validate_md_twins.py",
         "args":    [],
-        "label":   "T3/T154: the markdown twin must say what the page says (2026-08-27). Every public page ships a clean twin at <page>.md - the llms.txt convention, served deliberately (_headers: 'Markdown twins ... every page also exists at <page>.md') so answer engines read structured text instead of scraping markup. That makes the twin a PUBLISHING CHANNEL, and a stale one is worse than none: an agent fetching it gets a confident, well-formed, WRONG version of the page. ★MEASURED 2026-08-27: 107 of 119 twins had DRIFTED, including privacy-policy and terms-of-service - an answer engine could quote retired legal text. The sharpest instance was T3's recorded defect surviving in the machine channel after being fixed in the human one: 60 calculator twins still said 'free, no sign-up needed' on a link INTO engineering-design.html, which redirects to sign-in, while the HTML had already been corrected to 'A free account takes about 30 seconds'. Zero served pages carried the claim; sixty twins did. ★THE VALIDATOR ALREADY EXISTED AND WORKED - tools/validate_md_twins.py, with a source_sha per twin and the right reasoning in its own docstring - and NOTHING RAN IT: it appeared in no gate registration, the same orphaned-prover shape as the three unreferenced provers found earlier this session. A working oracle nobody runs is indistinguishable from one never written. Fixed by rebuilding (118 rebuilt, 119/119 current, 0 twins still carrying the claim) and by REGISTERING the validator, so the next HTML edit that forgets the twin fails here instead of shipping a confident wrong answer to a machine. FIX ON FAIL: python tools/build_md_twins.py",
+        "label":   "T3/T154: the markdown twin must say what the page says (2026-08-27). Every public page ships a clean twin at <page>.md - the llms.txt convention, served deliberately (_headers: 'Markdown twins ... every page also exists at <page>.md') so answer engines read structured text instead of scraping markup. That makes the twin a PUBLISHING CHANNEL, and a stale one is worse than none: an agent fetching it gets a confident, well-formed, WRONG version of the page. ★MEASURED 2026-08-27: 107 of 119 twins had DRIFTED, including privacy-policy and terms-of-service - an answer engine could quote retired legal text. The sharpest instance was T3's recorded defect surviving in the machine channel after being fixed in the human one: 60 calculator twins still said 'free, no sign-up needed' on a link INTO engineering-design.html, which redirects to sign-in, while the HTML had already been corrected to 'A free account takes about 30 seconds'. Zero served pages carried the claim; sixty twins did. ★THE VALIDATOR ALREADY EXISTED AND WORKED - tools/validate_md_twins.py, with a source_sha per twin and the right reasoning in its own docstring - and NOTHING RAN IT: it appeared in no gate registration, the same orphaned-prover shape as the three unreferenced provers found earlier this session. A working oracle nobody runs is indistinguishable from one never written. Fixed by rebuilding (118 rebuilt, 119/119 current, 0 twins still carrying the claim) and by REGISTERING the validator, so the next HTML edit that forgets the twin fails here instead of shipping a confident wrong answer to a machine. FIX ON FAIL: python tools/build_md_twins.py. ★NOW IN --fast (2026-09-11): registering the gate was only half the repair - it was registered skip_if_fast, and the discipline this project actually runs is '--fast at milestones, the full board is Ian's ~6h gate'. So this gate was structurally unrun for the ENTIRE duration of every edit wave, which is precisely when twin drift is created. Measured today: one card blurb on learn/index sent me into the generated mirror, and the rebuild reported 117 of 120 twins ALREADY DRIFTED from the day's earlier edits - 117 public pages serving a confident, well-formed, wrong copy of themselves to answer engines, with no milestone check able to see it. The validator costs 1.98s. skip_if_fast is for expensive gates; a 2-second check guarding a PUBLISHING CHANNEL earns nothing by being skipped and loses a whole wave of visibility. A registered gate that never runs in the mode you actually run is the orphaned-prover shape one layer up - [[feedback_three_ways_a_lock_is_hollow]].",
         "group":   "Platform",
-        "skip_if_fast": True,
         "severity": "fail",
     },
     {
@@ -3875,7 +3874,7 @@ VALIDATORS = [
         "id":      "home-stack-coverage",
         "script":  "validate_home_stack_coverage.py",
         "args":    [],
-        "label":   "Home Stack Coverage Validator (primary-nav cardinality + hidden tools have deep-links)",
+        "label":   "Home Stack Coverage Validator (primary-nav cardinality + hidden tools have deep-links + a mode that cannot SEE a tool can still REACH it)",
         "group":   "Platform",
         "report":  "home_stack_coverage_report.json",
         "skip_if_fast": False,
@@ -4739,6 +4738,14 @@ VALIDATORS = [
         "label":   "ai-gateway Anon Voice-Journal Contract (4-layer: ANON_OK_AGENTS set + auth-gate skip + authUid persistence guard + AGENT_ROUTES entry)",
         "group":   "Platform",
         "report":  None,
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "voice-canonical-anchor-selftest",
+        "script":  "validate_voice_canonical_anchor.py",
+        "args":    ["--selftest"],
+        "label":   "Canonical-anchor gate teeth (5 cases): the wiring check used rfind() and called the result 'the call site' - but with NO call sites rfind returns the DEFINITION, and the three definitions sit in exactly the order it wanted, so it read PASS for as long as the feature existed while _classifyDataIntent and _fetchCanonicalData were never called by anything. A file carrying only the definitions must now FAIL and must name every function it could not find a caller for.",
+        "group":   "Platform",
         "skip_if_fast": False,
     },
     {
@@ -10301,6 +10308,1858 @@ VALIDATORS = [
         "severity": "regression",
         "parallel_safe": True,
     },
+    # 2026-09-08 - three new static gates and one prover nothing ran. The five OTHER provers this
+    # session nearly registered (journey, domain_truth, reward_explained, safe_area, view_contrast)
+    # are ALREADY driven by tools/validate_page_ui_provers.py, which runs nineteen of them from a
+    # lookup table under 21 gate ids - a driver four of my detectors missed because it builds the
+    # filename rather than naming it in a subprocess call. Registering them again would have doubled
+    # their browser time and collided on their report artifacts, which is exactly what the suite's
+    # own duplicate-artifact check said when it caught me.
+    {
+        "id":      "write-names-a-real-column",
+        "script":  "validate_write_names_a_real_column.py",
+        "args":    [],
+        "label":   "Every read and write names a column its table actually has (static, substrate-backed). supabase-js does NOT throw when PostgREST refuses a row - it resolves with { error } - so a wrong column name fails in the quietest way available. Found FIVE in voice-handler.js: three spelled `event_type` where ai_audit_log's column is `event`, one wrote `source` to a table with no such column, and the fifth - the only one on a LIVE path - wrote `negative_count` where ai_quality_escalation has `thumbs_down_7d`, so the supervisor-outreach flag had never once been set. The READ side found its own: worker-drawer selected `reorder_point` from inventory_items, a column the platform KNOWS is absent (migration 20260510000003 created v_inventory_items_truth to alias it), so the drawer always said 'No low-stock items assigned' on a read that returned 400. Reads inline write objects AND `.insert(row)` where the object is built above; anything it cannot parse honestly is SKIPPED and counted.",
+        "group":   "Platform",
+        "report":  "write_column_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "write-names-a-real-column-selftest",
+        "script":  "validate_write_names_a_real_column.py",
+        "args":    ["--selftest"],
+        "label":   "Column-name gate teeth (13 cases): a wrong column caught inline and via an object built above, update/upsert/select all read, the nearest-declaration rule that its own first bug broke, and spread/shorthand/wildcard/unknown-table all skipped rather than guessed.",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "companion-capability-reachable",
+        "script":  "validate_companion_capability_reachable.py",
+        "args":    [],
+        "label":   "Is the AI companion's certified capability REACHED? Twenty validate_ai_companion_*.py files guard voice-handler.js and every check they make asks whether a NAME IS SPELLED IN THE SOURCE. Measured: 283 symbols guarded, 154 never called inside the file, 71 never called ANYWHERE. Four were opened by hand and all four were also WRONG - the erasure the assistant offers and never performed, the audit row 'every confirmed write action' never wrote, a 180-day retention that never aged anything out, and a compliance export nobody could produce. Never exercised, so the mistake kept. Forward-only ratchet; --list names them.",
+        "group":   "Platform",
+        "report":  "companion_capability_reachable.json",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "fn-field-shapes-teeth",
+        "script":  os.path.join("tools", "selftest_fn_field_shapes.mjs"),
+        "args":    [],
+        "label":   "Contract-prober field shapes (10 cases): the prober fills in whatever a function complains is missing and asks again, and two shapes defeated it while the function was spelling out exactly what it wanted - a TYPE ('payload (object)', answered with a string every time, so the same complaint returned) and a PATH ('time_range.{from,to}', set as a top-level key literally named time_range.from). Both directions pinned: the shapes are built, a plain field still lands flat, and another field's type is never borrowed.",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "declared-fks-exist",
+        "script":  os.path.join("tools", "validate_declared_fks_exist.py"),
+        "args":    [],
+        "label":   "A foreign key a migration DECLARES exists in the database. WHY: 20260516000004 creates kb_chunks with `doc_id ... references kb_documents(id) on delete cascade` and the live table had the NOT NULL and NO key at all. ESTABLISHED: the declaration, the absence, and that the same block's NOT NULL did land. NOT ESTABLISHED: why - no migration drops that key and only one creates the table, so the tidy `create table if not exists` explanation is plausible and unproven; the local DB is likely reset/seeded rather than replayed (its history stops at 20260613 against 606 migrations). The gate does not depend on the answer. It cost six embedded chunks of real maintenance knowledge, returnable to nobody in any hive, because the only reader (semantic_search_kb) INNER JOINs kb_documents and every chunk pointed at a doc_id that was not there. Audited platform-wide: 124 keys are declared inside such blocks, 122 are live, and the 2 absences are named in KNOWN_ABSENT with DIFFERENT reasons (a retired parent table; a parser artifact kept visible rather than filtered, because a parser that hides its own mistakes is how a gate stops seeing). A RATCHET, not a backlog: green today, red the moment a new if-not-exists block drops a key on a table that already exists. Mutation-tested: drop kb_chunks' key and it exits 1 naming it.",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "critic-walk-grouping",
+        "script":  os.path.join("tools", "critic_walk_groups.py"),
+        "args":    ["--self-test"],
+        "label":   "A critic walk is split by what the EYE meets (7 cases): the deepwalk owes an in-motion critique to 723 journey rows, and Ian's instruction is to deepwalk each trajectory OR GROUP OF CATEGORIES without repeating what is already done. Walking 723 journeys one at a time re-measures the same screens; collapsing them carelessly is worse. A walk is keyed by cell + ordered page path + LANGUAGE (a Filipino render is a different screen, and dim N1 grades exactly that) + CONDITION + MOMENT (which changes how full every list is), and deliberately NOT by hive - the vertical changes the data behind a screen, not the structure the rubric grades. Measured: 723 rows are 265 distinct walks, 203 English and 62 Filipino, 205 normal and 60 degraded. This gate pins the split in both directions: language, condition, moment, path and cell must each separate a walk, while identical inputs and missing journey fields must NOT invent one.",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "critic-walk-banking",
+        "script":  os.path.join("tools", "bank_critic_walk.py"),
+        "args":    ["--self-test"],
+        "label":   "In-motion critic banking cannot invent a dim or bank a blank walk (9 cases): critic_from_board banks a page-at-rest board and validator rule R6 forbids it from touching a multi-page journey; this is the other half, for rows walked step by step through the MCP with __RUBRIC.survey() on each settled surface. Pinned: every spec dim seen is counted as graded; a dim the rubric spec does not define is DROPPED and counted rather than invented (R4 would reject the bank); each sub-100 spec dim becomes exactly one finding; severity maps 0%->blocker, 40%->major, 60%->minor, 85%->polish on Arc K's scale; the note names every page walked; and a glob matching no graded survey banks NOTHING, because a walk that scored nothing is a failed walk and never a clean page.",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "mcp-walk-receipts",
+        "script":  os.path.join("tools", "record_mcp_walk.py"),
+        "args":    ["--self-test"],
+        "label":   "MCP walk receipts cannot be hand-written green (6 cases): SS-LW.1 rule 4 says a persona JOURNEY is walked with the MCP because each step's snapshot decides the next, but the ledger read exactly ONE namespace - the .tmp/full_journeys_*.json that prove_full_journeys.mjs writes - so a journey walked correctly by hand through the MCP could never be banked, and a row whose scripted receipt was red stayed red however carefully it was re-walked (Ian, 2026-09-10: 'we should always use MCPs for walks'). tools/record_mcp_walk.py writes the other namespace and live_walk_manifest now takes the newest receipt across BOTH, so an MCP re-walk supersedes an older scripted one exactly as a scripted re-walk does. This gate holds it honest: a walk with NO steps is refused rather than written as a pass, an unknown instrument is refused (the field is how a reader tells a walk a person drove from one a script drove), a step under 120 rendered characters reddens and names its count, a walk that lost identity reddens, and an --unproven walk reddens even when every step rendered - which is the case that matters, because W3530's five steps all painted while its worker x supervisor pair had no castable supervisor in that hive.",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "sw-install-survives-loss",
+        "script":  os.path.join("tools", "test_sw_install_survives_loss.mjs"),
+        "args":    [],
+        "label":   "SW install survives a lost request (10 cases): install ran cache.addAll(SHELL_FILES), which is ATOMIC - one failed entry rejects, the rejection escapes waitUntil, and the worker goes from `installing` to `redundant`, leaving the person with NO service worker at all (no precache, no offline fallback, no network-first page copy) and nothing anywhere saying so. Found 2026-09-10 by asking a browser whether the worker actually CONTROLS the pages a journey walks: under the prover's own offline-3g emulation it returned `registered:true, state:installing, finalState:REDUNDANT` with sw.js itself never dropped, while the same page with routing but no drops installed normally - so the loss killed it, not the instrumentation. Not merely a stress-test concern: the install survives only if all 65 entries land, so at 1-in-12 that is 0.35%, at an ordinary 1% request loss it is (0.99)^65 = 52% (half of real plant-floor installs failing completely), and at 3% it is 14%. Each entry now gets one retry and a file that still will not come is left out rather than taking the install down with it; verified live afterwards - WITH drops the worker reaches `activated` with 65/65 cached, where before it went redundant with zero. Both directions pinned and mutation-tested four ways: restore the atomic addAll, smuggle an addAll in beside the tolerant path, drop the per-file catch, or precache only a hand-picked few, and each is caught.",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "browser-floor-retry-teeth",
+        "script":  os.path.join("tools", "test_browser_floor_retry.mjs"),
+        "args":    [],
+        "label":   "Client-missing retry (10 cases): browser-floor.js told a person 'a file it needs did not arrive' on the FIRST dropped request, and three journey rows died on that banner (W3559/J9, W3521/J25, W3618/J22) under the offline-3g condition, which aborts about one request in twelve - so the file was not unavailable, that attempt was just the unlucky one. It now asks once more before warning. Both directions pinned, because a retry that always warns and one that never warns are equally broken: the second request carries the SAME src and KEEPS its integrity + crossorigin (a retry that drops SRI is a downgrade dressed as resilience), no banner paints while it is in flight, a success stays silent, a genuine failure still warns in both languages, and a second failure does not queue a third request. Mutation-tested: remove the pin carry-over or disable the retry and this reddens.",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "first-timer-lens-teeth",
+        "script":  os.path.join("tools", "selftest_first_timer_lens.mjs"),
+        "args":    [],
+        "label":   "First-timer lens teeth (8 cases): the 'explains itself cold' rule used LENGTH alone, and ph-intelligence failed it while answering a newcomer perfectly in 379 characters - naming itself, saying what it is for, saying why it is empty, and offering the Hive Board. The replacement accepts a concise page only when it does all three, and these cases prove a page missing any ONE of them still fails, so widening the threshold did not make the lens vacuous.",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "companion-selftest",
+        "script":  "validate_companion_selftest.py",
+        "args":    [],
+        "label":   "Does the companion's OWN self-test suite run? voice-handler.js ships _runSelfTest() - eighteen assertions written beside the features they cover, exported on the module surface, and invoked by NOTHING but a badge somebody has to open in a browser. A lock nothing turns: the cases could rot for months and every suite run would stay green. This runs them outside a browser (tools/companion_selftest_harness.cjs stubs only what the file touches while loading) and fails on any that do not hold. Ratchet: cases may be added, never quietly dropped.",
+        "group":   "AI Validation",
+        "report":  "companion_selftest.json",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "companion-selftest-teeth",
+        "script":  "validate_companion_selftest.py",
+        "args":    ["--selftest"],
+        "label":   "Companion self-test gate teeth (5 cases): breaking _stripFillers on a COPY makes the suite fail, the failure names which case fell, the real file passes, and the case count cannot shrink below the floor.",
+        "group":   "AI Validation",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "companion-capability-reachable-selftest",
+        "script":  "validate_companion_capability_reachable.py",
+        "args":    ["--selftest"],
+        "label":   "Reachability gate teeth (5 cases): a called symbol is not counted, a symbol a TEST calls is not counted, one reached through the export surface is not counted, a COMMENT naming it is not a call, and a symbol the subject does not define is not guarded.",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "kpi-count-query-safety-selftest",
+        "script":  "validate_kpi_count_query_safety.py",
+        "args":    ["--selftest"],
+        "label":   "KPI count-safety teeth (6 cases). The gate matched `v_*_truth` views only, so it could not see voice-journal.html - the page whose bug it describes - and 45 reads carry a marker asserting 'no count OR SUM is derived' while only the count half was ever tested. Sum patterns added; these cases are what make them more than a claim.",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "availability-pages",
+        "script":  os.path.join("tools", "prove_availability_pages.mjs"),
+        "args":    [],
+        "label":   "Availability across the page set - offline refusal, retry path, rate-limit legibility, induced and judged in one pass by the shared live-state runner. CITED BY 242 BANKED ROWS ACROSS 22 BANKS and run by nothing: not this suite, not a committed script, not another gate. tools/read_recorder_findings.py names it but only READS its report and is itself unregistered. REPORT-ONLY BY DESIGN - it exits non-zero on a crash, not on findings - so this registration re-earns the evidence those rows stand on rather than adding a new red. Said plainly so nobody reads its green as a verdict.",
+        "group":   "Platform",
+        "skip_if_fast": True,
+        "severity": "warn",
+    },
+    # 2026-09-08 - the TEETH sweep. Of the prover roster, 9 carry a --teeth flag and 3 were ever run
+    # with it; 23 carry a self-test and 2 were. validate_page_ui_provers drives nineteen WALKS with
+    # --gate and never a self-test, so a prover's own teeth are unrun even where its walk is not.
+    # Each was RUN first to see whether it needs the live stack: a browser walk registered as a fast
+    # check only teaches people to skip the group.
+    {
+        "id":      "cost-before-commit-selftest",
+        "script":  os.path.join("tools", "prove_cost_before_commit.mjs"),
+        "args":    ["--selftest"],
+        "label":   "Cost-before-commit oracle teeth: each of cost, hold and reward fires on its own disclosure and stays silent on the other two.",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "deep-link-arrival-selftest",
+        "script":  os.path.join("tools", "prove_deep_link_arrival.mjs"),
+        "args":    ["--self-test"],
+        "label":   "Deep-link arrival oracle teeth: a door without a return address is recorded as one, and it reports how many rows it has to answer so an empty denominator cannot read as a pass.",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "empty-state-selftest",
+        "script":  os.path.join("tools", "prove_empty_state.mjs"),
+        "args":    ["--self-test"],
+        "label":   "Empty-state oracle teeth: a bare heading is neither an empty state nor a populated one, and the check says which it found.",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "firstrun-tablet-selftest",
+        "script":  os.path.join("tools", "prove_firstrun_and_tablet.mjs"),
+        "args":    ["--self-test"],
+        "label":   "First-run and tablet oracle teeth: an invitation counts as a first-run affordance and a populated board does not.",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "what-happens-next-selftest",
+        "script":  os.path.join("tools", "prove_what_happens_next.mjs"),
+        "args":    ["--selftest"],
+        "label":   "What-happens-next oracle teeth: the two halves are told apart, so a page that says what it DID is not credited with saying what comes next.",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "domain-truth-selftest",
+        "script":  os.path.join("tools", "prove_domain_truth.mjs"),
+        "args":    ["--selftest"],
+        "label":   "Domain-truth oracle teeth: every check must fire on a satisfying text AND fail on a violating one. Written after the instrument was narrow FIVE times in one arc, each time with the product right. The WALK is driven by validate_page_ui_provers; its teeth pass was not.",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "reward-explained-selftest",
+        "script":  os.path.join("tools", "prove_reward_explained.mjs"),
+        "args":    ["--selftest"],
+        "label":   "Reward-criteria oracle teeth: fires on a bare reward, silent on an explained one, and refuses to pass on an empty denominator - zero failures over nothing measured is not a pass.",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "journey-personas-selftest",
+        "script":  os.path.join("tools", "prove_journey.mjs"),
+        "args":    ["--selftest"],
+        "label":   "Journey-walk oracle teeth. Its walk is driven by validate_page_ui_provers under 'cn_journey'; the self-test that protects the oracle was registered nowhere. Needs the live stack.",
+        "group":   "Platform",
+        "skip_if_fast": True,
+    },
+    {
+        "id":      "at-cap-fits-teeth",
+        "script":  os.path.join("tools", "prove_at_cap_fits.mjs"),
+        "args":    ["--teeth"],
+        "label":   "At-cap layout teeth: the walk runs, its --teeth pass never did, so nothing checked the instrument can still tell a fitting layout from an overflowing one.",
+        "group":   "Platform",
+        "skip_if_fast": True,
+    },
+    {
+        "id":      "viewport-overflow-teeth",
+        "script":  os.path.join("tools", "prove_viewport_overflow.mjs"),
+        "args":    ["--teeth"],
+        "label":   "Viewport-overflow teeth: same shape - validate_page_ui_provers runs the walk with --gate and never with --teeth.",
+        "group":   "Platform",
+        "skip_if_fast": True,
+    },
+    # 2026-09-08 - RECOVERED. A regex meant to remove five duplicate registrations deleted 443,
+    # and restoring from git HEAD then dropped every registration this session had added before
+    # the damage - including the gates locked trajectories name. These are lifted back out of the
+    # damaged copy by walking its AST rather than slicing its text, which is what broke it.
+    {
+        # ★A PAGE OUTSIDE THE BOARD IS INVISIBLE (2026-09-05): ten root pages were never on the family
+        # rubric board's PAGES list; their first run ever read mean 82 (validator-catalog 58) while the
+        # board's headline read 99. The ruler was fine — the pages were not under it. This gate holds the
+        # board's page list to the page roster (★×16: when the roster grows, the bind grows in the same
+        # change); a page may be excused only by name, with a reason, in the validator's ALLOWLIST.
+        "id":      "board-covers-roster",
+        "script":  "tools/validate_board_covers_roster.py",
+        "args":    [],
+        "label":   "Family Board Covers the Page Roster (every root page in substrate/reference/page_roster.json is on tools/family_rubric_sweep.mjs PAGES, or allowlisted by name with a reason — a page outside the board is a page whose regressions are invisible)",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
+        # P-C "cap is not a total" on the surfaces no DB cap gate scans (2026-09-05, P160/P131/P155): a list
+        # read with .limit(N) / .slice(0, N) must sit near a visible disclosure ("latest N", "showing", "were
+        # loaded") or a `cap-ok:` annotation naming why no total is painted. Pairs founder-console__caps_under_today.sql.
+        "id":      "reference-pages-uncapped",
+        "script":  "tools/validate_reference_pages_uncapped.py",
+        "args":    [],
+        "label":   "Reference pages: every capped list read is disclosed or annotated cap-ok (validator-catalog, symbol-gallery, design-system, architecture, learn/index, offline-fallback, llm-observability, founder-console)",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
+        # P-I "the fourth state" on the reference surfaces (2026-09-05, P357/P384/P351/P382): abort each page's data
+        # read and require the status region (or a visible alert) to SAY it failed - validator-catalog and
+        # symbol-gallery said "Loading..." forever, design-system painted "Purity: 0%" for a missing baseline.
+        "id":      "reference-fourth-state",
+        "script":  "tools/prove_reference_fourth_state.mjs",
+        "args":    [],
+        "label":   "Reference pages say so when their data read fails (validator-catalog, design-system, symbol-gallery, llm-observability; a page with no data read is n/a)",
+        "group":   "Platform",
+        "skip_if_fast": True,
+    },
+    {
+        # P-I "a claim a query enforces" on the reference surfaces (2026-09-05, P380/P374/P352/P358): the figure a
+        # page paints as a claim (validator/PASS/FAIL counts, purity %, canonical keys, guide count) must equal the
+        # value computed from the source it cites - read from the DOM, recomputed from the file, compared.
+        "id":      "reference-claims",
+        "script":  "tools/prove_reference_claims.mjs",
+        "args":    [],
+        "label":   "Reference pages paint the figure their source computes (validator-catalog, founder-console tech checks, design-system purity/keys, learn/index guides)",
+        "group":   "Platform",
+        "skip_if_fast": True,
+    },
+    {
+        # P-K "the log is greppable" on the reference surfaces (2026-09-05, P431/P438/P452): these pages call no
+        # edge function, so log-correlation has nothing to tie; what support greps is the browser console -
+        # every console.error/warn must start with the page's own tag. Silent pages are listed as n/a.
+        "id":      "page-log-tags",
+        "script":  "tools/validate_page_log_tags.py",
+        "args":    [],
+        "label":   "Reference pages tag every console.error/warn with their own name ([validator-catalog], [symbol-gallery], [design-system], [llm-observability], [founder-console])",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
+        # P-K "degradation is legible" for pages the worker does not precache (2026-09-05, P460 learn/index): with the
+        # worker in control and the network cut, a navigation to a non-precached page must land on the precached
+        # offline-fallback.html (sw.js navigate fallback) - or serve its own cached content. An error page fails.
+        "id":      "sw-navigation-fallback",
+        "script":  "tools/prove_sw_navigation_fallback.mjs",
+        "args":    [],
+        "label":   "Offline navigation to a non-precached page lands on offline-fallback.html (live: worker controls, network cut, learn/index + architecture)",
+        "group":   "Platform",
+        "skip_if_fast": True,
+    },
+    {
+        # P-L "systemic ripple" on the reference surfaces (2026-09-05): abort the SHARED deps (utils.js, tokens.css, the
+        # feedback/wayfinding scripts) and require the page's CONTENT ROOT to still paint - or to say the shared script
+        # failed (design-system went silently blank without utils.js until today).
+        "id":      "reference-shared-ripple",
+        "script":  "tools/prove_reference_fourth_state.mjs",
+        "args":    ["--shared"],
+        "label":   "Reference pages still paint their own content (or say so) with the shared scripts aborted (validator-catalog, design-system, symbol-gallery, llm-observability, architecture, offline-fallback)",
+        "group":   "Platform",
+        "skip_if_fast": True,
+    },
+    {
+        # P-D "reconnect & backfill" on founder-console (2026-09-05, P186): rtConn() only painted the connection state,
+        # so rows inserted while the feedback channel was down never reached the inbox. The page now re-reads the
+        # inbox on the first SUBSCRIBED after a drop; this prover cuts the network mid-subscription, inserts a row
+        # straight into platform_feedback, restores the network and requires the row's card to appear unaided.
+        "id":      "founder-feedback-backfill",
+        "script":  "tools/prove_founder_feedback_backfill.mjs",
+        "args":    [],
+        "label":   "founder-console feedback inbox backfills after a realtime drop (live: network cut mid-subscription, DB insert, reconnect -> card appears)",
+        "group":   "Platform",
+        "skip_if_fast": True,
+    },
+    {
+        # P-D "reconnect & backfill" over the listening/polling pages (2026-09-05; P171 hive, P183 community, P177
+        # platform-actions, P180 alert-hub). hive and community handed rtConn() straight to .subscribe(), so a row
+        # written during a drop never arrived and nothing re-read on rejoin; both now re-read on the first
+        # re-SUBSCRIBED after a drop and on 'online'. The prover cuts the network, inserts a tagged row straight
+        # into the DB, restores the network, and requires the row to appear unaided (a 60 s poll page must catch
+        # up on its next tick; alert-hub's view-derived feed must show at least one data re-read after reconnect).
+        "id":      "realtime-backfill",
+        "script":  "tools/prove_realtime_backfill.mjs",
+        "args":    [],
+        "label":   "Reconnect & backfill: hive/community re-read on rejoin, platform-actions/alert-hub catch up by poll (live: network cut, DB insert, reconnect -> row appears)",
+        "group":   "Platform",
+        "skip_if_fast": True,
+    },
+    {
+        # Whole-artifact page health (2026-09-05, register row 50): after my alert-hub patch the feed sat on 'Loading alerts...'
+        # for two chains while the focus prover said n/a. Signed in, every DB page must paint its main container (children > 0,
+        # not stuck on loading) with NO page error - the number a person would notice first, checked before any lens.
+        "id":      "page-health",
+        "script":  "tools/probe_page_health.mjs",
+        "args":    ["--all"],
+        "label":   "Page health: every DB page paints its main container with no page error (signed in, 23 pages)",
+        "group":   "Platform",
+        "skip_if_fast": True,
+    },
+    {
+        # The DATA HONESTY family's lock (live-walk wave, 2026-09-06): every surface states its basis (a source chip or
+        # an honest-empty note), the windows its labels name agree with the window its chip promises, and a list is never
+        # shown as a total when the page itself displays a larger number. Calibrated on the first run, which flagged
+        # asset-hub for rendering 25 rows - that hive simply has 25 APPROVED assets, and the page says so.
+        "id":      "data-honesty",
+        "script":  "tools/prove_data_honesty.mjs",
+        "args":    [],
+        "label":   "Data honesty: a stated basis, agreeing windows, and no cap presented as a total (28 surfaces)",
+        "group":   "Platform",
+        "skip_if_fast": True,
+    },
+    {
+        # The EDGE & API CONTRACT family's lock (live-walk wave, 2026-09-06). Every function is asked four ways over the
+        # live local stack: OPTIONS, an unauthenticated POST, a broken JSON body and a GET. The walk that registered this
+        # gate found 16 functions turning a caller's mistake into a 500, and - because the walk is live - it also caught
+        # THREE functions that would not boot at all after an earlier edit of mine put a log line inside an argument list
+        # and between a try and its catch. A static reader sees none of that.
+        "id":      "edge-contract",
+        "script":  "tools/prove_edge_contract.mjs",
+        "args":    [],
+        "label":   "Edge contract: preflight, refusal, malformed body and method guard on every function (62)",
+        "group":   "AI Validation",
+        "skip_if_fast": True,
+    },
+    {
+        # The DEGRADATION & STATE family's lock (live-walk wave, 2026-09-06). Both modes on the 34-surface roster:
+        # --shared (the shared scripts never arrive) and --data (every read fails from the first byte). The walk that
+        # registered this gate found shift-brain rendering 0 chars, project-report 58, and status.html publishing
+        # "10 DOWN" when its own reads were refused - so the gate holds three real fixes, not a formality.
+        "id":      "db-pages-degradation",
+        "script":  "tools/prove_db_pages_degradation.mjs",
+        "args":    ["--shared"],
+        "label":   "Degradation: every surface SAYS SO when its shared scripts never arrive (34 surfaces, no blank root, no stuck skeleton)",
+        "group":   "Platform",
+        "skip_if_fast": True,
+    },
+    {
+        # The RENDER & CSS family's lock (live-walk wave, 2026-09-06): four lenses in one visit - no unresolved
+        # template artifact visible, every custom property in play resolves, WCAG contrast computed against the
+        # COMPOSITED background, and no markup rendered as text.
+        "id":      "render-contract",
+        "script":  "tools/prove_render_contract.mjs",
+        "args":    [],
+        "label":   "Render contract: templates and tokens resolve, contrast holds, no markup as text (41 surfaces)",
+        "group":   "Platform",
+        "skip_if_fast": True,
+    },
+    {
+        # ★THE NO-REPEAT LEDGER + the header's two buckets (Ian, 2026-09-06: "live deepwalk each trajectory ... do not
+        # repeat what you already done", and he chose CLOSED/OPEN on LIVE evidence). live_walk_manifest.py classifies
+        # every in-scope row's own basis by the KIND of evidence it holds (live probe / board-inherited / gate-derived /
+        # prose) and is the single definition the header, this gate and every walk's skip-list share, so the three can
+        # never disagree. It reddens the moment the ledger and the registry drift apart.
+        "id":      "live-walk-manifest",
+        "script":  os.path.join("tools", "live_walk_manifest.py"),
+        "args":    ["--check"],
+        "label":   "Live-walk ledger (CLOSED = walked live + gated; the manifest must match the registry - anti-drift on the two-bucket header)",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
+        # ★SEVEN PEOPLE THE PLATFORM MUST REFUSE (EX-HP, 2026-09-07), each walked AS that person through
+        # PostgREST on their own token - never the owner connection, which can read every row and so can
+        # never prove a refusal, and never a marketplace admin, whose bypass produced seven false leaks
+        # once. Contract framing: the platform must refuse, and the refusal must be legible. The first
+        # run found two real holes (a stranger reading seller_contact off the base table; anyone with an
+        # account disputing any listing) and one stopped container dressed as a refusal.
+        "id":      "hostile-personas",
+        "script":  os.path.join("tools", "prove_hostile_personas.mjs"),
+        "args":    [],
+        "label":   "Hostile personas (ex-employee, scraper, self-rater, bulk abuser, spoofer, false disputer, insider - each refused on their own token)",
+        "group":   "Security",
+        "skip_if_fast": True,
+    },
+    {
+        # EX-TL (2026-09-07): the Tagalog-first persona. Every rostered root page is walked LIVE with
+        # wh_lang=fil and must change at least 15% of its visible text; the static census then counts
+        # failure sentences, empty states and control labels that never went through _t() or data-i.
+        # The first run measured 10 of 39 pages bilingual, 103 English-only failure sentences and 169
+        # untagged controls on a Philippine platform.
+        "id":      "tagalog-first",
+        "script":  os.path.join("tools", "prove_tagalog_first.mjs"),
+        "args":    [],
+        "label":   "Tagalog-first persona (live en->fil walk of every root page + census of untranslated failure / empty / control strings)",
+        "group":   "Frontend",
+        "skip_if_fast": True,
+    },
+    {
+        # EX-AT (2026-09-07): the confident wrong answer. Every AI surface must let a person say IT IS
+        # WRONG in one press (recorded in ai_reply_feedback), say what the answer was grounded on, carry
+        # a down-vote, and - provoked with the platform's own 429 body on every AI front door - admit a
+        # spent quota on screen. Before this wave only the Assistant chat and the launcher had the 👍/👎;
+        # whAiTrustRow (utils.js) is the shared row the other five surfaces now render.
+        "id":      "ai-trust",
+        "script":  os.path.join("tools", "prove_ai_trust.mjs"),
+        "args":    [],
+        "label":   "AI trust (flaggable wrong answer, source chip, down-vote path, spent quota admitted - provoked live on every AI surface)",
+        "group":   "AI Validation",
+        "skip_if_fast": True,
+    },
+    {
+        # EX-RV (2026-09-07): "I deleted the wrong thing". One row per rostered destructive control on a
+        # root page (53): the prover walks each control's own path (a menu, a modal, a tab, a 360 view, a
+        # wizard), seeds the row it needs and removes it after, presses the control, and judges that a way
+        # back was offered, could be pressed, and put the LIVE rows back (count(*) is blind to a soft
+        # delete). The first run read "PASS 0/0 reached" - a vacuous green - so an unreached control fails.
+        "id":      "recovery-path",
+        "script":  os.path.join("tools", "prove_recovery_path.mjs"),
+        "args":    [],
+        "label":   "Recovery path (every rostered destructive control reached on its own path; confirm or undo offered, pressable, and the live census restored)",
+        "group":   "Security",
+        "skip_if_fast": True,
+    },
+    {
+        # EX-PX (2026-09-07): the persona x device x entry cells the registry names on 185 rows - deep-link
+        # arrival (the destination must be NAMED on the page or on the sign-in door, and ?return= must carry
+        # the page; the first walk graded index.html 24 times through a vacuous lens), first-time, buyer,
+        # data-volume, wide-pc, tablet, quota-spent, expiry-mid-read, kiosk-print, email-arrival, returner.
+        "id":      "persona-cells",
+        "script":  os.path.join("tools", "prove_persona_cells.mjs"),
+        "args":    [],
+        "label":   "Persona cells (every seeded persona x device x entry row walked at its viewport as its persona; deep links name their destination)",
+        "group":   "Frontend",
+        "skip_if_fast": True,
+    },
+    {
+        # EX-PF (2026-09-07): the per-page floor - 213 rows over 25 thin pages, each row one of fourteen
+        # page-level lenses (F01..F14) the registry story names, walked by the page's own personas.
+        "id":      "page-floor",
+        "script":  os.path.join("tools", "prove_page_floor.mjs"),
+        "args":    [],
+        "label":   "Page floor (every thin page's seeded lenses walked live; a page below the floor is a named lens, never a count)",
+        "group":   "Frontend",
+        "skip_if_fast": True,
+    },
+    {
+        # EX-SB (2026-09-07): shift boundary / month-end / 3am - the clock and timezone pinned to Asia/Manila at
+        # the boundary; what the handover, the graveyard entry and the month-end close show and write.
+        "id":      "shift-boundary",
+        "script":  os.path.join("tools", "prove_shift_boundary.mjs"),
+        "args":    [],
+        "label":   "Shift boundary (handover, graveyard-shift entry and month-end close at a pinned Manila clock; dates land on the right day)",
+        "group":   "Frontend",
+        "skip_if_fast": True,
+    },
+    {
+        # W3-JN (2026-09-07): the full-journey wave. One whole story per row, walked across >=4 pages in one
+        # context, cast in the platform's OWN six hives. Three rails: the next surface is reachable from this
+        # one and arrives as itself (never "a control was present"), the identity survives every hop, and the
+        # archetype's chain is read AS the person. Tier A here; the tier B/C/D variants run by filter.
+        "id":      "full-journeys",
+        "script":  os.path.join("tools", "prove_full_journeys.mjs"),
+        "args":    ["--tier", "A"],
+        "label":   "Full journeys (whole stories end to end in the platform's own hives: the thread between pages, the identity across it, and the chain underneath)",
+        "group":   "Frontend",
+        "skip_if_fast": True,
+    },
+    {
+        # W3-PG + W3-LC + W3-AR (2026-09-07): 198 rows asking not "does this page work" but "does it work
+        # for THIS person, in THIS moment, on THIS axis" - the cells a page carries no row for, the
+        # lifecycle shapes the program is thin on, and the (page, layer) squares that hold nothing. One
+        # prover because they share a visit; each lens reads something the page actually shows.
+        "id":      "lifecycle-cells",
+        "script":  os.path.join("tools", "prove_lifecycle_cells.mjs"),
+        "args":    [],
+        "label":   "Lifecycle cells (a first-timer, a returner, a shared tablet, a stranger, a cold link, a wall display; a refused mic, two hives, two years, leaving, two tabs, a release)",
+        "group":   "Frontend",
+        "skip_if_fast": True,
+    },
+    {
+        # The shared-component prover's CONTRACT is itself a claim (2026-09-07): it declares, per script, the
+        # global it defines and the element it leaves behind, and eight of its nineteen entries were written
+        # from the file names and were fiction. A prover with an invented contract grades 33 pages against a
+        # promise the script never made, so the table is checked back against the sources on every run.
+        # W3-JN's first product finding, locked (2026-09-08): the nav hub derived a display mode before the
+        # person's role was known, stored it, and preferred it for ever - so a signed-in SUPERVISOR navigated
+        # with a field worker's menu, missing Analytics, the Alert Hub and Reports. Teeth in both directions:
+        # a worker keeps the tight set, an explicit choice is never overwritten.
+        "id":      "nav-mode",
+        "script":  os.path.join("tools", "prove_nav_mode.mjs"),
+        "args":    [],
+        "label":   "Nav mode (a supervisor's hub carries their own surfaces; a worker's does not; a chosen mode is kept)",
+        "group":   "Frontend",
+        "skip_if_fast": True,
+    },
+    {
+        # W3-CL Internal Control (2026-09-08): an engineering calculator's number goes into a drawing, so it
+        # owes the standard behind its constants and the clause inside it. All 60 name both - but only once
+        # the checker learned Philippine vocabulary: a first pass demanding "acronym + digit" accused 17
+        # pages that cite the Plumbing Code §P-1101, the DPWH Blue Book, PNS/PNSDW and ASME BPVC Section I.
+        # W3-LN Internal Control (2026-09-08): a learn article is the front door for a stranger with no
+        # account and no reason to trust it, so it owes sources and a freshness statement. All 54 carry
+        # both. It deliberately does NOT require a `.wh-source-chip`: only 2 of 54 have one, no generator
+        # emits one, and the chip is a product-surface convention - demanding it here would manufacture 52
+        # findings against pages that already say where their numbers came from, in prose.
+        "id":      "learn-provenance",
+        "script":  os.path.join("tools", "check_learn_provenance.py"),
+        "args":    [],
+        "label":   "Learn provenance (every article names its sources and says how fresh it is)",
+        "group":   "SEO/Content",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "calc-citations",
+        "script":  os.path.join("tools", "check_calc_citations.py"),
+        "args":    [],
+        "label":   "Calculator citations (every calculator prints a standard line naming the edition or part an engineer opens)",
+        "group":   "QA",
+        "skip_if_fast": False,
+    },
+    {
+        # ★A PAGE WITH NOTHING IN IT YET STILL OWES AN ANSWER. "It is your first time here and nobody is
+        # beside you" is answered by saying what this is and what to do next - which the good pages already
+        # do ("Join or create a hive to see PH Intelligence"; "No seller specified. Open it via
+        # marketplace.html"). The tablet half asks whether the layout holds at 768 PORTRAIT and 1024
+        # LANDSCAPE, because a page that survives one orientation breaks when somebody turns the tablet on a
+        # workbench. A page still showing skeletons is neither pass nor fail: nobody has read it yet.
+        "id":      "firstrun-tablet",
+        "script":  os.path.join("tools", "prove_firstrun_and_tablet.mjs"),
+        "args":    [],
+        "label":   "First run and tablet (an empty page says what to do next; the layout holds in both orientations)",
+        "group":   "Mobile",
+        "skip_if_fast": True,
+    },
+    {
+        # (*)A SIX-HOUR WALK SHOULD NOT BE HOW A SPEC ERROR IS FOUND. The first archetype of the journey
+        # drive failed in all six hives with "3 hop(s) have no way onward at all" - and the product was
+        # right: nav-hub.js marks five destinations hidden:true, one with a comment saying "surfaced via the
+        # 'Audit Log' button on hive.html", and a sixth is not a hub entry at all. The ARCHETYPE'S PATH
+        # skipped the route the platform intends, and 24 of 32 archetypes touch such a destination - a false
+        # navigation defect was about to land on most of 724 rows. A path is answerable from files in about a
+        # second, so it never needs to cost a walk. 55 hops skipped an offered route; all 55 are repaired
+        # (tools/repair_journey_paths.py) and this now holds the line at zero.
+        # It also refuses to route through a RETIRED page: four surfaces sit under a full-screen
+        # "moved to Grafana" overlay, three of them in the founder's own month-end path.
+        # ★IT NOW FAILS ON THREE DISTINCT SHAPES, so the label says three. Only the first is about links:
+        #   1. no link and no hub entry — a broken path;
+        #   2. a link the CAST'S OWN hub mode is not offered (`roles: ['supervisor']` against a field
+        #      worker) — how J26 failed live;
+        #   3. a link only a signed-OUT visitor is ever shown (`html.wh-signed-in #mkt-wrap{display:none}`
+        #      hides both of the landing page's links to public-feed) — seven archetypes routed a member
+        #      there, and nav-hub.js says plainly that the page is "not the app nav".
+        # In shapes 2 and 3 the platform is right and the journey was wrong.
+        "id":      "journey-paths",
+        "script":  os.path.join("tools", "check_journey_paths.py"),
+        "args":    [],
+        "label":   "Journey paths (every hop is linked, offered to the cast's own role, and not signed-out-only)",
+        "group":   "QA",
+        "skip_if_fast": False,
+    },
+    {
+        # Eight pages carry "let a person take their record and go, and be honest to those who remain". The
+        # lens holding them looked for the WORD export on the page. This exercises the PDPA Article 16 right
+        # for real, as a supervisor who is not a platform admin, and checks the bound on it: a plain worker
+        # of the same hive must be refused, because a right anyone can exercise on anyone's behalf is not a
+        # right. Then the duty - every surface must still name its author durably, so a departure shows up
+        # as a departure and not as work that suddenly belongs to nobody.
+        "id":      "leaving-honesty",
+        "script":  os.path.join("tools", "prove_leaving_honesty.mjs"),
+        "args":    [],
+        "label":   "Leaving honesty (the export runs for a supervisor, is refused a worker, and nobody's work loses its author)",
+        "group":   "Security",
+        "skip_if_fast": True,
+    },
+    {
+        # Eight pages carry "keep a person's two hives apart, in both directions". The lens that held them
+        # graded it as `chars > 400` — satisfied by any page that renders at all. Answered properly, as a
+        # supervisor who really is in two hives and through PostgREST with her own token, seven scoped
+        # correctly and dayplanner did not: it read the PM view with no hive filter, and that view returns
+        # 293 rows across her two hives, so her day plan mixed two plants and the count beside it stated a
+        # two-hive total. The lens needed five corrections of its own first, each locked in its self-test.
+        # ★REGISTERED AS THE REAL WALK, NOT ITS SELF-TEST. Wiring `--self-test` here would prove only that the
+        # lens can tell right from wrong, and never that the eight pages still hold - a lock that runs
+        # nothing locks nothing. The walk needs the live stack, so it sits behind skip_if_fast.
+        "id":      "hive-separation",
+        "script":  os.path.join("tools", "prove_hive_separation.mjs"),
+        "args":    [],
+        "label":   "Hive separation (a two-hive person's pages scope every read to the hive she is in)",
+        "group":   "Multitenancy",
+        "skip_if_fast": True,
+    },
+    {
+        # The REPAIR that closed those 55 hops has to stay honest too: it must insert a route between the
+        # pair it belongs to, never route a page through itself, repair a landing-page-only route while
+        # still REPORTING the thinness, and leave a hop nothing can reach alone rather than inventing one.
+        "id":      "repair-journey-paths",
+        "script":  os.path.join("tools", "repair_journey_paths.py"),
+        "args":    ["--self-test"],
+        "label":   "Journey path repair (routes are inserted where they belong, and nothing is hidden)",
+        "group":   "QA",
+        "skip_if_fast": True,
+    },
+    {
+        # (*)A SHARED DEVICE IS THE NORMAL CASE IN A PLANT, so "does this piece show one person another
+        # person's state" is answered by a HANDOVER on one browser: A signs in and types, A signs out, B
+        # signs in. Sixteen rows had been answered "this piece persists nothing of its own" - true, and not
+        # an answer: a piece with no storage can still leave a draft on screen for the next person.
+        # The first version checked whether A's NAME survived and reported all sixteen as leaking - A and B
+        # are in the SAME hive, so B is supposed to see A's name against A's logbook entries. A test that
+        # cannot tell shared content from private state calls a working team a data leak. It now plants a
+        # SENTINEL only A could have typed, and refuses to conclude anything if the sentinel never landed.
+        "id":      "shared-handover",
+        "script":  os.path.join("tools", "prove_shared_handover.mjs"),
+        "args":    [],
+        "label":   "Shared-device handover (nothing one person typed survives to the next on the same browser)",
+        "group":   "Security",
+        "skip_if_fast": True,
+    },
+    {
+        # (*)A CAP SHOWN AS A TOTAL IS A WRONG NUMBER, QUIETLY. A page that fetches 500 rows and prints "500
+        # items" tells a supervisor their hive holds 500 when it holds 4,000 - and every figure computed from
+        # that list is wrong in the same direction, with nothing to warn anyone the day it starts. Two halves,
+        # searched in two different places on purpose: the BOUND is a fact about the code, the TELLING is a
+        # fact about what a reader sees. Searching both in the concatenated JavaScript passed eleven of eleven
+        # on identifiers like `viewall` and `loadMore` that no reader will ever read.
+        "id":      "consumption-bound",
+        "script":  os.path.join("tools", "prove_consumption_bound.py"),
+        "args":    [],
+        "label":   "Consumption bounds (a page that caps what it loads says so where a reader can see it)",
+        "group":   "Performance",
+        "skip_if_fast": False,
+    },
+    {
+        # (*)AN EMPTY HIVE IS NOT THE ONLY WAY TO SEE AN EMPTY PAGE. A seeded hive is full, so a filter that
+        # matches nothing produces the state a newcomer meets without touching data. Two halves are required:
+        # WHY there is nothing, and WHAT to do first - report-sender does both ("REPORTS SELECTED 0 - Pick 1+
+        # from the 4 available"). Two corrections were needed to read it honestly: the first search box on a
+        # page is often the shared nav hub's, so filtering it filtered the MENU and left the page unchanged;
+        # and "0" was accepted as a statement, which any count or price satisfies.
+        "id":      "empty-state",
+        "script":  os.path.join("tools", "prove_empty_state.mjs"),
+        "args":    [],
+        "label":   "Empty states (a page with nothing to show says why, and what to do first)",
+        "group":   "Designer",
+        "skip_if_fast": True,
+    },
+    {
+        # ★A FIX APPLIED TO ONE PAGE, THREE WEEKS LATER STILL MISSING FROM THREE COPIES. The line
+        # "Grafana login: admin · password in infra/mcp/.env.mcp" was removed from marketplace-admin.html on
+        # 2026-08-25 as a screen-share hazard. Three sibling pages carried the identical paragraph and were
+        # never touched - and were WORSE, because none of them is auth-gated at all, so it rendered for any
+        # visitor. It leaks no password; it names the account and points at the file holding one, on a page
+        # anybody can read. The class recurs by COPY, so only a sweep of every page can see it.
+        "id":      "credential-pointers",
+        "script":  os.path.join("tools", "check_credential_pointers.py"),
+        "args":    [],
+        "label":   "Credential pointers (no page tells a reader where a secret lives)",
+        "group":   "Security",
+        "skip_if_fast": False,
+    },
+    {
+        # ★A PRIVATE PAGE SHOULD REFUSE A STRANGER - the failure is refusing without saying where they were
+        # going. A pasted link to a private page must reach the door AND KEEP the destination, so signing in
+        # finishes the trip; a door that drops the return address makes the link a dead end and the person
+        # who sent it never finds out. Public pages must simply open. Each walk gets a FRESH context, because
+        # "no history behind you" is the question, and a re-used one lets an earlier page carry a later one
+        # through. A page still showing skeletons is neither pass nor fail: nobody has read it yet.
+        "id":      "deep-link-arrival",
+        "script":  os.path.join("tools", "prove_deep_link_arrival.mjs"),
+        "args":    [],
+        "label":   "Deep-link arrival (a pasted link opens the page, or reaches the door with the destination kept)",
+        "group":   "QA",
+        "skip_if_fast": True,
+    },
+    {
+        # ★A NUMBER WITHOUT A WINDOW IS A CLAIM WITHOUT A SUBJECT. "142 work orders" means nothing until the
+        # page says whether that is today or since the hive opened, and in whose timezone. Layer C asks for
+        # both; layer L asks whether a page that writes anything a colleague can see leaves a trail somebody
+        # can read. Both are answerable from files, which is why they survive a database outage - and the
+        # file is the honest source here for a second reason: a rendered check read the SIGN-IN DOOR for
+        # every page that needs an identity, and the door has a period and a clock of its own.
+        "id":      "clock-and-trail",
+        "script":  os.path.join("tools", "prove_clock_and_trail.py"),
+        "args":    [],
+        "label":   "Clock and trail (figures name their period and timezone; writes leave a readable trail)",
+        "group":   "Analytics Engineer",
+        "skip_if_fast": False,
+    },
+    {
+        # ★"IS THIS PAGE COVERED?" IS ANSWERABLE FROM FILES, WHICH IS WHY IT SURVIVES AN OUTAGE. Eighteen
+        # pages carry a layer-CI row asking whether anything catches their regressions before a person does;
+        # the evidence is the gate registry, the provers it runs and the test suites, so no browser and no
+        # database are needed. A page named only in a COMMENT is not covered - comments are stripped both
+        # ways - and every claim of cover names the file that carries it, so it can be checked rather than
+        # taken on faith.
+        "id":      "regression-cover",
+        "script":  os.path.join("tools", "prove_regression_cover.py"),
+        "args":    [],
+        "label":   "Regression cover (every page a CI row names is exercised by a registered gate or test)",
+        "group":   "QA",
+        "skip_if_fast": False,
+    },
+    {
+        # ★A COUNT OF SMALL TARGETS IS NOT A COUNT OF DEFECTS. Every learn article reported 14-31 controls
+        # under 40px while all 60 calculator pages reported zero - but WCAG 2.5.8 EXEMPTS a link inline in a
+        # sentence, and 300 of them are exactly that: forcing 44px on a word inside a paragraph would wreck
+        # the line box the exemption exists to protect. This separates standalone controls from prose links,
+        # then applies the standard's two thresholds - FAIL below the 24x24 AA floor, REPORT the 44x44 AAA
+        # gap - so the one link a thumb actually misses is not buried under seven that clear AA.
+        "id":      "learn-touch-targets",
+        "script":  os.path.join("tools", "probe_learn_touch_targets.mjs"),
+        "args":    ["--all"],
+        "label":   "Learn article touch targets (standalone controls meet WCAG 2.5.8; prose links exempt)",
+        "group":   "Mobile",
+        "skip_if_fast": True,
+    },
+    {
+        # ★MARKUP IS NOT TRANSLATION, and the lens that graded this asked about ATTRIBUTES. Every calculator
+        # page carried a Filipino dictionary and called the swapper, and attributes were exactly what was
+        # present while translation was exactly what was missing. This sets the language the way a person
+        # sets it, loads the page twice, and checks the WORDS CHANGED - the one question decoration cannot
+        # satisfy. Walks the live learn articles; the calculator half joins at promotion.
+        "id":      "public-bilingual",
+        "script":  os.path.join("tools", "prove_public_bilingual.mjs"),
+        "args":    ["--kind", "learn", "--all"],
+        "label":   "Public pages are bilingual in fact (a Filipino reader sees Filipino, not just data-i markup)",
+        "group":   "Frontend",
+        "skip_if_fast": True,
+    },
+    {
+        # ★60 calculator pages shipped a complete Filipino dictionary that could never be applied: they all
+        # call whI18nApply(), which is defined only in utils.js, which none of them loads. The typeof guard
+        # around it made the failure silent - no error, no warning, no failing check - so a Filipino-first
+        # reader met English on the platform's most public surface while every gate stayed green. This reads
+        # BOTH sides at once (what a page calls, what a page loads), which is the only way to see it.
+        "id":      "called-but-never-loaded",
+        "script":  os.path.join("tools", "check_called_but_never_loaded.py"),
+        "args":    [],
+        "label":   "Wired calls (no page calls a platform function that none of its own scripts defines)",
+        "group":   "Frontend",
+        "skip_if_fast": False,
+    },
+    {
+        # the registry's ONLY writer, and its batch mode applies many rows at once - so the thing that must
+        # never happen is a batch that half-applies, leaving some rows advanced and some not with no record
+        # of which. This proves five bad batches are each refused WHOLE, registry byte-identical after every
+        # one. Cheap (no browser, no database), so it runs even on a fast board.
+        "id":      "advance-batch",
+        "script":  os.path.join("tools", "advance_trajectory.py"),
+        "args":    ["--self-test"],
+        "label":   "Trajectory writer (a batch with any bad entry is refused whole, never half-applied)",
+        "group":   "AI Validation",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "lifecycle-presort",
+        "script":  os.path.join("tools", "presort_lifecycle_rows.py"),
+        "args":    [],
+        "label":   "Lifecycle pre-sort (every seeded lifecycle row has a page whose source could answer the moment it asks about)",
+        "group":   "QA",
+        "skip_if_fast": False,
+    },
+    {
+        # W3-SC contract (2026-09-07): the prover's own declaration table, checked back against the sources.
+        "id":      "shared-component-contract",
+        "script":  os.path.join("tools", "check_shared_component_contract.py"),
+        "args":    [],
+        "label":   "Shared-component contract (every declared global, element and storage key exists in the script's own source)",
+        "group":   "QA",
+        "skip_if_fast": False,
+    },
+    {
+        # W3-SC (2026-09-07): the shared scripts as SUBJECTS. Seventeen root scripts appeared in no row at
+        # all while one of them ships on 33 pages; the heavily-loaded chrome was graded only through
+        # whichever host page a walk happened to open. Four lenses on three hosts each.
+        "id":      "shared-components",
+        "script":  os.path.join("tools", "prove_shared_components.mjs"),
+        "args":    [],
+        "label":   "Shared components (the same name everywhere, the promise kept on every host, no widened page at 390, nothing persisted without an owner)",
+        "group":   "Frontend",
+        "skip_if_fast": True,
+    },
+    {
+        # W3-LN + W3-CL (2026-09-07): the 114 content pages on the three dimensions they never carried. An
+        # article's call to action must open the tool it NAMES; a calculator must reproduce its own worked
+        # example, hold up at 390 with its subresources refused, name its standard and clause, and refuse an
+        # out-of-range input in a sentence rather than computing nonsense.
+        "id":      "content-ufai",
+        "script":  os.path.join("tools", "prove_content_ufai.mjs"),
+        "args":    [],
+        "label":   "Content UFAI (54 learn articles + 60 calculators: the CTA opens what it names, the example reproduces, the standard is cited, a bad input is refused)",
+        "group":   "Frontend",
+        "skip_if_fast": True,
+    },
+    {
+        # W3-FN (2026-09-07): three contract rows per edge function, no browser. Refusal to a caller who holds
+        # a REAL token for another hive (a sentinel from that hive must not come back), legible degradation
+        # when the provider is absent, and the documented job with somebody who actually calls it.
+        "id":      "fn-contracts",
+        "script":  os.path.join("tools", "prove_fn_contracts.mjs"),
+        "args":    [],
+        "label":   "Function contracts (a foreign-hive request refused with a sentence, a provider failure that degrades legibly, a documented shape somebody calls)",
+        "group":   "Security",
+        "skip_if_fast": True,
+    },
+    {
+        # EX-AX (2026-09-07): accessibility PERSONAS on the ten core journeys - screen reader, keyboard-only,
+        # 200% zoom low-vision, colour-blind - distinct from the per-page a11y gate (a11y-path).
+        "id":      "a11y-personas",
+        "script":  os.path.join("tools", "prove_a11y_personas.mjs"),
+        "args":    [],
+        "label":   "A11y personas (screen reader, keyboard-only, 200% zoom, colour-blind, each through the core journeys)",
+        "group":   "Frontend",
+        "skip_if_fast": True,
+    },
+    {
+        # The 38 deploy-gated rows' LOCAL half (2026-09-07): tools/serve_vercel_headers.py applies vercel.json's own header
+        # rules the way the Vercel edge does, and this prover walks every row's page + assets against it. Production is
+        # the deploy (Ian's gate); the contract the deploy ships is provable here - and its first walk caught the /sw.js
+        # no-store rule listed BEFORE the generic js/css rule (later keys win), which would have cached the service worker.
+        "id":      "deploy-headers-local",
+        "script":  os.path.join("tools", "prove_deploy_headers.py"),
+        "args":    [],
+        "label":   "Deploy headers, local substitute (vercel.json applied by tools/serve_vercel_headers.py: CSP, Permissions-Policy mic+camera, HTML no-cache, asset caching, sw.js no-store, on every deploy-gated row's page)",
+        "group":   "DevOps",
+        "skip_if_fast": False,
+    },
+    {
+        # ★FOUR MOMENTS THE PLATFORM DOES NOT CONTROL (T100/T123/T192/T197, 2026-09-07): an AI writes on
+        # someone's behalf, a person pastes from somewhere else, a release lands under them, and one
+        # dependency fails while the rest keeps working. M4 STOPS THE STORAGE CONTAINER for real and
+        # starts it again - a dependency failure reasoned about is not one observed.
+        "id":      "last-mile",
+        "script":  os.path.join("tools", "prove_last_mile.mjs"),
+        "args":    [],
+        "label":   "Last mile (the assist admits what it is, paste is not fought, a release is felt, storage fails alone)",
+        "group":   "Availability",
+        "skip_if_fast": True,
+    },
+    {
+        # ★PARTICULAR PEOPLE, NOT PARTICULAR FEATURES (T12/T17/T46/T47/T54/T56/T57/T59/T61, 2026-09-07).
+        # A worker speaking with oily hands; someone earning a badge and wanting to know why; a skeptic
+        # who will not believe a KPI until they can take it apart; a hive that grew past the size its
+        # first screen assumed. A9 states plainly that the largest hive here holds 8 people, so twenty is
+        # BEYOND this data - it asserts that the roster surfaces BOUND what they render, rather than
+        # claiming a twenty-person result an eight-person hive cannot support.
+        "id":      "persona-arcs",
+        "script":  os.path.join("tools", "prove_persona_arcs.mjs"),
+        "args":    [],
+        "label":   "Persona arcs (hands full, a badge that explains itself, the skeptic, the returner, the roster at size)",
+        "group":   "Community",
+        "skip_if_fast": True,
+    },
+    {
+        # ★WHERE A SET OF TOOLS EITHER IS OR IS NOT A SYSTEM (T30/T31/T32/T36, 2026-09-07). Each of these
+        # asks whether an action on ONE surface produces a traceable effect on ANOTHER - and this is where
+        # a platform quietly stops being a system, because every page keeps working perfectly while the
+        # thread between them is missing. A chain is proven by the LINK, not by both ends existing, so K1
+        # TRAVERSES it: a listing is created from a real short part, read back, and removed.
+        "id":      "cross-page-chains",
+        "script":  os.path.join("tools", "prove_cross_page_chains.mjs"),
+        "args":    [],
+        "label":   "Cross-page chains (shortage to supply, answer to standing, work to compliance, calc to project)",
+        "group":   "Architecture",
+        "skip_if_fast": True,
+    },
+    {
+        # ★A SUPERVISOR'S AUTHORITY, EXERCISED (T20/T24/T28, 2026-09-07). They approve work they did not
+        # see done, moderate a post somebody reported about a colleague, and are asked weeks later who
+        # changed a number. S1's proof is not the DOM shrinking but the row that lands in hive_audit_log
+        # naming the actor and target - the same record a later dispute is settled from.
+        "id":      "supervisor-journeys",
+        "script":  os.path.join("tools", "prove_supervisor_journeys.mjs"),
+        "args":    [],
+        "label":   "Supervisor journeys (the approval queue clears, moderation is recorded with its actor, a dispute is traceable)",
+        "group":   "Multi-tenant",
+        "skip_if_fast": True,
+    },
+    {
+        # ★THE ANSWER IS IN THE RESPONSE, NOT ON THE PAGE (T383 + the 45 RL rows, 2026-09-07). An open
+        # redirect is decided by the server's Location header before anything renders, and a rate-limit
+        # refusal is decided by a status code and the headers around it - a browser that never trips the
+        # limit sees none of it. Forty-five rows ask three questions across fifteen surfaces each, and
+        # every refusal on this platform is built by ONE shared helper, so reading that helper answers all
+        # of them at once - stronger than forty-five browser walks, not weaker.
+        "id":      "refusal-and-redirect",
+        "script":  os.path.join("tools", "prove_refusal_and_redirect.mjs"),
+        "args":    [],
+        "label":   "Refusal & redirect (a return-url cannot leave this origin; a refusal says when, whose, and whether retrying costs)",
+        "group":   "Security",
+        "skip_if_fast": True,
+    },
+    {
+        # ★A PERSON WHO IS NOT GIVING THE SCREEN THEIR FULL ATTENTION (T122/T142/T146/T173/T175,
+        # 2026-09-07), which is every person in a plant. The phone rings mid-form; a live refresh lands
+        # mid-keystroke; they cannot remember which page holds the thing they want; they open a page for
+        # the first time, alone, at 2am. I5 reads RAW markup rather than stripped source, because a
+        # disclosure is markup and an over-eager comment-strip eats the thing being looked for.
+        "id":      "interrupted-person",
+        "script":  os.path.join("tools", "prove_interrupted_person.mjs"),
+        "args":    [],
+        "label":   "The interrupted person (backgrounding, a repaint that respects focus, findability, a first visit)",
+        "group":   "Frontend",
+        "skip_if_fast": True,
+    },
+    {
+        # ★THE TIMESCALE A DEPARTMENT ACTUALLY BUYS ON (T186-T190/T193/T194, 2026-09-07). Every other lens
+        # in this program asks what happens in a session; these ask what happens across a year. A tool
+        # that is delightful on day one and useless in month three has failed, and it fails QUIETLY -
+        # nobody files a bug for "I stopped opening it". Measured against real accumulated history (the
+        # largest hive: 89 days, 1,700 entries), because a database with a day of rows cannot answer a
+        # question about what history makes possible. L5 removes a real author from the roster and reads
+        # the hive again, rather than settling for a page that PROMISES records stay.
+        "id":      "longitudinal",
+        "script":  os.path.join("tools", "prove_longitudinal.mjs"),
+        "args":    [],
+        "label":   "Longitudinal (day two, month three, the renewal question, a quiet plant, crew churn, the ceiling)",
+        "group":   "Analytics",
+        "skip_if_fast": True,
+    },
+    {
+        # ★THE PAGES A STRANGER MEETS BEFORE ANYONE HAS VOUCHED FOR US (T151/T157/T158/T161/T162,
+        # 2026-09-07). A maintenance engineer evaluating a tool for their plant reads these the way they
+        # read a vendor datasheet: looking for the claim that is not quite true. The comparison lens reads
+        # the .md PROSE rather than the HTML, after three attempts from markup failed the same way - a URL
+        # is not an argument, and pair-removing anchors breaks on one unclosed tag. A link LABEL is a
+        # signpost, so the claim test drops link text while the concession test keeps it.
+        "id":      "public-trust",
+        "script":  os.path.join("tools", "prove_public_trust.mjs"),
+        "args":    [],
+        "label":   "Public trust (a snippet describes its own page, somebody to complain to, a living feed, fair comparisons)",
+        "group":   "SEO",
+        "skip_if_fast": True,
+    },
+    {
+        # ★THE MACHINE A PERSON IS ACTUALLY HOLDING (T114/T115/T120/T121/T123/T126, 2026-09-07). This
+        # platform's users are maintenance crews in Philippine plants: a phone in a pocket, a shared
+        # tablet on a bench, an old PC in the supervisor's cabin, a wall display nobody touches. A layout
+        # that only works at 1280px works for the person who built it. Measured AT the viewport, because
+        # a CSS breakpoint proves an intention and only rendering at 740x360 proves the content survived.
+        # W4 signs out through the PRODUCT's own control - calling auth.signOut() from the SDK ends the
+        # session without running the page's identity clear, which is a path no person takes.
+        "id":      "device-reality",
+        "script":  os.path.join("tools", "prove_device_reality.mjs"),
+        "args":    [],
+        "label":   "Device reality (sideways phone, 1920 monitor, a shared device forgets the last person, an unattended screen)",
+        "group":   "Mobile",
+        "skip_if_fast": True,
+    },
+    {
+        # ★EARNING THE INTERRUPTION (T106/T108/T109/T110, 2026-09-07). Maintenance work happens at 3am and
+        # on rest days, and a tool that interrupts badly is one people mute - after which it cannot tell
+        # them the one thing that mattered. Measured against what this platform HAS (anomaly_alerts,
+        # failure_signature_alerts, alert_dismissals, report_contacts, automation_log) rather than against
+        # a notifications table it does not have: asking for the wrong architecture reports absence where
+        # there is only a difference, which is how the first run "found" two defects that were not there.
+        "id":      "notification-pressure",
+        "script":  os.path.join("tools", "prove_notification_pressure.mjs"),
+        "args":    [],
+        "label":   "Notification pressure (a summary records what it sent, work is addressed to a person, storms collapse)",
+        "group":   "Notifications",
+        "skip_if_fast": True,
+    },
+    {
+        # ★A PERSON EXPERIENCES A PRODUCT, NOT A PAGE (T176/T180/T182/T183/T184, 2026-09-07). If one form
+        # labels its fields and the next does not, the platform reads as unpredictable - and unpredictable
+        # is untrustworthy when what is being recorded is why a machine stopped. Counted across EVERY
+        # shipped page, because a census that samples reports the average page while a person is standing
+        # on the worst one. Comments are stripped first: the first run's "14 pages with an unlabelled
+        # field" named an <input> written inside a JS comment.
+        "id":      "ux-census",
+        "script":  os.path.join("tools", "prove_ux_census.mjs"),
+        "args":    [],
+        "label":   "UX census (errors explain, fields are labelled, success is proportional, the furniture rhymes)",
+        "group":   "Frontend",
+        "skip_if_fast": True,
+    },
+    {
+        # ★PROMISES MADE BEFORE ANY TRUST IS EARNED (T164/T165/T166/T167/T169/T172, 2026-09-07). A person
+        # arriving hands over their work, their name and their colleagues' names before the platform has
+        # shown them anything. Read from the SHIPPED files and the LIVE schema, never from policy prose -
+        # a page saying "you may request deletion" proves only that the sentence exists. Four of this
+        # prover's first six findings were its own lens (the word "service_role" inside a comment; "age"
+        # matched inside champion_engAGEment; a legal page required to be NAMED legal; a Turnstile
+        # verified by Supabase Auth rather than by our code) - each would have been a fabricated defect.
+        "id":      "privacy-consent",
+        "script":  os.path.join("tools", "prove_privacy_consent.mjs"),
+        "args":    [],
+        "label":   "Privacy & consent (leave with your data, consent before collection, sharing says who reads it)",
+        "group":   "Security",
+        "skip_if_fast": True,
+    },
+    {
+        # ★MONEY AND TRUST BETWEEN STRANGERS (T93/T94/T95/T98/T99/T101-T104, 2026-09-07). Every one of
+        # these rows fails the same way: a number a person believes that nothing behind it supports.
+        # Credits with no paying side, a reputation the seller wrote, a price that is not the price.
+        # Read as a plain member through PostgREST - an owner connection lies most about money, because it
+        # sees both sides of a ledger a person cannot.
+        "id":      "marketplace-economy",
+        "script":  os.path.join("tools", "prove_marketplace_economy.mjs"),
+        "args":    [],
+        "label":   "Marketplace economy (money has two sides, spending is legible, reputation is earned, the listed price is the price)",
+        "group":   "Marketplace",
+        "skip_if_fast": True,
+    },
+    {
+        # ★REAL DATA STOPS BEING TIDY (T127/T128/T129/T136-T140, 2026-09-07). Two things share a name,
+        # someone writes in Filipino with an emoji in it, a logbook reaches a thousand entries, two people
+        # save the same record, a parent is deleted with children on it. Each has a moment where the
+        # platform can quietly tell someone something untrue. Every read that RLS could change is made as
+        # the person through PostgREST; the owner connection reads only schema facts.
+        "id":      "data-reality",
+        "script":  os.path.join("tools", "prove_data_reality.mjs"),
+        "args":    [],
+        "label":   "Data reality (duplicate names, a person's own language, volume, concurrent saves, declared cascades)",
+        "group":   "Database",
+        "skip_if_fast": True,
+    },
+    {
+        # ★A PERSON IS NOT A STRING (T58/T62, 2026-09-07). They change their display name, they leave one
+        # hive and join another, they belong to two at once - and every surface that showed the old name or
+        # the old access has to follow. Measured through PostgREST as the person, because RLS is the only
+        # thing that can answer whether access followed; the membership is changed for real and restored.
+        # The words for a lapsed membership are READ FROM THE CHECK CONSTRAINT rather than guessed - the
+        # first run wrote 'removed', which the constraint rejects, so nothing changed and the prover
+        # reported the unchanged world as a leak.
+        "id":      "identity-lifecycle",
+        "script":  os.path.join("tools", "prove_identity_lifecycle.mjs"),
+        "args":    [],
+        "label":   "Identity lifecycle (a name is reconcilable, access follows membership both ways, two hives stay apart)",
+        "group":   "Multi-tenant",
+        "skip_if_fast": True,
+    },
+    {
+        # ★THE WALL IS THE PRODUCT'S WHOLE FIRST IMPRESSION (T3/T4/T5, 2026-09-07). A stranger arrives from
+        # search, gets value, reaches for something that needs an account, and the one thing the wall must
+        # not do is waste what they were about to do: it has to say what an account is FOR at that moment
+        # and carry them back to where they were. Walked with NO session, because that is what a search
+        # result brings. A funnel whose gated control this sweep cannot bring on screen is reported NOT
+        # REACHED - marketplace renders "Contact Seller" unconditionally in a detail sheet the sweep cannot
+        # open, and calling that "no entry" would accuse a working conversion path of not existing.
+        "id":      "anon-conversion",
+        "script":  os.path.join("tools", "prove_anon_conversion.mjs"),
+        "args":    [],
+        "label":   "Anon conversion (a stranger gets value, meets an honest wall, and is carried back to what they were doing)",
+        "group":   "SEO",
+        "skip_if_fast": True,
+    },
+    {
+        # ★A PAGE REACHED FROM ITS OWN HUB IS FORGIVING; ONE REACHED FROM A LINK IN A MESSAGE IS NOT
+        # (T64/T67/T70/T71/T73/T75/T77/T78, 2026-09-07). Each is opened cold, in a context that has never
+        # visited the app, which is what a bookmark or a forwarded link actually does, and it has to orient
+        # someone from nothing: name itself, show its own data, say how fresh that is, and lead somewhere.
+        # One calibration: an HONEST EMPTY STATE IS SHORT ON PURPOSE - project-report renders 167 characters
+        # to a stakeholder arriving without a project and every one of them earns its place ("No project
+        # specified", a way back, a source chip), so the lens asks whether the page SAYS what is missing
+        # rather than counting characters.
+        "id":      "page-as-destination",
+        "script":  os.path.join("tools", "prove_page_as_destination.mjs"),
+        "args":    [],
+        "label":   "Page as destination (a cold arrival is named, filled, dated, and led somewhere)",
+        "group":   "Frontend",
+        "skip_if_fast": True,
+    },
+    {
+        # ★TEN AI JOURNEYS ASK THE SAME THREE THINGS (T79-T91, 2026-09-07), so they are walked once rather
+        # than ten times: can a person START it, does it declare what it answers FROM, and does it say so
+        # honestly when it cannot answer. The grounding lens is the one a maintenance engineer needs most -
+        # an AI answer with no stated basis cannot be checked against the record. Three calibrations: the
+        # AI entry is usually one press away behind the nav hub rather than on screen; an observability
+        # dashboard is a surface you READ, not one you ask, so the entry lens does not apply to it; and the
+        # page's own state must be read BEFORE the hub is opened, because opening it hid a grounding chip
+        # that was plainly visible and made a correct page look ungrounded.
+        "id":      "ai-surface-honesty",
+        "script":  os.path.join("tools", "prove_ai_surface_honesty.mjs"),
+        "args":    [],
+        "label":   "AI surface honesty (each AI surface can be started, declares what it answers from, and is honest when it cannot)",
+        "group":   "AI Validation",
+        "skip_if_fast": True,
+    },
+    {
+        # ★THE WORST MOMENT FOR A SESSION TO END IS BETWEEN TYPING AND SAVING (T38, 2026-09-07). The person
+        # has done the work; the only question is whether the platform tells them what happened, gives it
+        # back, and lets them return. The expiry is REAL - the stored token is destroyed and every auth call
+        # answers 401 - so the page meets what it would meet on a token that timed out at 3am. One fix came
+        # out of it: the copy already said "Sign in again, then retry, your typed work is still on this
+        # page" and offered NOTHING to press, leaving reload as the only exit and reload is the one action
+        # that throws the work away; the shared notice now carries a Sign in control whose return path is
+        # the page they were on. Scope is stated per surface, never rounded up: a save this sweep cannot
+        # reach is reported as unreached, not as a pass.
+        "id":      "expiry-midwrite",
+        "script":  os.path.join("tools", "prove_expiry_midwrite.mjs"),
+        "args":    [],
+        "label":   "Expiry mid-write (a session that ends between typing and saving is said, the work is kept, and there is a way back)",
+        "group":   "Platform",
+        "skip_if_fast": True,
+    },
+    {
+        # ★AN EXPORT IS THE ONE ARTIFACT THAT LEAVES THE PLATFORM (T49, 2026-09-06). It gets filed, mailed,
+        # printed and shown to an auditor, and nothing on screen corrects it afterwards. Every export control
+        # the sweep can reach is PRESSED and the file it produces is opened and read: it arrives, it has real
+        # bytes, its filename says what it holds, and a CSV carries at least as many rows as the screen
+        # showed. One finding came out of the first run and is fixed: the audit-log export headed itself
+        # "Hive: (unnamed)" whenever the name was absent from local storage, handing an auditor a file that
+        # could not say what it was a record OF. A control that opens a print view or a new tab is reported
+        # by what it did, not failed.
+        "id":      "export-truthful",
+        "script":  os.path.join("tools", "prove_export_truthful.mjs"),
+        "args":    [],
+        "label":   "Export truthful (every export control produces an artifact that arrives, is named, and carries what the screen showed)",
+        "group":   "Data",
+        "skip_if_fast": True,
+    },
+    {
+        # ★WHAT A PERSON NOTICES AS THE HIVE GROWS (LAYER-UX §LX, LB layer, 2026-09-06), asked as a defect
+        # that exists TODAY rather than as a benchmark: an unbounded list read is fine at 20 rows and is the
+        # page hanging with nothing said at 20,000, and it is checkable before the growth that would expose
+        # it. Ten were found and bounded - one of them carrying a comment that promised a `.limit(500)`
+        # nobody had added. Plus: a load-more control must actually render more, and a concurrent write must
+        # be detectable. Three calibrations, each a false accusation first: a builder chain ends at its
+        # SEMICOLON and can be assembled across statements (logbook's read carries its limit four lines
+        # down, past a blank line); a write's `.select()` is a RETURNING clause, not a list; and a container
+        # id of "feed" is not matched by [id$="-feed"], which made the counter blind and a working
+        # load-more read as dead.
+        "id":      "growth-honesty",
+        "script":  os.path.join("tools", "prove_growth_honesty.mjs"),
+        "args":    [],
+        "label":   "Growth honesty (reads bounded before growth exposes them, load-more reaches what it promises, concurrent writes detectable)",
+        "group":   "Performance",
+        "skip_if_fast": True,
+    },
+    {
+        # ★THE BOUNDARY FROM THE PERSON'S SIDE (LAYER-UX §LX, S layer, 2026-09-06). `tenant-refusal` proves
+        # the boundary HOLDS; this asks whether someone can live with it. A refusal must say what they can
+        # DO and must not leak the machinery behind it - a policy name, SQL, a raw 42501, another tenant's
+        # uuid - because both failure modes are the same defect: a refusal not addressed to a person. And a
+        # control they will be refused should be marked BEFORE they press it, or the product reads as broken
+        # rather than as permissioned. Walked as a PLAIN worker, never the platform admin, because as the
+        # admin nothing is refused and every page reads clean.
+        "id":      "boundary-legible",
+        "script":  os.path.join("tools", "prove_boundary_legible.mjs"),
+        "args":    [],
+        "label":   "Boundary legible (a refusal is addressed to a person: nothing leaked, something to act on)",
+        "group":   "Security",
+        "skip_if_fast": True,
+    },
+    {
+        # ★BEING REFUSED IS NOT THE DEFECT; BEING REFUSED BADLY IS (LAYER-UX §LX, RL layer, 2026-09-06).
+        # A person told "no" and nothing else cannot tell whether to wait a minute or an hour, cannot tell
+        # whether they spent the limit or a colleague did, and will hammer the button. Three lenses on one
+        # burst, no browser. Two calibrations, both of which made the lens read green without being asked:
+        # an ANONYMOUS burst never reaches a limiter (the gateway turns it away before any quota is
+        # consulted), and a SHAPED body is rejected by validation first - so the probe signs in and sends
+        # {}. "Never refused" and "never reached" are reported separately, and a walk that reached no
+        # limiter at all FAILS rather than passing on an empty scope.
+        "id":      "refusal-kindness",
+        "script":  os.path.join("tools", "prove_refusal_kindness.mjs"),
+        "args":    [],
+        "label":   "Refusal kindness (a rate-limit refusal says WHEN to return and WHOSE limit was spent, and retrying does not lengthen it)",
+        "group":   "Platform",
+        "skip_if_fast": True,
+    },
+    {
+        # ★THE LAYER THIS WHOLE WAVE EXISTS FOR (LAYER-UX §LX, H layer, 2026-09-06). Four lenses asked of
+        # the DEPLOYED ORIGIN, because that is the only place this layer exists and nothing local can answer
+        # any of them: are the security headers actually served (the repo shipped Cloudflare and Netlify
+        # configs to a VERCEL host, so none ever were), does every link a stranger is given resolve, does an
+        # arrival keep its invite code and campaign, and is an immutable asset allowed to stay in the browser
+        # rather than re-downloaded on a mobile plan every visit. Stays RED until Ian deploys vercel.json,
+        # which is the honest state: the fix exists locally and production has not seen it.
+        "id":      "hosting-reality",
+        "script":  os.path.join("tools", "prove_hosting_reality.mjs"),
+        "args":    [],
+        "label":   "Hosting reality (what the DEPLOYED origin hands a person: headers, links, arrivals, cacheable assets)",
+        "group":   "Security",
+        "skip_if_fast": True,
+    },
+    {
+        # ★WHEN IT BREAKS FOR A PERSON, CAN ANYONE FIND OUT WHAT HAPPENED (LAYER-UX §LX, L layer, 2026-09-06).
+        # Four lenses, one induced failure: every Supabase read aborted from the first byte, which is what
+        # "the network went away" looks like from a chair. The page must say more than "something went wrong"
+        # when its own log knew the route and the status, and must hand the person something QUOTABLE - the
+        # measured gap was that not one page did, so a report arrived as "it broke earlier" and matched no
+        # record. utils.js's shared notice now carries the moment and the shell version, which is the honest
+        # handle a client can state for itself when the transport is the thing that broke. The stored-record
+        # half is reported as SCOPE rather than graded: with the transport severed the reporter cannot post
+        # either, so that record is lost with the failure it describes.
+        "id":      "failure-traceable",
+        "script":  os.path.join("tools", "prove_failure_traceable.mjs"),
+        "args":    [],
+        "label":   "Failure traceable (a person is told what failed, in terms they can quote back)",
+        "group":   "Platform",
+        "skip_if_fast": True,
+    },
+    {
+        # ★A RELEASE USED TO LAND WITHOUT A WORD (LAYER-UX §LX, CI layer, 2026-09-06). Three lenses in one
+        # walk: R1 a new worker reaching `waiting` must produce a visible, dismissible notice - registration
+        # existed and nothing watched what happened next, so the shell swapped under someone mid-task and a
+        # half-filled form went with it; R2 every column a page SELECTs exists in the live schema, because a
+        # screen ahead of its migration shows an error where a number belongs and a person cannot tell that
+        # from "no data"; R3 an in-progress draft survives a reload, reported rather than failed since a page
+        # with no draft-saver is a product decision. One calibration: a forward-only proximity window called
+        # correct code silent, because the notice function is defined ABOVE the listener that calls it.
+        "id":      "release-safety",
+        "script":  os.path.join("tools", "prove_release_safety.mjs"),
+        "args":    [],
+        "label":   "Release safety (a release announces itself, screens are in step with the schema, work in progress survives)",
+        "group":   "Platform",
+        "skip_if_fast": True,
+    },
+    {
+        # ★WHAT A PARTIAL RELEASE LOOKS LIKE FROM THE OUTSIDE (LAYER-UX §LX, CI layer, 2026-09-06). The
+        # markup for a feature ships, so the control is on screen and looks live, while the function behind
+        # it did not land - or landed under another name, or in a file the page does not load. The person
+        # clicks and nothing happens, with no way to tell "broken" from "I did it wrong". Every visible
+        # control's inline handler is resolved against page scope, and a wired name whose body is empty or
+        # a bare return is counted too: that is the same promise, differently broken. A handler that THROWS
+        # is a bug, not a partial release, and is deliberately not counted here.
+        "id":      "feature-wholeness",
+        "script":  os.path.join("tools", "prove_feature_wholeness.mjs"),
+        "args":    [],
+        "label":   "Feature wholeness (every visible control is wired to a function that exists and does something)",
+        "group":   "Frontend",
+        "skip_if_fast": True,
+    },
+    {
+        # ★NOBODY COULD SAY WHICH VERSION BROKE (LAYER-UX wave §LX, CI layer, 2026-09-06). Not one page
+        # carried a build or version identifier a person could find and quote, so every "it broke on my
+        # screen" was ambiguous between a real defect and a stale client. The version shown is the one the
+        # BROWSER is serving - read from the service-worker shell cache - not a build-time constant, which
+        # answers a different question and answers it identically to someone three deploys behind. The gate
+        # primes the shell the way a real visit does before asking, because a cold context can only ever
+        # exercise the honest-unknown fallback.
+        "id":      "release-visibility",
+        "script":  os.path.join("tools", "prove_release_visibility.mjs"),
+        "args":    [],
+        "label":   "Release visibility (a person can find and quote the version they are actually running)",
+        "group":   "Platform",
+        "skip_if_fast": True,
+    },
+    {
+        # ★THE ONLY HONEST WAY TO TEST A GUARD IS TO TRY THE DOOR (T50, live-walk wave 2026-09-06). A static scan
+        # for a confirm() in the handler proves the code contains a guard, not that the guard is on the path the
+        # button takes - this platform has already shipped a guard nested in the wrong branch and a fix in a dead
+        # path. So every destructive control is PRESSED, every dialog answered CANCEL, and the DB row counts
+        # compared before and after. Three calibrations, each of which first accused the platform: the guard is
+        # utils.js's own overlay (id="wh-modal-ov-*"), not a [role=dialog]; a real mouse click is INTERCEPTED by
+        # whatever is already on screen and Playwright's refusal is silent, so eleven guarded Reject controls read
+        # as unguarded until the click was dispatched in page; and a surface where nothing came on screen is
+        # reported NOT REACHED, never "nothing destructive here".
+        "id":      "destructive-sweep",
+        "script":  os.path.join("tools", "prove_destructive_sweep.mjs"),
+        "args":    [],
+        "label":   "Destructive sweep (every destructive control that can be reached is guarded; unreached surfaces are named)",
+        "group":   "Security",
+        "skip_if_fast": True,
+    },
+    {
+        # ★A LISTENER CANNOT LEAK ACROSS PAGES HERE - IT LEAKS WITHIN ONE (live-walk wave, 2026-09-06). In a
+        # multi-page app a navigation destroys the JS context, so the per-surface question is whether a page that
+        # re-subscribes on its own refresh path removes the old channel first. A page that does not grows a
+        # channel per hide/show cycle and every one of them then delivers the same row - which is how this
+        # platform's own 90-per-second storm happened. Four cycles of visibilitychange, focus and the page's own
+        # refresh control; the count must not move. A surface with no channel is n/a, never ok.
+        "id":      "listener-lifecycle",
+        "script":  os.path.join("tools", "prove_listener_lifecycle.mjs"),
+        "args":    [],
+        "label":   "Listener lifecycle (a realtime page holds its channel count across repeated hide/show cycles)",
+        "group":   "Realtime",
+        "skip_if_fast": True,
+    },
+    {
+        # ★FITTING A PHONE IS NOT THE SAME AS BEING USABLE ON ONE (live-walk wave, 2026-09-06). phone-fit answers
+        # overflow, clipping and menus; these four are the rest of the mobile family: 44px tap targets (with WCAG's
+        # own inline-link exception, and the label as the activation area - resume.html's 18px checkbox sits inside
+        # a full-sentence label, which is what a thumb actually hits), safe-area-aware fixed chrome, the same pages
+        # at phone-landscape and tablet, and an installable shell whose manifest and service worker really exist.
+        # The service-worker check asks the BROWSER for its registrations; grepping the markup for "serviceWorker"
+        # reported the shell as having none, because registration lives in an external script.
+        "id":      "mobile-deep",
+        "script":  os.path.join("tools", "prove_mobile_deep.mjs"),
+        "args":    [],
+        "label":   "Mobile deep (thumb-sized targets, safe-area chrome, landscape + tablet, installable shell)",
+        "group":   "Mobile",
+        "skip_if_fast": True,
+    },
+    {
+        # ★THE HIGHEST-INTENT PATH ON THE PLATFORM WAS DROPPING ITS CONTEXT (live-walk wave, 2026-09-06). 58 rows
+        # carried the lens "Public calculator computes standalone"; walking it settled that the lens was wrong -
+        # the 60 pages under tools/<name>/ contain no form at all. They are content pages, honest about it, and
+        # they end with "Open the interactive <X> Calculator in WorkHive (free sign-in)". Every one of those
+        # buttons linked to the bare /engineering-design.html, which read no parameter and always opened HVAC at
+        # step 1, so a person who searched for one named calculator had to hunt for it among 55 types across six
+        # disciplines. Two were worse: the MTBF/MTTR and OEE pages promised a calculator that exists nowhere in
+        # that registry - those are KPIs, computed on analytics.html. Now each page names its calculator in the
+        # link, the tool resolves it against CALC_TYPES_UI (its own sole source of truth) and carries it through
+        # the sign-in round trip, and this gate follows a sample of the links to the end.
+        "id":      "calc-handoff",
+        "script":  os.path.join("tools", "prove_calc_handoff.mjs"),
+        "args":    [],
+        "label":   "Calculator hand-off (every SEO page hands a person to the calculator it NAMED, verified live)",
+        "group":   "SEO",
+        "skip_if_fast": False,
+    },
+    {
+        # ★A CAP ONLY LIES WHEN SOMETHING IS BEHIND IT (live-walk wave, 2026-09-06). The live half - does the
+        # RENDERED list admit it is capped - is gate `data-honesty` (D3). This is the half that keeps that one
+        # from being vacuous: it names every `.limit(N)` LIST read where the seeded hive holds more than N rows.
+        # Three calibrations: a `.limit(1)` is a lookup, not a cap; a fixed character window is the wrong scope,
+        # because logbook.html's read sits at line 1865 and the "Showing N entries (load more below)" label that
+        # explains it at line 4241; and either cap wording OR a has-more control is enough, since a deliberate
+        # "Top 5 risks" teaser needs no pagination.
+        "id":      "cap-honesty",
+        "script":  os.path.join("tools", "prove_cap_honesty.mjs"),
+        "args":    [],
+        "label":   "Cap honesty (every capped read with rows hidden behind it sits on a page that can admit the cap)",
+        "group":   "Data",
+        "skip_if_fast": False,
+    },
+    {
+        # ★A 200 FROM THE SEND ENDPOINT IS NOT A DELIVERY (live-walk wave, 2026-09-06). Every prior email claim on
+        # this platform rested on the call returning ok - a fact about the request, never about the person meant to
+        # receive it. The local stack already runs a mail catcher (Mailpit on :54324) holding every message the
+        # platform emits, so the walk sends a real recovery mail and then waits for it to ARRIVE, checking the
+        # recipient, the From, the subject and the token-bearing link a person has to click. Two calibrations: an
+        # unread response body holds its socket and process.exit() then aborts on Windows (PASS printed, exit 127),
+        # and GoTrue rate-limits recovery per address, so a second run inside the window is the product protecting
+        # someone from a mail-bomb - reported n/a, never red.
+        "id":      "mail-delivery",
+        "script":  os.path.join("tools", "prove_mail_delivery.mjs"),
+        "args":    [],
+        "label":   "Mail delivery (the message actually reaches the outbox, addressed, titled and actionable)",
+        "group":   "Platform",
+        "skip_if_fast": True,
+    },
+    {
+        # ★THE TWO A11Y QUESTIONS AXE CANNOT ASK (live-walk wave, 2026-09-06). axe is a static rule engine: it
+        # cannot press Tab, and it cannot know whether a live region existed BEFORE the message that needed
+        # announcing. So this walks the keyboard for real, checks the landmark/heading ladder, and asserts every
+        # aria-live container is in the tree at load. Three calibrations, each of which first accused the platform
+        # of a defect it did not have: a derived name is not an identity (two anonymous <a> elements both read
+        # "a", so every page looked like a keyboard trap); a transform-parked sheet and a `visibility:hidden`
+        # control are both "visible" to checkVisibility()'s DEFAULTS while the browser rightly keeps them out of
+        # the tab order; and an <input type="date"> holds focus across its own day/month/year segments. The one
+        # real finding: four pages had NO navigation landmark, fixed once in nav-hub.js for every page.
+        "id":      "a11y-path",
+        "script":  os.path.join("tools", "prove_a11y_path.mjs"),
+        "args":    [],
+        "label":   "A11y path (keyboard walk, landmark + heading ladder, live regions present at load)",
+        "group":   "Accessibility",
+        "skip_if_fast": False,
+    },
+    {
+        # ★A DASHBOARD IS A CLAIM THAT SOMEBODY IS WATCHING (live-walk wave, 2026-09-06). Every panel's own SQL is
+        # pulled from Grafana, its macros expanded, and run against ITS OWN datasource; a panel is live when the
+        # query returns a non-null value. The first run said 0/53 - my psql `-F '|'` quoting died on the Windows
+        # shell - and the second said 6 broken because I asked Supabase for GlitchTip's tables, which live in a
+        # separate container under its own role. Once the instrument was right, one real gap remained: the SLO
+        # board's "Latency p95 / p50" panel had NO producer, because the envelope measured latency on every
+        # response and never persisted it, and wh_traces' only writer fires on errors with `latency_ms: null`.
+        "id":      "ops-liveness",
+        "script":  os.path.join("tools", "prove_ops_liveness.mjs"),
+        "args":    [],
+        "label":   "Ops liveness (every Grafana panel's own query returns data - no observability claim without a producer)",
+        "group":   "Platform",
+        "skip_if_fast": True,
+    },
+    {
+        # ★WHAT A CRAWLER RECEIVES IS THE RAW BYTES, NOT THE RENDERED DOM (live-walk wave, 2026-09-06). The
+        # substrate settles the instrument: major AI crawlers fetch JS and never execute it (Vercel/MERJ, 500M+
+        # GPTBot fetches, zero JS execution), so an arrival claim measured in a browser measures something no
+        # crawler sees. 55 public pages, six questions each on the served HTML - title, quotable description,
+        # self-referential canonical, one READABLE h1, >=1200 chars of body present without JS, parsing JSON-LD -
+        # plus presence in sitemap.xml. Two calibrations: [^"']* stops at the apostrophe in "WorkHive's" (it
+        # reported three full sentences as 16-41 char descriptions), and index.html's second h1 is EMPTY in the
+        # served bytes - the documented display-switch pair axe requires - so only readable headings are counted.
+        "id":      "public-arrival",
+        "script":  os.path.join("tools", "prove_public_arrival.mjs"),
+        "args":    [],
+        "label":   "Public arrival (every public page arrives complete in the RAW served HTML, as a crawler that never runs JS receives it)",
+        "group":   "SEO",
+        "skip_if_fast": False,
+    },
+    {
+        # ★THE PROMISES IN `_headers` ARE ONLY TRUE IF THE DEPLOYED ORIGIN SERVES THEM (2026-09-06). Nothing local
+        # serves that file, and the live check found why it never mattered: workhiveph.com runs on VERCEL, which
+        # reads neither `_headers` (a Cloudflare Pages file) nor netlify.toml - so the apex returned NONE of the six
+        # security headers, and /_fixtures/engineering-design-test.html answered 200. vercel.json + .vercelignore
+        # now carry the intent; this gate asks the origin whether it is actually true, and stays RED until deploy.
+        "id":      "prod-headers",
+        "script":  os.path.join("tools", "prove_prod_headers.mjs"),
+        "args":    [],
+        "label":   "Prod headers (every promise in _headers is actually served by the deployed origin)",
+        "group":   "Security",
+        "skip_if_fast": True,
+    },
+    {
+        # ★A NUMBER ON A BOARD IS A CLAIM ABOUT THE DATABASE (live-walk wave, 2026-09-06). Fifteen rendered tiles
+        # across hive.html and inventory.html, each paired by hand with the canonical query that must produce it.
+        # Explicit pairs, never a heuristic: a prover that guessed which query backs which tile would just be a
+        # second implementation of the product. Three of the four first "mismatches" were MY query (wo_state is
+        # null on every row; "low" means low+critical; "healthy" is stockStatus()'s MIDDLE band, excluding the 21
+        # surplus parts), and the fourth found that v_asset_truth ends `WHERE status = 'approved'` - documented in
+        # its own COMMENT, with the approval queue correctly reading the raw table, so the pair stands as a tripwire.
+        "id":      "tile-canonical",
+        "script":  os.path.join("tools", "prove_tile_canonical.mjs"),
+        "args":    [],
+        "label":   "Tile == canonical (every headline number on the board equals the v_*_truth query behind it)",
+        "group":   "Data",
+        "skip_if_fast": False,
+    },
+    {
+        # ★THE TENANT BOUNDARY, ASKED ON THE APP'S OWN PATH (live-walk wave, 2026-09-06). For every public table
+        # carrying hive_id, a PLAIN member of one hive asks PostgREST for another hive's rows with a real user token,
+        # and must get none - so a pass covers the GRANTs and the policy together, exactly as the browser meets them.
+        # Two calibrations are load-bearing and both were learned by being wrong first: the postgres MCP cannot ask
+        # this question at all (it connects as the table OWNER with rolbypassrls, and every attempt to SET ROLE is
+        # either too late for the plan or rolled back with the read-only transaction), and the harness's default
+        # persona LEANDRO MARQUEZ is a marketplace platform admin, whose legitimate reads looked like seven leaks.
+        # `--teeth` drops the by-design exemptions and must FAIL, which is what keeps this from becoming a green light.
+        "id":      "tenant-refusal",
+        "script":  os.path.join("tools", "prove_tenant_refusal.mjs"),
+        "args":    [],
+        "label":   "Tenant refusal (a plain member of hive A gets NO row of hive B from PostgREST, and neither does anon)",
+        "group":   "Security",
+        "skip_if_fast": False,
+    },
+    {
+        # Phone fit (P-M wave, Ian 2026-09-06: "text wrapped on their container in inventory; the hive board's More overflows
+        # left on a phone"): signed in at 390x844, every root/tools page must FIT - no horizontal overflow, no control label
+        # wrapped onto a second line box, no text spilling past its card, and every more/kebab menu, once tapped, inside the
+        # viewport. The lock gate for P501-P704; pages advance to locking as they read ok here.
+        "id":      "phone-fit",
+        "script":  "tools/prove_phone_fit.mjs",
+        "args":    [],
+        "label":   "Phone fit: at 390x844 no overflow, no wrapped control label, no spilled text, menus inside the viewport (51 pages)",
+        "group":   "Platform",
+        "skip_if_fast": True,
+    },
+    {
+        # The same lens at 360 wide (the narrower Android class): the lock plan for P501-P704 names BOTH widths.
+        "id":      "phone-fit-360",
+        "script":  "tools/prove_phone_fit.mjs",
+        "args":    ["--width", "360"],
+        "label":   "Phone fit at 360 wide: the P-M lenses on the narrower phone class (51 pages)",
+        "group":   "Platform",
+        "skip_if_fast": True,
+    },
+    {
+        # An edge function that WRITES must read whether the write landed (2026-09-09). Found by walking
+        # cmms-webhook-receiver's contract live: it answered {"ok":true} to a correctly signed SAP payload
+        # and persisted NOTHING, because the upsert's error was discarded and external_sync.status is
+        # CHECK-constrained to Open/Closed/Cancelled while the payload carried TECO. The sending CMMS is
+        # told the work order landed, never retries, and the plant's completed work disappears - and with
+        # the error thrown away it could not be diagnosed from the logs either. Six writes in that one
+        # file had the same shape. Forward-only ratchet over every supabase/functions/*/index.ts.
+        "id":      "unchecked-writes",
+        "script":  "tools/validate_unchecked_writes.py",
+        "args":    [],
+        "label":   "Every edge-function write is checked (a discarded { error } lets a function answer ok over a failed write - forward-only ratchet)",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
+        # nav-hub `roles:` values must be display MODES (2026-09-09, W3-JN J17). That field is matched
+        # against MODES = [all, field, supervisor, engineer], NOT against an auth role, and a worker's
+        # mode is 'field'. Asset Hub carried roles: ['supervisor','engineer'], so it was reachable by
+        # nobody on a worker's account - not from the nav, and not from hive.html, whose only asset-hub
+        # link sits in a supervisor-only approval message - while the PAGE had always permitted workers
+        # (asset-hub.html:1231 scopes the query by role and keeps only the reviewer BUTTONS supervisor-
+        # only). Found by walking J17 as the worker it casts: 5/5 rows dead-ended at hive -> asset-hub.
+        # The fix was one word and the FIRST ATTEMPT WAS A SILENT NO-OP - adding the literal 'worker',
+        # which is not a mode, changed nothing and read as a correct fix in the diff. This gate tells
+        # a no-op from a fix without a browser.
+        "id":      "nav-roles-are-modes",
+        "script":  "tools/validate_nav_roles_are_modes.py",
+        "args":    [],
+        "label":   "Every nav-hub roles: value names a real display mode (an unknown value hides the entry from everyone it was meant to include, silently)",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
+        # A moment is VERIFIED against a hive's history, never applied to it (2026-09-10, W3-JN). 49 rows
+        # carry `month-3` / `year-2` / the Tier-D `day-1+month-3+year-2`, and prove_full_journeys.mjs
+        # correctly refuses one whose hive has not lived that long. That refusal was recorded SIXTEEN
+        # times across NINE archetypes as a fixture gap awaiting a data decision; it was a capped read.
+        # seed_5y_synthetic_history.py read its own asset inventory with `limit=2000` against a 3,847-row
+        # table, so three of six hives were never seeded at all, and its checkpoint then asked for
+        # max(days) across hives - so the one deep hive certified all six. Both numbers true, neither an
+        # answer. Fixed, the same 22 year-2 rows walked 22/22 first time. This gate asks the question the
+        # checkpoint cannot: not "did the seeder run?" but "is the corpus deep enough for what the
+        # REGISTRY asks of it?", and asks it of the DATABASE - because reset.py truncates `logbook`
+        # without touching `.tmp/`, so the receipt outlives the rows and the symptom returns one journey
+        # at a time, months later, reading like a product limitation.
+        # A required CROSS-ORIGIN script the service worker can never cache (2026-09-10, W3-JN). 35 pages
+        # load the Supabase client - all auth, all data - from cdn.jsdelivr.net. It is in no SHELL_FILES
+        # entry (there are no cross-origin entries at all), the cache-on-visit path is same-origin by
+        # construction, and no page carries an onerror on that tag. Lose that one request and the page
+        # paints its shell, throws "getDb() called before @supabase/supabase-js loaded", and shows a
+        # person a blank screen. That one fact sits under three separately-filed findings: W3627/W3579
+        # (recorded as cold-start artifacts), the offline-3g cluster (40% closed against 75-83% for every
+        # other condition), and the blank hive.html in W3512/W3654. browser-floor.js - precached, pure
+        # ES5, the one script guaranteed present when the CDN is not - now says what happened and that
+        # saved work is safe. This gate holds the pairing so a NEW page cannot ship depending on the
+        # client without it. It is the interim: vendoring the client to the origin is the fix, and
+        # retires this gate with it.
+        "id":      "cdn-client-canary",
+        "script":  "tools/validate_cdn_client_canary.py",
+        "args":    [],
+        "label":   "Every page that hard-depends on the CDN Supabase client also loads the canary that explains its absence (a lost CDN request must not be a silent blank page)",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "fixture-depth",
+        "script":  "tools/validate_fixture_depth.py",
+        "args":    [],
+        "label":   "Every moment a trajectory names is one its hive has actually lived (a shallow corpus reads as a product gap)",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
+        # Adoption is a CALL, not an import (2026-09-09, W3-LC). oc-helper.js was written to close
+        # PRODUCTION_FIXES #43 and gives the platform one canonical optimistic-concurrency call. FOUR pages
+        # load it - inventory, marketplace, marketplace-seller, marketplace-admin - and not one has ever
+        # called updateWithOC: 22 write sites between them, none guarded, on exactly the rows the helper's
+        # own docstring names as its reason to exist. The script tag was the entire adoption, which is the
+        # worst shape a gap can take because it looks solved to anyone grepping for "oc-helper". The two
+        # existing OC validators do not catch it: both are about writes that already reached for the guard,
+        # and nothing asked whether it was ever reached for. Narrow on purpose - it never guesses which
+        # pages OUGHT to have concurrency control, only holds a page to the intention it declared itself.
+        "id":      "oc-adoption",
+        "script":  "tools/validate_oc_adoption_is_a_call.py",
+        "args":    [],
+        "label":   "A page that loads oc-helper.js actually calls it (loading the concurrency helper is not using it - forward-only ratchet)",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
+        # Shared JS chrome speaks both languages (2026-09-09, W3-SC). validate_i18n_coverage scans PAGES;
+        # nothing scanned the shared components, so the idle prompt on a shared plant tablet - in a file
+        # whose own header says "on a shared Filipino plant tablet" - shipped English-only to 33 pages,
+        # alongside the offline banner (35), the connectivity widget's is-my-work-safe sentence (33), every
+        # camera-failure line in the scanner, the worker drawer and the feedback panel. They were inside the
+        # contract the whole time: utils.js installs window._t(en, fil) as a platform locale FLOOR and
+        # nav-hub, maturity-gate and companion-launcher already called it. Silent because no gate looked.
+        # File-level on purpose - a string-level rule would demand _t('Online','Online') around loanwords,
+        # and a gate answered with noise stops being read. Exemptions are explicit and carry their reason
+        # (browser-floor is ES5-only and inlines both languages; wh-persona holds LLM system prompts;
+        # skill-content is a training corpus whose translation is a content program, not a wrapper).
+        "id":      "shared-component-i18n",
+        "script":  "tools/validate_shared_component_i18n.py",
+        "args":    [],
+        "label":   "Shared JS chrome speaks the platform's two languages (a component the pages around it translate, that does not - forward-only ratchet)",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
+        # The i18n gates count STAMPS; this one counts what the READER SEES (2026-09-11). asset-hub read
+        # 100% on the full rubric while its primary CTA said "Review 2 pending ->" in English on a page
+        # whose documentElement.lang is fil - under a heading stamped p_whattodonext_8ce2 ("Ano ang
+        # susunod na gagawin"), on a button stamped p_takeaction_ee0b ("Kumilos ->"). Both translations
+        # had SHIPPED; the page's own JavaScript overwrote the element's text at render time. Every
+        # existing measurement was blind for one reason: the STAMP was still there, so the orphan census
+        # reported 0 orphans and the coverage gate still lists the page as "covered". Same lesson as
+        # shared-component-i18n above, one layer further in - there the strings sat OUTSIDE the scanned
+        # pages, here they sit INSIDE one, in its script block, where a stamp census cannot reach.
+        # It follows the VARIABLE, because the literal usually never touches the property: the block that
+        # started this reads `let text; text = 'No assets yet...'; actBox.textContent = text;` and a
+        # property-only detector saw none of its five branches. Ratcheted, not zero-on-day-one: the census
+        # is 653 literals across 25 pages (73 of them overwriting a stamped element), and a gate nobody
+        # can pass gets switched off.
+        "id":      "rendered-i18n",
+        "script":  "tools/validate_rendered_i18n.py",
+        "args":    ["--check"],
+        "label":   "English prose written by JS onto pages that CLAIM to be bilingual - the stamp survives, the translation does not (forward-only ratchet)",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
+        # The .wh-help disclosure is declared TWICE - components.css, and a utils.js injection for pages that
+        # do not link the stylesheet - and utils.js carries a standing note that the two must stay identical,
+        # because a second, DIFFERENT rule landing after first paint was a MEASURED layout shift (voice-journal's
+        # summary read 24px then 55px at 118ms, 2026-09-07). Until now that rule was held by the comment alone.
+        # It was tested on 2026-09-10: fixing an off-scale 14px margin (R1's scale is 4/8/12/16/24/32) meant
+        # editing both copies, and editing one would have re-armed the shift silently on ~30 pages.
+        # Formatting is deliberately NOT a difference - the checker normalises spaces inside rgba() and reduces
+        # var(--x, fallback) to its fallback, because a gate that reds on formatting gets ignored or "fixed" wrong.
+        "id":      "wh-help-parity",
+        "script":  "tools/validate_wh_help_parity.py",
+        "args":    [],
+        "label":   "The .wh-help rule's two copies agree (a post-paint rule that differs is a layout shift)",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
+        # THE RUBRIC'S OWN VOCABULARIES, AUDITED FOR LANGUAGE BIAS (2026-09-10). FOUR independent
+        # English-only vocabularies were found in survey_ufai_rubric.js in a single day, each by
+        # accident, each ONE-DIRECTIONAL - the English page passed and its faithful Filipino translation
+        # failed: B3's Flesch-Kincaid grade (+4.53 grades for the same sentence, 183 findings retracted),
+        # E3's freshness words ("Kakakalkula lang" IS "Recomputed just now", 42 retracted), X1's guidance
+        # verbs ("Irehistro muna..." names its recovery path, third widening), and the permission wall
+        # ("Para sa supervisor lang" IS "Supervisors only", so an honest refusal read as a broken page).
+        # LOANWORDS are why this hides: of 44 English strings carrying a freshness word, 25 keep that word
+        # through translation, so a check looks correct until it meets the 19 that do not.
+        # i18n/*.json is a PARALLEL CORPUS, so the bias is COMPUTABLE: run each vocabulary over both
+        # halves of every pair and report EN->FIL retention. Advisory by design - a low score is a
+        # CANDIDATE, not a verdict (JARGON matches RPC/JSON/HTTP 500, language-neutral tokens that
+        # correctly appear in both), and two known limits are documented in the rubric rather than faked:
+        # PASSIVE (0%) is inert under FIL because Filipino marks voice by affix, and VERDICT (2%) is left
+        # alone because widening it with `hindi|wala` would turn E4's raw-stat check off entirely.
+        "id":      "rubric-language-bias",
+        "script":  "tools/audit_rubric_language_bias.py",
+        "args":    [],
+        "label":   "The UFAI rubric's text vocabularies read BOTH languages (an English-only check fails the translation, not the page)",
+        "group":   "AI Validation",
+        "skip_if_fast": True,
+    },
+    {
+        # A read of an RLS-DISABLED truth view must be BOUND (2026-09-10, found walking analytics as a solo owner with no
+        # hive and 0 assets). analytics-orchestrator's scope query bound on `assetIds` OR `hiveId` and had no third leg,
+        # while EVERY sibling fetch in the same file uses `if (hiveId) ... else if (workerName) ...`. v_pm_scope_items_truth
+        # is RLS-disabled BY DESIGN - it expects an explicit filter - so a caller satisfying neither condition read it
+        # UNFILTERED: 69 rows of Baguio Textile Mills' PM programme rendered on a stranger's page, asset ids unresolved but
+        # task text ("Visual + amp draw check") fully legible. The hole survived review because the one query that differed
+        # looked reasonable in isolation - two filters, both conditional, no single wrong line - and the caller state that
+        # exposes it could not be CAST at all until the solo personas were seeded. A reviewer cannot be asked to imagine an
+        # un-castable persona; a checker can be told to look. Also refuses the display half: an asset_name falling back to a
+        # raw asset_id, which is how the defect showed itself. Self-tests 5/5 including "a commented-out binding does NOT pass".
+        "id":      "orchestrator-query-binding",
+        "script":  "tools/validate_orchestrator_query_binding.py",
+        "args":    ["--check"],
+        "label":   "Every read of an RLS-disabled truth view binds the hive AND handles a caller who has none (an unbound read is every tenant's rows)",
+        "group":   "Security",
+        "skip_if_fast": False,
+    },
+    {
+        # No stray control bytes in any source file (2026-09-05, register row 51): two `backslash-b` written through a heredoc became
+        # U+0008 in utils.js's settle regexes, which then matched nothing while four rewrites chased timing and visibility;
+        # the same byte sat in the rubric survey's nav-tile test. Invisible in a terminal and a diff - this gate shows it.
+        "id":      "no-control-bytes",
+        "script":  "tools/validate_no_control_bytes.py",
+        "args":    [],
+        "label":   "No stray control bytes in any source file (a mangled escape is invisible in a diff and kills a regex silently)",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
+        # The shared prover preamble (2026-09-05, synthesis verdict 1): nine live provers import tools/prover_harness.mjs for
+        # sign-in, identity keys, the page-own query keys, checkVisibility and the psql/psqlAs truths. Its self-test (no browser,
+        # ~2 s) proves the DB helpers answer, the impersonated count is a number, the seller key is the page's own, and the
+        # visibility predicate prefers checkVisibility - a harness with no teeth would hand every prover one silent blind spot.
+        "id":      "prover-harness-selftest",
+        "script":  "tools/prover_harness.mjs",
+        "args":    ["--self-test"],
+        "label":   "Prover harness self-test: psql/psqlAs answer, PAGE_QUERY uses the page's own key, VIS_JS prefers checkVisibility",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
+        # The harness self-test above is browser-free by design and never touches sign-in, so the sign-in
+        # path it hands to 48 provers had no gate at all until this one (2026-09-10).
+        "id":      "prover-signin-key-teeth",
+        "script":  os.path.join("tools", "test_prover_signin_key.mjs"),
+        "args":    [],
+        "label":   "Shared sign-in waits for the credential it uses (15 cases): prover_harness.signIn falls back to window.SUPABASE_KEY, which exists ONLY because shift-brain.html declares its key with `var` - a top-level `const` creates no window property, and 23 of the platform's 27 key-declaring pages use `const`. The wait covered getDb and supabase but not the key, so a slow line could land the walk between 'the library is here' and 'the page has run', and supabase-js then answered 'supabaseKey is required.' - a message that names an argument while the real cause is a page that never ran. Both directions pinned: the cached client short-circuits before the key is read, the fallback passes the page's OWN key to getDb, a window offering neither returns an honest note instead of reaching getDb, and the wait predicate is satisfied by the client alone or by getDb+supabase+key but NOT by getDb+supabase without it. Mutation-tested: restore the old predicate or drop the honest-note guard and two cases redden each. TWO MORE CASES PIN A COUPLING 44 OTHER TOOLS STILL REST ON: they build a client from window.SUPABASE_KEY WITHOUT waiting for it (against 27 that wait), and they work only because shift-brain.html - the page they all sign in on - declares its key with `var`, the 4-of-27 minority style. Switch that one line to `const` or `let` and all 44 lose their fallback silently, walking the product SIGNED OUT rather than failing loudly. Editing 44 files is the expensive fix for a one-line coupling, so the coupling is asserted here instead: the sign-in page must still expose the key on window, and must not have moved to const.",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
+        # P-J "hand-off carries context" / "the return path" for the 19 pages without a scripted journey (2026-09-05): a signed-in supervisor opens the page, follows its first internal link, and the stored hive/role/worker survive the hop, the destination names the hive or worker, and Back returns (one extra Back tolerated for a modal-history deep link).
+        "id":      "handoff-carries-context",
+        "script":  "tools/prove_handoff_carries_context.mjs",
+        "args":    [],
+        "label":   "Hand-off carries context: identity keys + hive name survive the first internal hop and the return (19 pages without a scripted journey)",
+        "group":   "Platform",
+        "skip_if_fast": True,
+    },
+    {
+        # P-L "compound failure" on 21 DB pages (2026-09-05): every Supabase request (rest/functions/realtime/storage) aborted from the first byte for a signed-in supervisor - the page must say so (a visible failure/retry message or honest-empty) and must not sit on a skeleton, within the platform's 12s retry envelope.
+        "id":      "db-pages-data-degradation",
+        "script":  "tools/prove_db_pages_degradation.mjs",
+        "args":    ['--data'],
+        "label":   "DB pages say so when every data read fails (no stuck skeleton, no blank root) - 21 pages, signed in, 12s envelope",
+        "group":   "Platform",
+        "skip_if_fast": True,
+    },
+    {
+        # P-L "systemic ripple" on 21 DB pages (2026-09-05): every shared script/stylesheet (utils.js, tokens.css, feedback/wayfinding/offline-banner/nav-hub/session-timeout) aborted - the page must still paint its own content or say the shared script failed.
+        "id":      "db-pages-shared-degradation",
+        "script":  "tools/prove_db_pages_degradation.mjs",
+        "args":    ['--shared'],
+        "label":   "DB pages still paint (or say so) with every shared script aborted - 21 pages, signed in",
+        "group":   "Platform",
+        "skip_if_fast": True,
+    },
+    {
+        # P-D "repaint keeps focus & draft" on the reference surfaces (2026-09-05, P179 validator-catalog): typing into the
+        # filter re-renders the table one keystroke at a time; the input keeps focus, its text and its caret.
+        "id":      "reference-repaint-focus",
+        "script":  "tools/prove_reference_repaint_keeps_focus.mjs",
+        "args":    [],
+        "label":   "Repaint keeps focus + draft: filter inputs (validator-catalog, logbook, marketplace, marketplace-admin, platform-actions) and poll/realtime repaints (hive coach draft, alert-hub feed control) keep focus, text and caret (7 cases)",
+        "group":   "Platform",
+        "skip_if_fast": True,
+    },
+    {
+        # ★A LOCK NOTHING RUNS LOCKS NOTHING (2026-09-05): tools/validate_family_rubric_ratchet.py — the
+        # F7 family-rubric ADOPTION RATCHET (FAMILY_UFAI_ROADMAP §3: "each phase lands a % and a ratchet so
+        # it cannot seesaw back") — existed, passed standalone, and appeared NOWHERE in this file. The
+        # P-program's first per-page fixes (logbook I1/H1, hive X1, two C2 chips) are held by exactly this
+        # gate, so registering it is what makes their `locking` claims true rather than aspirational. It
+        # refuses boards under 30 pages, so a --page run can never poison it or fake a verdict.
+        "id":      "family-rubric-ratchet",
+        "script":  "tools/validate_family_rubric_ratchet.py",
+        "args":    [],
+        "label":   "Family-Rubric Adoption Ratchet (F7: the 32-page 90-dim family board vs family_rubric_baseline.json is forward-only — mean and per-page floors may not drop; refuses a partial (<30-page) board rather than pass on it)",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
+        # Phase 1 of the P-program (2026-09-05): the page x layer GAP MAP that makes
+        # "comprehensive" measurable. It is GENERATED from the page roster + the registry + the
+        # page sources, so like every other generated surface here it is gate-locked against drift:
+        # a page added, a layer signal changed, or a P row re-scoped must regenerate the matrix or
+        # this reddens. Without the gate the gap map silently ages into a map of last month's
+        # platform — and a stale gap map aims the deepwalk at cells that are already closed.
+        "id":      "coverage-matrix",
+        "script":  "tools/build_coverage_matrix.py",
+        "args":    ["--check"],
+        "label":   "P-program Coverage Matrix (156 pages x 10 page-scoped layers; applicability derived from a NAMED signal in each page's own source, cells credited only by layer-naming evidence, Hosting/CI/LB scored once as platform scope — the committed matrix must equal a fresh build)",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": True,
+    },
+    {
+        # THE INSTRUMENT, not the product. page.route() does not intercept requests issued by a
+        # service worker, and nav-hub.js registers sw.js with scope '/' + clients.claim(), so
+        # every WorkHive page in a Playwright context is controlled. A spec that then routes a
+        # read intercepts NOTHING and asserts against an un-injected page.
+        #
+        # Twice paid for. marketplace-state-inducers called a full, correct listings grid broken
+        # for 25 seconds of polling. failure-injection reported 41 of 43 tests failing, every one
+        # on its own "the route never matched" guard, so no oracle beneath it ever ran; measured
+        # on a healthy load, page.on('request') saw 62 supabase reads while page.route saw 0. The
+        # first fix was correct and scoped to one file, and nothing carried it to the other four
+        # route-intercepting specs. This gate is that carry.
+        #
+        # In scope = intercepts routes AND drives a WorkHive page (a /workhive/ URL or the whPage
+        # fixture, which signs in through workhive/index.html). Such a spec must declare
+        # test.use({ serviceWorkers: 'block' }) -- faithful, not convenient: sw.js passes API
+        # traffic straight through and never caches a REST response. Specs on another origin stay
+        # out on the evidence (journey-notebooklm drives the Flask app on 5001, no worker), not on
+        # a hand-kept allowlist. Escape hatch `// sw-route-exempt: <reason>`; a reasonless one is
+        # rejected. Static, offline (~0.2s).
+        # Self-test: `python tools/spec_route_sw_gate.py --self-test`.
+        "id":      "spec-route-sw",
+        "script":  "tools/spec_route_sw_gate.py",
+        "args":    [],
+        "label":   "Spec Route/Service-Worker Gate (a route interception on an SW-controlled page matches nothing, so the assertion beneath it measures an un-injected page)",
+        "group":   "Platform",
+        "report":  "spec_route_sw_report.json",
+    },
+    {
+        # A CONVERSION TOOL'S REFUSALS, kept alive. bank_marketplace_gate turns registry rows into
+        # gate-backed evidence, and two ways of doing that dishonestly were found by hand on
+        # 2026-09-07, both a single flag away from minting fiction:
+        #   · ONE ORACLE. --category is a filing label and the label has drifted from the claim.
+        #     Q-payment-rails sounds like the payment-rails gate's subject; its 36 rows actually
+        #     carry FOUR different oracles, all the generic populated/empty/edge/error matrix. The
+        #     obvious invocation would have banked 36 rows citing a gate about which GCash number
+        #     may appear on which screen as proof of claims it never examines.
+        #   · ONE PERSONA. The 47 rows carrying "a FAILED read renders an error" match
+        #     failure-injection.spec.ts exactly - same oracle, same state, same URLs - but they span
+        #     anon/buyer/seller/admin/provider while the spec runs as ONE signed-in identity. An anon
+        #     row claims the behaviour for someone who never signed in. That is this platform's own
+        #     "the probe's persona was an ADMIN" defect, which produced seven false leak findings.
+        # Both refusals fire on the real registry today. This entry exists because a guard nothing
+        # runs guards nothing: 5 self-test cases, including that a coherent selection still passes.
+        # Static, offline (~0.2s).
+        "id":      "bank-marketplace-gate-selftest",
+        "script":  "tools/bank_marketplace_gate.py",
+        "args":    ["--self-test"],
+        "label":   "Marketplace-Bank Conversion Guards (one oracle and one persona per conversion; a category name is a filing label, not the claim)",
+        "group":   "Platform",
+    },
+    {
+        # WHICH FAILURES MAY BE FILED AGAINST A PAGE. bank_spec_results wrote every non-passing test
+        # to `owed`, so a fixture that could not sign in became a defect recorded against the surface
+        # it never reached. The specs already say which is which — _fixtures.ts raises "this is the
+        # HARNESS, not the surface under test" for exactly this reason — and the banker was throwing
+        # that sentence away. Measured 2026-09-07: one run carried three such failures (a loaded host,
+        # twenty browser processes) plus ONE real defect, a no-change save that still wrote an audit
+        # entry; the real one was fixed and went green, and the other three are now left unmeasured
+        # rather than filed. The markers are deliberately specific sentences, never /harness|timeout/:
+        # swallowing a genuine product timeout would be the worse error, so the self-test proves both
+        # directions — the four harness sentences abstain, a real defect and a bare
+        # expect(...).toBeVisible() timeout still file. Static, offline (~0.2s).
+        # Self-test: `python tools/bank_spec_results.py --self-test`.
+        "id":      "bank-spec-results-selftest",
+        "script":  "tools/bank_spec_results.py",
+        "args":    ["--self-test"],
+        "label":   "Spec-Bank Harness Discrimination (a harness failure is left unmeasured, never filed as a defect against the page it never reached)",
+        "group":   "Platform",
+    },
+    {"id": "seller_pane_populated", "script": "tools/prove_seller_pane.mjs", "args": [],
+     "label": "seller populated (marketplace-seller's four figures each attributed to its OWN element "
+              "and matched to the security_invoker view the page reads, under the caller's own claims, "
+              "across five personas; an em-dash is a failed read and is only honest when the gap note "
+              "is raised beside it; the pending count rendered twice must agree with itself; a "
+              "signed-out visitor is told to sign in and shown no figure, judged on VISIBILITY because "
+              "the dashboard markup exists behind the gate carrying a 0 nobody can see)",
+     "group": "Platform", "report": "seller_pane_report.json", "skip_if_fast": True},
 ]
 
 PYTHON_API_URL  = "https://engineering-calc-api.onrender.com/calculate"

@@ -63,12 +63,26 @@ def check(critic: dict, traj: dict, spec: dict) -> list[str]:
                 problems.append(f"R4 {rid}: graded dim '{d}' not in the rubric spec")
         if not r.get("pages") and not r.get("no_ui_basis"):
             problems.append(f"R5 {rid}: no pages and no no_ui_basis - not walkable, not excused")
+        # R6: a JOURNEY may not be critiqued from one page's at-rest board grade (2026-09-10).
+        # critic_from_board.py credits a row from `pages[0]`, which is right when the row's subject IS
+        # one page - a learn article, a calculator, a page x layer cell - and wrong for a row that
+        # crosses four to eight of them. Its dry-run offered 933 rows; 690 of those were W3-JN journeys
+        # that would each have been graded from their first page, at rest, which is exactly the
+        # shallowness this extension was created to answer ("you have to deepwalk live mcps each
+        # trajectories"). The tool now skips multi-page rows by default, and this makes that permanent:
+        # a tool is a decision someone can re-run with a flag, a rule is a decision that stays made.
+        if (len(r.get("pages") or []) > 1 and r.get("target_source") == "family-rubric-board"
+                and "IN-MOTION" not in (r.get("dims_graded") or [])):
+            problems.append(f"R6 {rid}: a {len(r['pages'])}-page journey critiqued from the at-rest board "
+                            f"(pages[0]={r['pages'][0]}) - a journey owes an in-motion critique")
     dupes = [k for k, n in seen.items() if n > 1]
     if dupes:
         problems.append(f"R3 duplicate rows: {dupes[:5]}")
     in_scope = {t["id"] for t in traj.get("trajectories", []) if t.get("status") != "descoped"}
     descoped = {t["id"] for t in traj.get("trajectories", []) if t.get("status") == "descoped"}
-    missing = sorted(in_scope - set(seen), key=lambda x: int(x[1:]))
+    # ids carry letter prefixes of varying length (T1, P12, LX3, EX695): sort by prefix, then number -
+    # int(x[1:]) crashed on 'EX695' the day the expansion wave landed (2026-09-07)
+    missing = sorted(in_scope - set(seen), key=lambda x: (x.rstrip('0123456789'), int(x[len(x.rstrip('0123456789')):] or 0)))
     extras = sorted(set(seen) - in_scope)
     if missing:
         problems.append(f"R3 {len(missing)} in-scope trajectories missing from the critic bank (first: {missing[:5]})")
@@ -123,12 +137,26 @@ def self_test() -> int:
     b = copy.deepcopy(good); b["rows"] = []
     if not any("missing from the critic bank" in p for p in check(b, traj, spec)):
         fails.append("a missing in-scope trajectory must FAIL")
+    # R6, both directions: a JOURNEY graded from one page's at-rest board entry must fail, while the
+    # single-page row that same tool credits correctly must stay quiet - a rule that reddened both would
+    # block the 243 rows the board can honestly answer, which is the opposite of the point.
+    b = copy.deepcopy(good)
+    b["rows"][0]["pages"] = ["a.html", "b.html", "c.html", "d.html"]
+    b["rows"][0]["target_source"] = "family-rubric-board"
+    if not any(p.startswith("R6") for p in check(b, traj, spec)):
+        fails.append("a multi-page journey critiqued from the at-rest board must FAIL")
+    b["rows"][0]["dims_graded"] = ["A1", "IN-MOTION"]
+    if any(p.startswith("R6") for p in check(b, traj, spec)):
+        fails.append("a journey critiqued IN-MOTION must stay quiet")
+    b = copy.deepcopy(good); b["rows"][0]["target_source"] = "family-rubric-board"
+    if any(p.startswith("R6") for p in check(b, traj, spec)):
+        fails.append("a SINGLE-page row from the board must stay quiet - that is the honest case")
     b = copy.deepcopy(good); b["rows"].append({"id": "T2", "status": "pending", "pages": ["a.html"], "cell": "x"})
     if not any("descoped ids present" in p for p in check(b, traj, spec)):
         fails.append("a descoped id in the bank must FAIL")
     if fails:
         print("SELF-TEST FAIL:", "; ".join(fails)); return 1
-    print("PASS validate_critic_registry self-test (hollow/invented-dim/dupe/missing/descoped all redden)")
+    print("PASS validate_critic_registry self-test (hollow/invented-dim/dupe/missing/descoped/journey-from-the-at-rest-board all redden, and a single-page row from that board stays quiet)")
     return 0
 
 

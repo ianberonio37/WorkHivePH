@@ -61,8 +61,9 @@ serveObserved("trigger-ml-retrain", async (req) => {
     }
 
     if (!PYTHON_URL) {
+      console.error("misconfigured: PYTHON_API_URL is not set");   // the operator detail stays in the log (2026-09-06)
       return new Response(
-        JSON.stringify({ error: "PYTHON_API_URL not configured — cannot retrain." }),
+        JSON.stringify({ error: "Retraining is not set up yet. Ask the platform owner to finish it." }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }

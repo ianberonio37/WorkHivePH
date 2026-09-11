@@ -281,10 +281,18 @@ async function syncConfig(
     // Only for new rows — a re-sync must not overwrite an existing link with an uninserted id.
     for (const n of norms) {
       if (known.has(n.extId)) continue;
-      await db.from("external_sync")
+      /* ★THE SAME F1005 LINK THE WEBHOOK PATH CARRIES (2026-09-09). Without it, cmms-push-completion
+         falls back to machine+newest and can close the WRONG work order in the customer's CMMS - which
+         is precisely why F1005 exists. Logged rather than thrown: both rows are written and the sync is
+         sound, so failing the whole run would be the larger harm; but it must not be silent. */
+      const { error: linkErr } = await db.from("external_sync")
         .update({ workhive_id: (n.logRow as Record<string, unknown>).id })
         .eq("hive_id", hiveId).eq("system_type", systemType)
         .eq("external_id", n.extId).eq("entity_type", "work_order");
+      if (linkErr) {
+        console.error(`cmms-sync: F1005 link failed for ${n.extId} -`, linkErr.message,
+          "- a later completion push may target the wrong work order");
+      }
     }
 
     synced += syncRows.length;
@@ -395,15 +403,27 @@ serveObserved("cmms-sync", async (req) => {
 
       if (!testMode) {
         // Update config with sync result
-        await db.from("integration_configs").update({
+        /* ★THIS ROW IS WHAT integrations.html READS TO SAY A CONNECTOR IS HEALTHY (2026-09-09,
+           unchecked-writes sweep). The page's three tiles - ACTIVE, STALE, DISABLED - are computed from
+           last_sync_at; if this write is lost, a connector that just synced successfully reads as never
+           having synced, and a supervisor is told an integration is stale when it is not. The result is
+           checked below rather than thrown, because the SYNC itself already succeeded and failing the
+           request would misreport the more important half. */
+        const { error: cfgErr } = await db.from("integration_configs").update({
           last_sync_at:     now,
           last_sync_count:  syncResult.synced,
           last_sync_status: syncResult.error ? "failed" : "success",
           last_sync_error:  syncResult.error,
           delta_cursor:     now,  // next run fetches only records after this
         }).eq("id", config.id);
+        if (cfgErr) {
+          console.error("cmms-sync: the sync succeeded but its result could not be recorded on the config -",
+            cfgErr.message, "- integrations.html will read this connector as never having synced, and the "
+            + "delta cursor did not advance, so the next run will re-fetch the same window");
+        }
 
         // Log to automation_log
+  // unchecked-write-allow: a telemetry row. Its failure must not change the caller's outcome - refusing real work because a log line did not land would be the worse bug.
         await db.from("automation_log").insert({
           job_name: "cmms-sync",
           hive_id:  config.hive_id,

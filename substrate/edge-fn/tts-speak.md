@@ -2,7 +2,7 @@
 name: edge-fn-tts-speak
 type: edge-fn
 source: file:supabase/functions/tts-speak/index.ts
-source_sha: c8d8f2794c20a74f
+source_sha: 8d5df69869b1ea6e
 last_verified: 2026-07-13
 supersedes: null
 ---

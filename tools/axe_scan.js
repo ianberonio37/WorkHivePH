@@ -22,6 +22,7 @@
 const { chromium } = require(require('path').resolve(__dirname, '..', 'node_modules', '@playwright', 'test'));
 const fs   = require('fs');
 const path = require('path');
+const { execSync } = require('child_process');   // to ask the database which hive actually exists
 
 const ROOT          = path.resolve(__dirname, '..');
 const BASE          = process.env.AXE_BASE || 'http://127.0.0.1:5599';
@@ -39,15 +40,46 @@ const PAGES = [
   'predictive.html', 'report-sender.html', 'engineering-design.html',
 ];
 
-// localStorage identity so the per-page auth gate passes (keys per inventory.html:578-581).
-const SEED = {
-  wh_last_worker:    'Test User',
-  wh_active_hive_id: '9b4eaeac-0000-4000-8000-000000000001',
-  wh_hive_id:        '9b4eaeac-0000-4000-8000-000000000001',
-  wh_hive_name:      'Test Hive',
-  wh_hive_role:      'supervisor',
-  wh_hive_code:      'TEST01',
-};
+// ★THIS SCANNER WAS READING TWENTY EMPTY PAGES. The identity below was invented - "Test User" in hive
+// 9b4eaeac-0000-4000-8000-000000000001, a UUID that is not in public.hives and has not been for as long
+// as the fixture gate has been reporting it. Every gated page it visits therefore renders its hive-less
+// or empty state, so the accessibility findings are about empty states and the violations of the real,
+// populated pages - the tables, the feeds, the member lists, the charts - were never scanned at all.
+// A stamped id must name a hive that EXISTS, so it is resolved from the database at run time, the same
+// way the lifecycle prover casts its people. If nothing can be resolved the scan STOPS rather than
+// quietly measuring the empty world again.
+function resolveIdentity() {
+  // an ORDINARY supervisor, never a platform admin: an admin sees moderation surfaces an ordinary hive
+  // supervisor never meets, and this scan is meant to grade the pages the platform's own users use
+  const q = "select h.id::text || '|' || h.name || '|' || m.worker_name from hives h "
+          + "join hive_members m on m.hive_id = h.id and m.status = 'active' and m.role = 'supervisor' "
+          + "where not exists (select 1 from marketplace_platform_admins a where a.worker_name = m.worker_name) "
+          + "order by h.name, m.worker_name limit 1";
+  let row = '';
+  try {
+    row = execSync(`docker exec supabase_db_workhive psql -U postgres -d postgres -tA -c "${q}"`,
+                   { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+  } catch (e) {
+    console.error('axe_scan: could not ask the database for a hive to scan as (' + (e.message || e).slice(0, 80) + ').');
+    console.error('          Refusing to scan with an invented identity: every gated page would render its empty state.');
+    process.exit(2);
+  }
+  if (!row) {
+    console.error('axe_scan: no hive with an active supervisor exists, so there is no populated page to scan.');
+    console.error('          Reseed first (seeders/), then re-run. A scan of empty states is not a scan of this platform.');
+    process.exit(2);
+  }
+  const [hiveId, hiveName, worker] = row.split('|');
+  console.log(`  scanning as ${worker}, supervisor of ${hiveName} (${hiveId.slice(0, 8)}…) - a hive that exists`);
+  return {
+    wh_last_worker:    worker,
+    wh_active_hive_id: hiveId,
+    wh_hive_id:        hiveId,
+    wh_hive_name:      hiveName,
+    wh_hive_role:      'supervisor',
+  };
+}
+const SEED = resolveIdentity();
 
 const WCAG_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'];
 

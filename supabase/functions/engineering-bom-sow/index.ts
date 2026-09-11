@@ -4795,7 +4795,18 @@ serveObserved("engineering-bom-sow", async (req) => {
   logRequestStart(req, "engineering-bom-sow");  // I6 observability
 
   try {
-    const body = await req.json();
+    // ★A CALLER'S MISTAKE IS NOT A SERVER ERROR (live-walk wave, 2026-09-06). tools/prove_edge_contract.mjs asked this
+  // function with a broken JSON body and with GET; both reached `await req.json()` and came back 500, so a typo in a
+  // client read as "the platform is broken". These are the same two guards every function that passed already had.
+    if (req.method !== "POST") {
+      return new Response(JSON.stringify({ error: "That action is not allowed here. Reload the page and try again." }),
+        { status: 405, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+    let body;
+    try { body = await req.json(); } catch {
+      return new Response(JSON.stringify({ error: "That request could not be read. Reload the page and try again." }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
 
     // Diagnostic endpoint
     if (body.action === "list_models") {
@@ -4961,7 +4972,7 @@ serveObserved("engineering-bom-sow", async (req) => {
 // Diagnostic: POST { "action": "list_models" } to see available models
 async function listModels(): Promise<string[]> {
   const key = Deno.env.get("GEMINI_API_KEY") || "";
-  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${key}`);
+  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${key}`, { signal: AbortSignal.timeout(30000), });
   const data = await res.json();
   return (data.models || []).map((m: { name: string }) => m.name);
 }

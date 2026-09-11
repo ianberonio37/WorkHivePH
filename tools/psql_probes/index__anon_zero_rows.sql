@@ -1,7 +1,11 @@
 -- anon_zero_rows (index): an anonymous session receives ZERO hive rows. The oracle names index's 13
 -- reads, but this probe proves something strictly STRONGER and self-maintaining: across EVERY
--- hive-scoped table in the schema, anon can read rows from exactly three - and those three are the
--- deliberately public surfaces (marketplace browse and the public feed), named here as an allowlist.
+-- hive-scoped table in the schema, anon can read rows from exactly two - the public feed and the seller
+-- directory - named here as an allowlist. Marketplace BROWSE left this list on 2026-09-07 (EX-HP H2,
+-- 20260907000004): anon lost SELECT on marketplace_listings and reads v_marketplace_listings_public, a
+-- definer view without seller_contact; the view leg below proves that surface still serves a stranger.
+-- The same day this recipe caught the follow-on break: the seller policy's subquery on the revoked table
+-- raised permission denied for anon (allowlist 3 -> 1) until 20260907000005 moved it behind a definer fn.
 -- Anything index reads is hive-scoped and therefore covered by construction, and the assertion keeps
 -- biting as tables are added: a new table that becomes anon-readable fails this probe on its next run,
 -- which enumerating 13 named reads would never have caught.
@@ -9,7 +13,10 @@
 -- is non-empty for postgres, so the anon zero is a refusal and not an empty database.
 -- expect: control_tables_are_populated \| t
 -- expect: unexpected_anon_readable_tables \| 0
--- expect: allowlist_still_public \| 3
+-- expect: allowlist_still_public \| 2
+-- expect: listings_public_view_serves_anon \| t
+-- expect: listings_base_table_closed_to_anon \| t
+-- expect: sellers_public_view_masks_contact_for_anon \| t
 -- expect: hive_scoped_tables_checked \| [1-9][0-9]*
 -- ★TEETH, PROVEN 2026-08-31 AND DELIBERATELY NOT AUTOMATED HERE. Resurrecting the pre-fix world with
 -- `GRANT SELECT (auth_uid) ON community_posts TO anon` inside a transaction drives the leg below from
@@ -21,9 +28,9 @@
 CREATE TEMP TABLE _leak(tbl text, n bigint);
 GRANT INSERT, SELECT ON _leak TO anon;
 
--- the three surfaces the product deliberately shows a logged-out visitor
+-- the two TABLES the product deliberately shows a logged-out visitor (listings moved behind a view, H2)
 CREATE TEMP TABLE _allow(tbl text);
-INSERT INTO _allow VALUES ('marketplace_listings'), ('community_posts'), ('marketplace_sellers');
+INSERT INTO _allow VALUES ('community_posts'), ('marketplace_sellers');
 
 SELECT 'hive_scoped_tables_checked | ' || count(*)
 FROM pg_class cl JOIN pg_namespace ns ON ns.oid=cl.relnamespace
@@ -75,4 +82,13 @@ JOIN pg_attribute a ON a.attrelid = c.oid AND a.attname = 'auth_uid'
                    AND a.attnum > 0 AND NOT a.attisdropped
 WHERE has_column_privilege('anon', c.oid, a.attnum, 'SELECT');
 SELECT 'allowlist_still_public | ' || count(*) FROM _leak WHERE tbl IN (SELECT tbl FROM _allow);
+-- the browse surface a stranger actually reads (H2): the public view serves rows, the base table refuses
+BEGIN;
+SET LOCAL ROLE anon;
+SELECT 'listings_public_view_serves_anon | ' || ((SELECT count(*) FROM public.v_marketplace_listings_public) > 0);
+SELECT 'listings_base_table_closed_to_anon | ' || (NOT has_table_privilege('anon', 'public.marketplace_listings', 'SELECT'));
+-- the seller card / profile a stranger reads (20260907000006): rows served, the contact masked to NULL
+SELECT 'sellers_public_view_masks_contact_for_anon | ' || ((SELECT count(*) FROM public.v_marketplace_sellers_public) > 0
+   AND (SELECT count(messenger_username) + count(certifications) + count(created_at) FROM public.v_marketplace_sellers_public) = 0);
+ROLLBACK;
 DROP TABLE _leak; DROP TABLE _allow;

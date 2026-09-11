@@ -2,7 +2,7 @@
 name: edge-fn-cmms-sync
 type: edge-fn
 source: file:supabase/functions/cmms-sync/index.ts
-source_sha: 6abb16cfb96a3957
+source_sha: d97e6579c892468d
 last_verified: 2026-07-13
 supersedes: null
 ---

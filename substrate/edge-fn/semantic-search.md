@@ -2,7 +2,7 @@
 name: edge-fn-semantic-search
 type: edge-fn
 source: file:supabase/functions/semantic-search/index.ts
-source_sha: 5be571a734394b5c
+source_sha: 0eff3006698e290b
 last_verified: 2026-07-13
 supersedes: null
 ---

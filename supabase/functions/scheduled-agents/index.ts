@@ -37,13 +37,24 @@ function callGroq(prompt: string, systemPrompt: string): Promise<string> {
 // ── Log result to automation_log ──────────────────────────────────────────────
 
 async function logRun(db: SupabaseClient, jobName: string, hiveId: string | null, status: string, detail: string) {
+  // unchecked-write-allow: a telemetry row. Its failure must not change the caller's outcome - refusing real work because a log line did not land would be the worse bug.
   await db.from("automation_log").insert({ job_name: jobName, hive_id: hiveId, status, detail });
 }
 
 // ── Save report to ai_reports ─────────────────────────────────────────────────
 
 async function saveReport(db: SupabaseClient, hiveId: string, reportType: string, reportJson: unknown, summary: string) {
-  await db.from("ai_reports").insert({ hive_id: hiveId, report_type: reportType, report_json: reportJson, summary });
+  /* ★THE REPORT IS THE WHOLE DELIVERABLE OF A SCHEDULED AGENT (2026-09-09, unchecked-writes sweep). This
+     insert is what the run PRODUCES; discarding its error meant a job could complete, log itself as
+     successful in automation_log, and leave nothing for anybody to read - the agent "ran" every night
+     and the reports page stayed empty, with no line anywhere saying why. Throwing lets the caller record
+     the run as failed, which is the truth. */
+  const { error } = await db.from("ai_reports")
+    .insert({ hive_id: hiveId, report_type: reportType, report_json: reportJson, summary });
+  if (error) {
+    console.error(`scheduled-agents: ${reportType} produced a report but could not save it for hive ${hiveId} -`, error.message);
+    throw new Error(`${reportType} report could not be saved: ${error.message}`);
+  }
 }
 
 // ── REPORT: PM Overdue ────────────────────────────────────────────────────────
@@ -170,6 +181,10 @@ async function runFailureDigest(db: SupabaseClient, hiveId: string, voiceContext
 
 // ── REPORT: Shift Handover ────────────────────────────────────────────────────
 
+// The calendar date in Philippine time - every person reading these reports is at UTC+8, so the date
+// has to be theirs. en-CA gives YYYY-MM-DD, which is the shape the rest of this payload uses.
+const phDate = (t: number) => new Date(t).toLocaleDateString("en-CA", { timeZone: "Asia/Manila" });
+
 const HANDOVER_SYSTEM = `You are a shift handover report generator. Summarize the last 8 hours of maintenance activity.
 Respond only in JSON: { "open_jobs": [{"machine","problem","priority":"HIGH|MEDIUM|LOW"}], "completed_jobs": [{"machine","action"}], "critical_alerts": ["alert"], "handover_note": "one paragraph for the next shift" }`;
 
@@ -242,8 +257,12 @@ async function runPredictive(db: SupabaseClient, hiveId: string, voiceContext?: 
       return {
         machine: r.machine,
         mtbf_days,
-        last_failure: new Date(lastT).toISOString().slice(0, 10),
-        predicted_next: new Date(nextT).toISOString().slice(0, 10),
+        // ★A UTC DATE IS YESTERDAY FOR A THIRD OF EVERY MANILA DAY (T109, 2026-09-07). slice(0,10) of an
+        // ISO string is the UTC calendar date, and every reader of this report is at UTC+8 - so between
+        // midnight and 8am local, "predicted_next" named the day before the one it meant. A prediction
+        // that is a day out is worse than no prediction, because someone plans around it.
+        last_failure: phDate(lastT),
+        predicted_next: phDate(nextT),
         risk,
       };
     })
@@ -422,7 +441,19 @@ serveObserved("scheduled-agents", async (req) => {
   try {
     // hive_id is optional — when provided, runs for that hive only (on-demand from Report Sender).
     // When omitted, runs for all hives (cron path — unchanged behaviour).
-    const { report_type, hive_id, voice_context: _vc } = await req.json();
+    // ★A CALLER'S MISTAKE IS NOT A SERVER ERROR (live-walk wave, 2026-09-06). tools/prove_edge_contract.mjs asked this
+  // function with a broken JSON body and with GET; both reached `await req.json()` and came back 500, so a typo in a
+  // client read as "the platform is broken". These are the same two guards every function that passed already had.
+    if (req.method !== "POST") {
+      return new Response(JSON.stringify({ error: "That action is not allowed here. Reload the page and try again." }),
+        { status: 405, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+    let _whBody;
+    try { _whBody = await req.json(); } catch {
+      return new Response(JSON.stringify({ error: "That request could not be read. Reload the page and try again." }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+    const { report_type, hive_id, voice_context: _vc } = _whBody;
     // Arc R (LLM10): cap user voice_context before it is concatenated into the 6 report
     // prompts (the narrative is stored to ai_reports + shown to supervisors). Matches the
     // codebase's 500-char cap (project-orchestrator transcript).
@@ -535,7 +566,12 @@ serveObserved("scheduled-agents", async (req) => {
     const runner = runners[report_type];
     if (!runner) {
       return new Response(
-        JSON.stringify({ error: `Unknown report_type: ${report_type}` }),
+        // W3-FN (2026-09-09): this named the value it rejected but never the six it accepts, so a caller
+        // who guessed wrong learned only that they had guessed wrong. The runners map beside it IS the
+        // vocabulary, and ai-gateway already sets the house precedent one file over: "Unknown agent 'x'.
+        // Available: ...". Derived from Object.keys rather than a hand-written list, so adding a runner
+        // can never leave the sentence describing the old set.
+        JSON.stringify({ error: `Unknown report_type: ${report_type}. Available: ${Object.keys(runners).join(", ")}` }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }

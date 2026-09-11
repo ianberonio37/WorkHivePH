@@ -33,6 +33,41 @@
   if (window._whConnectivityMounted) return;
   window._whConnectivityMounted = true;
 
+  /* W3-SC (2026-09-09): this widget ships on 33 pages and its help sentence is the one that tells a
+     person whether their offline work is SAFE -- the exact sentence the 2026-08-04 marketplace finding
+     showed people act on. It spoke only English. window._t(en, fil) is the platform locale floor
+     utils.js installs; resolved at CALL time inside refresh(), which re-runs on every connectivity
+     change and on wh-locale-change, so switching language re-paints the widget in the new language. */
+  const _tt = (en, fil) =>
+    (typeof window._t === 'function') ? window._t(en, fil) : en;
+
+  /* escHtml in scope, for the SAME reason `_tt` is resolved at call time rather than bound at load:
+     this widget ships on 33 pages and utils.js (which installs both) is loaded at the BOTTOM of most of
+     them. Everything this file interpolates today is a literal - `${_tt('unknown','hindi alam')}` - so
+     nothing here is currently escapable user data. It is declared anyway because validate_xss's
+     `esc_html_available` check is right about the direction of travel: a file that has learned to
+     interpolate into innerHTML will be edited again, on a widget every page carries, and the moment a
+     queue depth or a network name arrives from anywhere but a constant it must go through this. The
+     fallback is the conservative one - if utils.js has not landed, escape here rather than trust.
+     Named `escHtml` rather than the usual one-letter `e` shorthand: this is a module-scope declaration
+     inside the widget's IIFE, not the in-function alias the pages use, and it delegates to
+     `window.escHtml` explicitly - so the name is the accurate one and no recursion is possible. */
+  const escHtml = (v) => (typeof window.escHtml === 'function')
+    ? window.escHtml(v)
+    : String(v == null ? '' : v).replace(/[&<>"']/g, (c) =>
+        ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+  // The popover's fixed labels, repainted at inject and on every language change.
+  function paintStaticLabels() {
+    const set = (id, en, fil) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = _tt(en, fil);
+    };
+    set('wh-conn-title',   'Connectivity',   'Koneksyon');
+    set('wh-conn-l-status', 'Status',        'Katayuan');
+    set('wh-conn-l-queue', 'Pending writes', 'Nakabinbin na i-save');
+  }
+
   // ── Bandwidth class ───────────────────────────────────────────────────────
   // Exposes window.whBandwidthClass()  -> '4g'|'3g'|'2g'|'slow-2g'|'unknown'
   // and        window.whIsSlowLink()    -> boolean (true on 2g/slow-2g/saveData)
@@ -216,7 +251,7 @@
     chip.id = 'wh-conn-chip';
     chip.type = 'button';
     chip.className = 'wh-conn-chip';
-    chip.setAttribute('aria-label', 'Connectivity status');
+    chip.setAttribute('aria-label', _tt('Connectivity status', 'Katayuan ng koneksyon'));
     chip.innerHTML = `
       <span class="wh-conn-dot"></span>
       <span id="wh-conn-label">Online</span>
@@ -227,10 +262,10 @@
     pop.id = 'wh-conn-popover';
     pop.className = 'wh-conn-popover hidden';
     pop.innerHTML = `
-      <h3>Connectivity</h3>
-      <div class="wh-conn-row"><span class="wh-conn-label">Status</span><span id="wh-conn-status" class="wh-conn-value">Online</span></div>
-      <div class="wh-conn-row"><span class="wh-conn-label">Network</span><span id="wh-conn-net" class="wh-conn-value">unknown</span></div>
-      <div class="wh-conn-row"><span class="wh-conn-label">Pending writes</span><span id="wh-conn-queue" class="wh-conn-value">0</span></div>
+      <h3 id="wh-conn-title"></h3>
+      <div class="wh-conn-row"><span class="wh-conn-label" id="wh-conn-l-status"></span><span id="wh-conn-status" class="wh-conn-value">Online</span></div>
+      <div class="wh-conn-row"><span class="wh-conn-label">Network</span><span id="wh-conn-net" class="wh-conn-value">${_tt('unknown', 'hindi alam')}</span></div>
+      <div class="wh-conn-row"><span class="wh-conn-label" id="wh-conn-l-queue"></span><span id="wh-conn-queue" class="wh-conn-value">0</span></div>
       <!-- Filled by refresh(), because the sentence is only TRUE on a page that registers a queue.
            This widget ships on every page and used to promise, everywhere, that "pending writes save
            to this device and drain automatically ... you can keep working offline." Six pages earn
@@ -246,6 +281,7 @@
 
     document.body.appendChild(chip);
     document.body.appendChild(pop);
+    paintStaticLabels();
 
     chip.addEventListener('click', () => {
       pop.classList.toggle('hidden');
@@ -259,6 +295,15 @@
 
     window.addEventListener('online',  refresh);
     window.addEventListener('offline', refresh);
+    /* The popover's own labels are painted ONCE at inject; refresh() only rewrites the VALUES. So a
+       language toggle would leave "Connectivity / Status / Pending writes" stranded in the old
+       language beside freshly-translated values. Repaint the labels too, then refresh the values.
+       Repaint in place rather than re-injecting: a re-inject would re-bind every listener above and
+       lose whether the person had the popover open.
+       On DOCUMENT, not window: the three pages that dispatch it (analytics, hive, index) send a
+       CustomEvent with no bubbles flag, so it never reaches window -- document is the same target
+       onboarding.js and hive.html already listen on. */
+    document.addEventListener('wh-locale-change', () => { paintStaticLabels(); refresh(); });
     try {
       const c = navigator.connection;
       if (c && typeof c.addEventListener === 'function') {
@@ -309,7 +354,28 @@
         depth = d.total || 0;
         // perSurface is keyed by whatever this PAGE registered. Empty means nothing on this screen
         // is queued, whatever offline-queue.js being loaded might suggest.
-        queuesOnThisPage = Object.keys(d.perSurface || {}).length;
+        //
+        // ★A REGISTERED QUEUE IS NOT A WORKING QUEUE, and counting KEYS could not tell them apart
+        // (2026-09-10). whGetQueueDepth already distinguishes them: when a queue cannot be read it
+        // writes `perSurface[name] = -1` rather than a count, which happens whenever indexedDB.open
+        // fails - private browsing, site data blocked, or a quota exceeded on a shared plant tablet.
+        // Counting the KEYS treated that -1 as a present, healthy queue, so the help text below
+        // promised "pending writes save to this device ... you can keep working offline" on a page
+        // whose queue could not accept a single write. That is the SAME false promise this widget was
+        // built to stop on 2026-08-04, arriving through a different door: not "this page never had a
+        // queue", but "this page has one and it is broken". The sentinel was already there and nobody
+        // was reading it. Only a queue that ANSWERED counts, so a page whose storage is refused now
+        // gets the honest sentence - do not submit without a connection - instead of a promise it
+        // cannot keep.
+        //
+        // AND A SINGLE BROKEN QUEUE SILENCES THE PROMISE FOR THE WHOLE PAGE, which is this file's own
+        // rule applied consistently rather than a new one: "a promise of safety is worse than no
+        // promise on a screen that does not keep it". A page with two surfaces where one can queue and
+        // one cannot does not save your work - it saves some of it, and the person has no way to know
+        // which. The honest sentence is the cautious one.
+        const _depths = Object.values(d.perSurface || {});
+        const _broken = _depths.some((n) => !(typeof n === 'number' && n >= 0));
+        queuesOnThisPage = _broken ? 0 : _depths.length;
       }
     } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
 
@@ -319,8 +385,10 @@
     const helpEl = document.getElementById('wh-conn-help');
     if (helpEl) {
       helpEl.textContent = queuesOnThisPage > 0
-        ? 'Pending writes save to this device and drain automatically when the connection returns. You can keep working offline.'
-        : 'This page does not save work offline. Anything you submit without a connection will not be sent, so wait until you are back online.';
+        ? _tt('Pending writes save to this device and drain automatically when the connection returns. You can keep working offline.',
+              'Ang mga nakabinbin na i-save ay nasa device na ito at awtomatikong ipapadala pagbalik ng koneksyon. Puwede kang magpatuloy kahit offline.')
+        : _tt('This page does not save work offline. Anything you submit without a connection will not be sent, so wait until you are back online.',
+              'Hindi nagse-save offline ang page na ito. Ang isusumite mo nang walang koneksyon ay hindi maipapadala, kaya maghintay munang bumalik ang koneksyon.');
     }
 
     const backendOk = online ? await pingBackend() : false;
@@ -330,10 +398,10 @@
     } else if (!backendOk) {
       // Arc S D-004: device online but Supabase unreachable — distinct from offline.
       chip.setAttribute('data-state', 'degraded');
-      dotLbl.textContent = 'Backend down';
+      dotLbl.textContent = _tt('Backend down', 'Down ang backend');
     } else if (isSlowLink()) {
       chip.setAttribute('data-state', 'slow');
-      dotLbl.textContent = 'Slow';
+      dotLbl.textContent = _tt('Slow', 'Mabagal');
     } else {
       chip.setAttribute('data-state', 'online');
       dotLbl.textContent = 'Online';
@@ -347,9 +415,11 @@
     }
 
     if (statusEl) statusEl.textContent = !online ? 'Offline'
-      : !backendOk ? 'Online, but backend unavailable'
-      : isSlowLink() ? 'Online (slow link)' : 'Online';
-    if (netEl)    netEl.textContent    = net === 'unknown' ? 'unknown (browser does not report)' : net.toUpperCase();
+      : !backendOk ? _tt('Online, but backend unavailable', 'Online, pero hindi maabot ang backend')
+      : isSlowLink() ? _tt('Online (slow link)', 'Online (mabagal ang koneksyon)') : 'Online';
+    if (netEl)    netEl.textContent    = net === 'unknown'
+      ? _tt('unknown (browser does not report)', 'hindi alam (hindi nagsasabi ang browser)')
+      : net.toUpperCase();
     if (qEl)      qEl.textContent      = String(depth);
   }
 

@@ -1,6 +1,6 @@
 {
   "_doc": "Layer A adoption baseline. Floors are FORWARD-ONLY from any writer (Layer F law).",
-  "generated": "2026-09-04T05:48:06.545187+00:00",
+  "generated": "2026-09-11T06:03:12.635632+00:00",
   "functions": 62,
   "rows": [
     {
@@ -83,7 +83,7 @@
       "id": "A2",
       "class": "AC Core",
       "name": "envelope.ts",
-      "satisfies": "canonical success/error JSON envelope",
+      "satisfies": "the standard reply shape: a success body or an error body",
       "mode": "measured",
       "need_rule": "family",
       "adopters_n": 59,

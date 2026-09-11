@@ -1,7 +1,7 @@
 {
   "_doc": "Layer D adoption baseline. Floors are FORWARD-ONLY from any writer (Layer F law).",
-  "generated": "2026-09-04T05:48:12.268954+00:00",
-  "surfaces": 186,
+  "generated": "2026-09-11T06:03:12.884190+00:00",
+  "surfaces": 244,
   "rows": [
     {
       "id": "D1",
@@ -9,8 +9,8 @@
       "name": "RLS enabled on tenant tables",
       "satisfies": "tenant isolation floor",
       "mode": "measured",
-      "adopters_n": 111,
-      "need_n": 111,
+      "adopters_n": 112,
+      "need_n": 112,
       "pct": 100,
       "adopters": [
         "agent_episodic_memory",
@@ -55,6 +55,7 @@
         "consulting_engagements",
         "conversation_analytics",
         "credit_reservations",
+        "data_deletion_requests",
         "dialog_state",
         "drone_inspections",
         "embedding_outbox",
@@ -133,8 +134,8 @@
       "name": "hive-membership scoping policy",
       "satisfies": "multitenant isolation",
       "mode": "measured",
-      "adopters_n": 105,
-      "need_n": 107,
+      "adopters_n": 106,
+      "need_n": 108,
       "pct": 98,
       "adopters": [
         "agent_episodic_memory",
@@ -177,6 +178,7 @@
         "companion_handoff",
         "consulting_engagements",
         "credit_reservations",
+        "data_deletion_requests",
         "dialog_state",
         "drone_inspections",
         "embedding_outbox",
@@ -254,8 +256,8 @@
       "name": "auth_uid ownership policy",
       "satisfies": "write attribution",
       "mode": "measured",
-      "adopters_n": 31,
-      "need_n": 33,
+      "adopters_n": 32,
+      "need_n": 34,
       "pct": 94,
       "adopters": [
         "agent_memory",
@@ -267,6 +269,7 @@
         "client_errors",
         "community_posts",
         "community_replies",
+        "data_deletion_requests",
         "engineering_calcs",
         "hive_members",
         "inventory_items",
@@ -302,8 +305,8 @@
       "satisfies": "no owner-rights RLS bypass",
       "mode": "measured",
       "adopters_n": 59,
-      "need_n": 64,
-      "pct": 92,
+      "need_n": 66,
+      "pct": 89,
       "adopters": [
         "v_achievement_xp_log",
         "v_active_anomaly_alerts",
@@ -367,6 +370,8 @@
       ],
       "gap": [
         "v_cron_health",
+        "v_marketplace_listings_public",
+        "v_marketplace_sellers_public",
         "v_service_job_tracking",
         "v_service_open_broadcasts",
         "v_service_provider_leaderboard",
@@ -400,9 +405,9 @@
     }
   ],
   "floors": {
-    "D1": 111,
-    "D2": 105,
-    "D3": 31,
+    "D1": 112,
+    "D2": 106,
+    "D3": 32,
     "D4": 59
   }
 }

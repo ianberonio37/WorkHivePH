@@ -32,6 +32,13 @@ export interface RequestContext {
   model_chain: string[];          // appended to as ai-chain.ts fires
   origin?:     string;
   cors:        Record<string, string>;  // dynamic per-request CORS (doctrine: never static origin)
+  // ★THE LATENCY WAS ALWAYS MEASURED AND NEVER KEPT (2026-09-06). baseEnvelope() has computed latency_ms for
+  // every response since this file was written, and returned it to the caller - but nothing persisted it, so
+  // wh_traces.latency_ms was null on all 88 rows and the SLO board's "Latency p95 / p50" panel could never have
+  // data. The only writer was error-tracker.ts, which fires on failures and hard-codes `latency_ms: null`. An
+  // SLO dashboard missing the FIRST golden signal is an observability claim with no producer. Pass a db here and
+  // ok()/fail() record the trace they already measured.
+  db?:         { from: (t: string) => { insert: (row: unknown) => PromiseLike<unknown> } };
 }
 
 export interface Envelope<T = unknown> {
@@ -55,7 +62,7 @@ export function newTraceId(): string {
 /** Extract or mint a trace-id from request headers (frontend should pass `x-wh-trace`). */
 export function beginRequest(
   req: Request,
-  opts: { route: string; hive_id?: string; user_id?: string },
+  opts: { route: string; hive_id?: string; user_id?: string; db?: RequestContext["db"] },
 ): RequestContext {
   const inbound = req.headers.get("x-wh-trace") || "";
   const traceId = /^[a-f0-9]{8,32}$/.test(inbound) ? inbound : newTraceId();
@@ -68,7 +75,27 @@ export function beginRequest(
     model_chain: [],
     origin:      req.headers.get("origin") || undefined,
     cors:        getCorsHeaders(req),
+    db:          opts.db,
   };
+}
+
+/** Persist the trace this response already measured. Fire-and-forget and fail-quiet: observability must never
+ *  change what the caller receives. `.then(noop, noop)` is required - a bare Supabase builder is a thenable that
+ *  never sends until something subscribes to it. */
+function recordTrace(ctx: RequestContext, status: number, errorCode?: string): void {
+  if (!ctx.db) return;
+  try {
+    ctx.db.from("wh_traces").insert({          // canonical-allow: wh_traces is the observability spine table
+      trace_id:    ctx.trace_id,
+      route:       ctx.route,
+      hive_id:     ctx.hive_id,
+      user_id:     ctx.user_id,
+      status,
+      error_code:  errorCode ?? null,
+      latency_ms:  Math.round(performance.now() - ctx.started_at),
+      model_chain: ctx.model_chain,
+    }).then(() => {}, () => {});
+  } catch (_) { /* empty-catch-allow: a trace must never break a response */ void 0; }
 }
 
 /** Record that a model in the chain was tried (success or fallback). */
@@ -90,6 +117,7 @@ function baseEnvelope(ctx: RequestContext): Omit<Envelope, "ok"> {
 /** Successful response — `data` is whatever the caller produced. */
 export function ok<T>(ctx: RequestContext, data: T, extraHeaders?: Record<string, string>): Response {
   const body: Envelope<T> = { ok: true, data, ...baseEnvelope(ctx) };
+  recordTrace(ctx, 200);
   return new Response(JSON.stringify(body), {
     status:  200,
     headers: {
@@ -114,6 +142,7 @@ export function fail(
     error: { code, message, detail: opts.detail },
     ...baseEnvelope(ctx),
   };
+  recordTrace(ctx, status, code);
   return new Response(JSON.stringify(body), {
     status,
     headers: {

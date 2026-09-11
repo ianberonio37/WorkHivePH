@@ -1,3 +1,7 @@
+# ★INERT IN PRODUCTION (2026-09-06): workhiveph.com is served by VERCEL, not Netlify. The
+# /_fixtures/* force-404 below has never applied - /_fixtures/engineering-design-test.html
+# answered 200 on the live origin. The intent now lives in .vercelignore, which keeps those
+# files out of the deployment entirely.
 [build]
   publish = "."
 

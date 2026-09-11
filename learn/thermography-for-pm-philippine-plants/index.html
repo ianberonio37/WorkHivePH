@@ -91,31 +91,43 @@
     };
   </script>
   <style>
+    /* wh-learn-contrast-remap: the learn pages load Tailwind from the CDN, so they miss the contrast
+       remap wh-tw.css applies app-wide. 12px byline text at /45 measured 4.27:1 against the
+       4.5:1 it owes. body-scoped (0,1,1) so it wins over the CDN utility whatever the order. */
+    body .text-white\/45 { color: rgb(255 255 255 / 0.8); }
+    body .text-white\/50 { color: rgb(255 255 255 / 0.8); }
+    body .text-white\/55 { color: rgb(255 255 255 / 0.8); }
+    body .text-white\/60 { color: rgb(255 255 255 / 0.8); }
+    body .text-white\/65 { color: rgb(255 255 255 / 0.85); }
+    body .text-white\/70 { color: rgb(255 255 255 / 0.85); }
+    body .text-white\/75 { color: rgb(255 255 255 / 0.85); }
+    html, body, a, button { touch-action: manipulation; }   /* T3: no 300 ms tap delay, no double-tap zoom (the rubric reads html/body) */
     body { font-family: 'Poppins', sans-serif; }
     .hex-pattern { background-image: radial-gradient(circle, rgba(247,162,27,0.04) 1px, transparent 1px); background-size: 28px 28px; }
     .audience-block { background: linear-gradient(135deg, rgba(41,182,217,0.10), rgba(41,182,217,0.04)); border: 1px solid rgba(41,182,217,0.22); border-radius: 14px; padding: 18px 22px; margin: 1.75rem 0; }
     .audience-label { font-size: 11px; font-weight: 700; color: #5FCCE8; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
-    .audience-block ul { margin: 0; padding-left: 1.2rem; color: rgba(244,246,250,0.78); font-size: 0.92rem; line-height: 1.7; }
+    .audience-block ul { margin: 0; padding-left: 1.2rem; color: rgba(244,246,250,0.85); font-size: 0.92rem; line-height: 1.7; }
     .answer-first { background: rgba(247,162,27,0.06); border-left: 3px solid #F7A21B; padding: 18px 22px; border-radius: 0 12px 12px 0; margin: 1.5rem 0; color: rgba(244,246,250,0.85); font-size: 1.02rem; line-height: 1.65; }
     .toc { background: rgba(31,46,69,0.6); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; padding: 18px 22px; margin: 2rem 0; }
-    .toc h2 { margin: 0 0 8px; font-size: 13px; color: rgba(244,246,250,0.6); font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; }
-    .toc ol { margin: 0; padding-left: 1.2rem; color: rgba(244,246,250,0.75); font-size: 0.92rem; line-height: 1.85; }
-    .toc a { color: rgba(244,246,250,0.75); }
+    .toc h2 { margin: 0 0 8px; font-size: 13px; color: rgba(244,246,250,0.8); font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; }
+    .toc ol { margin: 0; padding-left: 1.2rem; color: rgba(244,246,250,0.85); font-size: 0.92rem; line-height: 1.85; }
+    .toc a { color: rgba(244,246,250,0.85); }
     .toc a:hover { color: #FDB94A; }
     .prose-wh h2 { font-size: 1.55rem; font-weight: 800; color: #F4F6FA; margin: 2.25rem 0 0.85rem; letter-spacing: -0.01em; }
-    .prose-wh p { font-size: 1.005rem; color: rgba(244,246,250,0.78); line-height: 1.75; margin: 0.85rem 0; }
+    .prose-wh p { overflow-wrap: anywhere; word-break: break-word; font-size: 1.005rem; color: rgba(244,246,250,0.85); line-height: 1.75; margin: 0.85rem 0; }
     .prose-wh strong { color: #F4F6FA; }
     .prose-wh a { color: #5FCCE8; text-decoration: underline; text-underline-offset: 3px; }
-    .prose-wh ol, .prose-wh ul { color: rgba(244,246,250,0.78); padding-left: 1.4rem; margin: 0.85rem 0; line-height: 1.75; }
+    .prose-wh ol, .prose-wh ul { color: rgba(244,246,250,0.85); padding-left: 1.4rem; margin: 0.85rem 0; line-height: 1.75; }
     .tool-cta { background: linear-gradient(135deg, rgba(247,162,27,0.14), rgba(247,162,27,0.04)); border: 1px solid rgba(247,162,27,0.32); border-radius: 14px; padding: 22px 26px; margin: 2.25rem 0; }
     .tool-cta a { display: inline-block; margin-top: 10px; background: linear-gradient(135deg, #F7A21B, #FDB94A); color: #162032; font-weight: 700; padding: 10px 22px; border-radius: 10px; text-decoration: none; transition: transform 0.15s; }
     .tool-cta a:hover { transform: translateY(-1px); }
     .faq-item { background: rgba(31,46,69,0.6); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 16px 20px; margin: 0.7rem 0; }
     .faq-item summary { cursor: pointer; font-weight: 600; color: #F4F6FA; font-size: 1rem; }
     .faq-item[open] summary { color: #FDB94A; }
-    .faq-item .faq-answer { margin-top: 12px; color: rgba(244,246,250,0.78); font-size: 0.97rem; line-height: 1.7; }
+    .faq-item .faq-answer { margin-top: 12px; color: rgba(244,246,250,0.85); font-size: 0.97rem; line-height: 1.7; }
     .sources-list { list-style: none; padding: 0; }
-    .sources-list li { padding: 8px 0; border-bottom: 1px dashed rgba(255,255,255,0.07); color: rgba(244,246,250,0.65); font-size: 0.9rem; }
+    .sources-list li { overflow-wrap: anywhere; word-break: break-word; padding: 8px 0; border-bottom: 1px dashed rgba(255,255,255,0.07); color: rgba(244,246,250,0.85); font-size: 0.9rem; }
+      /* Z2/R2 (critic re-sweep 2026-09-07): a long unbroken token (a citation URL) widened a paragraph to 463px at 390 and the page scrolled sideways; long words now wrap */
   </style>
 <!-- WorkHive GA4 -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-ENMGLTFR2J"></script>
@@ -127,6 +139,9 @@
   </script>
   <script src="/wh-ga4.js" defer></script>
   <!-- /WorkHive GA4 -->
+<link rel="stylesheet" href="/learn-print.css" media="print" />
+<style data-wh-chrome-i18n>nav a,header a,footer a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;min-width:44px;}nav a{padding:0 .25rem;}.breadcrumb a,.toc a{display:inline-flex;align-items:center;min-height:44px;}.breadcrumb a{min-width:44px;justify-content:center;}a.text-sm[href$='/learn/'],a.text-sm[href$='/learn/index.html']{display:inline-flex;align-items:center;min-height:44px;}.wh-tap{display:inline-flex;align-items:center;min-height:44px;}td a,th a{display:inline-flex;align-items:center;min-height:44px;}</style>
+<script src="/wh-i18n-lite.js" data-wh-chrome-i18n></script>
 </head>
 <body class="bg-navy-wh text-white antialiased">
 
@@ -137,9 +152,9 @@
       <span class="text-white">WorkHive</span>
     </a>
     <div class="flex items-center gap-5 text-xs sm:text-sm">
-      <a href="/learn/" class="text-white/55 hover:text-white transition-colors">Learn</a>
-      <a href="/" class="text-white/55 hover:text-white transition-colors">Home</a>
-      <a href="/?signin=1" class="nav-link" style="font-size:0.75rem;">Sign In</a>
+      <a href="/learn/" class="text-white/55 hover:text-white transition-colors" data-i="learn">Learn</a>
+      <a href="/" class="text-white/55 hover:text-white transition-colors" data-i="home">Home</a>
+      <a href="/?signin=1" class="nav-link" style="font-size:0.75rem;" data-i="signin">Sign In</a>
       <a href="/?signup=1" class="bg-orange-wh text-navy-wh px-4 py-1.5 rounded-lg font-semibold text-xs hover:bg-orange-light transition-colors">Join</a>
     </div>
   </div>
@@ -177,12 +192,12 @@
     <div class="toc">
       <h4 aria-level="2">What's in this guide</h4>
       <ol>
-        <li><a href="#introduction-to-thermography">Introduction to Thermography</a></li>
-        <li><a href="#handheld-ir-camera-selection">Handheld IR Camera Selection</a></li>
-        <li><a href="#critical-scan-targets">Critical Scan Targets</a></li>
-        <li><a href="#reading-thresholds-and-interpretation">Reading Thresholds and Interpretation</a></li>
-        <li><a href="#integration-into-pm-scheduler">Integration into PM Scheduler</a></li>
-        <li><a href="#best-practices-and-safety-precautions">Best Practices and Safety Precautions</a></li>
+        <li><a href="#introduction-to-thermography" class="wh-tap">Introduction to Thermography</a></li>
+        <li><a href="#handheld-ir-camera-selection" class="wh-tap">Handheld IR Camera Selection</a></li>
+        <li><a href="#critical-scan-targets" class="wh-tap">Critical Scan Targets</a></li>
+        <li><a href="#reading-thresholds-and-interpretation" class="wh-tap">Reading Thresholds and Interpretation</a></li>
+        <li><a href="#integration-into-pm-scheduler" class="wh-tap">Integration into PM Scheduler</a></li>
+        <li><a href="#best-practices-and-safety-precautions" class="wh-tap">Best Practices and Safety Precautions</a></li>
       </ol>
     </div>
 
@@ -256,9 +271,9 @@
 
 <footer class="py-10 border-t border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
   <div class="max-w-5xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">
-    <p>Practical writing for the Philippine plant floor. Email <a href="mailto:admin@workhiveph.com" style="color:#5FCCE8;">admin@workhiveph.com</a> with corrections or contributions.</p>
+    <p>Practical writing for the Philippine plant floor. Email <a href="mailto:admin@workhiveph.com" style="color:#5FCCE8;">admin@workhiveph.com</a> with corrections or contributions. · <span data-wh-freshness>Last updated <time datetime="2026-08-25">25 Aug 2026</time></span></p>
     <div class="flex gap-5">
-      <a href="/" class="hover:text-white/65 transition-colors">Home</a>
+      <a href="/" class="hover:text-white/65 transition-colors" data-i="home">Home</a>
       <a href="/learn/" class="hover:text-white/65 transition-colors">All guides</a>
       <a href="/about/" class="hover:text-white/65 transition-colors">About</a>
     </div>
@@ -267,5 +282,6 @@
 
 
 <script defer src="../../wh-feedback-fab.js"></script>
+<script data-wh-chrome-i18n>if (typeof whI18nApply === "function" && window.WH_LANG === "fil") whI18nApply(window.WH_FIL_PUBLIC || {});</script>
 </body>
 </html>

@@ -2,7 +2,7 @@
 name: edge-fn-voice-model-call
 type: edge-fn
 source: file:supabase/functions/voice-model-call/index.ts
-source_sha: 89b409d9293956eb
+source_sha: 3adef4545112f0f1
 last_verified: 2026-07-13
 supersedes: null
 ---

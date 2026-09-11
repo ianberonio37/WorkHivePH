@@ -28,7 +28,10 @@ I2: the card grid holds its box while it fills
 [Energy
 6 min read · 20 Aug 2026
 Philippine plants now pay the highest power rates in Southeast Asia
-The DOE put the Philippines above Singapore in June. Where that cost actually leaks on a plant floor, and what a maintenance team can do about it without a budget.](https://workhiveph.com/learn/philippine-plants-now-pay-the-highest-power-rates/)
+ 21 words at grade 8.3, the library index's only sentence over the B3 bar (<=20 words, grade <=8).
+ Card blurbs are microcopy this page owns - the sentence appears in no article and in no meta
+ description, so this is a single-path fix, not an editorial change to anyone's prose. 
+The DOE put the Philippines above Singapore in June. Where that cost leaks on a plant floor, and what a maintenance team can fix without a budget.](https://workhiveph.com/learn/philippine-plants-now-pay-the-highest-power-rates/)
 [Reliability
 8 min read · 5 Aug 2026
 How to reduce unplanned equipment downtime
@@ -246,4 +249,4 @@ No guides match that search. Try a different word, or tap **All**.
 
 Show more guides
 
-<!-- md-twin source-sha: f3749118542ca301 -->
+<!-- md-twin source-sha: 17fffbe0ea56556a -->

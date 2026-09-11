@@ -90,12 +90,26 @@ async function readLowStockTile(page) {
 // min_qty is a PLAIN CONFIG column the ledger trigger never touches, so raising it to
 // qty_on_hand-1 leaves the part not-low now (qty > min) and exactly one real deduct from
 // qty == min_qty -> is_low_stock. Threshold staged where it survives the write path.
-const row = psql(`SELECT id, qty_on_hand, min_qty FROM inventory_items
-  WHERE hive_id='${HIVE.id}' AND status='approved' AND qty_on_hand >= 2
-  ORDER BY qty_on_hand DESC LIMIT 1`);
-if (!row) { console.log('ABORT: no stageable part (approved, qty >= 2) in the fixture hive.'); process.exit(2); }
-const [PART_ID, ORIG_QTY, ORIG_MIN] = row.split('|');
-const STAGE_MIN = Number(ORIG_QTY) - 1;   // qty > min now (not low); one deduct -> qty == min -> low
+// ★PICK A PART WHOSE qty_on_hand AGREES WITH ITS LEDGER HEAD (2026-09-05). This SELECT used to take
+// the highest-qty approved part — and in the fixture hive that was the ONE drifted row
+// (inv-b04d3b9f44bd: qty_on_hand 204, ledger head 205, the drift the 2026-09-01 note predicted).
+// The deduct's triggers recompute qty from the ledger head, not from qty_on_hand, so staging
+// min = 204 - 1 = 203 and deducting 1 landed qty at 205 - 1 = 204 > 203: the part never went low,
+// the tile honestly stayed 3, and this gate red-flagged a product that propagates fine (verified
+// independently in Lucena AND Baguio: psql-staged low -> tile pre+1). Two failure shapes came
+// out of one drifted row ('deducted but 3->3', and once 'no tx row' when the run raced). Stage
+// from the LEDGER HEAD and refuse drifted parts; the drift itself belongs to
+// inventory-ledger-reconciled, not to this oracle.
+const row = psql(`SELECT i.id, i.qty_on_hand, i.min_qty, COALESCE(h.qty_after, i.qty_on_hand) AS head
+  FROM inventory_items i
+  LEFT JOIN LATERAL (SELECT qty_after FROM inventory_transactions t WHERE t.item_id = i.id
+                     ORDER BY created_at DESC, id DESC LIMIT 1) h ON true
+  WHERE i.hive_id='${HIVE.id}' AND i.status='approved' AND i.qty_on_hand >= 2
+    AND i.qty_on_hand = COALESCE(h.qty_after, i.qty_on_hand)
+  ORDER BY i.qty_on_hand DESC LIMIT 1`);
+if (!row) { console.log('ABORT: no stageable part (approved, qty >= 2, qty_on_hand == ledger head) in the fixture hive - run inventory-ledger-reconciled.'); process.exit(2); }
+const [PART_ID, ORIG_QTY, ORIG_MIN, LEDGER_HEAD] = row.split('|');
+const STAGE_MIN = Number(LEDGER_HEAD) - 1;   // head > min now (not low); one deduct -> head-1 == min -> low
 psql(`UPDATE inventory_items SET min_qty = ${STAGE_MIN} WHERE id='${PART_ID}'`);
 console.log(`staged: part ${PART_ID} qty ${ORIG_QTY}, min ${ORIG_MIN} -> ${STAGE_MIN} (one deduct crosses qty<=min)`);
 

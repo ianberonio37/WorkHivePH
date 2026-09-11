@@ -2,13 +2,13 @@
 name: ops-cron-realtime
 type: ops
 source: db:cron.job+pg_publication_tables
-source_sha: 59c249983ff818f8
+source_sha: a7f37d36f370befb
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## ops · cron jobs + realtime publication
 
-**pg_cron jobs (26)** — a failing cron is SILENT; audit `cron.job_run_details` for failures:
+**pg_cron jobs (27)** — a failing cron is SILENT; audit `cron.job_run_details` for failures:
 - `achievement-xp-log-purge` @ `0 3 * * 0` → DELETE FROM achievement_xp_log WHERE earned_at < now() - interval '90 days'
 - `agent-memory-retention` @ `15 4 * * *` →        DELETE FROM public.agent_memory        WHERE kind = 'turn'          AND c
 - `ai-eval-daily` @ `30 3 * * *` →        SELECT net.http_post(         url     := current_setting('app.supabase_fu
@@ -35,6 +35,7 @@ supersedes: null
 - `service-completion-sweep-hourly` @ `7 * * * *` → SELECT public.sweep_service_completions();
 - `service-outbox-drain-1min` @ `* * * * *` → SELECT public.drain_service_outbox(20);
 - `service-outbox-reconcile-1min` @ `* * * * *` → SELECT public.reconcile_service_outbox();
+- `voice-journal-retention` @ `45 4 * * *` →        DELETE FROM public.voice_journal_entries        WHERE created_at < now() 
 
 **Realtime publication `supabase_realtime` (36 tables)** — a table NOT here has DEAD postgres_changes subscriptions (no error, just no events):
 `amc_briefings`, `anomaly_signals`, `asset_edges`, `asset_nodes`, `asset_risk_scores`, `automation_log`, `community_posts`, `community_reactions`, `community_replies`, `drone_inspections`, `hive_adoption_score`, `hive_audit_log`, `hive_readiness`, `inventory_items`, `knowledge_graph_facts`, `logbook`, `marketplace_listings`, `parts_staged_reservations`, `parts_staging_recommendations`, `platform_feedback`, `pm_completions`, `project_change_orders`, `project_items`, `project_progress_logs`, `project_roles`, `projects`, `rcm_fmea_modes`, `rcm_strategies`, `schedule_items`, `sensor_readings`, `service_job_events`, `service_offers`, `service_requests`, `shift_plans`, `weibull_fits`, `worker_achievements`

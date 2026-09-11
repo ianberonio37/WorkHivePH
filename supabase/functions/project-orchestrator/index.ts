@@ -326,12 +326,12 @@ serveObserved("project-orchestrator", async (req: Request) => {
   }
   logRequestStart(req, "project-orchestrator");  // I6 observability (structured request_start line)
   if (req.method !== 'POST') {
-    return errJson('Method not allowed', 405, req);
+    return errJson('That action is not allowed here. Reload the page and try again.', 405, req);
   }
 
   let body: { phase?: string; project_id?: string; hive_id?: string; transcript?: string; persona?: unknown };
   try { body = await req.json(); }
-  catch { return errJson('Invalid JSON body', 400, req); }
+  catch { return errJson('That request could not be read. Reload the page and try again.', 400, req); }
 
   const phase = (body.phase || '').toLowerCase().trim();
   if (!phase) return errJson('phase is required', 400, req);
@@ -389,6 +389,7 @@ serveObserved("project-orchestrator", async (req: Request) => {
     }
     return errJson(`Unknown phase '${phase}'. Available: narrative, intent, lessons_draft`, 400, req);
   } catch (e) {
-    return errJson(`Backend error: ${(e as Error).message}`, 500, req);
+    console.error("project-orchestrator:", (e as Error).message);   // the exception is the operator's (2026-09-06)
+    return errJson("Something went wrong on our side. Try again in a moment.", 500, req);
   }
 });

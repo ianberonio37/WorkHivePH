@@ -14,7 +14,15 @@ const REST = /\/rest\/v1\/(?!rpc\/)/;
 // and turns this diagnostic into a silent no-op (the test-hive-fixtures class; converted 2026-08-23).
 import { signIn, assertSignedIn } from './live_page_journeys.mjs';
 const browser = await chromium.launch();
-const context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+// The two context.route(REST, ...) inductions below are invisible to a controlling service worker,
+// and nav-hub.js registers one with scope '/' plus clients.claim(). This file exists to settle
+// whether a failing probe saw what it claims — so it must reproduce the walker's conditions exactly,
+// and the walker now blocks the worker for the same reason. Measured on marketplace.html:
+// page.on('request') 62 supabase reads, page.route 0.
+const context = await browser.newContext({
+  viewport: { width: 1280, height: 900 },
+  serviceWorkers: 'block',
+});
 await assertSignedIn(signIn(context, 'supervisor'));
 
 // 1. degraded on marketplace.html — the banner is included, so WHY was it not seen?

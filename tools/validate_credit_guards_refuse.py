@@ -69,7 +69,30 @@ begin
 
   -- ============ 1 | a listing cannot outrun its reservation ==========================================
   -- The seller holds NOTHING, so the very first publish must be refused.
+  --
+  -- ★AND THE PROBE MUST MAKE THAT TRUE, NOT HOPE FOR IT (2026-09-10). The line above was a comment, not
+  -- a step: the seller was chosen for having no SOLD listing and never checked for a BALANCE, so once the
+  -- corpus grew one with PHP500 sitting there the "very first publish" was correctly ALLOWED and the gate
+  -- reported the platform as failing to enforce its own guard. Both assertions fell out of that single
+  -- wrong premise - ASSERT1 published (holding 200), and ASSERT2's delist then RELEASED that 200 on top of
+  -- its own, which is the mysterious "500 -> publish -> delist -> 700". One cause, two red lines, and the
+  -- product was right the whole way through.
+  --
+  -- Everything here runs inside a transaction that is rolled back, so zeroing the balance costs nothing
+  -- and buys a precondition that holds whatever the fixtures do next. `adjustment` is the ledger's own
+  -- word for a correction (see its entry_type CHECK); the write is bracketed by the same system-write
+  -- flag every other seeded write in this file uses.
+  perform set_config('workhive.service_system_write','on',true);
+  insert into public.service_credit_ledger (account_type, account_id, entry_type, amount, ref_kind, note)
+  select 'consumer', v_a, 'adjustment', -b.total, 'probe', 'GUARDPROBE zero the seller before assert 1'
+    from public.seller_credit_balance(v_seller) b where b.total <> 0;
+  perform set_config('workhive.service_system_write','off',true);
+
   select available into v_bal0 from public.seller_credit_balance(v_seller);
+  if coalesce(v_bal0,0) >= v_need then
+    raise notice 'SKIP assert 1: could not bring the seller below the % needed (still %) - the '
+                 'precondition is unmet, so a PUBLISHED result here would say nothing', v_need, v_bal0;
+  end if;
   insert into public.marketplace_listings (hive_id, seller_name, title, price, status, category, section)
   values (v_hive, v_seller, 'GUARDPROBE over', v_price, 'draft', 'tools', v_sec) returning id into v_listing;
   begin

@@ -5,30 +5,32 @@
 Source: https://workhiveph.com/tools/cable-tray-sizing-calculator/
 
 Cable Tray Sizing Calculator
+Static · formula-only · worked example computed when this page was built · no live data G1+E3 
 **The Cable Tray Sizing Calculator picks the tray width that keeps cable fill within the NEC/NEMA limit for a bundle of cables. Example: for a ladder tray carrying ten 25 mm and twenty 15 mm cables over a 3 m span, Selected tray width = 300 mm, Actual fill = 28.14 %, Load class = 8A (per NEMA VE 1-2017 | PEC 2017).**
 How it works
-Computed per NEMA VE 1-2017 | PEC 2017.
+Computed from your inputs per NEMA VE 1-2017 | PEC 2017.
+I2: reserved block 
 Worked example (Electrical & Power)
 Inputs: a ladder tray carrying ten 25 mm and twenty 15 mm cables over a 3 m span.
 ResultValue
 Selected tray width300 mm
 Actual fill28.14 %
 Load class8A
-Computed live by WorkHive's calculation engine; standard: NEMA VE 1-2017 | PEC 2017.
+Computed by WorkHive's calculation engine when this page was built; standard: NEMA VE 1-2017 | PEC 2017.
 How to use this calculator
-Enter the figures for the duty you are sizing: the worked example below uses a ladder tray carrying ten 25 mm and twenty 15 mm cables over a 3 m span.
-The calculator returns Selected tray width, Actual fill, Load class, computed per NEMA VE 1-2017 | PEC 2017.
-Check the worked example to confirm the method matches how you would do it by hand, then run your own numbers in the interactive tool.
+Read the worked example. It uses a ladder tray carrying ten 25 mm and twenty 15 mm cables over a 3 m span and shows every number in the method.
+Follow the formula with your own figures: it returns Selected tray width, Actual fill, Load class, computed per NEMA VE 1-2017 | PEC 2017.
+To compute interactively, open the Cable Tray Sizing Calculator inside WorkHive's free Engineering Design suite (link below). It runs the same method with your inputs.
 FAQ
 What is a cable tray sizing calculator fill?The Cable Tray Sizing Calculator is a free online tool that computes picks the tray width that keeps cable fill within the NEC/NEMA limit for a bundle of cables. It shows the formula and a fully worked example so you can check the method, not just the number.
-How is it calculated?The result is computed following NEMA VE 1-2017 | PEC 2017. The worked example on this page shows a real computation with real numbers.
-Is the calculator free?Yes. WorkHive's engineering calculators are free: the worked example on this page shows the full calculation with real numbers, and the interactive calculator runs in WorkHive's free Engineering Design suite. A free account takes about 30 seconds. WorkHive is a free, offline-first maintenance platform built for Philippine industrial plants.
+How is it calculated?The result is computed from your inputs following NEMA VE 1-2017 | PEC 2017. The worked example on this page shows a real computation with real numbers.
+Is the calculator free?Yes. WorkHive is free: this worked example is open to everyone, and the interactive calculator runs inside the free Engineering Design suite after a free sign-up (your work is saved to your account). WorkHive is a free, offline-first maintenance platform built for Philippine industrial plants.
 Run it on your own numbers
-[Open the interactive Cable Tray Sizing Calculator in WorkHive (free sign-in)](https://workhiveph.com/engineering-design.html): free with a WorkHive account. Sign-up takes about 30 seconds.
+[Open the interactive Cable Tray Sizing Calculator in WorkHive](https://workhiveph.com/engineering-design.html?calc=cable-tray-sizing). Free, and a free sign-up saves your calculations, BOMs and scope-of-works to your account.
 Related calculators
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
 [Wire Sizing Calculator](https://workhiveph.com/tools/wire-sizing-calculator/)
 [Transformer Sizing Calculator](https://workhiveph.com/tools/transformer-sizing-calculator/)
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/)
 
-<!-- md-twin source-sha: 52b6c1c07a20e366 -->
+<!-- md-twin source-sha: dce5df45f20286ac -->

@@ -378,6 +378,7 @@ serveObserved("failure-signature-scan", async (req) => {
   }
 
   // Log to automation_log
+  // unchecked-write-allow: a telemetry row. Its failure must not change the caller's outcome - refusing real work because a log line did not land would be the worse bug.
   await db.from("automation_log").insert({
     job_name: "failure-signature-scan",
     hive_id:  body.hive_id || null,

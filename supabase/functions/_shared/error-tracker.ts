@@ -66,6 +66,7 @@ async function reportToGlitchtip(
     const t = setTimeout(() => ctrl.abort(), 2000);
     await fetch(url, {
       method: "POST",
+      signal: AbortSignal.timeout(5000),
       headers: {
         "Content-Type": "application/json",
         "X-Sentry-Auth": `Sentry sentry_version=7, sentry_key=${key}, sentry_client=workhive-edge/1.0`,

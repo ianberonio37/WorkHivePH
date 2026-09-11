@@ -103,7 +103,7 @@
       "gate": 0.5,
       "prod_real": 0.0,
       "composite_pct": 33.3,
-      "gateway_basis": "m: bypass=17 via structured_log_adoption_report.json (measured-partial)",
+      "gateway_basis": "m: bypass=16 via structured_log_adoption_report.json (measured-partial)",
       "gate_basis": "a: structured-log-adoption ratchet but sampled",
       "prod_basis": "f: PROD aggregation (Loki/Sentry) is external -- local ndjson only"
     },

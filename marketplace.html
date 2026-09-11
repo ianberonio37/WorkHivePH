@@ -396,6 +396,13 @@
       max-height: 92vh; overflow-y: auto;
     }
     .sheet.open { transform: translateY(0); }
+/* W2 + a11y (rubric sweep 2026-09-05): six closed sheets stayed IN-LAYOUT (off-screen by transform) with
+   role=dialog + aria-modal=true and no aria-hidden - six 'open' modal dialogs in the accessibility tree, and
+   nav-hub (which stands its chrome down while any dialog is visible) correctly hid the hub for the page's
+   whole life. A closed sheet must not be there: visibility:hidden removes it from hit-testing and the a11y
+   tree; the delayed visibility transition lets the slide-out still animate (nav-hub's own panel technique). */
+.sheet:not(.open) { visibility: hidden; transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1), visibility 0s linear 0.25s; }
+.sheet.open { visibility: visible; transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1), visibility 0s; }
     .sheet-handle { width: 40px; height: 4px; background: rgba(255,255,255,0.15); border-radius: 2px; margin: 0 auto 1rem; }
     .sheet-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; }
     .sheet-title { font-size: 1rem; font-weight: 700; }
@@ -563,7 +570,21 @@
 
     /* Mobile adjustments */
     @media (max-width: 400px) {
-      .section-tab .tab-label { display: none; }
+      /* ★THE TAB'S NAME VANISHED FOR SCREEN READERS AT PHONE WIDTH (D1, walked 2026-09-10 at 390px).
+         `display:none` does not merely hide the label visually - it removes it from the ACCESSIBILITY
+         TREE. The icon beside it is aria-hidden="true" and the only other child is the count, so under
+         400px the accessible name of each of these four primary tabs collapsed to its number: a screen
+         reader announced "9, tab", "5, tab", "6, tab" and - for Services, which has no count yet - "—,
+         tab". That is the marketplace's main navigation with no names on the device most of its users
+         hold. The rubric caught only the Services tab, because "—" reads as icon-only while "9" does
+         not, so the dim under-reported a defect that was on all four.
+         The clip pattern (same as .sr-only in wh-tw.css) keeps the label out of the a11y tree's way
+         only VISUALLY: absolutely positioned it contributes no width, so the tab strip looks exactly
+         as before, while "Parts"/"Training"/"Hiring"/"Services" are announced again. */
+      .section-tab .tab-label {
+        position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+        overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border-width: 0;
+      }
       .trust-item.hide-sm { display: none; }
     }
     /* Disable skeleton animation when Reduce Motion is enabled or on mobile */
@@ -602,7 +623,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
 <main class="page">
   <style>/* Arc-W W-lens: breathing room between top-level sections (gRatio 1.2 → ≥1.5) */ main.page > *:not(:last-child){margin-bottom:2rem}</style>
-  <div id="no-results" class="empty-state" hidden>No listings match those filters.</div>
+  <div data-i="p_nolistingsmatchthosefilters_be07" id="no-results" class="empty-state" hidden>No listings match those filters.</div>
 
   <!-- T1: signed-out masthead. Measured 2026-08-23: this page rendered NO header, nav, or auth
        control of any kind to an anonymous visitor (:592-646) — the designated word-of-mouth entry
@@ -612,15 +633,25 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   <div id="mk-anon-masthead" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:space-between;background:rgba(22,32,50,0.7);border:1px solid rgba(247,162,27,0.25);border-radius:var(--wh-radius-lg, 16px);padding:10px 14px;">
     <div style="display:flex;align-items:center;gap:10px;min-width:0;">
       <a href="index.html" style="display:inline-flex;align-items:center;min-height:44px;"><img src="brand_assets/workhive-logo-transparent.png" alt="WorkHive home" style="height:26px;width:auto;" /></a>
-      <span style="font-size:0.78rem;color:rgba(255,255,255,0.8);">Browsing as a guest. Sign in to buy, sell, or hail services</span>
+      <span data-i="p_browsingasaguestsignintobuys_ec38" style="font-size:0.78rem;color:rgba(255,255,255,0.8);">Browsing as a guest. Sign in to buy, sell, or hail services</span>
     </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;">
-      <a href="index.html?signin=1&return=marketplace.html" style="display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:8px 16px;border-radius:var(--wh-radius, 12px);border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.9);font-size:0.8rem;font-weight:700;text-decoration:none;">Sign In</a>
-      <a href="index.html?signup=1&return=marketplace.html" style="display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:8px 16px;border-radius:var(--wh-radius, 12px);background:var(--wh-orange,#F7A21B);color:var(--wh-navy,#162032);font-size:0.8rem;font-weight:700;text-decoration:none;">Sign Up Free</a>
+      <a data-i="p_signin_f849" href="index.html?signin=1&return=marketplace.html" style="display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:8px 16px;border-radius:var(--wh-radius, 12px);border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.9);font-size:0.8rem;font-weight:700;text-decoration:none;">Sign In</a>
+      <a data-i="p_signupfree_8f5e" href="index.html?signup=1&return=marketplace.html" style="display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:8px 16px;border-radius:var(--wh-radius, 12px);background:var(--wh-orange,#F7A21B);color:var(--wh-navy,#162032);font-size:0.8rem;font-weight:700;text-decoration:none;">Sign Up Free</a>
     </div>
   </div>
   <script>
     // Signed-in users get the wayfinding band + their own chrome; the guest masthead would be noise.
+    // Decide SYNCHRONOUSLY, right after the element parses: DOMContentLoaded fires ~450ms after first
+    // paint on this page at 390px, and hiding a painted 120px band then moved everything below it
+    // (CLS 0.16 <- .page-header, measured signed-in 2026-09-05). The stored identity is readable
+    // before layout; an undecidable identity keeps the anon default, as before.
+    (function () {
+      try {
+        var known = (typeof whWorker === 'function' && whWorker()) || !!localStorage.getItem('wh_last_worker');
+        if (known) { var m = document.getElementById('mk-anon-masthead'); if (m) m.style.display = 'none'; }
+      } catch (_) { /* empty-catch-allow: masthead stays for an undecidable identity (anon default) */ }
+    })();
     document.addEventListener('DOMContentLoaded', function () {
       try {
         if (typeof whWorker === 'function' && whWorker()) {
@@ -632,31 +663,47 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
   <div class="page-header">
     <h1 data-i="pagetitle">Marketplace</h1>
-    <p>Parts, training and services for Philippine industrial plants</p>
-    <p id="marketplace-source-chip" style="margin-top:3px;"></p>
+    <details class="wh-help">
+      <summary data-i="p_howthispageworks_c540">How this page works</summary>
+      <ul>
+        <li data-i="p_listingsarepostedbyotherplan_59ef">Listings are posted by other plants and specialists, not by this platform. Read the seller's rating and their completed sales before committing.</li>
+        <li data-i="p_aratingisearnedfrombuyerswho_62c2">A rating is earned from buyers who actually transacted; a seller cannot write their own.</li>
+        <li data-i="p_contactingaselleropensaninqu_2374">Contacting a seller opens an inquiry. Nothing is bought here and no money moves through this page.</li>
+      </ul>
+    </details>
+
+    <p data-i="p_partstrainingandservicesforp_9899">Parts, training and services for Philippine industrial plants</p>
+    <!-- The provenance chip renders after the section resolves; an EMPTY slot at first paint pushed
+         everything below it by 46px at 390 once the chip landed (CLS 0.038, measured signed-in 2026-09-05).
+         Reserve the chip's own height: 46px on phones (two lines), one line on wider screens. -->
+    <p id="marketplace-source-chip" style="margin-top:3px;min-height:30px;"></p>
+    <style>@media (max-width:767px){#marketplace-source-chip{min-height:46px}}    /* R3 (2026-09-05): one silhouette per job - selection controls (chips, tabs, toggles: any control that carries a pressed /
+       selected / checked state) wear the PILL; press buttons keep the 12 px card-family radius. */
+    [aria-pressed], [aria-selected], [aria-checked], [role="tab"], [role="radio"], [role="switch"] { border-radius: 999px; }
+</style>
   </div>
 
   <!-- Plain-Read summary (Layer D — UX Contract).
        Populated by renderMarketplaceSummary() from _listings + my activity. -->
   <div id="mk-verdict" class="verdict empty">
     <span id="mk-verdict-icon" class="verdict-icon">·</span>
-    <div class="verdict-text"><span id="mk-verdict-label">Loading marketplace...</span><small id="mk-verdict-sub">Counting listings, your activity, and open inquiries.</small></div>
+    <div class="verdict-text"><span data-i="p_loadingmarketplace_08d1" id="mk-verdict-label">Loading marketplace...</span><small data-i="p_countinglistingsyouractivity_8ede" id="mk-verdict-sub">Counting listings, your activity, and open inquiries.</small></div>
   </div>
   <div class="simple-row" id="mk-summary-row">
     <div class="simple-card tag-grey hero" id="mk-card-total" data-rag-tile="marketplace:listings_in_view" data-rag-label="Listings in view">
-      <div class="sc-label">Listings in view</div>
+      <div data-i="p_listingsinview_236e" class="sc-label">Listings in view</div>
       <!-- The pre-data seed is a GAP, not a zero. Measured on a slow/failing backend, these tiles
            read "0 · Loading..." for the first ~16 seconds — a number sitting in the hero slot while
            the sub-label admits it does not know yet. The number is what gets read; "Loading..."
            underneath does not undo it. An em dash claims nothing. -->
       <div class="sc-hero" id="mk-total-hero">—</div>
-      <div class="sc-sub" id="mk-total-sub">Loading...</div>
+      <div data-i="p_loading_b04b" class="sc-sub" id="mk-total-sub">Loading...</div>
       <span class="sc-tag" id="mk-total-tag">-</span>
     </div>
     <div class="simple-card tag-grey" id="mk-card-mine" data-rag-tile="marketplace:my_listings" data-rag-label="My listings">
-      <div class="sc-label">My listings</div>
+      <div data-i="p_mylistings_2f09" class="sc-label">My listings</div>
       <div class="sc-hero" id="mk-mine-hero">—</div>
-      <div class="sc-sub" id="mk-mine-sub">Loading...</div>
+      <div data-i="p_loading_b04b" class="sc-sub" id="mk-mine-sub">Loading...</div>
       <span class="sc-tag" id="mk-mine-tag">-</span>
     </div>
     <!-- S3/T-disposition (2026-06-13): removed the "Current tab" KPI tile — it
@@ -665,8 +712,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
          section switcher; surfacing it as a metric was noise. -->
   </div>
   <div class="action-card" id="mk-action-card">
-    <div class="ac-label">What to do next</div>
-    <div class="ac-text" id="mk-action-text">Computing recommendation...</div>
+    <div data-i="p_whattodonext_8ce2" class="ac-label">What to do next</div>
+    <div data-i="p_computingrecommendation_5948" class="ac-text" id="mk-action-text">Computing recommendation...</div>
   </div>
   <!-- T96 (2026-08-26): THE REPLY HOP BACK TO THE BUYER. Sellers answer inquiries into
        marketplace_inquiries.reply_text (their console writes it, and RLS lets the buyer read
@@ -681,12 +728,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   <div id="mk-summary-details" role="region" aria-label="Marketplace explainer"
     data-rag-tile="marketplace:detail_panel"
     data-rag-label="Marketplace detail">
-    <strong style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How counts are derived</strong>
+    <strong data-i="p_howcountsarederived_0323" style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How counts are derived</strong>
     <ul style="margin:0;padding-left:20px;">
-      <li><strong>Listings in view</strong>: listings for the current section (parts / training / jobs) within your search + filter.</li>
-      <li><strong>My listings</strong>: listings where the seller name matches your name, across all sections.</li>
-      <li><strong>Current tab</strong>: count of listings in the active section, with average price for orientation.</li>
-      <li><strong>Verdict</strong>: green when listings &gt; 0; empty when no listings exist in the current section yet.</li>
+      <li><strong data-i="p_listingsinview_236e">Listings in view</strong>: listings for the current section (parts / training / jobs) within your search + filter.</li>
+      <li><strong data-i="p_mylistings_2f09">My listings</strong>: listings where the seller name matches your name, across all sections.</li>
+      <li><strong data-i="p_currenttab_0941">Current tab</strong>: count of listings in the active section, with average price for orientation.</li>
+      <li><strong data-i="p_verdict_7f6e">Verdict</strong>: green when listings &gt; 0; empty when no listings exist in the current section yet.</li>
       <!-- CREDITS BACK. Every priced card shows a "credits back" chip, and the chip explains itself
            in a title and an aria-label - which a sighted person on a phone can reach through
            neither. The bare words left on screen are "PHP6,898.05 credits back", and on a
@@ -694,11 +741,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
            That is the single fact both the tooltip and the aria text omitted, and it is the one a
            buyer would most reasonably get wrong. Stated here in visible body text, in the explainer
            the page already has, rather than in a second explainer of its own. -->
-      <li><strong>Credits back</strong>: priced listings show 10% of that listing's price as WorkHive
+      <li><strong data-i="p_creditsback_ca5a">Credits back</strong>: priced listings show 10% of that listing's price as WorkHive
         Credits, paid when the job is done. 1 credit is worth 1 peso and you spend them on your next
         booking. Credits are not cash and cannot be withdrawn or transferred.</li>
     </ul>
-    <p style="margin-top:8px;color:rgba(255,255,255,0.80);font-size:11px;">Use the trust bar buttons (Watchlist, Searches) to track listings you care about. Open inquiries land in your inbox.</p>
+    <p data-i="p_usethetrustbarbuttonswatchli_f202" style="margin-top:8px;color:rgba(255,255,255,0.80);font-size:11px;">Use the trust bar buttons (Watchlist, Searches) to track listings you care about. Open inquiries land in your inbox.</p>
   </div>
 
   <!-- Section tabs -->
@@ -748,7 +795,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     </div>
     <div class="trust-item right">
       <span class="ic ic-list" aria-hidden="true"></span>
-      <span id="txt-total-listings">counting listings…</span>
+      <span data-i="p_countinglistings_3d0a" id="txt-total-listings">counting listings…</span>
     </div>
     <button id="btn-my-watchlist" style="background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);border-radius:8px;color:var(--wh-red-text);font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;min-height:44px;padding:0.2rem 0.65rem;cursor:pointer;display:inline-flex;align-items:center;gap:0.3rem;" aria-label="My Watchlist">
       <span class="ic ic-save" aria-hidden="true"></span>
@@ -813,15 +860,15 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
        part number matches what this hive stocks (the marketplace analog of Community "my people"). -->
   <section id="parts-for-assets" style="display:none;margin:0.25rem 0 0.85rem;" aria-label="Parts for your assets">
     <div style="display:flex;align-items:baseline;gap:0.45rem;margin-bottom:0.45rem;flex-wrap:wrap;">
-      <span style="font-size:0.82rem;font-weight:700;color:var(--wh-blue-text);">Parts for your assets</span>
-      <span style="font-size:0.68rem;color:var(--wh-steel-bright);">listed by other plants, matched to what you stock</span>
+      <span data-i="p_partsforyourassets_e082" style="font-size:0.82rem;font-weight:700;color:var(--wh-blue-text);">Parts for your assets</span>
+      <span data-i="p_listedbyotherplantsmatchedto_e5f9" style="font-size:0.68rem;color:var(--wh-steel-bright);">listed by other plants, matched to what you stock</span>
     </div>
     <div id="parts-for-assets-rail" role="list" style="display:flex;gap:0.6rem;overflow-x:auto;padding-bottom:0.35rem;"></div>
   </section>
 
   <!-- U5 heading-order (§11 deepwalk): the H3 listing-card titles sat under H1 with no H2 (a WCAG
        heading-level skip). A screen-reader H2 section heading restores H1→H2→H3 without a visual change. -->
-  <h2 id="mk-listings-h2" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0;">Marketplace listings</h2>
+  <h2 data-i="p_marketplacelistings_bc03" id="mk-listings-h2" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0;">Marketplace listings</h2>
   <!-- Listings count -->
   <div class="listings-info" id="listings-info"></div>
 
@@ -831,13 +878,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
        empty grid is a critical aria-required-children violation (WCAG). feed is the WAI-ARIA pattern for a
        scrollable set of <article> cards; article is not a valid listitem, so list/listitem tripped
        aria-allowed-role. Starts role-less (a valid plain div when empty). -->
-  <div class="listing-grid" id="listing-grid" aria-label="Marketplace listings"
+<!-- axe aria-prohibited-attr (serious, 2026-09-08): a plain <div> has role "generic", which may not carry an accessible name - so aria-label here was announced to nobody and flagged as prohibited. role="region" is the least invasive fix that keeps the name: unlike role="list" it imposes no contract on the children, which are rendered later. The sibling area already does this as <section aria-label>, which is the same thing by implication. -->
+      <div class="listing-grid" id="listing-grid" role="region" aria-label="Marketplace listings"
     data-rag-tile="marketplace:listing_grid"
     data-rag-label="Marketplace listing grid"></div>
 
   <!-- Service-hailing client pane (SERVICE_HAILING_ROADMAP.md P4) — own view, hidden unless the
        Services section tab is active; rendered by loadClientServices() -->
-  <div id="services-pane" aria-label="Hail a service" hidden></div>
+  <div id="services-pane" role="region" aria-label="Hail a service" hidden></div>
 
   <!-- Load More (1.5rem/24px: on the 8-pt grid; 1.25rem=20px is off-scale, R1) -->
   <div style="text-align:center;margin-top:1.5rem;">
@@ -855,7 +903,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   <div style="max-width:880px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:0.75rem;flex-wrap:wrap;">
     <div style="font-size:0.85rem;font-weight:700;color:var(--wh-cloud);">
       <span id="compare-count">0</span> <span style="color:var(--wh-steel-bright);font-weight:600;">selected</span>
-      <span style="font-size:0.7rem;color:var(--wh-steel-bright);font-weight:400;display:block;margin-top:0.15rem;">Tap up to 5 listings to request quotes</span>
+      <span data-i="p_tapuptolistingstorequestquot_fc5a" style="font-size:0.7rem;color:var(--wh-steel-bright);font-weight:400;display:block;margin-top:0.15rem;">Tap up to 5 listings to request quotes</span>
     </div>
     <div style="display:flex;gap:0.5rem;">
       <button id="btn-compare-clear" style="padding:0.55rem 0.875rem;border-radius:0.5rem;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:var(--wh-steel-bright);font-family:'Poppins',sans-serif;font-size:0.78rem;font-weight:600;cursor:pointer;" data-i="clear">Clear</button>
@@ -874,7 +922,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 <div class="sheet" id="sheet-post">
   <div class="sheet-handle"></div>
   <div class="sheet-header">
-    <span class="sheet-title" id="title-sheet-post">Post a Listing</span>
+    <span data-i="p_postalisting_43c7" class="sheet-title" id="title-sheet-post">Post a Listing</span>
     <button class="btn-close-sheet" id="btn-close-post" aria-label="Close">
       <span class="ic ic-close" aria-hidden="true"></span>
     </button>
@@ -906,8 +954,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <div class="form-group" id="post-condition-wrap">
         <label class="form-label" for="post-condition" data-i="condition">Condition</label>
         <select class="wh-select" id="post-condition" data-select-placeholder-allow="default 'new' is the most common listing condition">
-          <option value="new">New</option>
-          <option value="used">Used</option>
+          <option data-i="p_new_6403" value="new">New</option>
+          <option data-i="p_used_02c0" value="used">Used</option>
           <option value="refurb">Refurbished</option>
         </select>
       </div>
@@ -927,7 +975,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <script>document.getElementById('post-desc').addEventListener('input', function () {
         document.getElementById('post-desc-count').textContent = this.value.length + ' / 2000';
       });</script>
-      <div id="post-ai-assist-hint" style="font-size:0.68rem;color:var(--wh-steel-bright);margin-top:0.3rem;">AI drafts a category and description from your title, part number, and photo. Always review before posting.</div>
+      <div data-i="p_aidraftsacategoryanddescript_2f4e" id="post-ai-assist-hint" style="font-size:0.68rem;color:var(--wh-steel-bright);margin-top:0.3rem;">AI drafts a category and description from your title, part number, and photo. Always review before posting.</div>
     </div>
     <div class="form-row">
       <div class="form-group">
@@ -952,8 +1000,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         <input type="file" id="post-image-file" accept="image/jpeg,image/jpg,image/png,image/webp" style="position:absolute;inset:0;opacity:0;cursor:pointer;" aria-label="Choose listing photo" />
         <div id="post-image-empty" style="color:var(--wh-steel-bright);">
           <span class="ic ic-image ic-lg" aria-hidden="true"></span>
-          <div style="font-size:0.78rem;font-weight:600;color:var(--wh-cloud);">Tap to add a photo</div>
-          <div style="font-size:0.7rem;margin-top:0.2rem;">JPEG, PNG or WebP up to 5MB. Listings with photos get 3× more inquiries.</div>
+          <div data-i="p_taptoaddaphoto_1576" style="font-size:0.78rem;font-weight:600;color:var(--wh-cloud);">Tap to add a photo</div>
+          <div data-i="p_jpegpngorwebpuptomblistingsw_14fb" style="font-size:0.7rem;margin-top:0.2rem;">JPEG, PNG or WebP up to 5MB. Listings with photos get 3× more inquiries.</div>
         </div>
         <div id="post-image-preview" style="display:none;">
           <img id="post-image-preview-img" alt="Preview" style="max-width:100%;max-height:200px;border-radius:0.5rem;display:block;margin:0 auto;" />
@@ -977,7 +1025,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     <!-- Quality score widget — updates in real time as the seller types -->
     <div id="quality-widget" style="margin-bottom:1rem;padding:0.875rem;background:rgba(22,32,50,0.5);border:1px solid rgba(255,255,255,0.07);border-radius:0.75rem;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem;">
-        <span style="font-size:0.78rem;font-weight:700;" title="WorkHive Marketplace Seller Score: platform-internal listing-quality composite (0-100)">Listing quality · WorkHive Marketplace Seller Score</span>
+        <span data-i="p_listingqualityworkhivemarket_0cc7" style="font-size:0.78rem;font-weight:700;" title="WorkHive Marketplace Seller Score: platform-internal listing-quality composite (0-100)">Listing quality · WorkHive Marketplace Seller Score</span>
         <span id="quality-score-num" style="font-size:0.95rem;font-weight:800;color:var(--wh-steel-bright);">0 / 100</span>
       </div>
       <div style="height:6px;background:rgba(255,255,255,0.07);border-radius:999px;overflow:hidden;">
@@ -993,12 +1041,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
          stranger judges the seller by - so J3's bar is preview-before-irreversible. Built from the
          SAME fields the insert reads, so the preview cannot drift from what actually publishes. -->
     <div id="post-preview" style="display:none;margin-bottom:0.75rem;padding:0.875rem;border:1px solid rgba(255,255,255,0.12);border-radius:0.75rem;background:rgba(255,255,255,0.03);">
-      <p style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--wh-steel-bright);margin:0 0 0.5rem;">How buyers will see this</p>
+      <p data-i="p_howbuyerswillseethis_98e3" style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--wh-steel-bright);margin:0 0 0.5rem;">How buyers will see this</p>
       <div id="post-preview-body"></div>
-      <p style="font-size:0.65rem;color:rgba(255,255,255,0.72);margin:0.5rem 0 0;">Nothing is posted yet. Close this to keep editing.</p>
+      <p data-i="p_nothingispostedyetclosethist_491b" style="font-size:0.65rem;color:rgba(255,255,255,0.72);margin:0.5rem 0 0;">Nothing is posted yet. Close this to keep editing.</p>
     </div>
     <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
-      <button type="button" class="btn-ghost" id="btn-preview-post" style="flex:1 1 auto;min-width:0;">Preview as buyer</button>
+      <button type="button" class="btn-ghost" id="btn-preview-post" style="flex:1 1 auto;min-width:0;" data-i="previewasbuyer">Preview as buyer</button>
       <button type="submit" class="btn-primary" id="btn-submit-post" data-i="postlisting" style="flex:1 1 auto;min-width:0;">Post Listing</button>
     </div>
   </form>
@@ -1026,7 +1074,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 <div class="sheet" id="sheet-inquiry">
   <div class="sheet-handle"></div>
   <div class="sheet-header">
-    <span class="sheet-title" id="title-sheet-inquiry">Contact Seller</span>
+    <span data-i="p_contactseller_7d72" class="sheet-title" id="title-sheet-inquiry">Contact Seller</span>
     <button class="btn-close-sheet" id="btn-close-inquiry" aria-label="Close">
       <span class="ic ic-close" aria-hidden="true"></span>
     </button>
@@ -1061,7 +1109,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     <div class="info-notice" role="note" style="background:rgba(247,162,27,0.08);border-color:rgba(247,162,27,0.28);">
       <span class="ic ic-secure" aria-hidden="true"></span>
       <span>
-        <strong>Before you pay:</strong> inspect the item first. Meet at the seller's business address or a public place.
+        <strong data-i="p_beforeyoupay_7849">Before you pay:</strong> inspect the item first. Meet at the seller's business address or a public place.
         Avoid paying in full up front to a new seller. WorkHive never holds your payment, so we cannot reverse it.
         <!-- T101: filled per seller from v_marketplace_sellers_truth, so "a new seller" stops being
              an abstraction the buyer cannot check against the person in front of them. -->
@@ -1079,7 +1127,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 <div class="sheet" id="sheet-saved-searches">
   <div class="sheet-handle"></div>
   <div class="sheet-header">
-    <span class="sheet-title" id="title-sheet-saved-searches">Saved Searches</span>
+    <span data-i="p_savedsearches_c603" class="sheet-title" id="title-sheet-saved-searches">Saved Searches</span>
     <button class="btn-close-sheet" id="btn-close-saved-searches" aria-label="Close">
       <span class="ic ic-close" aria-hidden="true"></span>
     </button>
@@ -1087,7 +1135,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
   <!-- Save current panel — only shown when at least one filter is active -->
   <div id="save-current-panel" style="display:none;background:rgba(41,182,217,0.06);border:1px solid rgba(41,182,217,0.18);border-radius:0.75rem;padding:0.875rem;margin-bottom:1rem;">
-    <div style="font-size:0.78rem;font-weight:700;margin-bottom:0.5rem;color:var(--wh-blue-text);">Save current search</div>
+    <div data-i="p_savecurrentsearch_3c16" style="font-size:0.78rem;font-weight:700;margin-bottom:0.5rem;color:var(--wh-blue-text);">Save current search</div>
     <div id="save-current-summary" style="font-size:0.72rem;color:var(--wh-steel-bright);margin-bottom:0.625rem;line-height:1.5;"></div>
     <div class="form-group" style="margin-bottom:0.625rem;">
       <input aria-label="Name this search (e.g. HVAC Manila)" class="wh-input" type="text" id="save-search-name" placeholder="Name this search (e.g. HVAC Manila)" maxlength="60" style="font-size:1rem;" />
@@ -1101,7 +1149,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   <div id="saved-searches-content">
     <div style="text-align:center;padding:2rem 1rem;color:var(--wh-steel-bright);">
       <span class="ic ic-saved ic-xl" aria-hidden="true"></span>
-      <p style="margin-top:0.75rem;font-size:0.82rem;">Loading saved searches…</p>
+      <p data-i="p_loadingsavedsearches_6c49" style="margin-top:0.75rem;font-size:0.82rem;">Loading saved searches…</p>
     </div>
   </div>
 </div>
@@ -1113,7 +1161,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 <div class="sheet" id="sheet-rfq">
   <div class="sheet-handle"></div>
   <div class="sheet-header">
-    <span class="sheet-title" id="title-sheet-rfq">Request Quotes</span>
+    <span data-i="p_requestquotes_f01a" class="sheet-title" id="title-sheet-rfq">Request Quotes</span>
     <button class="btn-close-sheet" id="btn-close-rfq" aria-label="Close">
       <span class="ic ic-close" aria-hidden="true"></span>
     </button>
@@ -1150,7 +1198,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 <div class="sheet" id="sheet-watchlist">
   <div class="sheet-handle"></div>
   <div class="sheet-header">
-    <span class="sheet-title" id="title-sheet-watchlist">My Watchlist</span>
+    <span data-i="p_mywatchlist_7395" class="sheet-title" id="title-sheet-watchlist">My Watchlist</span>
     <button class="btn-close-sheet" id="btn-close-watchlist" aria-label="Close">
       <span class="ic ic-close" aria-hidden="true"></span>
     </button>
@@ -1166,7 +1214,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   <div id="watchlist-content">
     <div style="text-align:center;padding:2rem 1rem;color:var(--wh-steel-bright);">
       <span class="ic ic-save ic-xl" aria-hidden="true"></span>
-      <p style="margin-top:0.75rem;font-size:0.82rem;">Loading saved listings…</p>
+      <p data-i="p_loadingsavedlistings_0d5a" style="margin-top:0.75rem;font-size:0.82rem;">Loading saved listings…</p>
     </div>
   </div>
 </div>
@@ -1174,7 +1222,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 <!-- ==============================
      SCRIPTS
      ============================== -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
+<script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
 <script>
   // listener-cleanup-allow: static HTML page — listeners die with page nav; render-scoped listeners attach to elements removed in the same render cycle
@@ -1466,7 +1514,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       _compareSet.delete(listingId);
     } else {
       if (_compareSet.size >= COMPARE_MAX) {
-        showToast(`Max ${COMPARE_MAX} listings per quote request.`, 'error');
+        showToast(_t(`Max ${COMPARE_MAX} listings per quote request.`, `Max na ${COMPARE_MAX} listing kada quote request.`), 'error');
         return;
       }
       _compareSet.add(listingId);
@@ -1563,11 +1611,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     // types a nickname or their company name previously got only "Failed to send quote requests.
     // Try again." and could retry forever without learning that the NAME was the problem.
     if (WORKER_NAME && name !== WORKER_NAME) {
-      showToast(`Send quote requests under your WorkHive name (${WORKER_NAME}) so the seller can verify who is asking.`, 'error');
+      showToast(_t(`Send quote requests under your WorkHive name (${WORKER_NAME}) so the seller can verify who is asking.`,
+      `Magpadala ng quote request sa ilalim ng WorkHive name mo (${WORKER_NAME}) para ma-verify ng seller kung sino ang nagtatanong.`), 'error');
       document.getElementById('rfq-name')?.focus();
       return;
     }
-    if (!_compareSet.size) { showToast('No listings selected.', 'error'); return; }
+    if (!_compareSet.size) { showToast(_t('No listings selected.', 'Walang napiling listing.'), 'error'); return; }
 
     const selected = _listings.filter(l => _compareSet.has(l.id));
     if (!selected.length) { showToast('No matching listings found.', 'error'); return; }
@@ -1588,7 +1637,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const { error } = await db.from('marketplace_inquiries').insert(rows);
       if (error) throw error;
 
-      showToast(`Quote requests sent to ${rows.length} seller${rows.length !== 1 ? 's' : ''}.`, 'success');
+      showToast(_t(`Quote requests sent to ${rows.length} seller${rows.length !== 1 ? 's' : ''}.`,
+      `Naipadala ang quote request sa ${rows.length} seller.`), 'success');
       closeSheet('rfq');
       clearCompare();
       /* Exit compare mode after successful send */
@@ -1599,7 +1649,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       // 42501 here means the RLS buyer_name check rejected the row: name it, do not say "try again".
       showToast(_err && _err.code === '42501'
         ? `Send quote requests under your WorkHive name (${WORKER_NAME || 'your account name'}).`
-        : 'Failed to send quote requests. Try again.', 'error');
+        : _t('Failed to send quote requests. Try again.', 'Hindi naipadala ang mga quote request. Subukan muli.'), 'error');
     } finally {
       if (btn) { btn.disabled = false; btn.removeAttribute('aria-busy'); btn.textContent = 'Send All Quote Requests'; }
     }
@@ -1653,10 +1703,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     try {
       const zero = Promise.resolve({ count: 0 });
       const [pubParts, pubTraining, pubJobs, myListings, savedSearches] = await Promise.all([
-        db.from('v_marketplace_listings_truth').select('id', { count: 'exact', head: true }).eq('status', 'published').eq('section', 'parts'),
-        db.from('v_marketplace_listings_truth').select('id', { count: 'exact', head: true }).eq('status', 'published').eq('section', 'training'),
-        db.from('v_marketplace_listings_truth').select('id', { count: 'exact', head: true }).eq('status', 'published').eq('section', 'jobs'),
-        WORKER_NAME ? db.from('v_marketplace_listings_truth').select('id', { count: 'exact', head: true }).eq('seller_name', WORKER_NAME) : zero,
+        db.from('v_marketplace_listings_public').select('id', { count: 'exact', head: true }).eq('status', 'published').eq('section', 'parts'),
+        db.from('v_marketplace_listings_public').select('id', { count: 'exact', head: true }).eq('status', 'published').eq('section', 'training'),
+        db.from('v_marketplace_listings_public').select('id', { count: 'exact', head: true }).eq('status', 'published').eq('section', 'jobs'),
+        WORKER_NAME ? db.from('v_marketplace_listings_public').select('id', { count: 'exact', head: true }).eq('seller_name', WORKER_NAME) : zero,
         WORKER_NAME ? db.from('marketplace_saved_searches').select('id', { count: 'exact', head: true }).eq('worker_name', WORKER_NAME).eq('active', true) : zero,
       ]);
       // Same absent-vs-zero trap as the tab badges, and worse here: a head:true COUNT returns
@@ -1719,8 +1769,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       if (!items.length) {
         content/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `<div style="text-align:center;padding:2rem 1rem;color:var(--wh-steel-bright);">
           <span class="ic ic-saved ic-xl" aria-hidden="true"></span>
-          <h2 style="font-size:0.95rem;font-weight:700;color:var(--wh-cloud);margin:0.625rem 0 0.4rem;">No saved searches</h2>
-          <p style="font-size:0.78rem;">Set filters above and save them here for quick reuse.</p>
+          <h2 style="font-size:0.95rem;font-weight:700;color:var(--wh-cloud);margin:0.625rem 0 0.4rem;">${escHtml(_t('No saved searches', 'Walang naka-save na search'))}</h2>
+          <p style="font-size:0.78rem;">${escHtml(_t('Set filters above and save them here for quick reuse.', 'Mag-set ng filter sa itaas at i-save dito para mabilis magamit ulit.'))}</p>
         </div>`;
         return;
       }
@@ -1752,9 +1802,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
             <div style="font-size:0.72rem;color:var(--wh-steel-bright);margin-bottom:0.625rem;">${e(pieces.join(' · ') || 'All listings')}</div>
             <div style="display:flex;gap:0.4rem;">
               <button class="btn-apply-search" data-id="${e(s.id)}" data-section="${e(s.section || 'parts')}" data-cat="${e(s.category || 'All')}" data-q="${e(s.query_text || '')}" data-min="${s.price_min ?? ''}" data-max="${s.price_max ?? ''}"
-                style="padding:0.4rem 0.875rem;border-radius:0.5rem;border:1px solid rgba(247,162,27,0.3);background:rgba(247,162,27,0.1);color:var(--wh-orange-text);font-family:'Poppins',sans-serif;font-size:0.72rem;font-weight:600;cursor:pointer;">Apply</button>
+                style="padding:0.4rem 0.875rem;border-radius:0.5rem;border:1px solid rgba(247,162,27,0.3);background:rgba(247,162,27,0.1);color:var(--wh-orange-text);font-family:'Poppins',sans-serif;font-size:0.72rem;font-weight:600;cursor:pointer;" data-i="apply">Apply</button>
               <button class="btn-delete-search" data-id="${e(s.id)}"
-                style="padding:0.4rem 0.875rem;border-radius:0.5rem;border:1px solid rgba(248,113,113,0.25);background:rgba(248,113,113,0.06);color:var(--wh-red);font-family:'Poppins',sans-serif;font-size:0.72rem;font-weight:600;cursor:pointer;">Delete</button>
+                style="padding:0.4rem 0.875rem;border-radius:0.5rem;border:1px solid rgba(248,113,113,0.25);background:rgba(248,113,113,0.06);color:var(--wh-red);font-family:'Poppins',sans-serif;font-size:0.72rem;font-weight:600;cursor:pointer;" data-i="delete">Delete</button>
             </div>
           </div>`;
       }).join('');
@@ -1773,7 +1823,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         btn.addEventListener('click', () => deleteSavedSearch(btn.dataset.id));
       });
     } catch (_err) {
-      content/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `<p style="font-size:0.78rem;color:var(--wh-red);padding:1rem 0;">Could not load saved searches. Try again.</p>`;
+      content/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `<p style="font-size:0.78rem;color:var(--wh-red);padding:1rem 0;">${_t('Could not load saved searches. Try again.', 'Hindi ma-load ang mga saved search. Subukan muli.')}</p>`;
     }
   }
 
@@ -1812,7 +1862,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const _authFail = whIsAuthFailure(_err);
       showToast(_authFail
         ? 'Your session expired, so the search was not saved. Sign in again and re-save it.'
-        : 'Could not save. Try again.', 'error');
+        : _t('Could not save. Try again.', 'Hindi ma-save. Subukan muli.'), 'error');
     } finally {
       if (btn) { btn.disabled = false; btn.removeAttribute('aria-busy'); btn.textContent = 'Save Search'; }
     }
@@ -1870,7 +1920,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       openSavedSearchesSheet(); /* reload */
     } catch (_err) {
       console.error('marketplace saved-search delete failed:', _);
-      showToast(whWriteError(_err, 'Could not delete. Try again.'), 'error');
+      showToast(whWriteError(_err, _t('Could not delete. Try again.', 'Hindi ma-delete. Subukan muli.')), 'error');
     }
   }
 
@@ -1891,7 +1941,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       if (!_sess) { _watchlist = new Set(); return; }
       const { data } = await db
         .from('marketplace_watchlist')
-        .select('listing_id')
+        .select('listing_id').limit(500)   // G1 (gate growth-honesty, 2026-09-06): bounded so this read cannot grow without limit
+        
         // bounded-by-nature: one worker's saved-listing IDs (≤ dozens); .limit(500) is safe insurance — a personal watchlist never reaches 500.
         .eq('worker_name', WORKER_NAME)
         .limit(500);
@@ -1925,7 +1976,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       try { _sess = (await db.auth.getSession())?.data?.session || null; } catch (_) { _sess = null; }
       if (!_sess) return;
       const { data, error } = await db.from('v_marketplace_inquiries_truth')
-        .select('id, listing_id, message, reply_text, replied_at, seller_name, created_at, status')
+        .select('id, listing_id, message, reply_text, replied_at, seller_name, created_at, status').limit(200)   // G1 (gate growth-honesty, 2026-09-06): bounded so this read cannot grow without limit
+        
         .eq('buyer_name', WORKER_NAME)
         /* T96 (2026-08-27): SHOW THE UNANSWERED ONES TOO. This read filtered
            .not('reply_text','is',null), so a buyer saw a thread only once the SELLER had got
@@ -1941,7 +1993,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       if (error || !data || !data.length) return;
       const e = escHtml;
       slot.innerHTML =
-        '<div class="simple-card" style="padding:0.85rem 1rem;border-left:3px solid var(--wh-orange);">' +
+        '<div class="simple-card" style="padding:14px 16px;border-left:3px solid var(--wh-orange);">' +
         '<div style="font-size:0.62rem;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:var(--wh-orange);margin-bottom:6px;">' +
         'Your inquiries &middot; ' + data.length + '</div>' +
         data.map(function (r) {
@@ -2002,7 +2054,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       if (isSaved) _watchlist.add(listingId);
       else _watchlist.delete(listingId);
       syncHeartIcons(listingId);
-      showToast(whWriteError(_err, 'Could not update watchlist. Try again.'), 'error');
+      showToast(whWriteError(_err, _t('Could not update watchlist. Try again.', 'Hindi ma-update ang watchlist. Subukan muli.')), 'error');
     }
   }
 
@@ -2042,15 +2094,15 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         content/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
           <div style="text-align:center;padding:2.5rem 1rem;color:var(--wh-steel-bright);">
             <span class="ic ic-save ic-xl" aria-hidden="true"></span>
-            <h3 style="font-size:0.95rem;font-weight:700;color:var(--wh-cloud);margin:0.625rem 0 0.4rem;">No saved listings</h3>
-            <p style="font-size:0.78rem;">Tap the heart on any listing to save it for later.</p>
+            <h3 style="font-size:0.95rem;font-weight:700;color:var(--wh-cloud);margin:0.625rem 0 0.4rem;">${escHtml(_t('No saved listings', 'Walang naka-save na listing'))}</h3>
+            <p style="font-size:0.78rem;">${escHtml(_t('Tap the heart on any listing to save it for later.', 'Pindutin ang puso sa kahit anong listing para i-save ito para mamaya.'))}</p>
           </div>`;
         return;
       }
 
       const { data, error } = await db
         // unbounded-query-allow: bounded by .in('id', ids) — ids array is the upstream cap (one worker's watchlist, ≤ dozens); .limit(500) is safe insurance on the same bound.
-        .from('v_marketplace_listings_truth')
+        .from('v_marketplace_listings_public')
         .select('id,title,section,category,price,location,seller_name,image_url,status,created_at')
         .in('id', ids)
         .order('created_at', { ascending: false })
@@ -2094,7 +2146,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
               </div>
               <div style="display:flex;gap:0.4rem;margin-top:0.5rem;">
                 ${!removed ? `<button class="btn-watch-view"   data-id="${e(item.id)}" aria-label="View ${e(item.title)}" style="padding:0.3rem 0.625rem;border-radius:0.4rem;background:rgba(247,162,27,0.1);border:1px solid rgba(247,162,27,0.25);color:var(--wh-orange-text);font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;cursor:pointer;" data-i="view">View</button>` : ''}
-                <button class="btn-watch-remove" data-id="${e(item.id)}" style="padding:0.3rem 0.625rem;border-radius:0.4rem;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);color:var(--wh-red);font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;cursor:pointer;">Remove</button>
+                <button class="btn-watch-remove" data-id="${e(item.id)}" style="padding:0.3rem 0.625rem;border-radius:0.4rem;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);color:var(--wh-red);font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;cursor:pointer;" data-i="remove">Remove</button>
               </div>
             </div>
           </div>`;
@@ -2115,14 +2167,15 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
             syncHeartIcons();
             updateCountBadges();
           }
-          showToast(`Removed ${_dead.length} unavailable listing${_dead.length === 1 ? '' : 's'} from your saved list.`, 'success');
+          showToast(_t(`Removed ${_dead.length} unavailable listing${_dead.length === 1 ? '' : 's'} from your saved list.`,
+      `Inalis ang ${_dead.length} hindi available na listing mula sa naka-save mong listahan.`), 'success');
           openWatchlistSheet(); /* reload so the note disappears */
         } catch (err) {
           // L-layer: this tells the user the delete failed, so it must also be greppable — a
           // watchlist delete that starts failing would otherwise be invisible in the console.
           console.error('[marketplace] clear-gone watchlist saves failed', err);
           _b.disabled = false; _b.removeAttribute('aria-busy'); _b.textContent = 'Remove';
-          showToast(whWriteError(err, 'Could not update your saved list. Try again.'), 'error');
+          showToast(whWriteError(err, _t('Could not update your saved list. Try again.', 'Hindi ma-update ang saved list mo. Subukan muli.')), 'error');
         }
       });
 
@@ -2139,7 +2192,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         });
       });
     } catch (_err) {
-      content/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `<p style="font-size:0.78rem;color:var(--wh-red);padding:1rem 0;">Could not load watchlist. Try again.</p>`;
+      content/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `<p style="font-size:0.78rem;color:var(--wh-red);padding:1rem 0;">${_t('Could not load watchlist. Try again.', 'Hindi ma-load ang watchlist. Subukan muli.')}</p>`;
     }
   }
 
@@ -2267,16 +2320,16 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
        Absent is not zero, here as everywhere else on this platform. */
     if (_loadError) {
       const GAP = '—';
-      setCard('total', GAP, "Couldn't load listings", 'UNKNOWN', 'grey');
-      setCard('mine',  GAP, "Couldn't load your listings", 'UNKNOWN', 'grey');
+      setCard('total', GAP, _t("Couldn't load listings", "Hindi ma-load ang mga listing"), 'UNKNOWN', 'grey');
+      setCard('mine',  GAP, _t("Couldn't load your listings", "Hindi ma-load ang mga listing mo"), 'UNKNOWN', 'grey');
       const vBoxE = document.getElementById('mk-verdict');
       if (vBoxE) { vBoxE.classList.remove('healthy','watch','attn','empty'); vBoxE.classList.add('attn'); }
       const vIconE = document.getElementById('mk-verdict-icon'); if (vIconE) vIconE.textContent = '⚠';
       const vLblE = document.getElementById('mk-verdict-label');
       if (vLblE) vLblE.textContent = _rateLimited ? 'Too many requests just now'
-        : _authExpired ? 'Your session expired' : "Couldn't load the marketplace";
+        : _authExpired ? 'Your session expired' : _t("Couldn't load the marketplace", "Hindi ma-load ang marketplace");
       const vSbE  = document.getElementById('mk-verdict-sub');
-      if (vSbE) vSbE.textContent = 'These are not counts: the listings could not be read, so nothing here is known yet.';
+      if (vSbE) vSbE.textContent = _t('These are not counts: the listings could not be read, so nothing here is known yet.', 'Hindi ito mga bilang: hindi mabasa ang mga listing, kaya wala pang alam dito.');
       const actE = document.getElementById('mk-action-text');
       // A rate limit does NOT mean "check your connection" — telling someone to debug a working
       // connection sends them off to fix the wrong thing, and retrying is what extends the limit.
@@ -2284,13 +2337,16 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         ? `The marketplace is limiting how often it can be read, so the figures above are unknown rather than zero. Your connection is fine: wait about ${_rateLimited}, then use Retry in the grid below.`
         : _authExpired
         ? 'Your sign-in is no longer valid, so the figures above are unknown rather than zero, not an empty marketplace. Sign in again using the button below. Nothing you did was lost.'
-        : 'The marketplace could not be reached, so the figures above are unknown rather than zero, not an empty marketplace. Use Retry in the grid below; if it keeps failing, check your connection.';
+        : _t('The marketplace could not be reached, so the figures above are unknown rather than zero, not an empty marketplace. Use Retry in the grid below; if it keeps failing, check your connection.', 'Hindi maabot ang marketplace, kaya hindi alam ang mga bilang sa itaas, hindi zero, at hindi walang-laman na marketplace. Gamitin ang Retry sa grid sa ibaba; kung patuloy na bumibigo, suriin ang koneksyon mo.');
       return;
     }
 
     setCard('total',
       String(total),
-      total === 0 ? `No ${section} listings match your filter` : `${total} ${section} listing${total === 1 ? '' : 's'} after filter`,
+      // C-BT: Filipino has no plural -s, so the count carries the number; `section` is the section's own
+      // name and stays as the product spells it.
+      total === 0 ? _t(`No ${section} listings match your filter`, `Walang ${section} listing na tumugma sa filter mo`)
+                  : _t(`${total} ${section} listing${total === 1 ? '' : 's'} after filter`, `${total} ${section} listing pagkatapos ng filter`),
       total === 0 ? 'EMPTY' : total >= 10 ? 'BROWSE' : 'NARROW',
       total === 0 ? 'grey' : 'green'
     );
@@ -2300,8 +2356,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     const canPost = !!(HIVE_ID || _authUid);
     setCard('mine',
       canPost ? String(mine) : '-',
-      !canPost ? 'Sign in to list your own parts'
-               : mine === 0 ? 'You have no live listings in any section' : `${mine} of your listings live in marketplace`,
+      // C-BT: the two branches a person with nothing listed actually reads - the guest one and the
+      // empty one - were the English ones. A solo owner with no hive meets one of them every visit.
+      !canPost ? _t('Sign in to list your own parts', 'Mag-sign in para maglista ng sarili mong parts')
+               : mine === 0 ? _t('You have no live listings in any section', 'Wala kang live na listing sa kahit anong section')
+                            : `${mine} of your listings live in marketplace`,
       !canPost ? 'GUEST' : mine === 0 ? 'NONE' : 'LISTED',
       canPost && mine > 0 ? 'green' : 'grey'
     );
@@ -2320,11 +2379,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     const _vFilterActive = (typeof _query === 'string' && _query.trim() !== '')
                         || (typeof _cat === 'string' && _cat !== 'All');
     if (total === 0 && mine === 0 && !_vFilterActive) {
-      tone = 'empty'; label = `No ${section} listings yet`;
-      sub  = `Be the first to post in this section: buyers across the Philippines are looking.`;
+      tone = 'empty'; label = _t(`No ${section} listings yet`, `Wala pang ${section} na listing`);
+      sub  = _t(`Be the first to post in this section: buyers across the Philippines are looking.`,
+                `Maging una sa section na ito: may mga buyer sa buong Pilipinas na naghahanap.`);
     } else if (total === 0) {
-      tone = 'watch'; label = `No matches in ${section} for your filter`;
-      sub  = 'Try clearing the search box or pick a different section tab.';
+      tone = 'watch'; label = _t(`No matches in ${section} for your filter`,
+                                 `Walang tumugma sa ${section} para sa filter mo`);
+      sub  = _t('Try clearing the search box or pick a different section tab.',
+                'Subukang i-clear ang search box o pumili ng ibang section tab.');
       // T99 (2026-08-25): a one-letter typo ('berring') silently missed in-stock bearings —
       // real part searches misspell, and a miss with matching stock is a lost sale. Cheap
       // client-side did-you-mean: closest title word within edit-distance 2 from the live set.
@@ -2343,7 +2405,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           let best = null, bestD = 3;
           words.forEach(w => { const d = _lev(_q, w); if (d < bestD) { bestD = d; best = w; } });
           if (best && best !== _q) {
-            sub = `No exact matches for "${_q}" - did you mean "${best}"? Otherwise clear the search box or pick a different section tab.`;
+            sub = _t(`No exact matches for "${_q}" - did you mean "${best}"? Otherwise clear the search box or pick a different section tab.`,
+                     `Walang eksaktong tugma para sa "${_q}" - "${best}" ba ang ibig mong sabihin? Kung hindi, i-clear ang search box o pumili ng ibang section tab.`);
           }
         }
       } catch (_) { /* empty-catch-allow: the suggestion is best-effort; the base copy stands */ }
@@ -2357,7 +2420,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         if (_safe2 && _safe2.length >= 3) {
           const _others = ['parts', 'training', 'jobs'].filter(function (s) { return s !== section; });
           Promise.all(_others.map(function (s) {
-            return db.from('v_marketplace_listings_truth')
+            return db.from('v_marketplace_listings_public')
               .select('id', { count: 'exact', head: true })
               .eq('status', 'published').eq('section', s)
               .or('title.ilike.%' + _safe2 + '%,description.ilike.%' + _safe2 + '%,part_number.ilike.%' + _safe2 + '%')
@@ -2378,19 +2441,21 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
               vSb2.innerHTML = 'Nothing anywhere in the marketplace matches "' + escHtml(_q2) +
                 '". Nobody is selling it right now - ' +
                 '<button type="button" class="underline font-bold" style="color:var(--wh-blue-light);background:none;border:0;padding:0;cursor:pointer;min-height:44px;" ' +
-                'onclick="document.querySelector(\'.section-tab[data-section=&quot;services&quot;]\')?.click()">hail a service provider</button> instead, or ' +
+                'onclick="document.querySelector(\'.section-tab[data-section=&quot;services&quot;]\')?.click()" data-i="hailaserviceprovider">hail a service provider</button> instead, or ' +
                 '<button type="button" class="underline font-bold" style="color:var(--wh-blue-light);background:none;border:0;padding:0;cursor:pointer;min-height:44px;" ' +
-                'onclick="(typeof openPostDialog===\'function\'?openPostDialog():(location.search=\'?post=1\'))">post a wanted listing</button>.';
+                'onclick="(typeof openPostDialog===\'function\'?openPostDialog():(location.search=\'?post=1\'))" data-i="postawantedlisting">post a wanted listing</button>.';
             }
           });
         }
       } catch (_) { /* empty-catch-allow: alternatives are additive; the base copy already stands */ }
     } else if (mine === 0) {
-      tone = 'healthy'; label = `${total} ${section} listing${total === 1 ? '' : 's'} live`;
-      sub  = 'Click any listing for details, or post your own from the + Post button.';
+      tone = 'healthy'; label = _t(`${total} ${section} listing${total === 1 ? '' : 's'} live`, `${total} live na ${section} listing`);
+      sub  = _t('Click any listing for details, or post your own from the + Post button.',
+                'I-tap ang kahit anong listing para sa detalye, o mag-post ng sarili mo sa + Post.');
     } else {
-      tone = 'healthy'; label = `${total} listings · ${mine} of them yours`;
-      sub  = 'Check inquiries on your listings via the seller inbox.';
+      tone = 'healthy'; label = _t(`${total} listings · ${mine} of them yours`, `${total} listing · ${mine} ang sa iyo`);
+      sub  = _t('Check inquiries on your listings via the seller inbox.',
+                'Tingnan ang mga tanong sa listing mo sa seller inbox.');
     }
     const vBox = document.getElementById('mk-verdict');
     if (vBox) { vBox.classList.remove('healthy','watch','attn','empty'); vBox.classList.add(tone); }
@@ -2405,16 +2470,21 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       // is guidance they cannot follow. Tell them what IS free to them here, and name the requirement.
       if (!canPost) {
         text = total === 0
-          ? `No ${section} listings match this view yet. Browsing is free and open: contacting a seller or posting your own listing needs a WorkHive account.`
-          : `Browse the ${total} listing${total === 1 ? '' : 's'} below, free and without an account. Contacting a seller or posting your own listing needs one, and joining is free.`;
+          ? _t(`No ${section} listings match this view yet. Browsing is free and open: contacting a seller or posting your own listing needs a WorkHive account.`,
+               `Wala pang ${section} na listing na tumutugma sa view na ito. Libre at bukas ang pagba-browse: kailangan ng WorkHive account para makipag-ugnayan sa seller o mag-post ng sarili mong listing.`)
+          : _t(`Browse the ${total} listing${total === 1 ? '' : 's'} below, free and without an account. Contacting a seller or posting your own listing needs one, and joining is free.`,
+               `Tingnan ang ${total} listing sa ibaba, libre at walang account. Kailangan ito para makipag-ugnayan sa seller o mag-post ng sarili mong listing, at libre ang pagsali.`);
       } else if (total === 0 && mine === 0) {
-        text = `No ${section} listings yet. Click + Post to add the first one: listings are free, and the trust bar above shows what buyers care about (ID-verified sellers, secure inquiries).`;
+        text = _t(`No ${section} listings yet. Click + Post to add the first one: listings are free, and the trust bar above shows what buyers care about (ID-verified sellers, secure inquiries).`,
+                  `Wala pang ${section} na listing. Pindutin ang + Post para idagdag ang una: libre ang mga listing, at ipinapakita ng trust bar sa itaas kung ano ang mahalaga sa mga buyer (ID-verified na seller, secure na inquiry).`);
       } else if (total === 0) {
-        text = 'No listings match your current filter. Clear the search box, switch section tab, or expand your price/location range.';
+        text = _t('No listings match your current filter. Clear the search box, switch section tab, or expand your price/location range.', 'Walang listing na tumutugma sa filter mo. I-clear ang search box, lumipat ng section tab, o palawakin ang price/location range mo.');
       } else if (mine === 0) {
-        text = `Browse the ${total} listing${total === 1 ? '' : 's'} below, or click + Post to add your own ${section} listing. Sellers with clear photos get 3× more inquiries.`;
+        text = _t(`Browse the ${total} listing${total === 1 ? '' : 's'} below, or click + Post to add your own ${section} listing. Sellers with clear photos get 3× more inquiries.`,
+                  `Tingnan ang ${total} listing sa ibaba, o pindutin ang + Post para idagdag ang sarili mong ${section} na listing. Ang mga seller na may malinaw na litrato ay nakakakuha ng 3× na mas maraming inquiry.`);
       } else {
-        text = `You have ${mine} live listing${mine === 1 ? '' : 's'} in the marketplace. Check your inbox for buyer inquiries. Faster replies lift your seller rank.`;
+        text = _t(`You have ${mine} live listing${mine === 1 ? '' : 's'} in the marketplace. Check your inbox for buyer inquiries. Faster replies lift your seller rank.`,
+                  `May ${mine} live na listing ka sa marketplace. Tingnan ang inbox mo para sa mga inquiry ng buyer. Ang mabilis na pagsagot ay nagpapataas ng seller rank mo.`);
       }
       actBox.textContent = text;
     }
@@ -2451,14 +2521,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         grid/* xss-allow: _rateLimited is built by _retryAfterSeconds from a numeric parse, never raw input */ .innerHTML = `
         <div class="empty-state">
           <span class="ic ic-warning ic-xl" aria-hidden="true"></span>
-          <h3>${_rateLimited ? 'Too many requests' : _authExpired ? 'Your session expired' : "Couldn't load listings"}</h3>
+          <h3>${_rateLimited ? 'Too many requests' : _authExpired ? 'Your session expired' : _t("Couldn't load listings", "Hindi ma-load ang mga listing")}</h3>
           <p style="max-width:420px;margin:0 auto 0.9rem;">${_rateLimited
             ? `The marketplace is limiting how often it can be read right now. Your connection is fine: wait about ${_rateLimited}, then retry.`
             : _authExpired
             ? 'The marketplace could not be read because your sign-in is no longer valid. Retrying will not help until you sign in again. Nothing you did was lost.'
             : 'Something went wrong reaching the marketplace. Check your connection and try again.'}</p>
           ${_authExpired
-            ? `<button class="btn-primary" id="btn-signin-again" style="min-height:44px;display:inline-flex;align-items:center;gap:0.4rem;">Sign in again</button>`
+            ? `<button class="btn-primary" id="btn-signin-again" style="min-height:44px;display:inline-flex;align-items:center;gap:0.4rem;" data-i="signinagain">Sign in again</button>`
             : `<button class="btn-primary" id="btn-retry-load" style="min-height:44px;display:inline-flex;align-items:center;gap:0.4rem;"><span class="ic ic-refresh" aria-hidden="true"></span>Retry</button>`}
         </div>`;
         // An expired session must not be offered a Retry: the button cannot work, and a control that
@@ -2494,8 +2564,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         grid/* xss-allow: static strings + escHtml(_section) */ .innerHTML = `
         <div class="empty-state">
           <span class="ic ic-search ic-xl" aria-hidden="true"></span>
-          <h3>No listings match those filters</h3>
-          <p style="max-width:420px;margin:0 auto;">Try a different search term or category, or clear the filters to see all ${escHtml(_section)} listings.</p>
+          <h3>${escHtml(_t('No listings match those filters', 'Walang listing na tumutugma sa mga filter na iyon'))}</h3>
+          <p style="max-width:420px;margin:0 auto;">${escHtml(_t(`Try a different search term or category, or clear the filters to see all ${_section} listings.`, `Subukan ang ibang search term o kategorya, o i-clear ang mga filter para makita lahat ng ${_section} na listing.`))}</p>
           <!-- THE REMEDY NEEDS A CONTROL. This copy told people to "clear the filters" and the page gave
                them nothing to press: the only clear-ish affordance was the "All" category chip, measured
                1,020px BELOW this message, and it resets the category while leaving the search term in
@@ -2612,7 +2682,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
     try {
       let q = db
-        .from('v_marketplace_listings_truth')
+        .from('v_marketplace_listings_public')
         .select('id,title,description,section,category,condition,price,location,seller_name,seller_verified,seller_kyb_verified,completed_sales,seller_tier,rating_avg,image_url,created_at,part_number,status')
         .eq('status', 'published')
         .eq('section', _section)
@@ -2626,7 +2696,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         .order('id', { ascending: false })
         .limit(PAGE_SIZE);
 
-      /* Server-side search. The canonical truth view (v_marketplace_listings_truth)
+      /* Server-side search. The PUBLIC view (v_marketplace_listings_public - since 2026-09-07 this page
+         reads listings through it: same columns minus the seller's contact and the moderation notes, so
+         a stranger's scraper gets what the grid shows and nothing more; the truth view stays for the
+         seller dashboard and admin, which are the only readers of the contact. Migration 20260907000004.)
          exposes NO tsvector column, so the previous full-text-search call on a
          search_vector column returned HTTP 400 for EVERY search (search was fully
          broken). Fall back to an ILIKE on the title + description columns the view
@@ -2711,10 +2784,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         showToast(_rateLimited
           ? `Too many requests. The marketplace is limiting how often it can be read. Try again in ${_rateLimited}.`
           : _authExpired
-          ? 'Your session expired, so the marketplace could not be read. Sign in again to continue. Nothing you did was lost.'
+          ? _t('Your session expired, so the marketplace could not be read. Sign in again to continue. Nothing you did was lost.', 'Nag-expire ang session mo, kaya hindi mabasa ang marketplace. Mag-sign in muli para magpatuloy. Walang nawala sa ginawa mo.')
           : _accessDenied
           ? 'This account does not have access to the marketplace listings. Your session is fine, so signing in again will not change it. Ask a supervisor if you need access.'
-          : "Couldn't load listings. Check your connection and try again.", 'error');
+          : _t("Couldn't load listings. Check your connection and try again.", "Hindi ma-load ang mga listing. Suriin ang koneksyon at subukan muli."), 'error');
       }
     }
 
@@ -2761,7 +2834,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         // the catch below never even ran. Measured under a 503: "Parts 0 Training 0 Hiring 0
         // Services 0" and "0 listings", beside a grid that correctly said it could not load.
         const { count, error } = await db
-          .from('v_marketplace_listings_truth')
+          .from('v_marketplace_listings_public')
           .select('id', { count: 'exact', head: true })
           .eq('status', 'published')
           .eq('section', s);
@@ -2781,7 +2854,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
          under a 503. */
       if (WORKER_NAME) {
         const { count: mineCount, error: mineErr } = await db
-          .from('v_marketplace_listings_truth')
+          .from('v_marketplace_listings_public')
           .select('id', { count: 'exact', head: true })
           .eq('status', 'published')
           .eq('seller_name', WORKER_NAME);
@@ -2803,14 +2876,16 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       if (cp) cp.textContent = GAP;
       if (ct) ct.textContent = GAP;
       if (cj) cj.textContent = GAP;
-      if (tt) tt.textContent = 'listing count unavailable';
+      if (tt) tt.textContent = _t('listing count unavailable', 'walang bilang ng listing');
       return;
     }
     const total = _counts.parts + _counts.training + _counts.jobs;
     if (cp) cp.textContent = _counts.parts;
     if (ct) ct.textContent = _counts.training;
     if (cj) cj.textContent = _counts.jobs;
-    if (tt) tt.textContent = total + ' listing' + (total !== 1 ? 's' : '');
+    // C-BT: its FAILED-read sibling two lines up was already bilingual ('walang bilang ng listing') and
+    // the SUCCESS path was not - the ordinary case was the untranslated one. Filipino takes no plural -s.
+    if (tt) tt.textContent = _t(total + ' listing' + (total !== 1 ? 's' : ''), total + ' listing');
   }
 
   /* ============================================================
@@ -2854,7 +2929,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       // Canonical: marketplace_sellers_truth — adds is_verified_public and
       // active_listings_count for the seller card display.
       const { data: sp } = await db
-        .from('v_marketplace_sellers_truth')
+        .from('v_marketplace_sellers_public')
         .select('messenger_username,kyb_verified,cert_verified,certifications,tier,rating_avg,rating_count,is_verified_public,active_listings_count,hive_id,response_rate,response_time_h,total_sales')
         .eq('worker_name', item.seller_name)
         .maybeSingle();
@@ -2921,7 +2996,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
     if (_canReview) {
       reviewsHtml += `
-        <button id="btn-open-review" class="btn-secondary" style="margin-top:0.75rem;min-height:44px;width:100%;">Write a review</button>
+        <button id="btn-open-review" class="btn-secondary" style="margin-top:0.75rem;min-height:44px;width:100%;" data-i="writeareview">Write a review</button>
         <div id="review-form" class="hidden" style="margin-top:0.75rem;">
           <label class="form-label" for="review-rating">Your rating</label>
           <!-- Placeholder-first, and not only because the gate asks for one: defaulting to 5 stars biases
@@ -2941,7 +3016,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
                the score works and who sees your name, so it is load-bearing for the decision to post, not
                decoration. Matches the equivalent note on the seller profile. -->
           <p style="font-size:0.72rem;color:rgba(255,255,255,0.80);margin:0.35rem 0 0.5rem;">Your review shows publicly under your name. It counts toward the seller's star rating only once WorkHive confirms the purchase, so an unconfirmed review is still shown but does not change their score.</p>
-          <button id="btn-submit-review" class="btn-primary" style="min-height:44px;width:100%;">Post review</button>
+          <button id="btn-submit-review" class="btn-primary" style="min-height:44px;width:100%;" data-i="postreview">Post review</button>
         </div>`;
     }
 
@@ -2974,7 +3049,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
            Opens the feedback panel with the listing reference prefilled. -->
       <button type="button" class="wh-report-listing" data-listing-id="${e(item.id)}" data-listing-title="${e(item.title)}"
               style="background:none;border:none;padding:4px 0;min-height:44px;color:var(--wh-steel-bright);font-size:0.7rem;text-decoration:underline;cursor:pointer;display:inline-flex;align-items:center;">
-        Something wrong with this listing? Report it
+        ${escHtml(_t('Something wrong with this listing? Report it', 'May mali sa listing na ito? Iulat ito'))}
       </button>
 
       <div class="detail-section">
@@ -2998,7 +3073,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
                floor. On a maintenance platform the person tapping is often gloved or one-handed, so a
                17px target is not a nicety — it is the difference between reaching the seller's history
                and giving up. Padding only; the visual weight is unchanged. -->
-          <a href="marketplace-seller-profile.html?worker=${encodeURIComponent(item.seller_name || '')}" style="text-transform:none;letter-spacing:normal;font-size:0.7rem;color:var(--wh-blue-text);text-decoration:none;font-weight:600;min-height:44px;display:inline-flex;align-items:center;padding:0 0.35rem;">View profile →</a>
+          <a href="marketplace-seller-profile.html?worker=${encodeURIComponent(item.seller_name || '')}" style="text-transform:none;letter-spacing:normal;font-size:0.7rem;color:var(--wh-blue-text);text-decoration:none;font-weight:600;min-height:44px;display:inline-flex;align-items:center;padding:0 0.35rem;">${escHtml(_t('View profile', 'Tingnan ang profile'))} →</a>
         </div>
         <div class="seller-card">
           <div style="flex-shrink:0;padding-bottom:${(_sellerTiers[item.seller_name]||0)>0?'10px':'0'}">${renderWorkerAvatar(item.seller_name || 'Seller', _sellerTiers[item.seller_name] || 0, 42)}</div>
@@ -3076,7 +3151,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
       <div class="action-row">
         <button class="btn-secondary" id="btn-detail-save" data-listing="${e(item.id)}">${_watchlist.has(item.id) ? '★ Saved' : 'Save'}</button>
-        <button class="btn-cta" id="btn-detail-contact">Contact Seller</button>
+        <button class="btn-cta" id="btn-detail-contact" data-i="contactseller">Contact Seller</button>
       </div>
       ${item.section === 'parts' ? `<button class="btn-secondary" id="btn-detail-receive" style="width:100%;margin-top:0.625rem;display:flex;align-items:center;justify-content:center;gap:0.4rem;" title="Close the loop: once you receive this part, add it to your plant's inventory" aria-label="Close the loop: once you receive this part, add it to your plant's inventory">
           <span class="ic ic-inventory-in" aria-hidden="true"></span>
@@ -3142,7 +3217,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         console.error('[marketplace] review insert failed', err);
         btn.disabled = false; btn.removeAttribute('aria-busy'); btn.textContent = 'Post review';
         // MK11: only offer a retry that can work.
-        showToast(whWriteError(err, 'Could not post your review. Try again.'), 'error');
+        showToast(whWriteError(err, _t('Could not post your review. Try again.', 'Hindi ma-post ang review mo. Subukan muli.')), 'error');
       }
     });
     document.getElementById('btn-detail-receive')?.addEventListener('click', () => {
@@ -3248,7 +3323,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       el.style.display = 'none'; el.textContent = '';
       const sn = item.seller_name;
       if (!sn) return;
-      db.from('v_marketplace_sellers_truth')
+      db.from('v_marketplace_sellers_public')
         .select('created_at, total_sales, kyb_verified, rating_count')
         .eq('worker_name', sn).limit(1)
         .then(function (res) {
@@ -3401,12 +3476,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const n = row ? Number(row.n) : 0;
       if (error || n < 3) {
         hint.style.display = n > 0 ? 'block' : 'none';
-        if (n > 0) hint.textContent = `Only ${n} comparable listing${n > 1 ? 's' : ''} so far, not enough for a reliable price range yet.`;
+        if (n > 0) hint.textContent = _t(`Only ${n} comparable listing${n > 1 ? 's' : ''} so far, not enough for a reliable price range yet.`,
+      `${n} maihahambing na listing pa lang, hindi pa sapat para sa maaasahang price range.`);
         return;
       }
       const fmt = v => whFmtPeso(v, { decimals: 0 }) // FD1c canonical;
       hint.style.display = 'block';
-      hint.textContent = `Comparable parts sell for ${fmt(row.min_price)}–${fmt(row.max_price)} (median ${fmt(row.median_price)}) across ${n} listings.`;
+      hint.textContent = _t(`Comparable parts sell for ${fmt(row.min_price)}–${fmt(row.max_price)} (median ${fmt(row.median_price)}) across ${n} listings.`,
+      `Ang maihahambing na parts ay nabebenta sa ${fmt(row.min_price)}–${fmt(row.max_price)} (median ${fmt(row.median_price)}) sa ${n} listing.`);
     } catch (_) { hint.style.display = 'none'; }
   }
 
@@ -3544,7 +3621,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           ctx.drawImage(img, 0, 0, w, h);
           canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('Canvas export failed')), 'image/jpeg', IMAGE_QUALITY);
         };
-        img.onerror = () => reject(new Error('Could not read image. Try a different file.'));
+        img.onerror = () => reject(new Error(_t('Could not read image. Try a different file.', 'Hindi mabasa ang larawan. Subukan ang ibang file.')));
         img.src = reader.result;
       };
       reader.onerror = () => reject(new Error('File read failed'));
@@ -3666,7 +3743,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
       const { data, error } = await db.functions.invoke('marketplace-listing-assist', { body });
       if (error || !data || data.error) {
-        showToast((data && data.error) || 'AI assist is busy right now. Fill the listing manually or try again shortly.', 'error');
+        showToast((data && data.error) || _t('AI assist is busy right now. Fill the listing manually or try again shortly.', 'Busy ang AI assist ngayon. Punan ang listing nang manu-mano o subukan muli mamaya.'), 'error');
         return;
       }
 
@@ -3683,7 +3760,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       else if (data.description && descEl && descEl.value.trim()) showToast('Category suggested. Your description was kept as is.', 'info');
       else                                                 showToast('No suggestion this time. Please fill the listing manually.', 'info');
     } catch (_) {
-      showToast(whAiError(_, 'AI assist could not run. Please fill the listing manually.'), 'error');
+      showToast(whAiError(_, _t('AI assist could not run. Please fill the listing manually.', 'Hindi tumakbo ang AI assist. Pakipunan ang listing nang manu-mano.')), 'error');
     } finally {
       btn.disabled = false; btn.removeAttribute('aria-busy'); btn.style.opacity = '1'; if (label) label.textContent = prev || 'AI assist';
     }
@@ -3860,7 +3937,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
          the site is broken. whWriteError already exists for precisely this and its own comment says
          so; this path just never called it. Same half-applied-guard shape as the 42501 that told a
          signed-in buyer their session had expired. */
-      showToast(whWriteError(err, 'Failed to post listing. Try again.'), 'error');
+      showToast(whWriteError(err, _t('Failed to post listing. Try again.', 'Hindi na-post ang listing. Subukan muli.')), 'error');
     } finally {
       if (btn) { btn.disabled = false; btn.removeAttribute('aria-busy'); btn.textContent = 'Post Listing'; }
     }
@@ -3897,7 +3974,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     // 42501 no longer implies a dead session; only a Postgres-shaped denial or a 401/403 does), but this
     // check stays: it names the FIELD and moves focus to it, which no generic classifier can do.
     if (WORKER_NAME && name !== WORKER_NAME) {
-      showToast(`Send this under your WorkHive name (${WORKER_NAME}) so the seller can verify who is asking.`, 'error');
+      showToast(_t(`Send this under your WorkHive name (${WORKER_NAME}) so the seller can verify who is asking.`,
+      `Ipadala ito sa ilalim ng WorkHive name mo (${WORKER_NAME}) para ma-verify ng seller kung sino ang nagtatanong.`), 'error');
       document.getElementById('inq-name')?.focus();
       return;
     }
@@ -3930,7 +4008,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const _authFail = whIsAuthFailure(err);
       showToast(_authFail
         ? 'Your session expired, so the inquiry was not sent. Sign in again and your message will go through.'
-        : 'Failed to send inquiry. Try again.', 'error');
+        : _t('Failed to send inquiry. Try again.', 'Hindi naipadala ang inquiry. Subukan muli.'), 'error');
     } finally {
       if (btn) { btn.disabled = false; btn.removeAttribute('aria-busy'); btn.textContent = 'Send Inquiry'; }
     }
@@ -4022,7 +4100,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
          pane, so after a successful retry the pane filled back in while the page-level verdict still
          read "Couldn't load the marketplace" -- permanently, because nothing else re-reads it. Retry
          means retry what failed, which on a shared surface is the whole surface. */
-      pane.innerHTML = '<div class="empty-state"><h2>Couldn\'t load services</h2><p>' + escHtml(_svcErrorText(err, false) || 'Please try again.') + '</p><button type="button" onclick="svcRetryAll()" style="' + _svcGhostC + 'margin-top:0.6rem;">Retry</button></div>';
+      pane.innerHTML = '<div class="empty-state"><h2>Couldn\'t load services</h2><p>' + escHtml(_svcErrorText(err, false) || _t('Please try again.', 'Pakisubukan muli.')) + '</p><button type="button" onclick="svcRetryAll()" style="' + _svcGhostC + 'margin-top:0.6rem;" data-i="retry">Retry</button></div>';
       // The pane says it could not load; the TAB BADGE beside it must not keep asserting a count
       // from an earlier read. A number that outlives the data behind it is the stale-count class.
       const badgeErr = document.getElementById('count-services');
@@ -4043,7 +4121,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       '<input id="svc-quote-budget" type="number" aria-label="Budget in pesos (optional)" min="0" step="500" style="' + _svcInputC + '"></label>' +
       '<label style="display:block;margin-top:0.5rem;font-size:0.8rem;font-weight:600;">Where?' +
       '<input id="svc-quote-address" type="text" aria-label="Job city or site" maxlength="120" placeholder="City / site" style="' + _svcInputC + '"></label>' +
-      '<button type="button" id="svc-quote-go" onclick="svcAskQuotes()" style="' + _svcGhostC + 'width:100%;margin-top:0.8rem;">Ask providers for quotes</button>' +
+      '<button type="button" id="svc-quote-go" onclick="svcAskQuotes()" style="' + _svcGhostC + 'width:100%;margin-top:0.8rem;" data-i="askprovidersforquotes">Ask providers for quotes</button>' +
       '<button type="button" onclick="svcTriage()" style="' + _svcGhostC + 'width:100%;margin-top:0.5rem;">🤖 Not sure? Let AI suggest the category and urgency</button>' +
       '<div id="svc-triage-out" style="font-size:0.75rem;opacity:0.9;margin-top:0.3rem;" role="status"></div>' +
       '</div>';
@@ -4058,7 +4136,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     const halfDown = (what, err) => '<div class="empty-state" style="padding:0.9rem;">' +
       '<p style="margin:0 0 0.5rem;">Couldn\'t load ' + e(what) + '. The rest of this page is still live.</p>' +
       (err ? '<p style="margin:0 0 0.5rem;font-size:0.75rem;opacity:0.85;">' + e(_svcErrorText(err, false)) + '</p>' : '') +
-      '<button type="button" onclick="svcRetryAll()" style="' + _svcGhostC + '">Retry</button></div>';
+      '<button type="button" onclick="svcRetryAll()" style="' + _svcGhostC + '" data-i="retry">Retry</button></div>';
     let html = '';
     // ── my requests tracker ──
     html += '<h2 style="font-size:0.95rem;margin:0.4rem 0 0.5rem;">My service requests <span class="tab-count">' + (fail.mine ? '—' : mine.length) + '</span></h2>';
@@ -4086,19 +4164,19 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           (r.provider_name ? ' · ' + e(r.provider_name) + (r.provider_contact ? ' (' + e(r.provider_contact) + ')' : '') : '') +
           (r.mode === 'quote' && r.status === 'broadcasting' ? ' · ' + Number(r.pending_offers || 0) + ' quote' + (Number(r.pending_offers || 0) === 1 ? '' : 's') + ' in' : '') + '</div>' +
           (r.mode === 'quote' && r.status === 'broadcasting' && Number(r.pending_offers || 0) > 0
-            ? '<div id="svc-quotes-' + e(r.id) + '" style="margin:0.3rem 0;"></div><button type="button" onclick="svcShowQuotes(\'' + e(r.id) + '\')" style="' + _svcGhostC + 'margin-right:0.4rem;">See quotes</button>' : '') +
+            ? '<div id="svc-quotes-' + e(r.id) + '" style="margin:0.3rem 0;"></div><button type="button" onclick="svcShowQuotes(\'' + e(r.id) + '\')" style="' + _svcGhostC + 'margin-right:0.4rem;" data-i="seequotes">See quotes</button>' : '') +
           (['en_route', 'on_site', 'in_progress'].includes(r.status)
-            ? '<div id="svc-track-' + e(r.id) + '" style="margin:0.3rem 0;"></div><button type="button" onclick="svcTrack(\'' + e(r.id) + '\')" style="' + _svcGhostC + 'margin-right:0.4rem;">Track provider</button>' : '') +
+            ? '<div id="svc-track-' + e(r.id) + '" style="margin:0.3rem 0;"></div><button type="button" onclick="svcTrack(\'' + e(r.id) + '\')" style="' + _svcGhostC + 'margin-right:0.4rem;" data-i="trackprovider">Track provider</button>' : '') +
           (r.status === 'completed'
             ? '<div style="font-size:0.75rem;margin:0.1rem 0 0.5rem;opacity:0.92;">' + e(svcWindowNotice(r)) + '</div>' +
               '<div id="svc-pay-' + e(r.id) + '" style="margin:0.3rem 0;"></div>' +
               '<button type="button" onclick="svcConfirmPay(\'' + e(r.id) + '\',' + Number(r.catalog_rate || r.budget || 0) + ')" style="' + _svcBtnC + 'margin-right:0.4rem;">Confirm payment &amp; release</button>' +
-              '<button type="button" onclick="svcRaiseObjection(\'' + e(r.id) + '\')" aria-label="Report a problem with ' + e(r.catalog_name || r.custom_scope || 'this service request') + '" style="' + _svcGhostC + 'margin-right:0.4rem;">Report a problem</button>' : '') +
+              '<button type="button" onclick="svcRaiseObjection(\'' + e(r.id) + '\')" aria-label="Report a problem with ' + e(r.catalog_name || r.custom_scope || 'this service request') + '" style="' + _svcGhostC + 'margin-right:0.4rem;" data-i="reportaproblem">Report a problem</button>' : '') +
           (['completed', 'settled'].includes(r.status)
-            ? '<div id="svc-rate-' + e(r.id) + '" style="margin:0.3rem 0;"></div><button type="button" onclick="svcRateProvider(\'' + e(r.id) + '\')" style="' + _svcGhostC + 'margin-right:0.4rem;">Rate provider</button>' +
-              '<span style="display:inline-flex;gap:0.3rem;align-items:center;flex-wrap:wrap;"><input id="svc-vcode-' + e(r.id) + '" type="text" maxlength="24" placeholder="Voucher code" aria-label="Voucher code for ' + e(r.catalog_name || r.custom_scope || 'this service request') + '" style="width:9rem;padding:0.55rem;border-radius:var(--wh-radius-sm);border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:inherit;min-height:44px;box-sizing:border-box;"><button type="button" onclick="svcApplyVoucher(\'' + e(r.id) + '\')" aria-label="Apply voucher to ' + e(r.catalog_name || r.custom_scope || 'this service request') + '" style="' + _svcGhostC + '">Apply</button></span>' : '') +
+            ? '<div id="svc-rate-' + e(r.id) + '" style="margin:0.3rem 0;"></div><button type="button" onclick="svcRateProvider(\'' + e(r.id) + '\')" style="' + _svcGhostC + 'margin-right:0.4rem;" data-i="rateprovider">Rate provider</button>' +
+              '<span style="display:inline-flex;gap:0.3rem;align-items:center;flex-wrap:wrap;"><input id="svc-vcode-' + e(r.id) + '" type="text" maxlength="24" placeholder="Voucher code" aria-label="Voucher code for ' + e(r.catalog_name || r.custom_scope || 'this service request') + '" style="width:9rem;padding:0.55rem;border-radius:var(--wh-radius-sm);border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:inherit;min-height:44px;box-sizing:border-box;"><button type="button" onclick="svcApplyVoucher(\'' + e(r.id) + '\')" aria-label="Apply voucher to ' + e(r.catalog_name || r.custom_scope || 'this service request') + '" style="' + _svcGhostC + '" data-i="apply">Apply</button></span>' : '') +
           (SVC_OPEN.slice(0, 5).includes(r.status)
-            ? '<button type="button" onclick="svcClientCancel(\'' + e(r.id) + '\')" style="' + _svcGhostC + '">Cancel request</button>' : '') +
+            ? '<button type="button" onclick="svcClientCancel(\'' + e(r.id) + '\')" style="' + _svcGhostC + '" data-i="cancelrequest">Cancel request</button>' : '') +
           '</div>';
       });
     }
@@ -4144,7 +4222,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         '>' + e(c.category) + ' - ' + e(c.name) + ' (' +
           (c.base_rate === null || c.base_rate === undefined || !isFinite(Number(c.base_rate))
             || Number(c.base_rate) <= 0
-            ? 'rate unavailable'
+            ? _t('rate unavailable', 'walang rate')
             // T133 (2026-08-26): the guard above catches null (Number(null) is 0, so <= 0 fires) but NOT
             // undefined - Number(undefined) is NaN and NaN <= 0 is FALSE, so an absent rate fell straight
             // through as "₱NaN" in a buyer's service picker. whFmtPeso handles both, which is why it exists.
@@ -4170,13 +4248,13 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
          pressed (reusing _svcMapLoad(), already built for job tracking) — many of these users are on
          3G, and a hail screen that ships a map to everyone would cost more than it fixes.
          Optional on purpose: a hail with no pin still sends, exactly as before. */
-      '<button type="button" id="svc-pin-btn" onclick="svcPinSite()" style="' + _svcBtnGhostC + 'width:100%;margin-top:0.5rem;">Pin the exact spot on a map (optional)</button>' +
+      '<button type="button" id="svc-pin-btn" onclick="svcPinSite()" style="' + _svcBtnGhostC + 'width:100%;margin-top:0.5rem;" data-i="pintheexactspotonamapoptional">Pin the exact spot on a map (optional)</button>' +
       '<div id="svc-pin-slot" style="margin-top:0.5rem;"></div>' +
       '<label style="display:block;margin-top:0.6rem;font-size:0.8rem;font-weight:600;">How urgent?' +
       '<select id="svc-hail-urgency" aria-label="How urgent is this job" style="' + _svcInputC + '">' +
       '<option value="normal" selected>Normal - within a few days</option><option value="high">High - today if possible</option><option value="critical">Critical - production is down</option><option value="low">Low - whenever convenient</option>' +
       '</select></label>' +
-      '<button type="button" id="svc-hail-go" onclick="svcHailNow()" style="' + _svcBtnC + 'width:100%;margin-top:0.8rem;">Hail now - notify nearby providers</button>' +
+      '<button type="button" id="svc-hail-go" onclick="svcHailNow()" style="' + _svcBtnC + 'width:100%;margin-top:0.8rem;" data-i="hailnownotifynearbyproviders">Hail now - notify nearby providers</button>' +
       /* WHAT PRESSING IT DOES, BEFORE IT IS PRESSED. This section used to inherit the page-level
          "What to do next" card, which was written for the LISTINGS grid and said things like "you
          have 2 live listings, check your inbox" — advice about a different surface entirely. Hiding
@@ -4280,7 +4358,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     slot.innerHTML = '<div class="skel skel-pulse" style="height:200px;border-radius:var(--wh-radius);"></div>';
     try { await _svcMapLoad(); } catch (_) {
       // Degrade honestly: the typed address still sends. Never strand the hail behind a map.
-      slot.innerHTML = '<p style="font-size:0.75rem;opacity:0.8;">Map could not load (offline?). '
+      slot.innerHTML = '<p style="font-size:0.75rem;opacity:0.8;">' + _t("Map could not load (offline?). ", "Hindi ma-load ang mapa (offline?). ") + ''
         + 'Your typed address still works - providers will read it.</p>';
       return;
     }
@@ -4288,7 +4366,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       + ' role="application" aria-label="Tap the map to mark where the job is"></div>'
       + '<p id="svc-pin-note" style="font-size:0.72rem;opacity:0.85;margin-top:0.25rem;">Tap the map where the job is.</p>';
     const map = whMap.create('svc-pin-map', _svcPin ? { center: _svcPin, zoom: 14 } : { zoom: 11 });
-    if (!map) { slot.innerHTML = '<p style="font-size:0.75rem;opacity:0.8;">Map unavailable on this device. '
+    if (!map) { slot.innerHTML = '<p style="font-size:0.75rem;opacity:0.8;">' + _t("Map unavailable on this device. ", "Hindi available ang mapa sa device na ito. ") + ''
       + 'Your typed address still works.</p>'; return; }
     let mk = _svcPin ? whMap.marker(map, _svcPin, 'site', 'Job site') : null;
     map.on('click', (ev) => {
@@ -4372,7 +4450,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       || (code === '42501' && msg && !/permission denied for (table|relation|schema|function|view|sequence)/i.test(msg)));
     if (_authored && msg && msg.length < 300) return msg;
     if (msg) { try { console.warn('marketplace service error (shown as a generic message):', code, msg); } catch (_) { /* empty-catch-allow: logging must never break the error path */ } }
-    return 'Something went wrong' + tail + '.';
+    return _t('Something went wrong', 'May nangyaring mali') + tail + '.';
   }
   const _svcWriteError = e => _svcErrorText(e, true);
 
@@ -4437,7 +4515,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
          scope) carried the same line. The page already speaks correctly a few lines below
          ("it may have moved on"). */
       if (!data || !data.length) {
-        showToast('Your request may have been sent - we could not confirm it. Check your requests below before hailing again.', 'error');
+        showToast(_t('Your request may have been sent - we could not confirm it. Check your requests below before hailing again.', 'Baka naipadala ang request mo - hindi namin makumpirma. Tingnan ang mga request mo sa ibaba bago mag-hail muli.'), 'error');
         loadClientServices();
         return;
       }
@@ -4479,7 +4557,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
          scope) carried the same line. The page already speaks correctly a few lines below
          ("it may have moved on"). */
       if (!data || !data.length) {
-        showToast('Your request may have been sent - we could not confirm it. Check your requests below before hailing again.', 'error');
+        showToast(_t('Your request may have been sent - we could not confirm it. Check your requests below before hailing again.', 'Baka naipadala ang request mo - hindi namin makumpirma. Tingnan ang mga request mo sa ibaba bago mag-hail muli.'), 'error');
         loadClientServices();
         return;
       }
@@ -4526,7 +4604,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         (p.verified ? ' <span style="color:var(--wh-green, rgb(74,222,128));font-size:0.72rem;font-weight:700;">✓ Verified</span>' : '') +
         ' <span style="font-size:0.72rem;opacity:0.8;">· ' + Number(p.completed_jobs || 0) + ' jobs done' + (p.rating_avg != null ? ' · ★' + Number(p.rating_avg).toFixed(1) + ' (' + Number(p.rating_count || 0) + ')' : '') + (p.tier === 'gold' ? ' · 🥇 Gold' : p.tier === 'silver' ? ' · 🥈 Silver' : '') + (o.eta_minutes ? ' · ETA ' + (o.eta_minutes >= 1440 ? Math.round(o.eta_minutes / 1440) + 'd' : Math.round(o.eta_minutes / 60) + 'h') : '') + '</span>' +
         (o.message ? '<div style="font-size:0.75rem;opacity:0.85;margin-top:0.2rem;">' + e(o.message) + '</div>' : '') +
-        '<button type="button" onclick="svcPickQuote(\'' + e(o.id) + '\')" style="' + _svcBtnC + 'margin-top:0.4rem;">Choose this provider</button>' +
+        '<button type="button" onclick="svcPickQuote(\'' + e(o.id) + '\')" style="' + _svcBtnC + 'margin-top:0.4rem;" data-i="choosethisprovider">Choose this provider</button>' +
         '</div>';
     }).join('');
   }
@@ -4841,11 +4919,24 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         }
       }
 
+      /* W3-LC (2026-09-09): guard the TRANSITION, not a timestamp. This write moves money-adjacent
+         state (completed -> settled, per the note above) and filtered on id alone, so a second
+         confirm - a double tap, a second tab, a back-then-forward - re-settled an already-settled
+         request and overwrote settled_at with a later time. For a state machine the honest guard is
+         the state it is legal to leave, which `.eq('status', 'completed')` says exactly: the first
+         confirm matches, every repeat matches zero rows. That also gives the zero-rows branch below a
+         single meaning it did not have before, so it can stop saying "refresh and try again" - the one
+         thing that will NOT change the outcome - and say what actually happened. */
       const { data, error } = await db.from('service_requests')
         .update({ status: 'settled', settled_at: new Date().toISOString(), updated_at: new Date().toISOString() })
-        .eq('id', requestId).select('id');
+        .eq('id', requestId).eq('status', 'completed').select('id');
       if (error) { showToast(_svcWriteError(error), 'error'); return; }
-      if (!data || !data.length) { showToast('Couldn\'t update. Refresh and try again.', 'error'); return; }
+      if (!data || !data.length) {
+        showToast(_t('This job is no longer waiting for payment - someone may have confirmed it already. Reload to see where it stands.',
+                     'Hindi na naghihintay ng bayad ang trabahong ito - baka nakumpirma na ito ng iba. I-reload para makita ang kalagayan.'), 'error');
+        loadClientServices();
+        return;
+      }
       showToast('Payment recorded and released. Thanks for confirming!', 'success');
       loadClientServices();
     } finally {
@@ -4877,7 +4968,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       showToast(/duplicate|unique/i.test(error.message) ? 'You already rated this job' : error.message);
       return;
     }
-    if (!data || !data.length) { showToast('Rating didn\'t save. Try again.'); return; }
+    if (!data || !data.length) { showToast(_t('Rating didn\'t save. Try again.', 'Hindi na-save ang rating. Subukan muli.')); return; }
     showToast('Thanks! Your rating helps other clients choose well.');
     loadClientServices();
   }
@@ -4934,7 +5025,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       if (t.mode) bits.push(t.mode === 'instant' ? 'standard visit (hail it above)' : 'bigger job (ask for quotes)');
       if (out) out.textContent = bits.length ? 'AI suggests: ' + bits.join(' · ') : 'No clear match; pick the fields yourself.';
     } catch (err) {
-      if (out) out.textContent = 'AI is unavailable right now. Pick the fields yourself.';
+      if (out) out.textContent = _t('AI is unavailable right now. Pick the fields yourself.', 'Hindi available ang AI ngayon. Ikaw na ang pumili ng mga field.');
     }
   }
   window.svcTriage = svcTriage;
@@ -4963,9 +5054,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
          zero; it speaks only when the read itself failed. */
       if (error) {
         slot.innerHTML = '<div style="font-size:0.76rem;opacity:0.9;display:flex;align-items:center;'
-          + 'gap:0.4rem;flex-wrap:wrap;"><span aria-hidden="true">⚠</span><span>Couldn’t '
-          + 'check who’s online right now, so this is unknown rather than nobody. You can still '
-          + 'send a request. It will reach providers when the connection is back.</span></div>';
+          + 'gap:0.4rem;flex-wrap:wrap;"><span aria-hidden="true">⚠</span><span>'
+          + _t('Couldn’t check who’s online right now, so this is unknown rather than nobody. You can still send a request. It will reach providers when the connection is back.',
+               'Hindi masuri kung sino ang online ngayon, kaya hindi alam ito, hindi walang tao. Puwede ka pa ring magpadala ng request. Aabot ito sa mga provider kapag bumalik ang koneksyon.')
+          + '</span></div>';
         return;
       }
       if (!data || !data.length) return;
@@ -5034,7 +5126,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   async function svcRaiseObjection(requestId) {
     if (!svcRequireOnline('Reporting a problem')) return;
     if (typeof whPrompt !== 'function') {
-      showToast('Can\'t collect a reason right now. Reload and try again.'); return;
+      showToast(_t('Can\'t collect a reason right now. Reload and try again.', 'Hindi makakuha ng dahilan ngayon. I-reload at subukan muli.')); return;
     }
     let reason = await whPrompt('What went wrong with this job?',
       { okLabel: 'Report problem', cancelLabel: 'Never mind', inputLabel: 'Tell us what went wrong' });
@@ -5058,7 +5150,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       console.error('[svcRaiseObjection] objection failed for request', requestId, err);
       showToast(whIsAuthFailure(err)
         ? 'Your session expired, so nothing was reported. Sign in again and try once more.'
-        : 'Couldn\'t report the problem, and nothing was changed. Try again.');
+        : _t('Couldn\'t report the problem, and nothing was changed. Try again.', 'Hindi mai-report ang problema, at walang nabago. Subukan muli.'));
     }
   }
   window.svcRaiseObjection = svcRaiseObjection;
@@ -5069,9 +5161,15 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     // T176 (2026-08-28): the cancel path reported PostgREST's wording verbatim; _svcWriteError
     // tells a dead session, a rate limit and a lost connection apart, which is the whole point of
     // the helper this file already defines and had applied to only two of its six write paths.
-    const { data, error } = await db.from('service_requests').update({ status: 'cancelled_by_client', cancelled_at: new Date().toISOString(), updated_at: new Date().toISOString() }).eq('id', requestId).select('id');
+    /* W3-LC (2026-09-09): the zero-rows message below already said the right thing - "it may have moved
+       on" - but nothing made it TRUE: the write filtered on id alone, so a cancel could land on a job
+       that had since reached completed or settled in another tab, or that the provider had already
+       started. The states cancel is legal from are the same ones the button is rendered for
+       (SVC_OPEN.slice(0, 5) - up to on_site, deliberately NOT in_progress, because work has begun by
+       then), so filter on exactly those and the sentence stops being a guess. */
+    const { data, error } = await db.from('service_requests').update({ status: 'cancelled_by_client', cancelled_at: new Date().toISOString(), updated_at: new Date().toISOString() }).eq('id', requestId).in('status', SVC_OPEN.slice(0, 5)).select('id');
     if (error) { showToast(_svcWriteError(error), 'error'); return; }
-    if (!data || !data.length) { showToast('Couldn\'t cancel - it may have moved on. Refreshing.'); }
+    if (!data || !data.length) { showToast(_t('Couldn\'t cancel - this job has already moved on. Refreshing so you can see where it stands.', 'Hindi ma-cancel - umusad na ang trabahong ito. Nire-refresh para makita mo ang kalagayan.')); }
     else { showToast('Request cancelled'); }
     loadClientServices();
   }
@@ -5130,7 +5228,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const prov = (t.live_lng != null) ? [t.live_lng, t.live_lat] : null;
       if (!map) {
         map = whMap.create(mapId, { center: prov || site || undefined, zoom: 13 });
-        if (!map) { if (note) note.textContent = 'Map unavailable on this device.'; return; }
+        if (!map) { if (note) note.textContent = _t('Map unavailable on this device.', 'Hindi available ang mapa sa device na ito.'); return; }
         if (site) siteMk = whMap.marker(map, site, 'site', 'Your site');
       }
       if (prov) {
@@ -5336,13 +5434,13 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         if (!payload.new || payload.new.status !== 'published') return;
         // The subscription is on the BASE table (marketplace_listings), which carries neither the
         // KYB-verified-seller gate nor the display columns that loadListings() reads from the truth
-        // VIEW. Re-fetch this row THROUGH v_marketplace_listings_truth so we (a) drop listings from
+        // VIEW. Re-fetch this row THROUGH v_marketplace_listings_public so we (a) drop listings from
         // non-KYB / unpublished sellers exactly as the main feed does, and (b) get the correct row
         // shape for renderListings(). A row that fails the view comes back null and is skipped.
         let row = null;
         try {
           const { data } = await db
-            .from('v_marketplace_listings_truth')
+            .from('v_marketplace_listings_public')
             .select('id,title,description,section,category,condition,price,location,seller_name,seller_verified,seller_kyb_verified,completed_sales,seller_tier,rating_avg,image_url,created_at,part_number,status')
             .eq('id', payload.new.id)
             .eq('status', 'published')
@@ -5499,7 +5597,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           document.getElementById('wh-fb-body')?.focus(); // gid-allow: injected by wh-feedback-fab.js at runtime
         }, 250);
       } else {
-        showToast('Could not open the report form. You can also email admin@workhiveph.com.', 'error');
+        showToast(_t('Could not open the report form. You can also email admin@workhiveph.com.', 'Hindi mabuksan ang report form. Puwede ka ring mag-email sa admin@workhiveph.com.'), 'error');
       }
     });
 
@@ -5563,7 +5661,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const lid = card.dataset.listingId;
       if (!_listings.some(l => l.id === lid)) {
         try {
-          const { data: one } = await db.from('v_marketplace_listings_truth')
+          const { data: one } = await db.from('v_marketplace_listings_public')
             .select('id,title,description,section,category,condition,price,location,seller_name,seller_verified,seller_kyb_verified,completed_sales,seller_tier,rating_avg,image_url,created_at,part_number,status')
             .eq('id', lid).eq('status', 'published').maybeSingle();
           if (one) _listings.push(one);
@@ -5613,7 +5711,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       if (deepListing) {
         if (!_listings.some(l => l.id === deepListing)) {
           const { data: one } = await db
-            .from('v_marketplace_listings_truth')
+            .from('v_marketplace_listings_public')
             .select('id,title,description,section,category,condition,price,location,seller_name,seller_verified,seller_kyb_verified,completed_sales,seller_tier,rating_avg,image_url,created_at,part_number,status')
             .eq('id', deepListing)
             .eq('status', 'published')

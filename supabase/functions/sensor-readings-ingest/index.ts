@@ -267,8 +267,19 @@ serveObserved("sensor-readings-ingest", async (req) => {
     });
 
     if (!validated.length) {
+      // W3-FN (2026-09-09): this 400 carried per-row `errors` but NO top-level `error`, while every
+      // other 400 on this same endpoint returns { error: "..." }. A plant bridge reading `.error` -
+      // the shape this function itself uses three times above - got undefined and had nothing to show
+      // the operator, so a whole rejected batch looked like a silent failure. The structured list is
+      // the better detail and stays exactly as it was; the summary line is what a caller can display.
       return new Response(
-        JSON.stringify({ inserted: 0, skipped_dup: 0, rejected: errors.length, errors }),
+        JSON.stringify({
+          // ★"See errors[]" POINTS AT A FIELD, IT DOES NOT NAME A STEP (2026-09-10, critic E4) - the same
+          // correction as the hive-mismatch reply below. The count stays, because "all of them" is the
+          // fact that separates a bad batch from a bad row, and `errors` is still returned alongside.
+          error: `No readings stored: all ${errors.length} rows failed validation. Check each row's reason in errors, then send the batch again.`,
+          inserted: 0, skipped_dup: 0, rejected: errors.length, errors,
+        }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
@@ -295,8 +306,20 @@ serveObserved("sensor-readings-ingest", async (req) => {
     });
 
     if (!cleanedRows.length) {
+      // Same correction as the validation reject above, and this one is the more confusing of the two:
+      // the readings were WELL FORMED and were still rejected, because none of their assets belong to
+      // the hive the caller named. Without a summary line a bridge operator sees a 400 on a payload
+      // that looks perfectly valid. Naming the hive mismatch is the whole difference between "our
+      // integration is broken" and "this bridge is pointed at the wrong hive".
       return new Response(
-        JSON.stringify({ inserted: 0, skipped_dup: 0, rejected: errors.length, errors }),
+        JSON.stringify({
+          // ★SHORTER, AND IT NAMES THE FIX (2026-09-10, critic B3 + E4). The old sentence ran to 24 words
+          // and ended at "See errors[]", which is a field in this response rather than a step a person can
+          // take. The hive is still named - the comment above is right that the mismatch is the whole
+          // point - and the per-row detail is not lost, because `errors` is still returned beside this.
+          error: `No readings stored: no asset_id in this batch belongs to hive ${hive_id}. Point this bridge at the right hive.`,
+          inserted: 0, skipped_dup: 0, rejected: errors.length, errors,
+        }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
@@ -314,9 +337,9 @@ serveObserved("sensor-readings-ingest", async (req) => {
     // reconcile them when that unification happens.
     try {
       const sinceIso = new Date(Date.now() - BASELINE_WINDOW_DAYS * 86400000).toISOString();
-      const pairs = Array.from(new Set(cleanedRows.map(r => `${r.asset_id} ${r.parameter}`)));
+      const pairs = Array.from(new Set(cleanedRows.map(r => `${r.asset_id}\u0000${r.parameter}`)));
       for (const key of pairs) {
-        const [assetId, parameter] = key.split(" ");
+        const [assetId, parameter] = key.split("\u0000");
         // canonical-allow: the baseline needs the parameter's HISTORY, and v_sensor_truth is
         // DISTINCT ON (hive, asset, parameter) — exactly ONE row, the latest. Reading it here
         // would give a 1-sample baseline that BASELINE_MIN_SAMPLES rejects, so the anomaly flag
@@ -352,7 +375,7 @@ serveObserved("sensor-readings-ingest", async (req) => {
 
     if (insErr) {
       return new Response(
-        JSON.stringify({ error: "Bulk insert failed", detail: insErr.message }),
+        JSON.stringify({ error: "Could not save these readings. Try again in a moment.", detail: insErr.message }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }

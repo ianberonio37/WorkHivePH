@@ -202,7 +202,7 @@ serveObserved("platform-gateway", async (req) => {
   if (healthResp) return healthResp;
 
   if (req.method !== "POST") {
-    return jsonResponse(corsHeaders, 405, { error: "POST only" });
+    return jsonResponse(corsHeaders, 405, { error: "That request method is not allowed. Reload the page and try again." });
   }
 
   const t0 = Date.now();
@@ -210,12 +210,17 @@ serveObserved("platform-gateway", async (req) => {
   try {
     body = await req.json();
   } catch {
-    return jsonResponse(corsHeaders, 400, { error: "Invalid JSON" });
+    return jsonResponse(corsHeaders, 400, { error: "That request could not be read. Reload the page and try again." });
   }
 
   const route = (body.fn || "").trim();
   if (!route) {
-    return jsonResponse(corsHeaders, 400, { error: "Missing fn" });
+    // the neighbouring error already answers in a sentence ("That request could not be read. Reload the
+    // page and try again."); this one said "Missing fn", which names an internal field and tells the person
+    // nothing they can act on
+    return jsonResponse(corsHeaders, 400, {
+      error: "That request did not say which platform action to run. Reload the page and try again.",
+    });
   }
   const def = PLATFORM_ROUTES[route];
   if (!def) {
@@ -268,6 +273,7 @@ serveObserved("platform-gateway", async (req) => {
   if (!rl.allowed) {
     // Log the throttle.
     if (def.audit) {
+  // unchecked-write-allow: a telemetry row. Its failure must not change the caller's outcome - refusing real work because a log line did not land would be the worse bug.
       await adminClient.from("gateway_audit_log").insert({
         hive_id:     verifiedHiveId,
         worker_name: workerName,
@@ -291,6 +297,12 @@ serveObserved("platform-gateway", async (req) => {
     const url = `${SUPABASE_URL}/functions/v1/${def.fn}`;
     const res = await fetch(url, {
       method: "POST",
+      // ★A GATEWAY THAT CANNOT TIME OUT INHERITS ITS DOWNSTREAM'S WORST DAY. This forwards to another edge
+      // function; with no signal, a downstream that stops answering holds this request open too, and the
+      // person on the other end waits with no end and no message. 90s sits deliberately ABOVE the 60s the
+      // shared provider chain allows itself, so a downstream that is merely slow still gets to answer and
+      // only a downstream that is genuinely stuck is cut off.
+      signal: AbortSignal.timeout(90000),
       headers: {
         "Authorization": `Bearer ${SERVICE_KEY}`,
         "Content-Type":  "application/json",
@@ -325,6 +337,7 @@ serveObserved("platform-gateway", async (req) => {
   if (def.audit) {
     const ip = req.headers.get("X-Forwarded-For") || req.headers.get("CF-Connecting-IP") || "";
     const ua = req.headers.get("User-Agent") || "";
+  // unchecked-write-allow: a telemetry row. Its failure must not change the caller's outcome - refusing real work because a log line did not land would be the worse bug.
     await adminClient.from("gateway_audit_log").insert({
       hive_id:        verifiedHiveId,
       worker_name:    workerName,

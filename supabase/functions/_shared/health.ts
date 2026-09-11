@@ -47,8 +47,10 @@ export async function handleHealth(
   try {
     result = await probe();
   } catch (e) {
+    console.error(`health check failed for ${surface}:`, String(e));
     return new Response(JSON.stringify({
-      ok: false, surface, error: String(e), checked_at: new Date().toISOString(),
+      // the exception text is the operator's, and it goes to the log; the payload carries a code (2026-09-06)
+      ok: false, surface, error: "check_failed", checked_at: new Date().toISOString(),
     }), { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } });
   }
   const allOk = result.deps.every((d) => d.ok);

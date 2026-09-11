@@ -65,8 +65,142 @@
     ? window.__RUBRIC_THRESHOLDS : RUBRIC_THRESHOLDS;
 
   const $$ = (sel, root) => [...(root || document).querySelectorAll(sel)];
+  // An INLINE link inside running text is exempt from the tap-target floors -- WCAG 2.5.8's "Inline"
+  // exception: a target whose size is constrained by the line-height of the surrounding text.
+  // Shared by F1 (>= 44px) and Z3 (>= 24px + spacing): skillmatrix/achievements' "...lands on your
+  // <a>Resume</a> automatically." (62x17) and voice-journal's mailto <a>admin@workhiveph.com</a>
+  // (150x17) are WORDS in sentences, not controls. Inline = an <a> whose parent is a text container,
+  // whose box is no taller than ~one line of its own font, and whose parent carries more text than
+  // the link itself (a lone link in a <p> is a button-shaped CTA and still owes the floor).
+  // Instrument calibration, not a page fix (S16.1). Hoisted here 2026-09-05 so both dims share it.
+  // ★FAULT 14 — A SENTENCE IN A DIV IS STILL A SENTENCE, AND A WRAPPED LINK IS STILL INLINE
+  // (2026-09-11, learn/what-is-oee, phone-390). This exemption rejected the phrase "maintenance metrics
+  // guide: OEE, MTBF..." inside a .callout, so F1 fell to 96% and K2 to 50% on a running-text link that
+  // WCAG 2.5.8's Inline exception plainly covers - the exception this predicate exists to implement, and
+  // whose wording the comment above quotes. Two independent reasons it missed, both about FORM not fact:
+  //   1. THE CONTAINER LIST WAS A TAG LIST. The learn callouts put running text directly in
+  //      <div class="callout"> with no <p> wrapper, so closest('p, li, dd, ...') returned null and the
+  //      link was disqualified for its parent's TAG NAME while being surrounded by prose either side.
+  //      Now: fall back to any block ancestor that carries substantially more text than the link, which
+  //      is the property the tag list was standing in for. The text-ratio check below is what actually
+  //      protects the rule (a LONE link in a container is a button-shaped CTA and still owes the floor).
+  //   2. THE ONE-LINE HEIGHT TEST PUNISHED WRAPPING. height > fs * 1.8 was meant to catch a link that
+  //      has been made block-shaped; it also rejects any inline link long enough to WRAP, which is the
+  //      most ordinary thing a prose link does. Measured: 43.66px tall, fs 15.68, limit 28.22 - two line
+  //      boxes of a 26.656px line-height. So a wrapped link failed a test for "is it one line tall".
+  //      Now: many line boxes are POSITIVE evidence of inline flow. getClientRects() returns one rect
+  //      per line box, and only an inline box is ever fragmented - a block/inline-block CTA always has
+  //      exactly one - so `display: inline` plus >1 rect is a stronger signal than the height ever was.
+  // Verified this is not a page change: overriding the callout colour live left the height at 43.66 both
+  // ways, and the element's parent is a DIV in both, so the geometry never moved.
+  const _inlineProse = (e) => {
+    if (!e || e.tagName !== 'A') return false;
+    if (e.closest('nav, [role="navigation"], [role="tablist"]')) return false;
+    const cs = getComputedStyle(e);
+    let par = e.closest('p, li, dd, td, th, figcaption, blockquote, small');
+    if (!par) {
+      // no text-container TAG: accept a block ancestor that is demonstrably running text around it.
+      // ★FAULT 19 — THE FALLBACK STOPPED AT AN INLINE WRAPPER (2026-09-11). It tested only
+      // `e.parentElement`, so an emphasised link - `<div class="callout"><strong><a>Try WorkHive
+      // free</a></strong>: Free at the worker tier, offline-first, ...</div>` - was rejected at the
+      // <strong> (display:inline) and never reached the block that actually holds the sentence. Two
+      // separate consequences, both wrong: the display test failed, AND the surrounding-text test would
+      // have failed too, because <strong> contains ONLY the link (own 17 chars, "surrounding" 17).
+      // Measured on three learn articles, where it showed up as F1 "under-44: Try WorkHive free(133x17)"
+      // - a mid-sentence link that WCAG 2.5.8 exempts by name. Walk up through inline boxes to the
+      // nearest block instead; the `all >= own + 12` test below then does the real discriminating, and
+      // still correctly REFUSES the standalone "<- Back to all guides" (its own div, own 20 chars,
+      // surrounding 20), which genuinely owes a 44px target. Follow-up to fault 14's own fallback.
+      let cand = e.parentElement;
+      while (cand && cand !== document.body) {
+        const d = getComputedStyle(cand).display;
+        if (d === 'block' || d === 'flow-root' || d === 'list-item') break;
+        if (d !== 'inline' && d !== 'inline-block' && d !== 'contents') return false;  // flex/grid/table = a layout box, not prose
+        cand = cand.parentElement;
+      }
+      if (!cand || cand === document.body) return false;
+      par = cand;
+    }
+    const fs = parseFloat(cs.fontSize) || 16;
+    const rects = (e.getClientRects && e.getClientRects().length) || 1;
+    const oneLine = e.getBoundingClientRect().height <= fs * 1.8;
+    const wrappedInline = cs.display === 'inline' && rects > 1;
+    if (!oneLine && !wrappedInline) return false;
+    const own = (e.textContent || '').trim().length, all = (par.textContent || '').trim().length;
+    return all >= own + 12;
+  };
+  // ★CLIPPED INSIDE AN sr-only CONTAINER IS NOT VISIBLE (2026-09-10). index ships a
+  // <section class="sr-only"> text sitemap - a screen-reader link list, correctly hidden with the
+  // standard clip pattern (1x1 box, overflow:hidden, clip:rect(0,0,0,0)). But `clip` hides PAINT, not
+  // LAYOUT: the links inside keep their natural rects, so they measured 1365x22, 1486x22, 1960x22 -
+  // wider than the 390px viewport, at x=-1, 22px tall. checkVisibility() calls them visible because
+  // they are not display:none, not visibility:hidden and not opacity:0. So 32 unpaintable links were
+  // counted as real page content on the platform's FRONT DOOR, and they dragged six dims at once:
+  // F1 46% and K2 50% (undersized tap targets nobody can tap), Z3 55%, G3 (59 "controls" vs 27 real),
+  // G2 (the sitemap's "Marketplace: Buyer-facing..." read as leaked jargon) and B3 (104 "sentences"
+  // vs 19). R1 already guarded its own slice of this ("a root-level child is never legitimately
+  // <=1px"); this puts the rule where EVERY dim inherits it, and Z3's own _vz calls it too.
+  // Detect the CONTAINER, not the class name: an ancestor collapsed to <=1px in either axis while
+  // clipping its overflow is the clip pattern by construction, whatever it is called (.sr-only,
+  // .visually-hidden, a bespoke rule). Deliberately NOT keyed on 1x1 alone - a 1px spacer that does
+  // not clip is not hiding anything.
+  const _clippedAway = (e) => {
+    for (let n = e.parentElement; n && n !== document.body; n = n.parentElement) {
+      const r = n.getBoundingClientRect();
+      if (r.width > 1 && r.height > 1) continue;
+      const cs = getComputedStyle(n);
+      if (cs.overflow === 'hidden' || (cs.clip && cs.clip !== 'auto') || cs.clipPath !== 'none') return true;
+    }
+    return false;
+  };
+  // ★FAULT 18 — A CLOSED OFF-CANVAS SHEET IS NOT "BELOW THE FOLD", IT IS UNREACHABLE (2026-09-11).
+  // marketplace-seller read G3 0% ("16 controls, 4 primary CTA") and A3 75% ("primaryCta=4/2"), and the
+  // fourth CTA was `#btn-save-edit` inside `#sheet-edit`. That sheet is the platform's standard bottom
+  // sheet: `position: fixed; bottom: 0; transform: translateY(100%)`, with `.sheet.open` restoring
+  // translateY(0). Closed, it is slid ENTIRELY below the viewport - and it still reports display:block,
+  // visibility:visible, opacity:1 and a full 384x786 box, so every display-based test called it visible.
+  // `_clippedAway` could not help: it only fires on an ancestor whose box is ZERO-sized, and this one is
+  // full-sized.
+  //
+  // THE DISTINCTION THAT MAKES THIS SAFE. Being outside the viewport is NOT enough to call something
+  // hidden - most of a long page is off-screen and a person reaches it by scrolling (`Post a Listing` at
+  // top 1833 in `content-area` is genuinely visible and must stay counted). But a `position: fixed`
+  // subtree does NOT move when the page scrolls: if its box lies wholly outside the viewport, there is
+  // no scroll position from which a person can see it. So the test is "fixed AND non-intersecting",
+  // never "off-screen". An OPEN sheet translates back to translateY(0), intersects, and counts again.
+  // `sticky` is deliberately excluded - a sticky element scrolls with its content and is reachable.
+  // Kin of [[feedback_a_closed_sheet_in_layout_is_an_open_dialog]] and
+  // [[feedback_a_closed_off_canvas_panel_still_widens_the_page]] - the same geometry, third consequence.
+  // ★AND THE FIRST VERSION OF THIS RULE WAS TOO STRICT, WHICH ITS OWN TEETH TEST CAUGHT. It tested the
+  // ELEMENT's rect, so it also hid `#btn-save-edit` when the sheet was OPEN: the sheet is
+  // `max-height: 92vh; overflow-y: auto`, so with it open the Save button sits at y=1069 in an 854px
+  // viewport - off-screen, but reachable by scrolling INSIDE the sheet, exactly as below-the-fold
+  // content is reachable by scrolling the page. A rule that hides it in both states cannot tell an open
+  // sheet from a closed one, which is the whole distinction being measured.
+  // So the reachability question belongs to the CONTAINER: if the fixed panel itself is off-canvas
+  // nothing inside it can be reached; if the panel intersects the viewport, its inner scroll makes its
+  // own content reachable and the element counts.
+  const _offCanvasFixed = (e) => {
+    let fixedAncestor = null;
+    for (let n = e; n && n !== document.body; n = n.parentElement) {
+      if (getComputedStyle(n).position === 'fixed') { fixedAncestor = n; break; }
+    }
+    if (!fixedAncestor) return false;
+    const r = fixedAncestor.getBoundingClientRect();
+    const vw = window.innerWidth || document.documentElement.clientWidth;
+    const vh = window.innerHeight || document.documentElement.clientHeight;
+    // a 1px tolerance so a panel resting exactly at the edge is not called visible on a rounding error
+    return (r.bottom <= 1 || r.top >= vh - 1 || r.right <= 1 || r.left >= vw - 1);
+  };
   const vis = (e) => {
-    if (!e || e.offsetParent === null) return false;
+    if (!e) return false;
+    // checkVisibility, not offsetParent (2026-09-06): a position:fixed or sticky control - a primary button in a sticky
+    // toolbar, the hub's floating button, a docked toast - has NO offsetParent yet is exactly what the person sees; the
+    // offsetParent test hid them from A1/W2/T-lenses. Opacity and visibility count as hidden; a zero-size box too.
+    if (typeof e.checkVisibility === 'function') {
+      if (!e.checkVisibility({ opacityProperty: true, visibilityProperty: true })) return false;
+      const rc = e.getBoundingClientRect(); if (rc.width === 0 && rc.height === 0) return false;
+    } else if (e.offsetParent === null) return false;
     const s = getComputedStyle(e);
     if (s.display === 'none' || s.visibility === 'hidden') return false;
     // A CLOSED <details> hides its content through the UA's internal slot
@@ -83,6 +217,8 @@
     // class as an over-broad match -- both misreport; this one hid the AFFORDANCE itself.
     const det = e.closest('details:not([open])');
     if (det && det !== e && !e.closest('summary')) return false;
+    if (_clippedAway(e)) return false;
+    if (_offCanvasFixed(e)) return false;      // ★fault 18: a closed bottom sheet / off-canvas drawer
     return true;
   };
   // The page's own content root; shell chrome (nav hub, companion, feedback FAB)
@@ -203,7 +339,91 @@
     // proxy can be medium-aware: a print doc's scannability lives in its headed sections, not
     // in card rounding. [external-consistency-and-standards-heuristic-internal-ext]
     const isPrintDoc = !!document.querySelector('#ar-print-wrapper') && !!(R.closest && R.closest('#ar-print-wrapper'));
-    const textEls = $$('*', R).filter(e => vis(e) && ownText(e).length > 1);
+    // ★A STATIC CONTENT DOCUMENT IS THE POSTER'S SIBLING, AND THE WHOLE LEARN CORPUS FELL BETWEEN THE
+    // TWO SPELLINGS (walked 2026-09-11, learn/what-is-oee-how-to-calculate, solo owner, phone-390).
+    // G1 and I2 ALREADY carry a "static artifact" N/A branch — "state lives on the generator, not the
+    // artifact" / "rendered once, nothing streams in" — and the permission-wall reasoning below even
+    // names this error by analogy: "asking a POSTER for a status region". But the branch was keyed on
+    // exactly two shapes, #ar-print-wrapper and <meta artifact-genre="poster">, so a learn article —
+    // server-rendered prose whose only scripts are analytics, i18n-lite and a feedback widget — was
+    // scored 0% on BOTH dims for furniture it has no state to fill. Measured on this page: zero inline
+    // scripts matching fetch/XHR/createClient/supabase. Same wound as faults 9-11 this week: the
+    // CONCEPT was right and the DETECTION knew one spelling of the mechanism.
+    // ★MEASURED, NEVER DECLARED-AND-TRUSTED. A page qualifies only by shipping NO DATA LAYER: no
+    // utils.js tag, no Supabase client global, and no inline script that fetches. That ordering matters
+    // — a declaration alone could excuse a page that really does stream, whereas the ABSENCE of a
+    // client cannot be wrong about it. It also keeps the honest exclusions honest: status.html carries
+    // its own inline fetchWithTimeout polling /health, and validator-catalog reads platform_health.json,
+    // so both keep being graded; every DB-backed page keeps being graded. The script TAG is tested
+    // rather than the booted object, so a page graded before its client finishes booting is not
+    // mistaken for a brochure ([[feedback_getdb_exists_before_it_works]] in reverse).
+    // Corroboration this is the platform's own line, not my invention: the pages accumulating the most
+    // "no status region" findings are architecture.html (58), validator-catalog (52) and symbol-gallery
+    // (48) — precisely the pages validate_loads_utils_js.py's ALLOWLIST documents as brochures that
+    // render no DB or user data. Two instruments had independently identified the same class; only one
+    // of them acted on it.
+    const _noDataClient = !document.querySelector('script[src*="utils.js"]')
+      && typeof window.workhiveSupabase === 'undefined'
+      && typeof window.supabase === 'undefined'
+      && !$$('script:not([src])', document).some(
+        (s) => /fetch\(|XMLHttpRequest|createClient|supabase/i.test(s.textContent || ''));
+    const isStaticDoc = _noDataClient;
+    // ★A PERMISSION WALL IS A DIFFERENT SCREEN WEARING THE SAME FILENAME (2026-09-10). audit-log walked
+    // as a plain WORKER graded 93% with three hard zeros — E3 "NO source chip", G1 "no status region",
+    // I2 "no reserved/optimistic block" — while the same file walked as a supervisor read 100%. The page
+    // was not broken; it was doing the right thing. RLS returns this worker no rows, and instead of the
+    // silent empty state that would read as "nothing ever happened" (the refused-read trap), it renders
+    // an honest wall: "🔒 Supervisors only — The audit log is visible to hive supervisors…", 295 visible
+    // characters and no data surface at all. Grading that against a DATA page's furniture is the same
+    // error as asking a poster for a status region, and it is about to recur on every role-gated page
+    // walked as a non-privileged persona — a whole persona class in the queue.
+    // Keyed on the MECHANISM, not on a length heuristic. The first version required the visible root
+    // text to be under 700 characters, which worked (worker 295, supervisor 1,067) and was too thin a
+    // margin to trust: the same help sentence, "The audit log is visible to hive supervisors…", renders
+    // in BOTH states, so a supervisor whose log happened to be nearly empty could have slipped under the
+    // threshold and had three dims silently excused. The platform already marks this state structurally
+    // — `<div id="gate-not-supervisor" class="gate-card">`, alongside `gate-no-hive` and `gate-card` on
+    // alert-hub and project-manager — and that element is display:none until the gate actually blocks.
+    // A VISIBLE gate card carrying permission vocabulary is the wall; anything else keeps being measured.
+    // Same rule as everywhere else in this file: a *track* holding a *fill* is a progress bar, an empty
+    // .wh-progress-slot is a declared gradient — grade the mechanism the product actually ships.
+    const _gateEls = $$('.gate-card, [id^="gate-"]', document).filter((e) => e.getClientRects().length);
+    // ★AND THE WALL ONLY SPOKE ENGLISH (walked 2026-09-10, FILIPINO worker, audit-log). The mechanism
+    // check above is right and the vocabulary check below was not: audit-log ships
+    // `<div id="gate-not-supervisor" class="gate-card">` in BOTH languages, but under FIL it reads
+    // "Para sa supervisor lang", which no English pattern matches. So the wall went undetected and
+    // E3/G1/I2 were scored 0% - NO source chip, no status region, no reserved block - against a page
+    // that was correctly refusing a worker in his own language. The rubric graded an honest refusal as
+    // a broken page, and it did so ONLY for Filipino readers: the identical page in English is excused.
+    // An oracle's vocabulary is part of the oracle [[feedback_an_oracles_vocabulary_is_part_of_the_oracle]],
+    // and the same wound as the founder-console probe that missed #no-access-gate by scanning for one
+    // spelling of the mechanism.
+    // The Filipino side is MEASURED from the shipped dictionaries, never guessed - "Para sa supervisor
+    // lang", "Supervisor lang", "Miyembro ng hive lang", "Sumali (muna) sa hive", "Para lang sa mga
+    // platform admin" are the phrases i18n/*.json actually ships (the platform has no "walang access"
+    // string; when it gains one this pattern must grow with it). Deliberately NOT a blanket /lang/,
+    // which is a common Filipino word: the match is anchored to a permission NOUN, and the whole test
+    // still only runs inside a VISIBLE gate card, so the structure bounds the false-positive risk.
+    const _permVocab = new RegExp(
+      'supervisors? only|admins? only|owners? only|members only|hive members only'
+      + "|you (do not|don't) have (access|permission)|not authorized|no access|restricted"
+      + '|join a hive|not a member'
+      // Filipino: "<role> lang" = "<role> only"; "para (lang) sa <role>" = "for <role> only"
+      + '|para (?:lang )?sa (?:mga )?[a-z ]{0,14}(?:supervisor|admin|owner|miyembro)'
+      + '|(?:supervisor|admin|owner|miyembro)[a-z ]{0,14} lang'
+      + '|sumali (?:muna )?sa hive', 'i');
+    const isPermWall = _gateEls.length > 0
+      && _permVocab.test(_gateEls.map((e) => e.textContent || '').join(' '));
+    // A declared reference surface (<meta name="wh-page-kind" content="reference">) renders DATA in its
+    // tables and code: validator labels, symbol names, function ids. Those cells are not the page's
+    // copy, so the copy-quality lenses (B1/B2/B3/B5/G2/H4/L1) read the prose around them, never the
+    // rows (validator-catalog graded 2,424 'sentences' of registry labels as marketese, 2026-09-05).
+    const _refKind = !!document.querySelector('meta[name="wh-page-kind"][content="reference"]');
+    // a reference page's rendered component SAMPLES (design-system's #ds-root gallery) are data too: their sizes, copy and
+    // spacing belong to the components they show, not to the page's own chrome (2026-09-05)
+    // Generated prose (an AI executive summary) and a person's own words (a voice-journal transcript) are CONTENT graded by
+    // their own lenses, never as interface copy: containers marked data-ai-generated / data-user-content are skipped (2026-09-05).
+    const textEls = $$('*', R).filter(e => vis(e) && ownText(e).length > 1 && !(_refKind && e.closest('table, pre, code, #ds-root')) && !e.closest('[data-ai-generated], [data-user-content]'));
     const inter = $$('button, a[href], select, input, textarea, [role="button"], [role="tab"]', R).filter(vis);
 
     // ── A · Comprehension ───────────────────────────────────────────────────
@@ -244,8 +464,26 @@
     // failing A3/G3's "one recommended action" on a page that has exactly two. A tab/toggle
     // expands or selects; it is never the CTA. Same exclusion the A3 disclosure check makes.
     // [external-consistency-and-standards-heuristic-internal-ext] (2026-07-16)
+    // ★FAULT 15 — "primary" IS A DOMAIN WORD ON THIS PLATFORM, AND THE CTA SELECTOR MATCHES IT AS A
+    // SUBSTRING (2026-09-11, skillmatrix, walked as Jun Salvador). The CTA pool starts from
+    // `[class*="primary"]`, so skillmatrix's PRIMARY DISCIPLINE picker was counted as the page's calls
+    // to action: read straight from the rubric's own a1_ctas receipt, 6 of the 7 counted CTAs were
+    // `primary-picker` and its five `primary-option` choices - Mechanical, Electrical, Instrumentation,
+    // Facilities Management, Production Lines. A worker choosing his trade is choosing, not being urged.
+    // G3 read 0% ("4 controls, 7 primary CTA" - more CTAs than controls, which is the tell) and A3 75%
+    // (primaryCta=7/2), the page's two worst dims, both false. Same family as "world-class" in B2: a
+    // substring rule meeting a word this domain uses literally.
+    // FIXED THROUGH THE FILTER THAT ALREADY EXISTS rather than by narrowing the selector, because this
+    // is precisely what isSelection is for - "a tab/toggle expands or selects; it is never the CTA" -
+    // and a discipline picker is a selection widget the list simply had not met. Generalised by NAMING
+    // CONVENTION, not by hard-coding skillmatrix's classes: anything `*-option` is by its own name one
+    // of several choices, and `*-picker` is the container of them, so the next page that ships a picker
+    // is right without a sixteenth fault. Scope measured before widening: `primary-option`/
+    // `primary-picker` appear on exactly ONE page, so this corrects a real reading and moves no other.
     const isSelection = (e) => e.getAttribute('role') === 'tab' || e.hasAttribute('aria-pressed')
       || /(^|\s)(view-tab|phase-tab|period-btn|tab-btn|seg-btn|segmented|toggle-opt)/.test(
+        (typeof e.className === 'string' ? e.className : ''))
+      || /(^|\s)[a-z][a-z0-9]*(-[a-z0-9]+)*-(option|picker)(\s|$)/.test(
         (typeof e.className === 'string' ? e.className : '')) || !!e.closest('[role="tablist"]');
     // A clickable CONTENT CARD is not a call-to-action -- marketplace-seller-profile's five
     // <a class="listing-card"> (filled tiles linking to a listing) were each miscounted as a
@@ -254,13 +492,45 @@
     // any control that wraps a heading (a container, not a button). Same "a card is not a button"
     // insight as the A2 anchor-card block fix. (2026-07-16)
     const isCard = (e) => /\b(card|tile)\b/i.test(typeof e.className === 'string' ? e.className : '') || !!e.querySelector('h2, h3');
-    const primaryCta = [...new Map(
-      $$('.ac-cta, .btn-generate, [class*="primary"]', R).filter(vis)
+    // A page's primary action often lives in its HEADER/toolbar, outside the content root (inventory's Add part,
+    // shift-brain's Generate now, pm-scheduler's Next) - five pages read cta=0 with a visible gradient primary
+    // (2026-09-05). The header is part of the page: count its filled primaries too (shell chrome stays excluded).
+    // ...and shift-brain's Generate sits in neither: a filled primary-classed control anywhere on the page counts (2026-09-06)
+    const headerCtas = $$('header [class*="primary"], .page-header [class*="primary"], .toolbar [class*="primary"], header button, .page-header button, [class*="btn-primary"]', document.body)
+        .filter(vis).filter((e) => !/^wh-/.test(e.id || '') && !e.closest('#wh-nav-hub, [id*="wh-hub"], #wh-feedback-panel'))
+        .filter((e) => /primary/.test(typeof e.className === 'string' ? e.className : '') || isFilled(e));
+    const _ctaPairs = $$('.ac-cta, .btn-generate, [class*="primary"]', R).filter(vis)
         .concat($$('button, a[href]', R).filter(vis).filter(isFilled))
+        .concat(headerCtas)
         .concat(pageFabs)
         .filter((e2) => !isSelection(e2) && !isCard(e2))
-        .map((e2) => [((e2.innerText || '').trim().slice(0, 24) + '|' + String(e2.className)), e2])
-    ).values()];
+        .map((e2) => [((e2.innerText || '').trim().slice(0, 24) + '|' + String(e2.className)), e2]);
+    // A REPEATED ROW ACTION -- the same design appearing >=2 times, each inside its own list
+    // item / card / row -- acts on the ROW, not the page. marketplace-seller's per-listing "Edit"
+    // and per-inquiry "Reply" no more compete with the page's own CTA for attention than a
+    // table's delete icons do, yet G3 read them as a 3-primary page (2026-09-05 sweep). The
+    // dedupe-by-design rule above (2026-07-16) collapsed 30 instances to ONE -- and then still
+    // counted that one as a page CTA. Drop repeated row actions from the count entirely; a
+    // SINGLE filled control keeps counting even inside a card (hive's "Take action" is the page's
+    // recommended action and lives in a card). Instrument calibration, not a page fix (S16.1).
+    // ★TWO INSTRUMENT BUGS, both measured on inventory 2026-09-06 (cta=0 with a visible "Add Part" primary in the header):
+    //  1. the SAME element arrives through several selectors ([class*="primary"] AND the isFilled button pass AND headerCtas),
+    //     so a lone primary counted 2-3 times and _keyCount read it as a REPEATED row action. Count UNIQUE ELEMENTS.
+    //  2. `[class*="item"]` matches Tailwind's `items-center`, `[class*="row"]` matches `flex-row`/`grow` - so almost any
+    //     flex button "was inside a row container". A row container is a real list/table/card ancestor: match class WORDS.
+    const _uniq = [...new Map(_ctaPairs.map(([k, e2]) => [e2, [k, e2]])).values()];
+    const _keyCount = _uniq.reduce((m, [k]) => { m[k] = (m[k] || 0) + 1; return m; }, {});
+    const _ROWISH = /(^|[\s_-])(card|item|row|listing|inquiry|entry|result|record)([\s_-]|$)/i;
+    const _inRowContainer = (e2) => {
+      if (e2.closest('li, tr, article')) return true;
+      for (let a = e2.parentElement; a && a !== document.body; a = a.parentElement) {
+        if (_ROWISH.test(typeof a.className === 'string' ? a.className : '')) return true;
+      }
+      return false;
+    };
+    const _isRowAction = (k, e2) => _keyCount[k] >= 2 && _inRowContainer(e2);
+    const primaryCta = [...new Map(_uniq.filter(([k, e2]) => !_isRowAction(k, e2)).map(([k, e2]) => [e2, e2])).values()];
+    out._a1 = { pairs: _ctaPairs.length, ctas: primaryCta.slice(0, 6).map((e2) => ((e2.innerText || '').trim().slice(0, 24) + '|' + String(e2.className).slice(0, 30))) };   // debug receipt (2026-09-06): which CTAs A1 kept, like _r3/_b3
     out.push(M('A1', '5-second test', [
       h1.length >= 1,                      // purpose nameable
       big.length <= TH.C1.maxDisplaySizes,                     // a clear DISPLAY SCALE (not a scatter). The
@@ -272,7 +542,13 @@
                                            // 38/24/20, hive 32/24/22). A scatter is 4+.
                                            // (counting ELEMENTS was the earlier fix -- 9
                                            // peer KPIs at one size is correct design.)
-      primaryCta.length >= 1 || isPrintDoc || isPoster,  // a primary action exists -- but a
+      // A REFERENCE surface (a symbol gallery, a validator catalog, a design-system sheet, a
+      // retirement pointer) has no page-level action BY DESIGN: the job is to look things up.
+      // The page says so explicitly -- <meta name="wh-page-kind" content="reference"> -- rather than
+      // the lens guessing from markup; a declared contract can be audited, a heuristic cannot.
+      // (2026-09-05: symbol-gallery / validator-catalog / llm-observability read A1 75% "cta=0".)
+      primaryCta.length >= 1 || isPrintDoc || isPoster
+        || !!document.querySelector('meta[name="wh-page-kind"][content="reference"], meta[name="wh-page-kind"][content="console"]'),  // a primary action exists -- but a reference page has none by design and a console's actions live per card (2026-09-05)
                                            // print report / poster is a STATIC artifact with
                                            // no interactive CTA (G1/E3 already N/A there), so
                                            // it satisfies this by genre, not by growing a button.
@@ -289,7 +565,8 @@
     // scored "blocks=0" because the selector only saw div/section/article. Include a/li so
     // linked + list-item cards count; the radius>=6 + padding>=6 signature already excludes
     // nav chips (radius:0/pad:0), so no over-count. [external-consistency-internal-ext]
-    const cardLike = $$('div, section, article, a, li', R).filter(vis).filter((e) => {
+    // rendered component SAMPLES in a reference gallery (#ds-root) are data, not the page's own blocks (2026-09-05)
+    const cardLike = $$('div, section, article, a, li', R).filter(vis).filter((e) => !(_refKind && e.closest('#ds-root'))).filter((e) => {
       const st = getComputedStyle(e);
       if (parseFloat(st.borderTopLeftRadius) < 6) return false;
       const hasEdge = st.borderTopWidth !== '0px' || (rgb(st.backgroundColor) || { a: 0 }).a > 0;
@@ -307,12 +584,29 @@
     // scale -- rounded cards would be wrong for the medium. Its scannability lives in the
     // headed sections, so count those as its "blocks" instead of demanding card rounding.
     const chunked = isPrintDoc ? ($$('h2,h3', R).filter(vis).length >= 2) : (blocks.length >= 1);
+    // ★FAULT 17 — THE SAME DIM COUNTED role="heading" IN ONE CHECK AND REFUSED IT IN ANOTHER
+    // (2026-09-11). `heads` (line 376) is `h1,h2,h3,h4,[role="heading"]`, and this dim's 4th check was
+    // `$$('h2,h3')` with the comment "real heading structure, not styled divs". A `role="heading"
+    // aria-level="2"` element is not a styled div - it is THE ARIA semantic for a heading, announced at
+    // that level by every screen reader, and it is what hive's board deliberately uses on its section
+    // labels (added 2026-09-11 so the board's eleven sections became navigable at all). So the two
+    // worker boards walked today read `headings=5 (h2/h3=0)` and `headings=8 (h2/h3=0)`: five and eight
+    // headings that the same dim, one line apart, agreed were headings and then refused to count.
+    // The file already learned this exact lesson for disclosures ten lines below - "[aria-expanded] IS
+    // the ARIA semantic for a disclosure control", after a class-list selector scored 10 pages as having
+    // no disclosure while they shipped load-more buttons - and it had not travelled to headings.
+    // The check still excludes h1: a page title alone is not internal structure, which is the real
+    // question here, so only levels 2-3 count. [[feedback_an_oracles_vocabulary_is_part_of_the_oracle]]
+    const subHeads = $$('h2,h3,[role="heading"][aria-level="2"],[role="heading"][aria-level="3"]', R).filter(vis);
     out.push(M('A2', 'Scannability', [
       heads.length >= 2,
       chunked,
       bold.length >= 1,
-      $$('h2,h3', R).filter(vis).length >= 1,   // real heading structure, not styled divs
-    ].filter(Boolean).length, 4, `headings=${heads.length} (h2/h3=${$$('h2,h3', R).filter(vis).length}) blocks=${blocks.length}`));
+      subHeads.length >= 1,   // real heading structure - a tag OR the ARIA semantic, not a styled div
+    ].filter(Boolean).length, 4,
+      `headings=${heads.length} (sub-heads=${subHeads.length}: h2/h3=${$$('h2,h3', R).filter(vis).length}`
+      + ` + role=heading L2/L3=${$$('[role="heading"][aria-level="2"],[role="heading"][aria-level="3"]', R).filter(vis).length})`
+      + ` blocks=${blocks.length}`));
 
     // progressive disclosure: long lists capped / total long lists
     const tables = $$('table', R).filter(vis);
@@ -335,15 +629,30 @@
     out.push(M('A3', 'Cognitive load / progressive disclosure', [
       cappedLists.length >= 1 || (longTables.length === 0 && structuralBlocks.length <= 12),
       $$('[role="tab"], .phase-tab, .period-btn', R).filter(vis).length <= 12,  // Hick: few options first
-      structuralBlocks.length <= 40,
+      structuralBlocks.length <= 40 || !!document.querySelector('meta[name="wh-page-kind"][content="console"]'),   // a single-operator console is dense by design (founder-console: 124 panels; 2026-09-05 calibration, recorded)
       primaryCta.length <= TH.A3.maxPrimaryCta,   // one recommended action highlighted
-    ].filter(Boolean).length, 4, `disclosures=${cappedLists.length} longTables=${longTables.length}`));
+    ].filter(Boolean).length, 4, `disclosures=${cappedLists.length} longTables=${longTables.length} · blocks=${structuralBlocks.length} tabs=${$$('[role="tab"], .phase-tab, .period-btn', R).filter(vis).length} primaryCta=${primaryCta.length}/${TH.A3.maxPrimaryCta}`));   // the note names every check's input (2026-09-05)
 
     // ── B · Language ────────────────────────────────────────────────────────
     // "unlock" removed 2026-07-16: on this platform it is the LITERAL gating verb
     // ("unlocks at Stair 3", "Reach Level 50 to unlock") — a factual mechanic, not
     // puffery. The remaining words are pure marketese with no literal platform use.
-    const MARKETESE = /\b(revolutionary|world-class|cutting-edge|seamless|empower|game-chang|best-in-class|synerg)/i;
+    // ★"world-class" NARROWED 2026-09-11, the same correction as "unlock" and for the same reason —
+    // and the claim on the line above ("no literal platform use") was measurably FALSE for it. On a
+    // maintenance platform "world-class" is a RELIABILITY BENCHMARK, a term of art: world-class OEE is
+    // 85% per Nakajima TPM / ISO 22400-2, world-class MTTR is under two hours. It is a NAMED OUTPUT
+    // FIELD of the OEE calculator ("World-class benchmark = 85 %"), so B2 read 0% and B1 67% on 60
+    // generated calculator pages for quoting the standard they cite.
+    // MEASURED across every root/learn/calc page before touching the ruler: 33 occurrences on 9 pages,
+    // and ALL 33 are benchmark usage — including ph-industrial-benchmarks, which uses the phrase to
+    // ARGUE AGAINST that framing ("'85 percent (world-class)' is less credible than 'current sector
+    // P75'"). Zero genuine puffery in the corpus.
+    // Teeth kept rather than dropped: the word still fires when it modifies the PRODUCT instead of a
+    // metric ("world-class platform/support/service"), which is what the dim exists to catch. Removing
+    // it outright would have been the blunt fix; a benchmark is not a boast.
+    // [[feedback_an_oracles_vocabulary_is_part_of_the_oracle]] — fourth English-calibrated text rule
+    // this week to meet the platform's own vocabulary and lose.
+    const MARKETESE = /\b(revolutionary|cutting-edge|seamless|empower|game-chang|best-in-class|synerg)|\bworld-class\s+(?:platform|product|support|service|team|experience|software|solution|tool|app)\b/i;
     const marketese = textEls.filter(e => MARKETESE.test(ownText(e)));
     const longBlocks = textEls.filter(e => ownText(e).split(/\s+/).length > 60);
     out.push(M('B1', 'Microcopy / concision', [
@@ -379,7 +688,31 @@
     // user's forum text (`.post-content`, `.post-card`, `.reply-body`) -- holding the app to an
     // 8th-grade/<=20-word bar for how a WORKER talks or posts is a category error (a voice journal's
     // whole job is capturing natural speech). Exclude those containers; product copy still graded.
-    const isUserAuthored = (e) => !!e.closest('.transcript-box, .transcript, [class*="transcript"], .history-text, .post-content, .post-card, .reply-body, [data-user-content]');
+    // ★AND A LOGBOOK ENTRY IS THE WORKER'S OWN WRITING TOO (walked 2026-09-10, EN/FIL worker pair).
+    // The rule above already spares a voice-journal transcript and a community post, for the stated
+    // reason that holding the app to an 8th-grade / <=20-word bar for how a WORKER TALKS is a category
+    // error. A logbook entry is the same thing written down: "Isolated unit (LOTO), cleaned oil cooler
+    // fins with compressed air, verified discharge temp back to 8C" is a technician's record of what he
+    // did, not interface copy, and it was being graded as if the product had written it.
+    // MEASURED on logbook: 24 of the 34 prose elements B3 grades - 71% - live inside #entries-list
+    // .entry-card ("Recorded ISO 10816 readings; trend stable", "Thermography survey of MCC; no hot
+    // spots above 60C"). That is why this page has reported B3 67% with 50-odd sentences on walk after
+    // walk: the dim was mostly measuring the hive's own maintenance history.
+    // The exclusion follows the SAME precedent, not a new rule - product copy on the page is still
+    // graded, and the entry a worker typed is not.
+    // ★AND THE MOST OBVIOUS USER-AUTHORED SURFACE OF ALL IS A FORM FIELD (2026-09-11, J31 walked as a
+    // solo owner with no hive). The rule above lists CONTAINERS - transcripts, posts, entry cards - and
+    // missed the general case: a <textarea>'s text content IS what the person typed. resume.html renders
+    // every editable field as `<textarea ...>${escHtml(val)}</textarea>` (resume.html:675), and the work
+    // "highlights" it holds are built FROM THE WORKER'S OWN LOGBOOK ENTRIES (resume.html:1188 -
+    // `${machine}: ${action} (resolved: ${problem})`). So B3 read a technician's maintenance notes as the
+    // product's prose and scored the page 33% for their reading grade: "Replaced filter, topped up
+    // hydraulic oil (resolved: Hydraulic mast lifting slow under load...)" is a correct, specific record
+    // of real work, and grading it for readability is a category error - the same one this rule was
+    // written to stop, arriving through a field instead of a card.
+    // An <input> never reaches this sample (its value is not text content), so a textarea is the whole
+    // of the gap. A placeholder is not text content either, so product example-copy still grades.
+    const isUserAuthored = (e) => e.tagName === 'TEXTAREA' || !!e.closest('textarea, .transcript-box, .transcript, [class*="transcript"], .history-text, .post-content, .post-card, .reply-body, [data-user-content], #entries-list, .entry-card');
     const proseEls = textEls.filter((e) => {
       const t = ownText(e);
       return t.split(/\s+/).length >= 6 && !/^h[1-6]$/i.test(e.tagName) && !isUserAuthored(e);
@@ -400,7 +733,25 @@
       // "[SAFETY] ACTIVE ISOLATIONS:\n  - TT-002 (permit …)\n  - GEN-003 …", rendered white-space:
       // pre-wrap) is a LIST, not one 15-word run-on sentence. Splitting on \n grades each real line
       // (all short) and spreads the asset codes across lines (so E4's >7-ids-in-one-block clears too).
-      raw.split(/(?<=[.!?])\s+|\s*\n+\s*/).forEach((s) => {
+      // ★BUT A NEWLINE IS ONLY A LINE BREAK WHEN THE ELEMENT KEEPS IT (walked 2026-09-10, public-feed).
+      // The pre-wrap case above is real and stays. What was wrong is applying it to ORDINARY prose,
+      // where a newline is HTML SOURCE FORMATTING that the browser collapses and no reader ever sees.
+      // public-feed's hint is hard-wrapped in the markup, so this splitter chopped it into eight
+      // "sentences" - including the one-word sentence "You", and "only, never here, unless you share
+      // it." beginning mid-clause - longest fragment 17 words, so B3 passed it. The SAME prose in
+      // Filipino arrives from a dictionary as one unbroken string, is measured as the 30-word sentence
+      // it actually is, and fails. So the check was reading how the HTML happens to be wrapped, not how
+      // long the sentences are - under-reporting hard-wrapped English markup and correctly measuring
+      // anything delivered from JSON or JS. That asymmetry is structural, not vocabulary: English lives
+      // in hard-wrapped HTML and Filipino comes from single-line dictionaries.
+      // The distinction the CSS already makes is the right one: if the element PRESERVES whitespace
+      // (pre / pre-wrap / pre-line) a newline is a line the reader sees, so keep splitting on it; if the
+      // element COLLAPSES it (the default), the newline is invisible and the text is one flowing run.
+      const _ws = (() => { try { return getComputedStyle(e).whiteSpace || 'normal'; } catch (_) { return 'normal'; } })();
+      const _keepsNewlines = /^pre/.test(_ws);
+      const _src = _keepsNewlines ? raw : raw.replace(/\s*\n+\s*/g, ' ');
+      const _splitter = _keepsNewlines ? /(?<=[.!?])\s+|\s*\n+\s*/ : /(?<=[.!?])\s+/;
+      _src.split(_splitter).forEach((s) => {
         const t = s.trim();
         if (t.split(/\s+/).length >= 4) sentences.push({ t, el: e });
       });
@@ -409,7 +760,9 @@
     // `\w+(ed|en)` with /i matched an UPPERCASE ASSET CODE: "is GEN-003" -> `\w+`="G", `(ed|en)`="EN"
     // -> false passive on "The top risk is GEN-003" (shift-brain). Requiring lowercase [a-z]{2,} excludes
     // codes (GEN/GEN-003/TT-001) while still catching "is broken / was replaced". §16.1 the ruler, not the page.
-    const PASSIVE = /\b(?:[Ww]as|[Ww]ere|[Ii]s|[Aa]re|[Bb]een|[Bb]eing|[Bb]e)\s+[a-z]{2,}(?:ed|en)\b(?!\s+(?:by\s+you|to))/;
+    // 2026-09-07: \"is often\", \"is open\", \"are even\" matched as passive because the word ends in -en; those are adverbs and
+    // adjectives, not participles - excluded by name (a learn article read passive=1 on "is often the same job")
+    const PASSIVE = /\b(?:[Ww]as|[Ww]ere|[Ii]s|[Aa]re|[Bb]een|[Bb]eing|[Bb]e)\s+(?!(?:often|open|even|seven|eleven|then|when|between|green|oxygen|kitchen|garden|golden|wooden|sudden|linen|ten)\b)[a-z]{2,}(?:ed|en)\b(?!\s+(?:by\s+you|to))/;
     const longOnes = sentences.filter((s) => s.t.split(/\s+/).length > TH.B3.maxSentenceWords);
     const passiveOnes = sentences.filter((s) => PASSIVE.test(s.t));
     // Flesch-Kincaid is a REGRESSION fitted on running prose -- it is meaningless on a
@@ -422,6 +775,10 @@
     // engineer-voice prose around it does NOT. (Ian: "inside the kpi tiles... it is long
     // and not easily understood".)
     const stripCite = (t) => t
+      // a URL or an e-mail inside a sentence is a citation token, not prose: "(https://www.doe.gov.ph)" graded a
+      // 14-word sentence at grade 15 on the learn article, the same way "ISO 14224:2016" did before (2026-09-07)
+      .replace(/\(?\bhttps?:\/\/[^\s)]+\)?/gi, '')
+      .replace(/\(?\b[\w.+-]+@[\w-]+\.[\w.-]+\)?/g, '')
       .replace(/\b(ISO|SMRP|SAE|JA)\s?[\d.:-]+(?:-\d+)?(?::\d{4})?/gi, '')
       .replace(/\bBest Practices v[\d.]+/gi, '')
       .replace(/§[\d.]+/g, '')
@@ -450,15 +807,77 @@
       const syl = words.reduce((a, w) => a + syllables(w), 0);
       return 0.39 * words.length + 11.8 * (syl / Math.max(words.length, 1)) - 15.59;
     };
-    const overGrade = graded.filter((s) => fk(s.t) > TH.B3.maxFkGrade);
+    // ★FLESCH-KINCAID IS AN ENGLISH RULER, AND IT WAS PENALISING THE PLATFORM FOR TRANSLATING WELL
+    // (measured 2026-09-10, five consecutive Filipino walks in which B3 was the dominant dim).
+    // FK is `0.39*words + 11.8*syllables/word - 15.59`, with coefficients fitted to ENGLISH. Tagalog is
+    // agglutinative - naitatala, nagpapalago, disiplinang, nakakakita - so its syllables-per-word runs
+    // structurally higher and the 11.8 term dominates. MEASURED on the platform's own PARALLEL CORPUS
+    // (i18n/*.json holds each English string beside its shipped Filipino): across 193 sentence pairs of
+    // >=8 words, Filipino grades HARDER in 180 of them (93%), mean +4.53 grades, median +4.65;
+    // syllables/word 1.51 EN vs 1.82 FIL; mean grade 8.7 EN vs 13.3 FIL. 64 pairs PASS in English and
+    // FAIL in Filipino; only 2 go the other way. The clearest case: "Pick the closest match. You can
+    // change scope later." grades 2.3, and its faithful, plain translation "Piliin ang pinakamalapit.
+    // Puwede mong baguhin ang scope mamaya." grades 14.1 - the same sentence, +11.8 grades, for being
+    // Filipino. That is not a reading of the copy; it is a reading of the language.
+    // So Filipino prose is exempt from GRADE, never from length or voice - EXACTLY the rule this file
+    // already applies to standards vocabulary (see STANDARDS above): the checks that transfer across
+    // languages still bite, the one calibrated on English does not. A translated-to-order Filipino
+    // sentence must never cost the page a dim. Re-calibrating FK for Tagalog (or adopting a measure
+    // built for it) is the real fix and needs a corpus we do not have; until then the honest move is to
+    // withhold the number rather than report a biased one.
+    // [[feedback_an_oracles_vocabulary_is_part_of_the_oracle]]
+    // ★INSTRUMENT FAULT 9 (walked 2026-09-11, the RA 11285 article in Filipino at desktop). This line
+    // read `window.WH_LANG !== 'fil'` — the READER'S PREFERENCE — and withheld the grade whenever the
+    // person had Filipino selected, no matter what language the text was actually in. The 54 learn
+    // articles and 60 calculators are English-only content: on this article the platform's own
+    // declaration says documentElement.lang="en" and all 15,867 characters ARE English, yet the grade
+    // was suppressed and the note blamed Filipino calibration. The consequence was a SILENTLY SMALLER
+    // finding: the RA 11285 content bar is "131 sentences, 37 over twenty words, 92 over grade 8", and
+    // in a Filipino walk that last third simply vanished — the page reported grade=n/a and looked
+    // better for having been read by a Filipino speaker.
+    // A PREFERENCE IS NOT THE LANGUAGE OF THE TEXT. The honest signal is the page's own lang
+    // declaration, which the platform sets when the copy actually swaps: it read "fil" on all six
+    // product pages walked minutes earlier (whose text was Filipino) and "en" here. WH_LANG survives
+    // only as the fallback for a page that declares no lang at all.
+    const _docLang = (typeof document !== 'undefined' && document.documentElement.lang || '').toLowerCase();
+    const _fkLangEN = (typeof window === 'undefined') ? true
+      : _docLang ? !/^(fil|tl)\b/.test(_docLang)
+      : window.WH_LANG !== 'fil';
+    const overGrade = _fkLangEN ? graded.filter((s) => fk(s.t) > TH.B3.maxFkGrade) : [];
     const b3Checks = [
-      longOnes.length === 0,        // GOV.UK: <=20 words
-      passiveOnes.length === 0,     // NN/g: active voice
-      overGrade.length === 0,       // NN/g: 8th grade, broad audience
+      longOnes.length === 0,        // GOV.UK: <=20 words — a word COUNT, language-neutral, bites in both
+      // ★A CORRECTION TO THE LINE THAT WAS HERE THIS MORNING. When the grade was made EN-only, this
+      // check was annotated "transfers across languages". It does not, and a later audit of the whole
+      // rubric against the EN/FIL parallel corpus refuted it precisely: PASSIVE matches 35 English
+      // strings and ZERO of their shipped Filipino translations - 0% retention, the lowest in the file.
+      // Filipino marks voice by VERB AFFIX (binuksan / nabuksan), not by "was/were + participle", so an
+      // English auxiliary-plus-participle pattern cannot see Filipino passive at all.
+      // The direction matters and is the opposite of the grade's: an empty `passiveOnes` is a PASS, so
+      // Filipino prose SILENTLY ALWAYS PASSES this check. It manufactures no false defect - it just
+      // stops measuring, which is why no walk ever surfaced it. Left honest rather than faked: detecting
+      // Filipino passive needs affix analysis, and a word list pretending to do it would be false
+      // precision on a dim that already reports a number. Recorded as a KNOWN LIMIT of B3 under FIL:
+      // the length check bites, the grade is withheld, and the voice check is inert.
+      passiveOnes.length === 0,     // NN/g: active voice — ENGLISH-ONLY (inert under FIL, see above)
+      _fkLangEN ? overGrade.length === 0 : true,  // NN/g 8th grade — ENGLISH-calibrated, EN only
     ];
     const worstLong = longOnes.sort((a, b) => b.t.split(/\s+/).length - a.t.split(/\s+/).length)[0];
+    // Reference documentation (design system, architecture, validator catalog...) is CONTENT written for its engineering
+    // audience; its sentence length and grade are the doc's own editorial call, not interface copy a worker must parse
+    // in a second. The reference-kind rule that already spares table/pre/code cells extends to B3 as n/a (2026-09-05).
+    if (_refKind) out.push(NA('B3', 'Readability (<=20 words, grade <=8, active)', `reference documentation: ${sentences.length} sentences of content prose, graded by the doc's audience, not as interface copy`)); else
     out.push(M('B3', 'Readability (<=20 words, grade <=8, active)', b3Checks.filter(Boolean).length, 3,
-      `sentences=${sentences.length} · >20w=${longOnes.length} · passive=${passiveOnes.length} · grade>8=${overGrade.length}`
+      // ★A ZERO THAT WAS NEVER MEASURED IS A CLAIM (2026-09-11). The comment above records, correctly and
+      // deliberately, that PASSIVE is English-only and inert under FIL - and the note still printed
+      // `passive=0`, which reads as "measured, none found". Every FIL surface of the J26 walk reported
+      // `passive=0` on prose the check cannot see. The FK grade one line below already handles this
+      // honestly by printing `grade=n/a (FK is English-calibrated)`; the voice check simply had not been
+      // given the same voice. The GRADE is unchanged (it passes either way, as documented) - what changes
+      // is that the number stops asserting something it did not do.
+      // [[feedback_metric_label_is_a_claim_add_the_missing_half]], [[feedback_the_instrument_must_explain_its_own_number]]
+      `sentences=${sentences.length} · >20w=${longOnes.length} · `
+      + `passive=${_fkLangEN ? passiveOnes.length : 'n/a (English-only; FIL marks voice by verb affix)'} · `
+      + (_fkLangEN ? `grade>8=${overGrade.length}` : 'grade=n/a (FK is English-calibrated; +4.5 grades on this platform’s own FIL/EN parallel corpus)')
       + (worstLong ? ` · worst(${worstLong.t.split(/\s+/).length}w): "${worstLong.t.slice(0, 60)}…"` : '')));
     // expose the offenders so the caller can REWRITE them, not just score them
     out._b3 = {
@@ -506,6 +925,16 @@
       // char; "⌘K" keeps its "K" so real symbol+letter text is still graded. §16.1 the ruler, not the page.
       const _c2t = ownText(e);
       if (_c2t && !/[\p{L}\p{N}]/u.test(_c2t.replace(/[\p{Extended_Pictographic}️‍]/gu, ''))) return;
+      // A DISABLED CONTROL HAS NO CONTRAST REQUIREMENT, AND THE STANDARD'S EXEMPTIONS ARE PART OF THE
+      // MEASUREMENT (2026-09-10). WCAG 2.x SC 1.4.3 exempts "text or images of text that are part of an
+      // INACTIVE user interface component". analytics-report's "CSV" label scored 1.43:1 and was banked
+      // as a serious defect - "effectively invisible on the page a supervisor reads the month's numbers
+      // on" - until the element was looked at: it is a <span> inside <button id="csv-btn" disabled>, and
+      // rgba(16,16,16,0.3) is simply the browser's own disabled styling. Every disabled control on the
+      // platform would score the same, so this dim was reporting the User Agent stylesheet as a product
+      // fault. Greying a disabled control is the CONVENTION that tells a person it is unavailable;
+      // scoring it down asks the product to make "you cannot use this" look usable.
+      if (e.closest('[disabled], [aria-disabled="true"], fieldset[disabled]')) return;
       const s = getComputedStyle(e);
       // Gradient-clipped text (background-clip:text + transparent fill): the GLYPHS are
       // the gradient; `color` is unused. Score the worst glyph stop against the surface
@@ -622,7 +1051,24 @@
 
     // ── D · Interaction ─────────────────────────────────────────────────────
     const iconOnly = inter.filter(e => { const t = (e.innerText || '').trim(); return (e.querySelector('svg,img') || /^[^\w\s]{1,3}$/.test(t)) && t.replace(/[^\w]/g, '').length === 0; });
-    const namedIcons = iconOnly.filter(e => e.getAttribute('aria-label') || e.title);
+    // ★AN IMAGE'S alt IS THE CONTROL'S NAME — the accessible-name algorithm, not a loophole
+    // (2026-09-10, first full-rubric walk of the learn articles). D1 counted a control as named only
+    // when the ELEMENT carried aria-label or title, so the site's own logo link scored 0/1 on both
+    // learn pages: `<a href="/"><img alt="WorkHive"><span class="hidden sm:...">` — at 390 the
+    // wordmark span is hidden, leaving a bare image, and the <a> has no aria-label. But it IS named:
+    // WCAG H30 makes the img's alt the link's accessible name, and a screen reader announces
+    // "WorkHive, link". The lens was asserting something false about the page. Read the same sources
+    // the browser does — aria-label, aria-labelledby, title, and a non-empty alt on the icon image.
+    // All 10 D1 findings in the registry came from this one mis-reading, on the only two pages whose
+    // brand wordmark is hidden at phone width. Seventh instrument fault of this extension.
+    const namedIcons = iconOnly.filter((e) => {
+      if (e.getAttribute('aria-label') || e.getAttribute('aria-labelledby') || e.title) return true;
+      const img = e.querySelector('img[alt], svg[aria-label], svg > title');
+      if (!img) return false;
+      const alt = img.tagName === 'IMG' ? (img.getAttribute('alt') || '')
+        : (img.getAttribute('aria-label') || img.textContent || '');
+      return alt.trim().length > 0;
+    });
     out.push(iconOnly.length
       ? M('D1', 'Affordances & signifiers', namedIcons.length, iconOnly.length, `${namedIcons.length}/${iconOnly.length} icon-only controls named`)
       : NA('D1', 'Affordances & signifiers', 'no icon-only controls in this state'));
@@ -653,16 +1099,67 @@
     const chip = document.querySelector('.wh-source-chip');
     // Freshness can be worded many ways -- "Recomputed when this report was generated" is
     // as honest as "Updated 2m ago". Grade the PRESENCE of a freshness claim, not one phrasing.
-    const FRESH = /updated|live|snapshot|as of|refresh|recomputed|generated|computed|calculated|on demand/i;
+    // ★AND THE FRESHNESS VOCABULARY WAS ENGLISH-ONLY TOO — the FOURTH one this session (2026-09-10).
+    // analytics reads E3 100% in English on "Saved snapshot, computed 6 min ago · Refresh to recompute"
+    // and 50% in Filipino on "Kakakalkula lang" — which is the shipped translation of "Recomputed just
+    // now", i.e. the SAME freshness claim, invisible because the pattern spoke only English. Measured
+    // across the dictionaries: 44 English strings carry a freshness word; 25 keep it in Filipino by
+    // loanword (snapshot, refresh, generate survive translation) and 19 DO NOT — those 19 were
+    // unreadable to this dim. The added terms are exactly those forms: kalkula/kuwenta (the two verbs
+    // Filipino uses for "compute", across kinalkula, kakakalkula, kinukuwenta, nakuwenta), binubuo
+    // ("built"), hiniling ("on demand"), nakalipas ("ago"), and the na-/nire- prefixed loanwords the
+    // English stems miss because the pattern demands the -d participle (na-generate, na-update).
+    // Same shape as B3's English readability grade, the English-only permission wall and X1's guidance
+    // vocabulary: on a bilingual product, ask of EVERY text-matching check what it does to the other
+    // language, and answer it by running the same page in both.
+    // [[feedback_an_oracles_vocabulary_is_part_of_the_oracle]]
+    // ★FAULT 20 — "as of" WAS IN THE VOCABULARY AND ITS OWN FILIPINO TRANSLATION WAS NOT (2026-09-11).
+    // resume.html ships one chip in two languages, and the two halves say the same thing:
+    //   EN  "Your resume · saved on this device and to your account · AS OF this page load"   -> E3 100%
+    //   FIL "Ang resume mo · naka-save sa device na ito at sa account mo · NOONG pag-load ..." -> E3  50%
+    // `noong` IS "as of" - the platform's own translation of that exact token, in
+    // i18n/pages/resume.fil.json under the same data-i key. The chip was correct and the ruler could not
+    // read it, so a Filipino reader's page lost half a trust dim for a translation that was right.
+    // Walked as Boyet Ramirez, a solo rider with no hive, phone-390 at wh_lang=fil.
+    // DERIVED, NOT GUESSED - which is the whole discipline here. Every token below was taken by pairing
+    // each i18n/pages/*.fil.json entry against the EN string on its own data-i element and keeping the
+    // FIL halves whose ENGLISH half this regex already matched: `noong` (= as of; resume chip and
+    // offline-fallback's "Connection checked as of page load"), `buhay` (= alive; founder-console's "Is
+    // it alive?" / "Is the platform alive?"), and `nabuo` (= generated, the COMPLETED form - only the
+    // present-tense `binubuo` was known, so the ruler had one inflection of the same verb and missed the
+    // other; `nabuo` also covers `nabuong`). `magagawa` was deliberately LEFT OUT: its English half is
+    // "Reports CAN BE generated", a capability claim rather than a freshness one, and a token that
+    // excuses a chip saying nothing about WHEN is worse than a missing one.
+    // Its own audit tool had flagged this at 84% retention (44 EN / 37 FIL) as a CANDIDATE; this is the
+    // measured bite. Fourth English-only vocabulary found in this dim's family.
+    const FRESH = new RegExp(
+      'updated|live|snapshot|as of|refresh|recomputed|generated|computed|calculated|on demand'
+      + '|kalkula|kuwenta|binubuo|hiniling|nakalipas|na-generate|na-update|nire-refresh'
+      + '|noong|buhay|nabuo', 'i');
     // Read textContent, NOT innerText: index's provenance chip is DELIBERATELY collapsed inside
     // a "More" disclosure ("stays inspectable" -- a valid progressive-disclosure trust pattern),
     // so innerText was '' and E3 scored a present, fully-worded chip (325 chars incl "Live data")
     // as missing. The provenance IS provided; a chip with no freshness word still fails.
     const chipTxt = chip ? (chip.textContent || '').replace(/\s+/g, ' ').trim() : '';
+    // ★A PROSE PAGE CARRIES ITS PROVENANCE IN PROSE (2026-09-08, before the critic swept the learn wave).
+    // E3 was written for product surfaces, where a `.wh-source-chip` is the convention. A learn article is
+    // mostly prose: 54 of 54 name their sources or the authority behind them (DOE, IEA, DOLE, PSA, ERC,
+    // PSME) and 54 of 54 say how fresh they are - in sentences, with a dateline. Only 2 carry a chip, and
+    // no generator emits one for these pages. Grading them by the chip would have returned 51 failures for
+    // a convention those pages were never designed to have: a rubric-fit problem dressed as 51 defects.
+    // The dimension asks whether a READER can check the claim, so on an article the sentence counts.
+    const isArticle = /\/learn\//.test(location.pathname) && !/\/learn\/?$/.test(location.pathname);
+    const bodyTxt = (document.body ? document.body.innerText || '' : '').replace(/\s+/g, ' ');
+    const SOURCED = /\bsources?\b|\breferences?\b|according to|\bper the\b|\bDOE\b|\bIEA\b|\bDOLE\b|\bPSA\b|\bERC\b|\bPSME\b|\bDPWH\b|\bDENR\b|department of energy/i;
+    const prose = isArticle && SOURCED.test(bodyTxt) && FRESH.test(bodyTxt);
     out.push(isPoster
       ? NA('E3', 'Trust / transparency', 'poster: cites the product URL, not data provenance')
-      : M('E3', 'Trust / transparency', [!!chip, FRESH.test(chipTxt)].filter(Boolean).length, 2,
-          chip ? `chip: "${chipTxt.slice(0, 40)}"` : 'NO source chip'));
+      : isPermWall
+      ? NA('E3', 'Trust / transparency', 'permission wall: no data is shown to this persona, so there is no source or freshness to chip')
+      : prose
+        ? M('E3', 'Trust / transparency', 2, 2, 'article: names its sources and its freshness in prose (a chip is a product-surface convention)')
+        : M('E3', 'Trust / transparency', [!!chip, FRESH.test(chipTxt)].filter(Boolean).length, 2,
+            chip ? `chip: "${chipTxt.slice(0, 40)}"` : 'NO source chip'));
 
 
     // ── E4 · Digest, don't dump (2026-07-15) ────────────────────────────────
@@ -720,6 +1217,20 @@
     const STAT = /\b(r|r2|R²|p|rho|ρ)\s*=\s*-?[\d.]+/;
     // A statistic is "untranslated" when the coefficient stands ALONE in its element --
     // no verdict word in the same breath to tell a non-statistician what it MEANS.
+    // ★A KNOWN LANGUAGE LIMIT, DELIBERATELY NOT "FIXED" (audited 2026-09-10 by
+    // tools/audit_rubric_language_bias.py, which scores every vocabulary in this file against the EN/FIL
+    // parallel corpus). VERDICT matches 62 English strings and ONE of their shipped Filipino
+    // translations - 2% retention. The harmful direction exists in principle: E4 flags a text that
+    // carries a STATISTIC but no verdict word, so a Filipino sentence that DOES state its verdict could
+    // read as a raw-stat dump. It has not bitten - the bank holds exactly one Filipino E4 finding and it
+    // is a repeated verdict, not a raw stat - so this is LATENT, not active.
+    // It is left alone on purpose. The 61 unreadable pairs are dominated by negations (hindi 25, wala /
+    // walang 40), and the STATISTICAL verdict vocabulary - makabuluhan, malakas, ugnayan - is not shipped
+    // in Filipino anywhere in i18n/, so there is nothing to derive it from. Adding `hindi|wala` would
+    // make VERDICT true on almost any Filipino sentence and quietly turn E4's raw-stat check OFF: a
+    // ruler that excuses too much is the same defect as one that punishes too much, and an inert check
+    // that LOOKS fixed is worse than a documented gap. Re-run the audit when analytics ships Filipino
+    // statistical verdicts; then the vocabulary can be DERIVED rather than guessed.
     const VERDICT = /\b(significant|strong|weak|moderate|none|no |not |likely|unlikely|correlat|predict|drives|explains)/i;
     $$('*', R).filter(e => vis(e) && isProse(e) && e.children.length === 0).forEach((e) => {
       const t = ownText(e);
@@ -775,7 +1286,11 @@
         return (h && r >= h / 2 - 1) ? 'pill' : r;     // a pill is a SHAPE, not rogue drift
       });
       const badR = shapes.filter((v) => v !== 'pill' && v !== 'round' && !legalR.has(v));
+      // A monospace CODE sample is a typographic decision, not a fallback: design-system's token
+      // table shows `ui-monospace` values on purpose and S1 read it as offFont 1/36 (2026-09-05).
+      // Skip elements that are, contain, or sit inside code/kbd/samp/pre or a mono/code-classed box.
       const fonts = $$('h1, h2, h3, p, button, td', R).filter(vis)
+        .filter((e) => !e.closest('pre, code, kbd, samp, [class*="mono"], [class*="code"]') && !e.querySelector('code, kbd, samp'))
         .map((e) => getComputedStyle(e).fontFamily.split(',')[0].replace(/["']/g, '').trim());
       const declFont = csS.getPropertyValue('--wh-font').split(',')[0].replace(/["']/g, '').trim();
       // A typeface the page deliberately LOADED is a design DECISION; one it FELL BACK to is
@@ -822,8 +1337,9 @@
       const lr = lbl.getBoundingClientRect();
       return Math.min(lr.width, lr.height) >= TH.F1.minTapPx;
     };
+    // _inlineProse (WCAG 2.5.8 Inline exception) is defined once beside vis() and shared with Z3.
     const small = inter.map(e => ({ e, r: e.getBoundingClientRect() }))
-      .filter(o => o.r.width > 0 && o.r.height > 0 && (o.r.width < TH.F1.minTapPx || o.r.height < TH.F1.minTapPx) && !isDurationBlock(o.e) && !_labelTarget44(o.e))
+      .filter(o => o.r.width > 0 && o.r.height > 0 && (o.r.width < TH.F1.minTapPx || o.r.height < TH.F1.minTapPx) && !isDurationBlock(o.e) && !_labelTarget44(o.e) && !_inlineProse(o.e))
       .map(o => ({ w: Math.round(o.r.width), h: Math.round(o.r.height), t: (o.e.innerText || o.e.getAttribute('aria-label') || '').slice(0, 18) }));
     out.push(inter.length
       ? M('F1', 'Mobile / touch >= 44px', inter.length - small.length, inter.length,
@@ -859,6 +1375,8 @@
     // isPrintDoc is hoisted to the top of survey() (near isPoster) so A2 can also read it.
     out.push(status.length ? M('G1', 'Visibility of system status', 1, 1, `${status.length} status region(s)`)
       : (isPrintDoc || isPoster) ? NA('G1', 'Visibility of system status', 'static artifact: state lives on the generator, not the artifact')
+      : isStaticDoc ? NA('G1', 'Visibility of system status', 'static document: ships no data layer (no utils.js, no client, no inline fetch) — there is no system state to report')
+      : isPermWall ? NA('G1', 'Visibility of system status', 'permission wall: this persona is shown an access explanation, not the data surface — there is no live state to report')
       : M('G1', 'Visibility of system status', 0, 1, 'no status region'));
     // HTTP status codes count as leaked jargon ONLY with error/HTTP context — a bare 3-digit number
     // is usually a DOMAIN quantity, not an error (achievements' "405 XP this week" matched the old
@@ -883,8 +1401,27 @@
       $$('[role="progressbar"], progress, .bar-track, .stack-bar', R).filter(vis)
         .concat($$('[class*="track"]', R).filter(vis).filter(t => t.querySelector('[class*="fill"]')))
     )];
+    // ★THE DIM PENALISED A PAGE FOR OBEYING THE DIM (2026-09-10). dayplanner graded H1 0% — "0 progress
+    // indicator(s)" — walked as a fleet supervisor whose day was genuinely empty ("Nothing scheduled",
+    // "No plan yet"). But the page SHIPS the gradient: it renders utils.js's shared whProgressStrip into
+    // <div id="dp-progress" class="wh-progress-slot">, and that helper returns '' when total===0 for the
+    // reason THIS dim states three lines above — an empty bar invents a journey that doesn't exist (the
+    // A3 decoration error). So the page did exactly what H1 asks and H1 scored it a blocker for it.
+    // An EMPTY .wh-progress-slot is the page's own declaration that the mechanism is present and this
+    // data state has nothing to gradient; a page with no slot AND no bar has a real gap and still reads
+    // 0%. Mechanism, not page name — the same rule that made a *track* holding a *fill* count as a bar.
+    // HONEST LIMIT, stated rather than hidden: the lens cannot tell "no data" from "the render broke",
+    // so an empty slot yields N/A — "not gradable in this state" — never a 100% that would claim a bar
+    // painted. The note names the slot so a reader can check the page in a populated state.
+    // Same family as the C2 disabled exemption, the N1 data-i census and the X1 monolingual vocabulary:
+    // [[feedback_an_oracles_vocabulary_is_part_of_the_oracle]].
+    const _progSlot = $$('.wh-progress-slot', R).length > 0;
     out.push(workerDaily || progress.length
-      ? M('H1', 'Goal-gradient', progress.length ? 1 : 0, 1, `${progress.length} progress indicator(s)`)
+      ? (progress.length
+        ? M('H1', 'Goal-gradient', 1, 1, `${progress.length} progress indicator(s)`)
+        : _progSlot
+          ? NA('H1', 'Goal-gradient', 'the page ships the shared whProgressStrip (an empty .wh-progress-slot is present) and this data state has no plan to show progress on — an empty bar would invent a journey')
+          : M('H1', 'Goal-gradient', 0, 1, '0 progress indicator(s) — and no .wh-progress-slot: no goal-gradient mechanism on a worker-daily page'))
       : NA('H1', 'Goal-gradient', 'not a worker-daily journey page (no meta[name=worker-daily]): nothing to show progress on'));
     out.push(J('H2', 'Zeigarnik / open loops', 'needs a return-visit journey; MCP-driven'));
     out.push(J('H3', 'Serial position', 'ordering intent: judged against the page contract (worst-first etc.)'));
@@ -918,6 +1455,8 @@
     const _printDoc = !!document.querySelector('#ar-print-wrapper') && R.closest('#ar-print-wrapper');
     out.push(reserved.length ? M('I2', 'Perceived performance', 1, 1, `${reserved.length} reserved block(s)`)
       : (_printDoc || isPoster) ? NA('I2', 'Perceived performance', 'static artifact: rendered once, nothing streams in')
+      : isStaticDoc ? NA('I2', 'Perceived performance', 'static document: ships no data layer, so nothing streams in and there is nothing to reserve space for')
+      : isPermWall ? NA('I2', 'Perceived performance', 'permission wall: nothing is fetched for this persona, so there is nothing to reserve space for')
       : M('I2', 'Perceived performance', 0, 1, 'no reserved/optimistic block'));
 
     // ── J · Errors ──────────────────────────────────────────────────────────
@@ -928,10 +1467,27 @@
     // "Clear filters/search" is a reversible VIEW reset, not data loss — a confirm dialog
     // there would itself be a UX defect, so those are exempt.
     const CLEAR_VIEW = /\bclear\b.{0,14}\b(filter|search|selection|sort|form|input|field)s?\b/i;
+    // ★INSTRUMENT FAULT 10 (walked 2026-09-11, marketplace-seller in Filipino). This filter read ONLY
+    // the LABEL, and only against ENGLISH verbs — so the identical control scored differently in the
+    // two languages. marketplace-seller's listing Delete button is
+    //     <button class="btn-sm danger" data-action="delete">Burahin</button>  (72x44, visible)
+    // In English it is caught: J1 0% "1 destructive control(s)" (a BLOCKER) and Z3 96% flag it. Under
+    // wh_lang=fil the SAME button matched nothing, J1 fell through to NA "read-only surface: 0
+    // destructive controls", and the page scored 98% instead of 96% — THE INSTRUMENT RATED THE PAGE
+    // HIGHER BECAUSE IT COULD NOT READ THE LANGUAGE. Same family as X1's English-only guidance
+    // vocabulary: [[feedback_an_oracles_vocabulary_is_part_of_the_oracle]].
+    // The fix is the signal the rubric ALREADY trusts elsewhere — Z3's own note says "a real
+    // destructive control is a command button (data-action=delete, .danger), never a filter". Those
+    // markers are language-independent, so they lead; the label verbs stay as the fallback for controls
+    // that carry no marker, now in both languages.
+    const DESTRUCTIVE_MARKER = (e) => e.getAttribute('data-action') === 'delete'
+      || /\b(danger|destructive)\b/.test(String(e.className || ''));
+    const DESTRUCTIVE_WORD = /\b(delete|remove|clear|reset|archive|discard)\b|\b(burahin|alisin|tanggalin|i-clear|i-reset)\b/i;
     const destructive = inter.filter(e => {
       const label = (e.getAttribute('aria-label') || e.innerText || '').trim();
+      if (DESTRUCTIVE_MARKER(e)) return !CLEAR_VIEW.test(label);
       return label.length > 0 && label.length <= 30
-        && /\b(delete|remove|clear|reset|archive|discard)\b/i.test(label)
+        && DESTRUCTIVE_WORD.test(label)
         && !CLEAR_VIEW.test(label);
     });
     // Slip-guard is a MECHANISM, not an attribute spelling. All 4 residual J1 "fails"
@@ -940,7 +1496,23 @@
     // pattern) — but the old check only read the onclick ATTRIBUTE. Resolve the handler's
     // SOURCE (Function.toString) and, for addEventListener-wired controls, scan the
     // inline-script windows around the control's id.
-    const GUARD = /whConfirm|confirm\s*\(|are you sure|\bundo\b/i;
+    /* ★INSTRUMENT FAULT 11 (walked 2026-09-11, resume.html on a Tier-D career walk). The page graded
+       J1 0% - "14 destructive control(s)", BLOCKER severity - and ALL FOURTEEN ARE PROPERLY GUARDED.
+       The per-entry remove is `<button class="btn icon-del" data-action="remove" aria-label="Remove">`
+       and its handler reads `pushUndo(); snapshotVersion('before remove');` under a comment that says
+       "a novice fat-fingers the X - push undo FIRST so the (already-visible) Undo button can restore
+       it". The resume delete is guarded by an inline yes/no (data-rm-del-yes / -no). Two blind spots,
+       both the same shape as the 2026-09-10 report-sender fix one level further out:
+       (1) `\bundo\b` CANNOT MATCH `pushUndo` - the word boundary fails against the preceding "h", so a
+           mechanism named in camelCase is invisible to a word-boundary regex. The dim's own comment
+           says "slip-guard is a MECHANISM, not an attribute spelling"; a mechanism is not a spelling of
+           its name either.
+       (2) THE HOP CANNOT FOLLOW EVENT DELEGATION. These buttons carry no onclick and no id, and their
+           class `icon-del` occurs inside a TEMPLATE LITERAL ~47 lines above the delegated handler, so
+           the +/-300/800 anchor window never reaches it. What actually connects button to code is the
+           DELEGATION KEY - data-action="remove" resolved by `action === 'remove'`. That key is the
+           anchor this lens was missing. [[feedback_an_oracles_vocabulary_is_part_of_the_oracle]] */
+    const GUARD = /whConfirm|confirm\s*\(|are you sure|\bundo\b|pushUndo|showUndo|snapshotVersion/i;
     const pageJs = () => (survey._js !== undefined ? survey._js
       : (survey._js = $$('script:not([src])').map(s => s.textContent).join('\n')));
     const slipGuarded = (e) => {
@@ -948,10 +1520,74 @@
       if (GUARD.test(oc)) return true;
       const fn = (oc.match(/^\s*([A-Za-z_$][\w$]*)\s*\(/) || [])[1];
       if (fn && typeof window[fn] === 'function' && GUARD.test(String(window[fn]))) return true;
-      if (e.id) {
-        const js = pageJs();
-        for (let i = js.indexOf(e.id); i >= 0; i = js.indexOf(e.id, i + 1)) {
+      // ★THE GUARD WAS ONE HOP AWAY, BEHIND A CLASS INSTEAD OF AN ID (2026-09-10). report-sender graded
+      // J1 0% - "1 destructive control(s)", a BLOCKER - on its contact Remove button. The delete is in
+      // fact guarded: deleteContact() opens window.whConfirm() before touching anything, and refuses
+      // offline before even asking. The lens could not see it because BOTH its routes were closed - the
+      // button carries no onclick attribute (it is addEventListener-wired) and no id (it is a
+      // template-rendered row, keyed by data-del), so the id scan never ran. The dim's own comment says
+      // "slip-guard is a MECHANISM, not an attribute spelling", and this was the same error one level
+      // up: anchoring on the ID is itself an attribute spelling. So anchor on any DISTINCTIVE class too,
+      // and follow the handler ONE HOP - the code near the anchor calls deleteContact(...), and that
+      // function's own source carries the guard. Measured, not guessed: window.deleteContact exists and
+      // matches GUARD, while the +/-300/800 text window around every 'contact-delete' occurrence does
+      // not. Distinctive means >=6 chars and <=8 occurrences, so a generic token like "btn" can never
+      // drag in an unrelated guarded function. [[feedback_an_oracles_vocabulary_is_part_of_the_oracle]]
+      const js = pageJs();
+      // DELEGATION KEYS FIRST (fault 11): a control wired by a delegated listener has no onclick and
+      // often no id; what binds it to its code is its data-* action token, resolved as
+      // `action === 'remove'` / `case 'remove'`. Search the QUOTED token so a common word cannot drag
+      // in unrelated text, and keep the same distinctiveness rule the class anchors use.
+      const delegated = [];
+      if (e.attributes) {
+        for (const at of Array.from(e.attributes)) {
+          if (!/^data-/.test(at.name) || !at.value || at.value.length < 3 || at.value.length > 24) continue;
+          if (!/^[A-Za-z][\w-]*$/.test(at.value)) continue;         // an id/uuid is not an action token
+          for (const q of ["'" + at.value + "'", '"' + at.value + '"']) {
+            if (js.split(q).length - 1 <= 8) delegated.push(q);
+          }
+        }
+      }
+      /* ONE MORE HOP: THE WINDOW USUALLY HOLDS A CALL, NOT THE GUARD. marketplace-seller's delegated
+         branch reads `if (btn.dataset.action === 'delete') handleDelete(btn.dataset.id);` and the guard
+         lives 465 lines away in `handleDelete`, which calls window.whConfirm before touching anything.
+         `typeof window[fn]` cannot find it either, because the function is declared inside the page's
+         IIFE and never attached to window. So: take the identifiers CALLED inside the window and test
+         GUARD in each one's DECLARED BODY. Bounded to the first few names and a 1,400-char body so a
+         busy window cannot drag in an unrelated guarded function. */
+      const guardInCalleeBody = (win) => {
+        const names = [...new Set((win.match(/\b([A-Za-z_$][\w$]{2,})\s*\(/g) || [])
+          .map((m) => m.replace(/\s*\($/, '')))].filter((n) => !/^(if|for|while|switch|return|function|catch|typeof)$/.test(n)).slice(0, 6);
+        for (const n of names) {
+          const decl = new RegExp('(?:async\\s+)?function\\s+' + n + '\\s*\\(|\\b' + n + '\\s*=\\s*(?:async\\s*)?(?:function|\\()');
+          const m = decl.exec(js);
+          if (m && GUARD.test(js.slice(m.index, m.index + 1400))) return true;
+        }
+        return false;
+      };
+      for (const q of delegated) {
+        let seen = 0;
+        for (let i = js.indexOf(q); i >= 0 && seen < 12; i = js.indexOf(q, i + 1), seen++) {
+          const win = js.slice(Math.max(0, i - 200), i + 900);
+          if (GUARD.test(win) || guardInCalleeBody(win)) return true;
+        }
+      }
+      const anchors = [e.id].concat(e.classList ? Array.from(e.classList) : []).filter(Boolean)
+        .filter((a) => a === e.id || (a.length >= 6 && js.split(a).length - 1 <= 8));
+      for (const a of anchors) {
+        let seen = 0;
+        for (let i = js.indexOf(a); i >= 0 && seen < 12; i = js.indexOf(a, i + 1), seen++) {
           if (GUARD.test(js.slice(Math.max(0, i - 300), i + 800))) return true;
+          // The HOP window is deliberately tighter than the direct-text window (-60/+300 vs -300/+800):
+          // measured on this page, the wide window let a control classed `contact-chip` - the CONTAINER,
+          // rendered a few lines from the delete wiring - inherit deleteContact's guard, which would
+          // excuse a genuinely unguarded control that merely sits near a guarded one. At -60/+300 the
+          // real .contact-delete still resolves (hop:deleteContact) and the container no longer does.
+          const win = js.slice(Math.max(0, i - 60), i + 300);
+          const called = (win.match(/\b[A-Za-z_$][\w$]*\s*\(/g) || []).map((s) => s.replace(/\s*\($/, ''));
+          for (const c of called) {
+            if (typeof window[c] === 'function' && GUARD.test(String(window[c]))) return true;
+          }
         }
       }
       return false;
@@ -1065,6 +1701,17 @@
         // (nav, period/phase tabs, filters, actions, labels, empty states) must still be bilingual + IS graded.
         && !e.classList.contains('card-title') && !e.closest('.card-title')
         && !e.querySelector('.card-standard') && !e.closest('.card-standard'));
+    // ★AND THE BLIND SPOT IS NAMED, BECAUSE READING THIS NUMBER AS "WHAT A FILIPINO WORKER SEES" IS AN
+    // ERROR SOMEBODY HAS NOW MADE (2026-09-10). Coverage counts `data-i`, which is the STATIC swapper's
+    // marker. A label rendered by JS through the platform's OTHER mechanism - `_t(en, fil)` - carries no
+    // data-i and is counted UNCOVERED even though it is fully bilingual. Measured on analytics.html: the
+    // five "Show all N assets" expand controls are the entire uncovered sample, they are built at
+    // analytics.html:2855 as `_t(\`Show all ${total} ${noun}\`, \`Ipakita lahat ng ${total} ${noun}\`)`,
+    // and switching the page to FIL renders "Ipakita lahat ng 30 asset", "Ipakita lahat ng 85 pares",
+    // "Ipakita lahat ng 24 piyesa". The page scored N1 75% with "label coverage 1/6 (17%)" and was banked
+    // as "a Filipino technician meets an English page" - which is false. The number is a MECHANISM
+    // census, exactly as the note below says; it is not a reading of the page, and a `_t()` label is the
+    // specific case where the two diverge.
     const labelCovered = labelEls.filter((e) => e.hasAttribute('data-i') || e.querySelector('[data-i]')).length;
     const cov = labelEls.length ? labelCovered / labelEls.length : null;
     // ★HONEST LIMIT — READ THIS BEFORE TRUSTING THE NUMBER. This dim measures the i18n
@@ -1082,19 +1729,168 @@
     // queued in FAMILY_UFAI_ROADMAP §6, not faked here.
     // The note therefore carries `label coverage` as the HONEST SIGNAL; the pct is the
     // mechanism. Never read this pct as "% translated".
+    // Reference catalogs (<meta wh-page-kind=reference>: validator catalog, design system, symbol gallery, architecture,
+    // cost log, offline shell) render engineering DATA with minimal chrome, and the two single-operator consoles
+    // (<meta wh-page-kind=console>: founder-console, platform-actions) are the founder's own tools - both ship in the
+    // platform's operating language by default (2026-09-05 P-program calibration; Ian can widen it). Worker-facing pages
+    // and the public learn hub stay graded: a Filipino worker must be able to navigate them.
+    const _consoleKind = !!document.querySelector('meta[name="wh-page-kind"][content="console"]');
+    // ★FAULT 16 — THE LOCALE-FLIP DIFF WAS DEFERRED, SO N1 COULD NOT FAIL ON A FILIPINO PAGE (2026-09-11).
+    // The honest-limit note above says a truthful number needs a locale-flip diff and queues it as "a real
+    // instrument change, not faked here". Meanwhile every FIL cell of the deepwalk grid got 100% from the
+    // four mechanism checks. Walked as Christine Dizon (worker, Manila Electronics Assembly) on a phone at
+    // wh_lang=fil, `hive` read N1 100% — `WH_LANG=true · lang=fil · coverage 9/9 · data-i=101` — while the
+    // board in front of her rendered "Restock (1 out of stock) →", "Switch Hive (3)", "Your hive's value"
+    // and ten English aria-labels. The mechanism was installed, and the words were English. That is this
+    // lens's own false-100, one layer in from the one it already documents.
+    //
+    // THE FLIP IS NOT NEEDED WHEN THE PAGE HAS ALREADY FLIPPED. A deepwalk ARRIVES in Filipino, so the
+    // question is answerable on the spot and EXACTLY, with no setLang and no stale handles: every visible
+    // [data-i] names a key, the three live dictionaries hold the value, and the rendered text either
+    // matches it or does not. No word list, no heuristic, no false positives — two failure modes, both
+    // mechanical:
+    //   * a key NO dictionary defines — the stamp is decorative, so coverage counts it and nothing can ever
+    //     translate it ([[feedback_the_stamp_survived_the_translation_did_not]]); on `hive` that is
+    //     `hiveValueBadge` + `hiveValueSub`, the renewal card's own header.
+    //   * a key that resolves and is OVERWRITTEN by a later English literal — `updateSwitchButton()` does
+    //     `btn.textContent = \`Switch Hive (${n})\`` over a correct `data-i="switchhive"`
+    //     ([[feedback_the_js_overwrote_its_own_correct_markup]]).
+    // THREE sources, not one: WH_FIL (page), WH_FIL_COMMON (shared) AND WH_FIL_PAGE_VISIBLE (the fetched
+    // per-page dict). Reading only the first two reports the three Shift Handover keys as undefined while
+    // they render perfect Filipino — the first version of this check did exactly that, and the fix is to
+    // ask every dictionary the applier itself asks.
+    // ★AND THE FIRST VERSION OF THIS CHECK FAILED ITS SECOND PAGE, FOR THE REASON IT WAS BUILT TO CATCH.
+    // It named its dictionaries — WH_FIL, WH_FIL_PAGE_VISIBLE, WH_FIL_COMMON — and `logbook` keeps its
+    // page dict in a FOURTH global, `WH_FIL_PAGE`. So the check reported 8 keys as undefined while all
+    // eight rendered perfect Filipino ("Ang Iyong Repair Logbook", "Mag-log ng Repair", "Magsalita"…) and
+    // dropped a correct page from 100% to 80%. A hard-coded list of mechanisms is the same mistake as
+    // counting stamps: it asks HOW the page translates instead of WHETHER it did. So the dictionaries are
+    // DISCOVERED (every `WH_FIL*` global holding a plain object) and the next page's fifth channel is
+    // found without an edit. [[feedback_an_oracles_vocabulary_is_part_of_the_oracle]] — twice in one dim.
+    const _filActive = (typeof window.WH_LANG !== 'undefined') && window.WH_LANG === 'fil';
+    const _filStamps = { checked: 0, ok: 0, unresolved: [], clobbered: [], dicts: [] };
+    if (_filActive) {
+      const _dec = (s) => { const d = document.createElement('textarea'); d.innerHTML = (s == null ? '' : String(s)); return d.value; };
+      // Arrows/chevrons are decoration a dictionary value may or may not carry, so they are stripped from
+      // BOTH sides rather than counted as a mismatch.
+      const _norm = (s) => _dec(s).replace(/\s+/g, ' ').replace(/[←-⇿«»‹›><]+/g, '').trim().toLowerCase();
+      // ★AND THE PRECEDENCE MUST BE THE APPLIER'S, NOT window's ENUMERATION ORDER (fixed on the third
+      // page). `whI18nApply` merges COMMON < PAGE_VISIBLE < the page's OWN dict (utils.js:1688 — "a
+      // page's own dict still wins per key"), and `Object.keys(window)` happened to yield WH_FIL_COMMON
+      // first on pm-scheduler. So the check compared three PM status labels against the SHARED value
+      // ("Lumipas na") while the page's own dictionary correctly says "Lampas na sa takda" — and
+      // reported a correct page as 80%. An oracle that resolves a key differently from the product is
+      // measuring a dictionary the product never consults.
+      const _rank = (n) => (/^WH_FIL_COMMON$/i.test(n) ? 0 : /^WH_FIL_PAGE_VISIBLE$/i.test(n) ? 1 : 2);
+      const _dicts = Object.keys(window).filter((k) => /^WH_FIL/i.test(k))
+        .map((k) => [k, window[k]])
+        .filter((p) => p[1] && typeof p[1] === 'object' && !Array.isArray(p[1]))
+        .sort((a, b) => _rank(b[0]) - _rank(a[0]));      // most specific FIRST, so the first hit wins
+      _filStamps.dicts = _dicts.map((p) => p[0] + ':' + Object.keys(p[1]).length);
+      const _look = (k) => {
+        for (let i = 0; i < _dicts.length; i++) {
+          if (Object.prototype.hasOwnProperty.call(_dicts[i][1], k)) return { v: _dicts[i][1][k], src: _dicts[i][0] };
+        }
+        return null;
+      };
+      // ★AND A DIVERGENCE IS ONLY A DEFECT WHEN WHAT REPLACED THE TRANSLATION IS ENGLISH. utils.js:1699
+      // states the contract deliberately: "this swap owns an element's text only until the application
+      // writes its own" - founder-console writing a computed "All clear" over data-i="p_loading" is the
+      // CORRECT behaviour that rule exists to protect. So "differs from the dictionary" cannot be the
+      // test; "differs AND is not in the reader's language" is. The marker set is Filipino function
+      // words, which no English UI string carries, and it is applied ONLY to the handful of elements
+      // that already diverged - never as a page-wide language score.
+      const _FIL_MARK = /(^|\s)(ang|ng|sa|mga|ay|mo|ka|iyong|para|na|nang|ito|may|wala|walang|kang|lahat|hindi|bago|ngayon|kailangan|buksan|tingnan|isara|palitan|gumawa|sumali|umalis|kung|muli|pumunta|ipakita|markahan|lampas|lumipas|malapit|nasa|tamang|mag|i-|naka|pinaka)/i;
+      // ★AND THE ABSENCE OF FILIPINO IS NOT EVIDENCE OF ENGLISH (2026-09-11). Testing only `!FIL` flagged
+      // "20 listing" - which IS the correct Filipino, because this platform carries `listing` as a
+      // loanword and Filipino takes no plural -s, so the string is a NUMBER and a BORROWED NOUN and holds
+      // no Filipino function word to find. A count plus a loanword is the common shape of a label that is
+      // legitimately identical in both languages, and a rule that reads it as untranslated would push
+      // someone to "fix" copy that is already right. So a flag now needs a POSITIVE English signal as
+      // well: an English function word, which no Filipino UI string carries. Same conservative pairing
+      // the first probe of this walk used - require EN and require NOT FIL - before I loosened it.
+      const _EN_MARK = /(^|\s)(the|of|to|and|are|is|was|were|have|has|your|you|for|from|with|this|that|in|on|at|by|not|no|any|all|only|more|when|then|here|there|its|their|them|it|be|been|will|can|could|would|should|do|does|did|open|log|earn|earned|gain|gained|active|yet|first|next|last)(\s|$|[.,;:!?])/i;
+      $$('[data-i]', R).filter(vis).forEach((e) => {
+        const k = e.getAttribute('data-i');
+        const t = ownText(e) || (e.textContent || '').replace(/\s+/g, ' ').trim();
+        if (!k || !t) return;                       // an empty shell carries no claim about language
+        _filStamps.checked++;
+        const hit = _look(k);
+        // UNRESOLVED IS A LEAD, NOT A GRADE, and the distinction is the honest one: a key no dictionary
+        // defines is a defect when the element still shows English (`hiveValueBadge` — "Your hive's
+        // value" above three Filipino labels) and is nothing at all when the page translated it through
+        // `_t()` at render time, which carries no key. Telling those apart needs the page's SHIPPED
+        // markup, and survey() is synchronous, so it is recorded with its rendered text for a reader to
+        // judge rather than asserted. The GRADED half is the one that needs no source: the dictionary
+        // holds a value and the page shows something else, which can only be a later write.
+        if (!hit) { _filStamps.unresolved.push({ key: k, id: e.id || '', tag: e.tagName, rendered: t.slice(0, 60) }); return; }
+        const want = _norm(hit.v), got = _norm(t);
+        // containment BOTH ways: a value may be a fragment of a longer runtime string and vice versa
+        const diverged = want && got.indexOf(want) === -1 && want.indexOf(got) === -1;
+        // ★FAULT 21 — A LOADING PLACEHOLDER IS NOT THE INTENDED TEXT, SO IT IS NOT THE "EXPECTED" ONE
+        // (2026-09-11, found on achievements + marketplace at wh_lang=fil). Those pages stamp their
+        // LOADING copy - `p_loading_b04b` = "Naglo-load...", `p_computingxpprogress_f3ee` = "Kinukuwenta
+        // ang XP progress...", `p_loadingmarketplace_08d1` = "Naglo-load ng marketplace..." - and the
+        // application then writes the real answer over it, which is precisely the contract utils.js:1699
+        // protects ("this swap owns an element's text only until the application writes its own").
+        // Reporting that as `overwritten with ENGLISH after the swap - expected "Naglo-load..."` states
+        // two wrong things at once: that a translation was clobbered (it was not - the element was
+        // FILLED), and that the correct text is a loading message (it is not). The English rendering is
+        // still a real defect and is still reported - as what it actually is: the APPLICATION wrote
+        // English into a stamped element. Same shape as fault 16's own lesson one turn earlier: grade the
+        // outcome, but describe the mechanism truthfully or the worklist sends someone to the wrong file.
+        const _placeholderValue = /^(naglo-load|kinukuwenta|binibilang|idinadagdag|kinakalkula|loading|computing|counting|adding)\b/i.test(_dec(hit.v).trim());
+        if (diverged && _placeholderValue && _EN_MARK.test(t) && !_FIL_MARK.test(t)) {
+          _filStamps.appFilledEnglish = _filStamps.appFilledEnglish || [];
+          _filStamps.appFilledEnglish.push({ key: k, id: e.id || '', tag: e.tagName,
+                                             rendered: t.slice(0, 60), placeholder: _dec(hit.v).slice(0, 40), src: hit.src });
+        } else if (diverged && _EN_MARK.test(t) && !_FIL_MARK.test(t)) {
+          _filStamps.clobbered.push({ key: k, id: e.id || '', tag: e.tagName,
+                                      rendered: t.slice(0, 60), expected: _dec(hit.v).slice(0, 60), src: hit.src });
+        } else if (diverged) {
+          // The application wrote its OWN Filipino over the dictionary's. Allowed by utils.js:1699, but
+          // it means one concept carries two Filipino wordings in the codebase and only one is visible
+          // to whoever maintains the dictionary — worth a reader's eye, not a failing grade.
+          _filStamps.ok++;
+          _filStamps.divergentFil = _filStamps.divergentFil || [];
+          _filStamps.divergentFil.push({ key: k, rendered: t.slice(0, 50), dict: _dec(hit.v).slice(0, 50), src: hit.src });
+        } else _filStamps.ok++;
+      });
+    }
+    // Both are English on a Filipino page, so both fail the dim; they are kept apart because they send a
+    // reader to different code - a CLOBBER is a runtime write that must go through _t(), an APP-FILLED
+    // placeholder is a computed string that was never bilingual in the first place.
+    const _filStampsOk = !_filActive
+      || (_filStamps.clobbered.length === 0 && (_filStamps.appFilledEnglish || []).length === 0);
     if (isPoster) {
       out.push(NA('N1', 'i18n mechanism + expansion resilience', 'poster: a print artifact ships in ONE locale by design (Ian scope decision)'));
+    } else if (_refKind || _consoleKind) {
+      out.push(NA('N1', 'i18n mechanism + expansion resilience', (_refKind ? 'reference catalog' : 'single-operator console') + ': ships in the platform operating language by default (2026-09-05 calibration; label coverage ' + labelCovered + '/' + labelEls.length + ' recorded, not graded)'));
     } else
-    out.push(M('N1', 'i18n mechanism + expansion resilience (NOT % translated)', [
-      typeof window.WH_LANG !== 'undefined',                 // mechanism: locale state
-      typeof window._t === 'function',                       // mechanism: translator
-      cov === null ? true : cov >= 0.8,                      // static-label coverage (a floor)
-      document.body.scrollWidth <= window.innerWidth + 2,    // holds at the current locale
-    ].filter(Boolean).length, 4,
-      `WH_LANG=${typeof window.WH_LANG !== 'undefined'} · lang=${document.documentElement.lang}`
-      + ` · label coverage=${labelCovered}/${labelEls.length}`
-      + (cov !== null ? ` (${Math.round(cov * 100)}%)` : '')
-      + ` · data-i=${dataI}`));
+    {
+      // The fifth check EXISTS ONLY IN FILIPINO, so an English page's score cannot move: total is 4
+      // there and 5 here. On a FIL page it is the only check that reads the page rather than the wiring.
+      const _n1checks = [
+        typeof window.WH_LANG !== 'undefined',                 // mechanism: locale state
+        typeof window._t === 'function',                       // mechanism: translator
+        cov === null ? true : cov >= 0.8,                      // static-label coverage (a floor)
+        document.body.scrollWidth <= window.innerWidth + 2,    // holds at the current locale
+      ];
+      if (_filActive) _n1checks.push(_filStampsOk);            // ★fault 16: the words, not the wiring
+      out.push(M('N1', 'i18n mechanism + expansion resilience (NOT % translated)',
+        _n1checks.filter(Boolean).length, _n1checks.length,
+        `WH_LANG=${typeof window.WH_LANG !== 'undefined'} · lang=${document.documentElement.lang}`
+        + ` · label coverage=${labelCovered}/${labelEls.length}`
+        + (cov !== null ? ` (${Math.round(cov * 100)}%)` : '')
+        + ` · data-i=${dataI}`
+        + (_filActive
+            ? ` · FIL stamps ${_filStamps.ok}/${_filStamps.checked} rendered from ${_filStamps.dicts.length} dict(s)`
+              + (_filStamps.clobbered.length ? ` · ${_filStamps.clobbered.length} overwritten with ENGLISH after the swap (${_filStamps.clobbered.slice(0, 3).map((x) => x.key).join(', ')})` : '')
+              + ((_filStamps.appFilledEnglish || []).length ? ` · ${_filStamps.appFilledEnglish.length} loading placeholder(s) FILLED with English by the app — the computed string was never bilingual (${_filStamps.appFilledEnglish.slice(0, 3).map((x) => x.key).join(', ')})` : '')
+              + ((_filStamps.divergentFil || []).length ? ` · ${_filStamps.divergentFil.length} carry a SECOND Filipino wording the dictionary does not know — LEAD (${_filStamps.divergentFil.slice(0, 3).map((x) => x.key).join(', ')})` : '')
+              + (_filStamps.unresolved.length ? ` · ${_filStamps.unresolved.length} key(s) resolve in no dictionary — LEAD, not graded (${_filStamps.unresolved.slice(0, 3).map((x) => x.key).join(', ')})` : '')
+            : '')));
+    }
     // Export the EXACT uncovered labels so the sweep hands every page's tagging worklist
     // at once (one ruler edit vs Playwright-probing 16 pages one at a time). The tagging
     // itself stays per-page (dict VALUES are genuinely unique) — but DISCOVERY is centralized.
@@ -1103,6 +1899,15 @@
       uncovered: labelEls
         .filter((e) => !e.hasAttribute('data-i') && !e.querySelector('[data-i]'))
         .map((e) => ({ tag: e.tagName, id: e.id || '', t: ownText(e).slice(0, 44) })),
+      // ★fault 16's worklist: which stamps did not become Filipino, and how they failed. Two separate
+      // fixes — a missing dictionary VALUE vs a JS write that must go through _t() — so they are kept
+      // apart rather than summed into one number a reader would not know how to act on.
+      fil: _filActive
+        ? { active: true, checked: _filStamps.checked, rendered: _filStamps.ok,
+            dicts: _filStamps.dicts, clobbered: _filStamps.clobbered, unresolved: _filStamps.unresolved,
+            divergentFil: _filStamps.divergentFil || [],
+            appFilledEnglish: _filStamps.appFilledEnglish || [] }
+        : { active: false },
     };
 
     // ── O · Onboarding ──────────────────────────────────────────────────────
@@ -1169,7 +1974,40 @@
         // wrongly failed 6 pages (pm-scheduler alone reported 20 phantoms, all unrendered).
         // opacity:0 does NOT remove an element from layout, so the REAL phantoms still have a box.
         .filter((e) => e.offsetParent !== null || e.getClientRects().length > 0);
-      const _phantoms = _focusables.filter(_opacityHidden);
+      // ★A CONTAINER THAT REVEALS ITSELF ON FOCUS IS NOT A PHANTOM (2026-09-10). index graded Q2 0% -
+      // "10 focusable control(s) are opacity:0 yet still in the tab order (keyboard lands on an
+      // invisible control)". The controls were real ("Read the complete platform guide", the
+      // learn-teaser cards) and the snapshot was accurate, but the SENTENCE was not: measured on a
+      // clean load, focusing one scrolls it into view, the reveal observer fires and the section
+      // paints - opacity 0 -> 0.92 at 300ms -> 1 at 700ms. The keyboard never lands on anything
+      // invisible. Q2's claim is BEHAVIOURAL, so a static snapshot alone cannot settle it.
+      // Rather than weaken the dim, read the DECLARATION: a rule like `.reveal:focus-within{opacity:1}`
+      // is the page promising, in CSS, that focus makes this subtree visible - checkable statically,
+      // with no page mutation and no timing. An ancestor with no such rule is still a phantom and
+      // still fails, which is the case the dim exists for. Same family as the .wh-progress-slot and
+      // .gate-card reads: grade the mechanism the product actually ships.
+      const _focusRevealSels = (() => {
+        const acc = [];
+        for (const ss of [...document.styleSheets]) {
+          let rules = null;
+          try { rules = ss.cssRules; } catch (_e) { continue; }   // cross-origin sheet: unreadable, skip
+          if (!rules) continue;
+          for (const r of [...rules]) {
+            if (r.selectorText && /:focus-within/.test(r.selectorText)
+                && r.style && r.style.opacity && parseFloat(r.style.opacity) > 0) {
+              acc.push(r.selectorText.replace(/:focus-within/g, ''));
+            }
+          }
+        }
+        return acc;
+      })();
+      const _revealsOnFocus = (n) => _focusRevealSels.some((s) => {
+        try { return n.matches(s); } catch (_e) { return false; }
+      });
+      const _phantoms = _focusables.filter((e) => {
+        const anc = _opacityHidden(e);
+        return anc && !_revealsOnFocus(anc);
+      });
       out.push(_focusables.length === 0
         ? NA('Q2', 'No phantom focus stop (WCAG 2.2 focus-not-obscured)', 'no focusable control in this state')
         : M('Q2', 'No phantom focus stop (WCAG 2.2 focus-not-obscured)', _phantoms.length ? 0 : 1, 1,
@@ -1217,7 +2055,9 @@
     // marketplace + agentic-rag-observability. An sr-only heading is NOT a visual layout
     // block; a root-level child is never legitimately <=1px. Skip them.
     const _notSrOnly = (e) => { const r = e.getBoundingClientRect(); return r.width > 1 && r.height > 1; };
-    const kids = [...R.children].filter((e) => vis(e) && _notSrOnly(e));
+    // out-of-flow children (a position:fixed toast host, an absolute overlay) are not regions in the reading sequence: once
+    // checkVisibility replaced offsetParent (2026-09-06) a fixed #toast entered the gap math as a 188px 'gap' on integrations
+    const kids = [...R.children].filter((e) => vis(e) && _notSrOnly(e) && !/fixed|absolute/.test(getComputedStyle(e).position));
     const gaps = [];
     for (let i = 1; i < kids.length; i++) {
       const p = kids[i - 1].getBoundingClientRect(), c = kids[i].getBoundingClientRect();
@@ -1344,6 +2184,10 @@
     const voids = kids.filter(c => {
       const r = c.getBoundingClientRect();
       if (r.height <= 24) return false;
+      // a decorative layer (aria-hidden background art, pointer-events:none with no text) is not a region a person reads as
+      // empty - the checkVisibility helper (2026-09-06) made engineering-design's fixed .aurora-bg count as an 800px void
+      const cs0 = getComputedStyle(c);
+      if (c.getAttribute('aria-hidden') === 'true' || (cs0.pointerEvents === 'none' && !(c.innerText || '').trim())) return false;
       const hasText = (c.innerText || '').trim().length > 0;
       const hasMedia = !!c.querySelector('svg,img,canvas,table,input,button,a');
       return !hasText && !hasMedia;
@@ -1395,13 +2239,37 @@
 
       // (1) CONTENT vs CONTENT — no two static text/interactive boxes overlap (excl. fixed/absolute + panels).
       const isFloat = (e) => ['fixed', 'sticky', 'absolute'].includes(getComputedStyle(e).position);
+      // ★A WRAPPED INLINE LINK'S BOUNDING BOX IS A LIE, AND IT MADE PROSE COLLIDE WITH ITSELF
+      // (2026-09-10, first full-rubric walk of the learn articles). `getBoundingClientRect()` on an
+      // inline element spanning two lines returns the UNION of its line boxes — for
+      // `<a>Skill Matrix guide</a>` that was [20,18583,320,18638], a 300x55 rectangle whose middle is
+      // the EMPTY tail of line 1 and the EMPTY head of line 2, space the link does not occupy. Any
+      // other inline link sitting in that gap then reads as an overlap: measured 0.989 against
+      // `<a>Digital logbook rollout</a>`, and V1 scored 0% on a page with no visual collision at all.
+      // The failure is systematic and one-directional: it fires on ANY paragraph with two inline
+      // links where one wraps — i.e. on long-form prose, exactly the pages this wave brought onto the
+      // full rubric. Compare LINE BOX to LINE BOX (`getClientRects()`) instead: two elements overlap
+      // only if some line of one overlaps some line of the other. The union rect is still used for
+      // candidacy and for the size filter, where "how much room does this take" is the right question.
+      // Sixth instrument fault of this extension; same family as B3's newline splitter
+      // ([[feedback_an_oracles_vocabulary_is_part_of_the_oracle]]).
+      const lineBoxes = (e) => {
+        const rs = [...e.getClientRects()].filter((r) => r.width > 4 && r.height > 4);
+        return rs.length ? rs : [e.getBoundingClientRect()];
+      };
+      const ovLines = (as, bs) => {
+        let m = 0;
+        for (const a of as) for (const b of bs) { const v = ov(a, b); if (v > m) m = v; }
+        return m;
+      };
       const cand = [...R.querySelectorAll('button, a, input, select, h1, h2, h3, h4, p, label, li')]
         .filter((e) => vis(e) && ownText(e).length > 1 && !inPanel(e) && !isFloat(e))
-        .map((e) => ({ e, r: e.getBoundingClientRect() })).filter((o) => o.r.width > 10 && o.r.height > 8 && o.r.width < 900);
+        .map((e) => ({ e, r: e.getBoundingClientRect(), rs: lineBoxes(e) }))
+        .filter((o) => o.r.width > 10 && o.r.height > 8 && o.r.width < 900);
       const hits = [];
       for (let i = 0; i < cand.length && hits.length < 6; i++) for (let j = i + 1; j < cand.length; j++) {
         const a = cand[i], b = cand[j]; if (a.e.contains(b.e) || b.e.contains(a.e)) continue;
-        if (ov(a.r, b.r) > 0.30) { hits.push(`${a.e.tagName}"${ownText(a.e).slice(0, 12)}"×${b.e.tagName}"${ownText(b.e).slice(0, 12)}"`); break; }
+        if (ovLines(a.rs, b.rs) > 0.30) { hits.push(`${a.e.tagName}"${ownText(a.e).slice(0, 12)}"×${b.e.tagName}"${ownText(b.e).slice(0, 12)}"`); break; }
       }
 
       // (2) FLOATING CHROME — collect EVERY small fixed/sticky widget (FAB / status chip / breadcrumb
@@ -1514,6 +2382,7 @@
     {
       const internalRe = /Mozilla\/\d|AppleWebKit|Gecko\/\d|\/workhive\/|Win64|WOW64|X11;\s|node_modules|127\.0\.0\.1|localhost:\d|\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}/;
       const leaks = [...R.querySelectorAll('p, span, div, small, li, td, label')]
+        .filter((e) => !(_refKind && e.closest('table, pre, code, #ds-root')))   // reference pages: table/code cells and component samples are DATA (see textEls)
         .filter((e) => vis(e) && !e.closest('code, pre, script, kbd, samp') && !e.querySelector('p,span,div,li,td') && internalRe.test(ownText(e)))
         .map((e) => ownText(e).trim().slice(0, 44));
       out.push(M('B5', 'No raw internals in user copy', leaks.length === 0 ? 1 : 0, 1,
@@ -1573,6 +2442,36 @@
       const _tcs = (e) => { try { return getComputedStyle(e); } catch (_) { return null; } };
 
       // T1 Content reachability — no fixed-height overflow:hidden box clips real content below it
+      // ★AND "REAL CONTENT" HAS TO BE CHECKED ON THE CLIPPED CHILD, NOT ON THE BOX (2026-09-10).
+      // The scrollHeight test says only that SOMETHING overflows; it cannot say WHAT. On index the
+      // hero (`...py-24 lg:py-32 overflow-hidden`) reported 52px clipped @390 and the finding read
+      // "clip content below the fold (unreachable)" — but the sole overhanging element is
+      // `<div class="absolute inset-0 rounded-3xl opacity-30 pointer-events-none">`, a decorative
+      // 999px gradient overhanging by 51px. No text, no link, no button is cut: the overflow-hidden
+      // is doing exactly its job, containing a flourish so it does not bleed past a rounded corner.
+      // The old guard already tried to exclude decoration — `if (s.pointerEvents === 'none') continue`
+      // — but applied it to the CONTAINER, which has normal pointer-events; the decoration is the
+      // CHILD. Every T1 finding the registry holds (11, all on index) is this one false positive.
+      // Now a box counts only when something CONTENT-BEARING is clipped: an element that overhangs
+      // the box's bottom and either carries its own text or is/contains an interactive control, and
+      // is not itself pointer-events:none. A real scroll-trap still fails; a contained flourish does
+      // not. Eighth instrument fault of this extension, same shape as the rest — the check asked the
+      // right question of the wrong element.
+      const _t1Traps = (box) => {
+        let bb; try { bb = box.getBoundingClientRect(); } catch (_) { return false; }
+        for (const c of box.querySelectorAll('*')) {
+          let cs; try { cs = getComputedStyle(c); } catch (_) { continue; }
+          if (cs.pointerEvents === 'none' || cs.visibility === 'hidden' || cs.display === 'none') continue;
+          let cr; try { cr = c.getBoundingClientRect(); } catch (_) { continue; }
+          if (cr.height < 4 || cr.bottom <= bb.bottom + 1) continue;      // not clipped
+          const own = [...c.childNodes].filter((n) => n.nodeType === 3)
+            .map((n) => (n.nodeValue || '').trim()).join(' ').trim();
+          if (own.length > 1) return true;                                // clipped TEXT
+          if (c.matches('a[href], button, input, select, textarea')
+              || c.querySelector('a[href], button, input, select, textarea')) return true;   // clipped CONTROL
+        }
+        return false;
+      };
       let t1 = 0;
       for (const e of _tAll) {
         const s = _tcs(e); if (!s) continue;
@@ -1580,6 +2479,7 @@
         if (!/hidden|clip/.test(s.overflowY) && !/hidden|clip/.test(s.overflow)) continue;
         if (e.scrollHeight - e.clientHeight <= 40 || e.clientHeight <= 150) continue;
         if ((e.innerText || '').trim().length < 20) continue;
+        if (!_t1Traps(e)) continue;
         t1++;
       }
       out.push(M('T1', 'Content reachability (no fixed-height scroll-trap)', t1 === 0 ? 1 : 0, 1,
@@ -1657,7 +2557,9 @@
     // The experience-in-motion extension (PDDA_UX_PAINPOINT_JOURNEY_ROADMAP.md). Graded at BOTH 390 (phone)
     // and 1280 (desktop) by family_rubric_sweep, worse-per-dim — so Z2 reflow catches a phone-only h-scroll.
     try {
-      const _vz = (e) => { if (e.offsetParent === null) return false; const r = e.getBoundingClientRect(); const cs = getComputedStyle(e); return r.width > 0 && r.height > 0 && cs.visibility !== 'hidden'; };
+      // _clippedAway: Z3 collects its own targets, so it needs the sr-only clip rule too - without it
+      // the 32 clipped sitemap links on index counted as crowded 22px tap targets (see vis() above).
+      const _vz = (e) => { if (e.offsetParent === null) return false; const r = e.getBoundingClientRect(); const cs = getComputedStyle(e); return r.width > 0 && r.height > 0 && cs.visibility !== 'hidden' && !_clippedAway(e); };
       // exclude platform CHROME (feedback FAB, companion, nav-hub, voice/sign-in overlays) — furniture, not the page
       const _inChrome = (e) => !!(e.closest && e.closest('#wh-feedback-panel,[class*=wh-fb-],#wh-voice-overlay,#signin-modal,[id*=nav-hub],.nav-hub,[class*=companion-launch],[id*=companion],#wh-ai-widget,#wh-ai-trigger,#wh-modal-anim-style'));
 
@@ -1715,7 +2617,24 @@
       const _isFilterish = (e) => e.hasAttribute('data-status') || e.hasAttribute('data-filter')
         || e.getAttribute('role') === 'tab' || e.hasAttribute('aria-pressed')
         || /\b(filter-chip|\btab\b|\bchip\b|toggle|segment)\b/.test(typeof e.className === 'string' ? e.className : '');
-      const _isDest = (e) => !_isFilterish(e) && _destRe.test((e.innerText || '') + ' ' + (e.getAttribute('aria-label') || '') + ' ' + (e.id || '') + ' ' + (e.className || ''));
+      // A NAVIGATION tile (<a href> with no data-action) whose DESCRIPTION mentions 'remove' is not a destructive
+      // command - it opens a page (founder-console's 'Marketplace admin: ... remove listings' tool card read as
+      // destructive, 2026-09-05). Destruction needs a command: a button, or a link that declares data-action.
+      const _isNavTile = (e) => e.tagName === 'A' && e.hasAttribute('href') && !e.hasAttribute('data-action') && !/\b(danger|destructive)\b/.test(typeof e.className === 'string' ? e.className : '');
+      // ★INSTRUMENT FAULT 10, Z3's half (2026-09-11). Like J1 above, this read only ENGLISH words, so
+      // marketplace-seller's listing delete button — <button class="btn-sm danger" data-action="delete">
+      // — was a flagged mis-tap hazard when it said "Delete" and invisible when it said "Burahin". Note
+      // the className WAS already in the tested string; it just never helped, because _destRe has no
+      // entry for "danger". The structural markers this file's own comments call authoritative
+      // (data-action=delete, .danger) now decide, with the word test kept for unmarked controls and
+      // widened to the Filipino imperatives a plant actually ships.
+      const _destMarker = (e) => e.getAttribute('data-action') === 'delete'
+        || /\b(danger|destructive)\b/.test(typeof e.className === 'string' ? e.className : '');
+      const _destWordFil = /\b(burahin|alisin|tanggalin)\b/i;
+      const _isDest = (e) => !_isFilterish(e) && !_isNavTile(e)
+        && (_destMarker(e)
+            || _destRe.test((e.innerText || '') + ' ' + (e.getAttribute('aria-label') || '') + ' ' + (e.id || '') + ' ' + (e.className || ''))
+            || _destWordFil.test((e.innerText || '') + ' ' + (e.getAttribute('aria-label') || '')));
       // Small targets (<24px) use the WCAG 2.5.8 24px-circle (any-direction) spacing test.
       const _circleCrowded = (a) => { for (const o of _rects) { if (o.e === a.e) continue; const dx = Math.max(0, Math.max(a.r.left, o.r.left) - Math.min(a.r.right, o.r.right)); const dy = Math.max(0, Math.max(a.r.top, o.r.top) - Math.min(a.r.bottom, o.r.bottom)); if (Math.hypot(dx, dy) < 24) return true; } return false; };
       // A DESTRUCTIVE ≥24px target is an accidental-touch hazard only when a DIFFERENT tappable target sits
@@ -1727,7 +2646,35 @@
       // crediting it stops false "13px radio" findings (hive poll, report-reason radios). WCAG 2.5.8 the same.
       const _labelBig = (e) => { if (!/^(radio|checkbox)$/.test(e.type || '')) return false; const wl = e.closest && e.closest('label'); const fl = e.id ? document.querySelector('label[for="' + (window.CSS && CSS.escape ? CSS.escape(e.id) : e.id) + '"]') : null; const lbl = wl || fl; if (!lbl) return false; const lr = lbl.getBoundingClientRect(); return Math.min(lr.width, lr.height) >= 24; };
       const _z3fail = [];
-      _rects.forEach((x) => { const m = Math.min(x.r.width, x.r.height); const small = m > 0 && m < 24 && !_labelBig(x.e); const dest = _isDest(x.e); if ((small && _circleCrowded(x)) || (dest && _horizAdj(x))) _z3fail.push((x.e.innerText || x.e.getAttribute('aria-label') || x.e.tagName).trim().slice(0, 16) + (dest ? '(destructive)' : '(' + Math.round(m) + 'px)')); });
+      // ★Z3 WAS THE ONE DIM IN THIS FAMILY THAT EXPORTED NOTHING, AND IT COST A WHOLE INVESTIGATION
+      // (2026-09-11). A1 publishes `a1_ctas`, B3 `b3_offenders`, C2/C5/E4 the same - and the standing
+      // lesson from four instrument faults in one turn is to READ the instrument's own list rather than
+      // re-derive the selection beside it. Z3 published only a truncated note, so when resume.html kept
+      // reporting "14 crowded/small target(s)" after its 6px gaps had been measured open to 24px, there
+      // was no way to ask WHICH rule fired on WHICH element - replicating `_horizAdj` from the outside
+      // returned no adjacency at all, and the two readings could not be reconciled. The receipt below
+      // records, per offender, which branch fired and what the geometry actually was, so the next such
+      // disagreement is one survey call to settle instead of a page-by-page re-derivation.
+      const _z3rows = [];
+      _rects.forEach((x) => {
+        const m = Math.min(x.r.width, x.r.height);
+        const small = m > 0 && m < 24 && !_labelBig(x.e) && !_inlineProse(x.e);
+        const dest = _isDest(x.e);
+        const circ = small && _circleCrowded(x);
+        const horiz = dest && _horizAdj(x);
+        if (circ || horiz) {
+          _z3fail.push((x.e.innerText || x.e.getAttribute('aria-label') || x.e.tagName).trim().slice(0, 16) + (dest ? '(destructive)' : '(' + Math.round(m) + 'px)'));
+          _z3rows.push({
+            text: (x.e.innerText || x.e.getAttribute('aria-label') || x.e.tagName).trim().slice(0, 24),
+            id: x.e.id || '', cls: String(x.e.className || '').slice(0, 40), tag: x.e.tagName,
+            w: Math.round(x.r.width), h: Math.round(x.r.height),
+            x: Math.round(x.r.left), y: Math.round(x.r.top),
+            why: circ ? 'small+circleCrowded' : 'destructive+horizAdj',
+            minSide: Math.round(m), destructive: dest,
+          });
+        }
+      });
+      out.z3_offenders = _z3rows;
       out.push(_ia.length === 0
         ? NA('Z3', 'Gesture ergonomics & accidental-touch', 'no interactive targets on this page')
         : M('Z3', 'Gesture ergonomics & accidental-touch (24px + spacing, WCAG 2.5.8)', _ia.length - _z3fail.length, _ia.length,
@@ -1771,8 +2718,13 @@
       const _hasOffline = (typeof window.__whOfflineBannerLoaded !== 'undefined')
         || Array.from(document.scripts).some((s) => /offline-banner/i.test(s.src || ''))
         || !!document.querySelector('#wh-offline-banner,[data-offline-banner]');
-      out.push(!_isBackend
-        ? NA('Y1', 'Offline & connectivity resilience', 'no backend writes on this page — offline-state UX N/A')
+      // A declared REFERENCE page (design-system, symbol-gallery, architecture, the llm-observability
+      // pointer) loads supabase only for its founder gate and writes nothing — _isBackend's script
+      // heuristic read it as a backend page and demanded an offline-write affordance for writes that
+      // do not exist (2026-09-05). The page's own <meta name="wh-page-kind" content="reference"> settles it.
+      const _isRefY1 = !!document.querySelector('meta[name="wh-page-kind"][content="reference"]');
+      out.push((!_isBackend || _isRefY1)
+        ? NA('Y1', 'Offline & connectivity resilience', _isRefY1 ? 'declared reference page: no backend writes — offline-state UX N/A' : 'no backend writes on this page — offline-state UX N/A')
         : M('Y1', 'Offline & connectivity resilience (connectivity-state affordance wired)', _hasOffline ? 1 : 0, 1,
           _hasOffline ? 'offline-banner affordance wired (surfaces state; queues/reconnect is the live journey step)' : 'backend page with NO offline-state affordance — an offline write can fail silently to the user'));
     } catch (_) { /* empty-catch-allow: best-effort offline-resilience lens */ }
@@ -1819,11 +2771,107 @@
       // guidance = an ACTION VERB naming the recovery (calibrated 2026-07-23 against the live board: the
       // platform's real guidance vocabulary includes fill/register/open/run/wire — "Fill in the form below",
       // "Register assets in the Logbook first", "Open Integrations to wire one", "Run an AI question").
-      const _guide = (p) => /\badd\b|\bcreate\b|\bnew\b|\bstart\b|\btap\b|\bclick\b|\bgenerate\b|\bupload\b|\bimport\b|\binvite\b|\bbrowse\b|\blog\b|\bpost\b|\btry\b|\badjust\b|\bfilter|\bmatch|\bclear\b|\breset\b|\brefresh\b|\bsearch\b|\bfill\b|\bregister\b|\bopen\b|\brun\b|\bwire\b|\bwiden\b|\bconnect\b|\bselect\b|\benable\b|\bgo to\b|check back|lands? here|surface[sd]? here|appears? here|will (appear|show|surface)|use the\b|\bvia\b/i.test(p.textContent || '');
+      // ★THE GUIDANCE VOCABULARY SPOKE ONLY ENGLISH, ON A BILINGUAL PRODUCT (2026-09-10). Walking J1 in
+      // FILIPINO, X1 failed on ALL SIX surfaces - index 0%, asset-hub 38%, alert-hub 67%, hive/logbook/
+      // pm-scheduler 80% - where the ENGLISH walk of the same pages failed none. The states were not
+      // dead ends: 'Wala pang nakuwentang Weibull fit. Pindutin...' says PRESS, and this regex had no
+      // word for it. Every one of the 62 pending Filipino walks would have banked the same false
+      // finding. The added verbs are MEASURED, not invented - taken from the 491 _t(en, fil) strings the
+      // platform itself ships: Subukan 119, Buksan 13, Tingnan 7, Pindutin 6, Punan 5, Mag-log 5,
+      // I-tap 4, I-save 4, Idagdag/Magdagdag 3, Gumawa 2, Piliin 1. Same family as the C2 disabled
+      // exemption and the N1 data-i census: an oracle's vocabulary is part of the oracle.
+      // AND THE PARITY HALF: the English list already counts match/search/filter/adjust/widen/clear as
+      // guidance - "No posts match those filters" implies changing them. Without their Filipino twins,
+      // the SAME state passed in English and failed in Filipino: asset-hub's "Walang tool na tumugma sa
+      // paghahanap" is word-for-word "No tool matched the search", which passes via \bmatch. That is a
+      // parity bug in the ruler, not leniency - a bilingual product must be gradable in both halves.
+      // and the REASSURANCE twins. The English half counts "a score will appear here" as guidance via
+      // will (appear|show|surface); asset-hub's Filipino says exactly that - "lalabas dito ang score" -
+      // and failed only because the ruler had no word for it. Both sentences are faithful translations
+      // of one another, so grading them differently was measuring the LANGUAGE, not the page.
+      // ★AND THE CONJUGATION IS THE RECURRING GAP (2026-09-10, second Filipino pass). project-manager
+      // graded X1 67% on "Wala pang proyekto: magsimula sa project template sa itaas" - which NAMES its
+      // recovery path ("start with the project template above"). The ruler had `simulan` and not
+      // `magsimula`: the same verb in the mag- actor-focus form. Filipino builds imperatives by prefix,
+      // so a vocabulary listing one form of a verb will keep missing the others - this is the second
+      // time this dim has been widened for it. Deliberately NOT solved with a blanket \bmag[a-z]+\b:
+      // that would match "Magandang hapon" (good afternoon) and score a GREETING as recovery guidance.
+      // The four added are measured from strings the product ships - magsimula from project-manager's
+      // own dictionary (`blankproject: 'O magsimula sa blangkong proyekto'`), and maglagay/magtanong/
+      // magpatuloy from the _t(en, fil) second arguments across the platform's HTML and JS.
+      const _GUIDE_RE = new RegExp(
+        '\\badd\\b|\\bcreate\\b|\\bnew\\b|\\bstart\\b|\\btap\\b|\\bclick\\b|\\bgenerate\\b|\\bupload\\b|\\bimport\\b|\\binvite\\b|\\bbrowse\\b|\\blog\\b|\\bpost\\b|\\btry\\b|\\badjust\\b|\\bfilter|\\bmatch|\\bclear\\b|\\breset\\b|\\brefresh\\b|\\bsearch\\b|\\bfill\\b|\\bregister\\b|\\bopen\\b|\\brun\\b|\\bwire\\b|\\bwiden\\b|\\bconnect\\b|\\bselect\\b|\\benable\\b|\\bgo to\\b|check back|lands? here|surface[sd]? here|appears? here|will (appear|show|surface)|use the\\b|\\bvia\\b|\\bpindutin\\b|\\bi-tap\\b|\\bbuksan\\b|\\bmagdagdag\\b|\\bidagdag\\b|\\bgumawa\\b|\\bsimulan\\b|\\bmagsimula\\b|\\bmaglagay\\b|\\bmagtanong\\b|\\bmagpatuloy\\b|\\btingnan\\b|\\bpiliin\\b|\\bpunan\\b|\\bsubukan\\b|\\bmag-log\\b|\\bi-save\\b|\\bi-upload\\b|\\bi-click\\b|\\btumugma\\b|\\btugma\\b|\\bpaghahanap\\b|\\bhanapin\\b|\\bsalain\\b|\\bayusin\\b|\\bpalawakin\\b|\\bi-clear\\b|\\balisin\\b|\\blalabas\\b|\\bmakikita\\b|\\bipapakita\\b|\\bawtomatiko|\\bkinukuwenta\\b|\\bmagpapakita\\b'
+        // ★THIRD WIDENING, AND THIS TIME DERIVED INSTEAD OF GUESSED (2026-09-10). inventory graded X1
+        // 75% on "Walang nakarehistrong asset. Irehistro muna ang mga asset sa Logbook." - which names
+        // its recovery path - while the SAME panel in English ("No assets registered. Register assets in
+        // the Logbook first.") graded X1 100%. Same page, same panel, one difference: the language. The
+        // ruler had `i-save` and `simulan` but not `irehistro`, exactly as it had lacked `magsimula`
+        // last time. Hand-adding one verb per walk cannot converge, because Filipino builds imperatives
+        // by affix and the list will always be one verb behind the copy.
+        // So the vocabulary is now DERIVED from the platform's own PARALLEL CORPUS by
+        // tools/derive_fil_guidance_vocab.py: i18n/*.json pairs each English string with its shipped
+        // Filipino, so wherever the ENGLISH side carries a guidance verb the FILIPINO side IS guidance,
+        // by construction. 152 such pairs yielded these tokens, each traceable to the sentence that
+        // produced it (`irehistro` <- inventory.json's "No assets registered. Register assets..."), and
+        // the noun-shaped candidates the morphology also matched (inventory, maximo, inquiry, itaas)
+        // were dropped by hand. Re-run the tool when the dictionaries grow.
+        // The two HYPHENATED prefixes are generalised rather than enumerated: in this product's copy
+        // `i-` and `mag-` followed by a hyphen mark a loanword VERB (i-verify, mag-sync) and cannot be
+        // confused with an ordinary word - unlike a blanket \bmag[a-z]+\b, which would read "Magandang
+        // hapon" as guidance. Generalise where the morphology is unambiguous; enumerate where it is not.
+        + '|\\bi-[a-z]{2,}\\b|\\bmag-[a-z]{2,}\\b'
+        + '|\\b(?:baguhin|basahin|hilingin|ibalik|ikonekta|ikumpara|ipadala|irehistro|itakda|itugma'
+        + '|ituro|maghanap|magkabit|magmungkahi|magpalit|magpatakbo|magplano|magpuno|magsalita'
+        + '|patakbuhin|sabihin|sagutin|suriin|tanggapin)\\b'
+        // the REASSURANCE twins in their passive/future forms - the English half already counts
+        // "will appear / lands here", and these are the shipped Filipino for exactly that.
+        + '|\\b(?:mapupuno|ipinapakita|itinatala)\\b'
+        , 'i');
+      const _guide = (p) => _GUIDE_RE.test(p.textContent || '');
       // a POSITIVE/healthy zero-state is a SUCCESS, not a dead-end: "All caught up" (inbox-zero) and a
       // monitoring page's "no anomalies" (silence-is-golden) celebrate absence — no next step owed.
       const _positive = (p) => /all caught up|all done|all set|up to date|all clear|no (fused )?anomal|nothing (pending|due|overdue)/i.test(p.textContent || '');
-      const _dead = _panels.filter((p) => !_positive(p) && !_cta(p) && !_guide(p));
+      // ★THE RECOVERY PATH WAS THE SIBLING, NOT THE PANEL (2026-09-10). hive's approval card reddened on
+      // "Nothing to approve on this board." — but that sentence renders ONLY on the branch where work is
+      // waiting ELSEWHERE, and the very same branch fills the adjacent #approval-list with "Also awaiting
+      // your review in Asset Hub: 3 FMEA modes …" carrying the link. The person sees ONE region: the
+      // pointer, then the message. Scoping the dead-end test to the panel's own subtree measured the
+      // MARKUP's shape, not the screen. NOT folded into _positive — "nothing to approve HERE" is not
+      // inbox-zero, there IS work, and a page that named nowhere to find it would still be a dead end.
+      // The exemption is deliberately narrow, so it cannot excuse a page that merely has buttons near an
+      // empty state: the sibling must be IMMEDIATELY adjacent, not itself an empty-state panel, not
+      // .hidden, carry real text, and hold a control that POINTS somewhere — a link to another page, or
+      // a control whose own label passes the guidance vocabulary ("Clear filters"). A header's "Export"
+      // button does not qualify. In the ordinary case the sibling list is EMPTY when the message shows,
+      // so it holds no control at all and the panel still reddens; only a state that actually PAINTS its
+      // next step beside the message is excused. Same family as the C2 disabled-control exemption and
+      // the N1 data-i census: [[feedback_an_oracles_vocabulary_is_part_of_the_oracle]].
+      // and the sibling must be CONTENT, not chrome: asset-hub's "No tools match your search." sits
+      // beside #wh-hub-tiles, the hub overlay's own destination list (closest('nav') is truthy). A page
+      // is not excused from dead-ending its content because a nav block happens to be adjacent — that
+      // list is on every page and would excuse every state. (That panel passes on its own text via
+      // \bmatch anyway; the guard is so the SHAPE cannot leak in elsewhere.)
+      const _sibAct = (s) => !!s && !_setX1.has(s) && !_inChromeX1(s)
+        && !(s.closest && s.closest('nav,footer,[role=navigation],[role=contentinfo]'))
+        && !(s.classList && s.classList.contains('hidden'))
+        && (s.textContent || '').trim().length >= 10
+        // ★THE SIBLING WAS THE LINK, NOT A BOX HOLDING ONE (2026-09-11). marketplace-seller-profile's
+        // not-found state renders `<a class="back-link" href="marketplace.html">Back to Marketplace</a>`
+        // immediately followed by the .empty-state div — the recovery path IS the previous sibling. But
+        // this test only ever looked INSIDE the sibling (querySelectorAll searches descendants), and the
+        // anchor's only descendant is a decorative <span class="ic">, so the check found no control and
+        // X1 reported "1 dead-end state — a user landing there has NO next step" about a page that
+        // offers exactly the right one. THREE walks across two devices and two languages carried that
+        // false finding. The sibling is now a CANDIDATE control itself, not only a container of them —
+        // same fault shape as B3's user-authored exemption, which enumerated CONTAINERS and missed the
+        // <textarea> that IS the surface. Every other guard above still applies, and the control still
+        // has to POINT somewhere (a .html destination or a label in the guidance vocabulary), so a bare
+        // <button>Close</button> beside an empty state excuses nothing.
+        && [s].concat(Array.from(s.querySelectorAll('a[href],button,[role=button]')))
+          .filter((c) => c.matches && c.matches('a[href],button,[role=button]'))
+          .some((c) => _guide(c) || (c.tagName === 'A' && /\.html/i.test(c.getAttribute('href') || '')));
+      const _adjacent = (p) => _sibAct(p.previousElementSibling) || _sibAct(p.nextElementSibling);
+      const _dead = _panels.filter((p) => !_positive(p) && !_cta(p) && !_guide(p) && !_adjacent(p));
       out.push(!_panels.length
         ? NA('X1', 'Task-flow coherence (no dead-end conditional state)', 'no conditional empty/no-results panels in the DOM — dead-end slice N/A (dynamic states are the live-journey step)')
         : M('X1', 'Task-flow coherence (every empty/no-results state offers a next step)', _panels.length - _dead.length, _panels.length,
@@ -2154,10 +3202,58 @@
       pageId: opts.pageId || location.pathname,
       lens: 'substrate/reference/ufai-ux-rubric.md (classes A-T + V/W / ~57 dims; T = native-mobile benchmark, 2026-07-18)',
       counts: { dims: out.length, measured: measured.length, judged: judged.length, na: na.length },
+      // ★THE LENS NEVER SAID WHICH WIDTH IT GRADED (added 2026-09-10, FILIPINO worker walk).
+      // Half this rubric is a claim about LAYOUT - tap targets, type scale, disclosure, control
+      // density - so a survey is only meaningful beside the viewport it was taken at, and until now
+      // it recorded none. The walk that added this had asked for phone-390 and been graded at 585:
+      // the MCP's setViewportSize takes DEVICE pixels, and on a host reporting devicePixelRatio
+      // 0.667 (Windows display scaling) a requested 390 renders a 585 CSS viewport - a tablet width
+      // wearing a phone's name, with nothing in the artifact to reveal it. Now every survey carries
+      // its own width, so a row banked at the wrong device is visible in the evidence instead of
+      // being taken on trust. [[feedback_the_instrument_must_explain_its_own_number]]
+      viewport: { cssPx: `${window.innerWidth}x${window.innerHeight}`, w: window.innerWidth,
+                  dpr: window.devicePixelRatio || 1, lang: window.WH_LANG || null },
+      // ★THE ORPHAN STAMP — a defect NO dim can see, on a page that reads 100% (added 2026-09-10).
+      // utils.js stamps `data-i-applied` on every element it translates. An element that still carries
+      // the stamp but no longer carries `data-i` was translated and then RE-COMPOSED by the application,
+      // which drops data-i so the dictionary cannot overwrite a computed value. That is correct - and it
+      // silently ships the composed language. report-sender read 100% on every dim while its "Recent
+      // Reports" heading held data-i-applied="Mga Kamakailang Ulat" and displayed "Recent Reports: the 5
+      // most recent of 64" to a Filipino reader; the count of stamps (44) exceeding the count of data-i
+      // (43) was the ONLY signal, and it was noticed by hand. Now it is measured every walk.
+      // An orphan is a QUESTION, not a verdict: it is a defect only when the composed text is in the
+      // wrong language for the reader, so the element's current text is reported beside the stamp.
+      i18n_orphans: (() => {
+        try {
+          const st = $$('[data-i-applied]', document);
+          const orphans = st.filter((e) => !e.hasAttribute('data-i'));
+          return { stamped: st.length, dataI: $$('[data-i]', document).length,
+                   orphanCount: orphans.length,
+                   orphans: orphans.slice(0, 6).map((e) => ({
+                     applied: (e.getAttribute('data-i-applied') || '').slice(0, 40),
+                     now: (e.textContent || '').trim().slice(0, 60) })) };
+        } catch (e) { return { error: String(e).slice(0, 60) }; }
+      })(),
       b3_offenders: out._b3,   // the exact sentences to REWRITE — scoring alone fixes nothing
       c2_offenders: out._c2,   // every below-floor text el (worst-stop scored) — the C2 fix list
+      // ★C5 COULD NOT SHOW ITS WORK (2026-09-11). The APCA offender list was computed, spent on ONE
+      // clause of the note ("101 pass WCAG but miss APCA Lc (worst: …)") and then dropped, so a fixer
+      // could see the count and the single worst element and none of the other hundred. C5 is the dim
+      // most likely to be corpus-wide (one muted token, every page), which makes the missing list the
+      // expensive kind: I measured the learn article's offenders by hand, got 13 against the oracle's
+      // 101, and the gap was entirely APCA's Lc 75 BODY floor for columns of prose vs Lc 60 for UI
+      // labels — a distinction only the oracle applies. Exported now, so the fix list is read from the
+      // instrument instead of re-derived beside it [[feedback_the_instrument_must_explain_its_own_number]].
+      c5_offenders: out._c2b,  // passes WCAG, misses APCA Lc — {t,px,w,lc,need,wcag} per element
       e4_offenders: out._e4,   // repeated verdicts / raw-ID dumps / untranslated stats
       r3_controls:  out._r3,   // the control-vocabulary drift
+      // ★A G3/A3 FINDING NAMED A COUNT AND NOT THE CONTROLS (2026-09-10). `out._a1` has carried the
+      // kept-CTA list since 2026-09-06, but it is a property on the dims ARRAY and JSON.stringify
+      // drops those, so every banked "primaryCta=3/2" reached a reader as a number with nothing to
+      // act on — and demoting the wrong one is what that costs. Same intent the b3/c2/e4 receipts
+      // already serve: expose the offenders so the caller can FIX them, not just score them.
+      a1_ctas:      out._a1,   // which controls the lens counted as primary CTAs
+      z3_offenders: out.z3_offenders,  // which targets Z3 failed, WHICH RULE fired, and the geometry
       s1_family:    out._s1,   // cross-page: where this page leaves the platform vocabulary
       n1_i18n:      out._n1,   // i18n COVERAGE (outcome), not mechanism-presence
       OVERALL_measured_pct: overall,

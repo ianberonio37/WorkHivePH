@@ -13,7 +13,7 @@
   <link rel="canonical" href="https://workhiveph.com/ph-intelligence.html" />
   <link rel="manifest" href="manifest.json" />
   <script src="browser-floor.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
+  <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=optional" rel="stylesheet" />
   <link rel="stylesheet" href="components.css" />  <!-- S11 shared component CSS -->
   <style>
@@ -109,7 +109,7 @@
 
 <main>
   <!-- List View Contract: declarative empty-state anchor (L-1.5) -->
-  <div id="empty-state" class="empty-state" hidden>No intelligence data yet for this hive.</div>
+  <div data-i="p_nointelligencedatayetforthis_cf8e" id="empty-state" class="empty-state" hidden>No intelligence data yet for this hive.</div>
 
 
 
@@ -117,19 +117,19 @@
 
   <!-- Hero -->
   <div class="hero">
-    <div class="hero-badge" id="report-period-badge">Loading...</div>
+    <div data-i="p_loading_b04b" class="hero-badge" id="report-period-badge">Loading...</div>
     <h1 translate="no">Philippine Industrial<br>Maintenance Intelligence</h1><!-- publication name: EN by design -->
     <p>Anonymized benchmarking data from manufacturing plants across the Philippines using WorkHive. Each report covers a period and is generated on demand; the card below shows how old the current one is.</p>
   </div>
 <details class="wh-help">
-  <summary>How this page works</summary>
-  <p>Compare your hive with anonymous plants in your segment. Benchmarks unlock at 5+ hives in a segment and 30 days of your own history.</p>
+  <summary data-i="p_howthispageworks_c540">How this page works</summary>
+  <p data-i="p_compareyourhivewithanonymous_8e2f">Compare your hive with anonymous plants in your segment. Benchmarks unlock at 5+ hives in a segment and 30 days of your own history.</p>
 </details>
 <p class="wh-source-chip" style="font-size:.62rem;color:rgba(255,255,255,0.80);margin:0;padding:3px 0 0;line-height:1.35;">Updated when a report is generated &middot; Based on your logbook history + anonymized segment benchmarks (N&ge;5 privacy guard)</p>
 
   <!-- Loading state -->
   <div id="loading-state" class="card loading-state" style="text-align:center; padding:32px;">
-    <p style="color:var(--muted); font-size:.82rem;">Loading latest report...</p>
+    <p data-i="p_loadinglatestreport_3ee2" style="color:var(--muted); font-size:.82rem;">Loading latest report...</p>
   </div>
 
   <!-- Report content -->
@@ -139,46 +139,44 @@
          Populated by renderPhSummary() from the report payload. -->
     <div id="ph-verdict" class="verdict empty">
       <span id="ph-verdict-icon" class="verdict-icon">·</span>
-      <div class="verdict-text"><span id="ph-verdict-label">Loading regional intelligence...</span><small id="ph-verdict-sub">Reading the latest anonymised report from the PH network.</small></div>
+      <div class="verdict-text"><span data-i="p_loadingregionalintelligence_4b04" id="ph-verdict-label">Loading regional intelligence...</span><small data-i="p_readingthelatestanonymisedre_b427" id="ph-verdict-sub">Reading the latest anonymised report from the PH network.</small></div>
     </div>
     <div class="simple-row">
       <div class="simple-card tag-grey" id="ph-card-plants" data-rag-tile="ph-intelligence:plants_in_network" data-rag-label="Plants in network">
-        <h2 class="sc-label" style="margin:0;">Plants in network</h2>
+        <h2 data-i="p_plantsinnetwork_cab7" class="sc-label" style="margin:0;">Plants in network</h2>
         <div class="sc-hero" id="ph-plants-hero">0</div>
-        <div class="sc-sub" id="ph-plants-sub">Loading...</div>
+        <div data-i="p_loading_b04b" class="sc-sub" id="ph-plants-sub">Loading...</div>
         <span class="sc-tag" id="ph-plants-tag">-</span>
       </div>
       <div class="simple-card tag-grey" id="ph-card-cause" data-rag-tile="ph-intelligence:top_failure_cause" data-rag-label="Top failure cause">
-        <h2 class="sc-label" style="margin:0;">Top failure cause</h2>
+        <h2 data-i="p_topfailurecause_d8d3" class="sc-label" style="margin:0;">Top failure cause</h2>
         <div class="sc-hero" id="ph-cause-hero">-</div>
-        <div class="sc-sub" id="ph-cause-sub">Loading...</div>
+        <div data-i="p_loading_b04b" class="sc-sub" id="ph-cause-sub">Loading...</div>
         <span class="sc-tag" id="ph-cause-tag">-</span>
       </div>
       <div class="simple-card tag-grey" id="ph-card-fresh" data-rag-tile="ph-intelligence:report_freshness" data-rag-label="Report freshness">
-        <h2 class="sc-label" style="margin:0;">Report freshness</h2>
+        <h2 data-i="p_reportfreshness_7e9b" class="sc-label" style="margin:0;">Report freshness</h2>
         <div class="sc-hero" id="ph-fresh-hero">-</div>
-        <div class="sc-sub" id="ph-fresh-sub">Loading...</div>
+        <div data-i="p_loading_b04b" class="sc-sub" id="ph-fresh-sub">Loading...</div>
         <span class="sc-tag" id="ph-fresh-tag">-</span>
       </div>
     </div>
     <div class="action-card">
-      <div class="ac-label">What to do next</div>
-      <div class="ac-text" id="ph-action-text">Computing recommendation...</div>
+      <div data-i="p_whattodonext_8ce2" class="ac-label">What to do next</div>
+      <div data-i="p_computingrecommendation_5948" class="ac-text" id="ph-action-text">Computing recommendation...</div>
     </div>
-    <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="ph-summary-details">
-      Show details
-    </button>
+    <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="ph-summary-details" data-i="showdetails">Show details</button>
     <div id="ph-summary-details" role="region" aria-label="Regional intelligence explainer"
     data-rag-tile="ph-intelligence:detail_panel"
     data-rag-label="PH Intelligence detail">
-      <strong style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How this report is built</strong>
+      <strong data-i="p_howthisreportisbuilt_b74d" style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How this report is built</strong>
       <ul style="margin:0;padding-left:20px;">
-        <li><strong>Plants in network</strong>: number of distinct hives contributing anonymised data to this report.</li>
-        <li><strong>Top failure cause</strong>: the most-common root cause across all hives in the period.</li>
-        <li><strong>Report freshness</strong>: days since the report was generated. Nothing regenerates it on a schedule, so this is the number to read before trusting the figures.</li>
-        <li><strong>Verdict</strong>: green when report has 3+ plants and was generated in last 45 days; empty otherwise.</li>
+        <li><strong data-i="p_plantsinnetwork_cab7">Plants in network</strong>: number of distinct hives contributing anonymised data to this report.</li>
+        <li><strong data-i="p_topfailurecause_d8d3">Top failure cause</strong>: the most-common root cause across all hives in the period.</li>
+        <li><strong data-i="p_reportfreshness_7e9b">Report freshness</strong>: days since the report was generated. Nothing regenerates it on a schedule, so this is the number to read before trusting the figures.</li>
+        <li><strong data-i="p_verdict_7f6e">Verdict</strong>: green when report has 3+ plants and was generated in last 45 days; empty otherwise.</li>
       </ul>
-      <p style="margin-top:8px;color:rgba(255,255,255,0.80);font-size:11px;">Only members of a hive that opted into anonymised contributions see "Your Plant vs Network" below.</p>
+      <p data-i="p_onlymembersofahivethatoptedi_d5ac" style="margin-top:8px;color:rgba(255,255,255,0.80);font-size:11px;">Only members of a hive that opted into anonymised contributions see "Your Plant vs Network" below.</p>
     </div>
 
     <!-- Key stats -->
@@ -186,15 +184,15 @@
 
     <!-- Executive summary -->
     <div class="card" id="exec-summary-card" style="display:none;">
-      <div class="sec-head"><span class="sec-title">Executive Summary</span></div>
+      <div class="sec-head"><span data-i="p_executivesummary_3abc" class="sec-title">Executive Summary</span></div>
       <p id="exec-summary-text" class="narrative-block"></p>
     </div>
 
     <!-- MTBF rankings -->
     <div class="card">
       <div class="sec-head">
-        <span class="sec-title">Equipment Reliability Ranking</span>
-        <span style="font-size:.65rem; color:var(--muted);">Days between failures (higher = better)</span>
+        <span data-i="p_equipmentreliabilityranking_e97e" class="sec-title">Equipment Reliability Ranking</span>
+        <span data-i="p_daysbetweenfailureshigherbet_37f6" style="font-size:.65rem; color:var(--muted);">Days between failures (higher = better)</span>
       </div>
       <div class="mtbf-bar-wrap" id="mtbf-chart"></div>
     </div>
@@ -202,37 +200,37 @@
     <!-- Failure modes -->
     <div class="card">
       <div class="sec-head">
-        <span class="sec-title">Most Common Failure Causes</span>
-        <span style="font-size:.65rem; color:var(--muted);">Across all plants, last 90 days</span>
+        <span data-i="p_mostcommonfailurecauses_2188" class="sec-title">Most Common Failure Causes</span>
+        <span data-i="p_acrossallplantslastdays_8262" style="font-size:.65rem; color:var(--muted);">Across all plants, last 90 days</span>
       </div>
       <div id="failure-modes-list"></div>
     </div>
 
     <!-- Seasonal -->
     <div class="card" id="seasonal-card" style="display:none;">
-      <div class="sec-head"><span class="sec-title">Seasonal Insight</span></div>
+      <div class="sec-head"><span data-i="p_seasonalinsight_1ed2" class="sec-title">Seasonal Insight</span></div>
       <p id="seasonal-text" class="narrative-block"></p>
     </div>
 
     <!-- Your plant vs network (logged-in users only) -->
     <div class="card hidden" id="your-plant-card">
       <div class="sec-head">
-        <span class="sec-title">Your Plant vs Network</span>
-        <span style="font-size:.65rem; color:var(--blue);">Hive members only</span>
+        <span data-i="p_yourplantvsnetwork_816f" class="sec-title">Your Plant vs Network</span>
+        <span data-i="p_hivemembersonly_e877" style="font-size:.65rem; color:var(--blue);">Hive members only</span>
       </div>
       <div id="your-plant-compare"></div>
     </div>
 
     <!-- AI Recommendation -->
     <div class="card" id="recommendation-card" style="display:none;">
-      <div class="sec-head"><span class="sec-title">WorkHive Recommendation</span></div>
+      <div class="sec-head"><span data-i="p_workhiverecommendation_50fa" class="sec-title">WorkHive Recommendation</span></div>
       <p id="recommendation-text" class="narrative-block" style="border-color:rgba(74,222,128,0.2); background:rgba(74,222,128,0.04);"></p>
     </div>
 
     <!-- API section -->
     <div class="card">
       <div class="sec-head"><span class="sec-title">WorkHive Intelligence API</span></div>
-      <p style="font-size:.75rem; color:var(--muted); margin-bottom:12px;">Access this data programmatically. Integrate WorkHive benchmarks into your ERP, accounting, or HR systems.</p>
+      <p data-i="p_accessthisdataprogrammatical_ecd5" style="font-size:.75rem; color:var(--muted); margin-bottom:12px;">Access this data programmatically. Integrate WorkHive benchmarks into your ERP, accounting, or HR systems.</p>
       <div class="api-endpoint">GET https://hzyvnjtisfgbksicrouu.supabase.co/functions/v1/intelligence-api?endpoint=benchmarks</div>
       <div class="api-endpoint">GET https://hzyvnjtisfgbksicrouu.supabase.co/functions/v1/intelligence-api?endpoint=failure-modes</div>
       <div class="api-endpoint">GET https://hzyvnjtisfgbksicrouu.supabase.co/functions/v1/intelligence-api?endpoint=report</div>
@@ -241,17 +239,17 @@
 
     <!-- CTA for non-members -->
     <div class="cta-card" id="cta-card">
-      <h2>Connect your plant's CMMS data</h2>
-      <p>Upload your SAP or Maximo export and see how your equipment compares to this benchmark in real time. Free to start.</p>
-      <a href="integrations.html" class="btn-gold">Import Your CMMS Data</a>
+      <h2 data-i="p_connectyourplantscmmsdata_2f08">Connect your plant's CMMS data</h2>
+      <p data-i="p_uploadyoursapormaximoexporta_c90a">Upload your SAP or Maximo export and see how your equipment compares to this benchmark in real time. Free to start.</p>
+      <a data-i="p_importyourcmmsdata_be34" href="integrations.html" class="btn-gold">Import Your CMMS Data</a>
     </div>
 
   </div><!-- /report-content -->
 
   <!-- No report state -->
   <div id="no-report-state" class="card hidden" style="text-align:center; padding:32px;">
-    <p style="font-weight:700; margin-bottom:8px;">No report generated yet</p>
-    <p style="font-size:.78rem; color:var(--muted); margin-bottom:16px;">Reports can be generated once enough hives are contributing data.</p>
+    <p data-i="p_noreportgeneratedyet_b6c2" style="font-weight:700; margin-bottom:8px;">No report generated yet</p>
+    <p data-i="p_reportscanbegeneratedonceeno_91ae" style="font-size:.78rem; color:var(--muted); margin-bottom:16px;">Reports can be generated once enough hives are contributing data.</p>
     <button class="btn-gold" onclick="generateReport()" data-i="generatenow">Generate Now</button>
     <!-- FCh3: the report BODY is an EN publication by design (masthead translate="no");
          the CTA is the translatable UI chrome. -->
@@ -515,7 +513,12 @@
     const { data: hiveBench } = await db.from('hive_benchmarks')
       .select('equipment_category, mtbf_days')
       .eq('hive_id', HIVE_ID)
-      .limit(5);
+      .limit(100);
+      /* W3-AR (2026-09-08): this compared your plant against the network on the first FIVE of your
+         equipment categories and said nothing about the rest — a seeded hive already carries ten, so
+         half its plant was silently absent from its own comparison. Categories are bounded by nature
+         (a hive has tens, not thousands), so the honest bound is one that covers them: an insurance
+         cap rather than a display slice. Nothing is hidden, so nothing needs announcing. */
     if (!hiveBench?.length) return;
 
     const netByCategory = {};
@@ -585,8 +588,8 @@
 <script src="companion-launcher.js"></script>
 
 <details data-calm-disclosure="data-sources" style="max-width:680px; margin:1rem auto 2rem; padding:0 1rem;">
-  <summary style="cursor:pointer; font-size:.78rem; color:rgba(255,255,255,0.80); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
-  <p style="font-size:.78rem; color:rgba(255,255,255,0.80); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
+  <summary data-i="p_aboutthisdashboardsdatasourc_8e23" style="cursor:pointer; font-size:.78rem; color:rgba(255,255,255,0.80); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
+  <p data-i="p_numberscomefromyourliveworkh_9c03" style="font-size:.78rem; color:rgba(255,255,255,0.80); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
 </details>
 </main>
 <!-- Calm Dashboard Contract footer moved INSIDE main (A3: the lens roots at main/.page; a page-owned disclosure outside it was invisible to the ruler AND semantically outside the page's landmark) -->

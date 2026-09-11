@@ -68,7 +68,7 @@ STYLE = """  <style>
     .author-card .avatar { width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #F7A21B, #FDB94A); display: flex; align-items: center; justify-content: center; font-weight: 800; color: #162032; font-size: 1.1rem; flex-shrink: 0; }
     .author-card .meta p:first-child { font-weight: 700; color: #F4F6FA; font-size: 0.95rem; margin-bottom: 2px; }
     .author-card .meta p:last-child { font-size: 0.82rem; color: rgba(244,246,250,0.5); }
-    nav a.nav-link { font-size: 0.9rem; color: rgba(244,246,250,0.65); font-weight: 500; } nav a.nav-link:hover { color: #F4F6FA; }
+    nav a.nav-link { font-size: 0.9rem; color: rgba(244,246,250,0.82); font-weight: 500; display: inline-flex; align-items: center; justify-content: center; min-height: 44px; min-width: 44px; padding: 0 0.25rem; } @media (max-width: 400px) { nav.flex { gap: 0.5rem; } } /* control-within-viewport (2026-09-05): at the floor viewport the gap-6 nav pushed 'Sign Up Free' 3px past the edge */ /* 44px targets + Lc 60 at 14px (F1/K2/Z3/C5, 2026-09-05) */ header a, footer a { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; min-width: 44px; } nav a.nav-link:hover { color: #F4F6FA; }
     .breadcrumb { font-size: 0.85rem; color: rgba(244,246,250,0.45); margin-bottom: 1.5rem; }
     .breadcrumb a { color: rgba(244,246,250,0.55); text-decoration: none; } .breadcrumb a:hover { color: #F7A21B; }
     .breadcrumb span { margin: 0 8px; opacity: 0.4; }
@@ -196,7 +196,7 @@ SITE_HEADER = """<header class="border-b border-white/[0.06]" style="background:
   <div class="max-w-6xl mx-auto px-5 sm:px-8 py-4 flex items-center justify-between">
     <a href="/" class="flex items-center gap-3">
       <img src="/brand_assets/workhive-logo-transparent.png" alt="WorkHive" style="height: 36px; width: auto;" />
-      <span class="font-black text-lg tracking-tight">WorkHive</span>
+      <span class="font-black text-lg tracking-tight hidden sm:inline">WorkHive</span>
     </a>
     <nav class="flex items-center gap-6">
       <a href="/" class="nav-link">Home</a>

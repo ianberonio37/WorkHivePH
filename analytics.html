@@ -14,7 +14,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=optional" rel="stylesheet" />
   <script src="browser-floor.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
+  <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
   <script src="https://cdn.plot.ly/plotly-basic-2.26.0.min.js" integrity="sha384-4zPMCkaV0wO70MQq0L4L61dbpYMWn2Br91U2s3eYnKsTPhwH+2D3PTs0OrvLO8h9" crossorigin="anonymous"></script>
   <link rel="stylesheet" href="tokens.css">
   <style>
@@ -96,6 +96,23 @@
        to do" (Prescriptive) entirely off the right edge — the phase that tells a maintenance
        planner what to actually DO was the one a phone user never saw, on a strip with no scroll
        cue. Wrapping to two rows shows all four. */
+    /* ★AND ONCE THEY WRAP THEY ARE BUTTONS, SO THEY HAVE TO LOOK LIKE BUTTONS (C-J, 2026-09-10).
+       The wrap above is right and stays: without it the Prescriptive phase was off-screen entirely.
+       But it left the SEGMENT treatment on controls that are no longer segments. Measured across
+       three controlled device pairs and confirmed by a fourth walked minutes apart at both widths on
+       the same persona and hive: R3 reads 100% at 1280, where the four tabs sit in one contiguous
+       row (top=1459, left 314/438/567/684), and 67% at 390, where they wrap into a 2x2 grid. The raw
+       radius census is IDENTICAL at both widths (pill:20, 8px:9, 0px:14, 12px:1) - no stylesheet
+       changes between them - so the page really does fragment, and the cause is geometry, not values.
+       A square corner is a bar-segment treatment that only reads correctly WHILE THE SEGMENTS ARE
+       JOINED; detached, four square-cornered rectangles look like an unfinished control, which is
+       exactly the 4th silhouette R3 counts. The other candidate fix - keep the bar and scroll it
+       horizontally - was rejected on this page's own evidence: that is the state PJ18 already
+       repaired. So the tabs take their own radius, the divider they no longer need is dropped, a gap
+       separates them, and the frame around a bar that no longer exists is removed. `.phase-tabs
+       .phase-tab` is (0,2,0) against `.phase-tab` (0,1,0), so it wins on the selector rather than on
+       the media query, which adds no specificity of its own
+       ([[feedback_a_media_query_adds_no_specificity]]). Nothing above 640px is touched. */
     @media (max-width: 640px) {
       .phase-tabs { flex-wrap: wrap; overflow-x: visible; width: 100%; }
       .phase-tabs .phase-tab { flex: 1 1 45%; }
@@ -294,10 +311,25 @@
        @1280 even though nothing is visible. display:none on the collapsed children removes the
        phantom box entirely; on open (.open) they render again and the max-height still animates. */
     .kpi-detail:not(.open) > * { display: none; }
+    /* ★C-J, AND THE MECHANISM WAS NOT THE ONE FIRST WRITTEN DOWN (re-measured 2026-09-10 by
+       replicating R3's own roleOf/shapeV against the page). The earlier note said the four phase
+       tabs "fall back to their own 0px corner" when the strip wraps at 390. They do NOT: their
+       parent still has gap:0 and their radius is still 0, so R3's joined-group test keeps reading
+       them as ONE BAR at both widths. Scoped to the page root, 390 reports pill→select(20),
+       8px→press(12), bar→navigate(4) and 0px→press(6) — four silhouettes, three roles — and the
+       fourth silhouette is THESE SIX .kpi-toggle expanders. Twelve press controls on this page
+       (refresh-btn, details-toggle, showall-toggle) say "I am a button" with an 8px corner; these
+       six say it with a square one. That is a real inconsistency and it is not responsive at all —
+       it merely BECOMES VISIBLE at 390 because the toggle measures 308px inside a 352px card
+       (87.5%), just under isCardAnatomy's 90% cut-off, where at desktop it is excluded as card
+       anatomy. A dim that flips on a ratio crossing a threshold still names a true defect; it just
+       names it at only one width. The border and tint arrive from a JS-written INLINE style that
+       sets no radius, so this class rule is where the corner belongs and nothing inline overrides
+       it. 8px is press-only here, so joining it introduces no same-shape-different-job collision. */
     .kpi-toggle {
       display: flex; align-items: center; justify-content: space-between;
       cursor: pointer; user-select: none; width: 100%;
-      background: none; border: none; padding: 0; text-align: left;
+      background: none; border: none; border-radius: var(--wh-radius-sm); padding: 0; text-align: left;
       -webkit-tap-highlight-color: transparent;
     }
     .kpi-chevron {
@@ -391,6 +423,7 @@
     .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
     .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.80); }
     .simple-row { display:grid; grid-template-columns:repeat(auto-fit, minmax(170px, 1fr)); gap:16px; margin-bottom:16px; }
+    @media (max-width:420px) { .simple-row { grid-template-columns:1fr; } }   /* phone fit (2026-09-06): two 171px tiles wrapped 'PM compliance (90 days) · complete' into 3 lines; KPI tiles stack on a phone */
     .simple-card { background:rgba(22,32,50,0.7); border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:16px; }
     .simple-card .sc-label { font-size:0.65rem; font-weight:700; color:rgba(255,255,255,0.80); text-transform:uppercase; letter-spacing:0.06em; }
     /* tabular-nums keeps digits on a fixed pitch so KPIs stay comparable
@@ -633,18 +666,18 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <button class="filter-chip active" aria-pressed="true" data-dim="criticality" data-value="all"     onclick="setFilter(this)"><span data-i="fall1">All</span></button>
       <!-- N1: criticality taxonomy deliberately stays English in FIL (canonical
            platform vocabulary — see the i18n contract comment beside _anFIL). -->
-      <button class="filter-chip" aria-pressed="false" data-dim="criticality" data-value="Critical" onclick="setFilter(this)" translate="no">🔴 Critical</button>
-      <button class="filter-chip" aria-pressed="false" data-dim="criticality" data-value="High"     onclick="setFilter(this)" translate="no">🟠 High</button>
-      <button class="filter-chip" aria-pressed="false" data-dim="criticality" data-value="Medium"   onclick="setFilter(this)" translate="no">🟡 Medium</button>
-      <button class="filter-chip" aria-pressed="false" data-dim="criticality" data-value="Low"      onclick="setFilter(this)" translate="no">🟢 Low</button>
+      <button class="filter-chip" aria-pressed="false" data-dim="criticality" data-value="Critical" onclick="setFilter(this)" translate="no" data-i="critical">🔴 Critical</button>
+      <button class="filter-chip" aria-pressed="false" data-dim="criticality" data-value="High"     onclick="setFilter(this)" translate="no" data-i="high">🟠 High</button>
+      <button class="filter-chip" aria-pressed="false" data-dim="criticality" data-value="Medium"   onclick="setFilter(this)" translate="no" data-i="medium">🟡 Medium</button>
+      <button class="filter-chip" aria-pressed="false" data-dim="criticality" data-value="Low"      onclick="setFilter(this)" translate="no" data-i="low">🟢 Low</button>
     </div>
     <div class="filter-group">
       <span class="filter-label" data-i="fdisc">Discipline</span>
       <button class="filter-chip active" aria-pressed="true" data-dim="discipline" data-value="all"           onclick="setFilter(this)"><span data-i="fall2">All</span></button>
       <!-- N1: discipline taxonomy deliberately stays English in FIL (canonical
            platform vocabulary — see the i18n contract comment beside _anFIL). -->
-      <button class="filter-chip" aria-pressed="false" data-dim="discipline" data-value="Mechanical"     onclick="setFilter(this)" translate="no">Mechanical</button>
-      <button class="filter-chip" aria-pressed="false" data-dim="discipline" data-value="Electrical"     onclick="setFilter(this)" translate="no">Electrical</button>
+      <button class="filter-chip" aria-pressed="false" data-dim="discipline" data-value="Mechanical"     onclick="setFilter(this)" translate="no" data-i="mechanical">Mechanical</button>
+      <button class="filter-chip" aria-pressed="false" data-dim="discipline" data-value="Electrical"     onclick="setFilter(this)" translate="no" data-i="electrical">Electrical</button>
       <button class="filter-chip" aria-pressed="false" data-dim="discipline" data-value="Instrumentation" onclick="setFilter(this)" translate="no">Instrumentation</button>
       <button class="filter-chip" aria-pressed="false" data-dim="discipline" data-value="Hydraulic"      onclick="setFilter(this)" translate="no">Hydraulic</button>
       <button class="filter-chip" aria-pressed="false" data-dim="discipline" data-value="Pneumatic"      onclick="setFilter(this)" translate="no">Pneumatic</button>
@@ -873,7 +906,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       // helper's own note records a live case where answering both with 'sign in again' sent someone
       // with a healthy session to fix nothing. Only the 401 half is told to sign in.
       var _authGone = (typeof whIsAuthFailure === 'function') && whIsAuthFailure(err);
-      if (lbl) lbl.textContent = _authGone ? '⚠ Sign in' : '⚠ Try again';
+      if (lbl) lbl.textContent = _authGone ? '⚠ Sign in' : _t('⚠ Try again', '⚠ Subukan muli');
       // ★THE SERVER ALREADY SAID SOMETHING USEFUL AND THIS LINE THREW IT AWAY. Measured live: the
       // recompute returns HTTP 429 with {"error":"AI call limit reached for this hive. Try again in an
       // hour.","scope":"hour"} — it names the limit, the scope AND when it clears. "Recompute failed,
@@ -893,7 +926,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       } catch (_) { /* empty-catch-allow: body may not be JSON — fall through to the mapper below */ }
       showToast(_authGone
         ? 'Your session expired, so the recompute never reached the server. Sign in again, then retry.'
-        : (msg || whAiError(err, 'Recompute failed. Try again shortly.')), 'error');
+        : (msg || whAiError(err, _t('Recompute failed. Try again shortly.', 'Hindi natuloy ang recompute. Subukan muli mamaya.'))), 'error');
     } finally {
       setTimeout(() => { if (lbl) lbl.textContent = orig; if (btn) btn.disabled = false; }, 2600);
     }
@@ -956,7 +989,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       banner.textContent = '';
     } else {
       banner.style.display = '';
-      banner/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `Filtered: ${active.map(escHtml).join(' · ')} <button onclick="resetFilters()" style="margin-left:0.5rem;background:none;border:none;color:var(--wh-violet-text);cursor:pointer;text-decoration:underline;font-size:0.66rem;font-family:inherit;">clear</button>`;
+      banner/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `Filtered: ${active.map(escHtml).join(' · ')} <button onclick="resetFilters()" style="margin-left:0.5rem;background:none;border:none;color:var(--wh-violet-text);cursor:pointer;text-decoration:underline;font-size:0.66rem;font-family:inherit;" data-i="clear">clear</button>`;
     }
   }
   function resetFilters() {
@@ -1055,15 +1088,26 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       if (_phase === phase) {
         renderPhase(phase, data);
         updateStatusBar(phase);
+        // EX-AT (2026-09-07): the shared "was this right?" row under the AI analysis - a wrong
+        // narrative can be flagged in one press, recorded against the phase and data it described.
+        if (typeof whAiTrustRow === 'function') {
+          whAiTrustRow(document.getElementById('results-panel'), { db, agent: 'analytics-orchestrator', source: 'analysis', page: 'analytics',
+            question: phase + ' analysis', answer: JSON.stringify(data).slice(0, 4000),   // cap-ok: string truncation of the feedback payload, not a list read (nothing is counted or summed from it)
+            groundedOn: _t("your hive's logbook, PM completions and parts, computed just now", 'logbook, PM completion at parts ng hive mo, kinukuwenta ngayon') });
+        }
       }
       renderRoleQuickView(); // update role view as data arrives
     } catch (err) {
       console.warn(`[analytics] ${phase} failed:`, err.message);
-      showToast(whAiError(err, 'Analysis failed, check console'));
+      showToast(whAiError(err, _t('Analysis failed, check console', 'Hindi natuloy ang analysis, tingnan ang console')));
       if (_phase === phase) {
         document.getElementById('results-panel')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
           <div class="card"><div class="empty" style="color:var(--wh-red-text);">
-            ${escHtml(err.message.includes('not yet available') ? 'Analytics engine warming up, try Refresh in a moment.' : err.message)}
+            ${escHtml(err.message.includes('not yet available')
+              ? _t('Analytics engine warming up, try Refresh in a moment.',
+                   'Nagpapainit pa ang analytics engine, subukan ang Refresh mamaya.')
+              : _t('Could not load the analytics for this period. Tap Refresh to try again.',
+                   'Hindi makuha ang analytics para sa panahong ito. Pindutin ang Refresh para subukan ulit.'))}
           </div></div>`;
         // Verdict label must leave the "Rolling up reliability KPIs..." state
         // even when the orchestrator fails — otherwise the page sits on the
@@ -1071,9 +1115,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         const vLbl = document.getElementById('an-verdict-label');
         const vSub = document.getElementById('an-verdict-sub');
         if (vLbl) vLbl.textContent = err.message.includes('not yet available')
-          ? 'Analytics engine warming up'
-          : 'Analytics unavailable';
-        if (vSub) vSub.textContent = 'Tap Refresh once the engine is ready.';
+          ? _t('Analytics engine warming up', 'Nagpapainit pa ang analytics engine')
+          : _t('Analytics unavailable', 'Hindi available ang analytics');
+        if (vSub) vSub.textContent = _t('Tap Refresh once the engine is ready.',
+                                        'Pindutin ang Refresh kapag handa na ang engine.');
       }
       // A5: the OEE/MTBF/PM summary tiles are populated ONLY by the descriptive render;
       // if descriptive fails they'd sit on "Loading..." forever, contradicting the
@@ -1081,7 +1126,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       if (phase === 'descriptive') {
         ['oee', 'mtbf', 'pm'].forEach(k => {
           const h = document.getElementById('an-' + k + '-hero'); if (h) h.textContent = '-';
-          const s = document.getElementById('an-' + k + '-sub');  if (s) s.textContent = 'Unavailable';
+          const s = document.getElementById('an-' + k + '-sub');  if (s) s.textContent = _t('Unavailable', 'Hindi available');
           const t = document.getElementById('an-' + k + '-tag');  if (t) t.textContent = '-';
         });
       }
@@ -1139,7 +1184,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         .select('phase, payload, computed_at')
         .eq('hive_id', HIVE_ID)
         .eq('period_days', _period)
-        .limit(500);
+        .limit(500);   // cap-ok: rows only - no count or sum is derived from this read (classified by the reference-pages-uncapped sweep, 2026-09-05)
       // ★ FOURTH INSTANCE OF ONE `return` MEANING TWO OPPOSITE THINGS. `error` (the saved copy could
       // not be READ) and `!data` (there is no saved copy) both returned [], so the page fell back to a
       // live recompute and said nothing. The numbers that come back are fine — but the snapshot payload
@@ -1223,9 +1268,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     document.getElementById('results-panel')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
       <div class="card skeleton" style="min-height:260px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:2.5rem;">
         <div class="spinner" style="width:40px;height:40px;border-width:3px;border-color:var(--wh-violet-text);border-top-color:var(--wh-violet-text);margin-bottom:1.25rem;"></div>
-        <div style="color:var(--wh-violet-text);font-size:0.7rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:0.6rem;">WorkHive Analytics AI</div>
+        <div style="color:var(--wh-violet-text);font-size:0.7rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:0.6rem;">${escHtml(_t('WorkHive Analytics AI', 'WorkHive Analytics AI'))}</div>
         <div id="loading-status-msg" style="font-size:0.85rem;font-weight:600;color:#fff;min-height:1.4rem;transition:opacity 0.4s;margin-bottom:0.4rem;">Loading...</div>
-        <div style="font-size:0.7rem;color:rgba(255,255,255,0.80);margin-bottom:1rem;">ISO 14224 standards-grade analysis</div>
+        <div style="font-size:0.7rem;color:rgba(255,255,255,0.80);margin-bottom:1rem;">${escHtml(_t('ISO 14224 standards-grade analysis', 'Pagsusuring standards-grade ayon sa ISO 14224'))}</div>
         <div style="display:flex;gap:0.5rem;">
           <div style="width:7px;height:7px;border-radius:50%;background:var(--wh-violet);animation:dotPulse 1.4s ease-in-out infinite;"></div>
           <div style="width:7px;height:7px;border-radius:50%;background:var(--wh-violet);animation:dotPulse 1.4s ease-in-out 0.2s infinite;"></div>
@@ -1322,13 +1367,23 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
                      ? Math.round(oeeAssets.reduce((s, r) => s + Number(r.oee_pct), 0) / oeeAssets.length)
                      : null;
     if (oeeAvg == null) {
-      // The Python API returns a `note` string on the OEE payload when
-      // there's no production_output data — surface that verbatim so
-      // the supervisor knows what to add (Quick Readings + production
-      // units in breakdown entries).
-      const oeeNote = (data && data.oee && data.oee.note)
-                        ? data.oee.note
-                        : _t('Not enough downtime data yet', 'Kulang pa ang datos ng downtime');
+      // ★THE ONE SENTENCE UNDER A BLANK OEE TILE NAMED THE WRONG GAP. The payload's top-level `note`
+      // is about the PERFORMANCE dimension, and this branch surfaced it verbatim whatever the reason
+      // the number is missing. Walked live 2026-09-10 as the fleet supervisor: Dela Cruz Delivery Fleet
+      // has 8 assets, all with availability_pct=100 and ZERO quality_readings — so what blocks OEE is
+      // QUALITY, and the card told the supervisor to configure a planned production rate, an action
+      // that would have changed nothing. Read which half is actually missing from the per-asset rows
+      // and say THAT, naming the control by the label it wears on screen ("Production this shift" on a
+      // closed Breakdown entry). Same rule as the KPI tiles: the instrument explains its own number.
+      const _oeeRows  = (data && data.oee && Array.isArray(data.oee.oee_by_asset)) ? data.oee.oee_by_asset : [];
+      const _noQual   = _oeeRows.length > 0 && _oeeRows.every(r => !(Number(r.quality_readings) > 0));
+      const _noun     = _anNoun('asset', _oeeRows.length);
+      const oeeNote = _noQual
+        ? _t(`No quality readings yet on ${_oeeRows.length} ${_noun}. Add Production this shift when you close a Breakdown entry.`,
+             `Wala pang quality reading sa ${_oeeRows.length} ${_noun}. Idagdag ang Production this shift kapag isinara mo ang Breakdown entry.`)
+        : ((data && data.oee && data.oee.note)
+             ? data.oee.note
+             : _t('Not enough downtime data yet', 'Kulang pa ang datos ng downtime'));
       setCard('oee', '-', oeeNote, 'NO DATA', 'grey');
     } else {
       const tag  = oeeAvg >= 85 ? _t('WORLD CLASS','WORLD CLASS') : oeeAvg >= 65 ? _t('TYPICAL','KARANIWAN') : _t('NEEDS WORK','KAILANGAN AYUSIN');
@@ -1480,7 +1535,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       sub = _t('Below floor: ', 'Mababa sa pamantayan: ') + flags.join(' · ') + '.';
     } else if (oeeWatch || mtbfWatch || pmWatch) {
       tone = 'watch'; label = _t('Reliability KPIs are climbing', 'Umaakyat ang reliability KPIs');
-      sub  = `OEE ${oeeAvg != null ? oeeAvg + '%' : '-'} · ${_t('worst MTBF', 'pinakamababang MTBF')} ${worstMTBF ? worstMTBF.mtbf_days + 'd' : '-'} · PM compliance ${pmPct != null ? pmPct + '%' : '-'}.`;
+      sub  = _t(`OEE ${oeeAvg != null ? oeeAvg + '%' : '-'} · worst MTBF ${worstMTBF ? worstMTBF.mtbf_days + 'd' : '-'} · PM compliance ${pmPct != null ? pmPct + '%' : '-'}.`,
+                `OEE ${oeeAvg != null ? oeeAvg + '%' : '-'} · pinakamababang MTBF ${worstMTBF ? worstMTBF.mtbf_days + 'd' : '-'} · PM compliance ${pmPct != null ? pmPct + '%' : '-'}.`);
     } else if (oeeAvg == null && !worstMTBF && pmPct == null) {
       tone = 'empty'; label = _t('Not enough data yet', 'Kulang pa ang datos');
       sub  = _t('Log corrective failures + run a few PM completions, then come back. Analytics needs 30+ days of activity to find patterns.',

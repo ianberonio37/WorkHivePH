@@ -72,34 +72,37 @@ class _Provider:
 # Order mirrors _shared/ai-chain.ts exactly — change one, change both.
 _CHAIN: list[_Provider] = [
     # Tier 1: Groq (LPU hardware, fastest)
-    _Provider("groq", "https://api.groq.com/openai/v1", "meta-llama/llama-4-scout-17b-16e-instruct", "GROQ_API_KEY"),
-    _Provider("groq", "https://api.groq.com/openai/v1", "llama-3.3-70b-versatile",                    "GROQ_API_KEY"),
-    _Provider("groq", "https://api.groq.com/openai/v1", "qwen/qwen3-32b",                             "GROQ_API_KEY"),
-    _Provider("groq", "https://api.groq.com/openai/v1", "llama-3.1-8b-instant",                       "GROQ_API_KEY"),
+    # ★MIRRORED 2026-09-10 - the THIRD copy of this list. Seven of the first nine entries named
+    # models that no longer exist, measured against each provider's /models endpoint. This file's
+    # own header says "change one, change both", and there are in fact THREE: _shared/ai-chain.ts,
+    # tools/ai_chain.py and this one. All three carried the same dead names.
+    _Provider("groq", "https://api.groq.com/openai/v1", "qwen/qwen3.8-27b",                           "GROQ_API_KEY"),
+    _Provider("groq", "https://api.groq.com/openai/v1", "qwen/qwen3.6-27b",                           "GROQ_API_KEY"),
     _Provider("groq", "https://api.groq.com/openai/v1", "openai/gpt-oss-20b",                         "GROQ_API_KEY"),
     _Provider("groq", "https://api.groq.com/openai/v1", "openai/gpt-oss-120b",                        "GROQ_API_KEY"),
-    # Tier 2: Cerebras (1M tokens/day free)
-    _Provider("cerebras", "https://api.cerebras.ai/v1", "llama-3.3-70b", "CEREBRAS_API_KEY", max_tokens_cap=4096),
-    _Provider("cerebras", "https://api.cerebras.ai/v1", "qwen-3-32b",    "CEREBRAS_API_KEY", max_tokens_cap=4096),
-    _Provider("cerebras", "https://api.cerebras.ai/v1", "llama3.1-8b",   "CEREBRAS_API_KEY", max_tokens_cap=4096),
+    _Provider("groq", "https://api.groq.com/openai/v1", "groq/compound-mini",                         "GROQ_API_KEY"),
+    # Tier 2: Cerebras (1M tokens/day free) - these three ARE the list Cerebras serves
+    _Provider("cerebras", "https://api.cerebras.ai/v1", "gpt-oss-120b", "CEREBRAS_API_KEY", max_tokens_cap=4096),
+    _Provider("cerebras", "https://api.cerebras.ai/v1", "qwen-3.8-27b", "CEREBRAS_API_KEY", max_tokens_cap=4096),
+    _Provider("cerebras", "https://api.cerebras.ai/v1", "gemma-4-31b",  "CEREBRAS_API_KEY", max_tokens_cap=4096),
     # Tier 3: Google Gemini (free tier)
     _Provider("google", "https://generativelanguage.googleapis.com/v1beta/openai", "gemini-2.5-flash",      "GEMINI_API_KEY"),
     _Provider("google", "https://generativelanguage.googleapis.com/v1beta/openai", "gemini-2.5-flash-lite", "GEMINI_API_KEY"),
     # Tier 4: Mistral (free tier)
-    _Provider("mistral", "https://api.mistral.ai/v1", "mistral-large-latest", "MISTRAL_API_KEY"),
+    _Provider("mistral", "https://api.mistral.ai/v1", "mistral-medium-latest", "MISTRAL_API_KEY"),
     _Provider("mistral", "https://api.mistral.ai/v1", "codestral-latest",     "MISTRAL_API_KEY"),
     # Tier 5: OpenRouter (200 req/day on :free models)
     _Provider("openrouter", "https://openrouter.ai/api/v1", "nvidia/nemotron-3-super-120b-a12b:free",
               "OPENROUTER_API_KEY", extra_headers={"HTTP-Referer": "https://workhiveph.com", "X-Title": "WorkHive"}),
     _Provider("openrouter", "https://openrouter.ai/api/v1", "google/gemma-4-31b-it:free",
               "OPENROUTER_API_KEY", extra_headers={"HTTP-Referer": "https://workhiveph.com", "X-Title": "WorkHive"}),
-    _Provider("openrouter", "https://openrouter.ai/api/v1", "openai/gpt-oss-120b:free",
+    _Provider("openrouter", "https://openrouter.ai/api/v1", "nvidia/nemotron-3.5-lightning:free",
               "OPENROUTER_API_KEY", extra_headers={"HTTP-Referer": "https://workhiveph.com", "X-Title": "WorkHive"}),
     _Provider("openrouter", "https://openrouter.ai/api/v1", "google/gemma-4-26b-a4b-it:free",
               "OPENROUTER_API_KEY", extra_headers={"HTTP-Referer": "https://workhiveph.com", "X-Title": "WorkHive"}),
-    _Provider("openrouter", "https://openrouter.ai/api/v1", "meta-llama/llama-3.3-70b-instruct:free",
+    _Provider("openrouter", "https://openrouter.ai/api/v1", "nvidia/nemotron-3-ultra-550b-a55b:free",
               "OPENROUTER_API_KEY", extra_headers={"HTTP-Referer": "https://workhiveph.com", "X-Title": "WorkHive"}),
-    _Provider("openrouter", "https://openrouter.ai/api/v1", "google/gemma-3-27b-it:free",
+    _Provider("openrouter", "https://openrouter.ai/api/v1", "nex-agi/nex-n2.5-mini:free",
               "OPENROUTER_API_KEY", extra_headers={"HTTP-Referer": "https://workhiveph.com", "X-Title": "WorkHive"}),
 ]
 

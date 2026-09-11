@@ -26,7 +26,7 @@
       "class": "AC Core",
       "name": "envelope.ts",
       "api": "import from '../_shared/envelope.ts'",
-      "satisfies": "canonical success/error JSON envelope",
+      "satisfies": "the standard reply shape: a success body or an error body",
       "detect": [
         {
           "kind": "import",
@@ -34,7 +34,7 @@
         }
       ],
       "need": "family",
-      "when_to_use": "every JSON-returning function (one response shape platform-wide)",
+      "when_to_use": "every function that returns a reply body (one response shape platform-wide)",
       "when_not": "streaming/binary responses (justify)",
       "status": "built",
       "exempt": [

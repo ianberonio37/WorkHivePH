@@ -1,7 +1,11 @@
 {
   "_doc": "T1.4 unified page roster \u2014 the ONE scope artifact every page-consuming instrument is checked against (validate_page_roster.py). Regenerate with --build after adding/removing a page.",
-  "count": 156,
+  "count": 169,
   "pages": [
+    {
+      "path": "about/index.html",
+      "kind": "page"
+    },
     {
       "path": "achievements.html",
       "kind": "root"
@@ -59,6 +63,10 @@
       "kind": "root"
     },
     {
+      "path": "feedback/index.html",
+      "kind": "page"
+    },
+    {
       "path": "founder-console.html",
       "kind": "root"
     },
@@ -77,102 +85,6 @@
     {
       "path": "inventory.html",
       "kind": "root"
-    },
-    {
-      "path": "llm-observability.html",
-      "kind": "root"
-    },
-    {
-      "path": "logbook.html",
-      "kind": "root"
-    },
-    {
-      "path": "marketplace-admin.html",
-      "kind": "root"
-    },
-    {
-      "path": "marketplace-seller-profile.html",
-      "kind": "root"
-    },
-    {
-      "path": "marketplace-seller.html",
-      "kind": "root"
-    },
-    {
-      "path": "marketplace.html",
-      "kind": "root"
-    },
-    {
-      "path": "offline-fallback.html",
-      "kind": "root"
-    },
-    {
-      "path": "ph-intelligence.html",
-      "kind": "root"
-    },
-    {
-      "path": "plant-connections.html",
-      "kind": "root"
-    },
-    {
-      "path": "platform-actions.html",
-      "kind": "root"
-    },
-    {
-      "path": "pm-scheduler.html",
-      "kind": "root"
-    },
-    {
-      "path": "project-manager.html",
-      "kind": "root"
-    },
-    {
-      "path": "project-report.html",
-      "kind": "root"
-    },
-    {
-      "path": "promo-poster.html",
-      "kind": "root"
-    },
-    {
-      "path": "public-feed.html",
-      "kind": "root"
-    },
-    {
-      "path": "report-sender.html",
-      "kind": "root"
-    },
-    {
-      "path": "resume.html",
-      "kind": "root"
-    },
-    {
-      "path": "shift-brain.html",
-      "kind": "root"
-    },
-    {
-      "path": "skillmatrix.html",
-      "kind": "root"
-    },
-    {
-      "path": "status.html",
-      "kind": "root"
-    },
-    {
-      "path": "symbol-gallery.html",
-      "kind": "root"
-    },
-    {
-      "path": "validator-catalog.html",
-      "kind": "root"
-    },
-    {
-      "path": "voice-journal.html",
-      "kind": "root"
-    },
-    {
-      "path": "learn/index.html",
-      "kind": "learn"
     },
     {
       "path": "learn/ai-companion-hezekiah-zaniah-personas/index.html",
@@ -247,6 +159,10 @@
       "kind": "learn"
     },
     {
+      "path": "learn/index.html",
+      "kind": "learn"
+    },
+    {
       "path": "learn/industrial-community-of-practice-philippines/index.html",
       "kind": "learn"
     },
@@ -288,6 +204,10 @@
     },
     {
       "path": "learn/ph-plant-compliance-guide/index.html",
+      "kind": "learn"
+    },
+    {
+      "path": "learn/philippine-plants-now-pay-the-highest-power-rates/index.html",
       "kind": "learn"
     },
     {
@@ -385,6 +305,130 @@
     {
       "path": "learn/workhive-vs-upkeep-free-cmms-comparison/index.html",
       "kind": "learn"
+    },
+    {
+      "path": "llm-observability.html",
+      "kind": "root"
+    },
+    {
+      "path": "logbook.html",
+      "kind": "root"
+    },
+    {
+      "path": "marketplace-admin.html",
+      "kind": "root"
+    },
+    {
+      "path": "marketplace-seller-profile.html",
+      "kind": "root"
+    },
+    {
+      "path": "marketplace-seller.html",
+      "kind": "root"
+    },
+    {
+      "path": "marketplace.html",
+      "kind": "root"
+    },
+    {
+      "path": "offline-fallback.html",
+      "kind": "root"
+    },
+    {
+      "path": "ph-intelligence.html",
+      "kind": "root"
+    },
+    {
+      "path": "plant-connections.html",
+      "kind": "root"
+    },
+    {
+      "path": "platform-actions.html",
+      "kind": "root"
+    },
+    {
+      "path": "pm-scheduler.html",
+      "kind": "root"
+    },
+    {
+      "path": "privacy-policy/index.html",
+      "kind": "page"
+    },
+    {
+      "path": "project-manager.html",
+      "kind": "root"
+    },
+    {
+      "path": "project-report.html",
+      "kind": "root"
+    },
+    {
+      "path": "promo-poster.html",
+      "kind": "root"
+    },
+    {
+      "path": "promo_posters/_beetest.html",
+      "kind": "promo"
+    },
+    {
+      "path": "promo_posters/_contact.html",
+      "kind": "promo"
+    },
+    {
+      "path": "promo_posters/poster-v1.html",
+      "kind": "promo"
+    },
+    {
+      "path": "promo_posters/poster-v2.html",
+      "kind": "promo"
+    },
+    {
+      "path": "promo_posters/poster-v3.html",
+      "kind": "promo"
+    },
+    {
+      "path": "promo_posters/poster-v4.html",
+      "kind": "promo"
+    },
+    {
+      "path": "promo_posters/poster-v5.html",
+      "kind": "promo"
+    },
+    {
+      "path": "promo_posters/social-card.html",
+      "kind": "promo"
+    },
+    {
+      "path": "public-feed.html",
+      "kind": "root"
+    },
+    {
+      "path": "report-sender.html",
+      "kind": "root"
+    },
+    {
+      "path": "resume.html",
+      "kind": "root"
+    },
+    {
+      "path": "shift-brain.html",
+      "kind": "root"
+    },
+    {
+      "path": "skillmatrix.html",
+      "kind": "root"
+    },
+    {
+      "path": "status.html",
+      "kind": "root"
+    },
+    {
+      "path": "symbol-gallery.html",
+      "kind": "root"
+    },
+    {
+      "path": "terms-of-service/index.html",
+      "kind": "page"
     },
     {
       "path": "tools/ahu-sizing-calculator/index.html",
@@ -625,6 +669,14 @@
     {
       "path": "tools/wire-sizing-calculator/index.html",
       "kind": "tools"
+    },
+    {
+      "path": "validator-catalog.html",
+      "kind": "root"
+    },
+    {
+      "path": "voice-journal.html",
+      "kind": "root"
     }
   ]
 }

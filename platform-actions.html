@@ -3,6 +3,7 @@
 <head>
   <link rel="stylesheet" href="tokens.css" />
   <meta charset="UTF-8" />
+  <meta name="wh-page-kind" content="console">   <!-- single-operator console (2026-09-05): ships in the operating language; the rubric records label coverage but does not grade N1 -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="robots" content="noindex, nofollow" />
   <title>Platform Actions · WorkHive</title>
@@ -20,16 +21,17 @@
                   background:rgba(52,211,153,0.12); color:var(--green); border:1px solid rgba(52,211,153,0.35);
                   text-decoration:none; font-weight:700; font-size:0.82rem; min-height:44px; }
     .to-grafana:hover { background:rgba(52,211,153,0.2); }
-    .card { background:var(--card); border:1px solid var(--border); border-radius:0.9rem; padding:1rem 1.1rem; margin-bottom:1rem; }
+    .card { background:var(--card); border:1px solid var(--border); border-radius:1rem; padding:1rem 1.1rem; margin-bottom:1rem; }
     .card-hdr { display:flex; align-items:center; justify-content:space-between; gap:0.5rem; margin-bottom:0.75rem; }
     .card-hdr h2 { font-size:1rem; font-weight:700; margin:0; }
-    .count { font-size:0.75rem; font-weight:700; padding:0.15rem 0.55rem; border-radius:999px; background:rgba(255,255,255,0.08); color:var(--muted); }
-    .count.warn { background:rgba(247,162,27,0.18); color:var(--gold); }
+    main, body { font-variant-numeric: tabular-nums; }   /* C4 (2026-09-05): every numeral on this console is a figure */
+    .count { font-size:1.25rem; line-height:1; font-variant-numeric:tabular-nums; font-weight:700; padding:0.2rem 0.6rem; border-radius:999px; background:rgba(255,255,255,0.08); color:#f1f5f9;   /* C5: a 20 px numeral on the dim pill needs the near-white tint (Lc 60 -> 75+) */ }
+    .count.warn { background:rgba(247,162,27,0.14); color:#fde68a; }   /* C5: same step for the amber pill */
     /* --red on its own 18% tint measures 4.35:1 -- under the 4.5 AA floor for text this small, and
        axe flagged 11 nodes across the count badges and status pills. The gold pair already clears it
        at 5.41:1, so only the red needed lifting: #fca5a5 on the same tint measures 6.35:1. Chosen
        over darkening the tint because the tint is what makes a red pill READ as red at a glance. */
-    .count.fail { background:rgba(248,113,113,0.18); color:#fca5a5; }
+    .count.fail { background:rgba(248,113,113,0.14); color:#fecaca; }   /* C5 (2026-09-05): a 20 px numeral on the red pill read Lc 60 with #fca5a5 - one tint lighter */
     .mod-row { display:flex; align-items:center; justify-content:space-between; gap:0.75rem; padding:0.6rem 0;
                border-top:1px solid var(--border); flex-wrap:wrap; }
     .mod-row:first-child { border-top:0; }
@@ -131,7 +133,7 @@
     .fb-drawer-actions .mod-btn { flex:1; text-align:center; text-decoration:none; line-height:1.9; }
   </style>
   <script src="browser-floor.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
+  <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
   <script src="utils.js"></script>
 </head>
 <body>
@@ -140,15 +142,27 @@
     <h2>Platform Actions</h2>
     <!-- The person who hits this screen is, by definition, NOT an admin — so a database table name is
          the one thing they can do nothing with. Say who can let them in instead. -->
-    <p>This page is for platform admins only. If you think you should have access, ask an existing platform admin to add you.</p>
-    <a href="index.html" class="btn">Back to WorkHive</a>
+    <p data-i="p_thispageisforplatformadminso_4f0c">This page is for platform admins only. If you think you should have access, ask an existing platform admin to add you.</p>
+    <a data-i="p_backtoworkhive_9aff" href="index.html" class="btn">Back to WorkHive</a>
   </div>
-  <div id="checking-gate" class="gate">Checking access…</div>
+  <div data-i="p_checkingaccess_c510" id="checking-gate" class="gate">Checking access…</div>
 
-  <div id="actions" class="wrap" hidden>
+  <!-- role=main: this div IS the page for an admin who passes the gate; without the landmark a
+       screen-reader user had to walk the two gate blocks and the header before reaching it. -->
+  <div id="actions" class="wrap" role="main" hidden>
     <div class="hdr">
       <div>
-        <h1>Platform Actions</h1>
+        <h1 style="font-size:1.5rem;">Platform Actions</h1>
+        <details class="wh-help" style="margin:0.4rem 0 0; font-size:0.85rem; opacity:0.9;"><summary data-i="p_howthisconsoleworks_d3bd" style="cursor:pointer; min-height:44px; display:inline-flex; align-items:center;">How this console works</summary>
+          <p style="margin:0.4rem 0 0; max-width:60ch;">Each card is a queue that needs a human decision: verify a GCash top-up, approve or reject a listing, verify a seller, answer feedback. The badge on a card is the exact number waiting (a <code>+</code> means the read was capped). Queues refresh on load and every 60 seconds; a dash means the read failed, not that the queue is empty.</p>
+        </details>
+<p class="wh-back" style="margin:.25rem 0 0; font-size:.8rem;"><a data-i="p_backtoworkhive_13cc" href="index.html" style="color:inherit; opacity:.85; text-decoration:underline;">&#8592; Back to WorkHive</a>
+        <!-- This console offered exactly ONE internal link. A platform admin is also a member of a hive,
+             and three journeys declare the hop from here to their own board - a founder who has cleared
+             the queues goes back to work. Without it the page was a cul-de-sac: the only way onward was
+             the landing page, and from there round again. The hub does not render here, so an in-layout
+             link is the only route there is. -->
+        <span aria-hidden="true" style="opacity:.4; margin:0 .45rem;">&middot;</span><a data-i="p_myhiveboard_c403" href="hive.html" style="color:inherit; opacity:.85; text-decoration:underline;">My Hive Board</a></p><!-- W1 (rubric 2026-09-05): an in-layout way back; the floating hub is not one -->
         <div class="sub">Governance actions only: approve/verify/resolve. Every metric (health, usage, growth, marketplace volumes) lives in Grafana. Open this page only when a queue has something waiting.</div>
       </div>
       <!-- ufai-link-allow: Grafana 302s to its own login for every URL including the root, which the
@@ -159,7 +173,7 @@
     </div>
 
     <div class="row-controls">
-      <button id="refresh-btn" class="refresh-btn">↻ Refresh queues</button>
+      <button id="refresh-btn" class="refresh-btn" data-i="refreshqueues">↻ Refresh queues</button>
       <span id="last-sync" class="updated">-</span>
     </div>
 
@@ -180,9 +194,9 @@
          mig 42 made this urgent -- it corrected issued_credits from 0 to the PHP1,500 actually minted,
          and that correction was landing somewhere no one could look. -->
     <div class="card" id="sec-credit-position">
-      <div class="card-hdr"><h2>Credit position</h2><span id="cp-cover" class="count">—</span></div>
-      <div class="sub" style="margin:-0.4rem 0 0.75rem;">What the platform holds and owes. Cash enters once, as a top-up, and never leaves.</div>
-      <div id="cp-content"><div class="mod-empty">Loading…</div></div>
+      <div class="card-hdr"><h2 data-i="p_creditposition_ae22">Credit position</h2><span id="cp-cover" class="count">—</span></div>
+      <div data-i="p_whattheplatformholdsandowesc_22fc" class="sub" style="margin:-0.4rem 0 0.75rem;">What the platform holds and owes. Cash enters once, as a top-up, and never leaves.</div>
+      <div id="cp-content"><div data-i="p_loading_33ce" class="mod-empty">Loading…</div></div>
     </div>
 
     <!-- LIFTED HERE 2026-08-03 from founder-console.html, which is retired behind #wh-retired-overlay.
@@ -192,9 +206,9 @@
          provider is waiting on it. (founder-console keeps its copy: retired pages preserve content so
          the static validators that scan them still pass — the same pattern as marketplace-admin.html.) -->
     <div class="card" id="sec-svc-topups">
-      <div class="card-hdr"><h2>GCash top-ups awaiting verification</h2><span id="svc-topups-count" class="count">-</span></div>
-      <div class="sub" style="margin:-0.4rem 0 0.75rem;">Match the reference in your GCash app, then verify to mint the credits.</div>
-      <div id="svc-topups-content"><div class="mod-empty">Loading…</div></div>
+      <div class="card-hdr"><h2 data-i="p_gcashtopupsawaitingverificat_3f17">GCash top-ups awaiting verification</h2><span id="svc-topups-count" class="count">-</span></div>
+      <div data-i="p_matchthereferenceinyourgcash_95e2" class="sub" style="margin:-0.4rem 0 0.75rem;">Match the reference in your GCash app, then verify to mint the credits.</div>
+      <div id="svc-topups-content"><div data-i="p_loading_33ce" class="mod-empty">Loading…</div></div>
     </div>
 
     <!-- WHAT THE AUTOMATION COULD NOT SETTLE. mig 38 verifies a top-up automatically when a forwarded
@@ -204,30 +218,30 @@
          replaced, so the leftovers need a screen. v_gcash_receipts_needing_eyes existed for a whole
          commit without one, which is the same built-but-never-called defect this arc keeps finding. -->
     <div class="card" id="sec-gcash-receipts" hidden>
-      <div class="card-hdr"><h2>GCash receipts needing your eyes</h2><span id="gcash-receipts-count" class="count">-</span></div>
-      <div class="sub" style="margin:-0.4rem 0 0.75rem;">Forwarded receipts the automatic match could not settle. Each says why.</div>
-      <div id="gcash-receipts-content"><div class="mod-empty">Loading…</div></div>
+      <div class="card-hdr"><h2 data-i="p_gcashreceiptsneedingyoureyes_cf07">GCash receipts needing your eyes</h2><span id="gcash-receipts-count" class="count">-</span></div>
+      <div data-i="p_forwardedreceiptstheautomati_3f31" class="sub" style="margin:-0.4rem 0 0.75rem;">Forwarded receipts the automatic match could not settle. Each says why.</div>
+      <div id="gcash-receipts-content"><div data-i="p_loading_33ce" class="mod-empty">Loading…</div></div>
     </div>
 
     <div class="card" id="sec-mkt-mod">
-      <div class="card-hdr"><h2>Listings awaiting review</h2><span id="mkt-listings-count" class="count">-</span></div>
+      <div class="card-hdr"><h2 data-i="p_listingsawaitingreview_4e56">Listings awaiting review</h2><span id="mkt-listings-count" class="count">-</span></div>
       <!-- SAY WHAT THE BUTTON DOES, BEFORE IT IS PRESSED. Measured 2026-08-04: this surface explained
            every number it showed (15 numbers, 0 unexplained) and never what follows an action, on a
            queue whose buttons publish listings to every buyer and mint trust badges. The same silence
            was measured on four other surfaces; this is the first of them to say it. -->
       <p class="mod-sub" style="margin:0 0 0.6rem;">Approve publishes the listing to every buyer
-        immediately, and it can still be removed later. Reject asks you for a reason, and the seller
+        immediately. You can still remove it later. Reject asks you for a reason, and the seller
         sees that reason and can fix and resubmit. A listing can only go live if its seller holds 10%
         of the price in credits, so a refusal here may be about their balance rather than your
         decision.</p>
-      <div id="mkt-listings-content"><div class="mod-empty">Loading…</div></div>
+      <div id="mkt-listings-content"><div data-i="p_loading_33ce" class="mod-empty">Loading…</div></div>
     </div>
     <div class="card">
-      <div class="card-hdr"><h2>Sellers awaiting verification</h2><span id="mkt-sellers-count" class="count">-</span></div>
+      <div class="card-hdr"><h2 data-i="p_sellersawaitingverification_b209">Sellers awaiting verification</h2><span id="mkt-sellers-count" class="count">-</span></div>
       <p class="mod-sub" style="margin:0 0 0.6rem;">Verifying a seller changes what buyers see of them
-        everywhere on the platform, not just here: the ID-verified badge appears on every listing they
+        everywhere on the platform. The ID-verified badge then shows on every listing they
         have and on their public profile, and buyers filter for it by default.</p>
-      <div id="mkt-sellers-content"><div class="mod-empty">Loading…</div></div>
+      <div id="mkt-sellers-content"><div data-i="p_loading_33ce" class="mod-empty">Loading…</div></div>
     </div>
     <!-- RETIRED 2026-08-03: an "Open disputes" card read `marketplace_disputes` — 0 rows, no client
          writer, and it offered a "Refund buyer" button for money the platform never holds. Real disputes
@@ -242,8 +256,8 @@
          (founder-console keeps its copy — retired pages preserve content so the static validators that
          scan them still pass, the same pattern as marketplace-admin.html.) -->
     <div class="card" id="sec-feedback">
-      <div class="card-hdr"><h2>Feedback from users</h2><span id="fb-count-badge" class="count">-</span></div>
-      <div class="sub" style="margin:-0.4rem 0 0.75rem;">Bugs, ideas, questions, reviews and praise sent from the widget on any page. Open one to triage, note or reply.</div>
+      <div class="card-hdr"><h2 data-i="p_feedbackfromusers_1e7b">Feedback from users</h2><span id="fb-count-badge" class="count">-</span></div>
+      <div data-i="p_bugsideasquestionsreviewsand_7673" class="sub" style="margin:-0.4rem 0 0.75rem;">Bugs, ideas, questions, reviews and praise sent from the widget on any page. Open one to triage, note or reply.</div>
       <div class="fb-tabs" role="tablist" aria-label="Filter feedback by status">
         <button class="fb-tab" type="button" data-status="new"         role="tab" aria-selected="true">New <span id="fb-count-new">0</span></button>
         <button class="fb-tab" type="button" data-status="triaged"     role="tab" aria-selected="false">Triaged <span id="fb-count-triaged">0</span></button>
@@ -254,25 +268,43 @@
       <div class="fb-filters">
         <select class="fb-filter" id="fb-filter-kind" aria-label="Filter feedback by kind"
                 data-select-placeholder-allow="filter defaults to 'All kinds' (broadest match)">
-          <option value="*">All kinds</option>
+          <option data-i="p_allkinds_c2ce" value="*">All kinds</option>
           <option value="bug">🐞 Bug</option>
-          <option value="idea">💡 Idea</option>
-          <option value="question">❓ Question</option>
+          <option data-i="p_idea_2fc1" value="idea">💡 Idea</option>
+          <option data-i="p_question_adbf" value="question">❓ Question</option>
           <option value="review">⭐ Review</option>
-          <option value="praise">💛 Praise</option>
-          <option value="other">Other</option>
+          <option data-i="p_praise_827a" value="praise">💛 Praise</option>
+          <option data-i="p_other_6e6a" value="other">Other</option>
         </select>
         <input class="fb-filter" id="fb-filter-search" type="search" aria-label="Search feedback subject or body"
                placeholder="Search subject or body…" />
       </div>
-      <div id="fb-list" aria-live="polite"><div class="mod-empty">Loading…</div></div>
+      <div id="fb-list" aria-live="polite"><div data-i="p_loading_33ce" class="mod-empty">Loading…</div></div>
     </div>
+  </div>
+
+  <!-- ★A CAPABILITY STRANDED ON A RETIRED PAGE IS A DELETED CAPABILITY (2026-09-06). The five founder rollup RPCs
+       (20260905000002) were wired into founder-console.html, which the 2026-07-18 Grafana arc RETIRED behind a
+       redirect overlay - so nothing a person can open could call them. They belong on the live single-operator
+       console, which is this page. -->
+  <div class="card" id="usage-card">
+    <div class="card-hdr">
+      <h2 data-i="p_platformusage_c12d">Platform usage</h2>
+      <span class="mod-empty" id="usage-updated">-</span>
+    </div>
+    <div id="usage-body" aria-live="polite"><div data-i="p_loading_33ce" class="mod-empty">Loading…</div></div>
+    <!-- NAME THE SOURCE, NOT THE METHOD. This chip used to read "Live · rolled up in the database over
+         the last 30 days" — true, and uncheckable: a reader could not tell WHAT was rolled up, and the
+         source_chip_true probe correctly reported a chip naming a source the page never requested. The
+         five founder_* rollups now carry labels in WH_SOURCE_LABELS, so the words below are the same
+         words _whFriendlySource produces for the reads this card actually makes. -->
+    <p class="wh-source-chip" id="usage-source" style="font-size:.62rem; opacity:.8; margin:.5rem 0 0;">Live · active hives, people seen, signed-out sessions, daily actives, page opens · rolled up over the last 30 days, refreshed with the queues</p>
   </div>
 
   <div id="fb-drawer-backdrop" class="fb-drawer-backdrop" hidden></div>
   <aside id="fb-drawer" class="fb-drawer" hidden role="dialog" aria-labelledby="fb-drawer-title" aria-modal="true">
     <div class="fb-drawer-hdr">
-      <h3 id="fb-drawer-title">Feedback detail</h3>
+      <h3 data-i="p_feedbackdetail_fff3" id="fb-drawer-title">Feedback detail</h3>
       <button type="button" id="fb-drawer-close" class="fb-drawer-close" aria-label="Close feedback detail">×</button>
     </div>
     <div id="fb-drawer-body"></div>
@@ -420,10 +452,10 @@
         const [drafts, sellers] = await Promise.all([
           db.from('v_marketplace_listings_truth')
             .select('id,title,section,category,price,seller_name,created_at')
-            .eq('status', 'draft').order('created_at', { ascending: true }).order('id').limit(50),
+            .eq('status', 'draft').order('created_at', { ascending: true }).order('id').limit(50),   // cap-ok: rows only - no count or sum is derived from this read (classified by the reference-pages-uncapped sweep, 2026-09-05)
           db.from('v_marketplace_sellers_truth')
             .select('worker_name,tier,kyb_verified,cert_verified,certifications,active_listings_count,created_at')
-            .or('kyb_verified.eq.false,cert_verified.eq.false').order('created_at', { ascending: false }).order('id').limit(50),
+            .or('kyb_verified.eq.false,cert_verified.eq.false').order('created_at', { ascending: false }).order('id').limit(50),   // cap-ok: rows only - no count or sum is derived from this read (classified by the reference-pages-uncapped sweep, 2026-09-05)
         ]);
         /* CARRY THE CODE AND STATUS, NOT JUST THE SENTENCE. supabase-js reports a PostgREST failure
            through `error` rather than by throwing, so only the catch below was populating _code and
@@ -445,6 +477,62 @@
        number and filed the reference; the founder checks the GCash app, then Verify (a DB trigger mints
        the credits) or Reject. Every credit in the economy originates here, so this queue being reachable
        is not cosmetic: while it lived only on the retired founder-console, no credit could be minted. */
+    // The five founder rollups, read as ONE row of numbers. Each RPC rolls up in the database (a client-side
+    // scan under-read them once the tables grew), and each failure is shown as "-" rather than a zero: a zero
+    // here would read as "nobody used the platform", which is a claim these reads cannot make when they fail.
+    async function fetchUsage() {
+      // the RPC names are LITERAL on purpose: a capability the static roster cannot see is a capability the
+      // platform cannot prove it still hosts (validate_retired_page_sole_control reads these names)
+      const ok = (r) => (r && !r.error ? r.data : null), no = () => null;
+      const [hives, mau, anon, dau, heat] = await Promise.all([
+        db.rpc('founder_active_hives', { p_days: 30 }).then(ok, no),
+        db.rpc('founder_mau', { p_days: 30 }).then(ok, no),
+        db.rpc('founder_anon_sessions', { p_days: 30 }).then(ok, no),
+        db.rpc('founder_dau_series', { p_days: 14 }).then(ok, no),
+        db.rpc('founder_page_heatmap', { p_days: 30 }).then(ok, no)]);
+      return { hives, mau, anon, dau, heat };
+    }
+    function renderUsage(u) {
+      const host = document.getElementById('usage-body');
+      if (!host) return;
+      const st0 = document.getElementById('usage-updated');
+      const chip = document.getElementById('usage-source');
+      /* ALL FIVE ROLLUPS NULL MEANS THE READ FAILED, AND THE CARD MUST NOT SAY OTHERWISE. fetchUsage
+         maps every RPC through `.then(ok, no)` with `no = () => null`, so a refusal, an outage or a
+         missing grant is indistinguishable from a real zero by the time it reaches here — and the
+         old path rendered five dashes, stamped "Updated HH:MM:SS", and left the chip asserting
+         "Live · rolled up in the database over the last 30 days". Two freshness claims about numbers
+         that were never read. Found by walk_owed_scenarios' source_chip_true probe, which could only
+         see it once its route induction started firing.
+         This is the same rule refreshQueues already applies one screen down — "the busy state must
+         not outlive the attempt" — and the same reason the logbook ships its empty state hidden so
+         only a successful render may assert it. A dash for an unknown count is right; a timestamp
+         and a liveness chip over those dashes are not. */
+      const rollups = [u.hives, u.mau, u.anon, u.dau, u.heat];
+      if (rollups.every((v) => v === null || v === undefined)) {
+        host.innerHTML = '<div class="mod-empty">Could not read platform usage. That is a connection '
+          + 'or permission problem, not a quiet month - press Refresh queues to try again.</div>';
+        if (st0) st0.textContent = 'Not updated';
+        if (chip) chip.style.display = 'none';
+        return;
+      }
+      if (chip) chip.style.display = '';
+      const num = (v) => (v === null || v === undefined || Number.isNaN(Number(v)) ? '-' : Number(v).toLocaleString());
+      const one = (v) => (Array.isArray(v) ? (v.length ? (v[0].count ?? v[0].value ?? v[0].n ?? v.length) : 0) : v);
+      const dauToday = Array.isArray(u.dau) && u.dau.length ? (u.dau[u.dau.length - 1].count ?? u.dau[u.dau.length - 1].value) : null;
+      const topPage = Array.isArray(u.heat) && u.heat.length ? (u.heat[0].page || u.heat[0].path || '-') : '-';
+      host.innerHTML =
+        '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:12px;">'
+        + '<div><div class="mod-empty">Active hives (30d)</div><div style="font-size:1.25rem; font-weight:800; font-variant-numeric:tabular-nums;">' + num(one(u.hives)) + '</div></div>'
+        + '<div><div class="mod-empty">People (30d)</div><div style="font-size:1.25rem; font-weight:800; font-variant-numeric:tabular-nums;">' + num(one(u.mau)) + '</div></div>'
+        + '<div><div class="mod-empty">Signed-out sessions (30d)</div><div style="font-size:1.25rem; font-weight:800; font-variant-numeric:tabular-nums;">' + num(one(u.anon)) + '</div></div>'
+        + '<div><div class="mod-empty">People today</div><div style="font-size:1.25rem; font-weight:800; font-variant-numeric:tabular-nums;">' + num(dauToday) + '</div></div>'
+        + '<div><div class="mod-empty">Most-opened page (30d)</div><div style="font-size:1rem; font-weight:700;">' + escHtml(String(topPage)) + '</div></div>'
+        + '</div>';
+      const st = document.getElementById('usage-updated');
+      if (st) st.textContent = 'Updated ' + new Date().toLocaleTimeString();
+    }
+
     async function fetchSvcTopups() {
       try {
         // Truth view, not the raw table: it folds in provider_display_name so the queue does not N+1
@@ -455,7 +543,7 @@
         const _q = db.from('v_service_credit_topups_truth')
           .select('id, account_type, account_id, amount, gcash_ref, created_at, provider_display_name')
           .eq('status', 'pending_verification')
-          .order('created_at', { ascending: true }).order('id').limit(50);
+          .order('created_at', { ascending: true }).order('id').limit(50);   // cap-ok: the queue count discloses '50+' when this read is full
         const { data, error } = await (typeof whQueryTimeout === 'function'
           ? whQueryTimeout(_q, 15000, 'the top-up queue') : _q);
         return { rows: data || [], _error: error ? error.message : null,
@@ -496,12 +584,12 @@
             <div class="mod-main"><strong>${_amtOrGap(r.amount)} · ref ${e(r.gcash_ref)}</strong>
               <span class="mod-sub">${e(r.provider_display_name || r.account_type)} · filed ${e(new Date(r.created_at).toLocaleString())}</span></div>
             <div class="mod-actions">
-              <button class="mod-btn ok" data-topup-act="verify" data-id="${e(r.id)}">Verify: mint credits</button>
-              <button class="mod-btn no" data-topup-act="reject" data-id="${e(r.id)}">Reject</button>
+              <button class="mod-btn ok" data-topup-act="verify" data-id="${e(r.id)}" data-i="verifymintcredits">Verify: mint credits</button>
+              <button class="mod-btn no" data-topup-act="reject" data-id="${e(r.id)}" data-i="reject">Reject</button>
             </div>
           </div>`).join('');
       }
-      setCount('svc-topups-count', rows.length, 'warn');
+      setCount('svc-topups-count', rows.length >= 50 ? '50+' : rows.length, 'warn');   // cap is not a total (2026-09-05): the read is .limit(50)
     }
 
     let _svcTopupWired = false;
@@ -559,16 +647,17 @@
           await refreshQueues();
           _restore();
         } catch (err) {
-          console.error('top-up decision failed:', err);
+          console.error('[platform-actions] top-up decision failed:', err);
           showToast(refusalMessage(err)
             || (whIsAuthFailure(err)
                 ? 'Your admin session expired, so nothing was changed. Sign in again to continue.'
-                : 'Could not record that decision, and nothing was minted. Try again.'), 'error');
+                : _t('Could not record that decision, and nothing was minted. Try again.', 'Hindi naitala ang desisyong iyon, at walang na-mint. Subukan muli.')), 'error');
           _restore();
         }
       });
     }
 
+    let _gcashCount = null;   // exact server count of receipts needing eyes (set by the fetch, read by the badge)
     function setCount(id, n, level) {
       const el = document.getElementById(id);
       if (!el) return;
@@ -587,7 +676,7 @@
       const lc = document.getElementById('mkt-listings-content');
       if (lc) {
         if (m._error) lc.innerHTML = `<div class="mod-empty">${e(_queueErr(m))}</div>`;
-        else if (!(m.drafts || []).length) lc.innerHTML = `<div class="mod-empty">${e(emptyText('No listings waiting: all clear.'))}</div>`;
+        else if (!(m.drafts || []).length) lc.innerHTML = `<div class="mod-empty">${e(emptyText(_t('No listings waiting: all clear.', 'Walang naghihintay na listing: all clear.')))}</div>`;
         /* AN ADMIN WHO IS ALSO A SELLER WAS OFFERED APPROVE ON THEIR OWN LISTING. The guard refuses
            it -- correctly, since self-publishing is exactly what review exists to prevent -- so that
            button could never do anything but fail. Don't offer an action that cannot succeed: say
@@ -602,8 +691,8 @@
               <span class="mod-sub">${e(l.section || '')}${l.category ? ' · ' + e(l.category) : ''} · ${_modPrice(l.price)} · ${e(l.seller_name || '\u2014')}</span></div>
             ${_mine ? '<span class="mod-sub" style="display:block;margin-top:0.2rem;">Your own listing: another admin has to review this one.</span>' : ''}
             <div class="mod-actions">
-              ${_mine ? '' : `<button class="mod-btn ok" data-mkt-act="approve-listing" data-id="${e(l.id)}">Approve</button>`}
-              <button class="mod-btn no" data-mkt-act="reject-listing" data-id="${e(l.id)}">Reject</button>
+              ${_mine ? '' : `<button class="mod-btn ok" data-mkt-act="approve-listing" data-id="${e(l.id)}" data-i="approve">Approve</button>`}
+              <button class="mod-btn no" data-mkt-act="reject-listing" data-id="${e(l.id)}" data-i="reject">Reject</button>
             </div>
           </div>`; }).join('');
       }
@@ -617,7 +706,7 @@
          This is the same defect this file already fixed for the top-up queue (:482) and the feedback
          queue (:1022), both of which set an em-dash on error; these two marketplace badges were the
          ones never given that branch. An em-dash asserts nothing, which is the only honest answer. */
-      setCount('mkt-listings-count', m._error ? '—' : (m.drafts || []).length, m._error ? '' : 'warn');
+      setCount('mkt-listings-count', m._error ? '—' : ((m.drafts || []).length >= 50 ? '50+' : (m.drafts || []).length), m._error ? '' : 'warn');   // the read is capped at 50: say so
 
       // Sellers awaiting verification
       const sc = document.getElementById('mkt-sellers-content');
@@ -627,8 +716,8 @@
         else {
           const rows = (m.sellers || []).map(s => {
             const parts = [];
-            if (!s.kyb_verified) parts.push(`<button class="mod-btn ok" data-mkt-act="verify-kyb" data-name="${e(s.worker_name)}">Verify ID</button>`);
-            if (!s.cert_verified && s.certifications) parts.push(`<button class="mod-btn ok" data-mkt-act="verify-cert" data-name="${e(s.worker_name)}">Verify certs</button>`);
+            if (!s.kyb_verified) parts.push(`<button class="mod-btn ok" data-mkt-act="verify-kyb" data-name="${e(s.worker_name)}" data-i="verifyid">Verify ID</button>`);
+            if (!s.cert_verified && s.certifications) parts.push(`<button class="mod-btn ok" data-mkt-act="verify-cert" data-name="${e(s.worker_name)}" data-i="verifycerts">Verify certs</button>`);
             if (!parts.length) return '';
             sellerCount++;
             return `
@@ -647,7 +736,7 @@
          reader auditing this line alone sees a variable, not a fallback, which is exactly why the 500
          injection found it and four greps did not. Gated on the same m._error the pane uses, so the
          badge and the pane can no longer disagree about whether the read happened. */
-      setCount('mkt-sellers-count', m._error ? '—' : sellerCount, m._error ? '' : 'warn');
+      setCount('mkt-sellers-count', m._error ? '—' : (sellerCount >= 50 ? '50+' : sellerCount), m._error ? '' : 'warn');   // the read is capped at 50: say so
 
       /* The "Open disputes" renderer was RETIRED 2026-08-03 with its table. Its honest-empty copy
          ("none can arrive") was the right fix for a queue that had to stay; deleting the queue is the
@@ -662,9 +751,10 @@
         // Bounded, same as the top-up queue above: unreviewed GCash receipts are money waiting on a
         // human, and a stalled read that never resolves reads as "nothing to review".
         const _q = db.from('v_gcash_receipts_needing_eyes')
-          .select('reference, amount, sender_name, match_state, match_note, created_at').limit(20);
-        const { data, error } = await (typeof whQueryTimeout === 'function'
+          .select('reference, amount, sender_name, match_state, match_note, created_at', { count: 'exact' }).limit(20);   // the badge paints the EXACT server count; the list shows the first 20 (P355 a claim a query enforces, 2026-09-05)
+        const { data, error, count } = await (typeof whQueryTimeout === 'function'
           ? whQueryTimeout(_q, 15000, 'the GCash receipts') : _q);
+        _gcashCount = (typeof count === 'number') ? count : null;
         // Carry the CODE, not just the message: the renderer distinguishes a permission boundary
         // (42501, expected for anyone who is not a platform admin) from a genuine load failure, and
         // a message string alone would force it to pattern-match English.
@@ -710,7 +800,7 @@
             <span class="mod-sub">${e(WHY[r.match_state] || r.match_state)}${r.sender_name ? ' · from ' + e(r.sender_name) : ''} · ${e(new Date(r.created_at).toLocaleString())}</span>
             <span class="mod-sub">${e(r.match_note || '')}</span></div>
         </div>`).join('');
-      setCount('gcash-receipts-count', rows.length, 'warn');
+      setCount('gcash-receipts-count', (typeof _gcashCount === 'number' ? _gcashCount : rows.length), 'warn');   // exact count, not the 20-row page
     }
 
     /* THE PLATFORM'S OWN MONEY POSITION. Both halves come from v_credit_posture, never from
@@ -722,7 +812,7 @@
       try {
         const [posture, ledger] = await Promise.all([
           db.from('v_credit_posture').select('authorised_credits, issued_credits').maybeSingle(),
-          db.from('v_service_credit_ledger_truth').select('entry_type, amount').limit(2000),
+          db.from('v_service_credit_ledger_truth').select('entry_type, amount').limit(2000),   // cap-ok: rows only - no count or sum is derived from this read (classified by the reference-pages-uncapped sweep, 2026-09-05)
         ]);
         if (posture.error) throw posture.error;
         if (ledger.error)  throw ledger.error;      // a failed read is not an empty ledger
@@ -873,21 +963,22 @@
       if (_sync) _sync.textContent = 'Refreshing…';
       const wantFeedback = !_fb.drawerId;
       try {
-        const [mod, tops, gcash, fb, cp] = await Promise.all([
+        const [mod, tops, gcash, fb, cp, usage] = await Promise.all([
           fetchMktModeration(), fetchSvcTopups(), fetchGcashLeftovers(),
           wantFeedback ? fetchFeedback() : Promise.resolve(null),
-          fetchCreditPosition()]);
+          fetchCreditPosition(), fetchUsage()]);
         renderMktModeration(mod);
         renderSvcTopups(tops);
         renderGcashLeftovers(gcash);
         if (fb) renderFeedback(fb);
         renderCreditPosition(cp);
+        renderUsage(usage);
         if (_sync) _sync.textContent = 'Updated ' + new Date().toLocaleTimeString();
       } catch (err) {
         // The busy state must not outlive the attempt. A stamp stuck on "Refreshing…" says the
         // console is working on it, which is the one thing that is definitely not true.
-        console.error('refreshQueues failed:', err);
-        if (_sync) _sync.textContent = 'Could not refresh. Press Refresh queues to try again';
+        console.error('[platform-actions] refreshQueues failed:', err);
+        if (_sync) _sync.textContent = _t('Could not refresh. Press Refresh queues to try again', 'Hindi ma-refresh. Pindutin ang Refresh queues para subukan muli');
       } finally {
         _boxes.forEach(b => b.removeAttribute('aria-busy'));
       }
@@ -953,7 +1044,7 @@
                              // whWorker() (utils.js) is the shared identity accessor both pages already load.
                              moderated_by: (typeof whWorker === 'function' && whWorker()) || 'admin' };
             if (act === 'reject-listing') {
-              if (typeof whPrompt !== 'function') { _btnRestore(); showToast('Cannot collect a rejection reason right now. Reload and try again.', 'error'); return; }
+              if (typeof whPrompt !== 'function') { _btnRestore(); showToast(_t('Cannot collect a rejection reason right now. Reload and try again.', 'Hindi makakuha ng dahilan ng pagtanggi ngayon. I-reload at subukan muli.'), 'error'); return; }
               let _reason = await whPrompt('Reject this listing. Tell the seller why:',
                 { okLabel: 'Reject', cancelLabel: 'Cancel', inputLabel: 'Reason shown to the seller' });
               if (_reason === null) { _btnRestore(); return; }   // cancelled
@@ -1001,7 +1092,7 @@
              into a retired table that no markup scan could see. */
           await refreshQueues();
         } catch (err) {
-          console.error('platform-actions action failed:', err);
+          console.error('[platform-actions] platform-actions action failed:', err);
           // Same rule as the marketplace inquiry step: only say "try again" when trying again could
           // actually work. A 42501/401 here means the admin session expired or the role no longer
           // resolves, and retrying will fail identically until they sign in again.
@@ -1011,7 +1102,7 @@
             ? _refusal
             : _authFail
               ? 'Your admin session expired, so nothing was changed. Sign in again to continue moderating.'
-              : 'Action failed. Try again.', 'error');
+              : _t('Action failed. Try again.', 'Hindi natuloy ang aksyon. Subukan muli.'), 'error');
           _btnRestore();
         }
       });
@@ -1045,7 +1136,7 @@
           .select('id,created_at,kind,rating,subject,body,status,priority,hive_id,worker_name,contact_email,page_url,admin_note,resolved_at,is_public,updated_at')
           .order('created_at', { ascending: false })
           .order('id')                       // MR4: the sort above is not total on its own
-          .limit(500);
+          .limit(500);   // cap-ok: the 'all' count discloses '500+' when this read is full
         return { rows: data || [], _error: error ? error.message : null,
                  _code: error ? (error.code || null) : null,
                  _status: error ? (error.status || error._httpStatus || null) : null };
@@ -1073,7 +1164,7 @@
 
       // Counts are over ALL rows, never the filtered view — a tab badge that moved when you typed
       // in the search box would make "3 new" unreadable as a workload.
-      const counts = { new: 0, triaged: 0, in_progress: 0, resolved: 0, all: _fb.rows.length };
+      const counts = { new: 0, triaged: 0, in_progress: 0, resolved: 0, all: _fb.rows.length >= 500 ? '500+' : _fb.rows.length };   // cap is not a total (2026-09-05): the read is .limit(500)
       _fb.rows.forEach(r => { if (counts[r.status] !== undefined) counts[r.status]++; });
       Object.entries(counts).forEach(([k, v]) => {
         const el = document.getElementById('fb-count-' + k);
@@ -1169,10 +1260,10 @@
           Don't publish contact emails, worker names or internal notes.</div>
 
         <div class="fb-drawer-actions">
-          <button type="button" class="mod-btn ok" id="fb-d-save">Save changes</button>
+          <button type="button" class="mod-btn ok" id="fb-d-save" data-i="savechanges">Save changes</button>
           ${row.contact_email
             ? `<a class="mod-btn" href="mailto:${encodeURIComponent(row.contact_email)}?subject=${encodeURIComponent('Re: ' + (row.subject || 'your WorkHive feedback'))}">Reply via email</a>`
-            : `<button type="button" class="mod-btn" disabled title="This person left no email">No email to reply to</button>`}
+            : `<button type="button" class="mod-btn" disabled title="This person left no email" data-i="noemailtoreplyto">No email to reply to</button>`}
         </div>`;
 
       document.getElementById('fb-drawer').hidden = false;
@@ -1225,7 +1316,7 @@
          page for the listing-rejection reason, so using it costs nothing and keeps one dialog. */
       if (isPublic && !wasPublic) {
         if (typeof whConfirm !== 'function') {
-          showToast('Cannot confirm publishing right now. Nothing was saved, so reload and try again.', 'error');
+          showToast(_t('Cannot confirm publishing right now. Nothing was saved, so reload and try again.', 'Hindi makumpirma ang pag-publish ngayon. Walang na-save, kaya i-reload at subukan muli.'), 'error');
           return;
         }
         const okToPublish = await whConfirm(
@@ -1271,14 +1362,14 @@
         _fbDraft.clear();
         showToast(isPublic && !wasPublic ? 'Saved, and now public on /feedback/' : 'Saved.', 'success');
       } catch (err) {
-        console.error('feedback save failed:', err);
+        console.error('[platform-actions] feedback save failed:', err);
         btn.textContent = 'Save changes'; btn.disabled = false;
         const refusal = refusalMessage(err);
         showToast(refusal
           ? refusal
           : (typeof whIsAuthFailure === 'function' && whIsAuthFailure(err))
             ? 'Your admin session expired, so nothing was saved. Sign in again to keep triaging.'
-            : 'Save failed. Try again.', 'error');
+            : _t('Save failed. Try again.', 'Hindi na-save. Subukan muli.'), 'error');
       }
     }
 
@@ -1420,5 +1511,24 @@
     });
   </script>
   <script src="offline-banner.js"></script><!-- SaaS-layer AV: adopt the central offline/degraded banner -->
+  <!-- the AV set ships as ONE unit (validate_av_adoption): the banner alone leaves a page that says it is offline
+       but still queues nothing, shows no connectivity state, and never times a stale session out (2026-09-06) -->
+  <script defer src="offline-queue.js"></script>
+  <script defer src="connectivity-widget.js"></script>
+  <script defer src="session-timeout.js"></script>
+  <script defer src="device-fingerprint.js"></script>
+<script>/* systemic ripple (2026-09-05): utils.js is the shared script every panel below renders through; if it never arrives
+   (a stale shell, a blocked CDN, a dropped connection mid-load) this page went blank or froze on its static skeletons.
+   utils.js cannot help when utils.js is the thing missing, so the guard lives here. */
+window.addEventListener('load', function () { setTimeout(function () {
+  if (typeof getDb === 'function' && typeof escHtml === 'function') return;
+  try { console.error('[platform-actions] utils.js did not load; the page cannot render its data'); } catch (e) { void e; }
+  var m = document.querySelector('main') || document.body; if (!m || m.querySelector('.wh-shared-missing')) return;
+  var d = document.createElement('div'); d.className = 'honest-empty wh-shared-missing'; d.setAttribute('role', 'alert');
+  d.style.cssText = 'margin:12px;padding:14px 16px;border:1px solid rgba(248,113,113,.4);border-radius:10px;background:rgba(248,113,113,.08);color:#fca5a5;font:14px/1.5 system-ui,sans-serif;';
+  d.innerHTML = 'WorkHive could not load its shared script (utils.js), so this page cannot show your data. <button type="button" onclick="location.reload()" style="color:inherit;text-decoration:underline;background:none;border:0;padding:0;font:inherit;cursor:pointer;min-height:44px;" data-i="reloadtotryagain">Reload to try again</button>.';
+  m.insertBefore(d, m.firstChild);
+  var sk = document.querySelectorAll('.wh-skeleton, [class*="skeleton"]'); for (var i = 0; i < sk.length; i++) sk[i].style.display = 'none';
+}, 2500); });</script>
 </body>
 </html>

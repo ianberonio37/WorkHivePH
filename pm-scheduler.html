@@ -122,7 +122,12 @@
     .badge-overdue  { background: rgba(239,68,68,0.15); color: var(--wh-red-text); border: 1px solid rgba(239,68,68,0.3); }
     .badge-duesoon  { background: rgba(251,191,36,0.15); color: var(--wh-orange); border: 1px solid rgba(251,191,36,0.3); }
     .badge-ontrack  { background: rgba(34,197,94,0.15);  color: var(--wh-green); border: 1px solid rgba(34,197,94,0.25); }
-    .badge-nodata   { background: rgba(156,163,175,0.15); color: #9ca3af; border: 1px solid rgba(156,163,175,0.3); }
+    /* C2 2026-09-10: #9ca3af (grey-400) on this tint measured 4.13:1 at 0.65rem uppercase, against the
+       4.5:1 that small text owes. There is no --wh-grey-text token, but the platform already tuned this
+       exact semantic once: utils.js renderKpiTile's "No data" row uses rgba(255,255,255,0.78), raised
+       from 0.6 on 2026-09-07 when a 24px APCA reading (Lc 0/45) showed WCAG had waved through what APCA
+       would not. Reusing that value keeps one neutral for one meaning instead of a second opinion. */
+    .badge-nodata   { background: rgba(156,163,175,0.15); color: rgba(255,255,255,0.78); border: 1px solid rgba(156,163,175,0.3); }
 
     .status-badge {
       display: inline-flex; align-items: center; padding: 3px 10px;
@@ -368,6 +373,15 @@
     <!-- Header -->
     <div class="mb-5">
       <h1 class="text-xl font-bold" data-i="pagetitle">PM Scheduler</h1>
+    <details class="wh-help">
+      <summary>How this page works</summary>
+      <ul>
+        <li>A schedule generates a task on its own interval. Skipping one is recorded as a skip, not as a completion, because the compliance figures read from this.</li>
+        <li>Overdue is calculated from the last completion date, so completing a task late clears it and keeps the real date.</li>
+        <li>Assets come from the asset list. If a machine is missing here, add it there first.</li>
+      </ul>
+    </details>
+
       <p id="dash-subtitle" class="text-sm text-white/80 mt-0.5">Track all your equipment PM tasks in one place.</p>
       <p id="pm-source-chip" style="margin-top:3px;"></p>
     </div>
@@ -418,7 +432,10 @@
       <div class="ac-label">What to do next</div>
       <div class="ac-text" id="pm-action-text">Computing recommendation...</div>
       <!-- Arc P · Wave 1 (P3 / FUSION 3a): one primary button that DOES the next step. -->
-      <a id="pm-action-btn" class="ac-cta hidden" href="#" aria-label="Do the recommended next action">Take action &#8594;</a>
+      <!-- A1 (critic re-sweep 2026-09-07): the one primary button was hidden until the recommendation computed, so the page
+           had no visible primary action at first glance (cta=0). It now shows its default from first paint - the list is always
+           the next step - and the computed recommendation replaces the label when it lands. -->
+      <a id="pm-action-btn" class="ac-cta" href="#filter-bar" aria-label="Do the recommended next action">Review the asset list &#8594;</a>
     </div>
 
     <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="pm-summary-details" data-i="showdetails">
@@ -549,7 +566,7 @@
         <div>
           <label class="block text-xs font-semibold text-white/80 mb-1.5 uppercase tracking-wide" data-i="criticality">Criticality</label>
           <div class="grid grid-cols-3 gap-2" id="crit-group">
-            <button type="button" translate="no" class="crit-btn py-2.5 rounded-xl border font-semibold text-sm transition-all" data-val="Critical" style="border-color:rgba(239,68,68,0.3);color:var(--wh-red-text);background:transparent;" onclick="setCrit(this)">Critical</button>
+            <button type="button" translate="no" class="crit-btn py-2.5 rounded-xl border font-semibold text-sm transition-all" data-val="Critical" style="border-color:rgba(239,68,68,0.3);color:var(--wh-red-text);background:transparent;" onclick="setCrit(this)" data-i="critical">Critical</button>
             <button type="button" translate="no" class="crit-btn py-2.5 rounded-xl border font-semibold text-sm transition-all selected" data-val="Major" style="border-color:rgba(251,191,36,0.5);color:var(--wh-orange-text);background:rgba(251,191,36,0.08);" onclick="setCrit(this)">Major</button>
             <button type="button" translate="no" class="crit-btn py-2.5 rounded-xl border font-semibold text-sm transition-all" data-val="Minor" style="border-color:rgba(34,197,94,0.3);color:var(--wh-green);background:transparent;" onclick="setCrit(this)">Minor</button>
           </div>
@@ -882,7 +899,7 @@
 <div id="toast" role="alert" aria-live="polite"></div>
 
 <!-- ══ SCRIPTS ══ -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
+<script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
 <script src="wh-capture-validate.js"></script>
 <script>
@@ -1267,6 +1284,17 @@ async function validateHiveMembership() {
     return; // fail open: DB unreachable, trust cached role
   }
   if (!membership || membership.status === 'kicked') {
+    /* ★A REFUSED READ IS NOT A REMOVAL (2026-09-09). shift-brain.html and asset-hub.html already guard
+       this; pm-scheduler, logbook, inventory and project-manager did not, so the 2026-08-20 fix never
+       reached them. Measured here: asked with no session attached, this query answers
+       {data: null, error: null, status: 200} - so the `if (error)` fail-open above never fires and zero
+       rows lands straight in "no longer an active member". The comment below is exactly right about the
+       silence; it just did not know a fourth state sits between "member" and "removed". */
+    const { data: _sess } = await db.auth.getSession().catch(() => ({ data: null }));
+    if (!_sess || !_sess.session) {
+      console.warn('PM Scheduler: membership read returned no row with no session attached - a refused read, not a removal.');
+      return;
+    }
     // ★AND TELL THE PERSON (2026-08-31). Walked live as a removed member: this branch fired, cleared the
     // hive, dropped to solo scope - and the page then answered "Nothing due in the next 14 days". The
     // fallback is right; the silence was not. RLS refuses by FILTERING, so the reads come back 200 with
@@ -1417,7 +1445,7 @@ async function init() {
         // JA1 detector after the loose version had hidden it.
         const _asked = _byTag || _byName || _byId;
         if (typeof showToast === 'function') {
-          showToast('Could not find "' + _asked + '": showing all PM assets');
+          showToast(_t('Could not find "', 'Hindi mahanap ang "') + _asked + '": showing all PM assets');
         }
       }
     }
@@ -1506,7 +1534,8 @@ async function loadData() {
   // pm_completions stays raw: the detail view needs full completion history,
   // not just the latest one the view exposes. canonical-allow: history list
   let scopeQ = db.from('v_pm_scope_items_truth')
-    .select('id:scope_item_id, asset_id, hive_id, item_text, frequency, anchor_date, is_custom, frequency_days, last_completed_at, last_completed_by, next_due_date, days_until_due, is_overdue, is_due_soon, created_at, interval_km, interval_kind, next_due_km, current_km, km_until_due')  // VEHICLE SEED: the meter half — the view ORs it into is_overdue/is_due_soon; these fields let the labels SAY it
+    .select('id:scope_item_id, asset_id, hive_id, item_text, frequency, anchor_date, is_custom, frequency_days, last_completed_at, last_completed_by, next_due_date, days_until_due, is_overdue, is_due_soon, created_at, interval_km, interval_kind, next_due_km, current_km, km_until_due').limit(1000)   // G1 (gate growth-honesty, 2026-09-06): bounded so this read cannot grow without limit
+          // VEHICLE SEED: the meter half — the view ORs it into is_overdue/is_due_soon; these fields let the labels SAY it
     .in('asset_id', assetIds).order('created_at', { ascending: true }).order('id').limit(500);
   // canonical-allow: detail view needs full completion history (the view only exposes last_completed_at)
   // L2: newest-first cap bounds completion-history egress; 2000 is generous for a hive's recent history (keyset "load older" is the scale fix if ever needed)
@@ -1610,7 +1639,7 @@ function renderPMUnknown() {
   const set = (id, txt) => { const e = document.getElementById(id); if (e) e.textContent = txt; };
   ['overdue', 'duesoon', 'ontrack'].forEach(n => {
     set('stat-' + n, '—');
-    set('pm-' + n + '-sub', 'Could not read PM data');
+    set('pm-' + n + '-sub', _t('Could not read PM data', 'Hindi mabasa ang PM data'));
     set('pm-' + n + '-tag', 'UNKNOWN');
     const card = document.getElementById('pm-card-' + n);
     if (card) { card.classList.remove('tag-green', 'tag-amber', 'tag-red'); card.classList.add('tag-grey'); }
@@ -1619,7 +1648,7 @@ function renderPMUnknown() {
   const vBox = document.getElementById('pm-verdict');
   if (vBox) { vBox.classList.remove('healthy', 'watch', 'attn', 'empty'); vBox.classList.add('attn'); }
   set('pm-verdict-icon', '⚠');
-  set('pm-verdict-label', 'Could not load PM compliance');
+  set('pm-verdict-label', _t('Could not load PM compliance', 'Hindi ma-load ang PM compliance'));
   set('pm-verdict-sub', 'Overdue PMs are unknown right now, not zero. Reload before treating this plant as compliant.');
   const act = document.getElementById('pm-action-text');
   if (act) act.textContent = 'Reload the page. Do not sign off on PM status until these numbers load.';
@@ -1683,7 +1712,7 @@ function renderPMSummary(enriched, overdue, duesoon, ontrack) {
   // "last 90 days" rather than "90 days" because the window is ROLLING, not calendar-aligned — read
   // from the function body: `now() - (p_period_days || ' days')::interval`. Saying which it is matters
   // for anyone comparing this month's figure with last month's.
-  const subText = total === 0 ? 'No assets in scope yet'
+  const subText = total === 0 ? _t('No assets in scope yet', 'Wala pang asset sa scope')
                 : `${ontrack} of ${total} on track now · ${compliance}% PM compliance (SMRP, last 90 days)`;
 
   // PMK1 — the honest second number, beside the flattering one. SMRP 2.1.1 credits a PM completed
@@ -1729,14 +1758,19 @@ function renderPMSummary(enriched, overdue, duesoon, ontrack) {
   } else if (overdue > 5 || compliance < 50) {
     vTone = 'attn'; vLabel = 'PM compliance is in the red';
     vSub  = overdue > 5
-              ? `${overdue} assets are overdue. Each one lowers your Reliability score on the Maturity Stairway.`
-              : `Compliance ${compliance}%: needs work before this hive clears Stair 2.`;
+              ? _t(`${overdue} assets are overdue. Each one lowers your Reliability score on the Maturity Stairway.`,
+                   `${overdue} asset ang lampas na sa takda. Bawat isa ay nagpapababa ng Reliability score mo sa Maturity Stairway.`)
+              : _t(`Compliance ${compliance}%: needs work before this hive clears Stair 2.`,
+                   `Compliance ${compliance}%: kailangan pa ng trabaho bago malampasan ng hive na ito ang Stair 2.`);
   } else if (overdue > 0 || compliance < 80) {
-    vTone = 'watch'; vLabel = 'PM compliance is on watch';
-    vSub  = `${compliance}% compliance · ${overdue} overdue · ${duesoon} due this week: knock the overdue ones out first.`;
+    vTone = 'watch'; vLabel = _t('PM compliance is on watch', 'Binabantayan ang PM compliance');
+    vSub  = _t(`${compliance}% compliance · ${overdue} overdue · ${duesoon} due this week: knock the overdue ones out first.`,
+               `${compliance}% compliance · ${overdue} lampas na · ${duesoon} takda ngayong linggo: unahin ang mga lampas na.`);
   } else {
-    vTone = 'healthy'; vLabel = `PM compliance is healthy (${compliance}%)`;
-    vSub  = `${ontrack} of ${total} assets on track${duesoon > 0 ? ' · ' + duesoon + ' to schedule this week' : ''}.`;
+    vTone = 'healthy'; vLabel = _t(`PM compliance is healthy (${compliance}%)`,
+                                   `Malusog ang PM compliance (${compliance}%)`);
+    vSub  = _t(`${ontrack} of ${total} assets on track${duesoon > 0 ? ' · ' + duesoon + ' to schedule this week' : ''}.`,
+               `${ontrack} sa ${total} asset ang nasa tamang landas${duesoon > 0 ? ' · ' + duesoon + ' ang isasaayos ngayong linggo' : ''}.`);
   }
   const vBox = document.getElementById('pm-verdict');
   if (vBox) { vBox.classList.remove('healthy','watch','attn','empty'); vBox.classList.add(vTone); }
@@ -1756,25 +1790,37 @@ function renderPMSummary(enriched, overdue, duesoon, ontrack) {
         try { if (opts.click) { const c = document.querySelector(opts.click); if (c) c.click(); } } catch (_) { /* empty-catch-allow: bridge click is best-effort */ }
         const t = opts.scroll && document.querySelector(opts.scroll); if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
     };
+    /* C-AH (2026-09-11): the same English-only "what to do next" block as asset-hub / inventory /
+       shift-brain, and the clearest case of why it matters. This copy QUOTES the filter chips by
+       name - "Overdue", "Add asset" - and on a Filipino page those chips render "Lampas sa Takda"
+       and "MAGDAGDAG NG ASSET". A quoted control name that appears nowhere on the reader's screen
+       is worse than an untranslated sentence: it sends them looking for a thing that is not there.
+       Every Filipino string below names the chip by the label it actually wears. */
     let text;
     if (total === 0) {
-      text = 'Open the asset list below and click "Add asset" to register your first equipment. Once you add a PM scope item, this dashboard tracks compliance automatically.';
-      setCta('Review the asset list →', { scroll: '#filter-bar' });
+      text = _t('Open the asset list below and click "Add asset" to register your first equipment. Once you add a PM scope item, this dashboard tracks compliance automatically.',
+                'Buksan ang listahan ng asset sa ibaba at pindutin ang "Magdagdag ng Asset" para irehistro ang unang kagamitan mo. Kapag nakapagdagdag ka ng PM scope item, awtomatikong susubaybayan ng dashboard na ito ang compliance.');
+      setCta(_t('Review the asset list →', 'Tingnan ang listahan ng asset →'), { scroll: '#filter-bar' });
     } else if (overdue > 5) {
-      text = `Tap the "Overdue" chip below. Then spread those PMs across the week. Every overdue PM drags your Reliability score down.`;
-      setCta(`Assign ${overdue} overdue PMs →`, { scroll: '#filter-bar', click: '.filter-chip[data-filter="overdue"]' });
+      text = _t(`Tap the "Overdue" chip below. Then spread those PMs across the week. Every overdue PM drags your Reliability score down.`,
+                `Pindutin ang chip na "Lampas sa Takda" sa ibaba. Tapos ikalat ang mga PM na iyon sa buong linggo. Bawat PM na lampas sa takda ay pumapababa sa Reliability score mo.`);
+      setCta(_t(`Assign ${overdue} overdue PMs →`, `Iatas ang ${overdue} PM na lampas sa takda →`), { scroll: '#filter-bar', click: '.filter-chip[data-filter="overdue"]' });
     } else if (overdue > 0) {
-      text = `Filter to "Overdue" and clear the ${overdue} past-due asset${overdue === 1 ? '' : 's'} this week. Bring compliance back above 80% to keep Stair 2.`;
-      setCta(`Clear ${overdue} overdue PM${overdue === 1 ? '' : 's'} →`, { scroll: '#filter-bar', click: '.filter-chip[data-filter="overdue"]' });
+      text = _t(`Filter to "Overdue" and clear the ${overdue} past-due asset${overdue === 1 ? '' : 's'} this week. Bring compliance back above 80% to keep Stair 2.`,
+                `I-filter sa "Lampas sa Takda" at tapusin ang ${overdue} asset na lampas na sa takda ngayong linggo. Ibalik ang compliance sa mahigit 80% para manatili sa Stair 2.`);
+      setCta(_t(`Clear ${overdue} overdue PM${overdue === 1 ? '' : 's'} →`, `Tapusin ang ${overdue} PM na lampas sa takda →`), { scroll: '#filter-bar', click: '.filter-chip[data-filter="overdue"]' });
     } else if (duesoon > 0) {
-      text = `${duesoon} asset${duesoon === 1 ? ' has' : 's have'} PMs due in the next 14 days. Slot them into the next two weekly shift plans before they become overdue.`;
-      setCta(`Schedule ${duesoon} due-soon →`, { scroll: '#filter-bar', click: '.filter-chip[data-filter="duesoon"]' });
+      text = _t(`${duesoon} asset${duesoon === 1 ? ' has' : 's have'} PMs due in the next 14 days. Slot them into the next two weekly shift plans before they become overdue.`,
+                `${duesoon} asset ang may PM na due sa susunod na 14 araw. Isingit ang mga ito sa susunod na dalawang lingguhang shift plan bago lumampas sa takda.`);
+      setCta(_t(`Schedule ${duesoon} due-soon →`, `I-schedule ang ${duesoon} malapit nang ma-due →`), { scroll: '#filter-bar', click: '.filter-chip[data-filter="duesoon"]' });
     } else if (compliance < 80) {
-      text = `Compliance is at ${compliance}%. Walk through the list below: assets with no completion history yet show as on-track but contribute zero signal. Run an initial PM to lock in the timer.`;
-      setCta('Review the asset list →', { scroll: '#filter-bar' });
+      text = _t(`Compliance is at ${compliance}%. Walk through the list below: assets with no completion history yet show as on-track but contribute zero signal. Run an initial PM to lock in the timer.`,
+                `Nasa ${compliance}% ang compliance. Dumaan sa listahan sa ibaba: ang mga asset na wala pang natapos na PM ay lumalabas na nasa takbo pero walang naiaambag na signal. Magpatakbo ng unang PM para maumpisahan ang timer.`);
+      setCta(_t('Review the asset list →', 'Tingnan ang listahan ng asset →'), { scroll: '#filter-bar' });
     } else {
-      text = 'PM compliance is healthy. Check the asset list below to confirm criticals (red border) are still being prioritized in your team plan.';
-      setCta('Review the asset list →', { scroll: '#filter-bar' });
+      text = _t('PM compliance is healthy. Check the asset list below to confirm criticals (red border) are still being prioritized in your team plan.',
+                'Malusog ang PM compliance. Tingnan ang listahan ng asset sa ibaba para makumpirmang nauuna pa rin ang mga critical (pulang border) sa plano ng team mo.');
+      setCta(_t('Review the asset list →', 'Tingnan ang listahan ng asset →'), { scroll: '#filter-bar' });
     }
     actBox.textContent = text;
   }
@@ -1904,10 +1950,10 @@ function renderDashboard() {
       // dangerous half. A full reload rebuilds every region from one read set, which is what inventory
       // does and why it recovers cleanly; a targeted re-render only recovers the region it owns.
       if (typeof whListError === 'function') {
-        whListError(noResults, 'Could not load your PM assets. This is a connection problem, not an '
+        whListError(noResults, _t('Could not load your PM assets. This is a connection problem, not an ', 'Hindi ma-load ang mga PM asset mo. Problema ito sa koneksyon, hindi ')
           + 'empty asset register. Your assets are still there.', () => location.reload());
       } else {
-        noResults.textContent = 'Could not load your PM assets. This is a connection problem, not an empty '
+        noResults.textContent = _t('Could not load your PM assets. This is a connection problem, not an empty ', 'Hindi ma-load ang mga PM asset mo. Problema ito sa koneksyon, hindi walang laman na ')
           + 'asset register. Reload before adding an asset you may already have.';
       }
     }
@@ -1924,7 +1970,7 @@ function renderDashboard() {
   const pmWrap = document.getElementById('pm-load-more-wrap');
   const pmLbl  = document.getElementById('pm-count-label');
   pmWrap.classList.toggle('hidden', _pmDisplayCount >= filtered.length);
-  pmLbl.textContent = `Showing ${visible.length} of ${filtered.length} assets`;
+  pmLbl.textContent = _t(`Showing ${visible.length} of ${filtered.length} assets`, `Ipinapakita ang ${visible.length} sa ${filtered.length} asset`);
 
   list/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = visible.map(asset => {
     const totalItems    = asset.enrichedItems.length;
@@ -2051,7 +2097,10 @@ function renderDetail(asset) {
 
   // Progress text
   const done = items.filter(i => i.itemStatus === 'ontrack').length;
-  document.getElementById('det-progress-text').textContent = `${done}/${items.length} on track`;
+  // C-BR: "nasa tamang landas" is WH_FIL_COMMON.ontrack, so this reads the same as every other
+  // on-track state on the platform rather than inventing a second phrasing.
+  document.getElementById('det-progress-text').textContent =
+    _t(`${done}/${items.length} on track`, `${done}/${items.length} nasa tamang landas`);
 
   // Tasks grouped by CANONICAL frequency. Anything unrecognised lands in 'Other' so a scope
   // item is NEVER silently dropped (PM PDDA F0 — was exact-match against 4 hardcoded labels).
@@ -2180,7 +2229,7 @@ async function toggleAutoHail() {
     .eq('asset_id', _autoHailAssetId)
     .select('id');
   if (error) { showToast(whWriteError(error, 'The recurring-contract setting was not saved.'), 'error'); return; }
-  if (!data || !data.length) { showToast('Couldn’t save that - supervisors set recurring contracts.', 'error'); return; }
+  if (!data || !data.length) { showToast(_t('Couldn’t save that - supervisors set recurring contracts.', 'Hindi ma-save iyon - supervisor ang nagtatakda ng recurring contract.'), 'error'); return; }
   _autoHailOn = turningOn;
   const btn = document.getElementById('det-autohail-btn');
   if (btn) {
@@ -2311,7 +2360,7 @@ async function saveEditPMAsset() {
   const { data: pmRows, error } = await pmQuery.select('id');
 
   if (error) {
-    errEl.textContent = whWriteError(error, 'The asset did NOT save. Nothing changed - check the fields and try again.');
+    errEl.textContent = whWriteError(error, _t('The asset did NOT save. Nothing changed - check the fields and try again.', 'HINDI na-save ang asset. Walang nagbago - suriin ang mga field at subukan muli.'));
     errEl.classList.remove('hidden');
     saveBtn.disabled = false;
     saveBtn.textContent = 'Save Changes';
@@ -2460,7 +2509,7 @@ async function submitCompletion(kind) {
       return;
     }
     console.error('pm_completion insert:', compErr.message);
-    showToast(whWriteError(compErr, 'The completion did NOT record, so this PM still counts as due. Try again.'));
+    showToast(whWriteError(compErr, _t('The completion did NOT record, so this PM still counts as due. Try again.', 'HINDI naitala ang completion, kaya due pa rin ang PM na ito. Subukan muli.')));
     saveBtn.disabled = false;
     saveLabel.textContent = logAlso ? 'Save + Log in Logbook' : 'Save Completion';
     return;
@@ -2606,7 +2655,8 @@ async function _autoLinkPmToProject(compData, asset) {
   const { error: linkErr } = await db.from('project_links').insert(linkRows);
   if (linkErr) { console.warn('project auto-link insert:', linkErr.message); return; }
   if (typeof showToast === 'function') {
-    showToast(`Linked to ${projs.length === 1 ? projs[0].project_code : projs.length + ' active projects'}.`);
+    showToast(_t(`Linked to ${projs.length === 1 ? projs[0].project_code : projs.length + ' active projects'}.`,
+      `Na-link sa ${projs.length === 1 ? projs[0].project_code : projs.length + ' aktibong proyekto'}.`));
   }
 }
 
@@ -2776,7 +2826,7 @@ function pickRegisteredAsset(id) {
   event.currentTarget.style.borderColor = 'rgba(247,162,27,0.5)';
   event.currentTarget.style.background  = 'rgba(247,162,27,0.06)';
 
-  showToast(`${a.name} loaded. Adjust fields if needed.`);
+  showToast(_t(`${a.name} loaded. Adjust fields if needed.`, `Na-load ang ${a.name}. Baguhin ang mga field kung kailangan.`));
 }
 
 // ─────────────────────────────────────
@@ -3000,7 +3050,7 @@ async function saveAsset() {
 
   if (assetErr) {
     console.error('save asset:', assetErr.message);
-    showToast(whWriteError(assetErr, 'The asset did NOT save, so no PM schedule was created. Try again.'));
+    showToast(whWriteError(assetErr, _t('The asset did NOT save, so no PM schedule was created. Try again.', 'HINDI na-save ang asset, kaya walang nagawang PM schedule. Subukan muli.')));
     btn.disabled = false; btn.textContent = 'Save Asset';
     return;
   }
@@ -3038,7 +3088,8 @@ async function saveAsset() {
       _firstDue = ` First PM due ${(typeof whFmtDate === 'function') ? whFmtDate(_d) : _d}.`;
     }
   } catch (_) { /* empty-catch-allow: the date is a bonus; the save receipt must never fail on it */ }
-  showToast(`${name} added → on your PM schedule now, and it counts toward PM compliance from its first due date.${_firstDue}`);
+  showToast(_t(`${name} added → on your PM schedule now, and it counts toward PM compliance from its first due date.${_firstDue}`,
+      `Naidagdag ang ${name} → nasa PM schedule mo na, at bibilang ito sa PM compliance mula sa unang due date nito.${_firstDue}`));
   showScreen('dashboard');
   renderDashboard();
 
@@ -3162,7 +3213,7 @@ async function saveNewTask() {
     is_custom:   isCustom,
   }).select().single();
 
-  if (error) { showToast(whWriteError(error, 'The task was NOT added to this PM schedule. Try again.')); return; }
+  if (error) { showToast(whWriteError(error, _t('The task was NOT added to this PM schedule. Try again.', 'HINDI naidagdag ang task sa PM schedule na ito. Subukan muli.'))); return; }
 
   scopeItems.push(data);
   closeAddTaskSheet();
@@ -3213,7 +3264,7 @@ async function deleteAsset() {
   // states, so a member outside it gets exactly this zero-row answer.
   const { data: deletedRows, error } = await deleteQuery.select('id');
 
-  if (error) { showToast(whWriteError(error, 'Nothing was deleted - it is all still here. Try again.')); return; }
+  if (error) { showToast(whWriteError(error, _t('Nothing was deleted - it is all still here. Try again.', 'Walang na-delete - nandito pa lahat. Subukan muli.'))); return; }
   if (!Array.isArray(deletedRows) || deletedRows.length === 0) {
     showToast('That asset was not deleted: only a supervisor, or whoever added it, can remove it.');
     return;

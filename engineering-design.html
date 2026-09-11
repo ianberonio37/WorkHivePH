@@ -532,11 +532,22 @@
 
     /* Recent calc chips */
     #recent-calcs-row { margin-bottom: 1rem; }
+    /* ★A PILL MEANT "FILTER" ON THIS PAGE, AND THESE TWO USED IT TO MEAN "GO" (2026-09-10, walked as
+       a solo owner). R3 read `silhouettes=3 for 2 role(s) · SAME-SHAPE-DIFFERENT-JOB: pill worn by
+       press+select`, and the census says it precisely: EIGHT pill controls are state toggles carrying
+       aria-pressed - the six .discipline-pill filters and the Units switch - while these two
+       .recent-chip shortcuts wear the identical pill and NAVIGATE to a calculator. A reader meeting a
+       pill on this page cannot tell whether it narrows the list or leaves it. That is the other half
+       of what R3 grades, and a different defect from the two closed earlier today on analytics and
+       alert-hub: those were one silhouette too many, this is one silhouette doing two jobs.
+       12px is this page's PRESS shape - it is what .btn-primary ("Run Calculation") wears - so the
+       shortcuts now look like the small actions they are, and the pill goes back to meaning exactly
+       one thing. Same rule as C-T: standardise toward what the page already says, measured. */
     .recent-chip {
       display: inline-flex; align-items: center; gap: 6px;
       background: rgba(42,61,88,0.7);
       border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 999px; padding: 5px 12px; min-height: 44px;
+      border-radius: var(--wh-radius, 12px); padding: 5px 12px; min-height: 44px;
       font-size: 0.75rem; color:rgba(255,255,255,0.83);
       cursor: pointer; white-space: nowrap;
       transition: border-color 0.2s, background 0.2s;
@@ -588,9 +599,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 <div id="hive-gate" class="hidden fixed inset-0 z-50 flex items-center justify-center" style="background:rgba(22,32,50,0.97)">
   <div class="card p-8 max-w-sm w-full mx-4 text-center">
     <div style="font-size:2.5rem;margin-bottom:1rem;">🔒</div>
-    <h2 class="text-xl font-bold mb-2">Hive Required</h2>
-    <p class="text-sm mb-6" style="color:rgba(255,255,255,0.80)">The Engineering Design Calculator is a team feature. Join or create a Hive to access it.</p>
-    <a href="hive.html" class="btn-primary inline-block" style="text-decoration:none;">Go to Hive Setup</a>
+    <h2 data-i="p_hiverequired_14fe" class="text-xl font-bold mb-2">Hive Required</h2>
+    <p data-i="p_theengineeringdesigncalculat_9feb" class="text-sm mb-6" style="color:rgba(255,255,255,0.80)">The Engineering Design Calculator is a team feature. Join or create a Hive to access it.</p>
+    <a data-i="p_gotohivesetup_5484" href="hive.html" class="btn-primary inline-block" style="text-decoration:none;">Go to Hive Setup</a>
   </div>
 </div>
 
@@ -604,12 +615,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
        and its tabs land under the notch. The body padding-top in <style> reserves the wayfinding
        band, not this — an ancestor's padding cannot displace a viewport-pinned box. -->
   <div style="background:rgba(22,32,50,0.8);border-bottom:1px solid rgba(255,255,255,0.07);backdrop-filter:blur(12px);padding-top:env(safe-area-inset-top);" class="sticky top-0 z-40">
-    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <a href="index.html" style="color:rgba(255,255,255,0.86);font-size:0.8rem;text-decoration:none;min-height:44px;min-width:44px;" class="hidden sm:inline-flex sm:items-center">← Back</a>
+    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between flex-wrap gap-y-2">
+      <div class="flex items-center gap-3 min-w-0 flex-1">
+        <a data-i="p_back_c32a" href="index.html" style="color:rgba(255,255,255,0.86);font-size:0.8rem;text-decoration:none;min-height:44px;min-width:44px;" class="hidden sm:inline-flex sm:items-center">← Back</a>
         <div>
           <h1 class="font-bold text-sm" style="color:var(--wh-orange-text);margin:0;" data-i="ed_title">Engineering Design</h1>
-          <div class="text-xs" style="color:rgba(255,255,255,0.80);">Design Calculation Tool</div>
+          <div data-i="p_designcalculationtool_b1ec" class="text-xs" style="color:rgba(255,255,255,0.80);">Design Calculation Tool</div>
           <!-- Arc L/L1 CLS: filled by renderSourceChip() in init() (deterministic
                freshness+source+2 notes ≈ 161px @390). Reserve it so the header doesn't
                grow and push #tab-calculator down (residual CLS source after the grid fix). -->
@@ -627,7 +638,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   <!-- ══════════════════════ TAB: CALCULATOR ══════════════════════ -->
   <div class="max-w-7xl mx-auto px-4" style="padding-top:0.75rem;">
     <details class="wh-help">
-      <summary>How this page works</summary>
+      <summary data-i="p_howthispageworks_c540">How this page works</summary>
       <p>Pick a discipline, choose a calculation, and fill in the inputs. Results show the sized answer with the governing formula and the standard it follows. Use the report tab to export what you sized; nothing changes in your hive until you save.</p>
     </details>
   </div>
@@ -639,7 +650,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <div class="step-dot" id="dot-2"></div>
       <div class="step-dot" id="dot-3"></div>
       <div class="step-dot" id="dot-4"></div>
-      <span class="text-xs ml-2" style="color:rgba(255,255,255,0.80);" id="step-label">Step 1 of 4: Select Discipline</span>
+      <span data-i="p_stepofselectdiscipline_c732" class="text-xs ml-2" style="color:rgba(255,255,255,0.80);" id="step-label">Step 1 of 4: Select Discipline</span>
     </div>
 
     <div class="flex flex-col lg:flex-row gap-6">
@@ -661,7 +672,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         <div id="recent-calcs-row" style="display:none;" class="mb-2"></div>
 
         <div class="card p-5" id="step1-card">
-          <div class="text-xs font-600 mb-3" style="color:var(--wh-orange-text);text-transform:uppercase;letter-spacing:0.08em;">Step 1: Discipline</div>
+          <div data-i="p_stepdiscipline_6c87" class="text-xs font-600 mb-3" style="color:var(--wh-orange-text);text-transform:uppercase;letter-spacing:0.08em;">Step 1: Discipline</div>
           <div class="flex gap-3" style="flex-wrap:wrap;">
             <button class="discipline-pill active" translate="no" data-disc="HVAC & Cooling" onclick="selectDiscipline('HVAC & Cooling')">❄️ HVAC & Cooling <span class="pill-count">10</span></button>
             <button class="discipline-pill" translate="no" data-disc="Mechanical" onclick="selectDiscipline('Mechanical')">🔧 Mechanical <span class="pill-count">4</span></button>
@@ -674,7 +685,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
         <!-- Step 2: Calc Type -->
         <div class="card p-5" id="step2-card" style="opacity:0.5;pointer-events:none;">
-          <h2 class="text-xs font-600 mb-3" style="color:var(--wh-orange-text);text-transform:uppercase;letter-spacing:0.08em;margin-top:0;">Step 2: Calculation Type</h2>
+          <h2 data-i="p_stepcalculationtype_8b29" class="text-xs font-600 mb-3" style="color:var(--wh-orange-text);text-transform:uppercase;letter-spacing:0.08em;margin-top:0;">Step 2: Calculation Type</h2>
           <!-- Arc L/L1 CLS: this grid ships EMPTY and is filled by selectDiscipline('HVAC')
                in init() (after the deferred bundle parses). Reserve the MEASURED default-
                discipline fill height (HVAC = 11 cards + 2 sub-headers ≈ 893px @390) so the
@@ -687,14 +698,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         <!-- Step 3: Inputs -->
         <div class="card p-5" id="step3-card" style="opacity:0.5;pointer-events:none;">
           <div class="flex items-center justify-between gap-2 mb-3">
-            <div class="text-xs font-600" style="color:var(--wh-orange-text);text-transform:uppercase;letter-spacing:0.08em;">Step 3: Project &amp; Inputs</div>
+            <div data-i="p_stepprojectinputs_731e" class="text-xs font-600" style="color:var(--wh-orange-text);text-transform:uppercase;letter-spacing:0.08em;">Step 3: Project &amp; Inputs</div>
             <!-- A-6 (deep-arc P6): scoped SI/IP units toggle — converts DIMENSIONAL inputs only
                  (length/area/temp/pressure/mass/flow); electrical + dimensionless + ambiguous kW
                  stay untouched. The engine always receives SI (runCalculation normalizes). -->
-            <button id="units-toggle-btn" onclick="toggleUnitSystem()" translate="no" class="btn-ghost wh-toggle" style="font-size:0.68rem;padding:0.3rem 0.65rem;min-height:44px;white-space:nowrap;border-radius:999px;" aria-label="Units: switch dimensional inputs between Metric (SI) and Imperial">⇄ Units: Metric (SI)</button>
+            <button id="units-toggle-btn" onclick="toggleUnitSystem()" translate="no" class="btn-ghost wh-toggle" style="font-size:0.68rem;padding:0.3rem 0.65rem;min-height:44px;white-space:nowrap;border-radius:999px;" aria-label="Units: switch dimensional inputs between Metric (SI) and Imperial" data-i="unitsmetricsi">⇄ Units: Metric (SI)</button>
           </div>
           <div id="input-form-area">
-            <p class="text-sm" style="color:rgba(255,255,255,0.80);">Select a calculation type first.</p>
+            <p data-i="p_selectacalculationtypefirst_e3c7" class="text-sm" style="color:rgba(255,255,255,0.80);">Select a calculation type first.</p>
           </div>
         </div>
 
@@ -712,8 +723,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         <!-- Empty state -->
         <div id="report-empty" class="card p-10 text-center" style="min-height:400px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
           <div style="font-size:3rem;margin-bottom:1rem;">📐</div>
-          <div class="font-semibold text-lg mb-2">No Report Yet</div>
-          <div class="text-sm" style="color:rgba(255,255,255,0.80);">Fill in the inputs on the left and click<br><strong style="color: var(--wh-orange-text);">Run Calculation</strong> to generate your report.</div>
+          <div data-i="p_noreportyet_51a2" class="font-semibold text-lg mb-2">No Report Yet</div>
+          <div class="text-sm" style="color:rgba(255,255,255,0.80);">Fill in the inputs on the left and click<br><strong data-i="p_runcalculation_c16b" style="color: var(--wh-orange-text);">Run Calculation</strong> to generate your report.</div>
         </div>
 
         <!-- Loading state -->
@@ -723,9 +734,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           <!-- Brand label -->
           <div class="font-bold mb-3" style="color:var(--wh-orange-text);font-size:0.75rem;letter-spacing:0.12em;text-transform:uppercase;">WorkHive Engineering AI</div>
           <!-- Rotating status message -->
-          <div id="loading-status-msg" class="font-semibold mb-2" style="font-size:1rem;min-height:1.6rem;transition:opacity 0.4s;">Preparing your calculation...</div>
+          <div data-i="p_preparingyourcalculation_276c" id="loading-status-msg" class="font-semibold mb-2" style="font-size:1rem;min-height:1.6rem;transition:opacity 0.4s;">Preparing your calculation...</div>
           <!-- Sub-label -->
-          <div class="text-sm" style="color:rgba(255,255,255,0.35);">Standards-grade analysis in progress</div>
+          <div data-i="p_standardsgradeanalysisinprog_79fc" class="text-sm" style="color:rgba(255,255,255,0.35);">Standards-grade analysis in progress</div>
           <!-- Dot progress indicator -->
           <div class="flex gap-2 mt-5">
             <div class="loading-dot" style="width:7px;height:7px;border-radius:50%;background:var(--wh-orange);animation:dotPulse 1.4s ease-in-out infinite;"></div>
@@ -737,17 +748,17 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         <!-- Report output -->
         <div id="report-output" class="hidden">
           <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
-            <div class="text-sm font-semibold" style="color:rgba(255,255,255,0.83);">Report Preview</div>
+            <div data-i="p_reportpreview_592c" class="text-sm font-semibold" style="color:rgba(255,255,255,0.83);">Report Preview</div>
             <div class="flex gap-2">
-              <button class="btn-ghost text-sm py-2 px-4 flex-1 sm:flex-none" onclick="printReport()">⬇ Download PDF</button>
+              <button class="btn-ghost text-sm py-2 px-4 flex-1 sm:flex-none" onclick="printReport()" data-i="downloadpdf">⬇ Download PDF</button>
               <!-- id so saveCalc() can disable its own control while the insert is in flight: the inline
                    onclick passes no element, and an un-disabled Save is two engineering_calcs rows. -->
-              <button id="save-calc-btn" class="btn-primary text-sm py-2 px-4 flex-1 sm:flex-none" onclick="saveCalc()">💾 Save</button>
+              <button id="save-calc-btn" class="btn-primary text-sm py-2 px-4 flex-1 sm:flex-none" onclick="saveCalc()" data-i="save">💾 Save</button>
             </div>
           </div>
           <!-- AI-7 (deep-arc P5): disclose AI-drafted content + display where trust should/should not go -->
           <div class="text-xs mb-3" role="note" style="color:rgba(255,255,255,0.80);background:rgba(41,182,217,0.08);border:1px solid rgba(41,182,217,0.22);border-radius:0.5rem;padding:0.5rem 0.75rem;">
-            ⓘ Computed values follow the cited standards. The written summary (objective, assumptions, recommendations) is <strong style="color:var(--wh-blue);">AI-drafted; review before use</strong>.
+            ⓘ Computed values follow the cited standards. The written summary (objective, assumptions, recommendations) is <strong data-i="p_aidraftedreviewbeforeuse_4874" style="color:var(--wh-blue);">AI-drafted; review before use</strong>.
           </div>
           <div id="report-panel"></div>
         </div>
@@ -760,29 +771,29 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
             <div class="card p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3">
               <div class="flex-1">
                 <div class="font-semibold text-sm" style="color:var(--wh-orange-text);">📋 Generate BOM + Scope of Works</div>
-                <div class="text-xs mt-0.5" style="color:rgba(255,255,255,0.80);">AI will generate a standard procurement list and contractor scope from this calculation result</div>
+                <div data-i="p_aiwillgenerateastandardprocu_8f49" class="text-xs mt-0.5" style="color:rgba(255,255,255,0.80);">AI will generate a standard procurement list and contractor scope from this calculation result</div>
               </div>
-              <button onclick="generateBomSowChecklist()" class="btn-primary text-sm py-2 px-5 whitespace-nowrap flex-shrink-0">Generate</button>
+              <button onclick="generateBomSowChecklist()" class="btn-primary text-sm py-2 px-5 whitespace-nowrap flex-shrink-0" data-i="generate">Generate</button>
             </div>
           </div>
 
           <!-- Loading state -->
           <div id="bom-loading" class="hidden card p-8 text-center mt-4">
             <div class="spinner mx-auto mb-3" style="width:32px;height:32px;border-width:3px;border-color:rgba(247,162,27,0.2);border-top-color:var(--wh-orange);"></div>
-            <div class="font-semibold text-sm mb-1">Generating standard items...</div>
-            <div class="text-xs" style="color:rgba(255,255,255,0.80);">AI is preparing BOM and SOW from your calculation results</div>
+            <div data-i="p_generatingstandarditems_65a8" class="font-semibold text-sm mb-1">Generating standard items...</div>
+            <div data-i="p_aiispreparingbomandsowfromyo_8d37" class="text-xs" style="color:rgba(255,255,255,0.80);">AI is preparing BOM and SOW from your calculation results</div>
           </div>
 
           <!-- Checklist panel -->
           <div id="bom-checklist-panel" class="hidden card p-5 mt-4">
             <div class="flex items-center justify-between mb-4">
-              <div class="font-semibold text-sm" style="color:rgba(255,255,255,0.85);">Review and customize</div>
-              <div class="text-xs" style="color:rgba(255,255,255,0.35);">Check items to include in documents</div>
+              <div data-i="p_reviewandcustomize_c06e" class="font-semibold text-sm" style="color:rgba(255,255,255,0.85);">Review and customize</div>
+              <div data-i="p_checkitemstoincludeindocumen_d3bb" class="text-xs" style="color:rgba(255,255,255,0.35);">Check items to include in documents</div>
             </div>
             <!-- Tabs -->
             <div class="flex gap-2 mb-4">
-              <button onclick="switchBomTab('bom')" id="bom-tab-bom" class="bom-tab-btn active">📦 BOM Items</button>
-              <button onclick="switchBomTab('sow')" id="bom-tab-sow" class="bom-tab-btn">📄 SOW Sections</button>
+              <button onclick="switchBomTab('bom')" id="bom-tab-bom" class="bom-tab-btn active" data-i="bomitems">📦 BOM Items</button>
+              <button onclick="switchBomTab('sow')" id="bom-tab-sow" class="bom-tab-btn" data-i="sowsections">📄 SOW Sections</button>
             </div>
             <!-- BOM list -->
             <div id="bom-items-list"></div>
@@ -790,9 +801,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
             <div id="sow-sections-list" class="hidden"></div>
             <!-- Actions row -->
             <div class="flex gap-2 flex-wrap mt-4 pt-4" style="border-top:1px solid rgba(255,255,255,0.07);">
-              <button onclick="addBomRow()" id="bom-add-row-btn" class="btn-ghost text-xs py-2 px-3">+ Add Item</button>
-              <button onclick="addSowRow()" id="sow-add-row-btn" class="btn-ghost text-xs py-2 px-3 hidden">+ Add Section</button>
-              <button onclick="generateDocuments()" class="btn-primary text-sm py-2 px-5 ml-auto">Generate Documents →</button>
+              <button onclick="addBomRow()" id="bom-add-row-btn" class="btn-ghost text-xs py-2 px-3" data-i="additem">+ Add Item</button>
+              <button onclick="addSowRow()" id="sow-add-row-btn" class="btn-ghost text-xs py-2 px-3 hidden" data-i="addsection">+ Add Section</button>
+              <button onclick="generateDocuments()" class="btn-primary text-sm py-2 px-5 ml-auto" data-i="generatedocuments">Generate Documents →</button>
             </div>
           </div>
 
@@ -804,9 +815,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
               <div class="flex items-center justify-between mb-2 flex-wrap gap-2">
                 <div class="font-semibold text-sm" style="color:rgba(255,255,255,0.8);">Bill of Materials</div>
                 <div class="flex gap-2">
-                  <button onclick="backToChecklist()" class="btn-ghost text-xs py-1.5 px-3">← Edit</button>
-                  <button onclick="downloadBomCsv()" class="btn-ghost text-xs py-1.5 px-3">⬇ CSV</button>
-                  <button onclick="downloadBomDocPdf()" class="btn-ghost text-xs py-1.5 px-3">⬇ PDF</button>
+                  <button onclick="backToChecklist()" class="btn-ghost text-xs py-1.5 px-3" data-i="edit">← Edit</button>
+                  <button onclick="downloadBomCsv()" class="btn-ghost text-xs py-1.5 px-3" data-i="csv">⬇ CSV</button>
+                  <button onclick="downloadBomDocPdf()" class="btn-ghost text-xs py-1.5 px-3" data-i="pdf">⬇ PDF</button>
                 </div>
               </div>
               <div id="bom-table-preview"></div>
@@ -817,7 +828,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
               <div class="flex items-center justify-between mb-2 flex-wrap gap-2">
                 <div class="font-semibold text-sm" style="color:rgba(255,255,255,0.8);">Scope of Works</div>
                 <div class="flex gap-2">
-                  <button onclick="downloadSowPdf()" class="btn-ghost text-xs py-1.5 px-3">⬇ PDF</button>
+                  <button onclick="downloadSowPdf()" class="btn-ghost text-xs py-1.5 px-3" data-i="pdf">⬇ PDF</button>
                 </div>
               </div>
               <div id="sow-doc-preview"></div>
@@ -837,18 +848,18 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           <div id="drawing-trigger">
             <div class="card p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3">
               <div class="flex-1">
-                <div class="font-semibold text-sm" style="color:var(--wh-orange-text);">📐 Generate System Diagram</div>
-                <div class="text-xs mt-0.5" id="drawing-trigger-desc" style="color:rgba(255,255,255,0.80);">Generates a system diagram from your calculation results</div>
+                <div data-i="p_generatesystemdiagram_8cf7" class="font-semibold text-sm" style="color:var(--wh-orange-text);">📐 Generate System Diagram</div>
+                <div data-i="p_generatesasystemdiagramfromy_3fb2" class="text-xs mt-0.5" id="drawing-trigger-desc" style="color:rgba(255,255,255,0.80);">Generates a system diagram from your calculation results</div>
               </div>
-              <button onclick="generateDrawing()" class="btn-primary text-sm py-2 px-5 whitespace-nowrap flex-shrink-0">Generate</button>
+              <button onclick="generateDrawing()" class="btn-primary text-sm py-2 px-5 whitespace-nowrap flex-shrink-0" data-i="generate">Generate</button>
             </div>
           </div>
 
           <!-- Loading state -->
           <div id="drawing-loading" class="hidden card p-8 text-center mt-4">
             <div class="spinner mx-auto mb-3" style="width:32px;height:32px;border-width:3px;border-color:rgba(247,162,27,0.2);border-top-color:var(--wh-orange);"></div>
-            <div class="font-semibold text-sm mb-1">Building diagram...</div>
-            <div class="text-xs" style="color:rgba(255,255,255,0.80);">Generating HVAC system schematic</div>
+            <div data-i="p_buildingdiagram_b98a" class="font-semibold text-sm mb-1">Building diagram...</div>
+            <div data-i="p_generatinghvacsystemschemati_a627" class="text-xs" style="color:rgba(255,255,255,0.80);">Generating HVAC system schematic</div>
           </div>
 
           <!-- Drawing output -->
@@ -856,13 +867,13 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
             <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
               <div class="font-semibold text-sm" id="drawing-output-title" style="color:rgba(255,255,255,0.85);">System Diagram</div>
               <div class="flex gap-2">
-                <button onclick="regenerateDrawing()" class="btn-ghost text-xs py-1.5 px-3">↺ Regenerate</button>
-                <button id="btn-svg-edit" onclick="toggleSVGEdit()" class="btn-ghost text-xs py-1.5 px-3">✏ Edit</button>
-                <button id="diagram-dl-svg" onclick="downloadDiagramSVG()" class="btn-ghost text-xs py-1.5 px-3" style="display:none;">⬇ SVG</button>
-                <button onclick="downloadDrawingPdf()" class="btn-ghost text-xs py-1.5 px-3">⬇ PDF</button>
+                <button onclick="regenerateDrawing()" class="btn-ghost text-xs py-1.5 px-3" data-i="regenerate">↺ Regenerate</button>
+                <button id="btn-svg-edit" onclick="toggleSVGEdit()" class="btn-ghost text-xs py-1.5 px-3" data-i="edit">✏ Edit</button>
+                <button id="diagram-dl-svg" onclick="downloadDiagramSVG()" class="btn-ghost text-xs py-1.5 px-3" style="display:none;" data-i="svg">⬇ SVG</button>
+                <button onclick="downloadDrawingPdf()" class="btn-ghost text-xs py-1.5 px-3" data-i="pdf">⬇ PDF</button>
               </div>
             </div>
-            <div id="svg-edit-banner">✏ <strong>Edit mode:</strong> <strong>drag</strong> text to move it — <strong>double-click</strong> text to edit — <strong>drag on empty space</strong> to rubber-band select symbols, then drag the selection to move. Click <strong>✓ Done</strong> when finished.</div>
+            <div id="svg-edit-banner">✏ <strong>Edit mode:</strong> <strong>drag</strong> text to move it — <strong>double-click</strong> text to edit — <strong data-i="p_dragonemptyspace_f6be">drag on empty space</strong> to rubber-band select symbols, then drag the selection to move. Click <strong data-i="p_done_a135">✓ Done</strong> when finished.</div>
             <div id="drawing-panel" style="background:#fff;border-radius:0.5rem;padding:1.5rem;overflow-x:auto;"></div>
           </div>
 
@@ -877,14 +888,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   <div id="tab-history" class="hidden max-w-4xl mx-auto px-4 pt-6">
     <div class="flex items-center justify-between mb-4">
       <div>
-        <h2 class="font-bold text-lg">Calculation History</h2>
-        <p class="text-sm" style="color:rgba(255,255,255,0.80);">All saved calculations for your hive</p>
+        <h2 data-i="p_calculationhistory_7a14" class="font-bold text-lg">Calculation History</h2>
+        <p data-i="p_allsavedcalculationsforyourh_d025" class="text-sm" style="color:rgba(255,255,255,0.80);">All saved calculations for your hive</p>
       </div>
     </div>
     <div id="history-list">
       <div class="text-center py-16" style="color:rgba(255,255,255,0.80);">
         <div style="font-size:2rem;margin-bottom:0.75rem;">📋</div>
-        <div>No saved calculations yet.</div>
+        <div data-i="p_nosavedcalculationsyet_d21c">No saved calculations yet.</div>
       </div>
     </div>
   </div>
@@ -920,7 +931,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 <script src="drawing-symbols.js"></script>
 
 <!-- Supabase -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
+<script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="engineering-design.js" defer></script>
 <script src="companion-launcher.js"></script>
 </main>

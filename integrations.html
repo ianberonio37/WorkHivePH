@@ -11,7 +11,7 @@
   <!-- capture: cmms_import_v1 (import) — CSV/JSON CMMS sync -->
   <link rel="manifest" href="manifest.json" />
   <script src="browser-floor.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
+  <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
   <!-- A4 CWV: PapaParse (CSV) + SheetJS (xlsx) total ~0.8MB and are only needed AFTER a file
        is picked at Step 2, so they are LAZY-loaded on demand (loadScriptOnce in handleFile),
        not eagerly on every page load. -->
@@ -202,24 +202,24 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
      Available to EVERY signed-in user (solo owners included) - the supervisor/IT gate below
      covers only the CMMS console. Template path only in iteration 1 (doc extraction comes later,
      behind measured accuracy - Ian's explicit sequencing). -->
-<section id="vehicle-add" class="card" style="max-width:900px; margin:0 auto 1.25rem; padding:20px 22px;">
+<section id="vehicle-add" class="card" style="max-width:900px; margin:0 auto 1.5rem; padding:20px 22px;">
   <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
     <span style="font-size:1.6rem;" aria-hidden="true">🚗</span>
     <div style="flex:1; min-width:14rem;">
-      <h2 style="margin:0; font-size:1.05rem;">Add a Vehicle</h2>
+      <h2 data-i="p_addavehicle_a618" style="margin:0; font-size:1.05rem;">Add a Vehicle</h2>
       <!-- B3 (rubric, 2026-09-03): split from one 29-word sentence into three short ones (each <20w, grade <=8) -->
-      <p style="margin:2px 0 0; font-size:.78rem; color:rgba(255,255,255,0.82);">Your car becomes an asset. Its service schedule lands in the PM Scheduler with km intervals, and its parts in Inventory. Every job you log builds its maintenance history.</p>
+      <p data-i="p_yourcarbecomesanassetitsserv_f9cb" style="margin:2px 0 0; font-size:.78rem; color:rgba(255,255,255,0.82);">Your car becomes an asset. Its service schedule lands in the PM Scheduler with km intervals. Its parts land in Inventory. Every job you log builds its maintenance history.</p>
     </div>
-    <button id="veh-open" class="btn-primary" style="min-height:44px;" onclick="vehOpenWizard()">Add my vehicle</button>
+    <button id="veh-open" class="btn-primary" style="min-height:44px;" onclick="vehOpenWizard()" data-i="addmyvehicle">Add my vehicle</button>
   </div>
 
   <div id="veh-wizard" class="hidden" style="margin-top:16px; border-top:1px solid var(--border); padding-top:16px;">
     <!-- Step 1: the vehicle -->
     <div id="veh-step-1">
-      <p style="font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:rgba(255,255,255,0.80); margin:0 0 10px;">Step 1 · Your vehicle</p>
+      <p data-i="p_stepyourvehicle_1a36" style="font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:rgba(255,255,255,0.80); margin:0 0 10px;">Step 1 · Your vehicle</p>
       <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px;">
         <button type="button" class="wh-toggle" id="veh-preset-ranger" onclick="vehApplyRangerPreset()" class="veh-box" style="min-height:44px; padding:0 14px; border:1px solid rgba(247,162,27,0.4); background:rgba(247,162,27,0.08); color:var(--gold); font-weight:700; cursor:pointer;">Ford Ranger 2026 XLT preset</button>
-        <span style="font-size:.72rem; color:rgba(255,255,255,0.75); align-self:center;">or fill the fields yourself - everything stays editable.</span>
+        <span data-i="p_orfillthefieldsyourselfevery_e4c7" style="font-size:.72rem; color:rgba(255,255,255,0.75); align-self:center;">or fill the fields yourself - everything stays editable.</span>
       </div>
       <!-- Scope choice — hive members only (solo users have exactly one home). Workers can only
            add PERSONAL vehicles: pm_assets_insert_guard refuses worker inserts of hive rows, so
@@ -227,7 +227,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <div id="veh-scope-wrap" class="hidden" style="margin-bottom:10px; display:flex; flex-direction:column; gap:6px; font-size:.75rem;">
         <label style="display:flex; align-items:center; gap:8px; min-height:44px;"><input type="radio" name="veh-scope" id="veh-scope-hive" value="hive" aria-label="Fleet vehicle: everyone in this hive sees and services it" style="width:18px; height:18px;" /> Fleet vehicle - everyone in this hive sees and services it</label>
         <label style="display:flex; align-items:center; gap:8px; min-height:44px;"><input type="radio" name="veh-scope" id="veh-scope-personal" value="personal" aria-label="My personal vehicle: only I see it" style="width:18px; height:18px;" /> My personal vehicle - only I see it</label>
-        <span id="veh-scope-note" class="hidden" style="font-size:.68rem; color:rgba(255,255,255,0.70);">Fleet vehicles are added by supervisors - yours will be personal.</span>
+        <span data-i="p_fleetvehiclesareaddedbysuper_e8dd" id="veh-scope-note" class="hidden" style="font-size:.68rem; color:rgba(255,255,255,0.70);">Fleet vehicles are added by supervisors - yours will be personal.</span>
       </div>
       <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(11rem,1fr)); gap:10px;">
         <label for="veh-make" style="font-size:.72rem;">Make<input id="veh-make" class="wh-input" placeholder="Ford" maxlength="40" /></label>
@@ -249,36 +249,36 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       </div>
       <p id="veh-step1-err" role="alert" style="min-height:1em; font-size:.72rem; color:var(--wh-red, #f87171); margin:8px 0 0;"></p>
       <div style="display:flex; gap:8px; margin-top:10px;">
-        <button class="btn-primary" style="min-height:44px;" onclick="vehToStep2()">Next: service schedule →</button>
-        <button class="wh-toggle" style="min-height:44px; min-width:44px; padding:0 12px; background:none; border:none; color:rgba(255,255,255,0.75); cursor:pointer;" onclick="vehCloseWizard()">Cancel</button>
+        <button class="btn-primary" style="min-height:44px;" onclick="vehToStep2()" data-i="nextserviceschedule">Next: service schedule →</button>
+        <button class="wh-toggle" style="min-height:44px; min-width:44px; padding:0 12px; background:none; border:none; color:rgba(255,255,255,0.75); cursor:pointer;" onclick="vehCloseWizard()" data-i="cancel">Cancel</button>
       </div>
     </div>
 
     <!-- Step 2: the PM starter (every row editable + tickable; km rows carry an editable interval) -->
     <div id="veh-step-2" class="hidden">
       <p style="font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:rgba(255,255,255,0.80); margin:0 0 6px;">Step 2 · Service schedule</p>
-      <p style="font-size:.72rem; color:rgba(255,255,255,0.78); margin:0 0 10px;">A starter schedule from the manufacturer-interval pattern. Untick what you don't want; edit any km interval - your manual's numbers win. Time-based rows keep you honest between odometer updates.</p>
+      <p data-i="p_astarterschedulefromthemanuf_5e5d" style="font-size:.72rem; color:rgba(255,255,255,0.78); margin:0 0 10px;">A starter schedule from the manufacturer-interval pattern. Untick what you don't want; edit any km interval - your manual's numbers win. Time-based rows keep you honest between odometer updates.</p>
       <div id="veh-pm-list" style="display:flex; flex-direction:column; gap:6px;"></div>
       <div style="display:flex; gap:8px; margin-top:12px;">
-        <button class="btn-primary" style="min-height:44px;" onclick="vehToStep3()">Next: starter parts →</button>
-        <button class="wh-toggle" style="min-height:44px; background:none; border:none; color:rgba(255,255,255,0.75); cursor:pointer;" onclick="vehBack(1)">← Back</button>
+        <button class="btn-primary" style="min-height:44px;" onclick="vehToStep3()" data-i="nextstarterparts">Next: starter parts →</button>
+        <button class="wh-toggle" style="min-height:44px; background:none; border:none; color:rgba(255,255,255,0.75); cursor:pointer;" onclick="vehBack(1)" data-i="back">← Back</button>
       </div>
     </div>
 
     <!-- Step 3: parts starter (unticked by default - part numbers vary by market) -->
     <div id="veh-step-3" class="hidden">
-      <p style="font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:rgba(255,255,255,0.80); margin:0 0 6px;">Step 3 · Starter parts (optional)</p>
-      <p style="font-size:.72rem; color:rgba(255,255,255,0.78); margin:0 0 10px;">Tick the consumables you want tracked in Inventory. Part numbers vary by market - edit them to match your manual; you can add the rest in Inventory any time.</p>
+      <p data-i="p_stepstarterpartsoptional_a80e" style="font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:rgba(255,255,255,0.80); margin:0 0 6px;">Step 3 · Starter parts (optional)</p>
+      <p data-i="p_ticktheconsumablesyouwanttra_ddd9" style="font-size:.72rem; color:rgba(255,255,255,0.78); margin:0 0 10px;">Tick the consumables you want tracked in Inventory. Part numbers vary by market - edit them to match your manual; you can add the rest in Inventory any time.</p>
       <div id="veh-parts-list" style="display:flex; flex-direction:column; gap:6px;"></div>
       <div style="display:flex; gap:8px; margin-top:12px;">
-        <button id="veh-create" class="btn-primary" style="min-height:44px;" onclick="vehCreate()">Create my vehicle</button>
-        <button class="wh-toggle" style="min-height:44px; background:none; border:none; color:rgba(255,255,255,0.75); cursor:pointer;" onclick="vehBack(2)">← Back</button>
+        <button id="veh-create" class="btn-primary" style="min-height:44px;" onclick="vehCreate()" data-i="createmyvehicle">Create my vehicle</button>
+        <button class="wh-toggle" style="min-height:44px; background:none; border:none; color:rgba(255,255,255,0.75); cursor:pointer;" onclick="vehBack(2)" data-i="back">← Back</button>
       </div>
     </div>
 
     <!-- Receipt -->
     <div id="veh-receipt" class="hidden veh-box" style="border:1px solid rgba(74,222,128,0.3); background:rgba(74,222,128,0.06); padding:14px 16px; margin-top:4px;">
-      <h3 style="margin:0 0 8px; font-size:.95rem; color:var(--wh-green, #4ade80);">Vehicle created ✓</h3>
+      <h3 data-i="p_vehiclecreated_0fd0" style="margin:0 0 8px; font-size:.95rem; color:var(--wh-green, #4ade80);">Vehicle created ✓</h3>
       <div id="veh-receipt-body" style="font-size:.78rem; line-height:1.6;"></div>
     </div>
   </div>
@@ -288,31 +288,31 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
        Populated by renderIntegrationsSummary() from the live integration_configs fetch. -->
   <div id="it-verdict" class="verdict empty">
     <span id="it-verdict-icon" class="verdict-icon">·</span>
-    <div class="verdict-text"><span id="it-verdict-label">Loading integrations...</span><small id="it-verdict-sub">Counting active CMMS connections, imports, and API keys.</small></div>
+    <div class="verdict-text"><span data-i="p_loadingintegrations_3015" id="it-verdict-label">Loading integrations...</span><small data-i="p_countingactivecmmsconnection_ed85" id="it-verdict-sub">Counting active CMMS connections, imports, and API keys.</small></div>
   </div>
   <div class="simple-row">
     <div class="simple-card hero tag-grey" id="it-card-active" data-rag-tile="integrations:active" data-rag-label="Active integrations">
-      <div class="sc-label">Active integrations</div>
+      <div data-i="p_activeintegrations_0c94" class="sc-label">Active integrations</div>
       <div class="sc-hero" id="it-active-hero">0</div>
-      <div class="sc-sub" id="it-active-sub">Loading...</div>
+      <div data-i="p_loading_b04b" class="sc-sub" id="it-active-sub">Loading...</div>
       <span class="sc-tag" id="it-active-tag">-</span>
     </div>
     <div class="simple-card tag-grey" id="it-card-stale" data-rag-tile="integrations:stale" data-rag-label="Stale syncs">
-      <div class="sc-label">Stale syncs</div>
+      <div data-i="p_stalesyncs_3294" class="sc-label">Stale syncs</div>
       <div class="sc-hero" id="it-stale-hero">0</div>
-      <div class="sc-sub" id="it-stale-sub">Loading...</div>
+      <div data-i="p_loading_b04b" class="sc-sub" id="it-stale-sub">Loading...</div>
       <span class="sc-tag" id="it-stale-tag">-</span>
     </div>
     <div class="simple-card tag-grey" id="it-card-disabled" data-rag-tile="integrations:disabled" data-rag-label="Disabled integrations">
-      <div class="sc-label">Disabled</div>
+      <div data-i="p_disabled_f4f4" class="sc-label">Disabled</div>
       <div class="sc-hero" id="it-disabled-hero">0</div>
-      <div class="sc-sub" id="it-disabled-sub">Loading...</div>
+      <div data-i="p_loading_b04b" class="sc-sub" id="it-disabled-sub">Loading...</div>
       <span class="sc-tag" id="it-disabled-tag">-</span>
     </div>
   </div>
   <div class="action-card">
-    <div class="ac-label">What to do next</div>
-    <div class="ac-text" id="it-action-text">Computing recommendation...</div>
+    <div data-i="p_whattodonext_8ce2" class="ac-label">What to do next</div>
+    <div data-i="p_computingrecommendation_5948" class="ac-text" id="it-action-text">Computing recommendation...</div>
   </div>
   <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="it-summary-details" data-i="showdetails">
     Show details
@@ -320,26 +320,26 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   <div id="it-summary-details" role="region" aria-label="Integrations explainer"
     data-rag-tile="integrations:detail_panel"
     data-rag-label="Integrations detail">
-    <strong style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How integrations are categorised</strong>
+    <strong data-i="p_howintegrationsarecategorise_1e6a" style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How integrations are categorised</strong>
     <ul style="margin:0;padding-left:20px;">
-      <li><strong>Active integrations</strong>: integrations that are switched on and have synced in the last 7 days.</li>
-      <li><strong>Stale syncs</strong>: enabled integrations whose last sync was more than 7 days ago: usually an auth or endpoint issue.</li>
-      <li><strong>Disabled</strong>: integrations turned off but still in the config table.</li>
-      <li><strong>Verdict</strong>: red if any stale; amber if any disabled OR no integrations at all; green when all active integrations are fresh.</li>
+      <li><strong data-i="p_activeintegrations_0c94">Active integrations</strong>: integrations that are switched on and have synced in the last 7 days.</li>
+      <li><strong data-i="p_stalesyncs_3294">Stale syncs</strong>: enabled integrations whose last sync was more than 7 days ago: usually an auth or endpoint issue.</li>
+      <li><strong data-i="p_disabled_f4f4">Disabled</strong>: integrations turned off but still in the config table.</li>
+      <li><strong data-i="p_verdict_7f6e">Verdict</strong>: red if any stale; amber if any disabled OR no integrations at all; green when all active integrations are fresh.</li>
     </ul>
-    <p style="margin-top:8px;color:rgba(255,255,255,0.80);font-size:11px;">The 3 tabs below (Import File / Live Sync / API Keys) let you configure each integration type.</p>
+    <p data-i="p_thetabsbelowimportfilelivesy_4996" style="margin-top:8px;color:rgba(255,255,255,0.80);font-size:11px;">The 3 tabs below (Import File / Live Sync / API Keys) let you configure each integration type.</p>
     <!-- Phase 4 (2026-06-10): interim cross-link — plant-connections is the supervisor
          MONITOR surface for everything configured here (sync health, sensor bridge,
          gateway audit); long-term these two pages merge into one. -->
-    <p style="margin-top:6px;font-size:11px;"><a href="plant-connections.html" style="color:var(--blue, var(--wh-blue));">Monitor sync health, sensor feeds &amp; gateway activity in Plant Connections &rarr;</a></p>
+    <p style="margin-top:6px;font-size:11px;"><a data-i="p_monitorsynchealthsensorfeeds_aa16" href="plant-connections.html" style="color:var(--blue, var(--wh-blue));">Monitor sync health, sensor feeds &amp; gateway activity in Plant Connections &rarr;</a></p>
   </div>
 
   <!-- Getting Started workflow guide (dismissible) -->
   <div id="cmms-guide" style="margin-bottom:1.5rem; display:none;">
     <div style="background:rgba(247,162,27,0.06); border:1px solid rgba(247,162,27,0.18); border-radius:14px; padding:18px 20px;">
-      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
-        <p style="font-size:.78rem; font-weight:700; color:var(--gold); text-transform:uppercase; letter-spacing:.06em;">How to connect your CMMS</p>
-        <button onclick="dismissGuide()" style="background:none; border:none; color:var(--muted); font-size:.75rem; cursor:pointer; font-family:inherit; min-height:44px; display:inline-flex; align-items:center; padding:0 6px; margin-right:-6px;" data-i="dismiss">Dismiss</button>
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap; margin-bottom:16px;">
+        <p data-i="p_howtoconnectyourcmms_e726" style="font-size:.78rem; font-weight:700; color:var(--gold); text-transform:uppercase; letter-spacing:.06em; min-width:0;">How to connect your CMMS</p>
+        <button onclick="dismissGuide()" style="flex-shrink:0; background:none; border:none; color:var(--muted); font-size:.75rem; cursor:pointer; font-family:inherit; min-height:44px; display:inline-flex; align-items:center; padding:0 6px; margin-right:-6px;" data-i="dismiss">Dismiss</button>
       </div>
       <div style="display:flex; gap:0; align-items:stretch; flex-wrap:wrap;">
 
@@ -347,9 +347,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         <div style="flex:1; min-width:160px; padding:12px 14px; background:rgba(247,162,27,0.07); border-radius:10px; margin-right:8px; margin-bottom:8px;">
           <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
             <span style="width:22px; height:22px; border-radius:50%; background:rgba(247,162,27,0.2); border:1px solid rgba(247,162,27,0.4); color:var(--gold); font-size:.65rem; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0;">1</span>
-            <p style="font-size:.75rem; font-weight:700; color:var(--gold);">Import File</p>
+            <p data-i="p_importfile_173d" style="font-size:.75rem; font-weight:700; color:var(--gold);">Import File</p>
           </div>
-          <p style="font-size:.7rem; color:rgba(255,255,255,0.80); line-height:1.5;">Have old data in SAP, Maximo, or any CMMS? Export a CSV and upload it here. One upload brings your whole history into WorkHive.</p>
+          <p data-i="p_haveolddatainsapmaximooranyc_1d89" style="font-size:.7rem; color:rgba(255,255,255,0.80); line-height:1.5;">Have old data in SAP, Maximo, or any CMMS? Export a CSV and upload it here. One upload brings your whole history into WorkHive.</p>
           <button onclick="switchTab('import')" style="margin-top:10px; width:100%; padding:6px; min-height:44px; background:rgba(247,162,27,0.12); color:var(--gold); border:1px solid rgba(247,162,27,0.3); border-radius:var(--wh-radius-sm); font-size:.7rem; font-weight:600; cursor:pointer; font-family:inherit;" data-i="starthere">Start here →</button>
         </div>
 
@@ -371,7 +371,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
                orders are raised (that is genuinely automatic, from their side), and the push
                back, which cmms-push-completion fires from logbook.html when a job is closed.
                Copy now says those two things and stops promising the poll. -->
-          <p style="font-size:.7rem; color:rgba(255,255,255,0.80); line-height:1.5;">After the import, turn on Live Sync. Give your CMMS the webhook address in this tab and new work orders arrive as they are raised, with no CSV exports. You can also run a sync yourself at any time. WorkHive pushes finished jobs back to SAP automatically, as each one is closed.</p>
+          <p style="font-size:.7rem; color:rgba(255,255,255,0.80); line-height:1.5;">After the import, turn on Live Sync. Give your CMMS the webhook address in this tab. New work orders then arrive the moment someone raises them, with no CSV exports. You can also run a sync yourself at any time. WorkHive pushes each finished job back to SAP automatically when you close it.</p>
           <button onclick="switchTab('sync')" style="margin-top:10px; width:100%; padding:6px; min-height:44px; background:rgba(41,182,217,0.1); color:var(--blue); border:1px solid rgba(41,182,217,0.3); border-radius:var(--wh-radius-sm); font-size:.7rem; font-weight:600; cursor:pointer; font-family:inherit;" data-i="setupsync">Set up sync →</button>
         </div>
 
@@ -384,7 +384,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
             <span style="width:22px; height:22px; border-radius:50%; background:rgba(167,139,250,0.15); border:1px solid rgba(167,139,250,0.35); color:var(--purple); font-size:.65rem; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0;">3</span>
             <p style="font-size:.75rem; font-weight:700; color:var(--purple);">API Keys</p>
           </div>
-          <p style="font-size:.7rem; color:rgba(255,255,255,0.80); line-height:1.5;">Optional. Make a key so Power BI, custom apps, or your tools can pull WorkHive data through the API. No one touches the raw database.</p>
+          <p data-i="p_optionalmakeakeysopowerbicus_c8af" style="font-size:.7rem; color:rgba(255,255,255,0.80); line-height:1.5;">Optional. Make a key so Power BI, custom apps, or your tools can pull WorkHive data through the API. No one touches the raw database.</p>
           <button onclick="switchTab('api')" style="margin-top:10px; width:100%; padding:6px; min-height:44px; background:rgba(167,139,250,0.1); color:var(--purple); border:1px solid rgba(167,139,250,0.3); border-radius:var(--wh-radius-sm); font-size:.7rem; font-weight:600; cursor:pointer; font-family:inherit;" data-i="managekeys">Manage keys →</button>
         </div>
 
@@ -394,8 +394,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
   <!-- Mode tabs -->
   <div style="display:flex; gap:8px; margin-bottom:1.5rem; border-bottom:1px solid var(--border); padding-bottom:0;">
-    <button id="tab-import" class="wh-toggle" onclick="switchTab('import')" style="padding:0 18px; min-height:44px; box-sizing:border-box; display:inline-flex; align-items:center; background:none; border:none; border-bottom:2px solid var(--gold); color:var(--gold); font-family:inherit; font-size:.85rem; font-weight:700; cursor:pointer;" translate="no">Import File</button>
-    <button id="tab-sync" class="wh-toggle"   onclick="switchTab('sync')"   style="padding:0 18px; min-height:44px; box-sizing:border-box; display:inline-flex; align-items:center; background:none; border:none; border-bottom:2px solid transparent; color:rgba(255,255,255,0.80); font-family:inherit; font-size:.85rem; font-weight:600; cursor:pointer;" translate="no">Live Sync</button>
+    <button id="tab-import" class="wh-toggle" onclick="switchTab('import')" style="padding:0 18px; min-height:44px; box-sizing:border-box; display:inline-flex; align-items:center; background:none; border:none; border-bottom:2px solid var(--gold); color:var(--gold); font-family:inherit; font-size:.85rem; font-weight:700; cursor:pointer;" translate="no" data-i="importfile">Import File</button>
+    <button id="tab-sync" class="wh-toggle"   onclick="switchTab('sync')"   style="padding:0 18px; min-height:44px; box-sizing:border-box; display:inline-flex; align-items:center; background:none; border:none; border-bottom:2px solid transparent; color:rgba(255,255,255,0.80); font-family:inherit; font-size:.85rem; font-weight:600; cursor:pointer;" translate="no" data-i="livesync">Live Sync</button>
     <button id="tab-api" class="wh-toggle"    onclick="switchTab('api')"    style="padding:0 18px; min-height:44px; box-sizing:border-box; display:inline-flex; align-items:center; background:none; border:none; border-bottom:2px solid transparent; color:rgba(255,255,255,0.80); font-family:inherit; font-size:.85rem; font-weight:600; cursor:pointer;" translate="no">API Keys</button>
   </div>
 
@@ -403,6 +403,15 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   <div id="header-import" style="margin-bottom: 1.5rem;">
     <span style="display:inline-block; font-size:.6rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; padding:.2rem .6rem; border-radius:999px; background:rgba(247,162,27,0.14); color:var(--gold); border:1px solid rgba(247,162,27,0.28); margin-bottom:.5rem;">Phase 2 · Cold Start Solver</span>
     <h1 style="font-size:1.4rem; font-weight:800; line-height:1.2;" data-i="pctitle">Connections</h1>
+    <details class="wh-help">
+      <summary data-i="p_howthispageworks_c540">How this page works</summary>
+      <ul>
+        <li data-i="p_aconnectionisonewayunlessits_b2a7">A connection is one-way unless it says otherwise: this platform reads from your CMMS or sensors, and does not write back.</li>
+        <li data-i="p_nothingherestartssyncingunti_c36a">Nothing here starts syncing until you press Connect. Adding a credential alone changes nothing.</li>
+        <li data-i="p_ifaconnectionhasfailedtherow_aace">If a connection has failed, the row says when it last succeeded, so you can tell a broken link from a quiet one.</li>
+      </ul>
+    </details>
+
     <!-- STREAMLINE F7: integrations + plant-connections are ONE "Connections" surface
          (both connect external systems, same supervisor audience). One nav entry; this
          tab bar switches CMMS ↔ Plant/IoT. Both pages kept on disk (reachable via tabs). -->
@@ -410,15 +419,15 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <span role="tab" aria-selected="true" style="padding:7px 14px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(247,162,27,0.15); color:var(--gold); font-size:.78rem; font-weight:700; border:1px solid rgba(247,162,27,0.4);">CMMS Integration</span>
       <a role="tab" aria-selected="false" href="plant-connections.html" style="padding:7px 14px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.83); font-size:.78rem; font-weight:600; text-decoration:none; border:1px solid rgba(255,255,255,0.08);">Plant / IoT &rarr;</a>
     </div>
-    <p style="font-size:.75rem; color:var(--muted); margin-top:.25rem;">Import your existing SAP PM, Maximo, or CMMS data. WorkHive's intelligence activates on day one.</p>
+    <p data-i="p_importyourexistingsappmmaxim_435d" style="font-size:.75rem; color:var(--muted); margin-top:.25rem;">Import your existing SAP PM, Maximo, or CMMS data. WorkHive's intelligence activates on day one.</p>
     <p id="integrations-source-chip" role="status" style="margin-top:3px;"></p>
   </div>
 
   <!-- Supervisor gate message (shown if no HIVE_ID) -->
   <div id="hive-gate" class="card hidden" style="text-align:center; padding:32px;">
-    <p style="font-size:.9rem; font-weight:600; margin-bottom:8px;">Join a hive first</p>
-    <p style="font-size:.78rem; color:var(--muted); margin-bottom:16px;">You need to be part of a hive to import CMMS data.</p>
-    <a href="hive.html" class="btn btn-gold" style="text-decoration:none;">Go to Hive Board</a>
+    <p data-i="p_joinahivefirst_a3ed" style="font-size:.9rem; font-weight:600; margin-bottom:8px;">Join a hive first</p>
+    <p data-i="p_youneedtobepartofahivetoimpo_5d9f" style="font-size:.78rem; color:var(--muted); margin-bottom:16px;">You need to be part of a hive to import CMMS data.</p>
+    <a data-i="p_gotohiveboard_d82e" href="hive.html" class="btn btn-gold" style="text-decoration:none;">Go to Hive Board</a>
   </div>
 
   <!-- Wizard (shown once hive confirmed) -->
@@ -429,35 +438,35 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <div class="step-dot active" id="sd-1">
         <div class="step-inner">
           <div class="step-num">1</div>
-          <div class="step-label">Source</div>
+          <div data-i="p_source_6da1" class="step-label">Source</div>
         </div>
       </div>
       <div class="step-line"></div>
       <div class="step-dot" id="sd-2">
         <div class="step-inner">
           <div class="step-num">2</div>
-          <div class="step-label">Upload</div>
+          <div data-i="p_upload_8bdf" class="step-label">Upload</div>
         </div>
       </div>
       <div class="step-line"></div>
       <div class="step-dot" id="sd-3">
         <div class="step-inner">
           <div class="step-num">3</div>
-          <div class="step-label">Map</div>
+          <div data-i="p_map_ab47" class="step-label">Map</div>
         </div>
       </div>
       <div class="step-line"></div>
       <div class="step-dot" id="sd-4">
         <div class="step-inner">
           <div class="step-num">4</div>
-          <div class="step-label">Preview</div>
+          <div data-i="p_preview_f1fb" class="step-label">Preview</div>
         </div>
       </div>
       <div class="step-line"></div>
       <div class="step-dot" id="sd-5">
         <div class="step-inner">
           <div class="step-num">5</div>
-          <div class="step-label">Import</div>
+          <div data-i="p_import_d6fb" class="step-label">Import</div>
         </div>
       </div>
     </div>
@@ -478,39 +487,39 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         </div>
         <div class="source-card" data-type="generic" onclick="selectSource('generic')" role="button" tabindex="0" aria-pressed="false" aria-label="Import from other or generic CMMS" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
           <div class="sc-icon">📋</div>
-          <div class="sc-name">Other / Generic</div>
-          <div class="sc-desc">Any CSV from your current CMMS</div>
+          <div data-i="p_othergeneric_c32e" class="sc-name">Other / Generic</div>
+          <div data-i="p_anycsvfromyourcurrentcmms_f3d4" class="sc-desc">Any CSV from your current CMMS</div>
         </div>
         <div class="source-card" data-type="auto" onclick="selectSource('auto')" role="button" tabindex="0" aria-pressed="false" aria-label="Auto-detect CMMS source" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
           <div class="sc-icon">✨</div>
           <div class="sc-name">Auto-detect</div>
-          <div class="sc-desc">WorkHive figures it out from your columns</div>
+          <div data-i="p_workhivefiguresitoutfromyour_004f" class="sc-desc">WorkHive figures it out from your columns</div>
         </div>
       </div>
 
       <!-- Entity type selection — shown after source is picked -->
       <div id="entity-section" style="display:none; margin-top:16px; padding-top:16px; border-top:1px solid var(--border);">
-        <p style="font-size:.8rem; font-weight:700; margin-bottom:12px;">What are you importing?</p>
+        <p data-i="p_whatareyouimporting_15be" style="font-size:.8rem; font-weight:700; margin-bottom:12px;">What are you importing?</p>
         <div class="source-grid">
           <div class="source-card selected" data-entity="work_order" onclick="selectEntity('work_order')" role="button" tabindex="0" aria-pressed="true" aria-label="Import Work Orders" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
             <div class="sc-icon">🔩</div>
             <div class="sc-name">Work Orders</div>
-            <div class="sc-desc">Breakdowns, PMs, corrective jobs</div>
+            <div data-i="p_breakdownspmscorrectivejobs_f3a1" class="sc-desc">Breakdowns, PMs, corrective jobs</div>
           </div>
           <div class="source-card" data-entity="asset" onclick="selectEntity('asset')" role="button" tabindex="0" aria-pressed="false" aria-label="Import Assets or Equipment" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
             <div class="sc-icon">⚙️</div>
             <div class="sc-name">Assets / Equipment</div>
-            <div class="sc-desc">Equipment registry, tag IDs, locations</div>
+            <div data-i="p_equipmentregistrytagidslocat_106e" class="sc-desc">Equipment registry, tag IDs, locations</div>
           </div>
           <div class="source-card" data-entity="pm_schedule" onclick="selectEntity('pm_schedule')" role="button" tabindex="0" aria-pressed="false" aria-label="Import PM Schedules" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
             <div class="sc-icon">📅</div>
             <div class="sc-name">PM Schedules</div>
-            <div class="sc-desc">Maintenance plans, intervals, tasks</div>
+            <div data-i="p_maintenanceplansintervalstas_33a9" class="sc-desc">Maintenance plans, intervals, tasks</div>
           </div>
           <div class="source-card" data-entity="inventory" onclick="selectEntity('inventory')" role="button" tabindex="0" aria-pressed="false" aria-label="Import Parts or Inventory" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
             <div class="sc-icon">📦</div>
             <div class="sc-name">Parts / Inventory</div>
-            <div class="sc-desc">Spare parts, stock levels, reorder points</div>
+            <div data-i="p_sparepartsstocklevelsreorder_5682" class="sc-desc">Spare parts, stock levels, reorder points</div>
           </div>
         </div>
       </div>
@@ -522,14 +531,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
     <!-- ── STEP 2: Upload file ── -->
     <div id="step-2" class="card hidden">
-      <h2 style="font-size:.8rem; font-weight:700; margin:0 0 12px;">Upload your CMMS export file</h2>
-      <p style="font-size:.72rem; color:var(--muted); margin-bottom:16px;">Accepts CSV or Excel (.xlsx). Export your work orders from SAP (via SE16 or SM30) or any CMMS report.</p>
+      <h2 data-i="p_uploadyourcmmsexportfile_3d1b" style="font-size:.8rem; font-weight:700; margin:0 0 12px;">Upload your CMMS export file</h2>
+      <p data-i="p_acceptscsvorexcelxlsxexporty_1355" style="font-size:.72rem; color:var(--muted); margin-bottom:16px;">Accepts CSV or Excel (.xlsx). Export your work orders from SAP (via SE16 or SM30) or any CMMS report.</p>
 
       <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-input').click()" role="button" tabindex="0" aria-label="Upload CMMS export file (CSV or Excel): drop a file here or activate to browse" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
         <input type="file" id="file-input" aria-label="Upload CMMS export file (CSV or Excel)" accept=".csv,.xlsx,.xls" style="display:none;" />
         <div id="drop-icon" style="font-size:2rem; margin-bottom:10px;">📂</div>
-        <p id="drop-label" style="font-size:.85rem; font-weight:600; margin-bottom:4px;">Drop file here or click to browse</p>
-        <p style="font-size:.7rem; color:var(--muted);">CSV or Excel · Work orders, assets, or PM schedules</p>
+        <p data-i="p_dropfilehereorclicktobrowse_48a3" id="drop-label" style="font-size:.85rem; font-weight:600; margin-bottom:4px;">Drop file here or click to browse</p>
+        <p data-i="p_csvorexcelworkordersassetsor_945b" style="font-size:.7rem; color:var(--muted);">CSV or Excel · Work orders, assets, or PM schedules</p>
       </div>
 
       <div id="file-info" class="card-sm hidden" style="margin-top:12px;">
@@ -543,27 +552,27 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       </div>
 
       <div style="display:flex; justify-content:space-between; margin-top:16px;">
-        <button class="btn btn-ghost" onclick="goStep(1)">← Back</button>
-        <button class="btn btn-gold" onclick="goStep(3)" id="btn-s2-next" disabled>Next: Map Fields →</button>
+        <button class="btn btn-ghost" onclick="goStep(1)" data-i="back">← Back</button>
+        <button class="btn btn-gold" onclick="goStep(3)" id="btn-s2-next" disabled data-i="nextmapfields">Next: Map Fields →</button>
       </div>
     </div>
 
     <!-- ── STEP 3: Map fields ── -->
     <div id="step-3" class="card hidden">
       <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
-        <h2 style="font-size:.8rem; font-weight:700; margin:0;">Map your columns to WorkHive fields</h2>
+        <h2 data-i="p_mapyourcolumnstoworkhivefiel_4390" style="font-size:.8rem; font-weight:700; margin:0;">Map your columns to WorkHive fields</h2>
         <button class="btn btn-blue" style="padding:6px 14px; font-size:.75rem;" onclick="autoSuggestMapping()">✨ Auto-suggest</button>
       </div>
-      <p style="font-size:.72rem; color:var(--muted); margin-bottom:16px;">Tell WorkHive which column in your file corresponds to each field. Required fields must be mapped.</p>
+      <p data-i="p_tellworkhivewhichcolumninyou_8029" style="font-size:.72rem; color:var(--muted); margin-bottom:16px;">Tell WorkHive which column in your file corresponds to each field. Required fields must be mapped.</p>
 
       <div style="overflow-x:auto;">
         <!-- table-name-allow: CMMS integration field mapping / preview table --> <div class="wh-scroll-x"><table class="map-table">
           <thead>
             <tr>
               <th style="width:32%;">WorkHive Field</th>
-              <th style="width:13%;">Required</th>
-              <th style="width:35%;">Your Column</th>
-              <th style="width:20%;">Confidence</th>
+              <th data-i="p_required_eed6" style="width:13%;">Required</th>
+              <th data-i="p_yourcolumn_cc71" style="width:35%;">Your Column</th>
+              <th data-i="p_confidence_82fa" style="width:20%;">Confidence</th>
             </tr>
           </thead>
           <tbody id="map-tbody"></tbody>
@@ -571,14 +580,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       </div>
 
       <div style="display:flex; justify-content:space-between; margin-top:16px;">
-        <button class="btn btn-ghost" onclick="goStep(2)">← Back</button>
-        <button class="btn btn-gold" onclick="goStep(4)">Preview →</button>
+        <button class="btn btn-ghost" onclick="goStep(2)" data-i="back">← Back</button>
+        <button class="btn btn-gold" onclick="goStep(4)" data-i="preview">Preview →</button>
       </div>
     </div>
 
     <!-- ── STEP 4: Preview ── -->
     <div id="step-4" class="card hidden">
-      <h2 style="font-size:.8rem; font-weight:700; margin:0 0 4px;">Preview: first 5 rows</h2>
+      <h2 data-i="p_previewfirstrows_9ad4" style="font-size:.8rem; font-weight:700; margin:0 0 4px;">Preview: first 5 rows</h2>
       <p style="font-size:.72rem; color:var(--muted); margin-bottom:16px;" id="preview-meta"></p>
 
       <div class="preview-table-wrap">
@@ -586,11 +595,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           <thead>
             <tr>
               <th>External ID</th>
-              <th>Machine</th>
+              <th data-i="p_machine_65bb">Machine</th>
               <th>Status</th>
-              <th>Type</th>
-              <th>Hours</th>
-              <th>Created</th>
+              <th data-i="p_type_3deb">Type</th>
+              <th data-i="p_hours_9e25">Hours</th>
+              <th data-i="p_created_accf">Created</th>
             </tr>
           </thead>
           <tbody id="preview-tbody"></tbody>
@@ -600,7 +609,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <div id="preview-warnings" style="margin-top:12px;"></div>
 
       <div style="display:flex; justify-content:space-between; margin-top:16px;">
-        <button class="btn btn-ghost" onclick="goStep(3)">← Back</button>
+        <button class="btn btn-ghost" onclick="goStep(3)" data-i="back">← Back</button>
         <button class="btn btn-gold" onclick="startImport()">Import <span id="preview-count-label"></span> →</button>
       </div>
     </div>
@@ -610,25 +619,25 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
       <!-- Importing state -->
       <div id="import-progress-state">
-        <p style="font-size:.8rem; font-weight:700; margin-bottom:16px;">Importing your CMMS data...</p>
+        <p data-i="p_importingyourcmmsdata_a775" style="font-size:.8rem; font-weight:700; margin-bottom:16px;">Importing your CMMS data...</p>
         <div class="progress-bar" style="margin-bottom:8px;">
           <div class="progress-fill" id="progress-fill" style="width:0%;"></div>
         </div>
-        <p id="progress-label" style="font-size:.72rem; color:var(--muted); text-align:center;">Preparing...</p>
+        <p data-i="p_preparing_f440" id="progress-label" style="font-size:.72rem; color:var(--muted); text-align:center;">Preparing...</p>
       </div>
 
       <!-- Results state (hidden until done) -->
       <div id="import-results-state" class="hidden">
         <div style="text-align:center; margin-bottom:16px;">
           <div style="font-size:2rem; margin-bottom:6px;">✅</div>
-          <p style="font-size:.95rem; font-weight:800;">Import complete</p>
+          <p data-i="p_importcomplete_133f" style="font-size:.95rem; font-weight:800;">Import complete</p>
           <p style="font-size:.75rem; color:var(--muted); margin-top:4px;" id="results-subtitle"></p>
         </div>
 
         <div class="result-grid" id="results-chips"></div>
 
         <div id="patterns-section" class="card-sm hidden" style="margin-top:16px;">
-          <p style="font-size:.72rem; font-weight:700; color:var(--gold); text-transform:uppercase; letter-spacing:.06em; margin-bottom:10px;">Patterns WorkHive found in your data</p>
+          <p data-i="p_patternsworkhivefoundinyourd_202b" style="font-size:.72rem; font-weight:700; color:var(--gold); text-transform:uppercase; letter-spacing:.06em; margin-bottom:10px;">Patterns WorkHive found in your data</p>
           <div id="patterns-list"></div>
         </div>
 
@@ -640,13 +649,13 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
              only the region itself was absent. assertive by role, because rows silently dropped
              from an equipment import is not something to mention at the next convenient pause. -->
         <div id="import-error-section" class="card-sm hidden" role="alert" aria-live="assertive" style="margin-top:10px; border-color:rgba(248,113,113,0.2);">
-          <p style="font-size:.7rem; color:var(--red); margin-bottom:6px;">⚠ Some rows were skipped (missing required field):</p>
+          <p data-i="p_somerowswereskippedmissingre_9a25" style="font-size:.7rem; color:var(--red); margin-bottom:6px;">⚠ Some rows were skipped (missing required field):</p>
           <p id="error-detail" style="font-size:.7rem; color:rgba(255,255,255,0.80);"></p>
         </div>
 
         <div style="display:flex; gap:10px; margin-top:16px; flex-wrap:wrap;">
-          <a href="hive.html" class="btn btn-gold" style="text-decoration:none; flex:1; text-align:center;">View Hive Dashboard</a>
-          <button class="btn btn-ghost" onclick="resetWizard()" style="flex:1;">Import Another File</button>
+          <a data-i="p_viewhivedashboard_babc" href="hive.html" class="btn btn-gold" style="text-decoration:none; flex:1; text-align:center;">View Hive Dashboard</a>
+          <button class="btn btn-ghost" onclick="resetWizard()" style="flex:1;" data-i="importanotherfile">Import Another File</button>
         </div>
       </div>
 
@@ -656,8 +665,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     <div id="import-history-section" style="display:none; margin-top:16px;">
       <div class="card">
         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
-          <p style="font-size:.78rem; font-weight:700;">Import History</p>
-          <span style="font-size:.62rem; color:var(--muted);">Last 5 imports · click Undo to roll back within 24 hours</span>
+          <p data-i="p_importhistory_4e48" style="font-size:.78rem; font-weight:700;">Import History</p>
+          <span data-i="p_lastimportsclickundotorollba_39aa" style="font-size:.62rem; color:var(--muted);">Last 5 imports · click Undo to roll back within 24 hours</span>
         </div>
         <div id="import-history-list"></div>
       </div>
@@ -672,35 +681,35 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     <div style="margin-bottom:1.5rem;">
       <span style="display:inline-block; font-size:.6rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; padding:.2rem .6rem; border-radius:999px; background:rgba(167,139,250,0.12); color:var(--purple); border:1px solid rgba(167,139,250,0.3); margin-bottom:.5rem;">Phase 5 · Intelligence API</span>
       <h2 style="font-size:1.1rem; font-weight:800;">API Keys</h2>
-      <p style="font-size:.75rem; color:var(--muted); margin-top:.25rem;">Access WorkHive benchmark data from your systems. Use these keys in the Authorization header of Intelligence API calls.</p>
+      <p data-i="p_accessworkhivebenchmarkdataf_b3d2" style="font-size:.75rem; color:var(--muted); margin-top:.25rem;">Access WorkHive benchmark data from your systems. Use these keys in the Authorization header of Intelligence API calls.</p>
     </div>
 
     <div class="card">
-      <p style="font-size:.8rem; font-weight:700; margin-bottom:12px;">Generate a New API Key</p>
+      <p data-i="p_generateanewapikey_293e" style="font-size:.8rem; font-weight:700; margin-bottom:12px;">Generate a New API Key</p>
       <div style="display:flex; gap:10px; margin-bottom:10px;">
-        <label class="wh-label" for="api-key-label" style="flex-basis:100%;">Key label</label>
+        <label data-i="p_keylabel_05ea" class="wh-label" for="api-key-label" style="flex-basis:100%;">Key label</label>
         <input id="api-key-label" class="wh-input" type="text" placeholder="Label (e.g. SAP Integration, Analytics Dashboard)" style="flex:1;" />
-        <button class="btn btn-gold" onclick="generateApiKey()" style="white-space:nowrap;">Generate Key</button>
+        <button class="btn btn-gold" onclick="generateApiKey()" style="white-space:nowrap;" data-i="generatekey">Generate Key</button>
       </div>
       <div id="new-key-result" style="display:none;"></div>
     </div>
 
     <div class="card" style="margin-top:0;">
-      <p style="font-size:.8rem; font-weight:700; margin-bottom:12px;">Active Keys</p>
-      <div id="api-keys-list"><p style="font-size:.75rem; color:var(--muted);">Loading...</p></div>
+      <p data-i="p_activekeys_ddf9" style="font-size:.8rem; font-weight:700; margin-bottom:12px;">Active Keys</p>
+      <div id="api-keys-list"><p data-i="p_loading_b04b" style="font-size:.75rem; color:var(--muted);">Loading...</p></div>
     </div>
 
     <div class="card" style="background:rgba(41,182,217,0.04); border-color:rgba(41,182,217,0.15);">
       <p style="font-size:.8rem; font-weight:700; margin-bottom:8px;">API Reference</p>
       <p style="font-size:.72rem; color:var(--muted); margin-bottom:10px;">Base URL: <code style="color:var(--blue);">https://hzyvnjtisfgbksicrouu.supabase.co/functions/v1/intelligence-api</code></p>
       <div style="font-size:.72rem; line-height:1.8;">
-        <p style="margin-bottom:4px;"><code style="color:var(--gold);">?endpoint=benchmarks</code>: MTBF by equipment category (optional: &amp;category= &amp;industry=)</p>
-        <p style="margin-bottom:4px;"><code style="color:var(--gold);">?endpoint=failure-modes</code>: Top root causes (optional: &amp;period=90)</p>
-        <p style="margin-bottom:4px;"><code style="color:var(--gold);">?endpoint=report</code>: Latest intelligence report JSON</p>
-        <p style="margin-bottom:4px;"><code style="color:var(--gold);">?endpoint=ping</code>: Health check (no auth required)</p>
+        <p data-i="p_mtbfbyequipmentcategoryoptio_b098" style="margin-bottom:4px;"><code style="color:var(--gold);">?endpoint=benchmarks</code>: MTBF by equipment category (optional: &amp;category= &amp;industry=)</p>
+        <p data-i="p_toprootcausesoptionalperiod_4829" style="margin-bottom:4px;"><code style="color:var(--gold);">?endpoint=failure-modes</code>: Top root causes (optional: &amp;period=90)</p>
+        <p data-i="p_latestintelligencereportjson_3713" style="margin-bottom:4px;"><code style="color:var(--gold);">?endpoint=report</code>: Latest intelligence report JSON</p>
+        <p data-i="p_healthchecknoauthrequired_73aa" style="margin-bottom:4px;"><code style="color:var(--gold);">?endpoint=ping</code>: Health check (no auth required)</p>
       </div>
-      <p style="font-size:.7rem; color:var(--muted); margin-top:8px;">Include header: <code>Authorization: Bearer your-api-key</code></p>
-      <a href="ph-intelligence.html" class="btn btn-blue" style="display:inline-block; margin-top:10px; text-decoration:none; font-size:.75rem; padding:7px 14px;">View Latest Intelligence Report →</a>
+      <p data-i="p_includeheader_cc7f" style="font-size:.7rem; color:var(--muted); margin-top:8px;">Include header: <code>Authorization: Bearer your-api-key</code></p>
+      <a data-i="p_viewlatestintelligencereport_38ca" href="ph-intelligence.html" class="btn btn-blue" style="display:inline-block; margin-top:10px; text-decoration:none; font-size:.75rem; padding:7px 14px;">View Latest Intelligence Report →</a>
     </div>
   </div>
 
@@ -710,19 +719,32 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     data-rag-label="Sync log">
     <div style="margin-bottom:1.5rem;">
       <span style="display:inline-block; font-size:.6rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; padding:.2rem .6rem; border-radius:999px; background:rgba(41,182,217,0.12); color:var(--blue); border:1px solid rgba(41,182,217,0.3); margin-bottom:.5rem;">Tier 2 · Scheduled API Sync</span>
-      <h2 style="font-size:1.1rem; font-weight:800;">Live Sync Configuration</h2>
+      <h2 data-i="p_livesyncconfiguration_5b5a" style="font-size:1.1rem; font-weight:800;">Live Sync Configuration</h2>
       <!-- T63 (2026-08-26): said "WorkHive polls your CMMS API daily". It does not poll at all:
            26 cron jobs, none touching cmms-sync, which runs only when someone presses a button
            on this page. The incremental part was true and is kept. -->
-      <p style="font-size:.75rem; color:var(--muted); margin-top:.25rem;">Run a sync whenever you need one, or point your CMMS at the webhook address below so records arrive as they change. Either way only new and changed records are synced. No CSV exports.</p>
+      <p data-i="p_runasyncwheneveryouneedoneor_a4a9" style="font-size:.75rem; color:var(--muted); margin-top:.25rem;">Run a sync whenever you need one, or point your CMMS at the webhook address below so records arrive as they change. Either way only new and changed records are synced. No CSV exports.</p>
     </div>
 
     <!-- Existing configs -->
+    <!-- Somebody debugging a sync that stopped needs the operational record off this page: which
+         connections exist, when each last ran, how many records moved and what the last error said.
+         None of that could leave the screen. The export carries exactly those columns and NOT the
+         auth token that sits beside them in the same table, which is why it names its columns
+         explicitly instead of spreading the row. -->
+    <div style="display:flex; justify-content:flex-end; margin-bottom:8px;">
+      <button type="button" id="int-csv-btn" onclick="exportIntegrations()"
+              title="Export the connection list and sync status to CSV (no credentials)"
+              aria-label="Export the connection list and sync status to CSV, without credentials"
+              style="min-height:44px; padding:0 .9rem; display:inline-flex; align-items:center; gap:6px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:0.75rem; color:rgba(255,255,255,0.80); font-size:.75rem; font-weight:600; cursor:pointer;">
+        <span aria-hidden="true">&#8681;</span><span data-i="csv">CSV</span>
+      </button>
+    </div>
     <div id="sync-configs-list" style="margin-bottom:16px;"></div>
 
     <!-- Add / Edit config form -->
     <div class="card">
-      <p style="font-size:.82rem; font-weight:700; margin-bottom:16px;" id="sync-form-title">Configure Live Sync</p>
+      <p data-i="p_configurelivesync_bd7d" style="font-size:.82rem; font-weight:700; margin-bottom:16px;" id="sync-form-title">Configure Live Sync</p>
 
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
         <div>
@@ -730,7 +752,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           <input id="sc-label" class="wh-input" type="text" placeholder="e.g. SAP Plant PH01" />
         </div>
         <div>
-          <label for="sc-type" class="wh-label">CMMS Type</label>
+          <label data-i="p_cmmstype_c988" for="sc-type" class="wh-label">CMMS Type</label>
           <select id="sc-type" class="wh-input" data-select-placeholder-allow="default SAP_PM is the most common CMMS integration target">
             <option value="sap_pm">SAP PM (OData)</option>
             <option value="maximo">IBM Maximo (OSLC)</option>
@@ -754,26 +776,26 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           <input id="sc-token" class="wh-input" type="password" autocomplete="off" placeholder="sk-... or Bearer token" />
         </div>
         <div>
-          <label for="sc-freq" class="wh-label">Sync Schedule</label>
+          <label data-i="p_syncschedule_4ff8" for="sc-freq" class="wh-label">Sync Schedule</label>
           <!-- T63 (2026-08-26): this defaulted to Daily, saved sync_freq, and plant-connections
                rendered that value in its status table - three surfaces agreeing on a cadence that
                NOTHING runs. Nothing reads sync_freq: not a cron, not an edge function. The options
                stay so the setting is ready when a scheduler exists, but they no longer claim to be
                running, and the default is now the one that is actually true. -->
           <select id="sc-freq" class="wh-input">
-            <option value="manual" selected>Manual only</option>
-            <option value="daily">Daily (scheduled sync not available yet)</option>
-            <option value="hourly">Hourly (scheduled sync not available yet)</option>
+            <option data-i="p_manualonly_aaf6" value="manual" selected>Manual only</option>
+            <option data-i="p_dailyscheduledsyncnotavailab_1225" value="daily">Daily (scheduled sync not available yet)</option>
+            <option data-i="p_hourlyscheduledsyncnotavaila_da00" value="hourly">Hourly (scheduled sync not available yet)</option>
           </select>
-          <p style="font-size:.65rem; color:var(--muted); margin-top:.3rem; line-height:1.4;">
+          <p data-i="p_scheduledsyncingisnotrunning_dd3a" style="font-size:.65rem; color:var(--muted); margin-top:.3rem; line-height:1.4;">
             Scheduled syncing is not running yet. Today a sync happens when you run one here, or when
             your CMMS posts to the webhook address above.</p>
         </div>
       </div>
 
       <div style="display:flex; gap:10px; flex-wrap:wrap;">
-        <button class="btn btn-blue" onclick="testSyncConfig()" style="flex:1;">Test Connection</button>
-        <button class="btn btn-gold" onclick="saveSyncConfig()" style="flex:1;">Save &amp; Enable</button>
+        <button class="btn btn-blue" onclick="testSyncConfig()" style="flex:1;" data-i="testconnection">Test Connection</button>
+        <button class="btn btn-gold" onclick="saveSyncConfig()" style="flex:1;" data-i="saveampenable">Save &amp; Enable</button>
       </div>
       <div id="sync-test-result" style="display:none; margin-top:10px; font-size:.75rem; padding:8px 12px; border-radius:8px;"></div>
     </div>
@@ -781,7 +803,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     <!-- Webhook URL for inbound events (Phase 4.1) -->
     <div class="card" style="margin-top:16px;">
       <p style="font-size:.8rem; font-weight:700; margin-bottom:8px;">Webhook URL (Inbound Events)</p>
-      <p style="font-size:.72rem; color:var(--muted); margin-bottom:10px;">Configure this URL in your SAP/Maximo outbound webhook settings to receive real-time events in WorkHive.</p>
+      <p data-i="p_configurethisurlinyoursapmax_698b" style="font-size:.72rem; color:var(--muted); margin-bottom:10px;">Configure this URL in your SAP/Maximo outbound webhook settings to receive real-time events in WorkHive.</p>
       <div id="webhook-url-list"></div>
     </div>
 
@@ -792,12 +814,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     <div class="card" style="margin-top:16px;">
       <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
         <div>
-          <p style="font-size:.8rem; font-weight:700;">Sync Conflicts</p>
-          <p style="font-size:.68rem; color:var(--muted); margin-top:2px;">Records where SAP and WorkHive disagree after the last sync.</p>
+          <p data-i="p_syncconflicts_ec87" style="font-size:.8rem; font-weight:700;">Sync Conflicts</p>
+          <p data-i="p_recordswheresapandworkhivedi_5dac" style="font-size:.68rem; color:var(--muted); margin-top:2px;">Records where SAP and WorkHive disagree after the last sync.</p>
         </div>
-        <button class="btn btn-ghost" style="font-size:.72rem; padding:5px 12px;" onclick="loadConflicts()">🔄 Check Now</button>
+        <button class="btn btn-ghost" style="font-size:.72rem; padding:5px 12px;" onclick="loadConflicts()" data-i="checknow">🔄 Check Now</button>
       </div>
-      <div id="conflicts-list"><div style="font-size:.72rem; color:var(--muted);">Click "Check Now" to scan for conflicts after a sync run.</div></div>
+      <div id="conflicts-list"><div data-i="p_clickchecknowtoscanforconfli_28b0" style="font-size:.72rem; color:var(--muted);">Click "Check Now" to scan for conflicts after a sync run.</div></div>
     </div>
   </div>
 
@@ -806,6 +828,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 <!-- Scripts -->
 <script src="utils.js"></script>
 <script>
+  let _integrationConfigs = [];   // filled by the load below; read by exportIntegrations()
   // ── Auth + init ───────────────────────────────────────────────────────────
   const db = getDb(
     'https://hzyvnjtisfgbksicrouu.supabase.co',
@@ -869,6 +892,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     if (HIVE_ID) {
       try {
         const { data, error } = await db.from('integration_configs').select('*').eq('hive_id', HIVE_ID).limit(500);
+      /* W3-AR (2026-09-08): insurance cap, never truncates. A hive configures a handful of CMMS
+         connections - the largest in this database holds 15 against this ceiling of 500 - so the 500
+         exists to stop an unbounded read growing without limit, not to slice a list a reader could
+         mistake for a total. Saying "showing the first 500" beside fifteen rows would be noise. The
+         gate measures rather than takes this on trust: it fires again if any hive reaches 60% of it. */
         if (error) throw error;
         // T63 (2026-08-28): count the records whose sync actually FAILED, before rendering the
         // verdict. cmms-push-completion leaves a durable marker on every completion that did not
@@ -880,7 +908,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
             .select('external_id', { count: 'exact', head: true })
             .eq('hive_id', HIVE_ID).eq('is_error', true);
           if (typeof count === 'number') _syncErrorCount = count;
+  // module-level: the connection list the page rendered, so the CSV exports exactly what is on
+  // screen. Declared HERE, above the read that fills it - a `let` declared below its own
+  // assignment is a temporal dead zone, and this assignment is on the page-load path.
         } catch (_) { /* empty-catch-allow: the error COUNT is an extra signal; failing to read it must not cost the verdict itself */ }
+        _integrationConfigs = data || [];
         renderIntegrationsSummary(data || []);
       } catch (_) { renderIntegrationsLoadError(); }
     } else {
@@ -1018,18 +1050,23 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   }
 
   // ── VM2: the doc path (client extracts text -> vehicle-doc-extract proposes -> rows) ──
-  function vehLoadScript(src) {
+  // Same contract as `loadScriptOnce` further down this file, which has carried SHA-384 hashes for
+  // its two libraries all along - this helper was the path that did not, so `xlsx.full.min.js` was
+  // loaded hashed through one and unhashed through the other. A hash on one call site does not
+  // protect a library that a second call site fetches without one.
+  function vehLoadScript(src, integrity) {
     return new Promise((res, rej) => {
       if (document.querySelector(`script[src="${src}"]`)) return res();
       const s = document.createElement('script');
-      s.src = src; s.onload = res; s.onerror = () => rej(new Error('Could not load ' + src));
+      if (integrity) { s.integrity = integrity; s.crossOrigin = 'anonymous'; }
+      s.src = src; s.onload = res; s.onerror = () => rej(new Error(_t('Could not load ', 'Hindi ma-load ang ') + src));
       document.head.appendChild(s);
     });
   }
   async function vehExtractText(file) {
     const name = (file.name || '').toLowerCase();
     if (name.endsWith('.pdf')) {
-      await vehLoadScript('https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js');
+      await vehLoadScript('https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js', 'sha384-/1qUCSGwTur9vjf/z9lmu/eCUYbpOTgSjmpbMQZ1/CtX2v/WcAIKqRv+U1DUCG6e');
       window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
       const pdf = await window.pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
       let text = '';
@@ -1041,12 +1078,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       return { text, note: pdf.numPages > maxPages ? `read the first ${maxPages} of ${pdf.numPages} pages` : '' };
     }
     if (name.endsWith('.docx')) {
-      await vehLoadScript('https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js');
+      await vehLoadScript('https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js', 'sha384-nFoSjZIoH3CCp8W639jJyQkuPHinJ2NHe7on1xvlUA7SuGfJAfvMldrsoAVm6ECz');
       const r = await window.mammoth.extractRawText({ arrayBuffer: await file.arrayBuffer() });
       return { text: (r && r.value) || '', note: '' };
     }
     if (name.endsWith('.xlsx') || name.endsWith('.xls') || name.endsWith('.csv')) {
-      await vehLoadScript('https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js');
+      await vehLoadScript('https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js', 'sha384-vtjasyidUo0kW94K5MXDXntzOJpQgBKXmE7e2Ga4LG0skTTLeBi97eFAXsqewJjw');
       const wb = window.XLSX.read(await file.arrayBuffer(), { type: 'array' });
       let text = '';
       wb.SheetNames.slice(0, 6).forEach(n => { text += '# ' + n + '\n' + window.XLSX.utils.sheet_to_csv(wb.Sheets[n]) + '\n'; });
@@ -1070,7 +1107,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     st.textContent = 'Reading ' + (file.name || 'file') + '…';
     try {
       const { text, note } = await vehExtractText(file);
-      if (!text || text.trim().length < 40) { st.textContent = 'Could not read text from that file. Try a text-based PDF or a clearer export.'; return; }
+      if (!text || text.trim().length < 40) { st.textContent = _t('Could not read text from that file. Try a text-based PDF or a clearer export.', 'Hindi mabasa ang teksto mula sa file na iyon. Subukan ang text-based na PDF o mas malinaw na export.'); return; }
       st.textContent = 'Extracting your schedule…';
       // plain fetch, the resume-extract client precedent (db.functions.invoke measured
       // failing-to-send from this page while a direct fetch returns 200)
@@ -1098,7 +1135,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         console.error('vehicle-doc-extract call failed:', e);  // L-layer: surface AND capture
         st.textContent = (typeof whReadError === 'function'
                            ? whReadError(e, 'the document reader')
-                           : 'The document reader could not be reached.')
+                           : _t('The document reader could not be reached.', 'Hindi maabot ang document reader.'))
           + ' The template below still works.';
         return;
       } finally { clearTimeout(_t); }
@@ -1150,7 +1187,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         : 'No schedule rows or parts could be read from those pages. For a big manual, upload just the maintenance-schedule or parts-list pages - the template below still works.'];
       if (note) bits.push('Note: ' + note + '.');
       if (raw.partial) bits.push(`Only ${raw.chunks_read} of ${raw.chunks_total} sections could be read - trailing rows may be missing.`);
-      if (raw.miner_fallback) bits.push('The AI reader was unavailable; the table reader alone did this pass.');
+      if (raw.miner_fallback) bits.push(_t('The AI reader was unavailable; the table reader alone did this pass.', 'Hindi available ang AI reader; ang table reader lang ang gumawa ng pass na ito.'));
       if (raw.injection_stripped) bits.push(`${raw.injection_stripped} suspicious instruction line${raw.injection_stripped === 1 ? ' was' : 's were'} ignored.`);
       st.textContent = bits.join(' ');
     } catch (err) {
@@ -1278,8 +1315,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       document.getElementById('veh-step1-err').textContent = '';
       // taxonomy: whWriteError names the CAUSE + next step; the wizard adds its work-state honesty
       showToast((typeof whWriteError === 'function'
-                  ? whWriteError(err, 'Could not create the vehicle.')
-                  : 'Could not create the vehicle: ' + ((err && err.message) || 'unknown error') + '.')
+                  ? whWriteError(err, _t('Could not create the vehicle.', 'Hindi magawa ang sasakyan.'))
+                  : _t('Could not create the vehicle: ', 'Hindi magawa ang sasakyan: ') + ((err && err.message) || 'unknown error') + '.')
         + (failed.length ? ' Partial data may remain (' + failed.join(', ') + ').' : ' Nothing was saved.'), 6000);
       btn.disabled = false; btn.textContent = 'Create my vehicle';
     }
@@ -1297,7 +1334,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     if (!sure) return;
     const failedSteps = await vehRollback(_vehCreated);
     if (failedSteps.length) {
-      showToast('Undo was only partial - could not remove: ' + failedSteps.join(', ') + '. The rest was removed.', 6000);
+      showToast(_t('Undo was only partial - could not remove: ', 'Bahagya lang ang undo - hindi matanggal: ') + failedSteps.join(', ') + '. The rest was removed.', 6000);
       return; // keep _vehCreated so retrying Undo targets the survivors
     }
     _vehCreated = null;
@@ -1329,14 +1366,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     [1, 2, 3].forEach(n => document.getElementById('veh-step-' + n).classList.add('hidden'));
     document.getElementById('veh-receipt').classList.remove('hidden');
     document.getElementById('veh-receipt-body').innerHTML =
-      `<strong>${e(vName)}</strong> is now on your platform:`
+      `<strong>${e(vName)}</strong> ${escHtml(_t('is now on your platform:', 'ay nasa platform mo na:'))}`
       + '<ul style="margin:6px 0 10px; padding-left:20px;">'
       + `<li>1 asset in <a href="asset-hub.html" style="color:var(--gold);">Asset Hub</a> (with VIN, plate and odometer)</li>`
       + `<li>${nScope} service task${nScope === 1 ? '' : 's'} in the <a href="pm-scheduler.html" style="color:var(--gold);">PM Scheduler</a> - km-based ones come due by odometer, whichever of date or km arrives first</li>`
       + (nParts ? `<li>${nParts} starter part${nParts === 1 ? '' : 's'} in <a href="inventory.html" style="color:var(--gold);">Inventory</a>, linked to the vehicle</li>` : '')
       + '</ul>'
       + '<p style="margin:0 0 10px; color:rgba(255,255,255,0.78);">Log fuel and odometer readings in the <a href="logbook.html" style="color:var(--gold);">Logbook</a> - each odometer entry moves your service countdowns.</p>'
-      + '<button class="wh-toggle veh-box" style="min-height:44px; background:none; border:1px solid var(--border); color:rgba(255,255,255,0.82); padding:0 14px; cursor:pointer;" onclick="vehUndoCreate()">Undo - remove everything just created</button>';
+      + '<button class="wh-toggle veh-box" style="min-height:44px; background:none; border:1px solid var(--border); color:rgba(255,255,255,0.82); padding:0 14px; cursor:pointer;" onclick="vehUndoCreate()" data-i="undoremoveeverythingjustcreated">Undo - remove everything just created</button>';
   }
 
   // (vehUndoCreate is defined above vehRollback so the cascade-confirm look-back
@@ -1545,7 +1582,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         showToast('Please upload a CSV or Excel file.'); return;
       }
     } catch (_) {
-      showToast('Could not load the file parser. Check your connection and try again.');
+      showToast(_t('Could not load the file parser. Check your connection and try again.', 'Hindi ma-load ang file parser. Suriin ang koneksyon at subukan muli.'));
     }
   }
 
@@ -2250,6 +2287,62 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   let _syncErrorCount = 0;
 
   // Layer D — Plain-Read summary for Integrations.
+  // ★AN EXPORT HERE HAS TO LEAVE THE CREDENTIAL BEHIND. integration_configs carries `auth_token`
+  // beside the operational fields, so the obvious "export the connection list" would write a live
+  // bearer token into somebody's Downloads folder and, from there, into whatever email or chat the
+  // troubleshooting conversation happens in. What a person actually needs off this page is the
+  // OPERATIONAL record - which connections exist, how often they sync, when each last ran, how many
+  // records moved, and what the last error said - so that is what the file carries, by an explicit
+  // column list rather than a spread, which is the only shape that cannot silently regain a secret
+  // when a column is added to the table.
+  window.exportIntegrations = function () {
+    if (!_integrationConfigs.length) {
+      if (typeof showToast === 'function') showToast(_t('No connections to export yet.', 'Wala pang koneksyon na i-export.'));
+      return;
+    }
+    // built from char codes so no editing tool or shell can mangle the escapes: CR LF and the
+    // byte-order mark Excel needs to read UTF-8
+    const CRLF = String.fromCharCode(13, 10);
+    const BOM  = String.fromCharCode(0xFEFF);
+    const esc = (v) => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+    const cols = ['Label', 'System', 'Endpoint', 'Auth Method', 'Sync Frequency', 'Enabled',
+                  'Last Sync At', 'Records Last Sync', 'Last Sync Status', 'Last Sync Error'];
+    const rows = _integrationConfigs.map((c) => [
+      c.label, c.system_type, c.endpoint_url, c.auth_method, c.sync_freq,
+      c.enabled === false ? 'No' : 'Yes',
+      c.last_sync_at ? (typeof whFmtDate === 'function' ? whFmtDate(c.last_sync_at, { time: true }) : c.last_sync_at) : '',
+      c.last_sync_count, c.last_sync_status, c.last_sync_error,
+    ].map(esc).join(','));
+    const enabled = _integrationConfigs.filter((c) => c.enabled !== false).length;
+    const meta = [
+      'WorkHive CMMS integrations export',
+      /* ★THE SCOPE LINE PRINTED A UUID, WHICH IS THE ONE THING IT MUST NOT (2026-09-09, walked live).
+         This guarded on a global HIVE_NAME that integrations.html NEVER DECLARES - `typeof HIVE_NAME`
+         is "undefined" here - so the ternary always took its last branch and every exported file said
+         "Hive: 084c113b-99c0-45c6-a8e8-b4b8349da46d". A preamble exists so the file still says what it
+         is once it leaves the page; a uuid says nothing to the person holding it. The name is in
+         localStorage, where the chrome keeps it, so read it from there and keep the id only as the very
+         last resort - and label it, so even that fallback reads as an identifier rather than a name. */
+      'Hive: ' + ((typeof HIVE_NAME !== 'undefined' && HIVE_NAME)
+        || (function () { try { return localStorage.getItem('wh_hive_name'); } catch (_) { return ''; } })()
+        || (HIVE_ID ? 'id ' + HIVE_ID : 'this hive')),
+      'Connections: ' + _integrationConfigs.length + ' (' + enabled + ' enabled)',
+      'Credentials: NOT included - auth tokens never leave this page',
+      'Exported: ' + (typeof whFmtDate === 'function' ? whFmtDate(new Date().toISOString(), { time: true }) : new Date().toISOString()),
+    ].map(esc).join(CRLF);
+    const csv = meta + CRLF + CRLF + cols.map(esc).join(',') + CRLF + rows.join(CRLF);
+    const blob = new Blob([BOM + csv], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'workhive-integrations-' + new Date().toISOString().slice(0, 10) + '.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    if (typeof showToast === 'function') showToast(_t('Exported ' + rows.length + ' connections.', 'Na-export ang ' + rows.length + ' na koneksyon.'));
+  };
+
   function renderIntegrationsSummary(configs) {
     const now = Date.now();
     const stale_cutoff = 7 * 86400 * 1000;
@@ -2290,17 +2383,23 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
     let tone, label, sub;
     if (stale.length > 0) {
-      tone = 'attn'; label = `${stale.length} integration${stale.length === 1 ? '' : 's'} stale`;
-      sub  = 'Open the Live Sync tab and click into each stale row: usually an expired API key or a changed endpoint URL.';
+      tone = 'attn'; label = _t(`${stale.length} integration${stale.length === 1 ? '' : 's'} stale`,
+                                `${stale.length} integration ang luma na`);
+      sub  = _t('Open the Live Sync tab and click into each stale row: usually an expired API key or a changed endpoint URL.',
+                'Buksan ang Live Sync tab at pindutin ang bawat lumang row: kadalasan ay expired na API key o nabagong endpoint URL.');
     } else if (configs.length === 0) {
-      tone = 'empty'; label = 'No integrations configured yet';
-      sub  = 'Start with Import File to load your old CMMS history. Then add Live Sync for daily updates.';
+      tone = 'empty'; label = _t('No integrations configured yet', 'Wala pang na-configure na integration');
+      sub  = _t('Start with Import File to load your old CMMS history. Then add Live Sync for daily updates.',
+                'Magsimula sa Import File para i-load ang lumang CMMS history mo. Tapos magdagdag ng Live Sync para sa araw-araw na update.');
     } else if (active.length === 0 && configs.length > 0) {
-      tone = 'watch'; label = 'No integrations syncing right now';
-      sub  = 'All your configs are either disabled or never-synced. Re-enable or run a manual sync from the Live Sync tab.';
+      tone = 'watch'; label = _t('No integrations syncing right now', 'Walang integration na nagsi-sync ngayon');
+      sub  = _t('All your configs are either disabled or never-synced. Re-enable or run a manual sync from the Live Sync tab.',
+                'Lahat ng config mo ay naka-disable o hindi pa nagsi-sync. I-enable muli o magpatakbo ng manual sync mula sa Live Sync tab.');
     } else {
-      tone = 'healthy'; label = `${active.length} CMMS integration${active.length === 1 ? '' : 's'} healthy`;
-      sub  = `${active.length} fresh · ${disabled.length} off · 0 stale. SAP / Maximo / generic CSV all syncing as expected.`;
+      tone = 'healthy'; label = _t(`${active.length} CMMS integration${active.length === 1 ? '' : 's'} healthy`,
+                                   `${active.length} CMMS integration ang malusog`);
+      sub  = _t(`${active.length} fresh · ${disabled.length} off · 0 stale. SAP / Maximo / generic CSV all syncing as expected.`,
+                `${active.length} sariwa · ${disabled.length} naka-off · 0 luma. Ang SAP / Maximo / generic CSV ay nagsi-sync nang tama.`);
     }
     const vBox = document.getElementById('it-verdict');
     if (vBox) { vBox.classList.remove('healthy','watch','attn','empty'); vBox.classList.add(tone); }
@@ -2319,15 +2418,21 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       // status this page used to read). The one signal that a finished job never reached the CMMS
       // now reaches the person who can do something about it.
       if (_syncErrorCount > 0) {
-        text = `${_syncErrorCount} record${_syncErrorCount === 1 ? '' : 's'} failed to sync with your CMMS `
-             + `(finished jobs pushed back, or records pulled in, that did not go through). `
-             + `These are kept and can be re-synced. Check the connection in the Live Sync tab below, then run a sync.`;
+        text = _t(`${_syncErrorCount} record${_syncErrorCount === 1 ? '' : 's'} failed to sync with your CMMS. `
+             + `These are the sync jobs that failed, in either direction. `
+             + `They are kept and can be re-synced. Check the connection in the Live Sync tab below, then run a sync.`,
+                  `${_syncErrorCount} record ang hindi na-sync sa CMMS mo. `
+             + `Ito ang mga sync job na nabigo, sa alinmang direksyon. `
+             + `Nananatili ang mga ito at pwedeng i-sync muli. Suriin ang koneksyon sa Live Sync tab sa ibaba, tapos magpatakbo ng sync.`);
       } else if (configs.length === 0) {
-        text = 'No integrations yet. Click the "Import File" tab below. Drop a CSV from your CMMS. You get history on day one. Then turn on Live Sync for daily updates.';
+        text = _t('No integrations yet. Click the "Import File" tab below. Drop a CSV from your CMMS. You get history on day one. Then turn on Live Sync for daily updates.',
+                  'Wala pang integration. Pindutin ang "Import File" tab sa ibaba. Mag-drop ng CSV mula sa CMMS mo. May history ka na sa unang araw. Tapos buksan ang Live Sync para sa araw-araw na update.');
       } else if (stale.length > 0) {
-        text = `${stale.length} stale integration${stale.length === 1 ? '' : 's'}. Open the Live Sync tab below, click the row, and check (1) API key not expired, (2) endpoint URL still reachable, (3) auth method still matches the CMMS side.`;
+        text = _t(`${stale.length} stale integration${stale.length === 1 ? '' : 's'}. Open the Live Sync tab below, click the row, and check (1) API key not expired, (2) endpoint URL still reachable, (3) auth method still matches the CMMS side.`,
+                  `${stale.length} lumang integration. Buksan ang Live Sync tab sa ibaba, pindutin ang row, at suriin ang (1) hindi pa expired ang API key, (2) naaabot pa ang endpoint URL, (3) tugma pa ang auth method sa panig ng CMMS.`);
       } else if (disabled.length > 0 && active.length > 0) {
-        text = 'Some integrations are disabled. If you no longer need them, delete the config row to keep this page clean. If they are paused, re-enable from the Live Sync tab.';
+        text = _t('Some integrations are disabled. If you no longer need them, delete the config row to keep this page clean. If they are paused, re-enable from the Live Sync tab.',
+                  'May ilang integration na naka-disable. Kung hindi mo na kailangan, burahin ang config row para manatiling malinis ang page. Kung naka-pause lang, i-enable muli mula sa Live Sync tab.');
       } else if (disabled.length > 0) {
         // T63 (2026-08-25): with 12 disabled and 0 active, the old else said "Everything is
         // syncing." directly under a hero reading "No integrations syncing right now" - two
@@ -2348,10 +2453,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     const vBox = document.getElementById('it-verdict');
     if (vBox) { vBox.classList.remove('healthy','watch','attn','empty'); vBox.classList.add('attn'); }
     const vIcon = document.getElementById('it-verdict-icon'); if (vIcon) vIcon.textContent = '⚠';
-    const vLbl  = document.getElementById('it-verdict-label'); if (vLbl)  vLbl.textContent  = "Couldn't load your integrations";
+    const vLbl  = document.getElementById('it-verdict-label'); if (vLbl)  vLbl.textContent  = _t("Couldn't load your integrations", "Hindi ma-load ang mga integration mo");
     const vSb   = document.getElementById('it-verdict-sub');   if (vSb)   vSb.textContent   = 'Check your connection and refresh.';
     const actBox = document.getElementById('it-action-text');
-    if (actBox) actBox.textContent = "We couldn't reach the integrations service, so this is not a confirmed \"nothing configured\" state. Refresh the page to try again.";
+    if (actBox) actBox.textContent = _t("We couldn't reach the integrations service, so this is not a confirmed \"nothing configured\" state. Refresh the page to try again.", "Hindi namin maabot ang integrations service, kaya hindi ito kumpirmadong \\\"walang naka-configure\\\" na state. I-refresh ang page para subukan muli.");
   }
 
   async function loadSyncConfigs() {
@@ -2375,7 +2480,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     if (error) {
       // A5 outage honesty: a real read failure must NOT render as fake-empty.
       renderIntegrationsLoadError();
-      if (typeof showToast === 'function') showToast("Couldn't load integrations. Check your connection and refresh.");
+      if (typeof showToast === 'function') showToast(_t("Couldn't load integrations. Check your connection and refresh.", "Hindi ma-load ang mga integration. Suriin ang koneksyon at i-refresh."));
       if (list) list/* xss-allow: static error copy, no interpolation */ .innerHTML = '<p style="font-size:.75rem; color:var(--red);">Couldn\'t load your live sync configs. Check your connection and refresh.</p>';
       return;
     }
@@ -2412,8 +2517,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           <p style="font-size:.7rem; color:var(--muted);">${escHtml(c.system_type.toUpperCase())} · ${escHtml(c.sync_freq || 'manual')} · last: <span style="color:${statusColor};">${lastSync}</span>${statusBadge}${c.last_sync_count ? ' · ' + c.last_sync_count + ' records' : ''}</p>
         </div>
         <div style="display:flex; gap:6px;">
-          <button class="btn btn-blue" style="padding:6px 12px; font-size:.72rem;" onclick="runSync('${c.id}')">Run Now</button>
-          <button class="btn btn-ghost" style="padding:6px 12px; font-size:.72rem;" onclick="editConfig('${c.id}')">Edit</button>
+          <button class="btn btn-blue" style="padding:6px 12px; font-size:.72rem;" onclick="runSync('${c.id}')" data-i="runnow">Run Now</button>
+          <button class="btn btn-ghost" style="padding:6px 12px; font-size:.72rem;" onclick="editConfig('${c.id}')" data-i="edit">Edit</button>
         </div>
       </div>`;
     }).join('');
@@ -2442,11 +2547,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       let _q = db.from('integration_configs').update(row).eq('id', _editingConfigId);
       if (_editingConfigUpdatedAt) _q = _q.eq('updated_at', _editingConfigUpdatedAt);
       const { data: _updRows, error: updErr } = await _q.select('id');
-      if (updErr) { showToast(whWriteError(updErr, 'Could not update the config. Nothing changed; try again.')); return; }
+      if (updErr) { showToast(whWriteError(updErr, _t('Could not update the config. Nothing changed; try again.', 'Hindi ma-update ang config. Walang nagbago; subukan muli.'))); return; }
       if (_updRows && _updRows.length === 0) { showToast('This connector was changed by someone else, reload and re-edit.'); return; }
     } else {
       const { error: insErr } = await db.from('integration_configs').insert(row);
-      if (insErr) { showToast(whWriteError(insErr, 'Could not save the config. Nothing was stored; try again.')); return; }
+      if (insErr) { showToast(whWriteError(insErr, _t('Could not save the config. Nothing was stored; try again.', 'Hindi ma-save ang config. Walang na-store; subukan muli.'))); return; }
     }
     _editingConfigId = null;
     document.getElementById('sc-label').value = '';
@@ -2474,7 +2579,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     // Save a temp config and do a test sync
     const tmpRow = { hive_id: HIVE_ID, system_type: type, label: 'test', endpoint_url: url, auth_token: token || null, sync_freq: 'manual', enabled: false };
     const { data: inserted } = await db.from('integration_configs').insert(tmpRow).select('id').single();
-    if (!inserted) { resEl.textContent = 'Could not create test config.'; return; }
+    if (!inserted) { resEl.textContent = _t('Could not create test config.', 'Hindi magawa ang test config.'); return; }
 
     const { data, error } = await db.functions.invoke('cmms-sync', { body: { hive_id: HIVE_ID, config_id: inserted.id, test: true } });
     await db.from('integration_configs').delete().eq('id', inserted.id);
@@ -2500,7 +2605,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     showToast('Sync started...');
     try {
       const { data, error } = await db.functions.invoke('cmms-sync', { body: { hive_id: HIVE_ID, config_id: configId } });
-      if (error) { showToast(whWriteError(error, 'The sync did not start. Check the config row and try again.')); return; }
+      if (error) { showToast(whWriteError(error, _t('The sync did not start. Check the config row and try again.', 'Hindi nag-start ang sync. Suriin ang config row at subukan muli.'))); return; }
       const r = data?.results?.[0];
       // r.error is the sync fn's own sentence (server-composed, human) - surface it; fall back if empty.
       if (r?.error) showToast(String(r.error).length < 200 ? ('Sync failed: ' + r.error) : 'The sync failed on the CMMS side. Open the Live Sync tab and check the config row.');
@@ -2544,12 +2649,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     const { error } = await db.from('api_keys').insert({
       hive_id: HIVE_ID, key_prefix: prefix, key_hash: keyHash, label, enabled: true
     });
-    if (error) { showToast(whWriteError(error, 'That did not go through. Nothing changed; try again.')); return; }
+    if (error) { showToast(whWriteError(error, _t('That did not go through. Nothing changed; try again.', 'Hindi iyon natuloy. Walang nagbago; subukan muli.'))); return; }
 
     const resEl = document.getElementById('new-key-result');
     resEl.style.display = 'block';
     resEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `<div style="background:rgba(74,222,128,0.08); border:1px solid rgba(74,222,128,0.25); border-radius:8px; padding:12px 14px; margin-bottom:4px;">
-      <p style="font-size:.72rem; color:var(--green); font-weight:700; margin-bottom:6px;">✓ API key generated: copy it now, it won't be shown again.</p>
+      <p style="font-size:.72rem; color:var(--green); font-weight:700; margin-bottom:6px;">✓ ${escHtml(_t(`API key generated: copy it now, it won't be shown again.`, 'Nagawa na ang API key: kopyahin ito ngayon, hindi na ito ipapakita ulit.'))}</p>
       <code style="font-size:.78rem; color:var(--text); word-break:break-all;">${escHtml(rawKey)}</code>
       <button onclick="navigator.clipboard.writeText('${escJsAttr(rawKey)}').then(()=>showToast('Copied!'))" style="display:block; margin-top:8px; padding:5px 12px; background:rgba(74,222,128,0.12); color:var(--green); border:1px solid rgba(74,222,128,0.3); border-radius:6px; font-size:.72rem; cursor:pointer; font-family:inherit;">Copy Key</button>
     </div>`;
@@ -2570,7 +2675,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           <p style="font-size:.8rem; font-weight:600;">${escHtml(k.label || 'Unnamed')}</p>
           <p style="font-size:.7rem; color:var(--muted);">${escHtml(k.key_prefix)}... · ${k.call_count || 0} calls · last: ${last}</p>
         </div>
-        <button onclick="revokeKey('${k.id}')" style="padding:5px 12px; background:rgba(248,113,113,0.08); color:var(--red); border:1px solid rgba(248,113,113,0.25); border-radius:6px; font-size:.72rem; cursor:pointer; font-family:inherit;">Revoke</button>
+        <button onclick="revokeKey('${k.id}')" style="padding:5px 12px; background:rgba(248,113,113,0.08); color:var(--red); border:1px solid rgba(248,113,113,0.25); border-radius:6px; font-size:.72rem; cursor:pointer; font-family:inherit;" data-i="revoke">Revoke</button>
       </div>`;
     }).join('');
   }
@@ -2613,7 +2718,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
               <div style="font-size:.75rem; font-weight:600;">${escHtml(row.entity_type || 'work_order')} · ${escHtml((row.system_type || '').replace('sap_pm','SAP PM').replace('maximo','Maximo').replace('generic','Generic'))}</div>
               <div style="font-size:.62rem; color:var(--muted); margin-top:2px;">${dt} · ${row.rows_written} written${row.rows_failed ? ` · ${row.rows_failed} failed` : ''}${avgQ !== null ? ` · <span style="color:${qColor};">${avgQ}% quality</span>` : ''}</div>
             </div>
-            ${canUndo ? `<button onclick="rollbackBatch('${escJsAttr(row.batch_id)}','${escJsAttr(row.entity_type)}','${escJsAttr(row.triggered_by || '')}','${escJsAttr(row.created_at)}')" style="padding:4px 12px; background:rgba(248,113,113,0.08); color:var(--red); border:1px solid rgba(248,113,113,0.25); border-radius:6px; font-size:.68rem; font-weight:700; cursor:pointer; font-family:inherit; white-space:nowrap;">↩ Undo</button>` : `<span style="font-size:.6rem; color:var(--muted);">Expired</span>`}
+            ${canUndo ? `<button onclick="rollbackBatch('${escJsAttr(row.batch_id)}','${escJsAttr(row.entity_type)}','${escJsAttr(row.triggered_by || '')}','${escJsAttr(row.created_at)}')" style="padding:4px 12px; background:rgba(248,113,113,0.08); color:var(--red); border:1px solid rgba(248,113,113,0.25); border-radius:6px; font-size:.68rem; font-weight:700; cursor:pointer; font-family:inherit; white-space:nowrap;" data-i="undo">↩ Undo</button>` : `<span style="font-size:.6rem; color:var(--muted);">Expired</span>`}
           </div>`;
       }).join('');
     } catch (_) { /* cmms_audit_log may not exist yet */ /* empty-catch-allow: best-effort silent swallow */ }
@@ -2823,7 +2928,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       }
 
       listEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
-        <div style="font-size:.68rem; color:var(--muted); margin-bottom:10px;">${conflicts.length} conflict${conflicts.length > 1 ? 's' : ''} detected: SAP and WorkHive disagree on status.</div>
+        <div style="font-size:.68rem; color:var(--muted); margin-bottom:10px;">${conflicts.length} ${_t(`conflict${conflicts.length > 1 ? 's' : ''} detected: SAP and WorkHive disagree on status.`, 'conflict ang natukoy: hindi magkasundo ang SAP at WorkHive sa status.')}</div>
         ${conflicts.map(c => `
           <div style="background:var(--card); border:1px solid rgba(248,113,113,0.2); border-radius:8px; padding:10px 12px; margin-bottom:8px;">
             <div style="font-size:.75rem; font-weight:700; margin-bottom:6px;">${escHtml(c.machine)}</div>
@@ -2862,9 +2967,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         // SAP wins: bring the logbook entry into line with the external record.
         const { data, error } = await db.from('logbook')
           .update({ status }).eq('id', logId).select('id');
-        if (error) { showToast(whWriteError(error, 'The resolution was not recorded. Nothing changed; try again.')); return; }
+        if (error) { showToast(whWriteError(error, _t('The resolution was not recorded. Nothing changed; try again.', 'Hindi naitala ang resolution. Walang nagbago; subukan muli.'))); return; }
         if (!data || data.length === 0) {
-          showToast('Could not update that entry. A logbook entry can only be changed by the worker who wrote it, so ask them to set it to "' + status + '".', '⚠️');
+          showToast(_t('Could not update that entry. A logbook entry can only be changed by the worker who wrote it, so ask them to set it to "', 'Hindi ma-update ang entry na iyon. Ang worker lang na sumulat ng logbook entry ang puwedeng magbago nito, kaya hilingin sa kanila na itakda ito sa "') + status + '".', '⚠️');
           return;
         }
         showToast('Resolved: logbook updated to match SAP.');
@@ -2874,9 +2979,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         const { data, error } = await db.from('external_sync')
           .update({ status }).eq('external_id', extId).eq('hive_id', HIVE_ID)
           .eq('entity_type', 'work_order').select('external_id');
-        if (error) { showToast(whWriteError(error, 'The resolution was not recorded. Nothing changed; try again.')); return; }
+        if (error) { showToast(whWriteError(error, _t('The resolution was not recorded. Nothing changed; try again.', 'Hindi naitala ang resolution. Walang nagbago; subukan muli.'))); return; }
         if (!data || data.length === 0) {
-          showToast('Could not update the external record: it is no longer present for this hive.', '⚠️');
+          showToast(_t('Could not update the external record: it is no longer present for this hive.', 'Hindi ma-update ang external record: wala na ito para sa hive na ito.'), '⚠️');
           return;
         }
         showToast('Kept WorkHive status. SAP will receive the update on next push.');
@@ -2884,7 +2989,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       loadConflicts();
     } catch (e) {
       console.error('integrations resolution failed:', e);
-      showToast(whWriteError(e, 'The resolution was not recorded. Nothing changed; try again.'));
+      showToast(whWriteError(e, _t('The resolution was not recorded. Nothing changed; try again.', 'Hindi naitala ang resolution. Walang nagbago; subukan muli.')));
     }
   }
 

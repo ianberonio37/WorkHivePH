@@ -1,0 +1,18 @@
+{
+ "_doc": "marketplace-admin.html: English visible text -> Filipino, authored. Empty = not yet translated. tools/i18n_page_dict.py --apply tags the element and emits WH_FIL_PAGE.",
+ "Marketplace Admin has moved": "Lumipat na ang Marketplace Admin",
+ "Listing / seller / dispute VOLUMES are now live Grafana panels; approve / verify / resolve\n      ACTIONS moved to the Platform Actions page (Grafana also alerts you when a queue has items).": "Live Grafana panel na ngayon ang mga VOLUME ng listing / seller / dispute; lumipat sa Platform Actions page ang mga AKSYON na approve / verify / resolve.",
+ "📊 Founder Ops dashboard →": "",
+ "⚡ Platform Actions →": "",
+ "Grafana access: see the infra operator notes.": "Grafana access: tingnan ang mga tala ng infra operator.",
+ "No items match those filters.": "Walang item na tumutugma sa mga filter na iyon.",
+ "Marketplace Admin": "",
+ "Review listings, verify sellers, manage disputes": "I-review ang mga listing, i-verify ang mga seller, pamahalaan ang mga dispute",
+ "Supervisor": "",
+ "How this page works": "Paano gumagana ang page na ito",
+ "Three queues: listings to review, sellers to verify, disputes to resolve. Every action you take here is audit-logged.": "Tatlong queue: mga listing na ire-review, seller na ive-verify, dispute na reresolbahin. Bawat aksyon mo rito ay naka-audit-log.",
+ "Pending Review": "Naghihintay ng Review",
+ "Published": "Nai-publish",
+ "Sellers": "Mga Seller",
+ "Pending Verification": "Naghihintay ng Verification"
+}

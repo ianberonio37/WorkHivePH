@@ -136,7 +136,7 @@ serveObserved("semantic-fact-extractor", async (req) => {
   if (healthResp) return healthResp;
 
   if (req.method !== "POST") {
-    return new Response(JSON.stringify({ error: "Method not allowed" }), {
+    return new Response(JSON.stringify({ error: "That action is not allowed here. Reload the page and try again." }), {
       status: 405, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
@@ -146,7 +146,7 @@ serveObserved("semantic-fact-extractor", async (req) => {
 
   let body: { hive_id?: string; since?: string; limit?: number; max_groups?: number } = {};
   try { body = await req.json(); } catch {
-    return fail(ctx, "bad_request", "Invalid JSON body", { status: 400 });
+    return fail(ctx, "bad_request", "That request could not be read. Reload the page and try again.", { status: 400 });
   }
   if (!body.hive_id) {
     return fail(ctx, "bad_request", "Missing required field: hive_id", { status: 400 });

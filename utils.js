@@ -85,7 +85,10 @@
     if (/\b401\b|\b403\b|jwt|not authenticated|session expired|row-level security|42501|permission denied/i.test(m))
       return T('Your session has expired. Sign in again, then retry - your typed work is still on this page.',
                'Nag-expire na ang session mo. Mag-sign in ulit, tapos subukan muli - nasa page pa rin ang na-type mo.');
-    if (/\b429\b|rate.?limit|too many|quota|exhaust/i.test(m)) {
+    // "call limit|limit reached" (EX-AT, 2026-09-07): rate-limit.ts's OWN sentence is "AI call limit reached for this
+    // hive…" - a page that re-throws that body as an Error reached this mapper with the platform's words and missed
+    // every token here, so the refusal fell through to the caller's generic fallback.
+    if (/\b429\b|rate.?limit|too many|quota|exhaust|call limit|limit reached/i.test(m)) {
       /* T39 (2026-08-28): the SERVER knows exactly when the limit clears - every deny in
          _shared/rate-limit.ts now carries retry_after_seconds and a Retry-After header - and this
          sentence still said "a moment". "A moment" is the one thing a person cannot act on: they
@@ -856,6 +859,24 @@ if (typeof window !== 'undefined') window.whCleanNumericPaste = whCleanNumericPa
  * SELF-EXPIRY IS NOT OPTIONAL, and omitting it once broke three unrelated measurements: a pinned notice
  * makes a transient failure look permanent to a person, and it contaminated a later probe that read a
  * stale "Your session expired" and scored four innocent pages as blaming the session. */
+/* ★NOBODY COULD SAY WHICH VERSION BROKE (2026-09-06, layer CI, §LX). Not one page carried a build or
+ * version identifier a person could find and quote - so "it broke on my screen" arrived with no way to
+ * know whether they were even running the code that was fixed. The honest answer is not a constant
+ * stamped at build time, which says what SHOULD be deployed; it is the shell version the person's own
+ * browser is serving from, which is what they are actually looking at. The service worker names its
+ * cache `workhive-shell-vNNN` and bumps it on every shell change, so that name IS the answer.
+ * Returns '' when there is no service worker (a fresh visit, a browser with SW disabled) rather than
+ * inventing a number - an unknown version must read as unknown. */
+async function whBuildVersion() {
+  try {
+    if (!('caches' in window)) return '';
+    var keys = await caches.keys();
+    var shell = keys.filter(function (k) { return /^workhive-shell-v/.test(k); }).sort().pop();
+    return shell ? shell.replace('workhive-shell-', '') : '';
+  } catch (e) { void e; return ''; }   /* empty-catch-allow: a version we cannot read is reported as unknown */
+}
+if (typeof window !== 'undefined') window.whBuildVersion = whBuildVersion;
+
 function _whShowNotice(id, msg, bottomPx) {
   var el = document.getElementById(id);
   if (!el) {
@@ -870,7 +891,102 @@ function _whShowNotice(id, msg, bottomPx) {
       + 'box-shadow:0 8px 28px rgba(0,0,0,0.45)';
     (document.body || document.documentElement).appendChild(el);
   }
-  el.textContent = msg;
+  // ★THE NOTICE TOLD PEOPLE TO TRY AGAIN AND GAVE THEM NOTHING TO PRESS (2026-09-06, gate
+  // db-pages-data-degradation, T40). Measured with every Supabase read aborted: 13 of 14 pages SAY the read
+  // failed, and on six of them - platform-actions, analytics, assistant, engineering-design, founder-console,
+  // marketplace-admin - the only thing on screen was this notice, with no control anywhere. "Check your
+  // connection and try again" is guidance a person cannot act on without reloading the whole page by hand, and
+  // the fix belongs HERE for the same reason the notice itself does: one install at the transport rather than a
+  // control bolted onto every page. A page that can re-read more cheaply than a full reload says so by defining
+  // window.whPageRetry; everything else gets the reload, which is what analytics already told people to do.
+  el.textContent = '';
+  var _msg = document.createElement('span');
+  _msg.textContent = msg;
+  el.appendChild(_msg);
+  var _rb = document.createElement('button');
+  _rb.type = 'button';
+  _rb.className = 'wh-notice-retry';
+  // ★AN EXPIRED SESSION NEEDS A WAY IN, NOT A RELOAD (2026-09-07, T38, gate expiry-midwrite). Measured
+  // by expiring a session between typing and saving: the page says the right thing - "Your session has
+  // expired. Sign in again, then retry - your typed work is still on this page" - and it keeps the work,
+  // and then offers nothing to press. Telling someone to sign in with no way to do it from where they
+  // are stand leaves reloading as the only exit, which is the one action that throws the work away. The
+  // return path carries the page they were on, so signing in brings them back to it.
+  var _isSession = /session|sign in again|log in again|expired/i.test(String(msg || ''));
+  _rb.textContent = _isSession ? 'Sign in' : ((typeof window.whPageRetry === 'function') ? 'Retry' : 'Reload');
+  _rb.style.cssText = 'margin-left:10px;padding:4px 12px;border-radius:8px;font-size:12px;font-weight:600;'
+    + 'cursor:pointer;background:rgba(253,201,201,0.14);color:#FDC9C9;border:1px solid rgba(253,201,201,0.45);'
+    + 'min-height:32px;vertical-align:middle';
+  _rb.addEventListener('click', function () {
+    if (_isSession) {
+      var _here = location.pathname.split('/').pop() || 'index.html';
+      location.href = 'index.html?signin=1&return=' + encodeURIComponent(_here + location.search);
+      return;
+    }
+    if (typeof window.whPageRetry === 'function') {
+      _rb.disabled = true;
+      try { window.whPageRetry(); } catch (e) { void e; location.reload(); }   // a retry that throws still recovers
+      var n2 = document.getElementById(id);
+      if (n2 && n2.parentNode) n2.parentNode.removeChild(n2);
+    } else {
+      location.reload();
+    }
+  });
+  el.appendChild(_rb);
+  // ★THE PERSON HAD NOTHING TO QUOTE (2026-09-06, layer L, §LX, gate failure-traceable). Every page
+  // told them the read had failed and not one gave them a handle on WHICH failure - no time, no
+  // version, no code - so a report arrived as "it broke earlier" and could not be matched to any
+  // record. A browser-side failure has no server trace id by definition (the transport is the thing
+  // that broke), so the honest handle is what this client can state for itself: the moment, and the
+  // shell version it is running. Both are matchable against the logs by hand, which is exactly what
+  // support needs and what "something went wrong" never gave them.
+  var _ref = document.createElement('span');
+  _ref.className = 'wh-notice-ref';
+  _ref.style.cssText = 'display:block;margin-top:6px;font-size:11px;opacity:0.72;letter-spacing:0.02em';
+  var _now = new Date();
+  var _hhmmss = String(_now.getHours()).padStart(2, '0') + ':' + String(_now.getMinutes()).padStart(2, '0')
+              + ':' + String(_now.getSeconds()).padStart(2, '0');
+  _ref.textContent = 'ref ' + _hhmmss;
+  el.appendChild(_ref);
+  if (typeof whBuildVersion === 'function') {
+    whBuildVersion().then(function (v) { if (v) _ref.textContent = 'ref ' + _hhmmss + ' · app ' + v; },
+                          function () { /* a version we cannot read simply does not appear */ });
+  }
+  // ★A NOTICE AT A HARD-CODED OFFSET LANDS ON WHATEVER IS ALREADY STACKED THERE (2026-09-10, walked
+  // on marketplace at 390 as a buyer). The notice slots are literals - 88px, 160px, 232px - while the
+  // bottom chrome above them is POSITIONED AT RUNTIME by nav-hub's shared FAB lift, so the two plans
+  // do not know about each other. Measured: the page-guide chip renders 195x64 with its top 196px
+  // above the viewport bottom, and the service-worker update notice anchors at bottom:160px and is
+  // 99px tall - so the notice covers the chip from 160 to 196, a 36px band across its full 195px
+  // width, 56% of the smaller element. V1 caught it as "widgets overlap: wh-guide-link x
+  // wh-update-notice". It reaches a real person after every real deploy, on any page carrying the
+  // guide chip, and the guide chip has form for exactly this ([[feedback_a_page_guide_chip_covered_every_modals_save]]).
+  // The fix belongs HERE for the same reason the notice itself does: one install at the transport
+  // rather than a hand-tuned offset per caller, and it is the same argument nav-hub already makes
+  // for the hub reserve - one shared bar takes one shared reserve. Measure what is actually on
+  // screen and clear it; never lower a notice, only raise it, and never past 60% of the viewport so
+  // a heavily-stacked page cannot push the message out of sight.
+  try {
+    var _gap = 8;
+    var _stack = '#wh-hub, .wh-conn-chip, .wh-conn-popover, .wh-fb-fab, #wh-guide-link, '
+               + '#wh-ai-widget, #fab, .wh-companion-trigger';
+    var _floor = 0;
+    Array.prototype.forEach.call(document.querySelectorAll(_stack), function (c) {
+      if (!c || c === el) return;
+      var cs = window.getComputedStyle(c);
+      if (cs.display === 'none' || cs.visibility === 'hidden' || parseFloat(cs.opacity || '1') === 0) return;
+      var r = c.getBoundingClientRect();
+      if (r.height < 4 || r.bottom <= 0 || r.top >= window.innerHeight) return;
+      var above = window.innerHeight - r.top;      // how far this element's TOP sits above the bottom
+      if (above > _floor) _floor = above;
+    });
+    var _want = parseFloat(bottomPx) || 0;
+    var _need = _floor + _gap;
+    var _cap = window.innerHeight * 0.6;
+    if (_need > _want && _need < _cap) {
+      el.style.bottom = 'calc(' + Math.round(_need) + 'px + env(safe-area-inset-bottom,0px))';
+    }
+  } catch (e) { void e; /* empty-catch-allow: placement is best-effort; the message still shows */ }
   var key = '_whNoticeTimer_' + id;
   if (window[key]) clearTimeout(window[key]);
   window[key] = setTimeout(function () {
@@ -990,8 +1106,149 @@ function _whNoteTransportFailure(err) {
       : 'You appear to be offline, so part of this page could not be loaded. Your work is safe, and it '
         + 'will load again once your connection is back.';
     _whShowNotice('wh-connection-notice', text, '232px');
+    // A notice above a page that keeps pulsing skeletons and 'Computing...' texts is two contradictory claims. Settle
+    // the stuck loaders into the shared error card once the retry envelope has passed (2026-09-05: 13 of 21 DB pages
+    // sat on skeletons / frozen progress text / 'Live' chips while every read had failed).
+    // Three passes, not one (2026-09-05 probe): the first failed fetch fires at load, but 'Computing hive health...' texts,
+    // skeletons and 'Live' chips are painted by renders that run AFTER the retry envelope (~9 s), so a single settle at +3 s
+    // ran before the elements it was meant to settle existed. Idempotent, so the later passes are free.
+    setTimeout(_whSettleStuckLoaders, 3000);
+    setTimeout(_whSettleStuckLoaders, 10000);
+    setTimeout(_whSettleStuckLoaders, 15000);
+    // Fixed-time passes lose the race on a page whose retrying renders REPAINT 'Computing...' and 'Live' after every
+    // attempt (hive: 146 reads, placeholders back at 17 s with 20 passes completed). While reads keep failing, re-settle
+    // on every repaint - a debounced MutationObserver for 90 s, disconnected the moment a read succeeds (_whClearAuthNotice).
+    _whWatchStuckLoaders();
   } catch (e) { /* empty-catch-allow: a notice that cannot render must not break the transport */ }
 }
+
+/* After a transport failure: every skeleton still visible becomes the shared error card (with Retry), every frozen
+ * progress text ('Computing hive health...', 'Loading day plan...', 'Counting...') becomes an honest 'not loaded', and
+ * every source chip that still says 'Live' says the read failed. Idempotent; a later successful read repaints normally. */
+function _whSettleStuckLoaders() {
+  // Each pass is isolated (2026-09-05): on hive the skeleton pass threw inside whListError and the single try/catch
+  // swallowed the text and chip passes with it, so 'Computing hive health...' and every 'Live' chip survived three
+  // settles. Cheap passes run first; window._whSettled counts completed passes for the live probe.
+  // checkVisibility, not offsetParent (2026-09-05, 44 passes on hive changed nothing): hive's 'Computing hive health...'
+  // span and its 'Live data' chips are visible by checkVisibility yet have NO offsetParent, so every pass skipped them.
+  var vis = function (el) { return !!el && (typeof el.checkVisibility === 'function' ? el.checkVisibility() : el.offsetParent !== null); };
+  window._whSettled = (window._whSettled || 0);
+  try {
+    var chips = Array.prototype.slice.call(document.querySelectorAll('.wh-source-chip'));
+    /* ★C-AK (walked 2026-09-11, Wilfredo Malabanan, worker in Baguio Textile Mills, wh_lang=fil).
+       TWO FAULTS IN ONE LINE, both invisible until a Filipino reader met a failed read.
+       (1) 'Read failed · ' was hard-coded ENGLISH, inserted by the SHELL into a page whose lang is
+           "fil" - and the chip it lands in is role=status aria-live, so a screen reader announces it.
+           The chip already reads half-Filipino (renderSourceChip translates its own "Batay sa iyong"
+           connective and passes the caller's clauses through verbatim), so this made the sentence
+           "Read failed · Live · contacts refreshed on load, history on load · Batay sa iyong AI
+           reports & report contacts" - four clauses, one language each way.
+       (2) THE GUARD WAS COUPLED TO AN UNTRANSLATED STRING. It only marked a chip whose text STARTS
+           with "Live" - so the day anyone translates that word, this honest-degradation marker
+           silently stops appearing and a stale chip goes on claiming live data after every read
+           failed. A safety behaviour must not depend on another string staying in English.
+           renderSourceChip now stamps data-wh-fresh="1" whenever it renders a freshness clause, and
+           that attribute is the primary test; the text match stays as a fallback for chips built by
+           any other path. */
+    for (var k = 0; k < chips.length; k++) {
+      var c = chips[k];
+      if (!vis(c) || c.getAttribute('data-wh-read-failed')) continue;
+      var txt = (c.textContent || '').trim();
+      if (c.getAttribute('data-wh-fresh') === '1' || /^Live\b/i.test(txt)) {
+        c.setAttribute('data-wh-read-failed', '1');
+        var _tRF = (typeof window !== 'undefined' && typeof window._t === 'function') ? window._t : function (en) { return en; };
+        c.insertAdjacentText('afterbegin', _tRF('Read failed · ', 'Nabigo ang pagbasa · '));
+      }
+    }
+    window._whSettled++;
+  } catch (e) { /* empty-catch-allow: chip pass is best-effort */ }
+  try {
+    var PROG = /^(Computing|Loading|Counting|Reading|Rolling up|Fetching|Building)\b[^.]{0,90}(\.\.\.|…)\s*$/;
+    var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
+    var node, hits = [];
+    while ((node = walker.nextNode())) { var t = (node.textContent || '').trim(); if (t && PROG.test(t) && node.parentElement && vis(node.parentElement)) hits.push(node); }
+    for (var j = 0; j < hits.length; j++) { hits[j].textContent = 'Not loaded - connection problem. Retry when you are back online.'; hits[j].parentElement.setAttribute('data-wh-read-failed', '1'); }
+    window._whSettled++;
+  } catch (e) { /* empty-catch-allow: text pass is best-effort */ }
+  try {
+    var busy = Array.prototype.slice.call(document.querySelectorAll('[aria-busy="true"]'));
+    for (var m = 0; m < busy.length; m++) busy[m].removeAttribute('aria-busy');
+    window._whSettled++;
+  } catch (e) { /* empty-catch-allow: aria-busy pass is best-effort */ }
+  try {
+    var skels = Array.prototype.slice.call(document.querySelectorAll('.wh-skeleton'));
+    for (var i = 0; i < skels.length; i++) {
+      var sk = skels[i]; if (!vis(sk)) continue;
+      var host = sk.parentElement; if (!host || host.querySelector('.wh-list-error')) continue;
+      if (typeof whListError === 'function') whListError(host, 'Could not load this section - check your connection and retry.', function () { try { location.reload(); } catch (e) { console.debug('reload refused', e); } });
+      else host.innerHTML = '<div class="wh-list-error" role="alert">Could not load this section - check your connection and retry.</div>';
+    }
+    window._whSettled++;
+  } catch (e) { /* empty-catch-allow: skeleton pass is best-effort */ }
+}
+window._whSettleStuckLoaders = _whSettleStuckLoaders;
+function _whWatchStuckLoaders() {
+  try {
+    if (window._whSettleWatch || typeof MutationObserver !== 'function') return;
+    var t = null;
+    var obs = new MutationObserver(function () { clearTimeout(t); t = setTimeout(_whSettleStuckLoaders, 300); });
+    obs.observe(document.body, { childList: true, subtree: true, characterData: true });
+    window._whSettleWatch = obs;
+    setTimeout(_whUnwatchStuckLoaders, 90000);
+  } catch (e) { /* empty-catch-allow: best-effort */ }
+}
+function _whUnwatchStuckLoaders() {
+  try { if (window._whSettleWatch) { window._whSettleWatch.disconnect(); window._whSettleWatch = null; } } catch (e) { /* empty-catch-allow */ }
+}
+
+/* whRealtimeBackfill (2026-09-05, P171/P183/P186 - the founder-inbox class): rtConn() paints the connection state only.
+ * A page that LISTENS must re-read its data on the first re-SUBSCRIBED after a drop (rows written while the socket was
+ * down never arrive as events) and on the browser's 'online' event. Returns the status handler to hand to .subscribe():
+ *   ch.subscribe(whRealtimeBackfill(refetchAll, { tag: 'hive' }))
+ * One handler instance per PAGE (not per channel) so N channels rejoining together trigger ONE debounced refetch.
+ * window._whRt exposes { wasDown, backfills } for the live prover (prove_realtime_backfill). */
+function whRealtimeBackfill(refetch, opts) {
+  opts = opts || {};
+  var rt = window._whRt = window._whRt || { wasDown: false, backfills: 0 };
+  var timer = null;
+  var run = function () {
+    rt.backfills++;
+    try { refetch(); } catch (err) { console.warn('[' + (opts.tag || 'page') + '] backfill after reconnect failed', err); }
+  };
+  var schedule = function () { clearTimeout(timer); timer = setTimeout(run, opts.debounceMs || 1500); };
+  if (!rt._onlineBound) { rt._onlineBound = true; window.addEventListener('online', schedule); }
+  return function (status) {
+    if (typeof rtConn === 'function') { try { rtConn()(status); } catch (e) { console.debug('rtConn refused', e); } }
+    if (status === 'SUBSCRIBED') { if (rt.wasDown) { rt.wasDown = false; schedule(); } }
+    else if (status === 'CLOSED' || status === 'TIMED_OUT' || status === 'CHANNEL_ERROR') { rt.wasDown = true; }
+  };
+}
+window.whRealtimeBackfill = whRealtimeBackfill;
+
+/* whRestoreFocusAcross (2026-09-05, P188/P181 - the polled-feed class): a render that rebuilds a container via innerHTML
+ * destroys the focused control and drops a keyboard user to <body> on every tick. Capture the person's place BEFORE the
+ * first destructive step (a skeleton, a rebuild), restore AFTER the last synchronous render:
+ *   var cap = whFocusCapture(feed);  ...skeleton / fetch / innerHTML...  whFocusRestore(feed, cap);
+ * The restore prefers the same signature (tag + label + position among twins), then the same position among the tag's
+ * elements, then the first focusable control - and never steals focus the person has since moved elsewhere. */
+function whFocusCapture(container) {
+  var a = document.activeElement; if (!container || !a || !container.contains(a)) return null;
+  var sigOf = function (x) { return x.tagName + '|' + ((x.getAttribute('aria-label') || x.textContent || '').trim()).slice(0, 60); };
+  var all = Array.prototype.slice.call(container.querySelectorAll(a.tagName));
+  var twins = all.filter(function (x) { return sigOf(x) === sigOf(a); });
+  return { tag: a.tagName, sig: sigOf(a), idx: twins.indexOf(a), pos: all.indexOf(a), sigOf: sigOf };
+}
+function whFocusRestore(container, cap) {
+  if (!container || !cap) return;
+  var cur = document.activeElement;
+  if (cur && cur !== document.body && cur !== container && cur.isConnected) return;   // the person moved on
+  var all = Array.prototype.slice.call(container.querySelectorAll(cap.tag));
+  var twins = all.filter(function (x) { return cap.sigOf(x) === cap.sig; });
+  var el = twins[cap.idx] || twins[0] || all[cap.pos] || all[0] || container.querySelector('button, a[href], input, [tabindex="0"]');
+  if (el) { try { el.focus({ preventScroll: true }); } catch (e) { console.debug('focus refused', e); } }
+}
+window.whFocusCapture = whFocusCapture;
+window.whFocusRestore = whFocusRestore;
 
 /* Clear it the moment a read succeeds again - the session is demonstrably alive, so the notice is
  * false from that instant. Called from the same transport wrapper that raises it.
@@ -1003,6 +1260,7 @@ function _whNoteTransportFailure(err) {
  * an oracle that refuses EVERY read still saw it and reported PASS - a false green that looks like a fix.
  * The permission notice is bounded by its own 30s self-expiry instead. */
 function _whClearAuthNotice() {
+  _whUnwatchStuckLoaders();   // a read succeeded: stop re-settling, the renderers are painting real data again
   var n = document.getElementById('wh-auth-expired-notice');
   if (n && n.parentNode) n.parentNode.removeChild(n);
   // The CONNECTION notice is cleared here too, and for the same reason the session one is: a successful
@@ -1019,6 +1277,28 @@ window.getDb = function(url, key) {
   if (window._whSupabaseClient) return window._whSupabaseClient;
   if (!window.supabase || typeof window.supabase.createClient !== 'function') {
     throw new Error('getDb() called before @supabase/supabase-js loaded');
+  }
+  // ★AN ERROR MESSAGE IS A CLAIM, AND THE LIBRARY'S ONE IS TRUE ABOUT ITSELF AND MISLEADING ABOUT US
+  // (2026-09-10). Two call sites on hive.html - "deactivate my account" and "export my data", both of
+  // them J14's leaving journey - call getDb() with NO arguments. That is correct when the page built
+  // its client at parse time and this returns the cached singleton. When that earlier
+  // `getDb(SUPABASE_URL, SUPABASE_KEY)` never ran (an earlier script threw, or its request was the one
+  // a dropping line ate), the no-arg call fell through to createClient(undefined, undefined), and
+  // supabase-js answers "supabaseUrl is required." - which points at an argument when the real cause
+  // is that this page has no client. Naming the actual cause costs one branch and changes no working
+  // path: every caller that passes credentials, and every no-arg caller on a page whose client exists,
+  // reaches exactly the code it reached before.
+  //
+  // WHAT THIS IS NOT, recorded because the first version of this comment claimed it and the
+  // measurement refuted it within the hour: it is NOT the explanation for W3700's
+  // "supabaseKey is required." Run against this repo's own vendored client, createClient with no
+  // arguments says supabaseURL, and only "url present, key absent" says supabaseKEY - so that row was
+  // never on this path, and the guess that it was sent this session hunting a config problem that did
+  // not exist. The distinction is worth the six lines: these two messages name different faults.
+  if (!url || !key) {
+    throw new Error('getDb() was called without credentials and this page has no client yet - '
+      + "the page's own getDb(URL, KEY) never ran, usually because an earlier script threw or its "
+      + 'request was dropped. The key is not missing; the client was never built.');
   }
   // Arc S F-lens (F-002/F-008): bound EVERY PostgREST/Auth/Storage request with a
   // timeout so a dead or slow backend FAILS FAST (caller gets an error -> degraded
@@ -1218,6 +1498,17 @@ var WH_SOURCE_LABELS = {
   'v_gcash_receipts_needing_eyes':  'GCash receipts awaiting review',
   'v_credit_posture':               'credit posture',
   'credit_treasury':                'credit treasury',
+  // ── THE USAGE ROLLUPS (added 2026-09-07). platform-actions' usage card reads five founder_* RPCs
+  // and its chip said "Live · rolled up in the database over the last 30 days" — a METHOD, not a
+  // source. Nothing a reader could check, and nothing _whFriendlySource could match, so the
+  // source_chip_true probe correctly reported a chip naming a source the page never requested.
+  // These are RPCs rather than relations, which is also why the probe had to learn to read the
+  // function name out of /rest/v1/rpc/<name> instead of recording the literal segment "rpc".
+  'founder_active_hives':           'active hives',
+  'founder_mau':                    'people seen',
+  'founder_anon_sessions':          'signed-out sessions',
+  'founder_dau_series':             'daily actives',
+  'founder_page_heatmap':           'page opens',
   'v_logbook_truth':            'logbook',
   'v_pm_scope_items_truth':     'PM schedule',
   'v_pm_compliance_truth':      'PM compliance',
@@ -1324,7 +1615,19 @@ function _whFriendlySource(src) {
 // half: one edit here fixes the shared vocabulary across all pages; a page dict overrides
 // per key where the local wording differs. Natural Taglish (English domain terms kept).
 window.WH_FIL_COMMON = {
+  // action verbs the pages render late in JS templates (2026-09-05: hive / asset-hub / marketplace-seller coverage)
+  approve: 'Aprubahan', reject: 'Tanggihan', edit: 'I-edit', restorepending: 'Ibalik sa nakabinbin',
+  genhandover: 'Gumawa ng Shift Handover Report', messengerhandle: 'Messenger handle',
   cancel: 'Kanselahin', save: 'I-save', saved: 'Na-save', back: 'Bumalik', next: 'Susunod',
+  // 2026-09-11, walked FIL as a hive-less solo owner: logbook's only way out read "Back to Home" in
+  // English on a lang=fil page. The platform already SHIPS this sentence - i18n/audit-log.json carries
+  // "Back to Home" -> "Balik sa Home" - so the string existed and the shared dictionary simply had no
+  // key for it. NB audit-log itself no longer uses it: that page replaced the link outright because
+  // sending a worker WITH a hive to the marketing front page is an exit rather than a next step. For a
+  // hive-LESS owner, index IS the dashboard, so the destination is right here and only the language was
+  // wrong. The arrow stays outside the stamped span so the swap cannot eat the glyph (the hive.html
+  // Shift-Handover pattern).
+  backtohome: 'Balik sa Home',
   more: 'Higit pa', less: 'Bawas', show: 'Ipakita', hide: 'Itago', showall: 'Ipakita Lahat',
   close: 'Isara', open: 'Buksan', search: 'Maghanap', searchteam: 'Hanapin sa Team',
   export: 'I-export', exportcsv: 'I-export sa CSV', edit: 'I-edit', 'delete': 'Burahin',
@@ -1346,16 +1649,64 @@ window.WH_FIL_COMMON = {
   day: 'Araw', week: 'Linggo', month: 'Buwan', year: 'Taon', category: 'Kategorya', notes: 'Mga Tala',
   // Shared maturity-gate headings (maturity-gate.js renders these on every gated surface).
   mg_unlocks_at: 'bubukas sa Stair', mg_hive_now: 'Ang hive mo ngayon',
+  // EX-TL (2026-09-07): the Tagalog-first walk found 169 untranslated control labels across the 27 pages
+  // with no _t() call; 48 were verbs already here, tagged by tools/i18n_tag_buttons.py. These are the
+  // ones the dictionary did not know - authored, not derived. Keys are the label lowercased with every
+  // non-letter removed, which is how the tagger derives them ("+ Add Item" -> additem, "⬇ PDF" -> pdf).
+  reloadtotryagain: 'I-reload para subukan muli', reply: 'Sumagot', undo: 'I-undo', sendreport: 'Ipadala ang Report',
+  printsavepdf: 'I-print / I-save ang PDF', startchat: 'Magsimula ng Chat', posttohive: 'I-post sa Hive',
+  downloadpdf: 'I-download ang PDF', regenerate: 'I-regenerate', additem: 'Magdagdag ng Item',
+  addsection: 'Magdagdag ng Section', addscopeitem: 'Magdagdag ng scope item', upcoming: 'Paparating',
+  missed: 'Napalampas', importfile: 'Mag-import ng File', generatedocuments: 'I-generate ang mga Dokumento',
+  editstrategy: 'I-edit ang strategy', setstrategy: 'Itakda ang strategy', pushtopm: 'Ipadala sa PM',
+  addmyvehicle: 'Idagdag ang sasakyan ko', createmyvehicle: 'Gawin ang sasakyan ko', placeonschedule: 'Ilagay sa Schedule',
+  verifyid: 'I-verify ang ID', cancelrequest: 'Kanselahin ang request', importbomfromengdesign: 'I-import ang BOM mula sa Eng. Design',
+  livesync: 'Live Sync', unitsmetricsi: 'Units: Metric (SI)', csv: 'CSV', svg: 'SVG', pdf: 'PDF',
+  nextservicesschedule: 'Susunod: service schedule', nextstarterparts: 'Susunod: starter parts',
+  // EX-TL page verbs (2026-09-07): the 25 button labels the tagger reported as unknown, authored not guessed
+  // EX-TL round 3 (2026-09-07): marketplace, hive, founder-console, analytics and audience-chip labels the census named
+  unpublish: 'I-unpublish', removeid: 'Tanggalin ang ID', removecert: 'Tanggalin ang Cert', verifycert: 'I-verify ang Cert', refundbuyer: 'I-refund ang Buyer', escalate: 'I-escalate', gototopup: 'Pumunta sa top up', removephoto: 'Tanggalin ang litrato', savechanges: 'I-save ang mga Pagbabago', showcontact: 'Ipakita ang contact', sendreplymarkreplied: 'Ipadala ang Reply + Markahang Replied', restoreit: 'Ibalik ito', discard: 'Itapon', registerasaprovider: 'Mag-register bilang provider', filetopup: 'Mag-file ng top-up', enablejobalerts: 'I-enable ang job alerts', turnjobalertsbackon: 'I-on muli ang job alerts', canceljob: 'I-cancel ang job', rateclient: 'I-rate ang client', acceptjob: 'Tanggapin ang job', sendquote: 'Ipadala ang quote', postalisting: 'Mag-post ng Listing →', previewasbuyer: 'Silipin bilang buyer', hailaserviceprovider: 'mag-hail ng service provider', postawantedlisting: 'mag-post ng wanted listing', signinagain: 'Mag-sign in muli', writeareview: 'Sumulat ng review', postreview: 'I-post ang review', contactseller: 'Kontakin ang Seller', askprovidersforquotes: 'Humingi ng quote sa mga provider', seequotes: 'Tingnan ang mga quote', trackprovider: 'I-track ang provider', reportaproblem: 'Mag-report ng problema', rateprovider: 'I-rate ang provider', pintheexactspotonamapoptional: 'I-pin ang eksaktong lugar sa mapa (optional)', hailnownotifynearbyproviders: 'Mag-hail ngayon - abisuhan ang mga kalapit na provider', choosethisprovider: 'Piliin ang provider na ito', refreshqueues: '↻ I-refresh ang mga queue', verifymintcredits: 'I-verify: mag-mint ng credits', verifycerts: 'I-verify ang mga cert', noemailtoreplyto: 'Walang email na mare-replyan', refreshnow: 'I-refresh ngayon', createvoucher: 'Gumawa ng voucher', markallread: 'Markahang nabasa lahat', createahive: 'Gumawa ng Hive', joinwithcode: 'Sumali gamit ang Code', createhive: 'Gumawa ng Hive', copycode: 'Kopyahin ang code', share: 'I-share…', gotoliveboard: 'Pumunta sa Live Board →', joinhive: 'Sumali sa Hive', enterthehive: 'Pumasok sa Hive →', showinvitecode: 'Ipakita ang Invite Code', switchhive: 'Lumipat ng Hive', exporthivedata: 'I-export ang Hive Data', deactivateaccount: 'I-deactivate ang Account', leavehive: 'Umalis sa Hive', dismiss: 'I-dismiss', resolve: 'Resolbahin', critical: '🔴 Kritikal', high: '🟠 Mataas', medium: '🟡 Katamtaman', low: '🟢 Mababa', mechanical: 'Mekanikal', electrical: 'Elektrikal',
+  keepgoing: 'Tuloy lang!', bomitems: '📦 Mga BOM Item', sowsections: '📄 Mga SOW Section', nextserviceschedule: 'Susunod: service schedule →', nextmapfields: 'Susunod: Map Fields →', preview: 'Silipin →', importanotherfile: 'Mag-import ng Isa Pang File', generatekey: 'Gumawa ng Key', testconnection: 'Subukan ang Koneksyon', saveampenable: 'I-save at I-enable', checknow: '🔄 Suriin Ngayon', undoremoveeverythingjustcreated: 'I-undo - tanggalin lahat ng kakagawa lang', runnow: 'Patakbuhin Ngayon', revoke: 'Bawiin', usestock: 'Gamitin ang Stock', removefrominventory: 'Tanggalin sa inventory', linkwork: '+ I-link ang trabaho', acknowledge: 'Kilalanin', logprogress: '+ I-log ang progreso', assignrole: '+ Mag-assign ng role', raisechangeorder: '+ Mag-raise ng change order', markcomplete: 'Markahang tapos', putonhold: 'I-hold muna', aidraftfromlogs: '🤖 AI: Draft mula sa logs', savelessons: 'I-save ang mga aral',
 };
 
 function whI18nApply(dict) {
   if (typeof window !== 'undefined' && window.WH_LANG !== 'fil') return;
-  // Page dict overrides the shared common dict per key.
-  var merged = Object.assign({}, (typeof window !== 'undefined' && window.WH_FIL_COMMON) || {}, dict || {});
+  // EX-TL (2026-09-07): the per-page dictionary of VISIBLE markup text (tools/i18n_page_dict.py) lives in
+  // i18n/pages/<page>.fil.json and is fetched ONCE - only under FIL, only when the page carries p_ keys. The
+  // inline block it replaced was paid by every English reader and tipped two pages over the render budget.
+  if (typeof window !== 'undefined' && !window.WH_FIL_PAGE_VISIBLE && !window.__whFilPageFetch
+      && typeof fetch === 'function' && document.querySelector('[data-i^="p_"]')) {
+    var stem = ((location.pathname.split('/').pop() || 'index').replace(/\.html$/, '')) || 'index';
+    window.__whFilPageFetch = fetch('i18n/pages/' + stem + '.fil.json')
+      .then(function (r) { return r.ok ? r.json() : {}; }).catch(function () { return {}; })
+      .then(function (d) { window.WH_FIL_PAGE_VISIBLE = d || {}; whI18nApply(dict); });
+  }
+  // Page dict overrides the shared common dict per key. WH_FIL_PAGE_VISIBLE is the per-page dictionary of
+  // VISIBLE markup text that tools/i18n_page_dict.py emits (EX-TL, 2026-09-07); it lives under its own
+  // global because pages that already declared `window.WH_FIL_PAGE = {...}` reassigned that name after
+  // the emitted block and silently dropped 39 keys to 6 - a page's own dict still wins per key.
+  var merged = Object.assign({}, (typeof window !== 'undefined' && window.WH_FIL_COMMON) || {},
+    (typeof window !== 'undefined' && window.WH_FIL_PAGE_VISIBLE) || {}, dict || {});
   if (!Object.keys(merged).length) return;
+  // ★THE RE-APPLY CLOBBERED LIVE VALUES (walked 2026-09-10, FILIPINO, founder-console). The observer
+  // below re-runs this swap on DOM growth so late-rendered controls get translated - correct, and it
+  // also overwrote every [data-i] element whose text the APPLICATION had since computed. founder-console
+  // was the proof: renderHero writes "All clear" into #ring-pct-label (which carries data-i="p_loading"),
+  // and 2.5s later the re-apply put "Naglo-load…" back. Measured as a sequence - a written sentinel
+  // reverted while idle, the value read "All clear" immediately after render and "Naglo-load…" after a
+  // beat - so the page computed the right answer every time and the translation layer erased it. A
+  // Filipino reader saw a health ring stuck on "Loading" forever, on a page that was working.
+  // The rule: this swap owns an element's text only until the application writes its own. Remember what
+  // was written; on a re-apply, skip any element that no longer holds it. A late-rendered node has no
+  // record yet, so it still gets translated - which is the case the observer exists for.
+  // Same family as [[feedback_the_js_overwrote_its_own_correct_markup]].
   document.querySelectorAll('[data-i]').forEach(function (el) {
     var k = el.getAttribute('data-i');
-    if (merged[k] != null) el.textContent = merged[k];
+    if (merged[k] == null) return;
+    var stamp = el.getAttribute('data-i-applied');
+    if (stamp !== null && el.textContent !== stamp) return;   // the app owns this text now
+    el.textContent = merged[k];
+    el.setAttribute('data-i-applied', merged[k]);
   });
 }
 if (typeof document !== 'undefined') {
@@ -1363,6 +1714,14 @@ if (typeof document !== 'undefined') {
     // Apply whenever FIL is active — even a page with NO page dict gets its common labels
     // translated from WH_FIL_COMMON (that is the whole point of the shared dict).
     if (window.WH_FIL_PAGE || window.WH_FIL_COMMON) whI18nApply(window.WH_FIL_PAGE || {});
+    // Late-rendered controls (approval rows, feeds, dialogs) arrive AFTER this one-shot swap; when the worker's
+    // toggle is FIL, re-apply on DOM growth (debounced) so a button painted at 12 s reads Filipino too. English
+    // users pay nothing: the observer is armed only under FIL (2026-09-05, N1's honest-limit note).
+    if (window.WH_LANG === 'fil' && typeof MutationObserver === 'function') {
+      var _i18nT = null;
+      new MutationObserver(function () { clearTimeout(_i18nT); _i18nT = setTimeout(function () { whI18nApply(window.WH_FIL_PAGE || {}); }, 200); })
+        .observe(document.body, { childList: true, subtree: true });
+    }
   });
 }
 
@@ -1401,6 +1760,111 @@ function whProgressStrip(label, done, total, opts) {
 // sees the op is working AND roughly what it's doing, instead of a static frozen "Generating…".
 // `render(label, stepIndex, totalSteps)` lets each page paint the stage in its own UI. Returns a
 // stop() to call on completion/error. Cite: external-perceived-performance-optimistic-ui-skeleton-mot.
+// ─────────────────────────────────────────────
+// whAiTrustRow — ONE shared "was this right?" row under any AI answer (EX-AT, 2026-09-07)
+// ─────────────────────────────────────────────
+// A maintenance engineer about to act on what the AI said needs, on EVERY AI surface: to say IT IS
+// WRONG in one press (recorded in ai_reply_feedback, the harvest's one client-writable sink), to see
+// what the answer was grounded ON, and to have the disagreement carry the reply it was about. Before
+// this row only the Assistant chat and the companion launcher had the 👍/👎 (each its own copy);
+// Asset Brain, the shift briefing, the analytics narrative, the resume polish and the voice journal
+// showed an answer with no way to be heard. Same contract as assistant.html's _attachChatFeedback:
+// best-effort, never disturbs the surface, and the CONTROL reflects reality - buttons come back when
+// the write did not land, an inline role="status" line says so when it did.
+//   whAiTrustRow(containerEl, { agent, source, page, question, answer, groundedOn })
+//     groundedOn - a short sentence for the source chip ("your logbook, PM schedule and parts")
+//     returns the row element (or null when there is nothing to attach to); one row per container.
+function whAiTrustRow(container, opts) {
+  if (!container || typeof document === 'undefined') return null;
+  opts = opts || {};
+  var old = container.querySelector(':scope > .wh-ai-trust'); if (old) old.remove();
+  var row = document.createElement('div');
+  row.className = 'wh-ai-trust';
+  row.setAttribute('data-ai-trust', opts.agent || 'ai');
+  row.style.cssText = 'display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:6px;font-size:.72rem;color:var(--muted,#888);';
+  if (opts.groundedOn) {
+    var chip = document.createElement('span');
+    chip.className = 'wh-source-chip';
+    chip.setAttribute('data-source-chip', '');
+    chip.style.cssText = 'border:1px solid var(--border,rgba(255,255,255,.18));border-radius:999px;padding:2px 8px;';
+    chip.textContent = _t('Based on: ', 'Batay sa: ') + opts.groundedOn;
+    row.appendChild(chip);
+  }
+  var note = document.createElement('span');
+  note.setAttribute('role', 'status'); note.setAttribute('aria-live', 'polite');
+  // ★THE TAP TARGET WAS 28px ON THE SHARED AI FEEDBACK ROW (F1/K2, walked 2026-09-10). These two
+  // buttons were 28x28 - under the 44px floor - and because whAiTrustRow is the ONE "was this right?"
+  // row under every AI answer, the same undersized pair recurred on every page that renders one
+  // (found again on shift-brain in four separate walks). The ring is what people SEE, so the fix keeps
+  // the ring at 28px and moves the BUTTON to 44x44 with the border on an inner span: identical
+  // appearance, a real 44px target, and the rect the lens measures is the one a thumb actually hits.
+  // Preferred over the ::after hit-area trick because that leaves the button's own box at 28px - real
+  // for a user, invisible to F1 - and an affordance the oracle cannot see is one the next walk
+  // re-reports forever.
+  function mk(rating, glyph, label) {
+    var b = document.createElement('button');
+    b.type = 'button'; b.setAttribute('data-rate', String(rating)); b.setAttribute('aria-label', label); b.title = label;
+    b.style.cssText = 'background:transparent;border:none;padding:0;color:inherit;' +
+      'width:44px;height:44px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;';
+    var ring = document.createElement('span');
+    ring.setAttribute('aria-hidden', 'true');
+    ring.textContent = glyph;
+    ring.style.cssText = 'border:1px solid var(--border,rgba(255,255,255,.18));border-radius:50%;' +
+      'width:28px;height:28px;line-height:1;font-size:.85rem;display:inline-flex;align-items:center;justify-content:center;';
+    b.appendChild(ring);
+    return b;
+  }
+  var up = mk(1, '👍', _t('This answer was right', 'Tama ang sagot na ito'));
+  var down = mk(-1, '👎', _t('This answer was wrong', 'Mali ang sagot na ito'));
+  row.appendChild(up); row.appendChild(down); row.appendChild(note);
+  [up, down].forEach(function (btn) {
+    btn.addEventListener('click', async function () {
+      var rating = Number(btn.getAttribute('data-rate')) || 0;
+      [up, down].forEach(function (b) { b.disabled = true; b.style.opacity = '0.45'; });
+      var landed = false;
+      try {
+        // the page's own client: pages hold `db` as a page-scoped const, so callers pass it in opts.db;
+        // window.db is the fallback for pages that expose it. getDb(url, key) needs arguments - never call it bare.
+        var db = opts.db || window.db || null;
+        var who = (typeof whWorker === 'function') ? whWorker() : null;
+        if (who && typeof who === 'object') who = who.name || who.worker_name || null;
+        if (db && db.from && (rating === 1 || rating === -1)) {
+          var res = await db.from('ai_reply_feedback').insert({
+            hive_id: (typeof whHiveId === 'function') ? whHiveId() : null,
+            worker_name: (typeof who === 'string' && who) ? who : null,
+            agent: opts.agent || 'ai', source: opts.source || 'page', page: opts.page || (location.pathname.split('/').pop() || '').replace('.html', ''),
+            persona: (typeof window.getPersonaKey === 'function') ? window.getPersonaKey() : null,
+            question: String(opts.question == null ? '' : opts.question).slice(0, 2000),
+            answer: String(opts.answer == null ? '' : opts.answer).slice(0, 4000),
+            rating: rating,
+          });
+          landed = !res || !res.error;
+        }
+      } catch (e) { landed = false; /* empty-catch-allow: best-effort feedback */ }
+      if (landed) {
+        btn.style.background = rating > 0 ? 'rgba(74,222,128,.22)' : 'rgba(248,113,113,.22)';
+        note.textContent = rating > 0 ? _t('Recorded - thank you.', 'Naitala - salamat.') : _t('Recorded as wrong - a person will review it.', 'Naitalang mali - may taong magre-review.');
+      } else {
+        [up, down].forEach(function (b) { b.disabled = false; b.style.opacity = ''; });
+        note.textContent = _t('Not recorded - try again.', 'Hindi naitala - subukan muli.');
+      }
+    });
+  });
+  container.appendChild(row);
+  return row;
+}
+if (typeof window !== 'undefined') window.whAiTrustRow = whAiTrustRow;
+
+// whLevelWord — the four level words every card paints (critical / high / medium / low), in the person's
+// language (EX-TL, 2026-09-07). Asset Hub's fleet is 30 cards × "medium risk 62%" + a criticality pill; under
+// wh_lang=fil those 60 strings stayed English and the page read 12% Filipino. Unknown words pass through.
+function whLevelWord(w) {
+  var k = String(w == null ? '' : w).toLowerCase();
+  var m = { critical: _t('critical', 'kritikal'), high: _t('high', 'mataas'), medium: _t('medium', 'katamtaman'), low: _t('low', 'mababa') };
+  return m[k] || w;
+}
+if (typeof window !== 'undefined') window.whLevelWord = whLevelWord;
+
 function whAiProgress(render, stages, opts) {
   opts = opts || {};
   if (typeof render !== 'function') return function () {};
@@ -1417,6 +1881,42 @@ function whAiProgress(render, stages, opts) {
   return function stop() { if (iv) { clearInterval(iv); iv = null; } };
 }
 
+/* ★C-AK (2026-09-11): THE CHIP TRANSLATED ITS OWN CONNECTIVE AND NOTHING ELSE. renderSourceChip put
+   `source` through _t() ("Batay sa iyong …") and pushed `freshness`, `window` and `notes` through
+   VERBATIM from 55 call sites across 31 pages - so on every Filipino page this role=status aria-live
+   region read as a half-translated sentence, announced that way by a screen reader:
+       "Live · contacts refreshed on load, history on load · Batay sa iyong AI reports & report contacts"
+   The freshness clause is the chip's FIRST words and by far the most repeated: 22 distinct literals, of
+   which four cover about thirty of the roughly thirty-eight uses. So it is fixed HERE, once, as a phrase
+   map - the same locale-FLOOR pattern utils.js already uses for _t(), letting shared chrome translate
+   without every caller owning a dictionary - rather than by editing 55 sites. "Live" stays as the
+   loanword a Philippine plant actually says, matching the platform's Taglish rule that engineering
+   nouns stay English.
+   HONEST LIMIT: `window` (11 distinct, mostly method descriptors like "30-day rolling window") and
+   `notes` (43 distinct, nearly all one-off explanatory sentences) are NOT covered by this map and are
+   still rendered in English. They need per-site copy, which is a separate pass. An unrecognised clause
+   falls through unchanged, exactly as before, so this can never make a chip worse. */
+function _whFreshnessPhrase(s, t) {
+  var raw = String(s == null ? '' : s).replace(/\s+/g, ' ').trim();
+  if (!raw) return raw;
+  var FIL = {
+    'live': 'live',
+    'live data': 'Live na data',
+    'live · refreshed on load': 'Live · nire-refresh sa pag-load',
+    'live · updates automatically': 'Live · awtomatikong nag-a-update',
+    'live · refreshed when you open the page': 'Live · nire-refresh kapag binuksan mo ang page',
+    'live · refreshed on each view switch': 'Live · nire-refresh sa bawat palit ng view',
+    'live + daily snapshot': 'Live + pang-araw-araw na snapshot',
+    'daily snapshot': 'pang-araw-araw na snapshot',
+    'daily snapshot at 13:00 pht': 'Pang-araw-araw na snapshot tuwing 13:00 PHT',
+    'ai summary · refreshed daily': 'AI summary · nire-refresh araw-araw',
+    'recomputed when this report was generated': 'Muling kinuwenta noong ginawa ang ulat na ito'
+  };
+  var fil = FIL[raw.toLowerCase()];
+  return fil ? t(raw, fil) : raw;      // unknown clause: unchanged, in both languages
+}
+if (typeof window !== 'undefined') window._whFreshnessPhrase = _whFreshnessPhrase;
+
 function renderSourceChip(opts) {
   opts = opts || {};
   // N1 safe _t fallback: pages without an i18n layer get the EN string unchanged,
@@ -1429,15 +1929,23 @@ function renderSourceChip(opts) {
   var method    = Array.isArray(opts.method) ? opts.method : [];
 
   var parts = [];
-  if (freshness) parts.push(escHtml(freshness));
+  if (freshness) parts.push(escHtml(_whFreshnessPhrase(freshness, _tt)));   // C-AK
   if (source) {
     var friendly = _whFriendlySource(source);
     if (friendly) {
       // One whole template per locale with a single slot, rather than gluing a
       // prefix onto a noun -- the possessive sits differently in Filipino (N1).
       var f = escHtml(friendly);
-      parts.push(/^your\b/.test(friendly)
-        ? _tt('Based on ' + f,      'Batay sa ' + f)
+      /* ★C-AK, second half (2026-09-11, dayplanner in Filipino): THE BRANCH WRITTEN TO HANDLE THE
+         POSSESSIVE LEFT IT IN ENGLISH. When the friendly source already began with "your", the
+         Filipino template glued the English word straight in - "Batay sa your schedule & logbook".
+         The intent above is right (one whole template per locale, not a prefix glued onto a noun);
+         it just forgot that the FIL template needs "iyong" where the EN one already carries "your".
+         Strip the English possessive for the Filipino half so both templates say the same thing in
+         their own language. */
+      var fNoYour = escHtml(String(friendly).replace(/^your\s+/i, ''));
+      parts.push(/^your\b/i.test(friendly)
+        ? _tt('Based on ' + f,      'Batay sa iyong ' + fNoYour)
         : _tt('Based on your ' + f, 'Batay sa iyong ' + f));
     }
   }
@@ -1454,7 +1962,11 @@ function renderSourceChip(opts) {
   // page's system-status region ("Live · Based on your … · updated …"). role=status + aria-live make
   // it a genuine live region so the rubric's G1 finds it on EVERY page that renders a source chip
   // (central fix — pages whose only status affordance was this chip were failing G1 as bare <p>s).
-  var chipHtml = '<p class="wh-source-chip" role="status" aria-live="polite" '
+  // data-wh-fresh marks "this chip carries a freshness claim", so _whSettleStuckLoaders can find the
+  // chips that would otherwise go on saying "Live" after every read failed WITHOUT matching on the
+  // English word "Live" (C-AK: a safety behaviour must not depend on another string staying English).
+  var chipHtml = '<p class="wh-source-chip" role="status" aria-live="polite"'
+    + (freshness ? ' data-wh-fresh="1"' : '') + ' '
     + 'style="font-size:.62rem;color:rgba(255,255,255,0.80);margin:0;padding:3px 0 0;line-height:1.35;">'
     + parts.join(' &middot; ')
     + '</p>';
@@ -1517,11 +2029,14 @@ function whListSkeleton(el, rows) {
 // Self-injects (utils.js is the 31/32 shared surface; components.css is only linked on 11).
 (function whHelpCSS() {
   if (typeof document === 'undefined' || document.getElementById('wh-help-css')) return;
+  // the static contract wins: components.css carries the same rules, and restyling after first paint is a layout shift
+  if (document.querySelector('link[href*="components.css"], link[href*="wh-help.css"]')) return;
   var st = document.createElement('style');
   st.id = 'wh-help-css';
   st.textContent =
-    '.wh-help{margin:0.5rem 0 1rem;font-size:0.75rem;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:0.1rem 0.8rem 0.45rem}' +
-    '.wh-help>summary{cursor:pointer;font-weight:700;color:rgba(255,255,255,0.86);min-height:44px;display:inline-flex;align-items:center}' +
+    '.wh-help{margin:0 0 16px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:10px 14px}' +   /* identical to components.css (2026-09-07): a second, different rule after first paint was a layout shift. 14px->16px 2026-09-10 (R1 off-scale gap) — changed in BOTH files in one edit, for that same reason */
+    'html{scrollbar-gutter:stable}.wh-back{margin:0.5rem 0}.wh-back a{display:inline-flex;align-items:center;min-height:44px;padding:0 0.5rem;margin-left:-0.5rem;text-decoration:none}' +
+    '.wh-help>summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font-size:0.74rem;font-weight:700;color:rgba(255,255,255,0.85)}' +
     '.wh-help>p{margin:0.25rem 0 0.2rem;color:rgba(255,255,255,0.86);line-height:1.5}';
   (document.head || document.documentElement).appendChild(st);
 })();
@@ -1546,7 +2061,7 @@ function whCardSkeleton(el, count, opts) {
   if (variant === 'row') {
     card = '<div class="wh-cardskel-row">'
       + '<div style="display:flex;gap:12px;align-items:flex-start;">'
-      + '<div class="wh-cs" style="width:72px;height:72px;border-radius:10px;flex-shrink:0;"></div>'
+      + '<div class="wh-cs" style="width:72px;height:72px;border-radius:12px;flex-shrink:0;"></div>'
       + '<div style="flex:1;">'
       + '<div class="wh-cs" style="height:14px;width:65%;margin-bottom:8px;"></div>'
       + '<div class="wh-cs" style="height:11px;width:80%;margin-bottom:8px;"></div>'
@@ -1943,7 +2458,7 @@ if (typeof document !== 'undefined' && !document.getElementById('wh-list-states-
   whListStatesCss.id = 'wh-list-states-css';
   whListStatesCss.textContent =
     '.wh-skeleton{display:flex;flex-direction:column;gap:8px;padding:4px 0}' +
-    '.wh-skeleton-row{height:44px;border-radius:10px;background:linear-gradient(100deg,rgba(255,255,255,0.04) 30%,rgba(255,255,255,0.09) 50%,rgba(255,255,255,0.04) 70%);background-size:200% 100%;animation:wh-shimmer 1.3s ease-in-out infinite}' +
+    '.wh-skeleton-row{height:44px;border-radius:12px;background:linear-gradient(100deg,rgba(255,255,255,0.04) 30%,rgba(255,255,255,0.09) 50%,rgba(255,255,255,0.04) 70%);background-size:200% 100%;animation:wh-shimmer 1.3s ease-in-out infinite}' +
     '@keyframes wh-shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}' +
     '@media (prefers-reduced-motion:reduce){.wh-skeleton-row{animation:none}}' +
     /* D1 U2: shared brief row-links (risk/pm-due/parts) were 39px tall (padding:8px) — bump to a 44px gloved-field tap target everywhere these render */
@@ -2256,6 +2771,37 @@ function whIsAuthFailure(err) {
   return _WH_PG_DENIAL.test(msg);
 }
 if (typeof window !== 'undefined') window.whIsAuthFailure = whIsAuthFailure;
+
+/* whClearIdentity — everything that names the last person, removed by PREFIX (T121, 2026-09-07).
+ *
+ * WHY THIS EXISTS: the platform had NINE separate hand-maintained lists of identity keys to remove -
+ * in index.html twice, hive.html three times, session-timeout.js, inventory, pm-scheduler,
+ * project-manager, asset-hub and shift-brain - and they had drifted apart. index.html:3182 knew about
+ * `wh_hives`; the signOut() at index.html:3599 did not. So pressing Sign Out on a SHARED PHONE left the
+ * previous worker's hive list behind for whoever picked it up next, measured 2026-09-07:
+ *
+ *     wh_hives=[{"id":"084c113b…    wh_hive_lastseen_084c113b-…=2026-09-06T15:50
+ *
+ * A fixed list could never have caught the second one: `wh_hive_lastseen_<hiveId>` is one key PER HIVE,
+ * so its name is not knowable in advance. That is the argument for a prefix sweep rather than a tenth
+ * enumeration - a new identity key added next year is covered the day it is written.
+ *
+ * What is deliberately NOT cleared: anything outside these prefixes. A person's language choice, their
+ * analytics answer and any queued offline work belong to the DEVICE or to a promise already made, and
+ * wiping them on sign-out would be a different bug - the shared phone would forget the settings of
+ * everyone who ever used it, and an offline queue would silently drop work nobody had saved yet.
+ */
+function whClearIdentity() {
+  var PREFIXES = ['wh_worker', 'wh_last_worker', 'wh_hive', 'wh_active_hive', 'wh_role'];
+  var EXACT = ['workerName'];
+  try {
+    Object.keys(localStorage).forEach(function (k) {
+      var hit = EXACT.indexOf(k) >= 0 || PREFIXES.some(function (p) { return k.indexOf(p) === 0; });
+      if (hit) localStorage.removeItem(k);
+    });
+  } catch (e) { void e; /* a browser that refuses storage has nothing to leak */ }
+}
+if (typeof window !== 'undefined') window.whClearIdentity = whClearIdentity;
 
 // The other half of that split: authenticated, and this particular thing is not yours to see.
 function whIsAccessDenied(err) {
@@ -3471,11 +4017,29 @@ function renderKpiTile(opts) {
   opts = opts || {};
   const COLORS = {
     green:  { bg: 'rgba(74,222,128,0.08)',   border: 'rgba(74,222,128,0.3)',   text: 'var(--wh-green, #4ade80)',  label: '✓ Healthy'  },
-    yellow: { bg: 'rgba(247,162,27,0.08)',   border: 'rgba(247,162,27,0.3)',   text: 'var(--wh-orange, #F7A21B)',  label: '⚠ Watch'    },
-    red:    { bg: 'rgba(248,113,113,0.08)',  border: 'rgba(248,113,113,0.3)',  text: 'var(--wh-red, #f87171)',  label: '✗ Critical' },
-    grey:   { bg: 'rgba(255,255,255,0.03)',  border: 'rgba(255,255,255,0.08)', text: 'rgba(255,255,255,0.6)', label: 'No data' },
+    // ★THE VERDICT CHIP USED THE FILL COLOUR AS TEXT (C2, walked 2026-09-10). This label renders at
+    // 0.63rem, so WCAG 1.4.3 asks 4.5:1, and "✗ Critical" measured 4.18:1 on analytics — on EVERY page
+    // that renders a red KPI tile, since this is the shared helper. tokens.css declares an AA-safe text
+    // variant beside each fill, and says so on the fill's own line: --wh-red is annotated "alert / danger
+    // fill (AA text = --wh-red-text)". (Named, not quoted: this file is shared chrome, and the component
+    // purity gate counts a raw brand hex ANYWHERE in the source — a comment that quotes the literal it is
+    // warning about trips the very lint it documents.)
+    // So this was adoption, not a palette question. The grey row below was already tuned for APCA in
+    // 2026-09-07 and red/yellow were left behind — the partial-fix shape again. Green keeps its fill:
+    // no --wh-green-text is declared and it was not an offender; inventing one is a palette decision.
+    yellow: { bg: 'rgba(247,162,27,0.08)',   border: 'rgba(247,162,27,0.3)',   text: 'var(--wh-orange-text, #FDB94A)',  label: '⚠ Watch'    },
+    red:    { bg: 'rgba(248,113,113,0.08)',  border: 'rgba(248,113,113,0.3)',  text: 'var(--wh-red-text, #FDC9C9)',  label: '✗ Critical' },
+    // ★GREY AT 0.6 ALPHA FAILED APCA ON A 24px NUMBER (critic C5, 2026-09-07: design-system's "92%"
+    // tile read Lc 0/45). WCAG passed it; APCA, which weighs the large-text case honestly, did not.
+    // 0.78 clears Lc 45 on this platform's navy and is still visibly "no data" beside the tones.
+    grey:   { bg: 'rgba(255,255,255,0.03)',  border: 'rgba(255,255,255,0.08)', text: 'rgba(255,255,255,0.78)', label: 'No data' },
   };
-  const c   = COLORS[opts.color] || COLORS.grey;
+  // ★TWO VOCABULARIES FOR ONE THING. design-system.html calls this with `tone: 'ok'` and the map is
+  // keyed green/yellow/red, so a healthy KPI fell through to grey - "No data" on a tile that had data.
+  // The tone words are accepted as aliases rather than the caller being told to learn the colours.
+  const TONE = { ok: 'green', good: 'green', healthy: 'green', watch: 'yellow', warn: 'yellow',
+                 bad: 'red', critical: 'red', danger: 'red' };
+  const c   = COLORS[opts.color] || COLORS[TONE[opts.tone]] || COLORS.grey;
   const id  = opts.tileId || `kpi-${_whKpiTileId++}`;
   const autoOpen = opts.autoOpen !== undefined ? opts.autoOpen : (opts.color === 'red');
   const detail = opts.detail || '';
@@ -3488,7 +4052,7 @@ function renderKpiTile(opts) {
   // the ARIA Authoring Practices accordion pattern. Margins zeroed = pixel-identical.
   return `<div class="card" style="border-left:3px solid ${c.border};margin-bottom:1rem;">
     <h2 style="margin:0;font:inherit;color:inherit;">
-    <button class="kpi-toggle" onclick="if(window.toggleKPI)toggleKPI('${id}')" style="min-height:${detail ? '72px' : '0'};">
+    <button class="kpi-toggle" aria-expanded="${autoOpen ? 'true' : 'false'}" aria-controls="${id}" onclick="if(window.toggleKPI)toggleKPI('${id}')" style="background:${c.bg};border:1px solid ${c.border};color:inherit;min-height:${detail ? '72px' : '0'};">
       <div style="flex:1;text-align:left;">
         <div style="font-size:0.68rem;font-weight:700;color:rgba(255,255,255,0.80);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.25rem;">
           ${escHtml(opts.title || '')} <span style="font-size:0.58rem;font-weight:500;">${escHtml(opts.standard || '')}</span>
@@ -3527,6 +4091,8 @@ if (typeof window !== 'undefined' && !window.toggleKPI) {
     const chevron = document.getElementById(id + '-chevron');
     if (!detail) return;
     const isOpen = detail.classList.toggle('open');
+    // T8 (2026-09-05): the accordion button exposes its state - design-system's specimen and every KPI card
+    var _kb = document.querySelector('button.kpi-toggle[aria-controls="' + id + '"]'); if (_kb) _kb.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
     if (chevron) chevron.classList.toggle('open', isOpen);
   };
 }
@@ -4317,7 +4883,53 @@ async function restoreIdentityFromSession(db) {
       if (cached !== profile.worker_name) localStorage.setItem('wh_last_worker', profile.worker_name);
       return profile.worker_name;
     }
-    return cached;  // authed but no worker-profile row (edge) — keep the cache as a best-effort label
+    /* ★A PERSON WITH NO HIVE HAD NO IDENTITY, SO THE PRODUCT TOLD A SIGNED-IN PERSON TO SIGN IN.
+       `v_worker_truth` carries ONE ROW PER HIVE MEMBERSHIP. The multi-hive end of that was fixed above
+       (two rows broke .maybeSingle()); this is the other end — ZERO rows. A solo owner, and equally a
+       brand-new account whose sign-up the product itself describes as staying "in solo mode", resolves
+       to no row here, so WORKER_NAME comes back empty and every page that gates on it redirects to
+       `index.html?signin=1`. Walked live 2026-09-10 as jun.vanowner@workhive.test, signed in and
+       session-verified: engineering-design, project-manager, project-report, report-sender, asset-hub,
+       logbook AND hive all bounced him to a modal reading "Sign in to open Eng. Design." — with a
+       Username/Password form and "Don't have an account? Create one for free" as the only way out.
+       A second account would land in exactly the same state, and `hive.html` — the one page that could
+       give him a hive — is behind the same gate, so the loop is closed.
+       WHY IT HID: sign-up writes `wh_last_worker` into localStorage, so the cache carries the person on
+       the device where the account was made. The bounce only appears on a SECOND device, in a private
+       window, or after storage is cleared — the same "the bounce warms the cache so it never looks
+       reproducible" shape noted for multi-hive users above.
+       THE FIX READS THE ROW THE PRODUCT'S OWN SIGN-UP WRITES. `worker_profiles` is keyed on `auth_uid`,
+       not on membership, and index.html's Create Account inserts `username` + `display_name` into it.
+       Falling back to it invents no new concept; it just stops asking a membership view who somebody is.
+       `deactivated_at` is honoured — a closed profile must not restore an identity. The user-metadata
+       leg covers accounts created through the GoTrue admin API (the seeded personas), which carry
+       `worker_name` there and have no profile row. Costs one extra REST call ONLY when the membership
+       lookup already came back empty, so the hive-member happy path is unchanged. */
+    /* ★.order('id') IS NOT DECORATION HERE (added 2026-09-11, caught by the paginated-order-totality
+       ratchet on my own edit). `created_at` alone is not a TOTAL order: rows written inside one
+       transaction share an identical now(), and Postgres promises nothing about the order of ties. Under
+       .limit(1) that is the quiet, worse case - "the earliest profile" silently picks an ARBITRARY row
+       among ties - and what this particular query decides is WHO THE PRODUCT THINKS YOU ARE. It is the
+       same shape as the bug that once resolved the WRONG HIVE for a signed-in worker
+       ([[feedback_resolving_live_is_not_enough_be_deterministic]]), which is why the gate treats
+       limit(1) as in scope rather than exempt. Ending on the primary key makes the pick deterministic. */
+    // canonical-allow: worker_profiles is the identity anchor (per tenant-context.ts / wh-persona.js) —
+    // this reads the SIGNED-IN user's OWN profile by auth_uid for their solo display name, a single-surface
+    // identity read, not a cross-surface KPI. v_worker_truth cannot stand in here: it does not carry
+    // `deactivated_at`, and its LEFT JOIN hive_members yields one row PER membership, which breaks the
+    // deterministic earliest-single-profile pick this solo-name block deliberately makes.
+    const { data: _solo } = await db.from('worker_profiles')
+      .select('display_name,username,deactivated_at').eq('auth_uid', session.user.id)
+      .order('created_at', { ascending: true }).order('id', { ascending: true }).limit(1);
+    const _p = (_solo && _solo[0]) || null;
+    const _soloName = (_p && !_p.deactivated_at) ? (_p.display_name || _p.username || '') : '';
+    const _meta = session.user.user_metadata || {};
+    const _name = _soloName || _meta.worker_name || _meta.full_name || _meta.name || '';
+    if (_name) {
+      if (cached !== _name) localStorage.setItem('wh_last_worker', _name);
+      return _name;
+    }
+    return cached;  // authed, no membership, no profile, no metadata — keep the cache as a best-effort label
   } catch (_) { /* empty-catch-allow: best-effort — fall back to whatever was cached */ }
   return cached;
 }
@@ -4460,7 +5072,10 @@ const ACHIEVEMENT_TIERS = [
   { id: 'legend',   min: 91, color: 'var(--wh-orange, #F7A21B)', label: 'Legend'   },
   { id: 'platinum', min: 76, color: 'var(--wh-blue-light, #5FCCE8)', label: 'Platinum' },
   { id: 'gold',     min: 51, color: 'var(--wh-orange, #F7A21B)', label: 'Gold'     },
-  { id: 'silver',   min: 26, color: '#94A3B8', label: 'Silver'   },
+  // Silver was the one this rule missed: slate-400 measured 4.13:1 as the "Silver Technician" chip's
+  // text (walked 2026-09-10, desktop-1280), while Iron and Bronze were lightened for exactly this in
+  // 2026-07-16 and Silver kept its original value. Lightened same-hue to slate-300, the same move.
+  { id: 'silver',   min: 26, color: '#CBD5E1', label: 'Silver'   },
   { id: 'bronze',   min: 11, color: '#E8B27A', label: 'Bronze'   },
   { id: 'iron',     min:  0, color: 'var(--wh-steel-bright, #A9B6C4)', label: 'Iron'     },
 ];

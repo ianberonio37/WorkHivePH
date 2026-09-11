@@ -1,0 +1,20 @@
+{
+ "_doc": "status.html: English visible text -> Filipino, authored. Empty = not yet translated. tools/i18n_page_dict.py --apply tags the element and emits WH_FIL_PAGE.",
+ "← Home": "",
+ "WorkHive Gateway — Status": "",
+ "How this page works": "Paano gumagana ang page na ito",
+ "Each row is one live health check. Green means the service answers within its target. Press Refresh to re-check now.": "Bawat row ay isang live health check. Berde ang ibig sabihin ay sumasagot ang serbisyo sa loob ng target nito. Pindutin ang Refresh para suriin muli ngayon.",
+ "Which browsers WorkHive supports": "Aling mga browser ang sinusuportahan ng WorkHive",
+ "2020-or-newer browser engine": "Browser engine na 2020 o mas bago",
+ "On a supported browser, everything else here degrades gracefully: offline entries queue and\n     sync, and failed reads say what failed rather than showing empty screens.": "",
+ "Checking…": "Sinusuri…",
+ "Gateway status": "Status ng gateway",
+ "checking edge functions…": "sinusuri ang mga edge function…",
+ "SLO targets (28-day window)": "Mga SLO target (28-araw na window)",
+ "Gateway availability": "Availability ng gateway",
+ "Interactive latency (p95)": "",
+ "Voice surface latency (p95)": "",
+ "RAG / background latency (p95)": "",
+ "Error rate (excludes sign-in & rate-limit responses)": "Error rate (hindi kasama ang sign-in at rate-limit na response)",
+ "Provider-chain success before fallback": "Tagumpay ng provider-chain bago mag-fallback"
+}

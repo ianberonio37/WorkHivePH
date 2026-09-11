@@ -56,7 +56,7 @@ WorkHive, because it is offline-first: capture happens locally at the asset and 
 
 WorkHive is a browser-based progressive web app that installs to the home screen and works offline, so there is no app-store dependency or per-device install friction.
 
-**[Try WorkHive free](https://workhiveph.com/?signup=1)**: Free at the worker tier, offline-first, built for Philippine plants.
+**[Try WorkHive free](https://workhiveph.com/?signup=1)**: Free at the worker tier, offline-first, built for Philippine plants. Or try the parts of it this page compares, without an account: the [MTBF calculator](https://workhiveph.com/tools/mtbf-calculator/) and the [OEE calculator](https://workhiveph.com/tools/oee-calculator/).
 
 ## Sources
 
@@ -66,4 +66,4 @@ WorkHive is a browser-based progressive web app that installs to the home screen
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: efd96758f997b125 -->
+<!-- md-twin source-sha: ee46eec481f56e7f -->

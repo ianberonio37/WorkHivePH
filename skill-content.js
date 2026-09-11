@@ -1,6 +1,12 @@
 // WorkHive Skill Matrix — Training Modules + Exam Questions
 // All content is static — no DB queries needed for lesson/exam data.
 // Structure: SKILL_CONTENT[discipline][level] = { title, module (HTML string), exam (array of 10) }
+//
+// i18n-shared-allow: this is a training CORPUS, not chrome -- lesson bodies and exam questions, all
+// static. Bilingual training material is a content-authoring program (a Filipino translation of every
+// module and every exam answer, reviewed by someone who knows the trade vocabulary), not a translator
+// call around a label. Exempting it here records that backlog honestly instead of hiding it behind a
+// wrapper that would make the gate green while the lessons stayed English.
 
 const DISCIPLINES = ['Mechanical', 'Electrical', 'Instrumentation', 'Facilities Management', 'Production Lines'];
 

@@ -43,8 +43,19 @@ if sys.platform == "win32" and sys.stdout.encoding and sys.stdout.encoding.lower
 ROOT = Path(__file__).resolve().parent.parent
 
 FILTER = re.compile(r"\.eq\(\s*'updated_at'")
+# ★AN ORACLE'S VOCABULARY IS PART OF THE ORACLE (2026-09-10). Every alternative below except the last
+# two names the RESULT VARIABLE - `data`, `updated`, `rows` - so a guard that calls it anything else was
+# invisible. dayplanner.html's new guard reads `if (!uErr && (!hit || !hit.length))`, which is an
+# ordinary way to write "zero rows changed", and it was reported as a SILENT guard: the gate said the
+# write vanishes without telling anyone, three lines above a showToast that tells them exactly that.
+# A false accusation about working code is this gate's own stated worst failure mode, so the zero-check
+# is matched on its SHAPE (`!<anything>.length`) rather than on the handful of names the repo happened
+# to use first. Deliberately still narrow: `!<ident>` alone is NOT accepted, because `!error` is not a
+# zero-row check, and a genuinely silent guard - no zero-check at all - still fails, which is what the
+# injected-silent-guard teeth test proves.
 ZERO = re.compile(r"length\s*===?\s*0|!\s*data\b|!\s*updated\b|count\s*===?\s*0|\brows?\s*===?\s*0|"
-                  r"data\s*&&\s*data\.length|\.length\s*<\s*1")
+                  r"data\s*&&\s*data\.length|\.length\s*<\s*1|"
+                  r"!\s*[A-Za-z_]\w*\.length\b|[A-Za-z_]\w*\s*&&\s*[A-Za-z_]\w*\.length")
 SAYS = re.compile(r"showToast|whWriteError|setStatus|textContent\s*=|whConfirm|alert\(")
 
 

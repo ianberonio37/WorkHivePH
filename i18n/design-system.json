@@ -1,0 +1,7 @@
+{
+  "_doc": "design-system.html: English visible text -> Filipino, authored. Empty = not yet translated. tools/i18n_page_dict.py --apply tags the element and emits WH_FIL_PAGE.",
+  "WorkHive Design System": "WorkHive Design System",
+  "← Back to WorkHive": "← Balik sa WorkHive",
+  "How this page works": "Paano gumagana ang page na ito",
+  "Each card is one canonical primitive from the registry: what it is, when to use it, and its live\n    rendering. If a specimen looks wrong here, it is wrong everywhere: fix the shared source, never a page.": "Bawat card ay isang canonical primitive mula sa registry: ano ito, kailan gagamitin, at ang live rendering nito. Kung mali ang itsura ng specimen dito, mali ito kahit saan: ayusin ang shared source, hindi ang isang page."
+}

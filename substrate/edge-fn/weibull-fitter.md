@@ -2,7 +2,7 @@
 name: edge-fn-weibull-fitter
 type: edge-fn
 source: file:supabase/functions/weibull-fitter/index.ts
-source_sha: f9f031199b035154
+source_sha: a885cf5725e1d993
 last_verified: 2026-07-13
 supersedes: null
 ---

@@ -13,7 +13,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=optional" rel="stylesheet" />
   <!-- Supabase CDN MUST be first script (utils.js getDb depends on it) -->
   <script src="browser-floor.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
+  <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
   <script src="utils.js"></script>
   <!-- html2pdf for PDF export (P2). pagebreak mode:['css'] only per mobile-maestro rules. -->
   <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js" integrity="sha384-Yv5O+t3uE3hunW8uyrbpPW3iw6/5/Y7HitWJBLgqfMoA36NogMmy+8wWZMpn3HWc" crossorigin="anonymous"></script>
@@ -51,7 +51,7 @@
 
     /* ── Offline banner ── */
     #offline-banner { display: none; background: rgba(247,162,27,0.15); border: 1px solid rgba(247,162,27,0.4);
-      color: var(--wh-orange-light); font-size: 0.75rem; font-weight: 600; padding: 0.5rem 0.9rem; border-radius: 0.6rem; margin-bottom: 0.85rem; }
+      color: var(--wh-orange-light); font-size: 0.75rem; font-weight: 600; padding: 0.5rem 0.9rem; border-radius:0.5rem; margin-bottom: 0.85rem; }
     #offline-banner.show { display: block; }
 
     /* ── Toast ── */
@@ -78,7 +78,7 @@
     .sec-sub { font-size: 0.68rem; color: var(--wh-steel-bright); margin-top: 0.1rem; }
 
     /* ── Buttons ── */
-    .btn { min-height: 44px; border-radius: 0.7rem; font-family: inherit; font-size: 0.85rem; font-weight: 700;
+    .btn { min-height: 44px; border-radius:0.75rem; font-family: inherit; font-size: 0.85rem; font-weight: 700;
       cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem;
       padding: 0.5rem 1rem; border: 1px solid transparent; transition: transform 0.12s, opacity 0.12s; }
     .btn:active { transform: scale(0.97); }
@@ -97,6 +97,26 @@
     .icon-mv { background: rgba(148,163,184,0.10); border: 1px solid rgba(148,163,184,0.30); color: #cbd5e1;
       width: 44px; height: 44px; min-height: 44px; border-radius: 0.5rem; font-size: 0.85rem; flex-shrink: 0; }
     .item-actions { display: flex; align-items: center; gap: 0.35rem; }
+    /* ★THE DESTRUCTIVE CONTROL SAT 6px FROM THE ONE PEOPLE PRESS MOST (walked 2026-09-11, J31, a solo
+       van owner with no hive, desktop-1280). Every ✕ Remove is a correct 44x44 target - the SIZE was
+       never the problem - but `gap: 0.35rem` put it 6px from the ▲/▼ reorder buttons in the same row,
+       sharing 44px of vertical overlap. Re-ordering entries is the single most repeated gesture in a
+       resume builder, so the control a person aims at over and over sits one thumb-width from the one
+       that deletes the entry. Z3 names exactly this ("14 crowded/small target(s) risk mis-tap:
+       ✕(destructive) …"): a destructive target is an accidental-touch hazard when another tappable
+       target sits HORIZONTALLY beside it with under 24px between them, which is WCAG 2.5.8's spacing
+       rule applied where it matters most.
+       THE PAGE ALREADY KNEW, AND FIXED THE CONSEQUENCE RATHER THAN THE CAUSE: the remove handler's own
+       comment reads "Removing a row is destructive and a novice fat-fingers the ✕ - push undo FIRST".
+       Undo is the right safety net and it stays; this removes the mis-tap that makes it necessary.
+       Margin, not a bigger gap on the container: the ▲/▼ pair belongs together and should stay tight -
+       only the destructive control is pushed clear of them. */
+    /* 20px + the container's 0.35rem gap = 25.6px, clear of the 24px floor.
+       ★NOT 18px, which was the first value here and was 0.4px SHORT: `gap: 0.35rem` is 5.6px, not the
+       6px my rounded measurement showed, so 18 + 5.6 = 23.6 and Z3 kept failing. My probe had rounded
+       the gap to 24 BEFORE comparing it to the 24 threshold and so reported the control clear, while the
+       dim compared the raw float and did not. Round for display, never before a threshold test. */
+    .item-actions .icon-del { margin-left: 20px; }
 
     /* ── Action bar ── */
     .action-bar { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-bottom: 1.1rem; }
@@ -106,7 +126,7 @@
     .field { margin-bottom: 0.65rem; }
     .field label { display: block; font-size: 0.66rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;
       color: var(--wh-steel-bright); margin-bottom: 0.25rem; }
-    .wh-input { width: 100%; padding: 0.6rem 0.75rem; border-radius: 0.6rem; border: 1px solid rgba(255,255,255,0.12);
+    .wh-input { width: 100%; padding: 0.6rem 0.75rem; border-radius:0.5rem; border: 1px solid rgba(255,255,255,0.12);
       background: rgba(22,32,50,0.55); color: var(--wh-cloud); font-size: 1rem; font-family: inherit; line-height: 1.4; }
     .wh-input:focus { outline: none; border-color: rgba(41,182,217,0.6); }
     .field-hint { font-size: 0.64rem; color: var(--wh-steel-bright); margin-top: 0.25rem; line-height: 1.4; }
@@ -114,7 +134,7 @@
     .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.55rem; }
 
     /* ── Item card (one repeatable entry) ── */
-    .item { background: rgba(22,32,50,0.4); border: 1px solid rgba(255,255,255,0.06); border-radius: 0.8rem;
+    .item { background: rgba(22,32,50,0.4); border: 1px solid rgba(255,255,255,0.06); border-radius:0.75rem;
       padding: 0.85rem 0.9rem; margin-bottom: 0.7rem; }
     .item-top { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.55rem; }
 
@@ -221,26 +241,36 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   <div class="aurora"><div class="aurora-blob aurora-blob-1"></div><div class="aurora-blob aurora-blob-2"></div></div>
 
   <main class="page" id="main">
-    <style>/* Arc-W W-lens: breathing room between top-level sections (gRatio 0.91 → ≥1.5) */ main.page > *:not(:last-child){margin-bottom:2.25rem}</style>
-    <div id="offline-banner">⚠ You're offline: changes are saved on this device and will sync when you reconnect.</div>
+    <style>/* Arc-W W-lens: breathing room between top-level sections (gRatio 0.91 → ≥1.5) */ main.page > *:not(:last-child){margin-bottom:2rem}</style>
+    <div data-i="p_youreofflinechangesaresavedo_86a5" id="offline-banner">⚠ You're offline: changes are saved on this device and will sync when you reconnect.</div>
 
     <!-- chip-allow: this page reads v_logbook_truth + v_skill_badges_truth ONCE to PRE-FILL a resume (not a live KPI display); per-item data provenance is shown via srcChip, so a page-level source/freshness chip does not apply. -->
     <header class="page-header">
-      <h1>📄 Resume / CV Builder</h1>
-      <p>Build a professional resume from your WorkHive experience. Everything is editable: you decide what goes in.</p>
+      <h1 data-i="rs-title">📄 Resume / CV Builder</h1>
+    <details class="wh-help">
+      <summary data-i="p_howthispageworks_c540">How this page works</summary>
+      <ul>
+        <li data-i="p_thisbuildsfromwhatyouhavealr_7417">This builds from what you have already recorded: your logbook entries, your skills and your achievements. It is not a blank form.</li>
+        <li data-i="p_everythingiseditablebeforeex_df9c">Everything is editable before export. The generated text is a starting point, not a claim the platform makes about you.</li>
+        <li data-i="p_yourresumeisyoursexportingit_6b26">Your resume is yours. Exporting it takes a copy away with you and leaves your hive records untouched.</li>
+      </ul>
+    </details>
+
+    <p data-i="p_yourresumesavedonthisdevicea_182d" class="wh-source-chip" role="status" style="font-size:.62rem;opacity:.8;margin:.25rem 0 0;">Your resume · saved on this device and to your account · as of this page load</p>
+      <p data-i="p_buildaprofessionalresumefrom_d73d">Build a professional resume from your WorkHive experience. Everything is editable: you decide what goes in.</p>
       <div id="ctx-pill" class="ctx-pill" style="display:none;"></div>
     </header>
 
     <div class="action-bar">
-      <button class="btn btn-primary" id="btn-autofill" type="button">✨ Auto-fill from my WorkHive data</button>
-      <button class="btn btn-ghost" id="btn-save" type="button">💾 Save</button>
-      <button class="btn btn-ghost" id="btn-resumes" type="button">📂 My Resumes</button>
+      <button class="btn btn-primary" id="btn-autofill" type="button" data-i="rs-autofill">✨ Auto-fill from my WorkHive data</button>
+      <button data-i="rs-save" class="btn btn-ghost" id="btn-save" type="button">💾 Save</button>
+      <button data-i="rs-mine" class="btn btn-ghost" id="btn-resumes" type="button">📂 My Resumes</button>
       <button class="btn btn-ghost" id="btn-export" type="button" data-i="rz_export">👁 Preview &amp; Export</button>
       <button class="btn btn-ghost" id="btn-undo" type="button" data-i="rz_undo">↩ Undo</button>
     </div>
 
     <div class="card" id="upload-card">
-      <div class="sec-head"><div><div class="sec-title" role="heading" aria-level="2" data-i="rz_add_files">📎 Add from files</div><div class="sec-sub" data-i="rz_upload_sub">Dump as many as you like: photo, screenshot, PDF, Word, Excel, or text. We read each one and you choose what to keep. Multi-page resume? Snap one photo per page (or upload the PDF): each photo is read on its own.</div></div></div>
+      <div class="sec-head"><div><h2 class="sec-title" role="heading" aria-level="2" data-i="rz_add_files">📎 Add from files</h2><div class="sec-sub" data-i="rz_upload_sub">Dump as many as you like: photo, screenshot, PDF, Word, Excel, or text. We read each one and you choose what to keep. Multi-page resume? Snap one photo per page (or upload the PDF): each photo is read on its own.</div></div></div>
       <div style="display:flex;flex-wrap:wrap;gap:0.6rem;">
         <button class="btn btn-ghost" id="btn-photo" type="button" style="flex:1;min-width:calc(50% - 0.6rem);" data-i="rz_take_photos">📷 Take photos</button>
         <button class="btn btn-ghost" id="btn-file" type="button" style="flex:1;min-width:calc(50% - 0.6rem);" data-i="rz_choose_files">📁 Choose files</button>
@@ -248,11 +278,13 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <input type="file" id="file-photo" aria-label="Take or choose photos of your resume or certificates" accept="image/*" capture="environment" multiple style="display:none;" />
       <input type="file" id="file-any" aria-label="Choose a PDF, Word, Excel, text, or image file to import" accept="image/*,application/pdf,.pdf,.doc,.docx,.xls,.xlsx,.txt,.md,text/plain,text/markdown,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" multiple style="display:none;" />
       <p id="upload-status" style="font-size:0.72rem;color:var(--wh-blue-light);margin-top:0.6rem;display:none;"></p>
-      <p style="font-size:0.66rem;color:var(--wh-steel-bright);margin-top:0.4rem;" data-i="rz_upload_privacy">Your files are read just to fill in your resume, then discarded. Nothing is added until you tap to confirm. Keep adding more anytime: it builds on what you already have.</p>
+      <p style="font-size:0.66rem;color:var(--wh-steel-bright);margin-top:0.4rem;" data-i="rz_upload_privacy">Your files are read just to fill in your resume, then discarded. Nothing gets added until you tap Confirm. Keep adding more anytime: it builds on what you already have.</p>
       <script>
         // P11 i18n — adopt the SHARED data-i/_t system (utils.js WH_FIL_PAGE lever, P5 lever ladder).
         // First batch: upload-card chrome + header actions. Natural Taglish, English domain terms kept.
         window.WH_FIL_PAGE = Object.assign(window.WH_FIL_PAGE || {}, {
+          'rs-sec-work': 'Karanasan sa Trabaho', 'rs-add-work': '+ Magdagdag ng karanasan sa trabaho', 'rs-sec-skills': 'Mga Kasanayan', 'rs-add-skills': '+ Magdagdag ng kasanayan', 'rs-sec-education': 'Edukasyon', 'rs-add-education': '+ Magdagdag ng edukasyon', 'rs-sec-certificates': 'Mga Sertipiko at Lisensya', 'rs-add-certificates': '+ Magdagdag ng sertipiko o lisensya', 'rs-sec-projects': 'Mga Proyekto', 'rs-add-projects': '+ Magdagdag ng proyekto', 'rs-sec-awards': 'Mga Parangal', 'rs-add-awards': '+ Magdagdag ng parangal', 'rs-sec-references': 'Mga Reperensiya', 'rs-add-references': '+ Magdagdag ng reperensiya',   // section headings + add buttons (N1 coverage, 2026-09-06)
+          'rs-aihelpers': '✨ Mga AI helper', 'rs-writesummary': '🧬 Isulat ang buod mula sa buong resume ko', 'rs-polish': '✨ Pakinisin ang pananalita ng karanasan ko', 'rs-tailorlabel': 'Iakma sa trabaho (i-paste ang job ad)', 'rs-tailor': '🎯 Iakma ang resume ko sa trabahong ito', 'rs-matchscore': '📊 Suriin ang match score ko sa trabahong ito', 'rs-cover': '✍ Gumawa ng cover letter', 'rs-review': 'Suriin ang nakita namin', 'rs-cancel': 'Kanselahin', 'rs-addsel': 'Idagdag ang napili', 'rs-myresumes': '📂 Mga Resume Ko', 'rs-resname': 'Pangalan ng resume na ito', 'rs-close': 'Isara', 'rs-newblank': '＋ Bagong blangkong resume', 'rs-xclose': '✕ Isara', 'rs-pdf': '⬇ I-download / Tingnan ang PDF', 'rs-print': '🖨 I-print', 'rs-retry': '↻ Subukan muli', 'rs-details': 'Iyong Detalye', 'rs-copy': '📋 Kopyahin', 'rs-dltxt': '⬇ I-download .txt',   // N1 label coverage (2026-09-06)
           rz_export: '👁 I-preview at I-export', rz_undo: '↩ I-undo',
           rz_add_files: '📎 Magdagdag mula sa files',
           rz_upload_sub: 'Mag-dump ng kahit ilan: litrato, screenshot, PDF, Word, Excel, o text. Babasahin namin ang bawat isa at ikaw ang pipili kung ano ang itatago. Maraming pahina ang resume? Kumuha ng isang litrato bawat pahina (o i-upload ang PDF): bawat litrato ay babasahin nang hiwalay.',
@@ -262,38 +294,38 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       </script>
       <label class="opt-toggle" for="promote-dedupe">
         <input type="checkbox" id="promote-dedupe" />
-        <span>Promote, don't duplicate: when an achievement becomes a Project or Award, don't also keep it as a duplicate bullet. <b>Off by default</b>, leave off to capture the most.</span>
+        <span>Promote, don't duplicate. Once an entry becomes a Project or Award, drop the old bullet. <b data-i="p_offbydefault_b51e">Off by default</b>, leave off to capture the most.</span>
       </label>
     </div>
 
     <div class="card" id="ai-card">
-      <div class="sec-head"><div><div class="sec-title" role="heading" aria-level="2">✨ AI helpers</div><div class="sec-sub">Turn rough notes into professional wording. You review every suggestion before it is used.</div></div></div>
-      <button class="btn btn-ghost" id="btn-summary" type="button" style="width:100%;margin-bottom:0.75rem;">🧬 Write my summary from my whole resume</button>
-      <button class="btn btn-ghost" id="btn-polish" type="button" style="width:100%;margin-bottom:0.75rem;">✨ Polish my experience wording</button>
-      <div class="field"><label>Tailor to a job (paste the job ad)</label>
+      <div class="sec-head"><div><h2 data-i="rs-aihelpers" class="sec-title" role="heading" aria-level="2">✨ AI helpers</h2><div data-i="p_turnroughnotesintoprofession_f75a" class="sec-sub">Turn rough notes into professional wording. You review every suggestion before it is used.</div></div></div>
+      <button data-i="rs-writesummary" class="btn btn-ghost" id="btn-summary" type="button" style="width:100%;margin-bottom:0.75rem;">🧬 Write my summary from my whole resume</button>
+      <button data-i="rs-polish" class="btn btn-ghost" id="btn-polish" type="button" style="width:100%;margin-bottom:0.75rem;">✨ Polish my experience wording</button>
+      <div class="field"><label data-i="rs-tailorlabel">Tailor to a job (paste the job ad)</label>
         <textarea class="wh-input" id="jd-input" aria-label="Paste a job description to tailor your resume" rows="3" placeholder="Paste the job description here, then tap Tailor."></textarea>
       </div>
-      <button class="btn btn-ghost" id="btn-tailor" type="button" style="width:100%;">🎯 Tailor my resume to this job</button>
-      <button class="btn btn-ghost" id="btn-jdscore" type="button" style="width:100%;margin-top:0.6rem;">📊 Check my match score for this job</button>
+      <button data-i="rs-tailor" class="btn btn-ghost" id="btn-tailor" type="button" style="width:100%;">🎯 Tailor my resume to this job</button>
+      <button data-i="rs-matchscore" class="btn btn-ghost" id="btn-jdscore" type="button" style="width:100%;margin-top:0.6rem;">📊 Check my match score for this job</button>
       <div id="jd-score-panel" role="region" aria-label="Job match score" aria-live="polite" style="display:none;margin-top:0.9rem;"></div>
-      <button class="btn btn-ghost" id="btn-coverletter" type="button" style="width:100%;margin-top:0.6rem;">✍ Draft a cover letter</button>
+      <button data-i="rs-cover" class="btn btn-ghost" id="btn-coverletter" type="button" style="width:100%;margin-top:0.6rem;">✍ Draft a cover letter</button>
       <div id="cover-letter-panel" role="region" aria-label="Cover letter draft" style="display:none;margin-top:0.9rem;"></div>
     </div>
 
-    <div id="sections"></div>
+    <div id="sections" style="min-height:480px"></div>
   </main>
 
   <!-- Checklist review sheet — must be in DOM before the <script> block runs -->
   <div class="sheet-overlay" id="review-sheet" role="dialog" aria-modal="true" aria-label="Review extracted resume">
     <div class="sheet-panel" role="dialog" aria-modal="true" aria-labelledby="review-title">
       <div class="sheet-handle"></div>
-      <h2 id="review-title" style="font-size:1rem;font-weight:700;color:#fff;margin-bottom:0.2rem;">Review what we found</h2>
+      <h2 data-i="rs-review" id="review-title" style="font-size:1rem;font-weight:700;color:#fff;margin-bottom:0.2rem;">Review what we found</h2>
       <p id="review-sub" style="font-size:0.74rem;color:#9fb0c0;margin-bottom:0.4rem;">Uncheck anything you don't want. Tap a value to edit it before adding.</p>
       <div id="review-body"></div>
       <div class="sheet-foot">
         <div style="display:flex;gap:0.6rem;">
-          <button class="btn btn-ghost" id="review-cancel" type="button" style="flex:0 0 auto;">Cancel</button>
-          <button class="btn btn-primary" id="review-confirm" type="button" style="flex:1;">Add selected</button>
+          <button data-i="rs-cancel" class="btn btn-ghost" id="review-cancel" type="button" style="flex:0 0 auto;">Cancel</button>
+          <button data-i="rs-addsel" class="btn btn-primary" id="review-confirm" type="button" style="flex:1;">Add selected</button>
         </div>
       </div>
     </div>
@@ -303,17 +335,17 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   <div class="sheet-overlay" id="resume-manager" role="dialog" aria-modal="true" aria-label="Saved resumes">
     <div class="sheet-panel" role="dialog" aria-modal="true" aria-labelledby="rm-title">
       <div class="sheet-handle"></div>
-      <h2 id="rm-title" style="font-size:1rem;font-weight:700;color:#fff;margin-bottom:0.2rem;">📂 My Resumes</h2>
+      <h2 data-i="rs-myresumes" id="rm-title" style="font-size:1rem;font-weight:700;color:#fff;margin-bottom:0.2rem;">📂 My Resumes</h2>
       <p style="font-size:0.74rem;color:#9fb0c0;margin-bottom:0.6rem;">Keep separate resumes for different jobs, e.g. a maintenance CV and an OFW application. Each saves on its own.</p>
-      <label style="display:block;font-size:0.7rem;color:#9fb0c0;margin-bottom:0.8rem;">This resume’s name
+      <label data-i="rs-resname" style="display:block;font-size:0.7rem;color:#9fb0c0;margin-bottom:0.8rem;">This resume’s name
         <input class="wh-input" id="rm-current-title" aria-label="Name of the resume you are editing" placeholder="e.g. Maintenance Technician CV" style="margin-top:0.25rem;" />
       </label>
       <div class="sheet-group-title">Your saved resumes</div>
       <div id="rm-list"></div>
       <div class="sheet-foot">
         <div style="display:flex;gap:0.6rem;">
-          <button class="btn btn-ghost" id="rm-close" type="button" style="flex:0 0 auto;">Close</button>
-          <button class="btn btn-primary" id="rm-new" type="button" style="flex:1;">＋ New blank resume</button>
+          <button data-i="rs-close" class="btn btn-ghost" id="rm-close" type="button" style="flex:0 0 auto;">Close</button>
+          <button data-i="rs-newblank" class="btn btn-primary" id="rm-new" type="button" style="flex:1;">＋ New blank resume</button>
         </div>
       </div>
     </div>
@@ -322,16 +354,16 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   <!-- Export preview overlay (P2) — must be in DOM before the script block runs -->
   <div class="preview-overlay" id="preview-overlay" role="dialog" aria-modal="true" aria-label="Resume preview and export">
     <div class="preview-bar">
-      <button class="btn btn-ghost btn-sm" id="pv-close" type="button">✕ Close</button>
+      <button data-i="rs-xclose" class="btn btn-ghost btn-sm" id="pv-close" type="button">✕ Close</button>
       <div class="pv-templates">
         <button class="btn btn-sm pv-tpl" data-tpl="ats-plain" type="button">ATS-plain</button>
         <button class="btn btn-sm pv-tpl" data-tpl="workhive" type="button">WorkHive</button>
         <button class="btn btn-sm pv-tpl" data-tpl="ofw" type="button">OFW</button>
       </div>
       <div class="pv-actions">
-        <button class="btn btn-primary btn-sm" id="pv-pdf" type="button">⬇ Download / View PDF</button>
+        <button data-i="rs-pdf" class="btn btn-primary btn-sm" id="pv-pdf" type="button">⬇ Download / View PDF</button>
         <button class="btn btn-ghost btn-sm" id="pv-docx" type="button">⬇ Word .docx</button>
-        <button class="btn btn-ghost btn-sm" id="pv-print" type="button">🖨 Print</button>
+        <button data-i="rs-print" class="btn btn-ghost btn-sm" id="pv-print" type="button">🖨 Print</button>
         <button class="btn btn-ghost btn-sm" id="pv-json" type="button">{ } JSON</button>
       </div>
     </div>
@@ -534,7 +566,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
             ? 'This is a connection problem, not an empty resume. Anything you saved is still on the server. Try again before typing it out from scratch.'
             : 'What you see below is the copy saved on this device, which may be older than your saved version. Try again before editing, so you do not overwrite newer work.'}</p>
           <div style="display:flex;gap:0.6rem;flex-wrap:wrap;justify-content:center;">
-            <button class="btn btn-primary" id="btn-retry-load" type="button">↻ Try again</button>
+            <button data-i="rs-retry" class="btn btn-primary" id="btn-retry-load" type="button">↻ Try again</button>
           </div>
         </div>`;
       } else if (isEmptyResume()) {
@@ -548,8 +580,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           <p><b>Three ways to start: pick whichever is easiest:</b></p>
           <p>① <b>Auto-fill</b> from your WorkHive skills, badges &amp; logbook &nbsp;·&nbsp; ② <b>Upload</b> an old resume (photo, PDF, Word, or text) &nbsp;·&nbsp; ③ Just <b>type</b> into the sections below. You can edit everything afterwards.</p>
           <div style="display:flex;gap:0.6rem;flex-wrap:wrap;justify-content:center;">
-            <button class="btn btn-primary" id="btn-autofill-2" type="button">✨ Auto-fill from WorkHive</button>
-            <button class="btn btn-ghost" id="btn-file-2" type="button">📁 Upload a resume</button>
+            <button data-i="rs-autofill2" class="btn btn-primary" id="btn-autofill-2" type="button">✨ Auto-fill from WorkHive</button>
+            <button data-i="rs-upload" class="btn btn-ghost" id="btn-file-2" type="button">📁 Upload a resume</button>
           </div>
         </div>`;
       }
@@ -585,10 +617,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       el.style.display = 'block';
       if (q === total) {
         el.className = 'quant-coach ok';
-        el.textContent = `✅ All ${total} experience bullet${total === 1 ? '' : 's'} include a number: strong.`;
+        el.textContent = _t(`✅ All ${total} experience bullet${total === 1 ? '' : 's'} include a number: strong.`,
+          `✅ Lahat ng ${total} experience bullet ay may numero: matibay.`);
       } else {
         el.className = 'quant-coach';
-        el.textContent = `💪 ${q} of ${total} experience bullets include a number. Numbers win: add real figures (downtime saved, equipment count, team size, cost). Never invent one.`;
+        el.textContent = _t(`💪 ${q} of ${total} experience bullets include a number. Numbers win: add real figures (downtime saved, equipment count, team size, cost). Never invent one.`,
+          `💪 ${q} sa ${total} experience bullet ang may numero. Panalo ang numero: magdagdag ng totoong datos (downtime na natipid, bilang ng kagamitan, laki ng team, gastos). Huwag kailanman mag-imbento.`);
       }
     }
 
@@ -603,13 +637,13 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const input = type === 'area'
         ? `<textarea id="${fid}" class="wh-input" data-basics="${f}" placeholder="${escHtml(ph)}" rows="3">${escHtml(val)}</textarea>`
         : `<input id="${fid}" type="${itype}"${ac} class="wh-input" data-basics="${f}" placeholder="${escHtml(ph)}" value="${escHtml(val)}" />`;
-      return `<div class="field"><label for="${fid}">${escHtml(label)}${chip}</label>${input}</div>`;
+      return `<div class="field"><label for="${fid}"><span data-i="rs-${f}">${escHtml(label)}</span>${chip}</label>${input}</div>`;
     }
 
     function renderBasics() {
       const b = resume.basics;
       return `<div class="card">
-        <div class="sec-head"><div><div class="sec-title" role="heading" aria-level="2">Your Details</div><div class="sec-sub">The top of your resume</div></div></div>
+        <div class="sec-head"><div><h2 data-i="rs-details" class="sec-title" role="heading" aria-level="2">Your Details</h2><div class="sec-sub">The top of your resume</div></div></div>
         ${basicsField('name', 'Full name', b.name, 'Juan Dela Cruz')}
         ${basicsField('label', 'Headline / role', b.label, 'Mechanical Maintenance Technician')}
         <div class="field-row">
@@ -662,10 +696,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           </div>${fieldsHtml}</div>`;
       });
       return `<div class="card">
-        <div class="sec-head"><div><div class="sec-title" role="heading" aria-level="2">${escHtml(sec.title)}</div>${sec.sub ? `<div class="sec-sub">${escHtml(sec.sub)}</div>` : ''}</div></div>
+        <div class="sec-head"><div><h2 class="sec-title" role="heading" aria-level="2" data-i="rs-sec-${sec.key}">${escHtml(sec.title)}</h2>${sec.sub ? `<div class="sec-sub">${escHtml(sec.sub)}</div>` : ''}</div></div>
         ${sec.key === 'work' ? '<div id="quant-coach" class="quant-coach" role="status" aria-live="polite" style="display:none;"></div>' : ''}
         ${body || `<p style="font-size:0.76rem;color:var(--wh-steel-bright);">Nothing here yet.</p>`}
-        <button class="btn btn-add" data-action="add" data-sec="${sec.key}" type="button">+ Add ${escHtml(sec.title.replace(/s$/, '').toLowerCase())}</button>
+        <button class="btn btn-add" data-action="add" data-sec="${sec.key}" type="button" data-i="rs-add-${sec.key}">+ Add ${escHtml(sec.title.replace(/s$/, '').toLowerCase())}</button>
       </div>`;
     }
 
@@ -976,7 +1010,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
             <div class="rm-row-sub">Updated ${e(relTime(d.updated_at))}</div>
           </div>
           <div class="rm-row-actions">
-            ${isCur ? '' : `<button class="btn btn-ghost btn-sm" data-rm-open="${e(d.id)}" type="button" aria-label="Open resume ${e(title)}">Open</button>`}
+            ${isCur ? '' : `<button class="btn btn-ghost btn-sm" data-rm-open="${e(d.id)}" type="button" aria-label="Open resume ${e(title)}" data-i="open">Open</button>`}
             <!-- T179 (2026-08-26): this was ✕, the same glyph the platform uses for Close and for
                  Remove. One glyph meaning both "dismiss this" and "permanently delete the resume you
                  spent an hour on" is how a person loses work: they learn ✕ = go away, and it does not.
@@ -1045,7 +1079,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           var _authGone = (typeof whIsAuthFailure === 'function') && whIsAuthFailure(err);
           toast(_authGone
             ? 'Your session expired, so nothing was deleted. Sign in again, then try once more.'
-            : 'Could not delete: ' + (err.message || 'error'));
+            : _t('Could not delete: ', 'Hindi ma-delete: ') + (err.message || 'error'));
           // Put the control back so the person can retry the thing that just failed.
           if (yesBtn) { yesBtn.disabled = false; yesBtn.removeAttribute('aria-busy'); yesBtn.textContent = 'Yes'; }
           return;
@@ -1235,6 +1269,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         }
       }
       document.getElementById('review-body').innerHTML = html;
+      // EX-AT (2026-09-07): the AI's suggestions are an answer too - the shared row lets a person
+      // record that the polish was wrong, against the wording it proposed.
+      if (typeof whAiTrustRow === 'function' && items.some(it => /AI/i.test(String(it.src || '')))) {
+        whAiTrustRow(document.getElementById('review-body'), { db, agent: 'resume-polish', source: 'review', page: 'resume',
+          question: title, answer: items.map(it => it.value).join('\n'), groundedOn: _t('your logbook entries, skills and achievements', 'ang mga logbook entry, skill at achievement mo') });
+      }
       updateReviewCount();
       document.getElementById('review-sheet').classList.add('open');
       // NO trapFocus() — `.sheet-overlay`, so whModalA11y owns the trap and the restore (same reason as
@@ -1268,11 +1308,18 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
     // ── Upload + AI extract (P3): photo / PDF / Word / Excel -> checklist ─────
     const _loadedScripts = {};
-    function loadScript(src) {
+    // `integrity` is not optional decoration here: this page parses a person's CV, so a compromised
+    // CDN response would run inside the page holding that document and their session. The hashes are
+    // SHA-384 of the bytes jsdelivr actually serves for these exact pinned versions; `crossOrigin`
+    // is required for SRI to be checked on a cross-origin response. A hash mismatch rejects the
+    // load, which surfaces through the existing onerror as "Failed to load" - one upload path
+    // degrades with a message rather than the page silently executing something unverified.
+    function loadScript(src, integrity) {
       if (_loadedScripts[src]) return _loadedScripts[src];
       _loadedScripts[src] = new Promise((resolve, reject) => {
         const s = document.createElement('script'); s.src = src; s.async = true;
-        s.onload = resolve; s.onerror = () => reject(new Error('Failed to load ' + src));
+        if (integrity) { s.integrity = integrity; s.crossOrigin = 'anonymous'; }
+        s.onload = resolve; s.onerror = () => reject(new Error(_t('Failed to load ', 'Hindi na-load ang ') + src));
         document.head.appendChild(s);
       });
       return _loadedScripts[src];
@@ -1290,7 +1337,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           c.getContext('2d').drawImage(img, 0, 0, w, h);
           resolve(c.toDataURL('image/jpeg', 0.82));
         };
-        img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Could not load image')); };
+        img.onerror = () => { URL.revokeObjectURL(url); reject(new Error(_t('Could not load image', 'Hindi ma-load ang larawan'))); };
         img.src = url;
       });
     }
@@ -1301,9 +1348,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     // multi-page CV does not lose its trailing jobs invisibly.
     let _uploadNotes = [];
     const PDFJS_SRC = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js';
+    const PDFJS_SRI = 'sha384-/1qUCSGwTur9vjf/z9lmu/eCUYbpOTgSjmpbMQZ1/CtX2v/WcAIKqRv+U1DUCG6e';
     const PDFJS_WORKER = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
     async function extractPdf(file) {
-      await loadScript(PDFJS_SRC);
+      await loadScript(PDFJS_SRC, PDFJS_SRI);
       const pdfjsLib = window.pdfjsLib;
       pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_WORKER;
       const buf = await file.arrayBuffer();
@@ -1319,13 +1367,13 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       return text;
     }
     async function extractDocx(file) {
-      await loadScript('https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js');
+      await loadScript('https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js', 'sha384-nFoSjZIoH3CCp8W639jJyQkuPHinJ2NHe7on1xvlUA7SuGfJAfvMldrsoAVm6ECz');
       const buf = await file.arrayBuffer();
       const result = await window.mammoth.extractRawText({ arrayBuffer: buf });
       return (result && result.value) || '';
     }
     async function extractXlsx(file) {
-      await loadScript('https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js');
+      await loadScript('https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js', 'sha384-vtjasyidUo0kW94K5MXDXntzOJpQgBKXmE7e2Ga4LG0skTTLeBi97eFAXsqewJjw');
       const buf = await file.arrayBuffer();
       const wb = window.XLSX.read(buf, { type: 'array' });
       let text = '';
@@ -1340,10 +1388,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         body: JSON.stringify({ kind, payload, source, hive_id: HIVE_ID || null, worker_name: WORKER_NAME, auth_uid: _authUid, dedupe_promotions: _promoteDedupe }),
       }, 60000);
       if (res === null) { toast('That took too long. Try a smaller or clearer file.'); return null; }
-      let raw; try { raw = await res.json(); } catch (_) { console.error('resume reader error:', _); toast('Reader error. Please try again.'); return null; }
+      let raw; try { raw = await res.json(); } catch (_) { console.error('resume reader error:', _); toast(_t('Reader error. Please try again.', 'Error sa reader. Pakisubukan muli.')); return null; }
       // Envelope-aware: errors carry { ok:false, error:{message} }; success carries { ok:true, data:{...} }. Legacy flat shape still supported.
       if (!res.ok || (raw && raw.ok === false) || (raw && raw.error)) {
-        toast(raw && raw.error ? (raw.error.message || raw.error) : 'Reader failed. Try again.'); return null;
+        toast(raw && raw.error ? (raw.error.message || raw.error) : _t('Reader failed. Try again.', 'Hindi natuloy ang reader. Subukan muli.')); return null;
       }
       const data = (raw && raw.data && typeof raw.data === 'object') ? raw.data : raw;
       // Map-reduce honesty: on a heavy multi-page file the fn reads N sections
@@ -1513,7 +1561,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         const offline = failCount && !navigator.onLine;
         const tn = _uploadNotes.length ? ' (' + _uploadNotes.join('; ') + ')' : '';   // A4: surface truncation even with no items
         toast((offline ? 'You appear to be offline. Reconnect, then try uploading again.'
-              : failCount ? 'Could not read those files. Try clearer photos or PDFs.'
+              : failCount ? _t('Could not read those files. Try clearer photos or PDFs.', 'Hindi mabasa ang mga file na iyon. Subukan ang mas malinaw na litrato o PDF.')
               : 'No resume details found.') + tn);
         return;
       }
@@ -1541,11 +1589,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(Object.assign({ hive_id: HIVE_ID || null, worker_name: WORKER_NAME, auth_uid: _authUid }, payload)),
         }, 45000);
-      } catch (_) { console.error('resume AI-helper unreachable:', _); toast('Could not reach the AI helper - check your connection and try again.'); return null; }
-      if (res === null) { toast('That took too long. Please try again.'); return null; }
-      let raw; try { raw = await res.json(); } catch (_) { console.error('resume AI-helper error:', _); toast('AI helper error. Please try again.'); return null; }
+      } catch (_) { console.error('resume AI-helper unreachable:', _); toast(_t('Could not reach the AI helper - check your connection and try again.', 'Hindi maabot ang AI helper - suriin ang koneksyon at subukan muli.')); return null; }
+      if (res === null) { toast(_t('That took too long. Please try again.', 'Masyadong matagal iyon. Pakisubukan muli.')); return null; }
+      let raw; try { raw = await res.json(); } catch (_) { console.error('resume AI-helper error:', _); toast(_t('AI helper error. Please try again.', 'Error sa AI helper. Pakisubukan muli.')); return null; }
       if (!res.ok || (raw && raw.ok === false) || (raw && raw.error)) {
-        toast(raw && raw.error ? (raw.error.message || raw.error) : 'AI helper failed. Try again.'); return null;
+        toast(raw && raw.error ? (raw.error.message || raw.error) : _t('AI helper failed. Try again.', 'Hindi natuloy ang AI helper. Subukan muli.')); return null;
       }
       return (raw && raw.data && typeof raw.data === 'object') ? raw.data : raw;
     }
@@ -1602,7 +1650,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         apply: (r, val) => { r.basics.summary = val; r.basics._src = r.basics._src || {}; r.basics._src.summary = 'AI suggested'; } });
       (data.highlights || []).forEach((h) => items.push({ group: 'Suggested highlights (tick the ones you can back up)', label: '', value: h, checked: false, src: 'AI suggested',
         apply: (r, val) => { const w0 = ensureWork0(); const nv = _norm(val); if (!(w0.highlights || []).some(h => _norm(h) === nv)) w0.highlights.push(val); } }));  // AI5: re-running tailor must not append a duplicate suggested highlight
-      if (!items.length) { toast('No suggestions returned. Try again.'); return; }
+      if (!items.length) { toast(_t('No suggestions returned. Try again.', 'Walang naibalik na suhestiyon. Subukan muli.')); return; }
       openReview('Review the tailored suggestions', items, (selected) => {
         pushUndo(); snapshotVersion('before tailor to job');
         for (const it of selected) it.apply(resume, it.value);
@@ -1669,7 +1717,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       }
       toast('Writing a summary from your whole resume…');
       const data = await callResumePolish({ mode: 'synthesize_summary', facts });
-      if (!data || !data.summary) { if (data) toast('No summary returned. Try again.'); return; }
+      if (!data || !data.summary) { if (data) toast(_t('No summary returned. Try again.', 'Walang naibalik na summary. Subukan muli.')); return; }
       // Internal control: even a single AI summary goes through the review checklist
       // so nothing is applied without a tap (and the worker can see Was/New).
       const cur = (resume.basics.summary || '').trim();
@@ -1781,7 +1829,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       let keywords = (data && Array.isArray(data.keywords) && data.keywords.length) ? data.keywords : null;
       const usedFallback = !keywords;
       if (!keywords) keywords = extractJdKeywordsLocal(jd);  // free-tier busy -> deterministic fallback
-      if (!keywords.length) { toast('Could not find clear keywords in that job ad.'); return; }
+      if (!keywords.length) { toast(_t('Could not find clear keywords in that job ad.', 'Walang nakitang malinaw na keyword sa job ad na iyon.')); return; }
       _jdKeywords = keywords.map(k => ({ term: k.term, importance: k.importance === 'high' ? 'high' : 'medium', have: keywordPresent(k.term, corpus) }));
       _jdSelected.clear();
       renderJdScore();
@@ -1862,7 +1910,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const jd = (document.getElementById('jd-input').value || '').trim();
       toast('Drafting your cover letter…');
       const data = await callResumePolish({ mode: 'cover_letter', name: b.name || WORKER_NAME, headline: b.label || '', summary: b.summary || '', skills, experience, jd });
-      if (!data || !data.letter) { if (data) toast('No draft returned. Try again.'); return; }
+      if (!data || !data.letter) { if (data) toast(_t('No draft returned. Try again.', 'Walang naibalik na draft. Subukan muli.')); return; }
       renderCoverLetter(data.letter);
       if (typeof logEvent === 'function') logEvent(db, 'resume_cover_letter', { page: 'resume', tailored: !!jd });
     }
@@ -1871,12 +1919,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       if (!panel) return;
       const e = escHtml;
       panel.innerHTML =
-        `<div class="kw-group-title" style="color:var(--wh-blue-light)">Your cover letter draft</div>` +
+        `<div class="kw-group-title" style="color:var(--wh-blue-light)">${escHtml(_t('Your cover letter draft', 'Draft ng cover letter mo'))}</div>` +
         `<textarea id="cl-text" class="wh-input" rows="12" aria-label="Cover letter draft" style="width:100%;font-size:1rem;line-height:1.5;">${e(letter)}</textarea>` +
         `<p style="font-size:0.68rem;color:var(--wh-steel-bright);margin:0.4rem 0;">Drafted from your real experience. Read it, edit anything, and make it yours before sending. We never invent facts.</p>` +
         `<div style="display:flex;gap:0.5rem;flex-wrap:wrap;">` +
-        `<button type="button" id="cl-copy" class="btn btn-primary btn-sm" style="flex:1;min-width:120px;">📋 Copy</button>` +
-        `<button type="button" id="cl-download" class="btn btn-ghost btn-sm" style="flex:1;min-width:120px;">⬇ Download .txt</button></div>`;
+        `<button data-i="rs-copy" type="button" id="cl-copy" class="btn btn-primary btn-sm" style="flex:1;min-width:120px;">📋 Copy</button>` +
+        `<button data-i="rs-dltxt" type="button" id="cl-download" class="btn btn-ghost btn-sm" style="flex:1;min-width:120px;">⬇ Download .txt</button></div>`;
       panel.style.display = 'block';
     }
     function onCoverLetterClick(ev) {
@@ -2069,7 +2117,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     function setTemplate(t) { _template = t; resume.meta.template = t; renderPaper(); scheduleLocalSave(); }
 
     async function downloadPDF() {
-      if (typeof html2pdf === 'undefined') { toast('PDF library still loading, try again in a moment.'); return; }
+      if (typeof html2pdf === 'undefined') { toast(_t('PDF library still loading, try again in a moment.', 'Naglo-load pa ang PDF library, subukan muli mamaya.')); return; }
       const el = document.getElementById('resume-paper');
       const safe = (resume.basics.name || 'resume').replace(/[^a-z0-9]+/gi, '_');
       const prevW = el.style.width; el.style.width = '680px'; // pin A4 portrait content width (mobile-maestro PDF rule)
@@ -2079,7 +2127,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
         pagebreak: { mode: ['css'] } }; // NOT 'avoid-all' (causes blank first page)
       try { await html2pdf().set(opt).from(el).save(); if (typeof logEvent === 'function') logEvent(db, 'resume_export', { page: 'resume', format: 'pdf' }); }
-      catch (err) { toast('PDF failed: ' + (err.message || 'error')); }
+      catch (err) { toast(_t('PDF failed: ', 'Hindi natuloy ang PDF: ') + (err.message || 'error')); }
       finally { el.style.width = prevW; }
     }
 
@@ -2088,7 +2136,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const w = window.open('', '_blank', 'width=720,height=900');
       if (!w) { toast('Allow pop-ups to print.'); return; }
       w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>${escHtml(resume.basics.name || 'Resume')}</title>`
-        + `<style>@page{margin:14mm;}body{margin:0;}${css}</style></head><body>`
+        + `<style>@page{margin:14mm;}body{margin:0;}${css}    /* I2 (2026-09-05): the builder paints its sections after its reads; reserve the first screen */
+    @media (min-width: 768px) { main, #resume-app, #builder { min-height: 480px; } }
+</style></head><body>`
         + `<div class="resume-paper tpl-${_template}">${html}</div>`
         + `<script>window.onload=function(){window.print();setTimeout(function(){window.close();},400);}<\/script></body></html>`);
       w.document.close();
@@ -2196,7 +2246,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     }
     async function exportDocx() {
       try {
-        if (typeof JSZip === 'undefined') await loadScript('https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js');
+        if (typeof JSZip === 'undefined') await loadScript('https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js', 'sha384-+mbV2IY1Zk/X1p/nWllGySJSUN8uMs+gUAN10Or95UBH0fpj6GfKgPmgC5EXieXG');
         if (typeof JSZip === 'undefined') { toast('Word library still loading, try again in a moment.'); return; }
         const documentXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>${buildDocxBody()}<w:sectPr><w:pgSz w:w="12240" w:h="15840"/><w:pgMar w:top="720" w:right="720" w:bottom="720" w:left="720"/></w:sectPr></w:body></w:document>`;
         const stylesXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/><w:sz w:val="22"/><w:szCs w:val="22"/></w:rPr></w:rPrDefault></w:docDefaults></w:styles>`;
@@ -2340,5 +2390,22 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   <script src="companion-launcher.js"></script>
   <script src="nav-hub.js"></script>
   <script src="offline-banner.js"></script><!-- SaaS-layer AV: adopt the central offline/degraded banner -->
+  <!-- the AV set ships as ONE unit (validate_av_adoption): the banner alone leaves a page that says it is offline
+       but still queues nothing, shows no connectivity state, and never times a stale session out (2026-09-06) -->
+  <script defer src="offline-queue.js"></script>
+  <script defer src="connectivity-widget.js"></script>
+  <script defer src="session-timeout.js"></script>
+  <script defer src="device-fingerprint.js"></script>
+
+<script>
+  // N1 (2026-09-05): the builder's chrome in Filipino when the worker's toggle is FIL (utils.js whI18nApply swaps [data-i]).
+  window.WH_FIL_PAGE = Object.assign(window.WH_FIL_PAGE || {}, {
+    'rs-title': '📄 Tagabuo ng Resume / CV', 'rs-autofill': '✨ Awtomatikong punan mula sa aking WorkHive data', 'rs-autofill2': '✨ Awtomatikong punan mula sa WorkHive',
+    'rs-save': '💾 I-save', 'rs-mine': '📂 Aking mga Resume', 'rs-upload': '📁 Mag-upload ng resume',
+    'rs-addwork': '+ Magdagdag ng karanasan sa trabaho', 'rs-addskill': '+ Magdagdag ng kasanayan', 'rs-addedu': '+ Magdagdag ng edukasyon',
+    'rs-addcert': '+ Magdagdag ng sertipiko at lisensya', 'rs-addproj': '+ Magdagdag ng proyekto', 'rs-addaward': '+ Magdagdag ng parangal', 'rs-addref': '+ Magdagdag ng reperensiya',
+    'rs-name': 'Buong pangalan', 'rs-label': 'Headline / tungkulin', 'rs-email': 'Email', 'rs-phone': 'Telepono', 'rs-city': 'Lungsod', 'rs-region': 'Probinsya / Rehiyon', 'rs-summary': 'Propesyonal na buod'
+  });
+</script>
 </body>
 </html>

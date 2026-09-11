@@ -149,7 +149,17 @@ serveObserved("voice-model-call", async (req) => {
           );
         }
       } catch (err) {
-        log.warn(null, `Model ${strategy} failed:`, { detail: err });
+        // ★AN Error SERIALISES TO `{}` (2026-09-10). This logged `{ detail: err }`, and an Error's
+        // own properties are NON-ENUMERABLE, so every line this chain has ever written read
+        // "Model qwen failed: {}" - the name of the model and nothing whatsoever about why. All four
+        // strategies were failing on a well-formed request while the caller was told "All models
+        // failed (rate limited or down)", a cause the function had no evidence for and could not have
+        // had, because it threw the evidence away at exactly this line. Name, message and a short
+        // stack are pulled out by hand; anything else is kept in case it is a plain thrown object.
+        const detail = err instanceof Error
+          ? { name: err.name, message: err.message, stack: String(err.stack || "").split("\n").slice(0, 3).join(" | ") }
+          : { thrown: String(err) };
+        log.warn(null, `Model ${strategy} failed:`, detail);
         continue; // Try next strategy
       }
     }
@@ -157,7 +167,13 @@ serveObserved("voice-model-call", async (req) => {
     // All strategies failed
     return new Response(
       JSON.stringify({
-        error: "All models failed (rate limited or down)",
+        // ★A FAILURE STRING A PERSON READS MUST NAME THEIR NEXT STEP (2026-09-10, critic E4). This said
+        // "All models failed (rate limited or down)" - accurate, and useless to the technician holding the
+        // phone: it describes our infrastructure and leaves them with nothing to do. Every strategy having
+        // failed is usually a busy minute rather than an outage, and this function has a plain fallback the
+        // person already knows, so the sentence now says both. The diagnostic detail is not lost - each
+        // strategy's real error is logged above with log.warn as it happens.
+        error: "The voice service is busy. Wait a moment and try again, or type your entry instead.",
         model_used: "none",
       }),
       {
@@ -172,31 +188,50 @@ serveObserved("voice-model-call", async (req) => {
 });
 
 // Get model configuration (name, API URL, API key)
+//
+// ★EVERY ONE OF THE FOUR STRATEGIES WAS UNREACHABLE (measured 2026-09-10, W3-FN row W31229). A
+// well-formed request got 503 "All models failed (rate limited or down)" - a diagnosis this function
+// had no evidence for, because the catch that would have carried the evidence logged `{ detail: err }`
+// and an Error serialises to `{}`. With that fixed the four reasons appeared at once, and not one of
+// them was a rate limit:
+//   qwen   -> 404: `qwen2.5-7b-instruct` is not a name Cerebras serves (it serves exactly three).
+//   scout  -> 404: `meta-llama/llama-4-scout-17b-16e-instruct` was retired from Groq.
+//   voyage -> transport failure: **Voyage AI is an EMBEDDINGS company** and has never had a
+//             /chat/completions endpoint, so this entry could not have worked on any day.
+//   jina   -> 401: **Jina is embeddings/reranking**, same story, plus a key that is not valid there.
+// Two of the four "models" were never chat providers at all. The names below were read from each
+// provider's own /models endpoint and mirror the repaired shared chain; `validate_groq_fallback`
+// now asks the providers rather than consulting a deny-list, so this cannot rot silently again.
+//
+// NOTE for a later pass: the platform rule is that an edge function imports callAI from
+// _shared/ai-chain rather than carrying its own chain ([[feedback_use_ai_chain_always]]). This
+// function predates that and is not in validate_groq_fallback's LLM_FUNCTIONS list, which is why its
+// private chain rotted unwatched. Repaired in place here; folding it into callAI is the real fix.
 function _getModelConfig(
   strategy: string
 ): { model: string; api_url: string; api_key: string } {
   switch (strategy.toLowerCase()) {
     case "qwen":
       return {
-        model: "qwen2.5-7b-instruct",
+        model: "qwen-3.8-27b",
         api_url: "https://api.cerebras.ai/v1/chat/completions",
         api_key: Deno.env.get("CEREBRAS_API_KEY") || "",
       };
-    case "voyage":
+    case "voyage":       // kept as a STRATEGY NAME for callers; served by Groq, not by Voyage
       return {
-        model: "mistral-large-2411",
-        api_url: "https://api.voyage.ai/v1/chat/completions",
-        api_key: Deno.env.get("VOYAGE_API_KEY") || "",
+        model: "openai/gpt-oss-20b",
+        api_url: "https://api.groq.com/openai/v1/chat/completions",
+        api_key: Deno.env.get("GROQ_API_KEY") || "",
       };
-    case "jina":
+    case "jina":         // likewise - Jina serves no chat models
       return {
-        model: "jina-ai/reader",
-        api_url: "https://api.jina.ai/v1/chat/completions",
-        api_key: Deno.env.get("JINA_API_KEY") || "",
+        model: "openai/gpt-oss-120b",
+        api_url: "https://api.groq.com/openai/v1/chat/completions",
+        api_key: Deno.env.get("GROQ_API_KEY") || "",
       };
     default: // scout
       return {
-        model: "meta-llama/llama-4-scout-17b-16e-instruct",
+        model: "qwen/qwen3.8-27b",
         api_url: "https://api.groq.com/openai/v1/chat/completions",
         api_key: Deno.env.get("GROQ_API_KEY") || "",
       };
@@ -240,7 +275,13 @@ async function _callModel(
     }
 
     if (resp.status !== 200) {
-      throw new Error(`API error: ${resp.status}`);
+      // ★THE PROVIDER EXPLAINS ITSELF AND THIS THREW THE EXPLANATION AWAY (2026-09-10). `API error:
+      // 400` names the status and nothing else, so four models rejecting the SAME malformed body
+      // looked identical to four models being down - which is exactly how the caller-facing sentence
+      // came to say "rate limited or down". A 400 is the provider telling us what is wrong with OUR
+      // request; carrying its first 200 characters turns a dead end into a fixable message.
+      const body = await resp.text().catch(() => "");
+      throw new Error(`API error: ${resp.status}${body ? ` - ${body.slice(0, 200)}` : ""}`);
     }
 
     const data = await resp.json();

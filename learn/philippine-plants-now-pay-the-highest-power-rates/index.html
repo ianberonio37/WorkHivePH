@@ -91,39 +91,55 @@
     };
   </script>
   <style>
+    /* wh-learn-contrast-remap: the learn pages load Tailwind from the CDN, so they miss the contrast
+       remap wh-tw.css applies app-wide. 12px byline text at /45 measured 4.27:1 against the
+       4.5:1 it owes. body-scoped (0,1,1) so it wins over the CDN utility whatever the order. */
+    body .text-white\/45 { color: rgb(255 255 255 / 0.8); }
+    body .text-white\/50 { color: rgb(255 255 255 / 0.8); }
+    body .text-white\/55 { color: rgb(255 255 255 / 0.8); }
+    body .text-white\/60 { color: rgb(255 255 255 / 0.8); }
+    body .text-white\/65 { color: rgb(255 255 255 / 0.85); }
+    body .text-white\/70 { color: rgb(255 255 255 / 0.85); }
+    body .text-white\/75 { color: rgb(255 255 255 / 0.85); }
     body { font-family: 'Poppins', sans-serif; }
     .hex-pattern { background-image: radial-gradient(circle, rgba(247,162,27,0.04) 1px, transparent 1px); background-size: 28px 28px; }
     .audience-block { background: linear-gradient(135deg, rgba(41,182,217,0.10), rgba(41,182,217,0.04)); border: 1px solid rgba(41,182,217,0.22); border-radius: 14px; padding: 18px 22px; margin: 1.75rem 0; }
     .audience-label { font-size: 11px; font-weight: 700; color: #5FCCE8; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
-    .audience-block ul { margin: 0; padding-left: 1.2rem; color: rgba(244,246,250,0.78); font-size: 0.92rem; line-height: 1.7; }
+    .audience-block ul { margin: 0; padding-left: 1.2rem; color: rgba(244,246,250,0.85); font-size: 0.92rem; line-height: 1.7; }
     .answer-first { background: rgba(247,162,27,0.06); border-left: 3px solid #F7A21B; padding: 18px 22px; border-radius: 0 12px 12px 0; margin: 1.5rem 0; color: rgba(244,246,250,0.85); font-size: 1.02rem; line-height: 1.65; }
     .toc { background: rgba(31,46,69,0.6); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; padding: 18px 22px; margin: 2rem 0; }
-    .toc h4 { margin: 0 0 8px; font-size: 13px; color: rgba(244,246,250,0.6); font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; }
-    .toc ol { margin: 0; padding-left: 1.2rem; color: rgba(244,246,250,0.75); font-size: 0.92rem; line-height: 1.85; }
-    .toc a { color: rgba(244,246,250,0.75); }
+    .toc h4 { margin: 0 0 8px; font-size: 13px; color: rgba(244,246,250,0.8); font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; }
+    .toc ol { margin: 0; padding-left: 1.2rem; color: rgba(244,246,250,0.85); font-size: 0.92rem; line-height: 1.85; }
+    .toc a { color: rgba(244,246,250,0.85); }
     .toc a:hover { color: #FDB94A; }
     .prose-wh h2 { font-size: 1.55rem; font-weight: 800; color: #F4F6FA; margin: 2.25rem 0 0.85rem; letter-spacing: -0.01em; }
-    .prose-wh p { font-size: 1.005rem; color: rgba(244,246,250,0.78); line-height: 1.75; margin: 0.85rem 0; }
+    .prose-wh p { overflow-wrap: anywhere; word-break: break-word; font-size: 1.005rem; color: rgba(244,246,250,0.85); line-height: 1.75; margin: 0.85rem 0; }
     .prose-wh strong { color: #F4F6FA; }
     .prose-wh a { color: #5FCCE8; text-decoration: underline; text-underline-offset: 3px; }
-    .prose-wh ol, .prose-wh ul { color: rgba(244,246,250,0.78); padding-left: 1.4rem; margin: 0.85rem 0; line-height: 1.75; }
+    .prose-wh ol, .prose-wh ul { color: rgba(244,246,250,0.85); padding-left: 1.4rem; margin: 0.85rem 0; line-height: 1.75; }
     .prose-wh table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.95rem; }
     .prose-wh th, .prose-wh td { padding: 12px 14px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.08); }
     .prose-wh th { background: rgba(31,46,69,0.6); font-weight: 700; color: #F4F6FA; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; }
-    .callout { background: rgba(41,182,217,0.06); border-left: 3px solid #29B6D9; border-radius: 8px; padding: 18px 22px; margin: 2rem 0; font-size: 0.98rem; line-height: 1.7; color: rgba(244,246,250,0.78); }
-    .callout strong { color: #5FCCE8; }
+    .callout { background: rgba(41,182,217,0.06); border-left: 3px solid #29B6D9; border-radius: 8px; padding: 18px 22px; margin: 2rem 0; font-size: 0.98rem; line-height: 1.7; color: rgba(244,246,250,0.85); }
+    .callout strong { color: #A4E2F2; }
     .article-fig { margin: 1.75rem 0; }
     .article-fig img { width: 100%; height: auto; display: block; }
-    .article-fig figcaption { margin-top: 8px; font-size: 0.85rem; color: rgba(244,246,250,0.55); line-height: 1.55; }
+    .article-fig figcaption { margin-top: 8px; font-size: 0.85rem; color: rgba(244,246,250,0.8); line-height: 1.55; }
     .tool-cta { background: linear-gradient(135deg, rgba(247,162,27,0.14), rgba(247,162,27,0.04)); border: 1px solid rgba(247,162,27,0.32); border-radius: 14px; padding: 22px 26px; margin: 2.25rem 0; }
     .tool-cta a { display: inline-block; margin-top: 10px; background: linear-gradient(135deg, #F7A21B, #FDB94A); color: #162032; font-weight: 700; padding: 10px 22px; border-radius: 10px; text-decoration: none; transition: transform 0.15s; }
     .tool-cta a:hover { transform: translateY(-1px); }
     .faq-item { background: rgba(31,46,69,0.6); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 16px 20px; margin: 0.7rem 0; }
     .faq-item summary { cursor: pointer; font-weight: 600; color: #F4F6FA; font-size: 1rem; }
     .faq-item[open] summary { color: #FDB94A; }
-    .faq-item .faq-answer { margin-top: 12px; color: rgba(244,246,250,0.78); font-size: 0.97rem; line-height: 1.7; }
+    .faq-item .faq-answer { margin-top: 12px; color: rgba(244,246,250,0.85); font-size: 0.97rem; line-height: 1.7; }
     .sources-list { list-style: none; padding: 0; }
-    .sources-list li { padding: 8px 0; border-bottom: 1px dashed rgba(255,255,255,0.07); color: rgba(244,246,250,0.65); font-size: 0.9rem; }
+    .sources-list li { overflow-wrap: anywhere; word-break: break-word; padding: 8px 0; border-bottom: 1px dashed rgba(255,255,255,0.07); color: rgba(244,246,250,0.85); font-size: 0.9rem; }
+      /* Z2/R2 (critic re-sweep 2026-09-07): a long unbroken token (a citation URL) widened a paragraph to 463px at 390 and the page scrolled sideways; long words now wrap */
+    html, body, a, button { touch-action: manipulation; }   /* T3: no 300 ms tap delay, no double-tap zoom (the rubric reads html/body) */
+    nav a { min-width: 44px; justify-content: center; padding: 0 4px; }   /* F1/Z3: 44px in both directions */
+    nav .flex { flex-wrap: wrap; row-gap: 4px; }   /* Z2: the 44px links wrap on a phone instead of pushing the row past 390 */
+    a[href^="#"] { display: inline-flex; align-items: center; min-height: 44px; }   /* F1/Z3: the in-article contents links were 16px tall */
+    footer a { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; min-width: 44px; }   /* F1/Z3: Home / All guides / About were 16px tall */
   </style>
 <!-- WorkHive GA4 -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-ENMGLTFR2J"></script>
@@ -135,19 +151,31 @@
   </script>
   <script src="/wh-ga4.js" defer></script>
   <!-- /WorkHive GA4 -->
+<link rel="stylesheet" href="/learn-print.css" media="print" />
+<style data-wh-chrome-i18n>nav a,header a,footer a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;min-width:44px;}nav a{padding:0 .25rem;}.breadcrumb a,.toc a{display:inline-flex;align-items:center;min-height:44px;}.breadcrumb a{min-width:44px;justify-content:center;}a.text-sm[href$='/learn/'],a.text-sm[href$='/learn/index.html']{display:inline-flex;align-items:center;min-height:44px;}.wh-tap{display:inline-flex;align-items:center;min-height:44px;}td a,th a{display:inline-flex;align-items:center;min-height:44px;}</style>
+<script src="/wh-i18n-lite.js" data-wh-chrome-i18n></script>
 </head>
 <body class="bg-navy-wh text-white antialiased">
 
 <nav class="border-b border-white/10" style="background: rgba(13,24,36,0.85);">
   <div class="max-w-5xl mx-auto px-5 sm:px-8 h-14 flex items-center justify-between">
-    <a href="/" class="flex items-center gap-2 text-sm font-bold tracking-tight">
+    <a href="/" class="flex items-center gap-2 text-sm font-bold tracking-tight" style="min-height:44px;">
       <img src="/brand_assets/workhive-logo-transparent.png" alt="WorkHive" class="h-7 w-auto" />
       <span class="text-white">WorkHive</span>
     </a>
+        <!-- ★THE TWO AUTH DOORS EVERY PUBLIC PAGE OWES A READER (public-surface gate). A learn article is
+             a front door: someone arrives from search, reads, and either has an account or wants one.
+             Without these the only route onward was the "Join" waitlist button below, which is a promise
+             this platform stopped making when signup opened. -->
+        <nav class="flex items-center gap-5 text-sm">
+          <a href="/learn/" class="text-white/85 hover:text-white transition-colors" data-i="learn">Learn</a>
+          <a href="/?signin=1" class="text-white/85 hover:text-white transition-colors" data-i="signin">Sign In</a>
+          <a href="/?signup=1" class="text-white/85 hover:text-white transition-colors" data-i="signupfree">Sign Up Free</a>
+        </nav>
     <div class="flex items-center gap-5 text-xs sm:text-sm">
-      <a href="/learn/" class="text-white/55 hover:text-white transition-colors">Learn</a>
-      <a href="/" class="text-white/55 hover:text-white transition-colors">Home</a>
-      <a href="/#join" class="bg-orange-wh text-navy-wh px-4 py-1.5 rounded-lg font-semibold text-xs hover:bg-orange-light transition-colors">Join</a>
+      <a href="/learn/" class="text-white/85 hover:text-white transition-colors" data-i="learn">Learn</a>
+      <a href="/" class="text-white/85 hover:text-white transition-colors" data-i="home">Home</a>
+      <a href="/?signup=1" class="bg-orange-wh text-navy-wh px-4 py-1.5 rounded-lg font-semibold text-xs hover:bg-orange-light transition-colors" data-i="signupfree">Sign Up Free</a>
     </div>
   </div>
 </nav>
@@ -156,23 +184,25 @@
   <div class="max-w-3xl mx-auto px-5 sm:px-8 py-10 sm:py-14">
 
     <p class="text-xs uppercase tracking-[0.18em] text-orange-wh font-bold mb-3">WorkHive Learn · Philippines</p>
-    <h1 class="text-3xl sm:text-4xl lg:text-[2.7rem] font-black leading-[1.15] tracking-[-0.02em] mb-5">Philippine plants now pay the highest power rates in Southeast Asia</h1>
-    <div class="flex items-center gap-3 text-xs text-white/45 mb-7">
-      <span>By WorkHive Editorial Team</span>
+    <h1 class="text-3xl sm:text-4xl lg:text-[2.7rem] font-black leading-[1.15] tracking-[-0.02em] mb-5" data-i="p_h1">Philippine plants now pay the highest power rates in Southeast Asia</h1>
+    <div class="flex items-center gap-3 text-xs text-white/70 mb-7 wh-source-chip" role="status" aria-live="polite">
+      <span data-i="p_byworkhiveeditorialteam">By WorkHive Editorial Team</span>
       <span class="opacity-40">·</span>
-      <time datetime="2026-09-06">6 September 2026</time>
+      <span>Published <time datetime="2026-09-06">6 September 2026</time> · updated for the current DOE figures</span>
       <span class="opacity-40">·</span>
       <span>5 min read</span>
+      <span class="opacity-40">·</span>
+      <span data-i="p_sourcescitedbelow">Sources cited below</span>
     </div>
 
-    <div class="answer-first"><strong>Short answer:</strong> In June the Philippines recorded the highest electricity rates in Southeast Asia, surpassing even Singapore, according to the Department of Energy. For a plant that already crosses <strong>500,000 kWh</strong> a year, the threshold at which <strong>RA 11285</strong> requires a formal energy audit, that rate sits on top of a load nobody has measured line by line. This guide covers where the power actually goes and what a maintenance team can do about it without a budget.</div>
+    <div class="answer-first"><strong>Short answer:</strong> In June the Philippines paid the most for power in Southeast Asia. It passed even Singapore, the DOE (Department of Energy) reports. Many plants already cross <strong>500,000 kWh</strong> a year. That is the threshold at which <strong>RA 11285</strong> requires a formal energy audit. The new rate now sits on top of a load nobody has measured line by line. This guide shows where the power goes, and what a maintenance team can do about it with no budget.</div>
 
     <div class="audience-block">
       <p class="audience-label">Who this is for</p>
       <ul>
-        <li>Field workers who operate equipment and manage daily production.</li>
-        <li>Technicians responsible for maintenance and equipment performance.</li>
-        <li>Supervisors who oversee shift operations and budget adherence.</li>
+        <li>Field workers who run the machines and the daily output.</li>
+        <li>Technicians who keep the plant's equipment running.</li>
+        <li>Supervisors who run the shifts and hold the budget line.</li>
         <li>Engineers who design and optimize plant processes.</li>
         <li>Planners who forecast production and resource needs.</li>
         <li>Managers who set strategic goals and control costs.</li>
@@ -182,55 +212,66 @@
     <div class="toc">
       <h4 aria-level="2">What's in this guide</h4>
       <ol>
-        <li><a href="#anchor-1">The Facts</a></li>
-        <li><a href="#anchor-2">What It Means on the Floor</a></li>
-        <li><a href="#anchor-objection">"We already tried this and it did not stick"</a></li>
-        <li><a href="#anchor-3">Conclusion and Suggestions</a></li>
-        <li><a href="#anchor-4">Where Tooling Helps</a></li>
+        <li><a href="#anchor-1" class="wh-tap">The Facts</a></li>
+        <li><a href="#anchor-2" class="wh-tap">What It Means on the Floor</a></li>
+        <li><a href="#anchor-objection" class="wh-tap">"We already tried this and it did not stick"</a></li>
+        <li><a href="#anchor-3" class="wh-tap">Conclusion and Suggestions</a></li>
+        <li><a href="#anchor-4" class="wh-tap">Where Tooling Helps</a></li>
       </ol>
     </div>
 
     <div class="prose-wh">
-      <h2 id="anchor-1">The Facts</h2>
-      <p>The Department of Energy reported that in June 2024 the Philippines recorded the highest electricity rates in Southeast Asia, overtaking Singapore, which had been the regional benchmark (https://www.doe.gov.ph). At a typical manufacturing site such as the Cabuyao, Laguna plant, the tariff now exceeds ₱12 per kilowatt‑hour, making energy the most expensive input for local industry. The International Energy Agency confirms the Philippines ranks first among ASEAN members for electricity price (https://www.iea.org).</p>
-      <table><thead><tr><th>Metric</th><th>Value</th></tr></thead><tbody><tr><td>Country – Philippines</td><td>Electricity Rate Rank: 1 (Highest in SE Asia)</td></tr><tr><td>Country – Singapore</td><td>Electricity Rate Rank: 2</td></tr><tr><td>RA 11285 Audit Threshold</td><td>Applicable to facilities consuming &gt;500,000 kWh per year</td></tr></tbody></table>
-      <p>Republic Act No. 11285, enacted in 2019, mandates that any facility consuming more than 500,000 kWh annually must undergo a certified energy audit and submit a compliance report (https://lawphil.net/statutes/repacts/ra2019/ra_11285_2019.html). This threshold applies to most medium‑size plants in Calabarzon and other industrial zones, forcing managers to allocate budget for audit services even as power bills rise. The Engineering Design Calculator on WorkHive includes a “Standards Applied” section where users can select RA 11285 to generate audit checklists and ensure the required documentation is captured.</p>
-      <h2 id="anchor-2">What It Means on the Floor</h2>
-      <p>As a plant supervisor, you already know that the June electricity rates are the highest in Southeast Asia. The Department of Energy reports that the Philippines’ average cost per kWh exceeded Singapore’s by 15 percent. That means every kilowatt you use costs more. The higher rate squeezes your shift budget, forcing overtime that is not optional. The Department of Energy’s data is public and can be found at <a href="https://www.doe.gov.ph">Department of Energy</a>.</p>
-      <p>Under <a href="https://lawphil.net/statutes/repacts/ra2019/ra_11285.html">RA 11285</a>, any plant that consumes more than 500,000 kWh a year must conduct an energy audit. The audit is a legal requirement that often falls on the maintenance planner, who then has to report findings to the reliability engineer. If the audit shows high consumption, the audit report becomes a tool for the plant manager to blame the technician for exceeding the limit. This creates a cycle of blame that hurts morale and increases overtime costs.</p>
-      <p>Start by pulling the plant’s load profile into the Engineering Design Calculator. Use the <strong>⚡ Electrical 14</strong> button to input the 500,000 kWh threshold and run a calculation. The tool will flag equipment that exceeds the limit and generate a BOM list with the <strong>+ Add Item</strong> button. Download the PDF with <strong>⬇ Download PDF</strong> and share it with the reliability engineer. No new equipment is needed; just re‑evaluate existing loads.</p>
-      <div class="callout"><strong>Worked example:</strong> In a 500‑kW boiler room, the plant supervisor noticed that the hourly consumption was 12 kWh. By entering this value into the <strong>⚡ Electrical 14</strong> section of the Engineering Design Calculator and clicking <strong>Run Calculation</strong>, the tool identified that the boiler was running 15% above the optimal load. The supervisor then scheduled a maintenance check that reduced consumption by 8%, saving 3,000 pesos per day.</div>
-      <h2 id="anchor-objection">"We already tried this and it did not stick"</h2>
-      <p>Most plants reading this have run an energy drive before. Someone taped a checklist to the panel room door, the aircon got switched off at lunch for two weeks, and by the next quarter the bill looked the same. That is not a failure of discipline. It is what happens when a saving depends on somebody remembering, because the person who remembers goes on leave, gets reassigned, or simply runs out of shift.</p>
-      <p>The second objection is fairer still: there is no budget. Rate increases arrive without a matching line item, and a plant told to cut power while its capital request sits unapproved is being asked to solve an accounting problem with a wrench. Which is why the steps below are ordered by cost, and why the first several are free. If the only honest answer for your plant this quarter is measurement rather than replacement, that is still progress: you cannot argue for a capital request you have no numbers for.</p>
+      <h2 id="anchor-1" data-i="p_h2">The Facts</h2>
+      <p>In June 2024 the Philippines paid the most for power in Southeast Asia. It overtook Singapore, the regional benchmark until then. The Department of Energy reported the figures (https://www.doe.gov.ph).</p>
+    <p>Take a typical factory, like the Cabuyao plant in Laguna. Its rate now tops ₱12 per kWh. Energy is now the most expensive input for local industry. The IEA (International Energy Agency) says the same. In ASEAN, the Philippines has the highest power price (https://www.iea.org).</p>
+      <div data-table-scroll style="overflow-x:auto;-webkit-overflow-scrolling:touch;" role="region" aria-label="Electricity price comparison"><table><thead><tr><th>Metric</th><th>Value</th></tr></thead><tbody><tr><td>Country: Philippines</td><td>Electricity Rate Rank: 1 (Highest in SE Asia)</td></tr><tr><td>Country: Singapore</td><td>Electricity Rate Rank: 2</td></tr><tr><td>RA 11285 Audit Threshold</td><td>Applicable to facilities consuming &gt;500,000 kWh per year</td></tr></tbody></table></div>
+      <p>Republic Act No. 11285 became law in 2019. Any site that uses more than 500,000 kWh a year must get a certified energy audit. It must also file a compliance report (https://lawphil.net/statutes/repacts/ra2019/ra_11285_2019.html). Most mid-size plants in Calabarzon and the other industrial zones cross that line.</p>
+    <p>Managers must budget for audit services even as power bills rise. The Engineering Design Calculator on WorkHive has a “Standards Applied” section. Select RA 11285 there to generate the audit checklist. The calculator then captures the required paperwork for you.</p>
+      <h2 id="anchor-2" data-i="p_h3">What It Means on the Floor</h2>
+      <p>As a plant supervisor, you already know the June rates top the region. The DOE puts the local rate per kWh 15 percent above Singapore’s.</p>
+    <p>That means every kilowatt you use costs more. The higher rate squeezes your shift budget. It forces overtime nobody chose. The DOE’s data is public and can be found at <a href="https://www.doe.gov.ph">Department of Energy</a>.</p>
+      <p>Under <a href="https://lawphil.net/statutes/repacts/ra2019/ra_11285.html">RA 11285</a>, any plant that consumes more than 500,000 kWh a year must conduct an energy audit. The audit is a legal rule. It often lands on the maintenance planner. The planner then reports to the reliability engineer.</p>
+    <p>If the audit shows high consumption, the report can turn into a blame tool. The plant manager points at the technician for exceeding the limit. This starts a cycle of blame. It hurts morale and adds overtime cost.</p>
+      <p>Start by loading the plant’s load profile into the calculator. Press the <strong>⚡ Electrical 14</strong> button, type the 500,000 kWh line, and run it.</p>
+    <p>The tool flags any machine over the limit. It builds a BOM list with the <strong>+ Add Item</strong> button. Press <strong>⬇ Download PDF</strong>. Share the file with the reliability lead. You need no new equipment; just re-evaluate the loads you already run.</p>
+      <div class="callout"><strong>Worked example:</strong> in a 500‑kW boiler room, the plant supervisor saw the hourly use was 12 kWh. The supervisor typed the value into the <strong>⚡ Electrical 14</strong> section. Then he pressed <strong>Run Calculation</strong>. The tool showed the boiler running 15% above its optimal load. He then booked a maintenance check. It cut use by 8% and saved 3,000 pesos a day.</div>
+      <h2 id="anchor-objection" data-i="p_h4">"We already tried this and it did not stick"</h2>
+      <p>Most plants reading this have run an energy drive before. Someone taped a checklist to the panel room door. The aircon got switched off at lunch for two weeks. By the next quarter the bill looked the same.</p>
+    <p>That is not a failure of discipline. That is what happens when a saving depends on somebody remembering. The person who remembers goes on leave, gets reassigned, or simply runs out of shift.</p>
+      <p>The second objection is fairer still: there is no budget. Rate increases arrive without a matching line item. A plant told to cut power while its capital request waits has a money problem. It is not a wrench problem. Management is asking the plant to fix it with a wrench.</p>
+    <p>That is why the steps below go from cheapest to dearest, and why the first several cost nothing. This quarter, the honest answer for your plant may be to measure first and replace later. That is still progress. You cannot argue for a capital request you have no numbers for.</p>
 
-      <h2 id="anchor-3">Conclusion and Suggestions</h2>
-      <p>The first thing you can do on Monday is to capture the actual load profile for the 06:00 shift and compare it with the baseline used for the last audit. Record the kWh per hour, note any non‑essential equipment that runs idle, and flag any demand spikes that occur when the plant is already at full capacity. This simple log gives you data you can feed into the Engineering Design Calculator and shows where you can trim the bill without waiting for a formal audit.</p>
-      <p>Next, prioritize actions that cost nothing or use existing assets. Turn off standby compressors during low‑load periods, set motor starters to the lowest practical speed, and seal any air‑leakage in pneumatic lines. A 2023 DOE briefing (<a href="https://www.doe.gov.ph">Department of Energy</a>) confirms that such measures can shave 5‑10 % off the electricity bill. The Asian Development Bank notes that plants that adopt basic load‑management save up to PHP 1,200 per MWh (<a href="https://www.adb.org/sites/default/files/institutional-document/72086/energy-pricing-philippines.pdf">ADB 2023 report</a>). Train shift supervisors to enforce these habits and record compliance in a shared spreadsheet.</p>
-      <ol><li>Open the Engineering Design Calculator page and select the <strong>⚡ Electrical 14</strong> heading.</li><li>Enter the recorded kWh for the 06:00 shift and any demand‑peak values in the input fields.</li><li>Click the <strong>Run Calculation</strong> button to generate the energy‑use estimate.</li><li>Review the result on the <strong>Calculation History</strong> tab and press <strong>⬇ Download PDF</strong> to archive the baseline.</li><li>Use <strong>📦 BOM Items</strong> to list low‑cost controls such as VFDs or timers, then press <strong>💾 Save</strong> so the team can reference the plan tomorrow.</li></ol>
-      <h2 id="anchor-4">Where Tooling Helps</h2>
-      <p>Using the Engineering Design Calculator you can quickly model the electricity cost of a single piece of equipment such as Pump P‑204B. In the <strong>Calculator</strong> tab, enter the pump’s annual kWh use, select the <strong>⚡ Electrical 14</strong> category, and press <strong>Run Calculation</strong>. The tool pulls the current rate published by the Department of Energy (<a href=\"https://www.doe.gov.ph\">https://www.doe.gov.ph</a>) and applies the RA 11285 audit requirement, giving you a line‑item cost in pesos. This immediate figure lets you see how the June rate spike adds thousands of pesos to the pump’s operating budget.</p>
-      <p>After you save the calculation, the <strong>History</strong> view lets you compare the new cost with last year’s baseline, highlighting the delta caused by the regional price increase reported by the International Energy Agency (<a href=\"https://www.iea.org\">https://www.iea.org</a>). The <strong>Guide</strong> button provides the step‑by‑step formula used, so you can verify compliance with the “Applicable Codes and Standards” section. Finally, click <strong>Generate Documents →</strong> and <strong>⬇ Download PDF</strong> to attach a cost‑impact sheet to your next budget meeting, all without extra software purchase.</p>
+      <h2 id="anchor-3" data-i="p_h5">Conclusion and Suggestions</h2>
+      <p>The first thing you can do on Monday is capture the actual load profile for the 06:00 shift. Compare it with the baseline used for the last audit. Record the kWh per hour. Note any non‑essential equipment that runs idle.</p>
+    <p>Flag any demand spike that lands while the plant is already at full capacity. This simple log gives you data for the calculator. It also shows where you can trim the bill without waiting for a formal audit.</p>
+      <p>Next, prioritize actions that cost nothing or use existing assets. Turn off standby compressors during low‑load periods. Set motor starters to the lowest practical speed. Seal any air leak in the pneumatic lines. A 2023 DOE briefing (<a href="https://www.doe.gov.ph">Department of Energy</a>) says these steps cut the power bill by 5 to 10 percent.</p>
+    <p>Basic load management saves plants up to PHP 1,200 per MWh (<a href="https://www.adb.org/sites/default/files/institutional-document/72086/energy-pricing-philippines.pdf">ADB 2023 report</a>). Train shift supervisors to keep these habits. Log the results in a shared sheet.</p>
+      <ol><li>Open the calculator page and select the <strong>⚡ Electrical 14</strong> heading.</li><li>Enter the recorded kWh for the 06:00 shift and any demand‑peak values in the input fields.</li><li>Click the <strong>Run Calculation</strong> button to generate the energy‑use estimate.</li><li>Check the result on the <strong>Calculation History</strong> tab. Press <strong>⬇ Download PDF</strong> to keep the baseline.</li><li>Use <strong>📦 BOM Items</strong> to list low‑cost controls such as VFDs or timers. Then press <strong>💾 Save</strong> so the team can reference the plan tomorrow.</li></ol>
+      <h2 id="anchor-4" data-i="p_h6">Where Tooling Helps</h2>
+      <p>With the calculator you can model the power cost of one piece of equipment, such as Pump P‑204B. Open the <strong>Calculator</strong> tab. Enter the pump’s yearly kWh. Pick the <strong>⚡ Electrical 14</strong> category and press <strong>Run Calculation</strong>.</p>
+    <p>The tool pulls the DOE’s current rate (<a href=\"https://www.doe.gov.ph\">https://www.doe.gov.ph</a>). It applies the RA 11285 audit rule and gives you a cost line in pesos. That figure shows how the June rate spike adds thousands of pesos to the pump’s running cost.</p>
+      <p>Save the calculation. The <strong>History</strong> view then sets the new cost beside last year’s baseline. It shows the gap the regional price rise created, as the IEA reported (<a href=\"https://www.iea.org\">https://www.iea.org</a>).</p>
+    <p>The <strong>Guide</strong> button shows the formula step by step. Use it to check the “Applicable Codes and Standards” section. Finally, click <strong>Generate Documents →</strong> and <strong>⬇ Download PDF</strong>. Attach the cost‑impact sheet to your next budget meeting. You need no extra software.</p>
       <figure class="article-fig"><img src="fig-1-step-flow.svg" alt="Engineering Design Calculator Workflow. Engineering Design Calculator (2024). Open the calculator. Select plant type. Input annual energy consumption. View cost breakdown. Export report" width="660" height="440" loading="lazy" /><figcaption>Engineering Design Calculator Workflow Source: Engineering Design Calculator (2024).</figcaption></figure>
 
       <div class="tool-cta">
-        <p style="margin:0; font-size:0.95rem; color:rgba(244,246,250,0.85);"><strong>Open the tool:</strong> Engineering Design Calculator is the WorkHive surface this guide funnels into. It is free at the worker tier, works offline, and is built for Philippine plants.</p>
+        <p style="margin:0; font-size:0.95rem; color:rgba(244,246,250,0.85);"><strong>Open the tool:</strong> this guide leads to the Engineering Design Calculator. The worker tier costs nothing, works offline, and suits Philippine plants.</p>
         <a href="/engineering-design.html">Open Engineering Design Calculator &rarr;</a>
       </div>
 
-      <h2 id="anchor-related">Where to go next</h2>
-      <p>If the numbers above are the part you want to act on, the workings live in <a href="/learn/free-engineering-calculators-philippine-plants/">the free engineering calculators for Philippine plants</a>, which cover load, power factor and solar sizing with the standards named on each one.</p>
-      <p>For what "normal" looks like before you argue for spend, see <a href="/learn/ph-industrial-benchmarks-intelligence/">the Philippine industrial benchmarks</a>. And because the cheapest kilowatt-hour is the one a stopped line never draws, <a href="/learn/reduce-unplanned-downtime-guide/">reducing unplanned downtime</a> is usually the same project wearing a different name.</p>
+      <h2 id="anchor-related" data-i="p_h7">Where to go next</h2>
+      <p>Want to act on the numbers above? The workings live in <a href="/learn/free-engineering-calculators-philippine-plants/">the free engineering calculators for Philippine plants</a>. They cover load, power factor and solar sizing, with the standards named on each one.</p>
+      <p>Before you argue for spend, see what "normal" looks like in <a href="/learn/ph-industrial-benchmarks-intelligence/">the Philippine plant benchmarks</a>. The cheapest kWh is the one a stopped line never draws. So <a href="/learn/reduce-unplanned-downtime-guide/">cutting unplanned downtime</a> is often the same job by another name.</p>
 
-      <h2 id="faq">Frequently asked questions</h2>
-      <details class="faq-item"><summary>Why are Philippine power rates higher than other Southeast Asian countries?</summary><div class="faq-answer">The Department of Energy reports that the Philippines has the highest rates due to a mix of high generation costs, transmission losses, and the regulatory framework that sets tariff rates. This means plants pay more for each kWh consumed.</div></details>
+      <h2 id="faq" data-i="p_h8">Frequently asked questions</h2>
+      <details class="faq-item"><summary>Why are Philippine power rates higher than other Southeast Asian countries?</summary><div class="faq-answer">The DOE reports that the Philippines has the highest rates due to a mix of high generation costs, transmission losses, and the regulatory framework that sets tariff rates. This means plants pay more for each kWh consumed.</div></details>
       <details class="faq-item"><summary>What does RA 11285 mean for my plant?</summary><div class="faq-answer">RA 11285 requires an energy audit for facilities that consume more than 500,000 kWh per year. The audit must identify savings opportunities and must be conducted by a certified auditor. If you exceed the threshold, you must schedule an audit within 90 days.</div></details>
       <details class="faq-item"><summary>Can I reduce my plant’s electricity bill without new equipment?</summary><div class="faq-answer">Yes. Simple measures like turning off standby equipment, scheduling high‑load processes during off‑peak hours, and tightening maintenance schedules can cut consumption. These steps cost nothing but improve efficiency.</div></details>
       <details class="faq-item"><summary>How does overtime factor into the higher power cost?</summary><div class="faq-answer">When overtime is unavoidable, the plant consumes more electricity, often at peak rates. Since the tariff is higher, overtime shifts increase the overall energy cost, adding pressure on the budget.</div></details>
-      <details class="faq-item"><summary>What role does an energy audit play in managing costs?</summary><div class="faq-answer">An energy audit identifies inefficiencies, equipment that runs longer than needed, and opportunities for load shifting. The audit’s recommendations can be implemented immediately to lower consumption.</div></details>
-      <details class="faq-item"><summary>Where can I find more information about the Department of Energy’s tariff schedule?</summary><div class="faq-answer">The DOE publishes the official tariff schedule on its website under the 'Electricity Tariff Rates' section. It is updated monthly and includes the latest rates for all provinces.</div></details>
+      <details class="faq-item"><summary>What role does an energy audit play in managing costs?</summary><div class="faq-answer">An energy audit identifies inefficiencies, equipment that runs longer than needed, and opportunities for load shifting. The audit’s recommendations can be implemented at once to lower consumption.</div></details>
+      <details class="faq-item"><summary>Where can I find more information about the DOE’s tariff schedule?</summary><div class="faq-answer">The DOE publishes the official tariff schedule on its website under the 'Electricity Tariff Rates' section. It is updated monthly and includes the latest rates for all provinces.</div></details>
 
-      <h2 id="sources">Sources</h2>
+      <h2 id="sources" data-i="p_h9">Sources</h2>
       <ul class="sources-list">
         <li>Department of Energy, Electricity Tariff Rates (June 2024). https://www.doe.gov.ph/electricity-tariff-rates</li>
         <li>Republic Act No. 11285, Energy Efficiency Act of 2019. https://lawphil.net/statutes/repacts/ra2019/ra_11285.html</li>
@@ -245,7 +286,7 @@
   <div class="max-w-5xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">
     <p>Practical writing for the Philippine plant floor. Email <a href="mailto:admin@workhiveph.com" style="color:#5FCCE8;">admin@workhiveph.com</a> with corrections or contributions.</p>
     <div class="flex gap-5">
-      <a href="/" class="hover:text-white/65 transition-colors">Home</a>
+      <a href="/" class="hover:text-white/65 transition-colors" data-i="home">Home</a>
       <a href="/learn/" class="hover:text-white/65 transition-colors">All guides</a>
       <a href="/about/" class="hover:text-white/65 transition-colors">About</a>
     </div>
@@ -253,5 +294,10 @@
 </footer>
 
 <script defer src="../../wh-feedback-fab.js"></script>
+<script>(function(){window._t=function(en,fil){return (window.WH_LANG==='fil'&&fil)?fil:en;};try{window.WH_LANG=(localStorage.getItem('wh_lang')==='fil')?'fil':'en';if(window.WH_LANG!=='fil')return;document.documentElement.lang='fil';}catch(e){window.WH_LANG='en';return;}
+var d={learn:'Matuto',signin:'Mag-sign in',signupfree:'Mag-sign up nang libre',home:'Home',p_byworkhiveeditorialteam:'Mula sa WorkHive Editorial Team',p_sourcescitedbelow:'Mga source sa ibaba',p_h1:"Pinakamataas na sa Southeast Asia ang singil sa kuryente ng mga planta sa Pilipinas",p_h2:"Ang mga Katotohanan",p_h3:"Ano ang ibig sabihin nito sa plant floor",p_h4:"\"Sinubukan na namin ito at hindi tumagal\"",p_h5:"Konklusyon at mga Mungkahi",p_h6:"Saan nakakatulong ang tooling",p_h7:"Saan susunod",p_h8:"Mga madalas itanong",p_h9:"Mga Source"};
+function ap(){document.querySelectorAll('[data-i]').forEach(function(el){var v=d[el.getAttribute('data-i')];if(v!=null&&el.textContent!==v)el.textContent=v;});}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ap);else ap();})();</script>
+<script data-wh-chrome-i18n>if (typeof whI18nApply === "function" && window.WH_LANG === "fil") whI18nApply(window.WH_FIL_PUBLIC || {});</script>
 </body>
 </html>

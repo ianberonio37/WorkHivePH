@@ -4,6 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>WorkHive Gateway — Status</title>
+<!-- ★THE PAGE PEOPLE SEARCH FOR WHEN SOMETHING IS BROKEN HAD NO SNIPPET (T151, 2026-09-07). Every other
+     public page carries a description; this one did not, so a search for "is workhive down" returned a
+     bare title and whatever line Google chose to scrape. That is the worst page on the platform to leave
+     to chance: the person searching for it is already having a bad morning and needs to know from the
+     result itself that this page will answer them. -->
+<meta name="description" content="Live status for WorkHive: real health checks across the gateway and each specialist service, with the target each one is measured against. Open this page first when something is not working.">
+<meta property="og:title" content="WorkHive Gateway — Status">
+<meta property="og:description" content="Live health checks across the WorkHive gateway and each specialist service.">
+<meta property="og:type" content="website">
 <!--
   status.html — Pillar O (Observability & SLO) local status page.
   Part of the Full-Stack SaaS Gateway arc (FULLSTACK_SAAS_GATEWAY_ROADMAP.md §6, Phase 3).
@@ -45,7 +54,7 @@
   .dot.ok { background: var(--wh-green); } .dot.down { background: var(--wh-red); } .dot.slow { background: var(--wh-amber); }
   .meta { font-size: .78rem; color: var(--wh-grey); margin-top: 6px; }
   .deps { margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap; }
-  .dep { font-size: .7rem; padding: 2px 8px; border-radius: 20px; background: #20304d; }
+  .dep { font-size: .7rem; padding: 2px 8px; border-radius: var(--wh-radius-pill); background: #20304d; }
   .dep.ok { color: var(--wh-green); } .dep.bad { color: var(--wh-red); }
   .slo { margin-top: 24px; background: var(--wh-navy-2); border-radius: 12px; padding: 16px 18px; }
   .slo h2 { font-size: 1rem; margin: 0 0 10px; }
@@ -72,9 +81,13 @@
     <h1 translate="no">WorkHive Gateway — Status</h1>
     <div class="sub">Pillar O · live <code>/health</code> across the edge gateway + specialists. Targets per <code>GATEWAY_SLO.md</code>.</div>
   </header>
+<!-- ★THE LANDMARK STARTS AFTER THE HEADER (T184, 2026-09-07). status.html is the page someone opens
+     when something will not work, which makes it the worst page to make a screen-reader user walk
+     from the top of. Opened here and closed before the scripts at the end of the body. -->
+<main>
 <details class="wh-help">
-  <summary>How this page works</summary>
-  <p>Each row is one live health check. Green means the service answers within its target. Press Refresh to re-check now.</p>
+  <summary data-i="p_howthispageworks_c540">How this page works</summary>
+  <p data-i="p_eachrowisonelivehealthcheckg_1f86">Each row is one live health check. Green means the service answers within its target. Press Refresh to re-check now.</p>
 </details>
 <!-- T119 (2026-08-26): the SUPPORTED-BROWSER FLOOR, stated where a person can read it. The floor
      was already enforced in code (browser-floor.js eval-probes ES2020 and paints a banner on an
@@ -83,8 +96,8 @@
      right home: it is the page someone opens when something will not work, and it loads even
      when the backend is down. Update this WITH the canary if the floor ever moves. -->
 <details class="wh-help">
-  <summary>Which browsers WorkHive supports</summary>
-  <p>WorkHive needs a <strong>2020-or-newer browser engine</strong> (Chrome/Edge 80+, Safari 14+,
+  <summary data-i="p_whichbrowsersworkhivesupport_6021">Which browsers WorkHive supports</summary>
+  <p>WorkHive needs a <strong data-i="p_ornewerbrowserengine_4f9b">2020-or-newer browser engine</strong> (Chrome/Edge 80+, Safari 14+,
      Firefox 74+, or Android System WebView updated since 2020). On an older engine the app cannot
      run, and it says so with a banner instead of showing a blank page - if you see that banner,
      update Chrome or Android System WebView from the Play Store.</p>
@@ -93,22 +106,35 @@
 </details>
   <div class="bar">
     <button id="refresh" onclick="runChecks()" data-i="refresh">Refresh</button>
-    <span class="summary" id="summary" role="status" aria-live="polite">Checking…</span>
+    <span data-i="p_checking_820d" class="summary" id="summary" role="status" aria-live="polite" style="color:#e2e8f0;">Checking…</span>
+    <!-- The version this browser is actually serving, so a report can name it (layer CI, §LX). Reads the
+         service-worker shell cache rather than a build-time constant: the constant says what SHOULD be
+         deployed, the cache says what this person is looking at, and those differ exactly when it matters. -->
+    <span id="build-version" class="summary" style="color:rgba(226,232,240,0.62);font-size:0.72rem;margin-left:auto"></span>
   </div>
+  <script>
+    (async function () {
+      var el = document.getElementById('build-version');
+      if (!el) return;
+      var v = (typeof whBuildVersion === 'function') ? await whBuildVersion() : '';
+      el.textContent = v ? ('app ' + v) : 'app version unknown (no cached shell yet)';
+      el.title = v ? 'Quote this when you report a problem' : 'Reload once to cache the app shell';
+    })();
+  </script>
   <!-- Static first-paint placeholder card: shows the design-system card primitive immediately
        (U6/A2 consistency) while the async /health pings resolve; render() replaces it. Kept as
        STATIC HTML (not a JS render fn) so it doesn't add an un-anchored render fn (canonical-anchor). -->
-  <div class="grid" id="grid"><div class="card nohealth"><div class="fn"><span>Gateway status</span><span class="dot nohealth"></span></div><div class="meta">checking edge functions…</div></div></div>
+  <div class="grid" id="grid"><div class="card nohealth"><div class="fn"><span data-i="p_gatewaystatus_d283">Gateway status</span><span class="dot nohealth"></span></div><div data-i="p_checkingedgefunctions_8165" class="meta">checking edge functions…</div></div></div>
 
   <div class="slo">
-    <h2 translate="no">SLO targets (28-day window)</h2>
+    <h2 data-i="p_slotargetsdaywindow_4d05" translate="no">SLO targets (28-day window)</h2>
     <div class="wh-scroll-x"><table aria-label="Gateway SLO targets">
-      <tr><td>Gateway availability</td><td>≥ 99.5%</td></tr>
+      <tr><td data-i="p_gatewayavailability_a7c7">Gateway availability</td><td>≥ 99.5%</td></tr>
       <tr><td>Interactive latency (p95)</td><td>&lt; 2.0 s</td></tr>
       <tr><td>Voice surface latency (p95)</td><td>&lt; 2.5 s</td></tr>
       <tr><td>RAG / background latency (p95)</td><td>&lt; 5.0 s</td></tr>
-      <tr><td>Error rate (excludes sign-in &amp; rate-limit responses)</td><td>&lt; 1.0%</td></tr>
-      <tr><td>Provider-chain success before fallback</td><td>≥ 80%</td></tr>
+      <tr><td data-i="p_errorrateexcludessigninratel_da3a">Error rate (excludes sign-in &amp; rate-limit responses)</td><td>&lt; 1.0%</td></tr>
+      <tr><td data-i="p_providerchainsuccessbeforefa_ad7e">Provider-chain success before fallback</td><td>≥ 80%</td></tr>
       <tr><td>Error budget @ 99.5%</td><td>~3h 22m / 28d</td></tr>
     </table></div>
   </div>
@@ -179,7 +205,12 @@
         // The local wrapper rethrows the AbortError, so a timeout is distinguishable from a
         // refused connection here — which is the whole distinction this state exists to make.
         var aborted = e && (e.name === 'AbortError' || e.code === 20);
-        return { fn: fn, state: aborted ? 'timeout' : 'down', status: 0,
+        // ★A REFUSED READ IS NOT AN OUTAGE (live-walk wave, 2026-09-06). With every data read failing, this page
+        // reported "0/10 probed surfaces healthy (0%) - 10 DOWN": the browser could not reach ANYTHING, and the page
+        // published that as a platform-wide outage. A transport failure means WE COULD NOT ASK - the same reasoning
+        // the timeout branch above already uses ("silence is reported AS silence"). It gets its own state, out of
+        // both the healthy numerator and the DOWN count.
+        return { fn: fn, state: aborted ? 'timeout' : 'unreachable', status: 0,
                  ms: Math.round(performance.now() - t0), deps: [],
                  err: aborted ? '' : String(e) };
       }
@@ -187,6 +218,7 @@
 
     var LABEL = { ok: 'healthy', slow: 'slow', nohealth: 'no /health probe',
                   timeout: 'no answer in ' + Math.round(PROBE_MS / 1000) + 's (may be cold-starting)',
+                  unreachable: _t('could not be reached from this browser', 'hindi maabot mula sa browser na ito'),
                   down: 'DOWN' };
 
     function render(rows) {
@@ -216,11 +248,22 @@
       // healthy numerator AND the DOWN count, and is named on its own. Folding it into either one
       // would be the page asserting something it did not observe.
       var tmo = rows.filter(function (r) { return r.state === 'timeout'; }).length;
-      var probed = rows.length - noh - tmo;
+      var unr = rows.filter(function (r) { return r.state === 'unreachable'; }).length;
+      var probed = rows.length - noh - tmo - unr;
       var avail = probed ? Math.round(100 * ok / probed) : 0;
+      if (unr && !probed) {
+        // nothing answered and nothing refused on its own merits: the honest reading is about THIS browser's
+        // connection, not about the platform, and saying "0% healthy" here would page someone for a non-incident.
+        sum.textContent = _t('Could not reach any surface from this browser (', 'Walang maabot na surface mula sa browser na ito (') + unr + ' of ' + rows.length + ').'
+          + ' This is a connection problem here, not a reading of the platform. Check your connection and press Re-probe.'
+          + ' - ' + (typeof whFmtDate === 'function' ? whFmtDate(new Date(), { timeOnly: true }) : new Date().toLocaleTimeString());
+        btn.disabled = false;
+        return;
+      }
       sum.textContent = ok + '/' + probed + ' probed surfaces healthy (' + avail + '%)' +
         (down ? ' · ' + down + ' DOWN' : '') +
         (tmo ? ' · ' + tmo + ' did not answer in time (not counted either way)' : '') +
+        (unr ? ' · ' + unr + ' unreachable from here (not counted either way)' : '') +
         (noh ? ' · ' + noh + ' without /health' : '') +
         ' · ' + (typeof whFmtDate === 'function' ? whFmtDate(new Date(), { timeOnly: true }) : new Date().toLocaleTimeString());
       btn.disabled = false;
@@ -239,6 +282,7 @@
     });
   });
 </script>
+</main>
 </body>
 </html>
 

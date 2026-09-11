@@ -179,13 +179,30 @@ async function fetchDescriptiveData(
   // is_due_soon / frequency_days) so predictive.py reads them instead of recomputing
   // from a local frequency map (P5/P6 — read-don't-recompute; keeps the PM Due
   // Calendar identical to pm-scheduler + home).
+  // ★THIS QUERY IS THE ONE THAT DOES NOT BIND A SOLO CALLER, AND IT READ EVERY HIVE'S PM PROGRAMME
+  // (2026-09-10, walked as jun.vanowner@workhive.test — a signed-in owner with no hive).
+  // Every sibling fetch in this file uses the pair `if (hiveId) … else if (workerName) …`, so a solo
+  // caller is bound by worker_name. This one binds on assetIds OR hiveId and has no third leg. A
+  // solo owner with ZERO pm_assets therefore skipped the asset filter, had no hiveId to fall back
+  // on, and — because `v_pm_scope_items_truth` is RLS-DISABLED by design (it expects an explicit
+  // filter) — the read came back UNFILTERED. Measured: Jun's analytics rendered 69 rows belonging to
+  // Baguio Textile Mills, a hive he is not a member of, with the task text fully readable
+  // ("Visual + amp draw check", "Vibration trend reading at DE/NDE"). The comment that used to sit
+  // here already feared exactly this ("bind to the hive to avoid a cross-tenant read") — it just
+  // guarded the hive case and left the solo one open.
+  // The view has no worker_name column, so for a solo caller the asset list IS the binding, and an
+  // empty asset list means the honest answer is NO ROWS. `scopeUnbound` makes that explicit rather
+  // than leaving it to a filter that silently does not apply.
+  // ★AND THE ENRICHMENT BELOW WAS OVERWRITING A GOOD NAME WITH A UUID. The view already carries
+  // `asset_name` and `asset_tag`; they were simply not selected, so the spread had no asset_name and
+  // `assetMap[s.asset_id] || s.asset_id` wrote the raw id whenever assetMap was empty. Selected now,
+  // and preferred in order, so no reader ever meets a 36-character hexadecimal string.
   const scopeQ = db.from("v_pm_scope_items_truth")
-    .select("id, asset_id, frequency, frequency_days, item_text, next_due_date, days_until_due, is_overdue, is_due_soon, last_completed_at")
+    .select("id, asset_id, asset_name, asset_tag, frequency, frequency_days, item_text, next_due_date, days_until_due, is_overdue, is_due_soon, last_completed_at")
     .limit(dynLimit(periodDays, Math.max(assetIds.length, 1), 5000));
   if (assetIds.length) scopeQ.in("asset_id", assetIds);
-  // v_pm_scope_items_truth is RLS-disabled (scoped by an explicit filter). When a hive has no assets
-  // the asset filter above is skipped, so bind to the hive to avoid a cross-tenant read (mirrors oeeQ).
   if (hiveId) scopeQ.eq("hive_id", hiveId);
+  const scopeUnbound = !hiveId && !assetIds.length;
 
   // OEE: only needs production_output + downtime_hours (small select)
   const oeeQ = db.from("v_logbook_truth")     // canonical: logbook_truth
@@ -208,7 +225,12 @@ async function fetchDescriptiveData(
   else if (workerName) txnQ.eq("worker_name", workerName);
 
   const [completionsRes, scopeRes, oeeRes, txnRes] = await Promise.allSettled([
-    completionsQ, scopeQ, oeeQ, txnQ,
+    completionsQ,
+    // An unbound read of an RLS-disabled view is not "everything the caller may see", it is
+    // everything. A caller with no hive and no assets owns no PM scope items, so the honest
+    // result is an empty list — returned here instead of letting an inapplicable filter decide.
+    scopeUnbound ? Promise.resolve({ data: [] as Array<Record<string, string>> }) : scopeQ,
+    oeeQ, txnQ,
   ]);
 
   // Build two lookup maps from the pm_assets fetch:
@@ -220,15 +242,22 @@ async function fetchDescriptiveData(
   const rawScope = (scopeRes.status === "fulfilled" ? scopeRes.value.data : null) || [];
   const enrichedScope = rawScope.map((s: Record<string, string>) => ({
     ...s,
-    asset_name:   assetMap[s.asset_id] || s.asset_id,
-    machine_code: tagIdMap[s.asset_id] || "",
+    // Prefer the assets fetch, then what the VIEW already carries, then the asset's human tag.
+    // Never the raw asset_id: a 36-character UUID in a column headed "asset" is not a name, and
+    // that is exactly what a reader with no hive was getting (69 of them on one page).
+    asset_name:   assetMap[s.asset_id] || s.asset_name || s.asset_tag || "Unnamed asset",
+    machine_code: tagIdMap[s.asset_id] || s.asset_tag || "",
   }));
 
   // Same enrichment on completions so Python can join completions to logbook by machine_code.
   const rawCompletions = (completionsRes.status === "fulfilled" ? completionsRes.value.data : null) || [];
   const enrichedCompletions = rawCompletions.map((c: Record<string, string>) => ({
     ...c,
-    asset_name:   assetMap[c.asset_id] || c.asset_id,
+    // Same rule as enrichedScope above: never hand a reader the raw asset_id. `pm_completions` has
+    // no name column of its own, so when the assets fetch came back empty there is nothing better
+    // than a neutral label — and a neutral label is still better than a UUID. (Unlike scopeQ this
+    // query IS bound for a solo caller, by worker_name on line 175, so it never crossed tenants.)
+    asset_name:   assetMap[c.asset_id] || "Unnamed asset",
     machine_code: tagIdMap[c.asset_id] || "",
   }));
 
@@ -774,7 +803,7 @@ async function callPythonAnalytics(phase: string, inputs: Record<string, unknown
     // Python API not configured — return a structured "unavailable" response
     return {
       error: "Python Analytics API not configured.",
-      hint: "Set PYTHON_API_URL in Supabase Edge Function secrets.",
+      hint: "Ask the platform owner to finish the analytics setup.",   // the secret's NAME belongs in the server log, not in an API response (2026-09-06)
       phase,
     };
   }
@@ -787,7 +816,9 @@ async function callPythonAnalytics(phase: string, inputs: Record<string, unknown
   });
 
   if (res.status === 404) {
-    return { error: `Phase '${phase}' not yet available. The Python API needs to be redeployed with the latest analytics modules.`, phase };
+    // a person reads this, so it says what they can do; the deploy detail is the operator's, and it goes to the log (2026-09-06)
+    console.error(`analytics-orchestrator: phase '${phase}' missing - redeploy the Python API with the latest analytics modules`);
+    return { error: `That analysis is not ready yet. Ask the platform owner to turn it on.`, phase };
   }
   if (!res.ok) {
     const body = await res.text().catch(() => "no body");
@@ -818,7 +849,19 @@ serveObserved("analytics-orchestrator", async (req) => {
   log.info(_logCtx, "request_start", { method: req.method });
 
   try {
-    let { phase, hive_id, worker_name, period_days, criticality, discipline, persona, horizon } = await req.json();
+    // ★A CALLER'S MISTAKE IS NOT A SERVER ERROR (live-walk wave, 2026-09-06). tools/prove_edge_contract.mjs asked this
+  // function with a broken JSON body and with GET; both reached `await req.json()` and came back 500, so a typo in a
+  // client read as "the platform is broken". These are the same two guards every function that passed already had.
+    if (req.method !== "POST") {
+      return new Response(JSON.stringify({ error: "That action is not allowed here. Reload the page and try again." }),
+        { status: 405, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+    let _whBody;
+    try { _whBody = await req.json(); } catch {
+      return new Response(JSON.stringify({ error: "That request could not be read. Reload the page and try again." }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+    let { phase, hive_id, worker_name, period_days, criticality, discipline, persona, horizon } = _whBody;
 
     // STREAMLINE S6 (Action Brief fusion): `horizon` lets ONE prescriptive engine
     // serve all three brief surfaces as time-scoped SLICES — shift-brain=shift,

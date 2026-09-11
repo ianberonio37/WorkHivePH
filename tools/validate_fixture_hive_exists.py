@@ -178,6 +178,27 @@ def main():
         print(f"  {GREEN}PASS{RST} — no hive UUID is pinned as a literal")
         return 0
     live = set((psql("select id::text from public.hives;") or "").splitlines())
+    # ★NOT EVERY PINNED UUID IS A HIVE ID, and calling a live one "rot" sends somebody to repair working
+    # code. prove_recovery_path.mjs pins 54aa11ba-ecf8-4ff8-9df8-cd403cae28b6 into `#svc-hail-item`, a
+    # SERVICE CATALOG select - the row exists, the probe works, and this gate reported it as a hive that
+    # no longer exists. The finding this gate is for is real (an id that resolves to NOTHING measures an
+    # empty world); an id that resolves to a different KIND of thing is simply not this gate's business.
+    # Each pinned id is asked of the other id-bearing tables a fixture plausibly names, and one that
+    # lands is reported as what it is rather than counted as rot.
+    ELSEWHERE = [
+        ("service_catalog", "a service catalog item"),
+        ("asset_nodes", "an asset"),
+        ("pm_assets", "a PM asset"),
+        ("marketplace_listings", "a marketplace listing"),
+        ("inventory_items", "an inventory part"),
+    ]
+
+    def resolves_elsewhere(uuid):
+        for table, human in ELSEWHERE:
+            hit = psql(f"select 1 from public.{table} where id::text = '{uuid}' limit 1;")
+            if hit and hit.strip():
+                return human
+        return None
     print("=" * 84)
     print(f"  {BOLD}Fixture hive existence — a pinned hive that is gone measures an empty world{RST}")
     print("=" * 84)
@@ -187,8 +208,12 @@ def main():
         if ok:
             print(f"  {GREEN}OK  {RST}  {u}  {DIM}pinned in {len(sites)} file(s){RST}")
         else:
+            other = resolves_elsewhere(u)
+            if other:
+                print(f"  {GREEN}OK  {RST}  {u}  {DIM}not a hive - {other}, and it exists (pinned in {len(sites)} file(s)){RST}")
+                continue
             dead += 1
-            print(f"  {RED}GONE{RST}  {u}  — pinned in {len(sites)} file(s) and NOT in public.hives:")
+            print(f"  {RED}GONE{RST}  {u}  — pinned in {len(sites)} file(s), and it is not a hive, an asset, a PM asset, a listing or a part:")
             for f, n in sites[:10]:
                 print(f"          {f}:{n}")
     import json as _json

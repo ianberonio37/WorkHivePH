@@ -31,13 +31,29 @@
    * @param {string} expectedStamp  ISO timestamp of last-known updated_at
    * @returns {Promise<{ error, conflict, data }>}
    */
-  window.updateWithOC = async function (db, table, id, patch, expectedStamp) {
+  /* W3-LC (2026-09-09): `filters` was added because its absence is the most likely reason this helper
+     sat unused. FOUR pages loaded oc-helper.js and NONE ever called updateWithOC - 22 unguarded write
+     sites - and the reason is visible the moment you try to adopt it: every real update on this
+     platform is scoped by TENANCY as well as id. inventory.html's edit path is
+     `.update(patch).eq('id', editingItemId).eq('worker_name', role === 'supervisor' ? prev.worker_name
+     : WORKER_NAME)` - a filter that deliberately varies by role. Swapping that for the old id-only
+     helper would have silently widened which rows the update could touch, so the safe move was to not
+     adopt it at all, and that is what four pages did. A shared helper that cannot express the shape its
+     callers actually use will be included and ignored; extending it is what makes adoption possible
+     without trading a concurrency bug for an authorization one. Optional and last, so every existing
+     call keeps its behaviour exactly. */
+  window.updateWithOC = async function (db, table, id, patch, expectedStamp, filters) {
     if (!db || !table || !id) {
       return { error: new Error('updateWithOC: missing db/table/id'), conflict: false, data: null };
     }
     const q = db.from(table)
       .update(patch)
       .eq('id', id);
+    if (filters && typeof filters === 'object') {
+      for (const [col, val] of Object.entries(filters)) {
+        if (val !== undefined && val !== null) q.eq(col, val);
+      }
+    }
     if (expectedStamp) q.eq('updated_at', expectedStamp);
     q.select();
     const { data, error } = await q;

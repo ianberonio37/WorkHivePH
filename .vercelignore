@@ -1,0 +1,31 @@
+# Dev-only artifacts that must never be served in production (2026-09-06).
+# netlify.toml has always declared the intent - "publish=. would serve them; force 404 them" - but the site
+# is deployed on VERCEL, which reads neither netlify.toml nor _headers. Measured on the live origin:
+# https://workhiveph.com/_fixtures/engineering-design-test.html answered 200 with the full page. robots.txt
+# does not cover them either: it disallows /index-v3-test.html at the ROOT, while the file is served from
+# /_fixtures/. Leaving them out of the deployment removes the exposure rather than masking it.
+#
+# ★THIS FILE WAS NEVER COMMITTED, SO IT HAS NEVER RUN (found 2026-09-10). `git status` reported it
+# as `?? .vercelignore` - untracked. Vercel deploys the git tree, so an untracked ignore file is
+# not part of any deployment and cannot exclude anything. Re-measured on the live origin the day
+# this was found, four days after the note above was written:
+#     /_fixtures/engineering-design-test.html          -> 200, 1,729,742 B   STILL SERVED
+# The exposure was never removed; only the intent was written down. A rule that ships nowhere is
+# indistinguishable from no rule, which is why `deploy_root_hygiene` now FAILS while this file is
+# untracked - the gate asserts the lock is loaded, not merely that it exists.
+#
+# The same measurement found two dev tools' Jinja templates publicly served, which the root-only
+# sweep in that gate could never have seen:
+#     /test-data-seeder/templates/index.html           -> 200,   269,083 B   raw {{ supabase_url }}
+#     /video_marketing_app/templates/index.html        -> 200,   133,849 B
+# The seeder is the LOCAL-ONLY WorkHive Tester; its template renders a Supabase URL and test-login
+# placeholders. Served unrendered, it publishes the shape of that tooling to anyone who asks.
+_fixtures/
+*.backup.html
+*.backup2.html
+index-v3-test.html
+.tmp/
+.playwright-mcp/
+test-data-seeder/
+video_marketing_app/
+remotion_scenes/

@@ -2,7 +2,7 @@
 name: edge-fn-project-orchestrator
 type: edge-fn
 source: file:supabase/functions/project-orchestrator/index.ts
-source_sha: 7839ab0005100ad6
+source_sha: 8323ddfcdfdf420d
 last_verified: 2026-07-13
 supersedes: null
 ---

@@ -1,9 +1,9 @@
 {
   "summary": {
-    "view_column_pairs": 347,
+    "view_column_pairs": 340,
     "at_risk": 0,
     "review": 9,
-    "files_scanned": 337
+    "files_scanned": 341
   },
   "pairs": [
     {
@@ -1989,6 +1989,11 @@
           "file": "supabase/functions/shift-planner-orchestrator/index.ts",
           "shape": "direct",
           "smells": []
+        },
+        {
+          "file": "worker-drawer.js",
+          "shape": "direct",
+          "smells": []
         }
       ],
       "smells": [],
@@ -2118,6 +2123,11 @@
           "file": "voice-handler.js",
           "shape": "direct",
           "smells": []
+        },
+        {
+          "file": "worker-drawer.js",
+          "shape": "direct",
+          "smells": []
         }
       ],
       "smells": [],
@@ -2229,6 +2239,11 @@
           "file": "voice-handler.js",
           "shape": "direct",
           "smells": []
+        },
+        {
+          "file": "worker-drawer.js",
+          "shape": "direct",
+          "smells": []
         }
       ],
       "smells": [],
@@ -2270,6 +2285,11 @@
         },
         {
           "file": "voice-handler.js",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "worker-drawer.js",
           "shape": "direct",
           "smells": []
         }
@@ -3758,35 +3778,12 @@
           "smells": []
         },
         {
-          "file": "marketplace-seller-profile.html",
-          "shape": "direct",
-          "smells": []
-        },
-        {
           "file": "marketplace-seller.html",
           "shape": "direct",
           "smells": []
         },
         {
-          "file": "marketplace.html",
-          "shape": "direct",
-          "smells": []
-        },
-        {
           "file": "platform-actions.html",
-          "shape": "direct",
-          "smells": []
-        }
-      ],
-      "smells": [],
-      "risk": "OK"
-    },
-    {
-      "view": "v_marketplace_listings_truth",
-      "column": "completed_sales",
-      "consumers": [
-        {
-          "file": "marketplace.html",
           "shape": "direct",
           "smells": []
         }
@@ -3809,17 +3806,7 @@
           "smells": []
         },
         {
-          "file": "marketplace-seller-profile.html",
-          "shape": "direct",
-          "smells": []
-        },
-        {
           "file": "marketplace-seller.html",
-          "shape": "direct",
-          "smells": []
-        },
-        {
-          "file": "marketplace.html",
           "shape": "direct",
           "smells": []
         }
@@ -3840,11 +3827,6 @@
           "file": "marketplace-seller.html",
           "shape": "direct",
           "smells": []
-        },
-        {
-          "file": "marketplace.html",
-          "shape": "direct",
-          "smells": []
         }
       ],
       "smells": [],
@@ -3860,17 +3842,7 @@
           "smells": []
         },
         {
-          "file": "marketplace-seller-profile.html",
-          "shape": "direct",
-          "smells": []
-        },
-        {
           "file": "marketplace-seller.html",
-          "shape": "direct",
-          "smells": []
-        },
-        {
-          "file": "marketplace.html",
           "shape": "direct",
           "smells": []
         }
@@ -3893,17 +3865,7 @@
           "smells": []
         },
         {
-          "file": "marketplace-seller-profile.html",
-          "shape": "direct",
-          "smells": []
-        },
-        {
           "file": "marketplace-seller.html",
-          "shape": "direct",
-          "smells": []
-        },
-        {
-          "file": "marketplace.html",
           "shape": "direct",
           "smells": []
         }
@@ -3939,28 +3901,10 @@
     },
     {
       "view": "v_marketplace_listings_truth",
-      "column": "part_number",
-      "consumers": [
-        {
-          "file": "marketplace.html",
-          "shape": "direct",
-          "smells": []
-        }
-      ],
-      "smells": [],
-      "risk": "OK"
-    },
-    {
-      "view": "v_marketplace_listings_truth",
       "column": "price",
       "consumers": [
         {
           "file": "asset-hub.html",
-          "shape": "direct",
-          "smells": []
-        },
-        {
-          "file": "community.html",
           "shape": "direct",
           "smells": []
         },
@@ -3975,35 +3919,12 @@
           "smells": []
         },
         {
-          "file": "marketplace-seller-profile.html",
-          "shape": "direct",
-          "smells": []
-        },
-        {
           "file": "marketplace-seller.html",
           "shape": "direct",
           "smells": []
         },
         {
-          "file": "marketplace.html",
-          "shape": "direct",
-          "smells": []
-        },
-        {
           "file": "platform-actions.html",
-          "shape": "direct",
-          "smells": []
-        }
-      ],
-      "smells": [],
-      "risk": "OK"
-    },
-    {
-      "view": "v_marketplace_listings_truth",
-      "column": "rating_avg",
-      "consumers": [
-        {
-          "file": "marketplace.html",
           "shape": "direct",
           "smells": []
         }
@@ -4031,17 +3952,7 @@
           "smells": []
         },
         {
-          "file": "marketplace-seller-profile.html",
-          "shape": "direct",
-          "smells": []
-        },
-        {
           "file": "marketplace-seller.html",
-          "shape": "direct",
-          "smells": []
-        },
-        {
-          "file": "marketplace.html",
           "shape": "direct",
           "smells": []
         },
@@ -4080,11 +3991,6 @@
           "file": "asset-hub.html",
           "shape": "direct",
           "smells": []
-        },
-        {
-          "file": "marketplace.html",
-          "shape": "direct",
-          "smells": []
         }
       ],
       "smells": [],
@@ -4110,25 +4016,7 @@
           "smells": []
         },
         {
-          "file": "marketplace.html",
-          "shape": "direct",
-          "smells": []
-        },
-        {
           "file": "platform-actions.html",
-          "shape": "direct",
-          "smells": []
-        }
-      ],
-      "smells": [],
-      "risk": "OK"
-    },
-    {
-      "view": "v_marketplace_listings_truth",
-      "column": "seller_tier",
-      "consumers": [
-        {
-          "file": "marketplace.html",
           "shape": "direct",
           "smells": []
         }
@@ -4142,11 +4030,6 @@
       "consumers": [
         {
           "file": "asset-hub.html",
-          "shape": "direct",
-          "smells": []
-        },
-        {
-          "file": "marketplace.html",
           "shape": "direct",
           "smells": []
         }
@@ -4177,11 +4060,6 @@
           "file": "marketplace-seller.html",
           "shape": "direct",
           "smells": []
-        },
-        {
-          "file": "marketplace.html",
-          "shape": "direct",
-          "smells": []
         }
       ],
       "smells": [],
@@ -4197,11 +4075,6 @@
           "smells": []
         },
         {
-          "file": "community.html",
-          "shape": "direct",
-          "smells": []
-        },
-        {
           "file": "founder-console.html",
           "shape": "direct",
           "smells": []
@@ -4212,17 +4085,7 @@
           "smells": []
         },
         {
-          "file": "marketplace-seller-profile.html",
-          "shape": "direct",
-          "smells": []
-        },
-        {
           "file": "marketplace-seller.html",
-          "shape": "direct",
-          "smells": []
-        },
-        {
-          "file": "marketplace.html",
           "shape": "direct",
           "smells": []
         },
@@ -4268,16 +4131,6 @@
           "smells": []
         },
         {
-          "file": "marketplace-seller-profile.html",
-          "shape": "direct",
-          "smells": []
-        },
-        {
-          "file": "marketplace.html",
-          "shape": "direct",
-          "smells": []
-        },
-        {
           "file": "platform-actions.html",
           "shape": "direct",
           "smells": []
@@ -4301,16 +4154,6 @@
           "smells": []
         },
         {
-          "file": "marketplace-seller-profile.html",
-          "shape": "direct",
-          "smells": []
-        },
-        {
-          "file": "marketplace.html",
-          "shape": "direct",
-          "smells": []
-        },
-        {
           "file": "platform-actions.html",
           "shape": "direct",
           "smells": []
@@ -4325,11 +4168,6 @@
       "consumers": [
         {
           "file": "marketplace-admin.html",
-          "shape": "direct",
-          "smells": []
-        },
-        {
-          "file": "marketplace-seller-profile.html",
           "shape": "direct",
           "smells": []
         }
@@ -4352,16 +4190,6 @@
           "smells": []
         },
         {
-          "file": "marketplace-seller-profile.html",
-          "shape": "direct",
-          "smells": []
-        },
-        {
-          "file": "marketplace.html",
-          "shape": "direct",
-          "smells": []
-        },
-        {
           "file": "platform-actions.html",
           "shape": "direct",
           "smells": []
@@ -4376,16 +4204,6 @@
       "consumers": [
         {
           "file": "marketplace-admin.html",
-          "shape": "direct",
-          "smells": []
-        },
-        {
-          "file": "marketplace-seller-profile.html",
-          "shape": "direct",
-          "smells": []
-        },
-        {
-          "file": "marketplace.html",
           "shape": "direct",
           "smells": []
         }
@@ -4408,16 +4226,6 @@
           "smells": []
         },
         {
-          "file": "marketplace-seller-profile.html",
-          "shape": "direct",
-          "smells": []
-        },
-        {
-          "file": "marketplace.html",
-          "shape": "mapped_enum",
-          "smells": []
-        },
-        {
           "file": "platform-actions.html",
           "shape": "direct",
           "smells": []
@@ -4434,11 +4242,6 @@
           "file": "marketplace-admin.html",
           "shape": "direct",
           "smells": []
-        },
-        {
-          "file": "marketplace-seller-profile.html",
-          "shape": "direct",
-          "smells": []
         }
       ],
       "smells": [],
@@ -4450,29 +4253,6 @@
       "consumers": [
         {
           "file": "marketplace-admin.html",
-          "shape": "direct",
-          "smells": []
-        },
-        {
-          "file": "marketplace-seller-profile.html",
-          "shape": "direct",
-          "smells": []
-        }
-      ],
-      "smells": [],
-      "risk": "OK"
-    },
-    {
-      "view": "v_marketplace_sellers_truth",
-      "column": "messenger_username",
-      "consumers": [
-        {
-          "file": "marketplace-seller-profile.html",
-          "shape": "direct",
-          "smells": []
-        },
-        {
-          "file": "marketplace.html",
           "shape": "direct",
           "smells": []
         }
@@ -4493,16 +4273,6 @@
           "file": "marketplace-admin.html",
           "shape": "direct",
           "smells": []
-        },
-        {
-          "file": "marketplace-seller-profile.html",
-          "shape": "direct",
-          "smells": []
-        },
-        {
-          "file": "marketplace.html",
-          "shape": "direct",
-          "smells": []
         }
       ],
       "smells": [],
@@ -4514,42 +4284,6 @@
       "consumers": [
         {
           "file": "community.html",
-          "shape": "direct",
-          "smells": []
-        },
-        {
-          "file": "marketplace-seller-profile.html",
-          "shape": "direct",
-          "smells": []
-        },
-        {
-          "file": "marketplace.html",
-          "shape": "direct",
-          "smells": []
-        }
-      ],
-      "smells": [],
-      "risk": "OK"
-    },
-    {
-      "view": "v_marketplace_sellers_truth",
-      "column": "response_rate",
-      "consumers": [
-        {
-          "file": "marketplace.html",
-          "shape": "direct",
-          "smells": []
-        }
-      ],
-      "smells": [],
-      "risk": "OK"
-    },
-    {
-      "view": "v_marketplace_sellers_truth",
-      "column": "response_time_h",
-      "consumers": [
-        {
-          "file": "marketplace.html",
           "shape": "direct",
           "smells": []
         }
@@ -4577,16 +4311,6 @@
           "smells": []
         },
         {
-          "file": "marketplace-seller-profile.html",
-          "shape": "direct",
-          "smells": []
-        },
-        {
-          "file": "marketplace.html",
-          "shape": "direct",
-          "smells": []
-        },
-        {
           "file": "platform-actions.html",
           "shape": "direct",
           "smells": []
@@ -4606,16 +4330,6 @@
         },
         {
           "file": "marketplace-admin.html",
-          "shape": "direct",
-          "smells": []
-        },
-        {
-          "file": "marketplace-seller-profile.html",
-          "shape": "direct",
-          "smells": []
-        },
-        {
-          "file": "marketplace.html",
           "shape": "direct",
           "smells": []
         }
@@ -4639,11 +4353,6 @@
         },
         {
           "file": "marketplace-admin.html",
-          "shape": "direct",
-          "smells": []
-        },
-        {
-          "file": "marketplace-seller-profile.html",
           "shape": "direct",
           "smells": []
         },
@@ -5215,6 +4924,11 @@
           "smells": []
         },
         {
+          "file": "supabase/functions/analytics-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
           "file": "supabase/functions/scheduled-agents/index.ts",
           "shape": "direct",
           "smells": []
@@ -5239,6 +4953,11 @@
         },
         {
           "file": "index.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/analytics-orchestrator/index.ts",
           "shape": "direct",
           "smells": []
         },
@@ -6166,6 +5885,11 @@
       "column": "name",
       "consumers": [
         {
+          "file": "project-report.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
           "file": "supabase/functions/project-orchestrator/index.ts",
           "shape": "direct",
           "smells": []
@@ -6196,6 +5920,11 @@
       "view": "v_project_truth",
       "column": "project_code",
       "consumers": [
+        {
+          "file": "project-report.html",
+          "shape": "direct",
+          "smells": []
+        },
         {
           "file": "supabase/functions/project-orchestrator/index.ts",
           "shape": "direct",
@@ -6288,6 +6017,11 @@
       "view": "v_project_truth",
       "column": "status",
       "consumers": [
+        {
+          "file": "project-report.html",
+          "shape": "mapped_enum",
+          "smells": []
+        },
         {
           "file": "supabase/functions/project-orchestrator/index.ts",
           "shape": "direct",

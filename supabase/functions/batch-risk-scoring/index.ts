@@ -429,8 +429,33 @@ async function scoreHive(
   if (violations > 0) {
     log.warn(null, `[batch-risk-scoring] Hive ${hiveId}: ${violations} rows rejected by Tier C contract.`);
   }
+  // ★A SCORE FOR AN ASSET THAT DOES NOT EXIST IS A DEAD-END HEADLINE (2026-09-06). The scores are keyed by the
+  // logbook's free-text `machine`, which a worker can type without ever registering the asset, so ops-home could
+  // headline "CRITICAL RISK: CP-01" and open onto nothing. Keep only names this hive can actually resolve to an
+  // asset_nodes row (by name or tag) - the same rule tools/validate_hive_name_reconciles.py holds the data to.
+  // canonical-allow: an EXISTENCE check, not a displayed value. This asks "can this hive resolve that
+  // free-text machine name to a registered asset at all?" and never renders a field of the row it finds,
+  // so the display view (v_asset_truth) is not the read path here - the same call the ASR vocabulary read
+  // in voice-transcribe makes. Reading the truth view would additionally narrow the check to whatever
+  // that view filters, which would make MORE names look unresolvable and drop MORE real scores.
+  const { data: _nodeRows } = await db.from("asset_nodes").select("name, tag").eq("hive_id", hiveId);
+  const _known = new Set((_nodeRows || []).flatMap((n: { name?: string; tag?: string }) =>
+    [n.name, n.tag].filter(Boolean).map((s) => String(s).trim().toLowerCase())));
+  let orphans = 0;
+  const resolvableRows = _known.size
+    ? validRows.filter((r) => {
+        const ok = _known.has(String(r.asset_name || "").trim().toLowerCase());
+        if (!ok) { orphans++; console.error("[batch-risk-scoring] no asset_nodes match, skipping:", r.asset_name); }
+        return ok;
+      })
+    : validRows;
+  validRows.length = 0;
+  validRows.push(...resolvableRows);
+  if (orphans > 0) {
+    log.warn(null, `[batch-risk-scoring] Hive ${hiveId}: ${orphans} score(s) skipped - the asset is not registered.`);
+  }
   if (!validRows.length) {
-    return { hive_id: hiveId, scored: 0, contract_violations: violations };
+    return { hive_id: hiveId, scored: 0, contract_violations: violations, unregistered_assets: orphans };
   }
 
   // ── 5. Write to asset_risk_scores (insert, not upsert — keep history) ─────────
@@ -633,16 +658,42 @@ function buildCompositeScoresV2(input: CompositeInput) {
     let pmValue = 0.5;
     let pmExplanation = "No PM data linked to this machine; assumed medium overdue.";
     const pa = pmByName[_pmNorm(machine)];
-    if (pa && pa.last_anchor_date) {
-      const anchor = new Date(pa.last_anchor_date).getTime();
+    // ★AND A SCHEDULE WITH NO ANCHOR IS NOT "NO PM DATA". PB-001's fix made the pmByName hit work and
+    // the missing column get selected; a third case survives both. `last_anchor_date` is nullable and
+    // pm-scheduler writes `anchor || null`, so a schedule created before its first service has none -
+    // and this branch then fell to the default sentence, which tells the reader no PM data is linked
+    // to a machine whose schedule and completions are both right there. Measured live on five vehicle
+    // assets across two fleets: each had a matching pm_asset and one or two completions, and each
+    // carried "No PM data linked" on its risk card.
+    //
+    // The completions ARE the anchor when the column is empty: the last time this schedule was served
+    // is what "days since last PM" means. They are already loaded, keyed by pm_asset id.
+    let _anchorSrc = pa?.last_anchor_date ?? null;
+    let _anchorFrom = "anchor";
+    if (pa && !_anchorSrc) {
+      // PmAssetRow.id is optional in the interface, so the key has to tolerate its absence -
+      // indexing with `string | undefined` is a type error and the whole function fails to load
+      const _comps = completionsByAssetId[pa.id || ""] || [];
+      let _latest = 0;
+      for (const c of _comps) {
+        const t = new Date(String(c.completed_at ?? "")).getTime();
+        if (!isNaN(t) && t > _latest) _latest = t;
+      }
+      if (_latest > 0) { _anchorSrc = new Date(_latest).toISOString(); _anchorFrom = "completion"; }
+      else pmExplanation = "PM schedule linked but never served and no anchor set; assumed medium overdue.";
+    }
+    if (pa && _anchorSrc) {
+      const anchor = new Date(_anchorSrc).getTime();
       if (!isNaN(anchor)) {
         const daysSincePm = (now - anchor) / 86400000;
         pmValue = Math.max(0, Math.min(1, (daysSincePm - 30) / 60));
+        // say WHICH date this is: an anchor a supervisor set, or the last completion it was read from
+        const _src = _anchorFrom === "completion" ? "Last PM completed" : "Last PM anchor";
         pmExplanation = pmValue >= 1
-          ? `Last PM anchor ${Math.round(daysSincePm)} days ago; well past the 90-day overdue threshold.`
+          ? `${_src} ${Math.round(daysSincePm)} days ago; well past the 90-day overdue threshold.`
           : pmValue === 0
-          ? `Last PM anchor ${Math.round(daysSincePm)} days ago; within the 30-day window.`
-          : `Last PM anchor ${Math.round(daysSincePm)} days ago; partial overdue.`;
+          ? `${_src} ${Math.round(daysSincePm)} days ago; within the 30-day window.`
+          : `${_src} ${Math.round(daysSincePm)} days ago; partial overdue.`;
       }
     }
     factors.push({

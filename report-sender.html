@@ -19,7 +19,7 @@
   <!-- dashboard-allow: report-sending tool; no analytics tiles, just AI report metadata. -->
   <link rel="manifest" href="report-sender-manifest.json" />
   <script src="browser-floor.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
+  <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
   <script src="utils.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=optional" rel="stylesheet" />
@@ -187,12 +187,18 @@
     .contact-info { flex: 1; min-width: 0; }
     .contact-name { display: block; font-size: 0.82rem; font-weight: 600; color: rgba(255,255,255,0.85); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .contact-tag  { font-size: 0.62rem; color:rgba(255,255,255,0.80); }
+    .contact-tag { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }   /* phone fit (2026-09-06): the tag carries an email - one line, ellipsized, never a wrapped or spilled token */
     .contact-check { opacity: 0; transition: opacity 0.15s; flex-shrink: 0; }
     .contact-chip.selected .contact-check { opacity: 1; }
     .contact-delete {
       background: none; border: none; cursor: pointer;
       color:rgba(255,255,255,0.80); font-size: 1rem; padding: 0;
-      min-width: 28px; min-height: 28px;
+      /* 28px -> 44px (F1, walked 2026-09-10 as a fleet supervisor on phone-390): this is the REMOVE
+         control for a saved recipient - destructive, and it was the smallest target on the page at
+         28x28. The chip is 65px tall with a 45px content box, so 44px fits inside it without changing
+         the chip's height; contact-info is the flexible sibling and already ellipsizes. A destructive
+         control is the last one that should be hard to hit accurately. */
+      min-width: 44px; min-height: 44px;
       display: flex; align-items: center; justify-content: center;
       border-radius: 50%; flex-shrink: 0; -webkit-tap-highlight-color: transparent;
     }
@@ -537,17 +543,19 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         <div>
           <div class="header-badge" translate="no">WorkHive</div>
           <h1 data-i="pagetitle">Reports</h1>
-          <p>Select reports. Add email. Send.</p>
+          <p data-i="p_selectreportsaddemailsend_8bd5">Select reports. Add email. Send.</p>
 <details class="wh-help">
-  <summary>How this page works</summary>
-  <p>Pick a report chip, add a recipient, press send. Saved contacts make later sends one tap.</p>
+  <summary data-i="p_howthispageworks_c540">How this page works</summary>
+  <p data-i="p_pickareportchipaddarecipient_3603">Pick a report chip, add a recipient, press send. Saved contacts make later sends one tap.</p>
 </details>
           <!-- STREAMLINE F6: part of the unified "Reports" surface (Analytics report ↔ Send). -->
-          <div class="wh-reports-tabs" role="tablist" style="display:flex; gap:8px; margin:8px 0 6px; flex-wrap:wrap;">
+          <div class="wh-reports-tabs" role="tablist" style="display:flex; gap:8px; margin:8px 0 6px; flex-wrap:nowrap; overflow-x:auto; -webkit-overflow-scrolling:touch;"><!-- I1 CLS (EX-PF F07, 2026-09-07): the strip wrapped from 44px to 96px at 390 once its icons loaded, pushing the whole page down; a one-line strip that scrolls sideways keeps its height from first paint -->
             <a role="tab" aria-selected="false" href="analytics-report.html" style="padding:6px 12px; min-height:34px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.83); font-size:.76rem; font-weight:600; text-decoration:none; border:1px solid rgba(255,255,255,0.08);">&larr; Analytics report</a>
-            <span role="tab" aria-selected="true" style="padding:6px 12px; min-height:34px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(247,162,27,0.15); color:var(--wh-orange); font-size:.76rem; font-weight:700; border:1px solid rgba(247,162,27,0.4);">Send / schedule</span>
+            <span data-i="p_sendschedule_7b67" role="tab" aria-selected="true" style="padding:6px 12px; min-height:34px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(247,162,27,0.15); color:var(--wh-orange); font-size:.76rem; font-weight:700; border:1px solid rgba(247,162,27,0.4);">Send / schedule</span>
           </div>
           <p id="report-sender-source-chip" style="margin-top:3px;"></p>
+          <style>/* I1 CLS (EX-PF F07, 2026-09-07): the chip is filled ~0.5 s after first paint and wraps to three lines at 390, pushing the install guide, the verdict and every card down 65px; reserve its phone height */
+            @media (max-width: 420px) { #report-sender-source-chip { min-height: 70px; } }</style>
         </div>
         <button class="install-icon-btn" id="install-icon-btn" aria-label="Install app">
           <span class="ic ic-install" aria-hidden="true"></span>
@@ -566,7 +574,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
          Populated by renderReportSenderSummary() from _selected + _contacts. -->
     <div id="rs-verdict" class="verdict empty">
       <span id="rs-verdict-icon" class="verdict-icon">·</span>
-      <div class="verdict-text"><span id="rs-verdict-label">Ready when you are</span><small id="rs-verdict-sub">Pick a report, pick recipients, send.</small></div>
+      <div class="verdict-text"><span data-i="p_readywhenyouare_aec1" id="rs-verdict-label">Ready when you are</span><small data-i="p_pickareportpickrecipientssen_6fbc" id="rs-verdict-sub">Pick a report, pick recipients, send.</small></div>
     </div>
     <div class="simple-row">
       <div class="simple-card tag-grey" id="rs-card-reports" data-rag-tile="report-sender:reports_selected" data-rag-label="Reports selected">
@@ -574,40 +582,40 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         <!-- reports/recipients count the reader's own SELECTION, so 0 is truthful here and was never
              the defect; only rs-contacts-hero reflects a server read (handled in the summary). -->
         <div class="sc-hero" id="rs-reports-hero">0</div>
-        <div class="sc-sub" id="rs-reports-sub">Loading...</div>
+        <div data-i="p_loading_b04b" class="sc-sub" id="rs-reports-sub">Loading...</div>
         <span class="sc-tag" id="rs-reports-tag">-</span>
       </div>
       <div class="simple-card tag-grey" id="rs-card-recipients" data-rag-tile="report-sender:recipients" data-rag-label="Recipients">
         <h2 class="sc-label" style="margin:0;" data-i="recipients">Recipients</h2>
         <div class="sc-hero" id="rs-recipients-hero">0</div>
-        <div class="sc-sub" id="rs-recipients-sub">Loading...</div>
+        <div data-i="p_loading_b04b" class="sc-sub" id="rs-recipients-sub">Loading...</div>
         <span class="sc-tag" id="rs-recipients-tag">-</span>
       </div>
       <div class="simple-card tag-grey" id="rs-card-contacts" data-rag-tile="report-sender:saved_contacts" data-rag-label="Saved contacts">
         <h2 class="sc-label" style="margin:0;" data-i="savedcontacts">Saved contacts</h2>
         <div class="sc-hero" id="rs-contacts-hero">—</div>
-        <div class="sc-sub" id="rs-contacts-sub">Loading...</div>
+        <div data-i="p_loading_b04b" class="sc-sub" id="rs-contacts-sub">Loading...</div>
         <span class="sc-tag" id="rs-contacts-tag">-</span>
       </div>
     </div>
     <div class="action-card">
-      <div class="ac-label">What to do next</div>
-      <div class="ac-text" id="rs-action-text">Pick a report and a recipient.</div>
+      <div data-i="p_whattodonext_8ce2" class="ac-label">What to do next</div>
+      <div data-i="p_pickareportandarecipient_2d6c" class="ac-text" id="rs-action-text">Pick a report and a recipient.</div>
     </div>
     <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="rs-summary-details" data-i="showdetails">
       Show details
     </button>
-    <div id="rs-summary-details" role="region" aria-label="Report sender explainer"
+    <div data-ai-generated id="rs-summary-details" role="region" aria-label="Report sender explainer"
     data-rag-tile="report-sender:detail_panel"
     data-rag-label="Report sender detail">
-      <strong style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How sending works</strong>
+      <strong data-i="p_howsendingworks_8faa" style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How sending works</strong>
       <ul style="margin:0;padding-left:20px;">
-        <li><strong>Reports selected</strong>: chips you've tapped to include (PM Overdue, Failure Digest, Shift Handover, Predictive, OEE, Weekly Analytics).</li>
-        <li><strong>Recipients</strong>: saved contacts you've ticked + any one-time email typed below.</li>
-        <li><strong>Saved contacts</strong>: contacts persisted to your hive, reusable across sends.</li>
-        <li><strong>Verdict</strong>: green when at least one report and one recipient are picked; empty otherwise.</li>
+        <li><strong data-i="p_reportsselected_5ee8">Reports selected</strong>: chips you've tapped to include (PM Overdue, Failure Digest, Shift Handover, Predictive, OEE, Weekly Analytics).</li>
+        <li><strong data-i="p_recipients_78cb">Recipients</strong>: saved contacts you've ticked + any one-time email typed below.</li>
+        <li><strong data-i="p_savedcontacts_963f">Saved contacts</strong>: contacts persisted to your hive, reusable across sends.</li>
+        <li><strong data-i="p_verdict_7f6e">Verdict</strong>: green when at least one report and one recipient are picked; empty otherwise.</li>
       </ul>
-      <p style="margin-top:8px;color:rgba(255,255,255,0.80);font-size:11px;">Voice context is optional: tap the mic to dictate a custom note that gets pre-pended to the email body.</p>
+      <p data-i="p_voicecontextisoptionaltapthe_08c2" style="margin-top:8px;color:rgba(255,255,255,0.80);font-size:11px;">Voice context is optional: tap the mic to dictate a custom note that gets pre-pended to the email body.</p>
     </div>
 
     <div class="card" id="main-card" data-state="idle">
@@ -627,7 +635,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         <div class="contacts-list" id="contacts-list"></div>
 
         <!-- One-time email (fallback / extra recipient) -->
-        <label class="one-time-label" for="email-input">Or type an email:</label>
+        <label data-i="rs2-typeemail" class="one-time-label" for="email-input">Or type an email:</label>
         <input
           type="email" class="wh-input" id="email-input"
           placeholder="someone@company.com" autocomplete="email"
@@ -653,7 +661,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
               <path d="M20 6L9 17l-5-5"/>
             </svg>
           </button>
-          <div class="mic-label" id="mic-label">Tap to speak context</div>
+          <div data-i="p_taptospeakcontext_eac5" class="mic-label" id="mic-label">Tap to speak context</div>
         </div>
         <!-- Voice context card — visible when context is captured -->
         <div class="voice-ctx" id="voice-ctx" style="display:none">
@@ -670,7 +678,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <div id="processing-overlay">
         <div class="proc-header">
           <div class="spinner"></div>
-          <div class="proc-title" id="proc-title">Generating reports...</div>
+          <div data-i="p_generatingreports_1a76" class="proc-title" id="proc-title">Generating reports...</div>
         </div>
         <div class="proc-list" id="proc-list"></div>
       </div>
@@ -681,12 +689,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           <div class="check-circle">
             <span class="ic ic-check" aria-hidden="true"></span>
           </div>
-          <div class="state-title">Reports generated</div>
+          <div data-i="p_reportsgenerated_f3db" class="state-title">Reports generated</div>
           <div class="state-sub" id="results-sub"></div>
           <!-- Email delivery status -->
           <div class="email-status" id="email-status">
             <div class="email-dot" id="email-dot"></div>
-            <span id="email-status-text">Sending email...</span>
+            <span data-i="p_sendingemail_6abb" id="email-status-text">Sending email...</span>
           </div>
           <div class="results-fail-note" id="results-fail-note"></div>
         </div>
@@ -700,9 +708,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     </div><!-- /card -->
 
     <!-- Report history -->
-    <div class="history-section" id="history-section" style="display:none">
-      <div class="section-label" style="margin-bottom:0.75rem" data-i="recentreports">Recent Reports</div>
-      <div class="history-list" id="history-list"></div>
+    <div data-ai-generated class="history-section" id="history-section" style="display:none">
+      <!-- The cap note is STATIC, and refined by JS once the true count is known. Writing it only in the
+           script would tell nobody until the script runs, and would leave the page's own markup still
+           saying "Recent Reports" for a list that is the five newest of fifty-four. -->
+      <div class="section-label" style="margin-bottom:0.75rem" data-i="recentreports">Recent Reports: the most recent 5</div>
+      <div data-ai-generated class="history-list" id="history-list"></div>
     </div>
 
   </div><!-- /page -->
@@ -997,7 +1008,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           const id   = chip.dataset.id;
           const rpt  = REPORTS.find(x => x.id === id);
           if (rpt.phase3) {
-            showToast(`${rpt.label} will be wired in Phase 3`);
+            showToast(_t(`${rpt.label} will be wired in Phase 3`, `Ikakabit ang ${rpt.label} sa Phase 3`));
             return;
           }
           if (_selected.has(id)) _selected.delete(id);
@@ -1078,13 +1089,13 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           'NOT SHOWN', 'grey');
       } else if (_rsReadFailed && !_contacts.length) {
         setCard('contacts', '—',
-          'Could not load your contacts. Unknown right now, not zero. Reload before adding one.',
+          _t('Could not load your contacts. Unknown right now, not zero. Reload before adding one.', 'Hindi ma-load ang mga contact mo. Hindi alam ngayon, hindi zero. I-reload bago magdagdag.'),
           'UNKNOWN', 'grey');
       } else {
         setCard('contacts',
           String(saved),
           _rsUsedFallback
-            ? `${saved} from your saved copy · could not reach the server, may be out of date`
+            ? `${saved}${_t(' from your saved copy · could not reach the server, may be out of date', ' mula sa saved copy mo · hindi maabot ang server, baka luma na')}`
             : (saved === 0 ? 'No contacts saved yet, add one above' : `${saved} reusable contact${saved === 1 ? '' : 's'} on this hive`),
           _rsUsedFallback ? 'SAVED COPY' : (saved === 0 ? 'START' : 'LIST'),
           _rsUsedFallback ? 'grey' : (saved === 0 ? 'grey' : 'green')
@@ -1093,17 +1104,22 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
       let tone, label, sub;
       if (reports > 0 && recipients > 0) {
-        tone = 'healthy'; label = `${reports} report${reports === 1 ? '' : 's'} → ${recipients} recipient${recipients === 1 ? '' : 's'}`;
-        sub  = 'Ready to send. Tap Send when you have the right body / voice context.';
+        tone = 'healthy'; label = _t(`${reports} report${reports === 1 ? '' : 's'} → ${recipients} recipient${recipients === 1 ? '' : 's'}`,
+                                     `${reports} report → ${recipients} tatanggap`);
+        sub  = _t('Ready to send. Tap Send when you have the right body / voice context.',
+                  'Handa nang ipadala. Pindutin ang Send kapag tama na ang body o voice context.');
       } else if (reports === 0 && recipients === 0) {
-        tone = 'empty'; label = 'Pick a report and a recipient';
-        sub  = `${SELECTABLE_REPORTS} reports available · ${saved} saved contact${saved === 1 ? '' : 's'} ready.`;
+        tone = 'empty'; label = _t('Pick a report and a recipient', 'Pumili ng report at tatanggap');
+        sub  = _t(`${SELECTABLE_REPORTS} reports available · ${saved} saved contact${saved === 1 ? '' : 's'} ready.`,
+                  `${SELECTABLE_REPORTS} report ang available · ${saved} naka-save na contact ang handa.`);
       } else if (reports === 0) {
-        tone = 'watch'; label = 'Pick at least one report';
-        sub  = 'Recipients are set; tap a chip above to choose what to send.';
+        tone = 'watch'; label = _t('Pick at least one report', 'Pumili ng kahit isang report');
+        sub  = _t('Recipients are set; tap a chip above to choose what to send.',
+                  'Nakatakda na ang mga tatanggap; pindutin ang chip sa itaas para piliin ang ipapadala.');
       } else {
-        tone = 'watch'; label = 'Pick at least one recipient';
-        sub  = 'Reports are picked; tap a saved contact or type a one-time email.';
+        tone = 'watch'; label = _t('Pick at least one recipient', 'Pumili ng kahit isang tatanggap');
+        sub  = _t('Reports are picked; tap a saved contact or type a one-time email.',
+                  'Napili na ang mga report; pindutin ang naka-save na contact o mag-type ng one-time na email.');
       }
       const vBox = document.getElementById('rs-verdict');
       if (vBox) { vBox.classList.remove('healthy','watch','attn','empty'); vBox.classList.add(tone); }
@@ -1115,15 +1131,20 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       if (actBox) {
         let text;
         if (reports === 0 && saved === 0) {
-          text = `Start here: tap a report chip above. PM Overdue is the easiest. Then tap "+ Add contact" to save a recipient. After that, sending takes one tap.`;
+          text = _t(`Start here: tap a report chip above. PM Overdue is the easiest. Then tap "+ Add contact" to save a recipient. After that, sending takes one tap.`,
+                    `Magsimula dito: pindutin ang report chip sa itaas. Ang PM Overdue ang pinakamadali. Tapos pindutin ang "+ Add contact" para mag-save ng tatanggap. Pagkatapos, isang pindot na lang ang pagpapadala.`);
         } else if (reports === 0) {
-          text = `Tap one or more report chips above. PM Overdue + Failure Digest are the most-requested by supervisors.`;
+          text = _t(`Tap one or more report chips above. PM Overdue + Failure Digest are the most-requested by supervisors.`,
+                    `Pindutin ang isa o higit pang report chip sa itaas. Ang PM Overdue at Failure Digest ang pinakahinihingi ng mga supervisor.`);
         } else if (recipients === 0) {
           text = saved > 0
-                  ? 'Tap a saved contact to add them as recipient, or type a one-time email below.'
-                  : 'Save your first contact via "+ Add contact" above, or type a one-time email below.';
+                  ? _t('Tap a saved contact to add them as recipient, or type a one-time email below.',
+                       'Pindutin ang naka-save na contact para idagdag bilang tatanggap, o mag-type ng one-time na email sa ibaba.')
+                  : _t('Save your first contact via "+ Add contact" above, or type a one-time email below.',
+                       'I-save ang unang contact mo sa "+ Add contact" sa itaas, o mag-type ng one-time na email sa ibaba.');
         } else {
-          text = 'Everything is set. Tap the mic if you want to add a voice context note, otherwise tap Send.';
+          text = _t('Everything is set. Tap the mic if you want to add a voice context note, otherwise tap Send.',
+                    'Handa na ang lahat. Pindutin ang mic kung gusto mong magdagdag ng voice context note, kung hindi ay pindutin ang Send.');
         }
         actBox.textContent = text;
       }
@@ -1152,9 +1173,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const _hl = document.getElementById('history-list');
       if (_hl && !_hl.childElementCount && typeof whListSkeleton === 'function') whListSkeleton(_hl, 3);
       // Try with created_at first; fall back without it if column missing (400 = schema gap)
-      let { data, error } = await db
+      let { data, error, count } = await db
         .from('v_ai_reports_truth')
-        .select('id, report_type, summary, created_at')
+        .select('id, report_type, summary, created_at', { count: 'exact' })
         .eq('hive_id', HIVE_ID)
         .order('created_at', { ascending: false })
         .order('id')   // MR4 tiebreaker: the sort above is not total on its own
@@ -1170,13 +1191,40 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         error = fallback.error;
       }
       if (error || !data?.length) return;
-      renderHistory(data);
+      // the exact count comes back from PostgREST independently of the .limit(5) above, so the label
+      // can say what the list is a slice OF rather than leaving five to stand for fifty-four
+      renderHistory(data, typeof count === 'number' ? count : undefined);
     }
 
-    function renderHistory(items) {
+    function renderHistory(items, total) {
       const section = document.getElementById('history-section');
       const list    = document.getElementById('history-list');
       if (!items?.length) { section.style.display = 'none'; return; }
+      /* ── W3-AR (2026-09-08): this list is capped at 5 and a seeded hive already holds 54, so
+         "Recent Reports" was the whole of what the page said about a slice covering under a tenth of
+         them. A cap the reader is never told about is a cap they read as the total. The real figure
+         comes from PostgREST's exact count, which is independent of the row limit — the same way the
+         hive board and the day planner state a number beside a shortened list. */
+      const _lbl = section.querySelector('.section-label');
+      if (_lbl && typeof total === 'number' && total > items.length) {
+        _lbl.removeAttribute('data-i');   // composed here, so the dictionary must not overwrite it
+        /* ── AND COMPOSED IN THE READER'S LANGUAGE (walked 2026-09-10, FILIPINO worker). The line above
+           is right to drop data-i - a computed value must not be overwritten by the dictionary - but the
+           sentence it wrote was English literals, so a Filipino reader watched "Mga Kamakailang Ulat"
+           become "Recent Reports: the 5 most recent of 64" on an otherwise Filipino page. The stamp guard
+           in utils.js then correctly refused to re-translate it, because the application owns that text
+           now: the guard was working, the composition was not. Found by the stamp count itself - 44
+           stamped elements against 43 carrying data-i, and the one orphan was this label, still holding
+           the Filipino it had been given and displaying English.
+           Same wound as hive.html's approval pointer: the sentence's TRUTH was fixed and its LANGUAGE was
+           not. Each countable phrase is composed WHOLE per language rather than stitched from fragments
+           (that stitching is what produced "2 na shift briefings", pluralised twice), and the Filipino
+           follows the idiom the platform already ships - "Pinakabagong 20 ... sa ..." in
+           i18n/agentic-rag-observability.json. */
+        _lbl.textContent = (window.WH_LANG === 'fil')
+          ? `Mga Kamakailang Ulat: pinakabagong ${items.length} sa ${total}`
+          : `Recent Reports: the ${items.length} most recent of ${total}`;
+      }
 
       list.innerHTML = items.map(item => {
         const color   = reportColor(item.report_type);
@@ -1192,7 +1240,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
               ${item.summary ? `<div class="history-summary">${summary}</div>` : ''}
               ${item.summary ? `<div class="history-ai-mark" title="This summary was written by the AI report agent, not by a person.">&#129302; AI-drafted summary</div>` : ''}
             </div>
-            <button class="resend-btn"
+            <button data-i="rs2-resend" class="resend-btn"
                     data-type="${escHtml(item.report_type)}"
                     data-summary="${escHtml(item.summary || '')}">
               Resend
@@ -1301,10 +1349,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         if (sent > 0) {
           showToast(`${reportLabel(reportType)} resent` + (failed ? ` (${failed} failed)` : ''));
         } else {
-          showToast('Resend failed: ' + (results[0]?.reason?.message || 'unknown error'));
+          showToast(_t('Resend failed: ', 'Hindi natuloy ang resend: ') + (results[0]?.reason?.message || 'unknown error'));
         }
       } catch (err) {
-        showToast(whWriteError(err, 'The report was NOT re-sent. Nothing went out; try again.'));
+        showToast(whWriteError(err, _t('The report was NOT re-sent. Nothing went out; try again.', 'HINDI naipadala muli ang report. Walang lumabas; subukan muli.')));
       }
 
       btn.textContent = 'Resend';
@@ -1436,7 +1484,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       if (!_contacts.length) {
         // A failed read with an empty backup is NOT "no contacts yet" — it is "we could not find out".
         list.innerHTML = _rsReadFailed
-          ? `<div class="contacts-empty" style="opacity:1;">Could not load your contacts.<br><span style="font-size:0.72rem;">${escHtml(whReadError(_rsReadFailed, 'your contacts'))} This is a loading problem, not an empty contact list - do not add a contact you may already have, or assume a report has nowhere to go.</span><br><button type="button" onclick="loadContacts();" style="margin-top:0.6rem;min-height:44px;padding:0 0.9rem;border-radius:8px;font-size:0.75rem;font-weight:600;background:rgba(247,162,27,0.12);border:1px solid rgba(247,162,27,0.3);color:var(--wh-orange-text);">Retry</button></div>`
+          ? `<div class="contacts-empty" style="opacity:1;">Could not load your contacts.<br><span style="font-size:0.72rem;">${escHtml(whReadError(_rsReadFailed, 'your contacts'))} This is a loading problem, not an empty contact list - do not add a contact you may already have, or assume a report has nowhere to go.</span><br><button data-i="rs2-retry" type="button" onclick="loadContacts();" style="margin-top:0.6rem;min-height:44px;padding:0 0.9rem;border-radius:8px;font-size:0.75rem;font-weight:600;background:rgba(247,162,27,0.12);border:1px solid rgba(247,162,27,0.3);color:var(--wh-orange-text);">Retry</button></div>`
           : `<div class="contacts-empty">No contacts yet, tap Add contact</div>`;
         _rsSummaryAfterContacts();
         return;
@@ -1444,7 +1492,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       // The fallback copy is real data, so it stays on screen — but it is LABELLED, because a saved
       // copy presented as live truth is the quieter half of the same defect.
       if (_rsUsedFallback) {
-        list.innerHTML = `<div class="contacts-empty" style="opacity:1;font-size:0.72rem;">⚠ Showing your saved copy. Could not reach the server, so this list may be out of date.</div>`;
+        list.innerHTML = `<div class="contacts-empty" style="opacity:1;font-size:0.72rem;">${_t('⚠ Showing your saved copy. Could not reach the server, so this list may be out of date.', '⚠ Ipinapakita ang saved copy mo. Hindi maabot ang server, kaya baka luma na ang listahang ito.')}</div>`;
       } else {
         list.innerHTML = '';
       }
@@ -1578,7 +1626,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         const { data, error } = await db.from('report_contacts')
           .insert({ ...payload, hive_id: HIVE_ID })
           .select('id, name, email, label').single();
-        if (error) { errEl.textContent = whWriteError(error, 'The contact did NOT save. Nothing was added; check the email and try again.'); if (saveBtn) saveBtn.disabled = false; return; }
+        if (error) { errEl.textContent = whWriteError(error, _t('The contact did NOT save. Nothing was added; check the email and try again.', 'HINDI na-save ang contact. Walang naidagdag; suriin ang email at subukan muli.')); if (saveBtn) saveBtn.disabled = false; return; }
         _contacts.push(data);
       } else {
         _contacts.push({ id: crypto.randomUUID(), ...payload });
@@ -1594,7 +1642,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       // usable when? What this handler verifiably does is push the contact into _contacts, re-render the
       // recipient list (renderContacts) and re-evaluate the send button (updateSendBtn), then persist to
       // localStorage so it survives navigation. So the confirmation says exactly that and nothing more.
-      showToast(`${name} added → in your recipient list now, and saved for future reports.`);
+      showToast(_t(`${name} added → in your recipient list now, and saved for future reports.`,
+        `Naidagdag ang ${name} → nasa listahan mo na ng tatanggap, at naka-save para sa susunod na mga report.`));
     }
 
     // ── Card state machine ────────────────────────────────────────────────────────
@@ -1718,7 +1767,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     function startListening() {
       if (_recognition) {
         try { _recognition.start(); setMicState('listening'); }
-        catch (e) { showToast('The microphone could not start. Type instead, or check that the browser has mic permission.'); }
+        catch (e) { showToast(_t('The microphone could not start. Type instead, or check that the browser has mic permission.', 'Hindi nag-start ang mikropono. Mag-type na lang, o tingnan kung may mic permission ang browser.')); }
       } else if (_useMediaRecorder) {
         startMediaRecorder();
       }
@@ -1833,7 +1882,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         const resp = (typeof fetchWithTimeout === 'function')
           ? await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/voice-transcribe`, _opts, 45000)
           : await fetch(`${SUPABASE_URL}/functions/v1/voice-transcribe`, _opts);
-        if (!resp) throw new Error('That took too long to transcribe. Try again, or type it instead.');
+        if (!resp) throw new Error(_t('That took too long to transcribe. Try again, or type it instead.', 'Masyadong matagal i-transcribe. Subukan muli, o i-type na lang.'));
 
         if (!resp.ok) {
           const data = await resp.json().catch(() => ({}));
@@ -1844,12 +1893,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         if (text?.trim()) {
           await parseVoiceIntent(text.trim()); // same function as Path A
         } else {
-          showToast('Could not hear you, try again');
+          showToast(_t('Could not hear you, try again', 'Hindi ka narinig, subukan muli'));
           setMicState('ready');
         }
       } catch (err) {
         console.error('report-sender transcription failed:', err);
-        showToast(whAiError(err, 'Transcription failed: ' + escHtml(String(err).slice(0, 50))));
+        showToast(whAiError(err, _t('Transcription failed: ', 'Hindi natuloy ang transcription: ') + escHtml(String(err).slice(0, 50))));
         setMicState('ready');
       }
     }
@@ -1930,7 +1979,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       });
 
       if (!byName.length) {
-        showToast(`"${escHtml(hint)}" not found in contacts, add them first`);
+        showToast(_t(`"${escHtml(hint)}" not found in contacts, add them first`,
+        `Hindi makita sa contacts ang "${escHtml(hint)}", idagdag muna sila`));
         return;
       }
       for (const c of byName) _selectedContacts.add(c.id);
@@ -2054,9 +2104,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const failedCount  = Object.values(results).filter(v => v.status === 'error').length;
 
       document.getElementById('results-sub').textContent =
-        `${successes.length} report${successes.length !== 1 ? 's' : ''} saved to WorkHive`;
+        _t(`${successes.length} report${successes.length !== 1 ? 's' : ''} saved to WorkHive`,
+           `${successes.length} report ang naka-save sa WorkHive`);
       document.getElementById('results-fail-note').textContent =
-        failedCount > 0 ? `${failedCount} report${failedCount > 1 ? 's' : ''} failed to generate.` : '';
+        failedCount > 0 ? `${failedCount} report${failedCount > 1 ? 's' : ''}${_t(' failed to generate.', ' ay hindi na-generate.')}` : '';
       // Reset email status to "sending" default so it's ready before sendReportEmail() runs
       setEmailStatus('sending');
 
@@ -2126,8 +2177,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         .map(id => REPORTS.find(r => r.id === id))
         .filter(Boolean);
 
+      // C-BR: this element carries data-i="p_generatingreports_1a76", so the applier had already
+      // translated it and this write put English back. Filipino has no plural -s, so the count alone
+      // carries the number.
       document.getElementById('proc-title').textContent =
-        `Generating ${reports.length} report${reports.length > 1 ? 's' : ''}...`;
+        _t(`Generating ${reports.length} report${reports.length > 1 ? 's' : ''}...`,
+           `Ginagawa ang ${reports.length} report...`);
       renderProcList(reports);
       setCardState('processing');
 
@@ -2171,7 +2226,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         showToast(rateLimited
           ? (window.whAiError ? window.whAiError({ message: '429' }) : 'You have hit the AI rate limit.')
             + ' Your selection and recipients are still here.'
-          : 'All reports failed, check connection and try again');
+          : _t('All reports failed, check connection and try again', 'Hindi natuloy ang lahat ng report, suriin ang koneksyon at subukan muli'));
         setCardState('idle');
       }
     }
@@ -2243,22 +2298,22 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       } else if (status === 'sent') {
         wrap.className = 'email-status sent';
         dot.className  = 'email-dot done';
-        text.textContent = `Sent to ${escHtml(detail)}`;
+        text.textContent = _t(`Sent to ${escHtml(detail)}`, `Naipadala sa ${escHtml(detail)}`);
       } else {
         wrap.className = 'email-status error';
         dot.className  = 'email-dot err';
-        text.textContent = `Email failed: ${escHtml(String(detail).slice(0, 60))}`;
+        text.textContent = _t(`Email failed: ${escHtml(String(detail).slice(0, 60))}`, `Nabigo ang email: ${escHtml(String(detail).slice(0, 60))}`);
       }
     }
 
     function startAutoReset(seconds) {
       let count    = seconds;
       const el     = document.getElementById('results-countdown');
-      el.textContent = `Resetting in ${count}s`;
+      el.textContent = _t(`Resetting in ${count}s`, `Magre-reset sa ${count}s`);
       const timer  = setInterval(() => {
         count--;
         if (count <= 0) { clearInterval(timer); resetPage(); }
-        else { el.textContent = `Resetting in ${count}s`; }
+        else { el.textContent = _t(`Resetting in ${count}s`, `Magre-reset sa ${count}s`); }
       }, 1000);
     }
 
@@ -2380,6 +2435,6 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   <script defer src="connectivity-widget.js"></script>
   <script defer src="session-timeout.js"></script>
   <script defer src="device-fingerprint.js"></script>
-<script>window.WH_FIL_PAGE={pagetitle:'Mga Ulat',selectreports:'Pumili ng mga ulat',reportssel:'napiling ulat',recipients:'Mga Tatanggap',sendto:'Ipadala kay',sendreports:'Ipadala ang Mga Ulat',recentreports:'Mga Kamakailang Ulat',savedcontacts:'Mga Naka-save na Contact',addcontacttitle:'Magdagdag ng Contact',name:'Pangalan',role:'Tungkulin',savecontact:'I-save ang Contact',resetnow:'I-reset ngayon',install:'I-install'};</script>
+<script>window.WH_FIL_PAGE={'rs2-typeemail':'O mag-type ng email:','rs2-resend':'Ipadala muli','rs2-retry':'Subukan muli',pagetitle:'Mga Ulat',selectreports:'Pumili ng mga ulat',reportssel:'napiling ulat',recipients:'Mga Tatanggap',sendto:'Ipadala kay',sendreports:'Ipadala ang Mga Ulat',recentreports:'Mga Kamakailang Ulat',savedcontacts:'Mga Naka-save na Contact',addcontacttitle:'Magdagdag ng Contact',name:'Pangalan',role:'Tungkulin',savecontact:'I-save ang Contact',resetnow:'I-reset ngayon',install:'I-install'};</script>
 </body>
 </html>

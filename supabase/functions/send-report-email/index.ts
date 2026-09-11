@@ -148,7 +148,18 @@ serveObserved("send-report-email", async (req) => {
     // T111 (2026-08-25): sender_name is optional and display-only — the recipient of an
     // outward, irreversible send deserves to know WHICH person sent it and how to stop it;
     // auth still gates the send (authUid below), so a spoofed name cannot send mail.
-    const { hive_id, recipient_email, reports, sent_at, sender_name } = await req.json();
+    // ★A CALLER'S MISTAKE IS NOT A SERVER ERROR (live-walk wave, 2026-09-06): a broken body and a GET both
+    // reached `await req.json()` and came back 500.
+    if (req.method !== "POST") {
+      return new Response(JSON.stringify({ error: "That action is not allowed here. Reload the page and try again." }),
+        { status: 405, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+    let _whBody;
+    try { _whBody = await req.json(); } catch {
+      return new Response(JSON.stringify({ error: "That request could not be read. Reload the page and try again." }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+    const { hive_id, recipient_email, reports, sent_at, sender_name } = _whBody;
 
     // Input validation — hive_id is optional (workers without hive context can still send)
     if (!recipient_email || !Array.isArray(reports) || reports.length === 0) {
@@ -160,16 +171,8 @@ serveObserved("send-report-email", async (req) => {
 
     if (!isValidEmail(recipient_email)) {
       return new Response(
-        JSON.stringify({ error: "Invalid recipient email address" }),
+        JSON.stringify({ error: "That recipient email address is not valid. Check it and try again." }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    const resendKey = Deno.env.get("RESEND_API_KEY");
-    if (!resendKey) {
-      return new Response(
-        JSON.stringify({ error: "Email service not configured — set RESEND_API_KEY in secrets" }),
-        { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
@@ -211,6 +214,24 @@ serveObserved("send-report-email", async (req) => {
       }
     }
 
+    /* W3-FN (2026-09-09): this check used to sit ABOVE the two branches you just passed, so the FIRST
+       thing anyone learned - member, stranger or unauthenticated caller alike - was the state of the
+       platform's mail configuration. Authorize first, then talk about the system: a caller with no
+       relationship to this hive should be told they are not a member, not handed a fact about how
+       finished the platform is. Nothing was ever SENT out of order (the send is far below), so this is
+       about what the refusal says rather than about a leaked action - but "who are you" is the question
+       that belongs first, and answering it first is also what makes the refusal contract PROVABLE:
+       while the 503 came first, a foreign-hive request and an own-hive request were indistinguishable,
+       so no probe could show this function refuses a stranger at all. */
+    const resendKey = Deno.env.get("RESEND_API_KEY");
+    if (!resendKey) {
+      console.error("misconfigured: RESEND_API_KEY is not set");   // the operator detail stays in the log (2026-09-06)
+      return new Response(
+        JSON.stringify({ error: "Email sending is not set up yet. Ask the platform owner to finish it." }),
+        { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     // Hive lookup — optional. If hive_id is null (e.g. worker cleared cache),
     // skip verification and rate limiting; use "WorkHive" as display name.
     let hiveName = "WorkHive";
@@ -238,7 +259,13 @@ serveObserved("send-report-email", async (req) => {
     }
 
     // Build subject and HTML
+    // ★"en-PH" IS A FORMAT, NOT A CLOCK (T109, 2026-09-07). The locale decides the ORDER and the wording;
+    // without an explicit timeZone the value is rendered in whatever zone the runtime is in, which on
+    // Supabase Edge is UTC. So this subject line carried a Philippine label on a UTC time and read eight
+    // hours early for every recipient - "Sep 6, 04:00 PM" on an email that arrived at midnight on the
+    // 7th in Manila. The label made it look considered, which is what made it hard to notice.
     const sentAt = new Date(sent_at || Date.now()).toLocaleDateString("en-PH", {
+      timeZone: "Asia/Manila",
       month: "short", day: "numeric", year: "numeric",
       hour: "2-digit", minute: "2-digit",
     });
@@ -274,7 +301,7 @@ serveObserved("send-report-email", async (req) => {
       // "we did not attempt this", and that word already exists for it.
       const { error: _brkLogErr } = await db.from("automation_log").insert({
         job_name: "send_report_email", hive_id, status: "skipped",
-        detail: "Resend circuit-breaker open (recent failures) — not attempted",
+        detail: "Email is paused for now. Try again in a few minutes.",
       });
       if (_brkLogErr) console.error("automation_log write failed:", _brkLogErr.message);
       return new Response(
@@ -282,7 +309,17 @@ serveObserved("send-report-email", async (req) => {
         { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
-    const emailRes = await fetch("https://api.resend.com/emails", {
+    /* W3-FN (2026-09-09): the send endpoint is configurable so the send PATH can be walked without mail
+       leaving the machine. PRODUCTION IS UNCHANGED - with RESEND_BASE_URL unset this is byte-identical
+       to the hardcoded https://api.resend.com it replaces. Two sessions in a row recorded the same
+       ceiling ("end-to-end confirmation needs RESEND_API_KEY, and I did not set one, because a
+       successful call sends real email"), and that ceiling was real as long as the only way to open the
+       config gate was to point a probe at the live Resend account. A base URL is the local substitute:
+       set it at a capture sink and every branch below - the ok path, the !ok path, the breaker, the
+       automation_log write and what the function persists - runs exactly as it does in production,
+       against something that cannot deliver to a human. */
+    const resendBase = (Deno.env.get("RESEND_BASE_URL") || "https://api.resend.com").replace(/\/+$/, "");
+    const emailRes = await fetch(`${resendBase}/emails`, {
       method: "POST",
       signal: AbortSignal.timeout(30000),
       headers: {
@@ -305,6 +342,7 @@ serveObserved("send-report-email", async (req) => {
       // (honor Retry-After when Resend supplies it on a 429/503).
       const _ra = Number(emailRes.headers.get("retry-after"));
       recordSlotFailure("resend", Number.isFinite(_ra) && _ra > 0 ? _ra * 1000 : undefined);
+  // unchecked-write-allow: a telemetry row. Its failure must not change the caller's outcome - refusing real work because a log line did not land would be the worse bug.
       await db.from("automation_log").insert({
         job_name: "send_report_email",
         hive_id,
@@ -318,6 +356,7 @@ serveObserved("send-report-email", async (req) => {
     }
 
     recordSlotSuccess("resend"); // Arc S F-lens (F-010): a good send resets the breaker
+  // unchecked-write-allow: a telemetry row. Its failure must not change the caller's outcome - refusing real work because a log line did not land would be the worse bug.
     await db.from("automation_log").insert({
       job_name: "send_report_email",
       hive_id,

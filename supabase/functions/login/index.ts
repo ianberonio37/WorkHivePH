@@ -41,15 +41,18 @@ serveObserved("login", async (req: Request) => {
   const json = (code: number, body: unknown) =>
     new Response(JSON.stringify(body), { status: code, headers: { ...cors, "Content-Type": "application/json" } });
 
-  if (req.method !== "POST") return json(405, { error: "method_not_allowed" });
+  if (req.method !== "POST") return json(405, { error: "method_not_allowed",
+    message: "That request method is not allowed. Reload the page and try again." });
 
   let email = "", password = "";
   try {
     const b = await req.json();
     email = String(b.email ?? b.username ?? "").trim();
     password = String(b.password ?? "");
-  } catch { return json(400, { error: "invalid_request" }); }
-  if (!email || !password) return json(400, { error: "missing_credentials" });
+  } catch { return json(400, { error: "invalid_request",
+    message: "That sign-in request could not be read. Reload the page and try again." }); }
+  if (!email || !password) return json(400, { error: "missing_credentials",
+    message: "Enter your username and password to sign in." });
 
   const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
   const SERVICE_KEY  = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -69,17 +72,20 @@ serveObserved("login", async (req: Request) => {
   } catch (_e) { /* lockout store unreachable — fail OPEN to GoTrue (availability), prod infra still limits */ }
 
   // 2. forward to GoTrue
-  let gotrueCode = 500; let gotrueBody: unknown = { error: "server_error" };
+  let gotrueCode = 500; let gotrueBody: unknown = { error: "server_error",
+    message: "Something went wrong on our side. Try again in a moment." };
   try {
     const r = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
       method: "POST",
+      signal: AbortSignal.timeout(15000),
       headers: { "Content-Type": "application/json", "apikey": ANON_KEY },
       body: JSON.stringify({ email, password }),
     });
     gotrueCode = r.status;
     gotrueBody = await r.json().catch(() => ({}));
   } catch (_e) {
-    return json(502, { error: "auth_upstream_unreachable" });
+    return json(502, { error: "auth_upstream_unreachable",
+    message: "The sign-in service is not responding. Try again in a moment." });
   }
 
   // 3. record / clear by outcome

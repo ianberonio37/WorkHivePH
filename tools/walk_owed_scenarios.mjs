@@ -682,6 +682,9 @@ PROBES.what_is_this_number = async (page) => {
   // dimension-labelled renders. A surface that GAINS a number re-enters judgment on the next walk.
   if (found === 0) {
     return {
+      // Deliberately `na`, not `unmeasured`: the lens LOOKED and there is genuinely nothing to
+      // judge, which is a measured not-applicable and a first-class green. `unmeasured` is the
+      // other thing — the probe could not see — and must never bank.
       ok: null, na: true,
       checked: ['numbers a person can see on this surface: 0'],
       note: 'no judgeable number renders on this surface (its digits are dates/prose, which the '
@@ -879,6 +882,13 @@ PROBES.one_vocabulary = async (page) => {
 PROBES.source_chip_true = async (page, ctx) => {
   const requested = new Set();
   const onReq = req => {
+    // ★ AN RPC IS A SOURCE TOO, AND THIS CAPTURED THE WORD "rpc". PostgREST serves a function at
+    // /rest/v1/rpc/<name>, so the original pattern recorded the literal segment `rpc` for all five
+    // of platform-actions' founder_* rollups — a relation name no _whFriendlySource can map, which
+    // made its usage chip unbackable BY CONSTRUCTION rather than by anything the page did. The page
+    // was reporting a source it genuinely reads; the probe could not see it. Take the function name.
+    const rpc = /\/rest\/v1\/rpc\/([a-zA-Z0-9_]+)/.exec(req.url());
+    if (rpc) { requested.add(rpc[1]); return; }
     const m = /\/rest\/v1\/([a-zA-Z0-9_]+)/.exec(req.url());
     if (m) requested.add(m[1]);
   };
@@ -1442,8 +1452,15 @@ PROBES.did_it_land = async (page, ctx) => {
                          'NOT APPLICABLE: nothing is written here, so there is no landing to report'],
                notes: '' };
     }
-    return { ok: false, checked: [`looked for the named write control ${cc.submit}`],
-             notes: `the named write control ${cc.submit} is not on this surface — not judged, not passed` };
+    // ABSTAIN, NOT A RED. The note already said "not judged, not passed" while the verdict said
+    // FAILED, so the merge recorded a product defect about a probe that never ran. #fb-d-save is
+    // rendered by the admin's feedback-detail view and only exists once a feedback CARD exists to
+    // open — an empty queue leaves the opener itself absent, which is a seeding condition, not a
+    // surface that lost its save button. failure-injection.spec.ts learned this same lesson by name
+    // on 2026-08-05. `ok:null` + `na` is this file's own abstain contract (merge_walk_results:87).
+    return { ok: null, unmeasured: true, checked: [`looked for the named write control ${cc.submit}`],
+             notes: `the named write control ${cc.submit} is not on this surface — its opener renders `
+                    + `nothing to open in this state, so there was no landing to judge` };
   }
   // Say WHY nothing happened. Swallowing the click failure made "no write fired" ambiguous between
   // "the page refused" and "the click never landed", and those need different answers.
@@ -1452,7 +1469,8 @@ PROBES.did_it_land = async (page, ctx) => {
   if (enabled) { try { await submit.click({ timeout: 4000 }); clicked = true; } catch { /* locked mid-click */ } }
   if (!clicked) {
     await ctx.unroute(REST);
-    return { ok: false,
+    // Same reasoning: both branches end in "not judged", so neither may be filed as a defect.
+    return { ok: null, unmeasured: true,
              checked: [`found the named write control ${cc.submit}`, `it was enabled: ${enabled}`],
              notes: enabled ? 'the click did not land within 4s — not judged, not passed'
                             : 'the write control is disabled on this surface in its resting state, so '
@@ -1485,13 +1503,20 @@ PROBES.zero_price = PROBES.edge;
 PROBES.zoom200 = PROBES.edge;
 PROBES.bulk50 = PROBES.edge;
 PROBES.script_name = async (page, ctx) => {
+  // COUNT WHAT WAS REWRITTEN. `rendered=false` was reported without saying whether any name had been
+  // rewritten AT ALL, so "the page dropped a Philippine script" and "the injection never reached a
+  // field" read identically — and only the first is a defect. Only the first three rows of each
+  // array are rewritten, so a surface that renders a filtered subset can legitimately show none of
+  // them; that is an unmeasured probe, not a page that cannot render Baybayin.
+  let fieldsRewritten = 0, arraysSeen = 0;
   await ctx.route(REST, async r => {
     let res; try { res = await r.fetch(); } catch (e) { return r.continue(); }
     let body; try { body = await res.json(); } catch (e) { return r.fulfill({ response: res }); }
     if (Array.isArray(body) && body.length) {
+      arraysSeen++;
       for (const row of body.slice(0, 3)) {
         for (const k of Object.keys(row)) {
-          if (/name|title|label/i.test(k) && typeof row[k] === 'string') row[k] = BAYBAYIN;
+          if (/name|title|label/i.test(k) && typeof row[k] === 'string') { row[k] = BAYBAYIN; fieldsRewritten++; }
         }
       }
     }
@@ -1503,14 +1528,25 @@ PROBES.script_name = async (page, ctx) => {
   await ctx.unroute(REST);
   const rendered = s.text.includes('ᜋ') || s.text.includes('ᜃ');
   const ok = rendered && s.docOverflow <= 0;
+  // Nothing rewritten = nothing to look for. Abstain rather than accuse the page of dropping a script
+  // it was never shown, exactly as the did_it_land branches do when their control is unreachable.
+  if (!fieldsRewritten) {
+    return { ok: null, unmeasured: true,
+             checked: [`JSON arrays intercepted: ${arraysSeen}`,
+                       'name/title/label string fields rewritten to Baybayin: 0'],
+             notes: `no name field was rewritten in ${arraysSeen} intercepted array(s), so the script `
+                    + `was never put in front of this surface — not judged, not passed` };
+  }
   return {
     ok,
     checked: [
-      'names rewritten to Baybayin (a real Philippine script, not lorem) in the live payload',
+      `name/title/label fields rewritten to Baybayin in the live payload: ${fieldsRewritten} `
+      + `(across ${arraysSeen} array response(s); only the first 3 rows of each are rewritten)`,
       `the script renders rather than becoming boxes or being dropped: ${rendered}`,
       `no horizontal overflow from the different glyph metrics: ${s.docOverflow <= 0}`,
     ],
-    notes: ok ? '' : `rendered=${rendered} overflow=${s.docOverflow}`,
+    notes: ok ? '' : `rendered=${rendered} overflow=${s.docOverflow} rewritten=${fieldsRewritten} `
+                     + `arrays=${arraysSeen}`,
   };
 };
 
@@ -1576,7 +1612,21 @@ const jobList = [...jobs.values()].slice(0, limit);
 console.log(`owed with a probe: ${owed.length} across ${jobs.size} (url,state) pairs; running ${jobList.length}`);
 
 const browser = await chromium.launch();
-const context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+// ★ WITHOUT serviceWorkers:'block' NONE OF THE ten ctx.route(REST, ...) INDUCTIONS BELOW FIRE.
+// Playwright does not intercept requests a service worker issues, and nav-hub.js registers sw.js
+// with scope '/' plus clients.claim(), so every page this walker opens is controlled. Measured on
+// marketplace.html: page.on('request') counted 62 supabase reads while page.route counted 0, with
+// navigator.serviceWorker.controller truthy. This file's header says induction is at the NETWORK
+// layer precisely so it cannot be missed — and the layer below the page is exactly where the worker
+// sits. Only one of the ten sites (line ~823) refuses to grade when nothing was intercepted, so the
+// other nine would answer their oracle about a page that was never induced.
+// Blocking is faithful: sw.js passes supabase traffic straight through (`url.includes('supabase.co')`
+// -> plain fetch) and its only cache write is cache.addAll(SHELL_FILES) at install, so no REST
+// response is ever served from its cache and the page is answered identically either way.
+const context = await browser.newContext({
+  viewport: { width: 1280, height: 900 },
+  serviceWorkers: 'block',
+});
 
 // sign in once, exactly as state_probe.mjs does
 {

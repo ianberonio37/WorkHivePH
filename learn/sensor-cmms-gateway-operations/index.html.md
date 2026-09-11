@@ -130,4 +130,4 @@ The gateway continues reading sensor and CMMS data locally and buffers it. Buffe
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: a42e0918ffb8cad9 -->
+<!-- md-twin source-sha: 1a893ff640366db2 -->

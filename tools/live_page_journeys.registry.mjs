@@ -844,7 +844,9 @@ function logbookJourneys() {
 function inventoryJourneys() {
   const HIVE = process.env.WH_TEST_HIVE || '9b4eaeac-59b0-4b0e-9b0b-0947b45ad1e7';
   const AUTH = 'c37af63e-eef9-4ab5-adcd-dba9d6b794cd'; // Bryan Garcia auth_uid
-  const reachInv = async (h) => { await h.goto('inventory.html'); return h.waitFor('#parts-list, #btn-add-part', 12000); };
+  // A same-URL goto is a reload to Chromium, which RESTORES form values: INV3's search-first term (a probe part
+  // since deleted) came back in #search-input and INV4 counted 0 cards (K2 2026-09-05). Clear it after landing.
+  const reachInv = async (h) => { await h.goto('inventory.html'); const ok = await h.waitFor('#parts-list, #btn-add-part', 12000); await h.evalIn(() => { const q = document.getElementById('search-input'); if (q && q.value) { q.value = ''; q.dispatchEvent(new Event('input', { bubbles: true })); } }); return ok; };
   const seedPart = (h, id, pn, qty, min) => h.adminQuery(`insert into inventory_items (id, worker_name, part_number, part_name, category, unit, qty_on_hand, min_qty, status, hive_id, auth_uid, created_at, updated_at) values ('${id}','Bryan Garcia','${pn}','Probe Part','Bearing','pcs',${qty},${min},'approved','${h.hive || HIVE}','${h.uid || AUTH}',now(),now());`);
   const delPart = (h, pn) => { h.adminQuery(`delete from inventory_transactions where item_id in (select id from inventory_items where part_number like '${pn}%');`); h.adminQuery(`delete from inventory_items where part_number like '${pn}%';`); };
   // SEARCH-FIRST (2026-07-22): the inventory list is paginated — a freshly-seeded probe part may
@@ -924,7 +926,16 @@ function inventoryJourneys() {
       title: 'Find a part by name/number/category/stock level', lenses: ['R', 'J', 'C'], ufai: ['U', 'F', 'I'],
       drive: async (page, h) => {
         const reach = await reachInv(h); await h.waitFor('#parts-list', 8000);
+        // The container lands before its cards: under a busy host the count read 0 (K2 2026-09-05, Baguio
+        // has 27 items / Bryan 11) — wait for the FIRST card or the empty state before counting.
+        for (let i = 0; i < 16; i++) { if ((await h.count('#parts-list .part-card')) > 0 || (await h.exists('#no-results, #parts-list [class*="empty"]'))) break; await page.waitForTimeout(500); }
         const before = await h.count('#parts-list .part-card');
+        // A bare 0 cannot be triaged: say what the slot holds (skeleton / error card / empty state / cards) and where we are.
+        const slot = await h.evalIn(async () => { const l = document.getElementById('parts-list'); let sess = null; try { const c = window._whSupabaseClient; sess = c ? !!(await c.auth.getSession()).data.session : null; } catch (_) { sess = 'ERR'; }
+          return { url: location.pathname + location.search, kids: l ? l.children.length : -1, first: l ? ((l.firstElementChild && (l.firstElementChild.className || l.firstElementChild.tagName)) || '') : 'NO #parts-list', text: l ? (l.innerText || '').replace(/\s+/g, ' ').slice(0, 80) : '',
+            // boot state: an EMPTY slot after 10s with no skeleton and no error card means the render never ran -> say why
+            sess, auth: typeof _authUid !== 'undefined' ? !!_authUid : 'n/a', hive: typeof HIVE_ID !== 'undefined' ? String(HIVE_ID).slice(0, 8) : 'n/a', worker: typeof WORKER_NAME !== 'undefined' ? WORKER_NAME : 'n/a',
+            role: typeof HIVE_ROLE !== 'undefined' ? HIVE_ROLE : 'n/a', items: (typeof _items !== 'undefined' && _items) ? _items.length : 'n/a', lsHive: (localStorage.getItem('wh_active_hive_id') || '').slice(0, 8), bodyText: (document.body.innerText || '').replace(/\s+/g, ' ').slice(0, 160), skel: !!(l && l.querySelector('.wh-skeleton')), errCard: l ? ((l.querySelector('[class*="error"], [role="alert"]') || {}).textContent || '').trim().slice(0, 80) : '' }; });
         const hasSearch = await h.exists('#search-input');
         let filtered = true;
         if (hasSearch && before > 0) {
@@ -934,7 +945,7 @@ function inventoryJourneys() {
           await h.fill('#search-input', '');
         }
         const emptyOrData = before > 0 || (await h.exists('#empty-state'));
-        return { R: reach, J: hasSearch && filtered, T: null, C: emptyOrData, X: null, evidence: { reach, before, filtered }, findings: [] };
+        return { R: reach, J: hasSearch && filtered, T: null, C: emptyOrData, X: null, evidence: { reach, before, slot, filtered }, findings: [] };
       },
     },
     {
@@ -1771,13 +1782,36 @@ function voiceJournalJourneys() {
         await page.waitForTimeout(1500);
         const rows = await h.count('.history-entry');
         const count = numOrDash(await h.qText('#entry-count'));
-        const dbCnt = numOrDash(h.adminQuery(`select least(count(*),80) from voice_journal_entries where auth_uid='${h.uid || 'c37af63e-eef9-4ab5-adcd-dba9d6b794cd'}';`));
+        // (*)THE ORACLE CAPPED ITSELF AT 80 AND SO COULD NOT SEE THE CAP. The page was fixed in July
+        // because it printed "80 entries" while the account held 108 - a row cap wearing a total's
+        // clothes. This check asked for `least(count(*),80)` and read the FIRST number out of the label,
+        // so "latest 80 of 108" and a regressed "80 entries" both answer 80: it would have passed the
+        // very bug the page was fixed for. Ask for the TRUE total, and when the cap bites require the
+        // label to name BOTH numbers.
+        const uid = h.uid || 'c37af63e-eef9-4ab5-adcd-dba9d6b794cd';
+        const dbTotal = numOrDash(h.adminQuery(`select count(*) from voice_journal_entries where auth_uid='${uid}';`));
+        const dbCnt = (dbTotal == null) ? null : Math.min(dbTotal, 80);
+        const label = (await h.qText('#entry-count')) || '';
         const empty = await h.exists('#history-empty');
         // voice-journal PAGINATES (HISTORY_LIMIT + Load-More), so rendered .history-entry rows
         // (8) < the total count label (10) BY DESIGN (2026-07-22). Truthfulness = the stated
         // COUNT LABEL matches DB, not rendered-rows==label (that false-failed on any >1-page list).
-        const tOk = (dbCnt === 0) ? empty : (count != null ? count === dbCnt : rows > 0);
-        return { R: reach, J: rows > 0 || empty, T: tOk, C: rows > 0 || empty, X: null, evidence: { rows, count, dbCnt, empty }, findings: [] };
+        const capBit = dbTotal != null && dbTotal > 80;
+        // When the cap bites the honest label names the loaded count AND the true total; a bare number
+        // there is the row-cap-as-total lie returning, and it must FAIL rather than read as truthful.
+        // (*)NO BACKSLASH ESCAPES IN THIS ASSERTION. The first version built the boundary with a
+        // template literal and `\b`, which a JS string reads as a BACKSPACE byte, not a word boundary -
+        // so the honest "latest 80 of 108" FAILED and the check became a false-red generator. Pull the
+        // numbers out and compare them as numbers; there is nothing to escape.
+        const labelNums = (label.match(/[0-9]+/g) || []).map(Number);
+        const namesBoth = capBit && labelNums.includes(80) && labelNums.includes(dbTotal);
+        const tOk = (dbCnt === 0) ? empty
+                  : capBit ? namesBoth
+                  : (count != null ? count === dbCnt : rows > 0);
+        const findings = (capBit && !namesBoth)
+          ? [`voice-journal loads at most 80 of ${dbTotal} entries and the count label reads "${label.trim()}" - a row cap presented as a total, and the search box above filters only the loaded rows`]
+          : [];
+        return { R: reach, J: rows > 0 || empty, T: tOk, C: rows > 0 || empty, X: null, evidence: { rows, count, dbTotal, dbCnt, label: label.trim(), capBit, empty }, findings };
       },
     },
     {

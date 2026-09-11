@@ -30,6 +30,10 @@ import callAI() from that shared module instead of embedding their own chains.
 Usage:  python validate_groq_fallback.py
 Output: groq_fallback_report.json
 """
+import os
+import json
+import urllib.request
+from pathlib import Path
 import re, json, sys, os
 
 if sys.platform == "win32":
@@ -94,11 +98,26 @@ def read_function(name):
 
 
 def extract_chain_models(content):
-    """Pull every model string from the PROVIDER_CHAIN array."""
+    """Pull every model string from the PROVIDER_CHAIN array.
+
+    ★THIS READ THE KEY AS QUOTED AND THE FILE WRITES IT BARE (found 2026-09-10). The pattern was
+    `"model"\\s*:\\s*"..."`, but `_shared/ai-chain.ts` is TypeScript source, not JSON - it writes
+    `model: "openai/gpt-oss-20b"` with an UNQUOTED key. So this returned an empty list, and
+    `check_no_banned_models` iterated over nothing and reported clean, every run, for its whole
+    life: 14 banned model IDs checked against 0 models. Measured at the moment of the fix - the
+    gate could see 0 while the file held 19.
+
+    That is not a cosmetic miss. Asked of the live provider the same day, FOUR of the six Groq
+    entries were 404 - `meta-llama/llama-4-scout-17b-16e-instruct`, `llama-3.3-70b-versatile`,
+    `qwen/qwen3-32b`, `llama-3.1-8b-instant` - so every AI call on the platform walked four
+    guaranteed failures before reaching `openai/gpt-oss-20b`. The deny-list is also the wrong
+    shape for the job (it only ever catches a name someone remembered to add); see
+    check_models_are_live below, which asks the provider instead of a list.
+    """
     chain_m = re.search(r"const PROVIDER_CHAIN[^=]*=\s*\[([\s\S]+?)\];", content)
     if not chain_m:
         return []
-    return re.findall(r'"model"\s*:\s*"([^"]+)"', chain_m.group(1))
+    return re.findall(r'\bmodel\s*:\s*"([^"]+)"', chain_m.group(1))
 
 
 def extract_chain_entries(content):
@@ -136,6 +155,104 @@ def check_no_banned_models():
             issues.append({"check": "banned_models", "reason":
                            f"_shared/ai-chain.ts contains banned model '{model}': "
                            f"{BANNED_MODELS[model]}"})
+    return issues
+
+
+def _env_value(key):
+    """Read a provider key from the function env files without importing anything."""
+    for p in (Path("supabase/functions/.env"), Path(".env")):
+        try:
+            for line in p.read_text(encoding="utf-8", errors="replace").splitlines():
+                if line.startswith(key + "="):
+                    return line.split("=", 1)[1].strip().strip('"').strip("'")
+        except Exception:
+            continue
+    return os.environ.get(key)
+
+
+# Providers that publish an OpenAI-compatible /models list. A provider absent from here is simply
+# not liveness-checked - stated in the output rather than silently skipped.
+#
+# ★COVER EVERY PROVIDER, NOT THE TWO THAT PROMPTED THE FIX (2026-09-10). The first version asked only
+# Groq and Cerebras, found 7 dead names, and looked finished. Asking the other three found FOUR MORE -
+# `mistral-large-latest`, `openai/gpt-oss-120b:free`, `meta-llama/llama-3.3-70b-instruct:free` and
+# `google/gemma-3-27b-it:free` - so 11 of the 18 entries were dead, not 7 of 9. A gate that watches
+# part of the chain reports on part of the chain; the un-watched half is exactly where rot survives.
+# `None` as the key means the list is public (OpenRouter), not that the check is skipped.
+LIVE_LIST_ENDPOINTS = {
+    "groq":       ("https://api.groq.com/openai/v1/models",                          "GROQ_API_KEY"),
+    "cerebras":   ("https://api.cerebras.ai/v1/models",                              "CEREBRAS_API_KEY"),
+    "google":     ("https://generativelanguage.googleapis.com/v1beta/openai/models", "GEMINI_API_KEY"),
+    "mistral":    ("https://api.mistral.ai/v1/models",                               "MISTRAL_API_KEY"),
+    "openrouter": ("https://openrouter.ai/api/v1/models",                            None),
+}
+
+
+def check_models_are_live():
+    """Ask each provider which models it actually serves, and fail on any that is gone.
+
+    ★A DENY-LIST ONLY CATCHES WHAT SOMEONE REMEMBERED TO ADD (2026-09-10). `BANNED_MODELS` holds 14
+    names retired at some past moment by a human who noticed. Nothing in this file could notice a
+    model retiring TODAY - and four had. Asked of Groq's own /models endpoint with the platform's own
+    working key, `meta-llama/llama-4-scout-17b-16e-instruct`, `llama-3.3-70b-versatile`,
+    `qwen/qwen3-32b` and `llama-3.1-8b-instant` were all absent: the first FOUR entries of the Groq
+    tier, so every AI call fell through four guaranteed 404s before reaching `openai/gpt-oss-20b`.
+    `voice-model-call`, which carries its own chain, had NO live entry at all and answered every
+    caller "All models failed (rate limited or down)" - a diagnosis it had no evidence for.
+
+    Derive the truth from the provider instead of from a list, exactly as the SRI gate's page scope
+    is derived from the deploy and the page roster from the git tree.
+
+    NETWORK-OPTIONAL BY DESIGN: with no key or no reachable provider this SKIPS and says which
+    provider it could not ask - it never invents a pass, and never fails the board for being offline.
+    """
+    issues = []
+    content = read_shared_chain()
+    if content is None:
+        return issues
+
+    chain_m = re.search(r"const PROVIDER_CHAIN[^=]*=\s*\[([\s\S]+?)\];", content)
+    if not chain_m:
+        return issues
+    pairs = re.findall(r'provider:\s*"(\w+)"[^}]*?\bmodel:\s*"([^"]+)"', chain_m.group(1))
+
+    checked = skipped = 0
+    for provider, (url, env_key) in LIVE_LIST_ENDPOINTS.items():
+        want = [m for p, m in pairs if p == provider]
+        if not want:
+            continue
+        key = _env_value(env_key) if env_key else ""
+        if env_key and not key:
+            skipped += 1
+            print(f"    (liveness: {provider} not asked - {env_key} is not set here)")
+            continue
+        try:
+            # A default `Python-urllib/3.x` User-Agent is refused with 403 by the provider edge
+            # (curl with the SAME key succeeds), which would have made this check skip forever while
+            # reporting a tidy reason - a silent no-op wearing a good excuse.
+            headers = {"User-Agent": "workhive-chain-validator/1.0", "Accept": "application/json"}
+            if key:
+                headers["Authorization"] = f"Bearer {key}"
+            req = urllib.request.Request(url, headers=headers)
+            with urllib.request.urlopen(req, timeout=25) as r:
+                # Google's OpenAI-compat list prefixes every id with "models/" - compare like with like
+                live = {str(m.get("id", "")).replace("models/", "")
+                        for m in json.loads(r.read().decode("utf-8")).get("data", [])}
+        except Exception as e:
+            skipped += 1
+            print(f"    (liveness: {provider} not asked - {type(e).__name__}: {str(e)[:60]})")
+            continue
+        if not live:
+            skipped += 1
+            continue
+        checked += 1
+        for m in want:
+            if m not in live:
+                issues.append({"check": "models_are_live", "reason":
+                               f"_shared/ai-chain.ts lists '{m}' for {provider}, but {provider} does "
+                               f"not serve it - every call falls through this entry with a 404"})
+    if checked:
+        print(f"    (liveness: asked {checked} provider(s); {skipped} not asked)")
     return issues
 
 
@@ -269,6 +386,7 @@ def check_no_credit_based_providers():
 CHECK_NAMES = [
     "chain_exists",
     "banned_models",
+    "models_are_live",
     "entry_fields",
     "callai_import",
     "no_raw_groq_fetch",
@@ -281,6 +399,7 @@ CHECK_NAMES = [
 CHECK_LABELS = {
     "chain_exists":        "L1  Shared chain exists with >= 6 provider entries",
     "banned_models":       "L1  No deprecated / non-free models in chain",
+    "models_are_live":     "L1  Every configured model still EXISTS at its provider (asked, not assumed)",
     "entry_fields":        "L1  Every chain entry has provider, baseUrl, model, envKey",
     "callai_import":       "L2  All LLM functions import callAI from _shared/ai-chain",
     "no_raw_groq_fetch":   "L2  No raw fetch() to api.groq.com in any LLM function",
@@ -301,6 +420,7 @@ def main():
     all_issues = []
     all_issues += check_chain_exists_and_size()
     all_issues += check_no_banned_models()
+    all_issues += check_models_are_live()
     all_issues += check_entry_fields()
     all_issues += check_functions_import_callai()
     all_issues += check_no_raw_groq_fetch()

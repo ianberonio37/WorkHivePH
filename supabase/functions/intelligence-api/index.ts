@@ -61,7 +61,7 @@ async function authenticate(
     .eq("key_hash", keyHash)
     .single();
 
-  if (!key)          return { ok: false, error: "Invalid API key" };
+  if (!key)          return { ok: false, error: "That API key is not valid. Check the key and try again." };
   if (!key.enabled)  return { ok: false, error: "API key is disabled" };
 
   // Rate limiting: check calls in the last hour

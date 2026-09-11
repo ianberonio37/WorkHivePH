@@ -1,7 +1,7 @@
 {
   "_doc": "Component adoption baseline (Layer F). Floors are FORWARD-ONLY: validate_component_adoption.py fails any drop and auto-tightens any rise. Regenerate view: python tools/component_adoption_census.py",
-  "generated": "2026-09-04T05:48:05.865344+00:00",
-  "family_pages": 32,
+  "generated": "2026-09-11T06:03:12.386606+00:00",
+  "family_pages": 42,
   "rows": [
     {
       "id": "FT1",
@@ -33,8 +33,10 @@
       "name": ".wh-tap / .wh-tap-h",
       "satisfies": "F1",
       "mode": "census-only",
-      "adopters_n": 0,
-      "adopters": []
+      "adopters_n": 1,
+      "adopters": [
+        "design-system.html"
+      ]
     },
     {
       "id": "FT5",
@@ -42,8 +44,10 @@
       "name": ".wh-text-muted / .wh-text-faint",
       "satisfies": "C2",
       "mode": "census-only",
-      "adopters_n": 0,
-      "adopters": []
+      "adopters_n": 1,
+      "adopters": [
+        "design-system.html"
+      ]
     },
     {
       "id": "FT6",
@@ -51,8 +55,10 @@
       "name": ".wh-num",
       "satisfies": "C4",
       "mode": "census-only",
-      "adopters_n": 0,
-      "adopters": []
+      "adopters_n": 1,
+      "adopters": [
+        "design-system.html"
+      ]
     },
     {
       "id": "FC1",
@@ -61,16 +67,19 @@
       "satisfies": "R3",
       "mode": "measured",
       "need_rule": "family",
-      "adopters_n": 19,
-      "need_n": 32,
-      "pct": 59,
+      "adopters_n": 22,
+      "need_n": 42,
+      "pct": 52,
       "adopters": [
         "achievements.html",
         "ai-quality.html",
         "alert-hub.html",
+        "analytics-report.html",
         "analytics.html",
         "asset-hub.html",
         "dayplanner.html",
+        "design-system.html",
+        "founder-console.html",
         "hive.html",
         "index.html",
         "integrations.html",
@@ -87,17 +96,24 @@
       ],
       "gap": [
         "agentic-rag-observability.html",
+        "architecture.html",
         "assistant.html",
         "audit-log.html",
         "community.html",
         "engineering-design.html",
+        "llm-observability.html",
         "logbook.html",
         "marketplace-admin.html",
         "marketplace-seller-profile.html",
+        "offline-fallback.html",
+        "platform-actions.html",
         "project-report.html",
         "promo-poster.html",
         "public-feed.html",
+        "resume.html",
         "status.html",
+        "symbol-gallery.html",
+        "validator-catalog.html",
         "voice-journal.html"
       ],
       "status": "built"
@@ -108,10 +124,11 @@
       "name": ".sum-card",
       "satisfies": "R3",
       "mode": "census-only",
-      "adopters_n": 2,
+      "adopters_n": 3,
       "adopters": [
         "agentic-rag-observability.html",
-        "ai-quality.html"
+        "ai-quality.html",
+        "design-system.html"
       ]
     },
     {
@@ -121,14 +138,15 @@
       "satisfies": "R2",
       "mode": "measured",
       "need_rule": "wide-table",
-      "adopters_n": 10,
-      "need_n": 10,
-      "pct": 100,
+      "adopters_n": 11,
+      "need_n": 15,
+      "pct": 73,
       "adopters": [
         "agentic-rag-observability.html",
         "ai-quality.html",
         "analytics.html",
         "asset-hub.html",
+        "design-system.html",
         "integrations.html",
         "plant-connections.html",
         "project-manager.html",
@@ -136,7 +154,12 @@
         "skillmatrix.html",
         "status.html"
       ],
-      "gap": [],
+      "gap": [
+        "analytics-report.html",
+        "architecture.html",
+        "llm-observability.html",
+        "validator-catalog.html"
+      ],
       "status": "built"
     },
     {
@@ -145,35 +168,42 @@
       "name": ".card (dashboard panel)",
       "satisfies": "R3",
       "mode": "census-only",
-      "adopters_n": 31,
+      "adopters_n": 38,
       "adopters": [
         "achievements.html",
         "agentic-rag-observability.html",
         "ai-quality.html",
         "alert-hub.html",
+        "analytics-report.html",
         "analytics.html",
         "asset-hub.html",
         "assistant.html",
         "audit-log.html",
         "community.html",
         "dayplanner.html",
+        "design-system.html",
         "engineering-design.html",
+        "founder-console.html",
         "hive.html",
         "index.html",
         "integrations.html",
         "inventory.html",
+        "llm-observability.html",
         "logbook.html",
         "marketplace-admin.html",
         "marketplace-seller-profile.html",
         "marketplace-seller.html",
         "marketplace.html",
+        "offline-fallback.html",
         "ph-intelligence.html",
         "plant-connections.html",
+        "platform-actions.html",
         "pm-scheduler.html",
         "project-manager.html",
         "project-report.html",
         "public-feed.html",
         "report-sender.html",
+        "resume.html",
         "shift-brain.html",
         "skillmatrix.html",
         "status.html",
@@ -187,25 +217,29 @@
       "satisfies": "A3",
       "mode": "measured",
       "need_rule": "family",
-      "adopters_n": 31,
-      "need_n": 31,
-      "pct": 100,
+      "adopters_n": 38,
+      "need_n": 41,
+      "pct": 93,
       "adopters": [
         "achievements.html",
         "agentic-rag-observability.html",
         "ai-quality.html",
         "alert-hub.html",
+        "analytics-report.html",
         "analytics.html",
         "asset-hub.html",
         "assistant.html",
         "audit-log.html",
         "community.html",
         "dayplanner.html",
+        "design-system.html",
         "engineering-design.html",
+        "founder-console.html",
         "hive.html",
         "index.html",
         "integrations.html",
         "inventory.html",
+        "llm-observability.html",
         "logbook.html",
         "marketplace-admin.html",
         "marketplace-seller-profile.html",
@@ -213,17 +247,24 @@
         "marketplace.html",
         "ph-intelligence.html",
         "plant-connections.html",
+        "platform-actions.html",
         "pm-scheduler.html",
         "project-manager.html",
         "project-report.html",
         "public-feed.html",
         "report-sender.html",
+        "resume.html",
         "shift-brain.html",
         "skillmatrix.html",
         "status.html",
+        "validator-catalog.html",
         "voice-journal.html"
       ],
-      "gap": [],
+      "gap": [
+        "architecture.html",
+        "offline-fallback.html",
+        "symbol-gallery.html"
+      ],
       "status": "built"
     },
     {
@@ -233,14 +274,16 @@
       "satisfies": "J2",
       "mode": "measured",
       "need_rule": "destructive",
-      "adopters_n": 16,
-      "need_n": 16,
-      "pct": 100,
+      "adopters_n": 19,
+      "need_n": 20,
+      "pct": 95,
       "adopters": [
         "alert-hub.html",
         "asset-hub.html",
         "community.html",
         "dayplanner.html",
+        "design-system.html",
+        "founder-console.html",
         "hive.html",
         "index.html",
         "integrations.html",
@@ -249,12 +292,15 @@
         "marketplace-admin.html",
         "marketplace-seller.html",
         "marketplace.html",
+        "platform-actions.html",
         "pm-scheduler.html",
         "project-manager.html",
         "report-sender.html",
         "shift-brain.html"
       ],
-      "gap": [],
+      "gap": [
+        "resume.html"
+      ],
       "status": "built"
     },
     {
@@ -263,18 +309,22 @@
       "name": "chips / pills / tabs vocabulary",
       "satisfies": "R3",
       "mode": "census-only",
-      "adopters_n": 23,
+      "adopters_n": 28,
       "adopters": [
         "agentic-rag-observability.html",
         "alert-hub.html",
+        "analytics-report.html",
         "analytics.html",
         "asset-hub.html",
         "audit-log.html",
         "community.html",
         "dayplanner.html",
+        "design-system.html",
         "engineering-design.html",
+        "founder-console.html",
         "index.html",
         "inventory.html",
+        "llm-observability.html",
         "logbook.html",
         "marketplace-seller-profile.html",
         "marketplace-seller.html",
@@ -286,6 +336,7 @@
         "promo-poster.html",
         "public-feed.html",
         "report-sender.html",
+        "resume.html",
         "shift-brain.html",
         "voice-journal.html"
       ]
@@ -297,9 +348,9 @@
       "satisfies": "G1",
       "mode": "measured",
       "need_rule": "async-data",
-      "adopters_n": 29,
-      "need_n": 29,
-      "pct": 100,
+      "adopters_n": 31,
+      "need_n": 35,
+      "pct": 89,
       "adopters": [
         "achievements.html",
         "agentic-rag-observability.html",
@@ -311,6 +362,7 @@
         "audit-log.html",
         "community.html",
         "dayplanner.html",
+        "design-system.html",
         "hive.html",
         "index.html",
         "integrations.html",
@@ -327,11 +379,17 @@
         "project-report.html",
         "public-feed.html",
         "report-sender.html",
+        "resume.html",
         "shift-brain.html",
         "skillmatrix.html",
         "voice-journal.html"
       ],
-      "gap": [],
+      "gap": [
+        "analytics-report.html",
+        "founder-console.html",
+        "llm-observability.html",
+        "platform-actions.html"
+      ],
       "status": "built"
     },
     {
@@ -340,9 +398,10 @@
       "name": "whOhBadge / whProgressStrip",
       "satisfies": "G1/C1",
       "mode": "census-only",
-      "adopters_n": 4,
+      "adopters_n": 5,
       "adopters": [
         "dayplanner.html",
+        "design-system.html",
         "inventory.html",
         "logbook.html",
         "pm-scheduler.html"
@@ -355,17 +414,19 @@
       "satisfies": "N1",
       "mode": "measured",
       "need_rule": "renders-date",
-      "adopters_n": 20,
-      "need_n": 20,
-      "pct": 100,
+      "adopters_n": 23,
+      "need_n": 26,
+      "pct": 88,
       "adopters": [
         "alert-hub.html",
+        "analytics-report.html",
         "analytics.html",
         "asset-hub.html",
         "assistant.html",
         "audit-log.html",
         "community.html",
         "dayplanner.html",
+        "design-system.html",
         "hive.html",
         "integrations.html",
         "inventory.html",
@@ -377,10 +438,15 @@
         "project-report.html",
         "public-feed.html",
         "shift-brain.html",
+        "skillmatrix.html",
         "status.html",
         "voice-journal.html"
       ],
-      "gap": [],
+      "gap": [
+        "founder-console.html",
+        "llm-observability.html",
+        "platform-actions.html"
+      ],
       "status": "built"
     },
     {
@@ -390,12 +456,13 @@
       "satisfies": "N1",
       "mode": "measured",
       "need_rule": "renders-number",
-      "adopters_n": 5,
-      "need_n": 11,
-      "pct": 45,
+      "adopters_n": 6,
+      "need_n": 15,
+      "pct": 40,
       "adopters": [
         "agentic-rag-observability.html",
         "ai-quality.html",
+        "design-system.html",
         "integrations.html",
         "marketplace.html",
         "ph-intelligence.html"
@@ -403,9 +470,12 @@
       "gap": [
         "asset-hub.html",
         "audit-log.html",
+        "founder-console.html",
         "hive.html",
+        "llm-observability.html",
         "logbook.html",
         "marketplace-seller.html",
+        "platform-actions.html",
         "pm-scheduler.html"
       ],
       "status": "built"
@@ -417,13 +487,15 @@
       "satisfies": "N1",
       "mode": "measured",
       "need_rule": "peso",
-      "adopters_n": 9,
-      "need_n": 9,
-      "pct": 100,
+      "adopters_n": 11,
+      "need_n": 12,
+      "pct": 92,
       "adopters": [
         "ai-quality.html",
         "asset-hub.html",
         "community.html",
+        "design-system.html",
+        "founder-console.html",
         "marketplace-admin.html",
         "marketplace-seller-profile.html",
         "marketplace-seller.html",
@@ -431,7 +503,9 @@
         "project-manager.html",
         "project-report.html"
       ],
-      "gap": [],
+      "gap": [
+        "platform-actions.html"
+      ],
       "status": "built"
     },
     {
@@ -440,8 +514,10 @@
       "name": "whFmtDuration",
       "satisfies": "N1",
       "mode": "census-only",
-      "adopters_n": 0,
-      "adopters": []
+      "adopters_n": 1,
+      "adopters": [
+        "design-system.html"
+      ]
     },
     {
       "id": "FD1e",
@@ -450,9 +526,9 @@
       "satisfies": "S1/N1",
       "mode": "measured",
       "need_rule": "relative-time",
-      "adopters_n": 14,
-      "need_n": 14,
-      "pct": 100,
+      "adopters_n": 15,
+      "need_n": 18,
+      "pct": 83,
       "adopters": [
         "achievements.html",
         "agentic-rag-observability.html",
@@ -461,6 +537,7 @@
         "asset-hub.html",
         "audit-log.html",
         "community.html",
+        "design-system.html",
         "hive.html",
         "index.html",
         "marketplace-admin.html",
@@ -469,7 +546,11 @@
         "marketplace.html",
         "public-feed.html"
       ],
-      "gap": [],
+      "gap": [
+        "founder-console.html",
+        "platform-actions.html",
+        "resume.html"
+      ],
       "status": "built"
     },
     {
@@ -478,9 +559,10 @@
       "name": "renderKpiTile",
       "satisfies": "C1",
       "mode": "census-only",
-      "adopters_n": 1,
+      "adopters_n": 2,
       "adopters": [
-        "analytics.html"
+        "analytics.html",
+        "design-system.html"
       ]
     },
     {
@@ -490,19 +572,22 @@
       "satisfies": "E3",
       "mode": "measured",
       "need_rule": "async-data",
-      "adopters_n": 28,
-      "need_n": 28,
-      "pct": 100,
+      "adopters_n": 32,
+      "need_n": 34,
+      "pct": 94,
       "adopters": [
         "achievements.html",
         "agentic-rag-observability.html",
         "ai-quality.html",
         "alert-hub.html",
+        "analytics-report.html",
         "analytics.html",
         "asset-hub.html",
         "audit-log.html",
         "community.html",
         "dayplanner.html",
+        "design-system.html",
+        "founder-console.html",
         "hive.html",
         "index.html",
         "integrations.html",
@@ -513,6 +598,7 @@
         "marketplace-seller.html",
         "marketplace.html",
         "plant-connections.html",
+        "platform-actions.html",
         "pm-scheduler.html",
         "project-manager.html",
         "project-report.html",
@@ -523,7 +609,10 @@
         "status.html",
         "voice-journal.html"
       ],
-      "gap": [],
+      "gap": [
+        "llm-observability.html",
+        "resume.html"
+      ],
       "status": "built"
     },
     {
@@ -546,13 +635,14 @@
       "satisfies": "S1/G1",
       "mode": "measured",
       "need_rule": "family",
-      "adopters_n": 29,
-      "need_n": 29,
-      "pct": 100,
+      "adopters_n": 31,
+      "need_n": 39,
+      "pct": 79,
       "adopters": [
         "achievements.html",
         "ai-quality.html",
         "alert-hub.html",
+        "analytics-report.html",
         "analytics.html",
         "asset-hub.html",
         "assistant.html",
@@ -576,11 +666,21 @@
         "project-report.html",
         "public-feed.html",
         "report-sender.html",
+        "resume.html",
         "shift-brain.html",
         "skillmatrix.html",
         "voice-journal.html"
       ],
-      "gap": [],
+      "gap": [
+        "architecture.html",
+        "design-system.html",
+        "founder-console.html",
+        "llm-observability.html",
+        "offline-fallback.html",
+        "platform-actions.html",
+        "symbol-gallery.html",
+        "validator-catalog.html"
+      ],
       "status": "built"
     },
     {
@@ -590,13 +690,14 @@
       "satisfies": "S1",
       "mode": "measured",
       "need_rule": "family",
-      "adopters_n": 27,
-      "need_n": 27,
-      "pct": 100,
+      "adopters_n": 29,
+      "need_n": 37,
+      "pct": 78,
       "adopters": [
         "achievements.html",
         "ai-quality.html",
         "alert-hub.html",
+        "analytics-report.html",
         "analytics.html",
         "asset-hub.html",
         "audit-log.html",
@@ -618,11 +719,21 @@
         "project-report.html",
         "public-feed.html",
         "report-sender.html",
+        "resume.html",
         "shift-brain.html",
         "skillmatrix.html",
         "voice-journal.html"
       ],
-      "gap": [],
+      "gap": [
+        "architecture.html",
+        "design-system.html",
+        "founder-console.html",
+        "llm-observability.html",
+        "offline-fallback.html",
+        "platform-actions.html",
+        "symbol-gallery.html",
+        "validator-catalog.html"
+      ],
       "status": "built"
     },
     {
@@ -632,13 +743,14 @@
       "satisfies": "N1",
       "mode": "measured",
       "need_rule": "family",
-      "adopters_n": 29,
-      "need_n": 29,
-      "pct": 100,
+      "adopters_n": 33,
+      "need_n": 39,
+      "pct": 85,
       "adopters": [
         "achievements.html",
         "ai-quality.html",
         "alert-hub.html",
+        "analytics-report.html",
         "analytics.html",
         "asset-hub.html",
         "assistant.html",
@@ -646,6 +758,7 @@
         "community.html",
         "dayplanner.html",
         "engineering-design.html",
+        "founder-console.html",
         "hive.html",
         "index.html",
         "integrations.html",
@@ -657,34 +770,43 @@
         "marketplace.html",
         "ph-intelligence.html",
         "plant-connections.html",
+        "platform-actions.html",
         "pm-scheduler.html",
         "project-manager.html",
         "project-report.html",
         "public-feed.html",
         "report-sender.html",
+        "resume.html",
         "shift-brain.html",
         "skillmatrix.html",
         "voice-journal.html"
       ],
-      "gap": [],
+      "gap": [
+        "architecture.html",
+        "design-system.html",
+        "llm-observability.html",
+        "offline-fallback.html",
+        "symbol-gallery.html",
+        "validator-catalog.html"
+      ],
       "status": "built"
     }
   ],
   "drift": [],
   "floors": {
-    "FC1": 19,
-    "FC3": 10,
-    "FI1": 31,
-    "FI2": 16,
-    "FF1": 29,
-    "FD1a": 20,
-    "FD1b": 5,
-    "FD1c": 9,
-    "FD1e": 14,
-    "FD3": 28,
-    "FCh1": 29,
-    "FCh2": 27,
-    "FCh3": 29
+    "FC1": 22,
+    "FC3": 11,
+    "FI1": 38,
+    "FI2": 19,
+    "FF1": 31,
+    "FD1a": 23,
+    "FD1b": 6,
+    "FD1c": 11,
+    "FD1e": 15,
+    "FD3": 32,
+    "FCh1": 31,
+    "FCh2": 29,
+    "FCh3": 33
   },
   "tightened": false
 }

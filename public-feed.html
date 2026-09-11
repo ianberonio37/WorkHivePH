@@ -64,7 +64,8 @@
       padding-top: calc(0.875rem + env(safe-area-inset-top, 0px));
       display: flex; align-items: center; justify-content: space-between; gap: 12px;
     }
-    .header-left { display: flex; align-items: center; gap: 10px; }
+    .header-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    @media (max-width: 420px) { .header-left { min-height: 55px; } }   /* I1 CLS (EX-PF F07, 2026-09-07): the title + Read-only pill wrap to two lines at 390 after first paint (28px -> 55px); reserve the two lines */   /* phone fit (2026-09-06): the Read-only pill spilled 7px at 360 */
     .header-logo { height: 28px; width: auto; }
     .header-title {
       font-size: 0.875rem; font-weight: 700; color: white;
@@ -72,8 +73,7 @@
     .header-pill {
       background: rgba(34,197,94,0.12); border: 1px solid rgba(34,197,94,0.25);
       color: var(--wh-green); font-size: 0.65rem; font-weight: 700; padding: 2px 8px;
-      border-radius: 999px; text-transform: uppercase; letter-spacing: 0.05em;
-    }
+      border-radius: 999px; text-transform: uppercase; letter-spacing: 0.05em; flex-shrink: 0; }
     .header-btn {
       background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light)); border: none;
       color: var(--wh-navy); font-size: 0.75rem; font-weight: 700; padding: 6px 14px;
@@ -81,6 +81,12 @@
       min-height: 44px; display: inline-flex; align-items: center; justify-content: center; /* D1 U2 */
       text-decoration: none; display: inline-block;
     }
+    /* G3 (rubric sweep 2026-09-05): the anon panel stacked THREE identically-filled CTAs --
+       "Sign in to post", "Create a free account", "Hail a service" -- three competing primaries
+       and no recommended action. One stays filled; the other two step down to an outlined
+       secondary so the eye lands on one. Same hue, same size, same 44px tap target. */
+    .header-btn.secondary { background: transparent; border: 1px solid rgba(247,162,27,0.55); color: var(--wh-orange-text); }
+    .header-btn.secondary:hover { background: rgba(247,162,27,0.12); }
     .header-btn:hover { opacity: .9; }
 
     /* Main layout */
@@ -168,10 +174,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
          and post, so a signed-out reader sees the one thing to do (the header link is chrome). -->
     <a href="index.html?signin=1&return=public-feed.html" class="header-btn" style="margin-top:0.85rem;" data-i="pf_join_cta">Sign in to post →</a>
     <!-- T1: every sign-in surface must also offer sign-up (Ian verbatim) — the new-reader door. -->
-    <a href="index.html?signup=1&return=public-feed.html" class="header-btn" style="margin-top:0.5rem;margin-left:0.5rem;" data-i="pf_signup_cta">New here? Create a free account →</a>
+    <a href="index.html?signup=1&return=public-feed.html" class="header-btn secondary" style="margin-top:0.5rem;margin-left:0.5rem;" data-i="pf_signup_cta">New here? Create a free account →</a>
     <!-- SERVICE_HAILING P8 (§1c acquisition): the public feed is the SEO/anon front porch —
          offer the hail door to visitors who came looking for help, not conversation. -->
-    <a href="marketplace.html?section=services" class="header-btn" style="margin-top:0.5rem;margin-left:0.5rem;" data-i="pf_hail_cta">Need a technician? Hail a service →</a>
+    <a href="marketplace.html?section=services" class="header-btn secondary" style="margin-top:0.5rem;margin-left:0.5rem;" data-i="pf_hail_cta">Need a technician? Hail a service →</a>
     <!-- WHAT HAPPENS NEXT. Measured live 2026-08-05: this surface offered two doors and said nothing
          about where either one led, so a visitor pressing "Hail a service" could not tell whether it
          was about to charge them, post something publicly, or call someone. Both are free and
@@ -179,7 +185,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     <p data-i="pf_next_hint" style="margin-top:0.6rem; font-size:0.75rem; color:rgba(255,255,255,0.72); line-height:1.5;">
       Signing in takes you to your hive's board: what you post there appears on your team's board
       only, never here, unless you share it. Hailing a service publishes your job to nearby providers,
-      who reply with quotes. You pick one, and the request can still be cancelled until you do. You
+      who reply with quotes. You pick one. You can still cancel the request until then. You
       pay the provider directly; WorkHive never handles the money.
     </p>
   </div>
@@ -207,7 +213,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 </main>
 
 <script src="browser-floor.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
+  <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
 <script>
   const _DB = getDb(
@@ -232,7 +238,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         cta.setAttribute('href', inHive ? 'community.html' : 'hive.html');
       }
       if (sub) sub.textContent = inHive
-        ? 'Public posts from WorkHive maintenance teams. You are signed in - post from your hive’s Community.'
+        ? 'Public posts from WorkHive maintenance teams. You’re signed in. Post from your hive’s Community.'
         : 'Public posts from WorkHive maintenance teams. You are signed in - join a hive to post.';
     } catch (_) { /* empty-catch-allow: anon copy stands if the session read fails */ }
   })();
@@ -376,7 +382,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       // there because the marketplace and the seller profile had each grown their own inline copy.
       const _msg = (typeof whReadError === 'function')
         ? whReadError(error, 'the public feed')
-        : "Couldn’t load the public feed. Check your connection and try again.";
+        : _t("Couldn’t load the public feed. Check your connection and try again.", "Hindi ma-load ang public feed. Suriin ang koneksyon at subukan muli.");
       if (typeof whListError === 'function') {
         whListError(document.getElementById('feed-list'), _msg, () => loadInitial());
       }
@@ -460,5 +466,18 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   <script defer src="connectivity-widget.js"></script>
   <script defer src="session-timeout.js"></script>
   <script defer src="device-fingerprint.js"></script>
+<script>/* systemic ripple (2026-09-05): utils.js is the shared script every panel below renders through; if it never arrives
+   (a stale shell, a blocked CDN, a dropped connection mid-load) this page went blank or froze on its static skeletons.
+   utils.js cannot help when utils.js is the thing missing, so the guard lives here. */
+window.addEventListener('load', function () { setTimeout(function () {
+  if (typeof getDb === 'function' && typeof escHtml === 'function') return;
+  try { console.error('[public-feed] utils.js did not load; the page cannot render its data'); } catch (e) { void e; }
+  var m = document.querySelector('main') || document.body; if (!m || m.querySelector('.wh-shared-missing')) return;
+  var d = document.createElement('div'); d.className = 'honest-empty wh-shared-missing'; d.setAttribute('role', 'alert');
+  d.style.cssText = 'margin:12px;padding:14px 16px;border:1px solid rgba(248,113,113,.4);border-radius:10px;background:rgba(248,113,113,.08);color:#fca5a5;font:14px/1.5 system-ui,sans-serif;';
+  d.innerHTML = 'WorkHive could not load its shared script (utils.js), so this page cannot show your data. <button type="button" onclick="location.reload()" style="color:inherit;text-decoration:underline;background:none;border:0;padding:0;font:inherit;cursor:pointer;min-height:44px;" data-i="reloadtotryagain">Reload to try again</button>.';
+  m.insertBefore(d, m.firstChild);
+  var sk = document.querySelectorAll('.wh-skeleton, [class*="skeleton"]'); for (var i = 0; i < sk.length; i++) sk[i].style.display = 'none';
+}, 2500); });</script>
 </body>
 </html>

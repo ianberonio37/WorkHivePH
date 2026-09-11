@@ -1,0 +1,16 @@
+{
+ "_doc": "assistant.html: English visible text -> Filipino, authored. Empty = not yet translated. tools/i18n_page_dict.py --apply tags the element and emits WH_FIL_PAGE.",
+ "Basic Worker": "",
+ "Stage 1": "",
+ "My Work Assistant": "Ang Work Assistant Ko",
+ "Ask anything: technical, operational, planning, safety, or your own job history.": "Magtanong ng kahit ano: teknikal, operasyon, pagpaplano, kaligtasan, o sarili mong job history.",
+ "How this page works": "Paano gumagana ang page na ito",
+ "Type a question or set up the daily briefing. Answers are grounded in your own hive data: logbook, PM schedule, parts, and alerts.": "Mag-type ng tanong o i-set up ang daily briefing. Nakabatay ang mga sagot sa sarili mong hive data: logbook, PM schedule, parts, at alerts.",
+ "Live hive data · Based on your logbook, PM schedule, parts, and alerts · recomputed per question": "Live hive data · Batay sa logbook, PM schedule, parts, at alerts mo · kinukuwenta muli kada tanong",
+ "Your Name": "Pangalan Mo",
+ "Please enter your name.": "Pakilagay ang pangalan mo.",
+ "(optional)": "(opsyonal)",
+ "Records available for context": "Mga record na available para sa konteksto",
+ "No records yet. Add logbook entries or parts to unlock personalised insights. You can still ask technical questions.": "Wala pang record. Magdagdag ng logbook entry o parts para ma-unlock ang personalised insights. Puwede ka pa ring magtanong ng teknikal.",
+ "Powered by WorkHive AI": ""
+}

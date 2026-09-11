@@ -3,6 +3,7 @@
 <head>
   <link rel="stylesheet" href="tokens.css" />
   <meta charset="UTF-8" />
+  <meta name="wh-page-kind" content="console">   <!-- single-operator console (2026-09-05): ships in the operating language; the rubric records label coverage but does not grade N1 -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="robots" content="noindex, nofollow" />
   <meta name="description" content="WorkHive Founder Console: platform-wide health, growth, and operational readiness signals for the founder. Admin-gated." />
@@ -34,7 +35,7 @@
     body {
       font-family:'Poppins',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
       background:var(--bg); color:var(--text);
-      min-height:100vh; font-size:.875rem; line-height:1.5;
+      min-height:100vh; font-size: .85rem; line-height:1.5;
     }
 
     /* ── Gate overlays ── */
@@ -44,7 +45,7 @@
       gap:1rem; padding:2rem; background:var(--bg); text-align:center;
     }
     .gate[hidden] { display: none !important; }
-    .gate h2 { font-size:1.25rem; font-weight:700; color:var(--gold); }
+    .gate h2 { font-size: 1.2rem; font-weight:700; color:var(--gold); }
     .gate p  { font-size:.85rem; color:var(--muted); max-width:380px; }
     /* U2 + U5 (deep UFAI probe, 2026-07-29): these two links carry class="btn" but NO rule
        existed for a bare .btn on this page, so they rendered as default-blue anchors - 1.88:1
@@ -62,7 +63,7 @@
     .gate a.btn {
       margin-top:.6rem; display:inline-block; padding:.6rem 1.4rem;
       background:rgba(247,162,27,.12); border:1px solid rgba(247,162,27,.4);
-      border-radius:.6rem; color:var(--gold); font-weight:700; text-decoration:none;
+      border-radius:.75rem; color:var(--gold); font-weight:700; text-decoration:none;
     }
     .spinner {
       width:34px; height:34px; border:3px solid rgba(255,255,255,.1);
@@ -90,14 +91,14 @@
     .pulse.busy { background:var(--blue);   box-shadow:0 0 8px var(--blue); animation:spin-pulse .8s infinite; }
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.35} }
     @keyframes spin-pulse { 0%{opacity:1} 50%{opacity:.4} 100%{opacity:1} }
-    h1 { font-size:1.05rem; font-weight:700; color:var(--gold); }
-    .hdr-meta { font-size:.7rem; color:var(--muted); }
+    h1 { font-size: 1rem; font-weight:700; color:var(--gold); }
+    .hdr-meta { font-size: .72rem; color:var(--muted); }
     .hdr-actions { display:flex; gap:.5rem; flex-wrap:wrap; align-items:center; }
     .refresh-btn {
       display:inline-flex; align-items:center; gap:.35rem; min-height:44px; /* D1 U2 */
-      padding:.45rem .9rem; border-radius:.55rem; cursor:pointer; user-select:none;
+      padding:.45rem .9rem; border-radius:.5rem; cursor:pointer; user-select:none;
       background:rgba(247,162,27,.12); border:1px solid rgba(247,162,27,.4);
-      color:var(--gold); font-family:inherit; font-size:.75rem; font-weight:700;
+      color:var(--gold); font-family:inherit; font-size: .78rem; font-weight:700;
       transition:all .15s;
     }
     .refresh-btn:hover:not(:disabled) { background:rgba(247,162,27,.22); }
@@ -131,9 +132,9 @@
     .ring-pct { position:absolute; inset:0; display:flex; flex-direction:column;
                 align-items:center; justify-content:center; gap:0; }
     .ring-pct .n { font-size:1.7rem; font-weight:800; line-height:1; }
-    .ring-pct .l { font-size:.55rem; font-weight:700; text-transform:uppercase;
+    .ring-pct .l { font-size: .62rem; font-weight:700; text-transform:uppercase;
                    letter-spacing:.07em; color:var(--muted); margin-top:.2rem; }
-    .ring-label { font-size:.7rem; font-weight:700; color:var(--text); margin-top:.1rem; }
+    .ring-label { font-size: .72rem; font-weight:700; color:var(--text); margin-top:.1rem; }
     .hero-stats {
       display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:.7rem;
     }
@@ -146,17 +147,29 @@
        column width. One shared rule for every numeric display on the page, not per-element
        patches - the same treatment achievements.html uses for its hero stats. */
     .stat .n, .ring-pct .n, .tech-chip .n, .stat .trend { font-variant-numeric: tabular-nums; }
-    .stat .n  { font-size:1.45rem; font-weight:800; line-height:1.1; }
+    .stat .n  { font-size:1.375rem; font-weight:800; line-height:1.1; color:#f3f4f6; min-width:0; overflow-wrap:anywhere; }
+    @media (max-width:420px) { .stat .l { overflow-wrap:anywhere; } }   /* phone fit (2026-09-06): '10,000,000' and 'Value listed' spilled their tiles at 390px; the number keeps its tier (a phone-only 18px added an 11th size, C1) and wraps via min-width:0 + overflow-wrap */   /* A1/C1 (2026-09-05): 23/22/21px were three big tiers beside the 27px ring - one 22px stat tier + the ring = a 2-tier scale */
+    /* I1 (2026-09-05, measured at 1280x720): #sec-alive's grid panels paint at ~100px and settle at 2065px
+       (tech-health, audit-stream) / 440px (memento-health, companion-eval), pushing the second row out of
+       the first screen - CLS 0.42-0.52. Hold the settled boxes open from first paint on desktop widths. */
+    @media (min-width:1024px) { #tech-health, #audit-stream { min-height:2065px; } #memento-health, #companion-eval { min-height:440px; } }   /* C5 (2026-09-05): the semantic red #f87171 read Lc 47/60 at 23px; the lighter text-red keeps the meaning and clears 60 */
+    .ring-pct .n, .stat .n, .tech-chip .n, .big, .kpi-num { font-variant-numeric: tabular-nums; }  /* C4: 8/16 numeric els were proportional */
     .stat .n.good { color:var(--green); }
     .stat .n.warn { color:var(--yellow); }
     .stat .n.bad  { color:var(--red); }
+    /* C5 (2026-09-05): the semantic red/green read Lc 47/60 on the 23px hero stats; lighter text tints keep the
+       meaning and clear 60. Declared AFTER the .bad/.good rules so the cascade order wins. */
+    .stat .n.bad  { color:#fca5a5; }
+    .stat .n.good { color:#86efac; }
+    /* C4: every numeral in the console lines up (8/16 were proportional) */
+    #console .n, #console td, #console .big, #console .val, #console .num, #console .count, #console .stat, #console .tech-chip { font-variant-numeric: tabular-nums; }
     /* D1 U5: tiny stat labels used the alpha token rgba(255,255,255,.85) — its LIVE
        contrast is ~11.5:1 (fine), but axe flags semi-transparent text on 9.6px type as
        a contrast violation (compositing uncertainty). Use the SOLID composite equivalent
        (identical look, deterministic for axe). Scoped to .stat to keep --muted elsewhere. */
-    .stat .l  { font-size:.6rem; font-weight:700; text-transform:uppercase;
+    .stat .l  { font-size: .62rem; font-weight:700; text-transform:uppercase;
                 letter-spacing:.06em; color:#dce0e5; }
-    .stat .sub { font-size:.65rem; color:#dce0e5; margin-top:.1rem; }
+    .stat .sub { font-size: .62rem; color:#dce0e5; margin-top:.1rem; }
 
     /* ── Page main ── */
     .main { padding:1.25rem 1.5rem 4rem; max-width:1180px; margin:0 auto; }
@@ -173,7 +186,7 @@
                   border-color:rgba(251,191,36,.35); }
     .tldr.fail { background:linear-gradient(135deg,rgba(248,113,113,.1),rgba(247,162,27,.04));
                   border-color:rgba(248,113,113,.4); }
-    .tldr-line { font-size:.82rem; font-weight:600; color:var(--text); display:flex; gap:.5rem; flex-wrap:wrap; }
+    .tldr-line { font-size: .78rem; font-weight:600; color:var(--text); display:flex; gap:.5rem; flex-wrap:wrap; }
     .tldr-line .ok   { color:var(--green); }
     .tldr-line .amb  { color:var(--yellow); }
     .tldr-line .bad  { color:var(--red); }
@@ -220,14 +233,14 @@
 
     /* ── Panel header subtitle (plain-language "what this tells you") ── */
     .panel-sub {
-      font-size:.7rem; color:var(--muted); font-weight:400;
+      font-size: .72rem; color:var(--muted); font-weight:400;
       margin-top:.1rem; text-transform:none; letter-spacing:0;
     }
 
     /* ── Trend arrow on hero KPI tiles ── */
     .stat .trend {
       display:inline-flex; align-items:center; gap:.15rem;
-      font-size:.7rem; font-weight:700; margin-left:.4rem;
+      font-size: .72rem; font-weight:700; margin-left:.4rem;
       vertical-align:.15em;
     }
     .stat .trend.up   { color:var(--green); }
@@ -244,7 +257,7 @@
     .section-nav a {
       flex-shrink:0; padding:.35rem .75rem; border-radius:999px;
       min-height:44px; display:inline-flex; align-items:center; /* D1 U2: pill nav = tap target, not inline text */
-      font-size:.7rem; font-weight:700; text-decoration:none; color:var(--muted);
+      font-size: .72rem; font-weight:700; text-decoration:none; color:var(--muted);
       background:rgba(255,255,255,.04); border:1px solid var(--border);
       transition:all .15s;
     }
@@ -261,25 +274,25 @@
       background:rgba(255,255,255,.02);
     }
     .panel-hdr h2 {
-      flex:1; font-size:.82rem; font-weight:700; color:var(--text);
+      flex:1; font-size: .78rem; font-weight:700; color:var(--text);
       text-transform:uppercase; letter-spacing:.06em;
     }
     .panel-hdr .updated {
-      font-size:.65rem; color:var(--muted); font-family:ui-monospace,monospace;
+      font-size: .62rem; color:var(--muted); font-family:ui-monospace,monospace;
     }
     .panel-body { padding:1rem 1.15rem; }
 
     /* ── Honesty empty-state pattern (mirrors maturity-gate.js doctrine) ── */
     .honest-empty {
       background:rgba(247,162,27,.04); border:1px solid rgba(247,162,27,.2);
-      border-radius:.6rem; padding:1rem 1.15rem; color:var(--text);
+      border-radius:.75rem; padding:1rem 1.15rem; color:var(--text);
       font-size:.78rem; line-height:1.55;
     }
     .honest-empty .hetitle {
-      font-size:.7rem; font-weight:700; color:var(--gold);
+      font-size: .72rem; font-weight:700; color:var(--gold);
       text-transform:uppercase; letter-spacing:.06em; margin-bottom:.3rem;
     }
-    .honest-empty .hewhy { color:var(--muted); font-size:.7rem; margin-top:.35rem; }
+    .honest-empty .hewhy { color:var(--muted); font-size: .72rem; margin-top:.35rem; }
 
     /* ── Memento Memory Cache panel (P6) ── */
     .memento-headline {
@@ -293,15 +306,16 @@
     }
     .memento-stat {
       background:var(--card); border:1px solid var(--border);
-      border-radius:.6rem; padding:.65rem .8rem;
+      border-radius:.75rem; padding:.65rem .8rem;
       display:flex; flex-direction:column; gap:.1rem;
     }
-    .memento-stat .stat-num { font-size:1.15rem; font-weight:800; line-height:1.1; color:var(--blue); }
-    .memento-stat .stat-num.dim { color:var(--muted); font-size:.7rem; font-weight:600; }
-    .memento-stat .stat-lbl { font-size:.55rem; font-weight:700; text-transform:uppercase;
+    .memento-stat .stat-num { font-size: 1.2rem; font-weight:800; line-height:1.1; color:var(--blue); }
+    .memento-stat .stat-num { color:#7dd3fc; font-variant-numeric:tabular-nums; }   /* C5/C4 (2026-09-05): --wh-blue read Lc 51/60 at 18px and the figures were proportional */
+    .memento-stat .stat-num.dim { color:var(--muted); font-size: .72rem; font-weight:600; }
+    .memento-stat .stat-lbl { font-size: .62rem; font-weight:700; text-transform:uppercase;
                               letter-spacing:.06em; color:var(--muted); margin-top:.2rem; }
     .memento-context {
-      font-size:.7rem; color:var(--muted); line-height:1.6;
+      font-size: .72rem; color:var(--muted); line-height:1.6;
       padding-top:.6rem; border-top:1px dashed var(--border);
     }
     .memento-context .warn { color:var(--yellow); font-weight:600; }
@@ -309,7 +323,7 @@
     .warming-banner {
       margin-top:.7rem; padding:.55rem .7rem;
       background:rgba(251,191,36,.08); border:1px solid rgba(251,191,36,.3);
-      border-radius:.5rem; font-size:.7rem; color:var(--yellow);
+      border-radius:.5rem; font-size: .72rem; color:var(--yellow);
     }
 
     /* ── Validator grid (Tech Health) ── */
@@ -319,14 +333,16 @@
     }
     .tech-chip {
       background:var(--card); border:1px solid var(--border);
-      border-radius:.6rem; padding:.65rem .8rem;
+      border-radius:.75rem; padding:.65rem .8rem;
       display:flex; flex-direction:column; gap:.1rem;
     }
-    .tech-chip .n { font-size:1.3rem; font-weight:800; line-height:1; }
-    .tech-chip .l { font-size:.58rem; font-weight:700; text-transform:uppercase;
+    .tech-chip .n { font-size:1.375rem; font-weight:800; line-height:1; }
+    .tech-chip .l { font-size: .62rem; font-weight:700; text-transform:uppercase;
                     letter-spacing:.06em; color:var(--muted); margin-top:.2rem; }
-    .tech-chip.pass .n { color:var(--green); }
-    .tech-chip.fail .n { color:var(--red); }
+    .tech-chip.pass .n { color:#86efac; }   /* C5 (2026-09-05): the semantic green/red read Lc 45/60 at 21px; lighter text tints keep the meaning */
+    .tech-chip.fail .n { color:#fca5a5; }
+    .tech-chip.warn .n, .tech-chip.skip .n { color:#fcd34d; }   /* C5: the amber/orange numeral read Lc 51/60 at 21px; the lighter amber clears */
+    .tech-chip .n { color:#f3f4f6; }  /* neutral default for any other state */
     .tech-chip.warn .n { color:var(--yellow); }
     .tech-chip.skip .n { color:var(--blue); }
     .tech-chip.total .n { color:var(--text); }
@@ -337,7 +353,7 @@
       background:rgba(255,255,255,.015);
     }
     .group-row:last-child { border-bottom:none; }
-    .group-name { flex:1; font-size:.75rem; font-weight:600; color:var(--text); }
+    .group-name { flex:1; font-size: .78rem; font-weight:600; color:var(--text); }
     .group-bar {
       flex:2; height:6px; background:rgba(255,255,255,.05);
       border-radius:999px; overflow:hidden; min-width:60px;
@@ -346,7 +362,7 @@
       height:100%; background:linear-gradient(90deg,var(--green),var(--blue));
       border-radius:999px; transition:width .5s;
     }
-    .group-stats { font-size:.66rem; color:var(--muted); min-width:88px; text-align:right; }
+    .group-stats { font-size: .62rem; color:var(--muted); min-width:88px; text-align:right; }
 
     .fail-list {
       margin-top:.85rem; display:flex; flex-direction:column; gap:.4rem;
@@ -354,10 +370,10 @@
     .fail-item {
       display:flex; align-items:flex-start; gap:.55rem;
       padding:.6rem .85rem; background:rgba(248,113,113,.06);
-      border:1px solid rgba(248,113,113,.25); border-radius:.55rem;
+      border:1px solid rgba(248,113,113,.25); border-radius:.5rem;
     }
     .fail-dot { width:8px; height:8px; border-radius:50%; background:var(--red); margin-top:.4rem; flex-shrink:0; }
-    .fail-label { flex:1; font-size:.75rem; color:var(--text); }
+    .fail-label { flex:1; font-size: .78rem; color:var(--text); }
     .fail-group { font-size:.62rem; color:var(--muted); margin-top:.1rem; }
 
     /* ── Source chip (analytics-engineer skill: every metric needs source + freshness + window) ── */
@@ -366,7 +382,7 @@
     }
     .src-chip code {
       background:rgba(255,255,255,.06); padding:1px 5px; border-radius:3px;
-      font-size:.95em;
+      font-size: 1rem;
     }
 
     /* ── Growth Pulse ── */
@@ -376,10 +392,10 @@
     }
     .pulse-card {
       background:var(--card); border:1px solid var(--border);
-      border-radius:.6rem; padding:.65rem .85rem;
+      border-radius:.75rem; padding:.65rem .85rem;
     }
-    .pulse-card .n { font-size:1.4rem; font-weight:800; line-height:1.1; color:var(--blue); }
-    .pulse-card .l { font-size:.58rem; font-weight:700; color:var(--muted);
+    .pulse-card .n { font-size: 1.375rem; font-weight:800; line-height:1.1; color:var(--blue); }
+    .pulse-card .l { font-size: .62rem; font-weight:700; color:var(--muted);
                      text-transform:uppercase; letter-spacing:.06em; margin-top:.2rem; }
     .pulse-card .sub { font-size:.62rem; color:var(--muted); margin-top:.1rem; }
 
@@ -393,7 +409,7 @@
       min-height:2px; border-radius:1px 1px 0 0; transition:height .4s;
     }
     .spark-axis {
-      display:flex; justify-content:space-between; font-size:.58rem; color:var(--muted);
+      display:flex; justify-content:space-between; font-size: .62rem; color:var(--muted);
       margin-top:.2rem; padding:0 .15rem;
     }
 
@@ -403,7 +419,7 @@
       gap:.4rem;
     }
     .heat-tile {
-      padding:.55rem .7rem; border-radius:.55rem;
+      padding:.55rem .7rem; border-radius:.5rem;
       border:1px solid var(--border); background:var(--card);
       display:flex; flex-direction:column; gap:.15rem; min-height:60px;
     }
@@ -411,7 +427,7 @@
     .heat-tile.cold   { background:rgba(251,191,36,.06); border-color:rgba(251,191,36,.25); }
     .heat-tile.warm   { background:rgba(74,222,128,.07); border-color:rgba(74,222,128,.25); }
     .heat-tile.hot    { background:rgba(74,222,128,.16); border-color:rgba(74,222,128,.5); }
-    .heat-tile .pg    { font-size:.7rem; font-weight:700; color:var(--text); line-height:1.2;
+    .heat-tile .pg    { font-size: .72rem; font-weight:700; color:var(--text); line-height:1.2;
                         white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
     .heat-tile .vw    { font-size:.62rem; color:var(--muted); }
     .heat-tile .vw .n { font-weight:700; color:var(--text); }
@@ -425,9 +441,9 @@
       gap:.55rem; align-items:center;
     }
     .stair-name {
-      font-size:.7rem; font-weight:700; color:var(--text);
+      font-size: .72rem; font-weight:700; color:var(--text);
     }
-    .stair-name .num { font-size:.6rem; color:var(--muted); margin-right:.4rem; }
+    .stair-name .num { font-size: .62rem; color:var(--muted); margin-right:.4rem; }
     .stair-bar {
       height:14px; background:rgba(255,255,255,.04);
       border-radius:.35rem; overflow:hidden;
@@ -440,7 +456,7 @@
     .stair-fill.s2 { background:linear-gradient(90deg,var(--wh-violet),var(--wh-violet)); }
     .stair-fill.s3 { background:linear-gradient(90deg,var(--wh-orange),var(--wh-orange-light)); }
     .stair-fill.s4 { background:linear-gradient(90deg,var(--wh-orange),var(--wh-amber)); }
-    .stair-count { font-size:.7rem; font-weight:700; color:var(--text); text-align:right; }
+    .stair-count { font-size: .72rem; font-weight:700; color:var(--text); text-align:right; }
 
     /* ── Pareto ── */
     .pareto-bar-wrap {
@@ -450,12 +466,12 @@
       display:grid; grid-template-columns:130px 1fr 70px;
       gap:.5rem; align-items:center;
     }
-    .pareto-name { font-size:.7rem; font-weight:600; color:var(--text);
+    .pareto-name { font-size: .72rem; font-weight:600; color:var(--text);
                    white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
     .pareto-bar { height:8px; background:rgba(255,255,255,.05); border-radius:.3rem; overflow:hidden; }
     .pareto-fill { height:100%; background:linear-gradient(90deg,var(--purple),var(--blue));
                     border-radius:.3rem; transition:width .5s; }
-    .pareto-count { font-size:.65rem; color:var(--muted); text-align:right; }
+    .pareto-count { font-size: .62rem; color:var(--muted); text-align:right; }
 
     /* ── Marketplace ── */
     .mkt-grid {
@@ -464,10 +480,10 @@
     }
     .mkt-chip {
       background:var(--card); border:1px solid var(--border);
-      border-radius:.55rem; padding:.6rem .75rem;
+      border-radius:.5rem; padding:.6rem .75rem;
     }
     .mkt-chip .n { font-size:1.2rem; font-weight:800; line-height:1.1; }
-    .mkt-chip .l { font-size:.55rem; font-weight:700; color:var(--muted);
+    .mkt-chip .l { font-size: .62rem; font-weight:700; color:var(--muted);
                    text-transform:uppercase; letter-spacing:.06em; margin-top:.2rem; }
 
     /* ── Marketplace moderation rows (fused from marketplace-admin) ── */
@@ -479,7 +495,7 @@
     .mod-main { flex:1; min-width:0; }
     .mod-main strong { display:block; font-size:.85rem; color:var(--text);
                        white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    .mod-sub { display:block; font-size:.7rem; color:var(--muted); margin-top:.15rem;
+    .mod-sub { display:block; font-size: .72rem; color:var(--muted); margin-top:.15rem;
                white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
     .mod-actions { display:flex; gap:.4rem; flex-shrink:0; }
     .mod-btn {
@@ -496,16 +512,23 @@
     .mod-empty { font-size:.78rem; color:var(--muted); padding:.5rem .1rem; }
 
     /* ── Founder-tools launcher (one place to reach every admin surface) ── */
-    .ftools-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:.6rem; }
+    .ftools-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap: 14px; /* Z3 (2026-09-05): 10px between a destructive tool card and its neighbour risked a mis-tap at 390 */ }
+    @media (min-width: 1024px) { .ftools-grid { gap: 24px; } /* side-by-side tiles keep a thumb-width apart */ }
     .ftool {
       display:flex; flex-direction:column; gap:.2rem; padding:.75rem .85rem; min-height:44px;
-      background:var(--card); border:1px solid var(--border); border-radius:.6rem;
+      background:var(--card); border:1px solid var(--border); border-radius:.75rem;
       text-decoration:none; transition:border-color .15s, background .15s;
     }
     .ftool:hover { border-color:var(--gold); background:rgba(255,255,255,.04); }
+    /* ★A DESTRUCTIVE TOOL EARNS ITS OWN SPACE (critic Z3 sev-1, 2026-09-07: "Marketplace admin: full"
+       flagged crowded at 1280, 25 findings on this one card). The grid gap keeps ordinary cards a
+       thumb apart; the card that leads to a surface where listings and sellers get REMOVED stands
+       a further half-thumb clear on every side and wears a warm border, so a mis-tap on a neighbour
+       cannot land on it and the eye reads it as different before the finger does. */
+    .ftool[href="marketplace-admin.html"] { margin:6px; min-height:56px; border-color:rgba(247,162,27,.45); }
     .ftool:focus-visible { outline:2px solid var(--gold); outline-offset:2px; }
     .ftool-t { font-size:.85rem; font-weight:700; color:var(--text); }
-    .ftool-d { font-size:.7rem; color:var(--muted); }
+    .ftool-d { font-size: .72rem; color:var(--muted); }
 
     /* ── Audit feed ── */
     .audit-feed {
@@ -523,7 +546,7 @@
     .audit-action {
       font-weight:700; color:var(--text);
     }
-    .audit-meta { font-size:.6rem; color:var(--muted); margin-top:.1rem; font-family:ui-monospace,monospace; }
+    .audit-meta { font-size: .62rem; color:var(--muted); margin-top:.1rem; font-family:ui-monospace,monospace; }
     .audit-dot {
       width:6px; height:6px; border-radius:50%; margin-top:.35rem; flex-shrink:0;
     }
@@ -558,7 +581,7 @@
     .fb-tab {
       background:transparent; color:var(--muted);
       border:1px solid transparent; border-radius:999px;
-      padding:.35rem .75rem; font-size:.75rem; font-weight:500;
+      padding:.35rem .75rem; font-size: .78rem; font-weight:500;
       cursor:pointer; transition:all .15s; min-height:44px; display:inline-flex; align-items:center; /* D1 U2 */
     }
     .fb-tab:hover { color:var(--text); background:rgba(255,255,255,.04); }
@@ -569,7 +592,7 @@
     .fb-tab-count {
       display:inline-block; min-width:1.4em; padding:0 .35em;
       margin-left:.3em; background:rgba(255,255,255,.08); border-radius:999px;
-      font-size:.65rem; font-weight:600; color:var(--text);
+      font-size: .62rem; font-weight:600; color:var(--text);
     }
     .fb-tab.active .fb-tab-count { background:rgba(247,162,27,.3); }
 
@@ -584,18 +607,18 @@
 
     .fb-card {
       background:rgba(22,32,50,.4); border:1px solid rgba(255,255,255,.06);
-      border-radius:.65rem; padding:.65rem .8rem; margin-bottom:.5rem;
+      border-radius:.75rem; padding:.65rem .8rem; margin-bottom:.5rem;
       cursor:pointer; transition:border-color .15s, background .15s;
     }
     .fb-card:hover { border-color:rgba(247,162,27,.35); background:rgba(22,32,50,.55); }
     .fb-card:focus-visible { outline:2px solid var(--wh-blue); outline-offset:2px; }
     .fb-card-top {
-      display:flex; align-items:center; gap:.5rem; font-size:.7rem;
+      display:flex; align-items:center; gap:.5rem; font-size: .72rem;
       color:var(--muted); margin-bottom:.25rem; flex-wrap:wrap;
     }
     .fb-card-kind {
       font-weight:600; padding:.05rem .45rem; border-radius:999px;
-      background:rgba(255,255,255,.06); font-size:.65rem;
+      background:rgba(255,255,255,.06); font-size: .62rem;
     }
     .fb-card-kind.bug      { background:rgba(255,99,99,.18); color:#ffb0b0; }
     .fb-card-kind.idea     { background:rgba(252,211,77,.18); color:#fef3c7; }
@@ -604,7 +627,7 @@
     .fb-card-kind.praise   { background:rgba(134,239,172,.18); color:#bbf7d0; }
     .fb-card-kind.other    { background:rgba(255,255,255,.08); color:var(--muted); }
     .fb-status-pill {
-      font-size:.6rem; padding:.05rem .45rem; border-radius:999px;
+      font-size: .62rem; padding:.05rem .45rem; border-radius:999px;
       font-weight:600; text-transform:uppercase; letter-spacing:.04em;
     }
     .fb-status-pill.new          { background:rgba(252,211,77,.18); color:#fef3c7; }
@@ -638,19 +661,19 @@
       display:flex; align-items:center; justify-content:space-between;
       padding:1rem 1.25rem; border-bottom:1px solid rgba(255,255,255,.07);
     }
-    .fb-drawer-hdr h3 { margin:0; font-size:1.05rem; font-weight:600; }
+    .fb-drawer-hdr h3 { margin:0; font-size: 1rem; font-weight:600; }
     .fb-drawer-close {
       background:none; border:none; color:var(--text);
-      font-size:1.5rem; line-height:1; cursor:pointer;
+      font-size: 1.375rem; line-height:1; cursor:pointer;
       padding:.25rem .5rem; border-radius:.5rem;
     }
     .fb-drawer-close:hover { background:rgba(255,255,255,.08); }
     .fb-drawer-body { padding:1rem 1.25rem; overflow-y:auto; flex:1; font-size:.85rem; }
     .fb-drawer-body .meta {
-      font-size:.7rem; color:var(--muted); margin-bottom:.5rem;
+      font-size: .72rem; color:var(--muted); margin-bottom:.5rem;
       font-family:ui-monospace,monospace;
     }
-    .fb-drawer-body .subj { font-weight:600; font-size:1.05rem; margin-bottom:.5rem; }
+    .fb-drawer-body .subj { font-weight:600; font-size: 1rem; margin-bottom:.5rem; }
     .fb-drawer-body .body {
       white-space:pre-wrap; word-break:break-word;
       background:rgba(22,32,50,.5); padding:.75rem;
@@ -658,7 +681,7 @@
       border:1px solid rgba(255,255,255,.05);
     }
     .fb-drawer-body label {
-      display:block; font-size:.75rem; color:var(--muted);
+      display:block; font-size: .78rem; color:var(--muted);
       text-transform:uppercase; letter-spacing:.04em;
       margin-top:.75rem; margin-bottom:.35rem;
     }
@@ -675,7 +698,7 @@
     }
     .fb-drawer-actions .btn {
       flex:1; padding:.6rem 1rem; border:none; border-radius:.5rem;
-      font-size:.8rem; font-weight:600; cursor:pointer;
+      font-size: .78rem; font-weight:600; cursor:pointer;
       transition:all .15s; font-family:inherit;
     }
     .fb-drawer-actions .btn.primary {
@@ -692,7 +715,21 @@
     @media (max-width:520px) {
       .fb-drawer { width:100vw; }
     }
-  </style>
+  
+    /* C5 (2026-09-05, last of the numeral tints - appended at the end of the sheet so the cascade cannot lose):
+       --wh-blue (#29b6d9) reads Lc 51/60 on the 21-22px pulse-card / tech-chip figures; the lighter sky keeps the hue. */
+    .pulse-card .n, .tech-chip.skip .n { color:#7dd3fc; }
+    .tech-chip.warn .n { color:#fcd34d; }
+    .tech-chip.fail .n { color:#fca5a5; }
+    .tech-chip.pass .n { color:#86efac; }
+    .mkt-chip .n { color:#fcd34d; }   /* C5: the amber peso figure (₱1,643,933) read Lc 58/60 at 19px; a mid-sheet copy lost to a later rule */
+    /* C1 (2026-09-05): 25 distinct font-size values in this sheet snapped onto an 8-step scale (.62 / .72 / .78 / .85 / 1 / 1.2 / 1.375 / 1.7 rem); no step moved more than 0.05rem */
+    /* R3 (2026-09-05): one silhouette per job - selection controls (chips, tabs, toggles: any control that carries a pressed /
+       selected / checked state) wear the PILL; press buttons keep the 12 px card-family radius. */
+    [aria-pressed], [aria-selected], [aria-checked], [role="tab"], [role="radio"], [role="switch"] { border-radius: 999px; }
+    /* ...and press buttons share ONE radius (12 px): the console had 8 px, 0 px and 12 px presses for one role */
+    button:not([aria-pressed]):not([aria-selected]):not([role]) { border-radius: 12px; }
+</style>
 </head>
 <body>
 <!-- ══ RETIRED (Operator-Console → Grafana arc, 2026-07-18) ══════════════════
@@ -704,17 +741,17 @@
 <div id="wh-retired-overlay" style="position:fixed; inset:0; z-index:100000; background:var(--bg); color:var(--text); display:flex; align-items:center; justify-content:center; padding:1.5rem; font-family:'Poppins',system-ui,sans-serif; text-align:center;">
   <div style="max-width:560px;">
     <div style="font-size:2.4rem; margin-bottom:0.5rem;">📊</div>
-    <h1 style="font-size:1.6rem; font-weight:800; margin:0 0 0.6rem; color:var(--gold);">The Founder Console has moved to Grafana</h1>
+    <p data-i="p_thefounderconsolehasmovedtog_da6c" style="font-size:1.6rem; font-weight:800; margin:0 0 0.6rem; color:var(--gold);" role="note">The Founder Console has moved to Grafana</p><!-- was an <h1>: the page carried TWO visible h1s (this banner + the title), rubric A1/heading-order 2026-09-05 -->
     <p style="color:var(--text); opacity:0.62; font-size:0.92rem; line-height:1.5; margin:0 0 1.6rem;">
       Every metric (platform health, usage, growth, AI cost, marketplace volumes, hive maturity,
       admin activity, companion eval, memento cache) is now a live Grafana panel, never stale.
       Approve / verify / resolve actions moved to the Platform Actions page.
     </p>
     <div style="display:flex; gap:0.8rem; justify-content:center; flex-wrap:wrap;">
-      <a href="http://127.0.0.1:3001/d/workhive-founder-ops" class="btn">📊 Founder Ops dashboard →</a>
-      <a href="platform-actions.html" class="btn">⚡ Platform Actions →</a>
+      <a data-i="p_founderopsdashboard_afb9" href="http://127.0.0.1:3001/d/workhive-founder-ops" class="btn">📊 Founder Ops dashboard →</a>
+      <a data-i="p_platformactions_8a3a" href="platform-actions.html" class="btn">⚡ Platform Actions →</a>
     </div>
-    <p style="color:#9aa3ad; font-size:0.72rem; margin-top:1.6rem;">Grafana login: admin · password in <code>infra/mcp/.env.mcp</code></p>
+    <!-- T69 (2026-08-25, extended 2026-09-08): the Grafana credential POINTER ('login: admin · password in infra/mcp/.env.mcp') is removed. It was taken out of marketplace-admin.html on 2026-08-25 and left on three pages that are not auth-gated at all, so it rendered for any visitor. A pointer to where a secret lives is the part worth removing, which is why this is a deletion rather than a rewording. The dashboard link stays. -->
   </div>
 </div>
 <main>
@@ -725,9 +762,9 @@
   <div id="empty-state" class="empty-state" hidden>
     Nothing to review yet. New top-ups and gate runs appear here automatically.
     <button type="button" class="btn" style="margin-left:.5rem;min-height:44px;"
-            onclick="if(typeof refreshAll==='function')refreshAll();">Refresh now</button>
+            onclick="if(typeof refreshAll==='function')refreshAll();" data-i="refreshnow">Refresh now</button>
   </div>
-  <div id="no-results" class="empty-state" hidden>No rows match those filters.</div>
+  <div data-i="p_norowsmatchthosefilters_f621" id="no-results" class="empty-state" hidden>No rows match those filters.</div>
 
 
 
@@ -735,14 +772,14 @@
   <!-- Gate: checking admin status -->
   <div id="checking-gate" class="gate" hidden>
     <div class="spinner"></div>
-    <p>Verifying access…</p>
+    <p data-i="p_verifyingaccess_da94">Verifying access…</p>
   </div>
 
   <!-- Gate: not signed in or not admin -->
   <div id="no-access-gate" class="gate" hidden>
-    <h2>Founder Console</h2>
+    <h2 data-i="p_founderconsole_d5d2">Founder Console</h2>
     <p>This surface is restricted to platform admins. If you should have access, ask the current admin to grant you via <code>marketplace_platform_admins</code>.</p>
-    <a href="index.html" class="btn">Back to WorkHive</a>
+    <a data-i="p_backtoworkhive_9aff" href="index.html" class="btn">Back to WorkHive</a>
   </div>
 
   <!-- Main console -->
@@ -752,7 +789,16 @@
       <div class="hdr-left">
         <div id="hdr-pulse" class="pulse"></div>
         <div>
-          <h1>WorkHive Founder Console</h1>
+          <h1 data-i="p_workhivefounderconsole_f883">WorkHive Founder Console</h1>
+    <details class="wh-help">
+      <summary data-i="p_howthispageworks_c540">How this page works</summary>
+      <ul>
+        <li data-i="p_thisistheplatformsowncockpit_0132">This is the platform's own cockpit, not a hive board: the numbers here span every hive, not just yours.</li>
+        <li data-i="p_anythingthatchangestheplatfo_105d">Anything that changes the platform is confirm-gated. Read the sentence in the confirm before pressing it, because most of these actions reach other people's hives.</li>
+        <li data-i="p_afigurewithnosourcechipbesid_30bd">A figure with no source chip beside it has not been re-measured this session.</li>
+      </ul>
+    </details>
+
           <div class="hdr-meta">
             <!-- W1: an in-layout way back. The floating nav-hub is an overlay, not part of the page,
                  so without this the console is a room with no visible door (Nielsen #3). -->
@@ -761,7 +807,7 @@
                  was the hardest thing on the page to hit. Padding + inline-flex give it the height
                  without changing how the meta line reads; the negative margin keeps the baseline
                  aligned with the "·" separators beside it. -->
-            <a href="index.html" style="color:inherit;text-decoration:underline;display:inline-flex;align-items:center;min-height:44px;padding:0 .35rem;margin:-14px -.35rem;">← WorkHive</a>
+            <a data-i="p_workhive_3cbd" href="index.html" style="color:inherit;text-decoration:underline;display:inline-flex;align-items:center;min-height:44px;padding:0 .35rem;margin:-14px -.35rem;">← WorkHive</a>
             &middot;
             <!-- G4: ONE clock, and it lives on the PANEL that owns the data. A page-level "Updated
                  14:32" next to a panel-level "Last gate run · 38 min ago" is two answers to the same
@@ -776,11 +822,11 @@
         <button id="refresh-btn" class="refresh-btn" title="Refresh all panels (R)">
           <span class="refresh-ico">↻</span> Refresh all
         </button>
-        <select id="auto-select" class="auto-select" aria-label="Auto-refresh interval" title="Auto-refresh interval" data-select-placeholder-allow="auto-refresh defaults to 'Off' (safest)">
-          <option value="0">Auto: Off</option>
-          <option value="30">Auto: 30s</option>
-          <option value="60">Auto: 1m</option>
-          <option value="300">Auto: 5m</option>
+        <label data-i="p_autorefresh_0388" for="auto-select" style="font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-right:.35rem;">Auto-refresh</label><select id="auto-select" class="auto-select" aria-label="Auto-refresh interval" title="Auto-refresh interval" data-select-placeholder-allow="auto-refresh defaults to 'Off' (safest)">
+          <option data-i="p_autooff_7026" value="0">Auto: Off</option>
+          <option data-i="p_autos_5963" value="30">Auto: 30s</option>
+          <option data-i="p_autom_e8ca" value="60">Auto: 1m</option>
+          <option data-i="p_autom_9639" value="300">Auto: 5m</option>
         </select>
       </div>
     </div>
@@ -796,31 +842,31 @@
           </svg>
           <div class="ring-pct">
             <span class="n" id="ring-pct-num">-</span>
-            <span class="l">Health</span>
+            <span data-i="p_health_3703" class="l">Health</span>
           </div>
         </div>
-        <div class="ring-label" id="ring-pct-label">Loading…</div>
+        <div data-i="p_loading_33ce" class="ring-label" id="ring-pct-label">Loading…</div>
       </div>
       <div class="hero-stats">
         <div class="stat">
           <span><span class="n" id="stat-validators">-</span><span class="trend" id="stat-validators-trend"></span></span>
-          <span class="l" title="WorkHive Platform Health: composite pass-rate across all validators (0-100)">Tech checks · WorkHive Platform Health</span>
-          <span class="sub" id="stat-validators-sub">scanning…</span>
+          <span data-i="p_techchecksworkhiveplatformhe_e52b" class="l" title="WorkHive Platform Health: composite pass-rate across all validators (0-100)">Tech checks · WorkHive Platform Health</span>
+          <span data-i="p_scanning_b746" class="sub" id="stat-validators-sub">scanning…</span>
         </div>
         <div class="stat">
           <span><span class="n" id="stat-dau">-</span><span class="trend" id="stat-dau-trend"></span></span>
-          <span class="l">Active today</span>
-          <span class="sub" id="stat-dau-sub">unique users</span>
+          <span data-i="p_activetoday_9f14" class="l">Active today</span>
+          <span data-i="p_uniqueusers_d4a4" class="sub" id="stat-dau-sub">unique users</span>
         </div>
         <div class="stat">
           <span><span class="n" id="stat-aicost">-</span><span class="trend" id="stat-aicost-trend"></span></span>
-          <span class="l">AI spend today</span>
-          <span class="sub" id="stat-aicost-sub">all providers</span>
+          <span data-i="p_aispendtoday_3af9" class="l">AI spend today</span>
+          <span data-i="p_allproviders_dc0b" class="sub" id="stat-aicost-sub">all providers</span>
         </div>
         <div class="stat">
           <span><span class="n" id="stat-hives">-</span><span class="trend" id="stat-hives-trend"></span></span>
-          <span class="l">Active hives</span>
-          <span class="sub" id="stat-hives-sub">last 30d</span>
+          <span data-i="p_activehives_7666" class="l">Active hives</span>
+          <span data-i="p_lastd_5afe" class="sub" id="stat-hives-sub">last 30d</span>
         </div>
       </div>
     </div>
@@ -829,17 +875,17 @@
          marks this as the Calm Dashboard Contract verdict element. -->
     <div id="tldr" class="tldr verdict">
       <div class="tldr-line" id="tldr-line">
-        <span class="sep">Loading platform snapshot…</span>
+        <span data-i="p_loadingplatformsnapshot_a7c8" class="sep">Loading platform snapshot…</span>
       </div>
       <div class="tldr-watch" id="tldr-watch"></div>
     </div>
 
     <!-- Section quick-jump nav -->
     <nav class="section-nav">
-      <a href="#sec-alive">Is it alive?</a>
-      <a href="#sec-users">Who's using it?</a>
-      <a href="#sec-money">Money flow</a>
-      <a href="#sec-feel">User feel</a>
+      <a data-i="p_isitalive_be2d" href="#sec-alive">Is it alive?</a>
+      <a data-i="p_whosusingit_ba07" href="#sec-users">Who's using it?</a>
+      <a data-i="p_moneyflow_2728" href="#sec-money">Money flow</a>
+      <a data-i="p_userfeel_c4f0" href="#sec-feel">User feel</a>
     </nav>
 
     <!-- Main panels -->
@@ -848,8 +894,8 @@
       <!-- ═══ §1 IS THE PLATFORM ALIVE? — operational signals ═══ -->
       <div class="section" id="sec-alive">
         <div class="section-hdr">
-          <h2>Is the platform alive?</h2>
-          <span class="section-tag">Operations</span>
+          <h2 data-i="p_istheplatformalive_414b">Is the platform alive?</h2>
+          <span data-i="p_operations_a1fd" class="section-tag">Operations</span>
         </div>
         <div class="section-grid">
 
@@ -857,8 +903,8 @@
             <div class="panel-hdr">
               <span class="rag-dot" id="rag-tech"></span>
               <div style="flex:1">
-                <h2>Tech Health</h2>
-                <div class="panel-sub">Are all platform checks passing right now?</div>
+                <h2 data-i="p_techhealth_d246">Tech Health</h2>
+                <div data-i="p_areallplatformcheckspassingr_cd51" class="panel-sub">Are all platform checks passing right now?</div>
               </div>
               <span class="updated" id="tech-updated">-</span>
             </div>
@@ -871,8 +917,8 @@
             <div class="panel-hdr">
               <span class="rag-dot" id="rag-audit"></span>
               <div style="flex:1">
-                <h2>Recent admin activity</h2>
-                <div class="panel-sub">What got approved, rejected, or kicked lately?</div>
+                <h2 data-i="p_recentadminactivity_82e0">Recent admin activity</h2>
+                <div data-i="p_whatgotapprovedrejectedorkic_ac9b" class="panel-sub">What got approved, rejected, or kicked lately?</div>
               </div>
               <span class="updated" id="audit-updated">-</span>
             </div>
@@ -883,8 +929,8 @@
             <div class="panel-hdr">
               <span class="rag-dot" id="rag-memento"></span>
               <div style="flex:1">
-                <h2>Memento Memory Cache</h2>
-                <div class="panel-sub">Local FTS5+TF-IDF retrieval: chunks surfaced per prompt</div>
+                <h2 data-i="p_mementomemorycache_865f">Memento Memory Cache</h2>
+                <div data-i="p_localftstfidfretrievalchunks_e1ec" class="panel-sub">Local FTS5+TF-IDF retrieval: chunks surfaced per prompt</div>
               </div>
               <span class="updated" id="memento-updated">-</span>
             </div>
@@ -901,8 +947,8 @@
             <div class="panel-hdr">
               <span class="rag-dot" id="rag-companion-eval"></span>
               <div style="flex:1">
-                <h2>Companion Eval (Phase 8)</h2>
-                <div class="panel-sub">Per-dimension eval gates: locked-test pass-rate vs frozen floor</div>
+                <h2 data-i="p_companionevalphase_8021">Companion Eval (Phase 8)</h2>
+                <div data-i="p_perdimensionevalgateslockedt_9264" class="panel-sub">Per-dimension eval gates: locked-test pass-rate vs frozen floor</div>
               </div>
               <span class="updated" id="companion-eval-updated">-</span>
             </div>
@@ -917,8 +963,8 @@
       <!-- ═══ §2 WHO'S USING IT? — growth & adoption ═══ -->
       <div class="section" id="sec-users">
         <div class="section-hdr">
-          <h2>Who's using it?</h2>
-          <span class="section-tag">Growth</span>
+          <h2 data-i="p_whosusingit_ba07">Who's using it?</h2>
+          <span data-i="p_growth_f3b2" class="section-tag">Growth</span>
         </div>
         <div class="section-grid">
 
@@ -926,8 +972,8 @@
             <div class="panel-hdr">
               <span class="rag-dot" id="rag-growth"></span>
               <div style="flex:1">
-                <h2>Growth Pulse</h2>
-                <div class="panel-sub">Daily / monthly active, plus stickiness ratio</div>
+                <h2 data-i="p_growthpulse_e135">Growth Pulse</h2>
+                <div data-i="p_dailymonthlyactiveplussticki_e592" class="panel-sub">Daily / monthly active, plus stickiness ratio</div>
               </div>
               <span class="updated" id="growth-updated">-</span>
             </div>
@@ -938,8 +984,8 @@
             <div class="panel-hdr">
               <span class="rag-dot" id="rag-heatmap"></span>
               <div style="flex:1">
-                <h2>Feature heatmap</h2>
-                <div class="panel-sub">Which pages got used in the last 7 days?</div>
+                <h2 data-i="p_featureheatmap_3b2d">Feature heatmap</h2>
+                <div data-i="p_whichpagesgotusedinthelastda_6d6a" class="panel-sub">Which pages got used in the last 7 days?</div>
               </div>
               <span class="updated" id="heatmap-updated">-</span>
             </div>
@@ -950,8 +996,8 @@
             <div class="panel-hdr">
               <span class="rag-dot" id="rag-maturity"></span>
               <div style="flex:1">
-                <h2>Hive maturity</h2>
-                <div class="panel-sub">How many hives are stuck on Stair 0–4?</div>
+                <h2 data-i="p_hivematurity_fd55">Hive maturity</h2>
+                <div data-i="p_howmanyhivesarestuckonstair_060e" class="panel-sub">How many hives are stuck on Stair 0–4?</div>
               </div>
               <span class="updated" id="maturity-updated">-</span>
             </div>
@@ -962,8 +1008,8 @@
             <div class="panel-hdr">
               <span class="rag-dot" id="rag-pareto"></span>
               <div style="flex:1">
-                <h2>Power users</h2>
-                <div class="panel-sub">Which hives drive most of the activity?</div>
+                <h2 data-i="p_powerusers_3458">Power users</h2>
+                <div data-i="p_whichhivesdrivemostoftheacti_b85c" class="panel-sub">Which hives drive most of the activity?</div>
               </div>
               <span class="updated" id="pareto-updated">-</span>
             </div>
@@ -977,16 +1023,16 @@
            (sole founder: one console to manage the platform, no separate admin page) ═══ -->
       <div class="section" id="sec-mkt-mod">
         <div class="section-hdr">
-          <h2>Marketplace moderation</h2>
-          <span class="section-tag">Needs your action</span>
+          <h2 data-i="p_marketplacemoderation_89e0">Marketplace moderation</h2>
+          <span data-i="p_needsyouraction_06b8" class="section-tag">Needs your action</span>
         </div>
         <div class="section-grid">
           <section class="panel" id="mkt-listings-queue">
             <div class="panel-hdr">
               <span class="rag-dot" id="rag-mkt-listings"></span>
               <div style="flex:1">
-                <h2>Listings awaiting review</h2>
-                <div class="panel-sub">Approve to publish to buyers, or reject</div>
+                <h2 data-i="p_listingsawaitingreview_4e56">Listings awaiting review</h2>
+                <div data-i="p_approvetopublishtobuyersorre_7d5e" class="panel-sub">Approve to publish to buyers, or reject</div>
               </div>
               <span class="updated" id="mkt-listings-updated">-</span>
             </div>
@@ -997,8 +1043,8 @@
             <div class="panel-hdr">
               <span class="rag-dot" id="rag-mkt-sellers"></span>
               <div style="flex:1">
-                <h2>Sellers awaiting verification</h2>
-                <div class="panel-sub">Confirm identity and trade certifications</div>
+                <h2 data-i="p_sellersawaitingverification_b209">Sellers awaiting verification</h2>
+                <div data-i="p_confirmidentityandtradecerti_8fb2" class="panel-sub">Confirm identity and trade certifications</div>
               </div>
               <span class="updated" id="mkt-sellers-updated">-</span>
             </div>
@@ -1012,8 +1058,8 @@
             <div class="panel-hdr">
               <span class="rag-dot" id="rag-svc-topups"></span>
               <div style="flex:1">
-                <h2>GCash top-ups awaiting verification</h2>
-                <div class="panel-sub">Match the reference in your GCash app, then verify to mint the credits</div>
+                <h2 data-i="p_gcashtopupsawaitingverificat_3f17">GCash top-ups awaiting verification</h2>
+                <div data-i="p_matchthereferenceinyourgcash_8ae1" class="panel-sub">Match the reference in your GCash app, then verify to mint the credits</div>
               </div>
               <span class="updated" id="svc-topups-updated">-</span>
             </div>
@@ -1031,8 +1077,8 @@
             <div class="panel-hdr">
               <span class="rag-dot" id="rag-credit-economy"></span>
               <div style="flex:1">
-                <h2>Credit economy health</h2>
-                <div class="panel-sub">Credits outstanding are services owed, not profit</div>
+                <h2 data-i="p_crediteconomyhealth_4cc5">Credit economy health</h2>
+                <div data-i="p_creditsoutstandingareservice_6f7d" class="panel-sub">Credits outstanding are services owed, not profit</div>
               </div>
               <span class="updated" id="credit-economy-updated">-</span>
             </div>
@@ -1048,8 +1094,8 @@
             <div class="panel-hdr">
               <span class="rag-dot" id="rag-svc-vouchers"></span>
               <div style="flex:1">
-                <h2>Discount vouchers</h2>
-                <div class="panel-sub">Platform-funded acquisition: the client pays less, the provider is still reimbursed in full</div>
+                <h2 data-i="p_discountvouchers_bce1">Discount vouchers</h2>
+                <div data-i="p_platformfundedacquisitionthe_48a0" class="panel-sub">Platform-funded acquisition: the client pays less. The provider is still paid in full.</div>
               </div>
               <span class="updated" id="svc-vouchers-updated">-</span>
             </div>
@@ -1060,23 +1106,23 @@
                          style="width:9rem;min-height:44px;padding:.45rem .6rem;border-radius:.5rem;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.05);color:inherit;text-transform:uppercase;"></label>
                 <label style="display:flex;flex-direction:column;gap:.2rem;font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);">Kind
                   <select id="vm-kind" aria-label="Discount kind" style="min-height:44px;padding:.45rem .6rem;border-radius:.5rem;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.05);color:inherit;">
-                    <option value="">Choose…</option>
-                    <option value="percent">% off</option>
-                    <option value="fixed">₱ off</option>
+                    <option data-i="p_choose_c3b6" value="">Choose…</option>
+                    <option data-i="p_off_1d3e" value="percent">% off</option>
+                    <option data-i="p_off_32bc" value="fixed">₱ off</option>
                   </select></label>
                 <label style="display:flex;flex-direction:column;gap:.2rem;font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);">Value
                   <input id="vm-value" type="number" min="1" step="1" placeholder="10" aria-label="Discount value"
                          style="width:6rem;min-height:44px;padding:.45rem .6rem;border-radius:.5rem;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.05);color:inherit;font-variant-numeric:tabular-nums;"></label>
                 <label style="display:flex;flex-direction:column;gap:.2rem;font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);">Segment
                   <select id="vm-segment" aria-label="Segment" style="min-height:44px;padding:.45rem .6rem;border-radius:.5rem;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.05);color:inherit;">
-                    <option value="">Both</option>
-                    <option value="consumer">Consumer</option>
-                    <option value="industrial">Industrial</option>
+                    <option data-i="p_both_1f46" value="">Both</option>
+                    <option data-i="p_consumer_0c70" value="consumer">Consumer</option>
+                    <option data-i="p_industrial_7db3" value="industrial">Industrial</option>
                   </select></label>
                 <label style="display:flex;flex-direction:column;gap:.2rem;font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);">Max uses
                   <input id="vm-maxuses" type="number" min="1" step="1" placeholder="50" aria-label="Maximum total uses"
                          style="width:6rem;min-height:44px;padding:.45rem .6rem;border-radius:.5rem;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.05);color:inherit;font-variant-numeric:tabular-nums;"></label>
-                <button type="button" onclick="svcMintVoucher()" class="btn-primary" style="min-height:44px;">Create voucher</button>
+                <button type="button" onclick="svcMintVoucher()" class="btn-primary" style="min-height:44px;" data-i="createvoucher">Create voucher</button>
               </div>
               <div id="svc-vouchers-content"></div>
             </div>
@@ -1092,8 +1138,8 @@
       <!-- ═══ §3 MONEY FLOW — marketplace + AI spend ═══ -->
       <div class="section" id="sec-money">
         <div class="section-hdr">
-          <h2>Money flow</h2>
-          <span class="section-tag">Revenue &amp; cost</span>
+          <h2 data-i="p_moneyflow_2728">Money flow</h2>
+          <span data-i="p_revenuecost_b1e0" class="section-tag">Revenue &amp; cost</span>
         </div>
         <div class="section-grid">
 
@@ -1101,8 +1147,8 @@
             <div class="panel-hdr">
               <span class="rag-dot" id="rag-marketplace"></span>
               <div style="flex:1">
-                <h2>Marketplace pulse</h2>
-                <div class="panel-sub">Listings, sellers, and service jobs</div>
+                <h2 data-i="p_marketplacepulse_142d">Marketplace pulse</h2>
+                <div data-i="p_listingssellersandservicejob_ae01" class="panel-sub">Listings, sellers, and service jobs</div>
               </div>
               <span class="updated" id="marketplace-updated">-</span>
             </div>
@@ -1113,7 +1159,7 @@
             <div class="panel-hdr">
               <span class="rag-dot" id="rag-aicost"></span>
               <div style="flex:1">
-                <h2>AI cost detail</h2>
+                <h2 data-i="p_aicostdetail_1475">AI cost detail</h2>
                 <div class="panel-sub">7-day spend by provider + top spending hives</div>
               </div>
               <span class="updated" id="aicost-updated">-</span>
@@ -1130,8 +1176,8 @@
            Using <details>/<summary> so the section can be collapsed away. -->
       <details class="section" id="sec-feel" open style="list-style:none;">
         <summary class="section-hdr" style="list-style:none; cursor:pointer;">
-          <h2>User feel</h2>
-          <span class="section-tag">Sentiment</span>
+          <h2 data-i="p_userfeel_c4f0">User feel</h2>
+          <span data-i="p_sentiment_52bf" class="section-tag">Sentiment</span>
         </summary>
         <div class="section-grid full">
 
@@ -1139,8 +1185,8 @@
             <div class="panel-hdr">
               <span class="rag-dot" id="rag-feedback"></span>
               <div style="flex:1">
-                <h2>Feedback inbox</h2>
-                <div class="panel-sub">Reviews, bugs, ideas, questions, praise, straight to you</div>
+                <h2 data-i="p_feedbackinbox_9d87">Feedback inbox</h2>
+                <div data-i="p_reviewsbugsideasquestionspra_d9d9" class="panel-sub">Reviews, bugs, ideas, questions, praise, straight to you</div>
               </div>
               <span class="updated" id="feedback-updated">-</span>
             </div>
@@ -1154,13 +1200,13 @@
               </div>
               <div class="fb-filters">
                 <select class="fb-filter" id="fb-filter-kind" aria-label="Filter by kind" data-select-placeholder-allow="filter defaults to 'All kinds' (broadest match)">
-                  <option value="*">All kinds</option>
-                  <option value="bug">🐞 Bug</option>
-                  <option value="idea">💡 Idea</option>
-                  <option value="question">❓ Question</option>
-                  <option value="review">⭐ Review</option>
-                  <option value="praise">💛 Praise</option>
-                  <option value="other">Other</option>
+                  <option data-i="p_allkinds_c2ce" value="*">All kinds</option>
+                  <option data-i="p_bug_e092" value="bug">🐞 Bug</option>
+                  <option data-i="p_idea_2fc1" value="idea">💡 Idea</option>
+                  <option data-i="p_question_adbf" value="question">❓ Question</option>
+                  <option data-i="p_review_4fe6" value="review">⭐ Review</option>
+                  <option data-i="p_praise_827a" value="praise">💛 Praise</option>
+                  <option data-i="p_other_6e6a" value="other">Other</option>
                 </select>
                 <input class="fb-filter" id="fb-filter-search" type="search" placeholder="Search subject or body…" aria-label="Search feedback" />
               </div>
@@ -1174,18 +1220,18 @@
       <!-- ═══ FOUNDER TOOLS — one console reaches every admin / observability surface ═══ -->
       <div class="section" id="sec-founder-tools">
         <div class="section-hdr">
-          <h2>Founder tools</h2>
-          <span class="section-tag">All admin surfaces</span>
+          <h2 data-i="p_foundertools_fac5">Founder tools</h2>
+          <span data-i="p_alladminsurfaces_7463" class="section-tag">All admin surfaces</span>
         </div>
         <div class="ftools-grid">
-          <a class="ftool" href="marketplace-admin.html"><span class="ftool-t">Marketplace admin: full</span><span class="ftool-d">Browse all listings, sellers &amp; removed history</span></a>
-          <a class="ftool" href="llm-observability.html"><span class="ftool-t">LLM observability</span><span class="ftool-d">Model routing, cache-hit, token burn</span></a>
-          <a class="ftool" href="agentic-rag-observability.html"><span class="ftool-t">Agentic-RAG observability</span><span class="ftool-d">RAG-loop quality, hallucination, latency</span></a>
-          <a class="ftool" href="validator-catalog.html"><span class="ftool-t">Validator catalog</span><span class="ftool-d">Every Layer-0 gate + last-run status</span></a>
-          <a class="ftool" href="architecture.html"><span class="ftool-t">Architecture</span><span class="ftool-d">Platform system map</span></a>
-          <a class="ftool" href="symbol-gallery.html"><span class="ftool-t">Symbol gallery</span><span class="ftool-d">IEC 60617 / 62305 drawing symbols</span></a>
-          <a class="ftool" href="status.html"><span class="ftool-t">Gateway status</span><span class="ftool-d">Ops / gateway health</span></a>
-          <a class="ftool" href="promo-poster.html"><span class="ftool-t">Promo poster</span><span class="ftool-d">Marketing graphic generator</span></a>
+          <a class="ftool" href="marketplace-admin.html"><span data-i="p_marketplaceadminfull_5d98" class="ftool-t">Marketplace admin: full</span><span data-i="p_browsealllistingssellersremo_d552" class="ftool-d">Browse all listings, sellers &amp; removed history</span></a>
+          <a class="ftool" href="llm-observability.html"><span data-i="p_llmobservability_43d7" class="ftool-t">LLM observability</span><span data-i="p_modelroutingcachehittokenbur_39a9" class="ftool-d">Model routing, cache-hit, token burn</span></a>
+          <a class="ftool" href="agentic-rag-observability.html"><span data-i="p_agenticragobservability_b16a" class="ftool-t">Agentic-RAG observability</span><span data-i="p_ragloopqualityhallucinationl_a7d8" class="ftool-d">RAG-loop quality, hallucination, latency</span></a>
+          <a class="ftool" href="validator-catalog.html"><span data-i="p_validatorcatalog_7a73" class="ftool-t">Validator catalog</span><span class="ftool-d">Every Layer-0 gate + last-run status</span></a>
+          <a class="ftool" href="architecture.html"><span data-i="p_architecture_b040" class="ftool-t">Architecture</span><span data-i="p_platformsystemmap_8ede" class="ftool-d">Platform system map</span></a>
+          <a class="ftool" href="symbol-gallery.html"><span data-i="p_symbolgallery_154c" class="ftool-t">Symbol gallery</span><span data-i="p_iecdrawingsymbols_8729" class="ftool-d">IEC 60617 / 62305 drawing symbols</span></a>
+          <a class="ftool" href="status.html"><span data-i="p_gatewaystatus_d283" class="ftool-t">Gateway status</span><span data-i="p_opsgatewayhealth_5454" class="ftool-d">Ops / gateway health</span></a>
+          <a class="ftool" href="promo-poster.html"><span data-i="p_promoposter_7643" class="ftool-t">Promo poster</span><span data-i="p_marketinggraphicgenerator_7b88" class="ftool-d">Marketing graphic generator</span></a>
         </div>
       </div>
 
@@ -1196,7 +1242,7 @@
   <div id="fb-drawer-backdrop" class="fb-drawer-backdrop" hidden></div>
   <aside id="fb-drawer" class="fb-drawer" hidden role="dialog" aria-labelledby="fb-drawer-title" aria-modal="true">
     <header class="fb-drawer-hdr">
-      <h3 id="fb-drawer-title">Feedback detail</h3>
+      <h3 data-i="p_feedbackdetail_fff3" id="fb-drawer-title">Feedback detail</h3>
       <button type="button" id="fb-drawer-close" class="fb-drawer-close" aria-label="Close drawer">×</button>
     </header>
     <div id="fb-drawer-body" class="fb-drawer-body"></div>
@@ -1206,7 +1252,7 @@
   <div id="toast" class="toast" role="alert" aria-live="polite"></div>
 
   <script src="browser-floor.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
+  <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
   <script src="utils.js"></script>
   <script>
     // ──────────────────────────────────────────────────────────────
@@ -1243,6 +1289,27 @@
     // Self-disables on any non-loopback host (workhiveph.com, Vercel previews).
     const IS_LOCAL_FOUNDER = ['127.0.0.1', 'localhost', '::1'].includes(location.hostname);
     (async () => {
+      /* W3-AR (2026-09-09): A RETIRED PAGE THAT STILL LOADS IS THE MOST EXPENSIVE PAGE ON THE PLATFORM,
+         because nobody will ever see the cost. The retirement above is markup only - a fixed overlay at
+         z-index 100000 - and the original scripts were left intact so the ~35 static validators that scan
+         this file keep passing. That preserved the boot sequence too, so every visit ran the full
+         refreshAll BEHIND the overlay. Measured live today: 14 database requests including
+         analytics_events limit=50000, ai_cost_log limit=20000, v_marketplace_listings_truth limit=5000,
+         v_hive_readiness_truth limit=2000 and five founder_* RPCs - up to ~77,000 rows fetched to render
+         a screen whose entire content is "this has moved to Grafana". It also WROTE a page_view row
+         (POST analytics_events -> 201), so the retired console was quietly inflating the analytics of the
+         thing that replaced it. Stop before any of it: the overlay is the page's own declaration that it
+         is retired, so it is the honest thing to test. Deleting the overlay to un-retire (the documented
+         reversal) restores the load as well, because this guard reads the overlay rather than a flag. */
+      if (document.getElementById('wh-retired-overlay')) {
+        /* Keep the page VIEW while dropping the page's WORK. Someone arriving here is the signal that
+           tells you the old link is still in circulation and whether the pointer to Grafana is doing its
+           job; silencing it would retire the evidence along with the console. marketplace-admin.html
+           logs its view outside its boot block and so keeps this by construction - this branch makes the
+           two retired pages agree rather than leaving one quietly under-reporting. */
+        logPageView(db, { console: 'founder', retired: true });
+        return;
+      }
       const checking = document.getElementById('checking-gate');
       const ok = IS_LOCAL_FOUNDER || await isPlatformAdmin(db);
       if (!ok) {
@@ -1344,7 +1411,7 @@
         else if (tech && tech.summary && tech.summary.warn > 0) pulse.classList.add('warn');
       } catch (e) {
         if (e && e.name === 'AbortError') return;  // superseded by newer click
-        console.warn('refreshAll err:', e && e.message);
+        console.warn('[founder-console] refreshAll err:', e && e.message);
         showToast(whReadError(e, 'the console figures') + ' The numbers on screen are the last good read, not live.');
         pulse.classList.remove('busy'); pulse.classList.add('fail');
       } finally {
@@ -1421,7 +1488,7 @@
         const { data, error } = await db.from('ai_cost_log')
           .select('cost_usd')
           .gte('created_at', startOfDay.toISOString())
-          .limit(5000);
+          .limit(5000);   // cap-ok: ai_cost_log rows are rolled up; founder-console__caps_under_today.sql holds the table under this cap
         if (error) return { _error: error.message };
         const total = (data || []).reduce((a, r) => a + Number(r.cost_usd || 0), 0);
         return { total_usd: total, n_calls: (data || []).length };
@@ -1429,18 +1496,12 @@
     }
 
     async function fetchActiveHivesCount(/*signal*/) {
-      // Distinct hive_id seen in analytics_events last 30 days
+      // Distinct hive_id seen in analytics_events last 30 days - rolled up in the DB (founder_active_hives,
+      // migration 20260905000002): the old client-side .limit(10000) scan saw 6% of a 155k-row window (2026-09-05).
       try {
-        const since = new Date(); since.setDate(since.getDate() - 30);
-        const { data, error } = await db.from('analytics_events')
-          .select('hive_id')
-          .gte('created_at', since.toISOString())
-          .not('hive_id', 'is', null)
-          .limit(10000);
+        const { data, error } = await db.rpc('founder_active_hives', { p_days: 30 });
         if (error) return { _error: error.message };
-        const ids = new Set();
-        for (const r of (data || [])) if (r.hive_id) ids.add(r.hive_id);
-        return { count: ids.size };
+        return { count: Number(data) || 0 };
       } catch (e) { return { _error: e && e.message || 'fetch failed' }; }
     }
 
@@ -1689,7 +1750,7 @@
       if (!tech || tech._error) {
         el.innerHTML = '<div class="honest-empty">'
           + '<div class="hetitle">Tech Health unavailable</div>'
-          + '<p>Could not load <code>platform_health.json</code>: '
+          + '<p>' + _t("Could not load ", "Hindi ma-load ang ") + '<code>platform_health.json</code>: '
           + escHtml(tech && tech._error || 'unknown') + '</p>'
           + '<div class="hewhy">Run <code>python run_platform_checks.py --fast</code> locally to refresh the artifact. Phase 2 will promote this to a DB-backed snapshot table.</div>'
           + '</div>';
@@ -1775,7 +1836,7 @@
         + '<div class="tech-chip warn"><span class="n">' + (sum.warn || 0) + '</span><span class="l">Warn</span></div>'
         + '<div class="tech-chip skip"><span class="n">' + (sum.skip || 0) + '</span><span class="l">Skip</span></div>'
         + '</div>'
-        + '<div style="border:1px solid var(--border);border-radius:.55rem;overflow:hidden;background:rgba(255,255,255,.01);">'
+        + '<div style="border:1px solid var(--border);border-radius:.5rem;overflow:hidden;background:rgba(255,255,255,.01);">'
         + groupRows
         + '</div>'
         + failHtml
@@ -1790,71 +1851,42 @@
 
     // ── Phase 2+: additional fetchers ───────────────────────────
     async function fetchDau14d() {
-      // 14 days of DAU + today's count + total events.
+      // 14 Manila days of identified DAU + today's count + events - rolled up in the DB (founder_dau_series,
+      // migration 20260905000002): the old client-side .limit(20000) scan read a fraction of ~90k rows and
+      // bucketed days in the viewer's clock (2026-09-05, P155 'cap is not a total' + one clock per string).
       try {
-        const since = new Date(); since.setDate(since.getDate() - 14); since.setHours(0,0,0,0);
-        const { data, error } = await db.from('analytics_events')
-          .select('worker_name, auth_uid, created_at')
-          .eq('event_name', 'page_view')
-          .gte('created_at', since.toISOString())
-          .limit(20000);
+        const { data, error } = await db.rpc('founder_dau_series', { p_days: 14 });
         if (error) return { _error: error.message };
-        const byDay = {};
-        let todayCount = 0;
-        const today = new Date(); today.setHours(0,0,0,0);
-        for (const r of (data || [])) {
-          const d = new Date(r.created_at); d.setHours(0,0,0,0);
-          const key = d.toISOString().slice(0,10);
-          if (!byDay[key]) byDay[key] = new Set();
-          byDay[key].add(r.auth_uid || r.worker_name || 'anon');
-        }
+        const byDay = {}; let nEvents = 0;
+        for (const r of (data || [])) { byDay[String(r.day).slice(0, 10)] = Number(r.dau) || 0; nEvents += Number(r.events) || 0; }
+        const manilaKey = (d) => new Date(d.getTime() + 8 * 3600 * 1000).toISOString().slice(0, 10);   // Asia/Manila = UTC+8, no DST
         const days = [];
-        for (let i = 13; i >= 0; i--) {
-          const d = new Date(); d.setDate(d.getDate() - i); d.setHours(0,0,0,0);
-          const key = d.toISOString().slice(0,10);
-          days.push({ date: key, count: byDay[key] ? byDay[key].size : 0 });
-        }
-        const todayKey = today.toISOString().slice(0,10);
-        todayCount = byDay[todayKey] ? byDay[todayKey].size : 0;
-        return { count: todayCount, n_events: (data || []).length, days };
+        for (let k = 13; k >= 0; k--) { const key = manilaKey(new Date(Date.now() - k * 86400000)); days.push({ date: key, count: byDay[key] || 0 }); }
+        const todayCount = byDay[manilaKey(new Date())] || 0;
+        return { count: todayCount, n_events: nEvents, days };
       } catch (e) { return { _error: e && e.message || 'fetch failed' }; }
     }
 
     async function fetchMau30d() {
+      // Distinct viewers in 30 days - rolled up in the DB (founder_mau): the old .limit(50000) scan under-read a
+      // 155k-row window and keyed anonymous rows on Math.random(), one 'user' per page view (2026-09-05).
       try {
-        const since = new Date(); since.setDate(since.getDate() - 30);
-        const { data, error } = await db.from('analytics_events')
-          .select('worker_name, auth_uid')
-          .eq('event_name', 'page_view')
-          .gte('created_at', since.toISOString())
-          .limit(50000);
+        const [{ data, error }, anon] = await Promise.all([db.rpc('founder_mau', { p_days: 30 }), db.rpc('founder_anon_sessions', { p_days: 30 })]);
         if (error) return { _error: error.message };
-        const ids = new Set();
-        for (const r of (data || [])) ids.add(r.auth_uid || r.worker_name || 'anon-' + Math.random());
-        return { count: ids.size };
+        return { count: Number(data) || 0, anon: (anon && !anon.error) ? (Number(anon.data) || 0) : null };
       } catch (e) { return { _error: e && e.message || 'fetch failed' }; }
     }
 
     async function fetchHeatmap7d() {
+      // 7-day per-page views + unique viewers - rolled up in the DB (founder_page_heatmap, migration
+      // 20260905000002): the old client-side .limit(20000) scan read 44% of a 45k-row window, so every
+      // page's views were under-counted (2026-09-05, P155 'cap is not a total').
       try {
-        const since = new Date(); since.setDate(since.getDate() - 7);
-        const { data, error } = await db.from('analytics_events')
-          .select('page, worker_name, auth_uid')
-          .eq('event_name', 'page_view')
-          .gte('created_at', since.toISOString())
-          .not('page', 'is', null)
-          .limit(20000);
+        const { data, error } = await db.rpc('founder_page_heatmap', { p_days: 7 });
         if (error) return { _error: error.message };
-        const byPage = {};
-        for (const r of (data || [])) {
-          if (!byPage[r.page]) byPage[r.page] = { views: 0, users: new Set() };
-          byPage[r.page].views++;
-          byPage[r.page].users.add(r.auth_uid || r.worker_name || 'anon');
-        }
-        const pages = Object.keys(byPage).map(p => ({
-          page: p, views: byPage[p].views, unique: byPage[p].users.size,
-        })).sort((a,b) => b.views - a.views);
-        return { pages, total_events: (data || []).length };
+        const pages = (data || []).map(r => ({ page: r.page, views: Number(r.views) || 0, unique: Number(r.unique_users) || 0 }))
+          .sort((a, b) => b.views - a.views);
+        return { pages, total_events: pages.reduce((n, p) => n + p.views, 0) };
       } catch (e) { return { _error: e && e.message || 'fetch failed' }; }
     }
 
@@ -2057,7 +2089,7 @@
                 + 'the first verified top-up.</div>'
               : '');
       } catch (err) {
-        console.error('credit economy panel', err);
+        console.error('[founder-console] credit economy panel', err);
         setRagDot('rag-credit-economy', 'red');
         box.innerHTML = '<div class="honest-empty">Could not read the ledger. '
           + escHtml(err.message || String(err)) + '</div>';
@@ -2072,7 +2104,7 @@
         // in provider_display_name, so the queue no longer N+1s the provider directory.
         const { data: rows, error } = await db.from('v_service_credit_topups_truth')
           .select('id, account_type, account_id, amount, gcash_ref, created_at, provider_display_name')
-          .eq('status', 'pending_verification').order('created_at', { ascending: true }).order('id').limit(50);
+          .eq('status', 'pending_verification').order('created_at', { ascending: true }).order('id').limit(50);   // cap-ok: the verification queue renders rows only, no total is painted
         if (error) throw error;
         setRagDot('rag-svc-topups', (rows || []).length ? 'amber' : 'green');
         const upd = document.getElementById('svc-topups-updated');
@@ -2089,8 +2121,8 @@
           '<div style="font-size:0.8rem;"><strong>' + (typeof whFmtPeso === 'function' ? whFmtPeso(r.amount) : '₱' + Number(r.amount).toLocaleString()) + '</strong> · ref <code>' + e(r.gcash_ref) + '</code>' +
           '<div style="font-size:0.72rem;opacity:0.8;">' + e(r.provider_display_name || r.account_type) + ' · filed ' + e(new Date(r.created_at).toLocaleString()) + '</div></div>' +
           '<span style="display:inline-flex;gap:0.4rem;">' +
-          '<button type="button" onclick="svcTopupDecide(\'' + e(r.id) + '\', true)" style="min-height:44px;padding:0 12px;border-radius:8px;border:1px solid rgba(74,222,128,0.4);background:rgba(74,222,128,0.12);color:rgb(74,222,128);font-weight:700;cursor:pointer;">Verify: mint credits</button>' +
-          '<button type="button" onclick="svcTopupDecide(\'' + e(r.id) + '\', false)" style="min-height:44px;padding:0 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.06);color:inherit;cursor:pointer;">Reject</button></span></div>'
+          '<button type="button" onclick="svcTopupDecide(\'' + e(r.id) + '\', true)" style="min-height:44px;padding:0 12px;border-radius:8px;border:1px solid rgba(74,222,128,0.4);background:rgba(74,222,128,0.12);color:rgb(74,222,128);font-weight:700;cursor:pointer;" data-i="verifymintcredits">Verify: mint credits</button>' +
+          '<button type="button" onclick="svcTopupDecide(\'' + e(r.id) + '\', false)" style="min-height:44px;padding:0 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.06);color:inherit;cursor:pointer;" data-i="reject">Reject</button></span></div>'
         ).join('');
       } catch (err) {
         setRagDot('rag-svc-topups', 'red');
@@ -2155,7 +2187,7 @@
           // surface that reads it, writes are admin-only at the DB, and no KPI derives from it.
           db.from('service_vouchers')
             .select('id, code, kind, value, segment, max_uses, per_user_limit, expires_at, active, created_at')
-            .order('created_at', { ascending: false }).order('id').limit(30),
+            .order('created_at', { ascending: false }).order('id').limit(30),   // cap-ok: voucher redemptions are SUMMED per campaign; founder-console__caps_under_today.sql holds rows < 500
           // canonical-allow: one-off admin TALLY (how many times each campaign was used and what it
           // cost). Single surface, no KPI derives from it, and redemptions are RPC-written only -
           // a v_*_truth wrapper would add a layer with exactly one consumer.
@@ -2169,7 +2201,8 @@
           spent[r.voucher_id] = (spent[r.voucher_id] || 0) + Number(r.amount || 0);
         }
         const upd = document.getElementById('svc-vouchers-updated');
-        if (upd) upd.textContent = rows.length + ' campaign' + (rows.length === 1 ? '' : 's');
+        // cap is not a total (2026-09-05): the read is .limit(30) - at the cap say so instead of painting 30 as the total
+        if (upd) upd.textContent = rows.length >= 30 ? 'latest 30 campaigns shown' : rows.length + ' campaign' + (rows.length === 1 ? '' : 's');
         setRagDot('rag-svc-vouchers', rows.some(v => v.active) ? 'green' : 'amber');
         if (!rows.length) {
           box.innerHTML = '<div class="honest-empty">No voucher campaigns yet. Create one above to give new clients a discount - the provider is still paid in full and the platform absorbs it.</div>';
@@ -2285,7 +2318,7 @@
         const [drafts, sellers] = await Promise.all([
           db.from('v_marketplace_listings_truth')
             .select('id,title,section,category,price,seller_name,created_at')
-            .eq('status','draft').order('created_at',{ascending:true}).order('id').limit(50),
+            .eq('status','draft').order('created_at',{ascending:true}).order('id').limit(50),   // cap-ok: the unverified-sellers queue renders rows only, no total is painted
           db.from('v_marketplace_sellers_truth')
             .select('worker_name,tier,kyb_verified,cert_verified,certifications,active_listings_count,created_at')
             .or('kyb_verified.eq.false,cert_verified.eq.false').order('created_at',{ascending:false}).order('id').limit(50),
@@ -2306,14 +2339,14 @@
       setUpd('mkt-listings-updated', 'marketplace_listings · draft');
       if (lc) {
         if (m._error) lc.innerHTML = `<div class="mod-empty">Couldn't load: ${e(m._error)}</div>`;
-        else if (!(m.drafts||[]).length) lc.innerHTML = `<div class="mod-empty">No listings waiting: all clear.</div>`;
+        else if (!(m.drafts||[]).length) lc.innerHTML = `<div class="mod-empty">${_t('No listings waiting: all clear.', 'Walang naghihintay na listing: all clear.')}</div>`;
         else lc.innerHTML = m.drafts.map(l => `
           <div class="mod-row">
             <div class="mod-main"><strong>${e(l.title||'Untitled')}</strong>
               <span class="mod-sub">${e(l.section||'')}${l.category?' · '+e(l.category):''} · ${l.price!=null?'₱'+Number(l.price).toLocaleString():'price n/a'} · ${e(l.seller_name||'—')}</span></div>
             <div class="mod-actions">
-              <button class="mod-btn ok" data-mkt-act="approve-listing" data-id="${e(l.id)}">Approve</button>
-              <button class="mod-btn no" data-mkt-act="reject-listing" data-id="${e(l.id)}">Reject</button>
+              <button class="mod-btn ok" data-mkt-act="approve-listing" data-id="${e(l.id)}" data-i="approve">Approve</button>
+              <button class="mod-btn no" data-mkt-act="reject-listing" data-id="${e(l.id)}" data-i="reject">Reject</button>
             </div>
           </div>`).join('');
       }
@@ -2327,8 +2360,8 @@
         else {
           const rows = (m.sellers||[]).map(s => {
             const parts = [];
-            if (!s.kyb_verified) parts.push(`<button class="mod-btn ok" data-mkt-act="verify-kyb" data-name="${e(s.worker_name)}">Verify ID</button>`);
-            if (!s.cert_verified && s.certifications) parts.push(`<button class="mod-btn ok" data-mkt-act="verify-cert" data-name="${e(s.worker_name)}">Verify certs</button>`);
+            if (!s.kyb_verified) parts.push(`<button class="mod-btn ok" data-mkt-act="verify-kyb" data-name="${e(s.worker_name)}" data-i="verifyid">Verify ID</button>`);
+            if (!s.cert_verified && s.certifications) parts.push(`<button class="mod-btn ok" data-mkt-act="verify-cert" data-name="${e(s.worker_name)}" data-i="verifycerts">Verify certs</button>`);
             if (!parts.length) return '';
             return `
             <div class="mod-row">
@@ -2372,7 +2405,7 @@
                              // whWorker() (utils.js) is the shared identity accessor both pages already load.
                              moderated_by: (typeof whWorker === 'function' && whWorker()) || 'admin' };
             if (act === 'reject-listing') {
-              if (typeof whPrompt !== 'function') { btn.disabled = false; showToast('Cannot collect a rejection reason right now. Reload and try again.', 'error'); return; }
+              if (typeof whPrompt !== 'function') { btn.disabled = false; showToast(_t('Cannot collect a rejection reason right now. Reload and try again.', 'Hindi makakuha ng dahilan ng pagtanggi ngayon. I-reload at subukan muli.'), 'error'); return; }
               let _reason = await whPrompt('Reject this listing. Tell the seller why:',
                 { okLabel: 'Reject', cancelLabel: 'Cancel', inputLabel: 'Reason shown to the seller' });
               if (_reason === null) { btn.disabled = false; return; }   // cancelled
@@ -2421,13 +2454,13 @@
              live path into a retired table that the MK13 gate could not see from the markup alone. */
           renderMktModeration(await fetchMktModeration());  // refresh the queues
         } catch (err) {
-          console.error('founder-console action failed:', err);
+          console.error('[founder-console] founder-console action failed:', err);
           // Only say "try again" when trying again could actually work: a 42501/401 means the admin
           // session expired, and retrying fails identically until they sign in again (J3 receipt honesty).
           const _authFail = whIsAuthFailure(err);
           showToast(_authFail
             ? 'Your admin session expired, so nothing was changed. Sign in again to continue moderating.'
-            : 'Action failed. Try again.', 'error');
+            : _t('Action failed. Try again.', 'Hindi natuloy ang aksyon. Subukan muli.'), 'error');
           btn.disabled = false;
         }
       });
@@ -2439,7 +2472,7 @@
         const { data, error } = await db.from('ai_cost_log')
           .select('provider, cost_usd, hive_id, created_at')
           .gte('created_at', since.toISOString())
-          .limit(20000);
+          .limit(20000);   // cap-ok: ai_cost_log rows are summed; founder-console__caps_under_today.sql holds the table under this cap
         if (error) return { _error: error.message };
         const byProvider = {};
         const byHive = {};
@@ -2464,7 +2497,7 @@
           .select('id, action, actor, target_type, target_name, hive_id, created_at, meta')
           .order('created_at', { ascending: false })
           .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-          .limit(50);
+          .limit(50);   // cap-ok: the audit stream renders the latest 50 rows only, no total is painted
         if (error) return { _error: error.message };
         return { events: data || [] };
       } catch (e) { return { _error: e && e.message || 'fetch failed' }; }
@@ -2480,7 +2513,7 @@
       const dot = document.getElementById('rag-companion-eval');
       if (!data || data._error) {
         el.innerHTML = '<div class="honest-empty"><div class="hetitle">Companion Eval unavailable</div>'
-          + '<p>Could not load <code>companion_eval_scorecard.json</code>: '
+          + '<p>' + _t("Could not load ", "Hindi ma-load ang ") + '<code>companion_eval_scorecard.json</code>: '
           + escHtml(data && data._error || 'unknown') + '</p>'
           + '<div class="hewhy">Run <code>python tools/companion_eval_scorecard.py report</code> locally; the artifacts are committed at repo root.</div></div>';
         upd.textContent = '-';
@@ -2563,7 +2596,7 @@
       if (!m || m._error) {
         el.innerHTML = '<div class="honest-empty">'
           + '<div class="hetitle">Memento not reachable</div>'
-          + '<p>Could not load <code>memento_health.json</code>: '
+          + '<p>' + _t("Could not load ", "Hindi ma-load ang ") + '<code>memento_health.json</code>: '
           + escHtml((m && m._error) || 'unknown') + '</p>'
           + '<div class="hewhy">Memento writes this file from its Stop hook. '
           + 'Run <code>python C:\\Users\\ILBeronio\\.claude-memento\\tools\\memento_health_export.py</code> '
@@ -2650,7 +2683,7 @@
       const upd = document.getElementById('growth-updated');
       upd.textContent = 'analytics_events · last 14d';
       if (dau14 && dau14._error) {
-        el.innerHTML = honestEmpty('Growth data unavailable',
+        el.innerHTML = honestEmpty(_t('Growth data unavailable', 'Hindi available ang growth data'),
           'analytics_events query failed: ' + escHtml(dau14._error),
           'Phase 0 instrumented page_view across 30 pages. If this just shipped, it warms up over the next hour.');
         return;
@@ -2684,7 +2717,7 @@
           <div class="pulse-card">
             <span class="n">${mauN}</span>
             <span class="l">MAU 30d</span>
-            <span class="sub">unique workers active</span>
+            <span class="sub">unique workers active${(mau && mau.anon != null) ? ` · ${mau.anon.toLocaleString()} anonymous sessions` : ''}</span>
           </div>
           <div class="pulse-card">
             <span class="n">${(stickiness * 100).toFixed(1)}%</span>
@@ -2703,7 +2736,7 @@
       const upd = document.getElementById('heatmap-updated');
       upd.textContent = 'analytics_events · last 7d';
       if (heat && heat._error) {
-        el.innerHTML = honestEmpty('Heatmap unavailable',
+        el.innerHTML = honestEmpty(_t('Heatmap unavailable', 'Hindi available ang heatmap'),
           'page_view query failed: ' + escHtml(heat._error), '');
         return;
       }
@@ -2732,7 +2765,7 @@
       const upd = document.getElementById('maturity-updated');
       upd.textContent = 'v_hive_readiness_truth · daily snapshot';
       if (m && m._error) {
-        el.innerHTML = honestEmpty('Maturity data unavailable',
+        el.innerHTML = honestEmpty(_t('Maturity data unavailable', 'Hindi available ang maturity data'),
           'v_hive_readiness_truth query failed: ' + escHtml(m._error),
           'The HRS daily cron may not have populated rows yet, or the view is not deployed in this env.');
         return;
@@ -2782,7 +2815,7 @@
       const upd = document.getElementById('pareto-updated');
       upd.textContent = 'analytics_events · 30d concentration';
       if (p && p._error) {
-        el.innerHTML = honestEmpty('Pareto data unavailable',
+        el.innerHTML = honestEmpty(_t('Pareto data unavailable', 'Hindi available ang Pareto data'),
           'analytics_events query failed: ' + escHtml(p._error), '');
         return;
       }
@@ -2826,12 +2859,12 @@
       const upd = document.getElementById('marketplace-updated');
       upd.textContent = 'v_marketplace_listings_truth';
       if (m && m._error) {
-        el.innerHTML = honestEmpty('Marketplace data unavailable',
+        el.innerHTML = honestEmpty(_t('Marketplace data unavailable', 'Hindi available ang marketplace data'),
           escHtml(m._error), '');
         return;
       }
       if (!m || m.total_listings === 0) {
-        el.innerHTML = honestEmpty('No listings yet',
+        el.innerHTML = honestEmpty(_t('No listings yet', 'Wala pang listing'),
           'The marketplace is contact-only: sellers publish, buyers contact them directly. '
           + 'Numbers appear once the first listing is published.',
           'See MARKETPLACE_GO_LIVE_ROADMAP.md.');
@@ -2841,8 +2874,8 @@
         { style:'currency', currency:'PHP', maximumFractionDigits:0 });
       el.innerHTML = `
         <div class="mkt-grid">
-          <div class="mkt-chip"><span class="n" style="color:var(--green)">${m.published}</span><span class="l">Published</span></div>
-          <div class="mkt-chip"><span class="n" style="color:var(--gold)">${escHtml(val)}</span><span class="l">Value listed</span></div>
+          <div class="mkt-chip"><span class="n" style="color:#86efac">${m.published}</span><span class="l">Published</span></div>
+          <div class="mkt-chip"><span class="n" style="color:#fcd34d">${escHtml(val)}</span><!-- C5 (2026-09-05): inline --gold read Lc 58/60 at 19px --><span class="l">Value listed</span></div>
           <div class="mkt-chip"><span class="n">${m.sold_total}</span><span class="l">Sold</span></div>
           <div class="mkt-chip"><span class="n"${m.awaiting_review > 0 ? ' style="color:var(--blue)"' : ''}>${m.awaiting_review}</span><span class="l">Awaiting review</span></div>
           <div class="mkt-chip"><span class="n">${m.sellers}</span><span class="l">Active sellers</span></div>
@@ -2856,7 +2889,7 @@
       const upd = document.getElementById('aicost-updated');
       upd.textContent = 'ai_cost_log · last 7d';
       if (a && a._error) {
-        el.innerHTML = honestEmpty('AI cost data unavailable',
+        el.innerHTML = honestEmpty(_t('AI cost data unavailable', 'Hindi available ang AI cost data'),
           escHtml(a._error), '');
         return;
       }
@@ -2882,7 +2915,7 @@
         </div>`).join('');
       el.innerHTML = `
         <div class="pulse-row">
-          <div class="pulse-card"><span class="n" style="color:var(--gold)">$${a.total.toFixed(2)}</span><span class="l">7d total</span><span class="sub">${a.n_calls} calls</span></div>
+          <div class="pulse-card"><span class="n" style="color:#fcd34d">$${a.total.toFixed(2)}</span><span class="l">7d total</span><span class="sub">${a.n_calls} calls</span></div>
         </div>
         <h3 style="font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin:.6rem 0 .3rem;">By provider</h3>
         <div class="pareto-bar-wrap">${provRows}</div>
@@ -2896,7 +2929,7 @@
       const upd = document.getElementById('audit-updated');
       upd.textContent = 'hive_audit_log · last 50 events';
       if (a && a._error) {
-        el.innerHTML = honestEmpty('Audit feed unavailable',
+        el.innerHTML = honestEmpty(_t('Audit feed unavailable', 'Hindi available ang audit feed'),
           escHtml(a._error), '');
         return;
       }
@@ -2949,15 +2982,15 @@
           .select('id,created_at,kind,rating,subject,body,status,priority,hive_id,worker_name,contact_email,page_url,admin_note,resolved_at,is_public,updated_at')
           .order('created_at', { ascending: false })
           .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-          .limit(500);
+          .limit(500);   // cap-ok: the feedback list discloses 'of N+ (the latest 500 were loaded)' at the cap (see applyFeedbackView)
         if (error) throw error;
         _fb.rows = data || [];
         upd.textContent = new Date().toLocaleTimeString();
         applyFeedbackView();
         subscribeFeedbackRealtime();   // idempotent
       } catch (e) {
-        console.error('[feedback-inbox] load failed', e);
-        list.innerHTML = honestEmpty('Could not load feedback',
+        console.error('[founder-console] feedback-inbox: load failed', e);
+        list.innerHTML = honestEmpty(_t('Could not load feedback', 'Hindi ma-load ang feedback'),
           'The platform_feedback table query failed. Check that migration 20260519000002_platform_feedback.sql has been applied.',
           'Error: ' + escHtml(e.message || String(e)));
       }
@@ -3015,7 +3048,7 @@
         </button>`;
       }).join('') + (view.length > 100
         ? `<div style="padding:.5rem;text-align:center;color:var(--muted);font-size:.7rem">
-             Showing first 100 of ${view.length}. Narrow the filters to see more.
+             Showing first 100 of ${view.length}${(_fb.rows || []).length >= 500 ? '+ (the latest 500 were loaded)' : ''}. Narrow the filters to see more.
            </div>` : '');
 
       list.querySelectorAll('.fb-card').forEach(btn => {
@@ -3090,10 +3123,10 @@
         </div>
 
         <div class="fb-drawer-actions">
-          <button type="button" class="btn primary" id="fb-d-save">Save changes</button>
+          <button type="button" class="btn primary" id="fb-d-save" data-i="savechanges">Save changes</button>
           ${row.contact_email
             ? `<a class="btn secondary" href="mailto:${encodeURIComponent(row.contact_email)}?subject=${encodeURIComponent('Re: ' + (row.subject || 'your WorkHive feedback'))}" style="text-align:center;text-decoration:none;line-height:1.6">Reply via email</a>`
-            : `<button type="button" class="btn secondary" disabled title="No email provided">No email to reply to</button>`}
+            : `<button type="button" class="btn secondary" disabled title="No email provided" data-i="noemailtoreplyto">No email to reply to</button>`}
         </div>
       `;
 
@@ -3179,9 +3212,9 @@
         _fbDraft.clear();   // X2: the note is committed - the next triage starts fresh
         showToast(isPublic && !wasPublic ? 'Saved, now public on /feedback/' : 'Saved');
       } catch (e) {
-        console.error('[feedback-inbox] save failed', e);
+        console.error('[founder-console] feedback-inbox: save failed', e);
         btn.textContent = 'Save changes'; btn.disabled = false;
-        showToast(whWriteError(e, 'Nothing was saved. Your change is still on screen; try again.'));
+        showToast(whWriteError(e, _t('Nothing was saved. Your change is still on screen; try again.', 'Walang na-save. Nasa screen pa ang pagbabago mo; subukan muli.')));
       }
     }
 
@@ -3210,7 +3243,15 @@
               showToast('New ' + row.kind + ' from ' + (row.worker_name || row.contact_email || 'anonymous'));
               setRagDot('rag-feedback', 'warn');
             })
-        .subscribe(rtConn());
+        // reconnect & backfill (2026-09-05, P186): rtConn() only paints the connection state. Rows inserted while the
+        // channel was down never arrive, so on the first SUBSCRIBED after a drop, re-read the inbox; and when the
+        // browser comes back online, refresh the whole console (every panel is a snapshot that went stale).
+        .subscribe((status) => {
+          rtConn()(status);
+          if (status === 'SUBSCRIBED') { if (_fb.wasDown) { _fb.wasDown = false; try { renderFeedbackInbox(); } catch (e) { console.debug('feedback backfill refused', e); } } }
+          else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') { _fb.wasDown = true; }
+        });
+      window.addEventListener('online', () => { try { refreshAll(); } catch (e) { console.debug('online refresh refused', e); } });
       window.addEventListener('beforeunload', () => {
         if (_fb.channel) { db.removeChannel(_fb.channel); _fb.channel = null; }
       });
@@ -3271,5 +3312,11 @@
   </script>
 </main>
   <script src="offline-banner.js"></script><!-- SaaS-layer AV: adopt the central offline/degraded banner -->
+  <!-- the AV set ships as ONE unit (validate_av_adoption): the banner alone leaves a page that says it is offline
+       but still queues nothing, shows no connectivity state, and never times a stale session out (2026-09-06) -->
+  <script defer src="offline-queue.js"></script>
+  <script defer src="connectivity-widget.js"></script>
+  <script defer src="session-timeout.js"></script>
+  <script defer src="device-fingerprint.js"></script>
 </body>
 </html>

@@ -2,7 +2,7 @@
 name: edge-fn-pf-calculator
 type: edge-fn
 source: file:supabase/functions/pf-calculator/index.ts
-source_sha: eca0e727d0dc086d
+source_sha: 3554ec2c25e5531e
 last_verified: 2026-07-13
 supersedes: null
 ---

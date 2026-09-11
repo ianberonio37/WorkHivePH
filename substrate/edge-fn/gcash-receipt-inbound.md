@@ -2,7 +2,7 @@
 name: edge-fn-gcash-receipt-inbound
 type: edge-fn
 source: file:supabase/functions/gcash-receipt-inbound/index.ts
-source_sha: 96a7d57d2c92dcb5
+source_sha: 99e5d5b8bfd85c0b
 last_verified: 2026-07-13
 supersedes: null
 ---

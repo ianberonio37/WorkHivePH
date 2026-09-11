@@ -1,4 +1,20 @@
 {
-  "files": {},
-  "total": 0
+  "files": {
+    "alert-hub.html": 3,
+    "analytics-report.html": 1,
+    "analytics.html": 1,
+    "asset-hub.html": 13,
+    "audit-log.html": 1,
+    "community.html": 17,
+    "hive.html": 23,
+    "index.html": 2,
+    "integrations.html": 1,
+    "inventory.html": 8,
+    "logbook.html": 8,
+    "plant-connections.html": 1,
+    "pm-scheduler.html": 7,
+    "project-manager.html": 1,
+    "shift-brain.html": 7
+  },
+  "total": 94
 }

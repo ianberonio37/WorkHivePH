@@ -5,6 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <!-- Layer -1.5 Calm Dashboard Contract opt-in (frontend_calm_dashboard_*). -->
   <meta name="calm-dashboard" content="1" />
+  <!-- W3-AR (2026-09-09): this is a SUPERVISOR surface - CMMS integration configs, external sync
+       activity, sensor topic mappings and gateway audit - and it was the only one of its four peers
+       (llm-observability, marketplace-admin, platform-actions) without a robots directive, so search
+       engines were free to index an internal console whose own meta description spells out exactly
+       what it administers. 23 pages already carry this line; matching them rather than inventing a
+       rule. The canonical link below stays: it says which URL is authoritative IF the page is ever
+       referenced, which is a different question from whether it should be crawled. -->
+  <meta name="robots" content="noindex, nofollow" />
   <title>Plant Connections | WorkHive</title>
 <meta name="description" content="Plant Connections Console: supervisor surface unifying CMMS integration configs, external sync activity, sensor topic mappings, and gateway audit. Phase 5 Track C." />
   <meta property="og:title" content="Plant Connections · WorkHive" />
@@ -12,7 +20,7 @@
   <link rel="canonical" href="https://workhiveph.com/plant-connections.html" />
   <link rel="manifest" href="manifest.json" />
   <script src="browser-floor.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
+  <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
   <script src="utils.js"></script>
   <link rel="stylesheet" href="tokens.css">
   <style>
@@ -121,12 +129,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
   <main class="page">
   <!-- List View Contract: declarative empty-state anchor (L-1.5) -->
-  <div id="empty-state" class="empty-state" hidden>No connections yet. Open Integrations to wire one.</div>
+  <div data-i="p_noconnectionsyetopenintegrat_1ecc" id="empty-state" class="empty-state" hidden>No connections yet. Open Integrations to wire one.</div>
 
     <header class="page-header">
       <div>
         <h1 class="page-title" data-i="pctitle">Connections</h1>
-        <p class="page-sub">CMMS sync · sensor bridge · gateway audit, all in one supervisor surface.</p>
+        <p data-i="p_cmmssyncsensorbridgegatewaya_2e66" class="page-sub">CMMS sync · sensor bridge · gateway audit, all in one supervisor surface.</p>
         <!-- STREAMLINE F7: integrations + plant-connections are ONE "Connections" surface.
              This tab bar switches CMMS ↔ Plant/IoT; one nav entry. Both pages kept on disk. -->
         <div class="wh-conn-tabs" role="tablist" style="display:flex; gap:8px; margin:10px 0 2px; flex-wrap:wrap;">
@@ -138,13 +146,13 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         <!-- A1: a monitoring board's primary action is re-pulling the latest sync/gateway state.
              Filled so the 5-second scan lands on one clear CTA; a real reload, not a dead button. -->
         <button type="button" onclick="location.reload()" data-i="pc_refresh_cta" style="min-height:44px; display:inline-flex; align-items:center; gap:0.35rem; padding:0.5rem 1rem; border:1px solid transparent; border-radius:8px; background:linear-gradient(135deg,var(--wh-orange),var(--wh-orange-light)); color:var(--wh-navy); font-family:'Poppins',sans-serif; font-weight:700; font-size:0.8rem; cursor:pointer;">↻ Refresh</button>
-        <span class="role-pill">Supervisor only</span>
+        <span data-i="p_supervisoronly_d045" class="role-pill">Supervisor only</span>
       </div>
     </header>
 
     <h2 class="wh-section-title" data-i="pc_content_heading" style="margin-top:1rem;">Connected systems</h2>
     <div id="content">
-      <div class="card"><div class="empty">Loading plant connections...</div></div>
+      <div class="card"><div data-i="p_loadingplantconnections_ae59" class="empty">Loading plant connections...</div></div>
     </div>
   </main>
 
@@ -178,7 +186,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       document.getElementById('content').innerHTML = `
         <div class="denied">
           <h2 data-i="pc_sup_only">Supervisor access only</h2>
-          <p>Plant Connections is a supervisor surface for managing CMMS integrations, sensor topics, and gateway audits. Ask your hive supervisor to share the view if you need access.</p>
+          <p>${escHtml(_t('Plant Connections is a supervisor surface for managing CMMS integrations, sensor topics, and gateway audits. Ask your hive supervisor to share the view if you need access.', 'Ang Plant Connections ay surface para sa supervisor sa pamamahala ng CMMS integrations, sensor topics, at gateway audits. Hilingin sa supervisor ng hive mo na ibahagi ang view kung kailangan mo ng access.'))}</p>
         </div>
       `;
     }
@@ -199,13 +207,13 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           loadSsoConfig(),
         ]);
       } catch (err) {
-        console.error('plant-connections load failed:', err);
+        console.error('[plant-connections] plant-connections load failed:', err);
         // E2 consistent states: inline error + Retry (shared whListError) plus the
         // platform toast, never a blank panel or a stuck skeleton.
         if (typeof whListError === 'function') {
-          whListError(host, "Couldn’t load your plant connections. Check your connection and try again.", () => renderAll());
+          whListError(host, _t("Couldn’t load your plant connections. Check your connection and try again.", "Hindi ma-load ang plant connections mo. Suriin ang koneksyon at subukan muli."), () => renderAll());
         }
-        if (typeof showToast === 'function') showToast('Plant connections failed to load. Tap Retry.', 'warn');
+        if (typeof showToast === 'function') showToast(_t('Plant connections failed to load. Tap Retry.', 'Hindi na-load ang plant connections. Pindutin ang Retry.'), 'warn');
         return;
       }
       // Simple-by-default 2026-05-13: 4 plain cards + verdict + recommendation
@@ -377,7 +385,15 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         const errors = s.audit.filter(a => Number(a.status_code) >= 400).length;
         text = `${errors} API calls failed in the last 7 days. Open Show details and check the Gateway audit panel: most failures are 401 (auth) or 429 (rate limit).`;
       } else if (!s.topics.length) {
-        text = 'No sensors are mapped. Anomaly Engine 2.0 still works without sensors: it just relies on logbook + PM signals. Sensor topics appear here automatically once your plant edge gateway (OPC-UA / MQTT) starts pushing readings: see the Sensor and CMMS Gateway Operations guide to set up the bridge.';
+        // ★B3 0% HERE, WALKED 2026-09-10 AS A SUPERVISOR ON A PHONE. One screen carried all three
+        // readability faults: a passive opening with no actor ("No sensors ARE MAPPED"), a 29-word
+        // sentence, and grade 15.3 on it — the highest on this page. It is the whole of what a plant
+        // that has not connected a gateway yet reads, so it is the one paragraph that has to work.
+        // Split into five short sentences, every one under the twelve-word floor where Flesch-Kincaid
+        // stops being a valid ruler, with the platform's own vocabulary kept intact: Anomaly Engine
+        // 2.0, OPC-UA / MQTT, logbook, PM signals and the guide's exact name are terms this reader
+        // already knows, and simplifying them would cost meaning rather than buy clarity.
+        text = 'No sensors here yet. Anomaly Engine 2.0 still runs on logbook and PM signals alone. Point your plant edge gateway (OPC-UA / MQTT) at WorkHive. Topics then appear here on their own. The Sensor and CMMS Gateway Operations guide sets up the bridge.';
       } else if (cards.comp.tone === 'amber' && s.sso && s.sso.status === 'pending_review') {
         text = 'SSO is pending IT review. Send your SAML certificate thumbprint to the platform admin to move it from pending_review to active.';
       } else if (cards.comp.tone === 'amber' && !s.retention) {
@@ -428,7 +444,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         .eq('hive_id', HIVE_ID)
         .order('last_sync_at', { ascending: false, nullsFirst: false })
         .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-        .limit(500); // L2: hive-scoped CMMS-connector config (≤ handful per hive, bounded-by-nature); cap = egress insurance, can't truncate a set that never nears 500.
+        .limit(500); // L2: hive-scoped CMMS-connector config (≤ handful per hive, bounded-by-nature); cap = egress insurance, can't truncate a set that never nears 500.   // cap-ok: integration configs are supervisor-maintained and bounded by physical integrations (rows only)
       if (error) throw error;
       return data || [];
     }
@@ -441,7 +457,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         .gte('last_synced_at', sinceIso)
         .order('last_synced_at', { ascending: false })
         .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-        .limit(50);
+        .limit(50);   // cap-ok: rows only (latest sync events)
       if (error) throw error; // A5: propagate real read failure to renderAll()'s catch
       return data || [];
     }
@@ -453,7 +469,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         .eq('hive_id', HIVE_ID)
         .order('topic_pattern')
         .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-        .limit(500); // L2: hive-scoped MQTT-topic→asset resolver config (supervisor-maintained, bounded by physical sensor count, not time/events); cap = egress insurance, sensor_readings holds the time-series, not this.
+        .limit(500); // L2: hive-scoped MQTT-topic→asset resolver config (supervisor-maintained, bounded by physical sensor count, not time/events); cap = egress insurance, sensor_readings holds the time-series, not this.   // cap-ok: MQTT topic map bounded by physical sensors (rows only)
       if (error) throw error; // A5: propagate real read failure to renderAll()'s catch
       return data || [];
     }
@@ -467,7 +483,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         .gte('created_at', sinceIso)
         .order('created_at', { ascending: false })
         .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-        .limit(50);
+        .limit(50);   // cap-ok: rows only - no count or sum is derived from this read (classified by the reference-pages-uncapped sweep, 2026-09-05)
       if (error) throw error; // A5: propagate real read failure to renderAll()'s catch
       return data || [];
     }
@@ -707,8 +723,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
 <!-- Calm Dashboard Contract footer: data-sources disclosure + hideZeroStat helper -->
 <details data-calm-disclosure="data-sources" style="max-width:680px; margin:1rem auto 2rem; padding:0 1rem;">
-  <summary style="cursor:pointer; font-size:.78rem; color:rgba(255,255,255,0.80); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
-  <p style="font-size:.78rem; color:rgba(255,255,255,0.80); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
+  <summary data-i="p_aboutthisdashboardsdatasourc_8e23" style="cursor:pointer; font-size:.78rem; color:rgba(255,255,255,0.80); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
+  <p data-i="p_numberscomefromyourliveworkh_9c03" style="font-size:.78rem; color:rgba(255,255,255,0.80); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
 </details>
 <script>
   window.hideZeroStat = window.hideZeroStat || function(el, val) {
@@ -740,5 +756,18 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     pc_whatnext: 'Ano ang susunod na gagawin',
     pc_data_retention: 'Pag-iingat ng data',
   };</script>
+<script>/* systemic ripple (2026-09-05): utils.js is the shared script every panel below renders through; if it never arrives
+   (a stale shell, a blocked CDN, a dropped connection mid-load) this page went blank or froze on its static skeletons.
+   utils.js cannot help when utils.js is the thing missing, so the guard lives here. */
+window.addEventListener('load', function () { setTimeout(function () {
+  if (typeof getDb === 'function' && typeof escHtml === 'function') return;
+  try { console.error('[plant-connections] utils.js did not load; the page cannot render its data'); } catch (e) { void e; }
+  var m = document.querySelector('main') || document.body; if (!m || m.querySelector('.wh-shared-missing')) return;
+  var d = document.createElement('div'); d.className = 'honest-empty wh-shared-missing'; d.setAttribute('role', 'alert');
+  d.style.cssText = 'margin:12px;padding:14px 16px;border:1px solid rgba(248,113,113,.4);border-radius:10px;background:rgba(248,113,113,.08);color:#fca5a5;font:14px/1.5 system-ui,sans-serif;';
+  d.innerHTML = 'WorkHive could not load its shared script (utils.js), so this page cannot show your data. <button type="button" onclick="location.reload()" style="color:inherit;text-decoration:underline;background:none;border:0;padding:0;font:inherit;cursor:pointer;min-height:44px;" data-i="reloadtotryagain">Reload to try again</button>.';
+  m.insertBefore(d, m.firstChild);
+  var sk = document.querySelectorAll('.wh-skeleton, [class*="skeleton"]'); for (var i = 0; i < sk.length; i++) sk[i].style.display = 'none';
+}, 2500); });</script>
 </body>
 </html>

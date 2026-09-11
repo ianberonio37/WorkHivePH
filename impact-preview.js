@@ -14,6 +14,14 @@
  */
 (function () {
   'use strict';
+
+  /* W3-SC (2026-09-09): the hint that tells someone how far their Save reaches before they press it.
+     It spoke only English. window._t(en, fil) is the platform locale floor utils.js installs; written
+     as a `function` rather than the arrow helper the other components use, to match this file's ES5
+     style throughout. Resolved at CALL time -- the hint is attached after the surface loads. */
+  function _tt(en, fil) {
+    return (typeof window._t === 'function') ? window._t(en, fil) : en;
+  }
   if (window.__whImpactInstalled) return;
   window.__whImpactInstalled = true;
 
@@ -51,15 +59,15 @@
     closePop();
     var pop = document.createElement('div');
     pop.setAttribute('role', 'dialog');
-    pop.setAttribute('aria-label', 'Save impact detail');
+    pop.setAttribute('aria-label', _tt('Save impact detail', 'Detalye ng epekto ng pag-save'));
     var pageList = (info.pages || []).map(function (p) { return '<li style="margin:1px 0;">' + esc(prettyPage(p)) + '</li>'; }).join('');
     // USER-VOICE: render the plain cascade names, never raw table names. Cap the list.
     var cascList = info.cascades_plain || [];
-    var cascShown = cascList.slice(0, 6).join(', ') + (cascList.length > 6 ? ', +' + (cascList.length - 6) + ' more' : '');
+    var cascShown = cascList.slice(0, 6).join(', ') + (cascList.length > 6 ? ', +' + (cascList.length - 6) + _tt(' more', ' pa') : '');
     var casc = cascList.length
-      ? '<div style="margin-top:6px;color:rgba(255,255,255,0.55);">Also updates: ' + esc(cascShown) + '</div>' : '';
+      ? '<div style="margin-top:6px;color:rgba(255,255,255,0.55);">' + esc(_tt('Also updates: ', 'Ina-update din: ')) + esc(cascShown) + '</div>' : '';
     pop.innerHTML =
-      '<div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:#F7A21B;margin-bottom:4px;">Saving here updates ' + info.page_count + ' pages</div>'
+      '<div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:#F7A21B;margin-bottom:4px;">' + esc(_tt('Saving here updates ', 'Ang pag-save dito ay nag-a-update ng ')) + info.page_count + esc(_tt(' pages', ' na pahina')) + '</div>'
       + '<ul style="margin:0;padding-left:16px;font-size:11px;color:rgba(255,255,255,0.9);">' + pageList + '</ul>' + casc;
     pop.style.cssText = 'position:absolute;z-index:9999;max-width:280px;background:#10151c;border:1px solid rgba(247,162,27,0.35);border-radius:10px;padding:10px 12px;box-shadow:0 8px 28px rgba(0,0,0,0.45);';
     document.body.appendChild(pop);
@@ -79,9 +87,12 @@
     var hint = document.createElement('button');
     hint.type = 'button';
     hint.className = 'wh-impact-hint';
-    hint.setAttribute('aria-label', 'Saving updates ' + info.page_count + ' pages: tap for the list');
+    hint.setAttribute('aria-label', _tt('Saving updates ' + info.page_count + ' pages: tap for the list',
+      'Ang pag-save ay nag-a-update ng ' + info.page_count + ' na pahina: pindutin para sa listahan'));
     hint.title = info.headline;
-    hint.innerHTML = '<span aria-hidden="true">↗</span> Saving updates <b>' + info.page_count + ' pages</b> across the platform · <span style="text-decoration:underline;">what</span>';
+    hint.innerHTML = '<span aria-hidden="true">↗</span> ' + esc(_tt('Saving updates ', 'Nag-a-update ng ')) + '<b>' + info.page_count
+      + esc(_tt(' pages', ' na pahina')) + '</b> ' + esc(_tt('across the platform', 'sa buong platform'))
+      + ' · <span style="text-decoration:underline;">' + esc(_tt('what', 'ano')) + '</span>';
     hint.style.cssText = 'display:block;width:100%;text-align:left;margin:0 0 8px 0;padding:7px 10px;min-height:44px;box-sizing:border-box;'
       + 'background:rgba(247,162,27,0.08);border:1px solid rgba(247,162,27,0.25);border-radius:8px;'
       + 'color:rgba(247,162,27,0.95);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;';

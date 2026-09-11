@@ -31,7 +31,14 @@ ROOT = Path(__file__).resolve().parent.parent
 SW   = ROOT / "sw.js"
 REPORT = ROOT / "cache_name_drift_report.json"
 
-CACHE_NAME_RE = re.compile(r"const\s+CACHE_NAME\s*=\s*['\"]([^'\"]+)['\"]")
+# ★ANCHORED TO A LINE THAT STARTS WITH `const`, BECAUSE sw.js KEEPS ITS BUMP HISTORY COMMENTED ABOVE
+# THE ACTIVE LINE (2026-09-10). Without the anchor this matched `// const CACHE_NAME = ...` - the
+# FIRST one in the file - and reported `workhive-shell-v283` while the worker shipped v346, sixty-three
+# bumps later. A drift report is exactly the thing that must not read a fossil: it exists to say
+# whether the shipped cache name is current. `SHELL_FILES` needs no such anchor (checked: it appears
+# once, uncommented), and validate_sw_shell_membership already anchored this correctly - the lesson had
+# been learned in one file and not carried to its neighbours.
+CACHE_NAME_RE = re.compile(r"(?m)^\s*const\s+CACHE_NAME\s*=\s*['\"]([^'\"]+)['\"]")
 SHELL_FILES_RE = re.compile(r"const\s+SHELL_FILES\s*=\s*\[([\s\S]*?)\];")
 FILE_ENTRY_RE = re.compile(r"['\"]([./][^'\"\n]+)['\"]")
 

@@ -86,10 +86,36 @@ TEXT_SCANS = [
      "OR (a.tag || ' (' || a.name || ')') = asset_risk_scores.asset_name "
      "OR asset_risk_scores.asset_name LIKE a.tag || '%' "
      "OR asset_risk_scores.asset_name LIKE '%' || a.tag || '%'))"),
+    # ★A GATE THAT SCANS FOR ITS OWN CONVENTION IS BLIND TO EVERYONE WHO IGNORED IT (2026-09-09, found
+    # by the contract prober asking cmms-webhook-receiver to do its documented job). Four live gates
+    # write an integration_configs row labelled plainly 'test' rather than WH-<x>-PROBE, so 16 of them
+    # had survived since 2026-07-21 - every one disabled, none deleted, all invisible to this scan.
+    # The cost was measurement, exactly as the note above predicts: the platform's own integrations KPI
+    # counts "active", "stale" and "disabled" connectors separately, and with 0 of 16 enabled two of
+    # those three tiles read zero on every hive, while the webhook receiver could never once complete
+    # its job locally because no enabled config existed for it to find. The seeder's own rows are
+    # labelled "… (Local Mock)" and "Seeder Test Key", so a bare 'test' is unambiguous residue.
+    # ...and these belong with the STRUCTURAL objects below, not with the text hits above: the whole ROW
+    # is the probe's own creation, not a real record a probe wrote a string into, so removing it destroys
+    # nothing a person authored. Verified before classifying: no audit trigger fires on delete here and
+    # nothing references the table, so its cleanup cannot fan into a surface this scan does not read.
 ]
 
 # Structural residue: whole objects a killed prover left standing. Children before parents.
 STRUCTURAL = [
+    ("integration_configs.test rows", "public.integration_configs",
+     f"label ~* '^(test|test \\(.*\\))$' OR label ~* '{MARK}'"),
+    ("api_keys.test rows", "public.api_keys",
+     f"label ~* '^test$' OR label ~* '{MARK}'"),
+    # ★A PROBE CAN TRIP A REAL SECURITY CONTROL AND LEAVE ITS MARK IN A SECURITY TABLE (2026-09-09). The
+    # contract prober fills an unroutable `contract-prober@example.invalid` into any e-mail-shaped field;
+    # `login` reads that as an identity, so the sweep posted five failed sign-ins and the per-(identifier,
+    # ip) lockout did exactly its job - on a fake identity, which is why no real account was affected. The
+    # control is not the problem. The residue is: rows in login_attempts that describe an attacker who
+    # never existed, in a table a person would read as evidence. Scanned by the probe's own reserved
+    # .invalid domain and the marker convention - never by a real address, which is somebody's account.
+    ("login_attempts by probe identities", "public.login_attempts",
+     f"identifier ~* '@example\\.invalid$' OR identifier ~* '{MARK}' OR identifier ~* '^wh[_-]?(live[_-]?)?probe@'"),
     ("hive_members in probe hives", "public.hive_members",
      f"hive_id IN (SELECT id FROM public.hives WHERE name ~ '{MARK}')"),
     ("hive_audit_log in probe hives", "public.hive_audit_log",

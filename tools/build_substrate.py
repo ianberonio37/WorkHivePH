@@ -81,7 +81,15 @@ def build_table_rls(check_only: bool):
     rls = {r[0]: (r[1] == "t") for r in (psql(
         "SELECT c.relname, c.relrowsecurity FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace "
         "WHERE n.nspname='public' AND c.relkind='r';") or [])}
-    tables = sorted((set(has_hive) | set(has_uid)) & set(rls))
+    # ★EVERY BASE TABLE, NOT ONLY THE TENANT ONES (2026-09-08). The filter was `(has_hive_id or
+    # has_auth_uid) AND is a base table`, which is right for the RLS question this chunk was built to
+    # answer and wrong for everything else that reads it. The substrate is now the column source for the
+    # static gate that asks whether a read or write names a column its table actually has - and 19
+    # relations the pages really use had no note at all, `hives` among them, so every read and write to
+    # them was skipped. A platform table has policies, columns and guard triggers worth recording too;
+    # what it does not have is a hive_id, and the heading below now says so rather than calling everything
+    # a tenant table.
+    tables = sorted(set(rls))
     # ALL columns per table (name + NOT-NULL marker) — write-probing needs the schema, and re-querying
     # it live defeats the substrate (gap hit twice 2026-07-13: pm_assets, project_progress_logs).
     allcols = {}
@@ -176,7 +184,12 @@ def build_table_rls(check_only: bool):
 
         # ── chunk body (metadata-prefixed, opinionated, retrieval-carries-context) ──
         lines = [frontmatter(f"table-rls-{t}", "table-rls", f"db:pg_policies+pg_trigger:{t}", s)]
-        lines.append(f"## table-rls · `{t}` — RLS posture (tenant table)\n")
+        # A table with neither hive_id nor auth_uid is not tenant-scoped, and calling it one in the
+        # heading would put the wrong frame on every retrieval of it. (The db-adoption census is
+        # unaffected either way: it re-filters on the `has hive_id` / `has auth_uid` line below, so a
+        # platform table never enters the D1-D3 denominators.)
+        _kind = "tenant table" if (facts["has_hive_id"] or facts["has_auth_uid"]) else "platform table — no hive_id or auth_uid"
+        lines.append(f"## table-rls · `{t}` — RLS posture ({_kind})\n")
         lines.append(f"RLS enabled: **{facts['rls_enabled']}** · has hive_id: {facts['has_hive_id']} · has auth_uid: {facts['has_auth_uid']}\n")
         _cols = allcols.get(t, [])
         if _cols:

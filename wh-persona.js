@@ -9,6 +9,12 @@
 //   - assistant.html (direct worker URL call, bypasses ai-gateway)
 //   - floating-ai.js (direct worker URL call, bypasses ai-gateway)
 //
+// i18n-shared-allow: every literal here is an LLM SYSTEM PROMPT ("You are <name>, the worker's
+// WorkHive companion."), not text a person reads. Translating it would change model behaviour and
+// desync this file from its server mirror supabase/functions/_shared/persona.ts, which the header
+// above requires to stay aligned. The language the companion REPLIES in is set separately, in the
+// prompt's instructions -- that is where a Filipino conversation is arranged, not here.
+//
 // Modes:
 //   conversational — Voice Journal (server-side only)
 //   companion      — Floating AI / Assistant

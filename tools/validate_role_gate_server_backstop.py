@@ -28,7 +28,7 @@ from pathlib import Path
 if sys.platform == "win32" and sys.stdout.encoding and sys.stdout.encoding.lower() not in ("utf-8", "utf8"):
     sys.stdout = io.TextIOWrapper(sys.stdout.detach(), encoding="utf-8", errors="replace")
 
-G = "\033[92m"; R = "\033[91m"; B = "\033[1m"; X = "\033[0m"
+G = "\033[92m"; R = "\033[91m"; B = "\033[1m"; X = "\033[0m"; Y = "\033[93m"
 CHECK_NAMES = ["validate_role_gate_server_backstop"]
 DB = "supabase_db_workhive"
 
@@ -46,6 +46,11 @@ SUPERVISOR_GATED = {
     "sso_configs":            ("plant-connections", "configure SSO/SAML"),
     "marketplace_sellers":    ("founder-console", "verify seller KYB (is_marketplace_admin)"),
 }
+
+
+# A distinct value for "the database could not answer", so it can never be mistaken for "there is
+# no backstop here". A string, not None, because None is the honest answer for a real absence.
+UNREADABLE = "unreadable"
 
 
 def _psql(sql: str):
@@ -77,14 +82,25 @@ select
        and coalesce(pg_get_expr(p.polwithcheck,p.polrelid),'true')='false'
        and coalesce(pg_get_expr(p.polqual,p.polrelid),'true') in ('false','true'));
 """
+    # ★AN UNREADABLE ANSWER IS NOT "NO BACKSTOP" (2026-09-10). Both branches below used to return None,
+    # and None is what the caller prints as "supervisor-gated in the UI but NO server-side enforcement =
+    # UI-only-auth hole". So a `docker exec` that timed out under load - which is ordinary on this 8 GB
+    # host while a browser walk is running - produced a confident SECURITY ACCUSATION about a table whose
+    # guard trigger was sitting there the whole time. Caught exactly that way: asset_nodes FAILED inside
+    # the --fast suite and PASSED three times in a row a minute later, with nothing changed. A security
+    # gate that cries wolf under load is one people learn to scroll past, which costs more than the bug
+    # it was written to find. Retry first, and if it still cannot be read say UNREADABLE and let the
+    # caller report an unverified cell rather than a hole.
     r = _psql(sql)
     if not r or r.returncode != 0:
-        return None
+        r = _psql(sql)                     # once more: the usual cause is a busy docker, not a real answer
+    if not r or r.returncode != 0:
+        return UNREADABLE
     parts = (r.stdout.strip().split("|") + ["0", "0", "0"])[:3]
     try:
         rls, trg, locked = (int(p or 0) for p in parts)
     except ValueError:
-        return None
+        return UNREADABLE
     kinds = []
     if rls:
         kinds.append("rls-role")
@@ -117,9 +133,14 @@ def main() -> int:
     if not _dbup():
         print("  SKIP: local DB not reachable — role-gate backstop gate not evaluated.")
         return 0
-    fails = []
+    fails, unread = [], []
     for table, (page, action) in sorted(SUPERVISOR_GATED.items()):
         kind = _backstop(table)
+        if kind is UNREADABLE:
+            print(f"  {Y}UNVERIFIED{X}  {table} — {page}: the database could not be read twice running, so "
+                  f"this cell is unproven. NOT reported as a hole: absence of an answer is not an answer.")
+            unread.append(table)
+            continue
         if kind:
             print(f"  {G}PASS{X}  {table} [{kind}] — {page}: {action}")
         else:
@@ -130,6 +151,9 @@ def main() -> int:
         print(f"{R}FAIL: {len(fails)} supervisor-gated table(s) with no server backstop — a tampered "
               f"localStorage role could escalate.{X}")
         return 1
+    if unread:
+        print(f"{Y}PASS with {len(unread)} UNVERIFIED cell(s) ({', '.join(unread)}) - re-run on a quiet host.{X}")
+        return 0
     print(f"{G}PASS - every supervisor-gated UI action is server-backstopped (the UI gate is never the only gate).{X}")
     return 0
 

@@ -1,0 +1,11 @@
+{
+ "_doc": "plant-connections.html: English visible text -> Filipino, authored. Empty = not yet translated. tools/i18n_page_dict.py --apply tags the element and emits WH_FIL_PAGE.",
+ "No connections yet. Open Integrations to wire one.": "Wala pang koneksyon. Buksan ang Integrations para magkabit ng isa.",
+ "CMMS sync · sensor bridge · gateway audit, all in one supervisor surface.": "CMMS sync · sensor bridge · gateway audit, lahat sa isang supervisor surface.",
+ "← CMMS Integration": "",
+ "Plant / IoT": "",
+ "Supervisor only": "Supervisor lang",
+ "Loading plant connections...": "Naglo-load ng plant connections...",
+ "▸ About this dashboard's data sources": "▸ Tungkol sa mga data source ng dashboard na ito",
+ "Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.": "Galing ang mga numero sa live WorkHive data mo. Nire-refresh ang mga ito tuwing bubuksan mo ang page. Maaaring may tala ang isang tile kung iba ang pag-update nito. Naka-grey ang mga walang laman o zero na value, para makita mo agad kung saan wala pang data."
+}

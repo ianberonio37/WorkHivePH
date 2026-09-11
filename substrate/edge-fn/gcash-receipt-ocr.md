@@ -2,7 +2,7 @@
 name: edge-fn-gcash-receipt-ocr
 type: edge-fn
 source: file:supabase/functions/gcash-receipt-ocr/index.ts
-source_sha: 2198a33e76ac88f9
+source_sha: 13c4cd905c4aefb4
 last_verified: 2026-07-13
 supersedes: null
 ---

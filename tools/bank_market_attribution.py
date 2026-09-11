@@ -77,7 +77,11 @@ def main(argv):
         try:
             for res in json.load(open(walk_path, encoding="utf-8")):
                 if res.get("state") == "populated" and res.get("ok"):
-                    structural_ok[res.get("url")] = "; ".join(res.get("checked") or [])[:250]
+                    # same string-vs-list disagreement as merge_walk_results.py - `checked` is a
+                    # STRING to bank_page_walk, and joining a string iterates its characters
+                    _ck = res.get("checked") or []
+                    structural_ok[res.get("url")] = (
+                        _ck if isinstance(_ck, str) else "; ".join(_ck))[:250]
         except Exception:
             continue
 

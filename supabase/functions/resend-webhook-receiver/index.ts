@@ -116,13 +116,13 @@ serveObserved("resend-webhook-receiver", async (req: Request) => {
     // log is an OBJECT of level methods (logger.ts:44), not a callable — a bare log(...) here was a
     // TypeError waiting for the first rejected webhook; the structured-log ratchet caught it pre-deploy.
     log.warn(ctx, "rejected unsigned or stale webhook");
-    return fail(ctx, "invalid_signature", "invalid signature", { status: 401 });
+    return fail(ctx, "invalid_signature", "That signature did not match. Check the webhook secret and try again.", { status: 401 });
   }
 
   let evt: Record<string, unknown>;
   try { evt = JSON.parse(body); }
   catch {
-    return fail(ctx, "invalid_json", "invalid json", { status: 400 });
+    return fail(ctx, "invalid_json", "That request could not be read. Check the payload and send it again.", { status: 400 });
   }
 
   const type  = String(evt.type || "");
@@ -185,7 +185,7 @@ serveObserved("resend-webhook-receiver", async (req: Request) => {
     return ok(ctx, { recorded: type, duplicate: true });
   }
   if (insErr) {
-    return fail(ctx, "log_write_failed", "could not record the event", { status: 500 });
+    return fail(ctx, "log_write_failed", "Could not record that event. It will be retried automatically.", { status: 500 });
   }
 
   log.info(ctx, "webhook_recorded", { type, to });

@@ -17,6 +17,20 @@
 (function () {
   'use strict';
 
+  // N1 safe translator -- identical convention to nav-hub.js + the utils.js renderers. utils.js
+  // installs the locale floor (window._t + WH_LANG) and loads first; the pass-through keeps a page
+  // without it rendering EN rather than throwing. Module-scope, not per-function: the widget markup
+  // and the SEND-FAILURE sentences several hundred lines below both need it, and the failure
+  // sentences are the ones a worker reads on a bad connection. This companion is shared chrome on
+  // 29 pages: ONE edit, 29 pages (the design-system lever), instead of 29 edits that drift apart.
+  // Brand ("WorkHive AI") and the page label are identity/DATA and stay EN, per the recipe.
+  // Resolved at CALL time, not bind time: this const now evaluates at MODULE LOAD, where the old
+  // per-function one evaluated inside inject(). A bind-time lookup here would freeze the
+  // pass-through on any page whose engine defines _t later in the body, and silently ship EN.
+  const _tt = function (en, fil) {
+    return (typeof window._t === 'function') ? window._t(en, fil) : en;
+  };
+
   // ─── Single-mount guard (Companion Delivery L0: single_mount) ────────────────
   // nav-hub.js injects this script into <head> AND ~29 pages also statically
   // include it at end-of-body. nav-hub's dedupe guard runs before the parser
@@ -219,7 +233,8 @@
     // This companion is shared chrome on 29 pages: ONE edit, 29 pages (the design-system
     // lever), instead of 29 edits that drift apart. Brand ("WorkHive AI") and the page
     // label (${ctx.label}) are identity/DATA and stay EN, per the recipe.
-    const _tt = (typeof window._t === 'function') ? window._t : function (en) { return en; };
+    // (the translator itself is module-scope now -- see _tt at the top of this IIFE, hoisted there
+    //  when the OFFLINE failure sentence, several hundred lines below, turned out to need it too)
     const wrapper = document.createElement('div');
     wrapper.id = 'wh-ai-widget';
     wrapper.innerHTML = `
@@ -1051,6 +1066,7 @@ happens to know maintenance, not a manual.`;
     if (!message || isTyping) return;
 
     input.value = '';
+    try { window._whCompanionDraft && window._whCompanionDraft.clear(); } catch (_) { void _; }
     input.style.height = 'auto';
     addMessage('user', message);
     isTyping = true;
@@ -1081,25 +1097,56 @@ happens to know maintenance, not a manual.`;
       // normal, honest state — say so plainly (never "check your API
       // configuration", which a field worker can't act on). Other meaningful
       // gateway errors pass through; only opaque network failures fall back.
-      const m = String((err && err.message) || '');
+      let m = String((err && err.message) || '');
+      // EX-AT T4 (2026-09-07): supabase-js collapses every non-2xx into "Edge Function returned a non-2xx
+      // status code", so a 429 fell through every branch below to "Couldn't reach the assistant" - a
+      // connection-flavoured sentence for a spent quota (the T82 class). The Response is on err.context;
+      // its status and the function's OWN sentence ("AI call limit reached for this hive. Try again in
+      // about 12 minutes.") are what the person should read.
+      try {
+        const ctx = err && err.context;
+        if (ctx && typeof ctx.status === 'number' && (/non-2xx/i.test(m) || !m)) {
+          let body = null;
+          try { body = await ctx.clone().json(); } catch (_) { body = null; }
+          const said = body && (body.error || body.message);
+          if (typeof said === 'string' && said) m = said;
+          else if (ctx.status === 429) m = 'limit reached';
+        }
+      } catch (_) { /* empty-catch-allow: the sentence below still says something */ }
       // Graceful, SCOPE-AWARE 429 UX (Q5 §7-11): each rate-limit scope has its own honest
       // reset hint. Order matters — check the more specific scopes before the generic hourly
       // ("Daily AI limit reached" also contains "limit reached"). Scopes map to the gateway
       // bodies: global-minute burst (Q6 503), global-day platform pool (Q6), per-hive/solo
       // daily (Q4 "Resets tomorrow"), per-user/hour hourly.
+      // W3-SC2 (2026-09-09, live-walked offline at 390/1280/1920): the opaque-network list below was
+      // missing the message supabase-js ACTUALLY throws when the network is gone. A rejected fetch is
+      // wrapped as FunctionsFetchError("Failed to send a request to the Edge Function"), which matches
+      // none of "non-2xx / failed to fetch / networkerror / load failed" -- so an offline worker fell
+      // into the pass-through branch and read the raw SDK string, naming "the Edge Function" at
+      // someone standing in front of a machine. That is the exact thing the comment above forbids
+      // ("never 'check your API configuration', which a field worker can't act on"), and the same
+      // T82 class as the 429 collapse fixed here in EX-AT T4: a CONNECTION failure wearing a
+      // non-connection sentence. Matched on "failed to send a request" plus the two other shapes the
+      // SDKs use, so the fall-through says the connection sentence it was always meant to say.
+      const OPAQUE_NETWORK = /non-2xx|failed to fetch|failed to send a request|networkerror|network request failed|load failed/i;
       let friendly;
       if (/burst of activity|handling a burst|very busy/i.test(m)) {
-        friendly = "⚠️ The assistant is very busy right now. Give it a few seconds and try again.";
+        friendly = '⚠️ ' + _tt('The assistant is very busy right now. Give it a few seconds and try again.',
+          'Abalang-abala ang katulong ngayon. Sandali lang at subukan ulit.');
       } else if (/platform.*budget|shared ai budget/i.test(m)) {
-        friendly = "⚠️ The shared AI budget for today is used up across all teams. It resets tomorrow.";
+        friendly = '⚠️ ' + _tt('The shared AI budget for today is used up across all teams. It resets tomorrow.',
+          'Naubos na ang pinagsasaluhang AI budget para ngayong araw sa lahat ng team. Magre-reset bukas.');
       } else if (/resets tomorrow|daily ai limit|daily .*limit/i.test(m)) {
-        friendly = "⚠️ You've reached today's AI limit. It resets tomorrow — your teammates aren't affected.";
+        friendly = '⚠️ ' + _tt("You've reached today's AI limit. It resets tomorrow — your teammates aren't affected.",
+          'Naabot mo na ang AI limit para ngayong araw. Magre-reset bukas — hindi apektado ang mga kasama mo.');
       } else if (/limit reached|rate.?limit|too many|\/hour|per-user/i.test(m)) {
-        friendly = "⚠️ You've used up your AI questions for this hour. Try again in a little while — your teammates aren't affected.";
-      } else if (m && !/non-2xx|failed to fetch|networkerror|load failed/i.test(m)) {
+        friendly = '⚠️ ' + _tt("You've used up your AI questions for this hour. Try again in a little while — your teammates aren't affected.",
+          'Naubos mo na ang mga tanong mo sa AI ngayong oras. Subukan ulit maya-maya — hindi apektado ang mga kasama mo.');
+      } else if (m && !OPAQUE_NETWORK.test(m)) {
         friendly = '⚠️ ' + m;
       } else {
-        friendly = "⚠️ Couldn't reach the assistant just now. Check your connection and try again.";
+        friendly = '⚠️ ' + _tt("Couldn't reach the assistant just now. Check your connection and try again.",
+          'Hindi maabot ang katulong ngayon. Tingnan ang koneksyon mo at subukan ulit.');
       }
       addMessage('assistant', friendly);
       console.error('[WorkHive AI]', err);
@@ -1229,6 +1276,13 @@ happens to know maintenance, not a manual.`;
 
   // ─── Panel Toggle ─────────────────────────────────────────────────────────────
   function openPanel() {
+    /* ★THE PUBLIC API MUST SURVIVE A PAGE THAT NEVER BUILT THE WIDGET (2026-09-09, measured on
+       assistant.html). That page LOADS this script but suppresses the floating companion - correctly,
+       since the page is itself a chat - so the widget is never put in the DOM. Calling the exported
+       WHAssistant.open() there threw "Cannot read properties of null (reading 'classList')" on the line
+       below, AFTER already setting body.wh-companion-open: a half-applied open, a console error, and a
+       body class describing a panel that does not exist. Anything a page can call, a page can call here. */
+    if (!document.getElementById('wh-ai-panel')) return false;
     isOpen = true;
     // FAB-CONSOLIDATION + Axis-3 reveal-decouple: reveal the widget via its OWN body
     // class (delegated to the canonical WHPatterns.revealVia), independent of the nav-hub.
@@ -1508,6 +1562,9 @@ happens to know maintenance, not a manual.`;
       if (Array.isArray(saved) && saved.length) history = saved.slice(-config.maxHistory);
     } catch (_) { /* fall back to empty history */ /* empty-catch-allow: best-effort silent swallow */ }
     buildWidget();
+    // EX-PF F10 (2026-09-07): an unsent question survives a refresh. The ask box is the one field every page
+    // shares, and a person interrupted mid-question lost it on every page at once - one draft here, cleared on send.
+    try { window._whCompanionDraft = (typeof whAutoSaveDraft === 'function') ? whAutoSaveDraft('companion-ask', ['wh-ai-input']) : null; } catch (_) { window._whCompanionDraft = null; }
     // Companion Streamline: paint the avatar before wiring so the first
     // frame already shows Hezekiah/Zaniah, not a flash of default.
     renderPersonaAvatars();
@@ -1520,6 +1577,18 @@ happens to know maintenance, not a manual.`;
     // Step 6: peek the prospective queue for DUE follow-ups and badge them.
     // Deferred a tick so the page's Supabase client + identity have settled.
     setTimeout(checkProactive, 1200);
+
+    /* ★ARRIVE WITH IT OPEN WHEN SOMETHING SENT YOU HERE FOR IT (2026-09-09, found walking the
+       "Meet the AI Companion" learn article). That article's button says "Open the AI Companion" and
+       lands on assistant.html — which is right, because the launcher lives there — but the reader
+       arrives on the Work Assistant PAGE with the Companion still shut, and the article's own table two
+       sections earlier tells them those are different things. None of the 54 learn pages carry the
+       launcher, so the one article ABOUT the Companion was the one place it could not be opened. A link
+       that promises to open something should open it: ?companion=1 (or #companion) does. */
+    try {
+      const wants = /[?&]companion=1\b/.test(location.search) || location.hash === '#companion';
+      if (wants) setTimeout(openPanel, 350);   // after the widget is in the DOM and styled
+    } catch (_) { /* empty-catch-allow: a deep-link convenience must never break the launcher */ }
   }
 
   if (document.readyState === 'loading') {

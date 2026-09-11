@@ -40,15 +40,18 @@ serveObserved("supervisor-reset-password", async (req) => {
   logRequestStart(req, "supervisor-reset-password");
   const json = (code: number, body: unknown) =>
     new Response(JSON.stringify(body), { status: code, headers: { ...cors, "Content-Type": "application/json" } });
-  if (req.method !== "POST") return json(405, { error: "method_not_allowed" });
+  if (req.method !== "POST") return json(405, { error: "method_not_allowed" ,
+    message: "That request method is not allowed. Reload the page and try again." });
 
   let hive_id = "", target = "";
   try {
     const b = await req.json();
     hive_id = String(b.hive_id ?? "").trim();
     target = String(b.target_worker_name ?? b.worker_name ?? "").trim();
-  } catch { return json(400, { error: "invalid_request" }); }
-  if (!hive_id || !target) return json(400, { error: "missing_hive_or_target" });
+  } catch { return json(400, { error: "invalid_request" ,
+    message: "That request could not be read. Reload the page and try again." }); }
+  if (!hive_id || !target) return json(400, { error: "missing_hive_or_target",
+    message: "Choose the hive and the person whose password you are resetting." });
 
   const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
   const SERVICE_KEY  = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -57,12 +60,13 @@ serveObserved("supervisor-reset-password", async (req) => {
 
   // 1. caller must be an ACTIVE SUPERVISOR of this hive
   const { data: who } = await admin.auth.getUser(jwt);
-  if (!who?.user) return json(401, { error: "unauthenticated" });
+  if (!who?.user) return json(401, { error: "unauthenticated" ,
+    message: "Sign in again to reset a password for your team." });
   const actorUid = who.user.id;
   const { data: actor } = await admin.from("v_worker_truth")
     .select("role, hive_status, worker_name").eq("hive_id", hive_id).eq("auth_uid", actorUid).maybeSingle();
   if (!actor || actor.hive_status !== "active" || actor.role !== "supervisor") {
-    return json(403, { error: "not_supervisor", message: "Only an active supervisor of this hive can reset a member's password." });
+    return json(403, { error: "not_supervisor", message: "Only an active supervisor of this hive can reset a password. Ask your supervisor." });
   }
 
   // A5: password resets are rare for a legit supervisor — a tight per-actor bucket
@@ -75,8 +79,11 @@ serveObserved("supervisor-reset-password", async (req) => {
   const { data: tgt } = await admin.from("v_worker_truth")
     .select("auth_uid, role, hive_status").eq("hive_id", hive_id).eq("worker_name", target).maybeSingle();
   if (!tgt || !tgt.auth_uid) return json(404, { error: "member_not_found", message: "No such active member in this hive." });
-  if (tgt.hive_status !== "active") return json(409, { error: "member_inactive" });
-  if (tgt.role === "supervisor") return json(403, { error: "cannot_reset_supervisor", message: "A supervisor cannot reset another supervisor's password." });
+  if (tgt.hive_status !== "active") return json(409, { error: "member_inactive" ,
+    // ★E4 (2026-09-10): this named the obstacle and stopped there, leaving a supervisor holding a
+    // sentence they cannot act on. The remedy is one step away and is theirs to take, so it says so.
+    message: "This person is not active in this hive. Re-activate them first, then reset the password." });
+  if (tgt.role === "supervisor") return json(403, { error: "cannot_reset_supervisor", message: "A supervisor cannot reset another supervisor's password. Ask the hive owner." });
 
   // 3. set a fresh temp password via the admin API (service role)
   const pw = tempPassword();

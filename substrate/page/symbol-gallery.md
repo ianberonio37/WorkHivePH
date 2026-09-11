@@ -2,19 +2,19 @@
 name: page-symbol-gallery
 type: page
 source: file:symbol-gallery.html
-source_sha: 8081e13d47c9cbdd
+source_sha: f3b94104dc84b075
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## page · `symbol-gallery.html` — Symbol Gallery: Engineering Drawing Library
 
-Size: 9KB · 3 top-level fns. (Retrieve THIS instead of reading the file.)
+Size: 13KB · 5 top-level fns. (Retrieve THIS instead of reading the file.)
 
 **DB writes** (0): (none detected)
 **RPC calls**: (none)
 **Edge invokes**: (none)
 **Truth views read**: (none)
 
-**Functions**: buildGallery, deny, togglePrintMode
+**Functions**: ap, arm, buildGallery, deny, togglePrintMode
 
 Links: [[reference_per_page_bughunt_roadmap]] [[project_platform_knowledge_substrate]]

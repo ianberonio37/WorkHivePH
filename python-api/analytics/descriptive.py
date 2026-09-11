@@ -497,7 +497,13 @@ def calc_oee(logbook_entries: list[dict], period_days: int = 90) -> dict:
         "oee_by_asset":  results,
         "assets_tracked": len(results),
         "standard":      "ISO 22400-2:2014 — Availability × Quality (partial OEE)",
-        "note":          "Performance dimension will activate when planned production rate is configured.",
+        # ★THE NOTE WAS PASSIVE AND NAMED NO ACTOR ("...is configured"), so the one sentence under a
+        # blank OEE tile told nobody who does what. NN/g active voice: name the reader's action and
+        # the control that carries it — `asset_nodes.ideal_cycle_time_seconds` is captured by the
+        # "Ideal Cycle Time" field on the asset form, so the sentence names THAT label verbatim
+        # rather than the abstract "planned production rate", which appears on no screen.
+        # (Walked 2026-09-10, EN fleet-supervisor phone-390: analytics B3 67%, passive=2.)
+        "note":          "Add each asset's Ideal Cycle Time to unlock the Performance dimension.",
     }
 
 

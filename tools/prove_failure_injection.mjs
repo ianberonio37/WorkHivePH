@@ -229,9 +229,24 @@ const inject = (mode) => `(() => {
 const READ = ({ failSrc, emptySrc, scopeSel }) => {
   const F = new RegExp(failSrc, 'i');
   const E = new RegExp(emptySrc, 'i');
+  // ★ SEVENTH WIDENING, AND THE FIRST THAT IS NOT ABOUT VOCABULARY. utils.js ships the canonical
+  // skeleton as `.wh-cardskel{display:contents}` — the wrapper carries aria-busy and aria-live (one
+  // screen-reader announcement, not three) while its ROWS join the parent's layout. A display:contents
+  // element's getBoundingClientRect() is always 0x0, so filtering busy elements by their own box
+  // rejects exactly the node holding the semantics, on every page that adopted the shared pattern
+  // (converged 2026-07-17: "the pattern now lives once"). Measured on marketplace-seller with its
+  // listings read held open: three skeleton rows visible from 500ms through 4500ms, aria-busy="true"
+  // throughout, and this filter counted ZERO. Hidden is still hidden; but an element with no box of
+  // its own counts when its DESCENDANTS have one, because that is what the person is looking at.
   const vis = (el) => {
-    const r = el.getBoundingClientRect(); const s = getComputedStyle(el);
-    return r.width > 0 && r.height > 0 && s.visibility !== 'hidden' && s.display !== 'none';
+    const s = getComputedStyle(el);
+    if (s.visibility === 'hidden' || s.display === 'none') return false;
+    const r = el.getBoundingClientRect();
+    if (r.width > 0 && r.height > 0) return true;
+    return [...el.querySelectorAll('*')].some((c) => {
+      const cr = c.getBoundingClientRect();
+      return cr.width > 0 && cr.height > 0;
+    });
   };
   // ★ V2 MUST BE READ INSIDE ITS OWN ELEMENT, or it is not a second view — it is V1 measured twice.
   // This platform has already banked 14 V2 rows carrying V1's reading, by selecting rows on the oracle

@@ -13,7 +13,7 @@
   <link rel="manifest" href="manifest.json" />
   <!-- chip-allow: page is the canonical AI Quality + ROI surface; renders source chip inline in cards -->
   <script src="browser-floor.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
+  <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
   <script src="utils.js"></script>
   <script src="maturity-gate.js"></script>
   <link rel="stylesheet" href="tokens.css">
@@ -128,12 +128,17 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
   <main class="page">
   <!-- List View Contract: declarative empty-state anchor (L-1.5) -->
-  <div id="empty-state" class="empty-state" hidden><h2 style="font-size:1rem;font-weight:700;margin-bottom:0.4rem;" data-i="aq_empty">No AI quality data yet</h2>Quality scores accrue as you draft entries with AI. <a href="logbook.html" class="empty-cta" style="min-height:44px;display:inline-flex;align-items:center;margin-top:0.5rem;padding:0.4rem 0.9rem;border-radius:0.5rem;background:linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light)); color:var(--wh-navy);border:none;font-weight:700;text-decoration:none;">Open Logbook →</a></div>
+  <div id="empty-state" class="empty-state" hidden><h2 style="font-size:1rem;font-weight:700;margin-bottom:0.4rem;" data-i="aq_empty">No AI quality data yet</h2>Quality scores accrue as you draft entries with AI. <a data-i="p_openlogbook_8f75" href="logbook.html" class="empty-cta" style="min-height:44px;display:inline-flex;align-items:center;margin-top:0.5rem;padding:0.4rem 0.9rem;border-radius:0.5rem;background:linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light)); color:var(--wh-navy);border:none;font-weight:700;text-decoration:none;">Open Logbook →</a></div>
 
     <header class="page-header">
       <div>
+        <!-- This page carried NO way back at all: two links, both to the logbook. It is one of the six
+             surfaces the founder console launches into, and none of the six linked back, so a month-end
+             pass across them returned through the public landing page each time. The console gates
+             itself, so a reader without rights meets its refusal, not a broken door. -->
+        <p class="wh-back" style="margin:0 0 .35rem; font-size:.8rem;"><a data-i="p_hiveboard_45c9" href="hive.html" style="color:inherit; opacity:.85; text-decoration:underline;">Hive Board</a><span aria-hidden="true" style="opacity:.4; margin:0 .45rem;">&middot;</span><a data-i="p_backtoworkhive_13cc" href="index.html" style="color:inherit; opacity:.85; text-decoration:underline;">&#8592; Back to WorkHive</a></p>
         <h1 class="page-title" translate="no">AI Quality + ROI</h1>
-        <p class="page-sub">Honest visibility into your AI spend, quality, and predicted savings.</p>
+        <p data-i="p_honestvisibilityintoyouraisp_2edc" class="page-sub">Honest visibility into your AI spend, quality, and predicted savings.</p>
       </div>
       <!-- A1: the page's primary action is to DRIVE more AI-drafted entries (that's the ROI loop
            it measures) — a filled CTA to the logbook, matching the empty-state's own CTA. -->
@@ -214,9 +219,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         console.error('ai-quality load failed:', err);
         // E2 consistent states: inline error + Retry (shared whListError) + toast.
         if (typeof whListError === 'function') {
-          whListError(host, "Couldn’t load your AI quality data. Check your connection and try again.", () => render());
+          whListError(host, _t("Couldn’t load your AI quality data. Check your connection and try again.", "Hindi ma-load ang AI quality data mo. Suriin ang koneksyon at subukan muli."), () => render());
         }
-        if (typeof showToast === 'function') showToast('AI quality failed to load. Tap Retry.', 'warn');
+        if (typeof showToast === 'function') showToast(_t('AI quality failed to load. Tap Retry.', 'Hindi na-load ang AI quality. Pindutin ang Retry.'), 'warn');
         return;
       }
       const summary = aggregate(costRows, feedbackRows);
@@ -264,7 +269,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     const MIN_RATINGS_FOR_VERDICT = 5;
 
     function computeVerdict(s) {
-      if (s.totalCalls === 0) return { tone: 'empty', label: 'No AI activity yet', detail: 'Your workers have not used AI tools this month.' };
+      if (s.totalCalls === 0) return { tone: 'empty', label: 'No AI activity yet', detail: 'Your workers have not used AI tools in the last 30 days.' };
       const thumbsTotal = s.thumbsUp + s.thumbsDown;
       // Below the minimum the ratings carry no verdict — not a good one and not a bad one.
       const thumbsPct = thumbsTotal >= MIN_RATINGS_FOR_VERDICT ? s.thumbsUp / thumbsTotal : null;
@@ -300,14 +305,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         const thumbsTotal = s.thumbsUp + s.thumbsDown;
         if (thumbsTotal >= MIN_RATINGS_FOR_VERDICT) {
           const pct = Math.round(100 * s.thumbsUp / thumbsTotal);
-          line2 = `Workers used AI ${s.totalCalls} times this month and rated it ${pct}% useful (${s.thumbsUp} thumbs up / ${s.thumbsDown} down).`;
+          line2 = `Workers used AI ${s.totalCalls} times in the last 30 days and rated it ${pct}% useful (${s.thumbsUp} thumbs up / ${s.thumbsDown} down).${s.capped ? ' Totals cover the latest 2,000 calls / 5,000 ratings.' : ''}`;
         } else if (thumbsTotal > 0) {
           // A percentage over one or two ratings is noise wearing a number's clothes: one tap moves
           // it 50 points. State the raw counts, which are true, and say what would make a rate mean
           // something — the same discipline the trust card below already applies.
-          line2 = `Workers used AI ${s.totalCalls} times this month. Only ${thumbsTotal} rating${thumbsTotal === 1 ? '' : 's'} so far (${s.thumbsUp} up / ${s.thumbsDown} down). Too few for a useful-rate; ${MIN_RATINGS_FOR_VERDICT}+ makes it meaningful.`;
+          line2 = `Workers used AI ${s.totalCalls} times in the last 30 days. Only ${thumbsTotal} rating${thumbsTotal === 1 ? '' : 's'} so far (${s.thumbsUp} up / ${s.thumbsDown} down). Too few for a useful-rate; ${MIN_RATINGS_FOR_VERDICT}+ makes it meaningful.${s.capped ? ' Totals cover the latest 2,000 calls / 5,000 ratings.' : ''}`;
         } else {
-          line2 = `Workers used AI ${s.totalCalls} times this month. No thumbs ratings yet: encourage workers to rate answers so this page gets sharper.`;
+          line2 = `Workers used AI ${s.totalCalls} times in the last 30 days. No thumbs ratings yet: encourage workers to rate answers so this page gets sharper.${s.capped ? ' Totals cover the latest 2,000 calls / 5,000 ratings.' : ''}`;
         }
       }
       return `
@@ -360,7 +365,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const costTone = php < 2000 ? 'green' : 'amber';
       const cost = {
         hero: whFmtPeso(php, { decimals: 2 }),
-        sub: `${s.totalCalls} AI calls × avg ${whFmtPeso(php / Math.max(s.totalCalls, 1), { decimals: 2 })} each · ${FX_BASIS}`,
+        sub: `${s.totalCalls} AI calls × avg ${whFmtPeso(php / Math.max(s.totalCalls, 1), { decimals: 2 })} each · ${FX_BASIS}${s.capped ? ' · over the latest 2,000 calls' : ''}`,
         tag: costTag,
         tone: costTone,
       };
@@ -390,7 +395,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
             <span class="sc-tag">${escHtml(trust.tag)}</span>
           </div>
           <div class="simple-card tag-${cost.tone}">
-            <div class="sc-label" data-i="aq_cost_month">Cost this month</div>
+            <div class="sc-label" data-i="aq_cost_month">Cost, last 30 days</div><!-- window & label agree (2026-09-05): the query is a rolling 30-day window, not the calendar month -->
             <div class="sc-hero">${escHtml(cost.hero)}</div>
             <div class="sc-sub">${escHtml(cost.sub)}</div>
             <span class="sc-tag">${escHtml(cost.tag)}</span>
@@ -425,7 +430,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       } else if (fallbackPct > 0.25) {
         text = `AI fell back to a backup provider ${Math.round(fallbackPct * 100)}% of calls. Open Plant Connections → Gateway audit to see which routes are failing.`;
       } else if (php > 2000) {
-        text = 'AI spend is on the high side this month. Open the Show details table below to see which AI function is consuming the most: voice journal and visual defect capture are usually the heaviest.';
+        text = 'AI spend is on the high side over the last 30 days. Open the Show details table below to see which AI function is consuming the most: voice journal and visual defect capture are usually the heaviest.';
       } else {
         text = 'Keep encouraging workers to rate AI answers (👍 / 👎). Each thumbs-up sharpens future suggestions and tightens the time-saved estimate above.';
       }
@@ -478,7 +483,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         .gte('created_at', sinceIso)
         .order('created_at', { ascending: false })
         .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-        .limit(2000);
+        .limit(2000);   // cap-ok: the summary carries `capped` and every painted total discloses it
       if (error) throw error;
       return data || [];
     }
@@ -496,7 +501,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         .gte('created_at', sinceIso)
         .order('created_at', { ascending: false })
         .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-        .limit(5000);
+        .limit(5000);   // cap-ok: the summary carries `capped` and every painted total discloses it
       if (error) throw error;   // surface via render()'s catch (whListError+Retry), not a fake empty
       return data || [];
     }
@@ -556,6 +561,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const confidence = sampleSize >= 30 ? 'high' : sampleSize >= 10 ? 'medium' : 'low';
 
       return {
+        // cap is not a total (2026-09-05): the two reads are .limit(2000) / .limit(5000); when either is full the
+        // totals below are sums over the latest rows, and every sentence that paints them says so.
+        capped: costRows.length >= 2000 || feedbackRows.length >= 5000,
         totalCalls, totalCost, totalTokens, fallbackCount, successCount,
         schemaOk, schemaTotal,
         thumbsUp, thumbsDown,
@@ -670,8 +678,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
 <!-- Calm Dashboard Contract footer: data-sources disclosure + hideZeroStat helper -->
 <details data-calm-disclosure="data-sources" style="max-width:680px; margin:1rem auto 2rem; padding:0 1rem;">
-  <summary style="cursor:pointer; font-size:.78rem; color:rgba(255,255,255,0.6); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
-  <p style="font-size:.78rem; color:rgba(255,255,255,0.62); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
+  <summary data-i="p_aboutthisdashboardsdatasourc_8e23" style="cursor:pointer; font-size:.78rem; color:rgba(255,255,255,0.6); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
+  <p data-i="p_numberscomefromyourliveworkh_9c03" style="font-size:.78rem; color:rgba(255,255,255,0.62); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
 </details>
 <script>
   // Calm Dashboard Contract (Layer -1.5) helper. Call hideZeroStat(el, val)
@@ -706,5 +714,18 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       aq_roi_30d:"Tinatayang 30-araw na ROI", aq_worker_feedback:"Feedback ng manggagawa (👍 / 👎)",
       aq_perfn_spend:"Gastos bawat function"
     };</script>
+<script>/* systemic ripple (2026-09-05): utils.js is the shared script every panel below renders through; if it never arrives
+   (a stale shell, a blocked CDN, a dropped connection mid-load) this page went blank or froze on its static skeletons.
+   utils.js cannot help when utils.js is the thing missing, so the guard lives here. */
+window.addEventListener('load', function () { setTimeout(function () {
+  if (typeof getDb === 'function' && typeof escHtml === 'function') return;
+  try { console.error('[ai-quality] utils.js did not load; the page cannot render its data'); } catch (e) { void e; }
+  var m = document.querySelector('main') || document.body; if (!m || m.querySelector('.wh-shared-missing')) return;
+  var d = document.createElement('div'); d.className = 'honest-empty wh-shared-missing'; d.setAttribute('role', 'alert');
+  d.style.cssText = 'margin:12px;padding:14px 16px;border:1px solid rgba(248,113,113,.4);border-radius:10px;background:rgba(248,113,113,.08);color:#fca5a5;font:14px/1.5 system-ui,sans-serif;';
+  d.innerHTML = 'WorkHive could not load its shared script (utils.js), so this page cannot show your data. <button type="button" onclick="location.reload()" style="color:inherit;text-decoration:underline;background:none;border:0;padding:0;font:inherit;cursor:pointer;min-height:44px;" data-i="reloadtotryagain">Reload to try again</button>.';
+  m.insertBefore(d, m.firstChild);
+  var sk = document.querySelectorAll('.wh-skeleton, [class*="skeleton"]'); for (var i = 0; i < sk.length; i++) sk[i].style.display = 'none';
+}, 2500); });</script>
 </body>
 </html>

@@ -75,14 +75,14 @@ serveObserved("agent-memory-store", async (req) => {
   if (healthResp) return healthResp;
 
   if (req.method !== "POST") {
-    return new Response(JSON.stringify({ error: "Method not allowed" }), {
+    return new Response(JSON.stringify({ error: "That action is not allowed here. Reload the page and try again." }), {
       status: 405, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
 
   let body: { op?: string; hive_id?: string | null; worker_name?: string | null; query?: string; memory_types?: MemoryType[]; limit?: number; memories?: StoreInput[] } = {};
   try { body = await req.json(); } catch {
-    return new Response(JSON.stringify({ error: "Invalid JSON body" }), {
+    return new Response(JSON.stringify({ error: "That request could not be read. Reload the page and try again." }), {
       status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
@@ -97,6 +97,14 @@ serveObserved("agent-memory-store", async (req) => {
     });
   }
 
+  // ★NOTHING BELOW THIS LINE HAD A CATCH THAT RETURNS A RESPONSE. Input is handled well - a bad method, an
+  // unreadable body, a missing op and a refused tenancy each get their own legible sentence - but once the
+  // work starts, a throw from the database or from the shared episodic-memory helpers left the runtime to
+  // answer, and the person got a raw 500 with a stack in it. Found by the contract prober's degradation
+  // lens: "answered 200, but its source has no catch that returns a response - a provider failure would
+  // reach the person raw." The recall path is the one that matters: a worker asking the companion what it
+  // remembers should be told it could not look, not shown an exception.
+  try {
   const db         = _warm || createClient(_URL, _KEY);
   const hiveId     = body.hive_id || null;
   const workerName = body.worker_name || null;
@@ -135,4 +143,13 @@ serveObserved("agent-memory-store", async (req) => {
     status: result.errors.length ? 500 : 200,
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
+  } catch (e) {
+    // The message is for a person, and it says which of the two things happened rather than pretending
+    // the memory is empty: "could not look" is not "there is nothing".
+    console.error("agent-memory-store failed:", e instanceof Error ? e.message : String(e));
+    return new Response(JSON.stringify({
+      error: "Your memory could not be reached just now. Nothing was lost - try again in a moment.",
+      code: "memory_unavailable",
+    }), { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+  }
 });

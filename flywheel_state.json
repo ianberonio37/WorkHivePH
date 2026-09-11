@@ -1,9 +1,9 @@
 {
-  "turn": 424,
+  "turn": 461,
   "history": [
     {
-      "turn": 415,
-      "ts": "2026-08-31T08:47:23",
+      "turn": 452,
+      "ts": "2026-09-11T05:54:51",
       "diff": {
         "L-1_total_proposals": {
           "from": 0,
@@ -16,13 +16,13 @@
           "delta": 0
         },
         "L0_total_baseline_count": {
-          "from": 3272,
-          "to": 3272,
+          "from": 3520,
+          "to": 3520,
           "delta": 0
         },
         "L0_validators_with_baseline": {
-          "from": 203,
-          "to": 203,
+          "from": 206,
+          "to": 206,
           "delta": 0
         },
         "L2_sentinel_specs": {
@@ -41,17 +41,17 @@
       "L0_regressions_quarantined": [],
       "env_up": null,
       "promotions": {
-        "rule_candidates": 9,
+        "rule_candidates": 12,
         "sentinel_candidates": 1,
-        "tracked_total": 10,
+        "tracked_total": 13,
         "below_threshold": 0,
-        "top_rule": "rule:html:loads_utils_js",
+        "top_rule": "rule:edge:sets_content_type_json",
         "top_sentinel": "sentinel:user_facing_jargon"
       }
     },
     {
-      "turn": 416,
-      "ts": "2026-08-31T16:29:31",
+      "turn": 453,
+      "ts": "2026-09-11T07:04:52",
       "diff": {
         "L-1_total_proposals": {
           "from": 0,
@@ -64,61 +64,13 @@
           "delta": 0
         },
         "L0_total_baseline_count": {
-          "from": 3272,
-          "to": 3273,
-          "delta": 1
-        },
-        "L0_validators_with_baseline": {
-          "from": 203,
-          "to": 204,
-          "delta": 1
-        },
-        "L2_sentinel_specs": {
-          "from": 29,
-          "to": 29,
-          "delta": 0
-        },
-        "L13_walkthroughs_stale": {
-          "from": 0,
-          "to": 0,
-          "delta": 0
-        }
-      },
-      "L0_ratchets": [],
-      "L0_regressions": [],
-      "L0_regressions_quarantined": [],
-      "env_up": null,
-      "promotions": {
-        "rule_candidates": 9,
-        "sentinel_candidates": 1,
-        "tracked_total": 10,
-        "below_threshold": 0,
-        "top_rule": "rule:html:loads_utils_js",
-        "top_sentinel": "sentinel:user_facing_jargon"
-      }
-    },
-    {
-      "turn": 417,
-      "ts": "2026-09-01T00:17:01",
-      "diff": {
-        "L-1_total_proposals": {
-          "from": 0,
-          "to": 0,
-          "delta": 0
-        },
-        "L-1.5_rules_in_manifest": {
-          "from": 50,
-          "to": 50,
-          "delta": 0
-        },
-        "L0_total_baseline_count": {
-          "from": 3273,
-          "to": 3273,
+          "from": 3520,
+          "to": 3520,
           "delta": 0
         },
         "L0_validators_with_baseline": {
-          "from": 204,
-          "to": 204,
+          "from": 206,
+          "to": 206,
           "delta": 0
         },
         "L2_sentinel_specs": {
@@ -137,17 +89,17 @@
       "L0_regressions_quarantined": [],
       "env_up": null,
       "promotions": {
-        "rule_candidates": 9,
+        "rule_candidates": 12,
         "sentinel_candidates": 1,
-        "tracked_total": 10,
+        "tracked_total": 13,
         "below_threshold": 0,
-        "top_rule": "rule:html:loads_utils_js",
+        "top_rule": "rule:edge:sets_content_type_json",
         "top_sentinel": "sentinel:user_facing_jargon"
       }
     },
     {
-      "turn": 418,
-      "ts": "2026-09-01T08:05:23",
+      "turn": 454,
+      "ts": "2026-09-11T07:22:23",
       "diff": {
         "L-1_total_proposals": {
           "from": 0,
@@ -160,13 +112,13 @@
           "delta": 0
         },
         "L0_total_baseline_count": {
-          "from": 3273,
-          "to": 3273,
+          "from": 3520,
+          "to": 3520,
           "delta": 0
         },
         "L0_validators_with_baseline": {
-          "from": 204,
-          "to": 204,
+          "from": 206,
+          "to": 206,
           "delta": 0
         },
         "L2_sentinel_specs": {
@@ -185,17 +137,17 @@
       "L0_regressions_quarantined": [],
       "env_up": null,
       "promotions": {
-        "rule_candidates": 9,
+        "rule_candidates": 12,
         "sentinel_candidates": 1,
-        "tracked_total": 10,
+        "tracked_total": 13,
         "below_threshold": 0,
-        "top_rule": "rule:html:loads_utils_js",
+        "top_rule": "rule:edge:sets_content_type_json",
         "top_sentinel": "sentinel:user_facing_jargon"
       }
     },
     {
-      "turn": 419,
-      "ts": "2026-09-01T22:20:39",
+      "turn": 455,
+      "ts": "2026-09-11T08:01:08",
       "diff": {
         "L-1_total_proposals": {
           "from": 0,
@@ -208,13 +160,13 @@
           "delta": 0
         },
         "L0_total_baseline_count": {
-          "from": 3273,
-          "to": 3274,
-          "delta": 1
+          "from": 3520,
+          "to": 3520,
+          "delta": 0
         },
         "L0_validators_with_baseline": {
-          "from": 204,
-          "to": 204,
+          "from": 206,
+          "to": 206,
           "delta": 0
         },
         "L2_sentinel_specs": {
@@ -230,30 +182,20 @@
       },
       "L0_ratchets": [],
       "L0_regressions": [],
-      "L0_regressions_quarantined": [
-        {
-          "validator": "db_adoption",
-          "from": 185,
-          "to": 186,
-          "classification": "adoption-ratchet",
-          "scored": false,
-          "env_up": true,
-          "fresh_count": 186
-        }
-      ],
-      "env_up": true,
+      "L0_regressions_quarantined": [],
+      "env_up": null,
       "promotions": {
-        "rule_candidates": 9,
+        "rule_candidates": 12,
         "sentinel_candidates": 1,
-        "tracked_total": 10,
+        "tracked_total": 13,
         "below_threshold": 0,
-        "top_rule": "rule:html:loads_utils_js",
+        "top_rule": "rule:edge:sets_content_type_json",
         "top_sentinel": "sentinel:user_facing_jargon"
       }
     },
     {
-      "turn": 420,
-      "ts": "2026-09-03T02:47:18",
+      "turn": 456,
+      "ts": "2026-09-11T10:31:45",
       "diff": {
         "L-1_total_proposals": {
           "from": 0,
@@ -266,13 +208,61 @@
           "delta": 0
         },
         "L0_total_baseline_count": {
-          "from": 3274,
-          "to": 3274,
+          "from": 3520,
+          "to": 3520,
           "delta": 0
         },
         "L0_validators_with_baseline": {
-          "from": 204,
-          "to": 204,
+          "from": 206,
+          "to": 206,
+          "delta": 0
+        },
+        "L2_sentinel_specs": {
+          "from": 29,
+          "to": 29,
+          "delta": 0
+        },
+        "L13_walkthroughs_stale": {
+          "from": 0,
+          "to": 0,
+          "delta": 0
+        }
+      },
+      "L0_ratchets": [],
+      "L0_regressions": [],
+      "L0_regressions_quarantined": [],
+      "env_up": null,
+      "promotions": {
+        "rule_candidates": 12,
+        "sentinel_candidates": 1,
+        "tracked_total": 13,
+        "below_threshold": 0,
+        "top_rule": "rule:edge:sets_content_type_json",
+        "top_sentinel": "sentinel:user_facing_jargon"
+      }
+    },
+    {
+      "turn": 457,
+      "ts": "2026-09-11T12:08:46",
+      "diff": {
+        "L-1_total_proposals": {
+          "from": 0,
+          "to": 0,
+          "delta": 0
+        },
+        "L-1.5_rules_in_manifest": {
+          "from": 50,
+          "to": 50,
+          "delta": 0
+        },
+        "L0_total_baseline_count": {
+          "from": 3520,
+          "to": 3518,
+          "delta": -2
+        },
+        "L0_validators_with_baseline": {
+          "from": 206,
+          "to": 206,
           "delta": 0
         },
         "L2_sentinel_specs": {
@@ -288,36 +278,26 @@
       },
       "L0_ratchets": [
         {
-          "validator": "boundary_refusal",
-          "from": 1,
-          "to": 0
+          "validator": "rendered_i18n",
+          "from": 73,
+          "to": 71
         }
       ],
       "L0_regressions": [],
-      "L0_regressions_quarantined": [
-        {
-          "validator": "api_adoption",
-          "from": 61,
-          "to": 62,
-          "classification": "adoption-ratchet",
-          "scored": false,
-          "env_up": true,
-          "fresh_count": 62
-        }
-      ],
-      "env_up": true,
+      "L0_regressions_quarantined": [],
+      "env_up": null,
       "promotions": {
-        "rule_candidates": 9,
+        "rule_candidates": 12,
         "sentinel_candidates": 1,
-        "tracked_total": 10,
+        "tracked_total": 13,
         "below_threshold": 0,
-        "top_rule": "rule:html:loads_utils_js",
+        "top_rule": "rule:edge:sets_content_type_json",
         "top_sentinel": "sentinel:user_facing_jargon"
       }
     },
     {
-      "turn": 421,
-      "ts": "2026-09-03T07:12:13",
+      "turn": 458,
+      "ts": "2026-09-11T13:06:02",
       "diff": {
         "L-1_total_proposals": {
           "from": 0,
@@ -330,13 +310,13 @@
           "delta": 0
         },
         "L0_total_baseline_count": {
-          "from": 3274,
-          "to": 3272,
-          "delta": -2
+          "from": 3518,
+          "to": 3501,
+          "delta": -17
         },
         "L0_validators_with_baseline": {
-          "from": 204,
-          "to": 204,
+          "from": 206,
+          "to": 206,
           "delta": 0
         },
         "L2_sentinel_specs": {
@@ -353,141 +333,30 @@
       "L0_ratchets": [
         {
           "validator": "clone_debt",
-          "from": 51,
-          "to": 49
+          "from": 53,
+          "to": 38
+        },
+        {
+          "validator": "rendered_i18n",
+          "from": 71,
+          "to": 69
         }
       ],
       "L0_regressions": [],
       "L0_regressions_quarantined": [],
       "env_up": null,
       "promotions": {
-        "rule_candidates": 9,
-        "sentinel_candidates": 1,
-        "tracked_total": 10,
-        "below_threshold": 0,
-        "top_rule": "rule:html:loads_utils_js",
-        "top_sentinel": "sentinel:user_facing_jargon"
-      }
-    },
-    {
-      "turn": 422,
-      "ts": "2026-09-03T22:30:02",
-      "diff": {
-        "L-1_total_proposals": {
-          "from": 0,
-          "to": 0,
-          "delta": 0
-        },
-        "L-1.5_rules_in_manifest": {
-          "from": 50,
-          "to": 50,
-          "delta": 0
-        },
-        "L0_total_baseline_count": {
-          "from": 3272,
-          "to": 3273,
-          "delta": 1
-        },
-        "L0_validators_with_baseline": {
-          "from": 204,
-          "to": 204,
-          "delta": 0
-        },
-        "L2_sentinel_specs": {
-          "from": 29,
-          "to": 29,
-          "delta": 0
-        },
-        "L13_walkthroughs_stale": {
-          "from": 0,
-          "to": 0,
-          "delta": 0
-        }
-      },
-      "L0_ratchets": [],
-      "L0_regressions": [],
-      "L0_regressions_quarantined": [
-        {
-          "validator": "edge_error_capture",
-          "from": 61,
-          "to": 62,
-          "classification": "adoption-ratchet",
-          "scored": false,
-          "env_up": true,
-          "fresh_count": 62
-        }
-      ],
-      "env_up": true,
-      "promotions": {
-        "rule_candidates": 9,
-        "sentinel_candidates": 1,
-        "tracked_total": 10,
-        "below_threshold": 0,
-        "top_rule": "rule:html:loads_utils_js",
-        "top_sentinel": "sentinel:user_facing_jargon"
-      }
-    },
-    {
-      "turn": 423,
-      "ts": "2026-09-04T09:35:45",
-      "diff": {
-        "L-1_total_proposals": {
-          "from": 0,
-          "to": 0,
-          "delta": 0
-        },
-        "L-1.5_rules_in_manifest": {
-          "from": 50,
-          "to": 50,
-          "delta": 0
-        },
-        "L0_total_baseline_count": {
-          "from": 3273,
-          "to": 3274,
-          "delta": 1
-        },
-        "L0_validators_with_baseline": {
-          "from": 204,
-          "to": 204,
-          "delta": 0
-        },
-        "L2_sentinel_specs": {
-          "from": 29,
-          "to": 29,
-          "delta": 0
-        },
-        "L13_walkthroughs_stale": {
-          "from": 0,
-          "to": 0,
-          "delta": 0
-        }
-      },
-      "L0_ratchets": [],
-      "L0_regressions": [],
-      "L0_regressions_quarantined": [
-        {
-          "validator": "envelope_return_shape",
-          "from": 6,
-          "to": 7,
-          "classification": "adoption-ratchet",
-          "scored": false,
-          "env_up": true,
-          "fresh_count": 7
-        }
-      ],
-      "env_up": true,
-      "promotions": {
-        "rule_candidates": 9,
+        "rule_candidates": 12,
         "sentinel_candidates": 1,
         "tracked_total": 13,
-        "below_threshold": 3,
+        "below_threshold": 0,
         "top_rule": "rule:edge:sets_content_type_json",
         "top_sentinel": "sentinel:user_facing_jargon"
       }
     },
     {
-      "turn": 424,
-      "ts": "2026-09-04T17:50:56",
+      "turn": 459,
+      "ts": "2026-09-11T13:39:24",
       "diff": {
         "L-1_total_proposals": {
           "from": 0,
@@ -500,13 +369,115 @@
           "delta": 0
         },
         "L0_total_baseline_count": {
-          "from": 3274,
-          "to": 3274,
+          "from": 3501,
+          "to": 3499,
+          "delta": -2
+        },
+        "L0_validators_with_baseline": {
+          "from": 206,
+          "to": 206,
+          "delta": 0
+        },
+        "L2_sentinel_specs": {
+          "from": 29,
+          "to": 29,
+          "delta": 0
+        },
+        "L13_walkthroughs_stale": {
+          "from": 0,
+          "to": 0,
+          "delta": 0
+        }
+      },
+      "L0_ratchets": [
+        {
+          "validator": "rendered_i18n",
+          "from": 69,
+          "to": 67
+        }
+      ],
+      "L0_regressions": [],
+      "L0_regressions_quarantined": [],
+      "env_up": null,
+      "promotions": {
+        "rule_candidates": 12,
+        "sentinel_candidates": 1,
+        "tracked_total": 13,
+        "below_threshold": 0,
+        "top_rule": "rule:edge:sets_content_type_json",
+        "top_sentinel": "sentinel:user_facing_jargon"
+      }
+    },
+    {
+      "turn": 460,
+      "ts": "2026-09-11T14:24:01",
+      "diff": {
+        "L-1_total_proposals": {
+          "from": 0,
+          "to": 0,
+          "delta": 0
+        },
+        "L-1.5_rules_in_manifest": {
+          "from": 50,
+          "to": 50,
+          "delta": 0
+        },
+        "L0_total_baseline_count": {
+          "from": 3499,
+          "to": 3499,
           "delta": 0
         },
         "L0_validators_with_baseline": {
-          "from": 204,
-          "to": 204,
+          "from": 206,
+          "to": 206,
+          "delta": 0
+        },
+        "L2_sentinel_specs": {
+          "from": 29,
+          "to": 29,
+          "delta": 0
+        },
+        "L13_walkthroughs_stale": {
+          "from": 0,
+          "to": 0,
+          "delta": 0
+        }
+      },
+      "L0_ratchets": [],
+      "L0_regressions": [],
+      "L0_regressions_quarantined": [],
+      "env_up": null,
+      "promotions": {
+        "rule_candidates": 12,
+        "sentinel_candidates": 1,
+        "tracked_total": 13,
+        "below_threshold": 0,
+        "top_rule": "rule:edge:sets_content_type_json",
+        "top_sentinel": "sentinel:user_facing_jargon"
+      }
+    },
+    {
+      "turn": 461,
+      "ts": "2026-09-11T18:04:16",
+      "diff": {
+        "L-1_total_proposals": {
+          "from": 0,
+          "to": 0,
+          "delta": 0
+        },
+        "L-1.5_rules_in_manifest": {
+          "from": 50,
+          "to": 50,
+          "delta": 0
+        },
+        "L0_total_baseline_count": {
+          "from": 3499,
+          "to": 3499,
+          "delta": 0
+        },
+        "L0_validators_with_baseline": {
+          "from": 206,
+          "to": 206,
           "delta": 0
         },
         "L2_sentinel_specs": {
@@ -573,7 +544,7 @@
         "aria_label_coverage": 0,
         "article_taxonomy": 0,
         "asset_hub_deepwalk": 100,
-        "au_adoption": 32,
+        "au_adoption": 42,
         "auth_identity_ufai": 0,
         "authority_link": 0,
         "av_adoption": 0,
@@ -591,12 +562,12 @@
         "canonical_drift": 0,
         "canonical_url_consistency": 0,
         "client_write_grants": 0,
-        "clone_debt": 49,
+        "clone_debt": 38,
         "commission_leakage": 0,
         "companion_delivery": 0,
         "companion_diverse": 12,
         "companion_page_coverage": 0,
-        "component_adoption": 32,
+        "component_adoption": 42,
         "component_purity": 0,
         "connection_pool_saturation": 0,
         "connection_surface": 0,
@@ -610,10 +581,10 @@
         "cta": 0,
         "cwv": 0,
         "data_db_ufai": 0,
-        "db_adoption": 186,
+        "db_adoption": 244,
         "deeplink_param_contracts": 0,
         "deploy_safety": 3,
-        "design_tokens": 166,
+        "design_tokens": 163,
         "document_write": 0,
         "drop_if_exists": 0,
         "duplicate_html_id": 0,
@@ -642,7 +613,7 @@
         "fetch_error_handling": 0,
         "fil_parity": 4,
         "filter_case_consistency": 0,
-        "fixture_hive": 2,
+        "fixture_hive": 1,
         "fk_on_delete": 0,
         "form_submission_target": 0,
         "frontend_ufai": 234,
@@ -719,13 +690,14 @@
         "redundant_widgets": 1,
         "render_budget": 17,
         "render_sweep": 28,
+        "rendered_i18n": 67,
         "request_budget": 1,
         "resilience_dr": 0,
         "rls_coverage": 0,
         "rls_open_policy": 2,
         "rls_permissive_bypass": 0,
         "rls_strict": 16,
-        "role_check": 0,
+        "role_check": 94,
         "role_string_consistency": 0,
         "rpc_argument_consistency": 0,
         "saas_layer_open": 0,
@@ -741,7 +713,7 @@
         "settimeout_string": 0,
         "sitemap_page_existence": 0,
         "source_chip_truth": 0,
-        "structured_log_adoption": 45,
+        "structured_log_adoption": 46,
         "supabase_object_existence": 0,
         "tabindex_positive": 0,
         "table_accessible_name": 0,
@@ -753,14 +725,15 @@
         "truth_view_contract": 37,
         "truth_view_signal_trust": 9,
         "unbounded_query": 0,
+        "unchecked_writes": 0,
         "user_facing_jargon": 0,
         "ux_contract_input_label": 1,
         "verified_state_wiring": 0,
         "view_select_star": 0,
         "viewport_user_scalable": 0
       },
-      "total_baseline_count": 3274,
-      "validators_with_baseline": 204
+      "total_baseline_count": 3499,
+      "validators_with_baseline": 206
     },
     "L2": {
       "sentinel_specs": 29,
@@ -776,80 +749,80 @@
     "rule:html:loads_utils_js": {
       "kind": "rule",
       "first_seen_turn": 57,
-      "last_seen_turn": 424,
-      "seen_turns": 368
+      "last_seen_turn": 461,
+      "seen_turns": 405
     },
     "rule:seeder:accepts_client_param": {
       "kind": "rule",
       "first_seen_turn": 57,
-      "last_seen_turn": 424,
-      "seen_turns": 368
+      "last_seen_turn": 461,
+      "seen_turns": 405
     },
     "rule:validator:has_main_guard": {
       "kind": "rule",
       "first_seen_turn": 57,
-      "last_seen_turn": 424,
-      "seen_turns": 368
+      "last_seen_turn": 461,
+      "seen_turns": 405
     },
     "sentinel:user_facing_jargon": {
       "kind": "sentinel",
       "first_seen_turn": 109,
-      "last_seen_turn": 424,
-      "seen_turns": 316
+      "last_seen_turn": 461,
+      "seen_turns": 353
     },
     "rule:html:has_main_landmark": {
       "kind": "rule",
       "first_seen_turn": 142,
-      "last_seen_turn": 424,
-      "seen_turns": 283
+      "last_seen_turn": 461,
+      "seen_turns": 320
     },
     "rule:edge:uses_error_envelope": {
       "kind": "rule",
       "first_seen_turn": 315,
-      "last_seen_turn": 424,
-      "seen_turns": 110
+      "last_seen_turn": 461,
+      "seen_turns": 147
     },
     "rule:edge:sets_content_type_json": {
       "kind": "rule",
       "first_seen_turn": 315,
-      "last_seen_turn": 424,
-      "seen_turns": 110
+      "last_seen_turn": 461,
+      "seen_turns": 147
     },
     "rule:edge:imports_supabase_esm": {
       "kind": "rule",
       "first_seen_turn": 355,
-      "last_seen_turn": 424,
-      "seen_turns": 70
+      "last_seen_turn": 461,
+      "seen_turns": 107
     },
     "rule:edge:reads_supabase_url_env": {
       "kind": "rule",
       "first_seen_turn": 355,
-      "last_seen_turn": 424,
-      "seen_turns": 70
+      "last_seen_turn": 461,
+      "seen_turns": 107
     },
     "rule:edge:reads_service_role_env": {
       "kind": "rule",
       "first_seen_turn": 355,
-      "last_seen_turn": 424,
-      "seen_turns": 70
+      "last_seen_turn": 461,
+      "seen_turns": 107
     },
     "rule:edge:handles_options": {
       "kind": "rule",
       "first_seen_turn": 423,
-      "last_seen_turn": 424,
-      "seen_turns": 2
+      "last_seen_turn": 461,
+      "seen_turns": 39
     },
     "rule:edge:uses_get_cors_headers": {
       "kind": "rule",
       "first_seen_turn": 423,
-      "last_seen_turn": 424,
-      "seen_turns": 2
+      "last_seen_turn": 461,
+      "seen_turns": 39
     },
     "rule:edge:has_try_catch": {
       "kind": "rule",
       "first_seen_turn": 423,
-      "last_seen_turn": 424,
-      "seen_turns": 2
+      "last_seen_turn": 461,
+      "seen_turns": 39
     }
   }
 }

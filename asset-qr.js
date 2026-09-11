@@ -18,6 +18,15 @@
  * ───────────────────────────────────────────────────────────────────────── */
 (function () {
   'use strict';
+
+  /* W3-SC (2026-09-09): the printed tag gets taped to a machine on the plant floor and read there for
+     years, and its screen-reader label is read by whoever scans it -- both were English-only.
+     window._t(en, fil) is the platform locale floor utils.js installs; a `function` rather than an
+     arrow helper, matching this file's ES5 style. The asset TAG itself is never translated: it is the
+     value the scanner matches on asset.asset_id, and a translated tag would not resolve. */
+  function _tt(en, fil) {
+    return (typeof window._t === 'function') ? window._t(en, fil) : en;
+  }
   if (window.WHAssetQR) return;
 
   var LIB_URL = 'https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js';
@@ -63,7 +72,7 @@
     }
     return '<svg xmlns="http://www.w3.org/2000/svg" width="' + px + '" height="' + px +
       '" viewBox="0 0 ' + px + ' ' + px + '" shape-rendering="crispEdges" role="img" ' +
-      'aria-label="QR code for ' + String(text).replace(/"/g, '') + '">' +
+      'aria-label="' + _tt('QR code for ', 'QR code para sa ') + String(text).replace(/"/g, '') + '">' +
       '<rect width="100%" height="100%" fill="#fff"/><g fill="#000">' + rects + '</g></svg>';
   }
 
@@ -103,7 +112,7 @@
           '<div class="code">' + esc(tag) + '</div>' +
           (name ? '<div class="name">' + esc(name) + '</div>' : '') +
           (location ? '<div class="loc">' + esc(location) + '</div>' : '') +
-          '<div class="brand">WorkHive asset tag</div></div>' +
+          '<div class="brand">' + esc(_tt('WorkHive asset tag', 'WorkHive na tag ng makina')) + '</div></div>' +
           '<script>window.onload=function(){window.print();setTimeout(function(){window.close()},400)}<\/script>' +
           '</body></html>');
         win.document.close();

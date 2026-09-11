@@ -219,7 +219,14 @@
     }
     .key-toggle:hover { color:rgba(255,255,255,0.83); }
 
-    .error-text { color: var(--wh-red); font-size: 0.78rem; margin-top: 0.35rem; display: none; }
+    /* C2 contract adoption (2026-09-10): --wh-red is the danger FILL; tokens.css declares --wh-red-text
+       as its AA text pair, and this renders at 0.78rem where WCAG asks 4.5:1. Called out separately from
+       the badges fixed the same day because this rule is `display:none` until an error occurs, so the
+       rubric's C2 lens can NEVER grade it - a hidden state is invisible to a lens that walks the rendered
+       page. Applied on the documented token contract rather than a measured ratio, and it cannot read
+       worse: --wh-red-text is the lighter of the pair on this platform's dark ground. Error copy is the
+       last text that should be hard to read. */
+    .error-text { color: var(--wh-red-text); font-size: 0.78rem; margin-top: 0.35rem; display: none; }
     .error-text.show { display: block; }
   </style>
 <style>/* I1 CLS: static wayfinding back-pill band reserve (wayfinding.js sets this body padding-top post-paint on pill-pages = a late shift under full-run contention; present at first paint -> its `if(band>cur)` skips, layout unchanged). VERIFIED this page gets the pill (has <main>, no back-affordance, not home). */
@@ -250,47 +257,45 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         <div class="w-14 h-14 rounded-2xl flex items-center justify-center mb-4" style="background:rgba(247,162,27,0.12);border:1px solid rgba(247,162,27,0.2);">
           <span class="ic ic-back" aria-hidden="true"></span>
         </div>
-        <h1 class="text-2xl font-bold text-white mb-1">My Work Assistant</h1>
-        <p class="text-sm text-white/80">Ask anything: technical, operational, planning, safety, or your own job history.</p>
+        <h1 data-i="p_myworkassistant_1c06" class="text-2xl font-bold text-white mb-1">My Work Assistant</h1>
+        <p data-i="p_askanythingtechnicaloperatio_8fdf" class="text-sm text-white/80">Ask anything: technical, operational, planning, safety, or your own job history.</p>
       </div>
 <details class="wh-help">
-  <summary>How this page works</summary>
-  <p>Type a question or set up the daily briefing. Answers are grounded in your own hive data: logbook, PM schedule, parts, and alerts.</p>
+  <summary data-i="p_howthispageworks_c540">How this page works</summary>
+  <p data-i="p_typeaquestionorsetupthedaily_ed42">Type a question or set up the daily briefing. Answers are grounded in your own hive data: logbook, PM schedule, parts, and alerts.</p>
 </details>
-<p class="wh-source-chip" id="assistant-scope-chip" style="font-size:.62rem;color:rgba(255,255,255,0.80);margin:0;padding:3px 0 0;line-height:1.35;">Live hive data &middot; Based on your logbook, PM schedule, parts, and alerts &middot; recomputed per question</p>
+<p data-i="p_livehivedatabasedonyourlogbo_6885" class="wh-source-chip" id="assistant-scope-chip" style="font-size:.62rem;color:rgba(255,255,255,0.80);margin:0;padding:3px 0 0;line-height:1.35;">Live hive data &middot; Based on your logbook, PM schedule, parts, and alerts &middot; recomputed per question</p>
 
       <!-- Form card -->
       <div class="wh-card p-6 space-y-5">
 
         <!-- Worker name -->
         <div>
-          <label for="worker-name" class="block text-xs font-semibold text-white/80 uppercase tracking-wide mb-2">Your Name</label>
+          <label data-i="p_yourname_f48d" for="worker-name" class="block text-xs font-semibold text-white/80 uppercase tracking-wide mb-2">Your Name</label>
           <input id="worker-name" type="text" class="wh-input" aria-describedby="name-error" placeholder="e.g. Juan dela Cruz" required aria-required="true" maxlength="80" />
-          <p role="alert" aria-live="assertive" id="name-error" class="error-text">Please enter your name.</p>
+          <p data-i="p_pleaseenteryourname_fffc" role="alert" aria-live="assertive" id="name-error" class="error-text">Please enter your name.</p>
         </div>
 
         <!-- Today's context (optional) -->
         <div>
           <label for="today-context" class="block text-xs font-semibold text-white/80 uppercase tracking-wide mb-2">
             Today's Context
-            <span class="text-white/80 normal-case font-normal ml-1">(optional)</span>
+            <span data-i="p_optional_b16c" class="text-white/80 normal-case font-normal ml-1">(optional)</span>
           </label>
           <textarea id="today-context" class="wh-input" rows="4" maxlength="500" placeholder="e.g. Working on Line 3 pumps, PM schedule for Compressor C-01..." style="resize:none;"></textarea>
         </div>
 
         <!-- Records summary -->
         <div id="records-summary" class="rounded-xl p-4" style="background:rgba(41,182,217,0.06);border:1px solid rgba(41,182,217,0.15);">
-          <p class="text-xs font-semibold text-blue-wh mb-2">Records available for context</p>
+          <p data-i="p_recordsavailableforcontext_74c6" class="text-xs font-semibold text-blue-wh mb-2">Records available for context</p>
           <div id="records-list" class="space-y-1"></div>
-          <p id="empty-records-nudge" class="text-xs text-white/80 mt-2 hidden">No records yet. Add logbook entries or parts to unlock personalised insights. You can still ask technical questions.</p>
+          <p data-i="p_norecordsyetaddlogbookentrie_860b" id="empty-records-nudge" class="text-xs text-white/80 mt-2 hidden">No records yet. Add logbook entries or parts to unlock personalised insights. You can still ask technical questions.</p>
         </div>
 
       </div>
 
       <!-- CTA -->
-      <button onclick="startChat()" class="btn-primary w-full mt-5">
-        Start Chat
-      </button>
+      <button onclick="startChat()" class="btn-primary w-full mt-5" data-i="startchat">Start Chat</button>
 
       <p class="text-center text-xs text-white/80 mt-4">Powered by WorkHive AI</p>
 
@@ -323,7 +328,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
              getPersonaName(), so the label cannot drift from the persona actually sent. -->
         <span id="chat-persona-name" class="text-xs text-white/80"></span>
       </div>
-      <button onclick="clearChat()" class="text-xs text-white/80 hover:text-white/80 transition-colors font-medium" style="min-height:44px;display:inline-flex;align-items:center;" data-i="newchat">New Chat</button>
+      <button onclick="clearChat()" class="text-xs text-white/80 hover:text-white/80 transition-colors font-medium" style="min-height:44px;display:inline-flex;align-items:center;white-space:nowrap;flex-shrink:0;" data-i="newchat">New Chat</button>
     </div>
 
     <!-- Companion Streamline Step C: tab strip [Chat | Journal].
@@ -368,7 +373,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
          where the next ask is typed, not buried in the page intro. Empty and silent until the
          count is actually low. -->
     <p id="assistant-quota-note" role="status" aria-live="polite"
-       style="display:none; font-size:.62rem; color:var(--wh-amber-text, #f7a21b); margin:0 0 4px; line-height:1.35;"></p>
+       style="display:none; font-size:.62rem; color:var(--wh-orange-text); margin:0 0 4px; line-height:1.35;"></p>
     <div id="chat-input-area" class="chat-input-area flex-shrink-0">
       <div class="flex items-end gap-2 max-w-lg mx-auto">
         <textarea aria-label="Ask anything…"
@@ -562,11 +567,33 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     // Lives OUTSIDE buildSystemPrompt because that function no longer runs (see the note where its
     // call was removed). Caught by a live check: with the updater inside it, the chip silently kept
     // its build-time text - a fix that ships and never executes.
-    function _setAssistantScopeChip() {
+    function _setAssistantScopeChip(hasSession) {
       try {
         const _chip = document.getElementById('assistant-scope-chip');
         if (_chip) {
           const _hive = localStorage.getItem('wh_hive_name'); /* storage-key-allow: display-only hive label */
+          /* W3-DF (2026-09-09): THE HIVE LABEL IS NOT AN ENTITLEMENT. This chip promised "grounded in
+             this hive's live data" on the strength of wh_hive_name alone - a DISPLAY string that
+             survives sign-out, so a signed-out visitor was shown a named hive and told their answers
+             draw on its open alerts, overdue PMs, parts stock and asset risk. Measured through
+             PostgREST as that person: v_logbook_truth 0 rows, v_inventory_items_truth 0 rows,
+             v_pm_compliance_truth 0 rows. RLS refuses by FILTERING, so the grounding does not fail
+             loudly - the model simply answers from nothing while the chip vouches for data the reader
+             cannot reach. The fallback made it worse: with no label at all it still read "Your hive".
+             A promise about data must be conditional on being able to read the data, so ask for a
+             session first and describe what is actually true when there is none. */
+          /* SYNCHRONOUS ON PURPOSE, and told the answer rather than asking for it. The first version
+             awaited db.auth.getSession() right here - but `db` is assigned ~900 lines below this call,
+             so the await threw, the catch swallowed it, and the chip silently kept its BUILD-TIME text
+             for everyone. That is the exact failure the note above this function already records
+             ("a fix that ships and never executes"), and the getDb-exists-before-it-works trap. So the
+             caller passes what it knows: false on the early paint (nothing is proven yet, and the
+             cautious sentence is the safe default), true once a session has actually resolved. */
+          if (!hasSession) {
+            _chip.textContent = 'Not signed in · Answers are NOT grounded in any hive’s data - '
+              + 'sign in to ground them in your own. General technical help still works.';
+            return;
+          }
           // Describe what actually grounds the ANSWER, which is the gateway's own hive-scoped reads
           // (alerts, overdue PMs, parts, asset risk, blocked project items, plus a vector search over
           // this hive's knowledge). The client's buildSystemPrompt bundle is NOT sent - it was removed
@@ -578,7 +605,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         }
       } catch (_) { /* empty-catch-allow: the chip is an explainer, never a blocker */ }
     }
-    try { _setAssistantScopeChip(); } catch (_) { /* empty-catch-allow */ }
+    // .catch as well as try/catch: this became async when the chip started asking for a session, and a
+    // sync try/catch cannot see a rejected promise - the chip is an explainer and must never throw.
+    try { _setAssistantScopeChip(false); } catch (_) { /* empty-catch-allow */ }
 
     // T16/T89: the quota the gateway already reports, said as a warning while there is still
     // time to act on it. Declared here - above every async caller - so no path reads it in a
@@ -922,7 +951,7 @@ happens to know maintenance, not a manual.`;
         // owner with a car + schedule has records even before their first logged repair
         ? "I can see your job records and will reference them when relevant."
         : lcUnknown
-        ? "I couldn't reach your job records just now, so I may not have them to hand. That does not mean they are missing. Ask me anything technical in the meantime, and try again in a moment for anything about your own history."
+        ? _t("I couldn't reach your job records just now, so I may not have them to hand. That does not mean they are missing. Ask me anything technical in the meantime, and try again in a moment for anything about your own history.", "Hindi ko maabot ang job records mo ngayon, kaya baka wala ako nito sa kamay. Hindi ibig sabihin nawala ang mga ito. Magtanong ka muna ng kahit anong teknikal, at subukan muli mamaya para sa sarili mong history.")
         : "You don't have any records yet. Add logbook entries or parts to unlock personalised insights. For now I can help with technical questions, procedures, or anything on your mind.";
       addAssistantBubble(`Hi ${workerName}! I'm your WorkHive Work Assistant. ${recordsNote}\n\nWhat do you need?`);
       // Arc P · Wave 3 (P1/P5): starter-prompt chips guide first use + fill the empty
@@ -1423,7 +1452,7 @@ happens to know maintenance, not a manual.`;
         // surfaces disagreed about the same event. The cause is already known here; say it.
         showToast(window.__whGatewayFailure === 'rate_limit'
           ? (window.whAiError ? window.whAiError({ message: '429' }) : 'You have hit the AI rate limit.')
-          : 'Something went wrong');
+          : _t('Something went wrong', 'May nangyaring mali'));
       } finally {
         isLoading = false;
         // NOT `disabled = false` — after a reply the composer is empty again, and an unconditional
@@ -1495,6 +1524,13 @@ happens to know maintenance, not a manual.`;
         restoreIdentityFromSession(db).catch(() => {});
       }
 
+      // W3-DF: now that `db` exists, ask whether this reader actually HAS a session and upgrade the
+      // scope chip if so. Until this resolves the chip carries the cautious sentence, which is the
+      // right way round: it may under-promise for a moment, and it can never over-promise.
+      db.auth.getSession()
+        .then(r => { if (r && r.data && r.data.session) _setAssistantScopeChip(true); })
+        .catch(() => {});
+
       // T85 (2026-08-26): the companion persona needs the identical treatment, and did not
       // have it. getPersonaKey() reads localStorage only, and this page never bridged it to
       // worker_profiles.preferred_persona - only index.html and voice-journal.html did. So a
@@ -1529,7 +1565,7 @@ happens to know maintenance, not a manual.`;
       } catch (_) { /* empty-catch-allow: best-effort deep-link; chat still works */ }
     });
   </script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
+  <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
   <script src="nav-hub.js"></script>
 <script>window.addEventListener('load', function () { if (window.whAutoSaveDraft) whAutoSaveDraft('context', ['today-context']); });</script>
   <!-- L2 anchor for floating_ai_disclaimer scenario: must be visible DOM,

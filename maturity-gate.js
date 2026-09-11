@@ -109,6 +109,15 @@
       if (error && error.code !== 'PGRST116') {
         // PGRST116 = no rows; treat as fresh hive, not error
         console.warn('[maturity-gate] check failed:', error.message);
+        // The fourth state (2026-09-05): a FAILED readiness read used to fall through as 'stair 0' and LOCK the surface
+        // with 'No readiness snapshot yet' - a network error dressed as a maturity verdict. Fail OPEN and say why.
+        return {
+          blocked: false, readFailed: true,
+          currentStair: null, currentStairName: 'unknown',
+          requiredStair, requiredStairName: STAIR_NAMES[requiredStair] || 'Industry Leader',
+          blockerSummary: "Could not check your hive's readiness (" + (error.message || 'read failed') + "). This page opens unlocked; reload to re-check.",
+          evidence: {}, compositeScore: null,
+        };
       }
       const cs = data && typeof data.current_stair === 'number' ? data.current_stair : 0;
       const blocked = cs < requiredStair;
@@ -163,13 +172,16 @@
       .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;').replace(/'/g, '&#39;')));
 
+    // EX-TL (2026-09-07): this gate is the WHOLE page a locked surface shows (ai-quality read 2 of 15
+    // visible strings in Filipino), so its own words go through the platform translator when present.
+    const T = (typeof root._t === 'function') ? root._t : ((en) => en);
     const cur = gate.currentStair == null ? '-' : String(gate.currentStair);
     const compChip = gate.compositeScore == null
       ? ''
-      : `<span style="font-size:11px;color:rgba(255,255,255,0.72);margin-left:8px;">composite ${gate.compositeScore}/100</span>`;
+      : `<span style="font-size:11px;color:rgba(255,255,255,0.72);margin-left:8px;">${T('composite', 'composite')} ${gate.compositeScore}/100</span>`;
 
     const altLine = opts.alternateSuggestion
-      ? `<p style="font-size:12px;color:rgba(255,255,255,0.72);margin-top:10px;line-height:1.55;">In the meantime: ${esc(opts.alternateSuggestion)}</p>`
+      ? `<p style="font-size:12px;color:rgba(255,255,255,0.72);margin-top:10px;line-height:1.55;">${T('In the meantime:', 'Sa ngayon:')} ${esc(opts.alternateSuggestion)}</p>`
       : '';
 
     el.innerHTML = `
@@ -180,17 +192,17 @@
           <span style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;
                        font-size:10px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;
                        background:rgba(255,184,0,0.16);color:#FDB94A;">
-            Locked
+            ${T('Locked', 'Naka-lock')}
           </span>
           <span style="font-size:11px;color:rgba(255,255,255,0.72);">
-            Maturity Stairway
+            ${T('Maturity Stairway', 'Maturity Stairway')}
           </span>
         </div>
         <h1 style="font-size:1.15rem;font-weight:800;color:#F4F6FA;margin:6px 0 12px;">
           ${esc(opts.pageName || 'This surface')} <span data-i="mg_unlocks_at">unlocks at Stair</span> ${esc(String(gate.requiredStair))}: ${esc(gate.requiredStairName)}
         </h1>
         <p style="font-size:13px;color:rgba(255,255,255,0.75);line-height:1.6;margin:0 0 14px;">
-          ${esc(opts.why || 'This view fills in once your hive has enough real data to make it accurate.')}
+          ${esc(opts.why || T('This view fills in once your hive has enough real data to make it accurate.', 'Mapupunan ang view na ito kapag sapat na ang totoong data ng hive mo para maging tumpak ito.'))}
         </p>
         <div style="background:rgba(0,0,0,0.22);border:1px solid rgba(255,255,255,0.06);
                      border-radius:10px;padding:12px 14px;margin:14px 0;">
@@ -205,22 +217,21 @@
         </div>
         ${altLine}
         <details class="wh-help" style="margin:12px 0 0;font-size:12px;">
-          <summary style="cursor:pointer;font-weight:700;color:rgba(255,255,255,0.72);min-height:44px;display:inline-flex;align-items:center;">How the stairway works</summary>
+          <summary style="cursor:pointer;font-weight:700;color:rgba(255,255,255,0.72);min-height:44px;display:inline-flex;align-items:center;">${T('How the stairway works', 'Paano gumagana ang stairway')}</summary>
           <p style="margin:4px 0 0;color:rgba(255,255,255,0.72);line-height:1.55;">
-            Each stair is earned by real records. Stair 1 needs a steady logbook habit.
-            Stair 2 needs steady PM discipline. Stair 3 needs enough history for accurate analytics.
-            Keep logging and the snapshot moves on its own.
+            ${T('Each stair is earned by real records. Stair 1 needs a steady logbook habit. Stair 2 needs steady PM discipline. Stair 3 needs enough history for accurate analytics. Keep logging and the snapshot moves on its own.',
+                'Bawat stair ay nakukuha sa totoong record. Kailangan ng Stair 1 ng tuloy-tuloy na logbook habit. Kailangan ng Stair 2 ng tuloy-tuloy na PM discipline. Kailangan ng Stair 3 ng sapat na kasaysayan para sa tumpak na analytics. Magpatuloy sa pag-log at kusang gagalaw ang snapshot.')}
           </p>
         </details>
         <p class="wh-source-chip" style="font-size:11px;color:rgba(255,255,255,0.72);margin:10px 0 0;line-height:1.4;">
-          Readiness &middot; from your hive&#39;s live records
+          ${T('Readiness &middot; from your hive&#39;s live records', 'Readiness &middot; mula sa live na record ng hive mo')}
         </p>
         <div style="display:flex;gap:8px;margin-top:18px;flex-wrap:wrap;">
           <a href="${esc(opts.linkBack || 'hive.html')}#maturity-stairway-card"
              style="display:inline-flex;align-items:center;min-height:44px;padding:10px 18px;border-radius:10px;
                     background:linear-gradient(135deg,#F7A21B,#FDB94A);color:#162032;
                     font-size:12px;font-weight:800;text-decoration:none;">
-            Open Maturity Stairway →
+            ${T('Open Maturity Stairway →', 'Buksan ang Maturity Stairway →')}
           </a>
           <a href="hive.html"
              style="display:inline-flex;align-items:center;min-height:44px;padding:10px 18px;border-radius:10px;

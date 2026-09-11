@@ -112,6 +112,9 @@ SKIP_PARTS = {
 # Scoped to the prove_/validate_ naming this repo uses rigorously rather than to all of tools/,
 # because tools/ also holds production-ish scripts whose calls ARE real seams.
 _INSTRUMENT_PREFIXES = ("prove_", "validate_")
+# the prover LIBRARIES the prove_ scripts import (2026-09-07): tools/ai_ask.mjs carries the 429 mock routes for the
+# AI front doors and was mined as two new SaaS->AI seams; a harness module is an instrument, not a caller
+_INSTRUMENT_FILES = {"prover_harness.mjs", "ai_ask.mjs"}
 
 
 _FN_CALL_RE = re.compile(r"/functions/v1/([a-z0-9][a-z0-9-]*)")
@@ -127,7 +130,7 @@ def is_skipped(path: Path) -> bool:
     if any(part in SKIP_PARTS for part in path.parts):
         return True
     # the instrument that exercises a seam is not one of its callers - see _INSTRUMENT_PREFIXES
-    return path.name.startswith(_INSTRUMENT_PREFIXES)
+    return path.name.startswith(_INSTRUMENT_PREFIXES) or path.name in _INSTRUMENT_FILES
 
 
 def edge_fn_name(p: Path) -> str | None:

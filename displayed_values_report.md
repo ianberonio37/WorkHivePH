@@ -6,12 +6,12 @@ each as contracted / uncontracted / raw / unknown.
 
 ## Summary
 
-- Pages scanned:           **29**
-- Display anchors found:   **111**
-- Contracted ✅:           **21** (anchor maps to a registered formula)
+- Pages scanned:           **36**
+- Display anchors found:   **119**
+- Contracted ✅:           **22** (anchor maps to a registered formula)
 - **Uncontracted ⚠️:**     **0** (domain-meaningful metric, no formula registered)
-- Raw (counts/dates):      **90** (no contract needed)
-- Unknown:                 **0** (couldn't classify from id alone)
+- Raw (counts/dates):      **93** (no contract needed)
+- Unknown:                 **4** (couldn't classify from id alone)
 - Formula registry:        **24** entries
 
 ## Per-page breakdown
@@ -47,5 +47,12 @@ each as contracted / uncontracted / raw / unknown.
 | `voice-journal.html` | 3 | 0 | 0 | 3 | 0 |
 | `founder-console.html` | 6 | 2 | 0 | 4 | 0 |
 | `index.html` | 1 | 0 | 0 | 1 | 0 |
+| `validator-catalog.html` | 3 | 0 | 0 | 1 | 2 |
+| `symbol-gallery.html` | 1 | 0 | 0 | 1 | 0 |
+| `design-system.html` | 0 | 0 | 0 | 0 | 0 |
+| `llm-observability.html` | 2 | 1 | 0 | 0 | 1 |
+| `offline-fallback.html` | 0 | 0 | 0 | 0 | 0 |
+| `architecture.html` | 1 | 0 | 0 | 0 | 1 |
+| `learn/index.html` | 1 | 0 | 0 | 1 | 0 |
 
 ## Per-page punch list — uncontracted displays

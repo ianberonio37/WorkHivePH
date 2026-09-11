@@ -8382,3 +8382,195 @@ Validator runs in <100ms; the L0 layer is the right home.
       // seed a violation, navigate, assert the surface degrades safely
     });
     ```
+
+# Multi-Scenario Sentinel — proposed edge scenarios
+
+1 TIER 1 rule(s) currently have <2 anchored tests:
+
+## `models_are_live` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `models_are_live`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('models_are_live: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+# Multi-Scenario Sentinel — proposed edge scenarios
+
+1 TIER 1 rule(s) currently have <2 anchored tests:
+
+## `models_are_live` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `models_are_live`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('models_are_live: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+# Multi-Scenario Sentinel — proposed edge scenarios
+
+1 TIER 1 rule(s) currently have <2 anchored tests:
+
+## `models_are_live` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `models_are_live`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('models_are_live: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+# Multi-Scenario Sentinel — proposed edge scenarios
+
+1 TIER 1 rule(s) currently have <2 anchored tests:
+
+## `models_are_live` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `models_are_live`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('models_are_live: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+# Multi-Scenario Sentinel — proposed edge scenarios
+
+1 TIER 1 rule(s) currently have <2 anchored tests:
+
+## `models_are_live` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `models_are_live`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('models_are_live: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+# Multi-Scenario Sentinel — proposed edge scenarios
+
+1 TIER 1 rule(s) currently have <2 anchored tests:
+
+## `models_are_live` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `models_are_live`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('models_are_live: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+# Multi-Scenario Sentinel — proposed edge scenarios
+
+1 TIER 1 rule(s) currently have <2 anchored tests:
+
+## `models_are_live` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `models_are_live`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('models_are_live: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+# Multi-Scenario Sentinel — proposed edge scenarios
+
+1 TIER 1 rule(s) currently have <2 anchored tests:
+
+## `models_are_live` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `models_are_live`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('models_are_live: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+# Multi-Scenario Sentinel — proposed edge scenarios
+
+1 TIER 1 rule(s) currently have <2 anchored tests:
+
+## `models_are_live` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `models_are_live`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('models_are_live: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+# Multi-Scenario Sentinel — proposed edge scenarios
+
+1 TIER 1 rule(s) currently have <2 anchored tests:
+
+## `models_are_live` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `models_are_live`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('models_are_live: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+# Multi-Scenario Sentinel — proposed edge scenarios
+
+1 TIER 1 rule(s) currently have <2 anchored tests:
+
+## `models_are_live` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `models_are_live`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('models_are_live: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+# Multi-Scenario Sentinel — proposed edge scenarios
+
+1 TIER 1 rule(s) currently have <2 anchored tests:
+
+## `models_are_live` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `models_are_live`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('models_are_live: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```

@@ -123,7 +123,14 @@ def check_lifecycle_audit_coverage() -> list[dict]:
                 lookahead = content[m.start():m.start() + 3000]
                 lookbehind = content[max(0, m.start() - 1500):m.start()]
                 window_blob = lookbehind + lookahead
-                if not WRITE_AUDIT_ANY_RE.search(window_blob):
+                # ★A DATABASE TRIGGER IS ALSO AN AUDIT WRITER (2026-09-06). asset-hub's approve/reject paths
+                # used to call writeAuditLog from the client AND be audited by the 20260728000015 trigger, so
+                # every decision wrote the row twice. Removing the client copy is the correct fix - the trigger
+                # is authoritative and fires however the row is updated, including from psql or another surface -
+                # but L1 then reported the page as unaudited. A status update whose own table is audited by a
+                # trigger, and which SAYS so in a comment naming that trigger, is covered.
+                TRIGGER_COVERED = re.compile('audit(ed)? by (the )?[a-z_0-9]*trigger|trigger .{0,60}(writes|is authoritative)|[0-9]{14}[a-z_0-9]* trigger', re.I)
+                if not WRITE_AUDIT_ANY_RE.search(window_blob) and not TRIGGER_COVERED.search(window_blob):
                     issues.append({
                         "check": "lifecycle_audit_missing",
                         "page": page,

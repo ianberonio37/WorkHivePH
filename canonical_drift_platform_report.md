@@ -6,9 +6,9 @@ the class that produces _two pages, two numbers_ inconsistency.
 
 ## Summary
 
-- Files scanned: **293**
-- KPI-rendering pages: **156**
+- Files scanned: **295**
+- KPI-rendering pages: **157**
 - Pages with local truth-math (FREQ_DAYS / calcNextDue / ...): **0**
 - **TIER A drift pages** (user-facing KPI surface): **0**
 - TIER B drift pages (internal / shared JS): **0**
-- Canonical reads: 334 · Drift: 0 · Gap: 0 · Allowed: 261
+- Canonical reads: 321 · Drift: 0 · Gap: 0 · Allowed: 283

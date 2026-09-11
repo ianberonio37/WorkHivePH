@@ -1,17 +1,24 @@
 {
-  "clones": 49,
-  "contentDuplicatedLines": 1804,
-  "markupLinesInformational": 1972,
-  "percentage": 20.25,
+  "clones": 38,
+  "contentDuplicatedLines": 1588,
+  "markupLinesInformational": 1184,
+  "percentage": 17.84,
   "pairs": {
-    "ai-quality.html <-> plant-connections.html": 663,
-    "architecture.html <-> llm-observability.html": 647,
-    "ph-intelligence.html <-> plant-connections.html": 362,
-    "agentic-rag-observability.html <-> llm-observability.html": 64,
+    "ai-quality.html <-> plant-connections.html": 537,
+    "ph-intelligence.html <-> plant-connections.html": 341,
+    "architecture.html <-> validator-catalog.html": 318,
+    "llm-observability.html <-> validator-catalog.html": 203,
     "engineering-design.html <-> engineering-design.html": 56,
+    "agentic-rag-observability.html <-> validator-catalog.html": 43,
+    "design-system.html <-> offline-fallback.html": 20,
     "architecture.html <-> architecture.html": 19,
-    "plant-connections.html <-> plant-connections.html": 16,
-    "design-system.html <-> design-system.html": 6
+    "ai-quality.html <-> ph-intelligence.html": 17,
+    "agentic-rag-observability.html <-> llm-observability.html": 15,
+    "ai-quality.html <-> public-feed.html": 14,
+    "plant-connections.html <-> plant-connections.html": 8,
+    "agentic-rag-observability.html <-> ai-quality.html": 7,
+    "design-system.html <-> design-system.html": 6,
+    "ai-quality.html <-> ai-quality.html": 6
   },
   "note": "forward-only ratchet on CONTENT duplicatedLines (css + javascript formats only); markup-format lines are informational: jscpd's markup tokenizer matches only the tag envelope and bills the whole line-span, so on script-heavy pages those counts grow when UNIQUE code is added inside a matched envelope (proven 2026-08-21: replacing public-feed's entire script body with junk left the 527-line project-report<->public-feed 'clone' intact). Collapse duplication then --update-baseline to lower; % informational"
 }

@@ -2,7 +2,7 @@
 name: edge-fn-login
 type: edge-fn
 source: file:supabase/functions/login/index.ts
-source_sha: 05bec4ab7c97eaf5
+source_sha: 00f425ce6487a501
 last_verified: 2026-07-13
 supersedes: null
 ---

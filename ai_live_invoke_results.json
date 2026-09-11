@@ -1,6 +1,135 @@
 {
   "validator": "ai_live_invoke",
-  "skipped": true,
-  "reason": "GoTrue/seeder unreachable for JWT (run the seeder + supabase start)",
-  "cells": {}
+  "base": "http://127.0.0.1:54321",
+  "hive": "084c113b-99c0-45c6-a8e8-b4b8349da46d",
+  "live_cells": 0,
+  "breaches": [
+    "H1/U: ai-gateway no persona envelope (HTTP 503)",
+    "H2/U: contract gap: OPTIONS=503 cors_ok=False err_envelope=False",
+    "H2/I: orchestrator HTTP 503",
+    "H3/U: semantic-search no RAG envelope (HTTP 503)",
+    "H3/U: semantic-search no RAG envelope (HTTP 503)",
+    "H4/U: voice CORS preflight HTTP 503",
+    "H5/U: calc-agent CORS preflight HTTP 503",
+    "H5/F: calc-agent live invoke HTTP 503"
+  ],
+  "cells": {
+    "H15/F": {
+      "live": false,
+      "evidence": "intelligence-report unavailable (HTTP 503) \u2014 env/transport"
+    },
+    "H1/U": {
+      "live": false,
+      "evidence": "BREACH: ai-gateway no persona envelope (HTTP 503)"
+    },
+    "H2/U": {
+      "live": false,
+      "evidence": "BREACH: contract gap: OPTIONS=503 cors_ok=False err_envelope=False"
+    },
+    "H2/I": {
+      "live": false,
+      "evidence": "BREACH: orchestrator HTTP 503"
+    },
+    "H3/U": {
+      "live": false,
+      "evidence": "BREACH: semantic-search no RAG envelope (HTTP 503)"
+    },
+    "H4/U": {
+      "live": false,
+      "evidence": "BREACH: voice CORS preflight HTTP 503"
+    },
+    "H5/U": {
+      "live": false,
+      "evidence": "BREACH: calc-agent CORS preflight HTTP 503"
+    },
+    "H5/F": {
+      "live": false,
+      "evidence": "BREACH: calc-agent live invoke HTTP 503"
+    },
+    "H3/A": {
+      "live": false,
+      "evidence": "embed server/space not deterministic (ok=True dim=384 stable=True)"
+    },
+    "H8/I": {
+      "live": false,
+      "evidence": "orchestrator HTTP 503 on injection probe"
+    },
+    "H2/A": {
+      "live": false,
+      "evidence": "fault-inject probe inconclusive (M1 ok=False HTTP503, M2 ok=False HTTP503) \u2014 needs >=2 keyed providers + local debug hook"
+    },
+    "H4/A": {
+      "live": false,
+      "evidence": "fault-inject probe inconclusive (M1 ok=False HTTP503, M2 ok=False HTTP503) \u2014 needs >=2 keyed providers + local debug hook"
+    },
+    "H5/A": {
+      "live": false,
+      "evidence": "fault-inject probe inconclusive (M1 ok=False HTTP503, M2 ok=False HTTP503) \u2014 needs >=2 keyed providers + local debug hook"
+    },
+    "H6/A": {
+      "live": false,
+      "evidence": "fault-inject probe inconclusive (M1 ok=False HTTP503, M2 ok=False HTTP503) \u2014 needs >=2 keyed providers + local debug hook"
+    },
+    "H8/A": {
+      "live": false,
+      "evidence": "fault-inject probe inconclusive (M1 ok=False HTTP503, M2 ok=False HTTP503) \u2014 needs >=2 keyed providers + local debug hook"
+    },
+    "H7/U": {
+      "live": false,
+      "evidence": "fault-inject probe inconclusive (M1 ok=False HTTP503, M2 ok=False HTTP503) \u2014 needs >=2 keyed providers + local debug hook"
+    },
+    "H1/I": {
+      "live": false,
+      "evidence": "debug_echo unavailable (HTTP 503) \u2014 needs local debug hook"
+    },
+    "H1/F": {
+      "live": false,
+      "evidence": "AI rate-limit/down on faithfulness probes \u2014 re-run after reset"
+    },
+    "H1/M": {
+      "live": false,
+      "evidence": "ai-gateway recall probe unavailable (t1=503 t2=skip) \u2014 env/transport"
+    },
+    "H9/F": {
+      "live": false,
+      "evidence": "asset-brain-query unavailable (HTTP 503) \u2014 env/transport, re-run after reset"
+    },
+    "H10/F": {
+      "live": false,
+      "evidence": "temporal-rag-orchestrator unavailable (HTTP 503) \u2014 env/transport"
+    },
+    "H8/F": {
+      "live": false,
+      "evidence": "ai-eval-runner unavailable (HTTP 503)"
+    },
+    "H7/F": {
+      "live": false,
+      "evidence": "TS chain M1 not proven this run \u2014 py-parity deferred"
+    },
+    "H4/F": {
+      "live": false,
+      "evidence": "TTS\u2192transcribe round-trip unavailable: URLError (needs compute-API /tts + GROQ key)"
+    },
+    "H11/F": {
+      "live": false,
+      "evidence": "hierarchical-summarizer unavailable (HTTP 503) \u2014 env/transport"
+    },
+    "H13/F": {
+      "live": false,
+      "evidence": "fmea-populator unavailable (HTTP 503) \u2014 env/transport"
+    },
+    "H14/F": {
+      "live": false,
+      "evidence": "semantic-fact-extractor unavailable (HTTP 503) \u2014 env/transport"
+    },
+    "H12/F": {
+      "live": false,
+      "evidence": "voice-semantic-rag unavailable (HTTP 503) \u2014 env/transport"
+    },
+    "H2/F": {
+      "live": false,
+      "evidence": "ai-orchestrator unavailable (HTTP 503) \u2014 env/transport"
+    }
+  },
+  "partial": false
 }

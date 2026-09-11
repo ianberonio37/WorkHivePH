@@ -280,7 +280,8 @@ serveObserved("equipment-label-ocr", async (req) => {
       throw new Error("missing image_data_url or image_url");
     }
   } catch (err) {
-    return new Response(JSON.stringify({ error: (err as Error).message }), {
+    console.error("equipment-label-ocr:", (err ?? e) instanceof Error ? ((err ?? e) as Error).message : String(err ?? e));
+    return new Response(JSON.stringify({ error: "Could not read that label. Try a clearer photo." }), {
       status: 400, headers: { ...cors, "Content-Type": "application/json" },
     });
   }

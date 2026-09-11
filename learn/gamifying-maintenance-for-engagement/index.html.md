@@ -122,4 +122,4 @@ Mature WorkHive customers do not. The framing matters: do not call them "badges 
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: e3cdb83a692234f5 -->
+<!-- md-twin source-sha: ee1416a86bb15df2 -->

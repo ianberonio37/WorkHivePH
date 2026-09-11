@@ -143,9 +143,20 @@
     } } } };
   </script>
   <style>
+    /* wh-learn-contrast-remap: the learn pages load Tailwind from the CDN, so they miss the contrast
+       remap wh-tw.css applies app-wide. 12px byline text at /45 measured 4.27:1 against the
+       4.5:1 it owes. body-scoped (0,1,1) so it wins over the CDN utility whatever the order. */
+    body .text-white\/45 { color: rgb(255 255 255 / 0.8); }
+    body .text-white\/50 { color: rgb(255 255 255 / 0.8); }
+    body .text-white\/55 { color: rgb(255 255 255 / 0.8); }
+    body .text-white\/60 { color: rgb(255 255 255 / 0.8); }
+    body .text-white\/65 { color: rgb(255 255 255 / 0.85); }
+    body .text-white\/70 { color: rgb(255 255 255 / 0.85); }
+    body .text-white\/75 { color: rgb(255 255 255 / 0.85); }
+    html, body, a, button { touch-action: manipulation; }   /* T3: no 300 ms tap delay, no double-tap zoom (the rubric reads html/body) */
     * { font-family: 'Poppins', sans-serif; } body { background: #162032; color: #F4F6FA; }
     .hex-pattern { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='92' viewBox='0 0 80 92'%3E%3Cpath d='M40 0 L80 23 L80 69 L40 92 L0 69 L0 23 Z' fill='none' stroke='%23ffffff08' stroke-width='1.5'/%3E%3C/svg%3E"); background-size: 80px 92px; }
-    .prose-wh { color: rgba(244,246,250,0.78); font-size: 1.05rem; line-height: 1.8; }
+    .prose-wh { overflow-wrap: anywhere; word-break: break-word; color: rgba(244,246,250,0.85); font-size: 1.05rem; line-height: 1.8; }
     .prose-wh h2 { color: #F4F6FA; font-size: 1.75rem; font-weight: 800; line-height: 1.25; letter-spacing: -0.015em; margin-top: 3rem; margin-bottom: 1rem; scroll-margin-top: 80px; }
     .prose-wh h3 { color: #F4F6FA; font-size: 1.2rem; font-weight: 700; margin-top: 2rem; margin-bottom: 0.5rem; }
     .prose-wh p  { margin-bottom: 1.25rem; }
@@ -154,34 +165,35 @@
     .prose-wh ul li { list-style: disc; } .prose-wh ol li { list-style: decimal; }
     .prose-wh strong { color: #F4F6FA; font-weight: 700; }
     .prose-wh a { color: #5FCCE8; text-decoration: underline; text-underline-offset: 3px; } .prose-wh a:hover { color: #29B6D9; }
-    .prose-wh blockquote { border-left: 3px solid #F7A21B; padding: 0.5rem 0 0.5rem 1.25rem; margin: 1.5rem 0; color: rgba(244,246,250,0.7); font-style: italic; background: rgba(247,162,27,0.04); }
+    .prose-wh blockquote { border-left: 3px solid #F7A21B; padding: 0.5rem 0 0.5rem 1.25rem; margin: 1.5rem 0; color: rgba(244,246,250,0.85); font-style: italic; background: rgba(247,162,27,0.04); }
     .prose-wh table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.95rem; }
     .prose-wh th, .prose-wh td { padding: 12px 14px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.08); vertical-align: top; }
     .prose-wh th { background: rgba(31,46,69,0.6); font-weight: 700; color: #F4F6FA; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; }
     .prose-wh tr:hover { background: rgba(31,46,69,0.3); }
-    .prose-wh code { background: rgba(31,46,69,0.7); border: 1px solid rgba(255,255,255,0.08); padding: 2px 8px; border-radius: 6px; font-family: 'Consolas','Courier New',monospace; font-size: 0.92rem; color: #FDB94A; }
+    .prose-wh code { background: rgba(31,46,69,0.7); border: 1px solid rgba(255,255,255,0.08); padding: 2px 8px; border-radius: 6px; font-family: 'Consolas','Courier New',monospace; font-size: 0.92rem; color: #FED38D; }
     .prose-wh pre { background: rgba(13,24,36,0.85); border: 1px solid rgba(255,255,255,0.08); padding: 18px 22px; border-radius: 12px; overflow-x: auto; margin: 1.5rem 0; font-family: 'Consolas','Courier New',monospace; font-size: 0.9rem; color: #E8F4FF; line-height: 1.65; white-space: pre-wrap; }
     .pill { display: inline-block; font-size: 0.65rem; font-weight: 700; padding: 3px 10px; border-radius: 100px; letter-spacing: 0.05em; text-transform: uppercase; }
     .pill-orange { background: rgba(247,162,27,0.18); color: #F7A21B; border: 1px solid rgba(247,162,27,0.35); }
     .toc { background: rgba(31,46,69,0.55); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 22px 26px; margin: 2rem 0 3rem; }
-    .toc h2 { color: rgba(244,246,250,0.55); font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 12px; }
+    .toc h2 { color: rgba(244,246,250,0.8); font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 12px; }
     .toc ol { padding-left: 1.5rem; margin: 0; } .toc li { margin-bottom: 6px; font-size: 0.92rem; }
-    .toc a { color: rgba(244,246,250,0.75); text-decoration: none; } .toc a:hover { color: #F7A21B; }
+    .toc a { color: rgba(244,246,250,0.85); text-decoration: none; } .toc a:hover { color: #F7A21B; }
     .answer-first { background: rgba(247,162,27,0.08); border-left: 3px solid #F7A21B; border-radius: 8px; padding: 18px 22px; margin-bottom: 2rem; font-size: 1.05rem; line-height: 1.75; color: rgba(244,246,250,0.85); }
-    .callout { background: rgba(41,182,217,0.06); border-left: 3px solid #29B6D9; border-radius: 8px; padding: 18px 22px; margin: 2rem 0; font-size: 0.98rem; line-height: 1.7; color: rgba(244,246,250,0.78); }
-    .callout strong { color: #5FCCE8; }
+    .callout { background: rgba(41,182,217,0.06); border-left: 3px solid #29B6D9; border-radius: 8px; padding: 18px 22px; margin: 2rem 0; font-size: 0.98rem; line-height: 1.7; color: rgba(244,246,250,0.85); }
+    .callout strong { color: #A4E2F2; }
     .cta-box { background: linear-gradient(135deg, rgba(247,162,27,0.12) 0%, rgba(31,46,69,0.85) 100%); border: 1px solid rgba(247,162,27,0.35); border-radius: 16px; padding: 28px 30px; margin: 3rem 0; }
     .cta-box .cta-eyebrow { color: #F7A21B; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
     .cta-box h4 { font-size: 1.35rem; font-weight: 800; color: #F4F6FA; margin-bottom: 8px; }
-    .cta-box p { color: rgba(244,246,250,0.7); margin-bottom: 18px; line-height: 1.65; }
+    .cta-box p { color: rgba(244,246,250,0.85); margin-bottom: 18px; line-height: 1.65; }
     .cta-btn { display: inline-block; background: linear-gradient(135deg, #F7A21B 0%, #D88A0E 100%); color: #162032; font-weight: 700; padding: 12px 28px; border-radius: 10px; text-decoration: none; transition: transform .18s, box-shadow .18s; }
+    .prose-wh a.cta-btn { color: #162032; text-decoration: none; }  /* (0,2,1) beats .prose-wh a (0,1,1): a button inside the article body keeps its own colour instead of being painted as a prose link (measured 1.11:1 before this) */
     .cta-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px -4px rgba(247,162,27,0.45); }
-    .cta-secondary { font-size: 0.82rem; color: rgba(244,246,250,0.45); margin-top: 14px; margin-bottom: 0; }
+    .cta-secondary { font-size: 0.82rem; color: rgba(244,246,250,0.8); margin-top: 14px; margin-bottom: 0; }
     .cta-secondary a { color: #5FCCE8; text-decoration: underline; text-underline-offset: 2px; }
     .cta-secondary a:hover { color: #29B6D9; }
     .audience-block { background: rgba(41,182,217,0.05); border: 1px solid rgba(41,182,217,0.18); border-radius: 12px; padding: 16px 20px; margin: 0 0 2rem; }
     .audience-block .audience-label { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: #5FCCE8; margin-bottom: 10px; }
-    .audience-block ul { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 18px; font-size: 0.9rem; color: rgba(244,246,250,0.78); }
+    .audience-block ul { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 18px; font-size: 0.9rem; color: rgba(244,246,250,0.85); }
     .audience-block ul li { list-style: none !important; position: relative; padding-left: 16px; margin: 0; }
     .audience-block ul li::before { content: '·'; position: absolute; left: 4px; color: #29B6D9; font-weight: 800; font-size: 1.2rem; line-height: 1; top: 0; }
     @media (max-width: 640px) { .audience-block ul { grid-template-columns: 1fr; } }
@@ -190,20 +202,21 @@
     .faq-item summary { cursor: pointer; list-style: none; padding: 16px 20px; font-weight: 600; color: #F4F6FA; display: flex; justify-content: space-between; gap: 14px; }
     .faq-item summary::-webkit-details-marker { display: none; }
     .faq-item summary::after { content: '+'; font-size: 1.4rem; color: #F7A21B; } .faq-item[open] summary::after { content: '\2212'; }
-    .faq-item .faq-answer { padding: 0 20px 18px; color: rgba(244,246,250,0.7); line-height: 1.7; font-size: 0.95rem; }
+    .faq-item .faq-answer { padding: 0 20px 18px; color: rgba(244,246,250,0.85); line-height: 1.7; font-size: 0.95rem; }
     .author-card { background: rgba(31,46,69,0.5); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 20px 24px; margin: 2rem 0; display: flex; gap: 16px; align-items: center; }
     .author-card .avatar { width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #F7A21B, #FDB94A); display: flex; align-items: center; justify-content: center; font-weight: 800; color: #162032; font-size: 1.1rem; flex-shrink: 0; }
     .author-card .meta p:first-child { font-weight: 700; color: #F4F6FA; font-size: 0.95rem; margin-bottom: 2px; }
-    .author-card .meta p:last-child { font-size: 0.82rem; color: rgba(244,246,250,0.5); }
-    nav a.nav-link { font-size: 0.9rem; color: rgba(244,246,250,0.65); font-weight: 500; } nav a.nav-link:hover { color: #F4F6FA; }
-    .breadcrumb { font-size: 0.85rem; color: rgba(244,246,250,0.45); margin-bottom: 1.5rem; }
-    .breadcrumb a { color: rgba(244,246,250,0.55); text-decoration: none; } .breadcrumb a:hover { color: #F7A21B; }
+    .author-card .meta p:last-child { font-size: 0.82rem; color: rgba(244,246,250,0.8); }
+    nav a.nav-link { font-size: 0.9rem; color: rgba(244,246,250,0.85); font-weight: 500; } nav a.nav-link:hover { color: #F4F6FA; }
+    .breadcrumb { font-size: 0.85rem; color: rgba(244,246,250,0.8); margin-bottom: 1.5rem; }
+    .breadcrumb a { color: rgba(244,246,250,0.8); text-decoration: none; } .breadcrumb a:hover { color: #F7A21B; }
     .breadcrumb span { margin: 0 8px; opacity: 0.4; }
     .stage-label { display:inline-block; font-size:0.7rem; font-weight:800; letter-spacing:0.08em; text-transform:uppercase; color:#F7A21B; margin:2.25rem 0 0.35rem; }
     .related-group { margin: 1.5rem 0; }
     .related-group h4 { color:#5FCCE8; font-size:0.78rem; font-weight:800; text-transform:uppercase; letter-spacing:0.08em; margin:1.4rem 0 0.6rem; }
     .related-group ul { padding-left: 1.25rem; margin: 0; }
     .related-group li { margin-bottom: 0.35rem; font-size: 0.95rem; }
+      /* Z2/R2 (critic re-sweep 2026-09-07): a long unbroken token (a citation URL) widened a paragraph to 463px at 390 and the page scrolled sideways; long words now wrap */
   </style>
   <script>
     // Local dev URL bridge v2: production uses /learn/, /logbook.html etc.
@@ -263,6 +276,9 @@
   </script>
   <script src="/wh-ga4.js" defer></script>
   <!-- /WorkHive GA4 -->
+<link rel="stylesheet" href="/learn-print.css" media="print" />
+<style data-wh-chrome-i18n>nav a,header a,footer a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;min-width:44px;}nav a{padding:0 .25rem;}.breadcrumb a,.toc a{display:inline-flex;align-items:center;min-height:44px;}.breadcrumb a{min-width:44px;justify-content:center;}a.text-sm[href$='/learn/'],a.text-sm[href$='/learn/index.html']{display:inline-flex;align-items:center;min-height:44px;}.wh-tap{display:inline-flex;align-items:center;min-height:44px;}td a,th a{display:inline-flex;align-items:center;min-height:44px;}</style>
+<script src="/wh-i18n-lite.js" data-wh-chrome-i18n></script>
 </head>
 <body class="bg-navy-wh text-white antialiased">
 
@@ -270,13 +286,13 @@
   <div class="max-w-6xl mx-auto px-5 sm:px-8 py-4 flex items-center justify-between">
     <a href="/" class="flex items-center gap-3">
       <img src="/brand_assets/workhive-logo-transparent.png" alt="WorkHive" style="height: 36px; width: auto;" />
-      <span class="font-black text-lg tracking-tight">WorkHive</span>
+      <span class="font-black text-lg tracking-tight hidden sm:inline">WorkHive</span>
     </a>
     <nav class="flex items-center gap-6">
-      <a href="/" class="nav-link">Home</a>
-      <a href="/learn/" class="nav-link">Learn</a>
-      <a href="/?signin=1" class="nav-link">Sign In</a>
-      <a href="/?signup=1" class="nav-link">Sign Up Free</a>
+      <a href="/" class="nav-link" data-i="home">Home</a>
+      <a href="/learn/" class="nav-link" data-i="learn">Learn</a>
+      <a href="/?signin=1" class="nav-link" data-i="signin">Sign In</a>
+      <a href="/?signup=1" class="nav-link" data-i="signup">Sign Up Free</a>
     </nav>
   </div>
 </header>
@@ -285,7 +301,7 @@
   <div class="max-w-3xl mx-auto px-5 sm:px-8 py-14 lg:py-20">
 
     <div class="breadcrumb">
-      <a href="/">Home</a><span>/</span><a href="/learn/">Learn</a><span>/</span><span>What is WorkHive</span>
+      <a href="/" data-i="home">Home</a><span>/</span><a href="/learn/" data-i="learn">Learn</a><span>/</span><span>What is WorkHive</span>
     </div>
 
     <p class="pill pill-orange mb-4">Platform Overview · The complete guide</p>
@@ -324,17 +340,17 @@
     <div class="toc">
       <h4 aria-level="2">What is in this guide</h4>
       <ol>
-        <li><a href="#what-is">What WorkHive is, in one page</a></li>
-        <li><a href="#four-gaps">Four gaps, one hive: the problem it solves</a></li>
-        <li><a href="#flywheel">How the hive works: the flywheel</a></li>
-        <li><a href="#tools">Every tool in WorkHive (the full catalog)</a></li>
-        <li><a href="#maturity">The maturity stairs: five levels, 0 to 4</a></li>
-        <li><a href="#ai-companion">The AI companion that sits over everything</a></li>
-        <li><a href="#free-offline">Free, offline-first, and built for Philippine plants</a></li>
-        <li><a href="#getting-started">Getting started in four steps</a></li>
-        <li><a href="#faq">Frequently asked questions</a></li>
-        <li><a href="#guides">Explore every WorkHive guide</a></li>
-        <li><a href="#sources">Sources</a></li>
+        <li><a href="#what-is" class="wh-tap">What WorkHive is, in one page</a></li>
+        <li><a href="#four-gaps" class="wh-tap">Four gaps, one hive: the problem it solves</a></li>
+        <li><a href="#flywheel" class="wh-tap">How the hive works: the flywheel</a></li>
+        <li><a href="#tools" class="wh-tap">Every tool in WorkHive (the full catalog)</a></li>
+        <li><a href="#maturity" class="wh-tap">The maturity stairs: five levels, 0 to 4</a></li>
+        <li><a href="#ai-companion" class="wh-tap">The AI companion that sits over everything</a></li>
+        <li><a href="#free-offline" class="wh-tap">Free, offline-first, and built for Philippine plants</a></li>
+        <li><a href="#getting-started" class="wh-tap">Getting started in four steps</a></li>
+        <li><a href="#faq" class="wh-tap">Frequently asked questions</a></li>
+        <li><a href="#guides" class="wh-tap">Explore every WorkHive guide</a></li>
+        <li><a href="#sources" class="wh-tap">Sources</a></li>
       </ol>
     </div>
 
@@ -373,12 +389,12 @@
       <div data-table-scroll style="overflow-x:auto;-webkit-overflow-scrolling:touch;" role="region" aria-label="Scrollable table" tabindex="0"><table>
         <thead><tr><th>Tool</th><th>The one job it does</th></tr></thead>
         <tbody>
-          <tr><td><a href="/">Home / Landing</a></td><td>The front door: sign in or create a free account, install it on your phone like an app, pick your AI helper, and browse every tool grouped by your plant's growth stage.</td></tr>
-          <tr><td><a href="/logbook.html">Digital Maintenance Logbook</a></td><td>Record every repair, failure, and fix by typing or speaking. The AI drafts the entry, and it feeds every other tool.</td></tr>
-          <tr><td><a href="/voice-journal.html">Voice Journal</a></td><td>Speak your notes in your own language (10 Philippine languages) and it writes them down and remembers them, so you can log even with oily gloves on.</td></tr>
-          <tr><td><a href="/inventory.html">Spare-Parts Inventory</a></td><td>Track every spare part and get a warning before you run out, with a clear record of each use and restock.</td></tr>
-          <tr><td><a href="/asset-hub.html">Asset Hub</a></td><td>Every machine's whole life in one view (failures, checks, parts, related machines), plus reliability tools and an AI that answers about that exact machine.</td></tr>
-          <tr><td><a href="/skillmatrix.html">Skill Matrix</a></td><td>Track who can do what, set skill targets, take short exams, and earn badges that show who is ready for a job.</td></tr>
+          <tr><td><a href="/" class="wh-tap">Home / Landing</a></td><td>The front door: sign in or create a free account, install it on your phone like an app, pick your AI helper, and browse every tool grouped by your plant's growth stage.</td></tr>
+          <tr><td><a href="/logbook.html" class="wh-tap">Digital Maintenance Logbook</a></td><td>Record every repair, failure, and fix by typing or speaking. The AI drafts the entry, and it feeds every other tool.</td></tr>
+          <tr><td><a href="/voice-journal.html" class="wh-tap">Voice Journal</a></td><td>Speak your notes in your own language (10 Philippine languages) and it writes them down and remembers them, so you can log even with oily gloves on.</td></tr>
+          <tr><td><a href="/inventory.html" class="wh-tap">Spare-Parts Inventory</a></td><td>Track every spare part and get a warning before you run out, with a clear record of each use and restock.</td></tr>
+          <tr><td><a href="/asset-hub.html" class="wh-tap">Asset Hub</a></td><td>Every machine's whole life in one view (failures, checks, parts, related machines), plus reliability tools and an AI that answers about that exact machine.</td></tr>
+          <tr><td><a href="/skillmatrix.html" class="wh-tap">Skill Matrix</a></td><td>Track who can do what, set skill targets, take short exams, and earn badges that show who is ready for a job.</td></tr>
         </tbody>
       </table></div>
 
@@ -386,11 +402,11 @@
       <div data-table-scroll style="overflow-x:auto;-webkit-overflow-scrolling:touch;" role="region" aria-label="Scrollable table" tabindex="0"><table>
         <thead><tr><th>Tool</th><th>The one job it does</th></tr></thead>
         <tbody>
-          <tr><td><a href="/pm-scheduler.html">PM Scheduler</a></td><td>Schedule preventive maintenance (planned upkeep) so failures are stopped before they happen, with a checklist for each machine and a record of every completed check.</td></tr>
-          <tr><td><a href="/dayplanner.html">Maintenance Day Planner</a></td><td>Plan your day, week, month, or year on one timeline that pulls from your logbook and schedule, so planned jobs never pile up.</td></tr>
-          <tr><td><a href="/shift-brain.html">Shift Brain</a></td><td>The AI writes the next shift's plan before sign-on: top risks, checks due, carry-over jobs, and parts to set aside. The supervisor publishes it to the crew.</td></tr>
-          <tr><td><a href="/project-manager.html">Project Manager</a></td><td>Run long jobs like overhauls and shutdowns from start to finish: scope, schedule, people, change orders, and lessons learned, all in one place.</td></tr>
-          <tr><td><a href="/alert-hub.html">Alert Hub</a></td><td>One inbox for everything that needs action: risk spikes, overdue checks, low stock, and failure warnings. Acknowledge or resolve each one.</td></tr>
+          <tr><td><a href="/pm-scheduler.html" class="wh-tap">PM Scheduler</a></td><td>Schedule preventive maintenance (planned upkeep) so failures are stopped before they happen, with a checklist for each machine and a record of every completed check.</td></tr>
+          <tr><td><a href="/dayplanner.html" class="wh-tap">Maintenance Day Planner</a></td><td>Plan your day, week, month, or year on one timeline that pulls from your logbook and schedule, so planned jobs never pile up.</td></tr>
+          <tr><td><a href="/shift-brain.html" class="wh-tap">Shift Brain</a></td><td>The AI writes the next shift's plan before sign-on: top risks, checks due, carry-over jobs, and parts to set aside. The supervisor publishes it to the crew.</td></tr>
+          <tr><td><a href="/project-manager.html" class="wh-tap">Project Manager</a></td><td>Run long jobs like overhauls and shutdowns from start to finish: scope, schedule, people, change orders, and lessons learned, all in one place.</td></tr>
+          <tr><td><a href="/alert-hub.html" class="wh-tap">Alert Hub</a></td><td>One inbox for everything that needs action: risk spikes, overdue checks, low stock, and failure warnings. Acknowledge or resolve each one.</td></tr>
         </tbody>
       </table></div>
 
@@ -398,11 +414,11 @@
       <div data-table-scroll style="overflow-x:auto;-webkit-overflow-scrolling:touch;" role="region" aria-label="Scrollable table" tabindex="0"><table>
         <thead><tr><th>Tool</th><th>The one job it does</th></tr></thead>
         <tbody>
-          <tr><td><a href="/analytics.html">Analytics Engine</a></td><td>Turns your logged work into the numbers that matter (like overall equipment effectiveness and time between breakdowns), from what happened to what to do next, at four levels of depth.</td></tr>
+          <tr><td><a href="/analytics.html" class="wh-tap">Analytics Engine</a></td><td>Turns your logged work into the numbers that matter (like overall equipment effectiveness and time between breakdowns), from what happened to what to do next, at four levels of depth.</td></tr>
           <tr><td><a href="/asset-hub.html">Predictive Maintenance</a> (inside Asset Hub)</td><td>Ranks every machine by failure risk with a health map and a trend, so you fix the riskiest machine first. Simple rules from day one, real learning once you have enough records. Lives in the Asset Hub reliability workbench.</td></tr>
           <tr><td><a href="/ph-intelligence.html">PH Industrial Intelligence</a></td><td>Compares your plant against other Philippine plants (time between breakdowns, top failure causes, typhoon and brownout patterns), so you see where you lead and where you lag.</td></tr>
-          <tr><td><a href="/assistant.html">AI Work Assistant</a></td><td>An AI helper on every page that knows your hive, your role, and your history. Ask in plain language and get an answer from your own logbook.</td></tr>
-          <tr><td><a href="/ai-quality.html">AI Quality and ROI</a></td><td>Shows whether the AI is actually helping: the value it saved in the last 30 days, worker thumbs-up and thumbs-down, and what each AI feature costs to run.</td></tr>
+          <tr><td><a href="/assistant.html" class="wh-tap">AI Work Assistant</a></td><td>An AI helper on every page that knows your hive, your role, and your history. Ask in plain language and get an answer from your own logbook.</td></tr>
+          <tr><td><a href="/ai-quality.html" class="wh-tap">AI Quality and ROI</a></td><td>Shows whether the AI is actually helping: the value it saved in the last 30 days, worker thumbs-up and thumbs-down, and what each AI feature costs to run.</td></tr>
         </tbody>
       </table></div>
 
@@ -410,18 +426,18 @@
       <div data-table-scroll style="overflow-x:auto;-webkit-overflow-scrolling:touch;" role="region" aria-label="Scrollable table" tabindex="0"><table>
         <thead><tr><th>Tool</th><th>The one job it does</th></tr></thead>
         <tbody>
-          <tr><td><a href="/hive.html">Hive Live Board</a></td><td>Your team's shared screen: open work, downtime, and check-completion rate live in one place, plus create or join a hive and hand over shifts.</td></tr>
-          <tr><td><a href="/community.html">Community Forum</a></td><td>Your hive's discussion board: ask questions, share fixes, and (if you choose) post to a plant-wide feed. The best answers feed the AI and the knowledge base.</td></tr>
-          <tr><td><a href="/analytics-report.html">Analytics Report</a></td><td>A print-ready maintenance report: worst offenders, root causes, machine-health scores, and an AI action plan, saved as a PDF.</td></tr>
-          <tr><td><a href="/project-report.html">Project Report</a></td><td>A print-ready report for a single project: summary, scope, progress, sign-off, and lessons, ready to hand to a contractor or client.</td></tr>
-          <tr><td><a href="/audit-log.html">Audit Log and Compliance</a></td><td>A tamper-evident record of every power action (approvals, edits, deletes, member changes) with who did it and when, ready for an ISO or government review.</td></tr>
-          <tr><td><a href="/engineering-design.html">Engineering Design Calculator</a></td><td>55 calculators across 6 disciplines, each done to Philippine standards, each giving you a materials list, a scope of work, and a diagram.</td></tr>
-          <tr><td><a href="/marketplace.html">Marketplace</a></td><td>A Philippine directory to find parts, training, and jobs from ID-verified sellers when your stock runs low. Contact-only, with no platform fees.</td></tr>
-          <tr><td><a href="/report-sender.html">Report Sender</a></td><td>Sends the shift handover and end-of-day summary to the right people by email. Add contacts by role and deliver a print-ready report.</td></tr>
-          <tr><td><a href="/integrations.html">CMMS Integration</a></td><td>A two-way bridge to your current maintenance system (like SAP or IBM Maximo): import your data, sync jobs, and push completions without dropping what you already use.</td></tr>
-          <tr><td><a href="/plant-connections.html">Plant Connections</a></td><td>A supervisor-only control panel for your plant's data plumbing: your current-system sync status, sensor list, company sign-in, and data-keeping settings in one place.</td></tr>
-          <tr><td><a href="/resume.html">Resume / CV Builder</a></td><td>Turns your logged work and verified skills into a job-ready resume. Snap or upload an old CV, let the AI tidy it up, and save it as a PDF, Word, or file.</td></tr>
-          <tr><td><a href="/achievements.html">Achievements</a></td><td>Levels, points, and badges earned for real work (closed logbook entries, completed checks, helpful answers), so progress feels visible.</td></tr>
+          <tr><td><a href="/hive.html" class="wh-tap">Hive Live Board</a></td><td>Your team's shared screen: open work, downtime, and check-completion rate live in one place, plus create or join a hive and hand over shifts.</td></tr>
+          <tr><td><a href="/community.html" class="wh-tap">Community Forum</a></td><td>Your hive's discussion board: ask questions, share fixes, and (if you choose) post to a plant-wide feed. The best answers feed the AI and the knowledge base.</td></tr>
+          <tr><td><a href="/analytics-report.html" class="wh-tap">Analytics Report</a></td><td>A print-ready maintenance report: worst offenders, root causes, machine-health scores, and an AI action plan, saved as a PDF.</td></tr>
+          <tr><td><a href="/project-report.html" class="wh-tap">Project Report</a></td><td>A print-ready report for a single project: summary, scope, progress, sign-off, and lessons, ready to hand to a contractor or client.</td></tr>
+          <tr><td><a href="/audit-log.html" class="wh-tap">Audit Log and Compliance</a></td><td>A tamper-evident record of every power action (approvals, edits, deletes, member changes) with who did it and when, ready for an ISO or government review.</td></tr>
+          <tr><td><a href="/engineering-design.html" class="wh-tap">Engineering Design Calculator</a></td><td>55 calculators across 6 disciplines, each done to Philippine standards, each giving you a materials list, a scope of work, and a diagram.</td></tr>
+          <tr><td><a href="/marketplace.html" class="wh-tap">Marketplace</a></td><td>A Philippine directory to find parts, training, and jobs from ID-verified sellers when your stock runs low. Contact-only, with no platform fees.</td></tr>
+          <tr><td><a href="/report-sender.html" class="wh-tap">Report Sender</a></td><td>Sends the shift handover and end-of-day summary to the right people by email. Add contacts by role and deliver a print-ready report.</td></tr>
+          <tr><td><a href="/integrations.html" class="wh-tap">CMMS Integration</a></td><td>A two-way bridge to your current maintenance system (like SAP or IBM Maximo): import your data, sync jobs, and push completions without dropping what you already use.</td></tr>
+          <tr><td><a href="/plant-connections.html" class="wh-tap">Plant Connections</a></td><td>A supervisor-only control panel for your plant's data plumbing: your current-system sync status, sensor list, company sign-in, and data-keeping settings in one place.</td></tr>
+          <tr><td><a href="/resume.html" class="wh-tap">Resume / CV Builder</a></td><td>Turns your logged work and verified skills into a job-ready resume. Snap or upload an old CV, let the AI tidy it up, and save it as a PDF, Word, or file.</td></tr>
+          <tr><td><a href="/achievements.html" class="wh-tap">Achievements</a></td><td>Levels, points, and badges earned for real work (closed logbook entries, completed checks, helpful answers), so progress feels visible.</td></tr>
         </tbody>
       </table></div>
       <p>A few tools do double duty. The Asset Hub, for example, both records each machine (Capture) and runs the reliability workbench that studies failure modes (Analyze). That is by design: the same record is useful in more than one place.</p>
@@ -452,7 +468,7 @@
         <h4 aria-level="3">One free hive for your whole plant team</h4>
         <p>28 connected tools, from the digital logbook to 60 engineering calculators to the AI helper, all in one browser app that works offline on any phone. No per-seat charge, no credit card. Sign up, start logging, and watch the intelligence build as your records grow.</p>
         <a href="/" class="cta-btn">See WorkHive</a>
-        <p class="cta-secondary">Ready now? <a href="/?signup=1">Join the Hive</a> (free, takes about 30 seconds).</p>
+        <p class="cta-secondary">Ready now? <a href="/?signup=1" data-i="jointhehive">Join the Hive</a> (free, takes about 30 seconds).</p>
       </div>
 
       <h2 id="maturity">The maturity stairs: five levels, 0 to 4</h2>
@@ -553,73 +569,73 @@
       <div class="related-group">
         <h4 aria-level="3">Capture guides</h4>
         <ul>
-          <li><a href="/learn/start-digital-logbook-philippine-factory/">Start a digital logbook in a Philippine factory (zero-budget)</a></li>
-          <li><a href="/learn/voice-to-text-maintenance-philippine-plant-floor/">Voice-to-text on the plant floor (Filipino, English, Taglish)</a></li>
-          <li><a href="/learn/spare-parts-inventory-philippine-plants/">Spare-parts inventory (ABC, FIFO, reorder points)</a></li>
-          <li><a href="/learn/building-asset-register-zero-budget/">Build an asset register from scratch (ISO 14224)</a></li>
-          <li><a href="/learn/asset-brain-360-one-machine-history-philippine-plant/">Asset Brain 360: every machine's history in one scan</a></li>
-          <li><a href="/learn/skill-matrix-for-maintenance-technicians/">Build a skill matrix for maintenance technicians</a></li>
-          <li><a href="/learn/tesda-nc-mapping-to-skill-matrix/">Map TESDA NC II and NC III to your skill matrix</a></li>
+          <li><a href="/learn/start-digital-logbook-philippine-factory/" class="wh-tap">Start a digital logbook in a Philippine factory (zero-budget)</a></li>
+          <li><a href="/learn/voice-to-text-maintenance-philippine-plant-floor/" class="wh-tap">Voice-to-text on the plant floor (Filipino, English, Taglish)</a></li>
+          <li><a href="/learn/spare-parts-inventory-philippine-plants/" class="wh-tap">Spare-parts inventory (ABC, FIFO, reorder points)</a></li>
+          <li><a href="/learn/building-asset-register-zero-budget/" class="wh-tap">Build an asset register from scratch (ISO 14224)</a></li>
+          <li><a href="/learn/asset-brain-360-one-machine-history-philippine-plant/" class="wh-tap">Asset Brain 360: every machine's history in one scan</a></li>
+          <li><a href="/learn/skill-matrix-for-maintenance-technicians/" class="wh-tap">Build a skill matrix for maintenance technicians</a></li>
+          <li><a href="/learn/tesda-nc-mapping-to-skill-matrix/" class="wh-tap">Map TESDA NC II and NC III to your skill matrix</a></li>
         </ul>
       </div>
 
       <div class="related-group">
         <h4 aria-level="3">Plan guides</h4>
         <ul>
-          <li><a href="/learn/free-pm-checklist-templates/">Free preventive-maintenance checklist templates</a></li>
-          <li><a href="/learn/dilo-wilo-day-planner-supervisors/">DILO, WILO, MILO, YILO: the day planner method</a></li>
-          <li><a href="/learn/autonomous-shift-planning-philippine-plants/">Autonomous shift planning: the AI brief for your crew</a></li>
-          <li><a href="/learn/maintenance-project-planning-template/">Maintenance project planning (free template)</a></li>
-          <li><a href="/learn/plant-alert-inbox-amc-daily-brief/">One alert inbox for the whole plant, and the 6 AM brief</a></li>
-          <li><a href="/learn/predictive-alert-thresholds-plants/">Predictive alert thresholds for industrial plants</a></li>
+          <li><a href="/learn/free-pm-checklist-templates/" class="wh-tap">Free preventive-maintenance checklist templates</a></li>
+          <li><a href="/learn/dilo-wilo-day-planner-supervisors/" class="wh-tap">DILO, WILO, MILO, YILO: the day planner method</a></li>
+          <li><a href="/learn/autonomous-shift-planning-philippine-plants/" class="wh-tap">Autonomous shift planning: the AI brief for your crew</a></li>
+          <li><a href="/learn/maintenance-project-planning-template/" class="wh-tap">Maintenance project planning (free template)</a></li>
+          <li><a href="/learn/plant-alert-inbox-amc-daily-brief/" class="wh-tap">One alert inbox for the whole plant, and the 6 AM brief</a></li>
+          <li><a href="/learn/predictive-alert-thresholds-plants/" class="wh-tap">Predictive alert thresholds for industrial plants</a></li>
         </ul>
       </div>
 
       <div class="related-group">
         <h4 aria-level="3">Analyze guides</h4>
         <ul>
-          <li><a href="/learn/what-is-oee-how-to-calculate/">What is OEE and how do I calculate it?</a></li>
-          <li><a href="/learn/mtbf-vs-mttr-for-supervisors/">MTBF vs MTTR explained for supervisors</a></li>
-          <li><a href="/learn/four-phases-maintenance-analytics-philippine-plants/">The 4 phases of maintenance analytics</a></li>
-          <li><a href="/learn/predictive-maintenance-on-a-budget-philippines/">Predictive maintenance on a budget (Philippines)</a></li>
-          <li><a href="/learn/vibration-analysis-on-a-phone-budget/">Vibration analysis on a phone budget</a></li>
-          <li><a href="/learn/thermography-for-pm-philippine-plants/">Thermography for preventive maintenance</a></li>
-          <li><a href="/learn/reliability-centered-maintenance-philippine-plants/">Reliability-centered maintenance for PH plants</a></li>
-          <li><a href="/learn/fmea-worked-example-philippine-bottling-line/">FMEA worked example: a bottling line</a></li>
-          <li><a href="/learn/ph-industrial-benchmarks-intelligence/">PH industrial benchmarks and intelligence reports</a></li>
-          <li><a href="/learn/ai-work-assistant-maintenance-technicians/">AI work assistant for every industrial worker</a></li>
-          <li><a href="/learn/ai-companion-hezekiah-zaniah-personas/">Meet the AI companion: Hezekiah and Zaniah</a></li>
-          <li><a href="/learn/ai-quality-and-roi-stage-2-plants/">Measuring AI quality and value for your plant</a></li>
+          <li><a href="/learn/what-is-oee-how-to-calculate/" class="wh-tap">What is OEE and how do I calculate it?</a></li>
+          <li><a href="/learn/mtbf-vs-mttr-for-supervisors/" class="wh-tap">MTBF vs MTTR explained for supervisors</a></li>
+          <li><a href="/learn/four-phases-maintenance-analytics-philippine-plants/" class="wh-tap">The 4 phases of maintenance analytics</a></li>
+          <li><a href="/learn/predictive-maintenance-on-a-budget-philippines/" class="wh-tap">Predictive maintenance on a budget (Philippines)</a></li>
+          <li><a href="/learn/vibration-analysis-on-a-phone-budget/" class="wh-tap">Vibration analysis on a phone budget</a></li>
+          <li><a href="/learn/thermography-for-pm-philippine-plants/" class="wh-tap">Thermography for preventive maintenance</a></li>
+          <li><a href="/learn/reliability-centered-maintenance-philippine-plants/" class="wh-tap">Reliability-centered maintenance for PH plants</a></li>
+          <li><a href="/learn/fmea-worked-example-philippine-bottling-line/" class="wh-tap">FMEA worked example: a bottling line</a></li>
+          <li><a href="/learn/ph-industrial-benchmarks-intelligence/" class="wh-tap">PH industrial benchmarks and intelligence reports</a></li>
+          <li><a href="/learn/ai-work-assistant-maintenance-technicians/" class="wh-tap">AI work assistant for every industrial worker</a></li>
+          <li><a href="/learn/ai-companion-hezekiah-zaniah-personas/" class="wh-tap">Meet the AI companion: Hezekiah and Zaniah</a></li>
+          <li><a href="/learn/ai-quality-and-roi-stage-2-plants/" class="wh-tap">Measuring AI quality and value for your plant</a></li>
         </ul>
       </div>
 
       <div class="related-group">
         <h4 aria-level="3">Act and Prove guides</h4>
         <ul>
-          <li><a href="/learn/print-ready-maintenance-analytics-report/">The print-ready report management actually reads</a></li>
-          <li><a href="/learn/maintenance-shift-handover-template/">Write a maintenance shift handover (template)</a></li>
-          <li><a href="/learn/free-engineering-calculators-philippine-plants/">Free engineering design calculators for PH plants</a></li>
-          <li><a href="/learn/connecting-workhive-to-sap-maximo-cmms/">Connect WorkHive to SAP, IBM Maximo, and other systems</a></li>
-          <li><a href="/learn/sensor-cmms-gateway-operations/">Sensor and gateway operations for industrial plants</a></li>
-          <li><a href="/learn/dole-iso-audit-trail-from-logbook/">DOLE OSHS and ISO audit trail from your logbook</a></li>
-          <li><a href="/learn/industrial-marketplace-philippine-specialists/">Industrial marketplace for PH specialists and parts</a></li>
-          <li><a href="/learn/industrial-community-of-practice-philippines/">Industrial community of practice for plant teams</a></li>
-          <li><a href="/learn/gamifying-maintenance-for-engagement/">Gamifying maintenance for technician engagement</a></li>
-          <li><a href="/learn/joining-and-growing-your-hive/">Joining and growing your WorkHive hive</a></li>
-          <li><a href="/learn/resume-builder-for-filipino-industrial-workers/">Build an ATS-ready resume from your work history</a></li>
-          <li><a href="/learn/ofw-engineer-portable-portfolio/">How OFW-track engineers build a portable portfolio</a></li>
+          <li><a href="/learn/print-ready-maintenance-analytics-report/" class="wh-tap">The print-ready report management actually reads</a></li>
+          <li><a href="/learn/maintenance-shift-handover-template/" class="wh-tap">Write a maintenance shift handover (template)</a></li>
+          <li><a href="/learn/free-engineering-calculators-philippine-plants/" class="wh-tap">Free engineering design calculators for PH plants</a></li>
+          <li><a href="/learn/connecting-workhive-to-sap-maximo-cmms/" class="wh-tap">Connect WorkHive to SAP, IBM Maximo, and other systems</a></li>
+          <li><a href="/learn/sensor-cmms-gateway-operations/" class="wh-tap">Sensor and gateway operations for industrial plants</a></li>
+          <li><a href="/learn/dole-iso-audit-trail-from-logbook/" class="wh-tap">DOLE OSHS and ISO audit trail from your logbook</a></li>
+          <li><a href="/learn/industrial-marketplace-philippine-specialists/" class="wh-tap">Industrial marketplace for PH specialists and parts</a></li>
+          <li><a href="/learn/industrial-community-of-practice-philippines/" class="wh-tap">Industrial community of practice for plant teams</a></li>
+          <li><a href="/learn/gamifying-maintenance-for-engagement/" class="wh-tap">Gamifying maintenance for technician engagement</a></li>
+          <li><a href="/learn/joining-and-growing-your-hive/" class="wh-tap">Joining and growing your WorkHive hive</a></li>
+          <li><a href="/learn/resume-builder-for-filipino-industrial-workers/" class="wh-tap">Build an ATS-ready resume from your work history</a></li>
+          <li><a href="/learn/ofw-engineer-portable-portfolio/" class="wh-tap">How OFW-track engineers build a portable portfolio</a></li>
         </ul>
       </div>
 
       <div class="related-group">
         <h4 aria-level="3">Industry, safety, and careers</h4>
         <ul>
-          <li><a href="/learn/loto-procedures-dole-oshs-template/">Lock-out tag-out (LOTO) procedures: DOLE OSHS template</a></li>
-          <li><a href="/learn/ra-11285-energy-efficiency-plant-checklist/">RA 11285 energy efficiency: a compliance checklist</a></li>
-          <li><a href="/learn/psme-iiee-piche-which-association-to-join/">PSME, IIEE, PIChE: which engineering association?</a></li>
-          <li><a href="/learn/food-beverage-plant-maintenance-philippines/">Maintenance in Philippine food and beverage plants</a></li>
-          <li><a href="/learn/power-plant-reliability-metrics-philippines/">Power plant reliability metrics in the Philippines</a></li>
-          <li><a href="/learn/bms-facilities-maintenance-peza-buildings/">Building systems and facilities maintenance in PEZA buildings</a></li>
+          <li><a href="/learn/loto-procedures-dole-oshs-template/" class="wh-tap">Lock-out tag-out (LOTO) procedures: DOLE OSHS template</a></li>
+          <li><a href="/learn/ra-11285-energy-efficiency-plant-checklist/" class="wh-tap">RA 11285 energy efficiency: a compliance checklist</a></li>
+          <li><a href="/learn/psme-iiee-piche-which-association-to-join/" class="wh-tap">PSME, IIEE, PIChE: which engineering association?</a></li>
+          <li><a href="/learn/food-beverage-plant-maintenance-philippines/" class="wh-tap">Maintenance in Philippine food and beverage plants</a></li>
+          <li><a href="/learn/power-plant-reliability-metrics-philippines/" class="wh-tap">Power plant reliability metrics in the Philippines</a></li>
+          <li><a href="/learn/bms-facilities-maintenance-peza-buildings/" class="wh-tap">Building systems and facilities maintenance in PEZA buildings</a></li>
         </ul>
       </div>
 
@@ -664,14 +680,15 @@
   <div class="max-w-4xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">
     <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-08-24">24 Aug 2026</time></p>
     <div class="flex items-center gap-6">
-      <a href="/" class="hover:text-white/60 transition-colors">Home</a>
-      <a href="/#faq" class="hover:text-white/60 transition-colors">FAQ</a>
-      <a href="/?signup=1" class="hover:text-white/60 transition-colors">Join the Hive</a>
+      <a href="/" class="hover:text-white/60 transition-colors" data-i="home">Home</a>
+      <a href="/#faq" class="hover:text-white/60 transition-colors" data-i="faq">FAQ</a>
+      <a href="/?signup=1" class="hover:text-white/60 transition-colors" data-i="jointhehive">Join the Hive</a>
     </div>
   </div>
 </footer>
 
 
 <script defer src="../../wh-feedback-fab.js"></script>
+<script data-wh-chrome-i18n>if (typeof whI18nApply === "function" && window.WH_LANG === "fil") whI18nApply(window.WH_FIL_PUBLIC || {});</script>
 </body>
 </html>

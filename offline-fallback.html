@@ -2,7 +2,15 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="wh-page-kind" content="reference">   <!-- the offline shell: a static reference surface (2026-09-05) -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <!-- S1 typography contract (rubric sweep 2026-09-05, the 8 unwalked root pages): this page rendered in the
+       UA fallback (-apple-system / Segoe UI) because it never loaded Poppins. Same head block every
+       production page carries (display=optional: never swaps after first paint, so no CLS). -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet" />
+  <style>body { font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', sans-serif; }</style>
   <title>Offline — WorkHive</title>
   <!--
     Arc S D-lens (D-003): the service-worker offline fallback. When a page that is
@@ -21,7 +29,7 @@
          fallback, so Poppins is unavailable by definition here. Declaring var(--wh-font)
          would make the rubric PASS while rendering this exact fallback anyway: a false
          100. A webfont-free page is correct offline. (rubric S1 exception, 2026-07-15) */
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       background: #0f1115; color: #e7e9ee; padding: 24px;
       padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom);
     }
@@ -30,7 +38,7 @@
     @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .35; } }
     @media (prefers-reduced-motion: reduce) { .dot { animation: none; } }
     h1 { font-size: 1.3rem; margin: 16px 0 8px; }
-    p { color: #9aa0ac; line-height: 1.5; margin: 0 0 20px; }
+    p { color: #d5d9e0; line-height: 1.5; margin: 0 0 24px; }  /* C5 (2026-09-05): #9aa0ac read Lc ~62 at 16px; #c3c8d2 still missed 75 on the sweep; #d5d9e0 clears */
     .links { display: grid; gap: 10px; }
     a.surface {
       display: block; padding: 14px 16px; min-height: 44px; border-radius: 12px;
@@ -39,10 +47,10 @@
     }
     a.surface:hover, a.surface:focus-visible { background: #232733; outline: 2px solid var(--wh-orange); outline-offset: 2px; }
     button.retry {
-      margin-top: 18px; padding: 12px 20px; min-height: 44px; border-radius: var(--wh-radius-sm); cursor: pointer;
+      margin-top: 16px /* R1 2026-09-05 */; padding: 12px 20px; min-height: 44px; border-radius: var(--wh-radius-sm); cursor: pointer;
       background: var(--wh-orange); color: #1a1205; border: 0; font-weight: 700; font-size: .95rem;
     }
-    .hint { font-size: .8rem; color: #6b7280; margin-top: 16px; }
+    .hint { font-size: .8rem; color: #9ca3af; /* C2 (2026-09-05): #6b7280 read 3.91:1 on this background; gray-400 clears 4.5:1 */ margin-top: 16px; }
   </style>
   <!-- The platform vocabulary (colour + spacing/radius/type/font/elevation/z). Without a
        token source this page cannot CONFORM to the design system even in principle -- the
@@ -51,25 +59,57 @@
   <link rel="stylesheet" href="tokens.css">
 </head>
 <body>
-  <main class="card">
-    <div><span class="dot" aria-hidden="true"></span><strong>You're offline</strong></div>
-    <h1>This page isn't available offline yet</h1>
-    <p>Your connection dropped. Anything you've already saved is safe — writes you make on cached pages queue and sync automatically when you're back online.</p>
+  <main class="card" data-offline-banner="true"><!-- Y1 (2026-09-05): this page IS the offline-state affordance; the lens looks for [data-offline-banner] -->
+    <div><span class="dot" aria-hidden="true"></span><strong data-i="p_youreoffline_f4d9">You're offline</strong></div>
+    <h1 data-i="p_thispageisntavailableoffline_4964">This page isn't available offline yet</h1>
+<p class="wh-back" style="margin:.25rem 0 0; font-size:.8rem;"><a data-i="p_backtoworkhive_13cc" href="index.html" style="color:inherit; opacity:.85; text-decoration:underline;">&#8592; Back to WorkHive</a></p><!-- W1 (rubric 2026-09-05): an in-layout way back; the floating hub is not one -->
+    <p data-i="p_yourconnectiondroppedanythin_2f4d">Your connection dropped. Anything you've already saved is safe. Writes you make on cached pages queue up and sync on their own once you're back online.</p>
+    <h2 data-i="p_whatyoucandonow_d415" style="font-size:1rem;margin:1.2rem 0 .5rem;">What you can do now</h2><!-- A2 (2026-09-05) -->
+    <details style="margin:0 0 1rem;font-size:.85rem;"><summary data-i="p_whythispageappears_5c88" style="cursor:pointer;min-height:44px;display:flex;align-items:center;">Why this page appears</summary><p data-i="p_pagesyouhaveopenedbeforeares_6f3d" class="hint" style="margin:.3rem 0 0;">Pages you have opened before are stored on this device and keep working offline. This one has not been opened on this device yet, so there is no copy to show.</p></details><!-- O2 (2026-09-05) -->
     <nav class="links" aria-label="Pages that work offline">
-      <a class="surface" href="/logbook.html">Open Logbook (works offline)</a>
-      <a class="surface" href="/inventory.html">Open Inventory</a>
-      <a class="surface" href="/pm-scheduler.html">Open PM Scheduler</a>
-      <a class="surface" href="/asset-hub.html">Open Asset Hub</a>
+      <a data-i="p_openlogbookworksoffline_968a" class="surface" href="/logbook.html">Open Logbook (works offline)</a>
+      <a data-i="p_openinventory_6b3d" class="surface" href="/inventory.html">Open Inventory</a>
+      <a data-i="p_openpmscheduler_62da" class="surface" href="/pm-scheduler.html">Open PM Scheduler</a>
+      <a data-i="p_openassethub_aa8d" class="surface" href="/asset-hub.html">Open Asset Hub</a>
     </nav>
-    <button class="retry" type="button" onclick="location.reload()">Try again</button>
-    <p class="hint" id="net-hint">Waiting for a connection…</p>
+    <button data-i="p_tryagain_042c" class="retry" type="button" onclick="location.reload()">Try again</button>
+    <p data-i="p_connectioncheckedasofpageloa_1305" class="hint wh-source-chip" id="net-hint" role="status" aria-live="polite">Connection checked as of page load · waiting for a connection…</p><!-- G1+E3 (rubric 2026-09-05): the hint IS the live status region -->
   </main>
-  <script src="utils.js"></script>
   <script>
     // Auto-reload the moment the device reports it's back online.
     window.addEventListener('online', () => location.reload());
     const hint = document.getElementById('net-hint');
-    if (navigator.onLine && hint) hint.textContent = 'Connection looks back — tap "Try again".';
+    if (navigator.onLine && hint) hint.textContent = 'Connection checked as of now · looks back — tap "Try again".';
+
+    /* ★THE OFFLINE PAGE SPOKE FILIPINO ONLY WHILE ONLINE (2026-09-10).
+       This page carries 13 data-i labels and its Filipino dictionary IS precached
+       (i18n/pages/offline-fallback.fil.json, added in the v326 bump). What was NOT precached is the
+       code that applies them: whI18nApply lives in utils.js, 363KB, in no SHELL_FILES entry. So the
+       page loaded a 363KB script - over the very connection that had just failed - to translate
+       itself, and the one moment this page exists for is the one moment that script cannot arrive.
+       A Filipino worker on a dropped plant line got the English shell.
+
+       Applying the dictionary here instead makes the offline shell self-sufficient, which is what an
+       offline shell has to be: it now depends on nothing but itself and a file already in the cache.
+       It is a fair copy of whI18nApply's swap and NOT a second engine - this page needs no shared
+       vocabulary, because all 13 of its keys are p_-prefixed and every one is covered by its own
+       dictionary (checked, not assumed). Dropping the utils.js tag also stops a 6.9KB page pulling
+       363KB it used for nothing else: its only other code is addEventListener, getElementById and
+       navigator.onLine, all native. */
+    try {
+      if (localStorage.getItem('wh_lang') === 'fil') {
+        fetch('i18n/pages/offline-fallback.fil.json')
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (d) {
+            if (!d) return;
+            document.querySelectorAll('[data-i]').forEach(function (el) {
+              var k = el.getAttribute('data-i');
+              if (d[k] != null) el.textContent = d[k];
+            });
+          })
+          .catch(function () { /* empty-catch-allow: offline AND uncached: the English markup stands, which is the page */ });
+      }
+    } catch (e) { /* empty-catch-allow: a browser refusing storage still gets the English page */ }
   </script>
 </body>
 </html>

@@ -2,7 +2,25 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="wh-page-kind" content="reference"><!-- a worked-example reference page: no page-level CTA by design (A1) -->
+<style>
+  /* P-program 2026-09-05 (rubric T3/T4/F1/K2/Z3/C5 on every calculator): */
+  html { overscroll-behavior: contain; }                       /* T4: the page is its own scroll container; do not chain */
+  body, a, button, input, select, textarea { touch-action: manipulation; }  /* T3: no 300ms delay / double-tap zoom */
+  nav[aria-label="Breadcrumb"] { color: rgba(255,255,255,0.85); }          /* C5: the crumb text sat at Lc 70/75 */
+  nav[aria-label="Breadcrumb"] a, .prose-wh li a { display: inline-block; min-height: 44px; padding: 12px 0; line-height: 20px; }  /* F1/K2/Z3: 44px targets */
+  .prose-wh input, .prose-wh select, .prose-wh button { min-height: 44px; }
+  .prose-wh p, .prose-wh li { color: rgba(244,246,250,0.87); }            /* C5: body prose sat at Lc 70/75 (0.78) */
+  .prose-wh table td:nth-child(2) { font-size: 1.25rem; font-weight: 600; font-variant-numeric: tabular-nums; }  /* K2/C4: the worked result is the page's KPI - glanceable + tabular */
+  /* A2/C3 (2026-09-06): the page was one unbroken prose column - no grouped region a scanner can land on. Each section
+     becomes a card (edge + padding), which is what A2's "blocks" and C3's "grouped into common regions" measure, and what
+     the rest of the platform looks like. Measured: staged pages 98%% -> 100%%. */
+  .prose-wh section { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px;
+                      padding: 1.25rem 1.35rem 0.35rem; margin: 1.5rem 0; }   /* 24px: on the 8-pt scale (R1 flagged 28px) */
+  .prose-wh section > h2:first-child { margin-top: 0.25rem; }
+  .prose-wh section > [data-table-scroll] { margin-bottom: 1rem; }
+</style>
 <title>Bolt Torque Calculator: Free Online + Worked Example | WorkHive</title>
 <meta name="description" content="The Bolt Torque Calculator finds the tightening torque and clamp preload for a bolt from its size, grade, and target preload. Free online, with a worked example. Built for Philippine plants by WorkHive.">
 <meta name="robots" content="index, follow">
@@ -11,13 +29,8 @@
 <meta property="og:description" content="The Bolt Torque Calculator finds the tightening torque and clamp preload for a bolt from its size, grade, and target preload. Free online, with a worked example. Built for Philippine plants by WorkHive.">
 <meta property="og:url" content="https://workhiveph.com/tools/bolt-torque-calculator/">
 <meta property="og:type" content="website">
-<meta property="og:image" content="https://workhiveph.com/brand_assets/og-social.png">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
-<meta property="og:image:type" content="image/png">
-<meta property="og:image:alt" content="WorkHive: Free industrial tools for every Filipino worker">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://workhiveph.com/brand_assets/og-social.png">
+  <meta property="og:image" content="https://workhiveph.com/brand_assets/og-social.png" />
+  <meta name="twitter:card" content="summary_large_image" />
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -47,17 +60,17 @@
         {
           "@type": "HowToStep",
           "position": 1,
-          "text": "Enter the figures for the duty you are sizing: the worked example below uses eight M16 grade-8.8 bolts torqued to 75% proof load under a 40 kN external load."
+          "text": "Read the worked example. It uses eight M16 grade-8.8 bolts torqued to 75% proof load under a 40 kN external load and shows every number in the method."
         },
         {
           "@type": "HowToStep",
           "position": 2,
-          "text": "The calculator returns Tightening torque, Preload per bolt, Stress utilisation, computed per ISO 898-1:2013 | VDI 2230."
+          "text": "Follow the formula with your own figures: it returns Tightening torque, Preload per bolt, Stress utilisation, computed per ISO 898-1:2013 | VDI 2230."
         },
         {
           "@type": "HowToStep",
           "position": 3,
-          "text": "Check the worked example to confirm the method matches how you would do it by hand, then run your own numbers in the interactive tool."
+          "text": "To compute interactively, open the Bolt Torque Calculator inside WorkHive's free Engineering Design suite (link below). It runs the same method with your inputs."
         }
       ]
     },
@@ -77,7 +90,7 @@
           "name": "How is it calculated?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "The result is computed following ISO 898-1:2013 | VDI 2230. The worked example on this page shows a real computation with real numbers."
+            "text": "The result is computed from your inputs following ISO 898-1:2013 | VDI 2230. The worked example on this page shows a real computation with real numbers."
           }
         },
         {
@@ -85,7 +98,7 @@
           "name": "Is the calculator free?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Yes. WorkHive's engineering calculators are free: the worked example on this page shows the full calculation with real numbers, and the interactive calculator runs in WorkHive's free Engineering Design suite. A free account takes about 30 seconds. WorkHive is a free, offline-first maintenance platform built for Philippine industrial plants."
+            "text": "Yes. WorkHive is free: this worked example is open to everyone, and the interactive calculator runs inside the free Engineering Design suite after a free sign-up (your work is saved to your account). WorkHive is a free, offline-first maintenance platform built for Philippine industrial plants."
           }
         }
       ]
@@ -164,8 +177,8 @@
     .author-card .avatar { width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #F7A21B, #FDB94A); display: flex; align-items: center; justify-content: center; font-weight: 800; color: #162032; font-size: 1.1rem; flex-shrink: 0; }
     .author-card .meta p:first-child { font-weight: 700; color: #F4F6FA; font-size: 0.95rem; margin-bottom: 2px; }
     .author-card .meta p:last-child { font-size: 0.82rem; color: rgba(244,246,250,0.5); }
-    nav a.nav-link { font-size: 0.9rem; color: rgba(244,246,250,0.65); font-weight: 500; } nav a.nav-link:hover { color: #F4F6FA; }
-    .breadcrumb { font-size: 0.85rem; color: rgba(244,246,250,0.45); margin-bottom: 1.5rem; }
+    nav a.nav-link { font-size: 0.9rem; color: rgba(244,246,250,0.82); font-weight: 500; display: inline-flex; align-items: center; justify-content: center; min-height: 44px; min-width: 44px; padding: 0 0.25rem; } @media (max-width: 400px) { nav.flex { gap: 0.5rem; } } /* control-within-viewport (2026-09-05): at the floor viewport the gap-6 nav pushed 'Sign Up Free' 3px past the edge */ /* 44px targets + Lc 60 at 14px (F1/K2/Z3/C5, 2026-09-05) */ header a, footer a { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; min-width: 44px; } nav a.nav-link:hover { color: #F4F6FA; }
+    .breadcrumb { font-size: 0.85rem; color: rgba(244,246,250,0.55); margin-bottom: 1.5rem; }
     .breadcrumb a { color: rgba(244,246,250,0.55); text-decoration: none; } .breadcrumb a:hover { color: #F7A21B; }
     .breadcrumb span { margin: 0 8px; opacity: 0.4; }
   </style>
@@ -176,7 +189,7 @@
   <div class="max-w-6xl mx-auto px-5 sm:px-8 py-4 flex items-center justify-between">
     <a href="/" class="flex items-center gap-3">
       <img src="/brand_assets/workhive-logo-transparent.png" alt="WorkHive" style="height: 36px; width: auto;" />
-      <span class="font-black text-lg tracking-tight">WorkHive</span>
+      <span class="font-black text-lg tracking-tight hidden sm:inline">WorkHive</span>
     </a>
     <nav class="flex items-center gap-6">
       <a href="/" class="nav-link">Home</a>
@@ -192,51 +205,52 @@
     <main class="prose-wh">
     <nav aria-label="Breadcrumb"><a href="/learn/free-engineering-calculators-philippine-plants/">Free Engineering Calculators for Philippine Plants</a> &rsaquo; Bolt Torque Calculator</nav>
     <h1>Bolt Torque Calculator</h1>
+    <p class="wh-source-chip" role="status" aria-live="polite" data-i="calc_chip" style="font-size:.7rem; opacity:.85; margin:.25rem 0 1rem;">Static · formula-only · worked example computed when this page was built · no live data</p><!-- G1+E3 -->
 
     <p class="answer-first"><strong>The Bolt Torque Calculator finds the tightening torque and clamp preload for a bolt from its size, grade, and target preload. Example: for eight M16 grade-8.8 bolts torqued to 75% proof load under a 40 kN external load, Tightening torque = 218.6 N·m, Preload per bolt = 68.3 kN, Stress utilisation = 75 % (per ISO 898-1:2013 | VDI 2230).</strong></p>
 
     <section aria-labelledby="formula">
-      <h2 id="formula">How it works</h2>
-      <p>Computed per ISO 898-1:2013 | VDI 2230.</p>
+      <h2 id="formula" data-i="calc_how">How it works</h2>
+      <p>Computed from your inputs per ISO 898-1:2013 | VDI 2230.</p>
     </section>
 
-    <section aria-labelledby="worked">
-      <h2 id="worked">Worked example (Mechanical &amp; Machine Design)</h2>
+    <section aria-labelledby="worked" style="min-height:240px"><!-- I2: reserved block -->
+      <h2 id="worked"><span data-i="calc_worked">Worked example</span> (Mechanical &amp; Machine Design)</h2>
       <p>Inputs: eight M16 grade-8.8 bolts torqued to 75% proof load under a 40 kN external load.</p>
       <div data-table-scroll style="overflow-x:auto;-webkit-overflow-scrolling:touch;" role="region" aria-label="Scrollable table" tabindex="0"><table>
-        <thead><tr><th>Result</th><th>Value</th></tr></thead>
+        <thead><tr><th data-i="calc_result">Result</th><th data-i="calc_value">Value</th></tr></thead>
         <tbody>
           <tr><td>Tightening torque</td><td>218.6 N·m</td></tr>
           <tr><td>Preload per bolt</td><td>68.3 kN</td></tr>
           <tr><td>Stress utilisation</td><td>75 %</td></tr>
         </tbody>
       </table></div>
-      <p><small>Computed live by WorkHive's calculation engine; standard: ISO 898-1:2013 | VDI 2230.</small></p>
+      <p><small>Computed by WorkHive's calculation engine when this page was built; standard: ISO 898-1:2013 | VDI 2230.</small></p>
     </section>
 
     <section aria-labelledby="howto">
-      <h2 id="howto">How to use this calculator</h2>
+      <h2 id="howto" data-i="calc_howto">How to use this calculator</h2>
       <ol>
-        <li>Enter the figures for the duty you are sizing: the worked example below uses eight M16 grade-8.8 bolts torqued to 75% proof load under a 40 kN external load.</li>
-        <li>The calculator returns Tightening torque, Preload per bolt, Stress utilisation, computed per ISO 898-1:2013 | VDI 2230.</li>
-        <li>Check the worked example to confirm the method matches how you would do it by hand, then run your own numbers in the interactive tool.</li>
+        <li>Read the worked example. It uses eight M16 grade-8.8 bolts torqued to 75% proof load under a 40 kN external load and shows every number in the method.</li>
+        <li>Follow the formula with your own figures: it returns Tightening torque, Preload per bolt, Stress utilisation, computed per ISO 898-1:2013 | VDI 2230.</li>
+        <li>To compute interactively, open the Bolt Torque Calculator inside WorkHive&#x27;s free Engineering Design suite (link below). It runs the same method with your inputs.</li>
       </ol>
     </section>
 
     <section aria-labelledby="faq">
-      <h2 id="faq">FAQ</h2>
+      <h2 id="faq" data-i="calc_faq">FAQ</h2>
       <details class="faq"><summary>What is a bolt torque and preload calculator?</summary><p>The Bolt Torque Calculator is a free online tool that computes finds the tightening torque and clamp preload for a bolt from its size, grade, and target preload. It shows the formula and a fully worked example so you can check the method, not just the number.</p></details>
-      <details class="faq"><summary>How is it calculated?</summary><p>The result is computed following ISO 898-1:2013 | VDI 2230. The worked example on this page shows a real computation with real numbers.</p></details>
-      <details class="faq"><summary>Is the calculator free?</summary><p>Yes. WorkHive&#x27;s engineering calculators are free: the worked example on this page shows the full calculation with real numbers, and the interactive calculator runs in WorkHive's free Engineering Design suite. A free account takes about 30 seconds. WorkHive is a free, offline-first maintenance platform built for Philippine industrial plants.</p></details>
+      <details class="faq"><summary>How is it calculated?</summary><p>The result is computed from your inputs following ISO 898-1:2013 | VDI 2230. The worked example on this page shows a real computation with real numbers.</p></details>
+      <details class="faq"><summary>Is the calculator free?</summary><p>Yes. WorkHive is free: this worked example is open to everyone, and the interactive calculator runs inside the free Engineering Design suite after a free sign-up (your work is saved to your account). WorkHive is a free, offline-first maintenance platform built for Philippine industrial plants.</p></details>
     </section>
 
     <section aria-labelledby="try">
-      <h2 id="try">Run it on your own numbers</h2>
-      <p><a href="/engineering-design.html" class="cta">Open the interactive Bolt Torque Calculator in WorkHive (free sign-in)</a>: free with a WorkHive account. Sign-up takes about 30 seconds.</p>
+      <h2 id="try" data-i="calc_try">Run it on your own numbers</h2>
+      <p><a href="/engineering-design.html?calc=bolt-torque-and-preload" class="cta">Open the interactive Bolt Torque Calculator in WorkHive</a>. Free, and a free sign-up saves your calculations, BOMs and scope-of-works to your account.</p>
     </section>
 
     <section aria-labelledby="related">
-      <h2 id="related">Related calculators</h2>
+      <h2 id="related" data-i="calc_related">Related calculators</h2>
       <ul>
         <li><a href="/learn/free-engineering-calculators-philippine-plants/">Free Engineering Calculators for Philippine Plants</a> (pillar)</li>
         <li><a href="/tools/bearing-life-calculator/">Bearing Life (L10) Calculator</a></li>
@@ -250,15 +264,30 @@
 
 <footer class="py-10 border-t border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
   <div class="max-w-4xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">
-    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-08-25">2026-08-25</time></p>
+    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-09-08">2026-09-08</time></p>
     <div class="flex items-center gap-6">
       <a href="/" class="hover:text-white/60 transition-colors">Home</a>
       <a href="/#faq" class="hover:text-white/60 transition-colors">FAQ</a>
-      <a href="/?signup=1" class="hover:text-white/60 transition-colors">Join the Hive</a>
+      <a href="/?signin=1" class="hover:text-white/60 transition-colors">Sign In</a>
+      <a href="/?signup=1" class="hover:text-white/60 transition-colors">Sign Up Free</a>
     </div>
   </div>
 </footer>
 
+<!-- N1 (critic sev-2 on every calculator page: "label coverage=0/7 · data-i=0", 2026-09-07). The static
+     headings a Filipino-first reader meets carry data-i keys, and this page dictionary is what
+     whI18nApply swaps them to. Natural Taglish - the engineering terms stay English on purpose,
+     because that is how a Philippine plant says them. -->
+<script src="/wh-i18n-lite.js" data-wh-chrome-i18n></script>
+<script>
+  window.WH_FIL_PAGE = {
+    calc_how: 'Paano ito gumagana', calc_worked: 'Halimbawang may solusyon', calc_howto: 'Paano gamitin ang calculator na ito',
+    calc_faq: 'Mga madalas itanong', calc_try: 'Patakbuhin sa sarili mong numero', calc_related: 'Kaugnay na mga calculator',
+    calc_result: 'Resulta', calc_value: 'Halaga',
+    calc_chip: 'Static · pormula lang · ang halimbawa ay kinuwenta noong binuo ang page · walang live na data'
+  };
+  if (typeof whI18nApply === 'function' && window.WH_LANG === 'fil') whI18nApply(window.WH_FIL_PAGE);
+</script>
 <script defer src="/wh-feedback-fab.js"></script>
 </body>
 </html>

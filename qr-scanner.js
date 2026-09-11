@@ -37,6 +37,14 @@
 (function () {
   'use strict';
 
+  /* W3-SC (2026-09-09): the scanner runs on a plant tablet held up to a machine, and every one of its
+     failure lines ends in "type tag manually below" -- the instruction that decides whether the person
+     recovers or gives up. It spoke only English. window._t(en, fil) is the platform locale floor
+     utils.js installs; resolved at CALL time, since the modal opens on a tap. The example tag in the
+     manual-entry placeholder is an asset name, not prose, so it stays as it is in both languages. */
+  const _tt = (en, fil) =>
+    (typeof window._t === 'function') ? window._t(en, fil) : en;
+
   // ── Module state ──────────────────────────────────────────────────────────
   let _modal      = null;
   let _video      = null;
@@ -86,7 +94,7 @@
     const formats = Array.isArray(_activeCallbacks.formats) && _activeCallbacks.formats.length
       ? _activeCallbacks.formats
       : DEFAULT_FORMATS;
-    const title = _activeCallbacks.title || 'Scan equipment tag';
+    const title = _activeCallbacks.title || _tt('Scan equipment tag', 'I-scan ang tag ng makina');
 
     buildModal(title);
     document.body.appendChild(_modal);
@@ -144,7 +152,7 @@
 
     // Step 2 — lazy-load ZXing from CDN
     await loadZXing();
-    if (!_zxing) throw new Error('No barcode decoder available on this browser');
+    if (!_zxing) throw new Error(_tt('No barcode decoder available on this browser', 'Walang barcode decoder ang browser na ito'));
     _zxingReader = new _zxing.BrowserMultiFormatReader();
   }
 
@@ -155,7 +163,7 @@
       s.src = ZXING_CDN;
       s.async = true;
       s.onload = function () { _zxing = window.ZXingBrowser; resolve(); };
-      s.onerror = function () { reject(new Error('Could not load barcode library')); };
+      s.onerror = function () { reject(new Error(_tt('Could not load barcode library', 'Hindi ma-load ang barcode library'))); };
       document.head.appendChild(s);
     });
   }
@@ -163,7 +171,7 @@
   // ── Camera init ───────────────────────────────────────────────────────────
   async function initCamera() {
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      throw new Error('This browser cannot access the camera');
+      throw new Error(_tt('This browser cannot access the camera', 'Hindi maabot ng browser na ito ang camera'));
     }
     _stream = await navigator.mediaDevices.getUserMedia({
       video: {
@@ -186,7 +194,7 @@
 
   // ── Scan loop ─────────────────────────────────────────────────────────────
   function startScanLoop(formats) {
-    showStatus('Hold steady, auto-detects');
+    showStatus(_tt('Hold steady, auto-detects', 'Panatagan lang, kusang makikita'));
     if (_detector) {
       _scanLoopTimer = setInterval(scanOnce, SCAN_LOOP_MS);
     } else if (_zxingReader) {
@@ -213,7 +221,7 @@
   function deliverScan(rawText) {
     const value = validateScanResult(rawText);
     if (!value) {
-      showStatus('Tag format not recognized, try again or type manually');
+      showStatus(_tt('Tag format not recognized, try again or type manually', 'Hindi kilala ang format ng tag, subukan ulit o i-type nang manu-mano'));
       return;
     }
 
@@ -330,7 +338,7 @@
         }
       </style>
       <div class="qr-head">
-        <button class="qr-close" id="qr-close-btn" aria-label="Close scanner">×</button>
+        <button class="qr-close" id="qr-close-btn" aria-label="${_tt('Close scanner', 'Isara ang scanner')}">×</button>
         <span class="qr-title"></span>
       </div>
       <div class="qr-stage">
@@ -338,12 +346,12 @@
           <video id="qr-video" playsinline muted></video>
           <div class="qr-target"><span></span></div>
         </div>
-        <div class="qr-status" id="qr-status">Starting camera...</div>
+        <div class="qr-status" id="qr-status">${_tt('Starting camera...', 'Binubuksan ang camera...')}</div>
         <div class="qr-manual">
-          <span class="qr-manual-label">Or type tag manually</span>
+          <span class="qr-manual-label">${_tt('Or type tag manually', 'O i-type ang tag nang manu-mano')}</span>
           <div class="qr-manual-row">
             <input id="qr-manual-input" type="text" inputmode="text" autocomplete="off" placeholder="e.g. PUMP-CP-100" />
-            <button id="qr-manual-submit">Use</button>
+            <button id="qr-manual-submit">${_tt('Use', 'Gamitin')}</button>
           </div>
         </div>
       </div>
@@ -386,12 +394,12 @@
 
   function _humanReadableError(err) {
     const name = err && err.name;
-    if (name === 'NotAllowedError')   return 'Camera permission denied: type tag manually below';
-    if (name === 'NotFoundError')     return 'No camera found: type tag manually below';
-    if (name === 'NotReadableError')  return 'Camera busy in another app: type tag manually below';
-    if (name === 'OverconstrainedError') return 'Camera could not match constraints: type tag manually below';
+    if (name === 'NotAllowedError')   return _tt('Camera permission denied: type tag manually below', 'Hindi pinayagan ang camera: i-type ang tag sa ibaba');
+    if (name === 'NotFoundError')     return _tt('No camera found: type tag manually below', 'Walang camera na nakita: i-type ang tag sa ibaba');
+    if (name === 'NotReadableError')  return _tt('Camera busy in another app: type tag manually below', 'Ginagamit ang camera ng ibang app: i-type ang tag sa ibaba');
+    if (name === 'OverconstrainedError') return _tt('Camera could not match constraints: type tag manually below', 'Hindi kayang sundin ng camera ang setting: i-type ang tag sa ibaba');
     if (err && err.message) return err.message;
-    return 'Camera unavailable: type tag manually below';
+    return _tt('Camera unavailable: type tag manually below', 'Hindi magamit ang camera: i-type ang tag sa ibaba');
   }
 
 })();

@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="wh-page-kind" content="reference"><!-- A1 (2026-09-05): a reference surface has no page-level CTA by design; declared, not guessed -->
   <!-- dashboard-allow: internal design-system gallery; every specimen cites its source file inline -->
   <title>Design System | WorkHive</title>
   <meta name="description" content="WorkHive living design system: every canonical token, component and renderer, rendered live from the real tokens.css / components.css / utils.js with measured adoption." />
@@ -19,7 +20,7 @@
     .page { max-width: 960px; margin: 0 auto; padding: 1.25rem 1rem 0; }
     h1 { font-size: 1.35rem; font-weight: 800; }
     .page-sub { font-size: .75rem; color: rgba(255,255,255,0.72); margin-top: 4px; max-width: 620px; }
-    .ds-class { margin-top: 1.75rem; }
+    .ds-class { margin-top: 1.5rem; }
     .ds-class > h2 { font-size: .8rem; font-weight: 800; text-transform: uppercase; letter-spacing: .07em; color: var(--wh-orange); margin-bottom: .75rem; }
     .ds-row { background: var(--wh-navy); border: 1px solid rgba(255,255,255,0.07); border-radius: var(--wh-radius, 12px); padding: 16px; margin-bottom: 12px; }
     .ds-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
@@ -31,10 +32,10 @@
     .ds-guide b { color: rgba(255,255,255,0.9); }
     .ds-spec { margin-top: 12px; padding: 14px; border: 1px dashed rgba(255,255,255,0.14); border-radius: 10px; background: rgba(255,255,255,0.02); }
     .ds-spec-label { font-size: .55rem; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: rgba(255,255,255,0.62); margin-bottom: 8px; }
-    .ds-adopt { display: flex; align-items: center; gap: 10px; margin-top: 12px; }
-    .ds-adopt-bar { flex: 1; height: 6px; border-radius: 999px; background: rgba(255,255,255,0.07); overflow: hidden; }
+    .ds-adopt { display: flex; align-items: center; gap: 10px; margin-top: 12px; flex-wrap: wrap; }   /* phone fit (2026-09-06): at 360px the nowrap label spilled 30px past the row; the label drops under the bar instead */
+    .ds-adopt-bar { flex: 1 1 120px; height: 6px; border-radius: 999px; background: rgba(255,255,255,0.07); overflow: hidden; }
     .ds-adopt-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--wh-blue), var(--wh-green)); }
-    .ds-adopt-txt { font-size: .68rem; font-weight: 700; color: rgba(255,255,255,0.85); white-space: nowrap; }
+    .ds-adopt-txt { font-size: .68rem; font-weight: 700; color: rgba(255,255,255,0.85); min-width: 0; }   /* phone fit (2026-09-06): the label is a SENTENCE ('82% - governed by validate_design_tokens.py (rawhex census)'); nowrap made it 313px inside a 294px row at 360 - same shape as the wh-source-chip lesson */
     .ds-adopt-txt .wh-num { font-variant-numeric: tabular-nums; }
     .ds-src { font-size: .6rem; color: rgba(255,255,255,0.62); margin-top: 8px; font-family: ui-monospace, monospace; }
     .swatch-row { display: flex; gap: 10px; flex-wrap: wrap; }
@@ -47,21 +48,28 @@
 </head>
 <body>
 <div class="page">
-  <h1>WorkHive Design System</h1>
+  <h1 data-i="p_workhivedesignsystem_f46a">WorkHive Design System</h1>
+<p class="wh-back" style="margin:.25rem 0 0; font-size:.8rem;"><a data-i="p_backtoworkhive_13cc" href="index.html" style="color:inherit; opacity:.85; text-decoration:underline;">&#8592; Back to WorkHive</a></p><!-- W1 (rubric 2026-09-05): an in-layout way back; the floating hub is not one -->
   <p class="page-sub">The living component library (FULLSTACK_COMPONENT_LIBRARY_ROADMAP Layer F). Every
     specimen below renders LIVE from the real <code>tokens.css</code> / <code>components.css</code> /
     <code>utils.js</code>: nothing is copied. Adoption bars are the measured census
     (<code>component_adoption_baseline.json</code>), the same floors the platform gate ratchets.</p>
-  <p id="ds-provenance" class="ds-src"></p>
+  <p id="ds-provenance" class="ds-src mono"></p>
 
   <!-- PLATFORM_CENTRALIZATION_ROADMAP C-P5: the 3 axes of centralization, measured live.
        Adoption (do surfaces use the canonical?) · Purity (is the canonical built from tokens?)
        · Pattern (are recurring behaviours centralized?). -->
+  <!-- Reserved at parse time: every render on this page waits for the component-registry fetch, so the
+       axes panel (measured 335px wide / 579px at 390) and the gallery landed AFTER first paint and pushed
+       the help block + gallery (CLS 0.17-0.29, 2026-09-05). min-heights hold the boxes open from the start. -->
+  <style>#ds-axes{min-height:335px}#ds-root{min-height:60vh}@media (max-width:767px){#ds-axes{min-height:579px}}
+  /* control-within-viewport (2026-09-05): a file name in a code chip is one unbreakable token - it ran 26-37px past the floor viewport */
+  .ds-adopt-txt, #ds-root code, #ds-axes code { overflow-wrap: anywhere; word-break: break-word; }</style>
   <div id="ds-axes"></div>
 
   <details class="wh-help">
-    <summary>How this page works</summary>
-    <p>Each card is one canonical primitive from the registry: what it is, when to use it, and its live
+    <summary data-i="p_howthispageworks_c540">How this page works</summary>
+    <p data-i="p_eachcardisonecanonicalprimit_ccff">Each card is one canonical primitive from the registry: what it is, when to use it, and its live
     rendering. If a specimen looks wrong here, it is wrong everywhere: fix the shared source, never a page.</p>
   </details>
 
@@ -71,6 +79,13 @@
 <script>
 (async function () {
   const root = document.getElementById('ds-root');
+  // systemic ripple (2026-09-05): the gallery renders through utils.js helpers (escHtml, the specimen renderers). If
+  // that shared script did not arrive, say so in the content root instead of leaving the page silently empty.
+  if (typeof escHtml !== 'function' || typeof renderSourceChip !== 'function') {
+    console.error('[design-system] utils.js did not load; the gallery cannot render');
+    root.innerHTML = '<p class="honest-empty" role="status" style="padding:1rem;border:1px solid rgba(255,255,255,.12);border-radius:10px;">The component gallery could not load its shared script (utils.js). <button type="button" onclick="location.reload()" style="color:inherit;text-decoration:underline;background:none;border:0;padding:0;font:inherit;cursor:pointer;min-height:44px;">Reload to try again</button>.</p>';
+    return;
+  }
   if (typeof whListSkeleton === 'function') whListSkeleton(root, 6); // dogfood: G1 while the registry loads
 
   let reg, base, apiReg = null, apiBase = null;
@@ -106,21 +121,20 @@
     let purity = null, storage = null;
     // fetchWithTimeout (utils.js, loaded on this page) so a hung server can't strand the panel
     // (resilience floor); the call is inside try/catch (error-handling floor). No bare fetch().
-    try { purity = await window.fetchWithTimeout('component_purity_baseline.json', {}, 8000).then(r => r.json()); } catch (_) { /* empty-catch-allow: panel omits purity if absent */ }
-    try { storage = await window.fetchWithTimeout('storage_key_registry.json', {}, 8000).then(r => r.json()); } catch (_) { /* empty-catch-allow: panel omits storage if absent */ }
-    let rubricSpec = null, rubricBoard = null;
-    try { rubricSpec = await window.fetchWithTimeout('ufai-rubric-spec.json', {}, 8000).then(r => r.json()); } catch (_) { /* empty-catch-allow: panel omits rubric SSOT if absent */ }
-    try { rubricBoard = await window.fetchWithTimeout('family_rubric_scoreboard.json', {}, 8000).then(r => r.json()); } catch (_) { /* empty-catch-allow: panel omits sweep coverage if absent */ }
+    // Paint FIRST with placeholders (null inputs -> 0 / '?'), then repaint in place once the four
+    // baselines arrive: the section's height is settled at first paint, so the help block and the
+    // gallery below it never move (CLS 0.25 <- div#ds-root, 2026-09-05).
+    const paint = (purity, storage, rubricSpec, rubricBoard) => {
     const files = (purity && purity.files) || {};
     const total = Object.keys(files).length;
     const pure = Object.values(files).filter(v => v === 0).length;
-    const impure = purity ? (purity.total || 0) : '?';
-    const pPct = total ? Math.round(100 * pure / total) : 0;
-    const canon = (storage && storage.canonical) ? storage.canonical.length : 0;
+    const impure = purity ? (purity.total || 0) : '—';
+    const pPct = purity ? (total ? Math.round(100 * pure / total) : 0) : '—';   // the fourth state (2026-09-05): a missing baseline is unknown, not 0%
+    const canon = storage ? ((storage.canonical || []).length) : '—';
     const aliases = (storage && storage.aliases) ? Object.keys(storage.aliases).length : 0;
-    const rDims = rubricSpec ? Object.keys(rubricSpec).filter(k => /^[A-Z][0-9]$/.test(k)).length : 0;
+    const rDims = rubricSpec ? Object.keys(rubricSpec).filter(k => /^[A-Z][0-9]$/.test(k)).length : '—';
     const rThr = rubricSpec ? Object.values(rubricSpec).reduce((n, d) => n + (d && d.thresholds ? Object.keys(d.thresholds).length : 0), 0) : 0;
-    const rPages = (rubricBoard && rubricBoard.summary) ? (rubricBoard.summary.measuredPages || 0) : 0;
+    const rPages = (rubricBoard && rubricBoard.summary) ? (rubricBoard.summary.measuredPages || 0) : '—';
     const rMean = (rubricBoard && rubricBoard.summary && rubricBoard.summary.mean != null) ? rubricBoard.summary.mean : '?';
     const card = 'background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:var(--wh-radius,12px);padding:12px 14px;';
     const bar = 'height:6px;border-radius:var(--wh-radius-pill, 999px);background:rgba(255,255,255,0.08);overflow:hidden;margin-top:8px;';
@@ -128,11 +142,19 @@
       '<section class="ds-class"><h2>Centralization axes: measured live</h2>' +
       '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px">' +
         '<div style="' + card + '"><strong>Axis 1 · Adoption</strong><p style="margin:.4rem 0 0;font-size:.8rem;color:var(--wh-text-muted,rgba(255,255,255,.62))">Do surfaces USE the canonical? The layer boards below (F/A/D/AU/AV) are the measured census.</p></div>' +
-        '<div style="' + card + '"><strong>Axis 2 · Purity: ' + pPct + '%</strong><p style="margin:.4rem 0 0;font-size:.8rem;color:var(--wh-text-muted,rgba(255,255,255,.62))">Is the canonical itself built from tokens? <b>' + pure + '/' + total + '</b> shared-chrome files pure · <b>' + impure + '</b> raw brand literals.</p><div style="' + bar + '"><div style="height:100%;width:' + pPct + '%;background:var(--wh-green,#4ade80)"></div></div></div>' +
+        '<div style="' + card + '"><strong>Axis 2 · Purity: ' + (pPct === '—' ? 'unavailable' : pPct + '%') + '</strong><p style="margin:.4rem 0 0;font-size:.8rem;color:var(--wh-text-muted,rgba(255,255,255,.62))">Is the canonical itself built from tokens? <b>' + pure + '/' + total + '</b> shared-chrome files pure · <b>' + impure + '</b> raw brand literals.</p><div style="' + bar + '"><div style="height:100%;width:' + pPct + '%;background:var(--wh-green,#4ade80)"></div></div></div>' +
         '<div style="' + card + '"><strong>Axis 3 · Pattern: 4/4</strong><p style="margin:.4rem 0 0;font-size:.8rem;color:var(--wh-text-muted,rgba(255,255,255,.62))">Are behaviours centralized? <code>wh-patterns.js</code>: launchPanel · clickOutside · revealVia · capPanel.</p></div>' +
         '<div style="' + card + '"><strong>Storage-key SSOT</strong><p style="margin:.4rem 0 0;font-size:.8rem;color:var(--wh-text-muted,rgba(255,255,255,.62))"><b>' + canon + '</b> canonical keys · <b>' + aliases + '</b> drift-aliases tracked (<code>storage_key_registry.json</code>).</p></div>' +
         '<div style="' + card + '"><strong>UFAI Rubric SSOT</strong><p style="margin:.4rem 0 0;font-size:.8rem;color:var(--wh-text-muted,rgba(255,255,255,.62))">Is the RULER itself centralized? <b>' + rDims + '</b> dims + <b>' + rThr + '</b> thresholds in one <code>ufai-rubric-spec.json</code>; the lens + battery single-source their floors from gate-locked mirror blocks (<code>rubric-parity</code> gate). <b>' + rPages + '/32</b> pages swept · mean <b>' + rMean + '</b>.</p></div>' +
       '</div></section>';
+    };
+    paint(null, null, null, null);
+    try { purity = await window.fetchWithTimeout('component_purity_baseline.json', {}, 8000).then(r => r.json()); } catch (e) { console.warn('[design-system] component_purity_baseline.json unavailable', e && e.message); /* the panel paints 'unavailable' */ }
+    try { storage = await window.fetchWithTimeout('storage_key_registry.json', {}, 8000).then(r => r.json()); } catch (_) { /* empty-catch-allow: panel omits storage if absent */ }
+    let rubricSpec = null, rubricBoard = null;
+    try { rubricSpec = await window.fetchWithTimeout('ufai-rubric-spec.json', {}, 8000).then(r => r.json()); } catch (_) { /* empty-catch-allow: panel omits rubric SSOT if absent */ }
+    try { rubricBoard = await window.fetchWithTimeout('family_rubric_scoreboard.json', {}, 8000).then(r => r.json()); } catch (_) { /* empty-catch-allow: panel omits sweep coverage if absent */ }
+    paint(purity, storage, rubricSpec, rubricBoard);
   })();
 
   const e = escHtml;
@@ -142,7 +164,7 @@
     FT1() { const names = ['--wh-orange','--wh-blue','--wh-navy','--wh-steel','--wh-cloud','--wh-text-muted'];
       return '<div class="swatch-row">' + names.map(n => {
         const v = getComputedStyle(document.documentElement).getPropertyValue(n).trim() || '—';
-        return '<div class="swatch"><div class="sw" style="background:var(' + n + ')"></div><div class="sw-name">' + e(n) + '<br>' + e(v) + '</div></div>';
+        return '<div class="swatch"><div class="sw" style="background:var(' + n + ')"></div><div class="sw-name mono">' + e(n) + '<br>' + e(v) + '</div></div>';
       }).join('') + '</div>'; },
     FT2() { return [4,8,12,16,24,32].map(px => '<div style="display:flex;align-items:center;gap:10px;margin:4px 0;"><div style="width:' + px + 'px;height:12px;background:var(--wh-blue);border-radius:3px;"></div><span style="font-size:.62rem;color:rgba(255,255,255,0.62);">' + px + 'px</span></div>').join(''); },
     FT3() { return '<div style="display:flex;gap:12px;flex-wrap:wrap;">' + [['--wh-radius-sm','sm'],['--wh-radius','base'],['--wh-radius-lg','lg']].map(([t,l]) => '<div style="width:90px;height:56px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);border-radius:var(' + t + ',12px);display:flex;align-items:center;justify-content:center;font-size:.6rem;color:rgba(255,255,255,0.7);">' + l + '</div>').join('') + '</div>'; },
@@ -154,7 +176,7 @@
     FC3() { return '<div class="wh-scroll-x"><table class="demo-table" aria-label="Example asset reliability table"><thead><tr><th>Asset</th><th>MTBF</th><th>MTTR</th><th>Availability</th><th>Last failure</th><th>Next PM</th><th>Owner</th><th>Status</th></tr></thead><tbody><tr><td>Compressor C-102</td><td class="wh-num">6.4d</td><td class="wh-num">3.1h</td><td class="wh-num">97.2%</td><td>Jul 12, 2026</td><td>Jul 21, 2026</td><td>R. Santos</td><td>OK</td></tr></tbody></table></div><p style="font-size:.6rem;color:rgba(255,255,255,0.6);margin-top:6px;">← the wrapper scrolls; the page never does</p>'; },
     FI1() { return '<details class="wh-disclose"><summary><span class="wh-disclose-title">Ops detail (.wh-disclose)</span></summary><div class="wh-disclose-body"><p style="font-size:.75rem;color:rgba(255,255,255,0.72);">Deferred complexity lives here.</p></div></details><details class="wh-help"><summary>Inline help (.wh-help)</summary><p>How-this-works copy lives here.</p></details>'; },
     FI2() { return '<button class="wh-tap-h" style="background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.35);border-radius:8px;color:var(--wh-red);font-family:inherit;font-size:.75rem;padding:0 14px;cursor:pointer;" onclick="whConfirm(\'Delete this demo row?\', { danger: true }).then(ok => whToast && whToast(ok ? \'Confirmed\' : \'Cancelled\'))">whConfirm demo</button>'; },
-    FI3() { return '<div style="display:flex;gap:8px;flex-wrap:wrap;"><span class="filter-chip active" style="min-height:44px;display:inline-flex;align-items:center;padding:0 14px;">All</span><span class="filter-chip" style="min-height:44px;display:inline-flex;align-items:center;padding:0 14px;">Overdue</span></div>'; },
+    FI3() { return '<div style="display:flex;gap:8px;flex-wrap:wrap;"><span class="filter-chip active" role="button" aria-pressed="true" style="min-height:44px;display:inline-flex;align-items:center;padding:0 14px;">All</span><span class="filter-chip" style="min-height:44px;display:inline-flex;align-items:center;padding:0 14px;">Overdue</span></div>'; },
     FF1() { const id = 'spec-skel'; setTimeout(() => { const el = document.getElementById(id); if (el && typeof whListSkeleton === 'function') whListSkeleton(el, 3); }, 0); return '<div id="' + id + '"></div>'; },
     FF2() { return (typeof whOhBadge === 'function' ? whOhBadge('critical', '2 overdue') + ' ' + whOhBadge('ok', 'on track') : '') + (typeof whProgressStrip === 'function' ? whProgressStrip('PM this week', 4, 6) : ''); },
     FD1a() { return '<code style="font-size:.75rem;">whFmtDate(now) → ' + e(whFmtDate(new Date())) + ' · {time:true} → ' + e(whFmtDate(new Date(), { time: true })) + ' · {year:false, weekday:"short"} → ' + e(whFmtDate(new Date(), { year: false, weekday: 'short' })) + '</code>'; },
@@ -163,7 +185,7 @@
     FD1d() { return '<code style="font-size:.75rem;">whFmtDuration(6.4) → ' + e(whFmtDuration(6.4)) + ' · (1, "hours") → ' + e(whFmtDuration(1, 'hours')) + '</code>'; },
     FD1e() { return '<code style="font-size:.75rem;">whFmtAgo(90s ago) → ' + e(whFmtAgo(new Date(Date.now() - 90000))) + ' · (3d ago) → ' + e(whFmtAgo(new Date(Date.now() - 3 * 86400000))) + '</code>'; },
     FD2() { return (typeof renderKpiTile === 'function') ? renderKpiTile({ label: 'PM compliance', value: '92%', sub: 'SMRP 2.1.1 · this month', tone: 'ok' }) : '<em style="font-size:.7rem;">renderKpiTile not exposed</em>'; },
-    FD3() { return (typeof renderSourceChip === 'function') ? renderSourceChip({ source: 'v_pm_compliance_truth', freshness: new Date().toISOString() }) : ''; },
+    FD3() { return (typeof renderSourceChip === 'function') ? renderSourceChip({ source: 'v_pm_compliance_truth', freshness: 'as of ' + new Date().toISOString() }) : ''; },
   };
 
   const order = [];
@@ -186,12 +208,12 @@
       try { spec = SPEC[c.id] ? SPEC[c.id]() : ''; } catch (err) { spec = '<em style="font-size:.68rem;color:var(--wh-red);">specimen error: ' + e(String(err)) + '</em>'; }
       return '<div class="ds-row">' +
         '<div class="ds-head"><span class="ds-id">' + e(c.id) + '</span><span class="ds-name">' + e(c.name) + '</span><span class="ds-dim">satisfies ' + e(c.satisfies) + '</span></div>' +
-        '<div class="ds-api">' + e(c.api) + '</div>' +
+        '<div class="ds-api mono">' + e(c.api) + '</div>' +
         '<div class="ds-guide"><b>Use:</b> ' + e(c.when_to_use || '-') + ' &nbsp;·&nbsp; <b>Not:</b> ' + e(c.when_not || '-') +
         (c.exempt && c.exempt.length ? ' &nbsp;·&nbsp; <b>Exempt:</b> ' + e(c.exempt.join(', ').replace(/\.html/g, '')) + ' <span class="wh-text-faint">(' + e(c.exempt_reason || '') + ')</span>' : '') + '</div>' +
         (spec ? '<div class="ds-spec"><div class="ds-spec-label">Live specimen</div>' + spec + '</div>' : '') +
         adopt +
-        '<div class="ds-src">defined in ' + e(c.defined_in) + ' · reference: ' + e(c.reference_impl || '-') + '</div>' +
+        '<div class="ds-src mono">defined in ' + e(c.defined_in) + ' · reference: ' + e(c.reference_impl || '-') + '</div>' +
         '</div>';
     }).join('');
     return '<section class="ds-class"><h2>' + e(cls) + '</h2>' + rows + '</section>';
@@ -213,11 +235,11 @@
         }
         return '<div class="ds-row">' +
           '<div class="ds-head"><span class="ds-id">' + e(c.id) + '</span><span class="ds-name">' + e(c.name) + '</span><span class="ds-dim">' + e(c.satisfies) + '</span></div>' +
-          '<div class="ds-api">' + e(c.api) + '</div>' +
+          '<div class="ds-api mono">' + e(c.api) + '</div>' +
           '<div class="ds-guide"><b>Use:</b> ' + e(c.when_to_use || '-') + ' &nbsp;·&nbsp; <b>Not:</b> ' + e(c.when_not || '-') +
           (c.exempt && c.exempt.length ? ' &nbsp;·&nbsp; <b>Exempt:</b> ' + e(c.exempt.join(', ')) : '') + '</div>' +
           adopt +
-          '<div class="ds-src">defined in ' + e(c.defined_in || 'supabase/functions/_shared/') + '</div>' +
+          '<div class="ds-src mono">defined in ' + e(c.defined_in || 'supabase/functions/_shared/') + '</div>' +
           '</div>';
       }).join('') + '</section>';
   }
@@ -249,11 +271,11 @@
         }
         return '<div class="ds-row">' +
           '<div class="ds-head"><span class="ds-id">' + e(c.id) + '</span><span class="ds-name">' + e(c.name) + '</span><span class="ds-dim">' + e(c.satisfies || '-') + '</span></div>' +
-          '<div class="ds-api">' + e(c.api || '') + '</div>' +
+          '<div class="ds-api mono">' + e(c.api || '') + '</div>' +
           '<div class="ds-guide"><b>Use:</b> ' + e(c.when_to_use || '-') + ' &nbsp;·&nbsp; <b>Not:</b> ' + e(c.when_not || '-') +
           (c.exempt && c.exempt.length ? ' &nbsp;·&nbsp; <b>Exempt:</b> ' + e(c.exempt.map(x => String(x).replace('.html', '')).join(', ')) : '') + '</div>' +
           adopt +
-          '<div class="ds-src">' + e(c.defined_in || L.src) + '</div>' +
+          '<div class="ds-src mono">' + e(c.defined_in || L.src) + '</div>' +
           '</div>';
       }).join('') + '</section>';
   }

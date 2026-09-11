@@ -9,6 +9,8 @@ FIL
 
 ## Quick Actions
 
+[Guides and free calculators →](https://workhiveph.com/learn/)
+
 ### More
 
 Your dashboard reads your hive's live data: open jobs come from the logbook, PM status from the PM scheduler, and alerts from the alert hub. Tap any tile or row to open the tool behind it.
@@ -438,4 +440,4 @@ Secure account →
 Sign In
 Sign Up
 
-<!-- md-twin source-sha: b900970909267858 -->
+<!-- md-twin source-sha: b1381854aebf4a5f -->

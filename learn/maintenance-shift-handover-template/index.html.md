@@ -96,7 +96,15 @@ The supervisor who wrote the P1 entry did not know any of this would happen. He 
 | **DOLE OSHS audit response** | Manual photocopy | PDF export in seconds |
 | **Cost** | Notebook + pen | Free (with a free tool) or ₱20-200/user/month for paid CMMS |
 
-The big difference is not the writing experience; it is the read experience three weeks later when something escalates and you need to retrieve "what did the graveyard shift on the 17th say about Conveyor 3?" Paper makes that a 90-minute archaeology project. Digital makes it a 5-second search.
+**Where paper still wins.** Every row above favours digital, and a table that only
+ goes one way is worth distrusting. Paper needs no battery, no signal and no login; it works in a
+ wash-down area where nobody sensible brings a phone, it works during a power cut, which is often
+ exactly when a handover matters most, and it needs no training for a technician on their first
+ day. It also depends on no vendor: a notebook cannot be discontinued, priced up or taken offline
+ for maintenance. If your crew is one shift handing to one shift in a single line, and the binder
+ is genuinely being read, paper is not costing you anything and you should keep it.
+
+The big difference is not the writing experience; it is theread experience three weeks later when something escalates and you need to retrieve "what did the graveyard shift on the 17th say about Conveyor 3?" Paper makes that a 90-minute archaeology project. Digital makes it a 5-second search.
 
 The tool this guide is about
 
@@ -164,4 +172,4 @@ The logbook captures individual events as they happen during the shift. The hand
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: d02a23b46f8187fd -->
+<!-- md-twin source-sha: fd79b37829e5e8e8 -->

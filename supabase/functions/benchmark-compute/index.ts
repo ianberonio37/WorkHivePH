@@ -164,8 +164,17 @@ async function computeForHive(db: SupabaseClient, hiveId: string, now: Date) {
 
   if (hiveRows.length) {
     // unbounded-query-allow: benchmark aggregator reads the full benchmark table for percentile compute
-    await db.from("hive_benchmarks")
+    /* ★THESE ROWS ARE WHAT THE RUN IS FOR (2026-09-09, unchecked-writes sweep). A discarded error here
+       means the compute finished, reported itself successful, and the benchmark table kept yesterday's
+       numbers - a federated comparison quietly frozen in time, which is worse than an empty one because
+       it still looks authoritative on the page. */
+    const { error: benchErr } = await db.from("hive_benchmarks")
       .upsert(hiveRows, { onConflict: "hive_id,equipment_category" });
+    if (benchErr) {
+      console.error("benchmark-compute: computed benchmarks could not be saved -", benchErr.message,
+        "- the benchmark page will keep showing the PREVIOUS run's figures");
+      throw new Error(`benchmarks computed but not saved: ${benchErr.message}`);
+    }
   }
 
   return hiveRows;
@@ -303,6 +312,7 @@ serveObserved("benchmark-compute", async (req) => {
       await computeNetwork(db, now);
     }
 
+  // unchecked-write-allow: a telemetry row. Its failure must not change the caller's outcome - refusing real work because a log line did not land would be the worse bug.
     await db.from("automation_log").insert({
       job_name: "benchmark-compute",
       hive_id:  body.hive_id || null,

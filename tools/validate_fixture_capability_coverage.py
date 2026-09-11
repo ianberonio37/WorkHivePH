@@ -44,15 +44,25 @@ FIXTURES = [
         "when the list length exceeds 1), so the entire switch path — re-deriving hive id, name AND "
         "role together — is unreachable. This is the fixture the H8 walk itself consumed.",
     ),
+    # (*)A `least()` OF TWO COUNTS REPORTS A ZERO WITHOUT NAMING WHICH SIDE IS EMPTY, and the two sides
+    # need opposite fixes: no supervisor is a different seeding job from no worker. This gate's own rule is
+    # that "I could not tell" must never read as covered - a shortfall that cannot say WHAT is short is the
+    # same fault one level down. Split in two, so the failing line names the persona that is missing.
     (
-        "supervisor_and_worker",
-        "Role-split board — at least one supervisor and one non-supervisor",
-        "select least("
-        "  (select count(*) from public.hive_members where status='active' and role='supervisor'),"
-        "  (select count(*) from public.hive_members where status='active' and role <> 'supervisor'));",
+        "role_split_supervisor",
+        "Role-split board — at least one supervisor",
+        "select count(*) from public.hive_members where status='active' and role='supervisor';",
         1,
         "Supervisor-only chrome and the worker view can only be diffed against each other if both "
-        "personas exist. With one role seeded, every role-boundary check silently tests one side.",
+        "personas exist. With no supervisor, every role-boundary check silently tests one side.",
+    ),
+    (
+        "role_split_worker",
+        "Role-split board — at least one non-supervisor",
+        "select count(*) from public.hive_members where status='active' and role <> 'supervisor';",
+        1,
+        "The other half of the same pair: with no non-supervisor, the worker view has nobody to render "
+        "for and every supervisor-only assertion passes against an empty comparison.",
     ),
     (
         "multi_member_hive",

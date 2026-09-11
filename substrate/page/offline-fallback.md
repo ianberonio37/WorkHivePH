@@ -2,13 +2,13 @@
 name: page-offline-fallback
 type: page
 source: file:offline-fallback.html
-source_sha: 522722cf9b1b53f1
+source_sha: ea87307e9aaa2b14
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## page · `offline-fallback.html` — Offline — WorkHive
 
-Size: 4KB · 0 top-level fns. (Retrieve THIS instead of reading the file.)
+Size: 8KB · 0 top-level fns. (Retrieve THIS instead of reading the file.)
 
 **DB writes** (0): (none detected)
 **RPC calls**: (none)

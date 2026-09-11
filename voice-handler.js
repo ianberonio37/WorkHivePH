@@ -787,7 +787,44 @@
         message: `No handler registered for "${intent.kind}" on this page. Open the right page (e.g. Logbook for logbook.create) and try again.`,
       };
     }
-    return await handler(intent, assetResolution || {});
+    const result = await handler(intent, assetResolution || {});
+    // ★THE AUDIT ROW THE HEADER OVER _emitAuditEvent HAS ALWAYS PROMISED (wired 2026-09-08). It said
+    // "every confirmed write action (log entry, schedule, alert flag) writes to ai_audit_log so we can
+    // replay every voice-driven decision" - and the emitter had NO CALL SITE anywhere in this file or any
+    // page, so ai_audit_log held zero rows in all six hives and the AI-assisted-day journey read "the
+    // chain is empty" wherever it was cast. This is the one place every confirmed action passes through
+    // (the page handlers registered by asset-hub, inventory, logbook and pm-scheduler, and _confirm's
+    // path too), so it is where the record belongs.
+    // Free text is scrubbed with the platform's own PII scrubber before it is stored, and the whole thing
+    // is best-effort: an audit that could block the action it records would be worse than no audit.
+    try {
+      // ★_scrubPii RETURNS `{ text, scrubs }`, NOT A STRING - it reports how many it replaced, which is
+      // the more useful contract and not the one its name suggests. Calling `.slice()` on the object
+      // threw, my catch swallowed it silently, and the audit simply did not happen: dispatch succeeded,
+      // no row appeared, no warning printed. Three probes to find a one-line assumption, and the fix that
+      // mattered was making the catch speak rather than guessing again.
+      const _s = (v) => {
+        const t = String(v == null ? '' : v);
+        if (typeof _scrubPii !== 'function') return t;
+        const r = _scrubPii(t);
+        return (r && typeof r.text === 'string') ? r.text : String(r);
+      };
+      // the table's own vocabulary, from the column comment in its migration: 'logbook.create',
+      // 'pm.schedule', 'erasure_request' - the bare intent kind, not a prefix of my own invention
+      await _emitAuditEvent(_getDb(), _ctx(), intent.kind, {
+        ok:      !(result && result.ok === false),
+        intent:  _s(JSON.stringify(intent || {})).slice(0, 800),
+        outcome: _s(result && result.message).slice(0, 300),
+      });
+    } catch (e) {
+      // ★AND IT SAYS WHY. The first version swallowed this silently, and the audit then did not happen
+      // for a reason nobody could see: dispatch succeeded, no row appeared, and no warning was printed -
+      // three probes to establish that the emitter works when called directly and does not work from
+      // here. An audit write must never undo the action it records, which is why this catches at all;
+      // catching QUIETLY is a different decision, and the wrong one.
+      console.warn('[WHVoice] could not record the action:', (e && e.message) || e);
+    }
+    return result;
   }
 
   // ─── Conversational path ─────────────────────────────────────────────────
@@ -851,8 +888,20 @@
   // Conservative on purpose: ONLY matches obvious canonical-data asks.
   // Free-form chat ("how do I check bearings?", "ang init dito") falls
   // through to the persona-only path unchanged.
+  // the raw utterance is classified first (unchanged behaviour), and only if that finds nothing does the
+  // normalised form get a turn - so a filler-laden, slang-heavy Taglish sentence gets a second chance
+  // while every sentence that already worked keeps working. The second pass runs only when normalising
+  // actually changed the words, so an English sentence costs one cheap string compare and nothing else.
   function _classifyDataIntent(transcriptRaw) {
-    const t = String(transcriptRaw || '').toLowerCase();
+    const raw = String(transcriptRaw || '').toLowerCase().replace(/\s+/g, ' ').trim();
+    const direct = _classifyDataIntentOn(raw);
+    if (direct) return direct;
+    const norm = _normalizeUtterance(transcriptRaw).toLowerCase();
+    if (!norm || norm === raw) return null;
+    return _classifyDataIntentOn(norm);
+  }
+
+  function _classifyDataIntentOn(t) {
     if (!t.trim()) return null;
     // MTBF — direct keyword + common Tagalog framings ("gaano katagal
     // bago masira", "average time between failures").
@@ -864,7 +913,7 @@
       return { kind: 'mttr', window_days: _extractWindow(t, 30) };
     }
     // Downtime / breakdown count
-    if (/\bdowntime\b|total downtime|how much downtime|gaano katagal.*off|ilang oras.*sira/.test(t)) {
+    if (/\bdowntime\b|total downtime|how much downtime|gaano katagal.*off|ilang oras.*(?:sira|broken|failure)/.test(t)) {
       return { kind: 'downtime', window_days: _extractWindow(t, 30) };
     }
     // Risk ranking — "what are the highest risk", "top risk assets",
@@ -873,7 +922,7 @@
       return { kind: 'risk_top', limit: 3 };
     }
     // Failures count — "how many breakdowns", "ilang beses nasira"
-    if (/how many.*(failure|breakdown|fail)|ilang beses.*sira|number of breakdowns/.test(t)) {
+    if (/how many.*(failure|breakdown|fail)|ilang beses.*(?:sira|broken|failure)|number of breakdowns/.test(t)) {
       return { kind: 'failures_count', window_days: _extractWindow(t, 30) };
     }
     return null;
@@ -1282,12 +1331,21 @@
 
       if (error || !chunks || chunks.length === 0) return '';
 
-      // Format RAG context with citations
-      return chunks.map(c => {
-        const doc = (c.doc_title || '').slice(0, 50);
-        const text = (c.chunk_text || '').slice(0, 300);
-        return `[${doc}] ${text}`;
-      }).join('\n\n');
+      // ★THE BLOCK THAT FORMATS THIS ALREADY EXISTED AND WAS NEVER CALLED. `_buildRagBlock` caps the
+      // whole context at 2,000 characters, stops at six hits and prints each hit's retrieval SCORE;
+      // this loop had no cap at all (five hits x 300 chars plus titles, and nothing stopping a larger
+      // p_limit later), no score, and a header the model never got telling it what the block is. Two
+      // formatters for one job, and the weaker one was the one running. The doc TITLE is kept as the
+      // citation - it is worth more to the model than a row id - by passing it as the hit's id, so the
+      // line reads "[doc:Pump Manual score=0.82] ...": title, confidence, and a bounded block.
+      return _buildRagBlock(chunks.map((c) => ({
+        id: (c.doc_title || 'untitled').slice(0, 50),
+        // the live function returns `similarity_score`, not `similarity` - read from the database, not
+        // from the name it ought to have had; the wrong one prints "score=0.00" beside every hit, which
+        // is a confidence figure the model would have believed
+        score: c.similarity_score,
+        snippet: c.chunk_text || '',
+      })), 2000);
     } catch (err) {
       console.warn('[WHVoice] RAG context fetch failed:', err && err.message);
       return '';
@@ -2528,6 +2586,17 @@
       const n = Math.min(365, Math.max(1, Number(m[1])));
       return isoSpan(n);
     }
+    // ★A FILIPINO TIME-OF-DAY NAMES A SPAN TOO, and this returned null for every one of them. A worker
+    // saying "nag-alarm kaninang umaga" or "gabi pa yan" is talking about today, at a known hour -
+    // _parsePhTimeExpression has held that table since it was written and nothing ever asked it. The
+    // hour rides along on the span rather than narrowing it, so a caller that only wants the day is
+    // unaffected and one that wants the shift can use it.
+    const phHour = _parsePhTimeExpression(s);
+    if (phHour !== null) {
+      const span = isoSpan(0);
+      span.hour = phHour;
+      return span;
+    }
     return null;
   }
 
@@ -2690,15 +2759,26 @@
   async function _emitAuditEvent(db, ctx, eventType, payload) {
     if (!db || !ctx || !eventType) return false;
     try {
+      // ★AND THE COLUMN IS `event`, NOT `event_type`. Both writers in this file named a column
+      // ai_audit_log does not have (its migration: `event text NOT NULL`, commented with the exact
+      // vocabulary - 'logbook.create' / 'pm.schedule' / 'erasure_request'), so every insert would have
+      // been REFUSED for an unknown column while the old `return true` reported success. Nothing ever
+      // called either function, so the bug was never exercised and never surfaced: that is the real cost
+      // of dead code passing a gate - it is not merely absent, it is untested and wrong.
       const row = {
         hive_id:     ctx.hive_id || null,
         worker_name: ctx.worker_name || null,
-        event_type:  String(eventType).slice(0, 60),
+        event:       String(eventType).slice(0, 60),
         payload:     payload || {},
         source:      'voice-handler',
         created_at:  new Date().toISOString(),
       };
-      await db.from('ai_audit_log').insert(row);
+      // ★A REFUSED WRITE DOES NOT THROW. supabase-js resolves with { error }, so the old
+      // `await insert(row); return true;` reported success for a row RLS had just refused - and this
+      // function's whole purpose is to be the record that something happened. A best-effort audit may
+      // stay quiet; it may not report a row it does not have.
+      const { error } = await db.from('ai_audit_log').insert(row);
+      if (error) { console.warn('[WHVoice] audit row refused:', error.message); return false; }
       return true;
     } catch (_) { return false; }
   }
@@ -3197,14 +3277,19 @@
   async function _logKnowledgeGap(db, ctx, transcript, reason) {
     if (!db || !ctx || !transcript) return false;
     try {
-      await db.from('ai_knowledge_gap').insert({
+      // ★`source` IS NOT A COLUMN ON THIS TABLE either (id, hive_id, worker_name, question, reason,
+      // topic, created_at) - the third distinct column mistake in this file's batch of companion infra
+      // writes, and the same silent shape: PostgREST refuses the row, the refusal resolves rather than
+      // throws, and `return true` says it worked. Nothing ever called this function, so the mistake sat
+      // unexercised. `topic` is the column that was there for classifying a gap.
+      const { error } = await db.from('ai_knowledge_gap').insert({
         hive_id:     ctx.hive_id || null,
         worker_name: ctx.worker_name || null,
         question:    String(transcript).slice(0, 280),
         reason:      String(reason || 'unknown').slice(0, 80),
-        source:      'voice-handler',
         created_at:  new Date().toISOString(),
       });
+      if (error) { console.warn('[WHVoice] knowledge-gap row refused:', error.message); return false; }
       return true;
     } catch (_) { return false; }
   }
@@ -3323,51 +3408,52 @@
     if (!s || s.length > 200) return false;
     return _ERASURE_RE.test(s);
   }
+  // ★THE PRODUCT PROMISED THIS DELETION AND NEVER PERFORMED IT (wired 2026-09-08). The assistant is told
+  // to reply "I can clear your voice + journal history for this hive. Confirm with yes - this cannot be
+  // undone", and the anchor even states "the scoped DELETE runs on the next confirmed yes". _executeErasure
+  // had no call site anywhere, so on yes NOTHING happened: a Data Privacy Act right offered and not
+  // performed, which is worse than not offering it because the person stops asking. This flag is the "next
+  // confirmed yes" the anchor already describes - it lives for exactly ONE turn, so a stray "sige" three
+  // turns later can never delete somebody's history.
+  let _erasureAwaitingYes = false;
+  // the hive's monthly AI ceiling, read once per session; null = not looked up yet, 0 = no cap
+  let _costCapUsd = null;
   async function _executeErasure(db, ctx) {
     if (!db || !ctx || !ctx.hive_id || !ctx.worker_name) return false;
     try {
-      await db.from('voice_journal_entries')
+      // ★AND THE DELETE MUST BE READ. supabase-js resolves a refusal with { error } rather than throwing,
+      // so the old unchecked `await ... .delete()` followed by `return true` would tell a worker their
+      // history was gone while every row remained - on the one path where being wrong is unrecoverable
+      // trust. The caller now speaks from this return value, so it has to mean what it says.
+      const { error: _delErr } = await db.from('voice_journal_entries')
         .delete()
         .eq('hive_id', ctx.hive_id)
         .eq('worker_name', ctx.worker_name);
-      // Log the erasure itself so we have a record OF the deletion.
-      await db.from('ai_audit_log').insert({
+      if (_delErr) { console.warn('[WHVoice] erasure refused:', _delErr.message); return false; }
+      // Log the erasure itself so we have a record OF the deletion. Same column correction as the
+      // emitter above: `event`, not `event_type`, in the table's own vocabulary.
+      const { error: _audErr } = await db.from('ai_audit_log').insert({
         hive_id:     ctx.hive_id,
         worker_name: ctx.worker_name,
-        event_type:  'right_to_erasure',
+        event:       'erasure_request',
         payload:     { scope: 'voice_journal_entries' },
         source:      'voice-handler',
         created_at:  new Date().toISOString(),
       });
+      if (_audErr) console.warn('[WHVoice] erasure audit row refused:', _audErr.message);
       return true;
     } catch (_) { return false; }
   }
 
-  // Phase 4.121 (turn #119) AUDIT EXPORT — produce a CSV string
-  // of voice activity for compliance review. Caller hands the
-  // string to a Blob/download anchor.
-  function _toCsvRow(values) {
-    return values.map(v => {
-      const s = String(v == null ? '' : v).replace(/"/g, '""');
-      return /[",\n]/.test(s) ? '"' + s + '"' : s;
-    }).join(',');
-  }
-  function _buildAuditCsv(rows) {
-    if (!Array.isArray(rows) || rows.length === 0) {
-      return 'created_at,worker_name,event_type\n';
-    }
-    const header = ['created_at','worker_name','event_type','payload'];
-    const out = [header.join(',')];
-    for (const r of rows) {
-      out.push(_toCsvRow([
-        r.created_at || '',
-        r.worker_name || '',
-        r.event_type || '',
-        typeof r.payload === 'object' ? JSON.stringify(r.payload) : (r.payload || ''),
-      ]));
-    }
-    return out.join('\n') + '\n';
-  }
+  // Phase 4.121 AUDIT EXPORT - REMOVED 2026-09-08, and the capability is not lost.
+  // `_buildAuditCsv` and its `_toCsvRow` helper were a second, weaker CSV writer for voice activity:
+  // defined, exported, and called by nothing anywhere in the repo since they were written. audit-log.html
+  // already owns a mature export - its own escaping, a UTF-8 byte-order mark so Excel does not mangle an
+  // asset name, and a header stating the file's scope - and that page now reads ai_audit_log alongside
+  // hive_audit_log, so the voice rows are covered by the export the platform maintains.
+  // Removed rather than annotated: a duplicate kept "in case" is a second thing to keep correct, and this
+  // one had been wrong the whole time (an `event_type` header and row read, against a table whose column
+  // is `event`) precisely because nothing exercised it.
 
   // Phase 4.122 (turn #120) SUSPICIOUS-ACTIVITY FLAG — detect
   // anomalous patterns (rapid-fire same intent, bulk off-hours
@@ -3855,6 +3941,26 @@
       ['toxicity guard', () => _detectToxicLanguage('clean text').severity === 0],
       ['pii scrub', () => _scrubPii('09171234567').text.includes('[PHONE]')],
       ['symptom normalize', () => _normalizeSymptom('yumayanig') === 'vibration_anomaly'],
+      // the six normalisation capabilities, each pinned at the point it is now actually reached
+      ['fillers stripped', () => _normalizeUtterance('uh, ilang oras ba') === 'ilang oras ba'],
+      ['slang canonicalised', () => _normalizeUtterance('pumalya yung pump') === 'failure yung pump'],
+      ['number word to digit', () => _normalizeUtterance('last thirty days') === 'last 30 days'],
+      ['taglish reaches an intent', () => (_classifyDataIntent('uh, ilang oras pumalya kasi') || {}).kind === 'downtime'],
+      ['english still classifies', () => (_classifyDataIntent('total downtime this month') || {}).kind === 'downtime'],
+      ['spoken window reaches the query', () => (_classifyDataIntent('ilang oras pumalya last thirty days') || {}).window_days === 30],
+      ['retrieval query is never empty', () => _rewriteQueryForRetrieval('kasi po naman', null).length > 0],
+      ['ph time-of-day names today', () => (_normalizeTimeRange('kaninang umaga') || {}).hour === 7],
+      // the three safety tables the prompt used to retype by hand; each must read from its own source
+      ['ppe matrix is the source', () => _ppeFor('confined_space').join(',').indexOf('4-gas monitor') !== -1],
+      ['ppe falls back, never invents', () => _ppeFor('nonsense-hazard')[0] === 'hard hat'],
+      ['loto checklist has every row', () => Object.keys(_ENERGY_ISOLATION).length === 7 && _energyIsolationChecklist('hydraulic')[2] === 'Verify 0 PSI on gauge'],
+      ['loto is silent on an unknown type', () => _energyIsolationChecklist('imaginary') === null],
+      ['jsa template is four steps', () => _buildJsaTemplate('pump swap').steps.length === 4],
+      ['permit expiry can expire', () => _permitTimeRemaining('2020-01-01T00:00:00Z', 8).expired === true],
+      // the RAG block: bounded, scored, and citing the document by the title the reader would recognise
+      ['rag block is capped', () => _buildRagBlock(Array.from({ length: 20 }, (_, i) => ({ id: 'doc' + i, score: 0.9, snippet: 'x'.repeat(300) })), 800).length <= 900],
+      ['rag block cites title and score', () => _buildRagBlock([{ id: 'Pump Manual', score: 0.82, snippet: 'bearing' }], 2000).indexOf('[doc:Pump Manual score=0.82]') !== -1],
+      ['rag block is empty on no hits', () => _buildRagBlock([], 2000) === ''],
       ['confidence label', () => _confidenceLabel(50, 120) === 'high'],
       ['palette current', () => typeof _currentPalette().critical === 'string'],
     ];
@@ -4877,17 +4983,24 @@
   // LOTO, the worker confirms each energy source. Returns the
   // checklist for the asset's category (electrical / mechanical
   // / hydraulic / pneumatic / chemical / thermal / gravitational).
+  // ★THE LOTO GATE NAMED THIS CHECKLIST AND NEVER SHOWED IT. The anchor read "Use the energy isolation
+  // checklist (electrical / mechanical / hydraulic / pneumatic / chemical / thermal / gravitational) for
+  // the right category" - seven category NAMES and not one of the steps, because the steps lived in a
+  // map inside a function nothing called. So on the platform's most safety-critical gate the model was
+  // told to follow a procedure it could not read, and improvised the verification steps: exactly what
+  // the PPE anchor two blocks down forbids for PPE. The table is hoisted the way _PPE_MATRIX already is,
+  // so the gate can be generated from it rather than described.
+  const _ENERGY_ISOLATION = {
+    electrical:    ['Identify all electrical sources', 'Switch off + lock breaker', 'Verify zero voltage with tester', 'Tag with worker name + date'],
+    mechanical:    ['Stop rotating parts', 'Engage mechanical block / pin', 'Verify by attempt-to-start', 'Tag'],
+    hydraulic:     ['Close isolation valve', 'Bleed residual pressure', 'Verify 0 PSI on gauge', 'Tag'],
+    pneumatic:     ['Close air supply', 'Vent line to atmosphere', 'Verify 0 PSI', 'Tag'],
+    chemical:      ['Close + lock chemical supply valve', 'Drain or purge line', 'Verify with sampling port', 'Tag'],
+    thermal:       ['Shut off heat source', 'Allow cool-down to safe touch temp', 'Verify with thermal camera', 'Tag'],
+    gravitational: ['Lower load to ground OR support with cribbing', 'Verify mechanical stop engaged', 'Tag'],
+  };
   function _energyIsolationChecklist(category) {
-    const map = {
-      electrical:    ['Identify all electrical sources', 'Switch off + lock breaker', 'Verify zero voltage with tester', 'Tag with worker name + date'],
-      mechanical:    ['Stop rotating parts', 'Engage mechanical block / pin', 'Verify by attempt-to-start', 'Tag'],
-      hydraulic:     ['Close isolation valve', 'Bleed residual pressure', 'Verify 0 PSI on gauge', 'Tag'],
-      pneumatic:     ['Close air supply', 'Vent line to atmosphere', 'Verify 0 PSI', 'Tag'],
-      chemical:      ['Close + lock chemical supply valve', 'Drain or purge line', 'Verify with sampling port', 'Tag'],
-      thermal:       ['Shut off heat source', 'Allow cool-down to safe touch temp', 'Verify with thermal camera', 'Tag'],
-      gravitational: ['Lower load to ground OR support with cribbing', 'Verify mechanical stop engaged', 'Tag'],
-    };
-    return map[String(category || '').toLowerCase()] || null;
+    return _ENERGY_ISOLATION[String(category || '').toLowerCase()] || null;
   }
 
   // Phase 4.186 (turn #184) PERMIT EXPIRY CHECK — work permits
@@ -5074,13 +5187,19 @@
   function _rewriteQueryForRetrieval(transcript, knownEntities) {
     const s = String(transcript || '').toLowerCase();
     if (!s) return '';
-    // Strip common fillers
-    const fillers = ['kasi', 'naman', 'po', 'eh', 'kaya', 'pala', 'lang', 'eh ano', 'yan'];
-    let cleaned = s;
-    fillers.forEach(f => {
-      cleaned = cleaned.replace(new RegExp('\\b' + f + '\\b', 'g'), '');
-    });
+    // ★AND THIS FUNCTION CARRIED ITS OWN WEAKER COPY OF THE FILLER LIST - nine words, hand-typed here,
+    // while _stripFillers (certified, and until now never called) knows the throat-clearing forms too
+    // ("uh", "um", "ahh", "eto kasi", "yun nga"). Two lists for one job drift apart, and the shorter one
+    // was the one running. The retrieval query now goes through the same normalisation the classifier
+    // uses, plus _removeStopWords - which is what that function was written for, "for retrieval index
+    // building", and where it belongs.
+    let cleaned = _normalizeUtterance(s).toLowerCase();
+    // stop-word removal earns its place only on a bilingual utterance: on a pure-English query the
+    // bilingual list mostly repeats what the retriever already ignores, and dropping words from a short
+    // English question costs recall for nothing. _codeSwitchRatio is the cheap test for that.
+    if (_codeSwitchRatio(s) > 0) cleaned = _removeStopWords(cleaned);
     cleaned = cleaned.replace(/\s+/g, ' ').trim();
+    if (!cleaned) cleaned = s.replace(/\s+/g, ' ').trim();   // never hand the retriever an empty query
     // Append known asset tags / failure modes if not already in the text
     if (knownEntities && knownEntities.asset_tags) {
       for (const tag of knownEntities.asset_tags) {
@@ -5389,6 +5508,13 @@
     'anim': 6, 'pito': 7, 'walo': 8, 'siyam': 9, 'sampu': 10,
     'labing-isa': 11, 'labindalawa': 12, 'labintatlo': 13, 'dalawampu': 20,
     'usa': 1, 'duha': 2, 'tulo': 3, 'upat': 4, 'lima_ceb': 5, 'unom': 6,
+    // ★THE TABLE STOPPED AT TWENTY AND THE PLATFORM COUNTS IN THIRTIES. Every reporting window this
+    // companion is asked about is 7, 30, 90 or 365 days, so "last thirty days" - the way a person says
+    // it out loud - converted to nothing and fell through to the 30-day default by luck rather than by
+    // reading. Wiring the function exposed the gap; the round numbers a maintenance question actually
+    // uses now convert, in both languages.
+    'thirty': 30, 'forty': 40, 'fifty': 50, 'sixty': 60, 'ninety': 90,
+    'tatlumpu': 30, 'apatnapu': 40, 'limampu': 50, 'animnapu': 60, 'siyamnapu': 90,
   };
   function _wordToNumber(word) {
     if (!word) return null;
@@ -5440,6 +5566,30 @@
     if (!word) return null;
     const k = String(word).toLowerCase().trim();
     return Object.prototype.hasOwnProperty.call(_SLANG_DICT, k) ? _SLANG_DICT[k] : null;
+  }
+
+  // ★SIX CERTIFIED CAPABILITIES THAT NOTHING CALLED. _stripFillers, _slangToCanonical, _wordToNumber,
+  // _removeStopWords, _parsePhTimeExpression and _codeSwitchRatio were each written, each guarded by a
+  // validator asserting the companion can do it, and each dead: 71 such functions exist in this file. A
+  // gate that certifies an unreachable function certifies nothing, and the worker who says "uh, ilang
+  // beses pumalya yung pump kasi nag-init" was sending every filler and every piece of shop-floor slang
+  // straight to the model. This is the one place all six belong - the moment speech becomes a query.
+  //
+  // Normalisation is ADDITIVE, never destructive: the raw utterance is always classified first, exactly
+  // as before, and the normalised form is a SECOND attempt when the first finds nothing. That ordering
+  // matters because the slang dictionary maps "sira" to "broken", and half the existing Tagalog patterns
+  // key on the word "sira" - normalising in place would have broken the intents it was meant to help.
+  function _normalizeUtterance(text) {
+    const stripped = _stripFillers(String(text || ''));
+    if (!stripped) return '';
+    return stripped.split(/\s+/).map((w) => {
+      const bare = w.toLowerCase().replace(/[^a-z0-9-]/g, '');
+      if (!bare) return w;
+      const slang = _slangToCanonical(bare);
+      if (slang) return slang;
+      const n = _wordToNumber(bare);
+      return n === null ? w : String(n);
+    }).join(' ').replace(/\s+/g, ' ').trim();
   }
 
   // Phase 4.44 (turn #45): Offline degradation tracker.
@@ -7468,11 +7618,12 @@
         '\nLOTO GATE — worker mentioned lockout-tagout / isolation / ' +
         'de-energize. Before ANY diagnostic step proceeds, confirm verbatim: ' +
         '(1) energy source identified, (2) breaker/valve locked, (3) zero-energy ' +
-        'verified, (4) tag in place with worker name + date. Use the ' +
-        'energy isolation checklist (electrical / mechanical / hydraulic / pneumatic / ' +
-        'chemical / thermal / gravitational) for the right category. If ANY ' +
-        'step is unconfirmed, stop and ask. Never let confidence override the ' +
-        'gate.\n';
+        'verified, (4) tag in place with worker name + date. Ask which energy ' +
+        'type applies, then follow that row of the energy isolation checklist ' +
+        'EXACTLY - never improvise a step:\n' +
+        Object.keys(_ENERGY_ISOLATION).map((k) => '  • ' + k + ': ' + _energyIsolationChecklist(k).join(' → ')).join('\n') +
+        '\nIf ANY step is unconfirmed, stop and ask. Never let confidence ' +
+        'override the gate.\n';
     }
 
     // T176 HOT WORK GATE — welding / grinding / cutting torch on
@@ -7509,12 +7660,14 @@
         'authoritative matrix below — never invent. If the hazard kind is ' +
         'unclear, ask one short clarifying question (hot work? confined space? ' +
         'electrical? chemical? height? or general task?) before listing PPE.\n' +
-        '  • hot_work: welding hood shade 10+, FR clothing, leather gloves, fire watch\n' +
-        '  • confined_space: SCBA or air-line respirator, 4-gas monitor, harness + retrieval line, attendant\n' +
-        '  • chemical: chemical splash goggles, gauntlet gloves (matching chemical), apron or suit, eyewash within 10m\n' +
-        '  • electrical: Class 0/1 rubber gloves, arc-rated face shield, voltage detector, rubber mat\n' +
-        '  • height: full-body harness, double lanyard, hard hat with chinstrap, tool tether\n' +
-        '  • default: hard hat, safety shoes, safety glasses, gloves matching task\n';
+        // ★THE PROMPT SAID "ANSWER ONLY FROM THE AUTHORITATIVE MATRIX BELOW" AND THE MATRIX BELOW WAS A
+        // COPY. _PPE_MATRIX holds the six hazard rows and _ppeFor reads them - and _ppeFor was never
+        // called anywhere in the platform, because all six rows had been retyped into this string by
+        // hand. Two sources for one safety table is one source too many: correcting the matrix would
+        // leave the model still reading the transcription. Confined-space PPE in particular has to
+        // agree with the gas-test gate above it. The list is now GENERATED from the table it claims to
+        // be, so the claim is true and the function that owns it is the one that answers.
+        Object.keys(_PPE_MATRIX).map((k) => '  • ' + k + ': ' + _ppeFor(k).join(', ')).join('\n') + '\n';
     }
 
     // T179 NEAR-MISS CAPTURE — close call, no injury yet.
@@ -7531,10 +7684,12 @@
     if (_shouldOfferJsa(transcript)) {
       perTurnAnchors +=
         '\nJSA OFFER — worker said this is their first time on the task. ' +
+        // ...and the same duplication, for the same reason: _buildJsaTemplate owns the four steps and
+        // was never called, because they had been retyped here. Generated from the template now, so a
+        // change to the JSA is a change to the JSA rather than to one of its two copies.
         'Offer a 4-step JSA in one line: "let us walk through a quick JSA — ' +
-        '(1) break the task into 3-5 steps, (2) identify hazards per step, ' +
-        '(3) define controls (elim / sub / eng / admin / PPE), (4) confirm ' +
-        'PPE + permits before starting." Wait for their yes before stepping ' +
+        _buildJsaTemplate('').steps.map((s) => '(' + s.step + ') ' + s.label.toLowerCase()).join(', ') +
+        '." Wait for their yes before stepping ' +
         'through each. Adding more than 4 steps defeats the purpose.\n';
     }
 
@@ -7687,8 +7842,25 @@
         'to wh_voice_consent. PH Data Privacy Act.\n';
     }
 
+    // T118 ERASURE — the confirmed yes the anchor below promises. Checked BEFORE the request branch so a
+    // fresh request in the same breath cannot consume its own confirmation, and cleared either way so the
+    // window is exactly one turn.
+    if (_erasureAwaitingYes) {
+      _erasureAwaitingYes = false;
+      if (_AFFIRMATION_RE.test(String(transcript || '').trim())) {
+        const _erased = await _executeErasure(_getDb(), _ctx());
+        perTurnAnchors += _erased
+          ? '\nERASURE DONE — the worker confirmed and their voice + journal history for this hive HAS ' +
+            'BEEN DELETED. Say so in one line, past tense. Do not offer to do it again.\n'
+          // never announce a deletion that did not happen - the mirror of the same rule for writes
+          : '\nERASURE FAILED — the deletion could not be completed and NOTHING was removed. Say that ' +
+            'plainly in one line and tell them to ask their supervisor to raise it.\n';
+      }
+    }
+
     // T118 ERASURE REQUEST — right-to-be-forgotten.
     if (_isErasureRequest(transcript)) {
+      _erasureAwaitingYes = true;
       perTurnAnchors +=
         '\nERASURE REQUEST — worker invoked right-to-erasure. Reply in one ' +
         'line: "I can clear your voice + journal history for this hive. ' +
@@ -7850,7 +8022,19 @@
     // platformData (legacy scraper) and ragContext stay separate for now.
     // Turn #26 + #27 anchors are appended here so the prompt builder
     // doesn't need a signature change.
-    const canonicalData = (platformSnapshot || '') + repeatedIssueFlag + skillGapFlag + standardsQueryAnchor + perTurnAnchors;
+    // ★THE CANONICAL-DATA PATH WAS BUILT, GUARDED BY ITS OWN VALIDATOR, AND NEVER CALLED. When a worker
+    // asks "what's our MTBF this month", `_classifyDataIntent` names the question and
+    // `_fetchCanonicalData` answers it from v_kpi_truth / v_risk_truth - the same views the analytics
+    // page reads - in one sub-second query, with the source view and the snapshot time attached. Neither
+    // function had a call site anywhere in the platform: the only text reaching the model was
+    // `platformSnapshot`, the LEGACY scraper this was written to supersede. The gate that certifies the
+    // wiring compared where the three functions are DEFINED, and definitions happen to sit in the right
+    // order, so it read PASS for as long as the feature has existed.
+    const _dataIntent  = _classifyDataIntent(transcript);
+    const _canonBlock  = _dataIntent ? await _fetchCanonicalData(db, ctx.hive_id, _dataIntent) : '';
+    // the canonical block goes FIRST: when the truth view and the legacy scraper disagree, the model
+    // should read the canonical number before it reads the scraped one
+    const canonicalData = (_canonBlock ? _canonBlock + '\n\n' : '') + (platformSnapshot || '') + repeatedIssueFlag + skillGapFlag + standardsQueryAnchor + perTurnAnchors;
     if (!canonicalData && db && ctx.hive_id && ctx.worker_name) {
       console.warn('[WHVoice] No platform snapshot returned; check DB connection or query errors');
     }
@@ -7860,6 +8044,41 @@
       { role: 'system', content: system },
       { role: 'user',   content: transcript },
     ];
+
+    // ★THE MONTHLY COST CAP, ENFORCED FOR THE FIRST TIME (wired 2026-09-08). `_getMonthlyCost` and
+    // `_exceededCostCap` sit under a comment stating exactly this behaviour - "when the running total
+    // breaches the cap, the next turn is short-circuited to a 'monthly cap reached' reply" - and neither
+    // had a call site anywhere, nor was there a cap VALUE anywhere to compare against. Migration
+    // 20260908000005 gives the hive one, defaulting to 0.
+    // ★AND 0 MEANS NO CAP, SO NOTHING IS READ. The spend query walks up to 10,000 cost rows; running it
+    // every turn to enforce a ceiling nobody set would be a latency bill for a feature that is off. The
+    // cap is read ONCE per session and, while it is 0, this whole block costs one property lookup.
+    if (_costCapUsd === null) {
+      _costCapUsd = 0;
+      try {
+        if (ctx.hive_id) {
+          const { data: _h } = await db.from('hives')
+            .select('ai_monthly_cost_cap_usd').eq('id', ctx.hive_id).maybeSingle();
+          _costCapUsd = Number((_h && _h.ai_monthly_cost_cap_usd) || 0);
+        }
+      } catch (_) { _costCapUsd = 0; }   // unreadable = uncapped, never "capped at 0" which would mute the companion
+    }
+    if (_costCapUsd > 0) {
+      const _spent = await _getMonthlyCost(db, ctx.hive_id);
+      if (_exceededCostCap(_spent, _costCapUsd)) {
+        // The person is told the truth and what happens next, not just refused: the cap is the hive's own
+        // setting, it resets, and their words are still saved.
+        const capReply = 'This hive has reached its AI budget for the month, so I cannot answer that one. '
+          + 'Your question is saved, and this resets at the start of next month. A supervisor can raise the '
+          + 'limit in the hive settings.';
+        _setStatus(personaName + ':');
+        _renderReplyBubble(capReply, persona);
+        _appendSessionTurn(transcript, capReply);
+        _saveJournalTurn(db, ctx, transcript, capReply, persona);
+        _showTalkAgainButton();
+        return;
+      }
+    }
 
     // ─── Item 6: Agentic RAG opt-in path (AGENTIC_RAG_ROADMAP.md Phase 1) ──
     // For LONG-HORIZON questions (5-year compares, "since 2022", multi-period
@@ -7897,9 +8116,13 @@
           },
           body: JSON.stringify(ragBody),
         }, 30000);
+        // what the knowledge-gap row below needs to name its reason: did the loop answer at all, and did
+        // its own checker pass? Captured here rather than inferred from the reply, which by then is gone.
+        let _ragOutcome = { answered: false, checker: null };
         if (ragResp && ragResp.ok) {
           const ragData = await ragResp.json().catch(() => ({}));
           const ragAnswer = String((ragData && ragData.answer) || '').trim();
+          _ragOutcome = { answered: !!ragAnswer && ragAnswer.length > 20, checker: ragData.checker_passed };
           if (ragAnswer && ragAnswer.length > 20 && ragData.checker_passed !== false) {
             _setStatus(personaName + ' (agentic-RAG) says:');
             _renderReplyBubble(ragAnswer, persona);
@@ -7915,6 +8138,20 @@
           }
         }
         // Failure / empty / checker-failed → fall through to ai-gateway.
+        // ★AND THIS FALL-THROUGH IS THE KNOWLEDGE GAP _logKnowledgeGap WAS WRITTEN FOR (wired 2026-09-08).
+        // Its header says "when the companion can't answer, write a row to ai_knowledge_gap so the
+        // supervisor can prioritise backfilling the truth view" - and it had no call site anywhere, so the
+        // table has always been empty and no supervisor has ever had that list. The honest trigger is HERE
+        // rather than in the reply text: the offline fallbacks all say "I'm offline right now", which is a
+        // connectivity gap, not a knowledge one, and logging those would fill the table with the wrong
+        // thing. What this line knows is exactly what the table's own column comment enumerates - the
+        // hive's knowledge base was asked and could not answer, and WHY.
+        try {
+          const _reason = (_ragOutcome.checker === false) ? 'low_confidence'
+                        : (_ragOutcome.answered ? 'low_confidence' : 'rag_miss');
+          await _logKnowledgeGap(db, ctx, transcript, _reason);
+        } catch (_) { /* empty-catch-allow: a gap that could not be recorded must not cost the person
+                         their answer - the fall-through to ai-gateway continues either way */ }
       }
     } catch (ragErr) {
       console.warn('[WHVoice] agentic-rag-loop opt-in failed, falling back to ai-gateway:', ragErr && ragErr.message);
@@ -8219,12 +8456,22 @@
         const esc = await _checkFeedbackEscalation(db, ctx.worker_name);
         if (esc && esc.needs_escalation) {
           try {
-            await db.from('ai_quality_escalation').upsert({
+            // ★THE COLUMN IS `thumbs_down_7d`, NOT `negative_count`, AND THIS PATH IS LIVE. Unlike the
+            // dead compliance helpers, this one really runs - on every 👎 from a worker with three or
+            // more negatives in a week - and every row it has ever written was refused for an unknown
+            // column, inside an empty catch that a resolved refusal never even reaches. The comment above
+            // says "the dashboard reads this flag to prompt supervisor outreach": the flag has never once
+            // been set, so no outreach has ever been prompted.
+            // The conflict target matters too: without one, upsert is an insert, and a worker having a
+            // bad week would accumulate a new escalation row per thumbs-down instead of one standing
+            // flag. Migration 20260908000004 adds the unique key this names.
+            const { error } = await db.from('ai_quality_escalation').upsert({
               worker_name: ctx.worker_name,
               hive_id: ctx.hive_id || null,
-              negative_count: esc.negative_count,
+              thumbs_down_7d: esc.negative_count,
               last_negative_at: new Date().toISOString(),
-            });
+            }, { onConflict: 'worker_name,hive_id' });
+            if (error) console.warn('[WHVoice] escalation flag refused:', error.message);
           } catch (_) { /* table may not exist yet — non-fatal */ /* empty-catch-allow: best-effort silent swallow */ }
         }
       }
@@ -8617,7 +8864,6 @@
     _enforceRetention,
     _isErasureRequest,
     _executeErasure,
-    _buildAuditCsv,
     _detectSuspiciousActivity,
     _setAiDisclosurePolicy,
     _needsAiDisclosure,

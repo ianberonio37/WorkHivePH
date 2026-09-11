@@ -72,14 +72,21 @@ def main():
         print(f"  {RED}FAIL{RST} - fixture missing: need >=2 unpublished listings to probe against")
         return 1
 
+    # EX-HP H2 (20260907000004): anon no longer holds SELECT on the base table at all - a stranger browses through
+    # v_marketplace_listings_public. So the base table answers with a GRANT-level refusal (401/403, code 42501, no rows),
+    # which is a refusal with zero rows, and the legible-empty-array question moves to the VIEW the stranger reads.
     st, body = http("GET", f"/rest/v1/marketplace_listings?id=eq.{draft_id}&select=id,title,status")
     rows = json.loads(body) if st == 200 else None
-    ok1 = st == 200 and rows == []
+    refused = st in (401, 403) and "42501" in (body or "")
+    stv, bodyv = http("GET", f"/rest/v1/v_marketplace_listings_public?id=eq.{draft_id}&select=id,title,status")
+    rowsv = json.loads(bodyv) if stv == 200 else None
+    ok1 = ((st == 200 and rows == []) or refused) and stv == 200 and rowsv == []
     results["bola_object"] = {
         "status": "pass" if ok1 else "fail",
         "detail": f"an unpublished listing that EXISTS ({draft_id[:8]}..., one of {hidden}) fetched "
-                  f"by id as anon: HTTP {st}, {0 if rows == [] else 'LEAKED'} rows. An empty 200 "
-                  f"array is PostgREST's legible RLS refusal shape - filtered, not erred"}
+                  f"by id as anon: base table HTTP {st} ({'grant-level refusal, no rows' if refused else (0 if rows == [] else 'LEAKED')}), "
+                  f"public view HTTP {stv}, {0 if rowsv == [] else 'LEAKED'} rows. An empty 200 array on the view "
+                  f"the stranger actually reads is PostgREST's legible RLS refusal shape - filtered, not erred"}
 
     st2, body2 = http("POST", "/rest/v1/marketplace_listings",
                       {"seller_name": seller, "title": "anon forged identity probe",
@@ -99,11 +106,15 @@ def main():
 
     st3, body3 = http("GET", "/rest/v1/marketplace_listings?status=neq.published&select=id")
     rows3 = json.loads(body3) if st3 == 200 else None
-    ok3 = st3 == 200 and rows3 == []
+    refused3 = st3 in (401, 403) and "42501" in (body3 or "")
+    st3v, body3v = http("GET", "/rest/v1/v_marketplace_listings_public?status=neq.published&select=id")
+    rows3v = json.loads(body3v) if st3v == 200 else None
+    ok3 = ((st3 == 200 and rows3 == []) or refused3) and st3v == 200 and rows3v == []
     results["tenant_boundary"] = {
         "status": "pass" if ok3 else "fail",
-        "detail": f"every unpublished listing across ALL hives asked for in one anon query: HTTP "
-                  f"{st3}, {len(rows3) if isinstance(rows3, list) else '?'} of {hidden} visible. "
+        "detail": f"every unpublished listing across ALL hives asked for in one anon query: base table HTTP "
+                  f"{st3} ({'grant-level refusal' if refused3 else (len(rows3) if isinstance(rows3, list) else '?')}), "
+                  f"public view HTTP {st3v}, {len(rows3v) if isinstance(rows3v, list) else '?'} of {hidden} visible. "
                   f"The whole hidden set is invisible as a set, not one lucky id"}
 
     ok = True

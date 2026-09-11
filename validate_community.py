@@ -76,7 +76,7 @@ CHECKS = {
     "replies_realtime_scope": "L4  community_replies Realtime subscription has hive_id filter",
     "channel_cleanup":        "L4  Both channels removed on beforeunload",
     "conn_timeout":           "L4  Connection timeout present (8s WebSocket fail guard)",
-    "supabase_cdn":           "L5  Supabase CDN script in <head>",
+    "supabase_cdn":           "L5  supabase-js loaded before the first createClient/getDb call",
     "utils_loaded":           "L5  utils.js loaded before <script> block",
     "nav_hub_loaded":         "L5  nav-hub.js loaded at end of <body>",
     "toast_aria":             "L5  Toast has role=alert and aria-live",
@@ -241,9 +241,40 @@ def check_conn_timeout(content):
 
 
 def check_supabase_cdn(content):
+    """supabase-js must be loaded before anything calls createClient/getDb.
+
+    ★THIS GATE FAILED THE PAGE FOR HAVING IMPROVED (2026-09-11). It required a jsdelivr or unpkg URL,
+    and the platform has migrated wholesale to a locally vendored, SRI-pinned copy -
+    `vendor/supabase-js-2.110.0.min.js`, which is also a `sw.js` SHELL_FILES entry so it is precached for
+    offline. MEASURED across the root pages: 38 use the vendored copy, ZERO use a CDN URL. So the check
+    was red on the one page it covers because that page stopped depending on a third-party CDN, which is
+    the outcome anyone would want. An oracle's vocabulary is part of the oracle
+    [[feedback_an_oracles_vocabulary_is_part_of_the_oracle]] - and a validator can hold a stale
+    vocabulary exactly like the rubric can.
+    ★AND ITS MESSAGE NAMED A PROPERTY IT NEVER CHECKED. The old reason read "not found in <head> -
+    supabase.createClient will throw", but the test was a bare grep over the WHOLE file: a tag sitting
+    after every call site would have passed it, and the tag on community.html is in fact in the body
+    (char 57,961 against a </head> at 23,363) which the check never noticed either way. Requiring <head>
+    now would invent a constraint 38 pages do not meet; the property the message actually cares about is
+    ORDER, so that is what is asserted - the library must appear before the first createClient/getDb.
+    Verified on community.html: no call precedes the tag, so the page is correct and now reads correct.
+    """
     issues = []
-    if not re.search(r'src=["\']https://cdn\.jsdelivr\.net/npm/@supabase|src=["\']https://unpkg\.com/@supabase', content):
-        issues.append({"check": "supabase_cdn", "reason": "Supabase CDN not found in <head> — supabase.createClient will throw, crashing all JS silently"})
+    lib = re.search(
+        r'src=["\'][^"\']*(?:vendor/supabase-js[^"\']*\.js'
+        r'|cdn\.jsdelivr\.net/npm/@supabase|unpkg\.com/@supabase)',
+        content)
+    if not lib:
+        issues.append({"check": "supabase_cdn",
+                       "reason": "supabase-js is not loaded at all (no vendor/supabase-js*.js and no "
+                                 "CDN tag) — createClient/getDb will throw and every script dies with it"})
+        return issues
+    call = re.search(r'(?<![\w.])(?:createClient|getDb)\s*\(', content)
+    if call and call.start() < lib.start():
+        issues.append({"check": "supabase_cdn",
+                       "reason": ("supabase-js is loaded AFTER the first createClient/getDb call "
+                                  "(call at char %d, library tag at char %d) — the call throws and takes "
+                                  "the rest of the script with it" % (call.start(), lib.start()))})
     return issues
 
 

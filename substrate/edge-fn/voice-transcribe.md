@@ -2,7 +2,7 @@
 name: edge-fn-voice-transcribe
 type: edge-fn
 source: file:supabase/functions/voice-transcribe/index.ts
-source_sha: eb9b752bb0bc141d
+source_sha: fc7ad9d1ec1af168
 last_verified: 2026-07-13
 supersedes: null
 ---

@@ -27,6 +27,7 @@ type EmbeddingProvider = {
 async function voyageEmbed(text: string, apiKey: string): Promise<number[]> {
   const res = await fetch("https://api.voyageai.com/v1/embeddings", {
     method: "POST",
+    signal: AbortSignal.timeout(15000),
     headers: {
       "Content-Type": "application/json",
       "Authorization": `Bearer ${apiKey}`,
@@ -54,6 +55,7 @@ async function voyageEmbed(text: string, apiKey: string): Promise<number[]> {
 async function jinaEmbed(text: string, apiKey: string): Promise<number[]> {
   const res = await fetch("https://api.jina.ai/v1/embeddings", {
     method: "POST",
+    signal: AbortSignal.timeout(15000),
     headers: {
       "Content-Type": "application/json",
       "Authorization": `Bearer ${apiKey}`,
@@ -86,6 +88,7 @@ async function jinaEmbed(text: string, apiKey: string): Promise<number[]> {
 async function geminiEmbed(text: string, apiKey: string): Promise<number[]> {
   const res = await fetch("https://generativelanguage.googleapis.com/v1beta/openai/embeddings", {
     method: "POST",
+    signal: AbortSignal.timeout(15000),
     headers: {
       "Content-Type": "application/json",
       "Authorization": `Bearer ${apiKey}`,
@@ -122,6 +125,7 @@ async function cloudflareEmbed(text: string, apiToken: string): Promise<number[]
     `https://api.cloudflare.com/client/v4/accounts/${acct}/ai/run/@cf/baai/bge-small-en-v1.5`,
     {
       method: "POST",
+      signal: AbortSignal.timeout(15000),
       headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiToken}` },
       body: JSON.stringify({ text: [text] }),
     },
@@ -147,6 +151,7 @@ async function cloudflareEmbed(text: string, apiToken: string): Promise<number[]
 async function bgeLocalEmbed(_text: string, url: string): Promise<number[]> {
   const res = await fetch(url, {
     method: "POST",
+    signal: AbortSignal.timeout(15000),
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ texts: [_text] }),
   });
@@ -414,6 +419,7 @@ export async function rerank(
   try {
     const res = await fetch(VOYAGE_RERANK_URL, {
       method: "POST",
+      signal: AbortSignal.timeout(30000),
       headers: {
         "Content-Type":  "application/json",
         "Authorization": `Bearer ${apiKey}`,

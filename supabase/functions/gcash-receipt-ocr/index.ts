@@ -96,14 +96,17 @@ serveObserved(FN_NAME, async (req: Request) => {
      function, logs and DB. I hand-rolled JSON here and skipped it. */
   const ctx = beginRequest(req, { route: FN_NAME });
 
-  if (req.method !== "POST") return fail(ctx, "method_not_allowed", "POST only", { status: 405 });
+  if (req.method !== "POST") return fail(ctx, "method_not_allowed", "That request method is not allowed. Reload the page and try again.", { status: 405 });
 
   let body: { image_data_url?: string };
-  try { body = await req.json(); } catch { return fail(ctx, "bad_json", "Body is not JSON", { status: 400 }); }
+  try { body = await req.json(); } catch { return fail(ctx, "bad_json", "That request could not be read. Reload the page and try again.", { status: 400 }); }
 
   let img: { bytes: Uint8Array; mime: string };
   try { img = decodeDataUrl(String(body.image_data_url || "")); }
-  catch (e) { return fail(ctx, "bad_image", (e as Error).message, { status: 400 }); }
+  catch (e) {
+    console.error("gcash-receipt-ocr: bad image -", (e as Error).message);   // the detail is the operator's (2026-09-06)
+    return fail(ctx, "bad_image", "Could not read that image file. Try a clearer photo.", { status: 400 });
+  }
 
   // HONEST DEGRADE. With no OCR backend configured the answer is "we could not
   // read it", never a guessed reference — a wrong 13-digit number is worse than
@@ -124,22 +127,22 @@ serveObserved(FN_NAME, async (req: Request) => {
   try {
     const submit = await fetch(
       `${AZURE_ENDPOINT.replace(/\/$/, "")}/documentintelligence/documentModels/prebuilt-read:analyze?api-version=2024-02-29-preview`,
-      { method: "POST", headers: { "Ocp-Apim-Subscription-Key": AZURE_KEY, "Content-Type": img.mime },
+      { signal: AbortSignal.timeout(30000), method: "POST", headers: { "Ocp-Apim-Subscription-Key": AZURE_KEY, "Content-Type": img.mime },
         body: img.bytes });
     if (!submit.ok) return fail(ctx, "ocr_refused", `OCR service refused the image (${submit.status})`, { status: 502 });
 
     const op = submit.headers.get("operation-location");
-    if (!op) return fail(ctx, "ocr_no_operation", "OCR service did not return an operation to poll", { status: 502 });
+    if (!op) return fail(ctx, "ocr_no_operation", "The reading service did not respond. Try again in a moment.", { status: 502 });
 
     let text = "";
     for (let i = 0; i < 12; i++) {
       await new Promise(r => setTimeout(r, 900));
-      const poll = await fetch(op, { headers: { "Ocp-Apim-Subscription-Key": AZURE_KEY } });
+      const poll = await fetch(op, { signal: AbortSignal.timeout(30000), headers: { "Ocp-Apim-Subscription-Key": AZURE_KEY } });
       const data = await poll.json();
       if (data.status === "succeeded") { text = data?.analyzeResult?.content || ""; break; }
-      if (data.status === "failed") return fail(ctx, "ocr_unreadable", "OCR could not read that image", { status: 422 });
+      if (data.status === "failed") return fail(ctx, "ocr_unreadable", "Could not read that image. Try a clearer photo.", { status: 422 });
     }
-    if (!text) return fail(ctx, "ocr_timeout", "OCR timed out on that image", { status: 504 });
+    if (!text) return fail(ctx, "ocr_timeout", "Reading that image timed out. Try again with a smaller photo.", { status: 504 });
 
     const parsed = parseGcashText(text);
     return ok(ctx, {
@@ -153,6 +156,7 @@ serveObserved(FN_NAME, async (req: Request) => {
         : undefined,
     });
   } catch (e) {
-    return fail(ctx, "ocr_failed", `Could not read the receipt: ${(e as Error).message}`, { status: 500 });
+    console.error("gcash-receipt-ocr:", (e as Error).message);
+    return fail(ctx, "ocr_failed", "Could not read that receipt. Try a clearer photo.", { status: 500 });
   }
 });

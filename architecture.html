@@ -3,6 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet" />
+  <style>body { font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', sans-serif; } /* S1 2026-09-05: never loaded Poppins (offFont 71/71) */</style>
+  <meta name="wh-page-kind" content="reference"><!-- A1 (2026-09-05): a reference surface has no page-level CTA by design; declared, not guessed -->
   <meta name="robots" content="noindex, nofollow" />
   <title>WorkHive: Platform Architecture</title>
   <script src="browser-floor.js"></script>
@@ -20,7 +25,8 @@
       }
       window.addEventListener('DOMContentLoaded', function () {
         var s1 = document.createElement('script');
-        s1.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+        s1.src = 'vendor/supabase-js-2.110.0.min.js';
+        s1.integrity = 'sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil';
         s1.onload = function () {
           var s2 = document.createElement('script');
           s2.src = 'utils.js';
@@ -66,7 +72,7 @@
     body {
       background: var(--bg);
       color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       font-size: 14px;
       min-height: 100vh;
     }
@@ -81,8 +87,9 @@
       flex-wrap: wrap;
       gap: 12px;
     }
-    header h1 { font-size: 18px; font-weight: 600; color: var(--text); }
+    header h1 { font-size: 24px; font-weight: 600; color: var(--text); }  /* C5 (2026-09-05): at 18px the amber brand span sat at Lc 62/75; at 24px the large-text floor is 45 */
     header h1 span { color: var(--amber); }
+    .row-title { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 18px 0 6px; font-weight: 600; }  /* A2 (2026-09-05): a visible caption per diagram row */
     .header-meta { display: flex; align-items: center; gap: 16px; }
     .audited-badge {
       font-size: 11px;
@@ -260,11 +267,13 @@
       letter-spacing: 0.06em;
     }
     .flow-table { width: 100%; border-collapse: collapse; }
+    .flow-panel { overflow-x: auto; }   /* phone fit (2026-09-06): at 390px the 100%-wide tables squeezed headers into 3 lines; keep column widths and let the panel scroll sideways */
+    @media (max-width: 640px) { .flow-table { min-width: 640px; } }
     .flow-table th {
       text-align: left;
       font-size: 10px;
       font-weight: 700;
-      color: var(--muted);
+      color: var(--wh-text-muted, rgba(255,255,255,0.80)); /* C2 2026-09-07: --muted read 4.41:1 on a 10px header; a header is what a reader scans FOR */
       text-transform: uppercase;
       letter-spacing: 0.06em;
       padding: 8px 16px;
@@ -302,7 +311,7 @@
     .arrow-label {
       font-size: 10px;
       fill: var(--muted);
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     }
 
     /* ── Responsive ── */
@@ -318,6 +327,7 @@
   <link rel="stylesheet" href="tokens.css">
 <style>/* I1 CLS: static wayfinding back-pill band reserve (wayfinding.js sets this body padding-top post-paint on pill-pages = a late shift under contention; present at first paint -> its `if(band>cur)` skips, layout unchanged). Locked by validate_pill_reserve.py. */
 body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
+<script id="wh-fil-page">(function(){try{if(localStorage.getItem('wh_lang')!=='fil')return;}catch(e){return;}fetch('i18n/pages/architecture.fil.json').then(function(r){return r.ok?r.json():{};}).catch(function(){return {};}).then(function(d){window.WH_FIL_PAGE_VISIBLE=d||{};function ap(){document.querySelectorAll('[data-i]').forEach(function(el){var v=window.WH_FIL_PAGE_VISIBLE[el.getAttribute('data-i')];if(v!=null&&el.textContent!==v)el.textContent=v;});}function arm(){ap();var t=null;if(typeof MutationObserver==='function')new MutationObserver(function(){clearTimeout(t);t=setTimeout(ap,200);}).observe(document.body,{childList:true,subtree:true});window.addEventListener('load',ap);}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',arm);else arm();});})();</script>
 </head>
 <body>
 <main>
@@ -325,9 +335,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
 <header>
   <h1><span>WorkHive</span>: Platform Architecture</h1>
+  <p data-i="p_staticrenderedonloadarchitec_6ac5" class="wh-source-chip" role="status" aria-live="polite" style="font-size:.62rem; opacity:.8; margin:.3rem 0 0;">Static · rendered on load · architecture reference as of the last deploy (no live data)</p>
+  <details style="margin:.6rem 0 0;font-size:.8rem;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:.1rem .8rem .45rem;max-width:720px;"><summary data-i="p_howtoreadthismap_ab87" style="cursor:pointer;min-height:44px;display:flex;align-items:center;">How to read this map</summary><p data-i="p_eachboxisonepageoftheplatfor_546a" style="margin:.4rem 0 0;">Each box is one page of the platform; rows group them by stage, and the lines show which page writes the data another page reads. Hover a box for what it owns.</p></details><!-- O2 (2026-09-05) --><!-- G1+E3: moved INSIDE main under the h1 (2026-09-05) - the rubric's content root is <main>, so a chip above it was invisible to E3/G1 -->
   <div class="header-meta">
     <div class="audited-badge">Last audited: <strong>2026-04-18</strong> · All checks PASS</div>
-    <a href="index.html" style="font-size:12px;color:var(--muted);text-decoration:none;">← Back to platform</a>
+    <a data-i="p_backtoplatform_cd01" href="index.html" style="display:inline-flex;align-items:center;min-height:44px;padding:0 8px;margin-left:-8px;font-size:12px;color:var(--muted);text-decoration:none;">← Back to platform</a>
   </div>
 </header>
 
@@ -348,7 +360,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   <span class="legend-item">
     <span class="legend-dot" style="background:var(--surface);border:1.5px dashed var(--border);opacity:0.5;"></span> Retired
   </span>
-  <span style="margin-left:auto;font-size:11px;color:var(--muted);">Hover nodes and arrows for detail</span>
+  <span data-i="p_hovernodesandarrowsfordetail_94d1" style="margin-left:auto;font-size:11px;color:var(--muted);">Hover nodes and arrows for detail</span>
 </div>
 
 <!-- ═══════════════════════════════════════════════ DIAGRAM ═══ -->
@@ -360,17 +372,19 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
     <!-- Row 0: Entry -->
     <div class="section-label">Entry Point</div>
+    <h2 class="row-title">Entry</h2>
     <div class="row" id="row-entry">
       <div class="node entry" id="n-index"
            data-tip="<strong>index.html</strong>Landing page. Workers sign in, set identity (wh_last_worker), join or create a Hive. Gate for all other pages.">
         <div class="node-icon">🏠</div>
-        <div class="node-name">Home / Sign In</div>
+        <div data-i="p_homesignin_aa3b" class="node-name">Home / Sign In</div>
         <div class="node-file">index.html</div>
-        <div class="node-desc">Identity gate. Hive join / create.</div>
+        <div data-i="p_identitygatehivejoincreate_9fad" class="node-desc">Identity gate. Hive join / create.</div>
       </div>
     </div>
 
     <!-- Row 1: Stage 1 tools -->
+    <h2 data-i="p_stagetools_9a97" class="row-title">Stage 1 tools</h2>
     <div class="row" id="row-s1" style="margin-top:56px;">
       <div class="node" id="n-logbook"
            data-tip="<strong>logbook.html</strong>Primary maintenance log. Owns the logbook table. Also writes pm_completions when PM tasks are checked inside a log entry.">
@@ -378,7 +392,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         <div class="node-icon">📋</div>
         <div class="node-name">Logbook</div>
         <div class="node-file">logbook.html</div>
-        <div class="node-desc">Work records, faults, PM logs.</div>
+        <div data-i="p_workrecordsfaultspmlogs_0e13" class="node-desc">Work records, faults, PM logs.</div>
       </div>
       <div class="node" id="n-dayplanner"
            data-tip="<strong>dayplanner.html</strong>DILO / WILO / MILO / YILO planner. Worker-scoped. No cross-page data writes.">
@@ -394,11 +408,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         <div class="node-icon">🤖</div>
         <div class="node-name">AI Assistant</div>
         <div class="node-file">assistant.html</div>
-        <div class="node-desc">Platform-aware AI chat.</div>
+        <div data-i="p_platformawareaichat_7db9" class="node-desc">Platform-aware AI chat.</div>
       </div>
     </div>
 
     <!-- Row 2: Stage 2 tools -->
+    <h2 data-i="p_stagetools_7dca" class="row-title">Stage 2 tools</h2>
     <div class="row" id="row-s2" style="margin-top:56px;">
       <div class="node" id="n-hive"
            data-tip="<strong>hive.html</strong>Team hub. Reads from logbook and pm_completions for the activity feed. Owns hive_members. Gate: requires HIVE_ID.">
@@ -414,7 +429,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         <div class="node-icon">📦</div>
         <div class="node-name">Inventory</div>
         <div class="node-file">inventory.html</div>
-        <div class="node-desc">Parts catalog. Linked to logbook.</div>
+        <div data-i="p_partscataloglinkedtologbook_941e" class="node-desc">Parts catalog. Linked to logbook.</div>
       </div>
       <div class="node" id="n-pm"
            data-tip="<strong>pm-scheduler.html</strong>Preventive maintenance schedule. On completion: writes pm_completions AND logbook. Risk columns: category (must use task category, not asset), closed_at, maintenance_type.">
@@ -422,7 +437,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         <div class="node-icon">🔧</div>
         <div class="node-name">PM Scheduler</div>
         <div class="node-file">pm-scheduler.html</div>
-        <div class="node-desc">PM tasks, completions, asset mgmt.</div>
+        <div data-i="p_pmtaskscompletionsassetmgmt_fe43" class="node-desc">PM tasks, completions, asset mgmt.</div>
       </div>
       <div class="node" id="n-skill"
            data-tip="<strong>skillmatrix.html</strong>5-discipline skill levels, exams, badges, radar chart. Worker-scoped. No cross-page data writes.">
@@ -430,11 +445,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         <div class="node-icon">🎯</div>
         <div class="node-name">Skill Matrix</div>
         <div class="node-file">skillmatrix.html</div>
-        <div class="node-desc">Skills, exams, badges, radar.</div>
+        <div data-i="p_skillsexamsbadgesradar_a26d" class="node-desc">Skills, exams, badges, radar.</div>
       </div>
     </div>
 
     <!-- Retired row -->
+    <h2 data-i="p_retired_37d1" class="row-title">Retired</h2>
     <div class="row" id="row-retired" style="margin-top:56px;">
       <div class="node retired" id="n-parts"
            data-tip="<strong>parts-tracker.html: RETIRED</strong>Parts were folded into logbook.html. This page is kept for reference only. No nav-hub entry. No live links.">
@@ -442,7 +458,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         <div class="node-icon">🗄️</div>
         <div class="node-name">Parts Tracker</div>
         <div class="node-file">parts-tracker.html</div>
-        <div class="node-desc">Retired. Parts now in logbook.</div>
+        <div data-i="p_retiredpartsnowinlogbook_6544" class="node-desc">Retired. Parts now in logbook.</div>
       </div>
     </div>
 
@@ -523,17 +539,17 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
   <!-- ═══════════════════════ LOCALSTORAGE ═══ -->
   <div class="ls-layer">
-    <div class="section-label">LocalStorage Key Chains (identity gate: all pages must read all aliases)</div>
+    <div data-i="p_localstoragekeychainsidentit_3b5d" class="section-label">LocalStorage Key Chains (identity gate: all pages must read all aliases)</div>
     <div class="ls-grid">
       <div class="ls-chain">
-        <div class="ls-chain-label">Worker Identity</div>
+        <div data-i="p_workeridentity_8d9b" class="ls-chain-label">Worker Identity</div>
         <div class="ls-keys">
           <span class="ls-key">wh_last_worker</span>
           <span class="ls-sep">||</span>
           <span class="ls-key">wh_worker_name</span>
           <span class="ls-sep">||</span>
           <span class="ls-key">workerName</span>
-          <span class="ls-sep">→ redirect if empty</span>
+          <span data-i="p_redirectifempty_40fb" class="ls-sep">→ redirect if empty</span>
         </div>
       </div>
       <div class="ls-chain">
@@ -542,21 +558,21 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           <span class="ls-key">wh_active_hive_id</span>
           <span class="ls-sep">||</span>
           <span class="ls-key">wh_hive_id</span>
-          <span class="ls-sep">→ null if absent</span>
+          <span class="ls-sep"><code>→ null if absent</code></span><!-- G2: a code contract, marked as code on this reference page -->
         </div>
       </div>
       <div class="ls-chain">
-        <div class="ls-chain-label">Hive Role</div>
+        <div data-i="p_hiverole_6553" class="ls-chain-label">Hive Role</div>
         <div class="ls-keys">
           <span class="ls-key">wh_hive_role</span>
-          <span class="ls-sep">· always re-validate from DB</span>
+          <span data-i="p_alwaysrevalidatefromdb_2fb2" class="ls-sep">· always re-validate from DB</span>
         </div>
       </div>
       <div class="ls-chain">
         <div class="ls-chain-label">Nav Hub</div>
         <div class="ls-keys">
           <span class="ls-key">wh-hub-position</span>
-          <span class="ls-sep">· FAB snap position (left/right)</span>
+          <span data-i="p_fabsnappositionleftright_d6c7" class="ls-sep">· FAB snap position (left/right)</span>
         </div>
       </div>
     </div>
@@ -564,46 +580,46 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
   <!-- ═══════════════════════ DATA FLOW TABLE ═══ -->
   <div class="flow-panel">
-    <div class="flow-panel-header">Cross-Page Data Flows: Living Registry</div>
+    <div data-i="p_crosspagedataflowslivingregi_11fa" class="flow-panel-header">Cross-Page Data Flows: Living Registry</div>
     <!-- table-name-allow: platform-architecture data flow table --> <table class="flow-table">
       <thead>
         <tr>
-          <th>Source</th>
-          <th>Target Table</th>
+          <th data-i="p_source_6da1">Source</th>
+          <th data-i="p_targettable_0984">Target Table</th>
           <th>Trigger</th>
-          <th>Risk Columns (must verify on every change)</th>
+          <th data-i="p_riskcolumnsmustverifyonevery_7bf5">Risk Columns (must verify on every change)</th>
         </tr>
       </thead>
       <tbody>
         <tr>
           <td><span class="flow-source">pm-scheduler.html</span></td>
           <td><span class="flow-target">logbook</span></td>
-          <td class="flow-trigger">User marks PM task done with "Log to Logbook" on</td>
+          <td data-i="p_usermarkspmtaskdonewithlogto_d927" class="flow-trigger">User marks PM task done with "Log to Logbook" on</td>
           <td><span class="risk-col">category</span> (use task's PM category, not asset category) · <span class="risk-col">closed_at</span> (always set when Closed) · <span class="risk-col">maintenance_type</span></td>
         </tr>
         <tr>
           <td><span class="flow-source">pm-scheduler.html</span></td>
           <td><span class="flow-target">pm_completions</span></td>
-          <td class="flow-trigger">Same PM task completion trigger</td>
+          <td data-i="p_samepmtaskcompletiontrigger_94a8" class="flow-trigger">Same PM task completion trigger</td>
           <td><span class="risk-col">hive_id</span> · <span class="risk-col">worker_name</span></td>
         </tr>
         <tr>
           <td><span class="flow-source">logbook.html</span></td>
           <td><span class="flow-target">pm_completions</span></td>
-          <td class="flow-trigger">User logs a PM entry with PM tasks checked</td>
+          <td data-i="p_userlogsapmentrywithpmtasksc_6e18" class="flow-trigger">User logs a PM entry with PM tasks checked</td>
           <td><span class="risk-col">hive_id</span> · <span class="risk-col">worker_name</span> · <span class="risk-col">scope_item_id</span></td>
         </tr>
         <tr>
           <td><span class="flow-source">hive.html</span> ← reads</td>
           <td><span class="flow-target">logbook + pm_completions</span></td>
-          <td class="flow-trigger">Hive feed load on page open</td>
+          <td data-i="p_hivefeedloadonpageopen_1162" class="flow-trigger">Hive feed load on page open</td>
           <td>Both tables must have <span class="risk-col">hive_id</span> populated · Old rows without hive_id fall to worker-name fallback</td>
         </tr>
         <tr>
           <td><span class="flow-source">inventory.html</span> ↔</td>
-          <td><span class="flow-target">logbook (parts used)</span></td>
-          <td class="flow-trigger">Parts used added to a logbook entry</td>
-          <td>Transaction must reference logbook entry id · Inventory qty decremented</td>
+          <td><span data-i="p_logbookpartsused_8744" class="flow-target">logbook (parts used)</span></td>
+          <td data-i="p_partsusedaddedtoalogbookentr_7d55" class="flow-trigger">Parts used added to a logbook entry</td>
+          <td data-i="p_transactionmustreferencelogb_3a6a">Transaction must reference logbook entry id · Inventory qty decremented</td>
         </tr>
       </tbody>
     </table>
@@ -612,7 +628,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   <!-- ═══════════════════════ NAV HUB STATUS ═══ -->
   <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:32px;">
     <div class="flow-panel" style="flex:1;min-width:280px;">
-      <div class="flow-panel-header">Nav Hub Registry Status</div>
+      <div data-i="p_navhubregistrystatus_8744" class="flow-panel-header">Nav Hub Registry Status</div>
       <!-- table-name-allow: platform-architecture data flow table --> <table class="flow-table">
         <thead><tr><th>Page</th><th>In nav-hub.js</th><th>Match string</th></tr></thead>
         <tbody>
@@ -624,27 +640,27 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           <tr><td>inventory.html</td><td style="color:var(--green)">✓ PASS</td><td><code style="font-size:10px;color:var(--muted)">inventory</code></td></tr>
           <tr><td>pm-scheduler.html</td><td style="color:var(--green)">✓ PASS</td><td><code style="font-size:10px;color:var(--muted)">pm-scheduler</code></td></tr>
           <tr><td>skillmatrix.html</td><td style="color:var(--green)">✓ PASS</td><td><code style="font-size:10px;color:var(--muted)">skillmatrix</code></td></tr>
-          <tr><td>checklist.html</td><td style="color:var(--red)">✗ Retired</td><td></td></tr>
-          <tr><td>parts-tracker.html</td><td style="color:var(--red)">✗ Retired</td><td></td></tr>
+          <tr><td>checklist.html</td><td data-i="p_retired_484f" style="color:var(--red)">✗ Retired</td><td></td></tr>
+          <tr><td>parts-tracker.html</td><td data-i="p_retired_484f" style="color:var(--red)">✗ Retired</td><td></td></tr>
         </tbody>
       </table>
     </div>
 
     <div class="flow-panel" style="flex:1;min-width:280px;">
-      <div class="flow-panel-header">Integrity Audit: Last Run 2026-04-18</div>
+      <div data-i="p_integrityauditlastrun_dbc2" class="flow-panel-header">Integrity Audit: Last Run 2026-04-18</div>
       <!-- table-name-allow: platform-architecture data flow table --> <table class="flow-table">
-        <thead><tr><th>Check</th><th>Result</th></tr></thead>
+        <thead><tr><th data-i="p_check_4b5e">Check</th><th data-i="p_result_5faa">Result</th></tr></thead>
         <tbody>
-          <tr><td>Nav Hub Registry (all live pages)</td><td style="color:var(--green)">✓ PASS</td></tr>
+          <tr><td data-i="p_navhubregistryalllivepages_49bd">Nav Hub Registry (all live pages)</td><td style="color:var(--green)">✓ PASS</td></tr>
           <tr><td>utils.js load order</td><td style="color:var(--green)">✓ PASS</td></tr>
-          <tr><td>Identity key fallback chain</td><td style="color:var(--green)">✓ PASS</td></tr>
-          <tr><td>Hive ID fallback chain</td><td style="color:var(--green)">✓ PASS</td></tr>
-          <tr><td>AI assistant platform context</td><td style="color:var(--green)">✓ PASS</td></tr>
-          <tr><td>Retired page references</td><td style="color:var(--green)">✓ PASS</td></tr>
+          <tr><td data-i="p_identitykeyfallbackchain_5f2c">Identity key fallback chain</td><td style="color:var(--green)">✓ PASS</td></tr>
+          <tr><td data-i="p_hiveidfallbackchain_3dd8">Hive ID fallback chain</td><td style="color:var(--green)">✓ PASS</td></tr>
+          <tr><td data-i="p_aiassistantplatformcontext_f420">AI assistant platform context</td><td style="color:var(--green)">✓ PASS</td></tr>
+          <tr><td data-i="p_retiredpagereferences_a65d">Retired page references</td><td style="color:var(--green)">✓ PASS</td></tr>
           <tr><td>companion-launcher.js page context registry</td><td style="color:var(--green)">✓ PASS</td></tr>
-          <tr><td>Cross-page insert field parity</td><td style="color:var(--green)">✓ PASS</td></tr>
-          <tr><td>Category mapping source correctness</td><td style="color:var(--green)">✓ PASS</td></tr>
-          <tr><td>Data flow registry completeness</td><td style="color:var(--green)">✓ PASS</td></tr>
+          <tr><td data-i="p_crosspageinsertfieldparity_3703">Cross-page insert field parity</td><td style="color:var(--green)">✓ PASS</td></tr>
+          <tr><td data-i="p_categorymappingsourcecorrect_920b">Category mapping source correctness</td><td style="color:var(--green)">✓ PASS</td></tr>
+          <tr><td data-i="p_dataflowregistrycompleteness_ea48">Data flow registry completeness</td><td style="color:var(--green)">✓ PASS</td></tr>
         </tbody>
       </table>
     </div>

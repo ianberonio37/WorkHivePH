@@ -1,7 +1,7 @@
 {
   "_doc": "Layer AU adoption baseline. Floors are FORWARD-ONLY from any writer (Layer F law).",
-  "generated": "2026-09-04T05:48:13.500179+00:00",
-  "functions": 32,
+  "generated": "2026-09-11T06:03:13.327458+00:00",
+  "functions": 42,
   "rows": [
     {
       "id": "AU1",
@@ -9,13 +9,14 @@
       "name": "restoreIdentityFromSession",
       "satisfies": "no silent identity loss on new devices (C4 class)",
       "mode": "measured",
-      "adopters_n": 26,
-      "need_n": 26,
-      "pct": 100,
+      "adopters_n": 28,
+      "need_n": 29,
+      "pct": 97,
       "adopters": [
         "achievements.html",
         "ai-quality.html",
         "alert-hub.html",
+        "analytics-report.html",
         "analytics.html",
         "asset-hub.html",
         "assistant.html",
@@ -36,11 +37,14 @@
         "project-manager.html",
         "project-report.html",
         "report-sender.html",
+        "resume.html",
         "shift-brain.html",
         "skillmatrix.html",
         "voice-journal.html"
       ],
-      "gap": []
+      "gap": [
+        "architecture.html"
+      ]
     },
     {
       "id": "AU2",
@@ -48,13 +52,14 @@
       "name": "session-settled reads (auth.getUser/getSession before RLS-gated queries)",
       "satisfies": "no cold-load 401 → silent empty states",
       "mode": "measured",
-      "adopters_n": 26,
-      "need_n": 26,
+      "adopters_n": 28,
+      "need_n": 28,
       "pct": 100,
       "adopters": [
         "achievements.html",
         "ai-quality.html",
         "alert-hub.html",
+        "analytics-report.html",
         "analytics.html",
         "asset-hub.html",
         "assistant.html",
@@ -75,6 +80,7 @@
         "project-manager.html",
         "project-report.html",
         "report-sender.html",
+        "resume.html",
         "shift-brain.html",
         "skillmatrix.html",
         "voice-journal.html"
@@ -103,12 +109,12 @@
       "name": "role floor: wh_hive_role hint + SERVER re-check",
       "satisfies": "UI-only approval gates are bypassable (feedback_ui_only_approval_gate_is_bypassable)",
       "mode": "census-only",
-      "adopters_n": 15,
+      "adopters_n": 18,
       "note": "per-gate server-recheck heuristic queued (needs the role-gate map)"
     }
   ],
   "floors": {
-    "AU1": 26,
-    "AU2": 26
+    "AU1": 28,
+    "AU2": 28
   }
 }

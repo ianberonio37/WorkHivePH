@@ -374,14 +374,14 @@ serveObserved("hierarchical-summarizer", async (req) => {
   if (healthResp) return healthResp;
 
   if (req.method !== "POST") {
-    return new Response(JSON.stringify({ error: "Method not allowed" }), {
+    return new Response(JSON.stringify({ error: "That action is not allowed here. Reload the page and try again." }), {
       status: 405, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
 
   let body: { hive_id?: string; level?: Level; period_start?: string; period_end?: string; asset_tag?: string | null } = {};
   try { body = await req.json(); } catch {
-    return new Response(JSON.stringify({ error: "Invalid JSON body" }), {
+    return new Response(JSON.stringify({ error: "That request could not be read. Reload the page and try again." }), {
       status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
@@ -482,11 +482,26 @@ serveObserved("hierarchical-summarizer", async (req) => {
 
   const result = await rollupOnePeriod(db, body.hive_id, body.level, period, body.asset_tag || null);
 
+  /* ★A 500 MUST SAY SOMETHING A PERSON CAN READ (2026-09-09, found by prove_fn_contracts' A lens:
+     "answered 500 with JSON that carries no error/message a person could read"). The failure path put its
+     only explanation inside `errors: [...]` - an array a caller has to know to look inside - so the reader
+     got a 500 and a shape, and the operator's actual reason ("logbook fetch failed: …") never reached a
+     sentence. Both reasons here ARE genuine failures, so the 500 status is right; what was missing is the
+     half a person reads. The machine shape is kept exactly as it was, because callers may already read
+     `errors` and `written`; `error` and `message` are ADDED beside it, never swapped in. */
+  const readable = result.written
+    ? "Summary written."
+    : "That period could not be summarised. The maintenance record could not be read or the summary "
+      + "could not be saved - nothing has been changed, so it is safe to try again in a moment.";
+
   return new Response(JSON.stringify({
     ok:      result.written,
     written: result.written ? 1 : 0,
     skipped: result.written ? 0 : 1,
     errors:  result.written ? [] : [result.reason],
+    error:   result.written ? undefined : readable,   // the sentence, where a reader looks for it
+    message: readable,                                 // ...and where the house envelope puts it
+    detail:  result.written ? undefined : result.reason,  // the operator's half, kept and labelled
     level:   body.level,
     period,
   }), {

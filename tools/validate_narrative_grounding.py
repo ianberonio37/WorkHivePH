@@ -78,8 +78,24 @@ GREEN = "\033[92m"; RED = "\033[91m"; YEL = "\033[93m"; BOLD = "\033[1m"; RESET 
 # legit new-hive numbers read as drift). That coupled fix belongs to the analytics/narrative
 # arc (§13.16 A7.1); tracked in the stale-hive-fixture catalogue. Left as-is to avoid a
 # half-migrated red mid-companion-arc.
+# ★AND THE NOTE ABOVE HAS ITSELF GONE STALE, which is the argument against pinning at all: the "correct
+# current hive" it names (636cf7e8…) is not Leandro's hive any more either - the seeders have moved on
+# twice since. A pinned id rots on every reseed, and this one rotted into a VACUOUS PASS: the invoke
+# 403s "not_a_member", nothing is fetched, and a gate about whether prose is grounded in data reports
+# green having read no prose and no data. So the hive is RESOLVED from the database, from this person's
+# own active membership, and if it cannot be resolved the run SKIPS and says so rather than passing.
+def _resolve_hive(worker: str) -> str:
+    # the richest membership wins: a hive with more logbook history exercises more narrative surfaces,
+    # and ordering by a stable key keeps the pick the same on every run
+    rows = db_query(
+        "select m.hive_id::text from hive_members m "
+        f"where m.worker_name = '{worker}' and m.status = 'active' "
+        "order by (select count(*) from logbook l where l.hive_id = m.hive_id) desc, m.hive_id::text limit 1")
+    return (rows or "").strip().splitlines()[0].strip() if (rows or "").strip() else ""
+
+
 USER = {"email": "leandromarquez@auth.workhiveph.com", "password": "test1234",
-        "hive_id": "9b4eaeac-59b0-4b0e-9b0b-0947b45ad1e7", "worker": "Leandro Marquez"}
+        "hive_id": "", "worker": "Leandro Marquez"}   # hive_id filled in at run time, below
 
 # Prose field names (string or string[]) the narrative surfaces inject into the DOM.
 PROSE_KEYS = {"summary", "narration", "narrative", "this_week", "watch_list", "watchlist",
@@ -207,29 +223,35 @@ _STD_RX = re.compile(rf"\b(?:{_STD_BODIES})\b[\s:\-]*[A-Z]*[\s\-]*\d[\d.\-:/]*",
 _REF_RX = re.compile(r"#\s*\d+")
 
 # a number in prose, with up to one preceding word captured (to detect brand/section labels).
-_NUM_RX = re.compile(r"(?:(?P<prev>[A-Za-z][A-Za-z]+)\s+)?(?<![A-Za-z0-9\-])(\d{1,3}(?:,\d{3})+|\d+)(\.\d+)?\s*(%?)")
+_NUM_RX = re.compile(r"(?:(?P<prev>[A-Za-z][A-Za-z]+)\s+)?(?P<cmp>>=|<=|≥|≤|>|<)?\s*(?<![A-Za-z0-9\-])(\d{1,3}(?:,\d{3})+|\d+)(?!\d)(\.\d+)?\s*(%?)(?P<unit>A|V|kW|kVA|kV|mA|Hz|P|W|Nm|bar|psi|mm|cm)?(?![A-Za-z])")
 
 
 def strip_standards(text: str) -> str:
     return _REF_RX.sub(" ", _STD_RX.sub(" ", text))
 
 
-def prose_numbers(text: str) -> list[tuple[str, float, bool, str]]:
-    """(raw, value, is_percent, prev_word) for each number cited in the prose."""
+def prose_numbers(text: str) -> list[tuple[str, float, bool, str, str]]:
+    """(raw, value, is_percent, prev_word, comparator) for each number cited in the prose.
+
+    The comparator is what tells a REQUIREMENT ("activates at >= 24 weeks") from a MEASUREMENT
+    ("24 breakdowns"): the first is a property of the method and can never be in a grounding set
+    built from the hive's own data.
+    """
     out = []
     for m in _NUM_RX.finditer(text):
-        intp = m.group(2).replace(",", "")
-        dec = m.group(3) or ""
-        is_pct = m.group(4) == "%"
+        intp = m.group(3).replace(",", "")
+        dec = m.group(4) or ""
+        is_pct = m.group(5) == "%"
         try:
             val = float(intp + dec)
         except ValueError:
             continue
-        out.append((m.group(2) + dec + ("%" if is_pct else ""), val, is_pct, m.group("prev") or ""))
+        out.append((m.group(3) + dec + ("%" if is_pct else ""), val, is_pct, m.group("prev") or "",
+                    m.group("cmp") or m.group("unit") or ""))
     return out
 
 
-def is_safe(raw: str, val: float, is_pct: bool, prev: str) -> bool:
+def is_safe(raw: str, val: float, is_pct: bool, prev: str, qualifier: str = "") -> bool:
     """Structural numbers that are never a fabrication signal (avoid over-flagging good prose)."""
     if not is_pct and 1900 <= val <= 2100 and val == int(val):
         return True                              # a year
@@ -239,6 +261,23 @@ def is_safe(raw: str, val: float, is_pct: bool, prev: str) -> bool:
     # ("Loctite 567", "Week 5", "Group 2", "Section 9", "Figure 3") — but NOT an all-caps
     # metric acronym ("MTBF 9.8", "OEE 86") which we DO want to ground-check.
     if prev and re.fullmatch(r"[A-Z][a-z]{2,}", prev):
+        return True
+    # ★A THRESHOLD THE METHOD REQUIRES IS NOT A CLAIM ABOUT THIS HIVE. Pointed at a live hive for the
+    # first time, this gate flagged "Prophet requires >= 24 weeks of data" and "Full Prophet forecasting
+    # will activate when >= 24 weeks of failure data exists" as fabrications on three surfaces. The 24 is
+    # a property of the FORECASTER, stated so the reader knows why they are seeing a linear trend instead
+    # - the same category as the ISO citations strip_standards already removes, and a number the
+    # grounding set cannot contain because it was never derived from the hive. Excusing it needs both
+    # halves so the exception cannot swallow a real figure: a comparator immediately before the number
+    # (a requirement, not a measurement) AND a word naming the requirement in the same sentence.
+    # A NUMBER THAT IS NOT A MEASUREMENT OF THIS HIVE. Two shapes, both found the first time this gate
+    # ran against a live hive instead of a dead one:
+    #   a comparator - "Prophet requires >= 24 weeks of data" states what the METHOD needs;
+    #   an attached rating unit - "Inspect assets that use MCCB 160A 3P" names a 160-amp breaker.
+    # Neither can appear in a grounding set built from the hive's own numbers, because neither was
+    # derived from it. Both are narrow by construction: the comparator must sit immediately before the
+    # number and the unit immediately after it, so "OEE 86%" and "MTBF 9.8 days" are still checked.
+    if qualifier:
         return True
     return False
 
@@ -262,6 +301,25 @@ def is_grounded(val: float, is_pct: bool, gset: set[float]) -> bool:
 
 def validate_narrative_grounding(blind: bool = False, strict: bool = False,
                                  update_baseline: bool = False) -> bool | None:
+    # resolve the hive BEFORE anything else: a run against a hive this person does not belong to is the
+    # vacuous pass this gate spent months delivering
+    USER["hive_id"] = _resolve_hive(USER["worker"])
+    # SPECS is built at import, when the hive id is still empty - so every request body and the one
+    # DB-sourced grounding query carry "" unless they are re-stamped here. A body with an empty hive
+    # is the same vacuous pass in a new costume: the invoke fails and the surface is skipped.
+    if USER["hive_id"]:
+        for _i, (_label, _page, _fn, _body, _gsql) in enumerate(SPECS):
+            if isinstance(_body, dict) and "hive_id" in _body:
+                _body["hive_id"] = USER["hive_id"]
+            if isinstance(_gsql, str) and "hive_id='" in _gsql:
+                SPECS[_i] = (_label, _page, _fn, _body,
+                             re.sub(r"hive_id='[^']*'", "hive_id='" + USER["hive_id"] + "'", _gsql))
+    if not USER["hive_id"]:
+        if not blind:
+            print(f"{YEL}SKIP (exit 2){RESET}: {USER['worker']} is in no active hive, so there is no "
+                  f"narrative surface to ground. Reseed before trusting a green here.")
+        return None
+
     token = get_token()
     if not token:
         if not blind:
@@ -270,11 +328,28 @@ def validate_narrative_grounding(blind: bool = False, strict: bool = False,
 
     BASELINE_F = ROOT / "narrative_grounding_baseline.json"
     baseline: dict = {}
+    baseline_hive = ""
     if BASELINE_F.exists() and not update_baseline:
         try:
-            baseline = json.loads(BASELINE_F.read_text(encoding="utf-8")).get("caps", {})
+            _raw = json.loads(BASELINE_F.read_text(encoding="utf-8"))
+            baseline = _raw.get("caps", {})
+            baseline_hive = _raw.get("hive_id", "")
         except Exception:
             baseline = {}
+    # ★AND A BASELINE THAT DOES NOT RECORD ITS SUBJECT CANNOT TELL DRIFT FROM A DIFFERENT WORLD. The
+    # stored caps carried no hive id at all, so when the seeded hive changed - which it has, twice - the
+    # gate would have compared this hive's numbers against another hive's caps and called the difference
+    # fabrication. Caps measured somewhere else are not evidence about here: say so and re-establish,
+    # rather than reporting drift that is really a change of subject.
+    if baseline and baseline_hive and baseline_hive != USER["hive_id"]:
+        if not blind:
+            print(f"{YEL}NOTE{RESET}: the stored caps were measured against hive {baseline_hive[:8]}… and this run "
+                  f"is against {USER['hive_id'][:8]}…. Re-establishing rather than reporting another hive's "
+                  f"numbers as drift.")
+        baseline = {}
+    elif baseline and not baseline_hive and not blind:
+        print(f"{YEL}NOTE{RESET}: the stored caps do not record which hive they were measured against, so this "
+              f"run cannot prove it is comparing like with like. Stamping {USER['hive_id'][:8]}… from here on.")
 
     total = 0; grounded = 0; skipped = 0; reached = 0
     fails: list[str] = []; detail: dict = {}
@@ -333,8 +408,8 @@ def validate_narrative_grounding(blind: bool = False, strict: bool = False,
         nums = prose_numbers(prose_text)
 
         checked = 0; bad = []
-        for rawn, val, is_pct, prev in nums:
-            if is_safe(rawn, val, is_pct, prev):
+        for rawn, val, is_pct, prev, qual in nums:
+            if is_safe(rawn, val, is_pct, prev, qual):
                 continue
             checked += 1
             if not is_grounded(val, is_pct, gset):
@@ -381,7 +456,10 @@ def validate_narrative_grounding(blind: bool = False, strict: bool = False,
         BASELINE_F.write_text(json.dumps({
             "_doc": "A7.1 narrative-grounding forward-only baseline — per-surface cap on the EXPECTED "
                     "derived-aggregate residual (e.g. '43%'=sum of top-cause pcts). A run FAILs only "
-                    "if a surface EXCEEDS its cap (new fabrication). Caps lower on improvement, never auto-raise.",
+                    "if a surface EXCEEDS its cap (new fabrication). Caps lower on improvement, never auto-raise. "
+                    "hive_id records WHICH hive these caps were measured against: without it a reseed silently "
+                    "turns another hive's numbers into 'drift'.",
+            "hive_id": USER["hive_id"],
             "caps": baseline,
         }, indent=2), encoding="utf-8")
 
@@ -404,8 +482,8 @@ def _check_payload(data: dict) -> list[str]:
     prose: list[str] = []; collect_prose(data, prose)
     nums = prose_numbers(strip_standards("  ".join(prose)))
     bad = []
-    for rawn, val, is_pct, prev in nums:
-        if is_safe(rawn, val, is_pct, prev):
+    for rawn, val, is_pct, prev, qual in nums:
+        if is_safe(rawn, val, is_pct, prev, qual):
             continue
         if not is_grounded(val, is_pct, gset):
             bad.append(rawn)
@@ -417,6 +495,22 @@ def self_test() -> int:
     standards/brand/year/ordinal noise is NOT flagged."""
     cases = [
         # (name, payload, expect_fabrications)
+        # ★THE TWO EXCEPTIONS THE FIRST LIVE-HIVE RUN FORCED, pinned so neither can widen unnoticed.
+        # Both were REAL false positives found the day this gate stopped pointing at a dead hive.
+        ("a method threshold is not a claim about the hive",
+         {"descriptive": {"open_wos": 19},
+          "prescriptive": {"summary": "Linear trend (numpy polyfit) - Prophet requires >= 24 weeks of data. "
+                                      "There are 19 open work orders."}},
+         False),
+        ("a part rating and a model designation are not metrics",
+         {"descriptive": {"overdue": 29},
+          "prescriptive": {"summary": "29 assets overdue. Inspect assets that use MCCB 160A 3P, and the "
+                                      "Siemens Simotics SD 200L unit."}},
+         False),
+        ("...but a real figure beside them is still checked",
+         {"descriptive": {"overdue": 29},
+          "prescriptive": {"summary": "29 assets overdue on MCCB 160A units, costing PHP 45000 this month."}},
+         True),
         ("clean (all grounded)",
          {"descriptive": {"mtbf_h": 9.8, "oee_pct": 86, "pm_compliance": 37, "open_wos": 19},
           "prescriptive": {"summary": "MTBF is 9.8 hours; OEE 86% with PM compliance at 37% and 19 open work orders."}},

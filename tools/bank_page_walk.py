@@ -141,7 +141,18 @@ def main(argv):
             # So: keep a readable title, and preserve the FULL narrative beside it. Nothing measured
             # is thrown away, and an identical re-run does not stack duplicate findings.
             failed += 1
-            notes = [str(n) for n in (res.get("notes") or []) if str(n).strip()]
+            # ★ITERATING A STRING YIELDS CHARACTERS, AND THIS WROTE 43 FINDINGS ONE LETTER AT A TIME
+            # (found 2026-09-10). `notes` is normally a list, but a probe that hands back a single
+            # STRING made the comprehension below walk its characters - so `"; ".join(...)` produced
+            #     "M; E; A; S; U; R; E; D; A; T; T; H; E; E; D; G; E; ..."
+            # and `if str(n).strip()` silently dropped every SPACE, which is why the recovered words
+            # run together. 43 findings across 16 bank files are unreadable this way: the record of
+            # what a walk discovered, destroyed by the writer that was recording it. Python will not
+            # complain - a string IS iterable - so nothing failed and nothing was logged.
+            _notes = res.get("notes") or []
+            if isinstance(_notes, str):
+                _notes = [_notes]
+            notes = [str(n) for n in _notes if str(n).strip()]
             checked, observed = res.get("checked") or "", res.get("value_checked") or ""
             title = ("; ".join(notes) if notes
                      else re.split(r"(?<=[.!?])\s+", checked.strip())[0] if checked.strip()

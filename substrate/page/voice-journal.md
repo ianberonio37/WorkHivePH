@@ -2,13 +2,13 @@
 name: page-voice-journal
 type: page
 source: file:voice-journal.html
-source_sha: ff97f3d790edb1c3
+source_sha: fcdbc066b1687278
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## page · `voice-journal.html` — Voice Journal: WorkHive
 
-Size: 80KB · 37 top-level fns. (Retrieve THIS instead of reading the file.)
+Size: 82KB · 37 top-level fns. (Retrieve THIS instead of reading the file.)
 
 **DB writes** (1): `worker_profiles.update`
 **RPC calls**: (none)

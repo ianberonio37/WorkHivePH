@@ -86,6 +86,29 @@ async function verifySignature(
 
 // STATUS_MAP, TYPE_MAP — imported from _shared/mappings.ts
 
+/* ★EVERY WRITE ON THIS PATH, NOT ONLY THE ONE THAT WAS WALKED (2026-09-09). The work_order upsert was
+   found returning ok:true over a failed write; the asset.updated, inventory.updated and pm.overdue
+   branches had the identical unchecked shape, and would have reported the same false success the first
+   time a status or a field tripped a constraint. Fixing only the branch a probe happened to exercise is
+   how a defect class survives its own fix. This helper makes a failed write LOUD: it throws, the
+   function's outer catch turns it into a tracked non-leaky failure, and the sender learns to retry. */
+async function putSync(
+  db: { from: (t: string) => { upsert: (r: unknown, o: unknown) => Promise<{ error: { message: string } | null }> } },
+  row: unknown,
+  what: string,
+): Promise<void> {
+  const { error } = await db.from("external_sync")
+    .upsert(row, { onConflict: "system_type,external_id,entity_type" });
+  if (error) {
+    console.error(`cmms-webhook-receiver: ${what} external_sync upsert failed -`, error.message);
+    throw new Error(`${what} could not be recorded: ${error.message}`);
+  }
+}
+
+// the vocabularies a CMMS uses for "this work is finished", beyond the code tables above. Used only to
+// clamp an UNMAPPED status into the three the database allows - never to override a real mapping.
+const CLOSING_HINT = /\b(TECO|CLSD|CLOSED?|COMP|COMPLETED?|FINISH(ED)?|DONE|CNF)\b/i;
+
 // ---------------------------------------------------------------------------
 // Event processors
 // ---------------------------------------------------------------------------
@@ -130,7 +153,17 @@ function extractWorkOrder(
 
   if (!extId) return null;
 
-  const normStatus = STATUS_MAP[systemType]?.[rawStatus] ?? rawStatus ?? "Open";
+  /* ★AN UNMAPPED STATUS CODE MUST NOT REACH THE DATABASE (2026-09-09, walked live). external_sync.status
+     is CHECK-constrained to Open/Closed/Cancelled, and this line fell through to the RAW code whenever the
+     map did not know it - so a real SAP payload carrying TECO (technically complete: the single commonest
+     completion status in SAP PM, and not one of the five I000x codes the map holds) violated the check and
+     killed the whole write. integrations.html already learned this exact lesson on its import path and
+     clamps, keeping the raw code in the payload; the webhook path never got the same treatment. Clamp to a
+     legal value, and keep what the sender actually said in sync_payload.status_raw so nothing is lost. */
+  const _mapped = STATUS_MAP[systemType]?.[rawStatus];
+  const LEGAL_STATUS = ["Open", "Closed", "Cancelled"];
+  const normStatus = _mapped
+    ?? (LEGAL_STATUS.includes(rawStatus) ? rawStatus : (CLOSING_HINT.test(rawStatus) ? "Closed" : "Open"));
   const normType   = TYPE_MAP[systemType]?.[rawType]     ?? rawType   ?? "Breakdown / Corrective";
 
   const syncRow = {
@@ -140,7 +173,10 @@ function extractWorkOrder(
     entity_type:    "work_order",
     workhive_table: "logbook",
     status:         normStatus,
-    sync_payload:   { machine, maintenance_type: normType, problem, action, actual_hours: parseFloat(hoursStr) || 0, created_at: createdAt, closed_at: closedAt || null },
+    // status_raw: what the SENDER actually said, kept whenever we had to clamp it into the three values
+    // the column allows - so a support question ("SAP says TECO, why does WorkHive say Closed?") can be
+    // answered from the row instead of guessed
+    sync_payload:   { machine, maintenance_type: normType, problem, action, actual_hours: parseFloat(hoursStr) || 0, created_at: createdAt, closed_at: closedAt || null, status_raw: rawStatus || null },
     sync_status:    "active",
     last_synced_at: now,
   };
@@ -264,7 +300,7 @@ serveObserved("cmms-webhook-receiver", async (req) => {
     }
     const valid = await verifySignature(rawBody, sigHeader, tsHeader, config.auth_token);
     if (!valid) {
-      return new Response(JSON.stringify({ error: "Invalid signature" }),
+      return new Response(JSON.stringify({ error: "That signature did not match. Check the webhook secret and try again." }),
         { status: 401, headers: { ...cors, "Content-Type": "application/json" } });
     }
 
@@ -276,7 +312,7 @@ serveObserved("cmms-webhook-receiver", async (req) => {
     // signed timestamp is outside a ±300s tolerance.
     const tsNum = Number(tsHeader);
     if (!Number.isFinite(tsNum) || Math.abs(Date.now() / 1000 - tsNum) > 300) {
-      return new Response(JSON.stringify({ error: "Stale or invalid timestamp", code: "stale_timestamp" }),
+      return new Response(JSON.stringify({ error: "That request timestamp is stale. Check the sender clock and send it again.", code: "stale_timestamp" }),
         { status: 401, headers: { ...cors, "Content-Type": "application/json" } });
     }
 
@@ -325,19 +361,45 @@ serveObserved("cmms-webhook-receiver", async (req) => {
         alreadySynced = !!existing?.length;
       }
 
-      // Upsert to external_sync
-      await db.from("external_sync")
+      /* ★A WEBHOOK THAT ANSWERS ok:true MUST HAVE WRITTEN SOMETHING (2026-09-09, walked live with a
+         correctly HMAC-signed SAP PM payload). This upsert's result was never read, so when it failed the
+         function carried on and answered {"ok":true,"event":"work_order.completed"} with NOTHING in
+         external_sync and nothing in the logbook. Reproduced twice on a clean database. For a CMMS
+         integration that is the worst possible shape: the sending system is told the work order landed,
+         so it never retries, and the plant's completed orders disappear silently. Nothing was in the logs
+         either - BECAUSE the error was discarded, the failure could not even be diagnosed after the fact.
+         The row is the claim; if it did not land, say so and let the sender retry. */
+      const { error: syncErr } = await db.from("external_sync")
         .upsert(syncRow, { onConflict: "system_type,external_id,entity_type" });
+      if (syncErr) {
+        console.error("cmms-webhook-receiver: external_sync upsert failed -", syncErr.message, syncErr.details || "");
+        return new Response(JSON.stringify({
+          ok:     false,
+          reason: "The work order could not be recorded. Nothing was changed, so it is safe to send it again.",
+          detail: syncErr.message,
+          event:  eventType,
+        }), { status: 502, headers: { ...cors, "Content-Type": "application/json" } });
+      }
 
       // Insert to logbook only for a genuinely new work_order.created (idempotent on replay).
       if (eventType === "work_order.created" && !alreadySynced) {
-        await db.from("logbook").insert(logRow);
+        /* ...and the same rule for the LOGBOOK write, which is the one a person actually reads. An
+           unchecked failure here leaves external_sync claiming the order synced while the logbook has no
+           entry for it - the two surfaces disagreeing, with ok:true sent to the CMMS either way. */
+        const { error: logErr } = await db.from("logbook").insert(logRow);
+        if (logErr) {
+          console.error("cmms-webhook-receiver: logbook insert failed -", logErr.message);
+          throw new Error(`work_order.created reached external_sync but not the logbook: ${logErr.message}`);
+        }
         // F1005: link the external_sync WO to this logbook row so cmms-push-completion
         // pushes completion to the CORRECT work order (not machine+newest).
-        await db.from("external_sync")
+        const { error: linkErr } = await db.from("external_sync")
           .update({ workhive_id: logRow.id })
           .eq("hive_id", hiveId).eq("system_type", systemType)
           .eq("external_id", extracted.extId).eq("entity_type", "work_order");
+        // a missing link is not worth rejecting the event - the rows are both written - but it IS the
+        // thing F1005 exists to prevent, so it must never fail in silence
+        if (linkErr) console.error("cmms-webhook-receiver: F1005 link update failed -", linkErr.message);
       } else if (eventType === "work_order.updated" || eventType === "work_order.completed") {
         // F6 cross-surface consistency: a .updated/.completed event must also update the
         // LINKED logbook row's status, else a CMMS-completed order still reads "Open" in the
@@ -351,9 +413,17 @@ serveObserved("cmms-webhook-receiver", async (req) => {
         const lbId = (link?.[0] as Record<string, unknown> | undefined)?.workhive_id as string | undefined;
         if (lbId) {
           const closedAt = (syncRow.sync_payload as Record<string, unknown> | undefined)?.closed_at as string | null | undefined;
-          await db.from("logbook")
+          /* ...and this is the write the F6 comment above is ABOUT: it is what makes a CMMS-completed
+             order stop reading "Open" in the logbook. Unchecked, a failure here produces exactly the
+             cross-surface disagreement F6 was added to prevent - external_sync says Closed, the logbook
+             a supervisor reads still says Open - while the CMMS is told ok:true and never resends. */
+          const { error: cascadeErr } = await db.from("logbook")
             .update({ status: syncRow.status, closed_at: syncRow.status === "Closed" ? (closedAt || now) : null })
             .eq("id", lbId);
+          if (cascadeErr) {
+            console.error("cmms-webhook-receiver: logbook status cascade failed -", cascadeErr.message);
+            throw new Error(`the work order was recorded but the logbook still reads its old status: ${cascadeErr.message}`);
+          }
         }
       }
 
@@ -361,7 +431,7 @@ serveObserved("cmms-webhook-receiver", async (req) => {
       // F1: was a silent no-op contradicting the header contract. Track the external asset in
       // external_sync (idempotent upsert on system_type,external_id,entity_type).
       const a = extractAsset(payload, systemType, hiveId, now);
-      if (a) await db.from("external_sync").upsert(a, { onConflict: "system_type,external_id,entity_type" });
+      if (a) await putSync(db, a, "asset.updated");
 
     } else if (eventType === "inventory.updated") {
       // F2: SAP MM / material-master sync (MATNR->part_number). external_sync is the idempotent
@@ -369,21 +439,32 @@ serveObserved("cmms-webhook-receiver", async (req) => {
       // then update-or-insert (with a supplied id — inventory_items.id has no DB default).
       const inv = extractInventory(payload, systemType, hiveId, now);
       if (inv) {
-        await db.from("external_sync").upsert(inv.syncRow, { onConflict: "system_type,external_id,entity_type" });
+        await putSync(db, inv.syncRow, "inventory.updated");
         // canonical-allow: existence-check for update-or-insert of an inbound SAP material — needs the raw
         // PK (inventory_items has PK(id) only, no natural key); v_inventory_items_truth is a display view.
         const { data: existing } = await db.from("inventory_items")
           .select("id").eq("hive_id", hiveId).eq("part_number", inv.partNo).limit(1);
         if (existing?.length) {
-          await db.from("inventory_items")
+          /* ...and the stock write itself. external_sync above already says this material synced; if the
+             quantity never lands, the parts page shows the OLD number while the integration reports a
+             clean sync - and somebody orders against a stock level the CMMS thinks it corrected. */
+          const { error: updErr } = await db.from("inventory_items")
             .update({ qty_on_hand: inv.qty, min_qty: inv.minQ, part_name: inv.name, updated_at: now })
             .eq("id", (existing[0] as Record<string, unknown>).id as string);
+          if (updErr) {
+            console.error("cmms-webhook-receiver: inventory update failed -", updErr.message);
+            throw new Error(`the material synced but its stock level did not change: ${updErr.message}`);
+          }
         } else {
-          await db.from("inventory_items").insert({
+          const { error: insErr } = await db.from("inventory_items").insert({
             id: crypto.randomUUID(), worker_name: workerName, part_number: inv.partNo,
             part_name: inv.name, qty_on_hand: inv.qty, min_qty: inv.minQ, hive_id: hiveId,
             status: "approved", // CMMS material master is authoritative (status_check: approved|pending|rejected)
           });
+          if (insErr) {
+            console.error("cmms-webhook-receiver: inventory insert failed -", insErr.message);
+            throw new Error(`the material synced but no part was created for it: ${insErr.message}`);
+          }
         }
       }
 
@@ -392,12 +473,12 @@ serveObserved("cmms-webhook-receiver", async (req) => {
       // 'pm_schedule') so it is tracked/queryable, not only logged.
       const pmId = String(payload.AUFNR ?? payload.WONUM ?? payload.pm_id ?? payload.asset_tag ?? "");
       if (pmId) {
-        await db.from("external_sync").upsert({
+        await putSync(db, {
           hive_id: hiveId, system_type: systemType, external_id: pmId, entity_type: "pm_schedule",
           workhive_table: "pm_assets", status: "Open",
           sync_payload: { overdue: true, machine: String(payload.EQUNR ?? payload.ASSETNUM ?? "") },
           sync_status: "active", last_synced_at: now,
-        }, { onConflict: "system_type,external_id,entity_type" });
+        }, "pm.overdue");
       }
       log.info(null, `Recorded pm.overdue for ${pmId} hive ${hiveId}`);
     }

@@ -7,33 +7,33 @@
   "per_page": [
     {
       "page": "index.html",
-      "add": 30,
+      "add": 32,
       "remove": 0,
-      "add_raw": 30,
+      "add_raw": 32,
       "rebuild_scoped": 0,
       "risky": true
     },
     {
       "page": "hive.html",
-      "add": 50,
+      "add": 54,
       "remove": 0,
-      "add_raw": 51,
+      "add_raw": 55,
       "rebuild_scoped": 1,
       "risky": true
     },
     {
       "page": "logbook.html",
-      "add": 75,
+      "add": 77,
       "remove": 0,
-      "add_raw": 76,
+      "add_raw": 78,
       "rebuild_scoped": 1,
       "risky": true
     },
     {
       "page": "inventory.html",
-      "add": 27,
+      "add": 28,
       "remove": 0,
-      "add_raw": 28,
+      "add_raw": 29,
       "rebuild_scoped": 1,
       "risky": true
     },
@@ -63,25 +63,25 @@
     },
     {
       "page": "skillmatrix.html",
-      "add": 12,
+      "add": 13,
       "remove": 1,
-      "add_raw": 14,
+      "add_raw": 15,
       "rebuild_scoped": 2,
       "risky": false
     },
     {
       "page": "community.html",
-      "add": 20,
+      "add": 21,
       "remove": 1,
-      "add_raw": 20,
+      "add_raw": 21,
       "rebuild_scoped": 0,
       "risky": false
     },
     {
       "page": "public-feed.html",
-      "add": 0,
+      "add": 1,
       "remove": 0,
-      "add_raw": 0,
+      "add_raw": 1,
       "rebuild_scoped": 0,
       "risky": false
     },
@@ -161,25 +161,25 @@
     },
     {
       "page": "project-report.html",
-      "add": 1,
+      "add": 2,
       "remove": 0,
-      "add_raw": 1,
+      "add_raw": 2,
       "rebuild_scoped": 0,
       "risky": false
     },
     {
       "page": "ai-quality.html",
-      "add": 1,
+      "add": 2,
       "remove": 0,
-      "add_raw": 1,
+      "add_raw": 2,
       "rebuild_scoped": 0,
       "risky": false
     },
     {
       "page": "plant-connections.html",
-      "add": 1,
+      "add": 2,
       "remove": 0,
-      "add_raw": 1,
+      "add_raw": 2,
       "rebuild_scoped": 0,
       "risky": false
     },
@@ -193,17 +193,17 @@
     },
     {
       "page": "asset-hub.html",
-      "add": 12,
+      "add": 13,
       "remove": 2,
-      "add_raw": 12,
+      "add_raw": 13,
       "rebuild_scoped": 0,
       "risky": false
     },
     {
       "page": "shift-brain.html",
-      "add": 7,
+      "add": 8,
       "remove": 0,
-      "add_raw": 7,
+      "add_raw": 8,
       "rebuild_scoped": 0,
       "risky": false
     },

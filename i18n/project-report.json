@@ -1,0 +1,21 @@
+{
+ "_doc": "project-report.html: English visible text -> Filipino, authored. Empty = not yet translated. tools/i18n_page_dict.py --apply tags the element and emits WH_FIL_PAGE.",
+ "Project Report": "Report ng Proyekto",
+ "How this page works": "Paano gumagana ang page na ito",
+ "Owner:": "",
+ "Period:": "Panahon:",
+ "Generated:": "Na-generate:",
+ "Hive:": "",
+ "§1  Executive Summary": "",
+ "§2  Scope of Work (WBS)": "",
+ "§3  Linked Work": "",
+ "§4  Daily Progress Timeline": "",
+ "§5  Lessons Learned": "",
+ "§6  Sign-off": "",
+ "§7  Appendix: Standards & References": "",
+ "PMBOK 7th ed.": "",
+ "IDCON 6-Phase": "",
+ "Loading project…": "Naglo-load ng proyekto…",
+ "← Back": "← Balik",
+ "🤖 AI: Narrative": ""
+}

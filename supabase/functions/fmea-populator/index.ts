@@ -327,7 +327,7 @@ serveObserved("fmea-populator", async (req) => {
       .limit(200);
     if (logErr) {
       return new Response(
-        JSON.stringify({ error: "Logbook query failed", detail: logErr.message }),
+        JSON.stringify({ error: "Could not read the logbook. Try again in a moment.", detail: logErr.message }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
@@ -418,7 +418,7 @@ serveObserved("fmea-populator", async (req) => {
       const { error: insertErr } = await db.from("rcm_fmea_modes").insert(toInsert);
       if (insertErr) {
         return new Response(
-          JSON.stringify({ error: "Insert failed", detail: insertErr.message }),
+          JSON.stringify({ error: "Could not save. Try again in a moment.", detail: insertErr.message }),
           { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
         );
       }

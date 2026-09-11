@@ -74,8 +74,15 @@ PAGES = [
 
 # Match `db.from('v_X_truth').select(...).limit(N)` with the chain potentially
 # spanning multiple lines.
+# (*)THIS GATE COULD NOT SEE THE PAGE ITS OWN CLASS WAS FOUND ON. It matched `v_*_truth` only, on the
+# reasoning quoted above - "raw-table fetches with limit are usually paginated lists where local .length IS
+# the right count for the page." voice-journal.html disproved that in July: `voice_journal_entries` is a raw
+# table, `.limit(80)` fed the header, and the page rendered "80 entries" while the account held 108, with a
+# client-side search silently covering only the loaded rows. The narrowing was also redundant - the second
+# condition already requires the length to be rendered AS a count - so it bought nothing and cost every raw
+# table on the platform. Any table now qualifies; what makes it a finding is still the count-rendering.
 LIMIT_SELECT_RE = re.compile(
-    r"""\.from\(\s*['"`](?P<view>v_[a-z0-9_]+_truth)['"`]\s*\)"""
+    r"""\.from\(\s*['"`](?P<view>[a-z0-9_]+)['"`]\s*\)"""
     r"""(?:[^;]{0,500})?\.limit\(\s*(?P<n>\d+)\s*\)""",
     re.DOTALL | re.IGNORECASE,
 )
@@ -95,6 +102,18 @@ LENGTH_KPI_PATTERNS = [
     re.compile(r"""\.innerHTML\s*=[^;]*\$\{[^}]*\b(?P<var>\w+)\.length\b"""),
     # Direct assignment in `let X = <var>.length` followed by KPI-style render
     # is harder to track; skip for now.
+    #
+    # (*)THE SUM HALF OF THE CLAIM HAD NO PATTERN AT ALL. Forty-five reads on this platform carry the
+    # marker "cap-ok: rows only - no count OR SUM is derived from this read", and only the count half was
+    # ever tested - so half of every one of those assertions was unenforced. A total summed over a capped
+    # array is the same lie as a count taken over one, and worse to read: an undercount looks like a small
+    # number, an under-total looks like money.
+    # `textContent = <var>.reduce(...)` — a sum rendered straight into a KPI
+    re.compile(r"""\.textContent\s*=\s*(?P<var>\w+)\.reduce\("""),
+    # `{ num: <var>.reduce(...) }` — the tile-array shape, summing instead of counting
+    re.compile(r"""\{\s*[^}]*\bnum\s*:\s*(?P<var>\w+)\.reduce\("""),
+    # `innerHTML = ... ${<var>.reduce(...)} ...`
+    re.compile(r"""\.innerHTML\s*=[^;]*\$\{[^}]*\b(?P<var>\w+)\.reduce\("""),
 ]
 
 
@@ -159,7 +178,42 @@ def _scan(name: str, body_raw: str) -> list[dict]:
 CHECK_NAMES = ["kpi_count_query_safety"]
 
 
+def selftest() -> int:
+    """Prove the KPI patterns can FIRE. A gate reporting zero is only good news once you know it is
+    capable of bad news - and the sum patterns were added to a file that had reported zero for months
+    while testing only half of what its allow-markers assert."""
+    cases = [
+        ("a sum rendered into textContent", "el.textContent = orders.reduce((a,b)=>a+b.total,0)", "orders"),
+        ("a sum in a tile's num field", "tiles.push({ label:'Spend', num: rows.reduce((a,b)=>a+b.amt,0) })", "rows"),
+        ("a sum interpolated into innerHTML", "box.innerHTML = `<b>${items.reduce((a,b)=>a+b.qty,0)}</b>`", "items"),
+        ("a count rendered into textContent", "el.textContent = jobs.length", "jobs"),
+    ]
+    ok = True
+    for label, snippet, want in cases:
+        hit = None
+        for pat in LENGTH_KPI_PATTERNS:
+            m = pat.search(snippet)
+            if m:
+                hit = m.group("var")
+                break
+        good = hit == want
+        ok &= good
+        print(f"  {'PASS' if good else 'FAIL'}  {label}: matched {hit!r}, want {want!r}")
+    # ...and stay quiet about a reduce nobody renders, or the gate becomes noise and gets muted.
+    quiet = not any(p.search("const t = rows.reduce((a,b)=>a+b.n,0); console.log(t)") for p in LENGTH_KPI_PATTERNS)
+    ok &= quiet
+    print(f"  {'PASS' if quiet else 'FAIL'}  a reduce that renders nothing does not fire")
+    # the table scope must stay wide: the raw table whose bug this gate could not see for months
+    wide = bool(LIMIT_SELECT_RE.search("db.from('voice_journal_entries').select('id').limit(80)"))
+    ok &= wide
+    print(f"  {'PASS' if wide else 'FAIL'}  a raw table is in scope, not only v_*_truth views")
+    print(f"\n  SELFTEST: {'PASS' if ok else 'FAIL'}")
+    return 0 if ok else 1
+
+
 def main() -> int:
+    if "--selftest" in sys.argv:
+        return selftest()
     per_page = []
     total_issues = 0
 
@@ -211,7 +265,7 @@ def main() -> int:
 
     if total_issues == 0:
         print()
-        print(_green("PASS — no `.limit(N) + .length` count-rendering pattern detected on _truth views."))
+        print(_green("PASS — no `.limit(N) + .length` count-rendering pattern detected on any table or view."))
         return 0
 
     print()

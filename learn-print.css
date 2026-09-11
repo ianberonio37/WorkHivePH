@@ -1,0 +1,93 @@
+/* learn-print.css — the 54 public guides, on paper.
+ *
+ * WHY (2026-09-09, found walking learn/ai-quality-and-roi-stage-2-plants' adaptability row through the
+ * playwright MCP). Three independent checks all came back empty: no `print:` Tailwind utilities anywhere
+ * in the markup, no inline `@media print` block, and no print rules in any same-origin stylesheet. So
+ * every guide printed with its dark site chrome — the sign-in header, the footer, the floating feedback
+ * bubble — and the body text printed light-on-dark, which on paper is a solid ink block with white
+ * letters knocked out of it. A maintenance guide is exactly the thing somebody prints and carries onto
+ * the floor, or pins in the workshop, so this is not a cosmetic gap.
+ *
+ * Loaded with media="print" so a reader on a screen never downloads or applies it.
+ *
+ * Two rules, and they are the whole file:
+ *   1. Drop what is not the guide — navigation, the sign-in call, the footer, the feedback widget.
+ *      None of it can be tapped on paper.
+ *   2. Put ink back the right way round — dark text on white — and keep the structure a reader needs:
+ *      headings stay with their content, tables and code do not split mid-row, and a link's destination
+ *      is printed after it, because a printed link nobody can click is a dead end unless it says where
+ *      it went.
+ */
+
+@page {
+  margin: 16mm 14mm;
+}
+
+header,
+footer,
+#wh-feedback-fab,
+#wh-feedback-panel,
+.wh-fb-fab,
+.wh-fb-panel,
+nav[aria-label="Breadcrumb"] ~ nav,
+[data-nav-hub],
+.cta-btn {
+  display: none !important;
+}
+
+html,
+body {
+  background: #fff !important;
+  color: #111 !important;
+}
+
+/* the site paints its type in near-white over a dark ground; on paper that inverts to unreadable */
+article,
+article * {
+  background: transparent !important;
+  color: #111 !important;
+  text-shadow: none !important;
+  box-shadow: none !important;
+}
+
+article {
+  max-width: 100% !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+h1, h2, h3, h4 {
+  color: #000 !important;
+  page-break-after: avoid;
+  break-after: avoid;
+}
+
+/* a figure, a table row or a fenced example split across a page break loses the comparison it was making */
+table, figure, pre, blockquote, li {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+table {
+  border-collapse: collapse !important;
+  width: 100% !important;
+}
+
+th, td {
+  border: 1px solid #999 !important;
+  padding: 4px 6px !important;
+}
+
+img {
+  max-width: 100% !important;
+  page-break-inside: avoid;
+}
+
+/* ...and a link on paper is only useful if it says where it goes. Internal anchors and mailto are left
+   alone: "#faq" printed after a word is noise, and an e-mail address is already written out. */
+article a[href^="http"]::after {
+  content: " (" attr(href) ")";
+  font-size: 0.85em;
+  color: #444 !important;
+  word-break: break-all;
+}

@@ -1,67 +1,149 @@
 {
   "summary": {
-    "measuredPages": 1,
-    "mean": 98,
-    "ge90": 1,
-    "ge85": 1,
+    "measuredPages": 3,
+    "mean": 95,
+    "ge90": 3,
+    "ge85": 3,
     "pageErrors": 0,
-    "ranAt": "2026-09-03T05:39:59.191Z",
+    "ranAt": "2026-09-10T23:19:46.454Z",
     "identity": "pabloaguilar@auth.workhiveph.com"
   },
   "pages": {
-    "integrations.html": {
-      "overall": 98,
+    "learn/ra-11285-energy-efficiency-plant-checklist/index.html": {
+      "overall": 96,
       "counts": {
         "dims": 90,
-        "measured": 58,
+        "measured": 42,
         "judged": 7,
-        "na": 25
+        "na": 41
       },
       "failing": [
-        "B3 0% — sentences=24 · >20w=2 · passive=2 · grade>8=1 · worst(22w): \"Give your CMMS the webhook address in this tab and new work …\"",
-        "R1 67% — gaps=[16,20,24] offScale=[20]"
+        "B3 0% — sentences=131 · >20w=37 · passive=9 · grade>8=92 · worst(38w): \"The thresholds decide whether this applies to you: a plant c…\"",
+        "B1 67% — marketese=0 verboseBlocks=25",
+        "N1 75% — WH_LANG=true · lang=en · label coverage=0/9 (0%) · data-i=4"
       ],
       "errors": [],
       "c2_offenders": [],
       "b3_offenders": {
         "long": [
           {
-            "words": 22,
-            "text": "Give your CMMS the webhook address in this tab and new work orders arrive as they are raised, with no CSV expo"
+            "words": 38,
+            "text": "The thresholds decide whether this applies to you: a plant consuming a year is a designated establishment and "
           },
           {
-            "words": 21,
-            "text": "3 records failed to sync with your CMMS (finished jobs pushed back, or records pulled in, that did not go thro"
+            "words": 38,
+            "text": "For example, a maintenance planner at a facility in Batangas can use the Audit Log to schedule and track maint"
+          },
+          {
+            "words": 35,
+            "text": "For instance, a plant located in Calabarzon, such as the one in Cabuyao, Laguna, with an annual energy consump"
+          },
+          {
+            "words": 33,
+            "text": "A plant supervisor at a facility in Batangas, for example, may initiate an energy audit to investigate unusual"
+          },
+          {
+            "words": 33,
+            "text": "For instance, a plant in Calabarzon, such as the one located in Cabuyao, Laguna, with an annual energy consump"
+          },
+          {
+            "words": 32,
+            "text": "A 24-hour shift operation, like one running from 02:30 to 14:45 the next day, at a plant in Batangas, must ens"
+          },
+          {
+            "words": 31,
+            "text": "A 24-hour shift schedule, such as one that includes a 02:30 and 14:45 shift, can help your team stay on track "
+          },
+          {
+            "words": 31,
+            "text": "For instance, a fine of PHP 180,000 may be imposed on Designated Establishments that fail to submit their annu"
           }
         ],
         "passive": [
-          "Give your CMMS the webhook address in this tab and new work orders arrive as they are rais",
-          "WorkHive pushes finished jobs back to SAP automatically, as each one is closed."
+          "For instance, a plant located in Calabarzon, such as the one in Cabuyao, Laguna, with an a",
+          "These are called DOE Designated Establishments.",
+          "The report should be based on the results of an energy audit, which identifies areas of en",
+          "For example, a fine of PHP 180,000 may be imposed for non-compliance.",
+          "A 24-hour shift schedule, such as one that includes a 02:30 and 14:45 shift, can help your"
         ],
         "overGrade": [
           {
-            "grade": 9.8,
-            "text": "Its service schedule lands in the PM Scheduler with km intervals, and its parts in Invento"
+            "grade": 16.5,
+            "text": "The Republic Act 11285, also known as the Energy Efficiency and Conservation Act, aims to "
+          },
+          {
+            "grade": 13.1,
+            "text": "To ensure compliance, plant managers and workers must understand the requirements and regu"
+          },
+          {
+            "grade": 9.3,
+            "text": "This checklist provides a comprehensive guide to help plant-floor personnel comply with th"
+          },
+          {
+            "grade": 17,
+            "text": "The thresholds decide whether this applies to you: a plant consuming a year is a designate"
+          },
+          {
+            "grade": 16.6,
+            "text": "The Energy Efficiency and Conservation Act, also known as Republic Act 11285, aims to prom"
           }
         ]
       },
       "n1": {
-        "dataI": 8,
-        "labelCovered": 8,
-        "labelTotal": 10,
-        "coverage": 0.8,
+        "dataI": 4,
+        "labelCovered": 0,
+        "labelTotal": 9,
+        "coverage": 0,
         "uncovered": [
           {
-            "tag": "H2",
+            "tag": "H1",
             "id": "",
-            "t": "Add a Vehicle"
+            "t": "RA 11285 Energy Efficiency: a Plant-Floor Co"
           },
           {
-            "tag": "BUTTON",
-            "id": "veh-open",
-            "t": "Add my vehicle"
+            "tag": "H2",
+            "id": "overview-of-ra-11285",
+            "t": "Overview of RA 11285"
+          },
+          {
+            "tag": "H2",
+            "id": "doe-designated-establishment-threshold",
+            "t": "DOE Designated Establishment Threshold"
+          },
+          {
+            "tag": "H2",
+            "id": "annual-energy-report-requirement",
+            "t": "Annual Energy Report Requirement"
+          },
+          {
+            "tag": "H2",
+            "id": "energy-audit-triggers",
+            "t": "Energy Audit Triggers"
+          },
+          {
+            "tag": "H2",
+            "id": "workhive-audit-log",
+            "t": "WorkHive Audit Log"
+          },
+          {
+            "tag": "H2",
+            "id": "penalties-for-non-compliance",
+            "t": "Penalties for Non-Compliance"
+          },
+          {
+            "tag": "H2",
+            "id": "faq",
+            "t": "Frequently asked questions"
+          },
+          {
+            "tag": "H2",
+            "id": "sources",
+            "t": "Sources"
           }
-        ]
+        ],
+        "fil": {
+          "active": false
+        }
       },
       "dims": [
         {
@@ -70,7 +152,7 @@
           "pass": 4,
           "total": 4,
           "pct": 100,
-          "note": "h1=1 focalTier=26px×4 bigTiers=2 cta=2"
+          "note": "h1=1 focalTier=43px×1 bigTiers=2 cta=2"
         },
         {
           "dim": "A2",
@@ -78,7 +160,7 @@
           "pass": 4,
           "total": 4,
           "pct": 100,
-          "note": "headings=3 (h2/h3=2) blocks=9"
+          "note": "headings=10 (sub-heads=8: h2/h3=8 + role=heading L2/L3=0) blocks=3"
         },
         {
           "dim": "A3",
@@ -86,15 +168,15 @@
           "pass": 4,
           "total": 4,
           "pct": 100,
-          "note": "disclosures=1 longTables=0"
+          "note": "disclosures=6 longTables=0 · blocks=3 tabs=0 primaryCta=2/2"
         },
         {
           "dim": "B1",
           "kind": "MEASURED",
-          "pass": 3,
+          "pass": 2,
           "total": 3,
-          "pct": 100,
-          "note": "marketese=0 verboseBlocks=0"
+          "pct": 67,
+          "note": "marketese=0 verboseBlocks=25"
         },
         {
           "dim": "B2",
@@ -110,7 +192,7 @@
           "pass": 0,
           "total": 3,
           "pct": 0,
-          "note": "sentences=24 · >20w=2 · passive=2 · grade>8=1 · worst(22w): \"Give your CMMS the webhook address in this tab and new work …\""
+          "note": "sentences=131 · >20w=37 · passive=9 · grade>8=92 · worst(38w): \"The thresholds decide whether this applies to you: a plant c…\""
         },
         {
           "dim": "C1",
@@ -118,7 +200,7 @@
           "pass": 3,
           "total": 3,
           "pct": 100,
-          "note": "bigSizes=[26,22] distinct=9"
+          "note": "bigSizes=[43,25] distinct=7"
         },
         {
           "dim": "C5",
@@ -131,8 +213,8 @@
         {
           "dim": "C2",
           "kind": "MEASURED",
-          "pass": 52,
-          "total": 52,
+          "pass": 98,
+          "total": 98,
           "pct": 100,
           "note": "all text >= its WCAG floor"
         },
@@ -166,7 +248,7 @@
           "pass": 1,
           "total": 1,
           "pct": 100,
-          "note": "click->paint 4ms"
+          "note": "click->paint 2ms"
         },
         {
           "dim": "D3",
@@ -174,7 +256,7 @@
           "pass": 1,
           "total": 1,
           "pct": 100,
-          "note": "2 distinct button shapes"
+          "note": "0 distinct button shapes"
         },
         {
           "dim": "E1",
@@ -190,7 +272,7 @@
           "pass": 1,
           "total": 1,
           "pct": 100,
-          "note": "1/1 empties explain themselves"
+          "note": "no empty states in this state"
         },
         {
           "dim": "E3",
@@ -198,7 +280,7 @@
           "pass": 2,
           "total": 2,
           "pct": 100,
-          "note": "chip: \"Live · refreshed on load · Based on your\""
+          "note": "article: names its sources and its freshness in prose (a chip is a product-surface convention)"
         },
         {
           "dim": "E4",
@@ -210,17 +292,17 @@
         },
         {
           "dim": "S1",
-          "kind": "MEASURED",
-          "pass": 2,
-          "total": 2,
-          "pct": 100,
-          "note": "declared=[8,12,16] · offRadius=0/20 · offFont=0/24"
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "page resolves NO --wh-radius-* : it has no token source to conform TO (link tokens.css)"
         },
         {
           "dim": "F1",
           "kind": "MEASURED",
-          "pass": 16,
-          "total": 16,
+          "pass": 19,
+          "total": 19,
           "pct": 100,
           "note": "all >= 44px"
         },
@@ -242,11 +324,11 @@
         },
         {
           "dim": "G1",
-          "kind": "MEASURED",
-          "pass": 1,
-          "total": 1,
-          "pct": 100,
-          "note": "5 status region(s)"
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "static document: ships no data layer (no utils.js, no client, no inline fetch) — there is no system state to report"
         },
         {
           "dim": "G2",
@@ -262,7 +344,7 @@
           "pass": 1,
           "total": 1,
           "pct": 100,
-          "note": "16 controls, 2 primary CTA"
+          "note": "19 controls, 2 primary CTA"
         },
         {
           "dim": "H1",
@@ -302,15 +384,15 @@
           "pass": 2,
           "total": 2,
           "pct": 100,
-          "note": "LCP 524ms OK · CLS 0.025 OK <- div#header-import"
+          "note": "LCP 456ms OK · CLS 0.000 OK"
         },
         {
           "dim": "I2",
-          "kind": "MEASURED",
-          "pass": 1,
-          "total": 1,
-          "pct": 100,
-          "note": "18 reserved block(s)"
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "static document: ships no data layer, so nothing streams in and there is nothing to reserve space for"
         },
         {
           "dim": "J1",
@@ -330,11 +412,11 @@
         },
         {
           "dim": "K1",
-          "kind": "MEASURED",
-          "pass": 3,
-          "total": 3,
-          "pct": 100,
-          "note": "3/3 status chips carry TEXT"
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no status chips on this surface"
         },
         {
           "dim": "K2",
@@ -355,8 +437,8 @@
         {
           "dim": "L2",
           "kind": "MEASURED",
-          "pass": 1,
-          "total": 1,
+          "pass": 19,
+          "total": 19,
           "pct": 100,
           "note": "all link labels predict their destination"
         },
@@ -379,10 +461,10 @@
         {
           "dim": "N1",
           "kind": "MEASURED",
-          "pass": 4,
+          "pass": 3,
           "total": 4,
-          "pct": 100,
-          "note": "WH_LANG=true · lang=en · label coverage=8/10 (80%) · data-i=8"
+          "pct": 75,
+          "note": "WH_LANG=true · lang=en · label coverage=0/9 (0%) · data-i=4"
         },
         {
           "dim": "O1",
@@ -398,7 +480,7 @@
           "pass": 1,
           "total": 1,
           "pct": 100,
-          "note": "3 on-demand help affordance(s)"
+          "note": "6 on-demand help affordance(s)"
         },
         {
           "dim": "Q1",
@@ -406,7 +488,7 @@
           "pass": 1,
           "total": 1,
           "pct": 100,
-          "note": "11 reduced-motion block(s), 46 animated el(s)"
+          "note": "1 reduced-motion block(s), 23 animated el(s)"
         },
         {
           "dim": "Q2",
@@ -414,23 +496,23 @@
           "pass": 1,
           "total": 1,
           "pct": 100,
-          "note": "20 focusable control(s), none hidden-but-focusable"
+          "note": "19 focusable control(s), none hidden-but-focusable"
         },
         {
           "dim": "Q3",
-          "kind": "MEASURED",
-          "pass": 1,
-          "total": 1,
-          "pct": 100,
-          "note": "drag surface present AND operable by a single pointer (click-to-browse file input)"
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no drag-operated function on this page"
         },
         {
           "dim": "R1",
           "kind": "MEASURED",
-          "pass": 2,
-          "total": 3,
-          "pct": 67,
-          "note": "gaps=[16,20,24] offScale=[20]"
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "gaps=[0] offScale=[]"
         },
         {
           "dim": "R2",
@@ -438,7 +520,7 @@
           "pass": 1,
           "total": 1,
           "pct": 100,
-          "note": "scrollW=1274 vs 1280"
+          "note": "scrollW=1280 vs 1280"
         },
         {
           "dim": "R3",
@@ -446,7 +528,7 @@
           "pass": 3,
           "total": 3,
           "pct": 100,
-          "note": "cardTreatments=1 · silhouettes=3 for 2 role(s) (0px,8px,bar)"
+          "note": "cardTreatments=0 · silhouettes=0 for 0 role(s) ()"
         },
         {
           "dim": "R4",
@@ -466,11 +548,11 @@
         },
         {
           "dim": "W1",
-          "kind": "MEASURED",
-          "pass": 1,
-          "total": 1,
-          "pct": 100,
-          "note": "in-layout way back: back/home ctl"
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "landing/print: it IS the home surface"
         },
         {
           "dim": "V1",
@@ -506,11 +588,11 @@
         },
         {
           "dim": "W2",
-          "kind": "MEASURED",
-          "pass": 3,
-          "total": 3,
-          "pct": 100,
-          "note": "companion=true avatar=true nav-hub=true"
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "assistant/home: IS the assistant / no floating companion by design"
         },
         {
           "dim": "T1",
@@ -538,11 +620,11 @@
         },
         {
           "dim": "T4",
-          "kind": "MEASURED",
-          "pass": 1,
-          "total": 1,
-          "pct": 100,
-          "note": "all 1 scroll containers contained"
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no internal scroll containers on this page"
         },
         {
           "dim": "T5",
@@ -558,7 +640,7 @@
           "pass": null,
           "total": null,
           "pct": null,
-          "note": "no long list (worst scroll container = 18 children)"
+          "note": "no long list (worst scroll container = 8 children)"
         },
         {
           "dim": "T7",
@@ -570,11 +652,11 @@
         },
         {
           "dim": "T8",
-          "kind": "MEASURED",
-          "pass": 7,
-          "total": 7,
-          "pct": 100,
-          "note": "7/7 stateful controls expose their state"
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no stateful toggles/tabs/expanders on this page"
         },
         {
           "dim": "Z2",
@@ -595,10 +677,10 @@
         {
           "dim": "Z3",
           "kind": "MEASURED",
-          "pass": 20,
-          "total": 20,
+          "pass": 19,
+          "total": 19,
           "pct": 100,
-          "note": "all 20 targets clear the 24px + spacing floor"
+          "note": "all 19 targets clear the 24px + spacing floor"
         },
         {
           "dim": "X3",
@@ -606,15 +688,15 @@
           "pass": null,
           "total": null,
           "pct": null,
-          "note": "no substantial list on this page (3 items) — item-search not required"
+          "note": "no substantial list on this page (1 items) — item-search not required"
         },
         {
           "dim": "Y1",
-          "kind": "MEASURED",
-          "pass": 1,
-          "total": 1,
-          "pct": 100,
-          "note": "offline-banner affordance wired (surfaces state; queues/reconnect is the live journey step)"
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no backend writes on this page — offline-state UX N/A"
         },
         {
           "dim": "X2",
@@ -626,19 +708,19 @@
         },
         {
           "dim": "X1",
-          "kind": "MEASURED",
-          "pass": 1,
-          "total": 1,
-          "pct": 100,
-          "note": "all 1 conditional state(s) offer a CTA or recovery guidance"
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no conditional empty/no-results panels in the DOM — dead-end slice N/A (dynamic states are the live-journey step)"
         },
         {
           "dim": "Y2",
-          "kind": "MEASURED",
-          "pass": 1,
-          "total": 1,
-          "pct": 100,
-          "note": "consequential actions are time-unlimited (whConfirm modal / adequate undo window; the persona walk is the live journey step)"
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no consequential/destructive actions on this page — stress-timing N/A"
         },
         {
           "dim": "AI1",
@@ -682,11 +764,11 @@
         },
         {
           "dim": "PP1",
-          "kind": "MEASURED",
-          "pass": 1,
-          "total": 1,
-          "pct": 100,
-          "note": "async ops show a working state (skeleton / spinner / disabled-button / aria-busy)"
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no async operations on this page"
         },
         {
           "dim": "PP2",
@@ -698,11 +780,11 @@
         },
         {
           "dim": "PP3",
-          "kind": "MEASURED",
-          "pass": 1,
-          "total": 1,
-          "pct": 100,
-          "note": "a submit acknowledges instantly (button state / optimistic render before the server responds)"
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no submit action with an async op on this page"
         },
         {
           "dim": "DL1",
@@ -714,19 +796,1812 @@
         },
         {
           "dim": "DL2",
-          "kind": "MEASURED",
-          "pass": 1,
-          "total": 1,
-          "pct": 100,
-          "note": "a completion gives a satisfying confirmation (toast / XP / transition)"
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no write/completion action on this page"
         },
         {
           "dim": "DD1",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "not a KPI dashboard (fewer than 3 stat tiles)"
+        },
+        {
+          "dim": "DD2",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no data-viz charts on this page"
+        },
+        {
+          "dim": "TR1",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no transactional surface on this page"
+        },
+        {
+          "dim": "TR2",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no transactional surface on this page"
+        },
+        {
+          "dim": "RE1",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "not a feed/social surface on this page"
+        },
+        {
+          "dim": "DP1",
           "kind": "MEASURED",
           "pass": 1,
           "total": 1,
           "pct": 100,
-          "note": "the largest KPI is in the top glance zone (preattentive 2D-position)"
+          "note": "no manufactured urgency/scarcity pressure; any deadline shown is a real date"
+        },
+        {
+          "dim": "DP2",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "decline/cancel controls are plainly worded (no guilt copy)"
+        },
+        {
+          "dim": "DP3",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no checkbox surface on this page"
+        }
+      ]
+    },
+    "learn/best-free-cmms-software-philippines/index.html": {
+      "overall": 96,
+      "counts": {
+        "dims": 90,
+        "measured": 42,
+        "judged": 7,
+        "na": 41
+      },
+      "failing": [
+        "B3 0% — sentences=42 · >20w=8 · passive=3 · grade>8=15 · worst(31w): \"is the outlier: free at the worker tier as the actual model …\"",
+        "C1 67% — bigSizes=[36,28] distinct=11",
+        "A1 75% — h1=1 focalTier=36px×1 bigTiers=2 cta=0",
+        "N1 75% — WH_LANG=true · lang=en · label coverage=0/8 (0%) · data-i=9"
+      ],
+      "errors": [],
+      "c2_offenders": [],
+      "b3_offenders": {
+        "long": [
+          {
+            "words": 31,
+            "text": "is the outlier: free at the worker tier as the actual model rather than a funnel, offline-first, and built for"
+          },
+          {
+            "words": 30,
+            "text": "If you need enterprise depth and have budget, the paid products are more mature; if the binding constraint is "
+          },
+          {
+            "words": 27,
+            "text": "The usual limits are the number of users, the number of assets or work orders, history retention, and whether "
+          },
+          {
+            "words": 27,
+            "text": "Those caps are deliberate: the free tier is the top of a sales funnel, and the cap is placed exactly where a g"
+          },
+          {
+            "words": 23,
+            "text": "Pricing verified against vendor and directory listings on 5 August 2026; SaaS pricing moves, so confirm curren"
+          },
+          {
+            "words": 23,
+            "text": "you need vendor support with an SLA, a broad integration catalogue, or multi-site enterprise reporting, and yo"
+          },
+          {
+            "words": 23,
+            "text": "cost per seat is the blocker, your floor has connectivity dead spots, your team works in Filipino/Taglish, or "
+          },
+          {
+            "words": 22,
+            "text": "That is not dishonest: it is a business model, and for a funded plant the paid product may well be worth it."
+          }
+        ],
+        "passive": [
+          "This comparison is reviewed quarterly for pricing and feature accuracy.",
+          "The usual limits are the number of users, the number of assets or work orders, history ret",
+          "Those caps are deliberate: the free tier is the top of a sales funnel, and the cap is plac"
+        ],
+        "overGrade": [
+          {
+            "grade": 9.8,
+            "text": "Most \"free\" CMMS products are : a feature-capped tier designed to convert to paid seats (t"
+          },
+          {
+            "grade": 18.2,
+            "text": "is the outlier: free at the worker tier as the actual model rather than a funnel, offline-"
+          },
+          {
+            "grade": 12.6,
+            "text": "If you need enterprise depth and have budget, the paid products are more mature; if the bi"
+          },
+          {
+            "grade": 13.9,
+            "text": "Pricing verified against vendor and directory listings on 5 August 2026; SaaS pricing move"
+          },
+          {
+            "grade": 14.6,
+            "text": "The usual limits are the number of users, the number of assets or work orders, history ret"
+          }
+        ]
+      },
+      "n1": {
+        "dataI": 9,
+        "labelCovered": 0,
+        "labelTotal": 8,
+        "coverage": 0,
+        "uncovered": [
+          {
+            "tag": "H1",
+            "id": "",
+            "t": "Best free CMMS software for Philippine plant"
+          },
+          {
+            "tag": "H2",
+            "id": "",
+            "t": "On this page"
+          },
+          {
+            "tag": "H2",
+            "id": "matrix",
+            "t": "Free and freemium CMMS options compared"
+          },
+          {
+            "tag": "H2",
+            "id": "freemium-trap",
+            "t": "What a free CMMS tier usually caps"
+          },
+          {
+            "tag": "H2",
+            "id": "philippine-fit",
+            "t": "The Philippine-specific criteria most lists "
+          },
+          {
+            "tag": "H2",
+            "id": "how-to-choose",
+            "t": "How to choose a free CMMS for a Philippine p"
+          },
+          {
+            "tag": "H2",
+            "id": "faq",
+            "t": "Frequently asked questions"
+          },
+          {
+            "tag": "H2",
+            "id": "sources",
+            "t": "Sources"
+          }
+        ],
+        "fil": {
+          "active": false
+        }
+      },
+      "dims": [
+        {
+          "dim": "A1",
+          "kind": "MEASURED",
+          "pass": 3,
+          "total": 4,
+          "pct": 75,
+          "note": "h1=1 focalTier=36px×1 bigTiers=2 cta=0"
+        },
+        {
+          "dim": "A2",
+          "kind": "MEASURED",
+          "pass": 4,
+          "total": 4,
+          "pct": 100,
+          "note": "headings=8 (sub-heads=7: h2/h3=7 + role=heading L2/L3=0) blocks=4"
+        },
+        {
+          "dim": "A3",
+          "kind": "MEASURED",
+          "pass": 4,
+          "total": 4,
+          "pct": 100,
+          "note": "disclosures=5 longTables=0 · blocks=4 tabs=0 primaryCta=0/2"
+        },
+        {
+          "dim": "B1",
+          "kind": "MEASURED",
+          "pass": 3,
+          "total": 3,
+          "pct": 100,
+          "note": "marketese=0 verboseBlocks=2"
+        },
+        {
+          "dim": "B2",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "no marketese in visible copy"
+        },
+        {
+          "dim": "B3",
+          "kind": "MEASURED",
+          "pass": 0,
+          "total": 3,
+          "pct": 0,
+          "note": "sentences=42 · >20w=8 · passive=3 · grade>8=15 · worst(31w): \"is the outlier: free at the worker tier as the actual model …\""
+        },
+        {
+          "dim": "C1",
+          "kind": "MEASURED",
+          "pass": 2,
+          "total": 3,
+          "pct": 67,
+          "note": "bigSizes=[36,28] distinct=11"
+        },
+        {
+          "dim": "C5",
+          "kind": "MEASURED",
+          "pass": 92,
+          "total": 92,
+          "pct": 100,
+          "note": "all text meets its APCA Lc minimum for its size/weight"
+        },
+        {
+          "dim": "C2",
+          "kind": "MEASURED",
+          "pass": 110,
+          "total": 110,
+          "pct": 100,
+          "note": "all text >= its WCAG floor"
+        },
+        {
+          "dim": "C3",
+          "kind": "MEASURED",
+          "pass": 2,
+          "total": 2,
+          "pct": 100,
+          "note": "grouped into common regions with padding"
+        },
+        {
+          "dim": "C4",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no numeric els in this state: nothing to set tabular"
+        },
+        {
+          "dim": "D1",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no icon-only controls in this state"
+        },
+        {
+          "dim": "D2",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "click->paint 1ms"
+        },
+        {
+          "dim": "D3",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "0 distinct button shapes"
+        },
+        {
+          "dim": "E1",
+          "kind": "MEASURED",
+          "pass": 2,
+          "total": 2,
+          "pct": 100,
+          "note": "charts=0 named=0 gauge/pie=0"
+        },
+        {
+          "dim": "E2",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "no empty states in this state"
+        },
+        {
+          "dim": "E3",
+          "kind": "MEASURED",
+          "pass": 2,
+          "total": 2,
+          "pct": 100,
+          "note": "article: names its sources and its freshness in prose (a chip is a product-surface convention)"
+        },
+        {
+          "dim": "E4",
+          "kind": "MEASURED",
+          "pass": 3,
+          "total": 3,
+          "pct": 100,
+          "note": "repeatedVerdicts=0 · rawIdDumps=0 · untranslatedStats=0"
+        },
+        {
+          "dim": "S1",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "page resolves NO --wh-radius-* : it has no token source to conform TO (link tokens.css)"
+        },
+        {
+          "dim": "F1",
+          "kind": "MEASURED",
+          "pass": 25,
+          "total": 25,
+          "pct": 100,
+          "note": "all >= 44px"
+        },
+        {
+          "dim": "F2",
+          "kind": "JUDGED",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "axe-core owns this (ufai_battery.js pillar U); do not duplicate"
+        },
+        {
+          "dim": "F3",
+          "kind": "JUDGED",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "human judgment; NO honest denominator exists: never invent one"
+        },
+        {
+          "dim": "G1",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "static document: ships no data layer (no utils.js, no client, no inline fetch) — there is no system state to report"
+        },
+        {
+          "dim": "G2",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "no system jargon in copy"
+        },
+        {
+          "dim": "G3",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "25 controls, 0 primary CTA"
+        },
+        {
+          "dim": "H1",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "not a worker-daily journey page (no meta[name=worker-daily]): nothing to show progress on"
+        },
+        {
+          "dim": "H2",
+          "kind": "JUDGED",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "needs a return-visit journey; MCP-driven"
+        },
+        {
+          "dim": "H3",
+          "kind": "JUDGED",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "ordering intent: judged against the page contract (worst-first etc.)"
+        },
+        {
+          "dim": "H4",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "no ad-like elements"
+        },
+        {
+          "dim": "I1",
+          "kind": "MEASURED",
+          "pass": 2,
+          "total": 2,
+          "pct": 100,
+          "note": "LCP 232ms OK · CLS 0.000 OK"
+        },
+        {
+          "dim": "I2",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "static document: ships no data layer, so nothing streams in and there is nothing to reserve space for"
+        },
+        {
+          "dim": "J1",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "read-only surface: 0 destructive controls"
+        },
+        {
+          "dim": "J2",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "nothing destructive to undo"
+        },
+        {
+          "dim": "K1",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no status chips on this surface"
+        },
+        {
+          "dim": "K2",
+          "kind": "MEASURED",
+          "pass": 2,
+          "total": 2,
+          "pct": 100,
+          "note": "0/no glanceable KPI(s), 0 under-44 target(s)"
+        },
+        {
+          "dim": "L1",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "no manufactured urgency"
+        },
+        {
+          "dim": "L2",
+          "kind": "MEASURED",
+          "pass": 25,
+          "total": 25,
+          "pct": 100,
+          "note": "all link labels predict their destination"
+        },
+        {
+          "dim": "M1",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no form fields in this state"
+        },
+        {
+          "dim": "M2",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no form fields in this state"
+        },
+        {
+          "dim": "N1",
+          "kind": "MEASURED",
+          "pass": 3,
+          "total": 4,
+          "pct": 75,
+          "note": "WH_LANG=true · lang=en · label coverage=0/8 (0%) · data-i=9"
+        },
+        {
+          "dim": "O1",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "no tour, UI usable immediately"
+        },
+        {
+          "dim": "O2",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "5 on-demand help affordance(s)"
+        },
+        {
+          "dim": "Q1",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "1 reduced-motion block(s), 20 animated el(s)"
+        },
+        {
+          "dim": "Q2",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "26 focusable control(s), none hidden-but-focusable"
+        },
+        {
+          "dim": "Q3",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no drag-operated function on this page"
+        },
+        {
+          "dim": "R1",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "gaps=[0] offScale=[]"
+        },
+        {
+          "dim": "R2",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "scrollW=1280 vs 1280"
+        },
+        {
+          "dim": "R3",
+          "kind": "MEASURED",
+          "pass": 3,
+          "total": 3,
+          "pct": 100,
+          "note": "cardTreatments=0 · silhouettes=0 for 0 role(s) ()"
+        },
+        {
+          "dim": "R4",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "0 orphan void(s)"
+        },
+        {
+          "dim": "R5",
+          "kind": "JUDGED",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "whole-page reading order: needs the full-page screenshot diff"
+        },
+        {
+          "dim": "W1",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "landing/print: it IS the home surface"
+        },
+        {
+          "dim": "V1",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "no overlapping elements or widgets"
+        },
+        {
+          "dim": "B4",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no where-from/how-computed/data-source disclosure here"
+        },
+        {
+          "dim": "G4",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "1 data-freshness claim"
+        },
+        {
+          "dim": "B5",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "no leaked internals"
+        },
+        {
+          "dim": "W2",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "assistant/home: IS the assistant / no floating companion by design"
+        },
+        {
+          "dim": "T1",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "no trapped content @390"
+        },
+        {
+          "dim": "T2",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "all text fits @390"
+        },
+        {
+          "dim": "T3",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "touch-action set (manipulation)"
+        },
+        {
+          "dim": "T4",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no internal scroll containers on this page"
+        },
+        {
+          "dim": "T5",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "viewport-fit=cover set — env(safe-area-inset) active"
+        },
+        {
+          "dim": "T6",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no long list (worst scroll container = 8 children)"
+        },
+        {
+          "dim": "T7",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "measured by ufai_battery.js consoleErrorsSinceBoot"
+        },
+        {
+          "dim": "T8",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no stateful toggles/tabs/expanders on this page"
+        },
+        {
+          "dim": "Z2",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "reflows clean, no h-scroll @1280px"
+        },
+        {
+          "dim": "Z1",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no numeric-expecting inputs visible on this page"
+        },
+        {
+          "dim": "Z3",
+          "kind": "MEASURED",
+          "pass": 25,
+          "total": 25,
+          "pct": 100,
+          "note": "all 25 targets clear the 24px + spacing floor"
+        },
+        {
+          "dim": "X3",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no substantial list on this page (9 items) — item-search not required"
+        },
+        {
+          "dim": "Y1",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no backend writes on this page — offline-state UX N/A"
+        },
+        {
+          "dim": "X2",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no compose/entry form (textarea) on this page — draft-survival N/A"
+        },
+        {
+          "dim": "X1",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no conditional empty/no-results panels in the DOM — dead-end slice N/A (dynamic states are the live-journey step)"
+        },
+        {
+          "dim": "Y2",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no consequential/destructive actions on this page — stress-timing N/A"
+        },
+        {
+          "dim": "AI1",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no AI input surface on this page"
+        },
+        {
+          "dim": "AI2",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no AI output surface on this page"
+        },
+        {
+          "dim": "AI3",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no AI output surface on this page"
+        },
+        {
+          "dim": "AI4",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no AI invoke on this page"
+        },
+        {
+          "dim": "AI5",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no AI overlay/output on this page"
+        },
+        {
+          "dim": "PP1",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no async operations on this page"
+        },
+        {
+          "dim": "PP2",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no long (>10s) operation on this page"
+        },
+        {
+          "dim": "PP3",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no submit action with an async op on this page"
+        },
+        {
+          "dim": "DL1",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no empty/first-run states on this page"
+        },
+        {
+          "dim": "DL2",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no write/completion action on this page"
+        },
+        {
+          "dim": "DD1",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "not a KPI dashboard (fewer than 3 stat tiles)"
+        },
+        {
+          "dim": "DD2",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no data-viz charts on this page"
+        },
+        {
+          "dim": "TR1",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no transactional surface on this page"
+        },
+        {
+          "dim": "TR2",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no transactional surface on this page"
+        },
+        {
+          "dim": "RE1",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "not a feed/social surface on this page"
+        },
+        {
+          "dim": "DP1",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "no manufactured urgency/scarcity pressure; any deadline shown is a real date"
+        },
+        {
+          "dim": "DP2",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "decline/cancel controls are plainly worded (no guilt copy)"
+        },
+        {
+          "dim": "DP3",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no checkbox surface on this page"
+        }
+      ]
+    },
+    "learn/free-engineering-calculators-philippine-plants/index.html": {
+      "overall": 94,
+      "counts": {
+        "dims": 90,
+        "measured": 42,
+        "judged": 7,
+        "na": 41
+      },
+      "failing": [
+        "B3 0% — sentences=90 · >20w=18 · passive=3 · grade>8=36 · worst(62w): \"Walk into any Philippine engineering office and you will see…\"",
+        "K2 50% — 0/no glanceable KPI(s), 2 under-44 target(s)",
+        "B1 67% — marketese=0 verboseBlocks=4",
+        "C1 67% — bigSizes=[43,28,22] distinct=13",
+        "N1 75% — WH_LANG=true · lang=en · label coverage=0/25 (0%) · data-i=9",
+        "F1 98% — under-44: FCU(31x44), OEE(32x44)"
+      ],
+      "errors": [],
+      "c2_offenders": [],
+      "b3_offenders": {
+        "long": [
+          {
+            "words": 62,
+            "text": "Walk into any Philippine engineering office and you will see the same workflow: open a 5-year-old Excel sheet "
+          },
+          {
+            "words": 32,
+            "text": "It uses the current standard, the right tropical constants, the same formula for every junior engineer in the "
+          },
+          {
+            "words": 29,
+            "text": "60 standards-referenced calculators across 8 disciplines (electrical and power, plumbing and pumps, HVAC and c"
+          },
+          {
+            "words": 28,
+            "text": "What changes: the licensed engineer's review time drops from \"redo the calculation from scratch\" (3 hours per "
+          },
+          {
+            "words": 28,
+            "text": "A 100 kW HVAC design that ignores the electrical room load and the structural ceiling height will fail in inst"
+          },
+          {
+            "words": 27,
+            "text": "It replaces 30 minutes of careful spreadsheet work with 30 seconds of structured input, and produces a PDF rep"
+          },
+          {
+            "words": 27,
+            "text": "The WorkHive HVAC calculator shows the formula and an input field reference for each calculation, so you can v"
+          },
+          {
+            "words": 27,
+            "text": "(the calculator does not know that this BGC site has limited overhead clearance, or that this plant has 5 perc"
+          }
+        ],
+        "passive": [
+          "The spreadsheet was written by someone who left in 2021 and nobody has reviewed the formul",
+          "Each output is tagged with its applied standard (PEC 2017, ASHRAE, PSME, NFPA, ISO) and Ph",
+          "In the AI era, engineers whose work is documented get promoted."
+        ],
+        "overGrade": [
+          {
+            "grade": 18.7,
+            "text": "WorkHive Engineering Design is a free set of 60 standards-referenced calculators across ei"
+          },
+          {
+            "grade": 13.4,
+            "text": "Each calculator is built on the relevant standard (PEC 2017, ASHRAE, PSME, NFPA, ISO) and "
+          },
+          {
+            "grade": 11.5,
+            "text": "It replaces 30 minutes of careful spreadsheet work with 30 seconds of structured input, an"
+          },
+          {
+            "grade": 17.7,
+            "text": "Built for the full engineering team: junior engineers, design and project engineers, licen"
+          },
+          {
+            "grade": 12,
+            "text": "The pattern it replaces: three engineers, three spreadsheets, three different answers: was"
+          }
+        ]
+      },
+      "n1": {
+        "dataI": 9,
+        "labelCovered": 0,
+        "labelTotal": 25,
+        "coverage": 0,
+        "uncovered": [
+          {
+            "tag": "H1",
+            "id": "",
+            "t": "Free engineering design calculators"
+          },
+          {
+            "tag": "H2",
+            "id": "why-calcs",
+            "t": "Why every Philippine plant engineer needs de"
+          },
+          {
+            "tag": "H2",
+            "id": "disciplines",
+            "t": "The 8 disciplines covered"
+          },
+          {
+            "tag": "H2",
+            "id": "tropical-constants",
+            "t": "Tropical constants: why the temperate defaul"
+          },
+          {
+            "tag": "H2",
+            "id": "worked-hvac",
+            "t": "Worked example: HVAC duct sizing for a 100 k"
+          },
+          {
+            "tag": "H3",
+            "id": "",
+            "t": "Step 1: Calculate volume flow per branch"
+          },
+          {
+            "tag": "H3",
+            "id": "",
+            "t": "Step 2: Pick a design friction rate"
+          },
+          {
+            "tag": "H3",
+            "id": "",
+            "t": "Step 3: Apply the equal-friction formula"
+          },
+          {
+            "tag": "H3",
+            "id": "",
+            "t": "Step 4: Convert to rectangular at 2:1 aspect"
+          },
+          {
+            "tag": "H3",
+            "id": "",
+            "t": "Step 5: Recompute D_h for pressure-drop calc"
+          },
+          {
+            "tag": "H2",
+            "id": "all-calculators",
+            "t": "All 60 calculators"
+          },
+          {
+            "tag": "H3",
+            "id": "",
+            "t": "Reliability & Metrics (2)"
+          },
+          {
+            "tag": "H3",
+            "id": "",
+            "t": "Electrical & Power (15)"
+          },
+          {
+            "tag": "H3",
+            "id": "",
+            "t": "HVAC & Cooling (10)"
+          },
+          {
+            "tag": "H3",
+            "id": "",
+            "t": "Plumbing & Pumps (14)"
+          },
+          {
+            "tag": "H3",
+            "id": "",
+            "t": "Mechanical & Machine Design (10)"
+          },
+          {
+            "tag": "H3",
+            "id": "",
+            "t": "Fire Protection (5)"
+          },
+          {
+            "tag": "H3",
+            "id": "",
+            "t": "Boiler & Utilities (2)"
+          },
+          {
+            "tag": "H3",
+            "id": "",
+            "t": "Vertical Transport (2)"
+          },
+          {
+            "tag": "H2",
+            "id": "standards-table",
+            "t": "Standards referenced by each calculator"
+          },
+          {
+            "tag": "H2",
+            "id": "sign-off",
+            "t": "Calculator versus licensed engineer sign-off"
+          },
+          {
+            "tag": "H2",
+            "id": "portfolio",
+            "t": "Your design history as a career portfolio"
+          },
+          {
+            "tag": "H2",
+            "id": "mistakes",
+            "t": "Common mistakes when using design calculator"
+          },
+          {
+            "tag": "H2",
+            "id": "faq",
+            "t": "Frequently asked questions"
+          },
+          {
+            "tag": "H2",
+            "id": "sources",
+            "t": "Sources"
+          }
+        ],
+        "fil": {
+          "active": false
+        }
+      },
+      "dims": [
+        {
+          "dim": "A1",
+          "kind": "MEASURED",
+          "pass": 4,
+          "total": 4,
+          "pct": 100,
+          "note": "h1=1 focalTier=43px×2 bigTiers=3 cta=1"
+        },
+        {
+          "dim": "A2",
+          "kind": "MEASURED",
+          "pass": 4,
+          "total": 4,
+          "pct": 100,
+          "note": "headings=27 (sub-heads=24: h2/h3=24 + role=heading L2/L3=0) blocks=6"
+        },
+        {
+          "dim": "A3",
+          "kind": "MEASURED",
+          "pass": 4,
+          "total": 4,
+          "pct": 100,
+          "note": "disclosures=6 longTables=1 · blocks=6 tabs=0 primaryCta=1/2"
+        },
+        {
+          "dim": "B1",
+          "kind": "MEASURED",
+          "pass": 2,
+          "total": 3,
+          "pct": 67,
+          "note": "marketese=0 verboseBlocks=4"
+        },
+        {
+          "dim": "B2",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "no marketese in visible copy"
+        },
+        {
+          "dim": "B3",
+          "kind": "MEASURED",
+          "pass": 0,
+          "total": 3,
+          "pct": 0,
+          "note": "sentences=90 · >20w=18 · passive=3 · grade>8=36 · worst(62w): \"Walk into any Philippine engineering office and you will see…\""
+        },
+        {
+          "dim": "C1",
+          "kind": "MEASURED",
+          "pass": 2,
+          "total": 3,
+          "pct": 67,
+          "note": "bigSizes=[43,28,22] distinct=13"
+        },
+        {
+          "dim": "C5",
+          "kind": "MEASURED",
+          "pass": 304,
+          "total": 304,
+          "pct": 100,
+          "note": "all text meets its APCA Lc minimum for its size/weight"
+        },
+        {
+          "dim": "C2",
+          "kind": "MEASURED",
+          "pass": 331,
+          "total": 331,
+          "pct": 100,
+          "note": "all text >= its WCAG floor"
+        },
+        {
+          "dim": "C3",
+          "kind": "MEASURED",
+          "pass": 2,
+          "total": 2,
+          "pct": 100,
+          "note": "grouped into common regions with padding"
+        },
+        {
+          "dim": "C4",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no numeric els in this state: nothing to set tabular"
+        },
+        {
+          "dim": "D1",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no icon-only controls in this state"
+        },
+        {
+          "dim": "D2",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "click->paint 1ms"
+        },
+        {
+          "dim": "D3",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "0 distinct button shapes"
+        },
+        {
+          "dim": "E1",
+          "kind": "MEASURED",
+          "pass": 2,
+          "total": 2,
+          "pct": 100,
+          "note": "charts=0 named=0 gauge/pie=0"
+        },
+        {
+          "dim": "E2",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "no empty states in this state"
+        },
+        {
+          "dim": "E3",
+          "kind": "MEASURED",
+          "pass": 2,
+          "total": 2,
+          "pct": 100,
+          "note": "article: names its sources and its freshness in prose (a chip is a product-surface convention)"
+        },
+        {
+          "dim": "E4",
+          "kind": "MEASURED",
+          "pass": 3,
+          "total": 3,
+          "pct": 100,
+          "note": "repeatedVerdicts=0 · rawIdDumps=0 · untranslatedStats=0"
+        },
+        {
+          "dim": "S1",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "page resolves NO --wh-radius-* : it has no token source to conform TO (link tokens.css)"
+        },
+        {
+          "dim": "F1",
+          "kind": "MEASURED",
+          "pass": 129,
+          "total": 131,
+          "pct": 98,
+          "note": "under-44: FCU(31x44), OEE(32x44)"
+        },
+        {
+          "dim": "F2",
+          "kind": "JUDGED",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "axe-core owns this (ufai_battery.js pillar U); do not duplicate"
+        },
+        {
+          "dim": "F3",
+          "kind": "JUDGED",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "human judgment; NO honest denominator exists: never invent one"
+        },
+        {
+          "dim": "G1",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "static document: ships no data layer (no utils.js, no client, no inline fetch) — there is no system state to report"
+        },
+        {
+          "dim": "G2",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "no system jargon in copy"
+        },
+        {
+          "dim": "G3",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "131 controls, 1 primary CTA"
+        },
+        {
+          "dim": "H1",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "not a worker-daily journey page (no meta[name=worker-daily]): nothing to show progress on"
+        },
+        {
+          "dim": "H2",
+          "kind": "JUDGED",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "needs a return-visit journey; MCP-driven"
+        },
+        {
+          "dim": "H3",
+          "kind": "JUDGED",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "ordering intent: judged against the page contract (worst-first etc.)"
+        },
+        {
+          "dim": "H4",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "no ad-like elements"
+        },
+        {
+          "dim": "I1",
+          "kind": "MEASURED",
+          "pass": 2,
+          "total": 2,
+          "pct": 100,
+          "note": "LCP 232ms OK · CLS 0.000 OK"
+        },
+        {
+          "dim": "I2",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "static document: ships no data layer, so nothing streams in and there is nothing to reserve space for"
+        },
+        {
+          "dim": "J1",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "read-only surface: 0 destructive controls"
+        },
+        {
+          "dim": "J2",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "nothing destructive to undo"
+        },
+        {
+          "dim": "K1",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no status chips on this surface"
+        },
+        {
+          "dim": "K2",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 2,
+          "pct": 50,
+          "note": "0/no glanceable KPI(s), 2 under-44 target(s)"
+        },
+        {
+          "dim": "L1",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "no manufactured urgency"
+        },
+        {
+          "dim": "L2",
+          "kind": "MEASURED",
+          "pass": 131,
+          "total": 131,
+          "pct": 100,
+          "note": "all link labels predict their destination"
+        },
+        {
+          "dim": "M1",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no form fields in this state"
+        },
+        {
+          "dim": "M2",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no form fields in this state"
+        },
+        {
+          "dim": "N1",
+          "kind": "MEASURED",
+          "pass": 3,
+          "total": 4,
+          "pct": 75,
+          "note": "WH_LANG=true · lang=en · label coverage=0/25 (0%) · data-i=9"
+        },
+        {
+          "dim": "O1",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "no tour, UI usable immediately"
+        },
+        {
+          "dim": "O2",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "6 on-demand help affordance(s)"
+        },
+        {
+          "dim": "Q1",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "1 reduced-motion block(s), 21 animated el(s)"
+        },
+        {
+          "dim": "Q2",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "138 focusable control(s), none hidden-but-focusable"
+        },
+        {
+          "dim": "Q3",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no drag-operated function on this page"
+        },
+        {
+          "dim": "R1",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "gaps=[0] offScale=[]"
+        },
+        {
+          "dim": "R2",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "scrollW=1280 vs 1280"
+        },
+        {
+          "dim": "R3",
+          "kind": "MEASURED",
+          "pass": 3,
+          "total": 3,
+          "pct": 100,
+          "note": "cardTreatments=0 · silhouettes=0 for 0 role(s) ()"
+        },
+        {
+          "dim": "R4",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "0 orphan void(s)"
+        },
+        {
+          "dim": "R5",
+          "kind": "JUDGED",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "whole-page reading order: needs the full-page screenshot diff"
+        },
+        {
+          "dim": "W1",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "landing/print: it IS the home surface"
+        },
+        {
+          "dim": "V1",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "no overlapping elements or widgets"
+        },
+        {
+          "dim": "B4",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no where-from/how-computed/data-source disclosure here"
+        },
+        {
+          "dim": "G4",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "1 data-freshness claim"
+        },
+        {
+          "dim": "B5",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "no leaked internals"
+        },
+        {
+          "dim": "W2",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "assistant/home: IS the assistant / no floating companion by design"
+        },
+        {
+          "dim": "T1",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "no trapped content @390"
+        },
+        {
+          "dim": "T2",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "all text fits @390"
+        },
+        {
+          "dim": "T3",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "touch-action set (manipulation)"
+        },
+        {
+          "dim": "T4",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no internal scroll containers on this page"
+        },
+        {
+          "dim": "T5",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "viewport-fit=cover set — env(safe-area-inset) active"
+        },
+        {
+          "dim": "T6",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no long list (worst scroll container = 8 children)"
+        },
+        {
+          "dim": "T7",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "measured by ufai_battery.js consoleErrorsSinceBoot"
+        },
+        {
+          "dim": "T8",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no stateful toggles/tabs/expanders on this page"
+        },
+        {
+          "dim": "Z2",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "reflows clean, no h-scroll @1280px"
+        },
+        {
+          "dim": "Z1",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no numeric-expecting inputs visible on this page"
+        },
+        {
+          "dim": "Z3",
+          "kind": "MEASURED",
+          "pass": 131,
+          "total": 131,
+          "pct": 100,
+          "note": "all 131 targets clear the 24px + spacing floor"
+        },
+        {
+          "dim": "X3",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no substantial list on this page (28 items) — item-search not required"
+        },
+        {
+          "dim": "Y1",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no backend writes on this page — offline-state UX N/A"
+        },
+        {
+          "dim": "X2",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no compose/entry form (textarea) on this page — draft-survival N/A"
+        },
+        {
+          "dim": "X1",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no conditional empty/no-results panels in the DOM — dead-end slice N/A (dynamic states are the live-journey step)"
+        },
+        {
+          "dim": "Y2",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no consequential/destructive actions on this page — stress-timing N/A"
+        },
+        {
+          "dim": "AI1",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no AI input surface on this page"
+        },
+        {
+          "dim": "AI2",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no AI output surface on this page"
+        },
+        {
+          "dim": "AI3",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no AI output surface on this page"
+        },
+        {
+          "dim": "AI4",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no AI invoke on this page"
+        },
+        {
+          "dim": "AI5",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no AI overlay/output on this page"
+        },
+        {
+          "dim": "PP1",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no async operations on this page"
+        },
+        {
+          "dim": "PP2",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no long (>10s) operation on this page"
+        },
+        {
+          "dim": "PP3",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no submit action with an async op on this page"
+        },
+        {
+          "dim": "DL1",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no empty/first-run states on this page"
+        },
+        {
+          "dim": "DL2",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no write/completion action on this page"
+        },
+        {
+          "dim": "DD1",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "not a KPI dashboard (fewer than 3 stat tiles)"
         },
         {
           "dim": "DD2",
@@ -790,16 +2665,18 @@
   "perDim": {
     "A1": {
       "name": "5-second test",
-      "green": 1,
-      "fail": 0,
+      "green": 2,
+      "fail": 1,
       "na": 0,
       "judged": 0,
-      "failPages": [],
-      "mean": 100
+      "failPages": [
+        "learn/best-free-cmms-software-philippines/index 75"
+      ],
+      "mean": 92
     },
     "A2": {
       "name": "Scannability",
-      "green": 1,
+      "green": 3,
       "fail": 0,
       "na": 0,
       "judged": 0,
@@ -808,7 +2685,7 @@
     },
     "A3": {
       "name": "Cognitive load / progressive disclosure",
-      "green": 1,
+      "green": 3,
       "fail": 0,
       "na": 0,
       "judged": 0,
@@ -818,15 +2695,18 @@
     "B1": {
       "name": "Microcopy / concision",
       "green": 1,
-      "fail": 0,
+      "fail": 2,
       "na": 0,
       "judged": 0,
-      "failPages": [],
-      "mean": 100
+      "failPages": [
+        "learn/ra-11285-energy-efficiency-plant-checklist/index 67",
+        "learn/free-engineering-calculators-philippine-plants/index 67"
+      ],
+      "mean": 78
     },
     "B2": {
       "name": "Plain voice & tone",
-      "green": 1,
+      "green": 3,
       "fail": 0,
       "na": 0,
       "judged": 0,
@@ -836,26 +2716,31 @@
     "B3": {
       "name": "Readability (<=20 words, grade <=8, active)",
       "green": 0,
-      "fail": 1,
+      "fail": 3,
       "na": 0,
       "judged": 0,
       "failPages": [
-        "integrations 0"
+        "learn/ra-11285-energy-efficiency-plant-checklist/index 0",
+        "learn/best-free-cmms-software-philippines/index 0",
+        "learn/free-engineering-calculators-philippine-plants/index 0"
       ],
       "mean": 0
     },
     "C1": {
       "name": "Visual hierarchy",
       "green": 1,
-      "fail": 0,
+      "fail": 2,
       "na": 0,
       "judged": 0,
-      "failPages": [],
-      "mean": 100
+      "failPages": [
+        "learn/best-free-cmms-software-philippines/index 67",
+        "learn/free-engineering-calculators-philippine-plants/index 67"
+      ],
+      "mean": 78
     },
     "C5": {
       "name": "Perceptual contrast (APCA Lc)",
-      "green": 1,
+      "green": 3,
       "fail": 0,
       "na": 0,
       "judged": 0,
@@ -864,7 +2749,7 @@
     },
     "C2": {
       "name": "Colour & contrast (WCAG)",
-      "green": 1,
+      "green": 3,
       "fail": 0,
       "na": 0,
       "judged": 0,
@@ -873,7 +2758,7 @@
     },
     "C3": {
       "name": "Whitespace / gestalt",
-      "green": 1,
+      "green": 3,
       "fail": 0,
       "na": 0,
       "judged": 0,
@@ -884,7 +2769,7 @@
       "name": "Typography (tabular KPIs)",
       "green": 0,
       "fail": 0,
-      "na": 1,
+      "na": 3,
       "judged": 0,
       "failPages": [],
       "mean": null
@@ -893,14 +2778,14 @@
       "name": "Affordances & signifiers",
       "green": 0,
       "fail": 0,
-      "na": 1,
+      "na": 3,
       "judged": 0,
       "failPages": [],
       "mean": null
     },
     "D2": {
       "name": "Feedback < 400ms (Doherty, LIVE)",
-      "green": 1,
+      "green": 3,
       "fail": 0,
       "na": 0,
       "judged": 0,
@@ -909,7 +2794,7 @@
     },
     "D3": {
       "name": "Consistency / one vocabulary",
-      "green": 1,
+      "green": 3,
       "fail": 0,
       "na": 0,
       "judged": 0,
@@ -918,7 +2803,7 @@
     },
     "E1": {
       "name": "Data-viz / KPI",
-      "green": 1,
+      "green": 3,
       "fail": 0,
       "na": 0,
       "judged": 0,
@@ -927,7 +2812,7 @@
     },
     "E2": {
       "name": "Empty / loading / error",
-      "green": 1,
+      "green": 3,
       "fail": 0,
       "na": 0,
       "judged": 0,
@@ -936,7 +2821,7 @@
     },
     "E3": {
       "name": "Trust / transparency",
-      "green": 1,
+      "green": 3,
       "fail": 0,
       "na": 0,
       "judged": 0,
@@ -945,7 +2830,7 @@
     },
     "E4": {
       "name": "Digest, don't dump (answer, not working)",
-      "green": 1,
+      "green": 3,
       "fail": 0,
       "na": 0,
       "judged": 0,
@@ -953,29 +2838,31 @@
       "mean": 100
     },
     "S1": {
-      "name": "Token conformance (radius + typeface)",
-      "green": 1,
+      "name": "Token conformance (radius/height/font/surface)",
+      "green": 0,
       "fail": 0,
-      "na": 0,
+      "na": 3,
       "judged": 0,
       "failPages": [],
-      "mean": 100
+      "mean": null
     },
     "F1": {
       "name": "Mobile / touch >= 44px",
-      "green": 1,
-      "fail": 0,
+      "green": 2,
+      "fail": 1,
       "na": 0,
       "judged": 0,
-      "failPages": [],
-      "mean": 100
+      "failPages": [
+        "learn/free-engineering-calculators-philippine-plants/index 98"
+      ],
+      "mean": 99
     },
     "F2": {
       "name": "Accessibility (WCAG/POUR)",
       "green": 0,
       "fail": 0,
       "na": 0,
-      "judged": 1,
+      "judged": 3,
       "failPages": [],
       "mean": null
     },
@@ -984,22 +2871,22 @@
       "green": 0,
       "fail": 0,
       "na": 0,
-      "judged": 1,
+      "judged": 3,
       "failPages": [],
       "mean": null
     },
     "G1": {
       "name": "Visibility of system status",
-      "green": 1,
+      "green": 0,
       "fail": 0,
-      "na": 0,
+      "na": 3,
       "judged": 0,
       "failPages": [],
-      "mean": 100
+      "mean": null
     },
     "G2": {
       "name": "Match the real world",
-      "green": 1,
+      "green": 3,
       "fail": 0,
       "na": 0,
       "judged": 0,
@@ -1008,7 +2895,7 @@
     },
     "G3": {
       "name": "Aesthetic-minimalist",
-      "green": 1,
+      "green": 3,
       "fail": 0,
       "na": 0,
       "judged": 0,
@@ -1019,7 +2906,7 @@
       "name": "Goal-gradient",
       "green": 0,
       "fail": 0,
-      "na": 1,
+      "na": 3,
       "judged": 0,
       "failPages": [],
       "mean": null
@@ -1029,7 +2916,7 @@
       "green": 0,
       "fail": 0,
       "na": 0,
-      "judged": 1,
+      "judged": 3,
       "failPages": [],
       "mean": null
     },
@@ -1038,13 +2925,13 @@
       "green": 0,
       "fail": 0,
       "na": 0,
-      "judged": 1,
+      "judged": 3,
       "failPages": [],
       "mean": null
     },
     "H4": {
       "name": "Selective attention (no ad-like content)",
-      "green": 1,
+      "green": 3,
       "fail": 0,
       "na": 0,
       "judged": 0,
@@ -1053,7 +2940,7 @@
     },
     "I1": {
       "name": "Core Web Vitals (LIVE: CLS strict, LCP local-aware)",
-      "green": 1,
+      "green": 3,
       "fail": 0,
       "na": 0,
       "judged": 0,
@@ -1062,18 +2949,18 @@
     },
     "I2": {
       "name": "Perceived performance",
-      "green": 1,
+      "green": 0,
       "fail": 0,
-      "na": 0,
+      "na": 3,
       "judged": 0,
       "failPages": [],
-      "mean": 100
+      "mean": null
     },
     "J1": {
       "name": "Prevent slips",
       "green": 0,
       "fail": 0,
-      "na": 1,
+      "na": 3,
       "judged": 0,
       "failPages": [],
       "mean": null
@@ -1082,32 +2969,34 @@
       "name": "Forgiveness / undo",
       "green": 0,
       "fail": 0,
-      "na": 1,
+      "na": 3,
       "judged": 0,
       "failPages": [],
       "mean": null
     },
     "K1": {
       "name": "Safety-first signalling (never colour-alone)",
-      "green": 1,
+      "green": 0,
       "fail": 0,
-      "na": 0,
+      "na": 3,
       "judged": 0,
       "failPages": [],
-      "mean": 100
+      "mean": null
     },
     "K2": {
       "name": "Field legibility & reach",
-      "green": 1,
-      "fail": 0,
+      "green": 2,
+      "fail": 1,
       "na": 0,
       "judged": 0,
-      "failPages": [],
-      "mean": 100
+      "failPages": [
+        "learn/free-engineering-calculators-philippine-plants/index 50"
+      ],
+      "mean": 83
     },
     "L1": {
       "name": "Honest design (no deceptive patterns)",
-      "green": 1,
+      "green": 3,
       "fail": 0,
       "na": 0,
       "judged": 0,
@@ -1116,7 +3005,7 @@
     },
     "L2": {
       "name": "Information scent",
-      "green": 1,
+      "green": 3,
       "fail": 0,
       "na": 0,
       "judged": 0,
@@ -1127,7 +3016,7 @@
       "name": "Labels & structure",
       "green": 0,
       "fail": 0,
-      "na": 1,
+      "na": 3,
       "judged": 0,
       "failPages": [],
       "mean": null
@@ -1136,23 +3025,27 @@
       "name": "Validation & recovery",
       "green": 0,
       "fail": 0,
-      "na": 1,
+      "na": 3,
       "judged": 0,
       "failPages": [],
       "mean": null
     },
     "N1": {
       "name": "i18n mechanism + expansion resilience (NOT % translated)",
-      "green": 1,
-      "fail": 0,
+      "green": 0,
+      "fail": 3,
       "na": 0,
       "judged": 0,
-      "failPages": [],
-      "mean": 100
+      "failPages": [
+        "learn/ra-11285-energy-efficiency-plant-checklist/index 75",
+        "learn/best-free-cmms-software-philippines/index 75",
+        "learn/free-engineering-calculators-philippine-plants/index 75"
+      ],
+      "mean": 75
     },
     "O1": {
       "name": "Value-first, not a tour",
-      "green": 1,
+      "green": 3,
       "fail": 0,
       "na": 0,
       "judged": 0,
@@ -1161,7 +3054,7 @@
     },
     "O2": {
       "name": "Pull > push help",
-      "green": 1,
+      "green": 3,
       "fail": 0,
       "na": 0,
       "judged": 0,
@@ -1170,7 +3063,7 @@
     },
     "Q1": {
       "name": "prefers-reduced-motion",
-      "green": 1,
+      "green": 3,
       "fail": 0,
       "na": 0,
       "judged": 0,
@@ -1179,7 +3072,7 @@
     },
     "Q2": {
       "name": "No phantom focus stop (WCAG 2.2 focus-not-obscured)",
-      "green": 1,
+      "green": 3,
       "fail": 0,
       "na": 0,
       "judged": 0,
@@ -1188,27 +3081,25 @@
     },
     "Q3": {
       "name": "Dragging has a single-pointer alternative (WCAG 2.2)",
-      "green": 1,
+      "green": 0,
+      "fail": 0,
+      "na": 3,
+      "judged": 0,
+      "failPages": [],
+      "mean": null
+    },
+    "R1": {
+      "name": "Spacing scale (declared tokens / 8-pt)",
+      "green": 3,
       "fail": 0,
       "na": 0,
       "judged": 0,
       "failPages": [],
       "mean": 100
     },
-    "R1": {
-      "name": "Spacing scale (declared tokens / 8-pt)",
-      "green": 0,
-      "fail": 1,
-      "na": 0,
-      "judged": 0,
-      "failPages": [
-        "integrations 67"
-      ],
-      "mean": 67
-    },
     "R2": {
       "name": "Alignment & grid (no overflow)",
-      "green": 1,
+      "green": 3,
       "fail": 0,
       "na": 0,
       "judged": 0,
@@ -1217,7 +3108,7 @@
     },
     "R3": {
       "name": "Treatment uniformity (cards AND controls)",
-      "green": 1,
+      "green": 3,
       "fail": 0,
       "na": 0,
       "judged": 0,
@@ -1226,7 +3117,7 @@
     },
     "R4": {
       "name": "Regions & whitespace (no orphan voids)",
-      "green": 1,
+      "green": 3,
       "fail": 0,
       "na": 0,
       "judged": 0,
@@ -1238,22 +3129,22 @@
       "green": 0,
       "fail": 0,
       "na": 0,
-      "judged": 1,
+      "judged": 3,
       "failPages": [],
       "mean": null
     },
     "W1": {
       "name": "Back / escape affordance",
-      "green": 1,
+      "green": 0,
       "fail": 0,
-      "na": 0,
+      "na": 3,
       "judged": 0,
       "failPages": [],
-      "mean": 100
+      "mean": null
     },
     "V1": {
       "name": "No collision / overlap (content + floating chrome)",
-      "green": 1,
+      "green": 3,
       "fail": 0,
       "na": 0,
       "judged": 0,
@@ -1264,14 +3155,14 @@
       "name": "Explanation microcopy plain",
       "green": 0,
       "fail": 0,
-      "na": 1,
+      "na": 3,
       "judged": 0,
       "failPages": [],
       "mean": null
     },
     "G4": {
       "name": "Single freshness source",
-      "green": 1,
+      "green": 3,
       "fail": 0,
       "na": 0,
       "judged": 0,
@@ -1280,7 +3171,7 @@
     },
     "B5": {
       "name": "No raw internals in user copy",
-      "green": 1,
+      "green": 3,
       "fail": 0,
       "na": 0,
       "judged": 0,
@@ -1288,17 +3179,17 @@
       "mean": 100
     },
     "W2": {
-      "name": "Shared-chrome consistency (companion+avatar+hub)",
-      "green": 1,
+      "name": "Shared-chrome consistency",
+      "green": 0,
       "fail": 0,
-      "na": 0,
+      "na": 3,
       "judged": 0,
       "failPages": [],
-      "mean": 100
+      "mean": null
     },
     "T1": {
       "name": "Content reachability (no fixed-height scroll-trap)",
-      "green": 1,
+      "green": 3,
       "fail": 0,
       "na": 0,
       "judged": 0,
@@ -1307,7 +3198,7 @@
     },
     "T2": {
       "name": "Text fits its box (no clip/overlap)",
-      "green": 1,
+      "green": 3,
       "fail": 0,
       "na": 0,
       "judged": 0,
@@ -1316,7 +3207,7 @@
     },
     "T3": {
       "name": "Tap responsiveness (touch-action: manipulation)",
-      "green": 1,
+      "green": 3,
       "fail": 0,
       "na": 0,
       "judged": 0,
@@ -1325,16 +3216,16 @@
     },
     "T4": {
       "name": "Native scroll containment (overscroll-behavior)",
-      "green": 1,
+      "green": 0,
       "fail": 0,
-      "na": 0,
+      "na": 3,
       "judged": 0,
       "failPages": [],
-      "mean": 100
+      "mean": null
     },
     "T5": {
       "name": "Safe-area (viewport-fit=cover)",
-      "green": 1,
+      "green": 3,
       "fail": 0,
       "na": 0,
       "judged": 0,
@@ -1345,7 +3236,7 @@
       "name": "Long-list virtualization",
       "green": 0,
       "fail": 0,
-      "na": 1,
+      "na": 3,
       "judged": 0,
       "failPages": [],
       "mean": null
@@ -1354,23 +3245,23 @@
       "name": "Clean JS thread (no console noise on load)",
       "green": 0,
       "fail": 0,
-      "na": 1,
+      "na": 3,
       "judged": 0,
       "failPages": [],
       "mean": null
     },
     "T8": {
-      "name": "Interactive-state semantics (aria-pressed/expanded/selected)",
-      "green": 1,
+      "name": "Interactive-state semantics",
+      "green": 0,
       "fail": 0,
-      "na": 0,
+      "na": 3,
       "judged": 0,
       "failPages": [],
-      "mean": 100
+      "mean": null
     },
     "Z2": {
       "name": "Responsive reflow (no h-scroll, WCAG 1.4.10)",
-      "green": 1,
+      "green": 3,
       "fail": 0,
       "na": 0,
       "judged": 0,
@@ -1381,14 +3272,14 @@
       "name": "Input efficiency (right mobile keyboard)",
       "green": 0,
       "fail": 0,
-      "na": 1,
+      "na": 3,
       "judged": 0,
       "failPages": [],
       "mean": null
     },
     "Z3": {
       "name": "Gesture ergonomics & accidental-touch (24px + spacing, WCAG 2.5.8)",
-      "green": 1,
+      "green": 3,
       "fail": 0,
       "na": 0,
       "judged": 0,
@@ -1399,52 +3290,52 @@
       "name": "Findability & search (affordance on browseable lists)",
       "green": 0,
       "fail": 0,
-      "na": 1,
+      "na": 3,
       "judged": 0,
       "failPages": [],
       "mean": null
     },
     "Y1": {
-      "name": "Offline & connectivity resilience (connectivity-state affordance wired)",
-      "green": 1,
+      "name": "Offline & connectivity resilience",
+      "green": 0,
       "fail": 0,
-      "na": 0,
+      "na": 3,
       "judged": 0,
       "failPages": [],
-      "mean": 100
+      "mean": null
     },
     "X2": {
       "name": "Interruption resilience & draft-survival",
       "green": 0,
       "fail": 0,
-      "na": 1,
+      "na": 3,
       "judged": 0,
       "failPages": [],
       "mean": null
     },
     "X1": {
-      "name": "Task-flow coherence (every empty/no-results state offers a next step)",
-      "green": 1,
+      "name": "Task-flow coherence (no dead-end conditional state)",
+      "green": 0,
       "fail": 0,
-      "na": 0,
+      "na": 3,
       "judged": 0,
       "failPages": [],
-      "mean": 100
+      "mean": null
     },
     "Y2": {
-      "name": "Stress-case resilience (undo ≥8s; results never auto-wipe on a short countdown)",
-      "green": 1,
+      "name": "Stress-case resilience (no time-pressure on consequential actions)",
+      "green": 0,
       "fail": 0,
-      "na": 0,
+      "na": 3,
       "judged": 0,
       "failPages": [],
-      "mean": 100
+      "mean": null
     },
     "AI1": {
       "name": "AI capability transparency",
       "green": 0,
       "fail": 0,
-      "na": 1,
+      "na": 3,
       "judged": 0,
       "failPages": [],
       "mean": null
@@ -1453,7 +3344,7 @@
       "name": "AI confidence & grounding",
       "green": 0,
       "fail": 0,
-      "na": 1,
+      "na": 3,
       "judged": 0,
       "failPages": [],
       "mean": null
@@ -1462,7 +3353,7 @@
       "name": "AI correction & feedback",
       "green": 0,
       "fail": 0,
-      "na": 1,
+      "na": 3,
       "judged": 0,
       "failPages": [],
       "mean": null
@@ -1471,7 +3362,7 @@
       "name": "AI graceful failure",
       "green": 0,
       "fail": 0,
-      "na": 1,
+      "na": 3,
       "judged": 0,
       "failPages": [],
       "mean": null
@@ -1480,70 +3371,70 @@
       "name": "AI global controls",
       "green": 0,
       "fail": 0,
-      "na": 1,
+      "na": 3,
       "judged": 0,
       "failPages": [],
       "mean": null
     },
     "PP1": {
-      "name": "Working indicator on async ops (>1s feedback)",
-      "green": 1,
+      "name": "Working indicator on async ops",
+      "green": 0,
       "fail": 0,
-      "na": 0,
+      "na": 3,
       "judged": 0,
       "failPages": [],
-      "mean": 100
+      "mean": null
     },
     "PP2": {
       "name": "Progress + cancel on long ops",
       "green": 0,
       "fail": 0,
-      "na": 1,
+      "na": 3,
       "judged": 0,
       "failPages": [],
       "mean": null
     },
     "PP3": {
-      "name": "Optimistic acknowledgment (<0.1s feel)",
-      "green": 1,
+      "name": "Optimistic acknowledgment",
+      "green": 0,
       "fail": 0,
-      "na": 0,
+      "na": 3,
       "judged": 0,
       "failPages": [],
-      "mean": 100
+      "mean": null
     },
     "DL1": {
       "name": "Surface-delight microcopy",
       "green": 0,
       "fail": 0,
-      "na": 1,
+      "na": 3,
       "judged": 0,
       "failPages": [],
       "mean": null
     },
     "DL2": {
-      "name": "Success microinteraction (satisfying confirmation)",
-      "green": 1,
+      "name": "Success microinteraction",
+      "green": 0,
       "fail": 0,
-      "na": 0,
+      "na": 3,
       "judged": 0,
       "failPages": [],
-      "mean": 100
+      "mean": null
     },
     "DD1": {
-      "name": "At-a-glance primary KPI (biggest number, seen first)",
-      "green": 1,
+      "name": "At-a-glance primary KPI",
+      "green": 0,
       "fail": 0,
-      "na": 0,
+      "na": 3,
       "judged": 0,
       "failPages": [],
-      "mean": 100
+      "mean": null
     },
     "DD2": {
       "name": "Chart-type fitness",
       "green": 0,
       "fail": 0,
-      "na": 1,
+      "na": 3,
       "judged": 0,
       "failPages": [],
       "mean": null
@@ -1552,7 +3443,7 @@
       "name": "Upfront disclosure",
       "green": 0,
       "fail": 0,
-      "na": 1,
+      "na": 3,
       "judged": 0,
       "failPages": [],
       "mean": null
@@ -1561,7 +3452,7 @@
       "name": "Credibility signals",
       "green": 0,
       "fail": 0,
-      "na": 1,
+      "na": 3,
       "judged": 0,
       "failPages": [],
       "mean": null
@@ -1570,14 +3461,14 @@
       "name": "Re-engagement & content freshness",
       "green": 0,
       "fail": 0,
-      "na": 1,
+      "na": 3,
       "judged": 0,
       "failPages": [],
       "mean": null
     },
     "DP1": {
       "name": "No fake urgency or scarcity (manufactured pressure)",
-      "green": 1,
+      "green": 3,
       "fail": 0,
       "na": 0,
       "judged": 0,
@@ -1586,7 +3477,7 @@
     },
     "DP2": {
       "name": "No confirmshaming on the decline path",
-      "green": 1,
+      "green": 3,
       "fail": 0,
       "na": 0,
       "judged": 0,
@@ -1597,7 +3488,7 @@
       "name": "No pre-selected opt-in",
       "green": 0,
       "fail": 0,
-      "na": 1,
+      "na": 3,
       "judged": 0,
       "failPages": [],
       "mean": null

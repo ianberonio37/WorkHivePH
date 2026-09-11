@@ -2,7 +2,15 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="wh-page-kind" content="reference"><!-- A1 (2026-09-05): a reference surface has no page-level CTA by design; declared, not guessed -->
+  <!-- S1 typography contract (rubric sweep 2026-09-05, the 8 unwalked root pages): this page rendered in the
+       UA fallback (-apple-system / Segoe UI) because it never loaded Poppins. Same head block every
+       production page carries (display=optional: never swaps after first paint, so no CLS). -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet" />
+  <style>body { font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', sans-serif; }</style>
   <meta name="robots" content="noindex, nofollow">
   <title>WorkHive — Validator Catalog</title>
   <meta name="description" content="Searchable catalog of every WorkHive Layer 0 validator with last-run status, severity, group, and linked specs.">
@@ -21,7 +29,8 @@
       }
       window.addEventListener('DOMContentLoaded', function () {
         var s1 = document.createElement('script');
-        s1.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+        s1.src = 'vendor/supabase-js-2.110.0.min.js';
+        s1.integrity = 'sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil';
         s1.onload = function () {
           var s2 = document.createElement('script');
           s2.src = 'utils.js';
@@ -50,19 +59,24 @@
       --card: #19243d; --border: #2a3658;
     }
     *, *::before, *::after { box-sizing: border-box; }
-    html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; }
+    html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; }
     header { padding: 24px 28px 16px; border-bottom: 1px solid var(--border); background: var(--bg2); }
     h1 { margin: 0 0 6px; font-size: 22px; font-weight: 600; letter-spacing: -0.01em; }
     .sub { color: var(--dim); font-size: 13px; }
     main { padding: 20px 28px; max-width: 1200px; margin: 0 auto; }
-    .controls { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 18px; }
+    /* R2 (rubric sweep 2026-09-05): the catalog table ran 1519px wide at a 1280 viewport and made the whole page
+       scroll sideways. Wide content scrolls INSIDE its own box; the page never does. */
+    #tbl { display: block; max-width: 100%; overflow-x: auto; }
+    .controls { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 16px /* R1 2026-09-05 */; }
+    /* F1 (rubric sweep 2026-09-05): the three filter controls measured 220x37 - under the 44px tap floor. */
+    .controls input, .controls select, .controls button { min-height: 44px; box-sizing: border-box; }
     input[type="search"], select { background: var(--card); color: var(--fg); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; font-size: 14px; outline: none; min-width: 220px; }
     input[type="search"]:focus, select:focus { border-color: var(--accent); }
     .stat { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; font-size: 13px; }
     .stat strong { color: var(--fg); }
     table { width: 100%; border-collapse: collapse; }
     th, td { padding: 8px 10px; text-align: left; font-size: 13px; border-bottom: 1px solid var(--border); }
-    th { color: var(--dim); font-weight: 500; text-transform: uppercase; font-size: 11px; letter-spacing: 0.04em; position: sticky; top: 0; background: var(--bg2); cursor: pointer; }
+    th { color: var(--dim); font-weight: 500; text-transform: uppercase; font-size: 11px; letter-spacing: 0.04em; position: sticky; top: env(safe-area-inset-top, 0px); /* cj_safe_area (2026-09-05): a sticky header pinned at 0 sits under the notch */ background: var(--bg2); cursor: pointer; }
     th:hover { color: var(--fg); }
     tr:hover td { background: rgba(56, 189, 248, 0.05); }
     .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; letter-spacing: 0.02em; }
@@ -90,11 +104,16 @@
   <link rel="stylesheet" href="tokens.css">
 </head>
 <body>
-  <header>
-    <h1>Validator Catalog</h1>
-    <div class="sub" id="meta">Loading <code>platform_health.json</code>...</div>
-  </header>
   <main>
+  <header><!-- moved INSIDE main 2026-09-05: the rubric's content root is <main>, so a header outside it left A1 reading h1=0 and G1 seeing no status region -->
+    <h1>Validator Catalog</h1>
+<p class="wh-back" style="margin:.25rem 0 0; font-size:.8rem;"><a href="index.html" style="display:inline-flex;align-items:center;min-height:44px;padding:0 .5rem;margin-left:-.5rem;color:inherit; opacity:.85; text-decoration:underline;">&#8592; Back to WorkHive</a></p><!-- W1 (rubric 2026-09-05): an in-layout way back; the floating hub is not one -->
+    <div class="sub wh-source-chip" id="meta" role="status" aria-live="polite">Loading <code>platform_health.json</code>...</div><!-- G1+E3 (rubric 2026-09-05): the freshness line IS the status region and the provenance chip -->
+  </header>
+    <details class="wh-help"><summary>How to read this catalog</summary>
+      <p>Each row is one automated check the platform runs on itself. <strong>PASS</strong> means the check held on the last run, <strong>FAIL</strong> means it did not, <strong>WARN</strong> is a soft miss and <strong>SKIP</strong> means it was not run that time. Filter by name, group or status; the counts update as you type.</p>
+    </details>
+    <h2 style="font-size:1rem;margin:1rem 0 .5rem">All validators</h2>
     <div class="controls">
       <input type="search" id="q" aria-label="Filter validators by id, label, or group" placeholder="Filter by id, label, or group...">
       <select id="status-filter" aria-label="Filter validators by status">
@@ -111,7 +130,9 @@
       <span class="stat" id="pass-stat">—</span>
       <span class="stat" id="fail-stat">—</span>
     </div>
-    <table id="tbl" aria-label="Validator catalog">
+    <!-- A2/C3 (2026-09-05): the catalog table sits in one padded, edged region - the page's single content block -->
+    <section class="catalog-block" style="border-radius:12px; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.03); padding:12px; margin-top:0.75rem;">
+    <table id="tbl" aria-label="Validator catalog" style="min-height:480px">
       <caption class="visually-hidden" style="position:absolute;left:-9999px;">Searchable catalog of every Layer 0 validator with last-run status</caption>
       <thead>
         <tr>
@@ -127,9 +148,11 @@
         <tr><td colspan="6" class="loading">Loading...</td></tr>
       </tbody>
     </table>
+    </section>
   </main>
 <script>
 (async function () {
+  var _tbl = document.getElementById('tbl'); if (_tbl) _tbl.setAttribute('aria-busy', 'true');   // PP1: the table is busy until the catalog lands
   // Load both platform_health (last-run status) AND run_platform_checks.py severity declarations.
   // The severity is embedded in the orchestrator file; we extract it via a small JSON view of the
   // validator registry. Falls back to "blocker" when missing.
@@ -139,7 +162,12 @@
     const t = setTimeout(() => ctrl.abort(), 8000);  // 8s timeout
     health = await fetch('platform_health.json', { cache: 'no-store', signal: ctrl.signal }).then(r => r.json());
     clearTimeout(t);
-  } catch (e) { console.error('Could not load platform_health.json', e); }
+  } catch (e) {
+    console.error('[validator-catalog] Could not load platform_health.json', e);
+    // the fourth state (2026-09-05): a failed read must SAY so - the status line stayed 'Loading...' forever
+    var _m = document.getElementById('meta'); if (_m) _m.innerHTML = 'Could not load the catalog (platform_health.json). <button type="button" onclick="location.reload()" style="color:inherit;text-decoration:underline;background:none;border:0;padding:0;font:inherit;cursor:pointer;min-height:44px;">Reload to try again</button>.';
+    if (_tbl) _tbl.removeAttribute('aria-busy');
+  }
   try {
     const ctrl = new AbortController();
     const t = setTimeout(() => ctrl.abort(), 8000);
@@ -155,7 +183,8 @@
 
   const validators = health.validators || [];
   const ts = (health.timestamp || '').slice(0, 19).replace('T', ' ');
-  document.getElementById('meta').innerHTML = `<strong>${validators.length}</strong> validators · last run <strong>${ts}</strong> · ${health.summary?.pass ?? '?'} PASS / ${health.summary?.fail ?? '?'} FAIL / ${health.summary?.warn ?? '?'} WARN / ${health.summary?.skip ?? '?'} SKIP`;
+  if (_tbl) _tbl.removeAttribute('aria-busy');
+  document.getElementById('meta').innerHTML = `Live · <strong>${validators.length}</strong> validators · last run <strong>${ts}</strong> · ${health.summary?.pass ?? '?'} PASS / ${health.summary?.fail ?? '?'} FAIL / ${health.summary?.warn ?? '?'} WARN / ${health.summary?.skip ?? '?'} SKIP · refreshed each time you open this page`;
 
   // Populate group filter
   const groups = Array.from(new Set(validators.map(v => v.group).filter(Boolean))).sort();

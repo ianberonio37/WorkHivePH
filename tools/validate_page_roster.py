@@ -34,14 +34,61 @@ ROSTER = ROOT / "substrate" / "reference" / "page_roster.json"
 CHECK_NAMES = ["page_roster"]
 
 
+def _served_paths() -> list[str]:
+    """Every page the deploy actually carries: the git-tracked tree minus `.vercelignore`.
+
+    ★WHY NOT THREE GLOBS (2026-09-10). This function used to enumerate exactly `*.html` at the root,
+    `learn/*/index.html` and `tools/*/index.html` - and the parity check below compares the roster
+    against it. So a page in a FOURTH shape was missing from BOTH sides of the comparison and could
+    never be reported: the check was vacuous with respect to any shape it did not already know.
+    Eighteen served pages sat outside it, including `about/`, `feedback/`, `privacy-policy/` and
+    `terms-of-service/`. `feedback/index.html` was still pointing at the CDN Supabase client after a
+    root-only swap precisely because no instrument's definition of "the pages" contained it.
+    Deriving the set from the deploy means a NEW page shape shows up as "on disk but not rostered"
+    instead of disappearing."""
+    import fnmatch
+    import subprocess
+    pats = []
+    vi = ROOT / ".vercelignore"
+    if vi.exists():
+        pats = [ln.strip() for ln in vi.read_text(encoding="utf-8", errors="replace").splitlines()
+                if ln.strip() and not ln.strip().startswith("#")]
+
+    def ignored(rel: str) -> bool:
+        for pat in pats:
+            if pat.endswith("/"):
+                if rel == pat[:-1] or rel.startswith(pat):
+                    return True
+            elif fnmatch.fnmatch(rel, pat) or fnmatch.fnmatch(rel.rsplit("/", 1)[-1], pat):
+                return True
+        return False
+
+    try:
+        out = subprocess.run(["git", "ls-files", "*.html"], cwd=str(ROOT),
+                             capture_output=True, text=True, timeout=30)
+        rels = [ln.strip() for ln in out.stdout.splitlines() if ln.strip()] if out.returncode == 0 else []
+    except Exception:
+        rels = []
+    if not rels:                       # no git: fall back to disk, minus dot-dirs and vendored trees
+        rels = [p.relative_to(ROOT).as_posix() for p in ROOT.rglob("*.html")
+                if not any(part.startswith(".") or part in ("node_modules", "vendor")
+                           for part in p.relative_to(ROOT).parts)]
+    return sorted({r for r in rels if not ignored(r) and "backup" not in r and "-test" not in r})
+
+
+def _kind_of(rel: str) -> str:
+    if "/" not in rel:
+        return "root"
+    top = rel.split("/", 1)[0]
+    if top in ("learn", "tools"):
+        return top
+    if top == "promo_posters":
+        return "promo"
+    return "page"          # a directory index served at its own URL: about/, feedback/, privacy-policy/
+
+
 def disk_roster() -> list[dict]:
-    rows = [{"path": p.name, "kind": "root"} for p in sorted(ROOT.glob("*.html"))]
-    rows += [{"path": "learn/index.html", "kind": "learn"}]
-    rows += [{"path": f"learn/{p.parent.name}/index.html", "kind": "learn"}
-             for p in sorted((ROOT / "learn").glob("*/index.html"))]
-    rows += [{"path": f"tools/{p.parent.name}/index.html", "kind": "tools"}
-             for p in sorted((ROOT / "tools").glob("*/index.html"))]
-    return rows
+    return [{"path": rel, "kind": _kind_of(rel)} for rel in _served_paths()]
 
 
 def consumers() -> dict[str, set[str]]:

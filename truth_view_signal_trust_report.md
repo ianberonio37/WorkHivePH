@@ -6,10 +6,10 @@ differently (one trusts it; one re-gates on another field).
 
 ## Summary
 
-- View/column pairs scanned: **347**
+- View/column pairs scanned: **340**
 - AT_RISK pairs (re-gating detected): **0**
 - REVIEW pairs (local-math smell on at least one consumer): **9**
-- Files scanned: **337**
+- Files scanned: **341**
 
 ## Smell legend
 
@@ -145,13 +145,13 @@ re-deriving what the canonical view should expose:
 | `v_inventory_items_truth` | `bin_location` | ✅ OK | 2 | direct |
 | `v_inventory_items_truth` | `category` | ✅ OK | 2 | direct |
 | `v_inventory_items_truth` | `is_critical_low` | ✅ OK | 1 | direct |
-| `v_inventory_items_truth` | `is_low_stock` | ✅ OK | 4 | direct |
+| `v_inventory_items_truth` | `is_low_stock` | ✅ OK | 5 | direct |
 | `v_inventory_items_truth` | `is_out_of_stock` | ✅ OK | 2 | direct |
 | `v_inventory_items_truth` | `min_qty` | ✅ OK | 5 | direct |
-| `v_inventory_items_truth` | `part_name` | ✅ OK | 14 | direct |
+| `v_inventory_items_truth` | `part_name` | ✅ OK | 15 | direct |
 | `v_inventory_items_truth` | `part_number` | ✅ OK | 7 | direct, mapped_enum |
-| `v_inventory_items_truth` | `qty_on_hand` | ✅ OK | 12 | direct |
-| `v_inventory_items_truth` | `reorder_point` | ✅ OK | 7 | direct |
+| `v_inventory_items_truth` | `qty_on_hand` | ✅ OK | 13 | direct |
+| `v_inventory_items_truth` | `reorder_point` | ✅ OK | 8 | direct |
 | `v_inventory_items_truth` | `status` | ✅ OK | 2 | direct |
 | `v_inventory_items_truth` | `unit` | ✅ OK | 3 | direct |
 | `v_inventory_items_truth` | `worker_name` | ✅ OK | 1 | direct |
@@ -204,42 +204,35 @@ re-deriving what the canonical view should expose:
 | `v_marketplace_inquiries_truth` | `reply_text` | ✅ OK | 2 | direct, mapped_enum |
 | `v_marketplace_inquiries_truth` | `seller_name` | ✅ OK | 1 | direct |
 | `v_marketplace_inquiries_truth` | `status` | ✅ OK | 3 | direct |
-| `v_marketplace_listings_truth` | `category` | ✅ OK | 7 | direct, mapped_enum |
-| `v_marketplace_listings_truth` | `completed_sales` | ✅ OK | 1 | direct |
-| `v_marketplace_listings_truth` | `condition` | ✅ OK | 5 | direct, mapped_enum |
-| `v_marketplace_listings_truth` | `description` | ✅ OK | 3 | direct |
-| `v_marketplace_listings_truth` | `image_url` | ✅ OK | 4 | direct |
-| `v_marketplace_listings_truth` | `location` | ✅ OK | 5 | direct, mapped_enum |
+| `v_marketplace_listings_truth` | `category` | ✅ OK | 5 | direct, mapped_enum |
+| `v_marketplace_listings_truth` | `condition` | ✅ OK | 3 | direct, mapped_enum |
+| `v_marketplace_listings_truth` | `description` | ✅ OK | 2 | direct |
+| `v_marketplace_listings_truth` | `image_url` | ✅ OK | 2 | direct |
+| `v_marketplace_listings_truth` | `location` | ✅ OK | 3 | direct, mapped_enum |
 | `v_marketplace_listings_truth` | `moderated_at` | ✅ OK | 1 | direct |
 | `v_marketplace_listings_truth` | `moderation_reason` | ✅ OK | 1 | direct |
-| `v_marketplace_listings_truth` | `part_number` | ✅ OK | 1 | direct |
-| `v_marketplace_listings_truth` | `price` | ✅ OK | 8 | direct |
-| `v_marketplace_listings_truth` | `rating_avg` | ✅ OK | 1 | direct |
-| `v_marketplace_listings_truth` | `section` | ✅ OK | 7 | direct |
+| `v_marketplace_listings_truth` | `price` | ✅ OK | 5 | direct |
+| `v_marketplace_listings_truth` | `section` | ✅ OK | 5 | direct |
 | `v_marketplace_listings_truth` | `seller_contact` | ✅ OK | 2 | direct |
-| `v_marketplace_listings_truth` | `seller_kyb_verified` | ✅ OK | 2 | direct |
-| `v_marketplace_listings_truth` | `seller_name` | ✅ OK | 5 | direct |
-| `v_marketplace_listings_truth` | `seller_tier` | ✅ OK | 1 | direct |
-| `v_marketplace_listings_truth` | `seller_verified` | ✅ OK | 2 | direct |
-| `v_marketplace_listings_truth` | `status` | ✅ OK | 5 | direct |
-| `v_marketplace_listings_truth` | `title` | ✅ OK | 9 | direct |
+| `v_marketplace_listings_truth` | `seller_kyb_verified` | ✅ OK | 1 | direct |
+| `v_marketplace_listings_truth` | `seller_name` | ✅ OK | 4 | direct |
+| `v_marketplace_listings_truth` | `seller_verified` | ✅ OK | 1 | direct |
+| `v_marketplace_listings_truth` | `status` | ✅ OK | 4 | direct |
+| `v_marketplace_listings_truth` | `title` | ✅ OK | 6 | direct |
 | `v_marketplace_listings_truth` | `view_count` | ✅ OK | 1 | direct |
-| `v_marketplace_sellers_truth` | `active_listings_count` | ✅ OK | 5 | direct |
-| `v_marketplace_sellers_truth` | `cert_verified` | ✅ OK | 5 | direct |
-| `v_marketplace_sellers_truth` | `cert_verified_at` | ✅ OK | 2 | direct |
-| `v_marketplace_sellers_truth` | `certifications` | ✅ OK | 5 | direct |
-| `v_marketplace_sellers_truth` | `is_verified_public` | ✅ OK | 3 | direct |
-| `v_marketplace_sellers_truth` | `kyb_verified` | ✅ OK | 5 | direct, mapped_enum |
-| `v_marketplace_sellers_truth` | `kyb_verified_at` | ✅ OK | 2 | direct |
-| `v_marketplace_sellers_truth` | `last_listed_at` | ✅ OK | 2 | direct |
-| `v_marketplace_sellers_truth` | `messenger_username` | ✅ OK | 2 | direct |
-| `v_marketplace_sellers_truth` | `rating_avg` | ✅ OK | 4 | direct |
-| `v_marketplace_sellers_truth` | `rating_count` | ✅ OK | 3 | direct |
-| `v_marketplace_sellers_truth` | `response_rate` | ✅ OK | 1 | direct |
-| `v_marketplace_sellers_truth` | `response_time_h` | ✅ OK | 1 | direct |
-| `v_marketplace_sellers_truth` | `tier` | ✅ OK | 6 | direct |
-| `v_marketplace_sellers_truth` | `total_sales` | ✅ OK | 4 | direct |
-| `v_marketplace_sellers_truth` | `worker_name` | ✅ OK | 5 | direct |
+| `v_marketplace_sellers_truth` | `active_listings_count` | ✅ OK | 3 | direct |
+| `v_marketplace_sellers_truth` | `cert_verified` | ✅ OK | 3 | direct |
+| `v_marketplace_sellers_truth` | `cert_verified_at` | ✅ OK | 1 | direct |
+| `v_marketplace_sellers_truth` | `certifications` | ✅ OK | 3 | direct |
+| `v_marketplace_sellers_truth` | `is_verified_public` | ✅ OK | 1 | direct |
+| `v_marketplace_sellers_truth` | `kyb_verified` | ✅ OK | 3 | direct |
+| `v_marketplace_sellers_truth` | `kyb_verified_at` | ✅ OK | 1 | direct |
+| `v_marketplace_sellers_truth` | `last_listed_at` | ✅ OK | 1 | direct |
+| `v_marketplace_sellers_truth` | `rating_avg` | ✅ OK | 2 | direct |
+| `v_marketplace_sellers_truth` | `rating_count` | ✅ OK | 1 | direct |
+| `v_marketplace_sellers_truth` | `tier` | ✅ OK | 4 | direct |
+| `v_marketplace_sellers_truth` | `total_sales` | ✅ OK | 2 | direct |
+| `v_marketplace_sellers_truth` | `worker_name` | ✅ OK | 4 | direct |
 | `v_pf_truth` | `basis` | ✅ OK | 2 | direct |
 | `v_pf_truth` | `f_threshold` | ✅ OK | 2 | direct |
 | `v_pf_truth` | `generated_at` | ✅ OK | 1 | direct |
@@ -262,8 +255,8 @@ re-deriving what the canonical view should expose:
 | `v_pm_scope_items_truth` | `asset_criticality` | ✅ OK | 4 | direct |
 | `v_pm_scope_items_truth` | `asset_id` | ⚠️ REVIEW | 5 | direct |
 | `v_pm_scope_items_truth` | `asset_location` | ✅ OK | 1 | direct |
-| `v_pm_scope_items_truth` | `asset_name` | ✅ OK | 7 | direct |
-| `v_pm_scope_items_truth` | `asset_tag` | ✅ OK | 3 | direct |
+| `v_pm_scope_items_truth` | `asset_name` | ✅ OK | 8 | direct |
+| `v_pm_scope_items_truth` | `asset_tag` | ✅ OK | 4 | direct |
 | `v_pm_scope_items_truth` | `current_km` | ✅ OK | 1 | direct |
 | `v_pm_scope_items_truth` | `days_until_due` | ⚠️ REVIEW | 8 | direct |
 | `v_pm_scope_items_truth` | `frequency` | ⚠️ REVIEW | 7 | direct |
@@ -303,13 +296,13 @@ re-deriving what the canonical view should expose:
 | `v_project_progress_truth` | `project_id` | ✅ OK | 1 | direct |
 | `v_project_progress_truth` | `reported_by` | ✅ OK | 2 | direct |
 | `v_project_truth` | `maintenance_nature` | ✅ OK | 1 | direct |
-| `v_project_truth` | `name` | ✅ OK | 2 | direct |
+| `v_project_truth` | `name` | ✅ OK | 3 | direct |
 | `v_project_truth` | `priority` | ✅ OK | 1 | direct |
-| `v_project_truth` | `project_code` | ✅ OK | 3 | direct |
+| `v_project_truth` | `project_code` | ✅ OK | 4 | direct |
 | `v_project_truth` | `project_id` | ✅ OK | 5 | direct |
 | `v_project_truth` | `project_type` | ✅ OK | 3 | direct |
 | `v_project_truth` | `start_date` | ✅ OK | 1 | direct |
-| `v_project_truth` | `status` | ✅ OK | 3 | direct |
+| `v_project_truth` | `status` | ✅ OK | 4 | direct, mapped_enum |
 | `v_project_truth` | `target_end_date` | ✅ OK | 3 | direct |
 | `v_rcm_truth` | `approved_at` | ✅ OK | 1 | direct |
 | `v_rcm_truth` | `decision` | ✅ OK | 2 | direct |

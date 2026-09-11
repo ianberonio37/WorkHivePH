@@ -44,7 +44,18 @@ serveObserved("embed-entry", async (req) => {
   log.info(_logCtx, "request_start", { method: req.method });
 
   try {
-    const body = await req.json();
+    // ★A CALLER'S MISTAKE IS NOT A SERVER ERROR (live-walk wave, 2026-09-06). tools/prove_edge_contract.mjs asked this
+  // function with a broken JSON body and with GET; both reached `await req.json()` and came back 500, so a typo in a
+  // client read as "the platform is broken". These are the same two guards every function that passed already had.
+    if (req.method !== "POST") {
+      return new Response(JSON.stringify({ error: "That action is not allowed here. Reload the page and try again." }),
+        { status: 405, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+    let body;
+    try { body = await req.json(); } catch {
+      return new Response(JSON.stringify({ error: "That request could not be read. Reload the page and try again." }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
 
     const db = createClient(
       Deno.env.get("SUPABASE_URL")!,
@@ -328,7 +339,7 @@ serveObserved("embed-entry", async (req) => {
     if (error) {
       console.error(`DB insert error (${table}):`, error.message);
       return new Response(
-        JSON.stringify({ error: error.message }),
+        JSON.stringify({ error: "Could not save this entry. Try again in a moment." }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }

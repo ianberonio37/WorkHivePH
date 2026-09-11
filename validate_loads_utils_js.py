@@ -69,6 +69,19 @@ EXCLUDE_PATTERNS = [
 # it's here. Graduate a page OFF this list by deleting its line once it
 # starts loading utils.js.
 ALLOWLIST: dict[str, str] = {
+    "offline-fallback.html": (
+        "THE OFFLINE SHELL MUST NOT DEPEND ON A NETWORK FETCH, and dropping utils.js here was a "
+        "deliberate fix, not drift (2026-09-10; the reason is written in the page's own source). It "
+        "carries 13 data-i labels and its Filipino dictionary IS precached, but the code that applies "
+        "them - whI18nApply - lives in utils.js, 363KB, in no SHELL_FILES entry. So this page pulled a "
+        "363KB script OVER THE VERY CONNECTION THAT HAD JUST FAILED in order to translate itself, and "
+        "the one moment it exists for is the one moment that script cannot arrive: a Filipino worker on "
+        "a dropped plant line got the English shell. It now applies its own precached dictionary inline "
+        "and depends on nothing but itself and a file already in the cache. It renders NO hive or user "
+        "data (its only other code is addEventListener, getElementById and navigator.onLine), so it "
+        "needs no shared escHtml. Allowlisted because the gate had not been told a disposition the page "
+        "already documents - [[feedback_recall_the_disposition_before_declaring_a_bug]]."
+    ),
     "status.html":           "self-contained platform STATUS page -- by design does not load utils.js (own inline fetchWithTimeout, see its header comment). Renders only platform-controlled /health probe data (fn names, latency, status codes), no hive/user input -> no shared escHtml dependency.",
     "promo-poster.html":     "brochure-only marketing poster generator -- renders a static promo graphic from hardcoded copy (BananaTrak-style), no DB calls, no hive/user-data rendering, no shared escHtml dependency. Self-contained by design.",
     "architecture.html":     "static architecture brochure -- no DB calls, no user-data rendering",

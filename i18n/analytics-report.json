@@ -1,0 +1,11 @@
+{
+  "_doc": "analytics-report.html: English visible text -> Filipino, authored. Empty = not yet translated. tools/i18n_page_dict.py --apply tags the element and emits WH_FIL_PAGE.",
+  "Built on demand · from this hive's logbook, PM completions and asset history · nothing is stored until you save the PDF": "Binubuo kapag hiniling · mula sa logbook, PM completions at asset history ng hive na ito · walang naka-store hangga't hindi mo sine-save ang PDF",
+  "A report is built from your\n      team's logbook entries, PM completions and asset history. Join or create a hive, and this page fills in\n      as your team works.": "Ang report ay binubuo mula sa logbook entries, PM completions at asset history ng team mo. Sumali o gumawa ng hive, at mapupuno ang page na ito habang nagtatrabaho ang team.",
+  "Go to Hive": "Pumunta sa Hive",
+  "How this page works": "Paano gumagana ang page na ito",
+  "Each report is built from what your hive has already logged, so a report is only as complete as the entries behind it.": "Bawat report ay galing sa na-log na ng hive mo, kaya kasing-kumpleto lang ng mga entry sa likod nito ang report.",
+  "The date range decides everything on the page. Widen it if a report looks emptier than the month felt.": "Ang date range ang nagpapasya ng lahat sa page. Palawakin ito kung mas mukhang kulang ang report kaysa sa naramdaman mong buwan.",
+  "Send a report by email and the recipients are the contacts saved for this hive, not whoever is signed in.": "Kapag nagpadala ng report sa email, ang recipients ay ang contacts na naka-save para sa hive na ito, hindi kung sino ang naka-sign in.",
+  "Generate Report": "Gumawa ng Report"
+}

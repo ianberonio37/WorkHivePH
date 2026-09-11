@@ -41,8 +41,20 @@ REPORT = ROOT / "capacity_signals_report.json"
 CHECK_NAMES = ["capacity_signals"]
 
 # Directories we never scan (vendored / generated / server-side).
+# ★"vendored" WAS IN THE COMMENT AND NOT IN THE SET, AND THE ONE DIRECTORY ACTUALLY NAMED `vendor` WAS
+# SCANNED (2026-09-11). The platform self-hosts supabase-js — vendor/supabase-js-2.110.0.min.js, an
+# SRI-pinned copy that is also a sw.js SHELL_FILES entry — and the minified bundle naturally contains
+# `.channel(` and `.subscribe(`, because that is the machinery every real surface calls. So the miner
+# counted the LIBRARY as a 15th application surface and reddened two gates at once:
+# connection-surface-discovery ("1 unregistered connection surface: vendor/supabase-js…") and
+# connection-pool-saturation ("realtime surfaces 15 > baseline 14"). Both were the same false positive,
+# and re-baselining to 15 would have been the wrong fix — it would bless the library as a surface and
+# hide the next real one behind it.
+# Exactly the correction already recorded ten lines below for pushManager.subscribe(): a pattern that
+# matches something which opens no channel of its own. A vendored dependency is not a surface the
+# platform owns; the channels belong to the app files that call into it, and those are still counted.
 SKIP_DIRS = {"node_modules", "tools", "tests", ".tmp", ".git", "test-data-seeder",
-             "supabase", "python-api", "sentinels", "docs", "venv"}
+             "supabase", "python-api", "sentinels", "docs", "venv", "vendor"}
 
 CHANNEL_RE     = re.compile(r"\.channel\s*\(")
 SUBSCRIBE_RE   = re.compile(r"\.subscribe\s*\(")

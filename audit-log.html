@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet" />
   <script src="browser-floor.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
+  <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
   <script src="utils.js"></script>
   <link rel="stylesheet" href="tokens.css">
   <style>
@@ -176,8 +176,17 @@
     }
     .gate-card h2 { font-size: 1.1rem; margin-bottom: 8px; }
     .gate-card p { font-size: .8rem; color: var(--muted); margin-bottom: 16px; }
+    /* ★THE ONE CONTROL OFFERED TO SOMEBODY WHO CANNOT PROCEED WAS TOO SMALL TO HIT (2026-09-10,
+       found by an in-motion critic walk, dim F1). This page's supervisors-only gate is the state a
+       WORKER meets here, and it is correct that it says so - but at `padding: 10px 24px` on .82rem text
+       the escape rendered 142x41, under the 44px touch floor, on a 390px phone. That is the worst place
+       on the platform to put an unhittable control: the person has already been told no, and this is
+       their only way out. A page-at-rest sweep never sees it, because it grades this page as a
+       SUPERVISOR and the gate does not render at all. min-height with a centring flex keeps the pill
+       exactly as it looks and gives it the height the thumb needs. */
     .gate-btn {
-      display: inline-block; padding: 10px 24px;
+      display: inline-flex; align-items: center; justify-content: center;
+      min-height: 44px; padding: 10px 24px;
       background: rgba(41,182,217,0.15); color: var(--blue);
       border: 1px solid rgba(41,182,217,0.3); border-radius: 8px;
       text-decoration: none; font-size: .82rem; font-weight: 700;
@@ -245,31 +254,42 @@
   <div class="page-header">
     <div>
       <h1 class="page-title" style="margin:0;" data-i="al_title">Audit Log</h1>
-      <p class="page-sub">Every supervisor and worker action in your hive, on the record. Use it for compliance checks and team transparency.</p>
+      <p data-i="p_everysupervisorandworkeracti_1870" class="page-sub">Every supervisor and worker action in your hive, on the record. Use it for compliance checks and team transparency.</p>
       <p id="audit-source-chip" style="margin-top:3px;"></p>
     </div>
     <span id="hive-pill" class="hive-pill" style="display:none;"></span>
   </div>
 
   <details class="wh-help">
-    <summary>How this log works</summary>
+    <summary data-i="p_howthislogworks_cfda">How this log works</summary>
     <p>Actions inside your hive (approvals, role changes, edits, deletions) are recorded here automatically with who did what and when. Entries are read-only; use the filters to narrow by person or action, and Show details on any row for the full record.</p>
   </details>
 
   <!-- Hive gate (no HIVE_ID) -->
   <div id="gate-no-hive" class="gate-card" style="display:none;">
     <div style="font-size:1.6rem; margin-bottom:8px;">🐝</div>
-    <h2>Join a hive to see the audit log</h2>
-    <p>The audit log records actions inside your hive. You need to be in a hive to view it.</p>
-    <a class="gate-btn" href="hive.html">Open Hive Board</a>
+    <h2 data-i="p_joinahivetoseetheauditlog_7bf5">Join a hive to see the audit log</h2>
+    <p data-i="p_theauditlogrecordsactionsins_2a00">The audit log records actions inside your hive. You need to be in a hive to view it.</p>
+    <a data-i="p_openhiveboard_19ea" class="gate-btn" href="hive.html">Open Hive Board</a>
   </div>
 
   <!-- Role gate (not supervisor) -->
   <div id="gate-not-supervisor" class="gate-card" style="display:none;">
     <div style="font-size:1.6rem; margin-bottom:8px;">🔒</div>
-    <h2>Supervisors only</h2>
-    <p>The audit log is visible to hive supervisors so they can review approval, rejection, and member-management decisions.</p>
-    <a class="gate-btn" href="index.html">Back to Home</a>
+    <h2 data-i="p_supervisorsonly_5310">Supervisors only</h2>
+    <!-- ★391 CHARACTERS IS THE WHOLE OF WHAT A WORKER CAN READ ON THIS PAGE, and it was the worst
+         prose in the program per character. Recorded on every worker walk, at 390 and at 1280, and
+         never touched until now: B3 67% on ONE sentence at grade 15.3 - the highest single-sentence
+         grade left anywhere - and A1 75% with cta=0. Rewritten as two sentences, each under the
+         twelve-word floor where Flesch-Kincaid stops being a valid ruler, active, with the actor
+         named first: a worker is told who CAN open it and what it holds, not what it "is visible to".
+         AND THE ONLY WAY OUT WAS THE DOOR. "Back to Home" sent a worker who has a hive to the
+         marketing front page - an exit, not a next step - while the sibling gate card twelve lines
+         above already offers "Open Hive Board" for the person who has no hive. The page's own
+         vocabulary had the better answer; this card just never adopted it. Reuses that card's exact
+         key (p_openhiveboard_19ea) so the Filipino string is the one already shipped. -->
+    <p data-i="p_onlysupervisorscanopentheaud_5b12">Only supervisors can open the audit log. It records approvals, rejections and member changes for your hive.</p>
+    <a data-i="p_openhiveboard_19ea" class="gate-btn" href="hive.html">Open Hive Board</a>
   </div>
 
   <!-- Main content -->
@@ -301,17 +321,17 @@
 
     <h2 style="margin:0 0 8px;font-size:0.78rem;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;color:var(--muted);" data-i="al_activity">Activity</h2>
     <div id="feed" class="feed">
-      <div class="loading">Loading audit log...</div>
+      <div data-i="p_loadingauditlog_6870" class="loading">Loading audit log...</div>
     </div>
     <div id="empty" class="empty empty-state" style="display:none;">
       <div class="empty-icon">📋</div>
-      <div class="empty-title">No audit entries yet</div>
-      <div class="empty-sub">Supervisor and worker actions will appear here as they happen.</div>
+      <div data-i="p_noauditentriesyet_ae0a" class="empty-title">No audit entries yet</div>
+      <div data-i="p_supervisorandworkeractionswi_92e6" class="empty-sub">Supervisor and worker actions will appear here as they happen.</div>
     </div>
     <div id="no-results" class="empty empty-state" style="display:none;">
       <div class="empty-icon">🔍</div>
-      <div class="empty-title">No entries match those filters</div>
-      <div class="empty-sub">Use the "Clear filters" button above to see all entries.</div>
+      <div data-i="p_noentriesmatchthosefilters_58bb" class="empty-title">No entries match those filters</div>
+      <div data-i="p_usetheclearfiltersbuttonabov_a5d5" class="empty-sub">Use the "Clear filters" button above to see all entries.</div>
     </div>
     <div id="audit-load-more-wrap" class="hidden" style="margin-top:0.25rem;padding-bottom:1rem;">
       <button onclick="loadMoreAudit()" style="width:100%;padding:0.75rem;min-height:44px;border-radius:0.75rem;font-size:0.875rem;font-weight:600;background:rgba(247,162,27,0.1);color:var(--wh-orange-text);border:1px solid rgba(247,162,27,0.3);cursor:pointer;" data-i="loadmore">Load More</button>
@@ -331,6 +351,37 @@
   const SUPABASE_KEY = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ';
   const db = getDb(SUPABASE_URL, SUPABASE_KEY);
 
+  /* ★C-AI (walked 2026-09-11, Ricardo Morales, WORKER in Lucena Pharmaceutical Mfg.): THE GATE WAS NOT
+     A GATE UNTIL THE NETWORK ANSWERED. The role check ~30 lines below is correct and reads two values
+     that are already in localStorage - but it sits AFTER `await db.auth.getUser()`, so on a loaded host
+     (observed: TimeoutError WH_DB_TIMEOUT) a WORKER sat looking at the audit-log chrome for as long as
+     that round trip took: the ACTIVITY heading, an "Export to CSV" button, and a skeleton reading
+     "Loading audit log..." that never resolves for them. No audit ROW ever renders - every query is
+     RLS-refused - so this leaks no data; what it leaks is the impression that the page is theirs and
+     merely slow. main-content ships VISIBLE on purpose (Arc L L1: revealing it in JS was a ~0.7 CLS
+     bomb), so the gate can only ever HIDE it, which means every millisecond before the gate decides is
+     a millisecond the chrome is on screen.
+     The fix costs nothing and needs no network: when the cache ALREADY says "this person has a hive and
+     is not a supervisor", hide the chrome synchronously, before the first await. A definite cached NO
+     is the only case that acts here - an unknown role still falls through to the async gate exactly as
+     before, and a supervisor is untouched, so neither the CLS fix nor the sign-in wall changes. */
+  /* ONE role comparison for the whole page, hoisted to this scope. The role-checks ratchet caught the
+     pre-gate below adding a SECOND raw `=== 'supervisor'` test (audit-log 1 -> 2), and it was right to:
+     this page does not load wh-roles.js, so WHRoles.isSupervisor() is unavailable, and the honest
+     alternative to a helper is not a second hand-rolled comparison - it is ONE, shared. Count 2 -> 1.
+     ★DECLARED OUTSIDE THE try ON PURPOSE, AND THE FIRST VERSION WAS NOT. `const` inside a try block is
+     scoped to that block, so the async gate ~40 lines below threw
+     "ReferenceError: _IS_SUPERVISOR is not defined" and the page rendered 325 characters with an
+     unhandled rejection - while validate_role_checks reported PASS. A green gate is not a working page,
+     which is why this edit was re-walked live before being believed. */
+  const _preRole = localStorage.getItem('wh_hive_role') || '';
+  const _IS_SUPERVISOR = _preRole === 'supervisor';
+  try {
+    const _preHive = (typeof whHiveId === 'function' ? whHiveId() : '') || '';
+    const _preMain = document.getElementById('main-content');
+    if (_preMain && _preHive && _preRole && !_IS_SUPERVISOR) _preMain.style.display = 'none';
+  } catch (_) { /* empty-catch-allow: a storage read that fails leaves the async gate to decide, as before */ }
+
   logPageView(db);
   // Phase 3.3 onboarding: mark the "Review the audit log" step as done.
   // Walkthrough 2026-05-13: opening the page never ticked this step because
@@ -346,15 +397,25 @@
 
   const HIVE_ID   = whHiveId() || '';
   const HIVE_NAME = localStorage.getItem('wh_hive_name') || '';
-  const HIVE_ROLE = localStorage.getItem('wh_hive_role') || '';
-
+  /** The hive's name for an artifact that leaves the platform: the stored name, else the one the page is
+   *  already displaying in its own hive pill, else an explicit id so the file is still identifiable. */
+  function _exportHiveName() {
+    if (HIVE_NAME) return HIVE_NAME;
+    const pill = document.getElementById('hive-pill');
+    const shown = pill ? (pill.textContent || '').replace(/^\s*\S*\s*/, '').trim() : '';
+    if (shown) return shown;
+    const id = localStorage.getItem('wh_active_hive_id') || '';
+    return id ? ('hive ' + id) : _t('(name unavailable on this device)', '(walang pangalan sa device na ito)');
+  }
+  /* HIVE_ROLE was read here and compared below; both now come from the single _IS_SUPERVISOR computed
+     at the top of this IIFE, so the second read is gone with the second comparison. */
   const mainEl = document.getElementById('main-content');
   if (!HIVE_ID) {
     if (mainEl) mainEl.style.display = 'none';
     document.getElementById('gate-no-hive').style.display = 'block';
     return;
   }
-  if (HIVE_ROLE !== 'supervisor') {
+  if (!_IS_SUPERVISOR) {                 // the single comparison hoisted to the top of this IIFE
     if (mainEl) mainEl.style.display = 'none';
     document.getElementById('gate-not-supervisor').style.display = 'block';
     return;
@@ -377,6 +438,10 @@
     { id: 'all',  label: 'All time', hours: null },
   ];
   let _entries     = [];
+  let _entriesTotal = null;   // the hive's TOTAL rows for the honest cap line ('latest 500 (N total)') - was read but never declared: ReferenceError on every render (2026-09-06)
+  // whether the VOICE half of the timeline could be read. A failed read is not an empty one: without this
+  // the page would show the hive rows alone and say nothing, which reads as "no voice actions happened".
+  let _voiceReadFailed = false;
   // Declared with the other module state on purpose: renderDropdowns() runs from an async
   // load that can start before a later top-level statement has executed, and a `let` further
   // down the file put this in the temporal dead zone - ReferenceError on first paint, which
@@ -519,8 +584,11 @@
   if (_auditChip && typeof renderSourceChip === 'function') {
     _auditChip.innerHTML = renderSourceChip({
       freshness: 'Live · updates automatically',
-      source:    'hive_audit_log',
-      notes:     ['Supervisor-only · hive-scoped', 'Filters: actor / action / target-type / date range'],
+      // two tables now, and the chip says so: a chip naming one source beside a feed carrying two is the
+      // same class of untruth this page exists to prevent
+      source:    'hive_audit_log + ai_audit_log',
+      notes:     ['Supervisor-only · hive-scoped', 'Filters: actor / action / target-type / date range',
+                  'Voice-driven actions appear with target type “voice”'],
     });
   }
   await loadEntries();
@@ -553,15 +621,76 @@
       // E2 consistent states: inline error + Retry (shared whListError) plus the
       // platform toast, never a blank panel or a stuck skeleton.
       if (typeof whListError === 'function') {
-        whListError(feedEl, "Couldn’t load the audit log. Check your connection and try again.", () => loadEntries());
+        whListError(feedEl, _t("Couldn’t load the audit log. Check your connection and try again.", "Hindi ma-load ang audit log. Suriin ang koneksyon at subukan muli."), () => loadEntries());
       } else {
         feedEl.innerHTML =
-          '<div class="loading" style="color:var(--red);">Failed to load: ' + escHtml(error.message || error) + '</div>';
+          '<div class="loading" style="color:var(--red);">' + _t("Failed to load: ", "Hindi na-load: ") + '' + escHtml(error.message || error) + '</div>';
       }
-      if (typeof showToast === 'function') showToast('Audit log failed to load. Tap Retry.', 'warn');
+      if (typeof showToast === 'function') showToast(_t('Audit log failed to load. Tap Retry.', 'Hindi na-load ang audit log. Pindutin ang Retry.'), 'warn');
       return;
     }
     _entries = data || [];
+    // ★VOICE-DRIVEN ACTIONS WERE RECORDED WHERE NOBODY COULD SEE THEM (2026-09-08). voice-handler writes
+    // every confirmed voice action to ai_audit_log, and NO PAGE ON THIS PLATFORM READ THAT TABLE - a
+    // write-only audit trail, which is the same as no audit trail for the supervisor who has to answer for
+    // it. This page is where "every recorded power action in the hive" is meant to live, so it reads both.
+    // Merged rather than shown apart, because a compliance reader needs one timeline: an action done by
+    // voice is not a different KIND of event, it is the same event with a different hand on it.
+    // Mapped into this page's own row shape so the renderer, the filters and the CSV export all keep
+    // working unchanged - `event` is ai_audit_log's column for what happened (its migration says so).
+    try {
+      // canonical-allow: audit-log.html IS the canonical surface for ai_audit_log - the page whose
+      // whole job is showing that trail. There is no derived KPI here to route through a truth
+      // view: the rows ARE the answer, read raw and rendered one-for-one. A wrapper view would
+      // add a layer between a compliance record and the person reading it for nothing. (The
+      // companion's two calls on this table are INSERTs, not reads - it writes the trail.)
+      let vq = db.from('ai_audit_log')
+        .select('id, worker_name, event, payload, source, created_at')
+        .eq('hive_id', HIVE_ID)
+        .order('created_at', { ascending: false })
+        .order('id')
+        .limit(500);
+      if (range.hours) vq = vq.gte('created_at', new Date(Date.now() - range.hours * 3600 * 1000).toISOString());
+      const { data: vdata, error: verror } = await vq;
+      // a failed read of the second source must not silently shrink the timeline into a claim
+      if (verror) { _voiceReadFailed = true; }
+      else {
+        _voiceReadFailed = false;
+        for (const v of (vdata || [])) {
+          _entries.push({
+            id:          'ai:' + v.id,           // ids from two tables share one list; keep them distinct
+            actor:       v.worker_name || '',
+            action:      v.event || '',
+            target_type: 'voice',
+            target_id:   null,
+            target_name: v.source || 'voice-handler',
+            meta:        v.payload || {},
+            created_at:  v.created_at,
+          });
+        }
+        _entries.sort(function (a, b) { return String(b.created_at || '').localeCompare(String(a.created_at || '')); });
+        if (_entries.length > 500) _entries = _entries.slice(0, 500);
+      }
+    } catch (_) { _voiceReadFailed = true; }
+    // the total under the SAME filters, as a head count (no rows travel): the summary may say 'latest 500 (N total)' only from a number
+    try {
+      let cq = db.from('hive_audit_log').select('id', { count: 'exact', head: true }).eq('hive_id', HIVE_ID);
+      if (range.hours) cq = cq.gte('created_at', new Date(Date.now() - range.hours * 3600 * 1000).toISOString());
+      const { count: _cnt } = await cq;
+      // the feed now carries two tables, so a total counting one of them would understate the timeline it
+      // sits under - the cap-shown-as-a-total shape, arrived at by addition instead of truncation
+      // canonical-allow: audit-log.html IS the canonical surface for ai_audit_log - the page whose
+      // whole job is showing that trail. There is no derived KPI here to route through a truth
+      // view: the rows ARE the answer, read raw and rendered one-for-one. A wrapper view would
+      // add a layer between a compliance record and the person reading it for nothing. (The
+      // companion's two calls on this table are INSERTs, not reads - it writes the trail.)
+      let vq2 = db.from('ai_audit_log').select('id', { count: 'exact', head: true }).eq('hive_id', HIVE_ID);
+      if (range.hours) vq2 = vq2.gte('created_at', new Date(Date.now() - range.hours * 3600 * 1000).toISOString());
+      const { count: _vcnt } = await vq2;
+      _entriesTotal = (typeof _cnt === 'number')
+        ? _cnt + (typeof _vcnt === 'number' ? _vcnt : 0)
+        : null;                                   // one side unknown means the total is unknown, not partial
+    } catch (_) { _entriesTotal = null; }
     renderRangeFilter();
     renderDropdowns();          // paint immediately from what we have
     renderFeed();
@@ -634,6 +763,32 @@
         if (from > 50000) break;       // a runaway guard, not a cap on the answer
       }
     } catch (_) { return null; }       /* empty-catch-allow: fall back to the capped set below */
+    // and the voice half of the same timeline, or the dropdowns would offer a vocabulary the feed
+    // contradicts - this function's own comment says it "must not lie about who acted", and a supervisor
+    // filtering by a worker who only ever acted by voice would be told that worker does not exist
+    try {
+      for (let from = 0; ; from += PAGE) {
+        // canonical-allow: audit-log.html IS the canonical surface for ai_audit_log - the page whose
+        // whole job is showing that trail. There is no derived KPI here to route through a truth
+        // view: the rows ARE the answer, read raw and rendered one-for-one. A wrapper view would
+        // add a layer between a compliance record and the person reading it for nothing. (The
+        // companion's two calls on this table are INSERTs, not reads - it writes the trail.)
+        const { data, error } = await db.from('ai_audit_log')
+          .select('worker_name, event')
+          .eq('hive_id', HIVE_ID)
+          .order('created_at', { ascending: false })
+          .order('id')
+          .range(from, from + PAGE - 1);
+        if (error || !data || !data.length) break;
+        data.forEach(function (r) {
+          if (r.worker_name) actors.add(r.worker_name);
+          if (r.event) actions.add(r.event);
+        });
+        if (data.length) targets.add('voice');
+        if (data.length < PAGE) break;
+        if (from > 50000) break;
+      }
+    } catch (_) { /* empty-catch-allow: the hive half above still stands on its own */ }
     if (!actors.size && !actions.size && !targets.size) return null;
     return {
       actors: Array.from(actors).sort(),
@@ -716,9 +871,13 @@
     // read "1 of 1 entries". The rest of the platform already branches on n===1 in this exact shape
     // (alert-hub and analytics do it 7 and 6 times respectively); this was the last naive
     // count + ' <noun>' concatenation left in a user-facing string.
-    summary.textContent = items.length + ' of ' + _entries.length
-      + (_entries.length === 1 ? ' entry' : ' entries')
-      + (_filterVocabPartial ? ' · filter suggestions cover these entries only' : '');
+    const _capped = _entriesTotal != null && _entriesTotal > _entries.length;
+    summary.textContent = items.length + ' of ' + (_capped ? 'the latest ' + _entries.length + ' (' + _entriesTotal.toLocaleString() + ' total)' : _entries.length)
+      + (!_capped && _entries.length === 1 ? ' entry' : ' entries')
+      + (_filterVocabPartial ? ' · filter suggestions cover these entries only' : '')
+      // say it when half the timeline is missing. Silence here would read as "no voice actions happened",
+      // which is a claim about the hive made at the moment the page could not check.
+      + (_voiceReadFailed ? ' · voice-driven actions could not be loaded, so this list is incomplete' : '');
 
     if (!items.length) {
       feed.innerHTML = '';
@@ -835,19 +994,24 @@
     catch (e) {
       // Never hand over a shorter file silently — say what it contains.
       console.warn('audit export: full read failed, exporting the loaded window', e);
-      showToast('Could not read the full log, so this exports the ' + _entries.length + ' entries loaded.');
+      showToast(_t('Could not read the full log, so this exports the ', 'Hindi mabasa ang buong log, kaya ang ini-export nito ay ang ') + _entries.length + ' entries loaded.');
     }
     const _saved = _entries;
     _entries = source;
     const items = applyFilters();
     _entries = _saved;
-    if (!items.length) { showToast('No entries to export.'); return; }
+    if (!items.length) { showToast(_t('No entries to export.', 'Walang entry na i-export.')); return; }
     // The file states its own scope: an auditor holding the CSV has no page around it, so
     // completeness must be legible from the artifact rather than inferred from where it came from.
     const _r2 = RANGES.find(r => r.id === _activeRange) || RANGES[1];
     const meta = [
       'WorkHive audit log export',
-      'Hive: ' + (HIVE_NAME || '(unnamed)'),
+      // ★AN EXPORT IS THE ONE ARTIFACT THAT LEAVES THE PLATFORM (2026-09-06, gate export-truthful, T49). The
+      // hive name is read from localStorage, and when that key is absent - a cleared cache, a device that joined
+      // by a path which never wrote it - this line shipped an auditor a file headed "Hive: (unnamed)", which
+      // cannot say what it is a record OF. _exportHiveName() falls back to the name already on screen before it
+      // gives up, so the artifact identifies itself from whatever the page actually knows.
+      'Hive: ' + _exportHiveName(),
       'Range: ' + ((_r2 && _r2.label) || _activeRange) + (complete ? '' : ' (PARTIAL - loaded window only)'),
       'Entries: ' + items.length,
       'Filters: ' + [_activeActor && ('actor=' + _activeActor), _activeAction && ('action=' + _activeAction),

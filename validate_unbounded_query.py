@@ -118,8 +118,38 @@ def selftest() -> int:
     unbounded = "const {d} = await db.from('logbook').select('*');" + chr(10)
     prose = ("const {d} = await db.from('logbook').select('*')" + chr(10)
              + ("  // explanatory prose line" + chr(10)) * 40 + "  .limit(50);" + chr(10))
+    # ★AND A QUERY BUILT IN A VARIABLE KEEPS ITS BOUND SOMEWHERE ELSE. dayplanner writes
+    # `let pmQ = db.from(...)…;` and applies `.limit(30)` to pmQ five lines later, which the chain
+    # window - correctly stopping at the first `;` - cannot see. Both directions are pinned: the
+    # deferred bound counts, and a variable that never gets one is still caught.
+    def flagged_full(src):
+        """The real rule, including the variable-following branch main() uses."""
+        code, _idx = _strip_comments_map(src)
+        hits = []
+        for m in FROM_RE.finditer(code):
+            sw = code[m.end(): m.end() + 1200]
+            ce = chain_end.search(sw)
+            tail = sw[:ce.start()] if ce else sw
+            if BOUNDED_MARKERS.search(tail):
+                continue
+            assign = _re.search(r"(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*(?:await\s+)?[A-Za-z_$][\w$.]*$",
+                                code[max(0, m.start() - 120):m.start()])
+            if assign and _re.search(r"\b" + _re.escape(assign.group(1)) + r"\b[^;]{0,600}?\.(?:limit|single|maybeSingle|range)\(",
+                                     code[m.end(): m.end() + 4000], _re.S):
+                continue
+            hits.append(m.group("t"))
+        return hits
+
+    deferred = ("let q = db.from('logbook').select('*');" + chr(10)
+                + "  q = q.eq('status','Open');" + chr(10)
+                + "  const { data } = await q.order('id').limit(30);" + chr(10))
+    deferred_none = ("let q = db.from('logbook').select('*');" + chr(10)
+                     + "  q = q.eq('status','Open');" + chr(10)
+                     + "  const { data } = await q.order('id');" + chr(10))
     cases = [("a genuinely unbounded read is still caught", bool(flagged(unbounded))),
-             ("a bounded read behind 40 comment lines is not", not flagged(prose))]
+             ("a bounded read behind 40 comment lines is not", not flagged(prose)),
+             ("a bound applied to the query VARIABLE counts", not flagged_full(deferred)),
+             ("...and a variable that never gets one is still caught", bool(flagged_full(deferred_none)))]
     ok = all(v for _n, v in cases)
     for name, v in cases:
         print(("  PASS  " if v else "  FAIL  ") + name)
@@ -169,6 +199,27 @@ def main() -> int:
                 back = prev + 1
             if ALLOW_RE.search(body[back:o_end + 200]): continue
             if BOUNDED_MARKERS.search(tail): continue
+
+            # ★A QUERY BUILT IN A VARIABLE KEEPS ITS BOUND SOMEWHERE ELSE. The chain window stops at the
+            # first `;`, which is correct for a chain written in one expression and wrong for one built
+            # in steps. dayplanner writes `let pmQ = db.from('v_pm_scope_items_truth')...or(...);` and
+            # then, five lines later, `await pmQ.order(...).limit(30)` - a bound this reported as absent.
+            # A false red on a query that IS bounded costs more than it sounds: it teaches the reader
+            # that this gate over-reports, which is how a real one gets waved through. So when the
+            # `.from(` sits in an assignment, the variable is FOLLOWED: a bound applied to that name in
+            # the next stretch of code is the same bound.
+            # `let pmQ = db.from(...)` - the receiver (`db`, `supabase`, `this.db`) sits between the
+            # equals sign and the `.from`, so the pattern has to allow for it
+            assign = re.search(r"(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*(?:await\s+)?[A-Za-z_$][\w$.]*$",
+                               code[max(0, m.start() - 120):m.start()])
+            if assign:
+                var = assign.group(1)
+                after = code[m.end(): m.end() + 4000]
+                if re.search(r"\b" + re.escape(var) + r"\b\s*(?:\.\s*\w+\([^;]*\)\s*)*\.\s*(?:limit|single|maybeSingle|range)\(", after, re.S):
+                    continue
+                # ...and a bound applied through a re-assignment of the same name counts too
+                if re.search(r"\b" + re.escape(var) + r"\b[^;]{0,600}?\.(?:limit|single|maybeSingle|range)\(", after, re.S):
+                    continue
 
             key = (name, t, o_start)
             if key in seen: continue

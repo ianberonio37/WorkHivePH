@@ -1,3 +1,15 @@
+# ═══════════════════════════════════════════════════════════════════════════════════════════════
+# ★THIS FILE IS INERT IN PRODUCTION (measured 2026-09-06). `_headers` is the CLOUDFLARE PAGES
+# format. workhiveph.com is served by VERCEL (`Server: Vercel` on every response), which reads
+# neither this file nor netlify.toml. A live GET on the apex returned NONE of the six headers
+# below - no CSP, no X-Frame-Options, no Permissions-Policy, no Referrer-Policy, no nosniff, no
+# XSS-Protection - so every fix recorded in the comments here (camera/microphone/geolocation,
+# the GA4 script-src and connect-src, the Turnstile frame-src) was made to a file the platform
+# never reads. The promises now live in **vercel.json**, generated FROM this file so the two
+# cannot drift, and `tools/prove_prod_headers.mjs` (gate `prod-headers`) asks the deployed origin
+# whether they are actually served. Keep editing this file as the documented source of intent,
+# then re-run the generator; do not assume an edit here ships.
+# ═══════════════════════════════════════════════════════════════════════════════════════════════
 # T167/T169 (2026-08-25) — two prod-only defects fixed in this block:
 #  1. Permissions-Policy denied camera + microphone SITE-WIDE, which kills the voice journal's
 #     mic and the logbook's photo capture + QR scan in production (both shipped features).

@@ -18,11 +18,13 @@ as pages get localized. Self-test: --selftest (deterministic, no fs scan).
 """
 from __future__ import annotations
 
+import json
 import re
 import sys
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
+PAGES_DIR = REPO / "i18n" / "pages"   # the emitted per-page FIL dictionaries utils.js fetches (EX-TL)
 EXCLUDE = ("node_modules", "remotion_scenes", "video_marketing_app", ".backup", "-test.")
 # EN-only by design (internal admin / dev / utility surfaces) — not user-facing product, exempt from
 # the user-facing i18n requirement (listed as exempt, not counted as a gap).
@@ -91,15 +93,39 @@ def page_dict_keys(html: str) -> set:
     return keys
 
 
-def scan_text(html: str, common: set | None = None) -> dict:
+def emitted_page_keys(stem: str) -> set:
+    """Keys in the EMITTED per-page dictionary i18n/pages/<stem>.fil.json.
+
+    THE GATE'S VOCABULARY WENT STALE WHEN THE MECHANISM MOVED (found 2026-09-10, Filipino walk).
+    EX-TL (2026-09-07) moved every `p_*` key out of the inline `WH_FIL_PAGE` block and into a file
+    utils.js fetches under FIL — precisely because the inline block was paid by every English reader.
+    This resolver was never taught the new source, so it kept scoring pages against COMMON + the inline
+    block alone and reported 899 markers as SILENTLY BROKEN when the overwhelming majority resolve
+    fine from the emitted file. An advisory gate that cries 899 is a gate no one reads, and the real
+    handful it was built to catch (public-feed / plant-connections / ai-quality) were buried in it.
+    Same class as the momentum guard's ★×16: when a mechanism grows a new source, every instrument
+    that reads it must grow in the SAME change, or the instrument silently starts measuring the past.
+    """
+    if not stem:
+        return set()
+    f = PAGES_DIR / f"{stem}.fil.json"
+    try:
+        d = json.loads(f.read_text(encoding="utf-8"))
+    except Exception:
+        return set()
+    return set(d) if isinstance(d, dict) else set()
+
+
+def scan_text(html: str, common: set | None = None, stem: str = "") -> dict:
     markers = len(MARKER_RE.findall(html))
     r = {"markers": markers, "infra": bool(INFRA_RE.search(html)),
          "verdict": classify(markers), "en_by_design": bool(DISPOSITION_RE.search(html))}
     # UNRESOLVED-marker detection (2026-07-19): a `data-i="key"` whose key is NOT in WH_FIL_COMMON and
     # NOT in the page's WH_FIL_PAGE renders EN even in Filipino mode — a SILENTLY-BROKEN translation the
     # marker-count heuristic missed. Found on public-feed / plant-connections / ai-quality (each had 2).
+    # A key resolves from ANY of the three live sources; the emitted file is the one added 2026-09-07.
     if common is not None and not OWN_ENGINE_RE.search(html):
-        resolvable = common | page_dict_keys(html)
+        resolvable = common | page_dict_keys(html) | emitted_page_keys(stem)
         used = set(DATA_I_KEY_RE.findall(html))
         r["unresolved"] = sorted(k for k in used if k not in resolvable)
     return r
@@ -114,7 +140,7 @@ def main() -> int:
             txt = p.read_text(encoding="utf-8", errors="ignore")
         except Exception:
             continue
-        r = scan_text(txt, common)
+        r = scan_text(txt, common, stem=p.stem)
         if r.get("unresolved"):
             broken.append((p.name, r["unresolved"]))
         # Exempt: internal/admin surfaces (by name) OR a formal doc that DECLARES EN-by-design inline.
@@ -177,6 +203,22 @@ def selftest() -> int:
     got = scan_text(unres, {"save"}).get("unresolved")
     if got != ["foo"]:
         fails.append(f"unresolved detection: expected ['foo'], got {got}")
+    # THE EMITTED PER-PAGE DICTIONARY IS THE THIRD SOURCE (EX-TL 2026-09-07). A key that lives ONLY
+    # there must resolve; missing it is what made this gate report 899 broken markers on 2026-09-10.
+    # Asserted against a REAL emitted file so the test fails if the mechanism moves again.
+    real = next(iter(sorted(PAGES_DIR.glob("*.fil.json"))), None)
+    if real is None:
+        fails.append("no i18n/pages/*.fil.json found — the emitted-dictionary source has moved")
+    else:
+        d = json.loads(real.read_text(encoding="utf-8"))
+        k = next((x for x in d if x.startswith("p_")), None)
+        if k is None:
+            fails.append(f"{real.name} holds no p_ key to test the emitted-dictionary resolver with")
+        else:
+            html = f'<b data-i="{k}">X</b><b data-i="zzz_absent">Y</b>'
+            got = scan_text(html, set(), stem=real.name[:-len(".fil.json")]).get("unresolved")
+            if got != ["zzz_absent"]:
+                fails.append(f"emitted-dictionary resolution: expected ['zzz_absent'], got {got}")
     if fails:
         print("✗ validate_i18n_coverage selftest FAILED:")
         for f in fails:

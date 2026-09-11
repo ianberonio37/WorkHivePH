@@ -185,4 +185,4 @@ No. A digital logbook with structured fault entries (asset name, fault time, res
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 720bb6b5a7766cfb -->
+<!-- md-twin source-sha: bc903c7a0b382656 -->

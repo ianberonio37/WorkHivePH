@@ -3,6 +3,7 @@
 
 User-agent: *
 Allow: /
+Disallow: /_fixtures/
 Disallow: /index.backup.html
 Disallow: /index.backup2.html
 Disallow: /checklist.backup.html

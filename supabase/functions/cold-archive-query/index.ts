@@ -160,14 +160,14 @@ serveObserved("cold-archive-query", async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders });
   logRequestStart(req, "cold-archive-query");  // I6 observability
   if (req.method !== "POST") {
-    return new Response(JSON.stringify({ error: "Method not allowed" }), {
+    return new Response(JSON.stringify({ error: "That action is not allowed here. Reload the page and try again." }), {
       status: 405, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
 
   let body: { hive_id?: string; table?: ArchivedTable; time_range?: { from: string; to: string }; asset_tag?: string | null; limit?: number } = {};
   try { body = await req.json(); } catch {
-    return new Response(JSON.stringify({ error: "Invalid JSON body" }), {
+    return new Response(JSON.stringify({ error: "That request could not be read. Reload the page and try again." }), {
       status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }

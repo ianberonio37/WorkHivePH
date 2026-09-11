@@ -14,7 +14,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=optional" rel="stylesheet" />
   <script src="browser-floor.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
+  <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
   <link rel="stylesheet" href="components.css" />  <!-- S11 shared component CSS -->
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -322,7 +322,10 @@
   </style>
   <link rel="canonical" href="https://workhiveph.com/skillmatrix.html" />
 <style>/* I1 CLS: static wayfinding back-pill band reserve (wayfinding.js sets this body padding-top post-paint on pill-pages = a late shift under full-run contention; present at first paint -> its `if(band>cur)` skips, layout unchanged). VERIFIED this page gets the pill (has <main>, no back-affordance, not home). */
-body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
+body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}    /* R3 (2026-09-05): one silhouette per job - selection controls (chips, tabs, toggles: any control that carries a pressed /
+       selected / checked state) wear the PILL; press buttons keep the 12 px card-family radius. */
+    [aria-pressed], [aria-selected], [aria-checked], [role="tab"], [role="radio"], [role="switch"] { border-radius: 999px; }
+</style>
 </head>
 <body>
 
@@ -339,19 +342,28 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
 <main class="page">
   <!-- List View Contract: declarative empty-state anchor (L-1.5) -->
-  <div id="empty-state" class="empty-state" hidden>No skills logged yet. Skill badges build from logged work. <a href="logbook.html" class="empty-cta" style="display:inline-block;margin-top:0.5rem;padding:0.4rem 0.9rem;border-radius:0.5rem;background:rgba(247,162,27,0.12);border:1px solid rgba(247,162,27,0.3);color:var(--wh-orange);font-weight:600;text-decoration:none;">Log work in the Logbook →</a></div>
+  <div id="empty-state" class="empty-state" hidden>No skills logged yet. Skill badges build from logged work. <a data-i="p_logworkinthelogbook_52bd" href="logbook.html" class="empty-cta" style="display:inline-block;margin-top:0.5rem;padding:0.4rem 0.9rem;border-radius:0.5rem;background:rgba(247,162,27,0.12);border:1px solid rgba(247,162,27,0.3);color:var(--wh-orange);font-weight:600;text-decoration:none;">Log work in the Logbook →</a></div>
 
 
   <!-- Header -->
   <header class="page-header">
     <h1 data-i="growth">Growth</h1>
-    <p id="header-sub">Track your industrial competency across all disciplines</p>
+    <details class="wh-help">
+      <summary data-i="p_howthispageworks_c540">How this page works</summary>
+      <ul>
+        <li data-i="p_askilllevelisevidencebackedi_7004">A skill level is evidence-backed: it moves when the work you log touches that skill, not when you assert it.</li>
+        <li data-i="p_thematrixshowsthewholehiveso_8a8c">The matrix shows the whole hive, so a supervisor can see where cover is thin before it matters.</li>
+        <li data-i="p_agaphereisatrainingtargetnot_ef88">A gap here is a training target, not a judgement. It is the same view your supervisor sees.</li>
+      </ul>
+    </details>
+
+    <p data-i="p_trackyourindustrialcompetenc_8d7a" id="header-sub">Track your industrial competency across all disciplines</p>
     <!-- T166 (2026-08-26): STATE THE AUDIENCE where the work is done. This page had no visibility
          statement at all, and the answer is the opposite of what a worker would assume on a team
          platform: skill_profiles, skill_badges and skill_exam_attempts are all RLS'd to
          `auth_uid = auth.uid()` - private to you, invisible even to your supervisor. Read off the
          policies, not assumed. -->
-    <p style="font-size:.7rem;color:var(--wh-steel-bright,rgba(255,255,255,0.72));margin:2px 0 0;">
+    <p data-i="p_privatetoyouyourskillsbadges_adcc" style="font-size:.7rem;color:var(--wh-steel-bright,rgba(255,255,255,0.72));margin:2px 0 0;">
       Private to you: your skills, badges and exam attempts are visible only to you, not to your
       supervisor or teammates.
     </p>
@@ -364,8 +376,18 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     <!-- STREAMLINE F5: skillmatrix + achievements are ONE "Growth" surface. This tab bar
          switches Skills ↔ Achievements; one nav entry. Both pages kept on disk. -->
     <div class="wh-growth-tabs" role="tablist" style="display:flex; gap:8px; margin:8px 0 4px; flex-wrap:wrap;">
-      <span role="tab" aria-selected="true" style="padding:6px 12px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(247,162,27,0.15); color:var(--wh-orange); font-size:.76rem; font-weight:700; border:1px solid rgba(247,162,27,0.4);">Skills</span>
-      <a role="tab" aria-selected="false" href="achievements.html" style="padding:6px 12px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.83); font-size:.76rem; font-weight:600; text-decoration:none; border:1px solid rgba(255,255,255,0.08);">Achievements &rarr;</a>
+      <span data-i="p_skills_e092" role="tab" aria-selected="true" style="padding:6px 12px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(247,162,27,0.15); color:var(--wh-orange); font-size:.76rem; font-weight:700; border:1px solid rgba(247,162,27,0.4);">Skills</span>
+      <a data-i="p_achievements_641a" role="tab" aria-selected="false" href="achievements.html" style="padding:6px 12px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.83); font-size:.76rem; font-weight:600; text-decoration:none; border:1px solid rgba(255,255,255,0.08);">Achievements &rarr;</a>
+      <!-- This page says, in its own words, "Private to you: your skills, badges and exam attempts are
+           visible only to you" - and offered no way to take that record anywhere. A competence record a
+           worker cannot carry is not really theirs: it is the evidence behind a job application, a
+           licence renewal, or an OFW portfolio, and it lived on one screen. Same export shape as the
+           logbook and the inventory, scope preamble included. -->
+      <button id="btn-export-skills" type="button" role="tab" aria-selected="false"
+              title="Export my skill record to CSV" aria-label="Export my skill record to CSV"
+              style="padding:6px 12px; min-height:44px; display:inline-flex; align-items:center; gap:6px; border-radius:8px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); color:rgba(255,255,255,0.80); font-size:0.8rem; font-weight:600; cursor:pointer;">
+        <span aria-hidden="true">&#8681;</span><span data-i="csv">CSV</span>
+      </button>
     </div>
     <p id="skillmatrix-source-chip" style="margin-top:3px;"></p>
   </header>
@@ -374,7 +396,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   <section id="onboarding-section">
     <div class="card onboard-card">
       <h2 data-i="chooseprimary">Choose Your Primary Discipline</h2>
-      <p>Your primary skill is set to target Level 5. All other skills default to Level 2. You can adjust targets anytime.</p>
+      <p data-i="p_yourprimaryskillissettotarge_a30e">Your primary skill is set to target Level 5. All other skills default to Level 2. You can adjust targets anytime.</p>
       <div class="primary-picker" id="primary-picker">
         <!-- injected by JS -->
       </div>
@@ -399,7 +421,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
          Populated by renderSkillSummary() after _profile + _badges load. -->
     <div id="sm-verdict" class="verdict empty">
       <span id="sm-verdict-icon" class="verdict-icon">·</span>
-      <div class="verdict-text"><span id="sm-verdict-label">Computing skill progress...</span><small id="sm-verdict-sub">Counting disciplines on target, quizzes available, and total badges.</small></div>
+      <div class="verdict-text"><span data-i="p_computingskillprogress_0b85" id="sm-verdict-label">Computing skill progress...</span><small data-i="p_countingdisciplinesontargetq_0083" id="sm-verdict-sub">Counting disciplines on target, quizzes available, and total badges.</small></div>
     </div>
     <!-- T54 (2026-08-25): the growth LADDER exists (quiz -> badge -> resume) but was only
          discoverable top-down from the Resume Builder's auto-fill. One line makes it a path a
@@ -413,39 +435,39 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     </p>
     <!-- U5 heading-order (§11 deepwalk): the sc-label KPI tiles are H3 under the page H1 — a WCAG
          heading-level skip. A screen-reader H2 section heading restores H1→H2→H3, no visual change. -->
-    <h2 style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0;">Your skill summary</h2>
+    <h2 data-i="p_yourskillsummary_e003" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0;">Your skill summary</h2>
     <div class="simple-row">
       <div class="simple-card hero tag-grey" id="sm-card-ontrack" data-rag-tile="skillmatrix:on_target" data-rag-label="On target workers">
         <h3 class="sc-label" style="margin:0;" data-i="ontarget">On target</h3>
         <div class="sc-hero" id="sm-ontrack-hero">0</div>
-        <div class="sc-sub" id="sm-ontrack-sub">Loading...</div>
+        <div data-i="p_loading_b04b" class="sc-sub" id="sm-ontrack-sub">Loading...</div>
         <span class="sc-tag" id="sm-ontrack-tag">-</span>
       </div>
       <div class="simple-card tag-grey" id="sm-card-quizzes" data-rag-tile="skillmatrix:quizzes_available" data-rag-label="Quizzes available">
         <h3 class="sc-label" style="margin:0;" data-i="quizzesavail">Quizzes available</h3>
         <div class="sc-hero" id="sm-quizzes-hero">0</div>
-        <div class="sc-sub" id="sm-quizzes-sub">Loading...</div>
+        <div data-i="p_loading_b04b" class="sc-sub" id="sm-quizzes-sub">Loading...</div>
         <span class="sc-tag" id="sm-quizzes-tag">-</span>
       </div>
       <div class="simple-card tag-grey" id="sm-card-badges" data-rag-tile="skillmatrix:total_badges" data-rag-label="Total badges earned">
         <h3 class="sc-label" style="margin:0;" data-i="totalbadges">Total badges</h3>
         <div class="sc-hero" id="sm-badges-hero">0</div>
-        <div class="sc-sub" id="sm-badges-sub">Loading...</div>
+        <div data-i="p_loading_b04b" class="sc-sub" id="sm-badges-sub">Loading...</div>
         <span class="sc-tag" id="sm-badges-tag">-</span>
       </div>
     </div>
     <!-- Service-hailing bridge (SERVICE_HAILING_ROADMAP.md P3 / §1c): the skill matrix IS the
          provider capability profile — earn here, get hailed there. Plain link, 44px target. -->
-    <div class="simple-card" style="margin-top:0.8rem;display:flex;flex-wrap:wrap;align-items:center;gap:0.6rem;justify-content:space-between;padding:0.9rem 1rem;">
+    <div class="simple-card" style="margin-top:0.8rem;display:flex;flex-wrap:wrap;align-items:center;gap:0.6rem;justify-content:space-between;padding:14px 16px;">
       <div>
-        <strong>Your skills can earn on the side</strong>
-        <div style="font-size:0.78rem;opacity:0.8;margin-top:0.15rem;">Register as a service provider and get hailed for jobs near you. Your skills and badges on this page back you up.</div>
+        <strong data-i="p_yourskillscanearnontheside_ac29">Your skills can earn on the side</strong>
+        <div data-i="p_registerasaserviceprovideran_69cf" style="font-size:0.78rem;opacity:0.8;margin-top:0.15rem;">Register as a service provider and get hailed for jobs near you. Your skills and badges on this page back you up.</div>
       </div>
-      <a href="marketplace-seller.html?tab=services" style="display:inline-flex;align-items:center;padding:0.55rem 1rem;border-radius:var(--wh-radius-sm);background:linear-gradient(135deg,var(--wh-orange),var(--wh-orange-light));color:var(--wh-navy);font-weight:700;font-size:0.8rem;text-decoration:none;min-height:44px;box-sizing:border-box;">Become a provider →</a>
+      <a data-i="p_becomeaprovider_b6a6" href="marketplace-seller.html?tab=services" style="display:inline-flex;align-items:center;padding:0.55rem 1rem;border-radius:var(--wh-radius-sm);background:linear-gradient(135deg,var(--wh-orange),var(--wh-orange-light));color:var(--wh-navy);font-weight:700;font-size:0.8rem;text-decoration:none;min-height:44px;box-sizing:border-box;">Become a provider →</a>
     </div>
     <div class="action-card">
-      <div class="ac-label">What to do next</div>
-      <div class="ac-text" id="sm-action-text">Computing recommendation...</div>
+      <div data-i="p_whattodonext_8ce2" class="ac-label">What to do next</div>
+      <div data-i="p_computingrecommendation_5948" class="ac-text" id="sm-action-text">Computing recommendation...</div>
     </div>
     <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="sm-summary-details" data-i="showdetails">
       Show details
@@ -453,25 +475,25 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     <div id="sm-summary-details" role="region" aria-label="Skill progress explainer"
     data-rag-tile="skillmatrix:detail_panel"
     data-rag-label="Skill matrix detail">
-      <strong style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How this is computed</strong>
-      <div style="font-size:11px;color:rgba(255,255,255,0.80);margin-bottom:6px;">Standard: WorkHive Skill Tier Model (platform-internal, 5 levels × 5 disciplines).</div>
+      <strong data-i="p_howthisiscomputed_5b52" style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How this is computed</strong>
+      <div data-i="p_standardworkhiveskilltiermod_f8ed" style="font-size:11px;color:rgba(255,255,255,0.80);margin-bottom:6px;">Standard: WorkHive Skill Tier Model (platform-internal, 5 levels × 5 disciplines).</div>
       <ul style="margin:0;padding-left:20px;">
-        <li><strong>On target</strong>: disciplines where your actual level (highest consecutive badge from L1) meets or exceeds your target level.</li>
-        <li><strong>Quizzes available</strong>: disciplines where the next level is within reach (actual + 1 &lt;= target + 1) and not yet on cooldown.</li>
+        <li><strong data-i="p_ontarget_412a">On target</strong>: disciplines where your actual level (highest consecutive badge from L1) meets or exceeds your target level.</li>
+        <li><strong data-i="p_quizzesavailable_e065">Quizzes available</strong>: disciplines where the next level is within reach (actual + 1 &lt;= target + 1) and not yet on cooldown.</li>
         <!-- T18 (2026-08-28): "all disciplines" was imprecise, and a real account shows why. Badges
              exist outside this matrix - Community awards them too - and a worker holding one sees a
              total that is one lower than the badges they know they have, with nothing on the page
              accounting for the difference. Measured: Bryan Garcia holds 7 badges across 6
              disciplines; this page correctly counts 6, because Community is not one of the five
              SKILL disciplines. The number was right and only the sentence was loose. -->
-        <li><strong>Total badges</strong>: count of your badges across the five skill disciplines and their levels (max 5 levels × 5 disciplines = 25). Badges from elsewhere on WorkHive, such as Community, are not counted here.</li>
-        <li><strong>Verdict</strong>: red if primary discipline 2+ levels behind target; amber if any discipline behind; green when every discipline is on target.</li>
+        <li><strong data-i="p_totalbadges_4ca2">Total badges</strong>: count of your badges across the five skill disciplines and their levels (max 5 levels × 5 disciplines = 25). Badges from elsewhere on WorkHive, such as Community, are not counted here.</li>
+        <li><strong data-i="p_verdict_7f6e">Verdict</strong>: red if primary discipline 2+ levels behind target; amber if any discipline behind; green when every discipline is on target.</li>
       </ul>
     </div>
 
     <!-- Radar Chart -->
     <section class="chart-section card" style="margin-bottom:1.5rem;">
-      <div class="chart-title">Skill Overview</div>
+      <div data-i="p_skilloverview_07fd" class="chart-title">Skill Overview</div>
       <canvas id="radar-canvas" width="280" height="280"></canvas>
       <div class="chart-fallback" id="chart-fallback">
         <!-- table-name-allow: skill matrix data table --> <div class="wh-scroll-x"><table><tbody id="fallback-table"></tbody></table></div>
@@ -484,14 +506,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
     <!-- Target Adjustment -->
     <section class="target-section">
-      <div class="section-title">Your Targets</div>
+      <div data-i="p_yourtargets_4f63" class="section-title">Your Targets</div>
       <div class="target-grid" id="target-grid"><!-- injected --></div>
       <button class="target-save-btn" id="target-save-btn" data-i="savetargets">Save Targets</button>
     </section>
 
     <!-- Discipline Cards -->
     <section class="discipline-cards-section">
-      <div class="section-title">Disciplines</div>
+      <div data-i="p_disciplines_3ed4" class="section-title">Disciplines</div>
       <div class="discipline-cards" id="discipline-cards"><!-- injected --></div>
     </section>
 
@@ -516,7 +538,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <div class="lesson-body" id="lesson-content"></div>
     </div>
     <div class="modal-footer">
-      <p class="scroll-hint" id="lesson-scroll-hint">Scroll to the bottom to unlock the exam</p>
+      <p data-i="p_scrolltothebottomtounlockthe_0362" class="scroll-hint" id="lesson-scroll-hint">Scroll to the bottom to unlock the exam</p>
       <!-- THE PASS MARK, STATED BEFORE THE EXAM — which this platform's own domain truth requires in as
            many words ("The exam pass mark is stated BEFORE the exam"), and which the lesson modal did not
            say anywhere. Measured with tools/prove_cost_before_commit.mjs: the pre-commit surface named the
@@ -526,7 +548,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
            holds exactly 10 questions and submitExam() passes at `score >= 7`. Stated as a fraction rather
            than a percentage because the exam is answered in questions, not points. -->
       <p id="lesson-pass-mark" style="font-size:0.68rem; color:rgba(255,255,255,0.80); margin:0 0 0.5rem; line-height:1.5;">
-        <strong>7 of 10 correct</strong> to pass. Passing awards the badge for this level; a failed attempt
+        <strong data-i="p_ofcorrect_4062">7 of 10 correct</strong> to pass. Passing awards the badge for this level; a failed attempt
         can be retaken after its cooldown.
       </p>
       <button class="btn-primary" id="lesson-exam-btn" disabled data-i="takeexam">Take Exam →</button>
@@ -730,6 +752,10 @@ async function init() {
   try {
     [profileRes, badgesRes] = await Promise.all([
       db.from('skill_profiles').select('*').eq('worker_name', WORKER_NAME).maybeSingle(),
+      // cap-ok: bounded and unreachable - this reads ONE worker's badges, and a worker holds at most
+      // one badge per (discipline, level) across 6 fixed disciplines. Measured 2026-09-09: the busiest
+      // worker in the data holds 19. The 500 is insurance, not a window, so it cannot silently shorten
+      // anything; unlike the weekly-XP read on achievements.html, nothing here is summed (W3-AR).
       db.from('v_skill_badges_truth').select('discipline, level').eq('worker_name', WORKER_NAME).limit(500),
     ]);
   } catch (err) {
@@ -741,7 +767,7 @@ async function init() {
     // and control never reaches here - verified by injecting a rejected fetch and watching this branch
     // not fire. The live path is the `profileRes.error` check below, which is where the user-facing
     // state belongs. Kept for a genuine throw (a programming error inside the await).
-    if (typeof showToast === 'function') showToast('Couldn’t load your skill matrix. Please retry.', '✗');
+    if (typeof showToast === 'function') showToast(_t('Couldn’t load your skill matrix. Please retry.', 'Hindi ma-load ang skill matrix mo. Pakisubukan muli.'), '✗');
     profileRes = { data: null, error: err };
     badgesRes  = { data: null };
   }
@@ -812,10 +838,10 @@ async function init() {
     if (_smOnb) _smOnb.style.display = 'none';   // never offer a first-run picker on a failed read
     if (_smErr && typeof whListError === 'function') {
       _smErr.style.display = 'block';
-      whListError(_smErr, 'Couldn’t load your skill matrix. Your levels are unknown right now, not zero. '
+      whListError(_smErr, _t('Couldn’t load your skill matrix. Your levels are unknown right now, not zero. ', 'Hindi ma-load ang skill matrix mo. Hindi alam ang mga level mo ngayon, hindi zero. ')
                   + 'Do not re-pick your discipline; your profile is saved.', () => init());
     } else if (typeof showToast === 'function') {
-      showToast('Couldn’t load your skill matrix. Please retry.', '✗');
+      showToast(_t('Couldn’t load your skill matrix. Please retry.', 'Hindi ma-load ang skill matrix mo. Pakisubukan muli.'), '✗');
     }
   } else {
     // A RECOVERED READ MUST ALSO TAKE THE ERROR OFF SCREEN - measured before this line existed: the
@@ -890,7 +916,7 @@ function showOnboarding() {
         showMatrix();
         return;
       }
-      showToast('Could not save profile. Please try again.', '✗');
+      showToast(_t('Could not save profile. Please try again.', 'Hindi ma-save ang profile. Pakisubukan muli.'), '✗');
       btn.disabled = false; btn.textContent = 'Set Primary Discipline →';
       return;
     }
@@ -982,7 +1008,7 @@ document.getElementById('target-save-btn').addEventListener('click', async () =>
       btn.disabled = false; btn.textContent = 'Save Targets';
       return;
     }
-    showToast('Could not save targets. Please try again.', '✗');
+    showToast(_t('Could not save targets. Please try again.', 'Hindi ma-save ang mga target. Pakisubukan muli.'), '✗');
   } else {
     // NAMES THE EFFECT AND THE MOMENT, the pattern this platform already ships (asset-hub: "→ feeds this
     // asset's risk score ... on next recompute"). Note the branches AROUND this one already do it — the
@@ -1140,23 +1166,30 @@ function renderSkillSummary() {
   // Verdict
   let tone, label, sub;
   if (primaryGap >= 2) {
-    tone = 'attn'; label = `Primary discipline ${primaryGap} levels behind target`;
-    sub  = `${primaryDisc} is your declared primary skill. Quiz on it before anything else: every other discipline target depends on your primary momentum.`;
+    tone = 'attn'; label = _t(`Primary discipline ${primaryGap} levels behind target`,
+                              `${primaryGap} level ang agap ng primary discipline sa target`);
+    sub  = _t(`${primaryDisc} is your declared primary skill. Quiz on it before anything else: every other discipline target depends on your primary momentum.`,
+              `${primaryDisc} ang idineklara mong primary skill. Mag-quiz dito bago ang iba: nakadepende sa momentum ng primary mo ang bawat target ng ibang discipline.`);
   } else if (anyBehind || primaryGap > 0) {
-    tone = 'watch'; label = 'Skill matrix is climbing';
-    sub  = `${onTarget}/${totalDisc} disciplines on target · ${quizzesAvail} quiz${quizzesAvail === 1 ? '' : 'zes'} available right now.`;
+    tone = 'watch'; label = _t('Skill matrix is climbing', 'Umaakyat ang skill matrix');
+    sub  = _t(`${onTarget}/${totalDisc} disciplines on target · ${quizzesAvail} quiz${quizzesAvail === 1 ? '' : 'zes'} available right now.`,
+              `${onTarget}/${totalDisc} discipline ang nasa target · ${quizzesAvail} quiz ang available ngayon.`);
   } else if (primaryDisc && !primaryIsTracked) {
     // Primary skill is set but isn't one of the 5 trackable disciplines —
     // verdict was previously firing red against a phantom gap. Now we
     // surface the data mismatch instead of a contradiction.
-    tone = 'watch'; label = 'Primary skill not yet trackable';
-    sub  = `Your declared primary "${primaryDisc}" isn't one of the standard disciplines (${DISCIPLINES.join(', ')}). All ${onTarget}/${totalDisc} tracked disciplines are at or above target, so set primary to one of those to enable per-skill goal tracking.`;
+    tone = 'watch'; label = _t('Primary skill not yet trackable', 'Hindi pa masusubaybayan ang primary skill');
+    sub  = _t(`Your declared primary "${primaryDisc}" isn't one of the standard disciplines (${DISCIPLINES.join(', ')}). All ${onTarget}/${totalDisc} tracked disciplines are at or above target, so set primary to one of those to enable per-skill goal tracking.`,
+              `Ang idineklara mong primary na "${primaryDisc}" ay hindi isa sa mga standard na discipline (${DISCIPLINES.join(', ')}). Lahat ng ${onTarget}/${totalDisc} na sinusubaybayang discipline ay nasa target o mas mataas, kaya itakda ang primary sa isa sa mga iyon para gumana ang per-skill na goal tracking.`);
   } else if (totalBadges === 0) {
-    tone = 'empty'; label = 'No badges earned yet';
-    sub  = 'Pick the easiest discipline + the easiest level, take the quiz, and the radar chart will start filling in.';
+    tone = 'empty'; label = _t('No badges earned yet', 'Wala pang naipong badge');
+    sub  = _t('Pick the easiest discipline + the easiest level, take the quiz, and the radar chart will start filling in.',
+              'Pumili ng pinakamadaling discipline at pinakamadaling level, kunin ang quiz, at magsisimulang mapuno ang radar chart.');
   } else {
-    tone = 'healthy'; label = `Every discipline at or above target (${totalBadges} badges)`;
-    sub  = 'Want to push further? Raise a target via the "Target Adjustment" controls below.';
+    tone = 'healthy'; label = _t(`Every discipline at or above target (${totalBadges} badges)`,
+                                 `Bawat discipline ay nasa target o mas mataas (${totalBadges} badge)`);
+    sub  = _t('Want to push further? Raise a target via the "Target Adjustment" controls below.',
+              'Gusto mo pang itulak? Itaas ang target sa "Target Adjustment" na kontrol sa ibaba.');
   }
   const vBox = document.getElementById('sm-verdict');
   if (vBox) { vBox.classList.remove('healthy','watch','attn','empty'); vBox.classList.add(tone); }
@@ -1169,15 +1202,22 @@ function renderSkillSummary() {
   if (actBox) {
     let text;
     if (totalBadges === 0) {
-      text = 'Click the easiest discipline card below and take its Level 1 quiz. 5 questions, ~5 minutes. The radar above starts filling in immediately.';
+      text = _t('Click the easiest discipline card below and take its Level 1 quiz. 5 questions, ~5 minutes. The radar above starts filling in immediately.',
+                'Pindutin ang pinakamadaling discipline card sa ibaba at kunin ang Level 1 quiz nito. 5 tanong, ~5 minuto. Agad na magsisimulang mapuno ang radar sa itaas.');
     } else if (primaryGap >= 2) {
-      text = `Take a ${primaryDisc} quiz first: your primary discipline is ${primaryGap} levels behind. The next level unlocks once you pass.`;
+      // C-BR: two sentences in both halves, each inside the 20-word bar. Filipino expands, so the
+      // split is kept rather than translated as one long clause.
+      text = _t(`Take a ${primaryDisc} quiz first: your primary discipline is ${primaryGap} levels behind. The next level unlocks once you pass.`,
+                `Mag-quiz muna sa ${primaryDisc}: ${primaryGap} level ang agap ng primary discipline mo. Bubukas ang susunod na level kapag pumasa ka.`);
     } else if (quizzesAvail > 0) {
-      text = `${quizzesAvail} discipline${quizzesAvail === 1 ? ' has a quiz' : 's have quizzes'} available right now. Tap a discipline card below and "Take quiz" to push one level.`;
+      text = _t(`${quizzesAvail} discipline${quizzesAvail === 1 ? ' has a quiz' : 's have quizzes'} available right now. Tap a discipline card below and "Take quiz" to push one level.`,
+                `${quizzesAvail} discipline ang may available na quiz ngayon. Pindutin ang discipline card sa ibaba at "Take quiz" para umangat ng isang level.`);
     } else if (!anyBehind) {
-      text = 'Every discipline is on target. Raise a target via the "Target Adjustment" section if you want to push higher, or wait for cooldowns to unlock more quizzes.';
+      text = _t('Every discipline is on target. Raise a target via the "Target Adjustment" section if you want to push higher, or wait for cooldowns to unlock more quizzes.',
+                'Nasa target ang bawat discipline. Itaas ang target sa "Target Adjustment" kung gusto mong umangat pa, o hintayin ang cooldown para mabuksan ang iba pang quiz.');
     } else {
-      text = 'Some quizzes are on cooldown right now. Check back later or work on disciplines that are still ready.';
+      text = _t('Some quizzes are on cooldown right now. Check back later or work on disciplines that are still ready.',
+                'May ilang quiz na naka-cooldown ngayon. Bumalik mamaya o magtrabaho sa mga discipline na handa pa.');
     }
     actBox.textContent = text;
   }
@@ -1259,6 +1299,8 @@ async function openDiscipline(disc) {
     .eq('level', nextLevel)
     .order('attempted_at', { ascending: false })
     .order('id')   // MR4 tiebreaker: the sort above is not total on its own
+    // cap-ok: this asks for the ONE most recent attempt, so the limit IS the question rather than a
+    // bound on an answer - it is fully ordered by the two keys above, so there is no hidden remainder.
     .limit(1)
     .maybeSingle();
 
@@ -1269,7 +1311,7 @@ async function openDiscipline(disc) {
       const remaining = cooldown - elapsed;
       const h = Math.floor(remaining / 3600000);
       const m = Math.floor((remaining % 3600000) / 60000);
-      showToast(`Retake available in ${h}h ${m}m`, '⏱');
+      showToast(_t(`Retake available in ${h}h ${m}m`, `Pwedeng ulitin sa loob ng ${h}h ${m}m`), '⏱');
       return;
     }
   }
@@ -1326,6 +1368,44 @@ function openLesson(disc, level) {
   openModal('lesson-modal');
 }
 
+// ★A COMPETENCE RECORD THE WORKER COULD NOT CARRY. This page states that the record is private to them
+// and then gave them no way to hold a copy of it - the evidence behind a job application, a licence
+// renewal, or the OFW portfolio the platform builds elsewhere, readable on one screen and nowhere else.
+// The level comes from getActualLevel (the page's own rule: the highest CONSECUTIVE level earned from 1,
+// which is not the same as the highest badge) rather than a second derivation invented here.
+document.getElementById('btn-export-skills').addEventListener('click', () => {
+  if (!_profile) { showToast(_t('Set up your skill matrix first.', 'I-set up muna ang skill matrix mo.')); return; }
+  const esc = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+  const cols = ['Discipline', 'Primary', 'Level Attained', 'Target Level', 'On Target', 'Badges Earned'];
+  const rows = DISCIPLINES.map(d => {
+    const isPrimary = d === _profile.primary_skill;
+    const target  = _profile.targets[d] ?? (isPrimary ? 5 : 2);
+    const actual  = getActualLevel(d);
+    const earned  = (_badges[d] || []).slice().sort((a, b) => a - b);
+    return [d, isPrimary ? 'YES' : '', actual, target, actual >= target ? 'YES' : 'NO', earned.join(' ')].map(esc).join(',');
+  });
+  const onTarget = DISCIPLINES.filter(d => getActualLevel(d) >= (_profile.targets[d] ?? (d === _profile.primary_skill ? 5 : 2))).length;
+  const meta = [
+    'WorkHive skill matrix export',
+    'Worker: ' + WORKER_NAME,
+    'Primary discipline: ' + (_profile.primary_skill || 'not set'),
+    'Disciplines on target: ' + onTarget + ' of ' + DISCIPLINES.length,
+    'Level rule: highest CONSECUTIVE level earned from 1 (a gap stops the count)',
+    'Exported: ' + (typeof whFmtDate === 'function' ? whFmtDate(new Date().toISOString(), { time: true }) : new Date().toISOString()),
+  ].map(esc).join('\r\n');
+  const csv = meta + '\r\n\r\n' + cols.map(esc).join(',') + '\r\n' + rows.join('\r\n');
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url;
+  a.download = 'workhive-skills-' + new Date().toISOString().slice(0, 10) + '.csv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  showToast(_t('Exported your skill record.', 'Na-export ang skill record mo.'));
+});
+
 document.getElementById('lesson-close-btn').addEventListener('click', closeLesson);
 document.getElementById('lesson-back-btn').addEventListener('click', closeLesson);
 function closeLesson() {
@@ -1360,7 +1440,7 @@ function openExam() {
     _currentQuestion = 0;
   }
 
-  document.getElementById('exam-title').textContent = `${_activeDiscipline}: Level ${_activeLevel} Exam`;
+  document.getElementById('exam-title').textContent = _t(`${_activeDiscipline}: Level ${_activeLevel} Exam`, `${_activeDiscipline}: Level ${_activeLevel} na Exam`);
   document.getElementById('exam-subtitle').textContent = content.title;
 
   renderExamQuestion();
@@ -1374,7 +1454,7 @@ function renderExamQuestion() {
   // Progress
   const pct = (((_currentQuestion) / total) * 100);
   document.getElementById('exam-prog-fill').style.width = pct + '%';
-  document.getElementById('exam-prog-label').textContent = `Question ${_currentQuestion + 1} of ${total}`;
+  document.getElementById('exam-prog-label').textContent = _t(`Question ${_currentQuestion + 1} of ${total}`, `Tanong ${_currentQuestion + 1} sa ${total}`);
 
   // Question text
   document.getElementById('exam-question-text').textContent = q.q;
@@ -1524,7 +1604,7 @@ async function submitExam() {
     // sitting an exam - whether their answers are gone. They are not: the answers live in the
     // wh_exam_draft_* key and are restored when the exam reopens, so say so. whWriteError names the
     // real cause (session / not allowed / collision) and this fallback carries the work state.
-    showToast(whWriteError(gradeErr, 'Could not grade your exam. Your answers are saved on this device, so reopen the exam and submit again.'), '✗');
+    showToast(whWriteError(gradeErr, _t('Could not grade your exam. Your answers are saved on this device, so reopen the exam and submit again.', 'Hindi ma-grade ang exam mo. Naka-save ang mga sagot mo sa device na ito, kaya buksan muli ang exam at i-submit ulit.')), '✗');
   } else {
     srvScore  = graded.score;
     srvPassed = graded.passed;
@@ -1555,7 +1635,7 @@ function openResult(disc, level, score, passed) {
   hexEl.textContent = passed ? level : '✗';
 
   document.getElementById('result-title').textContent = passed
-    ? `Level ${level} Unlocked!` : `Not Yet: Try Again`;
+    ? `Level ${level} Unlocked!` : _t(`Not Yet: Try Again`, `Hindi Pa: Subukan Muli`);
   document.getElementById('result-score').textContent = `Score: ${score} / 10`;
   document.getElementById('result-title').className = `result-title ${passed ? 'text-green' : 'text-amber'}`;
 
@@ -1575,20 +1655,20 @@ function openResult(disc, level, score, passed) {
   document.getElementById('result-msg').textContent = passed
     ? `Excellent work! You've demonstrated ${LEVEL_LABELS[level]} competency in ${disc}. `
       + `Your Level ${level} badge is on your skill matrix now, and on your own hive-board profile - still private to you, as promised.`
-    : `You need 7 or more correct answers to pass. Review the module and try again in 24 hours.`;
+    : _t(`You need 7 or more correct answers to pass. Review the module and try again in 24 hours.`, `Kailangan ng 7 o higit pang tamang sagot para pumasa. Balikan ang module at subukan muli pagkalipas ng 24 oras.`);
 
   // Cooldown timer
   const cdEl = document.getElementById('cooldown-timer');
   if (!passed) {
     cdEl.classList.remove('hidden');
-    cdEl.textContent = 'Retake available in: 24h 00m';
+    cdEl.textContent = _t('Retake available in: 24h 00m', 'Pwedeng ulitin sa loob ng: 24h 00m');
     let remaining = 24 * 60 * 60 * 1000;
     const interval = setInterval(() => {
       remaining -= 60000;
       if (remaining <= 0) { clearInterval(interval); cdEl.textContent = 'Retake now available'; return; }
       const h = Math.floor(remaining / 3600000);
       const m = Math.floor((remaining % 3600000) / 60000);
-      cdEl.textContent = `Retake available in: ${h}h ${m}m`;
+      cdEl.textContent = _t(`Retake available in: ${h}h ${m}m`, `Pwedeng ulitin sa loob ng: ${h}h ${m}m`);
     }, 60000);
   } else {
     cdEl.classList.add('hidden');
@@ -1608,7 +1688,7 @@ function openResult(disc, level, score, passed) {
   // CTA buttons
   const primaryBtn = document.getElementById('result-primary-btn');
   if (passed && level < 5 && level < (_profile.targets[disc] ?? 2)) {
-    primaryBtn.textContent = `Continue to Level ${level + 1} →`;
+    primaryBtn.textContent = _t(`Continue to Level ${level + 1} →`, `Magpatuloy sa Level ${level + 1} →`);
     primaryBtn.onclick = () => { closeModal('result-modal'); resetExamFlow(); openDiscipline(disc); };
   } else {
     primaryBtn.textContent = 'Back to Matrix';

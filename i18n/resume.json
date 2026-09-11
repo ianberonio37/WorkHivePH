@@ -1,0 +1,12 @@
+{
+  "_doc": "resume.html: English visible text -> Filipino, authored. Empty = not yet translated. tools/i18n_page_dict.py --apply tags the element and emits WH_FIL_PAGE.",
+  "⚠ You're offline: changes are saved on this device and will sync when you reconnect.": "⚠ Offline ka: naka-save sa device na ito ang mga pagbabago at magsi-sync kapag nakakonekta ka ulit.",
+  "How this page works": "Paano gumagana ang page na ito",
+  "This builds from what you have already recorded: your logbook entries, your skills and your achievements. It is not a blank form.": "Binubuo ito mula sa naitala mo na: mga logbook entry, skill at achievement mo. Hindi ito blangkong form.",
+  "Everything is editable before export. The generated text is a starting point, not a claim the platform makes about you.": "Lahat ay puwedeng i-edit bago i-export. Panimula lang ang nabuong teksto, hindi pahayag ng platform tungkol sa iyo.",
+  "Your resume is yours. Exporting it takes a copy away with you and leaves your hive records untouched.": "Sa iyo ang resume mo. Kopya ang dala mo sa pag-export at hindi nagagalaw ang mga record mo sa hive.",
+  "Build a professional resume from your WorkHive experience. Everything is editable: you decide what goes in.": "Bumuo ng propesyonal na resume mula sa karanasan mo sa WorkHive. Lahat ay puwedeng i-edit: ikaw ang magpapasya kung ano ang isasama.",
+  "Off by default": "Naka-off bilang default",
+  "Turn rough notes into professional wording. You review every suggestion before it is used.": "Gawing propesyonal na pananalita ang magaspang na tala. Nire-review mo ang bawat mungkahi bago gamitin.",
+  "Your resume · saved on this device and to your account · as of this page load": "Ang resume mo · naka-save sa device na ito at sa account mo · noong pag-load ng page na ito"
+}

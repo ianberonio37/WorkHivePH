@@ -210,9 +210,22 @@ async function signIn(context, role) {
         const uid = data?.session?.user?.id;
         realUid = uid || null;
         if (uid) {
-          const { data: mem } = await db.from('hive_members')
-            .select('hive_id, worker_name, status').eq('auth_uid', uid).eq('status', 'active')
-            .limit(1).maybeSingle();
+          // ★PREFER THE MEMBERSHIP THAT MATCHES THE ROLE BEING WALKED (2026-09-05). `limit(1)
+          // .maybeSingle()` over ANY active membership let row order pick the hive: a supervisor
+          // walk could land in the hive where this account is only a worker, and the run would
+          // then grade the worker view and report it as the supervisor journey (the sibling
+          // family_rubric_sweep flipped hive H1 5 -> 0 this way). Ask for the role first.
+          let mem = null;
+          const pref = await db.from('hive_members')
+            .select('hive_id, worker_name, status, role').eq('auth_uid', uid).eq('status', 'active')
+            .eq('role', role === 'supervisor' ? 'supervisor' : 'worker').order('hive_id').limit(1).maybeSingle();
+          mem = pref && pref.data;
+          if (!mem) {
+            const any = await db.from('hive_members')
+              .select('hive_id, worker_name, status').eq('auth_uid', uid).eq('status', 'active')
+              .order('hive_id').limit(1).maybeSingle();
+            mem = any && any.data;
+          }
           if (mem && mem.hive_id) {
             realHive = mem.hive_id;
             realWorker = mem.worker_name || worker;
@@ -470,11 +483,27 @@ const __runArcK = async () => {
     process.exit(3);
   }
 
+  // ★WATCHDOG (2026-09-05): a full run hung for 30+ minutes with ONE node process and ZERO chrome
+  // processes — the browser had gone and an awaited page promise never settled, so the process
+  // sat forever with 19 bytes of output; the shell's `timeout` did not kill the tree either. A run
+  // that cannot finish must at least DIE LOUDLY: past WH_JOURNEY_MAX_MS (default 20 min) exit 3 with
+  // a message, so the caller sees a failure instead of silence. .unref() keeps a healthy run from
+  // being held open by the timer itself.
+  const MAX_MS = Number(process.env.WH_JOURNEY_MAX_MS || 20 * 60 * 1000);
+  setTimeout(() => { console.error(`[K] WATCHDOG: run exceeded ${Math.round(MAX_MS / 60000)} min — exiting 3 (a hung await is a false board)`); process.exit(3); }, MAX_MS).unref();
   const browser = await chromium.launch({ headless: !HEADED });
   // one signed-in context per role used by the selected journeys
   const rolesNeeded = [...new Set(journeys.map(j => j.role))];
   const contexts = {};
-  for (const role of rolesNeeded) {
+  // ── ROLE-CONTEXT FACTORY (Phase 0 host robustness, 2026-09-05) ─────────────────────────────
+  // Was an inline block; it is a factory now because the walk RECYCLES contexts mid-run. Every
+  // piece below is load-bearing on a rebuild — the Asia/Manila timezone, the listener tracker
+  // addInitScript (which MUST be installed before any page script), and the 4x sign-in retry —
+  // so a recycle that skipped any of them would silently change what the walk measures rather
+  // than just freeing memory. Rebuilding through the same path is what keeps a recycled context
+  // identical to a fresh one.
+  async function makeRoleContext(role) {
+
     // Asia/Manila: the harness must see dates the way a real PH user's browser does (the
     // app derives "today" from the browser's local date — a UTC headless browser would be
     // a day behind in the evening, breaking date-scoped journeys like the day planner).
@@ -506,7 +535,24 @@ const __runArcK = async () => {
     if (si.hive) RESOLVED_HIVES[role] = si.hive;   // DB-truth hive for this role's oracles
     if (si.uid) RESOLVED_UIDS[role] = si.uid;      // DB-truth auth_uid (probe-row inserts)
     console.log(`[K] sign-in ${role.padEnd(11)}: ${si.ok ? (si.anon ? 'ANON (no session)' : 'OK') : 'FAIL ' + si.err}${si.hive ? ' hive ' + si.hive.slice(0, 8) : ''}`);
-    contexts[role] = ctx;
+    return ctx;
+  }
+  for (const role of rolesNeeded) contexts[role] = await makeRoleContext(role);
+
+  // ── BROWSER RECYCLING (Phase 0 host robustness, 2026-09-05) ────────────────────────────────
+  // A long walk holds one context per role for its whole run; on an 8GB host that memory only
+  // grows until Chrome dies mid-walk (post_deploy_smoke.mjs died ~page 29 with "browser has been
+  // closed" on a healthy page, and this shape crashed/hung Docker three times in one session).
+  // Dropping and rebuilding a role's context every N journeys releases it. A death is
+  // INFRASTRUCTURE, not a journey failure — banking it would be a false RED on a good page.
+  const RECYCLE_EVERY = Number(process.env.WH_JOURNEY_RECYCLE_EVERY || 20);
+  const DEAD_CTX = /browser has been closed|Target page|context or browser|Target closed|crashed/i;
+  const sinceRecycle = {};
+  async function recycleRole(role, why) {
+    try { await contexts[role].close(); } catch (_) {}
+    console.log(`[K] recycling ${role} context (${why})`);
+    contexts[role] = await makeRoleContext(role);
+    sinceRecycle[role] = 0;
   }
 
   const out = { ran: new Date().toISOString(), seeder: SEEDER, hive: HIVE,
@@ -517,7 +563,15 @@ const __runArcK = async () => {
   const perPage = {};
 
   for (const j of journeys) {
-    const res = await runJourney(contexts[j.role], j, criticCache);
+    sinceRecycle[j.role] = (sinceRecycle[j.role] || 0) + 1;
+    if (sinceRecycle[j.role] > RECYCLE_EVERY) await recycleRole(j.role, `${RECYCLE_EVERY} journeys`);
+    let res = await runJourney(contexts[j.role], j, criticCache);
+    // A dead browser/context is INFRASTRUCTURE, not a journey defect — recycle and retry once
+    // before believing it, or the host's memory death is banked as this page's failure.
+    if (res.err && DEAD_CTX.test(String(res.err))) {
+      await recycleRole(j.role, 'context death');
+      res = await runJourney(contexts[j.role], j, criticCache);
+    }
     const rec = {
       id: j.id, phase: j.phase, page: j.page, role: j.role, state: j.state, title: j.title,
       lenses: j.lenses, ufai: j.ufai, external: !!j.external,

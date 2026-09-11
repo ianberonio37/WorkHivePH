@@ -33,7 +33,14 @@ REPORT = ROOT / "cache_signals_report.json"
 
 CHECK_NAMES = ["cache_signals"]
 
-CACHE_NAME_RE = re.compile(r"const\s+CACHE_NAME\s*=\s*['\"]([^'\"]+)['\"]")
+# ★SAME FOSSIL AS mine_cache_name_drift, AND THIS ONE FEEDS A MATURITY CREDIT (2026-09-10).
+# sw.js keeps every past bump commented above the active line, so an unanchored search took the FIRST
+# `// const CACHE_NAME = ...` and reported `workhive-shell-v283` against a shipped v346. These two
+# miners are named in COMPREHENSIVE_STUDY_FULLSTACK_GATE as the integrity tracking behind the
+# offline/PWA credit, which makes a stale reading not merely wrong but load-bearing for a claim about
+# the platform. Anchored to a line beginning with `const`; `SHELL_FILES` needs no anchor (checked: it
+# appears once, uncommented).
+CACHE_NAME_RE = re.compile(r"(?m)^\s*const\s+CACHE_NAME\s*=\s*['\"]([^'\"]+)['\"]")
 SHELL_FILES_RE = re.compile(r"const\s+SHELL_FILES\s*=\s*\[([\s\S]*?)\];")
 
 

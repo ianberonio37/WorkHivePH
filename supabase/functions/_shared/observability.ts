@@ -86,13 +86,13 @@ export function withObservability(
       }
       // Non-leaky client response: generic message + trace_id only.
       try {
-        return fail(ctx, "unhandled_error", "An unexpected error occurred.", { status: 500 });
+        return fail(ctx, "unhandled_error", "Something went wrong on our side. Try again in a moment.", { status: 500 });
       } catch {
         // Envelope minting failed -> bare 500 so the request never hangs.
         return new Response(
           JSON.stringify({
             ok: false,
-            error: { code: "unhandled_error", message: "An unexpected error occurred." },
+            error: { code: "unhandled_error", message: "Something went wrong on our side. Try again in a moment." },
             trace_id: ctx?.trace_id,
           }),
           { status: 500, headers: { "Content-Type": "application/json" } },
@@ -165,10 +165,10 @@ export async function failTracked(
     }));
   }
   try {
-    return fail(ctx, code, "An unexpected error occurred.", { status: 500 });
+    return fail(ctx, code, "Something went wrong on our side. Try again in a moment.", { status: 500 });
   } catch {
     return new Response(
-      JSON.stringify({ ok: false, error: { code, message: "An unexpected error occurred." }, trace_id: ctx?.trace_id }),
+      JSON.stringify({ ok: false, error: { code, message: "Something went wrong on our side. Try again in a moment." }, trace_id: ctx?.trace_id }),
       { status: 500, headers: { "Content-Type": "application/json" } },
     );
   }

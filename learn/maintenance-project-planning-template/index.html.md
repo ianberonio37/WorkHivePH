@@ -189,4 +189,4 @@ SAP PS (Project System) and Maximo Project Management handle the financial side:
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 6ab031bd5258c698 -->
+<!-- md-twin source-sha: 664a041c02726c5b -->

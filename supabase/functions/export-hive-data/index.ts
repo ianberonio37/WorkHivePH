@@ -104,7 +104,7 @@ serveObserved("export-hive-data", async (req) => {
   logRequestStart(req, "export-hive-data");  // I6 observability
   if (req.method !== "POST") {
     return new Response(
-      JSON.stringify({ error: "POST only" }),
+      JSON.stringify({ error: "That request method is not allowed. Reload the page and try again." }),
       { status: 405, headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   }
@@ -147,7 +147,7 @@ serveObserved("export-hive-data", async (req) => {
     if (error) {
       const msg = error instanceof Error ? error.message : String(error);
       return new Response(
-        JSON.stringify({ error: "Export RPC failed: " + msg }),
+        JSON.stringify({ error: "Export failed. Try again in a moment. " + msg }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }

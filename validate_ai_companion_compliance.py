@@ -19,7 +19,7 @@ Forward-only L0 ratchet for the twelfth 10-turn flywheel batch (2026-05-21).
 
 from __future__ import annotations
 
-import os, sys
+import os, re, sys
 if sys.platform == "win32":
     import io
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
@@ -67,17 +67,50 @@ def check_erasure(c: str) -> list[dict]:
     for sym in ("_isErasureRequest", "_ERASURE_RE", "_executeErasure"):
         if sym not in c:
             issues.append({"check": "erasure", "reason": f"{sym} missing."})
-    if "right_to_erasure" not in c:
-        issues.append({"check": "erasure", "reason": "right_to_erasure event_type not logged."})
+    # (*)THIS ASSERTED A VALUE NO WRITER COULD EVER HAVE STORED. It required the literal
+    # "right_to_erasure", and the code did write it - into `event_type`, a column ai_audit_log does not
+    # have (its migration declares `event text NOT NULL` and documents the vocabulary in a comment:
+    # 'logbook.create' / 'pm.schedule' / 'erasure_request'). So the check passed on a row that could only
+    # ever have been refused, and it was asserting a spelling the table had never agreed to. Both sides
+    # now follow the table: `event`, value `erasure_request`.
+    if "erasure_request" not in c:
+        issues.append({"check": "erasure", "reason": "the erasure_request audit event is not logged."})
+    # Match the KEY being written, not the word, AND ignore comment lines - this file now explains the
+    # mistake in prose, and the first version of this check fired on its own explanation. A check that
+    # reads a comment as code is the same error one level up, and it caught me the same afternoon.
+    code = "\n".join(l for l in c.splitlines() if not l.lstrip().startswith(("//", "*", "/*")))
+    if re.search(r"(?m)^\s*event_type\s*:", code) or re.search(r"\br\.event_type\b", code):
+        issues.append({"check": "erasure",
+                       "reason": "a writer still names `event_type`; ai_audit_log's column is `event`."})
     return issues
 
 
 def check_audit_export(c: str) -> list[dict]:
+    """T119 audit export - now checked WHERE IT LIVES, not where it was first written.
+
+    This asked whether voice-handler.js spelled `_buildAuditCsv` and `_toCsvRow`. Both were removed on
+    2026-09-08: they were a second, weaker CSV writer, defined and exported and called by nothing since
+    the day they were written, and wrong the whole time (an `event_type` header against a table whose
+    column is `event`) precisely because nothing exercised them. audit-log.html owns the real export, and
+    it now reads ai_audit_log alongside hive_audit_log, so the voice rows are covered by it.
+
+    The requirement has not been relaxed - a compliance export of voice activity must still be producible.
+    Only the address changed, and it is checked at the new one: the page must READ the table and OFFER the
+    export. If either disappears, this reddens."""
     issues = []
-    if "_buildAuditCsv" not in c:
-        issues.append({"check": "audit_export", "reason": "_buildAuditCsv missing."})
-    if "_toCsvRow" not in c:
-        issues.append({"check": "audit_export", "reason": "_toCsvRow missing."})
+    try:
+        page = read_file("audit-log.html") or ""
+    except Exception:
+        page = ""
+    if not page:
+        issues.append({"check": "audit_export", "reason": "audit-log.html could not be read, so whether "
+                                                          "voice activity is exportable is unknown."})
+        return issues
+    if "ai_audit_log" not in page:
+        issues.append({"check": "audit_export", "reason": "audit-log.html no longer reads ai_audit_log, so "
+                                                          "voice activity is in no export."})
+    if "exportCsv" not in page:
+        issues.append({"check": "audit_export", "reason": "audit-log.html no longer offers a CSV export."})
     return issues
 
 
@@ -147,10 +180,94 @@ def check_phase_a_wires(c: str) -> list[dict]:
     return issues
 
 
+# (*)EVERY CHECK ABOVE ASKS WHETHER A NAME IS SPELLED IN THE FILE, and a function defined once and called
+# never satisfies all of them. Measured 2026-09-08: _emitAuditEvent, _executeErasure, _enforceRetention and
+# _buildAuditCsv each appear EXACTLY TWICE in voice-handler.js - the definition and the export list - so
+# every one of these promises is dead code that this validator has been certifying for months.
+#
+# What that means in the product, in the order it matters:
+#   · the assistant tells a worker "I can clear your voice + journal history for this hive. Confirm with
+#     yes - this cannot be undone." On yes, NOTHING IS DELETED. That is a Data Privacy Act right offered
+#     and not performed, which is worse than not offering it: the person stops asking.
+#   · the header over _emitAuditEvent says "every confirmed write action (log entry, schedule, alert flag)
+#     writes to ai_audit_log so we can replay every voice-driven decision". Four actions really are
+#     registered by pages (asset.lookup, inventory.deduct, logbook.create, pm.complete) and the emitter is
+#     on none of them - which is exactly why ai_audit_log holds zero rows in all six hives and the
+#     AI-assisted-day journey reads "the chain is empty" everywhere it is cast.
+#   · retention never ages anything out, and the compliance CSV cannot be produced by anyone.
+#
+# A "wires" check already exists and passes, because it looks for the PROMPT ANCHOR - the sentence the
+# assistant is told to say. Saying it is precisely what the product does; doing it is what it does not.
+# So this check asks the one question the others cannot: is there a CALL?
+REACHABLE = {
+    "_emitAuditEvent":   "the audit row behind 'we can replay every voice-driven decision'",
+    "_executeErasure":   "the deletion the assistant promises on a confirmed yes",
+    "_enforceRetention": "the retention policy that ages voice data out",
+    # The one still open, and the reason is a chain rather than a missing line: audit-log.html already
+    # owns a mature CSV export (its own escaping, a UTF-8 BOM for Excel, a header stating the file's
+    # scope), so this second builder is the weaker duplicate and should not be wired to a new button.
+    # What is actually missing is a READER: ai_audit_log - where voice-driven actions now land - is
+    # displayed by no page at all, and v_audit_unified, the platform's own four-table audit view, is read
+    # by no page either. Give the page the rows and the export it already has covers them.
+    "_buildAuditCsv":    "the compliance export of voice activity (blocked upstream: no page reads ai_audit_log, and v_audit_unified has no reader either)",
+}
+
+# ★A CAPABILITY MAY LIVE IN ANOTHER LAYER, AND THEN THE CLIENT CALL SITE WOULD BE THE BUG. Retention
+# deletes every row in a hive older than the cutoff - every worker's entries, not the speaker's own - so
+# calling it from a browser would need RLS to let any member delete a colleague's journal, which is a hole
+# rather than a feature. It is a scheduled job or it is nothing. So the requirement stays "this must
+# actually happen" and only the place the evidence may be found widens; a symbol with neither a call site
+# nor its named external home still fails.
+ELSEWHERE = {
+    "_enforceRetention": ("supabase/migrations/20260908000003_voice_journal_retention_cron.sql",
+                          "voice-journal-retention",
+                          "a daily pg_cron job, which is where a hive-wide destructive sweep belongs"),
+    # The export was never a missing feature - it was a weaker duplicate. audit-log.html already owns a
+    # mature CSV export (its own escaping, a UTF-8 BOM so Excel does not mangle an asset name, a header
+    # stating the file's scope), and it exports whatever the feed holds. What was actually missing was a
+    # READER: nothing displayed ai_audit_log, so there was nothing for any export to cover. The page now
+    # merges both audit tables into one timeline, so the capability happens through the platform's export
+    # rather than a second one nobody would maintain.
+    "_buildAuditCsv":    ("audit-log.html", "ai_audit_log",
+                          "audit-log.html, which now reads the voice rows and exports them with its own CSV"),
+}
+
+
+def _reached_elsewhere(sym: str) -> tuple[bool, str]:
+    spec = ELSEWHERE.get(sym)
+    if not spec:
+        return False, ""
+    path, needle, where = spec
+    try:
+        with open(path, encoding="utf-8") as fh:
+            return (needle in fh.read()), where
+    except OSError:
+        return False, where
+
+
+def check_reachable(c: str) -> list[dict]:
+    """A capability must actually HAPPEN: called in this file, or performed in its declared home.
+
+    The call test is deliberately crude and hard to fool - count `name(` and drop the definition. An
+    export list mentions the bare name with no parenthesis, so it cannot pass a function off as reached."""
+    issues = []
+    for sym, what in REACHABLE.items():
+        calls = c.count(sym + "(") - c.count("function " + sym + "(")
+        if calls > 0:
+            continue
+        ok, where = _reached_elsewhere(sym)
+        if ok:
+            continue
+        extra = f" (its declared home, {where}, does not carry it either)" if where else ""
+        issues.append({"check": "reachable",
+                       "reason": f"{sym} is defined and never called - {what} does not happen{extra}."})
+    return issues
+
+
 CHECK_NAMES = [
     "pii", "consent", "retention", "erasure", "audit_export",
     "suspicious", "ai_disclosure", "locale_date", "cost_cap", "voice_drift",
-    "wires",
+    "wires", "reachable",
 ]
 CHECK_LABELS = {
     "pii":           "T115 _scrubPii + [PHONE]/[EMAIL]/[ID] markers",
@@ -164,6 +281,7 @@ CHECK_LABELS = {
     "cost_cap":      "T123 _getMonthlyCost + _exceededCostCap + ai_cost_log reference",
     "voice_drift":   "T124 signature record + drift detect + wh_voice_signature_ key + ADVISORY ONLY declaration",
     "wires":         "PHASE A wires — T115/T116/T118/T120 anchors live in perTurnAnchors",
+    "reachable":     "the four capabilities that DO something are actually called: audit emission, erasure, retention, audit export",
 }
 
 
@@ -185,6 +303,7 @@ def main() -> int:
     issues += check_cost_cap(c)
     issues += check_voice_drift(c)
     issues += check_phase_a_wires(c)
+    issues += check_reachable(c)
 
     n_pass, n_skip, n_fail = format_result(CHECK_NAMES, CHECK_LABELS, issues)
     print()

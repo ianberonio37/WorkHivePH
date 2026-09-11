@@ -24,7 +24,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&display=optional" rel="stylesheet">
 <link rel="stylesheet" href="tokens.css">
-<style>
+<link rel="stylesheet" href="wh-help.css"><!-- the inline-help contract, styled before first paint (EX-PF F07, 2026-09-07) -->
+  <style>
   :root {
     --paper: #FFFFFF; --ink: #1F2A37; --muted: #5B6878;
     --accent: #0E5E8A; --rule: #D7DDE5; --cell-bg: #F7F9FC;
@@ -64,6 +65,11 @@
     padding: 10px 16px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
   }
   .toolbar h1 { font-size: 1.05rem; font-weight: 700; }
+  /* I1 CLS (EX-PF F07, 2026-09-07): 'Loading project…' became a long project name that wrapped to two lines at 390 and
+     pushed every section down 50px after first paint; the toolbar title is one line, the full name lives in the report */
+  /* the no-project chooser fills #exec-summary ~0.4 s after paint; reserve its usual height so the sections below do not jump */
+  @media (max-width: 420px) { #exec-summary .empty-section { min-height: 150px; } }
+  .toolbar h2#tb-title { flex: 1 1 auto; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 1.05rem; font-weight: 700; margin: 0; }
   .toolbar .grow { flex: 1; min-width: 0; }
   .toolbar button, .toolbar a.btn {
     font-family: inherit; font-size: 0.9rem; font-weight: 600;
@@ -247,9 +253,9 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
 <div id="ar-print-wrapper" role="region" aria-label="Project report">
   <div class="doc-cover">
     <span class="pcode" id="cov-code">PROJECT</span>
-    <h1 class="ptitle" id="cov-title" translate="no">Project Report</h1>
+    <h1 data-i="p_projectreport_2e35" class="ptitle" id="cov-title" translate="no">Project Report</h1>
 <details class="wh-help">
-  <summary>How this page works</summary>
+  <summary data-i="p_howthispageworks_c540">How this page works</summary>
   <p>How to read this report: SPI above 1.0 means ahead of schedule. Figures come from the linked project’s live records. There is no cost performance index (CPI) here, and that is deliberate: the platform holds no cost ledger, so the only actual cost it can compute is logged hours × an assumed rate: labour alone. Dividing a whole-project budget by labour-only spend would flatter cost performance by whatever share of the budget is materials, equipment and contractors. The labour figure is shown on its own instead, labelled for what it is.</p>
 </details>
     <div>
@@ -259,8 +265,8 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
     </div>
     <div class="pmeta">
       <span><strong>Owner:</strong> <span id="cov-owner">-</span></span>
-      <span><strong>Period:</strong> <span id="cov-period">-</span></span>
-      <span><strong>Generated:</strong> <span id="cov-generated">-</span></span>
+      <span><strong data-i="p_period_ea2a">Period:</strong> <span id="cov-period">-</span></span>
+      <span><strong data-i="p_generated_a2ed">Generated:</strong> <span id="cov-generated">-</span></span>
       <span><strong>Hive:</strong> <span id="cov-hive">-</span></span>
     </div>
   </div>
@@ -301,20 +307,29 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
 
 <main>
   <div class="toolbar">
-    <h2 id="tb-title">Loading project&hellip;</h2>
+    <h2 data-i="p_loadingproject_d3b8" id="tb-title">Loading project&hellip;</h2>
     <div class="grow"></div>
-    <a href="project-manager.html" class="btn">&larr; Back</a>
+    <a data-i="p_back_c32a" href="project-manager.html" class="btn">&larr; Back</a>
     <button class="btn" onclick="aiGenerateNarrative()" id="ai-narrative-btn" title="AI-drafted hero finding + executive summary, strict-only mode">🤖 AI: Narrative</button>
     <button class="btn" onclick="window.print()" style="background:linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light)); color:var(--wh-navy); border:none; font-weight:700;" data-i="print">Print</button>
     <button class="btn primary" onclick="saveAsPdf()" data-i="saveaspdf">Save as PDF</button>
+    <!-- Print and Save-as-PDF both make a picture of this report. A project report is also the record a
+         client, an auditor or the next project manager works FROM - the scope items, the linked
+         evidence, the progress logs with their blockers - and none of that could leave the page as
+         data. Same export shape as the analytics report: one row per figure, with its section and
+         field naming what it is. -->
+    <button class="btn" onclick="saveAsCsv()" id="pr-csv-btn"
+            title="Export this project's records to CSV" aria-label="Export this project's records to CSV"><span data-i="csv">CSV</span></button>
     <!-- FCh3: the report BODY is EN-by-design (formal engineering document, translate="no"
          headings per the N1 disposition); only this toolbar is translatable UI chrome. -->
     <script src="browser-floor.js"></script>
   <script>window.WH_FIL_PAGE={print:'I-print',saveaspdf:'I-save bilang PDF'};</script>
   </div>
+  <!-- I1 CLS (EX-PF F07, 2026-09-07): the provenance chip used to be appended here after the data loaded, pushing every section down 16px; it now has its place from first paint -->
+  <div id="pr-source-chip" style="min-height:16px;"></div>
 </main>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
+<script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
 <script>
 let WORKER_NAME = whWorker() || /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ whWorker() || '';
@@ -368,6 +383,42 @@ function getPhase(it) {
   if (!projectId) {
     $('tb-title').textContent = 'No project specified';
     $('exec-summary').innerHTML = '<div class="empty-section">Open this page from the Project Manager (Detail &rarr; Print Report).<br><a href="project-manager.html" style="color: var(--accent); display:inline-flex; align-items:center; min-height:44px;">Go to Project Manager</a></div>';
+    // EX-PX returner (2026-09-07): a person coming back to this page from history arrives with no ?project_id and
+    // met "No project specified" and a back link - a cold start on a page they had used. The report is FOR a
+    // project, so the honest warm return is the hive's recent projects, each one a link to its own report.
+    try {
+      const T = (typeof _t === 'function') ? _t : (en) => en;
+      const e = (typeof escHtml === 'function') ? escHtml : (x) => String(x);
+      if (HIVE_ID) {
+        // Read the TRUTH VIEW, not the raw table (canonical drift, 2026-09-10). This list is a
+        // chooser: every row becomes a link a person will follow, so it must agree with every other
+        // project surface about which projects exist. `v_project_truth` is that agreement, and its
+        // predicate is `deleted_at IS NULL AND status <> 'archived'` - so the explicit deleted_at
+        // filter moves into the view, and ARCHIVED projects stop being offered here. That second half
+        // is a deliberate behaviour change and the right one: steering someone to an archived project
+        // as their "recent" work is exactly the two-surfaces-two-answers problem the view exists to
+        // end. (Identical result today - raw 12, non-deleted 12, view 12 - so this changes the
+        // CONTRACT, not the current screen.) The view names the key `project_id`, not `id`.
+        const { data: recent } = await db.from('v_project_truth')
+          .select('project_id, project_code, name, status, updated_at')
+          .eq('hive_id', HIVE_ID)
+          .order('updated_at', { ascending: false }).order('project_id').limit(8);   // cap-ok: a short "recent" list, never a total; project_id breaks updated_at ties (paginated order totality)
+        const box = document.createElement('div');
+        box.className = 'empty-section';
+        box.setAttribute('role', 'region');
+        box.setAttribute('aria-label', T('Recent projects', 'Mga kamakailang project'));
+        if (recent && recent.length) {
+          box.innerHTML = '<p style="margin:0 0 .4rem;font-weight:600;">' + e(T("Your hive's recent projects", 'Mga kamakailang project ng hive mo')) + '</p><ul style="list-style:none;padding:0;margin:0;">'
+            + recent.map((r) => '<li><a href="project-report.html?project_id=' + encodeURIComponent(r.project_id) + '" style="color: var(--accent); display:inline-flex; align-items:center; min-height:44px;">'
+              + e((r.project_code ? r.project_code + ' · ' : '') + (r.name || r.project_id)) + (r.status ? ' <span style="opacity:.7;font-size:.85em;">· ' + e(r.status) + '</span>' : '') + '</a></li>').join('')
+            + '</ul>';
+        } else {
+          box.textContent = T('No projects in this hive yet. Create one in the Project Manager and its report will build here.',
+                              'Wala pang project sa hive na ito. Gumawa ng isa sa Project Manager at dito mabubuo ang report nito.');
+        }
+        $('exec-summary').appendChild(box);
+      }
+    } catch (_) { /* empty-catch-allow: the chooser is a courtesy; the back link above still stands */ }
     return;
   }
   await loadAndRender(projectId);
@@ -410,9 +461,9 @@ async function loadAndRender(projectId) {
        sharing a sort_order had no defined position, so two regenerations of the same report could list
        the same work in a different order - which is exactly the "regenerating produces the same report"
        invariant this page is supposed to hold. .order('id') is unique and totalises it. */
-    db.from('v_project_items_truth').select('*').eq('project_id', projectId).order('sort_order').order('id').limit(500),
-    db.from('project_links').select('*').eq('project_id', projectId).order('created_at').order('id').limit(500),
-    db.from('v_project_progress_truth').select('*').eq('project_id', projectId).order('log_date', { ascending: false }).order('id').limit(60),
+    db.from('v_project_items_truth').select('*').eq('project_id', projectId).order('sort_order').order('id').limit(500),   // cap-ok: rows only - no count or sum is derived from this read (classified by the reference-pages-uncapped sweep, 2026-09-05)
+    db.from('project_links').select('*').eq('project_id', projectId).order('created_at').order('id').limit(500),   // cap-ok: rows only - no count or sum is derived from this read (classified by the reference-pages-uncapped sweep, 2026-09-05)
+    db.from('v_project_progress_truth').select('*').eq('project_id', projectId).order('log_date', { ascending: false }).order('id').limit(60),   // cap-ok: rows only - no count or sum is derived from this read (classified by the reference-pages-uncapped sweep, 2026-09-05)
   ]);
   // Normalise settled results back into the { data, error } shape the rest of this function reads. A
   // REJECTION becomes an error object, so a dropped connection reaches the same four-way branch below
@@ -450,7 +501,7 @@ async function loadAndRender(projectId) {
              + 'not empty, so do not report status from this page yet. '
              + '<button type="button" onclick="location.reload();" style="min-height:44px;padding:0 0.9rem;'
              + 'border-radius:8px;font-size:0.8rem;font-weight:600;background:rgba(247,162,27,0.12);'
-             + 'border:1px solid rgba(247,162,27,0.3);color:var(--wh-orange-text);">Retry</button>' + _back;
+             + 'border:1px solid rgba(247,162,27,0.3);color:var(--wh-orange-text);" data-i="retry">Retry</button>' + _back;
     } else {
       // T73 (2026-08-25): a cross-hive open lands HERE, not in _refused — RLS returns zero
       // rows with NO error, so this branch cannot tell deleted from invisible. It used to
@@ -857,6 +908,54 @@ function renderSignoff(p) {
     </div>`;
 }
 
+// ★A PROJECT REPORT IS ALSO A RECORD SOMEBODY WORKS FROM. Print and Save-as-PDF both hand over a
+// picture; the scope items, the linked evidence and the progress logs with their blockers are what a
+// client, an auditor or the next project manager actually needs in a sheet. _projectCache already
+// holds exactly what the page rendered, so the export is of the same data, never a second read that
+// could disagree with what is on screen.
+function saveAsCsv() {
+  if (!_projectCache || !_projectCache.project) {
+    if (typeof showToast === 'function') showToast('Open this report from the Project Manager first.');
+    return;
+  }
+  const esc = (v) => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+  const rows = [];
+  const walk = (node, section, path) => {
+    if (node == null) return;
+    if (Array.isArray(node)) { node.forEach((n, i) => walk(n, section, path + '[' + i + ']')); return; }
+    if (typeof node === 'object') {
+      Object.keys(node).forEach((k) => walk(node[k], section, path ? path + '.' + k : k));
+      return;
+    }
+    if (node === '') return;
+    rows.push([section, path, node].map(esc).join(','));
+  };
+  walk(_projectCache.project, 'project', '');
+  walk(_projectCache.items,   'scope items', '');
+  walk(_projectCache.links,   'linked records', '');
+  walk(_projectCache.logs,    'progress logs', '');
+  const p = _projectCache.project;
+  const meta = [
+    'WorkHive project report export',
+    'Project: ' + (p.name || p.id || 'unnamed'),
+    'Scope items: ' + ((_projectCache.items || []).length),
+    'Progress logs: ' + ((_projectCache.logs || []).length),
+    'Figures: ' + rows.length,
+    'Exported: ' + (typeof whFmtDate === 'function' ? whFmtDate(new Date().toISOString(), { time: true }) : new Date().toISOString()),
+  ].map(esc).join('\r\n');
+  const csv = meta + '\r\n\r\n' + ['Section', 'Field', 'Value'].map(esc).join(',') + '\r\n' + rows.join('\r\n');
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'workhive-project-' + new Date().toISOString().slice(0, 10) + '.csv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  if (typeof showToast === 'function') showToast('Exported ' + rows.length + ' fields.');
+}
+
 function saveAsPdf() {
   const code = ($('cov-code').textContent || 'project').trim();
   const filename = `${code}_report_${new Date().toISOString().slice(0, 10)}.pdf`;
@@ -885,5 +984,18 @@ function saveAsPdf() {
   <script defer src="connectivity-widget.js"></script>
   <script defer src="session-timeout.js"></script>
   <script defer src="device-fingerprint.js"></script>
+<script>/* systemic ripple (2026-09-05): utils.js is the shared script every panel below renders through; if it never arrives
+   (a stale shell, a blocked CDN, a dropped connection mid-load) this page went blank or froze on its static skeletons.
+   utils.js cannot help when utils.js is the thing missing, so the guard lives here. */
+window.addEventListener('load', function () { setTimeout(function () {
+  if (typeof getDb === 'function' && typeof escHtml === 'function') return;
+  try { console.error('[project-report] utils.js did not load; the page cannot render its data'); } catch (e) { void e; }
+  var m = document.querySelector('main') || document.body; if (!m || m.querySelector('.wh-shared-missing')) return;
+  var d = document.createElement('div'); d.className = 'honest-empty wh-shared-missing'; d.setAttribute('role', 'alert');
+  d.style.cssText = 'margin:12px;padding:14px 16px;border:1px solid rgba(248,113,113,.4);border-radius:12px;background:rgba(248,113,113,.08);color:#fca5a5;font:14px/1.5 system-ui,sans-serif;';
+  d.innerHTML = 'WorkHive could not load its shared script (utils.js), so this page cannot show your data. <button type="button" onclick="location.reload()" style="color:inherit;text-decoration:underline;background:none;border:0;padding:0;font:inherit;cursor:pointer;min-height:44px;" data-i="reloadtotryagain">Reload to try again</button>.';
+  m.insertBefore(d, m.firstChild);
+  var sk = document.querySelectorAll('.wh-skeleton, [class*="skeleton"]'); for (var i = 0; i < sk.length; i++) sk[i].style.display = 'none';
+}, 2500); });</script>
 </body>
 </html>

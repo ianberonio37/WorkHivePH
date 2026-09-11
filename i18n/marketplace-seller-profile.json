@@ -1,0 +1,14 @@
+{
+ "_doc": "marketplace-seller-profile.html: English visible text -> Filipino, authored. Empty = not yet translated. tools/i18n_page_dict.py --apply tags the element and emits WH_FIL_PAGE.",
+ "Loading…": "Naglo-load…",
+ "How this page works": "Paano gumagana ang page na ito",
+ "This is a seller’s public profile. Badges show identity checks and community trust. Use the contact button to message them: there are no fees.": "Ito ang pampublikong profile ng seller. Ipinapakita ng mga badge ang identity check at tiwala ng community. Gamitin ang contact button para i-message sila: walang bayad.",
+ "Active Listings": "Mga Active na Listing",
+ "Inquiries Replied": "Mga Inquiry na Nasagot",
+ "Avg Reply": "Avg na Reply",
+ "Rating": "",
+ "Stats per WorkHive Marketplace Seller Score · platform-internal composite": "Stats ayon sa WorkHive Marketplace Seller Score · platform-internal na composite",
+ "Certifications": "Mga Sertipikasyon",
+ "Loading reviews…": "Naglo-load ng mga review…",
+ "Newest first. Sellers cannot pay for placement.": "Pinakabago muna. Hindi puwedeng magbayad ang seller para sa placement."
+}

@@ -3227,6 +3227,31 @@ def workhive_file(filename):
     return send_from_directory(WORKHIVE_ROOT, filename)
 
 
+@app.route("/<path:subpath>/<filename>")
+def root_nested_alias(subpath, filename):
+    """★AND THE ALIAS MUST REACH NESTED PATHS, OR THE SERVICE WORKER CAN NEVER INSTALL LOCALLY
+    (2026-09-09). root_file_alias below handles a single-segment `/foo.ext`, which covers the page links
+    it was written for. But sw.js precaches 32 Filipino page dictionaries at `/i18n/pages/<page>.fil.json`
+    — nested, root-absolute, correct for production where the site IS the root — and every one of them
+    404'd here. `caches.addAll()` rejects if a SINGLE request fails, so the worker's install failed on
+    every local run, no new worker ever activated, and any walk of an offline or PWA claim was measuring
+    a service worker that could not exist. That is an instrument fault that reads exactly like a product
+    one: I measured a learn article as 'not cached' and nearly recorded it as a platform defect.
+
+    Same guard rails as the single-segment alias: only a path that EXISTS under the workhive root, only
+    with an extension, specific routes always win, and anything else still 404s as before."""
+    rel = f"{subpath}/{filename}"
+    if "." not in filename or ".." in rel:
+        abort(404)
+    try:
+        target = (WORKHIVE_ROOT / rel).resolve()
+        if not target.is_file() or WORKHIVE_ROOT.resolve() not in target.parents:
+            abort(404)
+    except (OSError, ValueError):
+        abort(404)
+    return workhive_file(rel)
+
+
 @app.route("/<filename>")
 def root_file_alias(filename):
     """Production (Netlify) serves pages at the root (e.g. /resume.html); locally they live

@@ -541,7 +541,7 @@ async function orchestrate(question: string, hiveId: string | null, workerName: 
   try {
     const searchRes = await fetch(
       `${Deno.env.get("SUPABASE_URL")}/functions/v1/semantic-search`,
-      {
+      { signal: AbortSignal.timeout(60000),
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -701,8 +701,23 @@ serveObserved("ai-orchestrator", async (req) => {
   }
   logRequestStart(req, "ai-orchestrator");  // I6 observability
 
+  // ★A CALLER'S MISTAKE IS NOT A SERVER ERROR (live-walk wave, 2026-09-06). tools/prove_edge_contract.mjs asked this
+  // function with a broken body and with GET: both reached `await req.json()` inside the main try and came back 500,
+  // so a typo in a client read as "the platform is broken". The guards below are the same two every function that
+  // passed the walk already had (agent-memory-store's 405 + 400 pair).
+  if (req.method !== "POST") {
+    return new Response(JSON.stringify({ error: "That action is not allowed here. Reload the page and try again." }), {
+      status: 405, headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
   try {
-    const body = await req.json();
+    let body;
+    try { body = await req.json(); } catch {
+      return new Response(JSON.stringify({ error: "That request could not be read. Reload the page and try again." }), {
+        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
     // Gateway shape adapter (Phase 1+2): the gateway forwards `message`, while
     // direct callers send `question`. Accept either so both paths work.
     // Arc R (LLM10): cap user-controlled text before it enters router/synthesis prompts.

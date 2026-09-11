@@ -2,6 +2,50 @@
 // capability: report_pdf_render
  * pdf-ingest -- PDF -> chunks -> embeddings -> knowledge table.
  *
+ * ⚠️ THE WORKER NOW WORKS; NOTHING STILL CREATES THE WORK (W3-FN row W31154 - diagnosed 2026-09-05,
+ * half of it FIXED 2026-09-10). Two independent facts were measured against the live database, and
+ * exactly one of them has been repaired. Both are stated because the difference is the whole status:
+ *
+ *   1. NOTHING CREATES THE WORK - STILL TRUE. A repo-wide search finds no page, script or tool that
+ *      ever inserts into `pdf_jobs` - only the migration that creates the table and the seeder's reset
+ *      list. The table holds 0 rows and always has. The "client extracts text via PDF.js, then submits
+ *      a pdf_jobs row" step described below was never built, and is not built here: that is a product
+ *      feature (an upload surface), not a defect in this worker.
+ *   2. THE WORKER COULD NOT FINISH IF ANYTHING DID - FIXED. The insert wrote `content` and `meta` into
+ *      whatever `target_table` named, constrained by a database-level CHECK to six knowledge tables.
+ *      All six were queried: NOT ONE has a `content` column and NOT ONE has `meta`, so every insert it
+ *      could attempt failed on every permitted destination - after the embedding call, which succeeds
+ *      first, so each attempt spent embedding budget to produce a row that could not land.
+ *      The fix needed no migration and no per-target field mapping, because the premise under that
+ *      idea was wrong: five of the six are DERIVED SUMMARY tables, one row per asset / per worker /
+ *      per calculation, so a page of a manual was never a row any of them could hold under ANY column
+ *      name. The platform already has the store this wants - kb_documents + kb_chunks(doc_id,
+ *      chunk_num, text, embedding vector(384), the same dimension the chain emits) - so a job now
+ *      opens one document and files its chunks under it, and `target_table` is recorded as that
+ *      document's content_type: still the job's declared domain, no longer asked to be a destination.
+ *      PROVEN END TO END (2026-09-10). First in the database, with the old shape as a CONTROL: against
+ *      fault_knowledge the old insert still raises `column "content" of relation "fault_knowledge"
+ *      does not exist`, while the new pair - kb_documents then kb_chunks with a 384-dim vector -
+ *      returns INSERT 0 1 twice and the chunk reads back through the join. Then through the function
+ *      itself: a seeded pdf_jobs row invoked as the service caller returned
+ *      `{chunks_in:1, chunks_done:1, errors:0, status:"done"}` where it used to return
+ *      `{chunks_done:0, errors:1, status:"failed"}`, leaving one kb_documents row
+ *      (content_type='fault_knowledge', embedding_status='done') with one embedded chunk under it and
+ *      the job at `done | embedded=1`. Reversed afterwards: 3 deletes, residue audited at 0 in all
+ *      three tables, and the six pre-existing kb_chunks left untouched.
+ *      ★AND THE THING THAT NEARLY STOPPED THIS BEING TESTED WAS A CONTAINER STATUS, NOT THE STACK.
+ *      `supabase_edge_runtime_workhive` reads "Exited (137) 14 hours ago" and I wrote in this very
+ *      header that the invoke could not be run because the edge tier was down. It was not: functions
+ *      are served here by `wh_edge_resend`, and one POST proved it - pdf-ingest answered with its own
+ *      403 refusal, which is a FUNCTION talking, not a dead port. Read the port, never the container
+ *      list; and the service-role bearer this gate compares against is the one in the SERVING
+ *      container's env, not Kong's.
+ *
+ * So the honest state is: this function does its documented job the moment a job row exists, and no
+ * caller creates one. Kept rather than deleted, on the same principle as voice-model-call's deprecation
+ * note - a retirement can still drop the function, its `pdf_jobs` table and its contract row together;
+ * a completion now only needs the upload half.
+ *
  * Closes Phase 1.1 of the RAG roadmap. The naive embedding seed (hand-
  * coded fixtures) is a ceiling on RAG quality. This fn lets a worker
  * upload a PDF (manual / spec / code book), the client extracts text
@@ -53,37 +97,107 @@ interface IngestResult {
   status:       "done" | "failed" | "partial";
 }
 
+/* ★A JOB'S STATUS IS THE ONLY THING THAT STOPS IT BEING RUN AGAIN (2026-09-09, found by the
+   unchecked-writes sweep after cmms-webhook-receiver taught the class). All four pdf_jobs updates below
+   discarded their result, and each failure has its own way of going wrong quietly:
+     - "processing" not landing  -> the job stays queued, the next invocation picks up the SAME job, and
+                                    the document is ingested twice
+     - "failed" not landing      -> a job that can never succeed is retried for ever
+     - the final status          -> finished work reads as stuck, and nobody can tell which
+   None of it would appear in a log. This helper makes the write speak; the caller decides what to do,
+   because a status write failing does not always mean the WORK failed. */
+async function setJobStatus(
+  db: ReturnType<typeof createClient>,
+  jobId: string,
+  patch: Record<string, unknown>,
+  what: string,
+): Promise<boolean> {
+  const { error } = await db.from("pdf_jobs").update(patch).eq("id", jobId);
+  if (error) {
+    console.error(`pdf-ingest: could not mark job ${jobId} as ${what} -`, error.message,
+      "- the job may be picked up again");
+    return false;
+  }
+  return true;
+}
+
 async function processJob(
   db:  ReturnType<typeof createClient>,
-  job: { id: string; target_table: string; chunks_json: ChunkRow[] | null; hive_id: string },
+  job: { id: string; target_table: string; chunks_json: ChunkRow[] | null; hive_id: string;
+         source_name?: string | null },
 ): Promise<IngestResult> {
   const chunks = Array.isArray(job.chunks_json) ? job.chunks_json : [];
   if (chunks.length === 0) {
-    await db.from("pdf_jobs").update({
+    await setJobStatus(db, job.id, {
       status:        "failed",
       error_message: "chunks_json empty",
       finished_at:   new Date().toISOString(),
-    }).eq("id", job.id);
+    }, "failed (empty chunks)");
     return { job_id: job.id, chunks_in: 0, chunks_done: 0, errors: 1, status: "failed" };
   }
   if (chunks.length > MAX_CHUNKS_PER_JOB) {
-    await db.from("pdf_jobs").update({
+    await setJobStatus(db, job.id, {
       status:        "failed",
       error_message: `chunks_json exceeds MAX_CHUNKS_PER_JOB=${MAX_CHUNKS_PER_JOB}`,
       finished_at:   new Date().toISOString(),
-    }).eq("id", job.id);
+    }, "failed (too many chunks)");
     return { job_id: job.id, chunks_in: chunks.length, chunks_done: 0, errors: 1, status: "failed" };
   }
 
-  await db.from("pdf_jobs").update({
+  // ...and if THIS one does not land the job stays queued and will be ingested a second time, so it is
+  // the one worth refusing to continue on
+  if (!await setJobStatus(db, job.id, {
     status:       "processing",
     total_chunks: chunks.length,
     started_at:   new Date().toISOString(),
-  }).eq("id", job.id);
+  }, "processing")) {
+    return { job_id: job.id, chunks_in: chunks.length, chunks_done: 0, errors: 1, status: "failed" };
+  }
+
+  // ★THE CHUNKS GO TO THE DOCUMENT STORE, NOT INTO SIX SUMMARY TABLES (2026-09-10, W3-FN W31154).
+  // This used to build one generic row - { hive_id, embedding, content, meta, source } - and insert it
+  // into whatever `target_table` named. Every one of those inserts failed, on every permitted
+  // destination, because NOT ONE of the six has a `content` column or a `meta` column; the embedding
+  // call runs first, so each attempt spent embedding budget to produce a row that could not land.
+  // The deeper reason it could never work: five of those six are DERIVED SUMMARY tables - one row per
+  // asset (pm_knowledge: asset_id, overdue_count, last_completed), per worker (skill_knowledge: level,
+  // primary_skill), per calculation (calc_knowledge: key_inputs, key_outputs) - so a page of a manual
+  // was never a row any of them could hold, whatever it was called. The platform already has the store
+  // this needs and it needed no migration: kb_documents (hive_id, title, content_type,
+  // embedding_status) with kb_chunks (doc_id, chunk_num, text, embedding vector(384) - the same
+  // dimension the chain emits and the same the knowledge tables use). So a job now opens ONE document
+  // and files its chunks under it, which is also what makes a re-ingested PDF traceable to its source
+  // instead of scattered across a domain table. `target_table` is kept and recorded as the document's
+  // content_type: it stays the job's declared domain (its CHECK allowlist is still the right place for
+  // that) without being asked to be an insert destination it never fit.
+  const { data: doc, error: docErr } = await db.from("kb_documents").insert({
+    hive_id:          job.hive_id,
+    title:            (job.source_name || "").trim() || `PDF import ${job.id}`,
+    content_type:     job.target_table,
+    embedding_status: "processing",
+  }).select("id").single();
+  if (docErr || !doc) {
+    // no document, no destination: fail the job LOUDLY rather than embed chunks with nowhere to put them
+    //
+    // ★A PERSON READS error_message, SO IT HAS TO BE WRITTEN FOR THEM (2026-09-10, critic E4). This said
+    // `could not open a kb_documents row: <driver text>` - a sentence I wrote earlier the same day, which
+    // names an internal table, hands over a driver string, and tells the person nothing they can do. The
+    // CAUSE still matters and still has a reader, so it goes to the log where a maintainer looks; the row
+    // carries the sentence the person needs. setJobStatus's `what` argument is not a general log - it is
+    // only printed when the status update ITSELF fails - so without this line the detail would be lost.
+    console.error(`pdf-ingest: could not open a kb_documents row for job ${job.id} -`,
+      docErr?.message || "no row returned");
+    await setJobStatus(db, job.id, {
+      status:        "failed",
+      error_message: "This document could not be filed, so nothing was indexed. Upload it again, or tell your supervisor.",
+      finished_at:   new Date().toISOString(),
+    }, "failed (no document)");
+    return { job_id: job.id, chunks_in: chunks.length, chunks_done: 0, errors: 1, status: "failed" };
+  }
 
   let chunksDone = 0;
   let errors     = 0;
-  for (const chunk of chunks) {
+  for (const [i, chunk] of chunks.entries()) {
     try {
       const text = (chunk.text || "").slice(0, 4000);
       if (!text.trim()) {
@@ -91,16 +205,14 @@ async function processJob(
         continue;
       }
       const embedding = await generateEmbedding(text);
-      const row: Record<string, unknown> = {
-        hive_id:   job.hive_id,
+      const { error } = await db.from("kb_chunks").insert({
+        doc_id:    doc.id,
+        chunk_num: i + 1,
+        text,
         embedding,
-        content:   text,
-        meta:      chunk.meta ?? {},
-        source:    "pdf_ingest",
-      };
-      const { error } = await db.from(job.target_table).insert(row);
+      });
       if (error) {
-        log.warn(null, `pdf-ingest insert failed (${job.target_table}):`, { detail: error.message });
+        log.warn(null, "pdf-ingest insert failed (kb_chunks):", { detail: error.message });
         errors++;
         continue;
       }
@@ -121,12 +233,32 @@ async function processJob(
     chunksDone === 0 ? "failed"
     : errors > 0 ? "partial"
     : "done";
-  await db.from("pdf_jobs").update({
+  // The document must say what actually landed under it. A kb_documents row left at 'processing'
+  // forever is the same lie in a different table: a reader (and the RAG retriever) would treat a
+  // half-embedded manual as one still on its way, and a failed one as pending rather than absent.
+  // ★AND THIS WRITE DISCARDED ITS ERROR, WHICH IS THE LIE THE COMMENT ABOVE DESCRIBES (2026-09-11,
+  // caught by validate_unchecked_writes against a 0 baseline). If the update fails, the row stays at
+  // 'processing' — exactly the "still on its way" state the comment warns about — while this function
+  // returns status:"done" and the caller, the RAG retriever and any reader all believe the document is
+  // ready. A write whose result nobody reads can fail while the function answers ok; that is how
+  // cmms-webhook-receiver once told a CMMS its work orders had landed while persisting nothing.
+  // The failure is now carried in BOTH places someone could look: the job's error_message and the
+  // returned payload. It is deliberately NOT thrown — the chunks really did embed, and discarding that
+  // truth to report this one would be a second lie.
+  const { error: docStatusErr } = await db.from("kb_documents").update({
+    embedding_status: finalStatus === "failed" ? "failed" : finalStatus === "partial" ? "partial" : "done",
+    updated_at:       new Date().toISOString(),
+  }).eq("id", doc.id);
+  const failureNotes = [
+    errors > 0 ? `${errors} chunk(s) failed` : null,
+    docStatusErr ? `document status not written: ${docStatusErr.message}` : null,
+  ].filter(Boolean).join("; ");
+  await setJobStatus(db, job.id, {
     status:          finalStatus === "partial" ? "done" : finalStatus,
     embedded_chunks: chunksDone,
-    error_message:   errors > 0 ? `${errors} chunk(s) failed` : null,
+    error_message:   failureNotes || null,
     finished_at:     new Date().toISOString(),
-  }).eq("id", job.id);
+  }, finalStatus);
 
   return {
     job_id:      job.id,
@@ -134,6 +266,9 @@ async function processJob(
     chunks_done: chunksDone,
     errors,
     status:      finalStatus,
+    // false means the chunks landed but the DOCUMENT's own status did not — the caller must not read
+    // `status` as the document's state in that case
+    doc_status_written: !docStatusErr,
   };
 }
 
@@ -185,7 +320,7 @@ serveObserved("pdf-ingest", async (req) => {
   // Single-job mode.
   if (body.job_id) {
     const { data: job } = await db.from("pdf_jobs")
-      .select("id, target_table, chunks_json, hive_id, status")
+      .select("id, target_table, chunks_json, hive_id, status, source_name")
       .eq("id", body.job_id)
       .maybeSingle();
     if (!job) {
@@ -209,7 +344,7 @@ serveObserved("pdf-ingest", async (req) => {
 
   // Drain mode.
   const { data: jobs } = await db.from("pdf_jobs")
-    .select("id, target_table, chunks_json, hive_id")
+    .select("id, target_table, chunks_json, hive_id, source_name")
     .eq("status", "pending")
     .order("created_at", { ascending: true })
     .limit(MAX_JOBS_PER_DRAIN);

@@ -172,7 +172,18 @@ serveObserved("walkthrough-analyzer", async (req: Request): Promise<Response> =>
   logRequestStart(req, "walkthrough-analyzer");  // I6 observability
 
   try {
-    const body = await req.json();
+    // ★A CALLER'S MISTAKE IS NOT A SERVER ERROR (live-walk wave, 2026-09-06). tools/prove_edge_contract.mjs asked this
+  // function with a broken JSON body and with GET; both reached `await req.json()` and came back 500, so a typo in a
+  // client read as "the platform is broken". These are the same two guards every function that passed already had.
+    if (req.method !== "POST") {
+      return new Response(JSON.stringify({ error: "That action is not allowed here. Reload the page and try again." }),
+        { status: 405, headers: { ...getCorsHeaders(req), "Content-Type": "application/json" } });
+    }
+    let body;
+    try { body = await req.json(); } catch {
+      return new Response(JSON.stringify({ error: "That request could not be read. Reload the page and try again." }),
+        { status: 400, headers: { ...getCorsHeaders(req), "Content-Type": "application/json" } });
+    }
     const {
       page_slug,
       page_file,
@@ -246,7 +257,7 @@ Write the code to gate this finding permanently.`;
         );
       } catch {
         return new Response(
-          JSON.stringify({ error: "proposal generation failed", raw: raw.slice(0, 200) }),
+          JSON.stringify({ error: "Could not draft the proposal. Try again in a moment.", raw: raw.slice(0, 200) }),
           { status: 500, headers: { "Content-Type": "application/json", ...getCorsHeaders(req) } },
         );
       }

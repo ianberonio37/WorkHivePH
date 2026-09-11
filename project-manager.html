@@ -408,15 +408,15 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
 <div id="hive-gate">
   <div class="gate-card">
     <h2 style="margin-bottom: 10px;" data-i="joinhivefirst">Join a hive first</h2>
-    <p class="sub" style="margin-bottom: 18px;">Project Manager is team data. Join or create a hive to plan and track projects with your crew.</p>
-    <a href="hive.html" class="btn primary">Go to Hive</a>
+    <p data-i="p_projectmanageristeamdatajoin_ae15" class="sub" style="margin-bottom: 18px;">Project Manager is team data. Join or create a hive to plan and track projects with your crew.</p>
+    <a data-i="p_gotohive_f399" href="hive.html" class="btn primary">Go to Hive</a>
   </div>
 </div>
 
 <main>
   <!-- List View Contract: declarative empty-state anchor (L-1.5) -->
-  <div id="empty-state" class="empty-state" hidden>No projects yet: start with a project template above.</div>
-  <div id="no-results" class="empty-state" hidden>No projects match those filters.</div>
+  <div data-i="p_noprojectsyetstartwithaproje_56bc" id="empty-state" class="empty-state" hidden>No projects yet: start with a project template above.</div>
+  <div data-i="p_noprojectsmatchthosefilters_6e89" id="no-results" class="empty-state" hidden>No projects match those filters.</div>
 
 
   <!-- LIST VIEW -->
@@ -425,23 +425,32 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
     data-rag-label="Project list view">
     <div class="row" style="justify-content: space-between; margin-bottom: 4px;">
       <h1 data-i="pagetitle">Project Manager</h1>
+    <details class="wh-help">
+      <summary data-i="p_howthispageworks_c540">How this page works</summary>
+      <ul>
+        <li data-i="p_aprojectholdstheworkthatdoes_65df">A project holds the work that does not fit a single logbook entry: a shutdown, an install, an overhaul.</li>
+        <li data-i="p_taskscarrytheirownownerandda_2adf">Tasks carry their own owner and dates. Progress on the project is derived from them rather than set by hand.</li>
+        <li data-i="p_abillofmaterialsimportedfrom_c1cf">A bill of materials imported from an engineering calculation arrives here as tasks and parts you can still edit.</li>
+      </ul>
+    </details>
+
       <div style="display:flex; align-items:center; gap:10px;">
         <!-- Phase B merge: project-report.html now reachable as a button here -->
-        <a href="project-report.html" id="project-print-btn" title="Open print-ready Project Report"
+        <a data-i="p_printreport_06ec" href="project-report.html" id="project-print-btn" title="Open print-ready Project Report"
            style="display:inline-flex; align-items:center; gap:6px; padding:6px 12px; min-height:44px; background:rgba(247,162,27,0.12); color:var(--orange-wh); border:1px solid rgba(247,162,27,0.3); border-radius:8px; font-size:0.78rem; font-weight:600; text-decoration:none;">
           📄 Print Report
         </a>
         <span id="hive-tag" class="small" style="color: var(--muted);"></span>
       </div>
     </div>
-    <div class="sub">Plan, track and close out maintenance projects. Handles work-order bundles, shutdowns, CAPEX, and contractor jobs.</div>
+    <div data-i="p_plantrackandcloseoutmaintena_6136" class="sub">Plan, track and close out maintenance projects. Handles work-order bundles, shutdowns, CAPEX, and contractor jobs.</div>
     <p id="pm-mgr-source-chip" style="margin:4px 0 0;"></p>
 
     <!-- Plain-Read summary (Layer D — UX Contract).
          Populated by renderProjectsSummary() from _projects. -->
     <div id="pm-verdict" class="verdict empty">
       <span id="pm-verdict-icon" class="verdict-icon">·</span>
-      <div class="verdict-text"><span id="pm-verdict-label">Computing project health...</span><small id="pm-verdict-sub">Counting active projects, overdue, and on-hold work.</small></div>
+      <div class="verdict-text"><span data-i="p_computingprojecthealth_f400" id="pm-verdict-label">Computing project health...</span><small data-i="p_countingactiveprojectsoverdu_aa27" id="pm-verdict-sub">Counting active projects, overdue, and on-hold work.</small></div>
     </div>
     <div class="simple-row">
       <div class="simple-card hero tag-grey" id="pm-card-active" data-rag-tile="project-manager:active_projects" data-rag-label="Active projects">
@@ -450,38 +459,38 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
              an injected 500 they still read 0 - the flag is not set on every failing path, and an
              honest DEFAULT covers all of them without needing to enumerate each one. -->
         <div class="sc-hero" id="pm-active-hero">—</div>
-        <div class="sc-sub" id="pm-active-sub">Loading...</div>
+        <div data-i="p_loading_b04b" class="sc-sub" id="pm-active-sub">Loading...</div>
         <span class="sc-tag" id="pm-active-tag">-</span>
       </div>
       <div class="simple-card tag-grey" id="pm-card-overdue" data-rag-tile="project-manager:past_end_date" data-rag-label="Past end date">
         <h2 class="sc-label" style="margin:0;" data-i="pastenddate">Past end date</h2>
         <div class="sc-hero" id="pm-overdue-hero">—</div>
-        <div class="sc-sub" id="pm-overdue-sub">Loading...</div>
+        <div data-i="p_loading_b04b" class="sc-sub" id="pm-overdue-sub">Loading...</div>
         <span class="sc-tag" id="pm-overdue-tag">-</span>
       </div>
       <div class="simple-card tag-grey" id="pm-card-blocked" data-rag-tile="project-manager:on_hold_planning" data-rag-label="On hold or planning">
         <h2 class="sc-label" style="margin:0;" data-i="onholdplanning">On hold or planning</h2>
         <div class="sc-hero" id="pm-blocked-hero">—</div>
-        <div class="sc-sub" id="pm-blocked-sub">Loading...</div>
+        <div data-i="p_loading_b04b" class="sc-sub" id="pm-blocked-sub">Loading...</div>
         <span class="sc-tag" id="pm-blocked-tag">-</span>
       </div>
     </div>
     <div class="action-card">
-      <div class="ac-label">What to do next</div>
-      <div class="ac-text" id="pm-action-text">Computing recommendation...</div>
+      <div data-i="p_whattodonext_8ce2" class="ac-label">What to do next</div>
+      <div data-i="p_computingrecommendation_5948" class="ac-text" id="pm-action-text">Computing recommendation...</div>
     </div>
     <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="pm-summary-details" data-i="showdetails">
       Show details
     </button>
     <div id="pm-summary-details" role="region" aria-label="Project health explainer">
-      <strong style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How project health is computed</strong>
+      <strong data-i="p_howprojecthealthiscomputed_27c2" style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How project health is computed</strong>
       <ul style="margin:0;padding-left:20px;">
-        <li><strong>Active projects</strong>: active.</li>
-        <li><strong>Past end date</strong>: past their end date but not yet closed: projects that should have closed but haven't.</li>
-        <li><strong>On hold or planning</strong>: on hold or planning: work that's not moving yet.</li>
-        <li><strong>Verdict</strong>: red if 3+ past end date; amber if any past end OR blocked count exceeds active; green when active &gt; blocked and nothing overdue.</li>
+        <li><strong data-i="p_activeprojects_f361">Active projects</strong>: active.</li>
+        <li><strong data-i="p_pastenddate_1d3a">Past end date</strong>: past their end date but not yet closed: projects that should have closed but haven't.</li>
+        <li><strong data-i="p_onholdorplanning_0ca5">On hold or planning</strong>: on hold or planning: work that's not moving yet.</li>
+        <li><strong data-i="p_verdict_7f6e">Verdict</strong>: red if 3+ past end date; amber if any past end OR blocked count exceeds active; green when active &gt; blocked and nothing overdue.</li>
       </ul>
-      <p style="margin-top:8px;color:rgba(255,255,255,0.80);font-size:11px;">Use the status tabs below for the per-project drilldown.</p>
+      <p data-i="p_usethestatustabsbelowforthep_6863" style="margin-top:8px;color:rgba(255,255,255,0.80);font-size:11px;">Use the status tabs below for the per-project drilldown.</p>
     </div>
 
     <div class="recent-row" id="recent-strip"></div>
@@ -496,14 +505,14 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
 
     <div class="filter-row">
       <select id="filter-type" aria-label="Filter projects by type">
-        <option value="">All types</option>
+        <option data-i="p_alltypes_30c8" value="">All types</option>
         <option value="workorder">Work Order</option>
         <option value="shutdown">Shutdown</option>
         <option value="capex">CAPEX</option>
         <option value="contractor">Contractor</option>
       </select>
       <select id="filter-owner" aria-label="Filter projects by owner">
-        <option value="">All owners</option>
+        <option data-i="p_allowners_81bf" value="">All owners</option>
       </select>
       <input aria-label="Search by name or code…" type="search" id="filter-search" placeholder="Search by name or code…">
       <button class="btn primary new-btn" onclick="openNewProject()" data-i="newproject">+ New project</button>
@@ -556,35 +565,35 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
 <div id="modal-wizard" class="modal-bg">
   <div class="modal wizard-modal">
     <div class="wizard-progress">
-      <div class="step" data-step="1">1. Type</div>
+      <div data-i="p_type_ba87" class="step" data-step="1">1. Type</div>
       <div class="step" data-step="2">2. Template</div>
-      <div class="step" data-step="3">3. Customise</div>
+      <div data-i="p_customise_d399" class="step" data-step="3">3. Customise</div>
     </div>
 
     <!-- Step 1: pick type -->
     <div class="wizard-pane" data-pane="1">
       <h3 data-i="whatkind">What kind of project?</h3>
-      <p class="sub" style="font-size:0.85rem; margin-bottom:14px;">Pick the closest match. You can change scope later.</p>
+      <p data-i="p_picktheclosestmatchyoucancha_5713" class="sub" style="font-size:0.85rem; margin-bottom:14px;">Pick the closest match. You can change scope later.</p>
       <div class="type-tile-grid">
         <div class="type-tile" data-type="workorder" onclick="wizardPickType('workorder')">
           <div class="type-tile-icon">🔧</div>
-          <div class="type-tile-name">Work Order Bundle</div>
-          <div class="type-tile-desc">Tie together related logbook entries, PMs and parts under one umbrella. Best for breakdown campaigns and multi-asset PM waves.</div>
+          <div data-i="ptype_workorder" class="type-tile-name">Work Order Bundle</div>
+          <div data-i="p_tietogetherrelatedlogbookent_76ba" class="type-tile-desc">Tie together related logbook entries, PMs and parts under one umbrella. Best for breakdown campaigns and multi-asset PM waves.</div>
         </div>
         <div class="type-tile" data-type="shutdown" onclick="wizardPickType('shutdown')">
           <div class="type-tile-icon">🛑</div>
-          <div class="type-tile-name">Shutdown / Turnaround</div>
-          <div class="type-tile-desc">Multi-day plant outages: critical path, daily progress, isolation tracking. IDCON 6-phase model.</div>
+          <div data-i="ptype_shutdown" class="type-tile-name">Shutdown / Turnaround</div>
+          <div data-i="p_multidayplantoutagescritical_7541" class="type-tile-desc">Multi-day plant outages: critical path, daily progress, isolation tracking. IDCON 6-phase model.</div>
         </div>
         <div class="type-tile" data-type="capex" onclick="wizardPickType('capex')">
           <div class="type-tile-icon">📐</div>
-          <div class="type-tile-name">CAPEX / Improvement</div>
-          <div class="type-tile-desc">Stage-gated capital projects: FEL-1 → FEL-2 → FEL-3 → FID → execute. Budget + EVM tracking.</div>
+          <div data-i="ptype_capex" class="type-tile-name">CAPEX / Improvement</div>
+          <div data-i="ptype_capex_desc" class="type-tile-desc">Stage-gated capital projects: FEL-1 → FEL-2 → FEL-3 → FID → execute. Budget + EVM tracking.</div>
         </div>
         <div class="type-tile" data-type="contractor" onclick="wizardPickType('contractor')">
           <div class="type-tile-icon">📋</div>
-          <div class="type-tile-name">Contractor Job Folder</div>
-          <div class="type-tile-desc">Outside-vendor scope: BOM, SOW, daily progress, sign-off. Extends Engineering Design BOM/SOW.</div>
+          <div data-i="ptype_contractor" class="type-tile-name">Contractor Job Folder</div>
+          <div data-i="p_outsidevendorscopebomsowdail_7cb7" class="type-tile-desc">Outside-vendor scope: BOM, SOW, daily progress, sign-off. Extends Engineering Design BOM/SOW.</div>
         </div>
       </div>
       <div class="wizard-foot">
@@ -596,7 +605,7 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
     <!-- Step 2: pick template -->
     <div class="wizard-pane" data-pane="2">
       <h3 data-i="starterpack">Pick a starter pack</h3>
-      <p class="sub" style="font-size:0.85rem; margin-bottom:10px;">Pre-populated scope items based on industry standards. You'll be able to tweak everything in the next step.</p>
+      <p data-i="p_prepopulatedscopeitemsbasedo_178e" class="sub" style="font-size:0.85rem; margin-bottom:10px;">Pre-populated scope items based on industry standards. You'll be able to tweak everything in the next step.</p>
       <div class="template-card-list" id="wiz-template-list"></div>
       <button class="blank-link" onclick="wizardPickTemplate('__blank__'); wizardNext()" data-i="blankproject">Or start with a blank project →</button>
       <div class="wizard-foot">
@@ -612,18 +621,18 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
       <div class="grid-2">
         <div class="field">
           <label for="wiz-owner" data-i="owner">Owner</label>
-          <select id="wiz-owner"><option value="">— unassigned —</option></select>
+          <select id="wiz-owner"><option data-i="p_unassigned_3f3a" value="">— unassigned —</option></select>
         </div>
         <div class="field">
           <label for="wiz-priority" data-i="priority">Priority</label>
           <select id="wiz-priority">
-            <option value="low">Low</option><option value="medium" selected>Medium</option>
-            <option value="high">High</option><option value="critical">Critical</option>
+            <option data-i="p_low_a124" value="low">Low</option><option data-i="p_medium_d404" value="medium" selected>Medium</option>
+            <option data-i="p_high_b1a5" value="high">High</option><option data-i="p_critical_04b7" value="critical">Critical</option>
           </select>
         </div>
       </div>
       <div class="grid-2">
-        <div class="field"><label for="wiz-start" data-i="startdate">Start date</label><input type="date" id="wiz-start"><div class="field-hint">Auto-distributes scope item dates across duration.</div></div>
+        <div class="field"><label for="wiz-start" data-i="startdate">Start date</label><input type="date" id="wiz-start"><div data-i="p_autodistributesscopeitemdate_7f5a" class="field-hint">Auto-distributes scope item dates across duration.</div></div>
         <div class="field"><label for="wiz-end" data-i="enddate">End date</label><input type="date" id="wiz-end"></div>
       </div>
       <div class="field" id="wiz-budget-field">
@@ -634,12 +643,12 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
       <div class="field"><label for="wiz-desc" data-i="description">Description</label><textarea id="wiz-desc" maxlength="2000" placeholder="Scope summary, drivers, success criteria…"></textarea><p id="wiz-desc-count" style="text-align:right;font-size:0.7rem;color:rgba(255,255,255,0.80);margin:4px 0 0;">0 / 2000</p></div>
 
       <div style="margin: 16px 0 6px;">
-        <strong style="font-size:0.92rem;">Scope items</strong>
+        <strong data-i="p_scopeitems_b736" style="font-size:0.92rem;">Scope items</strong>
         <span class="small" style="color:var(--muted); margin-left:6px;" id="wiz-item-count"></span>
       </div>
-      <div class="field-hint" style="margin-bottom:6px;">Uncheck what doesn't apply. Predecessors auto-set sequentially.</div>
+      <div data-i="p_uncheckwhatdoesntapplypredec_9e2b" class="field-hint" style="margin-bottom:6px;">Uncheck what doesn't apply. Predecessors auto-set sequentially.</div>
       <div class="item-checklist" id="wiz-item-list"></div>
-      <div class="add-custom-row" onclick="wizardAddCustomItem()">+ Add custom item</div>
+      <div data-i="p_addcustomitem_7917" class="add-custom-row" onclick="wizardAddCustomItem()">+ Add custom item</div>
 
       <div class="wizard-foot">
         <button class="btn ghost" onclick="wizardBack()" data-i="back">← Back</button>
@@ -658,19 +667,19 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
         <div class="field">
           <label for="f-type" data-i="typereq">Type *</label>
           <select id="f-type" required data-select-placeholder-allow="default 'workorder' is the most common project type">
-            <option value="workorder">Work Order Bundle</option>
-            <option value="shutdown">Shutdown / Turnaround</option>
-            <option value="capex">CAPEX / Improvement</option>
-            <option value="contractor">Contractor Job Folder</option>
+            <option value="workorder" data-i="ptype_workorder">Work Order Bundle</option>
+            <option value="shutdown" data-i="ptype_shutdown">Shutdown / Turnaround</option>
+            <option value="capex" data-i="ptype_capex">CAPEX / Improvement</option>
+            <option value="contractor" data-i="ptype_contractor">Contractor Job Folder</option>
           </select>
         </div>
         <div class="field">
           <label for="f-priority" data-i="priority">Priority</label>
           <select id="f-priority">
-            <option value="low">Low</option>
-            <option value="medium" selected>Medium</option>
-            <option value="high">High</option>
-            <option value="critical">Critical</option>
+            <option data-i="p_low_a124" value="low">Low</option>
+            <option data-i="p_medium_d404" value="medium" selected>Medium</option>
+            <option data-i="p_high_b1a5" value="high">High</option>
+            <option data-i="p_critical_04b7" value="critical">Critical</option>
           </select>
         </div>
       </div>
@@ -681,7 +690,7 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
       <div class="grid-2">
         <div class="field">
           <label for="f-owner" data-i="owner">Owner</label>
-          <select id="f-owner"><option value="">— unassigned —</option></select>
+          <select id="f-owner"><option data-i="p_unassigned_3f3a" value="">— unassigned —</option></select>
         </div>
         <div class="field" id="budget-field">
           <label for="f-budget" data-i="budgetphp">Budget (PHP)</label>
@@ -712,11 +721,11 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
         <div class="field">
           <label for="s-status" data-i="status">Status</label>
           <select id="s-status" data-select-placeholder-allow="default 'pending' is the correct initial status for new items">
-            <option value="pending">Pending</option>
-            <option value="in_progress">In progress</option>
-            <option value="done">Done</option>
-            <option value="blocked">Blocked</option>
-            <option value="skipped">Skipped</option>
+            <option data-i="p_pending_96f6" value="pending">Pending</option>
+            <option data-i="p_inprogress_b6bd" value="in_progress">In progress</option>
+            <option data-i="p_done_e9b4" value="done">Done</option>
+            <option data-i="p_blocked_9961" value="blocked">Blocked</option>
+            <option data-i="p_skipped_5a00" value="skipped">Skipped</option>
           </select>
         </div>
       </div>
@@ -724,14 +733,14 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
         <div class="field"><label for="s-pstart" data-i="plannedstart">Planned start</label><input type="date" id="s-pstart"></div>
         <div class="field"><label for="s-pend" data-i="plannedend">Planned end</label><input type="date" id="s-pend"></div>
         <div class="field"><label for="s-est" data-i="esthours">Est. hours</label><input type="number" id="s-est" min="0" step="0.5">
-          <div class="field-hint">Rule of thumb: 8h × crew × days.</div></div>
+          <div data-i="p_ruleofthumbhcrewdays_2b4d" class="field-hint">Rule of thumb: 8h × crew × days.</div></div>
       </div>
       <div class="field">
         <label for="s-phase" data-i="phase">Phase</label>
         <select id="s-phase">
-          <option value="">— none —</option>
-          <option value="pre">Pre (prep, isolation, PTW)</option>
-          <option value="execute">Execute (main work)</option>
+          <option data-i="p_none_867f" value="">— none —</option>
+          <option data-i="p_preprepisolationptw_4f3d" value="pre">Pre (prep, isolation, PTW)</option>
+          <option data-i="p_executemainwork_4ed4" value="execute">Execute (main work)</option>
           <option value="commission">Commission (testing, run-in)</option>
           <option value="close">Close (sign-off, archive)</option>
           <option value="fel1">FEL-1 (concept)</option>
@@ -739,12 +748,12 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
           <option value="fel3">FEL-3 (FEED)</option>
           <option value="gate">Stage Gate (review)</option>
         </select>
-        <div class="field-hint">Used to group scope items in the project view.</div>
+        <div data-i="p_usedtogroupscopeitemsinthepr_260b" class="field-hint">Used to group scope items in the project view.</div>
       </div>
       <div class="field">
         <label for="s-preds" data-i="predecessors">Predecessors (depends on)</label>
         <select id="s-preds" multiple style="min-height: 80px;"></select>
-        <div class="field-hint">Hold Ctrl/Cmd to select multiple. Drives critical-path calculation. Defaults to the previous item.</div>
+        <div data-i="p_holdctrlcmdtoselectmultipled_889a" class="field-hint">Hold Ctrl/Cmd to select multiple. Drives critical-path calculation. Defaults to the previous item.</div>
       </div>
       <div class="field"><label for="s-notes" data-i="notes">Notes</label><textarea id="s-notes" maxlength="1000" placeholder="Free-text notes (not the phase, that's above)."></textarea><p id="s-notes-count" style="text-align:right;font-size:0.7rem;color:rgba(255,255,255,0.80);margin:4px 0 0;">0 / 1000</p></div>
       <div class="modal-foot">
@@ -766,7 +775,7 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
         <option value="pm_completion">PM completion</option>
         <option value="inventory_item">Inventory item</option>
         <option value="engineering_calc">Engineering calc (BOM/SOW)</option>
-        <option value="contractor">Contractor (free text)</option>
+        <option data-i="p_contractorfreetext_ed3d" value="contractor">Contractor (free text)</option>
       </select>
     </div>
     <div class="field" id="l-picker-wrap">
@@ -840,12 +849,12 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
       <div class="field"><label for="co-reason" data-i="reason">Reason</label>
         <select id="co-reason">
           <option value="">-</option>
-          <option value="cost">Cost reduction</option>
-          <option value="safety">Safety / regulatory</option>
-          <option value="scope_clarification">Scope clarification</option>
-          <option value="design_change">Design change</option>
-          <option value="schedule">Schedule pressure</option>
-          <option value="owner_request">Owner request</option>
+          <option data-i="p_costreduction_5aab" value="cost">Cost reduction</option>
+          <option data-i="p_safetyregulatory_aeb1" value="safety">Safety / regulatory</option>
+          <option data-i="p_scopeclarification_aacc" value="scope_clarification">Scope clarification</option>
+          <option data-i="p_designchange_d7b3" value="design_change">Design change</option>
+          <option data-i="p_schedulepressure_a118" value="schedule">Schedule pressure</option>
+          <option data-i="p_ownerrequest_16dd" value="owner_request">Owner request</option>
         </select>
       </div>
       <div class="grid-2">
@@ -867,7 +876,7 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
      chosen one's items as project_items with quantities intact. -->
 <div id="modal-bom-import" class="modal-bg">
   <div class="modal">
-    <h3>Import BOM from Engineering Design</h3>
+    <h3 data-i="p_importbomfromengineeringdesi_fe6f">Import BOM from Engineering Design</h3>
     <p class="small" style="color:var(--muted); margin:4px 0 10px;">
       Each BOM line becomes a scope item with its quantity and unit kept in the title.
       The BOM draft was AI-assisted in Engineering Design; review the imported items as you would any scope.
@@ -902,7 +911,7 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
 <div id="toast-container"></div>
 
 <script src="browser-floor.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
+  <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
 <script>
 /* ─────────────────────────────────────────────────────────────────────────
@@ -986,6 +995,15 @@ async function validateHiveMembership() {
     .select('role').eq('hive_id', HIVE_ID).eq('worker_name', WORKER_NAME).maybeSingle();
   if (error) { console.warn('membership check error:', error.message); return true; }
   if (!data) {
+    /* ★A REFUSED READ IS NOT A REMOVAL (2026-09-09). RLS refuses by FILTERING: asked with no session
+       attached, this query answers {data: null, error: null, status: 200}, so the `if (error)` fail-open
+       above never fires and zero rows reads as "you are not a member". shift-brain.html fixed exactly
+       this on 2026-08-20 and recorded the reasoning; it never reached the other five copies of the gate. */
+    const { data: _sess } = await db.auth.getSession().catch(() => ({ data: null }));
+    if (!_sess || !_sess.session) {
+      console.warn('membership check: no row and no session - a refused read, not a removal. Keeping cached scope.');
+      return true;
+    }
     ['wh_active_hive_id','wh_hive_id','wh_hive_role','wh_hive_name'].forEach(k => localStorage.removeItem(k));
     HIVE_ID = ''; HIVE_ROLE = '';
     return false;
@@ -1146,28 +1164,28 @@ function renderEmptyState(grid, totalProjects) {
   if (totalProjects === 0) {
     grid/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
       <div class="empty-tiles-wrap" style="grid-column: 1 / -1;">
-        <div class="empty-tiles-headline">No projects yet: start with a template</div>
-        <div class="empty-tiles-sub">Pick a flavour. Each one comes with industry-standard scope items you can tweak.</div>
+        <div class="empty-tiles-headline">${escHtml(_t('No projects yet: start with a template', 'Wala pang proyekto: magsimula sa isang template'))}</div>
+        <div class="empty-tiles-sub">${escHtml(_t('Pick a flavour. Each one comes with industry-standard scope items you can tweak.', 'Pumili ng uri. May kasama ang bawat isa na industry-standard na scope items na pwede mong baguhin.'))}</div>
         <div class="type-tile-grid">
           <div class="type-tile" onclick="openNewProject(); setTimeout(()=>wizardPickType('workorder'), 0);">
             <div class="type-tile-icon">🔧</div>
-            <div class="type-tile-name">Work Order Bundle</div>
-            <div class="type-tile-desc">Tie related logbook entries, PMs and parts under one umbrella.</div>
+            <div class="type-tile-name">${escHtml(_t('Work Order Bundle', 'Bundle ng Work Order'))}</div>
+            <div class="type-tile-desc">${escHtml(_t('Tie related logbook entries, PMs and parts under one umbrella.', 'Pagsama-samahin ang magkakaugnay na logbook entries, PM at parts sa isang proyekto.'))}</div>
           </div>
           <div class="type-tile" onclick="openNewProject(); setTimeout(()=>wizardPickType('shutdown'), 0);">
             <div class="type-tile-icon">🛑</div>
-            <div class="type-tile-name">Shutdown / Turnaround</div>
-            <div class="type-tile-desc">Multi-day plant outages with critical path and daily progress.</div>
+            <div class="type-tile-name">${escHtml(_t('Shutdown / Turnaround', 'Shutdown / Turnaround'))}</div>
+            <div class="type-tile-desc">${escHtml(_t('Multi-day plant outages with critical path and daily progress.', 'Maraming-araw na plant outage na may critical path at araw-araw na progreso.'))}</div>
           </div>
           <div class="type-tile" onclick="openNewProject(); setTimeout(()=>wizardPickType('capex'), 0);">
             <div class="type-tile-icon">📐</div>
-            <div class="type-tile-name">CAPEX / Improvement</div>
-            <div class="type-tile-desc">FEL stage gates, budget tracking, EVM. Class 5 → 1.</div>
+            <div class="type-tile-name">${escHtml(_t('CAPEX / Improvement', 'CAPEX / Pagpapabuti'))}</div>
+            <div class="type-tile-desc">${escHtml(_t('FEL stage gates, budget tracking, EVM. Class 5 → 1.', 'FEL stage gates, pagsubaybay sa budget, EVM. Class 5 → 1.'))}</div>
           </div>
           <div class="type-tile" onclick="openNewProject(); setTimeout(()=>wizardPickType('contractor'), 0);">
             <div class="type-tile-icon">📋</div>
-            <div class="type-tile-name">Contractor Job Folder</div>
-            <div class="type-tile-desc">Outside-vendor scope: BOM, SOW, daily progress, sign-off.</div>
+            <div class="type-tile-name">${escHtml(_t('Contractor Job Folder', 'Job Folder ng Contractor'))}</div>
+            <div class="type-tile-desc">${escHtml(_t('Outside-vendor scope: BOM, SOW, daily progress, sign-off.', 'Scope ng panlabas na vendor: BOM, SOW, araw-araw na progreso, sign-off.'))}</div>
           </div>
         </div>
       </div>`;
@@ -1259,20 +1277,29 @@ function renderProjectsSummary() {
 
   let tone, label, sub;
   if (overdue >= 3) {
-    tone = 'attn'; label = `${overdue} projects past end date`;
-    sub  = 'These should have closed by now. Open each, then either mark Complete (if done) or revise the end date to current reality.';
+    tone = 'attn'; label = _t(`${overdue} projects past end date`, `${overdue} proyekto ang lampas na sa end date`);
+    sub  = _t('These should have closed by now. Open each, then either mark Complete (if done) or revise the end date to current reality.',
+              'Dapat sarado na ang mga ito. Buksan ang bawat isa, saka markahang Complete (kung tapos na) o baguhin ang end date ayon sa totoong sitwasyon.');
   } else if (overdue > 0 || blocked > active) {
-    tone = 'watch'; label = 'Project portfolio is climbing: a few things to handle';
+    tone = 'watch'; label = _t('Project portfolio is climbing: a few things to handle',
+                               'Umaakyat ang project portfolio: may ilang bagay na aasikasuhin');
     const parts = [];
-    if (overdue > 0)       parts.push(`${overdue} past end date`);
-    if (blocked > active)  parts.push(`${blocked} blocked vs ${active} active`);
+    if (overdue > 0)       parts.push(_t(`${overdue} past end date`, `${overdue} lampas sa end date`));
+    if (blocked > active)  parts.push(_t(`${blocked} blocked vs ${active} active`, `${blocked} naka-block vs ${active} aktibo`));
     sub = parts.join(' · ') + '.';
   } else if (total === 0) {
-    tone = 'empty'; label = 'No projects yet';
-    sub  = 'Click + New Project to start a work-order bundle, shutdown, CAPEX, or contractor job. Or use 🤖 AI: from text to bootstrap from a plain-language description.';
+    tone = 'empty'; label = _t('No projects yet', 'Wala pang proyekto');
+    // B3 (2026-09-11): grade 8.4 in one 14-word clause carrying all four project kinds. Split rather than
+    // simplified - work-order, shutdown, CAPEX and contractor ARE the platform's vocabulary and a plant
+    // supervisor knows them; what was wrong was stacking all four behind a single instruction. Both halves
+    // now read under the bar (2.5 and 7.8) with every term and the button name intact.
+    sub  = _t('Click + New Project to begin. It can be a work-order bundle, a shutdown, CAPEX, or contractor work. Or use 🤖 AI: from text to bootstrap from a plain-language description.',
+              'Pindutin ang + New Project para magsimula. Pwede itong work-order bundle, shutdown, CAPEX, o contractor work. O gamitin ang 🤖 AI: from text para magsimula mula sa simpleng paglalarawan.');
   } else {
-    tone = 'healthy'; label = `${active} active project${active === 1 ? '' : 's'}, none overdue`;
-    sub  = `${blocked} in pipeline · ${total - active - blocked} closed. Portfolio is moving.`;
+    tone = 'healthy'; label = _t(`${active} active project${active === 1 ? '' : 's'}, none overdue`,
+                                 `${active} aktibong proyekto, walang lampas sa takda`);
+    sub  = _t(`${blocked} in pipeline · ${total - active - blocked} closed. Portfolio is moving.`,
+              `${blocked} nasa pipeline · ${total - active - blocked} sarado na. Gumagalaw ang portfolio.`);
   }
   const vBox = document.getElementById('pm-verdict');
   if (vBox) { vBox.classList.remove('healthy','watch','attn','empty'); vBox.classList.add(tone); }
@@ -1284,15 +1311,24 @@ function renderProjectsSummary() {
   if (actBox) {
     let text;
     if (total === 0) {
-      text = 'No projects yet. Easiest way to start: click 🤖 AI: from text and describe a project in plain language ("3-day pump overhaul next week, need 2 mechanics and 4 spare seals"), and the AI builds the scope item list for you.';
+      // B3 (walked 2026-09-11): this was ONE THIRTY-EIGHT-WORD sentence at grade 13.8 - the longest found
+      // anywhere in the program - and the page read 100% until B3 stopped treating an HTML source newline
+      // as a sentence end, because the markup happened to wrap it. It is the empty state a supervisor with
+      // no projects reads first, so the instruction it carries is the one that most needs to be plain.
+      // Split into four short sentences; the example and the button name are unchanged.
+      text = 'No projects yet. The quickest start is 🤖 AI: from text. Describe the job in your own words: "3-day pump overhaul next week, 2 mechanics, 4 spare seals". The AI builds the scope list for you.';
     } else if (overdue >= 3) {
-      text = `Open the Active tab and scan down. Each project past its end date drags your portfolio health. Close it out or move the date, one at a time.`;
+      text = _t(`Open the Active tab and scan down. Each project past its end date drags your portfolio health. Close it out or move the date, one at a time.`,
+                `Buksan ang Active tab at tingnan pababa. Hinihila ng bawat proyektong lampas sa end date ang kalusugan ng portfolio mo. Isara ito o ilipat ang petsa, isa-isa.`);
     } else if (overdue > 0) {
-      text = `${overdue} project${overdue === 1 ? ' is' : 's are'} past their end date. Open them via the Active tab and either mark Complete or revise the end date (both clear the verdict).`;
+      text = _t(`${overdue} project${overdue === 1 ? ' is' : 's are'} past their end date. Open them via the Active tab and either mark Complete or revise the end date (both clear the verdict).`,
+                `${overdue} proyekto ang lampas na sa end date. Buksan ang mga ito sa Active tab at markahang Complete o baguhin ang end date (parehong nag-aalis ng verdict).`);
     } else if (blocked > active) {
-      text = `${blocked} project${blocked === 1 ? '' : 's'} in planning or on-hold, only ${active} active. Either kick off the planning ones or close out the on-hold ones, because a backlog of waiting work is a portfolio smell.`;
+      text = _t(`${blocked} project${blocked === 1 ? '' : 's'} in planning or on-hold, only ${active} active. Either kick off the planning ones or close out the on-hold ones, because a backlog of waiting work is a portfolio smell.`,
+                `${blocked} proyekto ang nasa planning o naka-hold, ${active} lang ang aktibo. Simulan ang mga nasa planning o isara ang mga naka-hold, dahil ang naipong naghihintay na trabaho ay senyales ng problema sa portfolio.`);
     } else {
-      text = 'Portfolio is healthy. Use the recent strip below to reopen your last project. Or filter the tabs to plan the next phase.';
+      text = _t('Portfolio is healthy. Use the recent strip below to reopen your last project. Or filter the tabs to plan the next phase.',
+                'Malusog ang portfolio. Gamitin ang recent strip sa ibaba para buksan muli ang huling proyekto mo. O i-filter ang mga tab para planuhin ang susunod na phase.');
     }
     actBox.textContent = text;
   }
@@ -1741,7 +1777,7 @@ function updateWizardItemCount() {
   const checked = _wizardState.items.filter(i => i._checked).length;
   const total = _wizardState.items.length;
   const totalH = _wizardState.items.filter(i => i._checked).reduce((s, i) => s + (Number(i.est_h) || 0), 0);
-  $('wiz-item-count').textContent = `· ${checked} of ${total} checked · ~${totalH}h total`;
+  $('wiz-item-count').textContent = _t(`· ${checked} of ${total} checked · ~${totalH}h total`, `· ${checked} sa ${total} ang nakatsek · ~${totalH}h lahat`);
 }
 function wizardToggleItem(idx, checked) {
   _wizardState.items[idx]._checked = checked;
@@ -1851,7 +1887,8 @@ async function wizardSubmit() {
     if (itemErr) { showToast(whWriteError(itemErr, 'The project was created but its SCOPE ITEMS were not, so it starts empty. Open it and add them again.'), 'error'); }
   }
 
-  showToast(`✓ Project ${codeData} created (${checkedItems.length} scope items) → shows in Project Report now · linkable to assets from Logbook & PM Scheduler`, 'success', 6000);
+  showToast(_t(`✓ Project ${codeData} created (${checkedItems.length} scope items) → shows in Project Report now · linkable to assets from Logbook & PM Scheduler`,
+    `✓ Nagawa ang proyektong ${codeData} (${checkedItems.length} scope item) → lalabas na sa Project Report · maii-link sa mga asset mula sa Logbook at PM Scheduler`), 'success', 6000);
   closeModal('modal-wizard');
   resetCreateBtn();
   await loadProjects();
@@ -2019,7 +2056,8 @@ async function saveProject() {
     const { data: _br } = await db.rpc('set_project_budget', { p_project_id: ins.id, p_budget_php: _wizBudget });
     if (_br && _br.ok === false) showToast(_br.detail || 'Project created, but the budget was not set.', 'error', 6000);
   }
-  showToast(`✓ Project ${payload.project_code} created → shows in Project Report now · linkable to assets from Logbook & PM Scheduler`, 'success', 6000);
+  showToast(_t(`✓ Project ${payload.project_code} created → shows in Project Report now · linkable to assets from Logbook & PM Scheduler`,
+    `✓ Nagawa ang proyektong ${payload.project_code} → lalabas na sa Project Report · maii-link sa mga asset mula sa Logbook at PM Scheduler`), 'success', 6000);
   closeModal('modal-project');
   await loadProjects();
   await openDetail(ins.id);
@@ -2036,7 +2074,7 @@ async function deleteProject() {
   const { error } = await db.from('projects')
     .update({ deleted_at: new Date().toISOString() })
     .eq('id', _detail.id).eq('hive_id', HIVE_ID);
-  if (error) { showToast(whWriteError(error, 'Nothing was deleted - it is all still here. Try again.'), 'error'); return; }
+  if (error) { showToast(whWriteError(error, _t('Nothing was deleted - it is all still here. Try again.', 'Walang na-delete - nandito pa lahat. Subukan muli.')), 'error'); return; }
   // ★'Deleted.' CONTRADICTED THIS PAGE'S OWN CONFIRM. The dialog above is admirably precise -
   // 'Soft-delete project <code>? It will be hidden from views.' - and then the confirmation collapsed
   // that into a word that means the opposite. This is an UPDATE stamping deleted_at, not a DELETE: the
@@ -2287,10 +2325,10 @@ function renderScope() {
   if (!_items.length) {
     $('pane-scope')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
       <div class="row" style="justify-content: space-between; margin-bottom: 10px; flex-wrap: wrap; gap: 6px;">
-        <div class="small" style="color: var(--muted);">No scope items yet. Add the first work breakdown item to start tracking.</div>
+        <div class="small" style="color: var(--muted);">${escHtml(_t('No scope items yet. Add the first work breakdown item to start tracking.', 'Wala pang scope item. Idagdag ang unang work breakdown item para magsimulang mag-track.'))}</div>
         <div class="row" style="gap:6px;">
-          <button class="btn ghost small" onclick="openBomImport()">&#10515; Import BOM from Eng. Design</button>
-          <button class="btn primary small" onclick="openNewScope()">+ Add scope item</button>
+          <button class="btn ghost small" onclick="openBomImport()" data-i="importbomfromengdesign">&#10515; Import BOM from Eng. Design</button>
+          <button class="btn primary small" onclick="openNewScope()" data-i="addscopeitem">+ Add scope item</button>
         </div>
       </div>`;
     return;
@@ -2312,7 +2350,7 @@ function renderScope() {
         <td><div class="progress" style="width:80px;"><div class="progress-bar ${progressColor(it.pct_complete)}" style="width:${it.pct_complete}%"></div></div></td>
         <td class="small">${e(fmtDate(it.planned_end))}</td>
         <td class="small">${it.estimated_hours || '-'}h</td>
-        <td><button class="btn small ghost" onclick="openEditScope('${e(it.id)}')">Edit</button></td>
+        <td><button class="btn small ghost" onclick="openEditScope('${e(it.id)}')" data-i="edit">Edit</button></td>
       </tr>`;
   };
 
@@ -2341,15 +2379,15 @@ function renderScope() {
     <div class="row" style="justify-content: space-between; margin-bottom: 10px;">
       <div class="small" style="color: var(--muted);">
         ${_items.length} scope item(s) · ${_items.filter(i => i.status === 'done').length} done
-        · click any status pill to cycle pending → in progress → done
+        · ${escHtml(_t('click any status pill to cycle pending → in progress → done', 'pindutin ang kahit anong status pill para paikutin ang pending → in progress → done'))}
       </div>
       <div class="row" style="gap:6px;">
-        <button class="btn ghost small" onclick="openBomImport()">&#10515; Import BOM from Eng. Design</button>
-        <button class="btn primary small" onclick="openNewScope()">+ Add scope item</button>
+        <button class="btn ghost small" onclick="openBomImport()" data-i="importbomfromengdesign">&#10515; Import BOM from Eng. Design</button>
+        <button class="btn primary small" onclick="openNewScope()" data-i="addscopeitem">+ Add scope item</button>
       </div>
     </div>
     <div style="overflow-x:auto;">${sections}</div>
-    <div class="small" style="margin-top: 8px; color: var(--muted);">Rows highlighted red are on the critical path.</div>
+    <div class="small" style="margin-top: 8px; color: var(--muted);">${escHtml(_t('Rows highlighted red are on the critical path.', 'Ang mga row na pula ay nasa critical path.'))}</div>
   `;
 }
 
@@ -2397,7 +2435,7 @@ async function openBomImport() {
 async function importBomItems(calcRow, btn) {
   const status = $('bom-import-status');
   if (btn) { btn.disabled = true; }
-  status.textContent = `Importing ${calcRow.bom_data.length} item(s)…`;
+  status.textContent = _t(`Importing ${calcRow.bom_data.length} item(s)…`, `Ini-import ang ${calcRow.bom_data.length} item…`);
   const base = _items.length;
   const payload = calcRow.bom_data.map((it, i) => ({
     project_id: _detailId,
@@ -2416,7 +2454,8 @@ async function importBomItems(calcRow, btn) {
     return;
   }
   closeModal('modal-bom-import');
-  showToast(`${payload.length} scope item(s) imported from ${calcRow.calc_type || 'the calculation'}.`, 'success');
+  showToast(_t(`${payload.length} scope item(s) imported from ${calcRow.calc_type || 'the calculation'}.`,
+      `${payload.length} scope item ang na-import mula sa ${calcRow.calc_type || 'kalkulasyon'}.`), 'success');
   await refreshDetail();
   // refreshDetail re-opens on the Overview tab, which would HIDE the import's receipt — land
   // the user back on Scope where the new items are visible.
@@ -2570,8 +2609,8 @@ function renderLinked() {
     </div>` : '';
   $('pane-linked')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
     <div class="row" style="justify-content: space-between; margin-bottom: 12px;">
-      <div class="small" style="color: var(--muted);">${_links.length} linked item(s): pull existing logbook entries, PMs, parts, contractor info into this project</div>
-      <button class="btn primary small" onclick="openModal('modal-link'); loadLinkOptions();">+ Link work</button>
+      <div class="small" style="color: var(--muted);">${_links.length} ${escHtml(_t('linked item(s): pull existing logbook entries, PMs, parts, contractor info into this project', 'naka-link na item: hilahin ang mga umiiral na logbook entry, PM, parts at contractor info papasok sa proyektong ito'))}</div>
+      <button class="btn primary small" onclick="openModal('modal-link'); loadLinkOptions();" data-i="linkwork">+ Link work</button>
     </div>
     ${suggestionBanner}
     ${_links.length ? html : '<div class="empty">No links yet. Use "Link work" to pull in existing logbook entries, PMs, parts, or contractor info.</div>'}
@@ -2666,13 +2705,13 @@ function renderProgress() {
       ${l.blockers ? `<div class="log-entry-blockers">⚠ Blocker: ${e(l.blockers)}</div>` : ''}
       ${l.acknowledged_by
         ? `<div class="log-entry-ack">✓ Acknowledged by ${e(l.acknowledged_by)} on ${e(fmtDate(l.acknowledged_at))}</div>`
-        : (isSupervisor() ? `<button class="btn small" style="margin-top:6px;" onclick="ackLog('${e(l.id)}')">Acknowledge</button>` : '')}
+        : (isSupervisor() ? `<button class="btn small" style="margin-top:6px;" onclick="ackLog('${e(l.id)}')" data-i="acknowledge">Acknowledge</button>` : '')}
     </div>
   `).join('');
   $('pane-progress')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
     <div class="row" style="justify-content: space-between; margin-bottom: 12px;">
-      <div class="small" style="color: var(--muted);">${_logs.length} log entr(ies). Workers report; supervisors acknowledge.</div>
-      <button class="btn primary small" onclick="openProgressLog()">+ Log progress</button>
+      <div class="small" style="color: var(--muted);">${_logs.length} ${escHtml(_t('log entr(ies). Workers report; supervisors acknowledge.', 'log entry. Nag-uulat ang mga worker; kinikilala ng mga supervisor.'))}</div>
+      <button class="btn primary small" onclick="openProgressLog()" data-i="logprogress">+ Log progress</button>
     </div>
     ${_logs.length ? entries : '<div class="empty">No progress logs yet.</div>'}
   `;
@@ -2858,7 +2897,7 @@ function renderCpm() {
     <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px;">
       ${rows}
     </div>
-    <div class="small" style="margin-top: 8px; color: var(--muted);">Red bars = zero slack (any delay slips the project finish). Green = done.</div>
+    <div class="small" style="margin-top: 8px; color: var(--muted);">${escHtml(_t('Red bars = zero slack (any delay slips the project finish). Green = done.', 'Pulang bar = walang slack (anumang pagkaantala ay magpapaurong sa pagtatapos). Berde = tapos.'))}</div>
     ${riskHtml}
     ${resHtml}
   `;
@@ -2898,8 +2937,8 @@ function renderRoles() {
     </div>` : '';
   $('pane-roles')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
     <div class="row" style="justify-content: space-between; margin-bottom: 12px;">
-      <div class="small" style="color: var(--muted);">${_roles.length} role assignment${_roles.length === 1 ? '' : 's'}. Same worker can hold multiple roles.</div>
-      ${isSupervisor() ? '<button class="btn primary small" onclick="openAddRole()">+ Assign role</button>' : ''}
+      <div class="small" style="color: var(--muted);">${_roles.length} ${_t(`role assignment${_roles.length === 1 ? '' : 's'}. Same worker can hold multiple roles.`, 'role assignment. Pwedeng humawak ng maraming role ang isang worker.')}</div>
+      ${isSupervisor() ? '<button class="btn primary small" onclick="openAddRole()" data-i="assignrole">+ Assign role</button>' : ''}
     </div>
     ${rolesHtml || (legacyOwnerHtml || '<div class="empty">No roles assigned yet. Supervisor can assign owner / planner / safety officer / cost engineer / reviewer.</div>')}
     ${legacyOwnerHtml}
@@ -2986,20 +3025,20 @@ function renderChangeOrders() {
         ${co.status === 'rejected' && co.rejection_reason ? `<div class="small" style="color: var(--red); margin-top: 6px;">Rejected: ${e(co.rejection_reason)}</div>` : ''}
         ${co.status === 'pending' && isSupervisor() ? `
           <div class="row" style="gap: 6px; margin-top: 10px;">
-            <button class="btn small primary" onclick="approveCO('${e(co.id)}')">Approve</button>
-            <button class="btn small danger" onclick="rejectCO('${e(co.id)}')">Reject</button>
+            <button class="btn small primary" onclick="approveCO('${e(co.id)}')" data-i="approve">Approve</button>
+            <button class="btn small danger" onclick="rejectCO('${e(co.id)}')" data-i="reject">Reject</button>
           </div>` : ''}
         ${co.status === 'pending' && (co.requested_by === WORKER_NAME || isSupervisor()) ? `
           <div class="row" style="gap: 6px; margin-top: 6px;">
-            <button class="btn small ghost" onclick="cancelCO('${e(co.id)}')">Cancel request</button>
+            <button class="btn small ghost" onclick="cancelCO('${e(co.id)}')" data-i="cancelrequest">Cancel request</button>
           </div>` : ''}
         ${co.status === 'cancelled' ? `<div class="small" style="color: var(--muted); margin-top: 6px;">Cancelled by ${e(co.approved_by || co.requested_by)} on ${e(fmtDate(co.approved_at || co.created_at))}</div>` : ''}
       </div>`;
   }).join('');
   $('pane-changes')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
     <div class="row" style="justify-content: space-between; margin-bottom: 12px;">
-      <div class="small" style="color: var(--muted);">${_changeOrders.length} change order${_changeOrders.length === 1 ? '' : 's'}. Supervisor approval required to apply impact.</div>
-      <button class="btn primary small" onclick="openNewCO()">+ Raise change order</button>
+      <div class="small" style="color: var(--muted);">${_changeOrders.length} ${_t(`change order${_changeOrders.length === 1 ? '' : 's'}. Supervisor approval required to apply impact.`, 'change order. Kailangan ng pag-apruba ng supervisor para maipatupad ang epekto.')}</div>
+      <button class="btn primary small" onclick="openNewCO()" data-i="raisechangeorder">+ Raise change order</button>
     </div>
     ${_changeOrders.length ? rows : '<div class="empty">No change orders raised. Use this when project scope, cost, or schedule needs to shift after baselining.</div>'}
   `;
@@ -3050,7 +3089,8 @@ async function saveChangeOrder() {
   // NAMES THE EFFECT AND WHEN. "<CO> submitted for approval" says what happened, not what follows. What this
   // write verifiably sets up is the approval step, whose own confirm text states the consequence ("Cost /
   // schedule impact will be reflected in the project") — so the confirmation says that, and nothing more.
-  showToast(`${coNum} submitted for approval → once approved, its cost and schedule impact land on the project.`,
+  showToast(_t(`${coNum} submitted for approval → once approved, its cost and schedule impact land on the project.`,
+              `Naisumite ang ${coNum} para sa pag-apruba → kapag naaprubahan, mararamdaman sa proyekto ang epekto nito sa gastos at iskedyul.`),
             'success');
   closeModal('modal-co');
   await refreshDetail();
@@ -3148,19 +3188,19 @@ function renderBudget() {
   $('pane-budget')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
     <div class="kpi-row">
       <div class="kpi"><div class="kpi-label">Budget at completion</div><div class="kpi-value">${fmtPHP(ev.bac)}</div><div class="kpi-sub">PHP, as entered (no VAT adjustment applied)</div></div>
-      <div class="kpi"><div class="kpi-label">Planned value (PV)</div><div class="kpi-value">${fmtPHP(ev.pv)}</div></div>
-      <div class="kpi"><div class="kpi-label">Earned value (EV)</div><div class="kpi-value">${fmtPHP(ev.ev)}</div></div>
+      <div class="kpi"><div class="kpi-label">${escHtml(_t('Planned value (PV)', 'Planned value (PV)'))}</div><div class="kpi-value">${fmtPHP(ev.pv)}</div></div>
+      <div class="kpi"><div class="kpi-label">${escHtml(_t('Earned value (EV)', 'Earned value (EV)'))}</div><div class="kpi-value">${fmtPHP(ev.ev)}</div></div>
       <div class="kpi"><div class="kpi-label">Actual cost (AC)</div><div class="kpi-value">${fmtPHP(ev.ac)}</div><div class="kpi-sub">proxy: hours × ₱200</div></div>
       <div class="kpi ${cls}"><div class="kpi-label">SPI</div><div class="kpi-value">${ev.spi ?? '-'}</div><div class="kpi-sub">schedule</div></div>
       <div class="kpi ${cls}"><div class="kpi-label">CPI</div><div class="kpi-value">${ev.cpi ?? '-'}</div><div class="kpi-sub">cost</div></div>
     </div>
     <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px;">
-      <h3 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 6px;">Variance summary</h3>
+      <h3 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 6px;">${escHtml(_t('Variance summary', 'Buod ng variance'))}</h3>
       <!-- table-name-allow: project WBS / scope data table --> <div class="wh-scroll-x"><table>
-        <tr><td>Schedule variance (SV = EV − PV)</td><td>${fmtPHP(ev.sv)}</td></tr>
-        <tr><td>Cost variance (CV = EV − AC)</td><td>${fmtPHP(ev.cv)}</td></tr>
+        <tr><td>${escHtml(_t('Schedule variance (SV = EV − PV)', 'Schedule variance (SV = EV − PV)'))}</td><td>${fmtPHP(ev.sv)}</td></tr>
+        <tr><td>${escHtml(_t('Cost variance (CV = EV − AC)', 'Cost variance (CV = EV − AC)'))}</td><td>${fmtPHP(ev.cv)}</td></tr>
       </table></div>
-      <div class="small" style="margin-top: 10px; color: var(--muted);">Standards: PMI PMBOK 7th ed. (EV chapter), AACE 80R-13. Status thresholds: Green ≥ 0.95, Amber ≥ 0.85, Red &lt; 0.85.</div>
+      <div class="small" style="margin-top: 10px; color: var(--muted);">${escHtml(_t('Standards: PMI PMBOK 7th ed. (EV chapter), AACE 80R-13. Status thresholds: Green ≥ 0.95, Amber ≥ 0.85, Red &lt; 0.85.', 'Mga pamantayan: PMI PMBOK 7th ed. (EV chapter), AACE 80R-13. Status thresholds: Green ≥ 0.95, Amber ≥ 0.85, Red &lt; 0.85.'))}</div>
     </div>
   `;
 }
@@ -3189,20 +3229,20 @@ function renderSignoff() {
         <span class="small" style="color:${c.ok ? 'var(--green)' : 'var(--muted)'};">${c.ok ? 'OK' : 'pending'}</span>
       </div>`).join('')}
       <div class="row" style="gap:8px; margin-top: 14px;">
-        <button class="btn primary" onclick="markComplete()" ${_detail.status === 'complete' ? 'disabled' : ''}>Mark complete</button>
-        <button class="btn" onclick="markStatus('on_hold')">Put on hold</button>
-        <button class="btn" onclick="markStatus('archived')">Archive</button>
-        <a href="project-report.html?project_id=${e(_detail.id)}" class="btn small" style="text-decoration: none; margin-left: auto;">📄 Print report</a>
+        <button class="btn primary" onclick="markComplete()" ${_detail.status === 'complete' ? 'disabled' : ''} data-i="markcomplete">Mark complete</button>
+        <button class="btn" onclick="markStatus('on_hold')" data-i="putonhold">Put on hold</button>
+        <button class="btn" onclick="markStatus('archived')" data-i="archive">Archive</button>
+        <a href="project-report.html?project_id=${e(_detail.id)}" class="btn small" style="text-decoration: none; margin-left: auto;">📄 ${escHtml(_t('Print report', 'I-print ang report'))}</a>
       </div>
     </div>
     <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px;">
-      <h3 id="lessons-text-label" style="font-size: 0.95rem; font-weight: 700; margin-bottom: 6px;">Lessons learned</h3>
-      <div class="small" style="color: var(--muted); margin-bottom: 8px;">What went well, what to do differently next time. Feeds the Project Report appendix and the searchable lessons archive.</div>
+      <h3 id="lessons-text-label" style="font-size: 0.95rem; font-weight: 700; margin-bottom: 6px;">${escHtml(_t('Lessons learned', 'Mga natutunan'))}</h3>
+      <div class="small" style="color: var(--muted); margin-bottom: 8px;">${escHtml(_t('What went well, what to do differently next time. Feeds the Project Report appendix and the searchable lessons archive.', 'Ano ang naging maganda, ano ang gagawing iba sa susunod. Napupunta ito sa appendix ng Project Report at sa nahahanap na lessons archive.'))}</div>
       <textarea aria-labelledby="lessons-text-label" id="lessons-text" maxlength="4000" style="min-height: 100px;" placeholder="• Mech alignment took 2x estimated: consider buffer hours for next pump overhaul\n• Parts staging was on point, keep weekly cadence\n• PTW issued late by 2h: pre-stage on the prior shift">${e(lessonsExisting)}</textarea>
       ${(_detail.meta?._ai_generated_lessons) ? `<div class="small" style="color: var(--gold); margin-top: 6px;">🤖 AI-drafted on ${e(fmtDate(_detail.meta._ai_generated_at))}: supervisor edit before sign-off recommended.</div>` : ''}
       <div class="row" style="gap: 8px; margin-top: 8px; justify-content: flex-end;">
-        <button class="btn small" onclick="aiDraftLessons()" title="Use AI to draft from progress logs">🤖 AI: Draft from logs</button>
-        <button class="btn small" onclick="saveLessons()">Save lessons</button>
+        <button class="btn small" onclick="aiDraftLessons()" title="Use AI to draft from progress logs" data-i="aidraftfromlogs">🤖 AI: Draft from logs</button>
+        <button class="btn small" onclick="saveLessons()" data-i="savelessons">Save lessons</button>
       </div>
     </div>
   `;
@@ -3309,14 +3349,19 @@ async function markComplete() {
   // of the two, and it was the one that omitted the reversibility sentence entirely: it explained
   // best practice and never said what completing would cost. The branch that needs the consequence
   // most was the branch without it.
-  const WAY_BACK = 'You can put it back on hold later if you need to edit it.';
+  const WAY_BACK = _t('You can put it back on hold later if you need to edit it.',
+                      'Pwede mo itong ibalik sa hold mamaya kung kailangan mong i-edit.');
   if (open.length) {
-    const msg = `${open.length} scope item${open.length === 1 ? ' is' : 's are'} still open (pending / in progress / blocked). ` +
+    const msg = _t(
+                `${open.length} scope item${open.length === 1 ? ' is' : 's are'} still open (pending / in progress / blocked). ` +
                 `Best practice: close ${open.length === 1 ? 'it' : 'them'} or mark ${open.length === 1 ? 'it' : 'them'} 'skipped' before marking the project complete.\n\n` +
-                `Completing now leaves ${open.length === 1 ? 'it' : 'them'} open in the record. ${WAY_BACK}\n\nContinue anyway?`;
+                `Completing now leaves ${open.length === 1 ? 'it' : 'them'} open in the record. ${WAY_BACK}\n\nContinue anyway?`,
+                `${open.length} scope item ang bukas pa (pending / in progress / blocked). ` +
+                `Mainam na isara ito o markahang 'skipped' bago markahang kumpleto ang proyekto.\n\n` +
+                `Kung tatapusin ngayon, mananatili itong bukas sa record. ${WAY_BACK}\n\nItuloy pa rin?`);
     if (!(await window.whConfirm(msg, { okLabel: 'Confirm', cancelLabel: 'Cancel' }))) return;
   } else {
-    if (!(await window.whConfirm(`Mark project as complete? ${WAY_BACK}`, { okLabel: 'Complete', cancelLabel: 'Cancel' }))) return;
+    if (!(await window.whConfirm(_t(`Mark project as complete? ${WAY_BACK}`, `Markahang kumpleto ang proyekto? ${WAY_BACK}`), { okLabel: 'Complete', cancelLabel: 'Cancel' }))) return;
   }
   await markStatus('complete', { closed_at: new Date().toISOString() });
 }
@@ -3445,6 +3490,11 @@ document.addEventListener('keydown', ev => {
 <script>
   // N1: static-label Filipino dict, applied by utils.js whI18nApply() when WH_LANG=fil.
   window.WH_FIL_PAGE = {
+    ptype_workorder: 'Bundle ng Work Order',
+    ptype_shutdown: 'Shutdown / Turnaround',
+    ptype_capex: 'CAPEX / Pagpapabuti',
+    ptype_contractor: 'Job Folder ng Contractor',
+    ptype_capex_desc: 'Stage-gated na capital projects: FEL-1 → FEL-2 → FEL-3 → FID → execute. Budget + EVM tracking.',
     joinhivefirst: 'Sumali muna sa hive',
     pagetitle: 'Tagapamahala ng Proyekto',
     activeprojects: 'Mga aktibong proyekto',

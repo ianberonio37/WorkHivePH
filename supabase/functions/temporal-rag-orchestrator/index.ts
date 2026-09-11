@@ -303,12 +303,23 @@ async function checkRateLimit(db: SupabaseClient, hiveId: string): Promise<{ all
     .eq("hive_id", hiveId)
     .maybeSingle();
   if (error) return { allowed: true, remaining: RATE_LIMIT_PER_HOUR };
+  /* ★A LIMITER THAT CANNOT COUNT DOES NOT LIMIT (2026-09-09). Both writes below discarded their result,
+     so if either ever failed the counter would stop advancing and every subsequent call would be waved
+     through - an unbounded AI bill, produced silently, with nothing in the logs to explain it. Verified
+     healthy today (service-role client, counters moving across hives), which is exactly when to add the
+     check: this is the write whose failure costs money. The stance stays FAIL-OPEN on availability, the
+     same as the read error above - a limiter that cannot reach its table must not block real work - but
+     it is now LOUD, so a broken counter is a line in the log rather than a surprise on an invoice. */
   if (!data || new Date(data.window_start) < windowStart) {
-    await db.from("ai_rate_limits").upsert({ hive_id: hiveId, call_count: 1, window_start: new Date().toISOString() });
+    const { error: openErr } = await db.from("ai_rate_limits")
+      .upsert({ hive_id: hiveId, call_count: 1, window_start: new Date().toISOString() });
+    if (openErr) log.warn(null, `[temporal-rag-orchestrator] rate-limit window could not be opened for ${hiveId}: ${openErr.message} - this hive is UNCOUNTED until it succeeds`);
     return { allowed: true, remaining: RATE_LIMIT_PER_HOUR - 1 };
   }
   if (data.call_count >= RATE_LIMIT_PER_HOUR) return { allowed: false, remaining: 0 };
-  await db.from("ai_rate_limits").update({ call_count: data.call_count + 1 }).eq("hive_id", hiveId);
+  const { error: incErr } = await db.from("ai_rate_limits")
+    .update({ call_count: data.call_count + 1 }).eq("hive_id", hiveId);
+  if (incErr) log.warn(null, `[temporal-rag-orchestrator] rate-limit counter did not advance for ${hiveId}: ${incErr.message} - the limit will not trip while this persists`);
   return { allowed: true, remaining: RATE_LIMIT_PER_HOUR - data.call_count - 1 };
 }
 
@@ -328,7 +339,7 @@ serveObserved("temporal-rag-orchestrator", async (req) => {
   if (healthResp) return healthResp;
 
   if (req.method !== "POST") {
-    return new Response(JSON.stringify({ error: "Method not allowed" }), {
+    return new Response(JSON.stringify({ error: "That action is not allowed here. Reload the page and try again." }), {
       status: 405, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
@@ -336,7 +347,7 @@ serveObserved("temporal-rag-orchestrator", async (req) => {
   const reqStart = Date.now();
   let body: { question?: string; hive_id?: string; asset_tag?: string | null; from?: string; to?: string; granularity?: Granularity | "auto"; worker_name?: string | null } = {};
   try { body = await req.json(); } catch {
-    return new Response(JSON.stringify({ error: "Invalid JSON body" }), {
+    return new Response(JSON.stringify({ error: "That request could not be read. Reload the page and try again." }), {
       status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
@@ -382,7 +393,7 @@ serveObserved("temporal-rag-orchestrator", async (req) => {
   const to   = body.to   ? new Date(body.to)   : new Date(Date.now() - 86400000);
   const from = body.from ? new Date(body.from) : new Date(to.getTime() - 5 * 365 * 86400000);
   if (!Number.isFinite(from.getTime()) || !Number.isFinite(to.getTime()) || from >= to) {
-    return new Response(JSON.stringify({ error: "Invalid from/to dates" }), {
+    return new Response(JSON.stringify({ error: "Those from and to dates are not valid. Check the range and try again." }), {
       status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }

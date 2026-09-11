@@ -216,12 +216,18 @@ async function checkRateLimit(db: SupabaseClient, hiveId: string | null): Promis
     return { allowed: true, remaining: RATE_LIMIT_PER_HOUR };  // fail-open
   }
 
+  /* ★A LIMITER THAT CANNOT COUNT DOES NOT LIMIT (2026-09-09). The identical pair of unchecked writes was
+     fixed in temporal-rag-orchestrator the same day; this is its twin, found by the unchecked-writes
+     sweep rather than by waiting for the bill. The read error above already fails open and SAYS so - these
+     two said nothing at all, so a counter that stopped advancing would wave every subsequent call through
+     in silence. Same stance as the read: fail open on availability, never quietly. */
   if (!data || new Date(data.window_start) < windowStart) {
-    await db.from("ai_rate_limits").upsert({
+    const { error: openErr } = await db.from("ai_rate_limits").upsert({
       hive_id:      hiveId,
       call_count:   1,
       window_start: new Date().toISOString(),
     });
+    if (openErr) console.warn(`[agentic-rag-loop] rate-limit window could not be opened for ${hiveId}: ${openErr.message} - this hive is UNCOUNTED until it succeeds`);
     return { allowed: true, remaining: RATE_LIMIT_PER_HOUR - 1 };
   }
 
@@ -229,9 +235,10 @@ async function checkRateLimit(db: SupabaseClient, hiveId: string | null): Promis
     return { allowed: false, remaining: 0 };
   }
 
-  await db.from("ai_rate_limits")
+  const { error: incErr } = await db.from("ai_rate_limits")
     .update({ call_count: data.call_count + 1 })
     .eq("hive_id", hiveId);
+  if (incErr) console.warn(`[agentic-rag-loop] rate-limit counter did not advance for ${hiveId}: ${incErr.message} - the limit will not trip while this persists`);
   return { allowed: true, remaining: RATE_LIMIT_PER_HOUR - data.call_count - 1 };
 }
 
@@ -1137,7 +1144,7 @@ serveObserved("agentic-rag-loop", async (req) => {
   log.info(_logCtx, "request_start", { method: req.method });
 
   if (req.method !== "POST") {
-    return new Response(JSON.stringify({ error: "Method not allowed" }), {
+    return new Response(JSON.stringify({ error: "That action is not allowed here. Reload the page and try again." }), {
       status: 405,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
@@ -1150,7 +1157,7 @@ serveObserved("agentic-rag-loop", async (req) => {
   try {
     body = await req.json();
   } catch {
-    return new Response(JSON.stringify({ error: "Invalid JSON body" }), {
+    return new Response(JSON.stringify({ error: "That request could not be read. Reload the page and try again." }), {
       status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
@@ -1175,7 +1182,8 @@ serveObserved("agentic-rag-loop", async (req) => {
   // Defensive: if env is missing, fail fast with a clean error instead of letting
   // a half-broken client throw deep inside a stage.
   if (!_WH_URL || !_WH_KEY) {
-    return new Response(JSON.stringify({ error: "Server misconfigured: SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY missing" }), {
+    console.error("misconfigured: SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY is missing");   // the operator detail stays in the log (2026-09-06)
+    return new Response(JSON.stringify({ error: "This service is not configured yet. Ask the platform owner to finish the setup." }), {
       status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }

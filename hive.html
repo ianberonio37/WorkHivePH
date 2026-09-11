@@ -443,7 +443,7 @@
         <div id="notif-panel" class="hidden" style="position:absolute; top:calc(100% + 4px); right:0; width:300px; background:rgba(22,32,50,0.98); border:1px solid rgba(255,255,255,0.1); border-radius:1rem; box-shadow:0 8px 32px rgba(0,0,0,0.5); backdrop-filter:blur(12px); z-index:100; overflow:hidden;">
           <div class="px-4 pt-3 pb-2 border-b border-white/[0.07] flex items-center justify-between">
             <p class="text-xs font-bold text-white/85">Notifications</p>
-            <button id="notif-mark-read" style="background:none;border:none;cursor:pointer;font-size:0.65rem;font-weight:600;color:rgba(255,255,255,0.80);">Mark all read</button>
+            <button id="notif-mark-read" style="background:none;border:none;cursor:pointer;font-size:0.65rem;font-weight:600;color:rgba(255,255,255,0.80);" data-i="markallread">Mark all read</button>
           </div>
           <div id="notif-list" class="py-2" style="max-height:320px; overflow-y:auto;"></div>
         </div>
@@ -503,11 +503,33 @@
         <div class="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-6" style="background:rgba(41,182,217,0.12); border:1px solid rgba(41,182,217,0.2);">
           <span class="ic ic-community" aria-hidden="true"></span>
         </div>
-        <h2 class="text-2xl font-black text-white mb-2">Your Hive</h2>
-        <p class="text-sm text-white/80 mb-8 leading-relaxed">Join or create a team to share work, see who's active, and track your hive's jobs in real time.</p>
+        <!-- heading-allow: THIS PAGE HAD NO VISIBLE h1 FOR ANYONE WITHOUT A HIVE (walked 2026-09-11,
+             Jun Salvador, a solo owner, phone-390). hive.html's only h1 is "Hive Board" at #board-hive-name,
+             inside #view-board - and #view-board is hidden in this state, so the document rendered
+             h1Count=1 / h1Visible=0 and the largest visible heading was this h2. That is not an edge
+             persona: #view-onboard is what EVERY new account sees on its first visit to the hive page,
+             and a screen-reader user arriving there gets a document with no top-level heading at all.
+             #view-onboard and #view-board are mutually exclusive, so exactly one h1 is ever visible and
+             the "multiple h1" rule is measuring source, not the rendered document - which is what this
+             marker is for ("a separate document's h1"). The canonical board h1 is deliberately left
+             un-exempt so it keeps being checked.
+             NB the marker is repeated tersely on the next line because validate_heading_hierarchy.py
+             only scans 300 chars before the tag - a long, well-argued exemption falls outside its
+             window while a one-liner passes [[feedback_fixed_char_window_validator_is_brittle]]. -->
+        <!-- heading-allow: one of two mutually exclusive views; see the note above -->
+        <h1 class="text-2xl font-black text-white mb-2" data-i="p_yourhive_177a">Your Hive</h1>
+        <!-- ★A REMOVED MEMBER MET AN EMPTY BOARD AND NO EXPLANATION. Row-level security filters a kicked
+             member's reads down to nothing, so hive.html rendered its "quiet hive" empty state: no feed,
+             no members, no open work - indistinguishable from a hive where nobody had done anything, and
+             the person had no way to learn they had been removed. The JOIN flow has said this plainly
+             since it was built ("You have been removed from this hive. Contact the supervisor to be
+             re-added."); the BOARD never asked the question. This is where that answer lands. -->
+        <p id="onboard-revoked" class="hidden text-sm mb-4 leading-relaxed" role="status"
+           style="color:var(--wh-amber, #F7A21B); background:rgba(247,162,27,0.10); border:1px solid rgba(247,162,27,0.28); border-radius:0.75rem; padding:0.75rem 0.9rem;"></p>
+        <p class="text-sm text-white/80 mb-8 leading-relaxed" data-i="p_joinorcreateateamtosharework_0c81">Join or create a team to share work, see who's active, and track your hive's jobs in real time.</p>
         <div class="flex flex-col gap-3">
-          <button id="btn-go-create" class="btn-primary">Create a Hive</button>
-          <button id="btn-go-join" class="btn-ghost">Join with Code</button>
+          <button id="btn-go-create" class="btn-primary" data-i="createahive">Create a Hive</button>
+          <button id="btn-go-join" class="btn-ghost" data-i="joinwithcode">Join with Code</button>
         </div>
       </div>
     </div>
@@ -524,7 +546,7 @@
         <label for="hive-name-input" class="block text-xs font-semibold text-white/80 uppercase tracking-widest mb-2">Hive Name</label>
         <input id="hive-name-input" type="text" placeholder="e.g. Electrical Team A" maxlength="40" class="wh-input mb-2" autocomplete="off" />
         <p role="alert" aria-live="assertive" id="create-error" class="text-xs text-red-400 mb-3 hidden">Please enter a hive name.</p>
-        <button id="btn-submit-create" class="btn-primary mt-2">Create Hive</button>
+        <button id="btn-submit-create" class="btn-primary mt-2" data-i="createhive">Create Hive</button>
       </div>
     </div>
 
@@ -542,8 +564,8 @@
              briefing-room reality is a supervisor pasting into the group chat, so give the code
              real hands: Copy always; the system share sheet where the device offers one. -->
         <div class="flex gap-2 justify-center mb-4">
-          <button id="btn-copy-code" class="btn-ghost text-xs" style="min-height:44px;">Copy code</button>
-          <button id="btn-share-code" class="btn-ghost text-xs hidden" style="min-height:44px;">Share…</button>
+          <button id="btn-copy-code" class="btn-ghost text-xs" style="min-height:44px;" data-i="copycode">Copy code</button>
+          <button id="btn-share-code" class="btn-ghost text-xs hidden" style="min-height:44px;" data-i="share">Share…</button>
         </div>
         <script>
           (function () {
@@ -568,7 +590,7 @@
           })();
         </script>
         <p class="text-[11px] text-white/80 mb-8 leading-relaxed">Read it at briefing or post it in your group chat. Members enter this code to join your hive.</p>
-        <button id="btn-enter-board" class="btn-primary">Go to Live Board →</button>
+        <button id="btn-enter-board" class="btn-primary" data-i="gotoliveboard">Go to Live Board →</button>
       </div>
     </div>
 
@@ -595,7 +617,7 @@
             class="wh-input mb-1" placeholder="e.g. Juan Dela Cruz (Mechanical)" />
           <p class="text-[11px] text-white/60 leading-relaxed">This goes on everything you log, so two people in a hive cannot share it. Changing it here updates your name everywhere.</p>
         </div>
-        <button id="btn-submit-join" class="btn-primary mt-2">Join Hive</button>
+        <button id="btn-submit-join" class="btn-primary mt-2" data-i="joinhive">Join Hive</button>
       </div>
     </div>
 
@@ -637,7 +659,7 @@
           </p>
         </div>
 
-        <button id="btn-welcome-enter" class="btn-primary">Enter the Hive →</button>
+        <button id="btn-welcome-enter" class="btn-primary" data-i="enterthehive">Enter the Hive →</button>
       </div>
     </div>
 
@@ -676,14 +698,14 @@
           </button>
           <div id="hive-menu" role="menu" aria-label="Hive actions" class="hidden"
                style="position:absolute; right:0; top:calc(100% + 6px); min-width:210px; background:var(--wh-elev-2); border:1px solid rgba(255,255,255,0.12); border-radius:12px; padding:6px; z-index:var(--wh-z-overlay); box-shadow:var(--wh-shadow-3);">
-            <button id="btn-show-code" role="menuitem" class="hive-menu-item hidden">Show Invite Code</button>
+            <button id="btn-show-code" role="menuitem" class="hive-menu-item hidden" data-i="showinvitecode">Show Invite Code</button>
             <!-- H11 (hive deepwalk 2026-07-27): renaming was the one hive-identity capability with no
                  control anywhere, so a hive misnamed at creation stayed misnamed for every member.
                  The server already allowed it (RLS hives_update: an ACTIVE SUPERVISOR of that hive),
                  so only this door was missing. Supervisor-only, revealed by the same block that
                  reveals Show Invite Code. -->
             <button id="btn-rename-hive" role="menuitem" class="hive-menu-item hidden" data-i="rename_hive">Rename Hive</button>
-            <button id="btn-switch-hive" role="menuitem" class="hive-menu-item hidden">Switch Hive</button>
+            <button id="btn-switch-hive" role="menuitem" class="hive-menu-item hidden" data-i="switchhive">Switch Hive</button>
             <!-- Phase H.2 / 4.1 / 5C: audit-log, AI-quality + plant-connections are
                  hidden in the primary nav-hub; this supervisor-only menu is their
                  discoverable entry point (revealed by the supervisor block below). -->
@@ -693,7 +715,18 @@
                title="AI Quality + ROI: 30-day spend, fallback rate, schema compliance, worker thumbs feedback, predicted ROI (Stair 2+ gated)">AI Quality &#8594;</a>
             <a id="btn-plant-connections" href="plant-connections.html" role="menuitem" class="hive-menu-item hidden"
                title="Plant Connections: CMMS sync, sensor topics, gateway audit, data retention, SSO, all in one supervisor surface (Phase 5 Track C)">Plant Connections &#8594;</a>
-            <button id="btn-leave-hive" role="menuitem" class="hive-menu-item hive-menu-danger">Leave Hive</button>
+            <!-- ★THE EXPORT EXISTED AND NOTHING CALLED IT (T164, 2026-09-07). supabase/functions/
+                 export-hive-data has shipped since Phase 5 Track A as the PDPA Article 16 right-to-access
+                 export, and no page on the platform invoked it - so the right existed in the codebase and
+                 not in the product, which is the same as not existing for the person holding the right.
+                 It sits beside Leave Hive on purpose: taking your data with you is the thing you want
+                 immediately BEFORE you go, and burying it a menu away from the exit is how people leave
+                 without it. Supervisor-only, matching the function's own contract (a worker call is 403). -->
+            <button id="btn-export-hive" role="menuitem" class="hive-menu-item hidden"
+                    title="Download everything this hive holds as a JSON file (PDPA right-to-access)" data-i="exporthivedata">Export Hive Data</button>
+            <button id="btn-deactivate-account" role="menuitem" class="hive-menu-item hive-menu-danger"
+                    title="Permanently anonymize your name and email and leave every hive (PDPA right to erasure)" data-i="deactivateaccount">Deactivate Account</button>
+            <button id="btn-leave-hive" role="menuitem" class="hive-menu-item hive-menu-danger" data-i="leavehive">Leave Hive</button>
           </div>
         </div>
       </div>
@@ -791,7 +824,19 @@
         <div class="action-card" id="ss-service-provider">
           <div class="ac-label" data-i="svcprovlabel">Earn as a service company</div>
           <div class="ac-text" data-i="svcprovtext">Register your hive as a service provider. Nearby plants and homes can hail your crew for paid jobs.</div>
-          <a class="ac-cta" href="marketplace-seller.html?tab=services" data-i="svcprovcta">Open the provider console &#8594;</a>
+          <!-- ★SECONDARY WEIGHT, BECAUSE THE CARD ABOVE ALREADY DECLARED ITSELF THE ONE PRIMARY
+               (2026-09-10). #ss-action's own comment reads "Arc P Wave 1 (P3 one primary action):
+               the recommendation ends in ONE primary button", and this card arrived later as a
+               "Pure ADD" carrying an identical solid-orange .ac-cta right beneath it. Two filled
+               oranges plus the handover button gave the board THREE primary CTAs, which is what
+               G3 0% and A3 75% (primaryCta=3/2) have been reporting on every supervisor cast, on
+               three hives, at both widths. This is not a positioning choice between operations and
+               the marketplace - it is a later addition breaking an invariant the page had already
+               written down for itself, so the fix restores the invariant rather than picking a
+               winner: the COMPUTED recommendation keeps primary weight, and this standing evergreen
+               invitation keeps its card, its place and its link at secondary weight. Outline rather
+               than fill, which is also how the rubric tells them apart. -->
+          <a class="ac-link" href="marketplace-seller.html?tab=services" data-i="svcprovcta">Open the provider console &#8594;</a>
         </div>
         <!-- v4 readiness goal-gradient GLANCE (H1): composite length-bar + weakest dimension in
              the fold (the Ian-approved v4 restores a readiness glance to the fold; the FULL 5-dim
@@ -843,7 +888,7 @@
       <!-- Presence bar (Arc P · Wave 1: demoted BELOW the verdict — "who's online"
            is context, not the primary "should I worry?" answer). -->
       <div class="mb-4 board-card">
-        <p class="text-[11px] font-semibold text-white/80 uppercase tracking-widest mb-1" data-i="onshift">On Shift Now</p>
+        <p role="heading" aria-level="2" class="text-[11px] font-semibold text-white/80 uppercase tracking-widest mb-1" data-i="onshift">On Shift Now</p>
         <!-- Y6 silent-loop: a green dot was an unexplained status. State the basis inline (not a hover tooltip — field phones have no hover). -->
         <p class="text-[10.5px] text-white/80 mb-2" data-i="presence-legend">Green dot = a teammate is in WorkHive right now.</p>
         <div id="presence-bar" class="flex gap-2 overflow-x-auto pb-1">
@@ -858,11 +903,36 @@
            canonical v_logbook_truth. Populated by loadMyOpenWork(). -->
       <a id="my-work-card" href="logbook.html" class="wh-card" style="align-items:center; gap:14px; padding:14px 16px; margin-bottom:16px; text-decoration:none; color:inherit; min-height:44px;">
         <div style="flex:1; min-width:0;">
-          <p style="font-size:0.62rem; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:rgba(255,255,255,0.83); margin-bottom:2px;">Your open work</p>
+          <p role="heading" aria-level="2" data-i="myworklabel" style="font-size:0.62rem; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:rgba(255,255,255,0.83); margin-bottom:2px;">Your open work</p>
           <p id="my-work-headline" style="font-size:0.95rem; font-weight:800; color:var(--wh-cloud); line-height:1.3;">Checking your jobs&#8230;</p>
           <p id="my-work-sub" style="font-size:0.72rem; color:rgba(255,255,255,0.80); margin-top:2px;"></p>
         </div>
-        <span aria-hidden="true" style="font-size:0.72rem; font-weight:700; color:var(--wh-orange-text); white-space:nowrap;">Open Logbook &#8250;</span>
+        <span aria-hidden="true" data-i="myworkcta" style="font-size:0.72rem; font-weight:700; color:var(--wh-orange-text); white-space:nowrap;">Open Logbook &#8250;</span>
+      </a>
+
+      <!-- ★W3-JN J26 (2026-09-10): THE HIVE'S ALERT INBOX HAD NO ROUTE A WORKER COULD COUNT ON.
+           Walking J26 as the two people who really hold two hive memberships, the supervisor half
+           passed 4/4 and the worker half failed 4/4 on this exact hop - hive -> alert-hub, own:0
+           hub:0 - while the very same page offered that same person five ways onward to the logbook.
+           Every inbound link on the platform (3 of them) is built inside a script behind a condition:
+           the notifications dropdown at :5097 needs a plant-condition notification, the approval
+           queue link is supervisor-only, and index.html:5058 fires ONLY when the reads FAILED. A
+           conditional link is not a route; it is a link that sometimes exists. alert-hub is already
+           built for a worker - it renders with 93 controls, no sign-in wall and no error banner, its
+           approve/reject and ack/resolve buttons gate on isSupervisor, and its hive-wide dismissals
+           announce their scope under the actor's name - so this was wayfinding, never permission.
+           IT LIVES HERE, IN THE WORKER LEAD, BECAUSE THE FIRST ATTEMPT PUT IT IN THE ACTION-CARD
+           STACK ABOVE AND THE RE-WALK CAME BACK 4/8 UNCHANGED: that stack is inside
+           #supervisor-summary, which ships `hidden` and is revealed only for supervisors, so the card
+           was invisible to the exact person it was added for. Pattern-matching a sibling card is not
+           the same as checking who can see its container. A supervisor needs nothing here - they have
+           the nav entry - so this block is the worker's, alongside their own open work. -->
+      <a id="my-alerts-card" href="alert-hub.html" class="wh-card" style="align-items:center; gap:14px; padding:14px 16px; margin-bottom:16px; text-decoration:none; color:inherit; min-height:44px;">
+        <div style="flex:1; min-width:0;">
+          <p role="heading" aria-level="2" style="font-size:0.62rem; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:rgba(255,255,255,0.83); margin-bottom:2px;" data-i="alerthublabel">What the hive has flagged</p>
+          <p style="font-size:0.95rem; font-weight:800; color:var(--wh-cloud); line-height:1.3;" data-i="alerthubtext">Risk, anomalies and shift briefings for this hive</p>
+        </div>
+        <span aria-hidden="true" style="font-size:0.72rem; font-weight:700; color:var(--wh-orange-text); white-space:nowrap;" data-i="alerthubcta">Open Alert Hub &#8250;</span>
       </a>
 
       <!-- Arc Y Y2/Y6 — conditional disclosure + close the capture->use loop:
@@ -999,7 +1069,13 @@
           </div>
         </div>
         <p id="vs-source-chip" style="margin:0 16px 8px;"></p>
-        <p id="vs-empty" class="hidden" style="font-size:11px; color:rgba(255,255,255,0.82); margin:0 16px 12px; line-height:1.45;" data-i="vsEmpty">Your hive's story starts here: complete a PM, close a fault, and capture what you learned. These counts grow as your team works.</p>
+        <!-- X1 task-flow (rubric sweep 2026-09-05): the empty state DESCRIBED what would happen but gave a
+             new hive nowhere to go — a dead end by the X1 rule, which takes each empty-state panel and
+             requires a CTA INSIDE it (p.querySelector('a[href],button,…')). So the anchor is a CHILD of
+             the <p>, in the page's own .ac-cta idiom. The [data-i] translator swaps this <p>'s innerHTML
+             wholesale, so WH_FIL.vsEmpty carries the same anchor with Filipino text (a sibling anchor
+             was tried first and could not count — the rule scopes to the panel). -->
+        <p id="vs-empty" class="hidden" style="font-size:11px; color:rgba(255,255,255,0.82); margin:0 16px 12px; line-height:1.45;" data-i="vsEmpty">Your hive's story starts here: complete a PM, close a fault, and capture what you learned. These counts grow as your team works. <a class="ac-cta" href="pm-scheduler.html" style="display:inline-flex; margin-top:8px;">Log your first PM &#8594;</a></p>
       </div>
 
       <!-- ─────────────────────────────────────────────────────────────────
@@ -1153,6 +1229,21 @@
         .action-card .ac-text { font-size:0.82rem; line-height:1.5; margin-top:6px; color:rgba(255,255,255,0.85); }
         /* v4 (2026-07-15): the action CTA was 22px tall (mobile-maestro 44px floor) — lift it. */
         .action-card .ac-cta { min-height:44px; display:inline-flex; align-items:center; margin-top:8px; }
+        /* Secondary weight for a standing invitation that sits beside a COMPUTED recommendation
+           (see #ss-service-provider). It is a SEPARATE CLASS, not a modifier on .ac-cta, and that
+           distinction is the fix rather than a detail: `.ac-cta` IS this page's "primary action-card
+           call to action", which is why the rubric counts it by class. A first attempt kept
+           `.ac-cta` and only restyled it — the control looked secondary and still counted as
+           primary, which is precisely the declared-and-not-adopted mismatch C-A recorded. A control
+           that is not the primary action must not wear the primary action's class.
+           Same 44px target and layout; transparent ground with the orange as border and text, so it
+           keeps the page's action colour and clears WCAG AA on this card's rgba(41,182,217,0.06). */
+        .action-card .ac-link {
+          min-height:44px; display:inline-flex; align-items:center; margin-top:8px;
+          padding:0 14px; border-radius:12px; text-decoration:none;
+          background: transparent; border: 1px solid var(--wh-orange);
+          color: var(--wh-orange-text, var(--wh-orange)); font-weight: 700; font-size: 0.8rem;
+        }
         .details-toggle { display:inline-flex; align-items:center; gap:6px; background:transparent; border:1px solid rgba(255,255,255,0.07); color:rgba(255,255,255,0.80); padding:8px 14px; border-radius:8px; font-family:inherit; font-size:0.7rem; font-weight:600; cursor:pointer; min-height:44px; }
         .details-toggle:hover { color:var(--wh-cloud); border-color:rgba(255,255,255,0.18); }
 
@@ -1164,7 +1255,20 @@
         .verdict.ss-hero .verdict-icon { font-size:1.3rem; margin-top:3px; }
         .verdict.ss-hero #ss-verdict-label { font-size:1.4rem; font-weight:800; letter-spacing:-0.01em; color:var(--wh-cloud); display:block; line-height:1.2; }
         .verdict.ss-hero .verdict-text small { font-size:0.76rem; margin-top:5px; color:rgba(255,255,255,0.80); }
-        @media (max-width:480px){ .verdict.ss-hero #ss-verdict-label { font-size:1.18rem; } }
+        /* TOKEN ALIGNMENT ONLY (2026-09-11): 1.18rem is 18.88px, which is not a value on the scale;
+           1.125rem is 18px, which is. Under one pixel of visual change.
+           ★IT DOES NOT FIX C1, AND I PREDICTED THAT IT WOULD. hive reads C1 67% at 390 and 100% at
+           1280 - reproduced on two independent pairs with #health-details closed in both halves and
+           identical character counts, so the difference is real and the usual confounder is excluded.
+           C1's two graded checks are `big.length <= 3` (PASSES here: [32,24,22]) and
+           `sizes.length <= 10` (FAILS: 11 distinct tiers at 390, <=10 at desktop). I changed this
+           declaration believing its 19px was the eleventh tier; after the change C1 still reads 67%
+           with distinct=11, because the rubric counts a DIFFERENT element set than my probe did - its
+           `textEls` uses OWN TEXT NODES, which see through a closed <details>, where innerText does
+           not. WHAT IS TRUE AND MEASURED: hive's phone view renders ELEVEN distinct type sizes where
+           the scale allows ten. WHICH tier to drop is a design decision, and after getting this
+           mechanism wrong three times I am not guessing a fourth. */
+        @media (max-width:480px){ .verdict.ss-hero #ss-verdict-label { font-size:1.125rem; } }
 
         /* v4 since-your-last-visit ribbon (G1 status + H2 Zeigarnik) + eyebrow — mockup blue-tint
            mapped to --wh-blue tokens. */
@@ -1311,7 +1415,7 @@
            types that produce them. Populated by loadTodaysBrief(). -->
       <div id="todays-brief-panel" class="hidden mb-5">
         <div class="flex items-center justify-between mb-2">
-          <p class="text-[11px] font-semibold text-white/80 uppercase tracking-widest" data-i="brief">Today's Brief</p>
+          <p role="heading" aria-level="2" class="text-[11px] font-semibold text-white/80 uppercase tracking-widest" data-i="brief">Today's Brief</p>
           <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full" style="background:rgba(248,113,113,0.12);color:var(--wh-red-text);">AI</span>
         </div>
         <div class="wh-card p-4">
@@ -1390,6 +1494,25 @@
            The dynamic greeting (name + count) stays in English by design (not a static string). -->
       <script>
       window.WH_FIL = {
+        // Value-story tile (N1: these five [data-i] keys had NO Filipino entry, so the tile stayed
+        // English after a language switch and hive's label coverage read 2/3 — rubric sweep 2026-09-05)
+        // ★AND THE SAME CARD'S HEADER AND SUBTITLE WERE LEFT BEHIND BY THAT FIX (walked 2026-09-11,
+        // Christine Dizon on a phone at wh_lang=fil). The five keys above were added; `hiveValueBadge`
+        // and `hiveValueSub` sit on the two <span>s directly above them (hive.html:1053-1054) and named
+        // keys NO dictionary defined - not WH_FIL, not WH_FIL_COMMON, not the fetched page dict - so the
+        // renewal card announced itself as "Your hive's value / what this hive has delivered so far" in
+        // English above three perfectly Filipino labels. A stamp that resolves nowhere still counts
+        // toward label coverage, which is why N1 read 100% here; fault 16 now checks the VALUE, not the
+        // stamp. [[feedback_the_stamp_survived_the_translation_did_not]]
+        hiveValueBadge:"Halaga ng hive mo", hiveValueSub:"kung ano na ang naibigay ng hive na ito",
+        // The hive-switch sheet (see the note at its markup): every string a multi-hive person reads
+        // there, not only the cancel button. `swRoleSupervisor`/`swRoleWorker`/`swActive` are consumed
+        // by the list the click handler builds, so the generated rows translate too.
+        hivesTitle:"Ang Mga Hive Mo", hivesSub:"Lumipat ng hive o sumali sa bago.",
+        joinAnother:"Sumali sa Ibang Hive",
+        swActive:"Kasalukuyan", swRoleSupervisor:"Superbisor", swRoleWorker:"Manggagawa",
+        vsPms:"Mga PM na natupad", vsFaults:"Mga sirang naayos", vsKnow:"Mga aral na naitala",
+        vsEmpty:"Dito nagsisimula ang kuwento ng inyong hive: tapusin ang isang PM, isara ang isang sira, at itala ang natutunan. Lumalaki ang mga bilang na ito habang nagtatrabaho ang team. <a class=\"ac-cta\" href=\"pm-scheduler.html\" style=\"display:inline-flex; margin-top:8px;\">Itala ang unang PM &#8594;</a>",
         intent_q:"Ano ang dapat unahing tulungan ng WorkHive para sa inyong team?",
         intent_pred:"Predictive maintenance: pigilan ang sira bago mangyari",
         intent_down:"Bawasan ang downtime: mas mabilis na balik-produksyon",
@@ -1406,6 +1529,10 @@
         why:"Bakit?", show:"Ipakita", more:"Higit pa",
         readytitle:"Readiness ng Hive", why:"Bakit? &#8594;", whattodo:"Susunod na gagawin",
         svcprovlabel:"Kumita bilang service company", svcprovtext:"Irehistro ang hive mo bilang service provider. Puwedeng tawagin ng mga kalapit na planta at bahay ang crew mo para sa bayad na trabaho.", svcprovcta:"Buksan ang provider console &#8594;",
+        // the worker lead card: its two static labels carried no data-i at all until 2026-09-10,
+        // so the first card a worker sees on this board could never be translated
+        myworklabel:"Bukas mong trabaho", myworkcta:"Buksan ang Logbook ›",
+        alerthublabel:"Lahat ng na-flag ng hive", alerthubtext:"Risk, anomalya, shift briefing at parts staging para sa hive na ito, nasa isang inbox.", alerthubcta:"Buksan ang alert hub &#8594;",
         brief:"Brief ngayong araw", coach:"Tanungin ang Reliability Coach",
         patterns:"Pattern alerts", activity:"Hive activity", roster:"Roster",
         wo:"Bukas na work orders", members:"Mga miyembro", onshift:"Naka-shift ngayon",
@@ -1422,12 +1549,25 @@
         dimProcess:"Proseso", dimData:"Datos", dimResilience:"Katatagan", dimLeadership:"Pamumuno", dimCulture:"Kultura"
       };
       window._whEnCap = null;
-      window.WH_LANG = 'en';
+      // ★THE HIVE BOARD THREW AWAY A FILIPINO WORKER'S LANGUAGE (2026-09-10, found by walking J1 in
+      // Filipino through the chrome-devtools MCP). This read `= 'en'` flat, so the page ignored a stored
+      // preference entirely: localStorage said `wh_lang: 'fil'` and the board still rendered zero
+      // Filipino tokens. Worse, it is hardcoded BEFORE utils.js runs, and utils.js only reads the stored
+      // value `if (typeof window.WH_LANG === 'undefined')` - so this line was actively suppressing the
+      // platform's own locale floor. Measured across the app: FOUR pages offer an EN/FIL toggle, three
+      // persist the choice (index, analytics, analytics-report) and this was the ONE that did neither -
+      // on the surface a worker opens most. A person who chose Filipino on the landing page arrived here
+      // in English, and choosing it again here was forgotten on the next load.
+      try { window.WH_LANG = (localStorage.getItem('wh_lang') === 'fil') ? 'fil' : 'en'; }
+      catch (_) { window.WH_LANG = 'en'; }   /* storage refused: English is the safe default */
       // Tiny translator for JS-RENDERED strings (the ones built in render fns, not static [data-i]).
       // _t(english, filipino) returns the string in the active language.
       window._t = function _t(en, fil) { return (window.WH_LANG === 'fil' && fil) ? fil : en; };
       window.setLang = function setLang(l, btn) {
         window.WH_LANG = (l === 'fil') ? 'fil' : 'en';
+        // and REMEMBER it, the way index.html and the two analytics pages already do - without this the
+        // choice lasted exactly as long as the tab did, which is not a preference, it is a gesture
+        try { localStorage.setItem('wh_lang', window.WH_LANG); } catch (_) { /* empty-catch-allow: a browser refusing storage still gets the switch, just not the memory */ }
         var els = document.querySelectorAll('[data-i]');
         if (!window._whEnCap) { window._whEnCap = {}; els.forEach(function(e){ window._whEnCap[e.dataset.i] = e.innerHTML; }); }
         var d = l === 'fil' ? window.WH_FIL : window._whEnCap;
@@ -1439,6 +1579,25 @@
         // read the _board cache (no re-fetch) — a cheap re-render on a rare user action.
         try { document.dispatchEvent(new CustomEvent('wh-locale-change', { detail: window.WH_LANG })); } catch (_) { /* empty-catch-allow: locale-change event is advisory for listeners */ }
       };
+      // ★READING THE PREFERENCE IS NOT APPLYING IT, and stopping at the first half would have been the
+      // worse bug: WH_LANG would say 'fil', every _t() string would translate, and the page's ~92
+      // static [data-i] labels would still sit in English until somebody tapped the FIL button - so the
+      // board would MEASURE better (N1, html lang) while the person still read "YOUR OPEN WORK". The
+      // swap lives in setLang, which until now only ever ran from a click; on a page whose language
+      // came from storage, nobody clicks. Applied once after the DOM exists so _whEnCap captures the
+      // real English text before it is replaced, and only when the stored choice is actually Filipino.
+      if (window.WH_LANG === 'fil') {
+        var _applyStoredFil = function () {
+          try {
+            window.setLang('fil', document.querySelector('.ss-lang button[data-lang="fil"]'));
+          } catch (_) { /* empty-catch-allow: a failed swap must never block the board from rendering */ }
+        };
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', _applyStoredFil);
+        } else {
+          _applyStoredFil();
+        }
+      }
       document.addEventListener('wh-locale-change', function () {
         ['loadSupervisorSummary','loadMembers','loadAuditLog','loadPatternAlerts','loadKnowledgePipeline','loadTeamPulse','loadBenchmarks','checkTeamStockAlert','loadFeed','renderPresence'].forEach(function (fn) {
           try { if (typeof window[fn] === 'function') window[fn](); } catch (_) { /* empty-catch-allow: a single re-render fn failing must not abort the locale switch */ }
@@ -1486,7 +1645,7 @@
         </summary>
         <div class="wh-disclose-body">
           <p id="pattern-alerts-source-chip" style="margin:0 0 8px;"></p>
-          <div id="pattern-alerts-content"></div>
+          <div id="pattern-alerts-content" data-ai-generated></div>
         </div>
       </details>
 
@@ -1506,7 +1665,7 @@
           </div>
           <div id="feed" class="flex flex-col gap-3"></div>
           <div id="feed-more" class="hidden mt-3">
-            <button onclick="loadMoreFeed()" class="w-full py-3 rounded-xl text-sm font-semibold" style="background:rgba(41,182,217,0.08);color:var(--wh-blue-text);border:1px solid rgba(41,182,217,0.25);">Load More</button>
+            <button onclick="loadMoreFeed()" class="w-full py-3 rounded-xl text-sm font-semibold" style="background:rgba(41,182,217,0.08);color:var(--wh-blue-text);border:1px solid rgba(41,182,217,0.25);" data-i="loadmore">Load More</button>
           </div>
         </div>
       </details>
@@ -1517,13 +1676,20 @@
            handover covered. Populated by generateHandover(). -->
       <div id="handover-panel" class="mt-5 mb-5">
         <div class="flex items-center justify-between mb-2">
-          <p class="text-[11px] font-semibold text-white/80 uppercase tracking-widest">Shift Handover</p>
+          <p role="heading" aria-level="2" data-i="p_shifthandover_e502" class="text-[11px] font-semibold text-white/80 uppercase tracking-widest">Shift Handover</p>
         </div>
-        <p class="text-xs mb-3" style="color:rgba(255,255,255,0.80);">Auto-generates a summary of this shift: completed jobs, open items, LOTO alerts, and watch list. Ready to share with the next team.</p>
+        <p data-i="p_autogeneratesashiftsummaryco_bba5" class="text-xs mb-3" style="color:rgba(255,255,255,0.80);">Auto-generates a shift summary. Completed jobs, open items, LOTO alerts and the watch list, ready for the next team.</p>
         <p id="handover-source-chip" style="margin:0 0 8px;"></p>
+        <!-- C-AH (2026-09-11): this whole panel was UNSTAMPED - heading, description and button all
+             English on a page a Filipino worker reads, and INVISIBLE to every i18n measurement, which
+             counts data-i stamps and therefore cannot see an element that has none. The extractor could
+             not have caught the button either: tools/i18n_page_dict.py matches only elements whose whole
+             content is a bare text node, so ANY control carrying an icon child is outside its reach.
+             The stamp goes on a SPAN around the text, never on the button - a data-i on the button
+             replaces its innerHTML and takes the icon with it. -->
         <button class="handover-btn" onclick="generateHandover()">
           <span class="ic ic-doc" aria-hidden="true"></span>
-          Generate Shift Handover Report
+          <span data-i="p_generateshifthandoverreport_034e">Generate Shift Handover Report</span>
         </button>
       </div>
 
@@ -1561,7 +1727,7 @@
            "Jobs Today" stat is shown. The pm-overdue + stock cells are kept as HIDDEN canonical
            data cells so the signal-parity + kpi-parity specs still verify the number. -->
       <div id="team-pulse-panel" class="hidden mb-5 board-card">
-        <p class="text-[11px] font-semibold text-white/80 uppercase tracking-widest mb-2" data-i="teampulse">Team Pulse</p>
+        <p role="heading" aria-level="2" class="text-[11px] font-semibold text-white/80 uppercase tracking-widest mb-2" data-i="teampulse">Team Pulse</p>
         <!-- D1/F1: the KPI is a link to the logbook (predictable destination) with a chevron
              affordance + 44px hit area, not a dead-end stat. R3: flattened (no inner border/bg) so
              it's a row INSIDE the section card, not a card-in-card. -->
@@ -1595,7 +1761,7 @@
       <!-- Approval Queue (supervisor only, always open) -->
       <div id="approval-queue" class="hidden mb-5 board-card">
         <div class="flex items-center gap-2 mb-2">
-          <p class="text-[11px] font-semibold text-white/80 uppercase tracking-widest">Approval Queue</p>
+          <p role="heading" aria-level="2" class="text-[11px] font-semibold text-white/80 uppercase tracking-widest">Approval Queue</p>
           <span id="approval-badge" class="hidden text-[10px] font-black px-1.5 py-0.5 rounded-full" style="background:var(--wh-orange);color:var(--wh-navy);min-width:18px;text-align:center;"></span>
         </div>
         <div id="approval-body">
@@ -1643,11 +1809,18 @@
 <!-- Hive switcher modal -->
 <div id="modal-hive-switch" role="dialog" aria-modal="true" aria-label="Switch hive" class="hidden fixed inset-0 z-50 flex items-end justify-center" style="background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); padding-bottom:env(safe-area-inset-bottom);">
   <div class="wh-card w-full max-w-lg p-6 mx-4 mb-6">
-    <h3 class="text-lg font-black text-white mb-1">Your Hives</h3>
-    <p class="text-xs text-white/80 mb-4">Switch between hives or join a new one.</p>
+    <!-- ★THE DOOR BETWEEN TWO WORKPLACES, AND ONLY ITS EXIT WAS TRANSLATED (walked 2026-09-11, J26).
+         Of the six strings a multi-hive Filipino person reads in this dialog, exactly one carried a
+         data-i - `cancel` on the button below - so the sheet read "Your Hives / Switch between hives or
+         join a new one. / Supervisor / Worker / Active / Join Another Hive / Kanselahin": the single
+         word she could act on was the one that backs out. The dialog is INVISIBLE to a page-at-rest
+         rubric sweep because it renders inside a hidden modal, which is why 60+ graded walks of this
+         page never saw it, and why the deepwalk opens every menu it depends on. -->
+    <h3 class="text-lg font-black text-white mb-1" data-i="hivesTitle">Your Hives</h3>
+    <p class="text-xs text-white/80 mb-4" data-i="hivesSub">Switch between hives or join a new one.</p>
     <div id="hive-switch-list" class="flex flex-col gap-2 mb-4"></div>
-    <button id="btn-hive-switch-join" class="btn-ghost mb-2">Join Another Hive</button>
-    <button id="btn-hive-switch-cancel" class="btn-text" style="display:block;text-align:center;width:100%;">Cancel</button>
+    <button id="btn-hive-switch-join" class="btn-ghost mb-2" data-i="joinAnother">Join Another Hive</button>
+    <button id="btn-hive-switch-cancel" class="btn-text" style="display:block;text-align:center;width:100%;" data-i="cancel">Cancel</button>
   </div>
 </div>
 
@@ -1660,11 +1833,11 @@
     <select id="sup-transfer-select" class="wh-input mb-4"></select>
     <button id="btn-sup-transfer-leave" class="btn-primary mb-3">Transfer &amp; Leave</button>
     <button id="btn-sup-leave-anyway" class="btn-ghost mb-3">Leave Without Transferring</button>
-    <button id="btn-sup-leave-cancel" class="btn-text" style="display:block; text-align:center; width:100%;">Cancel</button>
+    <button id="btn-sup-leave-cancel" class="btn-text" style="display:block; text-align:center; width:100%;" data-i="cancel">Cancel</button>
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
+<script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
 <script src="wh-capture-validate.js"></script>
 <script src="nav-hub.js"></script>
@@ -1829,6 +2002,24 @@ function whJumpTo(id) {
 // Worker lead (U10, Hive Board PDDA 2026-07-10): fill the worker-only "Your open work" card
 // from the caller's OWN open logbook entries (canonical v_logbook_truth). Worker-only; a
 // failed read is honest ("couldn't load"), never a fake "all caught up".
+// P171 "reconnect & backfill" (2026-09-05, the founder-console feedback-inbox class): rtConn() paints the
+// connection state only. Every hive channel below used to hand rtConn() straight to .subscribe(), so a row
+// inserted while the socket was down never arrived as an event AND nothing re-read the board when the
+// channel came back - the feed, approvals, PM health and audit stream stayed silently stale until a manual
+// reload. This handler keeps the paint, remembers the drop, and on the FIRST re-SUBSCRIBED after it (all
+// eight channels re-join together, so the refetch is debounced to one pass) re-reads every board section.
+// The browser's own 'online' event triggers the same pass, because a channel can rejoin before the REST
+// reads would have succeeded. window._whRt exposes the state for the live prover (prove_realtime_backfill).
+function refreshAfterDrop() {
+  ['loadFeed', 'loadApprovalQueue', 'loadPMHealth', 'loadAuditLog', 'loadMembers', 'loadMyOpenWork',
+   'loadShiftRibbon', 'loadMaturityStairway', 'loadAdoptionCard', 'loadValueSummary'].forEach((name) => {
+    try { if (typeof window[name] === 'function') window[name](); } catch (err) { console.warn('[hive] backfill after reconnect: ' + name + ' failed', err); }
+  });
+}
+// the shared handler (utils.js whRealtimeBackfill, 2026-09-05): one instance for the whole page, so the eight channels
+// rejoining together trigger ONE debounced refetch; it also refetches on the browser's 'online' event.
+const _rtBackfill = (typeof whRealtimeBackfill === 'function') ? whRealtimeBackfill(refreshAfterDrop, { tag: 'hive' }) : (typeof rtConn === 'function' ? rtConn() : undefined);   // paint-only fallback if the shell script is missing
+
 async function loadMyOpenWork() {
   if (HIVE_ROLE === 'supervisor') return; // supervisors have the Supervisor Summary
   const head = document.getElementById('my-work-headline');
@@ -1838,16 +2029,25 @@ async function loadMyOpenWork() {
     const { count, error } = await db.from('v_logbook_truth')
       .select('*', { count: 'exact', head: true })
       .eq('hive_id', HIVE_ID).eq('worker_name', WORKER_NAME).eq('status', 'Open');
-    if (error) { head.textContent = "Couldn't load your jobs"; sub.textContent = whReadError(error, 'your jobs'); return; }
+    if (error) { head.textContent = _t("Couldn't load your jobs", "Hindi ma-load ang mga job mo"); sub.textContent = whReadError(error, 'your jobs'); return; }
     const n = count || 0;
+    // ★THE WORKER'S OWN CARD SPOKE ENGLISH ONLY WHEN IT WORKED (2026-09-10, found by walking J1 in
+    // Filipino). The error branch two lines above already goes through _t() - "Hindi ma-load ang mga
+    // job mo" - while all three SUCCESS strings, the ones a worker actually reads every shift, were
+    // hardcoded English. So the one message a Filipino technician was guaranteed to understand was the
+    // failure. Same for the card's two static labels above, which carried no data-i at all.
     if (n === 0) {
-      head.textContent = "You're all caught up";
-      sub.textContent  = 'No open jobs assigned to you. Tap to log a new entry.';
+      head.textContent = _t("You're all caught up", 'Wala kang naka-bukas na trabaho');
+      sub.textContent  = _t('No open jobs assigned to you. Tap to log a new entry.',
+                            'Walang nakatalagang trabaho sa iyo. I-tap para mag-log ng bago.');
     } else {
-      head.textContent = `${n} open job${n === 1 ? '' : 's'} assigned to you`;
-      sub.textContent  = 'Tap to review and update them in your logbook.';
+      head.textContent = n === 1
+        ? _t('1 open job assigned to you', '1 trabahong nakatalaga sa iyo')
+        : _t(`${n} open jobs assigned to you`, `${n} trabahong nakatalaga sa iyo`);
+      sub.textContent  = _t('Tap to review and update them in your logbook.',
+                            'I-tap para tingnan at i-update ang mga ito sa logbook mo.');
     }
-  } catch (_e) { console.error('hive load-jobs failed:', _e); head.textContent = "Couldn't load your jobs"; sub.textContent = whReadError(_e, 'your jobs'); }
+  } catch (_e) { console.error('hive load-jobs failed:', _e); head.textContent = _t("Couldn't load your jobs", "Hindi ma-load ang mga job mo"); sub.textContent = whReadError(_e, 'your jobs'); }
 }
 
 function genCode() {
@@ -2152,6 +2352,39 @@ document.getElementById('nav-worker').textContent = WORKER_NAME;
           code: (prev.find(p => p.id === h.id) || {}).code || '',
         })));
       } catch (_) { /* empty-catch-allow: switcher freshness is best-effort, never blocks the board */ }
+    })();
+    // ★ASK WHETHER THIS PERSON IS STILL A MEMBER BEFORE PAINTING THEIR HIVE. RLS filters a removed
+    // member's reads to nothing, so the board rendered as a quiet hive - an empty feed, no members, no
+    // open work - and the person was never told they had been removed. The read is one bounded query
+    // against v_worker_truth, the same view the switcher reconciles from, and it FAILS OPEN: if the
+    // database cannot be reached the board renders as before, because being offline is not being kicked.
+    (async function tellARemovedMemberWhatHappened() {
+      try {
+        // ★AND IT MUST BE THE TABLE, NOT THE TRUTH VIEW. Measured through PostgREST with the person's
+        // own token, on a real revocation reversed afterwards: while kicked, `v_worker_truth` answers
+        // {"hive_id":null,"hive_status":null} - the membership is joined away, so the view can never
+        // say "kicked" and a check against it would have shipped doing nothing. `hive_members` answers
+        // {"status":"kicked"}, because its read policy begins `auth_uid = auth.uid()`: a person can
+        // always read their OWN row, whatever its status. The hive's feed correctly returned [] in the
+        // same breath, which is the behaviour that leaves the board looking merely quiet.
+        const { data: me, error: meErr } = await db.from('hive_members')
+          .select('status').eq('worker_name', WORKER_NAME).eq('hive_id', HIVE_ID).maybeSingle();
+        if (meErr || !me || me.status !== 'kicked') return;   // offline, or still a member
+        const noticeEl = document.getElementById('onboard-revoked');
+        if (noticeEl) {
+          noticeEl.textContent = _t(
+            'You have been removed from ' + (HIVE_NAME || 'that hive') + '. Its board, feed and jobs are no longer yours to see. Contact the supervisor to be re-added, or join another hive with a code.',
+            'Natanggal ka sa ' + (HIVE_NAME || 'hive na iyon') + '. Hindi mo na makikita ang board, feed at trabaho nito. Kausapin ang supervisor para maibalik, o sumali sa ibang hive gamit ang code.');
+          noticeEl.classList.remove('hidden');
+        }
+        // stop pointing at a hive this person cannot read, or every page keeps rendering it empty
+        try {
+          localStorage.removeItem('wh_active_hive_id');
+          localStorage.removeItem('wh_hive_id');
+          localStorage.removeItem('wh_hive_name');
+        } catch (_) { /* empty-catch-allow: storage may be blocked; the notice above is the point */ }
+        showView('onboard');
+      } catch (_) { /* empty-catch-allow: the board is already rendering; a failed check must not remove it */ }
     })();
     showView('board');
     Promise.resolve(initBoard()).then(() => { if (typeof whFreshnessFooter === 'function') whFreshnessFooter(); }); // G1 (FAMILY F3)
@@ -2536,7 +2769,7 @@ async function submitJoin() {
      and put them where they already belong. */
   // No trailing period: hive names often end in one themselves ("Lucena Pharmaceutical Mfg."),
   // which rendered "…Mfg..". Let the name terminate the sentence.
-  showToast(`You're already a member of ${hive.name}`);
+  showToast(_t(`You're already a member of ${hive.name}`, `Miyembro ka na ng ${hive.name}`));
   showView('board');
   initBoard();
 }
@@ -2567,6 +2800,109 @@ async function showWelcome(hive) {
 
   showView('welcome');
 }
+
+// ── DEACTIVATE ACCOUNT ──
+// ★THE RIGHT ALREADY EXISTED - IT WAS JUST UNREACHABLE FROM INSIDE THE APP (T164, 2026-09-07). My first
+// pass here searched the pages for "delete my account" and "request deletion", found nothing, concluded
+// that asking to be erased had no mechanism at all, and BUILT a data_deletion_requests table that merely
+// RECORDED the ask. The platform's word is "deactivate", and index.html has called deactivate_my_account()
+// since Arc I - an RPC that actually anonymizes the display name and email, revokes hive access, and
+// preserves the operational records the team depends on. That is strictly stronger than what I built: a
+// real erasure instead of a promise to consider one. Searching for my vocabulary instead of the
+// platform's nearly shipped a weaker duplicate of a right that was already properly implemented.
+//
+// The GENUINE gap was reach: the control lived only on index.html, so a person signed in and working
+// inside the app had to go back out to the landing page to find it. This is the same entry point, on the
+// surface where someone actually decides to leave - the RPC is the mechanism, and a second door to it is
+// not duplication, exactly as Export Hive Data is a door to an edge function.
+document.getElementById('btn-deactivate-account')?.addEventListener('click', async () => {
+  const ok = await window.whConfirm(
+    'Deactivate your account? Your name and email will be permanently anonymized and you will lose '
+    + 'access to all hives. Your past maintenance records stay with the team (anonymized). This cannot be undone.',
+    { okLabel: 'Deactivate', cancelLabel: 'Cancel' });
+  if (!ok) return;
+  try {
+    const db = await getDb();
+    const { error } = await db.rpc('deactivate_my_account');
+    if (error) throw error;
+    // the last thing the platform says to this person is the sentence that tells them it worked
+    // ★THE PLATFORM'S OWN STACK, NOT THE BROWSER'S (gate native-dialog-calls). index.html's copy of this
+    // flow uses alert() with a documented reason and is grandfathered by the ratchet; a NEW alert reddens
+    // it, and whConfirm blocks just as truthfully while looking like the rest of the product. This is the
+    // last thing the platform ever says to this person, so it should not arrive as a browser chrome box.
+    await window.whConfirm('Your account has been deactivated and your personal data anonymized.',
+      { okLabel: 'Close', cancelLabel: null });
+    ['wh_last_worker', 'wh_worker_name', 'workerName',
+     'wh_active_hive_id', 'wh_hive_id', 'wh_hive_role', 'wh_hive_name', 'wh_hive_code']
+      .forEach((k) => { try { localStorage.removeItem(k); } catch (e) { void e; } });
+    try { await db.auth.signOut(); } catch (e) { void e; }
+    window.location.href = 'index.html';
+  } catch (e) {
+    // MK11: a dead session is the most likely throw here, and "try again" is the one remedy that
+    // cannot help it. alert rather than a toast, deliberately: a failure on THIS action must not be missed.
+    await window.whConfirm(typeof window.whWriteError === 'function'
+      ? window.whWriteError(e, 'Your account was NOT deactivated. Nothing was changed.')
+      : 'Your account was NOT deactivated. Nothing was changed.',
+      { okLabel: 'Close', cancelLabel: null });
+  }
+});
+
+// ── EXPORT HIVE DATA ──
+// ★A RIGHT THAT NOTHING INVOKES IS NOT A RIGHT (T164, 2026-09-07). The export-hive-data function has
+// shipped since Phase 5 Track A and no page called it, so the PDPA Article 16 right-to-access lived in
+// the repository and not in the product. Wiring it is the whole fix.
+//
+// The failure modes are named rather than swallowed, because this is the control a person reaches for
+// when they are already unhappy: a 403 means the function's supervisor-only contract refused them (the
+// button is supervisor-gated, but a role can change under an open tab), and a network failure means
+// their data is still there and they should try again - neither is "something went wrong".
+document.getElementById('btn-export-hive')?.addEventListener('click', async (ev) => {
+  const btn = ev.currentTarget;
+  const original = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = 'Preparing your export…';
+  try {
+    const db = await getDb();
+    const { data, error } = await db.functions.invoke('export-hive-data', { body: { hive_id: HIVE_ID } });
+    if (error) throw error;
+    const payload = (data && data.export) ? data : { hive_id: HIVE_ID, export: data };
+    // the file is built in the page and released immediately - nothing is uploaded anywhere to make it
+    const url = URL.createObjectURL(new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' }));
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `workhive-hive-export-${new Date().toISOString().slice(0, 10)}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+    if (typeof window.whToast === 'function') window.whToast('Your export has been downloaded.');
+  } catch (e) {
+    // ★A RETRY MUST BE ABLE TO SUCCEED (gate MK11). My first version hand-rolled a 403 test and fell back
+    // to "please try again" for everything else - which is the exact shape this platform has already been
+    // burned by four times: a 42501 or a 401 means the session is gone, so "try again" reproduces the
+    // failure and the person keeps pressing. whWriteError owns that taxonomy centrally; the only thing
+    // this surface adds is the access case in ITS OWN words, since the function is supervisor-only.
+    const msg = (typeof window.whIsAccessDenied === 'function' && window.whIsAccessDenied(e))
+      // ★A GATE THAT PARSES PROPERTY READS ALSO PARSES YOUR PROSE, AND THEN YOUR COMMENT ABOUT IT. This
+    // sentence used to name the exported thing with a noun that also happens to be this SDK's result
+    // variable, and to start the next sentence with a capitalised word. validate_edge_response_contract
+    // read that boundary as a property access on the invoke result and reported a phantom field the
+    // function never returns. Rewording the sentence fixed it, and then TWO successive versions of this
+    // comment reintroduced the failure - the first by spelling the pattern out, the second by quoting
+    // the original sentence. Three times in one session, and the SSO gate did the identical thing to a
+    // comment in index.html: DESCRIBE what a source-reading gate looks for, never reproduce it, and
+    // never quote the text that tripped it.
+    ? 'Only a supervisor of this hive can export it. If you were just made a supervisor, sign out and back in.'
+      : (typeof window.whWriteError === 'function'
+          ? window.whWriteError(e, _t('The export could not be built just now. Your data is still here, and nothing was lost.', 'Hindi nabuo ang export ngayon. Nandito pa ang data mo, at walang nawala.'))
+          : _t('The export could not be built just now. Your data is still here, and nothing was lost.', 'Hindi nabuo ang export ngayon. Nandito pa ang data mo, at walang nawala.'));
+    if (typeof window.whToast === 'function') window.whToast(msg);
+    else if (typeof window.whConfirm === 'function') await window.whConfirm(msg, { okLabel: 'OK' });
+  } finally {
+    btn.disabled = false;
+    btn.textContent = original;
+  }
+});
 
 // ── LEAVE HIVE ──
 document.getElementById('btn-leave-hive').addEventListener('click', async () => {
@@ -2794,6 +3130,17 @@ async function renameHive() {
 async function _renameHiveInner() {
 
   const current = HIVE_NAME || '';
+  /* ── W3-LC (2026-09-08): read the row's edit stamp BEFORE the prompt opens, because the race this
+     guards against is exactly the time a supervisor spends typing. Two supervisors renaming the hive
+     from two devices ended with the second save silently discarding the first, and neither screen said
+     anything. `v_hives_truth` now carries `updated_at` (migration 20260908000002) and `hives` moves it
+     server-side on every update (…000001), so a stale stamp matches no row. Reading the stamp AFTER
+     the prompt would return the other person's new value and guard nothing — the window IS the point. */
+  let _openStamp = null;
+  try {
+    const { data: _h0 } = await db.from('v_hives_truth').select('updated_at').eq('id', HIVE_ID).maybeSingle();
+    _openStamp = _h0 && _h0.updated_at;
+  } catch (_) { /* empty-catch-allow: no stamp simply means no guard, and the save behaves as before */ }
   const next = await whPrompt(
     _t('Rename this hive. Everyone in it will see the new name.',
        'Palitan ang pangalan ng hive na ito. Makikita ito ng lahat ng miyembro.'),
@@ -2809,7 +3156,23 @@ async function _renameHiveInner() {
     return;
   }
 
-  const { error } = await db.from('hives').update({ name }).eq('id', HIVE_ID);
+  let _nq = db.from('hives').update({ name }).eq('id', HIVE_ID);
+  if (_openStamp) _nq = _nq.eq('updated_at', _openStamp);
+  const { data: _named, error } = await _nq.select('id');
+  if (!error && _openStamp && (!_named || _named.length === 0)) {
+    /* ZERO ROWS HAS MORE THAN ONE CAUSE. Somebody else saved first, or this stopped being a hive we
+       may edit, or the read was refused outright — and telling a supervisor "someone else renamed it"
+       when they have actually lost access names the wrong thing. Ask the row which it was. */
+    const { data: _cur } = await db.from('v_hives_truth').select('name, updated_at').eq('id', HIVE_ID).maybeSingle();
+    if (_cur && _cur.updated_at && _cur.updated_at !== _openStamp) {
+      showToast(_t('Someone else renamed this hive while you were typing. It is now "' + (_cur.name || '') + '" . Nothing was lost, so rename it again if you still want to.',
+                   'May ibang nagpalit ng pangalan ng hive habang nagta-type ka. "' + (_cur.name || '') + '" na ito ngayon.'));
+    } else {
+      showToast(_t('That rename could not be saved and the hive is unchanged. Reload and try again.',
+                   'Hindi na-save ang bagong pangalan at hindi nagbago ang hive. I-reload at subukan ulit.'));
+    }
+    return;
+  }
   if (error) {
     // Layer L: SHOW it and CAPTURE it. A catch that surfaces a backend failure to the user without
     // logging leaves the failure invisible in the console once it starts happening in the field.
@@ -2870,7 +3233,7 @@ async function initBoard() {
      get INTO the hive, so offering that button to a worker offers them a membership lever. */
   const _isSup = HIVE_ROLE === 'supervisor';   // role-check-allow: drives supervisor-only CHROME on this board
   [['hive-role-tag'], ['btn-show-code'], ['btn-rename-hive'],
-   ['btn-audit-log'], ['btn-ai-quality'], ['btn-plant-connections']].forEach(([id]) => {
+   ['btn-audit-log'], ['btn-ai-quality'], ['btn-plant-connections'], ['btn-export-hive']].forEach(([id]) => {
     const el = document.getElementById(id);
     if (!el) return;
     el.classList.toggle('hidden', !_isSup);
@@ -3136,7 +3499,7 @@ function startReadinessRealtime() {
       event: '*', schema: 'public', table: 'hive_readiness',
       filter: 'hive_id=eq.' + HIVE_ID,
     }, async () => { await loadMaturityStairway(); })
-    .subscribe(typeof rtConn === 'function' ? rtConn() : undefined);
+    .subscribe(_rtBackfill);   // P171 reconnect & backfill (2026-09-05): rows inserted during a drop are re-read on the first re-SUBSCRIBED
   // Cleanup wired into the main beforeunload listener below, not a separate
   // listener — observability validator counts removes per-listener.
 }
@@ -3367,7 +3730,7 @@ function startAdoptionRealtime() {
       event: '*', schema: 'public', table: 'hive_adoption_score',
       filter: 'hive_id=eq.' + HIVE_ID,
     }, async () => { await loadAdoptionCard(); })
-    .subscribe(typeof rtConn === 'function' ? rtConn() : undefined);
+    .subscribe(_rtBackfill);   // P171 reconnect & backfill (2026-09-05): rows inserted during a drop are re-read on the first re-SUBSCRIBED
 }
 
 // ─────────────────────────────────────────────────────────────────
@@ -3379,8 +3742,28 @@ function startAdoptionRealtime() {
 // sources change — cheap; no extra queries.
 
 async function loadSupervisorSummary() {
-  if (!HIVE_ID || HIVE_ROLE !== 'supervisor') return;
+  /* ★THE DEMOTION BUG'S FOURTH DOOR, AND THIS ONE LEAKED THE OTHER HIVE (walked 2026-09-11, Christine
+     Dizon - supervisor in Baguio Textile Mills, WORKER in Manila Electronics Assembly, phone-390 at
+     wh_lang=fil, J26 "two hives, one person"). H8b fixed the demotion in the page-load path and H8d
+     fixed it for `html.is-supervisor` + #my-work-card on switchToHive (see the note there). Both
+     reconciled a MARKER. This function is the surface itself, and its guard was a bare early-return:
+     `if (HIVE_ROLE !== 'supervisor') return` - which never undoes the `host.classList.remove('hidden')`
+     a PREVIOUS hive's render already performed. So switching supervisor(Baguio) -> worker(Manila) left
+     the entire supervisor summary painted, and because the function returns BEFORE writing anything,
+     every value in it stayed the hive she had just left:
+
+       #ss-rd-stair  "Stair 1 . Digital Logbook"   <- Baguio (current_stair 1); Manila is stair 2
+       #ss-rd-weak   "Ayusin ang Data (46/100)"    <- Baguio (data_quality 46); Manila is 44
+       #ss-verdict-sub + the pm/stock/jobs tiles   <- Baguio's counts and its supervisor brief
+
+     Verified against each hive's own truth row, stable across 8.5s of re-reads, and absent on a fresh
+     load of the same hive - so it is the SWITCH, not the data. Two defects in one: a worker is shown a
+     supervisor-shaped surface, and it is another tenant's. Beside it #stair-badge/#stair-composite had
+     correctly repainted to "Stair 2 . Disciplined"/66, so the board stated two contradictory readiness
+     claims at once and the wrong one belonged to a hive Manila's members cannot see.
+     A guard that hides a surface must hide it on the way OUT too, not only decline to fill it. */
   const host = document.getElementById('supervisor-summary');
+  if (!HIVE_ID || HIVE_ROLE !== 'supervisor') { if (host) host.classList.add('hidden'); return; }
   if (!host) return;
   host.classList.remove('hidden');
 
@@ -3476,7 +3859,10 @@ async function loadSupervisorSummary() {
   const lowOnlyStock = lowStock - outOfStock;
   setTile('stock', lowOnlyStock, (lowOnlyStock + outOfStock) > 0, 'is-amber');
   const _stockCta = document.getElementById('ss-stock-cta');
-  if (_stockCta && outOfStock > 0) _stockCta.textContent = `Restock (${outOfStock} out of stock) →`;
+  // The element is stamped data-i="restock" (WH_FIL.restock = "Mag-restock →"), so naming the
+  // out-of-stock subset here must not undo it — same clobber class as updateSwitchButton's count.
+  if (_stockCta && outOfStock > 0) _stockCta.textContent = _t(`Restock (${outOfStock} out of stock) →`,
+                                                             `Mag-restock (${outOfStock} walang stock) →`);
   // Tile 3 = the CURRENT user's OWN open jobs (mockup "Your open jobs"), personal NOT hive-wide
   // (that's the mini-stat "Open work orders" = #stat-open). multitenant L9: membership RLS scopes
   // to the hive, never the individual, so the personal filter (.eq('worker_name', WORKER_NAME)) is
@@ -3771,7 +4157,16 @@ document.addEventListener('DOMContentLoaded', function () {
     const btn  = document.getElementById('btn-hive-menu');
     const menu = document.getElementById('hive-menu');
     if (!btn || !menu) return;
-    const open = () => { menu.classList.remove('hidden'); btn.setAttribute('aria-expanded', 'true'); };
+    // PHONE FIT (Ian, 2026-09-06: "when you tap the more, it overflows and extends on the left when using a phone").
+    // The menu is right-anchored to the More button at a fixed 210px; when the header wraps on a narrow phone the button
+    // sits near the LEFT edge and the menu ran off-screen. After opening, measure and clamp it inside the viewport.
+    const clamp = () => {
+      menu.style.left = ''; menu.style.right = '';
+      const r = menu.getBoundingClientRect(); const host = menu.offsetParent || menu.parentElement; const hr = host.getBoundingClientRect();
+      if (r.left < 8) { menu.style.right = 'auto'; menu.style.left = Math.round(8 - hr.left) + 'px'; }
+      else if (r.right > window.innerWidth - 8) { menu.style.left = 'auto'; menu.style.right = Math.round(hr.right - (window.innerWidth - 8)) + 'px'; }
+    };
+    const open = () => { menu.classList.remove('hidden'); btn.setAttribute('aria-expanded', 'true'); clamp(); };
     const close = () => { menu.classList.add('hidden'); btn.setAttribute('aria-expanded', 'false'); };
     const isOpen = () => !menu.classList.contains('hidden');
     btn.addEventListener('click', (e) => { e.stopPropagation(); isOpen() ? close() : open(); });
@@ -4302,6 +4697,25 @@ document.getElementById('btn-toggle-members').addEventListener('click', () => {
 async function loadFeed() {
   const feed    = document.getElementById('feed');
   const emptyEl = document.getElementById('feed-empty');
+  // ★A HIVE-LESS READER'S BROWSER FIRED THREE QUERIES THAT CANNOT SUCCEED (walked 2026-09-11, FIL, as
+  // Jun Salvador, a solo owner with no hive). HIVE_ID is `whHiveId() || ''` (line ~1915), so with no
+  // hive the three reads below went out as `hive_id=eq.` with nothing after the operator, and PostgREST
+  // answered 400 Bad Request three times per page load - measured in the console: v_logbook_truth twice
+  // and pm_completions once, all from this one Promise.all. Not an edge persona: #view-onboard is what
+  // EVERY new account sees on its first visit, so this was three wasted round trips on a plant-floor
+  // phone at the exact moment someone is deciding whether the product works.
+  // WORSE THAN THE WASTE: the A5 honest-degraded branch a few lines below treats any of these errors as
+  // feedReadErr and paints "couldn't load" with a dashed count - the right answer to a FAILED read and
+  // the wrong one to "you have no hive yet", which is not a failure at all. The page already owns this
+  // guard idiom (`if (HIVE_ID)` before the membership re-validation), so this is the same question asked
+  // one function earlier: with no hive there is nothing hive-scoped to ask for.
+  // The skeleton is cleared rather than left spinning, because a stuck skeleton is invisible to every
+  // gate [[feedback_a_stuck_skeleton_is_invisible_to_every_gate]].
+  if (!HIVE_ID) {
+    if (feed) feed.innerHTML = '';
+    if (emptyEl) emptyEl.classList.remove('hidden');
+    return;
+  }
   // E2 consistent states: shimmer skeleton in the activity feed while it loads so
   // #feed never flashes blank before entries render (shared whListSkeleton). On the
   // synchronous _board path it's replaced in the same tick (no flash).
@@ -4436,6 +4850,9 @@ function renderFeed() {
     .filter(e => { const k = e._type + ':' + e.id; if (seen.has(k)) return false; seen.add(k); return true; })
     .sort((a, b) => sk(b).localeCompare(sk(a)));
   const visible = _feedEntries.slice(0, _feedDisplayCount);
+  // P181 (2026-09-05): keep the keyboard user's place across this innerHTML rebuild (utils.js whFocusCapture/whFocusRestore)
+  var _cap = (typeof whFocusCapture === 'function') ? whFocusCapture(feed) : null;
+  if (_cap) setTimeout(function () { whFocusRestore(feed, _cap); }, 0);
   feed.innerHTML = visible.map(e =>
     e._type === 'pm' ? buildPMCard(e, false) :
     buildFeedCard(e, false)
@@ -4688,7 +5105,7 @@ function startFeedRealtime() {
         renderFeed();
       }
     })
-    .subscribe(typeof rtConn === 'function' ? rtConn() : undefined);
+    .subscribe(_rtBackfill);   // P171 reconnect & backfill (2026-09-05): rows inserted during a drop are re-read on the first re-SUBSCRIBED
 
   // parts_records and checklist_records tables retired: feed uses logbook and pm_completions only
 
@@ -4721,7 +5138,7 @@ function startFeedRealtime() {
         showHiveToast(`${who} completed PM: ${task}… on ${asset}`);
       }
     })
-    .subscribe(typeof rtConn === 'function' ? rtConn() : undefined);
+    .subscribe(_rtBackfill);   // P171 reconnect & backfill (2026-09-05): rows inserted during a drop are re-read on the first re-SUBSCRIBED
 }
 
 // ── INVENTORY REALTIME ──
@@ -4735,7 +5152,7 @@ function startInventoryRealtime() {
     }, () => {
       refreshInventory();
     })
-    .subscribe(typeof rtConn === 'function' ? rtConn() : undefined);
+    .subscribe(_rtBackfill);   // P171 reconnect & backfill (2026-09-05): rows inserted during a drop are re-read on the first re-SUBSCRIBED
 }
 
 function prependFeed(entry) {
@@ -5023,7 +5440,8 @@ async function loadPMHealth() {
   // PM overdue alert banner
   if (overdue > 0) {
     document.getElementById('pm-overdue-text').textContent =
-      `${overdue} asset${overdue > 1 ? 's' : ''} with overdue PM across the hive.`;
+      _t(`${overdue} asset${overdue > 1 ? 's' : ''} with overdue PM across the hive.`,
+         `${overdue} asset ang may lampas nang PM sa buong hive.`);
     document.getElementById('pm-overdue-alert').classList.remove('hidden');
   } else {
     // Re-hide when a refresh/hive-switch drops overdue to 0 — the banner was previously
@@ -5225,11 +5643,57 @@ function renderApprovalQueue() {
 
   const list    = document.getElementById('approval-list');
   const emptyEl = document.getElementById('approval-empty');
+  // ★THE POINTER NAMED A PAGE THAT OWED NOTHING (2026-09-10, walked as Rosa dela Cruz). This line
+  // hard-coded "Also awaiting your review in Asset Hub:" whenever ANY elsewhere-count was non-zero,
+  // then appended the briefings clause after it. So a hive with 0 FMEA modes, 0 strategies and 2
+  // pending briefings rendered "Also awaiting your review in Asset Hub: 2 shift briefings in Alert
+  // Hub" — sending the supervisor to a page that owed them nothing, and burying the page that did.
+  // That is the live state of ALL THREE fleet hives (Dela Cruz, Ramos, Tan — each 0 FMEA / 0
+  // strategies / 2 briefings), i.e. every fleet supervisor on the platform saw it. C12 added the
+  // Asset Hub counts and the briefings clause was grafted on later; the prefix was never made
+  // conditional on its own counts. A destination is named only when it actually holds something.
+  // ★THE TAP-TARGET FIX MADE TWO LINKS FIGHT OVER THE SAME 26 PIXELS (2026-09-10, walked as Hector
+  // Salvador, supervisor of Manila Electronics Assembly, phone-390). This style inflated each inline
+  // link to a 44px box inside a <p class="text-[12px]"> whose LINE-HEIGHT IS 18px - two and a half
+  // times the line it sits on - and pulled it back with margin:-14px so the text flow looked normal.
+  // The flow did look normal. The HIT AREAS did not: in a hive with enough to review, this sentence
+  // wraps, and "Asset Hub" [196,4525,270,4569] and "2 shift briefings" [157,4543,264,4587] land on
+  // adjacent lines with their 44px boxes OVERLAPPING BY 26px over a 68px width - 54% of the smaller
+  // target. A tap in that band lands on whichever link paints last, not the one under the finger, so
+  // the accessibility fix made the page harder to use for exactly the person it was written for.
+  // WCAG 2.5.8's "Inline" exception says why the inflation was never owed: a target "in a sentence or
+  // whose size is otherwise constrained by the line-height of non-target text" is exempt. These are
+  // WORDS IN A SENTENCE - 9 characters inside a 101-character line - so the comfort belongs to the
+  // line-height, not to the anchor's box. Now a plain inline link, the same shape skillmatrix's
+  // "<a>Resume</a>" and voice-journal's mailto already use, which the rubric's own _inlineProse
+  // recognises and exempts. The standard's exemptions are part of the measurement
+  // ([[feedback_a_count_of_small_targets_is_not_a_count_of_defects]]).
+  const _lnk = 'class="underline font-bold" style="color:var(--wh-orange);"';
+  // ★AND IT SPOKE ONLY ENGLISH (walked 2026-09-10 in FILIPINO as Rosa dela Cruz). The sentence above was
+  // corrected earlier the same day to stop naming a destination that owed nothing - but it was built from
+  // hard-coded English literals, so a Filipino supervisor's board read "Also awaiting your review: 2 shift
+  // briefings in Alert Hub" in the middle of an otherwise Filipino page. Fixing WHAT a sentence says and
+  // leaving WHICH LANGUAGE it says it in is a half-fix, and this page already wraps its other JS-rendered
+  // strings in _t(). FMEA, mode, strategy and shift briefing are kept as the loanwords the platform's own
+  // dictionary uses ("Risk, anomalya, shift briefing..." in the alert-hub entry); what is translated is the
+  // connective language a reader actually parses - the lead-in, the "in <place>" and the plural marker.
+  // Compose each countable phrase WHOLE per language, never by stitching an English plural onto a
+  // Filipino connective: the first attempt built "2" + " na" + "shift briefing" + "s" and rendered
+  // "2 na shift briefings", which pluralises twice. Filipino marks plurality with the number (and
+  // optionally "na"), not by inflecting the noun - "2 na shift briefing" is the form, and the English
+  // branch keeps its own -s. Caught by reading the rendered string rather than trusting the code.
+  const _nFmea  = (n) => _t(`${n} FMEA mode${n === 1 ? '' : 's'}`, `${n} na FMEA mode`);
+  const _nStrat = (n) => _t(`${n} strateg${n === 1 ? 'y' : 'ies'}`, `${n} na estratehiya`);
+  const _nBrief = (n) => _t(`${n} shift briefing${n === 1 ? '' : 's'}`, `${n} na shift briefing`);
+  const _ahBits = [ _elseFmea ? _nFmea(_elseFmea) : '',
+                    _elseStrat ? _nStrat(_elseStrat) : '' ].filter(Boolean).join(' · ');
+  const _briefBit = _elseBrief
+    ? `<a href="alert-hub.html" ${_lnk}>${_nBrief(_elseBrief)}</a>` + _t(' in Alert Hub', ' sa Alert Hub')
+    : '';
   const _elseLine = elsewhere ? `<p class="text-[12px] mt-2" style="color:rgba(255,255,255,0.85);">`
-      + `Also awaiting your review in <a href="asset-hub.html" class="underline font-bold" style="color:var(--wh-orange);">Asset Hub</a>: `
-      + [ _elseFmea ? `${_elseFmea} FMEA mode${_elseFmea === 1 ? '' : 's'}` : '',
-          _elseStrat ? `${_elseStrat} strateg${_elseStrat === 1 ? 'y' : 'ies'}` : '' ].filter(Boolean).join(' · ')
-      + (_elseBrief ? `${(_elseFmea || _elseStrat) ? ' · ' : ''}<a href="alert-hub.html" class="underline font-bold" style="color:var(--wh-orange);">${_elseBrief} shift briefing${_elseBrief === 1 ? '' : 's'}</a> in Alert Hub` : '')
+      + _t('Also awaiting your review', 'Naghihintay din ng review mo')
+      + (_ahBits ? `${_t(' in', ' sa')} <a href="asset-hub.html" ${_lnk}>Asset Hub</a>: ${_ahBits}` : '')
+      + (_briefBit ? `${_ahBits ? ' · ' : ': '}${_briefBit}` : '')
       + `</p>` : '';
 
   if (!total) {
@@ -5263,12 +5727,12 @@ function renderApprovalQueue() {
         <div class="flex-1 min-w-0">
           <p class="text-xs font-bold text-white">${escHtml(a.asset_id)}${a.name ? ': ' + escHtml(a.name) : ''}</p>
           <p class="text-[11px] text-white/80">by ${escHtml(a.submitted_by || a.worker_name)} · ${a.criticality ? escHtml(a.criticality) : 'No criticality set'}${a.location ? ' · ' + escHtml(a.location) : ''}${_sub(a.created_at)}</p>
-          ${_hint(_ex && _ex.assetNames.has(_ex.norm(a.name)) ? 'An approved asset already has this exact name (different tag) - check it is not the same machine twice.' : '')}
+          ${_hint(_ex && _ex.assetNames.has(_ex.norm(a.name)) ? 'This name already belongs to an approved asset with a different tag. Check it is not the same machine twice.' : '')}
         </div>
       </div>
       <div class="flex gap-2">
-        <button onclick="approveItem('asset_nodes','${escJsAttr(a.id)}','${escJsAttr(a.submitted_by || a.worker_name)}','${escJsAttr(a.asset_id)}')" class="flex-1 rounded-lg py-1.5 text-xs font-bold" style="background:rgba(34,197,94,0.15);color:var(--wh-green);border:1px solid rgba(34,197,94,0.25);min-height:44px;cursor:pointer;">Approve</button>
-        <button onclick="rejectItem('asset_nodes','${escJsAttr(a.id)}','${escJsAttr(a.submitted_by || a.worker_name)}','${escJsAttr(a.asset_id)}')" class="flex-1 rounded-lg py-1.5 text-xs font-bold" style="background:rgba(239,68,68,0.1);color:var(--wh-red-text);border:1px solid rgba(239,68,68,0.2);min-height:44px;cursor:pointer;">Reject</button>
+        <button data-i="approve" onclick="approveItem('asset_nodes','${escJsAttr(a.id)}','${escJsAttr(a.submitted_by || a.worker_name)}','${escJsAttr(a.asset_id)}')" class="flex-1 rounded-lg py-1.5 text-xs font-bold" style="background:rgba(34,197,94,0.15);color:var(--wh-green);border:1px solid rgba(34,197,94,0.25);min-height:44px;cursor:pointer;">Approve</button>
+        <button data-i="reject" onclick="rejectItem('asset_nodes','${escJsAttr(a.id)}','${escJsAttr(a.submitted_by || a.worker_name)}','${escJsAttr(a.asset_id)}')" class="flex-1 rounded-lg py-1.5 text-xs font-bold" style="background:rgba(239,68,68,0.1);color:var(--wh-red-text);border:1px solid rgba(239,68,68,0.2);min-height:44px;cursor:pointer;">Reject</button>
       </div>
     </div>`).join('');
 
@@ -5283,8 +5747,8 @@ function renderApprovalQueue() {
         </div>
       </div>
       <div class="flex gap-2">
-        <button onclick="approveItem('inventory_items','${escJsAttr(p.id)}','${escJsAttr(p.submitted_by || p.worker_name)}','${escJsAttr(p.part_name)}')" class="flex-1 rounded-lg py-1.5 text-xs font-bold" style="background:rgba(34,197,94,0.15);color:var(--wh-green);border:1px solid rgba(34,197,94,0.25);min-height:44px;cursor:pointer;">Approve</button>
-        <button onclick="rejectItem('inventory_items','${escJsAttr(p.id)}','${escJsAttr(p.submitted_by || p.worker_name)}','${escJsAttr(p.part_name)}')" class="flex-1 rounded-lg py-1.5 text-xs font-bold" style="background:rgba(239,68,68,0.1);color:var(--wh-red-text);border:1px solid rgba(239,68,68,0.2);min-height:44px;cursor:pointer;">Reject</button>
+        <button data-i="approve" onclick="approveItem('inventory_items','${escJsAttr(p.id)}','${escJsAttr(p.submitted_by || p.worker_name)}','${escJsAttr(p.part_name)}')" class="flex-1 rounded-lg py-1.5 text-xs font-bold" style="background:rgba(34,197,94,0.15);color:var(--wh-green);border:1px solid rgba(34,197,94,0.25);min-height:44px;cursor:pointer;">Approve</button>
+        <button data-i="reject" onclick="rejectItem('inventory_items','${escJsAttr(p.id)}','${escJsAttr(p.submitted_by || p.worker_name)}','${escJsAttr(p.part_name)}')" class="flex-1 rounded-lg py-1.5 text-xs font-bold" style="background:rgba(239,68,68,0.1);color:var(--wh-red-text);border:1px solid rgba(239,68,68,0.2);min-height:44px;cursor:pointer;">Reject</button>
       </div>
     </div>`).join('');
 
@@ -5457,7 +5921,7 @@ function startApprovalRealtime() {
           if (_pendingParts.length !== before) renderApprovalQueue();
         }
       })
-    .subscribe(typeof rtConn === 'function' ? rtConn() : undefined);
+    .subscribe(_rtBackfill);   // P171 reconnect & backfill (2026-09-05): rows inserted during a drop are re-read on the first re-SUBSCRIBED
 }
 
 function startWorkerApprovalListener() {
@@ -5478,7 +5942,7 @@ function startWorkerApprovalListener() {
         if (payload.new.status === 'approved') showToast(_t('Your part ' + payload.new.part_name + ' was approved!', 'Na-approve na ang part mo na ' + payload.new.part_name + '!'));
         if (payload.new.status === 'rejected') showToast(_t('Your part ' + payload.new.part_name + ' was rejected by supervisor.', 'Na-reject ng supervisor ang part mo na ' + payload.new.part_name + '.'));
       })
-    .subscribe(typeof rtConn === 'function' ? rtConn() : undefined);
+    .subscribe(_rtBackfill);   // P171 reconnect & backfill (2026-09-05): rows inserted during a drop are re-read on the first re-SUBSCRIBED
 }
 
 
@@ -6247,10 +6711,28 @@ function updateSwitchButton() {
   const btn  = document.getElementById('btn-switch-hive');
   if (list.length > 1) {
     btn.classList.remove('hidden');
-    btn.textContent = `Switch Hive (${list.length})`;
+    /* ★THE ONE CONTROL A MULTI-HIVE PERSON NEEDS WAS THE ONLY ENGLISH ITEM IN ITS OWN MENU
+       (walked 2026-09-11, wh_lang=fil). The markup is stamped `data-i="switchhive"` and
+       WH_FIL_COMMON.switchhive = "Lumipat ng Hive", so the applier had already translated it - and
+       then this line overwrote it with an English literal to append the count. Its menu siblings
+       ("Palitan ang Pangalan", "I-export ang Hive Data", "Umalis sa Hive") all read Filipino, so the
+       door between a person's two workplaces was the single word she could not read.
+       [[feedback_the_js_overwrote_its_own_correct_markup]] - a runtime write over a data-i element
+       owes the same translation the dictionary already holds. */
+    btn.textContent = _t(`Switch Hive (${list.length})`, `Lumipat ng Hive (${list.length})`);
   } else {
     btn.classList.add('hidden');
   }
+}
+
+/* The role word under each hive name comes from the DB ('supervisor' / 'worker') and was printed raw
+   with a CSS `capitalize`, so a Filipino person read "Supervisor" / "Worker". Unknown roles pass
+   through untranslated rather than being dropped - the same rule the shared applier follows. */
+function _swRole(role) {
+  const r = String(role || '').toLowerCase();
+  if (r === 'supervisor') return _t('supervisor', 'superbisor');
+  if (r === 'worker')     return _t('worker', 'manggagawa');
+  return role || '';
 }
 
 document.getElementById('btn-switch-hive').addEventListener('click', () => {
@@ -6262,9 +6744,9 @@ document.getElementById('btn-switch-hive').addEventListener('click', () => {
       <div class="avatar-initial">${escHtml(h.name[0]?.toUpperCase() || '?')}</div>
       <div class="flex-1 min-w-0">
         <p class="text-sm font-bold text-white truncate">${escHtml(h.name)}</p>
-        <p class="text-[11px] text-white/80 capitalize">${escHtml(h.role)}</p>
+        <p class="text-[11px] text-white/80 capitalize">${escHtml(_swRole(h.role))}</p>
       </div>
-      ${isActive ? '<span class="text-[10px] font-bold" style="color:var(--wh-blue-text);">Active</span>' : ''}
+      ${isActive ? `<span class="text-[10px] font-bold" style="color:var(--wh-blue-text);">${escHtml(_t('Active', 'Kasalukuyan'))}</span>` : ''}
     </button>`;
   }).join('');
   modal.classList.remove('hidden');
@@ -6307,7 +6789,7 @@ async function switchToHive(id) {
     // No longer a member: drop the stale entry so the switcher stops offering it, and say why.
     saveHiveList(getHiveList().filter(x => x.id !== id));
     updateSwitchButton();
-    showToast(`You're no longer a member of ${h.name}.`);
+    showToast(_t(`You're no longer a member of ${h.name}.`, `Hindi ka na miyembro ng ${h.name}.`));
     return;
   }
   const _role = _m.role || 'worker';
@@ -6570,5 +7052,18 @@ window.addEventListener('beforeunload', () => {
   };
 </script>
 <script src="companion-launcher.js"></script>
+<script>/* systemic ripple (2026-09-05): utils.js is the shared script every panel below renders through; if it never arrives
+   (a stale shell, a blocked CDN, a dropped connection mid-load) this page went blank or froze on its static skeletons.
+   utils.js cannot help when utils.js is the thing missing, so the guard lives here. */
+window.addEventListener('load', function () { setTimeout(function () {
+  if (typeof getDb === 'function' && typeof escHtml === 'function') return;
+  try { console.error('[hive] utils.js did not load; the page cannot render its data'); } catch (e) { void e; }
+  var m = document.querySelector('main') || document.body; if (!m || m.querySelector('.wh-shared-missing')) return;
+  var d = document.createElement('div'); d.className = 'honest-empty wh-shared-missing'; d.setAttribute('role', 'alert');
+  d.style.cssText = 'margin:12px;padding:14px 16px;border:1px solid rgba(248,113,113,.4);border-radius:12px;background:rgba(248,113,113,.08);color:#fca5a5;font:14px/1.5 system-ui,sans-serif;';
+  d.innerHTML = 'WorkHive could not load its shared script (utils.js), so this page cannot show your data. <button type="button" onclick="location.reload()" style="color:inherit;text-decoration:underline;background:none;border:0;padding:0;font:inherit;cursor:pointer;min-height:44px;" data-i="reloadtotryagain">Reload to try again</button>.';
+  m.insertBefore(d, m.firstChild);
+  var sk = document.querySelectorAll('.wh-skeleton, [class*="skeleton"]'); for (var i = 0; i < sk.length; i++) sk[i].style.display = 'none';
+}, 2500); });</script>
 </body>
 </html>

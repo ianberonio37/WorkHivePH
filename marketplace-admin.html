@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="wh-page-kind" content="console">   <!-- marketplace admin console (2026-09-05): actions live per card; ships in the operating language -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <meta name="robots" content="noindex, nofollow" />
   <link rel="manifest" href="manifest.json" />
@@ -156,6 +157,18 @@
     }
     /* Approve is the moderator's RECOMMENDED action — filled green so it reads as the primary
        per-card CTA (A1 5-second test); Reject stays ghost = clear primary/secondary hierarchy. */
+    /* ★AN UNDEFINED CLASS RENDERS AS THE BROWSER'S DEFAULT (live-walk wave, 2026-09-06). The two header links
+       carry class="btn", which this page never styled, so they painted in the UA link blue rgb(0,0,238) on the
+       dark console - 2.04:1, measured by tools/prove_render_contract.mjs. They are secondary navigation, so they
+       get the ghost treatment the reject/unpublish controls already use. */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem;
+      min-height: 44px; padding: 0.5rem 0.9rem; border-radius: 0.5rem;
+      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.18);
+      color: var(--text); font-family: 'Poppins', sans-serif; font-size: 0.82rem; font-weight: 600;
+      text-decoration: none; cursor: pointer;
+    }
+    .btn:hover { background: rgba(255,255,255,0.10); border-color: rgba(255,255,255,0.28); }
     .btn-approve {
       flex: 1; min-height: 44px; padding: 0.55rem; border-radius: 0.5rem; cursor: pointer;
       background: linear-gradient(135deg, var(--wh-green), var(--wh-green)); border: 1px solid rgba(74,222,128,0.5);
@@ -250,21 +263,22 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 <div id="wh-retired-overlay" style="position:fixed; inset:0; z-index:100000; background:rgba(11,15,26,0.98); color:var(--wh-cloud); display:flex; align-items:center; justify-content:center; padding:1.5rem; padding-bottom:max(1.5rem, env(safe-area-inset-bottom)); font-family:'Poppins',system-ui,sans-serif; text-align:center;">
   <div style="max-width:560px;">
     <div style="font-size:2.4rem; margin-bottom:0.5rem;">📊</div>
-    <h2 style="font-size:1.6rem; font-weight:800; margin:0 0 0.6rem; color:var(--wh-orange);">Marketplace Admin has moved</h2>
-    <p style="color:var(--wh-cloud); opacity:0.62; font-size:0.92rem; line-height:1.5; margin:0 0 1.6rem;">
+    <h2 data-i="p_marketplaceadminhasmoved_adb1" style="font-size:1.6rem; font-weight:800; margin:0 0 0.6rem; color:var(--wh-orange);">Marketplace Admin has moved</h2>
+    <p data-i="p_listingsellerdisputevolumesa_317d" style="color:var(--wh-cloud); opacity:0.62; font-size:0.92rem; line-height:1.5; margin:0 0 1.6rem;">
       Listing / seller / dispute VOLUMES are now live Grafana panels; approve / verify / resolve
       ACTIONS moved to the Platform Actions page (Grafana also alerts you when a queue has items).
     </p>
     <div style="display:flex; gap:0.8rem; justify-content:center; flex-wrap:wrap;">
       <a href="http://127.0.0.1:3001/d/workhive-founder-ops" class="btn" style="min-height:44px; display:inline-flex; align-items:center; justify-content:center;">📊 Founder Ops dashboard →</a>
       <a href="platform-actions.html" class="btn" style="min-height:44px; display:inline-flex; align-items:center; justify-content:center;">⚡ Platform Actions →</a>
+      
     </div>
     <!-- T69 (2026-08-25): the Grafana credential POINTER ('password in infra/mcp/.env.mcp')
          is removed — this overlay renders for ANY signed-in visitor to the URL, not only the
          founder, and a credentials location baked into page copy is a screen-share/shoulder
          hazard even for the right audience (T170 class). The pointer lives in the infra
          README where operators actually look. -->
-    <p style="color:var(--wh-cloud); opacity:0.38; font-size:0.72rem; margin-top:1.6rem;">Grafana access: see the infra operator notes.</p>
+    <p data-i="p_grafanaaccessseetheinfraoper_b342" style="color:var(--wh-cloud); opacity:0.38; font-size:0.72rem; margin-top:1.6rem;">Grafana access: see the infra operator notes.</p>
   </div>
 </div>
 
@@ -284,25 +298,25 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 <div id="toast" role="alert" aria-live="polite"></div>
 
 <main class="page" id="main-content">
-  <div id="no-results" class="empty-state" hidden>No items match those filters.</div>
+  <div data-i="p_noitemsmatchthosefilters_996c" id="no-results" class="empty-state" hidden>No items match those filters.</div>
 
   <div class="page-header">
     <div>
       <h1 translate="no">Marketplace Admin</h1>
-      <p>Review listings, verify sellers, manage disputes</p>
+      <p data-i="p_reviewlistingsverifysellersm_98b7">Review listings, verify sellers, manage disputes</p>
     </div>
     <span class="header-badge" id="admin-role-badge">Supervisor</span>
   </div>
 <details class="wh-help">
-  <summary>How this page works</summary>
-  <p>Three queues: listings to review, sellers to verify, disputes to resolve. Every action you take here is audit-logged.</p>
+  <summary data-i="p_howthispageworks_c540">How this page works</summary>
+  <p data-i="p_threequeueslistingstoreviews_f6f3">Three queues: listings to review, sellers to verify, disputes to resolve. Every action you take here is audit-logged.</p>
 </details>
 
   <!-- Stats -->
   <div class="stats-row">
     <div class="stat-card">
       <div class="stat-num yellow" id="stat-draft">-</div>
-      <div class="stat-lbl">Pending Review</div>
+      <div data-i="p_pendingreview_9aab" class="stat-lbl">Pending Review</div>
       <!-- C12 (critic T55/T57): the COUNT alone hid the latency - drafts had waited 43/71 days
            while the queue read as a small number. The oldest wait is the number a moderator
            triages by, so it sits beside the count. -->
@@ -310,15 +324,15 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     </div>
     <div class="stat-card">
       <div class="stat-num green" id="stat-published">-</div>
-      <div class="stat-lbl">Published</div>
+      <div data-i="p_published_483b" class="stat-lbl">Published</div>
     </div>
     <div class="stat-card">
       <div class="stat-num blue" id="stat-sellers">-</div>
-      <div class="stat-lbl">Sellers</div>
+      <div data-i="p_sellers_77ce" class="stat-lbl">Sellers</div>
     </div>
     <div class="stat-card">
       <div class="stat-num red" id="stat-unverified">-</div>
-      <div class="stat-lbl">Pending Verification</div>
+      <div data-i="p_pendingverification_2c8f" class="stat-lbl">Pending Verification</div>
     </div>
   </div>
 
@@ -371,7 +385,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 </main>
 
 <script src="browser-floor.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
+  <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
 <script>
 (function () {
@@ -486,11 +500,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     try {
       const { data, error } = await db
         .from('v_marketplace_listings_truth')
-        .select('id,title,description,section,category,condition,price,location,seller_name,seller_contact,image_url,status,created_at')
+        // updated_at is selected so the moderation write below can guard on it (W3-LC 2026-09-09).
+        // Without it the page has no stamp to compare and cannot tell an unchanged listing from one
+        // the seller edited while a moderator was reading it.
+        .select('id,title,description,section,category,condition,price,location,seller_name,seller_contact,image_url,status,created_at,updated_at')
         .eq('status', status)
         .order('created_at', { ascending: true })
         .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-        .limit(100);
+        .limit(100);   // cap-ok: moderation queue renders rows only; the queue COUNTS come from exact head:true count queries below
       if (error) throw error;
       _listings = data || []; _readFailed.listings = false;
     } catch (_err) {
@@ -498,7 +515,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       if (typeof showToast === 'function') {
         showToast(typeof whReadError === 'function'
           ? whReadError(_err, 'the listings')
-          : "Couldn't load listings. Try again.", 'error');
+          : _t("Couldn't load listings. Try again.", "Hindi ma-load ang mga listing. Subukan muli."), 'error');
       }
     } // dim-10: don't disguise a load failure as "all reviewed"
     renderListings();
@@ -517,7 +534,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         .select('id,worker_name,tier,kyb_verified,kyb_verified_at,cert_verified,cert_verified_at,certifications,total_sales,rating_avg,created_at,active_listings_count,is_verified_public,last_listed_at')
         .order('created_at', { ascending: false })
         .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-        .limit(100);
+        .limit(100);   // cap-ok: seller review list renders rows only; the counts come from exact head:true count queries below
       if (error) throw error;
       _sellers = data || []; _readFailed.sellers = false;
     } catch (_err) {
@@ -525,7 +542,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       if (typeof showToast === 'function') {
         showToast(typeof whReadError === 'function'
           ? whReadError(_err, 'the seller profiles')
-          : "Couldn't load seller profiles. Try again.", 'error');
+          : _t("Couldn't load seller profiles. Try again.", "Hindi ma-load ang mga seller profile. Subukan muli."), 'error');
       }
     } // dim-10: surface load failure
     renderSellers();
@@ -679,7 +696,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
                 <span data-i="reject">Reject</span>
               </button>` : ''}
             ${isPublished ? `
-              <button class="btn-unpublish" data-action="unpublish" data-id="${e(item.id)}">Unpublish</button>
+              <button class="btn-unpublish" data-action="unpublish" data-id="${e(item.id)}" data-i="unpublish">Unpublish</button>
             ` : ''}
             ${item.status === 'removed' ? `
               <button class="btn-approve" data-action="approve" data-id="${e(item.id)}" data-i="restore">Restore</button>
@@ -749,11 +766,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           </div>` : ''}
         <div style="display:flex;gap:0.4rem;flex-wrap:wrap;">
           ${s.kyb_verified
-            ? `<button class="btn-unverify" data-action="unverify"     data-worker="${e(s.worker_name)}">Remove ID</button>`
-            : `<button class="btn-verify"   data-action="verify"       data-worker="${e(s.worker_name)}">Verify ID</button>`}
+            ? `<button class="btn-unverify" data-action="unverify"     data-worker="${e(s.worker_name)}" data-i="removeid">Remove ID</button>`
+            : `<button class="btn-verify"   data-action="verify"       data-worker="${e(s.worker_name)}" data-i="verifyid">Verify ID</button>`}
           ${certs.length ? (s.cert_verified
-            ? `<button class="btn-unverify" data-action="cert-unverify" data-worker="${e(s.worker_name)}">Remove Cert</button>`
-            : `<button class="btn-verify"   data-action="cert-verify"   data-worker="${e(s.worker_name)}" style="background:rgba(167,139,250,0.1);border-color:rgba(167,139,250,0.3);color:var(--wh-violet);">Verify Cert</button>`) : ''}
+            ? `<button class="btn-unverify" data-action="cert-unverify" data-worker="${e(s.worker_name)}" data-i="removecert">Remove Cert</button>`
+            : `<button class="btn-verify"   data-action="cert-verify"   data-worker="${e(s.worker_name)}" style="background:rgba(167,139,250,0.1);border-color:rgba(167,139,250,0.3);color:var(--wh-violet);" data-i="verifycert">Verify Cert</button>`) : ''}
         </div>
       </div>`;
     }).join('');
@@ -781,7 +798,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     let _reason = null;
     if (action !== 'approve') {
       const _verb = action === 'reject' ? 'Reject' : 'Unpublish';
-      if (typeof whPrompt !== 'function') { showToast('Cannot collect a rejection reason right now. Reload and try again.', 'error'); return; }
+      if (typeof whPrompt !== 'function') { showToast(_t('Cannot collect a rejection reason right now. Reload and try again.', 'Hindi makakuha ng dahilan ng pagtanggi ngayon. I-reload at subukan muli.'), 'error'); return; }
       _reason = await whPrompt(`${_verb} "${(listing && listing.title) || 'this listing'}". Tell the seller why:`,
         { okLabel: _verb, cancelLabel: 'Cancel', inputLabel: 'Reason shown to the seller (e.g. photo does not match the part described)' });
       if (_reason === null) return;                       // cancelled: no write, buttons untouched
@@ -803,11 +820,33 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         _patch.moderated_at      = new Date().toISOString();
         _patch.moderated_by      = WORKER_NAME || 'admin';
       }
-      const { error } = await db
+      /* W3-LC (2026-09-09): moderation is a DECISION ABOUT A VERSION, so it is guarded on the version
+         it was made about. This filtered on id alone, which cost two different things. Two moderators
+         acting on the same listing: the second silently replaced the first's decision AND overwrote
+         moderated_by, so the listing's own record of who decided became whoever wrote last. And the
+         seller editing while a moderator reads: the moderator approved what they saw, and the write
+         landed on content they never looked at - the failure that actually matters here, because
+         approving a listing whose photo or price changed underneath you is how a bad listing goes
+         live with an approval attached to it. `.eq('updated_at', _stamp)` makes both a clean no-op.
+         Guarded only when the stamp is present, so a row loaded before this column was selected still
+         moderates rather than becoming unmoderatable. */
+      const _stamp = listing && listing.updated_at;
+      let _mq = db
         .from('marketplace_listings')
         .update(_patch)
         .eq('id', id);
+      if (_stamp) _mq = _mq.eq('updated_at', _stamp);
+      const { data: _moderated, error } = await _mq.select('id');
       if (error) throw error;
+      if (_stamp && (!_moderated || _moderated.length === 0)) {
+        showToast(_t('This listing changed since you opened it - your decision was not applied. Reloading so you can review the current version.',
+                     'Nagbago ang listing na ito mula nang buksan mo - hindi na-apply ang desisyon mo. Nire-reload para makita mo ang kasalukuyang bersyon.'), 'error');
+        btns?.forEach(b => { b.disabled = false; });
+        // the queue being viewed IS this listing's current status, and loadListings REQUIRES one -
+        // calling it bare would reload a queue for status undefined and empty the moderator's screen
+        if (typeof loadListings === 'function') loadListings((listing && listing.status) || 'draft');
+        return;
+      }
 
       const auditAction = action === 'approve' ? 'approve_listing'
                        : action === 'reject'  ? 'reject_listing'
@@ -824,7 +863,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       renderListings();
       await loadStats();
     } catch (_err) {
-      showToast(whWriteError(_err, 'Action failed. Try again.'), 'error');
+      showToast(whWriteError(_err, _t('Action failed. Try again.', 'Hindi natuloy ang aksyon. Subukan muli.')), 'error');
       btns?.forEach(b => { b.disabled = false; });
     }
   }
@@ -877,7 +916,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       showToast(labelMap[action] || 'Updated.', verified ? 'success' : 'info');
       await Promise.all([loadSellers(), loadStats()]);
     } catch (_err) {
-      showToast(whWriteError(_err, 'Update failed. Try again.'), 'error');
+      showToast(whWriteError(_err, _t('Update failed. Try again.', 'Hindi natuloy ang update. Subukan muli.')), 'error');
     }
   }
 
@@ -920,7 +959,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         .select('id,order_id,listing_id,opened_by,seller_name,reason,status,seller_reply,seller_replied_at,admin_decision,resolved_at,created_at')
         .order('created_at', { ascending: true })
         .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-        .limit(100);
+        .limit(100);   // cap-ok: the open-disputes badge discloses '+' when this 100-row read is full
       if (error) throw error;
       _disputes = data || []; _readFailed.disputes = false;
     } catch (_e) {
@@ -928,12 +967,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       if (typeof showToast === 'function') {
         showToast(typeof whReadError === 'function'
           ? whReadError(_e, 'the disputes')
-          : "Couldn't load disputes. Try again.", 'error');
+          : _t("Couldn't load disputes. Try again.", "Hindi ma-load ang mga dispute. Subukan muli."), 'error');
       }
     } // dim-10: surface load failure, don't disguise as "no disputes"
 
     const bd = document.getElementById('badge-disputes');
-    if (bd) bd.textContent = _disputes.filter(d => d.status === 'open' || d.status === 'seller_responded').length;
+    if (bd) bd.textContent = _disputes.filter(d => d.status === 'open' || d.status === 'seller_responded').length + (_disputes.length >= 100 ? '+' : '');   // cap is not a total (2026-09-05)
     renderDisputes();
   }
 
@@ -958,8 +997,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     if (!filtered.length) {
       area.innerHTML = `<div class="empty-state">
         <span class="ic ic-warning" aria-hidden="true"></span>
-        <h3>No disputes</h3>
-        <p>All clear, no open disputes at this time.</p>
+        <h3>${escHtml(_t('No disputes', 'Walang dispute'))}</h3>
+        <p>${escHtml(_t('All clear, no open disputes at this time.', 'Malinaw lahat, walang bukas na dispute sa ngayon.'))}</p>
       </div>`;
       return;
     }
@@ -989,11 +1028,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
             <button class="btn-approve" data-action="release" data-id="${e(d.id)}" data-order="${e(d.order_id || '')}">
               Release to Seller
             </button>
-            <button class="btn-reject" data-action="refund" data-id="${e(d.id)}" data-order="${e(d.order_id || '')}">
-              Refund Buyer
-            </button>
+            <button class="btn-reject" data-action="refund" data-id="${e(d.id)}" data-order="${e(d.order_id || '')}" data-i="refundbuyer">Refund Buyer</button>
             ${d.status !== 'admin_review' ? `
-            <button class="btn-unpublish" data-action="escalate" data-id="${e(d.id)}">Escalate</button>` : ''}
+            <button class="btn-unpublish" data-action="escalate" data-id="${e(d.id)}" data-i="escalate">Escalate</button>` : ''}
           </div>` : ''}
         </div>`;
     }).join('');
@@ -1052,7 +1089,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       await loadDisputes();
       await loadStats();
     } catch (_err) {
-      showToast(whWriteError(_err, 'Action failed. Try again.'), 'error');
+      showToast(whWriteError(_err, _t('Action failed. Try again.', 'Hindi natuloy ang aksyon. Subukan muli.')), 'error');
       card?.querySelectorAll('button').forEach(b => { b.disabled = false; });
     }
   }
@@ -1099,6 +1136,15 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
      INIT
   ============================================================ */
   document.addEventListener('DOMContentLoaded', async () => {
+    /* W3-AR (2026-09-09): same fix as founder-console.html, found by measuring the sibling. The
+       retirement here is markup only - a fixed overlay at z-index 100000, with the original scripts
+       left intact so the static validators that scan this file keep passing - so every visit ran the
+       full moderation load BEHIND a screen nobody can see through: the draft-listings query, five HEAD
+       count probes, the sellers count, the platform-admins check, and a POST analytics_events page_view
+       (201 Created), which quietly inflated the analytics of the surface that replaced it. Reading the
+       overlay rather than a flag keeps the documented reversal honest: deleting the overlay to un-retire
+       restores the load with it. */
+    if (document.getElementById('wh-retired-overlay')) return;
     /* Verify the worker is a platform admin via DB — supersedes HIVE_ROLE.
        Re-enabled 2026-05-17 (Layer 2 role runner found admin surfaces accessible
        to all roles when gate was commented out). */

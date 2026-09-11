@@ -118,14 +118,14 @@ serveObserved("data-fabric-normalizer", async (req) => {
   if (healthResp) return healthResp;
 
   if (req.method !== "POST") {
-    return new Response(JSON.stringify({ error: "Method not allowed" }), {
+    return new Response(JSON.stringify({ error: "That action is not allowed here. Reload the page and try again." }), {
       status: 405, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
 
   let body: { source?: Source; source_id?: string; hive_id?: string; asset_tag?: string | null; occurred_at?: string; payload?: Record<string, unknown>; event_type?: string } = {};
   try { body = await req.json(); } catch {
-    return new Response(JSON.stringify({ error: "Invalid JSON body" }), {
+    return new Response(JSON.stringify({ error: "That request could not be read. Reload the page and try again." }), {
       status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
@@ -167,7 +167,23 @@ serveObserved("data-fabric-normalizer", async (req) => {
 
   const occurred  = body.occurred_at ? new Date(body.occurred_at) : new Date();
   const occurredIso = occurred.toISOString();
-  const hash      = await sha256(`${body.source}|${body.source_id}|${occurredIso}`);
+
+  /* ★THE IDEMPOTENCY KEY CONTAINED THE CURRENT TIME, SO IT COULD NEVER MATCH (2026-09-09, proven live by
+     sending the same event twice: both answered {"written":1,"deduped":0} and unified_events ended with
+     two rows for one source_id). The header promises "Idempotent via sha256 hash" and the unique
+     constraint is (source, source_id, hash) - but when a caller omits occurred_at this fell back to
+     `new Date()`, so every retry hashed differently, the 23505 the dedupe depends on never fired, and
+     `deduped` was a field that could only ever read 0. The callers most likely to retry are exactly the
+     ones that omit it: a CMMS or sensor bridge re-sending after a timeout, which is the normal case.
+
+     When the caller SUPPLIES occurred_at, that is the occurrence's real identity and is used unchanged.
+     When it does not, the identity must come from something stable about the event itself - its payload -
+     never from the clock. Two genuinely different events at the same source_id still differ by payload;
+     the same event sent twice now collides, which is what the constraint was built for. */
+  const identity = body.occurred_at
+    ? occurredIso
+    : "payload:" + await sha256(JSON.stringify(body.payload ?? {}));
+  const hash      = await sha256(`${body.source}|${body.source_id}|${identity}`);
 
   // Route to source-specific adapter
   let adapted;

@@ -251,7 +251,7 @@ async function buildOeeFacts(client: SupabaseClient, hiveId: string): Promise<st
     const oees = (arr ?? []).map((a) => Number(a?.oee_pct)).filter((n) => Number.isFinite(n) && n > 0);
     if (!oees.length) return "";
     const avg = oees.reduce((s, x) => s + x, 0) / oees.length;
-    return `OEE (partial — ISO 22400 Availability×Quality, ${row?.period_days ?? 90}d): hive average ~${avg.toFixed(0)}% across ${oees.length} assets (range ${Math.min(...oees).toFixed(0)}–${Math.max(...oees).toFixed(0)}%). Performance dimension excluded until a planned production rate is configured.`;
+    return `OEE (partial — ISO 22400 Availability×Quality, ${row?.period_days ?? 90}d): hive average ~${avg.toFixed(0)}% across ${oees.length} assets (range ${Math.min(...oees).toFixed(0)}–${Math.max(...oees).toFixed(0)}%). This average leaves out the Performance dimension; each asset's Ideal Cycle Time unlocks it.`;
   } catch (_) { return ""; }
 }
 
@@ -784,7 +784,7 @@ serveObserved("ai-gateway", async (req) => {
   if (healthResp) return healthResp;
 
   if (req.method !== "POST") {
-    return jsonResponse(corsHeaders, 405, { error: "POST only" });
+    return jsonResponse(corsHeaders, 405, { error: "That request method is not allowed. Reload the page and try again." });
   }
 
   const t0 = Date.now();
@@ -793,7 +793,7 @@ serveObserved("ai-gateway", async (req) => {
   try {
     body = await req.json();
   } catch {
-    return jsonResponse(corsHeaders, 400, { error: "Invalid JSON" });
+    return jsonResponse(corsHeaders, 400, { error: "That request could not be read. Reload the page and try again." });
   }
 
   const { agent, message, context = {}, hive_id = null } = body;
@@ -826,6 +826,10 @@ serveObserved("ai-gateway", async (req) => {
     global: { headers: { Authorization: authHeader } },
   });
   const adminClient: SupabaseClient = createClient(SUPABASE_URL, SERVICE_KEY);
+  // Give the envelope a writer so ok()/fail() persist the latency they already measure. Assigned here rather
+  // than at beginRequest() because the service client does not exist until auth has resolved. Without this the
+  // SLO board's latency panel has no producer: wh_traces.latency_ms was null on every row.
+  ctx.db = adminClient as unknown as typeof ctx.db;
 
   // 2026-05-19 Companion Streamline Step C/D: voice-journal is the
   // platform's onboarding companion — workers talk to Hezekiah/Zaniah before
@@ -1515,8 +1519,11 @@ serveObserved("ai-gateway", async (req) => {
     agentRespText = await resp.text();
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
+    // the raw exception text is for the LOG; a person gets a sentence with a next step (2026-09-06)
+    console.error(`ai-gateway: agent '${agent}' (${route.fn}) failed: ${msg}`);
     return jsonResponse(corsHeaders, 502, {
-      error: `Agent '${agent}' (${route.fn}) failed: ${msg}`,
+      error: "That assistant could not finish. Try again in a moment.",
+      agent,
     });
   }
 

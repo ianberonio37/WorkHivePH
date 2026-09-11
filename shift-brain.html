@@ -47,6 +47,11 @@
       box-shadow: 0 8px 32px rgba(0,0,0,0.5);
       transition: opacity 0.3s;
     }
+    /* V1 (2026-09-05): at 390 px the toast covered the page header; on phones it docks above the bottom safe area instead.
+       I1: the briefing container grows when the brief arrives - reserve its settled height so the page does not jump. */
+    @media (max-width: 480px) { #toast { top: auto !important; bottom: calc(env(safe-area-inset-bottom, 0px) + 72px) !important; } }
+    @media (min-width: 768px) { #briefing-card, #briefing { min-height: 420px; } }   /* the brief settles well past 240 (CLS 0.266 with the smaller reserve) */
+
     #toast.hidden { opacity: 0; pointer-events: none; }
 
     .page-wrap { max-width: 720px; margin: 0 auto; padding: 1rem 1rem 0; }
@@ -79,7 +84,7 @@
       display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.85rem;
     }
     .shift-pill {
-      flex: 1; min-width: 90px;
+      flex: 1; min-width: max-content; white-space: nowrap;   /* phone fit (2026-09-06): three pills shared 114px each at 390px and '14-22 Afternoon' wrapped; the row already wraps, so the third pill drops down instead */
       background: rgba(255,255,255,0.04); border: 1px solid var(--border);
       border-radius: var(--wh-radius-sm); padding: 0.55rem 0.7rem;
       min-height: 44px; display: inline-flex; align-items: center; justify-content: center;
@@ -180,12 +185,12 @@
 <main>
 
 
-  <div id="toast" class="hidden" role="alert" aria-live="polite">Saved.</div>
+  <div data-i="p_saved_9d4a" id="toast" class="hidden" role="alert" aria-live="polite">Saved.</div>
 
   <div id="hive-gate">
     <h2 data-i="gatetitle">Shift Brain needs a hive</h2>
-    <p>The autonomous shift planner runs hive-by-hive. Join or create a hive to see briefings for your team.</p>
-    <a href="hive.html">Go to Hive</a>
+    <p data-i="p_theautonomousshiftplannerrun_c7f7">The autonomous shift planner runs hive-by-hive. Join or create a hive to see briefings for your team.</p>
+    <a data-i="p_gotohive_f399" href="hive.html">Go to Hive</a>
   </div>
 
   <div id="page-wrap" class="page-wrap" style="display:none;">
@@ -196,7 +201,7 @@
       </a>
       <div>
         <h1 class="page-title" style="margin:0;" translate="no">Shift Brain</h1>
-        <div class="page-sub" id="page-sub">Autonomous shift planner for your hive</div>
+        <div data-i="p_autonomousshiftplannerforyou_8331" class="page-sub" id="page-sub">Autonomous shift planner for your hive</div>
         <p id="shift-source-chip" style="margin-top:3px;"></p>
       </div>
     </div>
@@ -211,34 +216,34 @@
          Populated by renderShiftSummary() after the active plan renders. -->
     <div id="sb-verdict" class="verdict empty">
       <span id="sb-verdict-icon" class="verdict-icon">·</span>
-      <div class="verdict-text"><span id="sb-verdict-label">Loading shift readiness...</span><small id="sb-verdict-sub">Counting top-risk assets, PMs due, and carry-forward items for this window.</small></div>
+      <div class="verdict-text"><span data-i="p_loadingshiftreadiness_3196" id="sb-verdict-label">Loading shift readiness...</span><small data-i="p_countingtopriskassetspmsduea_2fdf" id="sb-verdict-sub">Counting top-risk assets, PMs due, and carry-forward items for this window.</small></div>
     </div>
     <div class="simple-row">
       <div class="simple-card tag-grey" id="sb-card-risk" data-rag-tile="shift-brain:top_risk_this_shift" data-rag-label="Top risk this shift">
-        <div class="sc-label">Top risk this shift</div>
+        <div data-i="p_topriskthisshift_6343" class="sc-label">Top risk this shift</div>
         <!-- ships as an em dash: 0 risk / 0 PMs due reads as an all-clear before any read lands -->
         <div class="sc-hero" id="sb-risk-hero">—</div>
-        <div class="sc-sub" id="sb-risk-sub">Loading...</div>
+        <div data-i="p_loading_b04b" class="sc-sub" id="sb-risk-sub">Loading...</div>
         <span class="sc-tag" id="sb-risk-tag">-</span>
       </div>
       <div class="simple-card tag-grey" id="sb-card-pms" data-rag-tile="shift-brain:pms_due" data-rag-label="PMs due">
-        <div class="sc-label">PMs due</div>
+        <div data-i="p_pmsdue_7b76" class="sc-label">PMs due</div>
         <div class="sc-hero" id="sb-pms-hero">—</div>
-        <div class="sc-sub" id="sb-pms-sub">Loading...</div>
+        <div data-i="p_loading_b04b" class="sc-sub" id="sb-pms-sub">Loading...</div>
         <span class="sc-tag" id="sb-pms-tag">-</span>
       </div>
       <div class="simple-card tag-grey" id="sb-card-carry" data-rag-tile="shift-brain:carry_forward" data-rag-label="Carry-forward">
         <div class="sc-label">Carry-forward</div>
         <div class="sc-hero" id="sb-carry-hero">—</div>
-        <div class="sc-sub" id="sb-carry-sub">Loading...</div>
+        <div data-i="p_loading_b04b" class="sc-sub" id="sb-carry-sub">Loading...</div>
         <span class="sc-tag" id="sb-carry-tag">-</span>
       </div>
     </div>
     <div class="action-card">
-      <div class="ac-label">What to do next</div>
-      <div class="ac-text" id="sb-action-text">Computing shift plan...</div>
+      <div data-i="p_whattodonext_8ce2" class="ac-label">What to do next</div>
+      <div data-i="p_computingshiftplan_adfc" class="ac-text" id="sb-action-text">Computing shift plan...</div>
       <!-- Arc P · Wave 1 (P3 / FUSION 3a): one primary button that DOES the next step. -->
-      <a id="sb-action-btn" class="ac-cta hidden" href="#" aria-label="Do the recommended next action">Take action &#8594;</a>
+      <a data-i="p_takeaction_ee0b" id="sb-action-btn" class="ac-cta hidden" href="#" aria-label="Do the recommended next action">Take action &#8594;</a>
     </div>
     <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="sb-summary-details" data-i="showdetails">
       Show details
@@ -246,13 +251,13 @@
     <div id="sb-summary-details" role="region" aria-label="Shift plan explainer"
     data-rag-tile="shift-brain:detail_panel"
     data-rag-label="Shift brain detail">
-      <strong style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How this shift plan is built</strong>
+      <strong data-i="p_howthisshiftplanisbuilt_3632" style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How this shift plan is built</strong>
       <ul style="margin:0;padding-left:20px;">
-        <li><strong>Top risk this shift</strong>: assets ranked by latest each asset's risk score; only <strong>high</strong> and <strong>critical</strong> bands shown (score &ge; 0.70). Low/medium assets live in the full risk register, not the shift brief.</li>
-        <li><strong>PMs due</strong>: frequency-aware <strong>overdue</strong> PMs (the next due date has passed, based on each task's own interval), one row per asset. Not the retired flat 30-day proxy.</li>
+        <li><strong data-i="p_topriskthisshift_6343">Top risk this shift</strong>: assets ranked by latest each asset's risk score; only <strong>high</strong> and <strong>critical</strong> bands shown (score &ge; 0.70). Low/medium assets live in the full risk register, not the shift brief.</li>
+        <li><strong data-i="p_pmsdue_7b76">PMs due</strong>: frequency-aware <strong>overdue</strong> PMs (the next due date has passed, based on each task's own interval), one row per asset. Not the retired flat 30-day proxy.</li>
         <li><strong>Carry-forward</strong>: breakdown / corrective entries left <code>Open</code> from the prior shift.</li>
-        <li><strong>Parts pre-stage</strong>: parts at or below the reorder level that one of the prioritized jobs is likely to consume.</li>
-        <li><strong>Verdict</strong>: red if 3+ top-risk OR 5+ carry-forward; amber if PMs due or 1+ top-risk; green when all four lists are short.</li>
+        <li><strong data-i="p_partsprestage_397b">Parts pre-stage</strong>: parts at or below the reorder level that one of the prioritized jobs is likely to consume.</li>
+        <li><strong data-i="p_verdict_7f6e">Verdict</strong>: red if 3+ top-risk OR 5+ carry-forward; amber if PMs due or 1+ top-risk; green when all four lists are short.</li>
       </ul>
     </div>
 
@@ -263,10 +268,10 @@
         <span id="brief-status" class="status-pill status-draft">draft</span>
         <!-- ★E3/C2: text #f7a21b over a 13%-alpha amber (#f59e0b22) composited to 2.02:1 on the dark navy theme (dark-on-dark).
              A warning chip must be self-sufficient: a SOLID bright-amber fill with near-black text reads on any background (~9:1). -->
-        <span id="brief-stale" style="display:none; align-items:center; gap:4px; font-size:.7rem; font-weight:700; color:#1a1206; background:var(--wh-orange); border:1px solid var(--wh-orange); padding:2px 8px; border-radius:8px;" title="This plan is not for the current shift; regenerate before acting on it.">⚠ STALE</span>
+        <span data-i="p_stale_86c1" id="brief-stale" style="display:none; align-items:center; gap:4px; font-size:.7rem; font-weight:700; color:#1a1206; background:var(--wh-orange); border:1px solid var(--wh-orange); padding:2px 8px; border-radius:8px;" title="This plan is not for the current shift; regenerate before acting on it.">⚠ STALE</span>
       </div>
       <div id="brief-degraded" role="alert" style="display:none; margin-top:8px; font-size:.75rem; font-weight:600; color:var(--wh-red); background:#ef444415; border:1px solid #ef444455; padding:8px 10px; border-radius:8px;"></div>
-      <div class="briefing-text" id="brief-text">Loading briefing...</div>
+      <div data-i="p_loadingbriefing_875d" class="briefing-text" id="brief-text" data-ai-generated>Loading briefing...</div>   <!-- the shift brief is LLM prose (generate-shift-plan): excluded from the copy lenses like hive's pattern alerts and report-sender's summary; its quality is graded by the AI-output gates, not by B3 (2026-09-06) -->
     </div>
 
     <div class="section-card">
@@ -286,7 +291,7 @@
            blocked splits cannot be rendered honestly — the definition instead says plainly that the
            bucket hides those three states and routes the reader to the person who knows. If a
            carry-reason field is ever added to the log, replace this line with the real breakdown. -->
-      <p style="font-size:0.74rem; color:rgba(255,255,255,0.72); margin:4px 0 8px; line-height:1.5;" data-i="carrydef">Jobs still open from the prior shift. The log does not yet record <em>why</em> each is open: not started, deferred, or blocked all look the same here. Confirm the reason at handover before re-planning them.</p>
+      <p style="font-size:0.74rem; color:rgba(255,255,255,0.72); margin:4px 0 8px; line-height:1.5;" data-i="carrydef">Jobs still open from the prior shift. The log does not yet say <em>why</em> a job stays open. Not started, deferred and blocked all look the same here. Confirm the reason at handover before re-planning them.</p>
       <div id="carry-list"></div>
     </div>
 
@@ -305,7 +310,7 @@
       <div id="empty-supervisor" style="margin-top:0.6rem;display:none;">
         <button class="btn-primary" id="generate-btn" data-i="generatenow">Generate now</button>
       </div>
-      <div id="empty-worker" style="margin-top:0.4rem;font-size:0.78rem;display:none;">
+      <div data-i="p_yoursupervisorneedstogenerat_69e5" id="empty-worker" style="margin-top:0.4rem;font-size:0.78rem;display:none;">
         Your supervisor needs to generate one. The automatic schedule runs at 06:00, 14:00, and 22:00 PHT once enabled.
       </div>
     </div>
@@ -313,7 +318,7 @@
   </div>
 
   <script src="nav-hub.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
+  <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
   <script>
     var SUPABASE_URL = 'https://hzyvnjtisfgbksicrouu.supabase.co';
     var SUPABASE_KEY = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ';
@@ -439,7 +444,9 @@
 
     async function loadPlan() {
       const e = escHtml;
-      const today = new Date().toISOString().slice(0, 10);
+      // EX-SB graveyard (2026-09-07): at 03:00 Manila this read the UTC date - the 6th on the 7th - and told the 3am shift the
+      // wrong day. The page's day is the Manila day, the way the PHT block below already computes it.
+      const today = new Date(Date.now() + 8 * 3600 * 1000).toISOString().slice(0, 10);
       // E2 consistent states: skeleton in the carry-forward list while the plan
       // re-fetches (e.g. on a shift-window switch, when the section is already
       // visible) so it never flashes stale rows before renderPlan repaints.
@@ -538,10 +545,24 @@
         if (error || (data && data.error)) {
           console.warn('shift auto-generate skipped:', (error && error.message) || (data && data.error));
           renderPlan(); // restore the honest empty-state verdict
+          // EX-AT T4 (2026-09-07): a spent AI quota on the FIRST open used to vanish into this console line -
+          // the person saw "No plan yet" and nothing about why or when to come back. The verdict now says it.
+          const _m = String((error && error.message) || (data && data.error) || '');
+          const _limited = /\b429\b|rate.?limit|too many requests|call limit/i.test(_m) || (error && error.context && error.context.status === 429);
+          if (_limited) {
+            const _sub = document.getElementById('sb-verdict-sub');
+            const _lbl = document.getElementById('sb-verdict-label');
+            if (_lbl) _lbl.textContent = window.whAiError ? window.whAiError({ message: _m || '429' }) : _t('The AI is at its limit right now. Try again in a few minutes.', 'Nasa limitasyon ang AI ngayon. Subukan muli pagkalipas ng ilang minuto.');
+            if (_sub) _sub.textContent = _t('No briefing was generated for this window. Your last plan, if any, is untouched.', 'Walang nabuong briefing para sa window na ito. Hindi nagalaw ang huling plano mo, kung mayroon.');
+          }
           return;
         }
         await loadPlan(); // _autoGenTried blocks recursion
-        showToast('Shift handover generated for this window.');
+        // V1 (rubric sweep 2026-09-05; the family ratchet's greenDims held it): this toast fired on an
+        // AUTOMATIC load-time generate and painted over the "Shift Brain" H1 at survey time. A toast
+        // is feedback for something the user just did; a plan the page built on its own announces
+        // through the page's own status line (aria-live region above), which never overlaps chrome.
+        _setShiftVerdict('Shift handover ready', 'Generated for this window from logbook, risk and PM data.');
       } catch (err) {
         _stopProg();
         console.warn('shift auto-generate error:', err && err.message);
@@ -570,7 +591,7 @@
         const vIcon = document.getElementById('sb-verdict-icon');
         const vBox  = document.getElementById('sb-verdict');
         if (_sbReadFailed) {
-          if (vLbl)  vLbl.textContent  = 'Could not load your shift plan';
+          if (vLbl)  vLbl.textContent  = _t('Could not load your shift plan', 'Hindi ma-load ang shift plan mo');
           if (vSub)  vSub.textContent  = 'Risk, PMs due and carry-forward are unknown right now, not zero. '
             + whReadError(_sbReadFailed, 'your shift plan') + ' A plan may already be published.';
           if (vIcon) vIcon.textContent = '⚠';
@@ -638,6 +659,14 @@
       // (pre-wrap renders the \n) so a 19-code isolation line stays readable instead of a wall.
       document.getElementById('brief-text').textContent =
         _activePlan.briefing ? (typeof reflowIdDump === 'function' ? reflowIdDump(_activePlan.briefing) : _activePlan.briefing) : '(no briefing)';
+      // EX-AT (2026-09-07): the briefing is an AI answer the crew acts on - the shared row lets a
+      // person record that it was wrong, against the exact text, and says what it was composed from.
+      if (typeof whAiTrustRow === 'function' && _activePlan.briefing) {
+        const _bt = document.getElementById('brief-text');
+        whAiTrustRow(_bt.parentElement || _bt, { db, agent: 'shift-planner-orchestrator', source: 'briefing', page: 'shift-brain',
+          question: 'shift briefing ' + (_activePlan.shift_window || _activePlan.window || ''), answer: _activePlan.briefing,
+          groundedOn: _t('top-risk assets, PMs due, carry-forward items and parts for this window', 'mga top-risk na asset, PM na due, carry-forward na item at parts para sa window na ito') });
+      }
 
       // F15: freshness honesty. If this plan is NOT for the current shift (stale — e.g. a
       // non-live window, or a live window whose auto-generate failed and an old plan showed),
@@ -656,7 +685,7 @@
       if (_degBanner) {
         if (_degraded) {
           const lanes = (Array.isArray(_pl.fetch_errors) ? _pl.fetch_errors : []).join(', ') || 'some data';
-          _degBanner.textContent = '⚠ This plan is incomplete: ' + lanes + ' failed to load when it was generated. Re-run the plan before relying on any empty section.';
+          _degBanner.textContent = '⚠ This plan is incomplete: ' + lanes + _t(' failed to load when it was generated. Re-run the plan before relying on any empty section.', ' ay hindi na-load noong ginawa ito. I-re-run ang plano bago umasa sa anumang walang-laman na section.');
           _degBanner.style.display = 'block';
         } else {
           _degBanner.style.display = 'none';
@@ -717,7 +746,15 @@
         if (!rl) return;
         rl.innerHTML = (rows.length && typeof renderRiskStrip === 'function')
           ? renderRiskStrip(rows, { limit: 10 })
-          : '<div class="empty-row">' + escHtml('No assets above risk threshold this window.') + '</div>';
+          // ★A HEALTHY ZERO IS STILL A PLACE SOMEBODY IS STANDING (2026-09-10, found by an in-motion
+          // critic walk as a fleet supervisor, dim X1 at 50%). This said only "No assets above risk
+          // threshold this window." - true, and good news, and a dead end: a supervisor opening the
+          // shift planner on a quiet morning was shown an empty room with no door. The platform's own
+          // house style for a zero-state already does better ("No recent traces. New AI questions appear
+          // here as they run."), so this follows it: say the absence is GOOD, then name where to look
+          // next. Not a CTA bolted onto good news - the sentence still leads with "nothing needs
+          // attention", which is the honest headline.
+          : '<div class="empty-row">' + escHtml(_t('No assets above risk threshold this window - nothing needs attention. Open Asset Hub to review the full fleet.', 'Walang asset na lampas sa risk threshold sa window na ito - walang kailangang asikasuhin. Buksan ang Asset Hub para makita ang buong fleet.')) + '</div>';
       })();
       // STREAMLINE F4: PMs-due renders through the shared renderPmDueStrip (utils.js)
       // — one renderer for the frequency-aware overdue PM list, scope-chipped "this
@@ -732,7 +769,11 @@
           ? renderPmDueStrip(rows, { limit: 12, scope: 'this shift' })
           : '<div class="empty-row">' + escHtml('No PMs flagged as due.') + '</div>';
       })();
-      renderRows('carry-list', p.carry_forward || [], 'carry-count', rowCarry, 'No carry-forward items from the prior shift.', 6);
+      // ★THE SECOND DEAD END THE SAME WALK FOUND. "No carry-forward items from the prior shift." is
+      // good news - the last shift closed clean - and it left the reader with nowhere to go. Same
+      // remedy as the risk strip above: lead with what the absence MEANS, then name where the work is.
+      renderRows('carry-list', p.carry_forward || [], 'carry-count', rowCarry,
+                 'No carry-forward items from the prior shift - it closed clean. Open the logbook to see what was done.', 6);
       // STREAMLINE F3: parts pre-stage renders through the shared renderPartsStrip
       // (utils.js) — one urgency-ranked parts list (out-of-stock first). rowPart kept
       // for reference but no longer the renderer.
@@ -744,7 +785,7 @@
         if (!pl) return;
         pl.innerHTML = (rows.length && typeof renderPartsStrip === 'function')
           ? renderPartsStrip(rows, { limit: 12 })
-          : '<div class="empty-row">' + escHtml('No parts at or below reorder point.') + '</div>';
+          : '<div class="empty-row">' + escHtml(_t('No parts at or below reorder point.', 'Walang part na nasa reorder point o mas mababa.')) + '</div>';
       })();
 
       // F16: a section whose count hit the orchestrator's server cap shows "N+" (not a flat
@@ -805,7 +846,7 @@
       };
       setCard('risk',
         _cap('risk_top', riskCount),
-        riskCount === 0 ? 'No assets above the risk threshold' : `${riskCount} asset${riskCount === 1 ? '' : 's'} flagged for this window`,
+        riskCount === 0 ? _t('No assets above the risk threshold', 'Walang asset na lampas sa risk threshold') : `${riskCount} asset${riskCount === 1 ? '' : 's'} flagged for this window`,
         riskCount === 0 ? 'CLEAR' : riskCount >= 3 ? 'HOT' : 'WATCH',
         riskCount === 0 ? 'green' : riskCount >= 3 ? 'red' : 'amber'
       );
@@ -875,28 +916,39 @@
             t.scrollIntoView({ behavior: 'smooth', block: 'start' });
           };
         };
+        /* C-AH (2026-09-11): English-only under the Filipino heading p_whattodonext_8ce2 ("Ano ang
+           susunod na gagawin"), overwriting a button that ships p_takeaction_ee0b ("Kumilos ->").
+           The Filipino half names the cards as they render here - "Paunang paghahanda ng parts"
+           for the parts pre-stage card. Same block in asset-hub.html and inventory.html. */
         let text;
         if (riskCount >= 3) {
-          text = `${riskCount} asset${riskCount === 1 ? ' is' : 's are'} above the risk threshold. Inspect ${riskCount === 1 ? 'it' : 'these'} first. Root-cause the top one. Pre-stage its parts.${riskCount === 1 ? '' : ' That knocks the others down.'}`;
-          setCta(`Inspect ${riskCount} risk assets →`, '#risk-list');
+          text = _t(`${riskCount} asset${riskCount === 1 ? ' is' : 's are'} above the risk threshold. Inspect ${riskCount === 1 ? 'it' : 'these'} first. Root-cause the top one. Pre-stage its parts.${riskCount === 1 ? '' : ' That knocks the others down.'}`,
+                    `${riskCount} asset ang lampas sa risk threshold. Unahin mong suriin ${riskCount === 1 ? 'ito' : 'ang mga ito'}. Hanapin ang ugat ng pinakamataas. Ihanda nang maaga ang parts nito.${riskCount === 1 ? '' : ' Bababa rin ang iba dahil doon.'}`);
+          setCta(_t(`Inspect ${riskCount} risk assets →`, `Suriin ang ${riskCount} risk asset →`), '#risk-list');
         } else if (carryCount >= 5) {
-          text = `${carryCount} open items carried forward. Close out the simplest ones first to clear the queue, then attack the rest with the freed-up time.`;
-          setCta(`Clear ${carryCount} carry-forward →`, '#carry-list');
+          text = _t(`${carryCount} open items carried forward. Close out the simplest ones first to clear the queue, then attack the rest with the freed-up time.`,
+                    `${carryCount} bukas na item ang naipasa sa shift na ito. Unahin ang pinakamadali para lumuwag ang pila, tapos ilaan ang natirang oras sa iba.`);
+          setCta(_t(`Clear ${carryCount} carry-forward →`, `Linisin ang ${carryCount} carry-forward →`), '#carry-list');
         } else if (riskCount > 0) {
-          text = `${riskCount} risk asset${riskCount === 1 ? '' : 's'} this window. Walk past those first thing. Early eyes on a degrading asset usually beat a reactive call-out later.`;
-          setCta(`Walk past ${riskCount} risk asset${riskCount === 1 ? '' : 's'} →`, '#risk-list');
+          text = _t(`${riskCount} risk asset${riskCount === 1 ? '' : 's'} this window. Walk past those first thing. Early eyes on a degrading asset usually beat a reactive call-out later.`,
+                    `${riskCount} risk asset ngayong window. Unahin mong daanan ang mga ito. Mas mabuti ang maagang tingin sa sumasamang asset kaysa sa reactive na tawag mamaya.`);
+          setCta(_t(`Walk past ${riskCount} risk asset${riskCount === 1 ? '' : 's'} →`, `Daanan ang ${riskCount} risk asset →`), '#risk-list');
         } else if (pmsCount >= 5) {
-          text = `${pmsCount} PMs due this shift. Cluster them by location to cut walking. The parts pre-stage card lists what to grab.`;
-          setCta(`Plan ${pmsCount} PMs due →`, '#pms-list');
+          text = _t(`${pmsCount} PMs due this shift. Cluster them by location to cut walking. The parts pre-stage card lists what to grab.`,
+                    `${pmsCount} PM ang due ngayong shift. Pagsama-samahin ayon sa lokasyon para makatipid sa lakad. Nasa "Paunang paghahanda ng parts" ang dapat mong dalhin.`);
+          setCta(_t(`Plan ${pmsCount} PMs due →`, `Planuhin ang ${pmsCount} PM na due →`), '#pms-list');
         } else if (pmsCount > 0) {
-          text = `${pmsCount} PM${pmsCount === 1 ? '' : 's'} on the plan this shift. Knock them out early before any breakdown lands.`;
-          setCta(`Knock out ${pmsCount} PM${pmsCount === 1 ? '' : 's'} →`, '#pms-list');
+          text = _t(`${pmsCount} PM${pmsCount === 1 ? '' : 's'} on the plan this shift. Knock them out early before any breakdown lands.`,
+                    `${pmsCount} PM ang nasa plano ngayong shift. Tapusin ang mga ito nang maaga bago may dumating na breakdown.`);
+          setCta(_t(`Knock out ${pmsCount} PM${pmsCount === 1 ? '' : 's'} →`, `Tapusin ang ${pmsCount} PM →`), '#pms-list');
         } else if (carryCount > 0) {
-          text = `${carryCount} carry-forward item${carryCount === 1 ? '' : 's'}. Use the open part of the shift to close out the loose ends from yesterday.`;
-          setCta(`Close ${carryCount} carry-forward →`, '#carry-list');
+          text = _t(`${carryCount} carry-forward item${carryCount === 1 ? '' : 's'}. Use the open part of the shift to close out the loose ends from yesterday.`,
+                    `${carryCount} carry-forward na item. Gamitin ang libreng oras ng shift para tapusin ang mga naiwan kahapon.`);
+          setCta(_t(`Close ${carryCount} carry-forward →`, `Isara ang ${carryCount} carry-forward →`), '#carry-list');
         } else {
-          text = 'Light shift: use the open time for asset-hub walkarounds, condition checks on critical equipment, or knowledge-base contributions.';
-          setCta('Review the shift plan →', '#risk-list');
+          text = _t('Light shift: use the open time for asset-hub walkarounds, condition checks on critical equipment, or knowledge-base contributions.',
+                    'Magaan ang shift: gamitin ang libreng oras sa walkaround sa Asset Hub, condition check sa critical na equipment, o pag-ambag sa knowledge base.');
+          setCta(_t('Review the shift plan →', 'Suriin ang shift plan →'), '#risk-list');
         }
         actBox.textContent = text;
       }
@@ -992,11 +1044,11 @@
             console.warn('shift-planner-orchestrator unreachable (likely local edge runtime not running):', msg);
             showToast('Shift planner is offline locally. Run "npx supabase functions serve" (the cron was retired 2026-06-10; plans generate on first open).');
           } else {
-            showToast(whAiError(error, 'Re-run failed: ' + (msg || 'unknown')));
+            showToast(whAiError(error, _t('Re-run failed: ', 'Hindi natuloy ang re-run: ') + (msg || 'unknown')));
           }
           return;
         }
-        if (data && data.error) { showToast(whAiError(data.error, 'The plan was NOT re-generated. The plan on screen is unchanged; try again.')); return; }
+        if (data && data.error) { showToast(whAiError(data.error, _t('The plan was NOT re-generated. The plan on screen is unchanged; try again.', 'HINDI na-regenerate ang plano. Hindi nagbago ang plano sa screen; subukan muli.'))); return; }
         // ★NAME WHAT WAS REBUILT AND THAT IT IS STILL PRIVATE. 'Plan refreshed.' told a supervisor that
         // something happened but not the two things they need: that the plan was rebuilt from CURRENT data,
         // and - critically - that it is still a DRAFT the crew cannot see until Publish. Those are the two
@@ -1055,7 +1107,7 @@
         .eq('id', _activePlan.id)
         .eq('hive_id', HIVE_ID);
       if (error) {
-        showToast(whWriteError(error, 'The plan was NOT published, so the crew still cannot see it. Try again.'));
+        showToast(whWriteError(error, _t('The plan was NOT published, so the crew still cannot see it. Try again.', 'HINDI na-publish ang plano, kaya hindi pa ito nakikita ng crew. Subukan muli.')));
         if (btn) btn.disabled = false;
         return;
       }
@@ -1085,7 +1137,7 @@
         .eq('id', _activePlan.id)
         .eq('hive_id', HIVE_ID);
       if (error) {
-        showToast(whWriteError(error, 'The plan was NOT archived - it is still active. Try again.'));
+        showToast(whWriteError(error, _t('The plan was NOT archived - it is still active. Try again.', 'HINDI na-archive ang plano - active pa ito. Subukan muli.')));
         if (btn) btn.disabled = false;
         return;
       }
@@ -1191,8 +1243,8 @@
 
 <!-- Calm Dashboard Contract footer: data-sources disclosure + hideZeroStat helper -->
 <details data-calm-disclosure="data-sources" style="max-width:680px; margin:1rem auto 2rem; padding:0 1rem;">
-  <summary style="cursor:pointer; font-size:.78rem; color:rgba(255,255,255,0.80); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
-  <p style="font-size:.78rem; color:rgba(255,255,255,0.80); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
+  <summary data-i="p_aboutthisdashboardsdatasourc_8e23" style="cursor:pointer; font-size:.78rem; color:rgba(255,255,255,0.80); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
+  <p data-i="p_numberscomefromyourliveworkh_9c03" style="font-size:.78rem; color:rgba(255,255,255,0.80); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
 </details>
 <script>
   window.hideZeroStat = window.hideZeroStat || function(el, val) {
@@ -1220,5 +1272,18 @@
     generatenow: 'I-generate ngayon',
   };
 </script>
+<script>/* systemic ripple (2026-09-05): utils.js is the shared script every panel below renders through; if it never arrives
+   (a stale shell, a blocked CDN, a dropped connection mid-load) this page went blank or froze on its static skeletons.
+   utils.js cannot help when utils.js is the thing missing, so the guard lives here. */
+window.addEventListener('load', function () { setTimeout(function () {
+  if (typeof getDb === 'function' && typeof escHtml === 'function') return;
+  try { console.error('[shift-brain] utils.js did not load; the page cannot render its data'); } catch (e) { void e; }
+  var m = document.querySelector('main') || document.body; if (!m || m.querySelector('.wh-shared-missing')) return;
+  var d = document.createElement('div'); d.className = 'honest-empty wh-shared-missing'; d.setAttribute('role', 'alert');
+  d.style.cssText = 'margin:12px;padding:14px 16px;border:1px solid rgba(248,113,113,.4);border-radius:10px;background:rgba(248,113,113,.08);color:#fca5a5;font:14px/1.5 system-ui,sans-serif;';
+  d.innerHTML = 'WorkHive could not load its shared script (utils.js), so this page cannot show your data. <button type="button" onclick="location.reload()" style="color:inherit;text-decoration:underline;background:none;border:0;padding:0;font:inherit;cursor:pointer;min-height:44px;" data-i="reloadtotryagain">Reload to try again</button>.';
+  m.insertBefore(d, m.firstChild);
+  var sk = document.querySelectorAll('.wh-skeleton, [class*="skeleton"]'); for (var i = 0; i < sk.length; i++) sk[i].style.display = 'none';
+}, 2500); });</script>
 </body>
 </html>

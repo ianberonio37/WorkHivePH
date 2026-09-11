@@ -145,6 +145,7 @@
       color:rgba(255,255,255,0.83); cursor: pointer; white-space: nowrap;
       transition: all 0.15s; min-height: 44px;
     }
+    .filter-chip { flex: 0 0 auto; white-space: nowrap; }   /* phone fit (2026-09-06) */
     .filter-chip:hover { border-color: rgba(255,255,255,0.6); color: rgba(255,255,255,0.8); }
     .filter-chip.active { background: rgba(247,162,27,0.15); border-color: rgba(247,162,27,0.4); color: var(--wh-orange); }
     .filter-chip.cat-safety.active     { background: rgba(239,68,68,0.12); border-color: rgba(239,68,68,0.4); color: var(--wh-red-text); }
@@ -410,7 +411,7 @@
            state was redundant noise — the source chip already says "Live · updates automatically". -->
       <div id="conn-pill" role="status" aria-live="polite" aria-atomic="true" style="display:none; align-items:center; gap:6px;">
         <div class="conn-dot offline" id="conn-dot" aria-hidden="true"></div>
-        <span id="conn-label" style="font-size:0.7rem; color:rgba(255,255,255,0.80);">Connecting…</span>
+        <span data-i="p_connecting_fd3e" id="conn-label" style="font-size:0.7rem; color:rgba(255,255,255,0.80);">Connecting…</span>
       </div>
       <span id="nav-worker" style="font-size:0.75rem; color:rgba(255,255,255,0.80); max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"></span>
     </div>
@@ -426,26 +427,26 @@
 <!-- ── UNDO TOAST (soft-delete recovery, 5s window) ── -->
 <div id="undo-toast" class="hidden" role="alert" aria-live="polite">
   <span id="undo-toast-text"></span>
-  <button id="undo-toast-btn" type="button" style="min-height:44px;">Undo</button>
+  <button id="undo-toast-btn" type="button" style="min-height:44px;" data-i="undo">Undo</button>
 </div>
 
 <!-- ── MAIN ── -->
 <main style="position:relative; z-index:10; padding-top:56px; padding-bottom:calc(5rem + env(safe-area-inset-bottom));">
-  <div id="no-results" class="empty-state" hidden>No posts match those filters.</div>
+  <div data-i="p_nopostsmatchthosefilters_18c3" id="no-results" class="empty-state" hidden>No posts match those filters.</div>
 
   <div style="max-width:900px; margin:0 auto; padding:1.5rem 1rem;">
 
     <!-- Page header -->
     <div style="margin-bottom:1.25rem;">
       <h1 style="font-size:1.5rem; font-weight:800; margin:0 0 2px;" data-i="comm_title">Community</h1>
-      <p id="hive-name-label" style="font-size:0.8rem; color:rgba(255,255,255,0.80); margin:0;">Your hive's discussion board</p>
+      <p data-i="p_yourhivesdiscussionboard_b701" id="hive-name-label" style="font-size:0.8rem; color:rgba(255,255,255,0.80); margin:0;">Your hive's discussion board</p>
       <p id="community-source-chip" style="margin-top:3px; min-height:1.1em;"></p>
     </div>
 
     <!-- Presence bar -->
     <!-- Y6 silent-loop: the green-dot bar had no label or basis. Name it + state what "online" means, inline (field phones have no hover). -->
-    <p style="font-size:0.62rem; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; color:rgba(255,255,255,0.80); margin:0 0 2px;">Online now</p>
-    <p style="font-size:0.62rem; color:rgba(255,255,255,0.80); margin:0 0 6px;">Green dot = a teammate has this board open right now (live).</p>
+    <p data-i="p_onlinenow_c930" style="font-size:0.62rem; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; color:rgba(255,255,255,0.80); margin:0 0 2px;">Online now</p>
+    <p data-i="p_greendotateammatehasthisboar_a070" style="font-size:0.62rem; color:rgba(255,255,255,0.80); margin:0 0 6px;">Green dot = a teammate has this board open right now (live).</p>
     <div id="presence-bar" tabindex="0" role="region" aria-label="Members online" style="display:flex; gap:8px; overflow-x:auto; padding-bottom:4px; margin-bottom:1.25rem; scrollbar-width:none; min-height:40px; align-items:center;"></div>
 
     <!-- Layout grid (feed + sidebar on desktop) -->
@@ -467,9 +468,8 @@
              question is actually being asked. -->
         <p style="font-size:0.78rem; color:rgba(255,255,255,0.82); line-height:1.55; margin:-0.25rem 0 1rem; max-width:62ch;">
           Posting is free. Your post appears in this hive's feed straight away and everyone in the
-          hive can see it; anyone you @mention is notified. You can edit or delete it afterwards,
-          and doing so updates what everyone sees. Helpful posts build the community-trust signal
-          that buyers see on your marketplace listings.
+          hive can see it. Anyone you @mention gets a notification. You can edit or delete it afterwards,
+          and doing so updates what everyone sees. Helpful posts build the trust score that buyers see on your listings.
         </p>
         <!-- Tabs (feed / mod queue) -->
         <div style="display:flex; border-bottom:1px solid rgba(255,255,255,0.07); margin-bottom:1rem;">
@@ -520,15 +520,13 @@
 
         <!-- Global feed panel (D Phase 2 — public posts from all hives) -->
         <div id="panel-global" style="display:none; flex-direction:column; gap:0.75rem;">
-          <p style="font-size:0.75rem; color:rgba(255,255,255,0.80); margin:0 0 0.5rem; text-align:center;">
+          <p data-i="p_publicpostsfromallworkhivete_0941" style="font-size:0.75rem; color:rgba(255,255,255,0.80); margin:0 0 0.5rem; text-align:center;">
             Public posts from all WorkHive teams · Read-only outside your hive
           </p>
           <div id="global-list" style="display:flex; flex-direction:column; gap:0.75rem;"></div>
           <div id="global-load-more" style="display:none; justify-content:center; padding:0.75rem 0;">
             <button id="btn-load-more-global" onclick="loadMoreGlobalPosts()"
-              style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.83); border-radius:var(--wh-radius-sm); padding:0.6rem 1.25rem; min-height:44px; font-size:0.8rem; cursor:pointer;">
-              Load more
-            </button>
+              style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.83); border-radius:var(--wh-radius-sm); padding:0.6rem 1.25rem; min-height:44px; font-size:0.8rem; cursor:pointer;" data-i="loadmore">Load more</button>
           </div>
         </div>
 
@@ -538,7 +536,7 @@
                moderation verbs) but offered no door to read them back; a decision surface links
                its history (audit-log honors ?action= deep links). -->
           <div style="display:flex; justify-content:flex-end;">
-            <a href="audit-log.html?action=report_post" class="text-[11px]" style="color:var(--wh-blue-text); text-decoration:none; min-height:44px; display:inline-flex; align-items:center; padding:0 8px;">Moderation history &rarr;</a>
+            <a data-i="p_moderationhistory_3f9e" href="audit-log.html?action=report_post" class="text-[11px]" style="color:var(--wh-blue-text); text-decoration:none; min-height:44px; display:inline-flex; align-items:center; padding:0 8px;">Moderation history &rarr;</a>
           </div>
           <div id="mod-list"></div>
         </div>
@@ -548,7 +546,7 @@
       <div>
         <!-- My profile card -->
         <div class="wh-card" style="padding:1.25rem; margin-bottom:1rem;" id="profile-card">
-          <p style="font-size:0.65rem; font-weight:800; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.80); margin:0 0 0.75rem;">Your Profile</p>
+          <p data-i="p_yourprofile_21c7" style="font-size:0.65rem; font-weight:800; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.80); margin:0 0 0.75rem;">Your Profile</p>
           <div style="display:flex; align-items:center; gap:12px;">
             <div id="profile-avatar" style="flex-shrink:0;padding-bottom:10px;"></div>
             <div style="flex:1; min-width:0;">
@@ -564,7 +562,7 @@
                    the rule in 2026-07: brand colour as small text uses the -text/-light variant, never the
                    base token. No brand change, no new hex. -->
               <p id="profile-posts" style="font-size:1.25rem; font-weight:800; margin:0; color:var(--wh-orange-text); font-variant-numeric:tabular-nums;">-</p>
-              <p style="font-size:0.65rem; color:rgba(255,255,255,0.80); margin:0; margin-top:2px;">Posts</p>
+              <p data-i="p_posts_a0ca" style="font-size:0.65rem; color:rgba(255,255,255,0.80); margin:0; margin-top:2px;">Posts</p>
             </div>
             <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.06); border-radius:0.625rem; padding:0.75rem; text-align:center;">
               <!-- --wh-blue-text, not --wh-blue. --wh-blue (#29B6D9) is the accent FILL; the text tier
@@ -589,7 +587,7 @@
                min-height:44px, the flex layout, the caret and the marker reset, so adopting it fixes
                the hit area platform-consistently rather than hand-patching one page's inline style. -->
           <details class="wh-disclose" style="margin-top:0.85rem;">
-            <summary style="font-size:0.72rem; font-weight:700; color:var(--wh-blue-text);">How do I earn Community XP?</summary>
+            <summary data-i="p_howdoiearncommunityxp_ebe7" style="font-size:0.72rem; font-weight:700; color:var(--wh-blue-text);">How do I earn Community XP?</summary>
             <ul style="font-size:0.72rem; color:rgba(255,255,255,0.86); line-height:1.65; margin:0.5rem 0 0; padding-left:1.1rem;">
               <li><b>+50</b> for your first post: welcome to the hive</li>
               <li><b>+25</b> for a safety post: keeping the team safe matters</li>
@@ -601,17 +599,17 @@
                    ...000049 counts DISTINCT people, ignores the author's own reactions, and pays
                    once per post via a ledger. The copy now states the rule that actually runs. -->
               <li><b>+20</b> the first time three different people react to one of your posts: the team found it useful. Once per post, and your own reactions do not count.</li>
-              <li><b>🐝 Voice of the Hive</b> badge at your 10th post</li>
+              <li><b data-i="p_voiceofthehive_78c0">🐝 Voice of the Hive</b> badge at your 10th post</li>
             </ul>
-            <p style="font-size:0.68rem; color:rgba(255,255,255,0.80); margin:0.5rem 0 0; line-height:1.5;">XP rewards real help, never logins, streaks, or giving reactions.</p>
+            <p data-i="p_xprewardsrealhelpneverlogins_6960" style="font-size:0.68rem; color:rgba(255,255,255,0.80); margin:0.5rem 0 0; line-height:1.5;">XP rewards real help, never logins, streaks, or giving reactions.</p>
           </details>
         </div>
 
         <!-- "My people" — same-trade discovery (U-axis belonging). Hidden until the
              get_hive_trade_peers RPC returns hive-mates who share the worker's trade. -->
         <div class="wh-card" style="padding:1.25rem; display:none;" id="trade-peers-card">
-          <p style="font-size:0.65rem; font-weight:800; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.80); margin:0 0 0.2rem;">People in your trade</p>
-          <p style="font-size:0.72rem; color:rgba(255,255,255,0.83); margin:0 0 0.75rem;">Matched on earned skill badges: hive-mates holding a badge at Practitioner level or above, in a discipline you hold one in too. A teammate doing the same work, but without that badge yet, will not appear here.</p>
+          <p data-i="p_peopleinyourtrade_3925" style="font-size:0.65rem; font-weight:800; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.80); margin:0 0 0.2rem;">People in your trade</p>
+          <p data-i="p_matchedonearnedskillbadgesth_1221" style="font-size:0.72rem; color:rgba(255,255,255,0.83); margin:0 0 0.75rem;">Matched on earned skill badges. These hive-mates hold a Practitioner badge or higher in one of your trades. A teammate doing the same work without that badge will not appear here.</p>
           <div id="trade-peers-list"></div>
         </div>
 
@@ -619,9 +617,9 @@
         <!-- SERVICE_HAILING P8 (§1c liquidity): the community is where "who do you recommend
              for X" already happens - point that intent at the hail flow. Pure ADD. -->
         <div class="wh-card" style="padding:1.25rem;" id="svc-hail-bridge-card">
-          <p style="font-size:0.65rem; font-weight:800; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.80); margin:0 0 0.5rem;">Need a hand on site?</p>
-          <p style="font-size:0.8rem; margin:0 0 0.6rem; opacity:0.9;">Hail a vetted service provider - electrical, HVAC, mechanical and more. Nearby providers accept like ride-hailing drivers.</p>
-          <a href="marketplace.html?section=services" style="display:inline-flex;align-items:center;min-height:44px;padding:0 1rem;border-radius:var(--wh-radius-sm, 8px);background:linear-gradient(135deg,var(--wh-orange),var(--wh-orange-light));color:var(--wh-navy);font-weight:700;font-size:0.8rem;text-decoration:none;">Hail a service →</a>
+          <p data-i="p_needahandonsite_d03b" style="font-size:0.65rem; font-weight:800; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.80); margin:0 0 0.5rem;">Need a hand on site?</p>
+          <p data-i="p_hailavettedserviceproviderel_406e" style="font-size:0.8rem; margin:0 0 0.6rem; opacity:0.9;">Hail a vetted service provider - electrical, HVAC, mechanical and more. Nearby providers accept like ride-hailing drivers.</p>
+          <a data-i="p_hailaservice_6819" href="marketplace.html?section=services" style="display:inline-flex;align-items:center;min-height:44px;padding:0 1rem;border-radius:var(--wh-radius-sm, 8px);background:linear-gradient(135deg,var(--wh-orange),var(--wh-orange-light));color:var(--wh-navy);font-weight:700;font-size:0.8rem;text-decoration:none;">Hail a service →</a>
         </div>
         <div class="wh-card" style="padding:1.25rem;" id="leaderboard-card">
           <!-- Was "Top Posters", but the sort key is xp_total, and XP is earned by more than
@@ -629,7 +627,7 @@
                criteria — it fed them to the AI companion's context string below — while showing
                a person on this board nothing. Same vocabulary as the .pc-tier "Top Contributor"
                chip, so one word means one thing on both surfaces. -->
-          <p style="font-size:0.65rem; font-weight:800; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.80); margin:0 0 0.25rem;">Top Contributors</p>
+          <p data-i="p_topcontributors_8745" style="font-size:0.65rem; font-weight:800; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.80); margin:0 0 0.25rem;">Top Contributors</p>
           <p style="font-size:0.62rem; color:rgba(255,255,255,0.72); margin:0 0 0.75rem; line-height:1.45;">
             By Community XP — <strong>+50</strong> your first post, <strong>+25</strong> a safety post,
             <strong>+20</strong> when a post earns 3 reactions. Voice-of-the-Hive badge at 10 posts.
@@ -655,24 +653,24 @@
 <div id="composer-overlay" class="sheet-overlay" role="dialog" aria-modal="true" aria-labelledby="composer-title">
   <div class="sheet-inner" id="composer-sheet">
     <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.25rem;">
-      <h2 id="composer-title" style="font-size:1rem; font-weight:800; margin:0;">New Post</h2>
+      <h2 data-i="p_newpost_f75d" id="composer-title" style="font-size:1rem; font-weight:800; margin:0;">New Post</h2>
       <button class="btn-icon" onclick="closeComposer()" aria-label="Close">
         <span class="ic ic-close" aria-hidden="true"></span>
       </button>
     </div>
 
-    <label for="post-category" style="display:block; font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.80); margin-bottom:6px;">Category</label>
+    <label data-i="p_category_a3c6" for="post-category" style="display:block; font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.80); margin-bottom:6px;">Category</label>
     <select id="post-category" class="wh-input" style="margin-bottom:1rem; cursor:pointer;" aria-label="Post category" data-select-placeholder-allow="default 'General' category is the broadest, safe default">
-      <option value="general">General</option>
-      <option value="safety">Safety</option>
-      <option value="technical">Technical</option>
-      <option value="marketplace">Parts / Service / Wanted</option>
-      <option value="announcement" id="opt-announcement" style="display:none;">Announcement (Supervisor only)</option>
+      <option data-i="p_general_9239" value="general">General</option>
+      <option data-i="p_safety_db6e" value="safety">Safety</option>
+      <option data-i="p_technical_41fc" value="technical">Technical</option>
+      <option data-i="p_partsservicewanted_109c" value="marketplace">Parts / Service / Wanted</option>
+      <option data-i="p_announcementsupervisoronly_5ff6" value="announcement" id="opt-announcement" style="display:none;">Announcement (Supervisor only)</option>
     </select>
     <!-- Knowledge->commerce bridge: a commerce-intent post points to the FREE marketplace -->
     <p id="marketplace-hint" style="display:none; font-size:0.72rem; color:rgba(255,255,255,0.83); background:rgba(247,162,27,0.08); border:1px solid rgba(247,162,27,0.25); border-radius:0.6rem; padding:0.6rem 0.75rem; margin:-0.5rem 0 1rem; line-height:1.5;">
       🛒 Buying or selling parts, or offering a service? Post it here to reach your hive, and list it on the
-      <a href="marketplace.html" style="color:var(--wh-orange); font-weight:700; text-decoration:none;">free Marketplace →</a>
+      <a data-i="p_freemarketplace_ac32" href="marketplace.html" style="color:var(--wh-orange); font-weight:700; text-decoration:none;">free Marketplace →</a>
     </p>
 
     <!-- Share publicly (supervisor-only); auto-locked ON for announcements -->
@@ -680,7 +678,7 @@
       <input type="checkbox" id="post-public" style="width:18px; height:18px; flex-shrink:0; cursor:pointer; accent-color:var(--wh-green);" aria-label="Share publicly with all WorkHive teams" />
       <span style="flex:1; font-size:0.8rem; color:rgba(255,255,255,0.85);">
         🌐 Share with all WorkHive teams
-        <span style="display:block; font-size:0.65rem; color:rgba(255,255,255,0.80); font-weight:400; margin-top:2px;">Public posts appear on the Global tab for every hive.</span>
+        <span data-i="p_publicpostsappearontheglobal_0bc6" style="display:block; font-size:0.65rem; color:rgba(255,255,255,0.80); font-weight:400; margin-top:2px;">Public posts appear on the Global tab for every hive.</span>
         <!-- A locked control has to say WHY it is locked. Dimming to 0.85 is not a reason: the live
              walk found this box silently tick itself and grey out, with nothing on screen explaining
              it. This line is written by the category handler and cleared when the lock lifts. -->
@@ -692,11 +690,11 @@
          board named "community" where the reasonable guess is that everyone can read it. The
          destination of a post is the one thing that cannot be taken back, so it is stated to both
          roles, not only the one that can change it. -->
-    <p id="post-private-note" style="font-size:0.72rem; color:rgba(255,255,255,0.80); background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:0.625rem; padding:0.6rem 0.75rem; margin-bottom:1rem; line-height:1.5;">
+    <p data-i="p_thisstaysinsideyourhiveonlyy_1b5d" id="post-private-note" style="font-size:0.72rem; color:rgba(255,255,255,0.80); background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:0.625rem; padding:0.6rem 0.75rem; margin-bottom:1rem; line-height:1.5;">
       🔒 This stays inside your hive. Only your hive-mates can read it, and it will not appear on the public Global feed.
     </p>
 
-    <label for="post-content" style="display:block; font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.80); margin-bottom:6px;">Message</label>
+    <label data-i="p_message_68f4" for="post-content" style="display:block; font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.80); margin-bottom:6px;">Message</label>
     <div style="position:relative;">
       <textarea id="post-content" class="wh-input" rows="4" placeholder="What's on your mind? Type @ to mention a teammate." maxlength="2000" aria-label="Post content" style="resize:vertical; min-height:100px;"></textarea>
       <div id="mention-dropdown" role="listbox" aria-label="Mention suggestions"></div>
@@ -708,15 +706,15 @@
       <summary style="cursor:pointer; font-weight:600; color:rgba(255,255,255,0.85); list-style:none; display:flex; align-items:center; gap:6px; min-height:44px;">
         <span class="ic ic-doc" aria-hidden="true"></span>
         Community guidelines
-        <span style="margin-left:auto; font-size:0.65rem; color:rgba(255,255,255,0.80); font-weight:400;">tap to read</span>
+        <span data-i="p_taptoread_bc3e" style="margin-left:auto; font-size:0.65rem; color:rgba(255,255,255,0.80); font-weight:400;">tap to read</span>
       </summary>
       <ul style="margin:0.6rem 0 0; padding-left:1.2rem; line-height:1.55;">
-        <li>Be respectful: no harassment, bullying, or personal attacks.</li>
-        <li>Stay on-topic: keep posts related to your team's work.</li>
-        <li>Flag safety issues clearly. For emergencies, call your supervisor first.</li>
-        <li>Do not share personal data (phone numbers, addresses, IDs).</li>
-        <li>No spam, advertising, or unrelated external links.</li>
-        <li>Reports go to your supervisor with your name attached.</li>
+        <li data-i="p_berespectfulnoharassmentbull_80ee">Be respectful: no harassment, bullying, or personal attacks.</li>
+        <li data-i="p_stayontopickeeppostsrelatedt_4ee5">Stay on-topic: keep posts related to your team's work.</li>
+        <li data-i="p_flagsafetyissuesclearlyforem_0103">Flag safety issues clearly. For emergencies, call your supervisor first.</li>
+        <li data-i="p_donotsharepersonaldataphonen_be49">Do not share personal data (phone numbers, addresses, IDs).</li>
+        <li data-i="p_nospamadvertisingorunrelated_241f">No spam, advertising, or unrelated external links.</li>
+        <li data-i="p_reportsgotoyoursupervisorwit_b8ca">Reports go to your supervisor with your name attached.</li>
       </ul>
     </details>
 
@@ -731,7 +729,7 @@
       Earns Community XP: <strong>+50</strong> for your first post, <strong>+25</strong> for a Safety post,
       <strong>+20</strong> once a post reaches 3 reactions.
     </p>
-    <button id="btn-submit-post" class="btn-primary" style="width:100%;" onclick="submitPost()">Post to Hive</button>
+    <button id="btn-submit-post" class="btn-primary" style="width:100%;" onclick="submitPost()" data-i="posttohive">Post to Hive</button>
   </div>
 </div>
 
@@ -755,7 +753,7 @@
     <div id="thread-related-listings" style="display:none; margin-top:1rem;"></div>
     <div style="margin-top:1rem; display:flex; gap:8px; align-items:flex-start;">
       <textarea id="reply-content" class="wh-input" rows="2" placeholder="Write a reply…" maxlength="1000" aria-label="Reply content" style="resize:none;"></textarea>
-      <button id="btn-submit-reply" class="btn-primary" style="min-width:80px; padding:0.75rem 1rem;" onclick="submitReply()">Reply</button>
+      <button id="btn-submit-reply" class="btn-primary" style="min-width:80px; padding:0.75rem 1rem;" onclick="submitReply()" data-i="reply">Reply</button>
     </div>
     <!-- T168: the reply box caps at 1000 like the composer above caps at 2000, but only the composer
          counted. A maxlength with no counter is a silent wall - the textarea simply stops accepting
@@ -769,33 +767,33 @@
 <div id="report-overlay" class="sheet-overlay" role="dialog" aria-modal="true" aria-labelledby="report-title">
   <div class="sheet-inner" id="report-sheet" style="max-width:480px; margin:0 auto;">
     <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem;">
-      <h2 id="report-title" style="font-size:1rem; font-weight:800; margin:0;">Report Post</h2>
+      <h2 data-i="p_reportpost_632a" id="report-title" style="font-size:1rem; font-weight:800; margin:0;">Report Post</h2>
       <button class="btn-icon" onclick="closeReport()" aria-label="Close">
         <span class="ic ic-close" aria-hidden="true"></span>
       </button>
     </div>
 
-    <p style="font-size:0.78rem; color:rgba(255,255,255,0.83); margin:0 0 1rem; line-height:1.5;">
+    <p data-i="p_sendthisposttoyoursupervisor_dfce" style="font-size:0.78rem; color:rgba(255,255,255,0.83); margin:0 0 1rem; line-height:1.5;">
       Send this post to your supervisor for review. Your name and reason will be recorded in the audit log.
     </p>
 
-    <label for="report-reason" style="display:block; font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.80); margin-bottom:6px;">Reason</label>
+    <label data-i="p_reason_f219" for="report-reason" style="display:block; font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.80); margin-bottom:6px;">Reason</label>
     <select id="report-reason" class="wh-input" style="margin-bottom:1rem; cursor:pointer;" aria-label="Reason for report" required>
       <!-- T31 (2026-09-02): the select used to DEFAULT to 'Harassment', so an untouched Send filed
            the gravest accusation silently. The placeholder makes the reason a deliberate choice;
            submitReport refuses an empty value with the why. -->
-      <option value="" selected disabled>Choose a reason…</option>
-      <option value="harassment">Harassment or bullying</option>
-      <option value="unsafe">Unsafe or wrong information</option>
-      <option value="spam">Spam or off-topic</option>
-      <option value="other">Other</option>
+      <option data-i="p_chooseareason_b1b0" value="" selected disabled>Choose a reason…</option>
+      <option data-i="p_harassmentorbullying_b110" value="harassment">Harassment or bullying</option>
+      <option data-i="p_unsafeorwronginformation_62a4" value="unsafe">Unsafe or wrong information</option>
+      <option data-i="p_spamorofftopic_a49e" value="spam">Spam or off-topic</option>
+      <option data-i="p_other_6e6a" value="other">Other</option>
     </select>
 
-    <label for="report-details" style="display:block; font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.80); margin-bottom:6px;">Details (optional)</label>
+    <label data-i="p_detailsoptional_138a" for="report-details" style="display:block; font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.80); margin-bottom:6px;">Details (optional)</label>
     <textarea id="report-details" class="wh-input" rows="3" maxlength="500" placeholder="Any extra context for your supervisor…" aria-label="Report details" style="resize:vertical; min-height:80px;"></textarea>
     <p id="report-char-count" style="text-align:right; font-size:0.7rem; color:rgba(255,255,255,0.80); margin:4px 0 1rem;">0 / 500</p>
 
-    <button id="btn-submit-report" class="btn-primary" style="width:100%;" onclick="submitReport()">Send Report</button>
+    <button id="btn-submit-report" class="btn-primary" style="width:100%;" onclick="submitReport()" data-i="sendreport">Send Report</button>
   </div>
 </div>
 
@@ -803,7 +801,7 @@
 <div id="person-overlay" class="sheet-overlay" role="dialog" aria-modal="true" aria-labelledby="person-title">
   <div class="sheet-inner" id="person-sheet" style="max-width:420px; margin:0 auto;">
     <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem;">
-      <h2 id="person-title" style="font-size:1rem; font-weight:800; margin:0;">Member</h2>
+      <h2 data-i="p_member_6853" id="person-title" style="font-size:1rem; font-weight:800; margin:0;">Member</h2>
       <button class="btn-icon" onclick="closePersonCard()" aria-label="Close member card">
         <span class="ic ic-close" aria-hidden="true"></span>
       </button>
@@ -814,7 +812,7 @@
 
 <!-- Elements must be before the script block -->
 <script src="browser-floor.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
+  <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
 <script>
   'use strict';
@@ -1020,9 +1018,12 @@
     const el = document.getElementById('profile-next-milestone');
     if (!el || postCount === null || postCount === undefined) return;
     let msg;
-    if      (postCount === 0)   msg = '🐝 Write your first post to join the conversation. Earns +50 XP';
-    else if (postCount < 10)    { const n = 10 - postCount; msg = `🐝 ${n} more ${n === 1 ? 'post' : 'posts'} to earn the Voice of the Hive badge`; }
-    else                        msg = '🐝 You’re a Voice of the Hive. Thanks for helping the team';
+    if      (postCount === 0)   msg = _t('🐝 Write your first post to join the conversation. Earns +50 XP',
+                                        '🐝 Isulat ang unang post mo para sumali sa usapan. Kumikita ng +50 XP');
+    else if (postCount < 10)    { const n = 10 - postCount; msg = _t(`🐝 ${n} more ${n === 1 ? 'post' : 'posts'} to earn the Voice of the Hive badge`,
+                                        `🐝 ${n} pang post para makuha ang Voice of the Hive badge`); }
+    else                        msg = _t('🐝 You’re a Voice of the Hive. Thanks for helping the team',
+                                        '🐝 Isa kang Voice of the Hive. Salamat sa pagtulong sa team');
     el.textContent = msg;
     el.style.display = 'block';
   }
@@ -1230,10 +1231,10 @@
     if (error) {
       const msg = (typeof whReadError === 'function')
         ? whReadError(error, 'the leaderboard')
-        : 'Couldn’t load the leaderboard. Check your connection and try again.';
+        : _t('Couldn’t load the leaderboard. Check your connection and try again.', 'Hindi ma-load ang leaderboard. Suriin ang koneksyon at subukan muli.');
       el.innerHTML = '<p style="font-size:0.78rem; color:var(--wh-text-muted); text-align:center; padding:1rem 0;">'
                    + escHtml(msg) + '</p>'
-                   + '<div style="text-align:center;"><button type="button" id="lb-retry" style="font-size:0.75rem;padding:0.4rem 0.9rem;min-height:44px;border-radius:var(--wh-radius-sm);border:1px solid rgba(255,255,255,0.18);background:transparent;color:inherit;">Retry</button></div>';
+                   + '<div style="text-align:center;"><button type="button" id="lb-retry" style="font-size:0.75rem;padding:0.4rem 0.9rem;min-height:44px;border-radius:var(--wh-radius-sm);border:1px solid rgba(255,255,255,0.18);background:transparent;color:inherit;" data-i="retry">Retry</button></div>';
       const rb = document.getElementById('lb-retry');
       if (rb) rb.addEventListener('click', () => communityRetryAll());
       return;
@@ -1387,7 +1388,7 @@
     let q = db.from('v_community_posts_truth')
       .select('id, hive_id, author_name, content, category, pinned, flagged, public, created_at, edited_at, mentions, deleted_at, updated_at')
       .eq('hive_id', HIVE_ID).eq('pinned', false).is('deleted_at', null)
-      .order('created_at', { ascending: false }).order('id').limit(20);
+      .order('created_at', { ascending: false }).order('id').limit(20);   // limit-as-count-allow: paginated feed page. A count WAS derived from it - the Mod Queue badge read `flagged.length` over the loaded page and under-reported the moderation queue (fixed 2026-09-08: the badge takes an exact head count, the list says "showing N of M"). The 2026-09-05 sweep classified this "rows only - no count or sum is derived", which was wrong; a cap is only safe while nothing counts it, and that is a property of every reader, not of the read.
     // T24 (2026-08-25): the AUTHOR's own flagged post used to VANISH from their own feed with no
     // word - an unexplained deletion to the person it matters most to (they re-post or assume a
     // bug). Workers still never see OTHERS' flagged posts; the author keeps seeing their OWN,
@@ -1398,6 +1399,20 @@
     if (_lastPostCreatedAt) q = q.lt('created_at', _lastPostCreatedAt);
     return q;
   }
+
+  // P183 "reconnect & backfill" (2026-09-05, the founder-console feedback-inbox class): the feed and global-feed
+  // channels handed rtConn() straight to .subscribe(), so a post made while the socket was down never arrived as
+  // an event and nothing re-read the feed when the channel rejoined. This handler keeps the connection paint,
+  // remembers the drop, and on the first re-SUBSCRIBED after it (both channels rejoin together - debounced to
+  // one pass) re-reads the feeds; the browser's 'online' event triggers the same pass.
+  function refreshAfterDrop() {
+    [loadPosts, loadGlobalFeed, loadLeaderboard, loadModQueue, loadProfileStats].forEach((fn) => {
+      try { if (typeof fn === 'function') fn(); } catch (err) { console.warn('[community] backfill after reconnect failed', err); }
+    });
+  }
+  // the shared handler (utils.js whRealtimeBackfill, 2026-09-05): one instance per page, debounced across the channels,
+  // refetches on the browser's 'online' event; paint-only fallback if the shell script is missing
+  const _rtBackfill = (typeof whRealtimeBackfill === 'function') ? whRealtimeBackfill(refreshAfterDrop, { tag: 'community' }) : (typeof rtConn === 'function' ? rtConn() : undefined);
 
   async function loadPosts() {
     // G1 (FF1) converge: the canonical skeleton renders the wait state once JS runs; the
@@ -1421,7 +1436,7 @@
       _bound(db.from('v_community_posts_truth')
         .select('id, hive_id, author_name, content, category, pinned, flagged, public, created_at, edited_at, mentions, deleted_at, updated_at')
         .eq('hive_id', HIVE_ID).eq('pinned', true).is('deleted_at', null)
-        .order('created_at', { ascending: false }).order('id').limit(500)),
+        .order('created_at', { ascending: false }).order('id').limit(500)),   // cap-ok: rows only - no count or sum is derived from this read (classified by the reference-pages-uncapped sweep, 2026-09-05)
       _bound(_fetchPage()),
     ]);
 
@@ -1444,7 +1459,7 @@
           ? (_n < 60 ? Math.round(_n) + ' seconds'
                      : Math.round(_n / 60) + ' minute' + (Math.round(_n / 60) === 1 ? '' : 's'))
           : 'a moment';
-        _inline = 'Too many requests, so the community feed could not be read. Your connection is fine: wait about '
+        _inline = _t('Too many requests, so the community feed could not be read. Your connection is fine: wait about ', 'Sobrang dami ng request, kaya hindi mabasa ang community feed. Maayos ang koneksyon mo: maghintay ng mga ')
                 + _wait + ', then retry.';
         _toast  = 'Too many requests. Wait about ' + _wait + ', then retry.';
       /* 401 = dead session; 403 = live session, refused row. PostgREST answers 401 for anonymous or
@@ -1452,14 +1467,14 @@
          with "sign in again" sends the second group to fix the one thing that is not broken — and
          the retry lands on the same 403. Measured 2026-08-05 across six surfaces. */
       } else if (_st === 401 || /jwt|token/i.test(_msgRaw) || (_st == null && _code === '42501')) {
-        _inline = 'Your session expired, so the community feed could not be read. Sign in again to continue. Nothing you posted was lost.';
+        _inline = _t('Your session expired, so the community feed could not be read. Sign in again to continue. Nothing you posted was lost.', 'Nag-expire ang session mo, kaya hindi mabasa ang community feed. Mag-sign in muli para magpatuloy. Walang nawala sa mga na-post mo.');
         _toast  = 'Your session expired. Sign in again.';
       } else if (_st === 403 || _code === '42501') {
         _inline = 'This account does not have access to the community feed. Your session is fine, so signing in again will not change it. Ask a supervisor if you need access.';
         _toast  = 'No access to the community feed with this account.';
       } else {
-        _inline = 'Couldn’t load the community feed. Check your connection and try again.';
-        _toast  = 'Could not load posts';
+        _inline = _t('Couldn’t load the community feed. Check your connection and try again.', 'Hindi ma-load ang community feed. Suriin ang koneksyon at subukan muli.');
+        _toast  = _t('Could not load posts', 'Hindi ma-load ang mga post');
       }
       // E2 consistent states: inline error + Retry (shared whListError) beside the toast.
       if (typeof whListError === 'function') {
@@ -1534,27 +1549,27 @@
       if (isFiltered) {
         el.innerHTML = `<div class="empty-state">
           <span class="ic ic-search" aria-hidden="true"></span>
-          <p style="color:rgba(255,255,255,0.80); font-size:0.875rem;">No posts match your search or filter.</p>
+          <p style="color:rgba(255,255,255,0.80); font-size:0.875rem;">${_t('No posts match your search or filter.', 'Walang post na tumutugma sa search o filter mo.')}</p>
         </div>`;
       } else {
         // First-time / fresh-hive welcome with a clear CTA + how-to
         el.innerHTML = `<div class="wh-card" style="padding:1.5rem; text-align:left;">
           <div style="display:flex; align-items:center; gap:10px; margin-bottom:0.75rem;">
             <span style="font-size:1.25rem;">👋</span>
-            <h3 style="font-size:1rem; font-weight:800; margin:0;">Welcome to your hive's discussion board</h3>
+            <h3 style="font-size:1rem; font-weight:800; margin:0;">${escHtml(_t('Welcome to your hive\'s discussion board', 'Maligayang pagdating sa discussion board ng inyong hive'))}</h3>
           </div>
           <p style="font-size:0.85rem; color:rgba(255,255,255,0.80); line-height:1.55; margin:0 0 1rem;">
-            Share tips, ask questions, and flag safety concerns with your team. Posts in this hive are private to its members.
+            ${escHtml(_t('Share tips, ask questions, and flag safety concerns with your team. Posts in this hive are private to its members.', 'Magbahagi ng tips, magtanong, at iulat ang mga alalahanin sa kaligtasan kasama ang inyong team. Pribado sa mga miyembro ang mga post sa hive na ito.'))}
           </p>
           <ul style="margin:0 0 1.25rem; padding-left:1.2rem; font-size:0.82rem; color:rgba(255,255,255,0.83); line-height:1.7;">
-            <li><strong>Tap the orange + button</strong> to write a post.</li>
+            <li><strong>${escHtml(_t('Tap the orange + button', 'Pindutin ang orange na + button'))}</strong> ${escHtml(_t('to write a post.', 'para magsulat ng post.'))}</li>
             <li>Use categories to organise: <span style="color:var(--wh-red);">Safety</span>, <span style="color:var(--wh-blue);">Technical</span>, General.</li>
-            <li>React with 👍 🔧 🔥 👀 or open a thread to reply.</li>
-            <li>Type <strong>@</strong> in the message to mention a teammate.</li>
+            <li>${escHtml(_t('React with', 'Mag-react gamit ang'))} 👍 🔧 🔥 👀 ${escHtml(_t('or open a thread to reply.', 'o buksan ang thread para sumagot.'))}</li>
+            <li>${escHtml(_t('Type', 'I-type ang'))} <strong>@</strong> ${escHtml(_t('in the message to mention a teammate.', 'sa mensahe para banggitin ang isang kasamahan.'))}</li>
             ${HIVE_ROLE === 'supervisor' ? '<li>As supervisor: tick "Share with all WorkHive teams" to publish a post globally.</li>' : '<li>See something off? Use the ⚠️ report button, your supervisor will review it.</li>'}
           </ul>
           <button class="btn-primary" onclick="openComposer()" style="width:auto; padding:0.65rem 1.25rem;">
-            Write the first post
+            ${escHtml(_t('Write the first post', 'Isulat ang unang post'))}
           </button>
         </div>`;
       }
@@ -1651,7 +1666,18 @@
       <button class="btn-icon" onclick="openEditor('${p.id}')" title="Edit post" aria-label="Edit my post">
         <span class="ic ic-edit" aria-hidden="true"></span>
       </button>
-      <button class="btn-icon" onclick="deletePost('${p.id}')" title="Delete post" aria-label="Delete my post">
+      <!-- THE SAME RULE THIS FILE ALREADY APPLIES TO THE OTHER DELETE (walked 2026-09-10, Z3 95%).
+           The moderator's delete a few lines above carries margin-left:22px precisely because it is
+           destructive and must not sit flush against the control beside it. The AUTHOR's delete - the
+           one every ordinary member meets on their own post - never got that separation, so it sat 4px
+           from "Edit my post": measured 44x44 with a 4px horizontal gap on all six instances, scrolled
+           into view and re-measured to be sure. Size was never the problem; the SPACING was, and the
+           two controls at risk of confusion are exactly "edit my post" and "delete my post".
+           Matched to the page's own precedent (22px) rather than a new value, so both destructive
+           controls on this surface now behave identically. Same shape as the paired-write family: a
+           safety rule applied to one side of a pair and not the other.
+           NOT changed: the 44x44 target itself, which already meets the floor. -->
+      <button class="btn-icon" onclick="deletePost('${p.id}')" title="Delete post" aria-label="Delete my post" style="margin-left:22px">
         <span class="ic ic-delete" aria-hidden="true"></span>
       </button>` : `
       <button class="btn-icon" onclick="openReport('${p.id}')" title="Report this post to your supervisor" aria-label="Report this post">
@@ -1710,7 +1736,8 @@
     const { data } = await db.from('community_reactions')
       .select('post_id, emoji, worker_name')
       .in('hive_id', hiveIds)
-      .in('post_id', postIds).limit(500);
+      .in('post_id', postIds).limit(500);   // cap-ok: reaction counts disclose '+' when this read is full
+    window._rxCapped = (data || []).length >= 500;   // cap is not a total (2026-09-05)
     if (!data) return;
 
     // Initialise reactionMap entries for requested posts
@@ -1734,7 +1761,7 @@
         const rx  = reactionMap[pid]?.[emoji];
         const btn = span.closest('.reaction-btn');
         if (!rx) return;
-        span.textContent = rx.count;
+        span.textContent = rx.count + (window._rxCapped ? '+' : '');
         btn?.classList.toggle('active', rx.mine);
       });
     });
@@ -1867,9 +1894,22 @@
     // though the line's plumbing exists - the mod tab alone re-rendered after the load. One feed
     // re-render when new reasons landed closes the race (no recursion: renderFeed never calls back).
     if (Object.keys(_reportReasons).length > _rrBefore && activeTab !== 'mod') renderFeed();
+    // ★THE MOD QUEUE COUNTED WHAT THIS PAGE HAD LOADED, NOT WHAT THE QUEUE HOLDS (2026-09-08). The feed
+    // is `.limit(20)` with a load-more cursor, so `flagged.length` is the flagged posts among the first
+    // page - a supervisor who opens Community sees "2" and believes two posts need judging while thirty
+    // sit unread further down. A moderation badge is a promise that the queue is this big; under-reporting
+    // it does not merely mislead, it tells someone the work is done. One head-only count is the whole fix.
+    let flaggedTotal = null;
+    try {
+      const { count } = await db.from('v_community_posts_truth')
+        .select('id', { count: 'exact', head: true })
+        .eq('hive_id', HIVE_ID).eq('flagged', true).is('deleted_at', null);
+      flaggedTotal = typeof count === 'number' ? count : null;
+    } catch (_) { flaggedTotal = null; }   // unknown stays null, and the badge then falls back to what is loaded
+    const queueSize = (flaggedTotal != null) ? flaggedTotal : flagged.length;
     const countEl = document.getElementById('mod-count');
-    if (flagged.length > 0) {
-      countEl.textContent = flagged.length;
+    if (queueSize > 0) {
+      countEl.textContent = queueSize;
       countEl.style.display = 'inline';
     } else {
       countEl.style.display = 'none';
@@ -1877,10 +1917,18 @@
     if (activeTab !== 'mod') return;
     const el = document.getElementById('mod-list');
     if (flagged.length === 0) {
-      el.innerHTML = '<div class="empty-state"><p style="color:rgba(255,255,255,0.80); font-size:0.875rem;">No flagged posts.</p></div>';
+      // "No flagged posts" is only true when the COUNT agrees. With flagged posts further down the feed
+      // and none loaded, the honest sentence is that they are not here yet - never that they do not exist.
+      el.innerHTML = (queueSize > 0)
+        ? `<div class="empty-state"><p style="color:rgba(255,255,255,0.80); font-size:0.875rem;">${queueSize} flagged post${queueSize === 1 ? '' : 's'} in this hive, none in the part of the feed loaded so far. Load more posts to bring them in.</p></div>`
+        : '<div class="empty-state"><p style="color:rgba(255,255,255,0.80); font-size:0.875rem;">No flagged posts.</p></div>';
       return;
     }
-    el.innerHTML = [...pinnedPosts, ...allPosts].filter(p => p.flagged).map(p => renderPostCard(p)).join('');
+    // When the queue is bigger than what is loaded, say both numbers rather than let the list imply it is all.
+    const partial = (flaggedTotal != null && flaggedTotal > flagged.length)
+      ? `<p style="color:rgba(255,255,255,0.70); font-size:0.75rem; margin-bottom:8px;">Showing ${flagged.length} of ${flaggedTotal} flagged posts. Load more of the feed to see the rest.</p>`
+      : '';
+    el.innerHTML = partial + [...pinnedPosts, ...allPosts].filter(p => p.flagged).map(p => renderPostCard(p)).join('');
   }
 
   // ── D Phase 2: Global feed (public posts from all hives) ─────────────────────
@@ -1928,7 +1976,7 @@
       .select('id, hive_id, author_name, content, category, created_at, edited_at, mentions, deleted_at, hive_name')
       .eq('public', true).eq('flagged', false).is('deleted_at', null)
       .lt('created_at', _globalLastCreatedAt)
-      .order('created_at', { ascending: false }).order('id').limit(20);
+      .order('created_at', { ascending: false }).order('id').limit(20);   // cap-ok: paginated feed - hasMore/load-more discloses the rest (data.length === 20)
 
     if (data && data.length > 0) {
       _globalLastCreatedAt = data[data.length - 1].created_at;
@@ -2107,7 +2155,7 @@
     const { error } = await db.from('community_posts')
       .update({ deleted_at: null })
       .eq('id', postId).eq('hive_id', HIVE_ID);
-    if (error) { showToast(whWriteError(error, 'The undo did NOT go through - the post is still deleted.'), 'error'); return; }
+    if (error) { showToast(whWriteError(error, _t('The undo did NOT go through - the post is still deleted.', 'HINDI natuloy ang undo - deleted pa rin ang post.')), 'error'); return; }
     if (HIVE_ROLE === 'supervisor') await writeAuditLog('restore_post', postId);
 
     // Re-add to local state
@@ -2268,7 +2316,11 @@
       const since = Date.now() - _lastPostTs;
       if (since < POST_COOLDOWN_MS) {
         const remaining = Math.ceil((POST_COOLDOWN_MS - since) / 1000);
-        showToast(`Slow down, wait ${remaining}s before posting again`, 'error');
+        // C-BR: an interpolated literal is still a sentence a person reads. The static i18n gate could
+        // not see it (its prose test rejected any string containing a template slot), so a Filipino
+        // reader met English at the exact moment they were refused.
+        showToast(_t(`Slow down, wait ${remaining}s before posting again`,
+                     `Hinay-hinay, maghintay ng ${remaining}s bago mag-post muli`), 'error');
         return;
       }
     }
@@ -2355,7 +2407,7 @@
       }
       // Network errors were already routed to the offline queue above, so anything reaching here is
       // a REFUSAL - exactly where a guard's own sentence belongs instead of "Try again."
-      showToast(whWriteError(error, 'Could not post. Try again.'), 'error'); return;
+      showToast(whWriteError(error, _t('Could not post. Try again.', 'Hindi ma-post. Subukan muli.')), 'error'); return;
     }
 
     _lastPostTs = Date.now(); // start cooldown only after a confirmed insert
@@ -2579,7 +2631,7 @@
     // canonical-allow: community_replies is forum thread detail (the replies under one post) — single-surface community data, not a cross-surface KPI/aggregate, so no v_*_truth wrapper applies.
     const { data, error } = await db.from('community_replies')
       .select('*').eq('post_id', postId).eq('hive_id', HIVE_ID)
-      .order('created_at', { ascending: true }).order('id').limit(200);
+      .order('created_at', { ascending: true }).order('id').limit(200);   // cap-ok: replies render rows only; no total painted
 
     const el = document.getElementById('thread-replies');
     if (error) {
@@ -2587,14 +2639,14 @@
       // answered with a bare "Could not load replies." names neither the cause nor the wait, and
       // whReadError already carries the right sentence for every status (429 = wait, 403 = not
       // allowed, network = check connection).
-      const msg = typeof whReadError === 'function' ? whReadError(error, 'the replies') : 'Could not load replies.';
+      const msg = typeof whReadError === 'function' ? whReadError(error, 'the replies') : _t('Could not load replies.', 'Hindi ma-load ang mga reply.');
       // ...AND OFFER THE WAY BACK (2026-08-22, the retry view pass): the message alone left a person
       // in the open thread with no affordance but close-and-reopen. The button re-runs this exact
       // read; when the failure was a rate limit the wording above already says wait first.
       el.innerHTML = '<p style="color:rgba(239,68,68,0.7); font-size:0.78rem;">' + escHtml(msg) + '</p>'
         + '<button type="button" id="replies-retry" style="margin-top:0.4rem;min-height:44px;padding:0 0.9rem;'
         + 'border-radius:8px;font-size:0.75rem;font-weight:600;background:rgba(247,162,27,0.12);'
-        + 'border:1px solid rgba(247,162,27,0.3);color:var(--wh-orange-text);cursor:pointer;">Retry</button>';
+        + 'border:1px solid rgba(247,162,27,0.3);color:var(--wh-orange-text);cursor:pointer;" data-i="retry">Retry</button>';
       document.getElementById('replies-retry')?.addEventListener('click', () => {
         el.innerHTML = '<p style="font-size:0.78rem; color:rgba(255,255,255,0.80);">Loading replies…</p>';
         loadReplies(postId);
@@ -2658,7 +2710,7 @@
     // text (and its table and constraint names) instead of being told what happened to their
     // action. whWriteError maps the error CLASS — session expired, offline, refused — and answers
     // the question this taxonomy exists for: what happened to my work.
-    if (error) { showToast(whWriteError(error, 'Could not update the best answer.'), 'error'); return; }
+    if (error) { showToast(whWriteError(error, _t('Could not update the best answer.', 'Hindi ma-update ang best answer.')), 'error'); return; }
     showToast(accepted ? '✓ Marked as the best answer' : 'Best answer removed');
     // T108 (2026-08-26): the reply author's answer wins, the XP ledger records it, and until now
     // they found out by revisiting. Only the ACCEPT direction announces - un-accepting someone is
@@ -2683,8 +2735,15 @@
     if (!keywords.length) return;
     let data = null;
     try {
-      const res = await db.from('v_marketplace_listings_truth')
-        .select('id, title, price')
+      // v_marketplace_listings_public (EX-HP H2, 2026-09-07): the truth view runs as the caller and anon lost the base-table
+      // read, so a logged-out reader's related listings vanished silently inside this try. The public view serves everyone.
+      const res = await db.from('v_marketplace_listings_public')
+        .select('id, title, price').limit(50)   // G1 (gate growth-honesty, 2026-09-06): bounded so this read cannot grow without limit
+        // cap-ok: this 50 is an intermediate bound, never a figure anyone sees. The chain ends in
+        // .limit(3) below and renders at most three RELATED-LISTING suggestions beside a post, so
+        // there is no total here for a cap to be mistaken for - the failure this gate exists to
+        // catch is a capped read painted as a count, and this read is never painted at all.
+        
         .eq('status', 'published')
         .or(keywords.map(w => { const kw = w.replace(/%/g, '').replace(/_/g, ''); return `title.ilike.%${kw}%`; }).join(','))
         .limit(3);
@@ -2693,7 +2752,7 @@
     if (!data || !data.length) return;
     el.innerHTML = `
       <div style="background:rgba(247,162,27,0.06); border:1px solid rgba(247,162,27,0.2); border-radius:0.75rem; padding:0.85rem;">
-        <p style="font-size:0.7rem; font-weight:800; text-transform:uppercase; letter-spacing:0.05em; color:var(--wh-orange-text); margin:0 0 0.5rem;">🛒 Related on the free Marketplace</p>
+        <p style="font-size:0.7rem; font-weight:800; text-transform:uppercase; letter-spacing:0.05em; color:var(--wh-orange-text); margin:0 0 0.5rem;">🛒 ${escHtml(_t('Related on the free Marketplace', 'Kaugnay sa libreng Marketplace'))}</p>
         ${data.map(l => `
           <a href="marketplace.html?listing=${encodeURIComponent(l.id)}" style="display:flex; align-items:center; justify-content:space-between; gap:8px; text-decoration:none; color:white; padding:0.5rem 0; border-top:1px solid rgba(255,255,255,0.05);">
             <span style="font-size:0.8rem; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escHtml(l.title)}</span>
@@ -2715,7 +2774,8 @@
     const sinceR = Date.now() - _lastReplyTs;
     if (sinceR < REPLY_COOLDOWN_MS) {
       const remaining = Math.ceil((REPLY_COOLDOWN_MS - sinceR) / 1000);
-      showToast(`Slow down, wait ${remaining}s between replies`, 'error');
+      showToast(_t(`Slow down, wait ${remaining}s between replies`,
+                   `Hinay-hinay, maghintay ng ${remaining}s sa pagitan ng mga reply`), 'error');
       return;
     }
 
@@ -2735,7 +2795,7 @@
     btn.disabled = false;
     btn.textContent = _replyLabel;   // one exit for both paths: the error branch below returns
 
-    if (error) { showToast(whWriteError(error, 'Your reply was NOT posted. It is still in the box - try again.'), 'error'); return; }
+    if (error) { showToast(whWriteError(error, _t('Your reply was NOT posted. It is still in the box - try again.', 'HINDI na-post ang reply mo. Nasa box pa ito - subukan muli.')), 'error'); return; }
     _lastReplyTs = Date.now();
     document.getElementById('reply-content').value = '';
     document.getElementById('reply-char-count').textContent = '0 / 1000';
@@ -2823,8 +2883,10 @@
           // Mention takes priority over the generic "posted in the hive" toast
           const mentioned = Array.isArray(payload.new.mentions) &&
                             payload.new.mentions.includes(WORKER_NAME);
-          if (mentioned) showToast(`💬 ${payload.new.author_name} mentioned you in a post`);
-          else           showToast(`${payload.new.author_name} posted in the hive`);
+          if (mentioned) showToast(_t(`💬 ${payload.new.author_name} mentioned you in a post`,
+                                      `💬 Binanggit ka ni ${payload.new.author_name} sa isang post`));
+          else           showToast(_t(`${payload.new.author_name} posted in the hive`,
+                                      `Nag-post si ${payload.new.author_name} sa hive`));
         }
       })
       .on('postgres_changes', {
@@ -2880,7 +2942,8 @@
         const postId = payload.new.post_id;
         // Only notify when someone else replies to YOUR post
         if (!myPostIds.has(postId) || payload.new.author_name === WORKER_NAME) return;
-        showToast(`💬 ${payload.new.author_name} replied to your post`);
+        showToast(_t(`💬 ${payload.new.author_name} replied to your post`,
+          `💬 Sumagot si ${payload.new.author_name} sa post mo`));
         // Update reply count badge if card is rendered
         replyCountMap[postId] = (replyCountMap[postId] || 0) + 1;
         const rcEl = document.getElementById(`reply-count-${postId}`);
@@ -2924,7 +2987,7 @@
           if (wasMine) span.closest('.reaction-btn')?.classList.remove('active');
         }
       })
-      .subscribe(typeof rtConn === 'function' ? rtConn() : undefined);
+      .subscribe(_rtBackfill);   // P183 reconnect & backfill (2026-09-05): posts made during a drop are re-read on the first re-SUBSCRIBED
   }
 
   function setConn(state) {
@@ -2976,7 +3039,7 @@
         if (payload.new.flagged) return;
         _addGlobalPostFromRealtime(payload.new.id);
       })
-      .subscribe(typeof rtConn === 'function' ? rtConn() : undefined);
+      .subscribe(_rtBackfill);   // P183 reconnect & backfill (2026-09-05): posts made during a drop are re-read on the first re-SUBSCRIBED
   }
 
   // ── Report (worker → flagged + audit log with reason) ───────────────────────
@@ -3046,7 +3109,7 @@
     btn.disabled = false;
     btn.textContent = 'Send Report';
 
-    if (error) { showToast(whWriteError(error, 'Could not send report. Try again.'), 'error'); return; }
+    if (error) { showToast(whWriteError(error, _t('Could not send report. Try again.', 'Hindi maipadala ang report. Subukan muli.')), 'error'); return; }
 
     // T31: target_name was blank in the audit row - the supervisor saw a report pointing at
     // nothing. Name the reported post's author (the audit table's target_name column).
@@ -3088,7 +3151,7 @@
   async function loadHiveMembers() {
     const { data } = await db.from('v_worker_truth')
       .select('worker_name, role')
-      .eq('hive_id', HIVE_ID).neq('hive_status', 'kicked').limit(500);
+      .eq('hive_id', HIVE_ID).neq('hive_status', 'kicked').limit(500);   // cap-ok: member roster for @mention matching, not a painted count
     _hiveMembers = (data || []).filter(m => m.worker_name && m.worker_name !== WORKER_NAME);
   }
 
@@ -3329,5 +3392,18 @@
        drift. Owner-stamped, so a shared station tablet does not hand worker B worker A's view. The
        free-text search stays unremembered, matching logbook's reference adoption. -->
   <script>window.addEventListener('load', function () { if (window.whAutoRememberTabs) whAutoRememberTabs('community-category', '#filter-chips', 'data-cat'); });</script>
+<script>/* systemic ripple (2026-09-05): utils.js is the shared script every panel below renders through; if it never arrives
+   (a stale shell, a blocked CDN, a dropped connection mid-load) this page went blank or froze on its static skeletons.
+   utils.js cannot help when utils.js is the thing missing, so the guard lives here. */
+window.addEventListener('load', function () { setTimeout(function () {
+  if (typeof getDb === 'function' && typeof escHtml === 'function') return;
+  try { console.error('[community] utils.js did not load; the page cannot render its data'); } catch (e) { void e; }
+  var m = document.querySelector('main') || document.body; if (!m || m.querySelector('.wh-shared-missing')) return;
+  var d = document.createElement('div'); d.className = 'honest-empty wh-shared-missing'; d.setAttribute('role', 'alert');
+  d.style.cssText = 'margin:12px;padding:14px 16px;border:1px solid rgba(248,113,113,.4);border-radius:10px;background:rgba(248,113,113,.08);color:#fca5a5;font:14px/1.5 system-ui,sans-serif;';
+  d.innerHTML = 'WorkHive could not load its shared script (utils.js), so this page cannot show your data. <button type="button" onclick="location.reload()" style="color:inherit;text-decoration:underline;background:none;border:0;padding:0;font:inherit;cursor:pointer;min-height:44px;" data-i="reloadtotryagain">Reload to try again</button>.';
+  m.insertBefore(d, m.firstChild);
+  var sk = document.querySelectorAll('.wh-skeleton, [class*="skeleton"]'); for (var i = 0; i < sk.length; i++) sk[i].style.display = 'none';
+}, 2500); });</script>
 </body>
 </html>

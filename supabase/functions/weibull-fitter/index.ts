@@ -193,7 +193,7 @@ serveObserved("weibull-fitter", async (req) => {
       .limit(500);
     if (logErr) {
       return new Response(
-        JSON.stringify({ error: "Logbook query failed", detail: logErr.message }),
+        JSON.stringify({ error: "Could not read the logbook. Try again in a moment.", detail: logErr.message }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
@@ -231,7 +231,7 @@ serveObserved("weibull-fitter", async (req) => {
       return new Response(
         JSON.stringify({
           error: "Python Analytics API not configured.",
-          hint:  "Set PYTHON_API_URL in Supabase Edge Function secrets.",
+          hint:  "Ask the platform owner to finish the analytics setup.",   // (2026-09-06) the env name is logged, not returned
         }),
         { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );

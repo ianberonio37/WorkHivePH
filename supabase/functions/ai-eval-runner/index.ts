@@ -291,7 +291,7 @@ serveObserved("ai-eval-runner", async (req) => {
       let actualAnswer = "";
       try {
         const gwUrl = `${SUPABASE_URL}/functions/v1/ai-gateway`;
-        const res = await fetch(gwUrl, {
+        const res = await fetch(gwUrl, { signal: AbortSignal.timeout(60000),
           method: "POST",
           headers: {
             "Authorization": `Bearer ${SERVICE_KEY}`,
@@ -345,13 +345,22 @@ serveObserved("ai-eval-runner", async (req) => {
 
   // Heartbeat row -- always written, lets the dashboard prove the
   // runner is alive even when every fixture failed.
-  await db.from("ai_quality_log").insert({
+  /* ★A LIVENESS SIGNAL THAT CANNOT BE WRITTEN LOOKS EXACTLY LIKE A DEAD RUNNER (2026-09-09,
+     unchecked-writes sweep). The comment above is right that this row must always be written - and the
+     write's failure was discarded, so the one case it exists to distinguish (the runner IS alive, every
+     fixture merely failed) would present to the dashboard as the runner being down. Reported, not thrown:
+     the eval work itself already happened, and losing that report to a heartbeat problem would be worse. */
+  const { error: hbErr } = await db.from("ai_quality_log").insert({
     agent_id:    "__heartbeat__",
     question_id: "__heartbeat__",
     score:       100,
     passed:      true,
     judge_model: "runner",
   });
+  if (hbErr) {
+    console.error("ai-eval-runner: heartbeat row could not be written -", hbErr.message,
+      "- the quality dashboard will read this runner as DOWN even though it completed");
+  }
 
   // Log the runner's own AI cost for accounting (judge calls live here).
   await logAICost(db, {

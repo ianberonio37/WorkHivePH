@@ -59,7 +59,8 @@ def analyze():
     if FOCUS_VISIBLE_MARKER not in utils_src:
         viols.append({"issue": f"utils.js polyfill no longer injects the '{FOCUS_VISIBLE_MARKER}' focus-visible ring (WCAG 2.4.7: keyboard focus must be VISIBLE)"})
     # 2) every active clickable-bearing page loads utils.js (or fixes inline)
-    for p in sorted(ROOT.glob("*.html")):
+    # learn/*.html are user-facing pillar pages too (2026-09-05: learn/index P277 needed this gate to reach it)
+    for p in sorted(list(ROOT.glob("*.html")) + list((ROOT / "learn").glob("*.html"))):
         if SKIP_RE.search(p.name) or p.name in RETIRED:
             continue
         t = p.read_text(encoding="utf-8", errors="ignore")

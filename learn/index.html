@@ -61,6 +61,17 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <!-- ★THE HUB WAS THE ONE LEARN PAGE THAT NEVER GOT THE SHARED i18n FLOOR (walked 2026-09-11, FIL).
+       All 54 articles and all 60 calculators load this file; learn/index.html carried its own inline
+       miniature instead - which WORKED (12/12 lh-* labels swapped live) but knew only its OWN dictionary,
+       so the five nav links had nowhere to resolve from and a Filipino reader got Filipino headings above
+       an English "Sign In / Sign Up Free". Loading the shared floor gives the hub WH_FIL_PUBLIC, the same
+       keys its children use, for 4.7 KB - the page's original comment refused utils.js at 362 KB, which
+       is still right; this file is the answer that did not exist when that comment was written.
+       IN THE HEAD AND SYNCHRONOUS, for the reason the articles state: the language must be known before
+       paint, so a Filipino reader is not shown English headings that then change under them. The hub's
+       own swap ran on DOMContentLoaded, i.e. after first paint. -->
+  <script src="/wh-i18n-lite.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -196,10 +207,18 @@
       <span class="font-black text-lg tracking-tight hidden sm:inline">WorkHive</span>
     </a>
     <nav class="flex items-center gap-6">
-      <a href="/" class="nav-link">Home</a>
-      <a href="/learn/" class="nav-link" style="color:#F4F6FA;">Learn</a>
-      <a href="/?signin=1" class="nav-link">Sign In</a>
-      <a href="/?signup=1" class="nav-link">Sign Up Free</a>
+      <a href="/" class="nav-link" data-i="home">Home</a>
+      <a href="/learn/" class="nav-link" style="color:#F4F6FA;" data-i="learn">Learn</a>
+      <!-- The learn library sent every reader to the marketing door: Home, Sign In, Sign Up Free, and
+           nothing else. A member who is already signed in and reading an article here had no route back
+           into the product at all - the whole library was a dead end for the people who use it most,
+           and a solo owner finishing a guide with "so start a hive" had nowhere to go. This is that
+           route, shown to everyone rather than guessed at with JavaScript the static library does not
+           load: the hive board itself sends a signed-out visitor to the door, so the link is safe for
+           both and honest for both. -->
+      <a href="/hive.html" class="nav-link" data-i="myhive">My Hive</a>
+      <a href="/?signin=1" class="nav-link" data-i="signin">Sign In</a>
+      <a href="/?signup=1" class="nav-link" data-i="signup">Sign Up Free</a>
     </nav>
   </div>
 </header>
@@ -251,7 +270,10 @@
           <span class="text-xs text-white/60">6 min read &middot; 20 Aug 2026</span>
         </div>
         <h3 class="card-title text-xl sm:text-2xl font-black leading-[1.25] mb-2">Philippine plants now pay the highest power rates in Southeast Asia</h3>
-        <p class="text-white/80 text-sm leading-relaxed">The DOE put the Philippines above Singapore in June. Where that cost actually leaks on a plant floor, and what a maintenance team can do about it without a budget.</p>
+        <!-- 21 words at grade 8.3, the library index's only sentence over the B3 bar (<=20 words, grade <=8).
+             Card blurbs are microcopy this page owns - the sentence appears in no article and in no meta
+             description, so this is a single-path fix, not an editorial change to anyone's prose. -->
+        <p class="text-white/80 text-sm leading-relaxed">The DOE put the Philippines above Singapore in June. Where that cost leaks on a plant floor, and what a maintenance team can fix without a budget.</p>
       </a>
 
       <a href="/learn/reduce-unplanned-downtime-guide/" class="article-card">
@@ -748,7 +770,7 @@
     <div class="flex items-center gap-6">
       <a href="/" class="hover:text-white/60 transition-colors">Home</a>
       <a href="/#faq" class="hover:text-white/60 transition-colors">FAQ</a>
-      <a href="/?signup=1" class="hover:text-white/60 transition-colors">Join the Hive</a>
+      <a href="/?signup=1" class="hover:text-white/60 transition-colors" data-i="jointhehive">Join the Hive</a>
     </div>
   </div>
 </footer>
@@ -864,10 +886,28 @@
     'lh-careers': 'Mga Karera', 'lh-platform': 'Platform', 'lh-ai': 'AI',
     'lh-cta': 'Buksan ang WorkHive, libre', 'lh-more': 'Ipakita pa ang mga gabay'
   };
-  document.addEventListener('DOMContentLoaded', function () {
-    if (window.WH_LANG !== 'fil') return;
-    document.querySelectorAll('[data-i]').forEach(function (el) { var k = el.getAttribute('data-i'); if (window.WH_FIL_PAGE[k] != null) el.textContent = window.WH_FIL_PAGE[k]; });
-  });
+  // Applied IMMEDIATELY, not on DOMContentLoaded: this script sits at the end of <body>, so every element
+  // it swaps already exists, and waiting for the event moved the swap after first paint - the one thing
+  // wh-i18n-lite.js is loaded in the head to avoid. The shared applier merges WH_FIL_PUBLIC (the nav) with
+  // this page's own dict (the lh-* hero and category labels), a page key winning per key; the local loop
+  // below is kept as the fallback for the case where the shared file did not arrive, so the hub degrades
+  // to exactly the behaviour it had before rather than to nothing.
+  if (typeof window.whI18nApply === 'function') window.whI18nApply(window.WH_FIL_PAGE);
+  if (window.WH_LANG === 'fil') {
+    // ★AND THE FIRST VERSION OF THIS CHANGE SILENTLY UN-TRANSLATED THE HERO. The shared applier swaps
+    // only elements with NO child elements, deliberately - "a label containing markup is left alone
+    // rather than flattened". This page's h1 wraps a <span>, so handing the whole job to the shared
+    // applier translated the nav and dropped the headline: measured 15 swapped, lh-title the one miss,
+    // and the page read "Free guides for the Philippine plant floor" under a lang="fil" document.
+    // The hub has always replaced its own labels wholesale and that is correct for its own dictionary,
+    // where it knows what markup it is discarding. So the shared layer does the shared chrome and this
+    // completes the page's OWN keys - never WH_FIL_PUBLIC's, which keeps the shared no-flatten promise.
+    document.querySelectorAll('[data-i]').forEach(function (el) {
+      var k = el.getAttribute('data-i');
+      var v = window.WH_FIL_PAGE[k];
+      if (v != null && el.textContent.trim() !== v) el.textContent = v;
+    });
+  }
 </script>
 </body>
 </html>

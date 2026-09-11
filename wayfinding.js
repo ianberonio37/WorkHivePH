@@ -65,7 +65,7 @@
   // ─── DOM build ───────────────────────────────────────────────────────────────
   function pageLabel() {
     // document.title is "<Page> · WorkHive" / "WorkHive: <Page>" on these pages; take the human part.
-    var t = (document.title || '').replace(/\s*[·|—-]\s*WorkHive.*$/i, '').replace(/^WorkHive\s*[—·|-]\s*/i, '').trim();
+    var t = (document.title || '').replace(/\s*[·|—:-]\s*WorkHive.*$/i, '').replace(/^WorkHive\s*[—·|:-]\s*/i, '').trim();   // ':' too - inventory's title is "Spare-Parts Inventory: WorkHive" and the crumb spilled past its box on a phone (2026-09-06)
     return t || 'This page';
   }
 
@@ -97,6 +97,7 @@
          the short label centred; the container is already 44px tall so the row is unchanged. */
       '#wh-wayfinding .wf-crumb a{color:#93c5fd;text-decoration:none;font-weight:600;display:inline-flex;align-items:center;justify-content:center;min-width:44px;min-height:44px;box-sizing:border-box}',
       '#wh-wayfinding .wf-crumb .wf-sep{opacity:.5}',
+      '#wh-wayfinding .wf-crumb [aria-current]{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}',   // the current-page span ellipsizes itself: text-overflow on an inline-flex box does not reach a child span (phone fit, 2026-09-06)
       '@media (max-width:380px){#wh-wayfinding .wf-back span{display:none}#wh-wayfinding .wf-crumb{max-width:44vw}}',
       '@media (prefers-reduced-motion:reduce){#wh-wayfinding .wf-back:active{transform:none}}',
       '.wf-focus-pulse{animation:wfPulse 1.6s ease-out 1}',
@@ -122,7 +123,23 @@
       var skip = document.createElement('a');
       skip.className = 'wh-skip-link';
       skip.href = '#' + main.id;
-      skip.textContent = 'Skip to main content';
+      // ★THE FIRST THING ANNOUNCED ON 21 PAGES WAS THE ONE STRING NOBODY TRANSLATED (walked 2026-09-11,
+      // FIL, as Jun Salvador). This file's own comment calls it "the first focusable element on EVERY
+      // page" - so for a Filipino keyboard or screen-reader user it is the first control they meet, and
+      // wayfinding.js used _t() exactly zero times. No shipped Filipino existed for it either, in any
+      // i18n/*.json: the string had never been in scope for the swappers, which is the shared-chrome
+      // blind spot again [[feedback_shared_chrome_was_outside_every_i18n_gate]].
+      // Read directly from WH_LANG with an English floor rather than calling _t(), because this runs
+      // early and must not depend on utils.js having defined the translator yet; and the element
+      // declares its own lang when swapped, the same language-of-parts rule as wh-i18n-lite's applier
+      // (WCAG 3.1.2 - the whole document's lang is not this file's call to make).
+      var _skipFil = 'Laktawan papunta sa main content';   // Taglish, matching WH_FIL_PUBLIC's register
+      var _wantFil = false;
+      try {
+        _wantFil = (window.WH_LANG === 'fil') || (localStorage.getItem('wh_lang') === 'fil');
+      } catch (_) { _wantFil = (window.WH_LANG === 'fil'); }
+      skip.textContent = _wantFil ? _skipFil : 'Skip to main content';
+      if (_wantFil) skip.lang = 'fil';
       skip.style.cssText = 'position:fixed;top:0;left:0;z-index:10001;transform:translateY(-120%);' +
         'background:var(--wh-orange, #F7A21B);color:#0f1923;padding:0 18px;min-height:44px;display:inline-flex;align-items:center;' +
         'font-family:inherit;font-weight:700;font-size:14px;text-decoration:none;border-radius:0 0 10px 0;' +

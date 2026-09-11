@@ -203,7 +203,16 @@
       icon: `<span class="ic ic-logbook" aria-hidden="true"></span>` },
     { label: 'Inventory',    href: 'inventory.html',    match: ['inventory'],          section: 'Field Work', roles: ['field','supervisor'],
       icon: `<span class="ic ic-parts" aria-hidden="true"></span>` },
-    { label: 'Day Planner',  href: 'dayplanner.html',   match: ['dayplanner'],         section: 'Field Work', roles: ['field','supervisor'],
+    /* ★W3-JN J26 (2026-09-10): FOUND BY THE GATE THIS TURN ADDED, not by a walk - the third instance of
+       the class in one week, after Asset Hub (J17) and Alert Hub (J26 above). An 'engineer' could not
+       reach the Day Planner by ANY route: excluded from that mode here, and with no static-markup link
+       to dayplanner.html on a single page an engineer's own stack contains. Every other tool this mode
+       excludes is still reachable (Logbook from index/skillmatrix, Hive Board from five pages, PM
+       Scheduler from index/asset-hub, Shift Brain from analytics) - this one was the only silent
+       orphan, which is exactly what the L3 check now refuses to let happen quietly. An engineer is a
+       hive member, the day plan is hive-scoped, and the mode sits at 11/14, so the seat is free -
+       there is no trade to make and nothing to weigh. */
+    { label: 'Day Planner',  href: 'dayplanner.html',   match: ['dayplanner'],         section: 'Field Work', roles: ['field','supervisor','engineer'],
       icon: `<span class="ic ic-calendar" aria-hidden="true"></span>` },
 
     // ── Your Team: team operations and collaboration ──────────────────────────
@@ -248,9 +257,62 @@
     // Phase H.2: hidden, surfaced via the Network tab inside analytics.html.
     { label: 'PH Intelligence', href: 'ph-intelligence.html', match: ['ph-intelligence'], section: 'Intelligence', hidden: true, roles: ['supervisor','engineer'],
       icon: `<span class="ic ic-ph-intel" aria-hidden="true"></span>` },
-    { label: 'Asset Hub',    href: 'asset-hub.html',    match: ['asset-hub'],          section: 'Intelligence', roles: ['supervisor','engineer'],
+    /* W3-JN J17 (2026-09-09): 'field' added - the WORKER's display mode. Asset Hub was reachable by NOBODY on a worker's account -
+       not from the nav (this list) and not from hive.html, whose single asset-hub link sits inside a
+       supervisor-only approval message. Caught by walking J17 (sensor -> anomaly -> alert -> asset ->
+       work) as the worker the archetype casts: all 5 rows failed on "1 hop has no way onward at all",
+       and the dead hop was hive -> asset-hub, the only one of five with hub=0 while every other hop
+       had a route.
+       THE PAGE WAS ALREADY BUILT FOR WORKERS - this is a wayfinding gap, not a permission one.
+       asset-hub.html:1231 says it in its own words, "The query below scopes what each role sees; the
+       reviewer BUTTONS stay supervisor-only", and :1253 scopes a non-supervisor to their own assets
+       with .eq('auth_uid', _authUid). The walk confirms it: asset-hub RENDERED for her - 2,745 chars,
+       no sign-in wall, no error banner. So the destination was permitted and simply never offered,
+       which is the worst combination: the capability exists, the person is entitled to it, and no
+       route says so. Adding the mode grants nothing new; it stops hiding what the page already allows.
+       AND THE FIRST ATTEMPT AT THIS FIX WAS A NO-OP, which is why the walk was re-run rather than
+       trusted: this list is matched against a DISPLAY MODE (all | field | supervisor | engineer -
+       see MODES and _defaultMode above), not against an auth role, and a worker maps to 'field'.
+       Adding the literal string 'worker' therefore changed nothing, and the re-walk still reported
+       the same dead hop - which is the only reason the mistake was caught rather than banked.
+       Asset Hub is also the surface the platform's own assistant calls "the connective tissue across
+       the whole platform" - the 360 view of a machine's live state and history, which is exactly what
+       the person about to repair it needs. */
+    { label: 'Asset Hub',    href: 'asset-hub.html',    match: ['asset-hub'],          section: 'Intelligence', roles: ['supervisor','engineer','field'],
       icon: `<span class="ic ic-asset" aria-hidden="true"></span>` },
-    { label: 'Alert Hub',    href: 'alert-hub.html',    match: ['alert-hub'],          section: 'Intelligence', roles: ['supervisor'],
+    /* ★W3-JN J26 (2026-09-10): ALERT HUB HAD NO UNCONDITIONAL ROUTE FOR ANYONE BUT A SUPERVISOR, AND
+       THE NAV WAS THE ONLY PLACE THAT COULD GIVE IT ONE. Walking J26 (the multi-hive worker's day) as
+       the two people who really hold two memberships, the Manila+Lucena pair passed 4/4 and the
+       Dela Cruz+Tan pair failed 4/4 - all four on the SAME hop, `hive -> alert-hub`, "no way onward at
+       all". The difference was not the vertical: Christine Dizon is a supervisor (37 controls on
+       hive.html), Ben Ocampo is a worker (17), and the worker had own:0 hub:0 to this destination
+       while the same page, same person, same hive offered 3 own + 2 hub ways onward to logbook.
+       Counting every inbound link on the platform, there are exactly THREE and not one is
+       unconditional: hive.html:5097 renders only when a plant-condition notification exists,
+       hive.html:5454 only inside the supervisor approval queue, and index.html:5058 only in the
+       READ-FAILED state ("Could not check ... open Alert Hub directly"). So for a supervisor the nav
+       is the everyday route and for everyone else there is none - which is why this is a wayfinding
+       gap and not a permission one. The PAGE is already built for a non-supervisor: it renders for a
+       worker with 93 controls, no sign-in wall and no error banner; the dangerous writes are gated
+       (`isSupervisor` hides AMC approve/reject at :873 and the anomaly ack/resolve at :1150, and
+       approveAmc refuses at :910 with "Supervisor approval required"); and the hive-wide ones announce
+       their scope under the actor's name, which is the T19 work ("your whole hive sees it as seen,
+       under your name"). hive.html:5070 settles the intent - `_isForYou` splits notifications by TYPE,
+       not by role, so the platform ALREADY offers a worker "Open the alert hub" whenever the hive has
+       a plant condition. Adding the modes grants nothing the RLS did not already allow; it stops
+       hiding a destination the pages themselves already point at. Same verdict, same section and same
+       week as Asset Hub directly above - see that comment for the trap: this list is matched against a
+       display MODE, and a worker maps to 'field'.
+       WHY 'field' IS NOT IN THIS LIST EVEN THOUGH A WORKER IS THE PERSON WHO NEEDED IT: the worker's
+       nav sits at exactly its home-stack budget (13/13), and the seat has to come from somewhere. The
+       first attempt took it from Marketplace and a J5 walk refuted that within the hour (see the
+       comment on that entry - the `buyer` persona signs in as a worker). Every remaining field tool
+       has a live claim on its seat, including Growth, which is the only parent a worker has for the
+       hidden Resume Builder. So the worker's route is a STATIC link on hive.html instead - the hive
+       board is the natural parent for the hive's own alert inbox, it is already in every worker's
+       stack, and an <a> in the document is a stronger route than a nav entry, not a weaker one. The
+       'engineer' mode is here because that seat was free (11/14) and had no route at all. */
+    { label: 'Alert Hub',    href: 'alert-hub.html',    match: ['alert-hub'],          section: 'Intelligence', roles: ['supervisor','engineer'],
       icon: `<span class="ic ic-alert" aria-hidden="true"></span>` },
     // Phase H.2: hidden, surfaced via the "Audit Log" button on hive.html.
     { label: 'Audit Log',    href: 'audit-log.html',    match: ['audit-log'],          section: 'Intelligence', hidden: true, roles: ['supervisor'],
@@ -282,7 +344,15 @@
     // ── Grow: professional development ────────────────────────────────────────
     { label: 'Growth', href: 'skillmatrix.html',  match: ['skillmatrix', 'achievements'],        section: 'Grow',
       icon: `<span class="ic ic-growth" aria-hidden="true"></span>` },
-    { label: 'Resume Builder', href: 'resume.html', match: ['resume'],               section: 'Grow',
+    /* hidden 2026-09-10: the J17 fix (Asset Hub gaining 'field') took the WORKER's primary nav to 14
+       tools against a home-stack budget of 13, and a reachability fix that overflows the nav has traded
+       one problem for another. Asset Hub is the daily tool and stays; Resume Builder is the occasional
+       one - a person builds a CV rarely - and it keeps a REAL route rather than a gated one:
+       skillmatrix.html:434, the Growth surface itself, links to it in plain prose ("...it lands on your
+       Resume automatically"), as does achievements.html:392, which Growth's own `match` covers. Neither
+       link sits behind a role check - which is the thing that made Asset Hub unreachable in the first
+       place, and the reason this entry is hidden rather than the daily one. */
+    { label: 'Resume Builder', href: 'resume.html', match: ['resume'],               section: 'Grow', hidden: true,
       icon: `<span class="ic ic-resume" aria-hidden="true"></span>` },
     // STREAMLINE F5 (2026-06-13): Achievements folded into the unified "Growth" nav
     // entry (skillmatrix.html) — reached via the Growth tab bar. Page kept on disk + cached.
@@ -317,6 +387,20 @@
     // "My Listings" pill.
     { label: 'My Listings',  href: 'marketplace-seller.html', match: ['marketplace-seller.html'], section: 'Connect', hidden: true, /* universal */
       icon: `<span class="ic ic-list" aria-hidden="true"></span>` },
+    /* ★W3-JN J26 (2026-09-10): THIS ENTRY WAS BRIEFLY GIVEN roles:['supervisor','engineer'] TO PAY A
+       NAV SEAT FOR ALERT HUB, AND A WALK REFUTED THE REASONING WITHIN THE HOUR - recorded because the
+       argument was plausible and wrong on a checkable fact. The claim was "procurement is the
+       supervisor's or the owner's act, W3-JN casts J5's buyer as a HIVE, not a worker". J5 walked
+       0/2 immediately after: `inventory.html -> marketplace.html own=0 hub=0 role=worker`. The buyer
+       the registry calls `buyer` SIGNS IN AS A WORKER, so a worker is exactly who takes the parts-
+       shortage-to-deal journey, and removing this from the field nav cut the only route they had.
+       Two things hid it. inventory.html:1277 DOES offer "Find on Marketplace" on every below-reorder
+       part - but it is a <button onclick=findOnMarketplace> that sets window.location, so it is
+       invisible to a link scan, to the journey prover's own-link count, and to L3's static-markup
+       test alike; and the two static routes L3 was satisfied by (asset-hub, community) are real but
+       sit on pages this journey never visits. A destination reachable SOMEWHERE is not reachable
+       from HERE. Alert Hub is instead given a static route on hive.html, which costs no seat at all.
+       Left universal, deliberately. */
     { label: 'Marketplace',  href: 'marketplace.html',  match: ['marketplace'],        section: 'Connect', /* universal */
       icon: `<span class="ic ic-cart" aria-hidden="true"></span>` },
     // Phase B: hidden from primary nav, accessible as the "Send" button inside analytics.html.
@@ -353,18 +437,41 @@
     // it's the tightest tool set and matches what a lone tech needs day-to-day.
     return 'field';
   }
+  // ★W3-JN (2026-09-08): A DEFAULT DERIVED BEFORE THE ROLE WAS KNOWN OUTLIVED THE ROLE.
+  // The mode was persisted on the FIRST page that rendered the hub - and the first page a person meets
+  // renders it while nobody is signed in, so `_defaultMode()` saw no role, returned 'field', and stored it.
+  // getMode() then preferred that stored value for ever. Measured live: a supervisor of Manila Electronics,
+  // signed in, `wh_hive_role=supervisor`, navigating with `wh_nav_mode=field` and a hub of 17 links holding
+  // NO Analytics, NO Alert Hub and NO Reports - three surfaces their own journeys end at. Invisible to every
+  // per-page test, because each of those pages works perfectly when you arrive by URL; only a walk from one
+  // page to the next can see that there is no way to GET there.
+  // The intent of the original comment is kept exactly - "existing users with an explicit choice keep it" -
+  // by recording WHY the mode was stored. A mode the person chose is never touched. A mode we guessed
+  // before we knew who they were is re-derived once the role arrives.
+  var MODE_SRC_KEY = 'wh_nav_mode_src';         // 'chosen' | 'derived'
   function getMode() {
     var v = localStorage.getItem(MODE_KEY);
-    if (MODES.some(function(m){ return m.id === v; })) return v;
-    // Persist the role-derived default so the analytics + chip surfaces
-    // can read it the same way without re-deriving on every page.
+    var known = MODES.some(function(m){ return m.id === v; });
+    var role = localStorage.getItem('wh_hive_role') || '';
+    if (known) {
+      // a stored mode that we DERIVED before the role was known is a guess, not a decision
+      var src = localStorage.getItem(MODE_SRC_KEY);
+      var stale = src !== 'chosen' && role && v !== _defaultMode();
+      if (!stale) return v;
+    }
     var d = _defaultMode();
-    try { localStorage.setItem(MODE_KEY, d); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
+    try {
+      localStorage.setItem(MODE_KEY, d);
+      // only claim the derivation is settled once there was a role to derive it FROM
+      localStorage.setItem(MODE_SRC_KEY, role ? 'derived' : 'guess');
+    } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
     return d;
   }
   function setMode(id) {
     if (!MODES.some(function(m){ return m.id === id; })) return;
     localStorage.setItem(MODE_KEY, id);
+    // the person picked this one: never re-derive over it
+    try { localStorage.setItem(MODE_SRC_KEY, 'chosen'); } catch (_) { /* empty-catch-allow */ }
   }
 
   /* T173/T78 (2026-08-26): expose the tool registry as the ONE page index. The global search
@@ -482,10 +589,22 @@
           dot.setAttribute('aria-hidden', 'true');
           fab.appendChild(dot);
         }
-        fab.setAttribute('aria-label', 'Open navigation hub: ' + label + ' new in Community');
+  // ★THE CHROME'S OWN ACCESSIBLE LABELS WERE HALF-TRANSLATED (2026-09-11, found on the desktop/phone
+  // device pair for the OEE round). This file ALREADY wraps five aria-labels in _tt() - the panel
+  // ("Nabigasyon"), the connection pill, the connectivity detail, Open companion, Send feedback - and
+  // hard-coded four: the FAB itself, Open global search, Search tools (label AND placeholder) and Tool
+  // view mode. So on 32 pages a Filipino screen-reader user met a navigation hub that announced itself
+  // in English while the controls INSIDE it spoke Filipino. The pattern was in the file; it had simply
+  // not travelled to every label - the same shape as the sibling companion-launcher.js, which does get
+  // this right (`aria-label="${_tt('Voice command', 'Utos sa boses')}"`).
+  // An aria-label is invisible to a sighted reader, which is exactly why nothing caught it: no stamp
+  // census sees it (there is no data-i on an attribute), and no visible-text diff moves when it changes
+  // [[feedback_aria_label_only_is_invisible_to_sighted_users]].
+        fab.setAttribute('aria-label', _tt('Open navigation hub: ' + label + ' new in Community',
+          'Buksan ang nabigasyon: ' + label + ' bago sa Community'));
       } else {
         if (dot) dot.remove();
-        fab.setAttribute('aria-label', 'Open navigation hub');
+        fab.setAttribute('aria-label', _tt('Open navigation hub', 'Buksan ang nabigasyon'));
       }
     }
   }
@@ -585,6 +704,13 @@
     const _tt = (typeof window._t === 'function') ? window._t : function (en) { return en; };
     const wrapper = document.createElement('div');
     wrapper.id = 'wh-hub';
+    // A11Y LANDMARK (2026-09-06, gate a11y-path): the hub IS this platform's navigation on every page that has
+    // no page-level <nav> - asset-hub, shift-brain, achievements and marketplace-seller had NO navigation
+    // landmark at all, so a screen-reader user had nothing to jump to. The panel inside is role="dialog", which
+    // is correct for a modal but is not a landmark, and a dialog cannot stand in for one. Marking the persistent
+    // wrapper navigation gives every page that loads this file the landmark, in one edit rather than thirty-one.
+    wrapper.setAttribute('role', 'navigation');
+    wrapper.setAttribute('aria-label', _tt('Site navigation', 'Nabigasyon ng site'));
 
     /* All-tools grid — with section headers spanning full width.
        Phase B: tools marked hidden:true don't appear (reachable via parent buttons).
@@ -1101,7 +1227,7 @@
       </style>
 
       <!-- FAB button -->
-      <button id="wh-hub-fab" aria-label="Open navigation hub" aria-expanded="false">
+      <button id="wh-hub-fab" aria-label="${_tt('Open navigation hub', 'Buksan ang nabigasyon')}" aria-expanded="false">
         <span id="wh-hub-current-label">${current.label}</span>
         <!-- Grid / apps icon — rotates to X when open -->
         <span class="ic ic-apps" aria-hidden="true"></span>
@@ -1140,7 +1266,7 @@
         </div>
 
         <!-- Phase E.3c: Global Search trigger — opens Cmd+K overlay on mobile too -->
-        <button type="button" id="wh-hub-global-search" style="display:flex; align-items:center; gap:8px; width:100%; min-height:44px; padding:10px 12px; margin:0 0 8px; background:rgba(247,162,27,0.08); border:1px solid rgba(247,162,27,0.2); border-radius:10px; color:var(--wh-orange, #F7A21B); font-family:inherit; font-size:12px; font-weight:600; cursor:pointer; text-align:left;" aria-label="Open global search">
+        <button type="button" id="wh-hub-global-search" style="display:flex; align-items:center; gap:8px; width:100%; min-height:44px; padding:10px 12px; margin:0 0 8px; background:rgba(247,162,27,0.08); border:1px solid rgba(247,162,27,0.2); border-radius:10px; color:var(--wh-orange, #F7A21B); font-family:inherit; font-size:12px; font-weight:600; cursor:pointer; text-align:left;" aria-label="${_tt('Open global search', 'Buksan ang global search')}">
           <span class="ic ic-search" aria-hidden="true"></span>
           <span style="flex:1;">${_tt('Search assets, jobs, parts, PMs', 'Maghanap ng assets, trabaho, parts, PM')}</span>
           <span style="font-size:9px; font-weight:700; padding:2px 5px; background:rgba(247,162,27,0.15); border:1px solid rgba(247,162,27,0.3); border-radius:4px;">⌘K</span>
@@ -1151,12 +1277,12 @@
           <span id="wh-hub-search-icon">
             <span class="ic ic-search" aria-hidden="true"></span>
           </span>
-          <input id="wh-hub-search" type="search" placeholder="Search tools…" autocomplete="off" aria-label="Search tools">
+          <input id="wh-hub-search" type="search" placeholder="${_tt('Search tools…', 'Maghanap ng tools…')}" autocomplete="off" aria-label="${_tt('Search tools', 'Maghanap ng tools')}">
           <span id="wh-hub-search-kbd">Ctrl K</span>
         </div>
 
         <!-- Role mode switcher (Phase D) — filters which tools show below -->
-        <div id="wh-hub-mode" role="tablist" aria-label="Tool view mode">
+        <div id="wh-hub-mode" role="tablist" aria-label="${_tt('Tool view mode', 'Paraan ng pagtingin sa tools')}">
           ${MODES.map(function(m){
             var active = m.id === getMode() ? ' active' : '';
             return '<button type="button" class="wh-hub-mode-btn' + active +
@@ -1830,6 +1956,37 @@
       if (!/^https?:$/.test(location.protocol)) return;
       const root = whSwRoot();
       navigator.serviceWorker.register(root + 'sw.js', { scope: root })
+        .then(function (reg) {
+          // ★A RELEASE USED TO LAND WITHOUT A WORD (2026-09-06, layer CI, §LX, gate release-safety).
+          // Registration existed and nothing watched what happened next: a new worker would reach
+          // `waiting`, sit there, and take over on the person's NEXT navigation - so the shell changed
+          // under someone mid-task, and a half-filled form went with it. They had no way to know a
+          // deploy had happened, which also makes "it broke, then it didn't" unexplainable to them.
+          // Detection alone is not the fix either: the notice is the fix, and it must be dismissible,
+          // because interrupting a person to demand a reload is its own rudeness.
+          if (!reg) return;
+          var announced = false;
+          var tell = function () {
+            if (announced) return;
+            announced = true;
+            var msg = (typeof _t === 'function')
+              ? _t('A new version of WorkHive is ready. Reload when you are at a good stopping point.',
+                   'May bagong bersyon ng WorkHive. I-reload kapag tapos ka na sa ginagawa mo.')
+              : 'A new version of WorkHive is ready. Reload when you are at a good stopping point.';
+            if (typeof _whShowNotice === 'function') _whShowNotice('wh-update-notice', msg, '160px');
+            else if (typeof showToast === 'function') showToast(msg, 'info');
+          };
+          if (reg.waiting) tell();                       // one was already waiting when this page opened
+          reg.addEventListener('updatefound', function () {
+            var sw = reg.installing;
+            if (!sw) return;
+            sw.addEventListener('statechange', function () {
+              // `installed` with an existing controller means an UPDATE, not a first install - a first
+              // install has nothing to interrupt and must stay silent.
+              if (sw.state === 'installed' && navigator.serviceWorker.controller) tell();
+            });
+          });
+        })
         .catch(function () { /* offline first load or unsupported context — the next online load retries */ });
     } catch (_) { /* empty-catch-allow: registration is progressive enhancement; the page works without it */ }
   })();

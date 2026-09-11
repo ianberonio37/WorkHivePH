@@ -1,6 +1,6 @@
 {
   "generated": true,
-  "pages": 114,
+  "pages": 115,
   "violations": 0,
   "note": "T1.3 instance-cheap lint; template-deep = prove_cta_activation.mjs exemplars",
   "rows": [
@@ -151,6 +151,11 @@
     },
     {
       "page": "learn/ph-plant-compliance-guide/index.html",
+      "family": "learn",
+      "violations": []
+    },
+    {
+      "page": "learn/philippine-plants-now-pay-the-highest-power-rates/index.html",
       "family": "learn",
       "violations": []
     },

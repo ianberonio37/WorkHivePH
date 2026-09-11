@@ -18,6 +18,29 @@
 import { test, expect, Page, Browser } from '@playwright/test';
 import { adminClient } from './_db-cleanup';
 
+// A CONTROLLING SERVICE WORKER MAKES page.route A NO-OP, and this file proved it the hard way.
+// nav-hub.js registers sw.js with scope '/' and sw.js calls clients.claim(), so every workhive page
+// in this context is controlled, and Playwright does not intercept requests a service worker issues.
+// Measured on marketplace.html: page.on('request') counted 62 supabase reads while page.route
+// counted 0, with navigator.serviceWorker.controller truthy.
+//
+// I BRIEFLY EXEMPTED THIS FILE AND WAS WRONG, which is worth writing down because the wrong reading
+// was the comfortable one. Run with the worker ALIVE, the last test failed saying the map failure
+// "never mentions the address still working" -- and marketplace.html:4307 plainly renders "Map could
+// not load (offline?). Your typed address still works - providers will read it." The copy is correct
+// and present, so a failure means it was never REACHED: the `**/maplibre-gl.js` abort matched
+// nothing, the map loaded happily, and the assertion graded a healthy map. A false red about real
+// product copy is precisely the defect the block exists to stop, not evidence against it.
+//
+// AND THE ONE READING THAT ARGUED AGAINST THE BLOCK WAS LOAD. With the block on, a run failed at
+// "pressing Track did not load the map library" -- on a host answering a plain insert with
+// WH_DB_TIMEOUT and `select count(*)` in 17s. Re-run once that settled, block still on: 6/6 pass,
+// map-degradation test included. maplibre is vendored locally and absent from sw.js SHELL_FILES, so
+// there was never a mechanism by which blocking could starve it; there was only a slow machine and
+// my willingness to build a theory on one red.
+test.use({ serviceWorkers: 'block' });
+
+
 const PASSWORD = process.env.WH_TEST_PASSWORD || 'test1234';
 const CLIENT = 'romeobeltran@auth.workhiveph.com';
 const PROVIDER = 'bryangarcia@auth.workhiveph.com';
@@ -55,13 +78,25 @@ test.describe('marketplace simulation — the live tracking map', () => {
 
   let C: { ctx: any; page: Page }, P: { ctx: any; page: Page };
   let REQ = '', PROV = '';
+  let GRANT = '';   // the ledger row this spec creates so its provider can lawfully accept
+
+  // THE JOB'S VALUE AND WHAT TAKING IT COSTS, derived rather than typed twice. A trigger from
+  // migration 39 (one_person_one_wallet) refuses acceptance unless the provider's PERSON-level
+  // wallet holds 10% of the budget: "You need PHP150 in credits to take a PHP1,500 job (10%), and
+  // you have PHP0." Bryan Garcia is seeded with an empty wallet (person_credit_balance = 0, zero
+  // ledger rows), so this spec's own scenario could never reach en_route -- the product was right
+  // and the fixture never arranged the precondition. Note this is NOT the negative-balance floor
+  // that marketplace-sim-closeout exercises, and its cold-start exemption does not apply here.
+  const BUDGET = 1500;
+  const COMMISSION_PCT = 0.10;
+  const CREDIT_GRANT = Math.ceil(BUDGET * COMMISSION_PCT) + 50;   // the requirement, plus headroom
 
   test.beforeAll(async ({ browser }) => {
     C = await sessionFor(browser, CLIENT);
     P = await sessionFor(browser, PROVIDER);
 
     // File a hail WITH a location, so the site marker has something to paint.
-    const made = await C.page.evaluate(async ([tag, lng, lat]) => {
+    const made = await C.page.evaluate(async ([tag, lng, lat, bud]) => {
       const db = (window as any).getDb();
       const { data: s } = await db.auth.getSession();
       /* THE CLIENT'S OWN HIVE, not whichever provider limit(1) happens to return. The tracking view
@@ -74,20 +109,53 @@ test.describe('marketplace simulation — the live tracking map', () => {
         .order('hive_id', { ascending: true }).limit(1);
       const { data, error } = await db.from('service_requests').insert({
         client_auth_uid: s.session.user.id, hive_id: mine?.[0]?.hive_id, segment: 'consumer',
-        mode: 'instant', status: 'broadcasting', custom_scope: tag + ' tracked job', budget: 1500,
+        mode: 'instant', status: 'broadcasting', custom_scope: tag + ' tracked job', budget: bud,
         location: `SRID=4326;POINT(${lng} ${lat})`, address: 'SIMMAP test site',
       }).select('id').single();
       return error ? { err: error.message.slice(0, 110) } : { id: data.id };
-    }, [TAG, SITE[0], SITE[1]] as any);
+    }, [TAG, SITE[0], SITE[1], BUDGET] as any);
     expect(made.err, `could not file a located hail: ${made.err}`).toBeUndefined();
     REQ = made.id!;
 
+    // ARRANGE THE PRECONDITION, don't assert past it. Ids are resolved from the email rather than
+    // pasted, because a reseed regenerates every one of them and a hardcoded uuid would fail as a
+    // mysterious "no rows" months from now.
+    {
+      const admin = adminClient();
+      const { data: users } = await admin.auth.admin.listUsers();
+      const uid = users.users.find((u: any) => u.email === PROVIDER)?.id;
+      expect(uid, `no auth user for ${PROVIDER}; the personas were not seeded`).toBeTruthy();
+      const { data: prov } = await admin.from('service_providers')
+        .select('id').eq('auth_uid', uid).limit(1);
+      expect(prov?.length,
+        `${PROVIDER} owns no provider profile, so there is nobody to credit — reseed before ` +
+        `reading anything below as a product verdict`).toBeTruthy();
+      const { data: row, error: gerr } = await admin.from('service_credit_ledger').insert({
+        account_type: 'provider', account_id: prov![0].id, entry_type: 'topup',
+        amount: CREDIT_GRANT, ref_kind: 'service_request', ref_id: REQ,
+        note: TAG + ' commission reserve, so the provider can lawfully accept',
+      }).select('id').single();
+      expect(gerr?.message, `could not stage the provider's credits: ${gerr?.message}`).toBeUndefined();
+      GRANT = row!.id;
+    }
+
     const acc = await P.page.evaluate(async (r) => {
       const db = (window as any).getDb();
-      const { data } = await db.rpc('accept_service_request', { p_request_id: r });
-      return { ok: !!data?.accepted, reason: data?.reason, pid: data?.provider_id };
+      // KEEP THE ERROR. This destructured `data` only and reported `reason: undefined` on failure —
+      // which is what you get whenever the RPC ITSELF failed, because supabase-js RESOLVES a failed
+      // request rather than throwing, leaving data null and every field on it undefined. A refusal
+      // the function stated and a call that never reached the function then read identically, and
+      // the message named neither. The reason belongs to the function; the error belongs to the call.
+      const { data, error } = await db.rpc('accept_service_request', { p_request_id: r });
+      return {
+        ok: !!data?.accepted, reason: data?.reason, pid: data?.provider_id,
+        err: error ? `${error.code || '?'} ${error.message}`.slice(0, 160) : null,
+        shape: data === null ? 'data was null' : `keys: ${Object.keys(data || {}).join(',') || 'none'}`,
+      };
     }, REQ);
-    expect(acc.ok, `provider could not accept the located job: ${acc.reason}`).toBe(true);
+    expect(acc.ok,
+      `provider could not accept the located job. reason=${acc.reason ?? '(none given)'} ` +
+      `rpcError=${acc.err ?? '(none)'} ${acc.shape}`).toBe(true);
     PROV = acc.pid!;
 
     // en_route is the first state the tracking view admits.
@@ -107,6 +175,10 @@ test.describe('marketplace simulation — the live tracking map', () => {
         await admin.from('service_job_events').delete().eq('request_id', REQ);
         await admin.from('service_offers').delete().eq('request_id', REQ);
       }
+      // The credit grant is fixture state too, and it outlives the request unless said so. Deleted
+      // by its own id rather than by ref, so a failure mid-setup cannot leave a stranger's row
+      // matching the filter -- this ledger is shared with every other marketplace spec.
+      if (GRANT) await admin.from('service_credit_ledger').delete().eq('id', GRANT);
       await admin.from('service_requests').delete().ilike('custom_scope', TAG + '%');
       // The provider's live position is fixture state this spec wrote — clear it, or the next run
       // inherits a provider standing in Manila.

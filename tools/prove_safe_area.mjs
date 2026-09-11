@@ -42,7 +42,9 @@ const PAGES = ['index', 'hive', 'logbook', 'inventory', 'pm-scheduler', 'project
   // BF-ui-layout in the marketplace bank is 35 rows, ALL live-walk, and safe-area is half of
   // that family. The seller console is exactly where edge-pinned chrome lives (a wallet bar, a
   // job-list footer), so this roster gap mattered more here than anywhere.
-  'marketplace', 'marketplace-seller', 'marketplace-seller-profile', 'platform-actions'];
+  'marketplace', 'marketplace-seller', 'marketplace-seller-profile', 'platform-actions',
+               // reference surfaces (2026-09-05, P326 safe area & chrome): static pages meet the notch too
+               'architecture', 'design-system', 'offline-fallback', 'symbol-gallery', 'validator-catalog', 'llm-observability'];
 
 const args = process.argv.slice(2);
 const GATE = args.includes('--gate');

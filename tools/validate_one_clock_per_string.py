@@ -32,7 +32,8 @@ MIXED_RE = re.compile(
 
 def offenders() -> list[str]:
     out = []
-    for f in glob.glob(str(ROOT / "*.html")):
+    # learn/*.html are user-facing pillar pages too (2026-09-05: learn/index P134 needed this gate to cover it)
+    for f in glob.glob(str(ROOT / "*.html")) + glob.glob(str(ROOT / "learn" / "*.html")):
         src = io.open(f, encoding="utf-8", errors="replace").read()
         for m in MIXED_RE.finditer(src):
             line = src.count("\n", 0, m.start()) + 1

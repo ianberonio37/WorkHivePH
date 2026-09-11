@@ -2,7 +2,7 @@
 name: edge-fn-agent-memory-store
 type: edge-fn
 source: file:supabase/functions/agent-memory-store/index.ts
-source_sha: fcfb6697642bbf9f
+source_sha: 772b9d842e826f5f
 last_verified: 2026-07-13
 supersedes: null
 ---

@@ -1,0 +1,9 @@
+{
+ "_doc": "ai-quality.html: English visible text -> Filipino, authored. Empty = not yet translated. tools/i18n_page_dict.py --apply tags the element and emits WH_FIL_PAGE.",
+ "Open Logbook →": "Buksan ang Logbook →",
+ "Honest visibility into your AI spend, quality, and predicted savings.": "Tapat na pagtingin sa AI spend, kalidad, at inaasahang matitipid mo.",
+ "▸ About this dashboard's data sources": "▸ Tungkol sa mga data source ng dashboard na ito",
+ "Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.": "Galing ang mga numero sa live WorkHive data mo. Nire-refresh ang mga ito tuwing bubuksan mo ang page. Maaaring may tala ang isang tile kung iba ang pag-update nito. Naka-grey ang mga walang laman o zero na value, para makita mo agad kung saan wala pang data.",
+ "← Back to WorkHive": "← Balik sa WorkHive",
+ "Hive Board": "Hive Board"
+}

@@ -18,6 +18,14 @@
 (function () {
   'use strict';
 
+  /* W3-SC (2026-09-09): losing the network is the moment a plant-floor worker most needs to read the
+     message, and this banner reaches more pages (35) than any other shared surface. It spoke only
+     English. window._t(en, fil) is the platform locale floor utils.js installs; resolved at CALL time
+     because the banner paints on a network event, long after a page with its own engine has defined
+     its richer _t. Falls back to EN, so a page without the floor still gets a sentence, never a blank. */
+  const _tt = (en, fil) =>
+    (typeof window !== 'undefined' && typeof window._t === 'function') ? window._t(en, fil) : en;
+
   if (typeof window === 'undefined' || typeof document === 'undefined') return;
   if (window.__whOfflineBannerLoaded) return;
   window.__whOfflineBannerLoaded = true;
@@ -77,11 +85,12 @@
 
   function onOffline() {
     if (onlineTimer) { clearTimeout(onlineTimer); onlineTimer = null; }
-    show('offline', 'You are offline. Some actions may not work.');
+    show('offline', _tt('You are offline. Some actions may not work.',
+                        'Offline ka ngayon. May mga bagay na hindi gagana.'));
   }
 
   function onOnline() {
-    show('online', 'Back online.');
+    show('online', _tt('Back online.', 'Online ka na ulit.'));
     onlineTimer = setTimeout(hide, 2000);
   }
 

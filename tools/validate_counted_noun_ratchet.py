@@ -45,6 +45,28 @@ SINGULAR_NEAR = re.compile(
     r"===\s*1\s*\?|==\s*1\s*\?|length\s*===\s*1|whPlural|pluralize|\?\s*['\"][^'\"]{0,24}['\"]\s*:")
 NOT_NOUNS = {"https", "always", "was"}
 
+# ★THIS RULE IS ENGLISH-ONLY, AND FILIPINO HAS WORDS THAT END IN "s" (2026-09-11). COUNTABLE requires a
+# noun matching [a-z]{3,14}s, on the assumption that a trailing "s" is an English plural. Filipino does
+# not inflect nouns for number - "1 bukas na item" and "6 bukas na item" are both correct, and adding an
+# English-style plural would be WRONG - so `${carryCount} bukas na item` (shift-brain, "open items
+# carried forward") was flagged as a page that cannot count to one. It is the THIRD instrument today
+# whose rule was written for English and met Filipino text: B3's readability grade keyed on the reader's
+# preference, J1/Z3's destructive-control vocabulary, and now this.
+# The test must be on the ENCLOSING STRING LITERAL, never the line: a _t('… 5 parts …', '… 5 parts …')
+# call puts both languages on one line, and a line-level check would mask a real English offence sitting
+# beside its translation. [[feedback_an_oracles_vocabulary_is_part_of_the_oracle]]
+FIL_MARKER = re.compile(r"\b(ang|ng|mga|sa|para|hindi|walang|wala|kang|mo|ito|iyon|kapag|nang|ay|na)\b", re.I)
+
+
+def _enclosing_literal(line: str, pos: int) -> str:
+    """The quote-delimited string the match at `pos` sits inside ('' when it is not inside one)."""
+    for q in ("`", "'", '"'):
+        starts = [i for i, ch in enumerate(line) if ch == q and (i == 0 or line[i - 1] != "\\")]
+        for a, b in zip(starts[0::2], starts[1::2]):
+            if a < pos < b:
+                return line[a + 1:b]
+    return ""
+
 
 def scan():
     hits = []
@@ -54,6 +76,9 @@ def scan():
             for m in COUNTABLE.finditer(line):
                 if m.group(2) in NOT_NOUNS:
                     continue
+                lit = _enclosing_literal(line, m.start())
+                if lit and FIL_MARKER.search(lit):
+                    continue          # Filipino prose: this rule does not apply to it
                 if SINGULAR_NEAR.search("\n".join(lines[max(0, i - 2): i + 3])):
                     continue
                 hits.append((Path(f).name, i + 1, m.group(0).strip()[:46]))

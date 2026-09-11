@@ -2,7 +2,7 @@
 name: edge-fn-export-hive-data
 type: edge-fn
 source: file:supabase/functions/export-hive-data/index.ts
-source_sha: b438362b0d6dee2a
+source_sha: 0a7bfe5bdd89e5ba
 last_verified: 2026-07-13
 supersedes: null
 ---

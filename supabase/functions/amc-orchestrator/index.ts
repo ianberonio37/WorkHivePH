@@ -743,7 +743,7 @@ serveObserved("amc-orchestrator", async (req) => {
         .eq("hive_members.status", "active");
       if (allErr) {
         return new Response(
-          JSON.stringify({ error: "Hive enumeration failed", detail: allErr.message }),
+          JSON.stringify({ error: "Could not list the hives. Try again in a moment.", detail: allErr.message }),
           { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
         );
       }

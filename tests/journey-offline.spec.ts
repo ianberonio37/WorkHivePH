@@ -36,8 +36,15 @@ test.describe('Tier 7 — Offline & resilience', () => {
     // WHY: bumping CACHE_NAME invalidates stale cache after deploy (mobile-maestro)
     // STATIC ASSERTION
     const sw = readFileSync(resolve(ROOT, 'sw.js'), 'utf-8');
-    const m = sw.match(/CACHE_NAME\s*=\s*['"]([^'"]+)['"]/);
-    expect(m, 'sw.js must declare CACHE_NAME').not.toBeNull();
+    // ★THIS READ A COMMENT FOR TWO HUNDRED BUMPS (2026-09-10). The pattern was
+    // /CACHE_NAME\s*=\s*['"]([^'"]+)['"]/, which takes the FIRST match in the file - and sw.js keeps
+    // its whole bump history commented ABOVE the active line, so this was asserting about
+    // 'workhive-shell-v283' while the worker shipped v346. It could never fail either: every archived
+    // name carries a -v<N> too, so the check stayed green no matter what the ACTIVE declaration said,
+    // which is the definition of a hollow lock. Anchored to a line that actually begins with `const`,
+    // so a commented line can never answer for the live one.
+    const m = sw.match(/^\s*const\s+CACHE_NAME\s*=\s*['"]([^'"]+)['"]/m);
+    expect(m, 'sw.js must declare an ACTIVE (uncommented) CACHE_NAME').not.toBeNull();
     expect(m![1], 'CACHE_NAME must include a -v<N> suffix').toMatch(/-v\d+/);
   });
 

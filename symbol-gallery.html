@@ -3,6 +3,14 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <meta name="wh-page-kind" content="reference"><!-- A1 (2026-09-05): a reference surface has no page-level CTA by design; declared, not guessed -->
+  <!-- S1 typography contract (rubric sweep 2026-09-05, the 8 unwalked root pages): this page rendered in the
+       UA fallback (-apple-system / Segoe UI) because it never loaded Poppins. Same head block every
+       production page carries (display=optional: never swaps after first paint, so no CLS). -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet" />
+  <style>body { font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', sans-serif; }</style>
   <meta name="robots" content="noindex, nofollow"/>
   <title>Symbol Gallery: Engineering Drawing Library</title>
   <script src="browser-floor.js"></script>
@@ -20,7 +28,8 @@
       }
       window.addEventListener('DOMContentLoaded', function () {
         var s1 = document.createElement('script');
-        s1.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+        s1.src = 'vendor/supabase-js-2.110.0.min.js';
+        s1.integrity = 'sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil';
         s1.onload = function () {
           var s2 = document.createElement('script');
           s2.src = 'utils.js';
@@ -47,7 +56,7 @@
     body {
       background: #0d1117;
       color: #e6edf3;
-      font-family: 'Segoe UI', sans-serif;
+      font-family: 'Poppins', 'Segoe UI', sans-serif;
       min-height: 100vh;
       padding: 2rem;
     }
@@ -61,7 +70,7 @@
 
     .subtitle {
       font-size: 0.8rem;
-      color: rgba(255,255,255,0.35);
+      color: rgba(255,255,255,0.72); /* C2 (2026-09-05): the count line read 2.67:1; 72% white clears 4.5:1 on the dark ground */
       margin-bottom: 2rem;
     }
 
@@ -119,14 +128,14 @@
 
     .symbol-name {
       font-size: 0.68rem;
-      color: rgba(255,255,255,0.55);
+      color: rgba(255,255,255,0.78); /* C2 (2026-09-05): 55% white was borderline at 0.68rem; 78% clears with margin */
       text-align: center;
       line-height: 1.35;
     }
 
     .symbol-key {
       font-size: 0.6rem;
-      color: rgba(255,255,255,0.22);
+      color: rgba(255,255,255,0.62); /* C2 (2026-09-05): 22% white read 2.04:1 on the dark card; 62% clears 4.5:1 */
       font-family: monospace;
       text-align: center;
     }
@@ -140,18 +149,23 @@
       font-size: 0.8rem;
       color: rgba(255,255,255,0.5);
     }
+    /* F1 (rubric sweep 2026-09-05): the print-mode switch measured 38x20 - under the 44px tap floor. The
+       visible pill stays 38x20; the BOX grows to 44x44 through padding, with background-clip: content-box
+       keeping the fill on the pill only. The thumb is absolute against the padding box, so its offsets
+       carry the padding (top 2 -> 14, left 2 -> 5, on 20 -> 23). */
     .toggle-track {
       width: 38px; height: 20px; border-radius: 10px;
+      padding: 12px 3px; box-sizing: content-box; background-clip: content-box;
       background: #555; cursor: pointer; position: relative;
       transition: background 0.2s;
     }
     .toggle-thumb {
       width: 16px; height: 16px; border-radius: 50%;
       background: #fff; position: absolute;
-      top: 2px; left: 2px; transition: left 0.2s;
+      top: 14px; left: 5px; transition: left 0.2s;
     }
-    .toggle-track.on { background: var(--wh-orange); }
-    .toggle-track.on .toggle-thumb { left: 20px; }
+    .toggle-track.on { background: var(--wh-orange); background-clip: content-box; }
+    .toggle-track.on .toggle-thumb { left: 23px; }
 
     /* When print-mode is on, cards go white */
     body.print-mode .symbol-card {
@@ -176,7 +190,7 @@
 
     .symbol-count {
       font-size: 0.75rem;
-      color: rgba(255,255,255,0.3);
+      color: rgba(255,255,255,0.72); /* C2 (2026-09-05): the count line read 2.67:1; 72% white clears 4.5:1 */
       margin-top: 0.2rem;
     }
   </style>
@@ -185,6 +199,7 @@
        rubric scored it N/A, "no token source to conform TO" (class S / NN/g #4). Static and
        render-blocking in <head>: a late/JS-injected token FOUCs the first paint. -->
   <link rel="stylesheet" href="tokens.css">
+<script id="wh-fil-page">(function(){try{if(localStorage.getItem('wh_lang')!=='fil')return;}catch(e){return;}fetch('i18n/pages/symbol-gallery.fil.json').then(function(r){return r.ok?r.json():{};}).catch(function(){return {};}).then(function(d){window.WH_FIL_PAGE_VISIBLE=d||{};function ap(){document.querySelectorAll('[data-i]').forEach(function(el){var v=window.WH_FIL_PAGE_VISIBLE[el.getAttribute('data-i')];if(v!=null&&el.textContent!==v)el.textContent=v;});}function arm(){ap();var t=null;if(typeof MutationObserver==='function')new MutationObserver(function(){clearTimeout(t);t=setTimeout(ap,200);}).observe(document.body,{childList:true,subtree:true});window.addEventListener('load',ap);}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',arm);else arm();});})();</script>
 </head>
 <body>
 <main>
@@ -192,23 +207,27 @@
 
   <div class="header">
     <div>
-      <h1>Engineering Drawing: Symbol Gallery</h1>
+      <h1 data-i="p_engineeringdrawingsymbolgall_3e68">Engineering Drawing: Symbol Gallery</h1>
+<p class="wh-back" style="margin:.25rem 0 0; font-size:.8rem;"><a data-i="p_backtoworkhive_13cc" href="index.html" style="display:inline-flex;align-items:center;min-height:44px;padding:0 .5rem;margin-left:-.5rem;color:inherit; opacity:.85; text-decoration:underline;">&#8592; Back to WorkHive</a></p><!-- W1 (rubric 2026-09-05): an in-layout way back; the floating hub is not one -->
       <div class="subtitle">drawing-symbols.js: development preview only</div>
-      <div class="symbol-count" id="sym-count">Loading...</div>
+      <div data-i="p_loading_b04b" class="symbol-count" id="sym-count">Loading...</div>
+      <p data-i="p_staticsymbolscomefromthedraw_e808" class="wh-source-chip" role="status" aria-live="polite" style="font-size:.62rem; color:rgba(255,255,255,0.62); margin:.3rem 0 0;">Static · symbols come from the drawing library · preview only, no live data</p>
+      <details style="margin:.6rem 0 0;font-size:.8rem;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:.1rem .8rem .45rem;"><summary data-i="p_howtoreadthisgallery_2b4a" style="cursor:pointer;min-height:44px;display:flex;align-items:center;">How to read this gallery</summary><p data-i="p_eachtileisonedrawingsymbolth_ad19" style="margin:.4rem 0 0;">Each tile is one drawing symbol the editor can place: its key, its name and a live rendering. Print mode shows the same symbols on a white background, the way they print.</p></details><!-- O2 (2026-09-05): on-demand help --><!-- G1+E3 (rubric 2026-09-05) -->
     </div>
 
     <div class="preview-toggle">
-      <span>Dark mode</span>
+      <span data-i="p_darkmode_9cf8">Dark mode</span>
       <div class="toggle-track" id="mode-toggle" role="button" tabindex="0" aria-label="Toggle print mode" onclick="togglePrintMode()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();togglePrintMode();}">
         <div class="toggle-thumb"></div>
       </div>
-      <span>Print mode (white bg)</span>
+      <span data-i="p_printmodewhitebg_2265">Print mode (white bg)</span>
     </div>
   </div>
 
-  <div id="gallery"></div>
+  <h2 data-i="p_allsymbols_7e7a" style="font-size:1rem;margin:1rem 0 .5rem;">All symbols</h2><!-- A2 (2026-09-05): one section heading over 28 blocks -->
+  <div id="gallery" style="min-height:480px"></div>
 
-  <script src="drawing-symbols.js"></script>
+  <script src="drawing-symbols.js" onerror="console.error('[symbol-gallery] drawing-symbols.js failed to load'); document.getElementById('sym-count').textContent='The symbol library did not load (drawing-symbols.js). Reload to try again.'; var g=document.getElementById('gallery'); if (g) g.innerHTML='<p style=&quot;opacity:.8&quot;>No symbols to show: the drawing library failed to load.</p>';"></script><!-- the fourth state (2026-09-05): a failed library load said "Loading..." forever -->
   <script>
     // ── Group symbols by discipline ──────────────────────────────────────────
     const DISCIPLINE_ORDER  = ['electrical', 'mechanical', 'pid', 'lps'];

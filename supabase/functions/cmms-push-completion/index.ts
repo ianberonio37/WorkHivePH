@@ -47,7 +47,18 @@ serveObserved("cmms-push-completion", async (req) => {
   logRequestStart(req, "cmms-push-completion");  // I6 observability
 
   try {
-    const body = await req.json();
+    // ★A CALLER'S MISTAKE IS NOT A SERVER ERROR (live-walk wave, 2026-09-06). tools/prove_edge_contract.mjs asked this
+  // function with a broken JSON body and with GET; both reached `await req.json()` and came back 500, so a typo in a
+  // client read as "the platform is broken". These are the same two guards every function that passed already had.
+    if (req.method !== "POST") {
+      return new Response(JSON.stringify({ error: "That action is not allowed here. Reload the page and try again." }),
+        { status: 405, headers: { ...cors, "Content-Type": "application/json" } });
+    }
+    let body;
+    try { body = await req.json(); } catch {
+      return new Response(JSON.stringify({ error: "That request could not be read. Reload the page and try again." }),
+        { status: 400, headers: { ...cors, "Content-Type": "application/json" } });
+    }
     const { hive_id, machine, worker_name, actual_hours, closed_at, logbook_id } = body;
 
     if (!hive_id || !machine) {
@@ -176,10 +187,20 @@ serveObserved("cmms-push-completion", async (req) => {
 
     // Mark external_sync as completed (success) or FAILED (durable, retryable).
     if (pushOk) {
-      await db.from("external_sync")
+      /* ★THE COMPLETION WENT OUT; IF THE MARK DOES NOT LAND IT GOES OUT AGAIN (2026-09-09, found by the
+         unchecked-writes sweep). This row is the only record that the push already happened, so a
+         discarded error here means the next run re-pushes the SAME completion into the customer's CMMS -
+         a duplicate closure in someone else's system, which we cannot take back. The push itself cannot
+         be undone either, so this is reported rather than thrown: the operator needs to know the CMMS is
+         ahead of our record. */
+      const { error: markErr } = await db.from("external_sync")
         .update({ status: "Closed", last_synced_at: new Date().toISOString(), sync_status: "active" })
         .eq("hive_id", hive_id)
         .eq("external_id", extId);
+      if (markErr) {
+        console.error(`cmms-push-completion: pushed ${extId} to the CMMS but could not record it -`,
+          markErr.message, "- a later run may push this completion a SECOND time");
+      }
     } else {
       // F3: durable failure marker. The old code only wrote automation_log and returned
       // ok:false to a fire-and-forget caller, so a transient CMMS outage silently lost the
@@ -198,13 +219,22 @@ serveObserved("cmms-push-completion", async (req) => {
       //
       // (The retry this comment promises is still not real — nothing anywhere selects a failed
       // sync row to re-attempt it. Recorded on T63 rather than invented here.)
-      await db.from("external_sync")
+      /* ...and the marker's own write was unchecked, which quietly undid the fix the comment above
+         describes. T63 corrected WHAT this writes ('error', so v_external_sync_truth can classify it);
+         nothing checked WHETHER it wrote. A discarded failure here means the lost completion leaves no
+         durable trace at all - the exact invisibility the marker exists to prevent, one layer down. */
+      const { error: markErr } = await db.from("external_sync")
         .update({ last_synced_at: new Date().toISOString(), sync_status: "error" })
         .eq("hive_id", hive_id)
         .eq("external_id", extId);
+      if (markErr) {
+        console.error(`cmms-push-completion: ${extId} failed to push AND could not be marked -`,
+          markErr.message, "- this completion is now invisible to the sync dashboard");
+      }
     }
 
     // Log to automation_log
+  // unchecked-write-allow: a telemetry row. Its failure must not change the caller's outcome - refusing real work because a log line did not land would be the worse bug.
     await db.from("automation_log").insert({
       job_name: "cmms-push-completion",
       hive_id,

@@ -213,6 +213,25 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     }};
   </script>
   <style>
+    /* T3 (2026-09-10): every NEW article ships tap-responsive. Found by walking the RA 11285 guide in
+       Filipino on a 390px phone - it graded T3 0% ("legacy ~300ms click delay + double-tap-zoom not
+       suppressed"), and 53 of the 54 existing articles were the same, because the learn pages share no
+       screen stylesheet (learn-print.css is media="print") and nothing put the rule in the scaffold.
+       The 53 were repaired by tools/fix_learn_touch_action.py; this line is why the 55th will not need
+       repairing. Changes no geometry - it only tells the browser not to wait for a possible second tap. */
+    html, body, a, button {{ touch-action: manipulation; }}
+    /* wh-learn-contrast-remap (C2, 2026-09-10): these pages load Tailwind from the CDN, so they miss the
+       white-opacity remap wh-tw.css applies app-wide - the byline's 12px text-white/45 measured 4.27:1
+       against the 4.5:1 it owes. Same seven values as wh-tw.css; body-scoped (0,1,1) so it beats the
+       CDN utility whatever the injection order, with no !important. Applied to the existing 54 by
+       tools/fix_learn_contrast_remap.py; this is why the 55th ships correct. */
+    body .text-white\\/45 {{ color: rgb(255 255 255 / 0.8); }}
+    body .text-white\\/50 {{ color: rgb(255 255 255 / 0.8); }}
+    body .text-white\\/55 {{ color: rgb(255 255 255 / 0.8); }}
+    body .text-white\\/60 {{ color: rgb(255 255 255 / 0.8); }}
+    body .text-white\\/65 {{ color: rgb(255 255 255 / 0.85); }}
+    body .text-white\\/70 {{ color: rgb(255 255 255 / 0.85); }}
+    body .text-white\\/75 {{ color: rgb(255 255 255 / 0.85); }}
     body {{ font-family: 'Poppins', sans-serif; }}
     .hex-pattern {{ background-image: radial-gradient(circle, rgba(247,162,27,0.04) 1px, transparent 1px); background-size: 28px 28px; }}
     .audience-block {{ background: linear-gradient(135deg, rgba(41,182,217,0.10), rgba(41,182,217,0.04)); border: 1px solid rgba(41,182,217,0.22); border-radius: 14px; padding: 18px 22px; margin: 1.75rem 0; }}

@@ -91,15 +91,51 @@ def check_converse_wiring(src):
     issues = []
     # The fetch must be awaited BEFORE _buildVoiceSystemPrompt, otherwise
     # the DATA block can't reach the model on this turn.
-    classifier_at = src.find("_classifyDataIntent(")
-    fetch_at      = src.find("_fetchCanonicalData(")
-    builder_at    = src.find("_buildVoiceSystemPrompt(")
-    # The builder is also defined in the file -- use the last occurrence
-    # (the call site) to compare against. Same for classifier/fetch:
-    # take the call site, not the definition.
-    classifier_call = src.rfind("_classifyDataIntent(")
-    fetch_call      = src.rfind("_fetchCanonicalData(")
-    builder_call    = src.rfind("_buildVoiceSystemPrompt(")
+    # ★THIS CHECK PASSED FOR AS LONG AS THE FEATURE EXISTED, ON A FILE WHERE NEITHER FUNCTION WAS EVER
+    # CALLED. It used rfind() and called that "the call site" -- but rfind returns the DEFINITION when
+    # there is nothing else, and the three definitions happen to sit in the order the check wants
+    # (_classifyDataIntent at ~895, _fetchCanonicalData at ~946, _buildVoiceSystemPrompt at ~6508). So
+    # the gate certifying that the companion answers MTBF questions from v_kpi_truth was reading the
+    # order in which those functions are DECLARED. Found 2026-09-08 when adding three self-test cases
+    # moved the last _classifyDataIntent( past the fetch and the check finally spoke.
+    #
+    # A call site is an occurrence that is NOT a declaration. Anything preceded by `function ` or
+    # `async function ` is the definition; everything else is somebody invoking it.
+    def call_sites(name):
+        needle = name + "("
+        out, i = [], src.find(needle)
+        while i != -1:
+            before = src[max(0, i - 20):i]
+            if not before.rstrip().endswith("function"):
+                out.append(i)
+            i = src.find(needle, i + 1)
+        return out
+
+    classifier_sites = call_sites("_classifyDataIntent")
+    fetch_sites      = call_sites("_fetchCanonicalData")
+    builder_sites    = call_sites("_buildVoiceSystemPrompt")
+    for label, sites in (("_classifyDataIntent", classifier_sites),
+                         ("_fetchCanonicalData", fetch_sites),
+                         ("_buildVoiceSystemPrompt", builder_sites)):
+        if not sites:
+            issues.append({
+                "check": "converse_wiring",
+                "reason": (label + " is DEFINED but never called. The canonical-data path is built and "
+                           "unreachable: a worker's MTBF question is answered from the legacy scraper, "
+                           "not from v_kpi_truth."),
+            })
+    if issues:
+        return issues
+    # compare the LAST call of each, which is the conversation path
+    classifier_call = classifier_sites[-1]
+    fetch_call      = fetch_sites[-1]
+    builder_call    = builder_sites[-1]
+    # the classifier is also exercised by the self-test table, which sits after the conversation path in
+    # this file; the wiring question is about the call that FEEDS the fetch, so use the last classifier
+    # call that still precedes it
+    earlier = [i for i in classifier_sites if i < fetch_call]
+    if earlier:
+        classifier_call = earlier[-1]
     if classifier_call < 0 or fetch_call < 0 or builder_call < 0:
         issues.append({
             "check": "converse_wiring",
@@ -166,6 +202,9 @@ CHECKS = (
 
 
 def main():
+    if "--selftest" in sys.argv:
+        return selftest()
+
     print("== Voice Canonical Anchor Validator ==\n")
     src = read_file(VOICE_HANDLER_JS)
     if src is None:
@@ -184,6 +223,62 @@ def main():
 
     print(f"\nResult: {n_pass} PASS  {n_skip} SKIP  {n_fail} FAIL")
     return 0 if n_fail == 0 else 1
+
+
+def _strip_calls(text, name):
+    """Return `text` with every CALL to `name` renamed away, definitions left intact."""
+    out, i, needle = [], 0, name + "("
+    while True:
+        j = text.find(needle, i)
+        if j == -1:
+            out.append(text[i:])
+            break
+        before = text[max(0, j - 20):j]
+        if before.rstrip().endswith("function"):
+            out.append(text[i:j + len(needle)])
+        else:
+            out.append(text[i:j])
+            out.append("renamedAway(")
+        i = j + len(needle)
+    return "".join(out)
+
+
+def selftest():
+    """Does this gate BITE? It did not, for as long as the feature existed.
+
+    The wiring check used rfind() and treated the result as a call site. With no call sites at all,
+    rfind returns the DEFINITION - and the three definitions sit in exactly the order the check wants,
+    so it printed PASS while the canonical-data path was unreachable. These cases pin the repair: a file
+    carrying only the definitions must FAIL, and must name every function it could not find a caller for.
+    """
+    src = read_file(VOICE_HANDLER_JS)
+    if src is None:
+        print(f"  FAIL  voice-handler.js not found at {VOICE_HANDLER_JS}")
+        return 1
+    stripped = src
+    for n in ("_classifyDataIntent", "_fetchCanonicalData", "_buildVoiceSystemPrompt"):
+        stripped = _strip_calls(stripped, n)
+    only_defs = check_converse_wiring(stripped)
+    reasons = " ".join(i["reason"] for i in only_defs)
+
+    cases = [
+        ("the real file wires the path", not check_converse_wiring(src)),
+        ("definitions alone FAIL", bool(only_defs)),
+        ("and every uncalled function is named",
+         all(n in reasons for n in ("_classifyDataIntent", "_fetchCanonicalData", "_buildVoiceSystemPrompt"))),
+        ("the stripper actually removed the calls", stripped != src),
+        ("a definition is not counted as a caller", len(only_defs) == 3),
+    ]
+    ok = 0
+    for name, good in cases:
+        print(("  PASS  " if good else "  FAIL  ") + name)
+        ok += 1 if good else 0
+    print()
+    if ok == len(cases):
+        print(f"All {ok} teeth cases passed.")
+        return 0
+    print(f"{len(cases) - ok} of {len(cases)} teeth cases failed.")
+    return 1
 
 
 if __name__ == "__main__":

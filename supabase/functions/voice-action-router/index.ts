@@ -382,7 +382,7 @@ serveObserved("voice-action-router", async (req) => {
     catch {
       return new Response(
         JSON.stringify({
-          error: "Could not parse model output as JSON",
+          error: "The AI reply came back unreadable. Try again.",
           detail: raw.slice(0, 200),
         }),
         { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } },

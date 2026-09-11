@@ -56,7 +56,9 @@ def run():
             problems.append(f"AI-5: overstated loading copy still present: '{phrase}'")
 
     # AI-7: AI-drafted disclosure in the report preview
-    if not re.search(r'role="note"[^>]*>[\s\S]{0,200}AI-drafted', html):
+    # window widened 200 -> 400 (2026-09-07): the i18n page dictionary tags the inner <strong> with a
+    # data-i key, which pushed the literal 'AI-drafted' past 200 chars while the disclosure itself is unchanged.
+    if not re.search(r'role="note"[^>]*>[\s\S]{0,400}AI-drafted', html):
         problems.append("AI-7: AI-drafted disclosure note missing from report preview")
 
     # AI-8: friendly errors, no raw provider message

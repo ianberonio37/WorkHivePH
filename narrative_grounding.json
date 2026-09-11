@@ -17,47 +17,47 @@
   },
   "detail": {
     "analytics": {
-      "http": 403,
+      "http": 503,
       "skipped": "non-200 (service/transient/quota) \u2014 not a grounding signal"
     },
     "analytics-report": {
-      "http": 403,
+      "http": 503,
       "skipped": "non-200 (service/transient/quota) \u2014 not a grounding signal"
     },
     "predictive": {
-      "http": 403,
+      "http": 503,
       "skipped": "non-200 (service/transient/quota) \u2014 not a grounding signal"
     },
     "shift-brain": {
-      "http": 403,
+      "http": 503,
       "skipped": "non-200 (service/transient/quota) \u2014 not a grounding signal"
     },
     "alert-hub": {
-      "http": 403,
+      "http": 503,
       "skipped": "non-200 (service/transient/quota) \u2014 not a grounding signal"
     },
     "project-report": {
-      "http": 403,
+      "http": 503,
       "skipped": "non-200 (service/transient/quota) \u2014 not a grounding signal"
     },
     "report-sender": {
-      "http": 403,
+      "http": 503,
       "skipped": "non-200 (service/transient/quota) \u2014 not a grounding signal"
     },
     "ph-intelligence": {
       "page": "ph-intelligence",
       "edge_fn": "__DB__",
       "http": 200,
-      "grounding_numbers": 45,
+      "grounding_numbers": 47,
       "prose_strings": 1,
-      "substantive_nums_checked": 1,
-      "cited_grounded": 1,
+      "substantive_nums_checked": 11,
+      "cited_grounded": 11,
       "fabricated": [],
       "baseline_cap": 1,
       "new_drift": false
     },
     "asset-hub": {
-      "http": 403,
+      "http": 503,
       "skipped": "non-200 (service/transient/quota) \u2014 not a grounding signal"
     }
   },

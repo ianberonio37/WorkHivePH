@@ -41,7 +41,7 @@ import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 import { clampPersona } from "../_shared/persona.ts";
 // A5 (FULLSTACK_COMPONENT_LIBRARY Layer A): Azure TTS is a paid cost surface reachable
 // from the browser (wh-tts.js / voice-journal) — per-person/IP bucket before synth.
-import { checkSoloRateLimit, soloRateLimitKey, soloRateLimitedResponse } from "../_shared/rate-limit.ts";
+import { checkSoloRateLimit, soloRateLimitKey, soloRateLimitedResponse, soloUnidentifiedResponse } from "../_shared/rate-limit.ts";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -154,10 +154,11 @@ serveObserved("tts-speak", async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders });
   logRequestStart(req, "tts-speak");  // I6 observability
   if (req.method !== "POST") {
-    return json(corsHeaders, 405, { error: "POST only" });
+    return json(corsHeaders, 405, { error: "That request method is not allowed. Reload the page and try again." });
   }
   if (!AZURE_KEY) {
-    return json(corsHeaders, 500, { error: "AZURE_SPEECH_KEY not configured" });
+    console.error("misconfigured: AZURE_SPEECH_KEY is not set");   // the operator detail stays in the log (2026-09-06)
+    return json(corsHeaders, 500, { error: "Voice playback is not set up yet. Read the text instead, or ask the platform owner." });
   }
   if (!_adminClient) {
     return json(corsHeaders, 500, { error: "Supabase client not initialised" });
@@ -165,7 +166,7 @@ serveObserved("tts-speak", async (req) => {
 
   let body: { text?: string; persona?: string };
   try { body = await req.json(); }
-  catch { return json(corsHeaders, 400, { error: "invalid JSON" }); }
+  catch { return json(corsHeaders, 400, { error: "That request could not be read. Reload the page and try again." }); }
 
   const text = String(body.text || "").trim();
   if (!text) return json(corsHeaders, 400, { error: "text required" });
@@ -184,8 +185,20 @@ serveObserved("tts-speak", async (req) => {
       _uid = _u?.user?.id || null;
     }
   } catch (_) { /* fall through to IP bucket */ }
-  const _rl = await checkSoloRateLimit(_adminClient, soloRateLimitKey(_uid, _ip), undefined, undefined, _ip);
-  if (!_rl.allowed) return soloRateLimitedResponse(corsHeaders, _rl.retry_after_seconds);
+  // strict: this call SPENDS Azure Speech, so a caller we can bucket on nothing - no session AND no
+  // x-forwarded-for - is refused rather than waved through. Defence in depth, NOT a fix for a
+  // demonstrated hole: an anonymous probe here does reach the Azure leg, but checking the buckets
+  // afterwards showed it had been metered on `ip:172.18.0.1` all along, because Kong (like Supabase's
+  // gateway) always sets that header. The fail-open branch is real in code and I could not reach it.
+  // See the `strict` note in _shared/rate-limit.ts.
+  const _rl = await checkSoloRateLimit(_adminClient, soloRateLimitKey(_uid, _ip), undefined, undefined, _ip, true);
+  if (!_rl.allowed) {
+    // the two refusals are different facts and get different sentences: "you have used your quota" vs
+    // "we cannot tell who you are". Telling the second person to wait an hour would be false twice over.
+    return _rl.scope === "unidentified"
+      ? soloUnidentifiedResponse(corsHeaders)
+      : soloRateLimitedResponse(corsHeaders, _rl.retry_after_seconds);
+  }
 
   const personaKey = clampPersona(body.persona);
   const voice      = PERSONA_TO_VOICE[personaKey];
@@ -206,7 +219,7 @@ serveObserved("tts-speak", async (req) => {
       allowedMimeTypes: ["audio/mpeg", "audio/mp3"],
     });
     if (createErr && !String(createErr.message || "").toLowerCase().includes("already exists")) {
-      return json(corsHeaders, 500, { error: "bucket create failed", detail: createErr.message });
+      return json(corsHeaders, 500, { error: "Could not prepare voice storage. Try again in a moment.", detail: createErr.message });
     }
   }
 
@@ -243,15 +256,16 @@ serveObserved("tts-speak", async (req) => {
     });
     if (!resp.ok) {
       const errText = await resp.text().catch(() => "(no body)");
+        console.error("tts-speak: azure returned " + resp.status);
       return json(corsHeaders, 502, {
-        error: `Azure TTS failed: ${resp.status}`,
+        error: "Voice playback failed. Try again in a moment.",   // the provider status goes to the log, not to the person (2026-09-06)
         detail: errText.slice(0, 200),
       });
     }
     audio = await resp.arrayBuffer();
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    return json(corsHeaders, 504, { error: "Azure TTS timeout or network error", detail: msg });
+    return json(corsHeaders, 504, { error: "Voice playback timed out. Check the connection and try again.", detail: msg });
   }
 
   // 3) Store the MP3.
@@ -264,7 +278,7 @@ serveObserved("tts-speak", async (req) => {
   // 23505-equivalent: another invocation wrote first. Not an error from the
   // caller's perspective — the cached file exists, just return its URL.
   if (upErr && !String(upErr.message || "").toLowerCase().includes("already exists")) {
-    return json(corsHeaders, 500, { error: "cache write failed", detail: upErr.message });
+    return json(corsHeaders, 500, { error: "Could not cache the audio. The voice still plays; try again if it does not.", detail: upErr.message });
   }
 
   return json(corsHeaders, 200, {

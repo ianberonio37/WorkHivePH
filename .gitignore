@@ -200,3 +200,23 @@ board_run*.log
 *_out.log
 crit_verify.log
 triage_out.log
+
+# critic-walk survey scratch dumps (per-page __RUBRIC.survey outputs; not committed artifacts) (2026-09-11)
+cw_oee_*.json
+cwd_*.json
+cwdf_*.json
+cwf_oee_*.json
+cws_*.json
+cww_*.json
+cwwd_*.json
+cwx_*.json
+# timestamped bank/baseline backups (the writer's auto-.bak; keep the source, not the copy)
+banks/*_live_mcp_bank.json.bak-*
+family_rubric_baseline.json.bak-*
+# host-headroom + i18n/oc ratchet transient state (dot-prefixed, per-machine; regenerated on run)
+.host_headroom_state.json
+.i18n_shared_ceiling
+.oc_adoption_ceiling
+# misc scratch (curl capture, a walk screenshot)
+resp.txt
+w3273_switch_dialog_fil.png

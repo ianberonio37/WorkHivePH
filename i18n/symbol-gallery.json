@@ -1,0 +1,12 @@
+{
+  "_doc": "symbol-gallery.html: English visible text -> Filipino, authored. Empty = not yet translated. tools/i18n_page_dict.py --apply tags the element and emits WH_FIL_PAGE.",
+  "Engineering Drawing: Symbol Gallery": "Engineering Drawing: Symbol Gallery",
+  "← Back to WorkHive": "← Balik sa WorkHive",
+  "Loading...": "Naglo-load...",
+  "Static · symbols come from the drawing library · preview only, no live data": "Static · galing sa drawing library ang mga symbol · preview lang, walang live data",
+  "How to read this gallery": "Paano basahin ang gallery na ito",
+  "Each tile is one drawing symbol the editor can place: its key, its name and a live rendering. Print mode shows the same symbols on a white background, the way they print.": "Bawat tile ay isang drawing symbol na kayang ilagay ng editor: ang key nito, ang pangalan at isang live rendering. Sa print mode makikita ang parehong symbol sa puting background, kung paano ito nagpi-print.",
+  "Dark mode": "Dark mode",
+  "Print mode (white bg)": "Print mode (puting bg)",
+  "All symbols": "Lahat ng symbol"
+}

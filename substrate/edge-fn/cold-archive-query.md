@@ -2,7 +2,7 @@
 name: edge-fn-cold-archive-query
 type: edge-fn
 source: file:supabase/functions/cold-archive-query/index.ts
-source_sha: 3a561cae3803ec05
+source_sha: dc7cd5afbf36b800
 last_verified: 2026-07-13
 supersedes: null
 ---

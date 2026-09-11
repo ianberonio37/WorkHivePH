@@ -123,8 +123,21 @@ function resolveHive(key, session) {
 (async () => {
   const key = anonKey();
   if (!key) skip('local anon key not found (tests/_db-cleanup.ts)');
-  const session = await grantSession(key);
-  if (!session) skip('supervisor password-grant failed (GoTrue down or seeder absent)');
+  // `let`, because the retry below reassigns it - as a const this threw "Assignment to constant variable"
+  // the first time a retry was actually needed, which is a retry that only breaks when it is called on
+  let session = await grantSession(key);
+  // ★A RECOVERING AUTH SERVER IS NOT AN ABSENT ONE, AND THIS GATE SKIPS SILENTLY WHEN IT GUESSES WRONG.
+  // A single grant attempt failed twice in one hour while the identical request succeeded from curl and from
+  // node moments later - GoTrue answers intermittently while the stack settles. Every skip writes a report
+  // saying "skipped" and exits 0, so a flaky dependency turns this into a gate that reports nothing at all,
+  // which is exactly how a scanner built to close the a11y blind spot on twelve write surfaces sat
+  // unregistered and unnoticed. It asks again before giving up.
+  for (let attempt = 2; !session && attempt <= 5; attempt++) {
+    await new Promise((r) => setTimeout(r, 4000));
+    session = await grantSession(key);
+    if (session) console.log(`  (the auth server answered on attempt ${attempt})`);
+  }
+  if (!session) skip('supervisor password-grant failed after 5 attempts (GoTrue down or seeder absent)');
   const liveHive = (await resolveHive(key, session)) || HIVE_ID;   // pin = fallback only
 
   const browser = await chromium.launch();

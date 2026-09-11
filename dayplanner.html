@@ -280,7 +280,7 @@
 <body>
 <main>
   <!-- List View Contract: declarative empty-state anchor (L-1.5) -->
-  <div id="empty-state" class="empty-state" hidden>Nothing scheduled: tap '+' to plan a task.</div>
+  <div data-i="p_nothingscheduledtaptoplanata_19ea" id="empty-state" class="empty-state" hidden>Nothing scheduled: tap '+' to plan a task.</div>
 
 
 
@@ -300,17 +300,17 @@
       <div class="flex items-center justify-between mb-1">
         <div id="sidebar-title" class="flex items-center gap-2">
           <span class="ic ic-list" aria-hidden="true"></span>
-          <span style="font-size:0.8rem;font-weight:700;color:rgba(255,255,255,0.85)">Open Items</span>
+          <span data-i="p_openitems_1fe5" style="font-size:0.8rem;font-weight:700;color:rgba(255,255,255,0.85)">Open Items</span>
         </div>
         <button class="btn-icon" onclick="toggleSidebar()" title="Collapse sidebar" aria-label="Collapse sidebar">
           <span class="ic ic-back" aria-hidden="true"></span>
         </button>
       </div>
-      <p id="sidebar-hint" style="font-size:0.65rem;color:rgba(255,255,255,0.80);margin-top:0.25rem">Click item then click a time slot to schedule</p>
+      <p data-i="p_clickitemthenclickatimeslott_afbe" id="sidebar-hint" style="font-size:0.65rem;color:rgba(255,255,255,0.80);margin-top:0.25rem">Click item then click a time slot to schedule</p>
       <div class="cap-bar-wrap" style="margin-top:6px">
         <div id="sidebar-count-bar" class="cap-bar" style="background:linear-gradient(90deg,var(--wh-orange),var(--wh-orange-light));width:0%"></div>
       </div>
-      <p id="sidebar-count-label" style="font-size:0.6rem;color:rgba(255,255,255,0.80);margin-top:2px">Loading...</p>
+      <p data-i="p_loading_b04b" id="sidebar-count-label" style="font-size:0.6rem;color:rgba(255,255,255,0.80);margin-top:2px">Loading...</p>
     </div>
     <div class="sidebar-items" id="sidebar-items">
       <div style="text-align:center;padding:2rem 0;color:rgba(255,255,255,0.80);font-size:0.75rem">
@@ -332,7 +332,7 @@
         <span class="ic ic-back" aria-hidden="true"></span>
       </a>
       <div style="display:flex;align-items:center;gap:0.5rem">
-        <span id="logo-view" translate="no" style="font-size:1rem;font-weight:800;background:linear-gradient(135deg,var(--wh-orange-text),var(--wh-orange-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent">Day</span>
+        <span data-i="p_day_987b" id="logo-view" translate="no" style="font-size:1rem;font-weight:800;background:linear-gradient(135deg,var(--wh-orange-text),var(--wh-orange-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent">Day</span>
         <span translate="no" style="font-size:1rem;font-weight:800;color:rgba(255,255,255,0.85)">Planner</span>
       </div>
       <div style="flex:1"></div>
@@ -382,7 +382,7 @@
          Populated by renderDayplannerSummary() from scheduleItems. -->
     <div id="dp-verdict" class="verdict empty" style="min-height:90px;box-sizing:border-box"><!-- I1 CLS: reserve the verdict height (placeholder→real swap) so the KPI row below doesn't shift -->
       <span id="dp-verdict-icon" class="verdict-icon">·</span>
-      <div class="verdict-text"><span id="dp-verdict-label">Loading day plan...</span><small id="dp-verdict-sub">Counting today's items, this week's load, and overdue.</small></div>
+      <div class="verdict-text"><span data-i="p_loadingdayplan_b6c0" id="dp-verdict-label">Loading day plan...</span><small data-i="p_countingtodaysitemsthisweeks_21e3" id="dp-verdict-sub">Counting today's items, this week's load, and overdue.</small></div>
     </div>
     <!-- H1 goal-gradient: today's real done/planned from scheduleItems (whProgressStrip). -->
     <div id="dp-progress" class="wh-progress-slot"></div>
@@ -390,25 +390,25 @@
       <div class="simple-card hero tag-grey" id="dp-card-today" data-rag-tile="dayplanner:today_count" data-rag-label="Tasks today">
         <h2 class="sc-label" style="margin:0;" data-i="today">Today</h2>
         <div class="sc-hero" id="dp-today-hero">0</div>
-        <div class="sc-sub" id="dp-today-sub">Loading...</div>
+        <div data-i="p_loading_b04b" class="sc-sub" id="dp-today-sub">Loading...</div>
         <span class="sc-tag" id="dp-today-tag">-</span>
       </div>
       <div class="simple-card tag-grey" id="dp-card-week" data-rag-tile="dayplanner:week_count" data-rag-label="Tasks this week">
         <h2 class="sc-label" style="margin:0;" data-i="thisweek">This week</h2>
         <div class="sc-hero" id="dp-week-hero">0</div>
-        <div class="sc-sub" id="dp-week-sub">Loading...</div>
+        <div data-i="p_loading_b04b" class="sc-sub" id="dp-week-sub">Loading...</div>
         <span class="sc-tag" id="dp-week-tag">-</span>
       </div>
       <div class="simple-card tag-grey" id="dp-card-overdue" data-rag-tile="dayplanner:overdue_count" data-rag-label="Overdue tasks">
         <h2 class="sc-label" style="margin:0;" data-i="overdue">Overdue</h2>
         <div class="sc-hero" id="dp-overdue-hero">0</div>
-        <div class="sc-sub" id="dp-overdue-sub">Loading...</div>
+        <div data-i="p_loading_b04b" class="sc-sub" id="dp-overdue-sub">Loading...</div>
         <span class="sc-tag" id="dp-overdue-tag">-</span>
       </div>
     </div>
     <div class="action-card">
-      <div class="ac-label">What to do next</div>
-      <div class="ac-text" id="dp-action-text">Computing recommendation...</div>
+      <div data-i="p_whattodonext_8ce2" class="ac-label">What to do next</div>
+      <div data-i="p_computingrecommendation_5948" class="ac-text" id="dp-action-text">Computing recommendation...</div>
     </div>
     <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="dp-summary-details" data-i="showdetails">
       Show details
@@ -416,14 +416,14 @@
     <div id="dp-summary-details" role="region" aria-label="Day planner explainer"
     data-rag-tile="dayplanner:detail_panel"
     data-rag-label="Day planner detail">
-      <strong style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How this is computed</strong>
+      <strong data-i="p_howthisiscomputed_5b52" style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How this is computed</strong>
       <ul style="margin:0;padding-left:20px;">
-        <li><strong>Today</strong>: items scheduled for today (Philippine time).</li>
-        <li><strong>This week</strong>: items in the current Monday-Sunday window.</li>
-        <li><strong>Overdue</strong>: items with <code>date &lt; today</code> AND not yet done: open work that slipped.</li>
-        <li><strong>Verdict</strong>: red if 3+ overdue; amber if today &gt; 6 OR any overdue; green when the day is plannable.</li>
+        <li><strong data-i="p_today_2434">Today</strong>: items scheduled for today (Philippine time).</li>
+        <li><strong data-i="p_thisweek_7b72">This week</strong>: items in the current Monday-Sunday window.</li>
+        <li><strong data-i="p_overdue_0721">Overdue</strong>: items with <code>date &lt; today</code> AND not yet done: open work that slipped.</li>
+        <li><strong data-i="p_verdict_7f6e">Verdict</strong>: red if 3+ overdue; amber if today &gt; 6 OR any overdue; green when the day is plannable.</li>
       </ul>
-      <p style="margin-top:8px;color:rgba(255,255,255,0.80);font-size:11px;">Click into DILO / WILO / MILO / YILO tabs for the day / week / month / year drilldown.</p>
+      <p data-i="p_clickintodilowilomiloyilotab_0f79" style="margin-top:8px;color:rgba(255,255,255,0.80);font-size:11px;">Click into DILO / WILO / MILO / YILO tabs for the day / week / month / year drilldown.</p>
     </div>
 
     <!-- Calendar content -->
@@ -447,7 +447,7 @@
       <div>
         <label for="m-title" style="font-size:0.75rem;color:rgba(255,255,255,0.80);display:block;margin-bottom:0.375rem" data-i="mtitle">Title *</label>
         <input class="wh-input" id="m-title" aria-describedby="m-required-error" placeholder="What needs to be done?" oninput="document.getElementById('m-required-error').style.display='none'" />
-        <div role="alert" aria-live="assertive" id="m-required-error" style="display:none;color:var(--wh-red);font-size:0.7rem;margin-top:0.25rem">Title and date are required.</div>
+        <div data-i="p_titleanddatearerequired_718d" role="alert" aria-live="assertive" id="m-required-error" style="display:none;color:var(--wh-red);font-size:0.7rem;margin-top:0.25rem">Title and date are required.</div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem">
         <div>
@@ -463,18 +463,18 @@
         <div>
           <label for="m-end" style="font-size:0.75rem;color:rgba(255,255,255,0.80);display:block;margin-bottom:0.375rem" data-i="mend">End Time</label>
           <input class="wh-input" id="m-end" type="time" aria-describedby="m-end-error" oninput="document.getElementById('m-end-error').style.display='none'" />
-          <div role="alert" aria-live="assertive" id="m-end-error" style="display:none;color:var(--wh-red);font-size:0.7rem;margin-top:0.25rem">Must be after Start Time</div>
+          <div data-i="p_mustbeafterstarttime_8b1b" role="alert" aria-live="assertive" id="m-end-error" style="display:none;color:var(--wh-red);font-size:0.7rem;margin-top:0.25rem">Must be after Start Time</div>
         </div>
         <div>
           <label for="m-category" style="font-size:0.75rem;color:rgba(255,255,255,0.80);display:block;margin-bottom:0.375rem" data-i="category">Category</label>
           <select class="wh-input" id="m-category" data-select-placeholder-allow="default 'PM' is the most common maintenance type">
             <option value="PM">Preventive Maintenance</option>
             <option value="CM">Corrective Maintenance</option>
-            <option value="Inspection">Inspection</option>
-            <option value="Training">Training</option>
+            <option data-i="p_inspection_d3ce" value="Inspection">Inspection</option>
+            <option data-i="p_training_b6fe" value="Training">Training</option>
             <option value="Admin">Admin</option>
             <option value="Meeting">Meeting</option>
-            <option value="Other">Other</option>
+            <option data-i="p_other_6e6a" value="Other">Other</option>
           </select>
         </div>
       </div>
@@ -485,28 +485,22 @@
              honestly in and one they hedge in because they cannot tell who is looking. The claim is
              checked against the policy by the composer-audience gate, not just asserted here. -->
         <label for="m-notes" style="font-size:0.75rem;color:rgba(255,255,255,0.80);display:block;margin-bottom:0.375rem" data-i="notes">Notes
-          <span style="font-weight:400;opacity:0.75;text-transform:none;">- private to you; nobody else in your hive can read your planner notes</span></label>
+          <span data-i="p_privatetoyounobodyelseinyour_8caf" style="font-weight:400;opacity:0.75;text-transform:none;">- private to you; nobody else in your hive can read your planner notes</span></label>
         <textarea class="wh-input" id="m-notes" rows="4" placeholder="Optional details..." style="resize:vertical"></textarea>
       </div>
       <!-- Status row (edit mode only) -->
       <div id="m-status-row" style="display:none;background:rgba(22,32,50,0.6);border:1px solid rgba(255,255,255,0.07);border-radius:0.75rem;padding:0.75rem">
-        <div style="font-size:0.72rem;color:rgba(255,255,255,0.80);margin-bottom:0.5rem;font-weight:600">Item Status</div>
+        <div data-i="p_itemstatus_b596" style="font-size:0.72rem;color:rgba(255,255,255,0.80);margin-bottom:0.5rem;font-weight:600">Item Status</div>
         <div style="display:flex;gap:0.5rem">
-          <button onclick="setItemStatus('upcoming')" id="s-btn-upcoming" class="status-btn" style="flex:1;padding:0.4rem;border-radius:0.5rem;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.80);font-size:0.7rem;font-weight:600;cursor:pointer">
-            Upcoming
-          </button>
-          <button onclick="setItemStatus('done')" id="s-btn-done" class="status-btn" style="flex:1;padding:0.4rem;border-radius:0.5rem;border:1px solid rgba(104,211,145,0.3);background:rgba(104,211,145,0.08);color:var(--wh-green);font-size:0.7rem;font-weight:600;cursor:pointer">
-            Done
-          </button>
-          <button onclick="setItemStatus('missed')" id="s-btn-missed" class="status-btn" style="flex:1;padding:0.4rem;border-radius:0.5rem;border:1px solid rgba(252,92,92,0.3);background:rgba(252,92,92,0.08);color:var(--wh-red-text);font-size:0.7rem;font-weight:600;cursor:pointer">
-            Missed
-          </button>
+          <button onclick="setItemStatus('upcoming')" id="s-btn-upcoming" class="status-btn" style="flex:1;padding:0.4rem;border-radius:0.5rem;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.80);font-size:0.7rem;font-weight:600;cursor:pointer" data-i="upcoming">Upcoming</button>
+          <button onclick="setItemStatus('done')" id="s-btn-done" class="status-btn" style="flex:1;padding:0.4rem;border-radius:0.5rem;border:1px solid rgba(104,211,145,0.3);background:rgba(104,211,145,0.08);color:var(--wh-green);font-size:0.7rem;font-weight:600;cursor:pointer" data-i="done">Done</button>
+          <button onclick="setItemStatus('missed')" id="s-btn-missed" class="status-btn" style="flex:1;padding:0.4rem;border-radius:0.5rem;border:1px solid rgba(252,92,92,0.3);background:rgba(252,92,92,0.08);color:var(--wh-red-text);font-size:0.7rem;font-weight:600;cursor:pointer" data-i="missed">Missed</button>
         </div>
       </div>
       <div style="display:flex;gap:0.75rem;justify-content:flex-end;margin-top:0.25rem">
-        <button class="btn-ghost" onclick="closeModal()">Cancel</button>
-        <button class="btn-primary" id="m-delete-btn" onclick="deleteScheduleItem()" style="background:linear-gradient(135deg,var(--wh-red),var(--wh-red));display:none">Delete</button>
-        <button class="btn-primary" onclick="saveScheduleItem()">Save</button>
+        <button class="btn-ghost" onclick="closeModal()" data-i="cancel">Cancel</button>
+        <button class="btn-primary" id="m-delete-btn" onclick="deleteScheduleItem()" style="background:linear-gradient(135deg,var(--wh-red),var(--wh-red));display:none" data-i="delete">Delete</button>
+        <button class="btn-primary" onclick="saveScheduleItem()" data-i="save">Save</button>
       </div>
     </div>
   </div>
@@ -523,6 +517,13 @@
 // IIFE threw -> the WHOLE page stuck on "Loading day plan..." for EVERY user (found by the
 // Arc-K DAY1-4 cluster). The storage-SSOT sweep's accessor is re-read at init, after utils loads.
 let WORKER_NAME = (typeof whWorker === 'function' ? whWorker() : '') || '';
+/* ★THIS PAGE HAD NO NOTION OF WHICH HIVE YOU ARE IN, and that was fine while it was a personal planner
+   keyed by auth_uid. The K2 PULL rail then added a read of the hive's PM schedule, whose comment says
+   "RLS scopes the view to the worker's hive" — singular. RLS scopes it to the worker's HIVES, plural: a
+   person who belongs to two sees both. Read live as a supervisor of two hives, the view returns 293 rows,
+   150 from one hive and 143 from the other, so her day plan mixed two plants' overdue PMs and the exact
+   count beside the rail stated a two-hive total. Same accessor every other page uses. */
+let HIVE_ID = (typeof whHiveId === 'function' ? whHiveId() : '') || '';
 var _authUid = null; // C3b: populated at init from Supabase Auth session
 // C4: redirect deferred to db init block — checks auth session first
 
@@ -712,6 +713,10 @@ function fromDBRow(row) {
     itemStatus: dpCanonToDisplay(row.item_status),  // K4: canonical enum -> display term
     sourceKind: row.source_kind || null,  // K2: task provenance
     sourceRef:  row.source_ref  || null,
+    // W3-LC W31395 (2026-09-10): the row's server-authoritative edit stamp, carried so the save can
+    // re-send it as an optimistic-concurrency filter. Deliberately NOT written back by toDBRow -
+    // the trigger owns it; a client that sets its own stamp is guarding against its own clock.
+    updatedAt:  row.updated_at || null,
   };
 }
 
@@ -719,7 +724,8 @@ async function loadSchedule() {
   _dpCloudReadFailed = false;   // a recovered read must clear the failure, or one glitch marks the page forever
   try {
     const { data, error } = await db.from('schedule_items')
-      .select('*')
+      .select('*').limit(500)   // G1 (gate growth-honesty, 2026-09-06): bounded so this read cannot grow without limit
+        
       .eq('worker_name', WORKER_NAME)
       .order('date', { ascending: true })
       // T75 (2026-08-28): the day was ordered by date then ID, and this form collects a Start Time
@@ -824,7 +830,31 @@ async function syncItemToSupabase(item) {
         return;
       }
     }
-    const { error } = await db.from('schedule_items').upsert(row);
+    // W3-LC W31395: a day plan has THREE writers (this worker's other tab, the accepted-marketplace-job
+    // path in migration 20260729000006, and the offline queue draining), so a bare `.upsert(row)` -
+    // which replaces the whole row - let the last one win silently. Guarded against the row's stamp;
+    // zero rows changed means somebody saved first, and we say so instead of flattening their work.
+    // The offline path above stays unguarded on purpose: a row composed before a reconnect cannot hold
+    // a fresh stamp, and refusing it would lose the capture the queue exists to protect.
+    // Full account (why an earlier `.update(`-only census missed this): migration 20260910000001.
+    let error;
+    if (item.updatedAt) {
+      // `updated_at` comes BACK and is written onto the item: without it a SECOND edit in one sitting
+      // sends the pre-save stamp and accuses the person of conflicting with themselves.
+      const { data: hit, error: uErr } = await db.from('schedule_items')
+        .update(row).eq('id', row.id).eq('worker_name', WORKER_NAME)
+        .eq('updated_at', item.updatedAt).select('id, updated_at');
+      error = uErr;
+      if (!uErr && hit && hit.length) item.updatedAt = hit[0].updated_at;
+      if (!uErr && (!hit || !hit.length)) {
+        showToast(_t('Someone else changed this item while you were editing. Showing you their version - make your change again.',
+                     'May ibang nagbago nito habang nag-e-edit ka. Ipinapakita ang bersyon nila - ulitin ang pagbabago mo.'), 'error');
+        await loadSchedule();   // ends in renderSidebar() + render(), so the plan on screen is theirs
+        return;
+      }
+    } else {
+      ({ error } = await db.from('schedule_items').upsert(row));
+    }
     if (error) {
       // network hiccup while nominally "online": queue it, don't lose the capture
       if (_ensureDpQueue() && row.id && /fetch|network|load failed|connection|timeout/i.test(error.message || '')) {
@@ -842,8 +872,8 @@ async function syncItemToSupabase(item) {
            above and what reaches here is a REFUSAL. The diagnosis was written and the string was
            not changed. A refusal answered with "check your connection" sends someone to their wifi
            for a problem their wifi cannot fix. */
-        ? whWriteError(error, 'Could not save that change. Nothing on your schedule changed.')
-        : 'Could not save that change. Nothing on your schedule changed.', 'error');
+        ? whWriteError(error, _t('Could not save that change. Nothing on your schedule changed.', 'Hindi ma-save ang pagbabagong iyon. Walang nagbago sa schedule mo.'))
+        : _t('Could not save that change. Nothing on your schedule changed.', 'Hindi ma-save ang pagbabagong iyon. Walang nagbago sa schedule mo.'), 'error');
     }
   } catch(e) {
     console.warn('Schedule sync error:', e);
@@ -862,8 +892,8 @@ async function syncItemToSupabase(item) {
        refusal or a bug, and sending someone to their wifi for either wastes the one action they
        are willing to take. Say the outcome instead, matching its sibling three lines above. */
     showToast(typeof whWriteError === 'function'
-      ? whWriteError(e, 'Could not save that change. Nothing on your schedule changed.')
-      : 'Could not save that change. Nothing on your schedule changed.', 'error');
+      ? whWriteError(e, _t('Could not save that change. Nothing on your schedule changed.', 'Hindi ma-save ang pagbabagong iyon. Walang nagbago sa schedule mo.'))
+      : _t('Could not save that change. Nothing on your schedule changed.', 'Hindi ma-save ang pagbabagong iyon. Walang nagbago sa schedule mo.'), 'error');
   }
 }
 
@@ -887,14 +917,14 @@ async function deleteItemFromSupabase(id) {
       /* T176: same as the save path - a refusal, not a connection problem. And a failed delete
          has one certain consequence worth stating: the item is still there. */
       showToast(typeof whWriteError === 'function'
-        ? whWriteError(error, 'Could not delete that item. It is still on your schedule.')
-        : 'Could not delete that item. It is still on your schedule.', 'error');
+        ? whWriteError(error, _t('Could not delete that item. It is still on your schedule.', 'Hindi ma-delete ang item na iyon. Nasa schedule mo pa ito.'))
+        : _t('Could not delete that item. It is still on your schedule.', 'Hindi ma-delete ang item na iyon. Nasa schedule mo pa ito.'), 'error');
     }
   } catch(e) {
     console.warn('Schedule delete error:', e);
     showToast(typeof whWriteError === 'function'
-      ? whWriteError(e, 'Could not delete that item. It is still on your schedule.')
-      : 'Could not delete that item. It is still on your schedule.', 'error');
+      ? whWriteError(e, _t('Could not delete that item. It is still on your schedule.', 'Hindi ma-delete ang item na iyon. Nasa schedule mo pa ito.'))
+      : _t('Could not delete that item. It is still on your schedule.', 'Hindi ma-delete ang item na iyon. Nasa schedule mo pa ito.'), 'error');
   }
 }
 
@@ -961,10 +991,14 @@ async function loadPlantWork() {
     // same view with a 500 cap and reports the real figure, so the two surfaces disagreed about
     // the same fact. The slice stays (30 urgent cards is a day-planner, not a backlog); the number
     // beside it now tells the truth about what it is a slice OF.
-    const { data, error, count } = await db.from('v_pm_scope_items_truth')
+    let pmQ = db.from('v_pm_scope_items_truth')
       .select('scope_item_id, item_text, asset_name, asset_tag, next_due_date, days_until_due, is_overdue, is_due_soon',
               { count: 'exact' })
-      .or('is_overdue.eq.true,is_due_soon.eq.true')
+      .or('is_overdue.eq.true,is_due_soon.eq.true');
+    // Scope to the hive you are actually in. Same idiom pm-scheduler uses, including the hive-less half:
+    // a personal asset's PM has a null hive_id and still belongs on its owner's day.
+    if (HIVE_ID) pmQ = pmQ.or(`hive_id.eq.${HIVE_ID},hive_id.is.null`);
+    const { data, error, count } = await pmQ
       .order('is_overdue', { ascending: false })
       .order('next_due_date', { ascending: true })
       .order('id')   // MR4 tiebreaker: the sort above is not total on its own
@@ -988,7 +1022,7 @@ function renderPlantWorkSection() {
     /* Silence is only honest when the read ANSWERED. */
     if (plantWorkFailed) {
       return '<div class="section-note" style="font-size:0.72rem;opacity:0.8;padding:0.5rem 0;">'
-        + 'Could not load plant PM work, so this rail is empty for a reason that is not "nothing due". Reload to try again.</div>';
+        + '' + _t("Could not load plant PM work, so this rail is empty for a reason that is not \"nothing due\". Reload to try again.", "Hindi ma-load ang plant PM work, kaya walang laman ang rail na ito sa dahilang hindi \"walang due\". I-reload para subukan muli.") + '</div>';
     }
     if (plantWorkHiveLost) {
       // The read ANSWERED - with nothing, because it was refused. Vanishing here reads as "no plant work
@@ -1075,7 +1109,9 @@ function renderSidebar() {
   const label = document.getElementById('sidebar-count-label');
   const bar = document.getElementById('sidebar-count-bar');
   const total = logbookItems.length;
-  label.textContent = `${total} open item${total !== 1 ? 's' : ''} from Logbook`;
+  // C-BR: Filipino has no plural -s, so the count carries the number on its own.
+  label.textContent = _t(`${total} open item${total !== 1 ? 's' : ''} from Logbook`,
+                         `${total} bukas na item mula sa Logbook`);
   bar.style.width = Math.min(100, total * 10) + '%';
 
   if (total === 0) {
@@ -1087,13 +1123,13 @@ function renderSidebar() {
       label.textContent = 'Open items unknown';
       container.innerHTML = `<div style="text-align:center;padding:2rem 0;color:rgba(255,255,255,0.85);font-size:0.75rem">
         <span class="ic ic-warn" aria-hidden="true"></span>
-        Could not load your open items. This is a connection problem, not an empty queue.</div>`
+        ${escHtml(_t('Could not load your open items. This is a connection problem, not an empty queue.', 'Hindi ma-load ang mga open item mo. Problema ito sa koneksyon, hindi walang laman na queue.'))}</div>`
         + renderPlantWorkSection();
       return;
     }
     container.innerHTML = `<div style="text-align:center;padding:2rem 0;color:rgba(255,255,255,0.80);font-size:0.75rem">
       <span class="ic ic-check" aria-hidden="true"></span>
-      No open items</div>` + renderPlantWorkSection();
+      ${escHtml(_t('No open items', 'Walang open na item'))}</div>` + renderPlantWorkSection();
     return;
   }
 
@@ -1159,9 +1195,7 @@ function renderSidebar() {
           <span class="badge" style="background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.80)">${escHtml(item.status) || 'Open'}</span>
         </div>
         ${linked.length ? `<div style="font-size:0.62rem;color:rgba(255,255,255,0.80);margin-bottom:0.375rem">${linked.length} scheduled slot${linked.length>1?'s':''}</div>` : ''}
-        <button class="btn-ghost" style="width:100%;font-size:0.72rem;min-height:44px;padding:0.5rem 0.75rem" onclick="event.stopPropagation();selectAndSchedule('${escJsAttr(item.id)}')">
-          + Place on Schedule
-        </button>
+        <button class="btn-ghost" style="width:100%;font-size:0.72rem;min-height:44px;padding:0.5rem 0.75rem" onclick="event.stopPropagation();selectAndSchedule('${escJsAttr(item.id)}')" data-i="placeonschedule">+ Place on Schedule</button>
       </div>
     </div>`;
   }).join('') + renderPlantWorkSection();
@@ -1310,14 +1344,14 @@ function renderDayplannerSummary() {
   if (_dpCloudReadFailed) {
     const stale = scheduleItems.length;
     if (dpProg) dpProg.innerHTML = '';
-    setCard('today',   stale ? String(todayCount)   : '—', stale ? 'From this device (offline copy)' : 'Could not read your plan', 'UNKNOWN', 'grey');
-    setCard('week',    stale ? String(weekCount)    : '—', stale ? 'From this device (offline copy)' : 'Could not read your plan', 'UNKNOWN', 'grey');
-    setCard('overdue', stale ? String(overdueCount) : '—', stale ? 'From this device (offline copy)' : 'Could not read your plan', 'UNKNOWN', 'grey');
+    setCard('today',   stale ? String(todayCount)   : '—', stale ? 'From this device (offline copy)' : _t('Could not read your plan', 'Hindi mabasa ang plano mo'), 'UNKNOWN', 'grey');
+    setCard('week',    stale ? String(weekCount)    : '—', stale ? 'From this device (offline copy)' : _t('Could not read your plan', 'Hindi mabasa ang plano mo'), 'UNKNOWN', 'grey');
+    setCard('overdue', stale ? String(overdueCount) : '—', stale ? 'From this device (offline copy)' : _t('Could not read your plan', 'Hindi mabasa ang plano mo'), 'UNKNOWN', 'grey');
     const vB = document.getElementById('dp-verdict');
     if (vB) { vB.classList.remove('healthy','watch','attn','empty'); vB.classList.add('attn'); }
     const vI = document.getElementById('dp-verdict-icon');  if (vI) vI.textContent = '⚠';
     const vL = document.getElementById('dp-verdict-label');
-    if (vL) vL.textContent = stale ? 'Showing an offline copy of your plan' : 'Could not load your day plan';
+    if (vL) vL.textContent = stale ? 'Showing an offline copy of your plan' : _t('Could not load your day plan', 'Hindi ma-load ang day plan mo');
     const vS = document.getElementById('dp-verdict-sub');
     if (vS) vS.textContent = stale
       ? 'These items came from this device and may be out of date. Reload once you are back online.'
@@ -1336,10 +1370,10 @@ function renderDayplannerSummary() {
       // hero cards plus the verdict block: on pm-scheduler a targeted re-render restored the list and
       // left the summary still claiming failure, which is a partial recovery and worse than none.
       if (typeof whListError === 'function') {
-        whListError(eS, 'Could not load your plan. This is a connection problem, not an empty day: '
+        whListError(eS, _t('Could not load your plan. This is a connection problem, not an empty day: ', 'Hindi ma-load ang plano mo. Problema ito sa koneksyon, hindi walang laman ang araw: ')
           + 'your items are still there.', () => location.reload());
       } else {
-        eS.textContent = 'Could not load your plan. This is a connection problem, not an empty day. Reload to see your items.';
+        eS.textContent = _t('Could not load your plan. This is a connection problem, not an empty day. Reload to see your items.', 'Hindi ma-load ang plano mo. Problema ito sa koneksyon, hindi walang laman ang araw. I-reload para makita ang mga item mo.');
       }
     }
     return;
@@ -1347,26 +1381,32 @@ function renderDayplannerSummary() {
 
   setCard('today',
     String(todayCount),
-    todayCount === 0 ? 'No items scheduled for today' : `${todayCount} item${todayCount === 1 ? '' : 's'} on today's plan`,
+    todayCount === 0 ? _t('No items scheduled for today', 'Walang naka-iskedyul ngayong araw') : `${todayCount} item${todayCount === 1 ? '' : 's'} on today's plan`,
     todayCount === 0 ? 'OPEN' : todayCount > 6 ? 'BUSY' : 'PLANNED',
     todayCount === 0 ? 'green' : todayCount > 6 ? 'amber' : 'green'
   );
   setCard('week',
     String(weekCount),
-    weekCount === 0 ? 'No items scheduled this week' : `${weekCount} item${weekCount === 1 ? '' : 's'} between Mon-Sun`,
+    weekCount === 0 ? _t('No items scheduled this week', 'Walang naka-iskedyul ngayong linggo') : `${weekCount} item${weekCount === 1 ? '' : 's'} between Mon-Sun`,
     weekCount === 0 ? 'EMPTY' : weekCount > 30 ? 'PACKED' : weekCount > 10 ? 'NORMAL' : 'LIGHT',
     weekCount === 0 ? 'grey' : weekCount > 30 ? 'amber' : 'green'
   );
   setCard('overdue',
     String(overdueCount),
-    overdueCount === 0 ? 'No items past their date' : `${overdueCount} item${overdueCount === 1 ? '' : 's'} past their scheduled date`,
+    overdueCount === 0 ? _t('No items past their date', 'Walang item na lumipas na ang petsa') : `${overdueCount} item${overdueCount === 1 ? '' : 's'} past their scheduled date`,
     overdueCount === 0 ? 'CLEAR' : overdueCount >= 3 ? 'STACKING' : 'CLOSE OUT',
     overdueCount === 0 ? 'green' : overdueCount >= 3 ? 'red' : 'amber'
   );
 
   let tone, label, sub;
   if (overdueCount >= 3) {
-    tone = 'attn'; label = `${overdueCount} items overdue`;
+    // C-BR: "lampas na sa takda" is the wording pm-scheduler already uses for an overdue PM, so the
+    // same state reads the same way on both surfaces.
+    // T131: the English half takes the singular branch (the platform's own idiom) so a single overdue
+    // item does not read "1 items overdue" - n=1 is the ordinary case the moment a plan narrows to one.
+    // The Filipino half needs none: Filipino does not inflect nouns for number.
+    tone = 'attn'; label = _t(`${overdueCount} item${overdueCount === 1 ? '' : 's'} overdue`,
+                              `${overdueCount} item na lampas na sa takda`);
     sub  = 'Close them out (mark Closed) or re-schedule so the day plan reflects reality.';
   } else if (overdueCount > 0 || todayCount > 6) {
     tone = 'watch'; label = 'Day is shaping up, a couple of things to manage';
@@ -1375,11 +1415,13 @@ function renderDayplannerSummary() {
     if (todayCount > 6)   parts.push(`${todayCount} on today's plan`);
     sub = parts.join(' · ') + '.';
   } else if (todayCount === 0 && weekCount === 0) {
-    tone = 'empty'; label = 'No plan yet';
-    sub  = 'Tap + Schedule to add items. DILO / WILO / MILO / YILO views drill into day / week / month / year.';
+    tone = 'empty'; label = _t('No plan yet', 'Wala pang plano');
+    sub  = _t('Tap + Schedule to add items. DILO / WILO / MILO / YILO views drill into day / week / month / year.',
+              'Pindutin ang + Schedule para magdagdag ng item. Ang DILO / WILO / MILO / YILO na view ay sumisid sa araw / linggo / buwan / taon.');
   } else {
-    tone = 'healthy'; label = 'Day plan looks manageable';
-    sub  = `${todayCount} today · ${weekCount} this week · no overdue.`;
+    tone = 'healthy'; label = _t('Day plan looks manageable', 'Kayang-kaya ang plano ng araw');
+    sub  = _t(`${todayCount} today · ${weekCount} this week · no overdue.`,
+              `${todayCount} ngayon · ${weekCount} ngayong linggo · walang lampas sa takda.`);
   }
   const vBox = document.getElementById('dp-verdict');
   if (vBox) { vBox.classList.remove('healthy','watch','attn','empty'); vBox.classList.add(tone); }
@@ -1390,16 +1432,29 @@ function renderDayplannerSummary() {
   const actBox = document.getElementById('dp-action-text');
   if (actBox) {
     let text;
+    // C-BT: the whole cascade, not just the branch a stamped element happened to sit on. The FIRST
+    // branch is the one a person with an empty plan meets - the same "the empty state is the
+    // untranslated one" shape the J31 Filipino walk found across achievements and marketplace.
     if (todayCount === 0 && weekCount === 0) {
-      text = 'Nothing planned yet. Tap + Schedule to block out your week. Rough placeholders still help you group work by area.';
+      text = _t('Nothing planned yet. Tap + Schedule to block out your week. Rough placeholders still help you group work by area.',
+                'Wala pang nakaplano. I-tap ang + Schedule para hatiin ang linggo mo. Malaking tulong pa rin ang magaspang na plano para pagsama-samahin ang trabaho.');
     } else if (overdueCount >= 3) {
-      text = `${overdueCount} items overdue. Open the Week view. Drag the ones you still need to today or tomorrow. Close the rest.`;
+      // C-BR: four short sentences in both halves, each well inside the 20-word bar - the split is the
+      // reason the Filipino fits, since it expands against the English.
+      text = _t(`${overdueCount} items overdue. Open the Week view. Drag the ones you still need to today or tomorrow. Close the rest.`,
+                `${overdueCount} item ang lampas na sa takda. Buksan ang Week view. I-drag sa ngayon o bukas ang mga kailangan pa. Isara ang iba.`);
     } else if (overdueCount > 0) {
-      text = `${overdueCount} overdue item${overdueCount === 1 ? '' : 's'}. Either close them out (if done) or push the date forward so the plan stays honest.`;
+      text = _t(`${overdueCount} overdue item${overdueCount === 1 ? '' : 's'}. Either close them out (if done) or push the date forward so the plan stays honest.`,
+                `${overdueCount} item ang lampas na sa takda. Isara ang mga tapos na, o iusod ang petsa para manatiling totoo ang plano.`);
     } else if (todayCount > 6) {
-      text = `${todayCount} items on today's plan, that's a heavy day. Open DILO to check the time grid for clashes, then defer anything non-urgent to tomorrow.`;
+      // T131: the English half takes the singular branch. This branch only fires above 6 items, so n=1
+      // cannot occur here today - but the ratchet counts the SHAPE, and a threshold is a thing that gets
+      // tuned. Cheaper to write it correctly than to leave a trap for whoever lowers the number.
+      text = _t(`${todayCount} item${todayCount === 1 ? '' : 's'} on today's plan, that's a heavy day. Open DILO to check the time grid for clashes, then defer anything non-urgent to tomorrow.`,
+                `${todayCount} item sa plano ngayong araw, mabigat iyan. Buksan ang DILO para tingnan ang time grid kung may sabay, tapos iurong sa bukas ang hindi madalian.`);
     } else {
-      text = 'Day plan is healthy. Open DILO for the time-grid view of today, or WILO to balance the week ahead.';
+      text = _t('Day plan is healthy. Open DILO for the time-grid view of today, or WILO to balance the week ahead.',
+                'Maayos ang plano ng araw. Buksan ang DILO para sa time-grid ngayong araw, o ang WILO para balansehin ang linggo.');
     }
     actBox.textContent = text;
   }
@@ -2063,13 +2118,13 @@ function saveScheduleItem() {
       .eq('id', payload.logbookRef)
       .select('id')   // K5: return affected rows so a 0-row RLS no-op is detected, not assumed success
       .then(({ data, error }) => {
-        if (error) { console.warn('Logbook sync failed:', error.message); showToast('Item saved, but failed to close the linked logbook entry. Please close it manually.'); }
+        if (error) { console.warn('Logbook sync failed:', error.message); showToast(_t('Item saved, but failed to close the linked logbook entry. Please close it manually.', 'Na-save ang item, pero hindi naisara ang naka-link na logbook entry. Pakisara ito nang manu-mano.')); }
         else if (!data || data.length === 0) {
           // 0 rows updated: logbook.update RLS is owner-scoped (auth_uid=auth.uid()), so a linked
           // entry authored by someone else (or an un-backfilled legacy row) matches nothing. The old
           // code treated no-error as success and hid the item while the DB stayed Open (silent lie).
           console.warn('Logbook close matched 0 rows — entry may belong to another user or be un-attributed.');
-          showToast('Item saved. The linked logbook entry could not be closed (it may be owned by someone else).');
+          showToast(_t('Item saved. The linked logbook entry could not be closed (it may be owned by someone else).', 'Na-save ang item. Hindi naisara ang naka-link na logbook entry (baka pag-aari ito ng iba).'));
         } else {
           // Remove from open items sidebar since it's now genuinely closed
           logbookItems = logbookItems.filter(i => i.id != payload.logbookRef);
@@ -2163,7 +2218,7 @@ document.addEventListener('keydown', e => {
 // INIT: runs after supabase-js CDN loads (see script block below)
 // ─────────────────────────────────────────────
 </script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
+<script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
 <script src="wh-capture-validate.js"></script>
 <!-- Y1b (2026-07-23): offline-queue.js MUST load BEFORE the init IIFE below, not deferred at
@@ -2181,6 +2236,11 @@ document.addEventListener('keydown', e => {
   (async () => {
     // utils.js is loaded by now — re-read the canonical accessor the early block couldn't.
     if (!WORKER_NAME && typeof whWorker === 'function') WORKER_NAME = whWorker() || '';
+    // ★AND RE-READ THE HIVE HERE FOR THE SAME REASON. The note above line 519 says these accessors are
+    // re-read at init because utils.js has not loaded when the page's own script first runs. A HIVE_ID that
+    // is still empty at query time leaves the PM rail unscoped - which is the exact defect being fixed, so
+    // taking the value only at parse time would have shipped a fix that does nothing on a cold load.
+    if (!HIVE_ID && typeof whHiveId === 'function') HIVE_ID = whHiveId() || '';
     if (!WORKER_NAME) { WORKER_NAME = await restoreIdentityFromSession(db); }
     try {
       if (typeof whHiveMembershipLost === 'function') {
@@ -2326,8 +2386,8 @@ document.addEventListener('keydown', e => {
 
 <!-- Calm Dashboard Contract footer: data-sources disclosure + hideZeroStat helper -->
 <details data-calm-disclosure="data-sources" style="max-width:680px; margin:1rem auto 2rem; padding:0 1rem;">
-  <summary style="cursor:pointer; font-size:.78rem; color:rgba(255,255,255,0.80); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
-  <p style="font-size:.78rem; color:rgba(255,255,255,0.80); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
+  <summary data-i="p_aboutthisdashboardsdatasourc_8e23" style="cursor:pointer; font-size:.78rem; color:rgba(255,255,255,0.80); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
+  <p data-i="p_numberscomefromyourliveworkh_9c03" style="font-size:.78rem; color:rgba(255,255,255,0.80); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
 </details>
 <script>
   window.hideZeroStat = window.hideZeroStat || function(el, val) {

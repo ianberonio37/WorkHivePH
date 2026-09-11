@@ -27,6 +27,7 @@
 //     fail, na, judged, failPages}}, summary: {mean, ge90, ge85, errors} }
 
 import { chromium } from 'playwright';
+import { takeBrowserSlot } from './browser_slot.mjs';
 import { writeFileSync, readFileSync } from 'fs';
 
 const SEEDER = process.env.WH_TEST_BASE_URL || 'http://127.0.0.1:5000';
@@ -69,11 +70,38 @@ const PAGES = [
   'agentic-rag-observability.html', 'audit-log.html',
   'marketplace-seller-profile.html', 'public-feed.html', 'status.html',
   'ph-intelligence.html', 'promo-poster.html',
+  // ★THE 10 UNWALKED ROOT PAGES (P-program, 2026-09-05). These were never on the board, so nothing
+  // held them: the first --page run found Poppins never loaded on four of them, a 1519px table
+  // overflowing the viewport, a 2.04:1 symbol key and a 38x20 switch. A page outside the board is
+  // a page whose regressions are invisible. The ratchet only compares pages present in its
+  // baseline (validate_family_rubric_ratchet.py iterates the baseline), so adding them is safe:
+  // they join the floors on the next full sweep + --accept.
+  'founder-console.html', 'llm-observability.html', 'platform-actions.html',
+  'validator-catalog.html', 'offline-fallback.html', 'symbol-gallery.html',
+  'design-system.html', 'architecture.html', 'analytics-report.html', 'resume.html',
+  // ★SUBPATH PAGES the P-program names (2026-09-05): the seeder serves them under /workhive/ (200),
+  // so the board can grade them. These 14 are the calculators + the learn index that P rows
+  // (P13/P29/P321, P60-P72, P308) walk; until now their only receipt was the PROD load-level
+  // breadth, and their 28 critic rows could only stay `pending`. The T/U waves' own funnel gates
+  // still hold the other 100 tools/learn pages; the board takes the ones the program walks.
+  'learn/index.html',
+  'tools/ahu-sizing-calculator/index.html', 'tools/beam-design-calculator/index.html',
+  'tools/bearing-life-calculator/index.html', 'tools/boiler-steam-calculator/index.html',
+  'tools/boiler-system-calculator/index.html', 'tools/bolt-torque-calculator/index.html',
+  'tools/cable-tray-sizing-calculator/index.html', 'tools/chiller-sizing-calculator/index.html',
+  'tools/clean-agent-suppression-calculator/index.html', 'tools/compressed-air-calculator/index.html',
+  'tools/cooling-tower-calculator/index.html', 'tools/domestic-water-demand-calculator/index.html',
+  'tools/drainage-pipe-sizing-calculator/index.html',
 ];
 
 const args = process.argv.slice(2);
 const HEADED = args.includes('--headed');
+// --page accepts ONE page or a comma-separated subset (`--page a.html,b.html`). The P-program
+// walks a wave's pages at a time, and a 12-page subset is the difference between a run this 8GB
+// host finishes and a 32-page board that kills it. Still routed to the .page.json output below,
+// so no subset run can ever overwrite the full board.
 const PAGE_ONLY = (() => { const i = args.indexOf('--page'); return i >= 0 ? args[i + 1] : null; })();
+const PAGE_LIST = PAGE_ONLY ? PAGE_ONLY.split(',').map((s) => s.trim()).filter(Boolean) : null;
 // A --page run must never clobber the FULL board (validate_family_rubric_ratchet.py
 // baselines from it; a 1-page overwrite destroyed the sweep-#8 board on 2026-07-16).
 const OUT = PAGE_ONLY ? 'family_rubric_scoreboard.page.json' : 'family_rubric_scoreboard.json';
@@ -83,7 +111,16 @@ const RUBRIC_SRC = readFileSync('survey_ufai_rubric.js', 'utf8');
 async function signInOnce(context) {
   const page = await context.newPage();
   await page.goto(`${SEEDER}/workhive/shift-brain.html`, { waitUntil: 'domcontentloaded' });
-  await page.waitForFunction(() => typeof window.getDb === 'function' && !!window.supabase, { timeout: 15000 }).catch(() => {});
+  // ★THE THIRD COPY OF A WAIT THAT COVERED TWO OF THE THREE THINGS IT USES (2026-09-10). The line
+  // below builds a client from `window.SUPABASE_KEY`, and a top-level `const` creates NO window
+  // property - only `var` does. 23 of the platform's 27 key-declaring pages use `const`; this signs in
+  // on shift-brain.html, one of the four that use `var`, so it has worked by luck. The same fragility
+  // was repaired in tools/prover_harness.mjs (the sign-in for 48 provers) earlier today, and a sweep
+  // that silently fails to sign in does not error - it grades every page SIGNED OUT, which for a
+  // supervisor-scoped surface is a rubric run measuring the wrong product.
+  await page.waitForFunction(() => !!window._whSupabaseClient
+    || (typeof window.getDb === 'function' && !!window.supabase && !!window.SUPABASE_KEY),
+  { timeout: 15000 }).catch(() => {});
   const r = await page.evaluate(async ({ email, password, hive, worker }) => {
     try {
       const db = window._whSupabaseClient || window.getDb('http://127.0.0.1:54321', window.SUPABASE_KEY);
@@ -94,8 +131,22 @@ async function signInOnce(context) {
       let realHive = hive;
       try {
         const uid = data?.session?.user?.id;
-        const { data: mem } = uid ? await db.from('hive_members').select('hive_id')
-          .eq('auth_uid', uid).eq('status', 'active').limit(1).maybeSingle() : { data: null };
+        // ★PREFER THE SUPERVISOR MEMBERSHIP (2026-09-05). The header comment above already says
+        // Pablo is supervisor in Lucena and only a worker in Manila -- but this query took ANY
+        // active membership, `limit(1).maybeSingle()`, so which hive the sweep measured depended
+        // on row order. The morning full board resolved Lucena (hive H1 = 5 indicators); later
+        // page runs resolved Manila and read H1 = 0 + a board-card CLS -- the SAME pages, graded
+        // in the worker view, reported as regressions of edits that had not touched them. A
+        // fresh authed probe pinned to Lucena passed both. Resolve by ROLE first, then fall back.
+        const q = (extra) => db.from('hive_members').select('hive_id, role')
+          .eq('auth_uid', uid).eq('status', 'active').order('hive_id').limit(1).maybeSingle();
+        let mem = null;
+        if (uid) {
+          const sup = await db.from('hive_members').select('hive_id, role')
+            .eq('auth_uid', uid).eq('status', 'active').eq('role', 'supervisor').order('hive_id').limit(1).maybeSingle();
+          mem = sup && sup.data;
+          if (!mem) { const any = await q(); mem = any && any.data; }
+        }
         if (mem && mem.hive_id) realHive = mem.hive_id;
       } catch (_) { /* keep fallback */ }
       localStorage.setItem('wh_active_hive_id', realHive);
@@ -119,7 +170,7 @@ async function surveyPage(context, file) {
   // the real load (the lens can't; it runs post-load in page context). Converts I1 from
   // JUDGED to MEASURED (Ian: "those unmeasured dimensions, use playwright to live-probe").
   await page.addInitScript(() => {
-    window.__cwv = { lcp: 0, cls: 0, worstShift: 0, culprit: '' };
+    window.__cwv = { lcp: 0, cls: 0, worstShift: 0, culprit: '', shifts: [] };
     const desc = (n) => { try { return n && n.nodeType === 1 ? (n.tagName.toLowerCase() + (n.id ? '#' + n.id : '') + (n.className && typeof n.className === 'string' ? '.' + n.className.trim().split(/\s+/).slice(0, 2).join('.') : '')) : ''; } catch (e) { return ''; } };
     try {
       new PerformanceObserver((l) => { for (const e of l.getEntries()) window.__cwv.lcp = e.startTime; })
@@ -127,6 +178,8 @@ async function surveyPage(context, file) {
       new PerformanceObserver((l) => { for (const e of l.getEntries()) {
         if (e.hadRecentInput) continue;
         window.__cwv.cls += e.value;
+        // WH_SWEEP_CLS_DEBUG: keep every shift with its sources + rects so the sweep can explain its own number
+        window.__cwv.shifts.push({ t: Math.round(e.startTime), v: +e.value.toFixed(4), src: (e.sources || []).slice(0, 4).map((s) => (s.node ? desc(s.node) : 'DETACHED') + ' y' + Math.round(s.previousRect.y) + '->' + Math.round(s.currentRect.y) + ' h' + Math.round(s.previousRect.height) + '->' + Math.round(s.currentRect.height)) });
         if (e.value > window.__cwv.worstShift) {   // record the biggest single shift's source element
           window.__cwv.worstShift = e.value;
           const src = (e.sources || []).find((s) => s.node);
@@ -157,6 +210,12 @@ async function surveyPage(context, file) {
     // lands before the survey. Fail-soft: long-poll pages just hit the cap.
     await page.waitForLoadState('networkidle', { timeout: 3500 }).catch(() => {});
     if (PAGE_SETTLE[file]) await page.waitForTimeout(PAGE_SETTLE[file]);
+    // ★I1 CLS — snapshot the SETTLED natural-load CLS here, BEFORE survey() runs in-page. The survey
+    // itself mutates the DOM to measure (toggles, focus, probes); on founder-console (13.8k px main) it
+    // added ~0.45 that two isolated observers never saw (0.009 / 0.033 through a scroll, 2026-09-05).
+    // The post-survey read stays as clsAtLoad for the diagnostic delta below.
+    const clsSettled = await page.evaluate(() => (window.__cwv && window.__cwv.cls) || 0);
+    if (process.env.WH_SWEEP_CLS_DEBUG) { const sh = await page.evaluate(() => (window.__cwv && window.__cwv.shifts) || []); for (const x of sh) if (x.v >= 0.005) console.log(`[cls-debug] ${file} t=${x.t} v=${x.v} :: ${x.src.join(' | ')}`); }
     // Gated pages (audit-log, integrations, marketplace-admin) show a supervisor/hive/admin AUTH
     // GATE until the async role check resolves; the survey must grade the REAL UI behind it, not the
     // gate screen. Wait for any known gate to hide. 7s (was 4s): marketplace-admin's platform-admin
@@ -324,7 +383,8 @@ async function surveyPage(context, file) {
       // re-measure's reflow shifts (see the snapshot note above). LCP on a LOCAL dev server (Tailwind
       // CDN, unminified, local RPC latency) runs slower than prod, so the PASS bar is the local-sanity
       // 4000ms ("poor" boundary — catches truly broken pages); the note flags the 2500ms prod target.
-      const cls = clsAtLoad;
+      const cls = clsSettled;   // natural load + settle only (see the snapshot above)
+      if (clsAtLoad - clsSettled > 0.05) console.log(`[rubric-sweep] ${file}: survey-induced CLS +${(clsAtLoad - clsSettled).toFixed(3)} (settled ${clsSettled.toFixed(3)}) — instrument, not the page`);
       const clsGood = cls < 0.1;                             // web.dev "good" CLS (strict)
       const lcpOk = lcp > 0 && lcp < 4000;                   // local sanity bar
       const lcpProdGood = lcp > 0 && lcp < 2500;             // prod target
@@ -389,32 +449,74 @@ async function surveyPage(context, file) {
   }
 }
 
+await takeBrowserSlot("rubric-sweep");   // one browser slot on this host - queue, do not race
 const browser = await chromium.launch({ headless: !HEADED });
 // serviceWorkers:'block' — WITHOUT this the app's SW registers on page 1 and serves CACHED shell
 // files (utils.js/components.css/wh-tw.css/tokens.css) for every later page, so the sweep UNDER-
 // measures any just-shipped shell change (2026-07-24: a C5 fix showed marketplace-admin/audit-log
 // at 50% in the sweep while they were really 100% cache-cleared). Blocking the SW loads fresh files.
-const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, serviceWorkers: 'block' });
+// ── SIGNED-IN CONTEXT FACTORY ────────────────────────────────────────────────────────────────
 // Sign-in RETRY: the local Supabase auth intermittently returns WH_DB_TIMEOUT under load. A single
 // failed attempt used to abort the whole sweep (exit 1) OR — worse, in --page mode — leave every page
 // rendering its SIGNED-OUT/empty state, which read as a phantom board of failures (inventory E3/H1/R4
 // all 0, dayplanner CLS spike, G1 gaps) that vanished on the next run. Retry up to 4× with a short
 // backoff so a transient DB timeout doesn't masquerade as a page regression.
-let si;
-for (let attempt = 1; attempt <= 4; attempt++) {
-  si = await signInOnce(context);
-  if (si.ok) { if (attempt > 1) console.log(`[rubric-sweep] sign-in: OK on attempt ${attempt}`); break; }
-  console.log(`[rubric-sweep] sign-in attempt ${attempt} FAIL ${si.err}${attempt < 4 ? ' — retrying' : ''}`);
-  if (attempt < 4) await new Promise((r) => setTimeout(r, 1500 * attempt));
+//
+// This is a FACTORY (not a one-shot block) because the sweep now RECYCLES its context mid-run —
+// and unlike the anon tier of post_deploy_smoke.mjs, a recycled context here has to sign in again
+// or every page after the first recycle would render its signed-out state: the exact phantom-board
+// failure the retry above exists to prevent. Recycling without re-auth would have re-introduced it.
+async function newSignedInContext(tag) {
+  const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 }, serviceWorkers: 'block' });
+  let si;
+  for (let attempt = 1; attempt <= 4; attempt++) {
+    si = await signInOnce(ctx);
+    if (si.ok) { if (attempt > 1) console.log(`[rubric-sweep] sign-in${tag}: OK on attempt ${attempt}`); break; }
+    console.log(`[rubric-sweep] sign-in${tag} attempt ${attempt} FAIL ${si.err}${attempt < 4 ? ' — retrying' : ''}`);
+    if (attempt < 4) await new Promise((r) => setTimeout(r, 1500 * attempt));
+  }
+  return { ctx, si };
 }
+
+let { ctx: context, si } = await newSignedInContext('');
 console.log(`[rubric-sweep] sign-in: ${si.ok ? 'OK' : 'FAIL ' + si.err}`);
 if (!si.ok) { await browser.close(); process.exit(1); }
 
+// ── BROWSER RECYCLING (Phase 0 host robustness, 2026-09-05) ──────────────────────────────────
+// One long-lived context accumulates memory until Chrome dies mid-sweep on a small host: on this
+// 8GB box post_deploy_smoke.mjs died around page 29 ("browser has been closed" on a healthy page),
+// and the same shape crashed/hung Docker three times in one session. The proven fix, already in
+// post_deploy_smoke.mjs, is to drop the context every N pages so its memory is actually released.
+// A death is INFRASTRUCTURE, not a page defect — believing it would bank a false RED.
+const RECYCLE_EVERY = Number(process.env.WH_SWEEP_RECYCLE_EVERY || 20);
+const DEAD_CTX = /browser has been closed|Target page|context or browser|Target closed|crashed/i;
+let sinceRecycle = 0;
+async function recycleContext(why) {
+  // Log the recycle. Without a receipt a recycle is INVISIBLE (newSignedInContext is silent on a
+  // first-attempt success), so there is no way to tell a run that recycled from one that never
+  // did — and an un-observable safeguard is indistinguishable from a broken one.
+  console.log(`[rubric-sweep] recycling context — ${why}`);
+  try { await context.close(); } catch (_) {}
+  const r = await newSignedInContext(` (recycle: ${why})`);
+  context = r.ctx;
+  sinceRecycle = 0;
+  if (!r.si.ok) console.log(`[rubric-sweep] WARN recycled context could not sign in: ${r.si.err}`);
+  return r.si.ok;
+}
+
 const pages = {};
 const perDim = {};
-const list = PAGE_ONLY ? [PAGE_ONLY] : PAGES;
+const list = PAGE_LIST ? PAGE_LIST : PAGES;
 for (const file of list) {
+  if (sinceRecycle >= RECYCLE_EVERY) await recycleContext(`${sinceRecycle} pages`);
+  sinceRecycle++;
   let { res, errors } = await surveyPage(context, file);
+  // A dead browser/context is INFRASTRUCTURE, not a page defect. Without this the sweep banks the
+  // host's memory death as the page's failure — a false RED that hides which cell actually broke.
+  if (!res && DEAD_CTX.test((errors || []).join(' '))) {
+    console.log(`  ${file}: context died — recycling and retrying once (not a page defect)`);
+    if (await recycleContext('death')) ({ res, errors } = await surveyPage(context, file));
+  }
   // PAGE-LEVEL RETRY: a transient page-data RPC timeout (distinct from sign-in) renders a page EMPTY
   // — several dims collapse to 0 at once (inventory: E3+G1+H1+R4 all 0) — a phantom dip that scores
   // 100% in isolation. If the render looks empty (>=3 MEASURED dims at pct 0), re-survey ONCE and keep
