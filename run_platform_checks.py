@@ -801,6 +801,15 @@ VALIDATORS = [
         "severity": "fail",
     },
     {
+        "id":      "no-eval-under-strict-csp",
+        "script":  "tools/validate_no_eval_under_strict_csp.py",
+        "args":    [],
+        "label":   "No eval under a strict CSP (the LIVE prod CSP in vercel.json has script-src without 'unsafe-eval', so any page-loaded same-origin script that uses eval()/new Function() throws on EVERY browser — the 2026-09-12 'browser too old' banner incident, where browser-floor.js's eval-based canary false-fired platform-wide the moment the CSP shipped. Reads the CSP Vercel actually serves, comment/string-strips before scanning, so a probe can never again require the one thing the policy forbids)",
+        "group":   "Platform",
+        "skip_if_fast": False,
+        "severity": "fail",
+    },
+    {
         "id":      "celebration-proportionality",
         "script":  "tools/validate_celebration_proportionality.py",
         "args":    [],
