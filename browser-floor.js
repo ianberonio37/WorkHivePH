@@ -1,4 +1,6 @@
-// browser-floor.js — T119 (2026-08-25): the old-browser canary.
+// browser-floor.js — dropped-resource canaries (same-origin script retry + supabase-client-missing).
+// NOTE: the original T119 (2026-08-25) eval() "browser too old" canary was REMOVED 2026-09-12 — it was
+// incompatible with the strict CSP and false-fired on every browser (see the removal note below).
 //
 // The platform's de-facto JS floor is ES2020 (optional chaining `?.` and
 // Promise.allSettled are pervasive — 470 uses of `?.` in engineering-design.js
@@ -19,30 +21,19 @@
 // Wiring: <script src="browser-floor.js"></script> EARLY in <head> or first in
 // <body>. Rolled out to index first (the entry door); the full-page sweep is a
 // wave-close item.
-(function () {
-  'use strict';
-  var ok = true;
-  try {
-    // ES2020 canary: optional chaining + nullish coalescing.
-    // eslint-disable-next-line no-eval
-    eval('var _o = {}; var _v = _o?.a ?? 1;');
-  } catch (e) { ok = false; }
-  if (ok) return;
-  function paint() {
-    try {
-      var d = document.createElement('div');
-      d.setAttribute('role', 'alert');
-      d.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:2147483647;' +
-        'background:#7c2d12;color:#fff;padding:14px 16px;font:14px/1.5 system-ui,Arial,sans-serif;text-align:center;';
-      d.innerHTML = 'This browser is too old to run WorkHive (it needs a 2020-or-newer browser engine). ' +
-        'Please update Chrome / Android System WebView from the Play Store, or open WorkHive in an updated browser. ' +
-        'Masyadong luma ang browser na ito para sa WorkHive - i-update ang Chrome o ang Android System WebView.';
-      document.body.insertBefore(d, document.body.firstChild);
-    } catch (e2) { /* empty-catch-allow: nothing left to do on an engine this old - the banner itself failed to build */ }
-  }
-  if (document.body) { paint(); }
-  else if (document.addEventListener) { document.addEventListener('DOMContentLoaded', paint, false); }
-})();
+// ★REMOVED 2026-09-12 — the eval() "browser too old" canary was INCOMPATIBLE with the platform's own
+// Content-Security-Policy and false-fired on EVERY modern browser.
+//   The check detected an old engine by `eval('... ?. ?? ...')` and treated ANY throw as "too old".
+//   But the prod CSP is `script-src 'self' 'unsafe-inline' ...` with NO 'unsafe-eval' (vercel.json /
+//   _headers), so the browser BLOCKS eval() and it throws on a perfectly current Chrome/Edge/Firefox.
+//   The catch could not tell "old engine cannot parse ?." from "CSP forbids eval", so the moment the
+//   CSP shipped, the red "This browser is too old to run WorkHive / Masyadong luma ang browser" banner
+//   painted at the top of every page for every visitor. A capability probe that needs the one thing the
+//   security policy forbids is self-defeating; there is no way to keep it AND the strict CSP.
+//   Removed rather than rewritten: a genuinely old engine already fails to PARSE the ES2020 page scripts
+//   (a white page), so this banner's real-world reach was marginal, and Ian asked for it gone. If
+//   old-browser messaging is wanted later it must use CSP-safe FEATURE detection (e.g. checking
+//   Promise.allSettled / Object.fromEntries), never eval. The two canaries below use no eval and stay.
 
 // ─────────────────────────────────────────────────────────────────────────────
 // The SECOND canary: the Supabase client never arrived (2026-09-10, W3-JN).
