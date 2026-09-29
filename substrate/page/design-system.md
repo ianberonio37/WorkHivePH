@@ -2,13 +2,13 @@
 name: page-design-system
 type: page
 source: file:design-system.html
-source_sha: 22ffd65e426690a3
+source_sha: 08af40d3fa2db6e3
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## page · `design-system.html` — Design System | WorkHive
 
-Size: 26KB · 2 top-level fns. (Retrieve THIS instead of reading the file.)
+Size: 27KB · 2 top-level fns. (Retrieve THIS instead of reading the file.)
 
 **DB writes** (0): (none detected)
 **RPC calls**: (none)

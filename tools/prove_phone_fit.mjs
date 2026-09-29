@@ -63,6 +63,7 @@ for (const file of PAGES) {
   // the interaction sweep: the states a journey passes through, each with its own record
   const sweep = SWEEP ? await interactionSweep(p, VIS_JS, { max: 6 }) : [];
   if (a.poster) { console.log(`  n/a ${file.padEnd(34)} print poster: a fixed-width artifact by design (rubric artifact-genre=poster)`); n--; await p.close(); continue; }
+  if (a.retired) { console.log(`  n/a ${file.padEnd(34)} retired behind #wh-retired-overlay: every control is covered by design; stranded capabilities are validate_retired_page_sole_control.py's question, not this gate's`); n--; await p.close(); continue; }
   // ★A MIXED PAGE SATISFIES 3.1.2, NOT 3.1.1, AND THIS ASKED ONLY 3.1.1 (2026-09-29). The old test was
   // `<html lang>` alone, so every learn article and calculator read BAD in FIL — 4 of the 10 pages in the
   // 320-wide sweep — for a state their code chose on purpose. wh-i18n-lite.js swaps the CHROME to Filipino

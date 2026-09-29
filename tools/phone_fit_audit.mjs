@@ -47,6 +47,19 @@ export function audit(VIS_JS, opts) {
     overflow: document.documentElement.scrollWidth - vw, outside: [], clipped: [], wrapped: [], spill: [], overflowEl: [], occlusion: [] };
   const poster = ((document.querySelector('meta[name="artifact-genre"]') || {}).content || '') === 'poster';
   if (poster) { out.poster = true; return out; }
+  // ★A RETIRED PAGE IS ITS OVERLAY (2026-09-29). founder-console, marketplace-admin,
+  // agentic-rag-observability, llm-observability and architecture each render
+  // `#wh-retired-overlay` at `position:fixed; inset:0; z-index:100000`, so EVERY control beneath it is
+  // covered by design - 21 occlusion findings across those 5 pages, every run, none of them about how
+  // the page fits a phone. That noise is not free: six REAL occlusions were sitting inside forty-one.
+  // The question those findings gesture at - "does retiring a page strand a capability?" - has a
+  // purpose-built home in `tools/validate_retired_page_sole_control.py`, which was built after the GCash
+  // top-up queue was retired behind this very overlay and money could not enter the economy. That gate
+  // reads 38 live / 4 retired / 208 capabilities reachable, its selftest fails a stranded capability and
+  // passes a relocated one, and it prints the 2 known write-only reads still awaiting a decision. So the
+  // detector is kept; only the duplicate inside a phone-FIT measurement is dropped.
+  const retired = !!document.getElementById('wh-retired-overlay');
+  if (retired) { out.retired = true; return out; }
   const name = (e) => (e.id ? '#' + e.id : e.tagName.toLowerCase() + (typeof e.className === 'string' && e.className ? '.' + e.className.trim().split(/\s+/)[0] : ''));
   const rectOf = (r) => `${Math.round(r.left)},${Math.round(r.top)} ${Math.round(r.width)}x${Math.round(r.height)}`;
   const ownText = (e) => [...e.childNodes].filter((n) => n.nodeType === 3).map((n) => n.textContent).join('').replace(/\s+/g, ' ').trim();
@@ -102,7 +115,18 @@ export function audit(VIS_JS, opts) {
     // (2b) ELEMENT OVERFLOW INSIDE ITS CONTAINER - any box (not only text) wider than its clipping parent under
     // overflow:hidden/clip: a card spilling under a hidden edge, an image or table wider than its card
     const cp = clipper(e);
-    if (cp && cp !== document.body && /hidden|clip/.test(getComputedStyle(cp).overflowX + getComputedStyle(cp).overflow) && cs.position !== 'absolute' && cs.position !== 'fixed') {
+    // ★THE AXIS THAT CLIPS IS THE AXIS TO ASK ABOUT (2026-09-29). This tested
+    // `overflowX + overflow` concatenated, and the shorthand carries BOTH axes - so a container that
+    // scrolls sideways but hides vertically computes `overflowX:"auto"`, `overflow:"auto hidden"`, and the
+    // joined string "autoauto hidden" matched /hidden|clip/. architecture.html's `.flow-panel` is exactly
+    // that: `overflow:hidden` then `overflow-x:auto`, a deliberate 2026-09-06 fix whose own comment says
+    // "keep column widths and let the panel scroll sideways". Measured at 390: scrollWidth 640 vs
+    // clientWidth 255, scrollLeft reaches 385, every column reachable - and the gate reported 12 findings
+    // (the table, its thead, its tr and three th) for content a person can simply scroll to.
+    // The two tests below compare r.right/r.left only, so this is a HORIZONTAL question and `overflow-x`
+    // alone answers it. A horizontally-clipped parent is the defect; a horizontally-scrollable one is the
+    // remedy, and they must not read the same.
+    if (cp && cp !== document.body && /hidden|clip/.test(getComputedStyle(cp).overflowX) && cs.position !== 'absolute' && cs.position !== 'fixed') {
       const pr = cp.getBoundingClientRect();
       if (r.right > pr.right + 3 || r.left < pr.left - 3) out.overflowEl.push(name(e) + ' @' + rectOf(r) + ' past ' + name(cp) + ' @' + rectOf(pr));
     }

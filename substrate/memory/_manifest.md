@@ -1,16 +1,16 @@
 ---
 name: memory-corpus
 type: memory
-source: memory-curated:970-files
-source_sha: 7dfc62d15625c5b3
+source: memory-curated:971-files
+source_sha: 6a579ddc6f120e1f
 last_verified: 2026-07-13
 supersedes: null
 ---
-## memory · curated auto-memory (970 durable topic files)
+## memory · curated auto-memory (971 durable topic files)
 
 First-class substrate source. The BODIES live in `memory/*.md` (Memento-indexed for retrieval via `memory_cache.py --retrieve`); this manifest is the freshness/governance record for the CURATED corpus (reference/feedback/project) — transient handoffs are excluded.
 
-**By type:** feedback=583 · project=298 · reference=89
+**By type:** feedback=584 · project=298 · reference=89
 
 **Corpus fingerprint (source_sha):** editing/adding any curated memory changes it → rebuild `build_substrate.py --type memory` (part of the flywheel's persist spoke).
 
@@ -193,6 +193,7 @@ Entries (name · type · sha):
 - `feedback_axe_incomplete_is_a_false_100` · feedback · 1ee90dac3d5ad978
 - `feedback_banking_by_state_name_collapsed_distinct_oracles` · feedback · f032828a96ed114e
 - `feedback_banner_adoption_is_not_write_refusal` · feedback · 526d97dbdf5b1bdc
+- `feedback_bare_checkvisibility_calls_a_hidden_element_visible` · feedback · ce6b4747e54ca555
 - `feedback_batch_promote_when_the_gate_iterates_every_member` · feedback · 7209159efa06b303
 - `feedback_batch_the_critic_walks_dont_hand_walk_them` · feedback · bf2276ec95821a99
 - `feedback_be_proactive_flywheel` · feedback · d90540cf6e6308f8
@@ -515,7 +516,6 @@ Entries (name · type · sha):
 - `feedback_the_gate_caught_my_own_fix` · feedback · 498a812c8f7e5f6e
 - `feedback_the_gate_kept_scoring_the_old_mechanism` · feedback · 2d7bb9bdf00f664e
 - `feedback_the_guard_failed_open_timeout` · feedback · 4b5997e1e75a441c
-- `feedback_the_guard_watched_the_caption_not_the_article` · feedback · 98bb9ac46d8e82ce
-- … +470 more (all included in the fingerprint)
+- … +471 more (all included in the fingerprint)
 
 Links: [[project_platform_knowledge_substrate]] [[reference_pm_attribution_pin]]

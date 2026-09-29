@@ -26,7 +26,13 @@
     .ds-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
     .ds-id { font-size: 0.75rem; font-weight: 800; color: var(--wh-blue-light); letter-spacing: .05em; }
     .ds-name { font-size: .92rem; font-weight: 700; }
-    .ds-dim { font-size: 0.75rem; font-weight: 700; padding: .15rem .5rem; border-radius: 999px; background: rgba(167,139,250,0.14); color: var(--wh-violet); }
+    /* min-width:0 + max-width:100% (measured at 390, 2026-09-29): this sits in `div.ds-head`, a
+       `display:flex; flex-wrap:wrap` row, and a flex item floors at `min-width:auto` — so the longest
+       of these (a whole sentence, "UI-only approval gates are bypassable…", not the short label the
+       pill shape implies) measured 348px inside a 319px parent and spilled 30px past its right edge.
+       min-width:0 lets it shrink, max-width:100% caps it at the row; the text already wraps
+       (white-space:normal), so nothing is clipped and short pills are unaffected. */
+    .ds-dim { font-size: 0.75rem; font-weight: 700; padding: .15rem .5rem; border-radius: 999px; background: rgba(167,139,250,0.14); color: var(--wh-violet); min-width: 0; max-width: 100%; }
     .ds-api { font-family: ui-monospace, monospace; font-size: 0.75rem; color: rgba(255,255,255,0.72); margin-top: 6px; word-break: break-word; }
     .ds-guide { font-size: 0.75rem; color: rgba(255,255,255,0.72); margin-top: 6px; line-height: 1.5; }
     .ds-guide b { color: rgba(255,255,255,0.9); }
