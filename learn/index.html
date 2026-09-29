@@ -121,6 +121,14 @@
       border-radius: 100px;
       letter-spacing: 0.05em;
       text-transform: uppercase;
+      /* A PILL THAT WRAPS IS NOT A PILL (measured at 320, 2026-09-29). These sit in a `div.flex`, so
+         they are flex items and shrink below their natural width by default — at 320 the row is 211px
+         and "GETTING STARTED" / "AI COMPANION" / "START HERE" each broke onto THREE lines, with
+         border-radius:100px drawn around a 45px-tall box. Measured natural single-line widths are
+         138 / 121 / 98px, all inside that 211px row, so nothing overflows by holding them on one line:
+         nowrap raises min-content to the full text width, which is the floor a flex item will not
+         shrink past. Uppercase + 0.05em tracking is what makes two short words this wide. */
+      white-space: nowrap;
     }
     .pill-orange { background: rgba(247,162,27,0.18); color: #F7A21B; border: 1px solid rgba(247,162,27,0.35); }
     .pill-steel  { background: rgba(123,135,148,0.18); color: #9CA8B5; border: 1px solid rgba(123,135,148,0.35); }
