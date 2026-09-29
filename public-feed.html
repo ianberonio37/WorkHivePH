@@ -92,6 +92,16 @@
        Measured on the running page, these two links are rgb(253,185,74) on rgb(22,32,50): 9.49:1, four
        times over the floor. The rule is written out longhand so it states what it means to every
        reader, human or static; the computed style is byte-identical and nothing on screen moves. */
+    /* ★FILIPINO IS LONGER, AND `nowrap` TURNS THAT INTO AN OFF-SCREEN BUTTON (measured at 320, 2026-09-29).
+       `.header-btn` sets `white-space: nowrap` so a short label ("Sign in", "Create a free account") keeps
+       its shape. The service CTA is not a short label in either language and is half again as long in
+       Filipino — EN "Need a technician? Hail a service →" vs FIL "Kailangan ng technician? Tumawag ng
+       serbisyo →" — so at 320 it measured right:347 against a 304px parent and ran past the 320 viewport
+       itself, at rest and in every interaction state. Below 400px the label may wrap instead: a
+       sentence-length CTA reads fine on two lines and the 44px tap target is unchanged, whereas a control
+       that leaves the screen cannot be tapped at all. Short labels are unaffected — they have nothing to
+       wrap. This is the recurring lane: a translated string is not the same width as the one it replaced. */
+    @media (max-width: 400px) { .header-btn { white-space: normal; max-width: 100%; } }
     .header-btn.secondary { background-color: transparent; background-image: none; border: 1px solid rgba(247,162,27,0.55); color: var(--wh-orange-text); }
     .header-btn.secondary:hover { background: rgba(247,162,27,0.12); }
     .header-btn:hover { opacity: .9; }
