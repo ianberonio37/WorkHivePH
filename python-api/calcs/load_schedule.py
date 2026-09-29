@@ -192,11 +192,19 @@ def calculate(inputs: dict) -> dict:
         })
         circuit_counter += 1
 
-    # ── NEC 430.24 - add 25% of largest motor to demand ──────────────────────
-    motor_adder_kW = largest_motor_kW * 0.25   # extra 25% of largest motor
-    total_demand_kW += motor_adder_kW
-    pf_panel = total_demand_kW / max(total_demand_kVA, 0.001)
-    total_demand_kVA = total_demand_kW / max(pf_panel, 0.01)
+    # ★NEC 430.24 IS ALREADY APPLIED, IN THE DEMAND_FACTORS TABLE (2026-09-16). That table carries
+    #   "Motor": 1.25,  # NEC 430.24 - largest motor x 125% (added to rest)
+    # so a 15 kW motor's demand is already 18.75 kW when the loop ends. Adding 25% of the largest motor
+    # again here charged the same clause of the same standard twice: a panel with 8 kW of lighting and one
+    # 15 kW motor reported 30.5 kW of demand where NEC 430.24 gives 8 + 18.75 = 26.75, a 14% overstatement
+    # that a reader could not derive from the page. The two lines that followed were a no-op that also
+    # published an impossible power factor - pf was formed from a kW carrying the adder against a kVA that
+    # was not, then kVA was "recomputed" by dividing by that same ratio, which returns it unchanged. The
+    # panel read 0.986 while its own loads are 0.9 and 0.85. A panel power factor above both of its parts
+    # is not rounding; it is arithmetic on mismatched quantities.
+    # The kVA accumulation is untouched by any of this, so the feeder current and breaker do not move -
+    # the defect sized the stated kW high rather than low, which is why it sat unnoticed.
+    motor_adder_kW = 0.0   # kept in the result for continuity; the allowance lives in DEMAND_FACTORS
 
     # ── Panel feeder sizing ───────────────────────────────────────────────────
     if panel_phases == 3:

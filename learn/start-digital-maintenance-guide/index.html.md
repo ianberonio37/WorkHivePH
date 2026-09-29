@@ -1,10 +1,10 @@
 # How to start digital maintenance in a Philippine factory, step by step
 
-> A four-step, zero-budget path to digital maintenance for a small Philippine plant (digital logbook, asset register, PM scheduling, and shift handover) with free templates and a 30-day rollout.
+> A four-step, zero-budget path to digital maintenance for a small Philippine plant: digital logbook, asset register, PM scheduling, and shift handover: with free templates and a 30-day rollout.
 
 Source: https://workhiveph.com/learn/start-digital-maintenance-guide/
 
-By WorkHive Editorial Team · Updated 2026-08-05 · 8 min read
+By WorkHive Editorial Team · Published 2026-08-05 · 8 min read
 
 To go from spreadsheets to digital maintenance, do four things in order: (1) start a **digital logbook** so every job is recorded the day it happens; (2) build an **asset register** using ISO 14224 hierarchy so every record is tagged to equipment; (3) turn recurring jobs into a **preventive-maintenance schedule**; and (4) run a structured **shift handover** so nothing is lost between crews. A small plant can complete all four in about 30 days at zero software cost, and studies show a preventive programme runs about **12–18% cheaper** than running reactive, with a further 8–12% from adding predictive maintenance (US Department of Energy / PNNL).
 
@@ -40,7 +40,7 @@ No. WorkHive is a free, offline-first maintenance platform, so a small plant can
 
 ### What is the first step to digital maintenance?
 
-Start a digital logbook so every job is recorded the day it happens. Without captured data, none of the later steps (asset register, PM schedule, metrics) have anything to work with.
+Start a digital logbook so every job is recorded the day it happens. Without captured data, none of the later steps: asset register, PM schedule, metrics: have anything to work with.
 
 ### How long does it take a small factory to go digital?
 
@@ -65,4 +65,4 @@ Yes, if the tool is offline-first. WorkHive captures entries locally and syncs w
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: aa8c385175d4b269 -->
+<!-- md-twin source-sha: 32b4fc8a09f94d43 -->

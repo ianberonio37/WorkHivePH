@@ -1,0 +1,17 @@
+{
+  "_doc": "Provenance for the real internet-sourced files in this directory (wave 4). The files are gitignored; this manifest is tracked. Written only by tools/fetch_fixture.py.",
+  "kind": "part-photo",
+  "files": [
+    {
+      "file": "bearing-zkl-6304.jpg",
+      "source_url": "https://upload.wikimedia.org/wikipedia/commons/a/a1/1984_deep_groove_ball_bearing_UR_6304_made_in_Czechoslovakia_by_ZKL.jpg",
+      "license": "CC BY 4.0",
+      "author": "R. Henrik Nilsson",
+      "note": "a real spare part with its part number on the ring: ZKL deep groove ball bearing UR 6304 (1984) | source page https://commons.wikimedia.org/wiki/File:1984_deep_groove_ball_bearing_UR_6304_made_in_Czechoslovakia_by_ZKL.jpg",
+      "mime": "image/jpeg",
+      "bytes": 2162985,
+      "sha256": "aa524e1fedfd7312610eeef5e38da0f7c884a9f0b1eacfa3234d6d4998bb3e84",
+      "fetched": "2026-09-13T20:27:42Z"
+    }
+  ]
+}

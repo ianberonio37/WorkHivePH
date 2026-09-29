@@ -33,7 +33,15 @@ CAP_SET_RE = re.compile(r"_mineTrueTotal\s*=\s*tRes\.count")
 DRILL_RE = re.compile(r"getElementById\(\s*'an-card-mtbf'\s*\)[\s\S]{0,900}?logbook\.html\?view=team&q=")
 # T26 S2: the worst-MTBF figure must NAME its window beside itself (4.7d here vs 8d cal-time in
 # the workbench = two methods under one name; qualifier-beside-figure).
-WINDOW_RE = re.compile(r"between failures\$\{basis\} · 90d window")
+# ★THE WINDOW MAY BE INTERPOLATED, AND THAT IS BETTER THAN A LITERAL (2026-09-28). This demanded the
+# exact text "90d window". analytics.html now writes `${_period}d window`, so the label states the
+# period the query ACTUALLY used instead of a hard-coded 90 that silently lies the day the period
+# changes - strictly better for the very property this locks - and the gate read the improvement as the
+# qualifier having been deleted. The property is "the window is named beside the figure", not "the
+# window is named 90". Deleting the qualifier still fails, which is what self_test pins.
+# Kin of feedback_an_oracles_vocabulary_is_part_of_the_oracle.
+WINDOW_RE = re.compile(
+    r"between failures\$\{basis\}[^`]{0,30}?(?:90|\$\{_period\})d\s*window")
 
 
 def problems_for(logbook_src: str, analytics_src: str) -> list[str]:

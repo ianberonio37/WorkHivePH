@@ -1,7 +1,7 @@
 {
   "summary": {
     "pages_scanned": 42,
-    "total_links": 307,
+    "total_links": 320,
     "total_broken": 0,
     "baseline": 0
   },
@@ -18,7 +18,7 @@
     },
     {
       "page": "ai-quality.html",
-      "link_count": 7,
+      "link_count": 11,
       "broken": []
     },
     {
@@ -48,7 +48,7 @@
     },
     {
       "page": "assistant.html",
-      "link_count": 4,
+      "link_count": 8,
       "broken": []
     },
     {
@@ -83,12 +83,12 @@
     },
     {
       "page": "hive.html",
-      "link_count": 28,
+      "link_count": 29,
       "broken": []
     },
     {
       "page": "index.html",
-      "link_count": 76,
+      "link_count": 78,
       "broken": []
     },
     {
@@ -138,7 +138,7 @@
     },
     {
       "page": "ph-intelligence.html",
-      "link_count": 3,
+      "link_count": 4,
       "broken": []
     },
     {
@@ -148,7 +148,7 @@
     },
     {
       "page": "platform-actions.html",
-      "link_count": 3,
+      "link_count": 4,
       "broken": []
     },
     {

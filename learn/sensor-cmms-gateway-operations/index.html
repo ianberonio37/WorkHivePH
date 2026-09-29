@@ -94,7 +94,7 @@
           "name": "What sensors and protocols are supported?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "OPC-UA for traditional industrial automation (Siemens, Rockwell, Schneider PLCs and SCADA). MQTT for newer IoT sensors (wireless vibration, temperature, ultrasonic, energy meters). Edge gateway runtime options include AVEVA Edge, Ignition Edge, and Node-RED depending on stack preference. REST/SOAP for CMMS systems (SAP PM OData, IBM Maximo MIF, Hippo, Fiix, others). Custom integrations via the generic REST connector."
+            "text": "OPC-UA for traditional industrial automation (Siemens, Rockwell, Schneider PLCs and SCADA). MQTT for newer IoT sensors (wireless vibration, temperature, ultrasonic, energy meters). Edge gateway runtime options include AVEVA Edge, Ignition Edge, and Node-RED depending on stack preference. For the CMMS side there are exactly three configured paths: SAP OData, Maximo OSLC, and a generic REST connector for anything else. A CMMS not on that list is reached through the generic connector rather than a purpose-built one, so budget integration time accordingly."
           }
         },
         {
@@ -137,7 +137,15 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
-    tailwind.config = { theme: { extend: { colors: {
+    tailwind.config = { theme: { extend: {
+      /* the platform's six-step ramp plus one display step, declared where the utilities read it
+         (W46084, 2026-09-16): text-sm rendered 14px - 0.4px from 13.6 and 1.2px from 15.2, noise
+         rather than a step - and the h1 ran 30 -> 36 -> 43.2px across three breakpoints. Pinning the
+         scale here rather than overriding each class matters because `sm:text-4xl` compiles inside a
+         media query, and a media query adds no specificity. */
+      fontSize: { xs: '0.75rem', sm: '0.95rem', base: '1.05rem', lg: '1.25rem', xl: '1.25rem',
+                  '2xl': '1.75rem', '3xl': '2.25rem', '4xl': '2.25rem', '5xl': '2.25rem' },
+      colors: {
       orange: { wh: '#F7A21B', dark: '#D88A0E', light: '#FDB94A' },
       blue:   { wh: '#29B6D9', dark: '#1A9ABF', light: '#5FCCE8' },
       navy:   { wh: '#162032', mid: '#1F2E45', light: '#2A3D58' },
@@ -159,8 +167,14 @@
     * { font-family: 'Poppins', sans-serif; } body { background: #162032; color: #F4F6FA; }
     .hex-pattern { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='92' viewBox='0 0 80 92'%3E%3Cpath d='M40 0 L80 23 L80 69 L40 92 L0 69 L0 23 Z' fill='none' stroke='%23ffffff08' stroke-width='1.5'/%3E%3C/svg%3E"); background-size: 80px 92px; }
     .prose-wh { overflow-wrap: anywhere; word-break: break-word; color: rgba(244,246,250,0.85); font-size: 1.05rem; line-height: 1.8; }
+    /* craft floor (W46284, 2026-09-16, measured live at 390 and 1280): `small` took the UA default 0.8em of the
+       16.8px body and rendered 13.4px - a size off the six-step ramp that no font-size declaration could show,
+       because a ramp is what the page RENDERS. And the measure ran to 76ch at 1280, one over the 65-75 floor,
+       so the text caps itself; below ~1100px the column is already narrower than the cap and nothing moves. */
+    .prose-wh small { font-size: 0.85rem; }
+    .prose-wh p, .prose-wh li { max-width: 72ch; }
     .prose-wh h2 { color: #F4F6FA; font-size: 1.75rem; font-weight: 800; line-height: 1.25; letter-spacing: -0.015em; margin-top: 3rem; margin-bottom: 1rem; scroll-margin-top: 80px; }
-    .prose-wh h3 { color: #F4F6FA; font-size: 1.2rem; font-weight: 700; margin-top: 2rem; margin-bottom: 0.5rem; }
+    .prose-wh h3 { color: #F4F6FA; font-size: 1.25rem; font-weight: 700; margin-top: 2rem; margin-bottom: 0.5rem; }
     .prose-wh p { overflow-wrap: anywhere; word-break: break-word; margin-bottom: 1.25rem; }
     .prose-wh ul, .prose-wh ol { padding-left: 1.5rem; margin-bottom: 1.25rem; }
     .prose-wh li { margin-bottom: 0.5rem; }
@@ -169,45 +183,51 @@
     .prose-wh a { color: #5FCCE8; text-decoration: underline; text-underline-offset: 3px; } .prose-wh a:hover { color: #29B6D9; }
     .prose-wh table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.95rem; }
     .prose-wh th, .prose-wh td { padding: 12px 14px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.08); vertical-align: top; }
-    .prose-wh th { background: rgba(31,46,69,0.6); font-weight: 700; color: #F4F6FA; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; }
-    .pill { display: inline-block; font-size: 0.65rem; font-weight: 700; padding: 3px 10px; border-radius: 100px; letter-spacing: 0.05em; text-transform: uppercase; }
+    .prose-wh th { background: rgba(31,46,69,0.6); font-weight: 700; color: #F4F6FA; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em;
+      /* the [data-table-scroll] wrapper announces a scrollable region and could never scroll: the table is
+         pinned to width:100%, so it crushed columns instead - at 390 the headers "Product" and "Paid entry"
+         wrapped to THREE lines in 66px (W46083, 2026-09-16). One line here is what makes the wrapper real. */
+      white-space: nowrap; }
+    .pill { display: inline-block; font-size: 0.75rem; font-weight: 700; padding: 4px 10px; border-radius: 100px; letter-spacing: 0.02em; }
     .pill-orange { background: rgba(247,162,27,0.18); color: #F7A21B; border: 1px solid rgba(247,162,27,0.35); }
-    .toc { background: rgba(31,46,69,0.55); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 22px 26px; margin: 2rem 0 3rem; }
-    .toc h2 { color: rgba(244,246,250,0.8); font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 12px; }
-    .toc ol { padding-left: 1.5rem; margin: 0; } .toc li { margin-bottom: 6px; font-size: 0.92rem; }
+    .toc { background: rgba(31,46,69,0.55); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 24px 26px; margin: 2rem 0 3rem; }
+    .toc h2, .toc h4 { color: rgba(244,246,250,0.8); font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 12px; }
+    .toc ol { padding-left: 1.5rem; margin: 0; } .toc li { margin-bottom: 6px; font-size: 0.95rem; }
     .toc a { color: rgba(244,246,250,0.85); text-decoration: none; } .toc a:hover { color: #F7A21B; }
-    .answer-first { background: rgba(247,162,27,0.08); border-left: 3px solid #F7A21B; border-radius: 8px; padding: 18px 22px; margin-bottom: 2rem; font-size: 1.05rem; line-height: 1.75; color: rgba(244,246,250,0.85); }
+    .answer-first { background: rgba(247,162,27,0.08); border: 1px solid rgba(247,162,27,0.30); border-radius: 8px; padding: 20px 22px; margin-bottom: 2rem; font-size: 1.05rem; line-height: 1.75; color: rgba(244,246,250,0.85); }
     .audience-block { background: rgba(41,182,217,0.05); border: 1px solid rgba(41,182,217,0.18); border-radius: 12px; padding: 16px 20px; margin: 0 0 2rem; }
-    .audience-block .audience-label { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: #5FCCE8; margin-bottom: 10px; }
-    .audience-block ul { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 18px; font-size: 0.9rem; color: rgba(244,246,250,0.85); }
+    .audience-block .audience-label { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: #5FCCE8; margin-bottom: 12px; }
+    .audience-block ul { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 18px; font-size: 0.95rem; color: rgba(244,246,250,0.85); }
     .audience-block ul li { list-style: none !important; position: relative; padding-left: 16px; margin: 0; }
-    .audience-block ul li::before { content: '\B7'; position: absolute; left: 4px; color: #29B6D9; font-weight: 800; font-size: 1.2rem; line-height: 1; top: 0; }
+    .audience-block ul li::before { content: '\B7'; position: absolute; left: 4px; color: #29B6D9; font-weight: 800; font-size: 1.25rem; line-height: 1; top: 0; }
     @media (max-width: 640px) { .audience-block ul { grid-template-columns: 1fr; } }
-    .callout { background: rgba(41,182,217,0.06); border-left: 3px solid #29B6D9; border-radius: 8px; padding: 18px 22px; margin: 2rem 0; font-size: 0.98rem; line-height: 1.7; color: rgba(244,246,250,0.85); }
+    .callout { background: rgba(41,182,217,0.06); border: 1px solid rgba(41,182,217,0.28); border-radius: 8px; padding: 20px 22px; margin: 2rem 0; font-size: 0.95rem; line-height: 1.7; color: rgba(244,246,250,0.85); }
     .callout strong { color: #A4E2F2; }
     .cta-box { background: linear-gradient(135deg, rgba(247,162,27,0.12) 0%, rgba(31,46,69,0.85) 100%); border: 1px solid rgba(247,162,27,0.35); border-radius: 16px; padding: 28px 30px; margin: 3rem 0; }
-    .cta-box .cta-eyebrow { color: #F7A21B; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
-    .cta-box h4 { font-size: 1.35rem; font-weight: 800; color: #F4F6FA; margin-bottom: 8px; }
-    .cta-box p { color: rgba(244,246,250,0.85); margin-bottom: 18px; line-height: 1.65; }
+    .cta-box .cta-eyebrow { color: #F7A21B; font-size: 0.75rem; font-weight: 800; letter-spacing: 0.02em; margin-bottom: 8px; }
+    .cta-box h3, .cta-box h4 { font-size: 1.25rem; font-weight: 800; color: #F4F6FA; margin-bottom: 8px; }
+    .cta-box p { color: rgba(244,246,250,0.85); margin-bottom: 16px; line-height: 1.65; }
     .cta-btn { display: inline-block; background: linear-gradient(135deg, #F7A21B 0%, #D88A0E 100%); color: #162032; font-weight: 700; padding: 12px 28px; border-radius: 10px; text-decoration: none; transition: transform .18s, box-shadow .18s; }
     .prose-wh a.cta-btn { color: #162032; text-decoration: none; }  /* (0,2,1) beats .prose-wh a (0,1,1): a button inside the article body keeps its own colour instead of being painted as a prose link (measured 1.11:1 before this) */
-    .cta-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px -4px rgba(247,162,27,0.45); }
-    .cta-secondary { font-size: 0.82rem; color: rgba(244,246,250,0.8); margin-top: 14px; margin-bottom: 0; }
+    .cta-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 22px -8px rgba(0,0,0,0.55); }
+    .cta-secondary { font-size: 0.85rem; color: rgba(244,246,250,0.8); margin-top: 16px; margin-bottom: 0; }
+    /* (0,2,1) beats .cta-box p (0,1,1): the margin-bottom:0 above was written and never applied - the walk measured 18px (2026-09-16). */
+    .cta-box p.cta-secondary { margin-bottom: 0; }
     .cta-secondary a { color: #5FCCE8; text-decoration: underline; text-underline-offset: 2px; }
     .faq-item { background: rgba(31,46,69,0.55); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; margin-bottom: 12px; }
     .faq-item[open] { border-color: rgba(247,162,27,0.35); background: rgba(31,46,69,0.85); }
     .faq-item summary { cursor: pointer; list-style: none; padding: 16px 20px; font-weight: 600; color: #F4F6FA; display: flex; justify-content: space-between; gap: 14px; }
     .faq-item summary::-webkit-details-marker { display: none; }
-    .faq-item summary::after { content: '+'; font-size: 1.4rem; color: #F7A21B; } .faq-item[open] summary::after { content: '\2212'; }
-    .faq-item .faq-answer { padding: 0 20px 18px; color: rgba(244,246,250,0.85); line-height: 1.7; font-size: 0.95rem; }
+    .faq-item summary::after { content: '+'; font-size: 1.25rem; color: #F7A21B; } .faq-item[open] summary::after { content: '\2212'; }
+    .faq-item .faq-answer { padding: 0 20px 20px; color: rgba(244,246,250,0.85); line-height: 1.7; font-size: 0.95rem; }
     .author-card { background: rgba(31,46,69,0.5); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 20px 24px; margin: 2rem 0; display: flex; gap: 16px; align-items: center; }
-    .author-card .avatar { width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #F7A21B, #FDB94A); display: flex; align-items: center; justify-content: center; font-weight: 800; color: #162032; font-size: 1.1rem; flex-shrink: 0; }
+    .author-card .avatar { width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #F7A21B, #FDB94A); display: flex; align-items: center; justify-content: center; font-weight: 800; color: #162032; font-size: 1.05rem; flex-shrink: 0; }
     .author-card .meta p:first-child { font-weight: 700; color: #F4F6FA; font-size: 0.95rem; margin-bottom: 2px; }
-    .author-card .meta p:last-child { font-size: 0.82rem; color: rgba(244,246,250,0.8); }
-    nav a.nav-link { font-size: 0.9rem; color: rgba(244,246,250,0.85); font-weight: 500; } nav a.nav-link:hover { color: #F4F6FA; }
+    .author-card .meta p:last-child { font-size: 0.85rem; color: rgba(244,246,250,0.8); }
+    nav a.nav-link { font-size: 0.95rem; color: rgba(244,246,250,0.85); font-weight: 500; } nav a.nav-link:hover { color: #F4F6FA; }
     .breadcrumb { font-size: 0.85rem; color: rgba(244,246,250,0.8); margin-bottom: 1.5rem; }
     .breadcrumb a { color: rgba(244,246,250,0.8); text-decoration: none; } .breadcrumb a:hover { color: #F7A21B; }
-    .breadcrumb span { margin: 0 8px; opacity: 0.4; }
+    .breadcrumb span { margin: 0 8px; }
       /* Z2/R2 (critic re-sweep 2026-09-07): a long unbroken token (a citation URL) widened a paragraph to 463px at 390 and the page scrolled sideways; long words now wrap */
   </style>
   <script>
@@ -268,15 +288,17 @@
   <script src="/wh-ga4.js" defer></script>
   <!-- /WorkHive GA4 -->
 <link rel="stylesheet" href="/learn-print.css" media="print" />
-<style data-wh-chrome-i18n>nav a,header a,footer a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;min-width:44px;}nav a{padding:0 .25rem;}.breadcrumb a,.toc a{display:inline-flex;align-items:center;min-height:44px;}.breadcrumb a{min-width:44px;justify-content:center;}a.text-sm[href$='/learn/'],a.text-sm[href$='/learn/index.html']{display:inline-flex;align-items:center;min-height:44px;}.wh-tap{display:inline-flex;align-items:center;min-height:44px;}td a,th a{display:inline-flex;align-items:center;min-height:44px;}</style>
+<style data-wh-chrome-i18n>nav a,header a,footer a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;min-width:44px;}nav a{padding:0 .25rem;}.breadcrumb a,.toc a{display:inline-flex;align-items:center;min-height:44px;}.breadcrumb a{min-width:44px;justify-content:center;}a.text-sm[href$='/learn/'],a.text-sm[href$='/learn/index.html']{display:inline-flex;align-items:center;min-height:44px;}.wh-tap{display:inline-flex;align-items:center;min-height:44px;}td a,th a{display:inline-flex;align-items:center;min-height:44px;}/*wh-brand-header-gap*/@media (max-width:399px){header nav.flex{gap:.75rem;}}</style>
 <script src="/wh-i18n-lite.js" data-wh-chrome-i18n></script>
 </head>
 <body class="bg-navy-wh text-white antialiased">
+<a class="wh-skip-link" href="#wh-main-content" data-wh-skip="learn" style="position:fixed;top:0;left:0;z-index:10001;transform:translateY(-120%);background:var(--wh-orange,#F7A21B);color:var(--wh-navy,#162032);padding:0 20px;min-height:44px;display:inline-flex;align-items:center;font-weight:700;font-size:14px;text-decoration:none;border-radius:0 0 10px 0;box-shadow:0 4px 16px rgba(0,0,0,.35);transition:transform .15s cubic-bezier(0.23,1,0.32,1);box-sizing:border-box;" onfocus="this.style.transform='translateY(0)'" onblur="this.style.transform='translateY(-120%)'">Skip to main content</a>
+
 <header class="border-b border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
   <div class="max-w-6xl mx-auto px-5 sm:px-8 py-4 flex items-center justify-between">
     <a href="/" class="flex items-center gap-3">
       <img src="/brand_assets/workhive-logo-transparent.png" alt="WorkHive" style="height: 36px; width: auto;" />
-      <span class="font-black text-lg tracking-tight hidden sm:inline">WorkHive</span>
+      <span class="font-extrabold tracking-tight hidden sm:inline" style="font-size: 1.25rem" aria-hidden="true">WorkHive</span>
     </a>
     <nav class="flex items-center gap-6">
       <a href="/" class="nav-link" data-i="home">Home</a>
@@ -286,13 +308,13 @@
     </nav>
   </div>
 </header>
-<article class="hex-pattern">
+<main id="wh-main-content"><article class="hex-pattern">
   <div class="max-w-3xl mx-auto px-5 sm:px-8 py-14 lg:py-20">
     <div class="breadcrumb">
       <a href="/" data-i="home">Home</a><span>/</span><a href="/learn/" data-i="learn">Learn</a><span>/</span><span>Sensor + CMMS gateway operations</span>
     </div>
     <p class="pill pill-orange mb-4">Plant Connections · OT/IT bridge</p>
-    <h1 class="text-3xl sm:text-4xl lg:text-[2.7rem] font-black leading-[1.15] tracking-[-0.02em] mb-5">Sensor and CMMS gateway operations <span class="text-white/55 font-bold">(for industrial plants)</span></h1>
+    <h1 class="text-3xl sm:text-4xl font-extrabold leading-[1.15] tracking-[-0.02em] mb-5">Sensor and CMMS gateway operations <span class="text-white/55 font-bold">(for industrial plants)</span></h1>
     <div class="flex items-center gap-4 text-sm text-white/45 mb-8 flex-wrap">
       <span>By <strong class="text-white/75">WorkHive Editorial Team</strong></span>
       <span class="opacity-40">·</span>
@@ -313,7 +335,7 @@
         <li>Sensor vendors and edge platform providers</li>
         <li>New OT/IT graduates joining plants</li></ul>
     </div>
-    <div class="toc"><h4 aria-level="2">What's in this guide</h4><ol><li><a href="#what-gateway" class="wh-tap">What the Plant Connections gateway does</a></li>
+    <div class="toc"><h2>What's in this guide</h2><ol><li><a href="#what-gateway" class="wh-tap">What the Plant Connections gateway does</a></li>
         <li><a href="#daily-health" class="wh-tap">Daily 5-minute gateway health check</a></li>
         <li><a href="#sensor-inventory" class="wh-tap">Sensor inventory and health rotation</a></li>
         <li><a href="#cybersecurity" class="wh-tap">OT/IT cybersecurity boundary</a></li>
@@ -321,10 +343,10 @@
         <li><a href="#faq" class="wh-tap">Frequently asked questions</a></li>
         <li><a href="#sources" class="wh-tap">Sources</a></li></ol></div>
     <div class="prose-wh">
-      <p>Operate the Plant Connections gateway daily, not install-and-forget. Three things keep it reliable: a 5-minute edge-gateway health check each shift, a current sensor inventory with health status, and an OT/IT cybersecurity boundary (built on ISA/IEC 62443) that IT and reliability both signed off. Skip the check and gateway problems surface 6 to 18 hours late, as missing alerts.</p>
+      <p>Operate the Plant Connections gateway daily, not install-and-forget. Three things keep it reliable: a 5-minute edge-gateway health check every day, a current sensor inventory with health status, and an OT/IT cybersecurity boundary (built on ISA/IEC 62443) that IT and reliability both signed off. Skip the check and gateway problems surface 6 to 18 hours late, as missing alerts.</p>
       <h2 id="what-gateway">What the Plant Connections gateway does</h2>
       <p>The edge gateway is a small server (physical or virtual) running on the plant network that:</p>
-      <ul><li>Reads sensor data from your OT systems via OPC-UA (for PLCs and SCADA) or MQTT (for IoT sensors)</li><li>Reads work orders, asset master, and PM schedule from your CMMS (SAP PM, IBM Maximo, others) via REST or SOAP API</li><li>Pushes condition summaries and operational data to WorkHive cloud over secure HTTPS</li><li>Pushes WorkHive completion data back to the CMMS for finance and asset register sync</li></ul>
+      <ul><li>Reads sensor data from your OT systems via OPC-UA (for PLCs and SCADA) or MQTT (for IoT sensors)</li><li>Reads work orders, asset master, and PM schedule from your CMMS (SAP PM, IBM Maximo, others) via its REST API</li><li>Pushes condition summaries and operational data to WorkHive cloud over secure HTTPS</li><li>Pushes WorkHive completion data back to the CMMS for finance and asset register sync</li></ul>
       <p>The gateway runs on-premise so sensitive plant data never leaves your network unencrypted. Only the condition-data summaries WorkHive needs are transmitted. This matters for Philippine plants with cybersecurity policies that restrict direct cloud access from the OT network.</p>
       <h2 id="daily-health">Daily 5-minute gateway health check</h2>
       <p>The OT engineer opens the Plant Connections console at start of shift and verifies five things:</p>
@@ -344,8 +366,8 @@
       <ul><li><strong>OT team owns operational health</strong> of the gateway (daily check, restart procedures, sensor inventory updates)</li><li><strong>IT cybersecurity team owns the boundary</strong> (firewall rules, TLS certificates, audit log review)</li><li><strong>Reliability engineer owns the data quality</strong> (are sensors calibrated, are thresholds tuned, are alerts being acted on)</li><li><strong>Plant manager owns the cross-team coordination</strong> via a monthly 30-minute review with all three</li></ul>
       <div class="cta-box">
         <p class="cta-eyebrow">The tool this guide is about</p>
-        <h4 aria-level="3">WorkHive Plant Connections is the OT/IT operations console</h4>
-        <p>Daily health dashboard for the edge gateway, current sensor inventory with status, OPC-UA and MQTT subscription management, CMMS sync log, secure outbound-only architecture. Supervisor-only access by default; OT and IT teams get scoped views. Free at the worker tier; multi-site gateway fleet management unlocks at Stage 4.</p>
+        <h3>WorkHive Plant Connections is the OT/IT operations console</h3>
+        <p>The console carries a <strong>sensor topic map</strong> (the MQTT topic and OPC-UA tag to parameter registry your gateway publishes against), a <strong>gateway audit</strong> for the last 7 days, <strong>external sync activity</strong> for the last 30, the CMMS integration list, a data-retention policy you can set, and an SSO status card. Note the access model before you plan around it: the page is <strong>supervisor-only</strong> &mdash; there are no separate OT and IT logins with different views, so whoever holds the supervisor account is who sees the gateway. Free at the worker tier. There is no multi-site gateway fleet view: a group running several plants runs a gateway and a hive per plant, and watches them one at a time.</p>
         <a href="/plant-connections.html" class="cta-btn">Open Plant Connections</a>
         <p class="cta-secondary">No hive yet? <a href="/?signup=1">Join WorkHive</a> first (free, takes 30 seconds).</p>
       </div>
@@ -354,7 +376,7 @@
       <details class="faq-item"><summary>How often should I check gateway health?</summary><div class="faq-answer">Daily, 5 minutes, at start of shift. Verify gateway uptime, OPC-UA connection, MQTT broker, CMMS API sync, and WorkHive cloud push. Plants that skip this check find out about problems when alerts stop firing, typically 6 to 18 hours late. Daily check catches the same problems within 8 hours.</div></details>
       <details class="faq-item"><summary>Who owns the gateway in the plant organisation?</summary><div class="faq-answer">Split ownership that works: OT team owns operational health (daily check, restarts, sensor inventory), IT cybersecurity owns the boundary (firewall, TLS, audit log), reliability engineer owns data quality (calibration, threshold tuning, alert acting), plant manager owns cross-team coordination via monthly 30-min review. Single-owner models (all to OT or all to IT) tend to fail because the skills do not overlap.</div></details>
       <details class="faq-item"><summary>What are the cybersecurity rules for the gateway?</summary><div class="faq-answer">Three rules: (1) OT-initiated outbound only (no inbound from internet to OT network); (2) TLS everywhere (OPC-UA SignAndEncrypt, MQTT over TLS, HTTPS to WorkHive); (3) air-gap optionality for strict-policy plants (batched upload from DMZ host during scheduled windows). IT cybersecurity and reliability teams both sign off during commissioning and review annually.</div></details>
-      <details class="faq-item"><summary>What sensors and protocols are supported?</summary><div class="faq-answer">OPC-UA for traditional industrial automation (Siemens, Rockwell, Schneider PLCs and SCADA). MQTT for newer IoT sensors (wireless vibration, temperature, ultrasonic, energy meters). Edge gateway runtime options include AVEVA Edge, Ignition Edge, and Node-RED depending on stack preference. REST/SOAP for CMMS systems (SAP PM OData, IBM Maximo MIF, Hippo, Fiix, others). Custom integrations via the generic REST connector.</div></details>
+      <details class="faq-item"><summary>What sensors and protocols are supported?</summary><div class="faq-answer">OPC-UA for traditional industrial automation (Siemens, Rockwell, Schneider PLCs and SCADA). MQTT for newer IoT sensors (wireless vibration, temperature, ultrasonic, energy meters). Edge gateway runtime options include AVEVA Edge, Ignition Edge, and Node-RED depending on stack preference. For the CMMS side there are exactly three configured paths: SAP OData, Maximo OSLC, and a generic REST connector for anything else. A CMMS not on that list is reached through the generic connector rather than a purpose-built one, so budget integration time accordingly.</div></details>
       <details class="faq-item"><summary>What happens when the gateway loses internet?</summary><div class="faq-answer">The gateway continues reading sensor and CMMS data locally and buffers it. Buffer size depends on disk space (typically 7 to 30 days). When internet is restored, the gateway pushes the backlog to WorkHive cloud in time order; the cloud accepts the late timestamps. This matters for plants with intermittent Globe/Smart/PLDT connectivity at remote sites.</div></details>
       <h2 id="sources">Sources</h2>
       <ul><li>OPC Foundation, <strong>OPC Unified Architecture Specification</strong>, Parts 1 through 14.</li>
@@ -374,7 +396,7 @@
       <a href="/learn/" class="text-sm text-white/55 hover:text-orange-wh transition-colors">&larr; Back to all guides</a>
     </div>
   </div>
-</article>
+</article></main>
 <footer class="py-10 border-t border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
   <div class="max-w-4xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">
     <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-08-24">24 Aug 2026</time></p>

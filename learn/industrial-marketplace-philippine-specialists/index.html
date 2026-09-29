@@ -70,7 +70,7 @@
           "name": "How is seller credibility verified?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Three signals combined: documented work history from WorkHive Logbook (if the seller has been operating as a WorkHive solo user), verified certifications (TESDA, OEM training, PEC license), and buyer reviews after each completed job. New sellers carry a \"new seller\" badge for the first 5 jobs; after 5 with 4+ rating, they become \"verified\"; after 25, \"trusted seller.\""
+            "text": "Two things the platform can actually show you, and one it cannot. It shows whether the seller has passed ID verification - every seller card says ID-verified or NOT ID-verified, which is a more useful signal than a badge only the good ones carry. It shows buyer reviews: a rating out of five with a comment, marked verified when it sits against a completed purchase. What it does NOT do is verify the certifications a seller lists, or read their logbook and turn it into a work history - those are claims the seller makes, and worth asking them to evidence directly."
           }
         },
         {
@@ -78,7 +78,7 @@
           "name": "What if there is a dispute over completed work?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "WorkHive moderates disputes with documented evidence (logbook entries, completion photos, signed handback per asset). 80 percent of disputes resolve within 7 days based on the documentation. The remaining 20 percent go to Philippine-context arbitration with a panel of senior industry practitioners. Both parties bear the arbitration fee 50/50 unless one party is found in bad faith."
+            "text": "You can open a dispute against the listing, giving the reason and attaching evidence such as completion photos or delivery proof. The seller gets one reply, and an administrator records a decision with the date. Be clear about the limits: WorkHive never held your money, so a decision here is a record and a judgement, not a refund - the payment was always directly between you and the seller, and recovering it is a matter between you two. We publish no statistics about how disputes turn out, because the marketplace has not run long enough to have honest ones."
           }
         },
         {
@@ -137,7 +137,15 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
-    tailwind.config = { theme: { extend: { colors: {
+    tailwind.config = { theme: { extend: {
+      /* the platform's six-step ramp plus one display step, declared where the utilities read it
+         (W46084, 2026-09-16): text-sm rendered 14px - 0.4px from 13.6 and 1.2px from 15.2, noise
+         rather than a step - and the h1 ran 30 -> 36 -> 43.2px across three breakpoints. Pinning the
+         scale here rather than overriding each class matters because `sm:text-4xl` compiles inside a
+         media query, and a media query adds no specificity. */
+      fontSize: { xs: '0.75rem', sm: '0.95rem', base: '1.05rem', lg: '1.25rem', xl: '1.25rem',
+                  '2xl': '1.75rem', '3xl': '2.25rem', '4xl': '2.25rem', '5xl': '2.25rem' },
+      colors: {
       orange: { wh: '#F7A21B', dark: '#D88A0E', light: '#FDB94A' },
       blue:   { wh: '#29B6D9', dark: '#1A9ABF', light: '#5FCCE8' },
       navy:   { wh: '#162032', mid: '#1F2E45', light: '#2A3D58' },
@@ -159,8 +167,14 @@
     * { font-family: 'Poppins', sans-serif; } body { background: #162032; color: #F4F6FA; }
     .hex-pattern { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='92' viewBox='0 0 80 92'%3E%3Cpath d='M40 0 L80 23 L80 69 L40 92 L0 69 L0 23 Z' fill='none' stroke='%23ffffff08' stroke-width='1.5'/%3E%3C/svg%3E"); background-size: 80px 92px; }
     .prose-wh { overflow-wrap: anywhere; word-break: break-word; color: rgba(244,246,250,0.85); font-size: 1.05rem; line-height: 1.8; }
+    /* craft floor (W46284, 2026-09-16, measured live at 390 and 1280): `small` took the UA default 0.8em of the
+       16.8px body and rendered 13.4px - a size off the six-step ramp that no font-size declaration could show,
+       because a ramp is what the page RENDERS. And the measure ran to 76ch at 1280, one over the 65-75 floor,
+       so the text caps itself; below ~1100px the column is already narrower than the cap and nothing moves. */
+    .prose-wh small { font-size: 0.85rem; }
+    .prose-wh p, .prose-wh li { max-width: 72ch; }
     .prose-wh h2 { color: #F4F6FA; font-size: 1.75rem; font-weight: 800; line-height: 1.25; letter-spacing: -0.015em; margin-top: 3rem; margin-bottom: 1rem; scroll-margin-top: 80px; }
-    .prose-wh h3 { color: #F4F6FA; font-size: 1.2rem; font-weight: 700; margin-top: 2rem; margin-bottom: 0.5rem; }
+    .prose-wh h3 { color: #F4F6FA; font-size: 1.25rem; font-weight: 700; margin-top: 2rem; margin-bottom: 0.5rem; }
     .prose-wh p { overflow-wrap: anywhere; word-break: break-word; margin-bottom: 1.25rem; }
     .prose-wh ul, .prose-wh ol { padding-left: 1.5rem; margin-bottom: 1.25rem; }
     .prose-wh li { margin-bottom: 0.5rem; }
@@ -169,45 +183,51 @@
     .prose-wh a { color: #5FCCE8; text-decoration: underline; text-underline-offset: 3px; } .prose-wh a:hover { color: #29B6D9; }
     .prose-wh table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.95rem; }
     .prose-wh th, .prose-wh td { padding: 12px 14px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.08); vertical-align: top; }
-    .prose-wh th { background: rgba(31,46,69,0.6); font-weight: 700; color: #F4F6FA; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; }
-    .pill { display: inline-block; font-size: 0.65rem; font-weight: 700; padding: 3px 10px; border-radius: 100px; letter-spacing: 0.05em; text-transform: uppercase; }
+    .prose-wh th { background: rgba(31,46,69,0.6); font-weight: 700; color: #F4F6FA; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em;
+      /* the [data-table-scroll] wrapper announces a scrollable region and could never scroll: the table is
+         pinned to width:100%, so it crushed columns instead - at 390 the headers "Product" and "Paid entry"
+         wrapped to THREE lines in 66px (W46083, 2026-09-16). One line here is what makes the wrapper real. */
+      white-space: nowrap; }
+    .pill { display: inline-block; font-size: 0.75rem; font-weight: 700; padding: 4px 10px; border-radius: 100px; letter-spacing: 0.02em; }
     .pill-orange { background: rgba(247,162,27,0.18); color: #F7A21B; border: 1px solid rgba(247,162,27,0.35); }
-    .toc { background: rgba(31,46,69,0.55); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 22px 26px; margin: 2rem 0 3rem; }
-    .toc h2 { color: rgba(244,246,250,0.8); font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 12px; }
-    .toc ol { padding-left: 1.5rem; margin: 0; } .toc li { margin-bottom: 6px; font-size: 0.92rem; }
+    .toc { background: rgba(31,46,69,0.55); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 24px 26px; margin: 2rem 0 3rem; }
+    .toc h2, .toc h4 { color: rgba(244,246,250,0.8); font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 12px; }
+    .toc ol { padding-left: 1.5rem; margin: 0; } .toc li { margin-bottom: 6px; font-size: 0.95rem; }
     .toc a { color: rgba(244,246,250,0.85); text-decoration: none; } .toc a:hover { color: #F7A21B; }
-    .answer-first { background: rgba(247,162,27,0.08); border-left: 3px solid #F7A21B; border-radius: 8px; padding: 18px 22px; margin-bottom: 2rem; font-size: 1.05rem; line-height: 1.75; color: rgba(244,246,250,0.85); }
+    .answer-first { background: rgba(247,162,27,0.08); border: 1px solid rgba(247,162,27,0.30); border-radius: 8px; padding: 20px 22px; margin-bottom: 2rem; font-size: 1.05rem; line-height: 1.75; color: rgba(244,246,250,0.85); }
     .audience-block { background: rgba(41,182,217,0.05); border: 1px solid rgba(41,182,217,0.18); border-radius: 12px; padding: 16px 20px; margin: 0 0 2rem; }
-    .audience-block .audience-label { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: #5FCCE8; margin-bottom: 10px; }
-    .audience-block ul { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 18px; font-size: 0.9rem; color: rgba(244,246,250,0.85); }
+    .audience-block .audience-label { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: #5FCCE8; margin-bottom: 12px; }
+    .audience-block ul { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 18px; font-size: 0.95rem; color: rgba(244,246,250,0.85); }
     .audience-block ul li { list-style: none !important; position: relative; padding-left: 16px; margin: 0; }
-    .audience-block ul li::before { content: '\B7'; position: absolute; left: 4px; color: #29B6D9; font-weight: 800; font-size: 1.2rem; line-height: 1; top: 0; }
+    .audience-block ul li::before { content: '\B7'; position: absolute; left: 4px; color: #29B6D9; font-weight: 800; font-size: 1.25rem; line-height: 1; top: 0; }
     @media (max-width: 640px) { .audience-block ul { grid-template-columns: 1fr; } }
-    .callout { background: rgba(41,182,217,0.06); border-left: 3px solid #29B6D9; border-radius: 8px; padding: 18px 22px; margin: 2rem 0; font-size: 0.98rem; line-height: 1.7; color: rgba(244,246,250,0.85); }
+    .callout { background: rgba(41,182,217,0.06); border: 1px solid rgba(41,182,217,0.28); border-radius: 8px; padding: 20px 22px; margin: 2rem 0; font-size: 0.95rem; line-height: 1.7; color: rgba(244,246,250,0.85); }
     .callout strong { color: #A4E2F2; }
     .cta-box { background: linear-gradient(135deg, rgba(247,162,27,0.12) 0%, rgba(31,46,69,0.85) 100%); border: 1px solid rgba(247,162,27,0.35); border-radius: 16px; padding: 28px 30px; margin: 3rem 0; }
-    .cta-box .cta-eyebrow { color: #F7A21B; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
-    .cta-box h4 { font-size: 1.35rem; font-weight: 800; color: #F4F6FA; margin-bottom: 8px; }
-    .cta-box p { color: rgba(244,246,250,0.85); margin-bottom: 18px; line-height: 1.65; }
+    .cta-box .cta-eyebrow { color: #F7A21B; font-size: 0.75rem; font-weight: 800; letter-spacing: 0.02em; margin-bottom: 8px; }
+    .cta-box h3, .cta-box h4 { font-size: 1.25rem; font-weight: 800; color: #F4F6FA; margin-bottom: 8px; }
+    .cta-box p { color: rgba(244,246,250,0.85); margin-bottom: 16px; line-height: 1.65; }
     .cta-btn { display: inline-block; background: linear-gradient(135deg, #F7A21B 0%, #D88A0E 100%); color: #162032; font-weight: 700; padding: 12px 28px; border-radius: 10px; text-decoration: none; transition: transform .18s, box-shadow .18s; }
     .prose-wh a.cta-btn { color: #162032; text-decoration: none; }  /* (0,2,1) beats .prose-wh a (0,1,1): a button inside the article body keeps its own colour instead of being painted as a prose link (measured 1.11:1 before this) */
-    .cta-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px -4px rgba(247,162,27,0.45); }
-    .cta-secondary { font-size: 0.82rem; color: rgba(244,246,250,0.8); margin-top: 14px; margin-bottom: 0; }
+    .cta-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 22px -8px rgba(0,0,0,0.55); }
+    .cta-secondary { font-size: 0.85rem; color: rgba(244,246,250,0.8); margin-top: 16px; margin-bottom: 0; }
+    /* (0,2,1) beats .cta-box p (0,1,1): the margin-bottom:0 above was written and never applied - the walk measured 18px (2026-09-16). */
+    .cta-box p.cta-secondary { margin-bottom: 0; }
     .cta-secondary a { color: #5FCCE8; text-decoration: underline; text-underline-offset: 2px; }
     .faq-item { background: rgba(31,46,69,0.55); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; margin-bottom: 12px; }
     .faq-item[open] { border-color: rgba(247,162,27,0.35); background: rgba(31,46,69,0.85); }
     .faq-item summary { cursor: pointer; list-style: none; padding: 16px 20px; font-weight: 600; color: #F4F6FA; display: flex; justify-content: space-between; gap: 14px; }
     .faq-item summary::-webkit-details-marker { display: none; }
-    .faq-item summary::after { content: '+'; font-size: 1.4rem; color: #F7A21B; } .faq-item[open] summary::after { content: '\2212'; }
-    .faq-item .faq-answer { padding: 0 20px 18px; color: rgba(244,246,250,0.85); line-height: 1.7; font-size: 0.95rem; }
+    .faq-item summary::after { content: '+'; font-size: 1.25rem; color: #F7A21B; } .faq-item[open] summary::after { content: '\2212'; }
+    .faq-item .faq-answer { padding: 0 20px 20px; color: rgba(244,246,250,0.85); line-height: 1.7; font-size: 0.95rem; }
     .author-card { background: rgba(31,46,69,0.5); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 20px 24px; margin: 2rem 0; display: flex; gap: 16px; align-items: center; }
-    .author-card .avatar { width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #F7A21B, #FDB94A); display: flex; align-items: center; justify-content: center; font-weight: 800; color: #162032; font-size: 1.1rem; flex-shrink: 0; }
+    .author-card .avatar { width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #F7A21B, #FDB94A); display: flex; align-items: center; justify-content: center; font-weight: 800; color: #162032; font-size: 1.05rem; flex-shrink: 0; }
     .author-card .meta p:first-child { font-weight: 700; color: #F4F6FA; font-size: 0.95rem; margin-bottom: 2px; }
-    .author-card .meta p:last-child { font-size: 0.82rem; color: rgba(244,246,250,0.8); }
-    nav a.nav-link { font-size: 0.9rem; color: rgba(244,246,250,0.85); font-weight: 500; } nav a.nav-link:hover { color: #F4F6FA; }
+    .author-card .meta p:last-child { font-size: 0.85rem; color: rgba(244,246,250,0.8); }
+    nav a.nav-link { font-size: 0.95rem; color: rgba(244,246,250,0.85); font-weight: 500; } nav a.nav-link:hover { color: #F4F6FA; }
     .breadcrumb { font-size: 0.85rem; color: rgba(244,246,250,0.8); margin-bottom: 1.5rem; }
     .breadcrumb a { color: rgba(244,246,250,0.8); text-decoration: none; } .breadcrumb a:hover { color: #F7A21B; }
-    .breadcrumb span { margin: 0 8px; opacity: 0.4; }
+    .breadcrumb span { margin: 0 8px; }
       /* Z2/R2 (critic re-sweep 2026-09-07): a long unbroken token (a citation URL) widened a paragraph to 463px at 390 and the page scrolled sideways; long words now wrap */
   </style>
   <script>
@@ -268,15 +288,17 @@
   <script src="/wh-ga4.js" defer></script>
   <!-- /WorkHive GA4 -->
 <link rel="stylesheet" href="/learn-print.css" media="print" />
-<style data-wh-chrome-i18n>nav a,header a,footer a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;min-width:44px;}nav a{padding:0 .25rem;}.breadcrumb a,.toc a{display:inline-flex;align-items:center;min-height:44px;}.breadcrumb a{min-width:44px;justify-content:center;}a.text-sm[href$='/learn/'],a.text-sm[href$='/learn/index.html']{display:inline-flex;align-items:center;min-height:44px;}.wh-tap{display:inline-flex;align-items:center;min-height:44px;}td a,th a{display:inline-flex;align-items:center;min-height:44px;}</style>
+<style data-wh-chrome-i18n>nav a,header a,footer a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;min-width:44px;}nav a{padding:0 .25rem;}.breadcrumb a,.toc a{display:inline-flex;align-items:center;min-height:44px;}.breadcrumb a{min-width:44px;justify-content:center;}a.text-sm[href$='/learn/'],a.text-sm[href$='/learn/index.html']{display:inline-flex;align-items:center;min-height:44px;}.wh-tap{display:inline-flex;align-items:center;min-height:44px;}td a,th a{display:inline-flex;align-items:center;min-height:44px;}/*wh-brand-header-gap*/@media (max-width:399px){header nav.flex{gap:.75rem;}}</style>
 <script src="/wh-i18n-lite.js" data-wh-chrome-i18n></script>
 </head>
 <body class="bg-navy-wh text-white antialiased">
+<a class="wh-skip-link" href="#wh-main-content" data-wh-skip="learn" style="position:fixed;top:0;left:0;z-index:10001;transform:translateY(-120%);background:var(--wh-orange,#F7A21B);color:var(--wh-navy,#162032);padding:0 20px;min-height:44px;display:inline-flex;align-items:center;font-weight:700;font-size:14px;text-decoration:none;border-radius:0 0 10px 0;box-shadow:0 4px 16px rgba(0,0,0,.35);transition:transform .15s cubic-bezier(0.23,1,0.32,1);box-sizing:border-box;" onfocus="this.style.transform='translateY(0)'" onblur="this.style.transform='translateY(-120%)'">Skip to main content</a>
+
 <header class="border-b border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
   <div class="max-w-6xl mx-auto px-5 sm:px-8 py-4 flex items-center justify-between">
     <a href="/" class="flex items-center gap-3">
       <img src="/brand_assets/workhive-logo-transparent.png" alt="WorkHive" style="height: 36px; width: auto;" />
-      <span class="font-black text-lg tracking-tight hidden sm:inline">WorkHive</span>
+      <span class="font-extrabold tracking-tight hidden sm:inline" style="font-size: 1.25rem" aria-hidden="true">WorkHive</span>
     </a>
     <nav class="flex items-center gap-6">
       <a href="/" class="nav-link" data-i="home">Home</a>
@@ -286,13 +308,13 @@
     </nav>
   </div>
 </header>
-<article class="hex-pattern">
+<main id="wh-main-content"><article class="hex-pattern">
   <div class="max-w-3xl mx-auto px-5 sm:px-8 py-14 lg:py-20">
     <div class="breadcrumb">
       <a href="/" data-i="home">Home</a><span>/</span><a href="/learn/" data-i="learn">Learn</a><span>/</span><span>Industrial marketplace</span>
     </div>
     <p class="pill pill-orange mb-4">Marketplace · Specialists · Parts</p>
-    <h1 class="text-3xl sm:text-4xl lg:text-[2.7rem] font-black leading-[1.15] tracking-[-0.02em] mb-5">Industrial marketplace <span class="text-white/55 font-bold">(for Philippine specialists, parts, and services)</span></h1>
+    <h1 class="text-3xl sm:text-4xl font-extrabold leading-[1.15] tracking-[-0.02em] mb-5">Industrial marketplace <span class="text-white/55 font-bold">(for Philippine specialists, parts, and services)</span></h1>
     <div class="flex items-center gap-4 text-sm text-white/45 mb-8 flex-wrap">
       <span>By <strong class="text-white/75">WorkHive Editorial Team</strong></span>
       <span class="opacity-40">·</span>
@@ -302,7 +324,7 @@
       <span class="opacity-40">·</span>
       <span>8 min read</span>
     </div>
-    <div class="answer-first"><strong>Short answer:</strong> The WorkHive Marketplace connects Philippine plants with specialist contractors (vibration analysts, motor rewinders, refrigeration specialists), equipment suppliers (pumps, seals, instrumentation), and service providers (calibration, NDT, training). Listings are vetted, work history is verifiable through the requester's hive data, and the marketplace is free and contact-only: buyers reach sellers directly, with no platform fees or commissions. Three patterns drive 90 percent of value: emergency specialist sourcing, recurring consumable supply, and one-off project bidding.</div>
+    <div class="answer-first"><strong>Short answer:</strong> The WorkHive Marketplace connects Philippine plants with specialist contractors (vibration analysts, motor rewinders, refrigeration specialists), equipment suppliers (pumps, seals, instrumentation), and service providers (calibration, NDT, training). Listings are vetted, work history is verifiable through the requester's hive data, and the marketplace is free and contact-only: buyers reach sellers directly, with no platform fees or commissions. It is built around three patterns: emergency specialist sourcing, recurring consumable supply, and one-off project bidding.</div>
     <div class="audience-block">
       <p class="audience-label">Who this is for</p>
       <ul><li>Plant managers sourcing specialists</li>
@@ -313,11 +335,11 @@
         <li>New OFW-track engineers as buyers/sellers</li>
         <li>Cooperative procurement teams</li></ul>
     </div>
-    <div class="toc"><h4 aria-level="2">What's in this guide</h4><ol><li><a href="#why-marketplace" class="wh-tap">Why a marketplace for industrial plants</a></li>
+    <div class="toc"><h2>What's in this guide</h2><ol><li><a href="#why-marketplace" class="wh-tap">Why a marketplace for industrial plants</a></li>
         <li><a href="#how-it-works" class="wh-tap">How WorkHive Marketplace works</a></li>
-        <li><a href="#trust" class="wh-tap">Trust and verified work history</a></li>
-        <li><a href="#payment" class="wh-tap">How buyers and sellers connect (free)</a></li>
-        <li><a href="#three-patterns" class="wh-tap">The 3 patterns that drive 90 percent of value</a></li>
+        <li><a href="#trust" class="wh-tap">What the trust layer actually is</a></li>
+        <li><a href="#payment" class="wh-tap">How buyers and sellers connect (free, contact-only)</a></li>
+        <li><a href="#three-patterns" class="wh-tap">The three patterns it is built around</a></li>
         <li><a href="#seller" class="wh-tap">Becoming a seller</a></li>
         <li><a href="#faq" class="wh-tap">Frequently asked questions</a></li>
         <li><a href="#sources" class="wh-tap">Sources</a></li></ol></div>
@@ -326,31 +348,32 @@
       <p>A marketplace fixes both sides. Plants get vetted suppliers and specialists with verifiable work history. Specialists get visibility to plants they would never have reached through their personal network. Suppliers get demand signals from real plants instead of cold-calling procurement teams.</p>
       <h2 id="how-it-works">How WorkHive Marketplace works</h2>
       <p>Three sides:</p>
-      <ul><li><strong>Buyers (plants):</strong> post a need (specialist for a turbine bearing replacement, 50 units of a specific O-ring, calibration of 12 transmitters). The marketplace matches to listed sellers based on category, location, and rating.</li><li><strong>Specialist contractors:</strong> list their services with discipline tags (rotating equipment, electrical MV, instrumentation, refrigeration), certifications (TESDA, OEM), and verified work history pulled from past WorkHive Logbook entries.</li><li><strong>Parts and equipment suppliers:</strong> list catalogs with PHP prices, lead times, MOQ, and shelf-life information. Plants can subscribe to recurring-consumption pulls for ABC items.</li></ul>
-      <h2 id="trust">Trust and verified work history</h2>
-      <p>The hardest problem in any industrial marketplace is trust. WorkHive solves it three ways:</p>
-      <ol><li><strong>Verified work history.</strong> A specialist contractor who has logged 200 jobs in WorkHive Logbook over the past 2 years has 200 documented data points. The marketplace surfaces this as a credibility marker the way Stack Overflow surfaces reputation.</li><li><strong>Buyer reviews.</strong> After every job, the buyer rates the seller on quality, timeliness, communication, and value. Reviews are public and unedited; sellers can respond once.</li><li><strong>Dispute resolution.</strong> WorkHive moderates disputes with documented evidence (logbook entries, completion photos, parts delivery proof). 80 percent of disputes resolve within 7 days based on the documentation; the rest go to a Philippine-context arbitration.</li></ol>
+      <ul><li><strong>Buyers (plants):</strong> post a need (specialist for a turbine bearing replacement, 50 units of a specific O-ring, calibration of 12 transmitters). The marketplace matches to listed sellers based on category, location, and rating.</li><li><strong>Specialist contractors:</strong> list their services with discipline tags (rotating equipment, electrical MV, instrumentation, refrigeration) and certifications (TESDA, OEM). Note that a listing is what the seller states about themselves - the marketplace does not read your logbook and turn it into a credential, so the evidence a buyer weighs is the reviews below, not a job count.</li><li><strong>Parts and equipment suppliers:</strong> list catalogs with PHP prices, lead times, MOQ, and shelf-life information. Plants can subscribe to recurring-consumption pulls for ABC items.</li></ul>
+      <h2 id="trust">What the trust layer actually is</h2>
+      <p>The hardest problem in any industrial marketplace is trust, and it is worth being exact about how much of it a young marketplace can carry. Two mechanisms, described as they are built:</p>
+      <ol><li><strong>Buyer reviews.</strong> After a job, the buyer leaves a rating from one to five stars with a comment. It is a single overall score rather than a breakdown by quality or speed, and a review placed against a completed purchase is marked as verified. Reviews are public and cannot be edited afterwards, and the seller gets exactly one reply to each - one, by design, so a thread cannot be argued into the ground.</li><li><strong>Disputes with evidence.</strong> A buyer can open a dispute naming the reason and attaching evidence - completion photos, delivery proof, the listing itself. The seller replies once, and an administrator records a decision and the date it was made. Every step is stamped, which is what makes the record worth anything later.</li></ol>
+      <p><strong>What this does not give you:</strong> the marketplace does not verify a seller's work history for you, and it publishes no statistics about how disputes turn out, because it has not run long enough to have honest ones. Treat the reviews as the signal they are - a handful of real opinions from people who paid - and do the diligence you would do on any contractor you found through a friend.</p>
       <h2 id="payment">How buyers and sellers connect (free, contact-only)</h2>
       <p>WorkHive Marketplace is free and does not handle payments. It is a discovery and trust layer: buyers find ID-verified specialists and suppliers, then contact them directly to arrange the work and payment between themselves.</p>
       <ul><li><strong>Buyer contacts the seller</strong> directly through the details on the listing (Messenger, phone, or email)</li><li><strong>Seller delivers the work</strong> with WorkHive-verified evidence (logbook entry, photos, signed handback) so the buyer can confirm quality</li><li><strong>Buyer and seller settle payment between themselves</strong> in PHP or however they both prefer (GCash, bank transfer, or cheque). WorkHive never touches the money, charges no commission, and takes no cut</li></ul>
       <p>Invoicing and tax: because payment is directly between the two parties, you and the seller handle your own receipts and BIR compliance, exactly as you would for any direct engagement.</p>
-      <h2 id="three-patterns">The 3 patterns that drive 90 percent of value</h2>
+      <h2 id="three-patterns">The three patterns it is built around</h2>
       <ol><li><strong>Emergency specialist sourcing.</strong> A bearing on a critical pump fails Friday night; the plant needs a vibration analyst on site Saturday morning. WorkHive Marketplace surfaces verified specialists within 50km radius with weekend availability. The job posts and accepts in under 2 hours. This pattern alone justifies plant adoption.</li><li><strong>Recurring consumable supply.</strong> The plant's A-tier inventory items pull from the marketplace on autopilot. Reorder point triggers a quote request to 3 verified suppliers; the cheapest credible one wins. Plant procurement cost drops 8 to 15 percent versus the friend-call pattern.</li><li><strong>One-off project bidding.</strong> A planned turnaround needs scaffolding, insulation, painting, and electrical contracting crews. Plant posts the scope; verified contractors bid; plant picks the package that fits budget and timeline. Replaces 3 weeks of phone-and-email coordination with 5 days of structured bidding.</li></ol>
       <h2 id="seller">Becoming a seller</h2>
       <p>Sellers register through the marketplace with:</p>
       <ul><li>Business registration (DTI or SEC) and TIN</li><li>Discipline categories and geographic service area</li><li>Certifications (TESDA, OEM training, PEC license, PME registration)</li><li>Optional: WorkHive Solo-mode work history to bootstrap credibility</li></ul>
-      <p>First 30 days: visible to buyers but with a "new seller" badge. After 5 successful jobs with average rating 4+/5, the badge changes to "verified seller." After 25 successful jobs, "trusted seller" with priority placement.</p>
+      <p>New listings are visible to buyers straight away. Sellers carry a tier badge that moves with completed sales recorded on the platform, but do not build your pitch on it: on a young marketplace the signal buyers actually read is your ID verification and your first few reviews. Get one real job, do it well, and ask the buyer to review it.</p>
       <div class="cta-box">
         <p class="cta-eyebrow">The tool this guide is about</p>
-        <h4 aria-level="3">WorkHive Marketplace is the trust layer between plants and specialists</h4>
-        <p>Verified work history pulled from WorkHive Logbook, ID-verified sellers, and dispute mediation backed by documented evidence. 3 high-value patterns: emergency specialist sourcing, recurring consumable supply, one-off project bidding. Free for everyone: no platform fees, no commission, and no payments through WorkHive; you contact sellers directly.</p>
+        <h3>WorkHive Marketplace is the trust layer between plants and specialists</h3>
+        <p>Every seller card shows whether that seller is ID-verified, buyer reviews sit on the listing, and disputes are recorded with the evidence attached. 3 high-value patterns: emergency specialist sourcing, recurring consumable supply, one-off project bidding. Free for everyone: no platform fees, no commission, and no payments through WorkHive; you contact sellers directly.</p>
         <a href="/marketplace.html" class="cta-btn">Open the Marketplace</a>
         <p class="cta-secondary">No hive yet? <a href="/?signup=1">Join WorkHive</a> first (free, takes 30 seconds).</p>
       </div>
       <h2 id="faq">Frequently asked questions</h2>
       <details class="faq-item"><summary>Who can sell on WorkHive Marketplace?</summary><div class="faq-answer">Specialist contractors (vibration analysts, motor rewinders, refrigeration specialists, calibration providers), equipment suppliers (pumps, seals, bearings, instrumentation), and service providers (NDT, training, project management). Sellers must be Philippine-registered businesses (DTI or SEC) with valid TIN. Individual freelance technicians can sell as sole proprietors after DTI registration.</div></details>
-      <details class="faq-item"><summary>How is seller credibility verified?</summary><div class="faq-answer">Three signals combined: documented work history from WorkHive Logbook (if the seller has been operating as a WorkHive solo user), verified certifications (TESDA, OEM training, PEC license), and buyer reviews after each completed job. New sellers carry a "new seller" badge for the first 5 jobs; after 5 with 4+ rating, they become "verified"; after 25, "trusted seller."</div></details>
-      <details class="faq-item"><summary>What if there is a dispute over completed work?</summary><div class="faq-answer">WorkHive moderates disputes with documented evidence (logbook entries, completion photos, signed handback per asset). 80 percent of disputes resolve within 7 days based on the documentation. The remaining 20 percent go to Philippine-context arbitration with a panel of senior industry practitioners. Both parties bear the arbitration fee 50/50 unless one party is found in bad faith.</div></details>
+      <details class="faq-item"><summary>How is seller credibility verified?</summary><div class="faq-answer">Two things the platform can actually show you, and one it cannot. It shows whether the seller has passed ID verification - every seller card says ID-verified or NOT ID-verified, which is a more useful signal than a badge only the good ones carry. It shows buyer reviews: a rating out of five with a comment, marked verified when it sits against a completed purchase. What it does NOT do is verify the certifications a seller lists, or read their logbook and turn it into a work history - those are claims the seller makes, and worth asking them to evidence directly.</div></details>
+      <details class="faq-item"><summary>What if there is a dispute over completed work?</summary><div class="faq-answer">You can open a dispute against the listing, giving the reason and attaching evidence such as completion photos or delivery proof. The seller gets one reply, and an administrator records a decision with the date. Be clear about the limits: WorkHive never held your money, so a decision here is a record and a judgement, not a refund - the payment was always directly between you and the seller, and recovering it is a matter between you two. We publish no statistics about how disputes turn out, because the marketplace has not run long enough to have honest ones.</div></details>
       <details class="faq-item"><summary>How does payment work? Is it PHP only?</summary><div class="faq-answer">WorkHive Marketplace is free and does not process payments. You contact the seller directly (Messenger, phone, or email shown on their listing) and agree the price and payment terms between yourselves, in PHP or however you both prefer (GCash, bank transfer, or cheque). WorkHive never holds funds, charges no commission, and takes no cut. You and the seller handle your own invoicing and BIR compliance directly, as with any direct engagement.</div></details>
       <details class="faq-item"><summary>Can buyers see the seller's prices before posting?</summary><div class="faq-answer">Yes for catalog items (equipment supplier lists with PHP prices, MOQ, lead time). For specialist services where price depends on scope, buyers post the need and receive quotes from matching sellers within 48 hours. The marketplace shows the seller's typical price range based on past jobs for context.</div></details>
       <details class="faq-item"><summary>What stops a buyer from gaming the review system?</summary><div class="faq-answer">Reviews are tied to completed transactions only (no buying reviews without using the service). The 7-day auto-confirm window prevents reviews from being held hostage. Sellers can respond once to a review for public context. Patterns of suspicious reviewing (same buyer leaving multiple negative reviews on competing sellers, same seller getting many 5-star reviews from accounts with no other activity) are flagged for moderation.</div></details>
@@ -371,7 +394,7 @@
       <a href="/learn/" class="text-sm text-white/55 hover:text-orange-wh transition-colors">&larr; Back to all guides</a>
     </div>
   </div>
-</article>
+</article></main>
 <footer class="py-10 border-t border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
   <div class="max-w-4xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">
     <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-08-24">24 Aug 2026</time></p>

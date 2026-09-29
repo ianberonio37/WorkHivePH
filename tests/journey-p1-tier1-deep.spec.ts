@@ -95,6 +95,31 @@ test.describe('ai_chain_mirror — Python ↔ TS chain parity', () => {
     const body = await r.json().catch(() => ({}));
     expect(body).toHaveProperty('route');
   });
+
+  // third_mirror (L5, added 2026-09-28). The mirror is a TRIO — ai-chain.ts, tools/ai_chain.py and
+  // tools/lib/ai_chain.py — and the gate that enforces it had only ever read the first two, so the
+  // third sat four dead models out of date while the board printed "15 == 15, all pairs match".
+  // The runtime property these two anchor is the one a drifted third copy destroys: the chain the
+  // edge actually runs still answers, and still reports the deps its entries name. Python is not
+  // reachable from Playwright, so the static file parity stays the validator's job (L5 + its
+  // selftest); these hold the runtime half so the rule is not proven by one instrument alone.
+  test('third_mirror: the shared chain still answers through ai-gateway', async ({ request }) => {
+    if (!haveSb) test.skip();
+    const r = await request.post(`${SUPABASE_URL}/functions/v1/ai-gateway`, {
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${ANON_KEY}` },
+      data: { agent: 'voice-journal', message: 'hi', context: { worker_name: 'qa' } },
+      timeout: 30_000,
+    });
+    expect(r.status()).toBeGreaterThanOrEqual(200);
+  });
+  test('third_mirror: agentic-rag-loop health still reports its chain deps', async ({ request }) => {
+    if (!haveSb) test.skip();
+    const r = await request.get(`${SUPABASE_URL}/functions/v1/agentic-rag-loop/health`, {
+      headers: { Authorization: `Bearer ${ANON_KEY}` },
+    });
+    const body = await r.json().catch(() => ({}));
+    expect(Array.isArray(body.deps)).toBe(true);
+  });
 });
 
 

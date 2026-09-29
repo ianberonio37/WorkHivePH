@@ -2,7 +2,7 @@
 name: skill-mobile-maestro
 type: skill
 source: skill:mobile-maestro
-source_sha: 83e69b83fc537f1d
+source_sha: 7ecc57c085a41cee
 last_verified: 2026-07-13
 supersedes: null
 ---

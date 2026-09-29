@@ -8574,3 +8574,51 @@ Validator runs in <100ms; the L0 layer is the right home.
       // seed a violation, navigate, assert the surface degrades safely
     });
     ```
+
+# Multi-Scenario Sentinel — proposed edge scenarios
+
+1 TIER 1 rule(s) currently have <2 anchored tests:
+
+## `third_mirror` (validator: `ai_chain_mirror`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `third_mirror`
+  - **File:** `tests/journey-ai-chain-mirror.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('third_mirror: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+# Multi-Scenario Sentinel — proposed edge scenarios
+
+1 TIER 1 rule(s) currently have <2 anchored tests:
+
+## `third_mirror` (validator: `ai_chain_mirror`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `third_mirror`
+  - **File:** `tests/journey-ai-chain-mirror.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('third_mirror: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+# Multi-Scenario Sentinel — proposed edge scenarios
+
+1 TIER 1 rule(s) currently have <2 anchored tests:
+
+## `third_mirror` (validator: `ai_chain_mirror`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `third_mirror`
+  - **File:** `tests/journey-ai-chain-mirror.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('third_mirror: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```

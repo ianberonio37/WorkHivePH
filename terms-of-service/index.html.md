@@ -20,6 +20,8 @@ All core platform features (Logbook, PM Scheduler, Inventory, Skill Matrix, Engi
 
 WorkHive may in the future add optional premium add-ons at the enterprise tier. Those add-ons, if they appear, will be clearly labelled, will not gate worker-level access to existing free features, and will require explicit opt-in.
 
+**The Marketplace is the one place money already changes hands.** A service provider who wants to sell work through the Marketplace buys service credits from WorkHive, paid in GCash, and WorkHive records the amount, the method and your GCash reference so the top-up can be verified. That is separate from everything listed above: it is optional, nobody needs it to use any maintenance tool, and no maintenance tool is behind it. Credits are not a subscription and buy no additional platform features.
+
 ## Eligibility
 
 WorkHive is for people of legal working age. By creating an account you represent that you are at least 18 years old, the age Philippine labor law sets for hazardous work, which industrial maintenance is. WorkHive does not verify age and relies on this representation; an employer deploying WorkHive remains responsible for its own workforce rules.
@@ -83,4 +85,4 @@ These terms are governed by the laws of the Republic of the Philippines. Any dis
 
 Email [admin@workhiveph.com](mailto:admin@workhiveph.com) with any question about these terms. Owner: WorkHive Engineering Services (DTI Business Name 8080496), Ian Lumayno Beronio, sole proprietor.
 
-<!-- md-twin source-sha: 8e72ac3e6a99aa12 -->
+<!-- md-twin source-sha: 4a7c1663bb3a11b9 -->

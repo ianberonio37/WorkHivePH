@@ -43,7 +43,7 @@ The most common Philippine plant mistake is treating a 2-week turnaround as a lo
 
 ## The 6 reasons projects blow over budget
 
-Across Philippine plants we have benchmarked, these 6 causes account for 80 percent of budget overruns on maintenance projects:
+Six causes account for most budget overruns on maintenance projects, and they recur often enough to be worth planning against by name:
 
 1. **Scope creep after freeze.** Production adds a "while you have it open" job 2 weeks before the project. The 30-minute add takes 6 hours and shifts the critical path. Hard freeze at 90 days is the rule; only true emergencies add after that, and every emergency add gets a documented justification.
 2. **Discovery work.** The team opens an asset and finds worse damage than expected (corrosion under insulation, cracked housing, contaminated oil, undocumented modifications). Plan 15 to 20 percent contingency time and budget for discovery. Plants that plan zero contingency are surprised every time.
@@ -85,7 +85,7 @@ Top-10 risk workshop with the project team. Each risk gets:
 
 ### Step 5: Cost the project to the asset, not the project code
 
-Every peso spent gets allocated to the asset that benefited (rebuild cost on Pump P-101A, not "Turnaround 2026 Q3"). This feeds total cost of ownership per asset in Asset Hub. Three years later when you decide replace versus refurbish, you have the data. Plants that lump everything under one project code lose this forever.
+Every peso spent gets allocated to the asset that benefited (rebuild cost on Pump P-101A, not "Turnaround 2026 Q3"). Three years later when you decide replace versus refurbish, you have the data; plants that lump everything under one project code lose this forever. Note that this one is a discipline you keep in your finance system, not something WorkHive does for you: a project carries a budget figure and links to the assets it touched, but there is no per-asset cost rollup to read back, so the ledger that answers "what has this pump cost us" is still yours to keep.
 
 ### Step 6: Execute with daily standups and handback discipline
 
@@ -95,9 +95,9 @@ Per-asset handback: PM schedule updated, Logbook entry of the work, parts consum
 
 The tool this guide is about
 
-#### WorkHive Project Manager runs the 6 steps end to end
+### WorkHive Project Manager runs the 6 steps end to end
 
-Project Manager has scope freeze tracking, critical-path Gantt, skill-matrix resource matching, risk register with named owners, per-asset cost allocation that feeds Asset Hub, daily standup template, and per-asset handback checklist. Contractors get scoped access to their assigned jobs. Suppliers see only their consumed parts. Free at the worker tier; SAP PS / Maximo Projects financial integration unlocks at Stage 2.
+Project Manager has a critical-path Gantt, Monte Carlo schedule risk so the end date comes with a spread, resource-overload flagging, change orders when scope moves, a daily progress log with supervisor sign-off, BOM import from Engineering Design, and a variance and lessons-learned summary at the close. Projects carry a budget figure and link to the assets, logbook entries, PM completions, inventory items and calculations they touch. Free at the worker tier. Closing a work order can push the completion to SAP or Maximo; the financial side stays in those systems.
 
 No hive yet? [Join WorkHive](https://workhiveph.com/?signup=1) first (free, takes 30 seconds).
 
@@ -114,7 +114,7 @@ Most major projects in Philippine plants involve 3 to 8 contractor crews working
 Three rules that work:
 
 1. **Single coordinator owns the master schedule.** Contractors do not negotiate schedule with each other; they negotiate through the coordinator. The coordinator is usually a senior planner or project engineer, not a contractor.
-2. **Scoped WorkHive access per contractor.** Each contractor sees only their assigned jobs and the assets they touch. No broad plant access. Status updates are logged in WorkHive Project Manager, not in WhatsApp groups.
+2. **Decide what system access each contractor gets: deliberately.** WorkHive will not scope it for you: hive membership is worker or supervisor, and a member sees the hive's records. So either keep vendors out of the hive and have your own staff log their work against a contractor project, or accept that a vendor you add can read the plant's logbook. Whichever you choose, make status updates land in Project Manager rather than in WhatsApp groups, so the trail survives the project.
 3. **Daily standup includes contractor leads.** Same 15-minute meeting, same agenda. Blockers surface immediately. Email handoffs and side-chat coordination kill projects.
 
 ## Coexistence with SAP PS and Maximo Projects
@@ -128,13 +128,15 @@ WorkHive Project Manager does not replace SAP PS (Project System) or Maximo Proj
 
 WorkHive Project Manager handles the operations side:
 
-- Who does what when (Gantt + standups)
-- Parts staged at the asset by the supervisor
-- Contractor check-in and time on site
-- Handback checklist per asset
-- Logbook entries linked to the project
+- Who does what when: a Gantt with the critical path computed
+- Schedule risk by Monte Carlo simulation over the task durations, so the end date comes with a spread rather than a single optimistic number
+- Resource overload flagged when the same people are booked twice
+- Change orders raised against a project when scope moves
+- Daily progress log with supervisor sign-off
+- Scope items, and links to the asset, the logbook entries, PM completions, inventory items and engineering calculations the project touches
+- Variance summary and lessons learned at the close
 
-The two integrate via the [WorkHive CMMS Integration connector](https://workhiveph.com/learn/connecting-workhive-to-sap-maximo-cmms/): financial milestones flow to SAP, operational completion flows to WorkHive. Plants that use both well treat them as complementary; plants that try to make either do both end up with one half-used system.
+They meet at one point today, and it is worth knowing exactly where: when a worker closes a work order in the logbook, WorkHive pushes that completion out to your configured CMMS: the machine, who did it, actual hours and the close timestamp: translated into that system’s own status code rather than the literal word “closed”. See the [CMMS integration guide](https://workhiveph.com/learn/connecting-workhive-to-sap-maximo-cmms/) for the setup. Nothing financial crosses in either direction: budgets, WBS structure, PO matching and capitalisation stay entirely in SAP or Maximo, and a cost figure you want in both places is entered in both places. Plants that use both well treat them as complementary; plants that try to make either do both end up with one half-used system.
 
 ## Handback discipline: where most projects end badly
 
@@ -169,7 +171,7 @@ Minimum 90 days for a 1-week turnaround on a typical Philippine production line;
 
 ### How do I coordinate multiple contractors during a project?
 
-Three rules: (1) Single coordinator owns the master schedule; contractors do not negotiate schedule with each other directly. (2) Every contractor gets scoped WorkHive access showing only their assigned jobs and the assets they touch; no broad plant access. (3) Daily standup includes contractor leads alongside in-house supervisors so blockers surface in the same forum. Plants that try to coordinate contractors by email or WhatsApp lose the audit trail and get blame games when something slips.
+Three rules: (1) Single coordinator owns the master schedule; contractors do not negotiate schedule with each other directly. (2) Decide deliberately what system access a contractor gets, because WorkHive does not scope it for you: hive membership is worker or supervisor, and a member sees the hive. If you do not want a vendor reading the whole plant's records, do not add them as a member: record their work against a contractor project and have your own staff enter it. (3) Daily standup includes contractor leads alongside in-house supervisors so blockers surface in the same forum. Plants that try to coordinate contractors by email or WhatsApp lose the audit trail and get blame games when something slips.
 
 ### What is critical path and why does it matter?
 
@@ -177,7 +179,7 @@ The critical path is the longest dependency chain through your project schedule;
 
 ### How does WorkHive Project Manager fit with SAP or Maximo project modules?
 
-SAP PS (Project System) and Maximo Project Management handle the financial side: WBS structure, cost allocation, vendor PO tracking, capitalisation. WorkHive Project Manager handles the operations side: who does what when, daily standups, parts staged at the asset, contractor check-in, handback per asset. The two integrate via the CMMS Integration connector so financial milestones flow to SAP and operational completion flows to WorkHive. Most plants use both; few use both well.
+SAP PS (Project System) and Maximo Project Management handle the financial side: WBS structure, cost allocation, vendor PO tracking, capitalisation. WorkHive Project Manager handles the operations side: who does what when, daily standups, parts staged at the asset, contractor check-in, handback per asset. They meet at one point: closing a work order in the WorkHive logbook pushes that completion out to your configured CMMS, mapped to its own status code. Nothing financial crosses: budgets, WBS and PO matching stay in SAP or Maximo. Most plants use both; few use both well.
 
 ## Sources
 
@@ -189,4 +191,4 @@ SAP PS (Project System) and Maximo Project Management handle the financial side:
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 664a041c02726c5b -->
+<!-- md-twin source-sha: 87284afbe0d03f52 -->

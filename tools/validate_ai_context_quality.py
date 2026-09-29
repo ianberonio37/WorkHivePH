@@ -56,10 +56,24 @@ def check(ed_text: str, consumers: list[tuple[str, str]]) -> list[str]:
                     f"{name}: claims '{mm.group(0)}' but the registry (CALC_TYPES_UI available:true) counts {n}"
                 )
     a_text = dict(consumers).get("assistant.html", "")
-    if "grounded in your own hive data" not in a_text:
-        problems.append("assistant.html: empty-state grounding declaration missing ('grounded in your own hive data')")
-    if "grounded in this hive" not in a_text:
-        problems.append("assistant.html: live-state grounding declaration missing ('grounded in this hive')")
+    # ★THE ORACLE'S VOCABULARY IS PART OF THE ORACLE (2026-09-28). This asked for ONE exact sentence,
+    # "grounded in your own hive data". The empty state was rewritten to say something STRICTER - "answers
+    # are grounded in that hive's alerts, PM schedule, parts and asset risk every time, and in your
+    # logbook when you ask about a failure" - which names the actual fuels instead of gesturing at
+    # "your own hive data", and the gate reported the better copy as a MISSING declaration. The property
+    # is that the surface DECLARES grounding in the reader's own hive; it was never that one phrasing.
+    # So: match the shape (a "grounded in ..." clause that names the hive or its data) and keep a hard
+    # floor - the words must be there, so deleting the declaration outright still fails, which
+    # self_test()'s bad case pins. Kin of feedback_an_oracles_vocabulary_is_part_of_the_oracle.
+    EMPTY_STATE = re.compile(
+        r"grounded in (?:your own hive data|(?:that|this|your) hive(?:’s|'s)?\b)", re.I)
+    LIVE_STATE = re.compile(r"grounded in (?:this|that|your) hive", re.I)
+    if not EMPTY_STATE.search(a_text):
+        problems.append("assistant.html: empty-state grounding declaration missing "
+                        "(needs a 'grounded in <your/this/that> hive...' clause)")
+    if not LIVE_STATE.search(a_text):
+        problems.append("assistant.html: live-state grounding declaration missing "
+                        "(needs a 'grounded in this hive' clause)")
     return problems
 
 

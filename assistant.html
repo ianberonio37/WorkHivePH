@@ -59,11 +59,20 @@
       border-radius: 0.75rem;
       padding: 0.875rem 1.5rem;
       cursor: pointer;
-      transition: all 0.2s;
+      /* was `all 0.2s`: it animates every property that happens to change, layout included, on a control
+         that also lifts on hover - so the shadow, the transform and any reflow all rode the same curve
+         (design lens motion, 2026-09-15) */
+      transition: background .15s ease, border-color .15s ease, color .15s ease,
+                  box-shadow .15s ease, transform .12s var(--wh-ease-out, cubic-bezier(0.23, 1, 0.32, 1));
       border: none;
       font-size: 0.9rem;
     }
-    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(247,162,27,0.35); }
+        /* ★A BRAND-COLOURED GLOW UNDER A BUTTON ON A DARK PAGE (design lens slop, 2026-09-15). An amber shadow
+       does not read as the button being raised - light does not take the colour of what casts it - it reads
+       as the button emitting light, which is the generated-interface tell the detector names. The 1px lift
+       stays, because that is the part carrying the hover; the shadow becomes elevation. The amber shadow on
+       .wh-input:focus is NOT this and is left alone: a focus ring is meant to be the brand colour. */
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,0,0,0.35); }
     .btn-primary:active { opacity: 0.75; transform: scale(0.98); box-shadow: none; }
     .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
 
@@ -75,7 +84,11 @@
       border-radius: 0.75rem;
       padding: 0.875rem 1.5rem;
       cursor: pointer;
-      transition: all 0.2s;
+      /* was `all 0.2s`: it animates every property that happens to change, layout included, on a control
+         that also lifts on hover - so the shadow, the transform and any reflow all rode the same curve
+         (design lens motion, 2026-09-15) */
+      transition: background .15s ease, border-color .15s ease, color .15s ease,
+                  box-shadow .15s ease, transform .12s var(--wh-ease-out, cubic-bezier(0.23, 1, 0.32, 1));
       font-size: 0.9rem;
     }
     .btn-ghost:hover { border-color: rgba(255,255,255,0.25); color: white; }
@@ -89,7 +102,11 @@
       color: white;
       font-size: 0.875rem;
       line-height: 1.5;
-      max-width: 80%;
+      /* ★A PERCENTAGE IS NOT A MEASURE (design lens craft, 2026-09-15). 80% of a phone is a comfortable
+         line; 80% of a 1280px window is 188 characters, and the craft floor asks for 65 to 75. A percent
+         cap scales WITH the window, so it bounds the bubble and never the reading. min() keeps the phone
+         behaviour exactly and stops the line growing past what a person can track back to. */
+      max-width: min(80%, 70ch);
       margin-left: auto;
       word-break: break-word;
     }
@@ -102,7 +119,7 @@
       color: rgba(255,255,255,0.88);
       font-size: 0.875rem;
       line-height: 1.6;
-      max-width: 85%;
+      max-width: min(85%, 70ch);
       word-break: break-word;
     }
 
@@ -132,17 +149,21 @@
       width: 44px; height: 44px;
       display: flex; align-items: center; justify-content: center;
       cursor: pointer;
-      transition: all 0.2s;
+      /* was `all 0.2s`: it animates every property that happens to change, layout included, on a control
+         that also lifts on hover - so the shadow, the transform and any reflow all rode the same curve
+         (design lens motion, 2026-09-15) */
+      transition: background .15s ease, border-color .15s ease, color .15s ease,
+                  box-shadow .15s ease, transform .12s var(--wh-ease-out, cubic-bezier(0.23, 1, 0.32, 1));
       flex-shrink: 0;
     }
-    .send-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(247,162,27,0.35); }
+    .send-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.35); }
     .send-btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; box-shadow: none; }
 
     /* Chat input area */
     .chat-input-area {
       background: rgba(22,32,50,0.9);
       border-top: 1px solid rgba(255,255,255,0.07);
-      padding: 0.875rem 1rem;
+      padding: 16px;
     }
 
     .chat-textarea {
@@ -150,7 +171,7 @@
       border: 1px solid rgba(255,255,255,0.1);
       border-radius: 0.75rem;
       color: white;
-      padding: 0.65rem 0.875rem;
+      padding: 12px 16px;
       font-size: 1rem;
       resize: none;
       outline: none;
@@ -173,9 +194,19 @@
          component copied per page and then diverged. The original offset is preserved; only the
          inset is added. Read via the CSSOM, not getComputedStyle, which resolves env() to 0 on
          desktop and makes a guarded and an unguarded rule look identical. */
+    /* ★CLIPPED OFF BOTH EDGES, AND SITTING ON THE INPUT (design lens critique, 2026-09-15). Measured at
+       390 with this page's own Filipino rate-limit sentence: 645px wide in a 390px viewport, 130px lost
+       off the left and 124px off the right - roughly seventeen characters from each end, including the
+       "try again in about 45 seconds" horizon utils.js reads from the server precisely so the message is
+       actionable. And overlapsComposer was true: the pill rendered across the input box at the moment the
+       reader is being asked to retype. It wraps and caps now, and clears the composer by tracking its
+       real height, so it stays right when the textarea grows to its 120px ceiling. */
     .toast {
       position: fixed;
-      bottom: calc(1.5rem + env(safe-area-inset-bottom));
+      bottom: calc(1.5rem + env(safe-area-inset-bottom) + var(--wh-composer-h, 0px));
+      max-width: min(92vw, 42ch);
+      text-align: center;
+      line-height: 1.35;
       left: 50%;
       transform: translateX(-50%) translateY(4px);
       background: linear-gradient(135deg, rgba(42,61,88,0.95), rgba(31,46,69,0.98));
@@ -189,7 +220,7 @@
       transition: opacity 0.3s, transform 0.3s;
       pointer-events: none;
       z-index: 9999;
-      white-space: nowrap;
+      white-space: normal;
     }
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
@@ -197,16 +228,63 @@
     #chat-messages::-webkit-scrollbar { width: 4px; }
     #chat-messages::-webkit-scrollbar-track { background: transparent; }
     #chat-messages::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 999px; }
+    /* ★THE READING COLUMN AND THE TYPING COLUMN SAT ON TWO DIFFERENT AXES (design lens critique,
+       2026-09-15). At 1280 the composer is `max-w-lg mx-auto` - a 32rem column centred in the viewport -
+       while every message row ran the full width from x=16, leaving ~60% of the screen empty navy on one
+       side of a conversation with itself. The rows share the composer's measure and its centre line now.
+       Below 640px 32rem is wider than the viewport, so the phone layout is untouched by this rule. */
+    #chat-messages > * { max-width: 32rem; margin-inline: auto; }
+    /* The list and heading blocks _mdish can now produce. Tight margins because a reply is a message,
+       not a document, and a hanging indent so a wrapped item still reads as one item. */
+    .bubble-assistant .bubble-list { margin: 4px 0; padding-left: 20px; }
+    .bubble-assistant .bubble-list li { margin: 2px 0; }
+    .bubble-assistant .bubble-head { font-weight: 700; margin: 8px 0 2px; }
+    .bubble-assistant .bubble-head:first-child { margin-top: 0; }
+    /* The page's own bubble rule caps a reply at min(85%, 70ch) and its comment explains why. The footer
+       disclaimer - the sentence asking him to verify before acting - measured 188ch and was never capped. */
+    /* ★THE FIX THAT LIFTED THIS SENTENCE INTO VIEW PUT IT UNDER THE FLOATING BUTTON (design lens
+       critique, 2026-09-15). Read off the 390 screenshot, it rendered cut mid-word twice - "verify aga▮
+       records before acting ... not a substitu▮ engineering judgment" - with "inst your" and "te for"
+       behind nav-hub's 56x56 FAB at x318-374, y772-828. The shell's 88px reserve stopped at the shell;
+       the footer sits below it and got none. The walk said fit.occlusion:[] because that probe tests
+       CONTROLS and a footer is text - the same blind spot as the disabled send button, one class wider.
+       This is the sentence standing between an AI answer and a person acting on it at a live machine, so
+       it clears the button on the side the button is on. */
+    footer[data-l2-anchor="ai-disclaimer"] {
+      max-width: 70ch; margin-inline: auto;
+      padding-inline-end: 72px;              /* the FAB's 56px plus its 16px inset */
+    }
+    @media (min-width: 768px) {
+      /* at desktop the FAB is hundreds of pixels clear of a 70ch column; the reserve would only
+         off-centre the sentence, so it is a phone measure. */
+      footer[data-l2-anchor="ai-disclaimer"] { padding-inline-end: 0; }
+    }
+    /* A turn that failed or was stopped: the question stays readable, but it must not look delivered. */
+    .turn-unsent .bubble-user { opacity: 0.62; }
 
     /* Fade-up animation */
     @keyframes fadeUp {
       from { opacity: 0; transform: translateY(12px); }
       to   { opacity: 1; transform: translateY(0); }
     }
-    .fade-up { animation: fadeUp 0.3s ease forwards; }
+    /* ★THE ENTRANCE RAN ON `ease` AT THE CEILING (design lens motion, 2026-09-15). This is the page's one
+       authored moment and it was nearly right - opacity and translateY, both composited, reduced-motion
+       honoured with a comment explaining why animation:none lands correctly. Two things were not: the
+       standards put an ENTRANCE on ease-out, and `ease` is the CSS default, a mild ease-in-out that starts
+       slow at exactly the moment a reply appears and a person is watching; and 300ms sat ON the ceiling
+       rather than inside the 150-250ms band this kind of entrance belongs to. */
+    .fade-up { animation: fadeUp 240ms var(--wh-ease-out, cubic-bezier(0.23, 1, 0.32, 1)) forwards; }
     /* forwards fill ends at opacity 1 and the base rule declares no opacity of its own, so
        animation:none lands on the same visual result the animation was travelling toward. */
-    @media (prefers-reduced-motion: reduce) { .fade-up { animation: none; } }
+    /* ★THE ONLY REDUCE RULE COVERED THE ONE ANIMATION THAT ENDS (design lens critique round 3,
+       2026-09-15). .fade-up runs for 240ms; typing-bounce runs FOREVER, and it was the one exempted from
+       nothing. A reader who asks the operating system for less motion is asking about the infinite one
+       most of all. The indicator still says what it means - its text reads "Thinking...", and it carries
+       aria-busy and role=status - so under reduce it holds still and the words do the work. */
+    @media (prefers-reduced-motion: reduce) {
+      .fade-up { animation: none; }
+      .typing-dot { animation: none; }
+    }
 
     /* API key toggle */
     .key-toggle {
@@ -229,8 +307,22 @@
     .error-text { color: var(--wh-red-text); font-size: 0.78rem; margin-top: 0.35rem; display: none; }
     .error-text.show { display: block; }
   </style>
-<style>/* I1 CLS: static wayfinding back-pill band reserve (wayfinding.js sets this body padding-top post-paint on pill-pages = a late shift under full-run contention; present at first paint -> its `if(band>cur)` skips, layout unchanged). VERIFIED this page gets the pill (has <main>, no back-affordance, not home). */
-body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
+<style>/* ★THE BAND WAS RESERVED FOR A PILL THIS PAGE NEVER GETS, AND IT PUSHED THE SEND BUTTON OFF THE
+   SCREEN (design lens critique, 2026-09-15). The rule here used to be
+   `body{padding-top:calc(64px + env(safe-area-inset-top,0px))}`, reserving room for wayfinding.js's
+   floating back pill, and its comment claimed "VERIFIED this page gets the pill (no back-affordance)".
+   The note on the setup screen's back button, sixteen lines below, says the opposite and is correct:
+   `.back-link` is wayfinding's SKIP path - line 180 is
+   `if (document.querySelector('.back-link,.home-link,.breadcrumb,...')) return;` - and this page carries
+   that class on BOTH back buttons. Measured live at 390 and 1280: #wh-wayfinding absent, .back-link
+   count 2. The pill has never rendered here.
+   What the reserve actually did: #chat-screen is height:100dvh and started at y=64, so its bottom 64px
+   sat past the viewport bottom - and the bottom of that column is the composer. Measured at 390x844 the
+   send button's box ended at y=860 against an 844px viewport, 16px below the fold, with the document
+   overflowing by 217px; at 1280x900, 14px. The obvious swipe scrolls #chat-messages, which has its own
+   overflow, so the outer scroll is not where a thumb looks for it.
+   Nothing replaces the rule: there is no pill to reserve for. If one is ever wanted here it belongs as
+   height:calc(100dvh - 64px) on the shell, not as padding on a full-height app shell. */</style>
 </head>
 <body class="text-white">
 <main>
@@ -242,29 +334,67 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
       <!-- Back nav -->
       <div class="flex items-center justify-between mb-8">
-        <button onclick="handleBack()" class="flex items-center gap-2 text-white/80 hover:text-white/70 transition-colors text-sm font-medium" style="min-height:44px;">
+        <!-- back-link class: this page manages its own back (handleBack: setup↔chat), so wayfinding.js must
+             NOT inject its floating pill on top of it (W41384: the fixed pill collided with the chat-header
+             back button under the offline banner). .back-link is the SKIP path (wayfinding line 180 returns
+             without rewiring, so handleBack survives) AND the W1/L rubric credits it as an in-layout way back. -->
+        <button onclick="handleBack()" class="back-link flex items-center gap-2 text-white/80 hover:text-white/70 transition-colors text-sm font-medium" style="min-height:44px;">
+          <!-- ★A BACK BUTTON LABELLED WITH A ROLE (design lens critique, 2026-09-15). This read "Basic
+               Worker" - a role name where a destination belongs - and grepped across the repo, NOTHING
+               writes #back-label: it was static text that looked dynamic. The button goes to the homepage,
+               so it says so. And the orange dot beside it labelled "STAGE 1" is gone: it sat in the
+               position and the styling of a system status, on a flow that has no stage 2 anywhere in the
+               page or the product, so it indicated nothing while looking like it indicated something. -->
           <span class="ic ic-back" aria-hidden="true"></span>
-          <span id="back-label">Basic Worker</span>
+          <span data-i="p_home_70f8" id="back-label">Home</span>
         </button>
-        <div class="flex items-center gap-2">
-          <div class="w-2 h-2 rounded-full" style="background:var(--wh-orange);"></div>
-          <span class="text-xs text-white/80 font-medium tracking-wide uppercase">Stage 1</span>
-        </div>
       </div>
 
-      <!-- Header -->
-      <div class="mb-8">
+      <!-- a header LANDMARK, not a styled div (design lens audit, 2026-09-15): the probe read main, nav
+           and a skip link but no banner region, so a screen-reader user had no named way back to the page
+           title and its intro. -->
+      <header class="mb-8">
         <div class="w-14 h-14 rounded-2xl flex items-center justify-center mb-4" style="background:rgba(247,162,27,0.12);border:1px solid rgba(247,162,27,0.2);">
           <span class="ic ic-back" aria-hidden="true"></span>
         </div>
         <h1 data-i="p_myworkassistant_1c06" class="text-2xl font-bold text-white mb-1">My Work Assistant</h1>
         <p data-i="p_askanythingtechnicaloperatio_8fdf" class="text-sm text-white/80">Ask anything: technical, operational, planning, safety, or your own job history.</p>
-      </div>
+      </header>
+<div style="display:flex;justify-content:flex-end;margin-bottom:6px;">
+  <button type="button" class="assistant-lang-toggle text-xs font-bold"
+          style="min-height:44px;min-width:44px;display:inline-flex;align-items:center;justify-content:center;
+                 background:transparent;border:1px solid var(--wh-navy-light, #2A3D58);border-radius:999px;
+                 color:rgba(255,255,255,0.90);padding:0 12px;cursor:pointer;">EN</button>
+</div>
 <details class="wh-help">
   <summary data-i="p_howthispageworks_c540">How this page works</summary>
-  <p data-i="p_typeaquestionorsetupthedaily_ed42">Type a question or set up the daily briefing. Answers are grounded in your own hive data: logbook, PM schedule, parts, and alerts.</p>
+  <!-- ★"YOUR LOGBOOK" WAS PROMISED UNCONDITIONALLY AND DELIVERED ON A KEYWORD LOTTERY (design lens
+       critique, 2026-09-15). In companion_source_registry.json the logbook view is served_on_demand
+       behind twenty literal keywords, while alerts, PM, parts and asset risk are on every answer. This
+       sentence named all five as if they were one tier. Saying which is which costs nine words. -->
+  <!-- ★THIS PROMISED UNCONDITIONALLY WHAT THE CHIP ABOVE IT DENIES (design lens critique,
+       2026-09-15). For a signed-out visitor both are on screen together: this said "grounded ... every
+       time" while _setAssistantScopeChip wrote "Answers are NOT grounded in any hive's data" a few
+       lines above. Grounding is conditional on being signed in and in a hive, which is what this
+       sentence was trying to explain, so it says so. -->
+  <p data-i="p_typeaquestionorsetupthedaily_1853">Type a question or set up the daily briefing. Once you are signed in to a hive, answers are grounded in that hive’s alerts, PM schedule, parts and asset risk every time, and in your logbook when you ask about a failure.</p>
 </details>
-<p data-i="p_livehivedatabasedonyourlogbo_6885" class="wh-source-chip" id="assistant-scope-chip" style="font-size:.62rem;color:rgba(255,255,255,0.80);margin:0;padding:3px 0 0;line-height:1.35;">Live hive data &middot; Based on your logbook, PM schedule, parts, and alerts &middot; recomputed per question</p>
+<!-- min-height reserves the slot renderSourceChip fills after load: the walk measured a 0.048 shift at 390
+     whose sources were this chip's neighbours. analytics.html and asset-hub.html reserve the same slot for
+     the same reason (design lens audit, 2026-09-15). -->
+<!-- ★THE BUILD-TIME DEFAULT MADE THE CLAIM THE RUNTIME EXISTS TO DECIDE (design lens critique,
+     2026-09-15). This markup used to read "Live hive data - Based on your logbook, PM schedule,
+     parts, and alerts - recomputed per question", and _setAssistantScopeChip is wrapped in a
+     try/catch so that an explainer can never break the page - which means the catch leaves THIS
+     text on screen. The one path where the runtime does not decide was the path making the
+     strongest promise. Empty claims nothing, costs no layout (the 62px reservation below is the
+     CLS fix and stays), and keeps the string out of the i18n extractor.
+     AND IT MUST NOT CARRY A data-i. whI18nApply's guard is
+       `if (stamp !== null && el.textContent !== stamp) return;`
+     - it steps aside only when the app's text DIFFERS from its own stamp, and this writer stamps
+     exactly what it writes, so the two are equal and the dictionary would overwrite it. Removing
+     the data-i is what protects this chip; the stamp is not. -->
+<p class="wh-source-chip" id="assistant-scope-chip" style="min-height:62px;font-size:0.75rem;color:rgba(255,255,255,0.80);margin:0;padding:3px 0 0;line-height:1.35;"></p>
 
       <!-- Form card -->
       <div class="wh-card p-6 space-y-5">
@@ -276,20 +406,30 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           <p data-i="p_pleaseenteryourname_fffc" role="alert" aria-live="assertive" id="name-error" class="error-text">Please enter your name.</p>
         </div>
 
-        <!-- Today's context (optional) -->
-        <div>
-          <label for="today-context" class="block text-xs font-semibold text-white/80 uppercase tracking-wide mb-2">
-            Today's Context
-            <span data-i="p_optional_b16c" class="text-white/80 normal-case font-normal ml-1">(optional)</span>
-          </label>
-          <textarea id="today-context" class="wh-input" rows="4" maxlength="500" placeholder="e.g. Working on Line 3 pumps, PM schedule for Compressor C-01..." style="resize:none;"></textarea>
-        </div>
+        <!-- ★"Today's Context" WAS COLLECTED, SAVED FOREVER, AND DISCARDED (design lens critique,
+             2026-09-15). A 500-character field whose placeholder taught the domain ("e.g. Working on Line 3
+             pumps, PM schedule for Compressor C-01...") - the one plant-floor-specific input on the page.
+             Its value was read into `contextNote`, which appears exactly once more in this file: inside the
+             template literal of buildSystemPrompt, which the comment above that function says is NOT called
+             any more. And whAutoSaveDraft('context', ['today-context']) persisted it across sessions, so a
+             supervisor typed his shift state, saw it still there tomorrow, and reasonably concluded a week
+             of answers had been calibrated to it. The durability is what turned a dead field into a
+             sustained false belief.
+             It cannot be honoured from here: ai-gateway forwards `context` wholesale and ai-orchestrator
+             reads body.question/message, hive_id, mode, body.memory, body.worker_name - never body.context;
+             and folding it into `message` is forbidden by this file's own T12 note, because the gateway
+             persists `message` verbatim as the journal transcript. A field that cannot be kept and IS
+             believed is worse than no field. Removed with its draft hook. To bring it back, give the
+             gateway a context key it actually reads and prove it end to end first. -->
 
         <!-- Records summary -->
         <div id="records-summary" class="rounded-xl p-4" style="background:rgba(41,182,217,0.06);border:1px solid rgba(41,182,217,0.15);">
           <p data-i="p_recordsavailableforcontext_74c6" class="text-xs font-semibold text-blue-wh mb-2">Records available for context</p>
           <div id="records-list" class="space-y-1"></div>
-          <p data-i="p_norecordsyetaddlogbookentrie_860b" id="empty-records-nudge" class="text-xs text-white/80 mt-2 hidden">No records yet. Add logbook entries or parts to unlock personalised insights. You can still ask technical questions.</p>
+          <!-- ★THE REMEDY NAMED MOVES NONE OF THE THREE NUMBERS SHOWN (design lens critique, 2026-09-15): this
+               said "add logbook entries or parts" while the panel directly above counts Logbook, Assets and
+               PM tasks. Parts is not one of them. Name what the panel actually reads. -->
+          <p data-i="p_norecordsyetaddlogbookentrie_860b" id="empty-records-nudge" class="text-xs text-white/80 mt-2 hidden">No records yet. Add a logbook entry, an asset or a PM schedule to unlock personalised insights. You can still ask technical questions.</p>
         </div>
 
       </div>
@@ -297,7 +437,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <!-- CTA -->
       <button onclick="startChat()" class="btn-primary w-full mt-5" data-i="startchat">Start Chat</button>
 
-      <p class="text-center text-xs text-white/80 mt-4">Powered by WorkHive AI</p>
+      <p data-i="poweredby" class="text-center text-xs text-white/80 mt-4">Powered by WorkHive AI</p>
 
     </div>
   </div>
@@ -307,18 +447,66 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
        override the class, painting chat-screen 100dvh tall at first paint next to
        the active setup-screen, then showScreen() collapsed it = ~1.0 CLS (Arc L L1).
        showScreen('chat-screen') sets display:flex when activated (line ~442). -->
-  <div id="chat-screen" class="screen" style="flex-direction:column; height:100dvh;">
+    <!-- ★THE SEND BUTTON COULD NOT BE TAPPED ON A PHONE (design lens critique, 2026-09-15). Measured with
+       elementFromPoint at five points across its own box at 390: 0 of 5 returned #send-btn - all five
+       returned nav-hub's floating action button or its glyph, which occupies x312-368 y764-820 against
+       the send button's x324-368 y760-804. At 1280, where the FAB is 300px away, 5 of 5 return Send.
+       The cause is the one this file already names in its top-band note: nav-hub reserves the hub's
+       room with `body { padding-bottom: 80px }`, which makes the DOCUMENT taller and moves a composer
+       pinned inside a 100dvh shell not at all. Same principle, other end - the reserve belongs on the
+       shell's height. The shell ends 80px above the viewport bottom now, so the padding nav-hub has
+       been setting all along is finally the band the FAB sits in instead of dead scroll.
+       Every walk called this green because tools/phone_fit_audit.mjs skips disabled controls and
+       syncSendBtn correctly disables Send on an empty composer - so the probe steps over the one
+       control that is covered. That gap goes to the tooling ledger.
+       88px = nav-hub's own 80px reserve plus the 8px gap its lift logic uses. -->
+  <div id="chat-screen" class="screen" style="flex-direction:column; height:calc(100dvh - 88px - env(safe-area-inset-bottom, 0px) - var(--wh-offline-banner-h, 0px));">
 
     <!-- Chat header -->
-    <div class="flex items-center justify-between px-4 py-3 flex-shrink-0" style="background:rgba(22,32,50,0.95);border-bottom:1px solid rgba(255,255,255,0.07);">
-      <button onclick="handleBack()" class="flex items-center gap-2 text-white/80 hover:text-white/70 transition-colors text-sm font-medium" style="min-height:44px;">
+    <!-- ★C17 (wave-4 narrow-320 walk, 2026-09-14): three fixed-width things in one row - the Setup button, the
+         title group (title + dot + worker name + persona name) and a nowrap "New Chat" - summed past 320px, so
+         New Chat ran 283..341: 21px of a real control past the viewport and past its parent. The row may now wrap
+         (New Chat drops to a second line rather than off the screen) and the title group can shrink, with the
+         worker name truncating, so every control ends inside the viewport at every width. -->
+    <!-- ★"SetupWork Assistant" (design lens critique, 2026-09-15): justify-between with no COLUMN gap, and
+         a title group at flex:1 1 auto that therefore grows until its content box is flush against the back
+         button. Both assessments read it as one word off the screenshots, at both widths. The fit probe
+         cannot see it - nothing overflows and nothing wraps - which is why it survived every walk. -->
+    <div class="flex items-center justify-between gap-3 px-4 py-3 flex-shrink-0" style="background:rgba(22,32,50,0.95);border-bottom:1px solid rgba(255,255,255,0.07);flex-wrap:wrap;row-gap:2px;">
+      <button onclick="handleBack()" class="back-link flex items-center gap-2 text-white/80 hover:text-white/70 transition-colors text-sm font-medium" style="min-height:44px;"><!-- back-link: see setup-screen note; also the credited way back when a signed-in worker lands straight on chat -->
         <span class="ic ic-back" aria-hidden="true"></span>
-        Setup
+        <span data-i="a_setup">Setup</span>
       </button>
-      <div class="flex items-center gap-2">
-        <h1 style="margin:0;font-size:0.85rem;font-weight:700;" data-i="chattitle">Work Assistant</h1>
-        <div class="w-2 h-2 rounded-full animate-pulse" style="background:var(--wh-green);"></div>
-        <span id="chat-worker-name" class="text-sm font-semibold text-white/80"></span>
+      <div class="flex items-center gap-2" style="min-width:0;flex:1 1 auto;">
+        <!-- ★TWO h1 ELEMENTS ON ONE DOCUMENT (design lens audit, 2026-09-15). The landing panel titles the page
+             ("My Work Assistant") and this app-bar label titled it again. A second h1 tells a screen-reader
+             user the document has two subjects; this is a heading WITHIN it, so it is an h2. Heading order
+             stays h1 then h2, and the walk still reads 0 skips. -->
+        <!-- ★AND THAT FIX LEFT THIS SCREEN WITH NO HEADING AT ALL (design lens critique round 3, 2026-09-15).
+             It was half right. The two h1 elements exist in the MARKUP and are never both EXPOSED: the two
+             screens are mutually exclusive - .screen { display:none } with a single .active - and a
+             display:none subtree is removed from the accessibility tree outright. So the document never had
+             two subjects; it had one per state. What the demotion produced was a chat screen whose only
+             headings were two h2s - on the screen every returning worker lands on directly, since
+             DOMContentLoaded routes straight past setup whenever a name is saved. Measured after: exactly one
+             exposed h1 in each state, and h1 -> h2 with no skips on both. -->
+        <!-- ★AND IT SAT AGAINST A PERSON'S NAME (design lens critique round 3, 2026-09-15). Rendered, the
+             row read "Work Assistant [dot] Hector Salvador" - and a coloured dot immediately before a name is,
+             in every chat product ever shipped, that person's presence. It reports the PAGE's connection, so
+             it belongs in front of the page's own title. One position to the left; same element, same
+             colours, same accessible word. -->
+        <div id="assistant-conn-dot" class="w-2 h-2 rounded-full flex-shrink-0" aria-hidden="true"
+             style="background:var(--wh-green);" title="Online"></div>
+        <span id="assistant-conn-label" class="sr-only" role="status">Online</span>
+        <h1 style="margin:0;font-size:0.85rem;font-weight:700;white-space:nowrap;" data-i="chattitle">Work Assistant</h1>
+        <!-- ★A STATUS LIGHT NOTHING WROTE (design lens critique, 2026-09-15): --wh-green appears exactly once
+             in this file, here, so this pulsed green in the universal position of a connection indicator
+             while the worker was offline. It reports navigator.onLine now and says so out loud. -->
+        <!-- The name is a SIBLING, not a child (design lens critique, 2026-09-15): a visually-hidden
+             string inside an 8x8 coloured box is text flush against a background with no inset, which the
+             detector reads as cramped padding and which is the correct reading - screen-reader-only text is
+             still text. A dot is geometry; what it MEANS belongs beside it. -->
+        <span id="chat-worker-name" class="text-sm font-semibold text-white/80" style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
         <!-- ★THE PERSONA SHAPED EVERY REPLY AND WAS NEVER NAMED. This page reads the persona and
              sends it to the gateway (personaName, below), so switching between Hezekiah and Zaniah
              visibly changes how the answer reads - measured on one question: same machines, same
@@ -328,6 +516,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
              getPersonaName(), so the label cannot drift from the persona actually sent. -->
         <span id="chat-persona-name" class="text-xs text-white/80"></span>
       </div>
+      <button type="button" class="assistant-lang-toggle text-xs font-bold"
+              style="min-height:44px;min-width:44px;display:inline-flex;align-items:center;justify-content:center;
+                     background:transparent;border:1px solid var(--wh-navy-light, #2A3D58);border-radius:999px;
+                     color:rgba(255,255,255,0.90);padding:0 12px;cursor:pointer;flex-shrink:0;">EN</button>
       <button onclick="clearChat()" class="text-xs text-white/80 hover:text-white/80 transition-colors font-medium" style="min-height:44px;display:inline-flex;align-items:center;white-space:nowrap;flex-shrink:0;" data-i="newchat">New Chat</button>
     </div>
 
@@ -338,31 +530,86 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
          persona changes propagate either way. -->
     <div class="flex-shrink-0 flex items-center gap-1 px-4 py-2"
          style="background:rgba(22,32,50,0.6); border-bottom:1px solid rgba(255,255,255,0.05);"
-         role="tablist" aria-label="Companion surface">
+         role="tablist" aria-label="Companion surface" data-ia="a_tabs">
+      <!-- ★THE TABS ANNOUNCED PANELS THAT DID NOT EXIST (design lens critique, 2026-09-15). role=tablist,
+           role=tab and aria-selected were all declared, and aria-controls and role=tabpanel appeared ZERO
+           times in this file - so a screen reader was told there are two tabs and then given nothing to
+           travel to, and neither arrow key did anything. A half-built pattern is worse than none: it makes
+           a promise the rest of the markup cannot keep. -->
       <button id="tab-chat" type="button" role="tab" aria-selected="true"
-              onclick="switchAssistantTab('chat')"
+              aria-controls="chat-messages" tabindex="0"
+              onclick="switchAssistantTab('chat')" onkeydown="handleTabKey(event)"
               class="px-3 py-1.5 rounded-lg text-xs font-bold transition-colors"
               style="background:rgba(247,162,27,0.15); color:var(--wh-orange-text); border:1px solid rgba(247,162,27,0.30); min-height:44px; display:inline-flex; align-items:center; justify-content:center;" data-i="a_chat">
         Chat
       </button>
       <button id="tab-journal" type="button" role="tab" aria-selected="false"
-              onclick="switchAssistantTab('journal')"
+              aria-controls="journal-frame" tabindex="-1"
+              onclick="switchAssistantTab('journal')" onkeydown="handleTabKey(event)"
               class="px-3 py-1.5 rounded-lg text-xs font-bold transition-colors"
               style="background:transparent; color:rgba(255,255,255,0.80); border:1px solid rgba(255,255,255,0.10); min-height:44px; display:inline-flex; align-items:center; justify-content:center;" data-i="a_journal">
         Journal
       </button>
+      <!-- ★NOTHING SAID THAT A SLOW QUESTION LANDS HERE (design lens critique, 2026-09-15). When the
+           orchestrator's 25s ceiling trips, the fallback posts agent:'voice-journal' and the gateway
+           persists the question verbatim into voice_journal_entries. Whether a question becomes a
+           permanent journal entry is therefore decided by how slow the network was, and the tab holding
+           it is two centimetres away. Said once, beside the tab, rather than buried in a dialog. -->
+      <span id="assistant-journal-note"
+            style="font-size:0.75rem;color:rgba(255,255,255,0.75);margin-left:auto;padding-left:8px;
+                   max-width:min(38ch,55%);line-height:1.3;"></span>
+    </div>
+
+    <!-- ★THE PAGE'S MOST HONEST SENTENCE WAS UNREACHABLE FOR THE PERSON WHO NEEDED IT (design lens
+         critique, 2026-09-15). `_setAssistantScopeChip` wrote only `#assistant-scope-chip`, which lives on
+         `#setup-screen` - and DOMContentLoaded calls startChat() whenever a name is saved, so every
+         returning worker was sent straight past both it and the "How this page works" disclosure. The one
+         statement of what is and is not grounded existed only for a first-time visitor. The same writer
+         paints this twin, on the screen where the answers appear. No min-height reservation here: it is
+         written before the first message renders, so there is nothing below it to shift. -->
+    <!-- The measure is capped for the same reason the bubbles are, and the walk proved it the hard way:
+         this shipped full-width and the next measurement read 193ch at 1280 - wider than the 188ch footer
+         the same batch had just capped. min(32rem, 70ch) keeps it on the conversation's column and inside
+         the 65-75ch band, whichever binds first at the reader's font size. The BAND and the MEASURE are
+         deliberately different elements: putting the cap on an inner span left the paragraph's own box at
+         full width, so the line read 70ch to a person and 193ch to the instrument that measures the <p>. -->
+    <!-- ★HALF THE PHONE VIEWPORT WAS THE PAGE EXPLAINING ITSELF (round 5, 2026-09-15). Measured at 390:
+         394 of 844 pixels above the first message, and the greeting pushed out of the reading window - so the
+         sentence that says what the assistant can SEE, which for a signed-out reader is the longest and most
+         useful one here, was the part he never got. Round 4 added to it: cloning the explainer onto this
+         screen was right about REACH and wrong about WHERE. One disclosure now: a single-line summary naming
+         the hive and whether answers are grounded, with the full scope sentence, the journal sentence and
+         the explainer inside it. Nothing honest is removed; it is one tap away instead of four lines tall. -->
+    <div style="flex-shrink:0; padding:2px 16px 4px; background:rgba(22,32,50,0.35);
+                border-bottom:1px solid rgba(255,255,255,0.05);">
+      <details class="wh-help" id="assistant-scope-details"
+               style="margin:0; margin-inline:auto; max-width:min(32rem, 70ch); background:transparent;
+                      border:0; padding:0;">
+        <summary id="assistant-scope-summary"
+                 style="font-size:0.75rem; font-weight:600; color:rgba(255,255,255,0.80);"></summary>
+        <p id="assistant-scope-chip-chat" role="note"
+           style="margin:6px 0 0; font-size:0.75rem; line-height:1.4; color:rgba(255,255,255,0.80);"></p>
+        <p id="assistant-journal-note-body"
+           style="margin:6px 0 0; font-size:0.75rem; line-height:1.4; color:rgba(255,255,255,0.75);"></p>
+      </details>
     </div>
 
     <!-- Messages area (Chat tab) -->
-    <div id="chat-messages" class="flex-1 overflow-y-auto px-4 py-5 space-y-4">
+    <!-- ★AN ARRIVING REPLY WAS ANNOUNCED TO NOBODY (design lens critique, 2026-09-15). The only live region
+         on the page was the typing indicator, and removeTypingIndicator() destroys it one line BEFORE the
+         answer is appended - so a screen-reader user was told the assistant was thinking, then told nothing
+         at all when it finished. aria-relevant="additions" so a re-render of existing rows says nothing. -->
+    <div id="chat-messages" role="tabpanel" aria-labelledby="tab-chat" tabindex="0"
+         aria-live="polite" aria-relevant="additions"
+         class="flex-1 overflow-y-auto px-4 py-5 space-y-4">
       <!-- messages rendered here -->
     </div>
 
     <!-- Journal tab body: embedded voice-journal.html.
          allow="microphone" preserves recording permission inside the iframe.
          Lazy-loaded: src is set only when the worker first clicks Journal. -->
-    <iframe id="journal-frame"
-            title="Voice Journal"
+    <iframe id="journal-frame" role="tabpanel" aria-labelledby="tab-journal"
+            title="Voice Journal" data-ia="a_journal_frame"
             style="display:none; flex:1; width:100%; height:100%; border:0; background:transparent;"
             allow="microphone; autoplay"></iframe>
 
@@ -373,10 +620,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
          where the next ask is typed, not buried in the page intro. Empty and silent until the
          count is actually low. -->
     <p id="assistant-quota-note" role="status" aria-live="polite"
-       style="display:none; font-size:.62rem; color:var(--wh-orange-text); margin:0 0 4px; line-height:1.35;"></p>
+       style="display:none; font-size:0.75rem; color:var(--wh-orange-text); margin:0 0 4px; line-height:1.35;"></p>
     <div id="chat-input-area" class="chat-input-area flex-shrink-0">
       <div class="flex items-end gap-2 max-w-lg mx-auto">
-        <textarea aria-label="Ask anything…"
+        <textarea data-ia="a_ask" data-ip="a_ask" aria-label="Ask anything…"
           id="chat-input"
           class="chat-textarea"
           placeholder="Ask anything…"
@@ -385,11 +632,27 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           onkeydown="handleInputKey(event)"
           oninput="autoResize(this)"
         ></textarea>
-        <button id="send-btn" class="send-btn" onclick="sendMessage()" aria-label="Send message">
-          <span class="ic ic-send" aria-hidden="true"></span>
+        <!-- ★THE ONE CONTROL THIS PAGE EXISTS TO LET HIM PRESS RENDERED BLANK (design lens critique,
+             2026-09-15). The glyph came from `.ic-send`, whose content is an emoji and whose font stack is
+             the colour-emoji faces; wh-icons.css is not linked here, nav-hub.js injects it at runtime, and a
+             device without a colour-emoji font falls back to sans-serif, which has no envelope. Both
+             evidence screenshots show this button as a blank orange square. An inline SVG depends on
+             nothing: no runtime injection, no font, no network. -->
+        <button id="send-btn" class="send-btn" onclick="sendMessage()" data-ia="a_send" aria-label="Send message">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+            <path d="M22 2 11 13"></path><path d="M22 2 15 22l-4-9-9-4Z"></path>
+          </svg>
         </button>
       </div>
-      <p class="text-center text-[10px] text-white/80 mt-2">Powered by WorkHive AI</p>
+      <!-- text-xs, not an arbitrary text-[Npx]: text-xs is VERIFIED live to resolve to 12px here, and an
+           arbitrary utility the local build never generated would be inert - which is how a class that
+           looks like a fix ships as none (design lens slop, 2026-09-15). -->
+      <!-- ★THE BRAND LINE WAS RENDERED TWICE, AND THIS COPY HELD THE BEST SLOT ON THE SCREEN (round 4,
+           2026-09-15). "Powered by WorkHive AI" appears on the setup screen too; this one sat directly under
+           the composer - where an input hint belongs - to tell a worker whose page he is already on. The
+           slot says what the composer does instead. -->
+      <p class="text-center text-xs text-white/80 mt-2" id="assistant-composer-hint"></p>
     </div>
 
   </div>
@@ -444,14 +707,119 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     let db;
 
     // ── In-memory session state ───────────────────────────────────
+    // ★ONE DEFINITION OF "RECORDS THAT ARE MINE" (design lens critique, 2026-09-15). This tenancy
+    // predicate - rows in my hive, plus my own rows in the solo lane (hive_id NULL + my auth_uid) - used
+    // to be a const inside startChat, and the setup panel now needs the same rule. A COPIED tenancy
+    // predicate is the shape that produces a cross-tenant read the day one copy is updated and the other
+    // is not, so there is one, here with the other module state (a const below an async caller sits in its
+    // temporal dead zone - the failure audit-log.html's motion row measured this afternoon).
+    const whScopeOwn = (q, uid) => whHiveId()
+      ? q.or(`hive_id.eq.${whHiveId()},and(hive_id.is.null,auth_uid.eq.${uid})`)
+      : q.is('hive_id', null).eq('auth_uid', uid);
     let sessionMessages = []; // {role, content} for Claude API
+    let _typingTimers   = [];    // the wait's stage messages, cleared with the indicator
+    let _askGen         = 0;     // bumped by stopAsk(); a turn whose generation moved paints nothing
+    // ★THE ZOMBIE GUARD WAS SCOPED ONE LEVEL TOO LOW (design lens critique, 2026-09-15). This lived
+    // INSIDE sendMessage, so every call got a fresh closure starting at 0 - and the flag it guards,
+    // window.__whGatewayFailure, is global. Ask A's late handler therefore tested myGen against A's OWN
+    // counter, still matched, and wrote the global that ask B reads to pick its sentence: exactly the
+    // cross-turn sequence the T146 comment below spells out and believed it had stopped. It only ever
+    // fixed the intra-turn Step-1-vs-Step-2 case. Module scope, beside _askGen, is where a guard on a
+    // global belongs.
+    let _gwGen          = 0;
+    let _pendingUserEl  = null;  // the bubble of the turn in flight, so a failure can mark it
+    let _pendingText    = '';
+    // ★"NOT SENT" WAS FALSE ON THE PATH THAT KEEPS THE QUESTION (design lens critique, 2026-09-15).
+    // Step 2 posts agent:'voice-journal', ai-gateway's SEMANTIC_RECALL_AGENTS contains that agent, and it
+    // writes the journal row BEFORE the quota gates - deliberately, so a refusal cannot destroy the
+    // worker's note. So once Step 1's ceiling has passed, the question is already a permanent
+    // voice_journal_entries row and Stop cannot unmake it (Stop ends the WAIT; the note below says so).
+    // Measured on the live database: 484 rows, 87 with a null reply, 51 carrying pending_reply = true -
+    // the shape a turn labelled "not sent" leaves behind. Telling a worker nothing left his phone while
+    // his question sits in the Journal tab two centimetres away is a privacy surprise, not a wording nit.
+    // This flag records which leg the turn reached, so the label can say the true thing.
+    let _reachedFallback = false;
+    // ★AND THE FLAG THAT GUARDS IT WAS OUT OF SCOPE (design lens critique round 3, 2026-09-15). The line
+    // that sets _reachedFallback reads `if (fbData && _authedUser)`, and _authedUser was declared with `let`
+    // inside startChat() - a sibling scope of sendMessage() - so that read threw ReferenceError. The `&&`
+    // short-circuit hid it from two rounds of review: on every FAILURE path fbData is null, the right
+    // operand is never evaluated, and the turn behaves perfectly. It threw ONLY when the fallback actually
+    // returned an answer, so the page destroyed exactly the replies that arrived: the worker was told
+    // "Something went wrong" and "not sent" for a question the gateway had answered AND already written to
+    // his Journal, and Retry reproduced it forever. Since ANON_OK_AGENTS holds only voice-journal, Step 2 is
+    // the ONLY leg a signed-out reader ever reaches - so the assistant answered nobody who was not signed
+    // in. Module scope now, and re-resolved per turn below, because a session that expires between opening
+    // the chat and sending changes the answer to "was this kept?".
+    let _servedFromCache = false;   // set when the gateway says it replayed a cached answer (round 4)
+    let _authedUser = null;
+    let _authFailure = null;   // a 401 from Step 1, kept so the catch can name it if Step 2 also fails
+    // ★THE STATUS IS THE ONLY PART OF A FunctionsHttpError THAT SAYS WHAT HAPPENED (design lens critique
+    // round 3, 2026-09-15). Its .message is always "Edge Function returned a non-2xx status code" - the same
+    // string for a 401, a 429 and a 500 - so whAiError, which classifies by MESSAGE, cannot tell three very
+    // different failures apart and returned the generic sentence for all of them. The status lives on
+    // err.context, which is the Response. Lifted here, at module scope, so all three call sites can reach it.
+    const _gwStatus = (x) => {
+      try {
+        const c = (x && x.context) || x;
+        const n = c && (c.status != null ? c.status : c.statusCode);
+        return (n != null && isFinite(Number(n)) && Number(n) > 0) ? Number(n) : null;
+      } catch (_) { return null; }
+    };
+    // ★AND A DROPPED REQUEST CARRIES NO STATUS TO LIFT (round 4, 2026-09-15). The vendored client builds a
+    // FunctionsFetchError whose .context is the raw TypeError, so the status lifter above returns null and the
+    // failure fell through to a word the taxonomy cannot match. This names it, and whAiError's network branch
+    // then says the one thing a worker on a dropping plant AP can act on.
+    const _gwIsTransport = (x) => {
+      try {
+        const n = String((x && (x.name || '')) || '');
+        const m = String((x && (x.message || '')) || '');
+        return /FunctionsFetchError|TypeError/.test(n)
+            || /failed to send a request|failed to fetch|network|load failed/i.test(m);
+      } catch (_) { return false; }
+    };
     let workerName = '';
     let isLoading = false;
 
     // ── Back navigation config ────────────────────────────────────
     let currentScreen = 'setup-screen';
 
+    // ★A BUTTON LABELLED "Setup" LEFT THE PAGE (design lens critique, 2026-09-15). This was one
+    // unconditional line, `window.location.href = 'index.html'`, called from a control the chat header
+    // labels "Setup" - so the affordance naming the setup screen went to the homepage and took a
+    // memory-only conversation with it, while the thing that actually returns to setup was the unlabelled
+    // system Back key via the popstate handler below. Exactly inverted. Its sibling thirty pixels away,
+    // clearChat, already confirms before destroying the same thread, so the page knew the thread was worth
+    // asking about; only this path did not ask.
     function handleBack() {
+      // `currentScreen` is the page's own answer, written by showScreen on every transition. The first
+      // version of this asked whether #chat-screen had .active - which showScreen NEVER sets on it (the
+      // chat screen is shown with an inline display:flex, per the comment on its markup), so the branch
+      // was dead and Back kept leaving the page. Read the state the code keeps, not a class it does not set.
+      const onChat = (typeof currentScreen === 'string')
+        ? currentScreen === 'chat-screen'
+        : (document.getElementById('chat-screen') || {}).style
+            && document.getElementById('chat-screen').style.display === 'flex';
+      if (onChat) {
+        // ★THE FIRST SYSTEM BACK AFTER THIS WAS A NO-OP (design lens critique, 2026-09-15). showScreen
+        // pushes a {whChat:1} entry when it opens the chat; calling showScreen('setup-screen') directly
+        // changed the screen WITHOUT popping it, so the history entry stayed current - and the next Back
+        // hit a popstate handler whose guard reads `chat.style.display !== 'none'`, which showScreen had
+        // just set to 'none'. Nothing moved, and on Android, where Back is the primary gesture, a silent
+        // no-op reads as a frozen page. One owner: ask history to go back, and let the popstate handler
+        // below do the switching it already knows how to do. If there is no entry to pop - a deep link
+        // straight into a saved-name chat - fall back to switching directly.
+        const hadEntry = !!(history.state && history.state.whChat);
+        if (hadEntry) { history.back(); return; }
+        if (typeof showScreen === 'function') showScreen('setup-screen');
+        else window.location.href = 'index.html';
+        return;
+      }
+      // Leaving the page IS the end of the thread, so it asks on the same terms clearChat does.
+      // native-dialog-allow: cancelling a navigation needs a SYNCHRONOUS boolean; whConfirm
+      // is async and cannot gate the window.location.href on the next line.
+      if (sessionMessages.length && !window.confirm(_t(
+            'Leave the assistant? This conversation is not kept, so it will not be here when you come back.',
+            'Aalis sa assistant? Hindi naka-save ang usapang ito, kaya wala na ito pagbalik mo.'))) return;
       window.location.href = 'index.html';
     }
 
@@ -480,6 +848,16 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         el.classList.add('active');
       }
       currentScreen = id;
+      // ★THE RECORDS PANEL NEVER LOADED FOR A RETURNING WORKER (design lens critique, 2026-09-15).
+      // loadRecordsSummary() was called in exactly one place - the `else` branch of the DOMContentLoaded
+      // routing - so it ran only for someone with no saved name. Everyone else was sent straight to the
+      // chat, and coming back to setup gave them the heading "Records available for context" over an
+      // empty box: no skeleton, no rows, no nudge, no error. The function that knows a screen is being
+      // ENTERED is this one, so the read lives here instead of at a second call site that can drift from
+      // the first. Every entry, because the counts change while he works.
+      if (id === 'setup-screen' && typeof loadRecordsSummary === 'function') {
+        try { loadRecordsSummary(); } catch (_) { /* empty-catch-allow: the panel is context, never a blocker */ }
+      }
     }
 
     // ── Companion Streamline Step C: tab switcher (Chat | Journal) ───
@@ -503,11 +881,39 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         frame.src = 'voice-journal.html?embedded=1';
         _journalLoaded = true;
       }
-      const onStyle  = 'background:rgba(247,162,27,0.15); color:#F7A21B; border:1px solid rgba(247,162,27,0.30);';
-      const offStyle = 'background:transparent; color:rgba(255,255,255,0.80); border:1px solid rgba(255,255,255,0.10);';
-      if (tabChat)  { tabChat.setAttribute('style',  isJournal ? offStyle : onStyle);  tabChat.setAttribute('aria-selected',  isJournal ? 'false' : 'true'); }
-      if (tabJourn) { tabJourn.setAttribute('style', isJournal ? onStyle  : offStyle); tabJourn.setAttribute('aria-selected', isJournal ? 'true' : 'false'); }
+      // ★THE TAP TARGET SURVIVED ONLY UNTIL THE FIRST TAB SWITCH (design lens critique, 2026-09-15).
+      // These two strings are written with setAttribute('style', ...), which REPLACES the declaration the
+      // markup carries - and neither of them held the `min-height:44px; display:inline-flex` that puts these
+      // buttons on the floor. So both tabs measured 44px at rest, which is the only state a walk sees, and
+      // dropped to the text's own ~26px the moment either was pressed. A control that meets the floor until
+      // it is touched does not meet the floor. The geometry travels with the colour now, and the raw
+      // #F7A21B is the token the markup already uses - the two had drifted apart.
+      const geom     = ' min-height:44px; display:inline-flex; align-items:center; justify-content:center;';
+      const onStyle  = 'background:rgba(247,162,27,0.15); color:var(--wh-orange-text); border:1px solid rgba(247,162,27,0.30);' + geom;
+      const offStyle = 'background:transparent; color:rgba(255,255,255,0.80); border:1px solid rgba(255,255,255,0.10);' + geom;
+      if (tabChat)  { tabChat.setAttribute('style',  isJournal ? offStyle : onStyle);  tabChat.setAttribute('aria-selected',  isJournal ? 'false' : 'true');  tabChat.tabIndex  = isJournal ? -1 : 0; }
+      if (tabJourn) { tabJourn.setAttribute('style', isJournal ? onStyle  : offStyle); tabJourn.setAttribute('aria-selected', isJournal ? 'true' : 'false'); tabJourn.tabIndex = isJournal ? 0 : -1; }
     }
+
+    // Arrow keys move between tabs, which is the half of the ARIA tab pattern the markup never had. Home
+    // and End are included because the pattern defines them and a two-tab strip costs nothing to finish.
+    function handleTabKey(e) {
+      const keys = ['ArrowRight', 'ArrowLeft', 'Home', 'End'];
+      if (keys.indexOf(e.key) === -1) return;
+      e.preventDefault();
+      const tabs = [document.getElementById('tab-chat'), document.getElementById('tab-journal')].filter(Boolean);
+      if (!tabs.length) return;
+      const here = tabs.indexOf(document.activeElement);
+      let next;
+      if (e.key === 'Home') next = 0;
+      else if (e.key === 'End') next = tabs.length - 1;
+      else next = ((here < 0 ? 0 : here) + (e.key === 'ArrowRight' ? 1 : tabs.length - 1)) % tabs.length;
+      const t = tabs[next];
+      if (!t) return;
+      switchAssistantTab(t.id === 'tab-journal' ? 'journal' : 'chat');
+      t.focus();
+    }
+    window.handleTabKey = handleTabKey;
     window.switchAssistantTab = switchAssistantTab;
 
     // ── Toast ─────────────────────────────────────────────────────
@@ -519,45 +925,82 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     }
 
     // ── Load records summary on setup screen ──────────────────────
+    // Entering setup reads the counts, and a fast back-and-forth must not stack three head-counts per
+    // trip on a phone. In flight means the answer is already coming.
+    let _recordsInFlight = false;
     async function loadRecordsSummary() {
+      if (_recordsInFlight) return;
+      _recordsInFlight = true;
+      try { await _loadRecordsSummary(); } finally { _recordsInFlight = false; }
+    }
+    async function _loadRecordsSummary() {
       // G1 (FF1): canonical skeleton while the record counts load (first load only).
       const _rl = document.getElementById('records-list');
+      // three rows because three rows arrive - the skeleton used to promise 3 and deliver 1.
       if (_rl && !_rl.childElementCount && typeof whListSkeleton === 'function') whListSkeleton(_rl, 3);
       const name = localStorage.getItem(KEY_WORKER) || /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ whWorker() || '';
+      // ★THIS PANEL AND THE WELCOME COUNTED DIFFERENT THINGS (design lens critique, 2026-09-15). This read
+      // the logbook ALONE and drove the empty-records nudge from it, while startChat's `hasRecords` is
+      // logbook OR asset_nodes OR pm_assets. So a supervisor with a registered fleet and no personal
+      // logbook entries saw "0 records" and a nudge to add his first one here, and one tap later was
+      // greeted with "I can see your job records" and given data-grounded starter chips. The comment above
+      // `hasRecords` records exactly this bug being found - "the fresh rider with a Click 125i + 14 PM
+      // tasks was told you don't have any records yet" - and it was fixed on one sibling only. Same three
+      // counts, same scoping, and the unknown-versus-zero discipline kept per row.
       let logbookCount = null;   // null = not read yet; a real 0 means 'none', and the two must not render alike
+      let assetCount = null, pmCount = null;
       if (name) {
         // Cold-load 401 sibling (matches buildSystemPrompt's fix): restoreIdentityFromSession
         // is fire-and-forget, so this count can race the JWT attach on a fresh device and 401
         // → a false "0 records" + empty-nudge. getUser() settles the client's auth first.
-        try { await db.auth.getUser(); } catch (_) { /* empty-catch-allow: proceed; count degrades to 0 */ }
-        const [l] = await Promise.all([
+        let _uid = null;
+        try { const { data: { user: _u } = { user: null } } = await db.auth.getUser(); _uid = _u ? _u.id : null; }
+        catch (_) { /* empty-catch-allow: proceed; the counts degrade to 'not read', never to 0 */ }
+        const num = (r) => (r && !r.error && r.count !== null && r.count !== undefined) ? r.count : null;
+        const [l, a, pm] = await Promise.all([
           db.from('v_logbook_truth').select('id', { count: 'exact', head: true }).eq('worker_name', name),
+          // canonical-allow: the same lightweight counts startChat uses for hasRecords (not truth reads);
+          // scopeOwn applies the hive_id/auth_uid scoping, and a signed-out reader gets a known 0.
+          _uid ? whScopeOwn(db.from('asset_nodes').select('id', { count: 'exact', head: true }), _uid) : Promise.resolve({ count: 0 }),
+          // canonical-allow: same lightweight count as the asset_nodes line above (not a truth read);
+          // the allow note two lines up only reaches within the gate's 2-line window.
+          _uid ? whScopeOwn(db.from('pm_assets').select('id', { count: 'exact', head: true }), _uid) : Promise.resolve({ count: 0 }),
+          // Both counts above are ownership-scoped by whScopeOwn(), which applies the hive_id /
+          // auth_uid predicate for the signed-in reader - stated HERE because
+          // validate_tenant_boundary reads the 8 lines FORWARD of a .select() on a shared table,
+          // while the canonical-allow note it needs sits ABOVE. Neither is decoration.
         ]);
         // {count:null, error} on failure -- it does not throw, so `count || 0` claimed 'no records'.
-        logbookCount = (l && !l.error && l.count !== null && l.count !== undefined) ? l.count : null;
+        logbookCount = num(l); assetCount = num(a); pmCount = num(pm);
       }
 
       const list = document.getElementById('records-list');
       // T40 (2026-08-25): a failed count rendered 'not read' with NOTHING TO PRESS - the one
       // SILENT page left in the 500-storm sweep (with analytics-report). The retry re-issues
       // the READ via loadRecordsSummary itself, never a re-render of the failed state.
-      if (logbookCount === null && typeof whListError === 'function') {
-        whListError(list, 'Could not read your records. The assistant will answer without grounding until this loads.',
-          () => loadRecordsSummary());
+      // Every count unread means the read itself failed, which is the case the retry exists for. One
+      // unread of three is a per-row "not read", which the row rendering already says honestly.
+      if (logbookCount === null && assetCount === null && pmCount === null && typeof whListError === 'function') {
+        whListError(list, _t('Could not read your records. The assistant will answer without grounding until this loads.',
+                             'Hindi mabasa ang iyong mga record. Sasagot ang assistant nang walang grounding hanggang ma-load ito.'),
+          () => { _recordsInFlight = false; loadRecordsSummary(); });
         return;
       }
       const items = [
-        { label: 'Logbook entries', count: logbookCount, color: '#F7A21B' },
+        { label: _t('Logbook entries', 'Mga logbook entry'), count: logbookCount, color: '#F7A21B' },
+        { label: _t('Assets', 'Mga asset'),                  count: assetCount,   color: '#7FB3FF' },
+        { label: _t('PM tasks', 'Mga PM task'),              count: pmCount,      color: '#4ADE80' },
       ];
       const nudge = document.getElementById('empty-records-nudge');
       // Only nudge someone to add their first record when we actually KNOW they have none.
       const anyUnread = items.some(i => i.count === null || i.count === undefined);
       if (nudge) nudge.classList.toggle('hidden', anyUnread || items.some(i => i.count > 0));
 
+      const _notRead = _t('not read', 'hindi nabasa');
       list/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = items.map(i => `
         <div class="flex items-center justify-between">
-          <span class="text-xs text-white/80">${i.label}</span>
-          <span class="text-xs font-bold" style="color:${i.color}">${(i.count === null || i.count === undefined) ? 'not read' : i.count + ' record' + (i.count !== 1 ? 's' : '')}</span>
+          <span class="text-xs text-white/80">${escHtml(i.label)}</span>
+          <span class="text-xs font-bold" style="color:${i.color}">${(i.count === null || i.count === undefined) ? escHtml(_notRead) : i.count.toLocaleString()}</span>
         </div>
       `).join('');
     }
@@ -569,7 +1012,23 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     // its build-time text - a fix that ships and never executes.
     function _setAssistantScopeChip(hasSession) {
       try {
-        const _chip = document.getElementById('assistant-scope-chip');
+        // ★ONE WRITER, TWO NODES (design lens critique, 2026-09-15): the setup screen's chip and its twin on
+        // the chat screen. A second copy of this decision would be a second chance to disagree with it.
+        const _chips = [document.getElementById('assistant-scope-chip'),
+                        document.getElementById('assistant-scope-chip-chat')].filter(Boolean);
+        const _chip = _chips[0];
+        const _writeScope = (txt) => _chips.forEach((c) => {
+          c.textContent = txt;
+          c.setAttribute('data-i-applied', txt);
+        });
+        // The one line that stands in the band for the paragraph now inside the disclosure. It names the
+        // same verdict in the fewest words that can still be wrong if the verdict is wrong.
+        const _writeSummary = (txt) => {
+          try {
+            const el = document.getElementById('assistant-scope-summary');
+            if (el) { el.textContent = txt; el.setAttribute('data-i-applied', txt); }
+          } catch (_) { /* empty-catch-allow */ }
+        };
         if (_chip) {
           const _hive = localStorage.getItem('wh_hive_name'); /* storage-key-allow: display-only hive label */
           /* W3-DF (2026-09-09): THE HIVE LABEL IS NOT AN ENTITLEMENT. This chip promised "grounded in
@@ -589,9 +1048,36 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
              ("a fix that ships and never executes"), and the getDb-exists-before-it-works trap. So the
              caller passes what it knows: false on the early paint (nothing is proven yet, and the
              cautious sentence is the safe default), true once a session has actually resolved. */
+          // ★AND THE THIRD STATE HAD NO SENTENCE (round 4, 2026-09-15): signed in, no hive. It is not the
+          // signed-out case - his general technical help is identical and his account is fine - and it is
+          // certainly not the grounded case. It gets its own sentence, naming the one action that changes it.
+          if (hasSession === 'nohive') {
+            _writeSummary(_t('Signed in, no hive selected · answers are not grounded',
+                             'Naka-sign in, walang napiling hive · hindi nakabatay ang mga sagot'));
+            _writeScope(_t(
+              'Signed in, no hive selected · Answers are NOT grounded in any plant’s data - join or switch to a hive to ground them. General technical help still works.',
+              'Naka-sign in, walang napiling hive · HINDI nakabatay ang mga sagot sa datos ng kahit anong planta - sumali o lumipat sa isang hive para maiugnay. Gumagana pa rin ang pangkalahatang teknikal na tulong.'));
+            return;
+          }
           if (!hasSession) {
-            _chip.textContent = 'Not signed in · Answers are NOT grounded in any hive’s data - '
-              + 'sign in to ground them in your own. General technical help still works.';
+            _writeSummary(_t('Not signed in · answers are not grounded',
+                             'Hindi naka-sign in · hindi nakabatay ang mga sagot'));
+            // ★THIS OVERWROTE ITS OWN TRANSLATION (design lens critique, 2026-09-15). The node carries
+            // data-i="p_livehivedatabasedonyourlogbo_6885", and writing textContent here makes the app the
+            // owner - so whI18nApply's data-i-applied guard correctly steps aside and the result is English
+            // on a Filipino page. That guard exists to make this collision SAFE, not to make it invisible;
+            // the fix it implies is to translate at the source that wins. This branch matters most: it is
+            // the page telling a visitor its answers are NOT grounded in anything.
+            // ★AND STAMP IT (design lens critique, 2026-09-15). This call runs INLINE during parse, before
+            // whI18nApply - which reads data-i-applied to decide whether the app owns the text. With no
+            // stamp the guard does not fire and the dictionary OVERWRITES this warning with a grounding
+            // claim. Measured live, signed out in Filipino: data-i-applied came back holding
+            // "Live na hive data - batay sa iyong logbook, PM at parts" - the exact false promise the
+            // W3-DF note above records as the bug it fixed. Stamping makes the guard work on the first
+            // write, not only on writes that follow an i18n pass.
+            _writeScope(_t(
+              'Not signed in · Answers are NOT grounded in any hive’s data - sign in to ground them in your own. General technical help still works.',
+              'Hindi naka-sign in · HINDI nakabatay ang mga sagot sa datos ng kahit anong hive - mag-sign in para maiugnay sa sarili mo. Gumagana pa rin ang pangkalahatang teknikal na tulong.'));
             return;
           }
           // Describe what actually grounds the ANSWER, which is the gateway's own hive-scoped reads
@@ -599,19 +1085,219 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           // this hive's knowledge). The client's buildSystemPrompt bundle is NOT sent - it was removed
           // from the payload for security (K1, 2026-07-12) - so naming its windows here would describe
           // reads that never reach the model.
-          _chip.textContent = (_hive ? _hive + ' · ' : 'Your hive · ')
-            + 'Answers are grounded in this hive’s live data: open alerts, overdue PMs, parts stock, '
-            + 'asset risk and blocked project items · recomputed per question';
+          // NAME WHAT IS OUT OF SCOPE TOO. Assessment A: "Nothing anywhere states what the assistant
+          // CANNOT see." A scope statement that lists only what is included reads as a boundary and is not
+          // one - the reader has no way to tell an absence from an omission.
+          // ★THE QUALIFIER LANDED ON ONE OF TWO SIBLING CLAIMS IN ONE SENTENCE (design lens critique
+          // round 3, 2026-09-15). "blocked project items" sat in the UNCONDITIONAL half - and in
+          // companion_source_registry.json the only source carrying is_blocked, v_project_items_truth, is
+          // served_on_demand behind twelve literals (task, wbs, milestone, gawain, naka-block na gawain...).
+          // So a supervisor asking "may problema ba sa proyekto?" in his own words gets nothing, having been
+          // told on this very line that blocked items ground every answer. The logbook beside it was already
+          // qualified, by the fix this file records two notes above; both on-demand reads are qualified now,
+          // and the sentence is shorter for it on a screen that carries too much standing text already.
+          _writeSummary((_hive || _t('Your hive', 'Ang hive mo'))
+            + _t(' · answers are grounded in it', ' · nakabatay dito ang mga sagot'));
+          _writeScope((_hive ? _hive + ' · ' : _t('Your hive · ', 'Ang hive mo · '))
+            + _t('Answers are grounded in this hive’s live data: open alerts, overdue PMs, parts stock and asset risk · recomputed per question · your logbook and project items only when you ask about them',
+                 'Nakabatay ang mga sagot sa live na datos ng hive na ito: bukas na alerts, lagpas na PM, stock ng parts at panganib ng asset · muling kinakalkula sa bawat tanong · ang logbook at project items mo kapag tinanong mo ang tungkol sa mga iyon'));
         }
       } catch (_) { /* empty-catch-allow: the chip is an explainer, never a blocker */ }
     }
     // .catch as well as try/catch: this became async when the chip started asking for a session, and a
     // sync try/catch cannot see a rejected promise - the chip is an explainer and must never throw.
     try { _setAssistantScopeChip(false); } catch (_) { /* empty-catch-allow */ }
+    // Written by _t rather than baked into the markup, because it is a sentence and this page's dictionary
+    // is for keys the i18n pass owns - a claim about where a question goes belongs with the code that knows.
+    // ★AND IT WAS FALSE FOR THE READER WHO GETS IT MOST (design lens critique round 3, 2026-09-15).
+    // This wrote the sentence at parse time with no session check, and ai-gateway guards the journal write
+    // on authUid - so for a signed-out reader no row is ever written. That reader is not an edge case here:
+    // ANON_OK_AGENTS holds only voice-journal, so the slow-question fallback this sentence describes is the
+    // ONLY leg they ever reach. The person told most insistently that their questions are kept is the one
+    // person for whom nothing is kept - while the chip six lines above says "Not signed in". One screen,
+    // two contradictory claims, which is the class this page's own W3-DF note exists to prevent. It takes
+    // the same session verdict the chip waits for, and says nothing at all when there is none: a privacy
+    // claim with no reader is worse than no claim, and the screen has too much standing text as it is.
+    function _setJournalNote(hasSession) {
+      try {
+        // ★AND IT WAS A THIRD STANDING SENTENCE IN THE BAND (round 5, 2026-09-15). It says something true
+        // and worth saying once; it does not need to be on screen at all times to do that. It joins the scope
+        // sentence inside the disclosure, and the node in the tab strip is left empty.
+        const nb = document.getElementById('assistant-journal-note-body');
+        if (nb) {
+          nb.textContent = hasSession
+            ? _t('Questions that take a while to answer are saved to your Journal.',
+                 'Ang mga tanong na matagal masagot ay nase-save sa Journal mo.')
+            : '';
+        }
+        const n = document.getElementById('assistant-journal-note');
+        if (!n) return;
+        if (!hasSession) { n.textContent = ''; n.hidden = true; return; }
+        n.hidden = false;
+        n.textContent = _t('Questions that take a while to answer are saved to your Journal.',
+                           'Ang mga tanong na matagal masagot ay nase-save sa Journal mo.');
+        n.setAttribute('data-i-applied', n.textContent);
+      } catch (_) { /* empty-catch-allow: a note about storage must never block the page */ }
+    }
+    _setJournalNote(false);
+
+    // ★THE PAGE'S OWN EXPLANATION WAS UNREACHABLE FOR EVERY RETURNING WORKER (round 4, 2026-09-15).
+    // "How this page works" sits inside #setup-screen, and DOMContentLoaded routes straight to chat whenever
+    // a name is saved - so the one reader who has been here before, which is nearly all of them, never sees
+    // it. Round 3 twinned the scope CHIP for precisely this reason and left the disclosure behind. Cloned
+    // rather than copied into markup, so the two can never drift apart.
+    (function twinTheHelp() {
+      try {
+        const src = document.querySelector('#setup-screen details.wh-help');
+        const chip = document.getElementById('assistant-scope-chip-chat');
+        if (!src || !chip || !chip.parentElement) return;
+        if (document.getElementById('assistant-help-chat')) return;
+        const clone = src.cloneNode(true);
+        clone.id = 'assistant-help-chat';
+        clone.style.marginTop = '6px';
+        clone.style.background = 'transparent';
+        clone.style.border = '0';
+        clone.style.padding = '0';
+        // Inside the scope disclosure, not beside it: round 4 put this in the FIXED band, which is how the
+        // page ended up spending 46.7% of a phone viewport on its own terms (round 5).
+        const host = document.getElementById('assistant-scope-details') || chip.parentElement;
+        host.appendChild(clone);
+      } catch (_) { /* empty-catch-allow: an explainer must never block the page */ }
+    })();
+
+    // The composer's hint, in the slot the duplicated brand line used to hold.
+    (function composerHint() {
+      try {
+        const h = document.getElementById('assistant-composer-hint');
+        if (h) h.textContent = _t('Enter sends · Shift+Enter for a new line',
+                                  'Enter para ipadala · Shift+Enter para sa bagong linya');
+      } catch (_) { /* empty-catch-allow */ }
+    })();
+
+    // ★AND THERE WAS NO WAY TO CHOOSE FILIPINO ON THE PAGE WHOSE PREMISE IS HIS OWN LANGUAGE (round 4,
+    // 2026-09-15). wh_lang is written by four pages, none of them this one, and nav-hub - the shared chrome
+    // this page loads - carries no control either. So sixty _t() pairs, a bilingual error taxonomy and a
+    // whole round of translated starter chips sat behind a preference Hector could not reach from here.
+    // It RELOADS rather than re-rendering, and the reason is measured: whI18nApply returns early unless
+    // WH_LANG is 'fil', so it can swap English into Filipino and never back, and a half-swapped page is
+    // worse than a reload. The thread is memory-only, so when one exists it asks first - in the wording
+    // clearChat already uses for the same fact.
+    // The other half of the draft rescue: whatever the toggle carried across the reload goes back into
+    // the composer, once, and is then forgotten.
+    (function restoreAssistantDraft() {
+      try {
+        const d = sessionStorage.getItem('wh_assistant_draft');
+        if (!d) return;
+        sessionStorage.removeItem('wh_assistant_draft');
+        const el = document.getElementById('chat-input');
+        if (!el) return;
+        el.value = d;
+        if (typeof autoResize === 'function') autoResize(el);
+        if (typeof syncSendBtn === 'function') syncSendBtn();
+      } catch (_) { /* empty-catch-allow: a rescued draft is a courtesy, never a blocker */ }
+    })();
+    window.setAssistantLang = function setAssistantLang(next) {
+      try {
+        const box = document.getElementById('chat-messages');
+        // A QUESTION HE ASKED, not the greeting the page wrote him. Measured: the greeting is a
+        // .bubble-assistant, so testing for either bubble made the page ask permission to discard a
+        // conversation that did not exist yet - a confirm for nothing is how people learn to dismiss them.
+        // ★AND IT ATE AN UNSENT DRAFT (round 5, 2026-09-15). A typed-but-unsent question makes no
+        // .bubble-user, so this gate skipped the confirm and reloaded - and this composer's draft autosave
+        // was deliberately removed, and there is no beforeunload, so a 200-character question about a
+        // specific failure vanished with no prompt and no undo. The FIL pill sits 44px from New Chat,
+        // directly above the composer, under a one-handed thumb. The draft is carried across the reload
+        // rather than merely warned about; the confirm is now only for a thread that really is lost.
+        const _draft = (document.getElementById('chat-input') || {}).value || '';
+        if (_draft.trim()) {
+          try { sessionStorage.setItem('wh_assistant_draft', _draft); } catch (_) { /* empty-catch-allow */ }
+        }
+        const hasThread = !!(box && box.querySelector('.bubble-user'));
+        if (hasThread && !confirm(_t('Switching language reloads this page. The thread here is not kept, so it will not come back. Continue?',
+                                     'Ang paglipat ng wika ay magre-reload ng page. Hindi nakaimbak ang thread dito, kaya hindi na ito babalik. Ituloy?'))) return;
+        localStorage.setItem('wh_lang', next === 'fil' ? 'fil' : 'en');
+      } catch (_) { /* empty-catch-allow: a blocked storage still gets the reload below */ }
+      location.reload();
+    };
+    (function paintLangToggles() {
+      try {
+        const cur = (window.WH_LANG === 'fil') ? 'fil' : 'en';
+        document.querySelectorAll('.assistant-lang-toggle').forEach((b) => {
+          const to = (cur === 'fil') ? 'en' : 'fil';
+          b.textContent = (to === 'fil') ? 'FIL' : 'EN';
+          b.setAttribute('aria-label', (to === 'fil')
+            ? _t('Switch to Filipino', 'Lumipat sa Filipino')
+            : _t('Switch to English', 'Lumipat sa Ingles'));
+          b.onclick = () => window.setAssistantLang(to);
+        });
+      } catch (_) { /* empty-catch-allow */ }
+    })();
+
+    // The toast is fixed to the viewport and the composer is pinned to the bottom of the shell, so the
+    // toast needs to know how tall the composer currently is - it grows with the textarea, up to 120px.
+    // Observed rather than measured once: autoResize is not the only thing that changes this height (the
+    // quota note appears, the tab switch hides the whole area), and a stale offset would put the toast
+    // back on the input. Height 0 while the area is display:none, which is exactly right on the setup
+    // screen, where there is no composer to clear.
+    (function trackComposerHeight() {
+      const area = document.getElementById('chat-input-area');
+      if (!area) return;
+      const paint = () => {
+        // ★MEASURE TO THE COMPOSER'S TOP, NOT ITS HEIGHT (design lens critique, 2026-09-15). The toast is
+        // fixed to the VIEWPORT bottom, so what it must clear is the distance from that edge up to the
+        // composer's top edge - which is the composer's height only while the shell ends at the viewport
+        // bottom. It no longer does: the shell stops 88px short so the send button clears the navigation
+        // hub, and a height-based offset put the toast straight back on the input. Measured, not assumed.
+        // A composer that is not displayed clears nothing: on the setup screen #chat-input-area is
+        // display:none, its rect collapses to the origin, and `innerHeight - 0` would push the toast a
+        // full viewport off the top of the screen. Measured that happening before this guard existed.
+        const r = area.getBoundingClientRect();
+        const clear = (r.height > 0) ? Math.max(0, Math.round(window.innerHeight - r.top)) : 0;
+        document.documentElement.style.setProperty('--wh-composer-h', clear + 'px');
+      };
+      paint();
+      if (typeof ResizeObserver === 'function') { try { new ResizeObserver(paint).observe(area); } catch (_) { /* empty-catch-allow */ } }
+      window.addEventListener('resize', paint);
+    })();
+
+    // The dot reports connectivity rather than asserting it. Bound once; the events keep it honest.
+    (function bindConnDot() {
+      const dot = document.getElementById('assistant-conn-dot');
+      if (!dot) return;
+      const paint = () => {
+        const on = navigator.onLine !== false;
+        dot.style.background = on ? 'var(--wh-green)' : 'var(--wh-steel, #7B8794)';
+        // ★IT PULSED WHILE NOTHING WAS HAPPENING AND HELD STILL WHEN SOMETHING WAS WRONG (design lens
+        // critique round 3, 2026-09-15). animate-pulse was toggled ON for online - and .animate-pulse is a
+        // real generated rule in wh-tw.css - so an 8x8 dot animated forever to report the most static state
+        // the page has, and stopped moving at the one moment a person needed to notice it. STANDARDS.md
+        // reserves pulse for genuinely live, changing data. The colour and the word carry the state; the
+        // motion said nothing and cost a repaint on every frame of a low-end Android's battery.
+        dot.classList.remove('animate-pulse');
+        const word = on ? _t('Online', 'Naka-online') : _t('Offline', 'Naka-offline');
+        dot.title = word;
+        const sr = document.getElementById('assistant-conn-label'); if (sr) sr.textContent = word;
+      };
+      paint();
+      window.addEventListener('online', paint);
+      window.addEventListener('offline', paint);
+    })();
 
     // T16/T89: the quota the gateway already reports, said as a warning while there is still
     // time to act on it. Declared here - above every async caller - so no path reads it in a
     // temporal dead zone.
+    // ★THIS SEAM IS INERT, AND ITS OWN COMMENT SAID THE OPPOSITE (design lens critique, 2026-09-15).
+    // _lastRemaining is set only from orchData.remaining / fbData.remaining. ai-gateway's success envelope
+    // is ok(ctx, { answer, agent, ..., usage }) and the string `remaining` appears NOWHERE in ai-gateway or
+    // ai-orchestrator outside the rate-limit DENY branch - so the value is always undefined, whQuotaNotice
+    // reads null, returns an empty string, and #assistant-quota-note never leaves display:none. The
+    // localStorage key it persists has exactly one writer in the repo: this file, storing its own null.
+    // The note below this used to begin "the gateway returns `remaining` on every answer and this page
+    // discarded it"; the first clause was false and is corrected there.
+    // NOT repaired by inventing the field. Adding `remaining` to the gateway envelope is a server change
+    // that must be proved end to end - this file's own rule, written three batches ago when it removed
+    // context.team_knowledge for the same reason. The seam stays, marked, and starts working the moment
+    // the gateway sends the field.
     let _lastRemaining = null;
     // T16 quota-seam, pre-ask half (2026-09-02): the note painted only AFTER the first answer of a
     // SESSION, so the walk's worker typed an expensive question with no idea they were near the
@@ -620,15 +1306,22 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     // reset. Honest floor: a brand-new session with no history still shows nothing until the first
     // answer - a last-KNOWN count is the most the client can truthfully claim pre-ask.
     try {
+      // ★THE RESTORE OUTLIVED THE WINDOW IT DESCRIBES (design lens critique, 2026-09-15). The cache ran
+      // 12 hours while the limit it reports is a rolling 60-minute window, so a restored reading could warn
+      // "only 2 left this hour" eleven hours after that hour had passed. One hour, matching the thing
+      // measured - and see the note on _lastRemaining: nothing currently fills it in the first place.
       const _q = JSON.parse(localStorage.getItem('wh_ai_remaining') || 'null');
-      if (_q && typeof _q.n === 'number' && (Date.now() - (_q.at || 0)) < 12 * 3600 * 1000) _lastRemaining = _q.n;
+      if (_q && typeof _q.n === 'number' && (Date.now() - (_q.at || 0)) < 3600 * 1000) _lastRemaining = _q.n;
     } catch (_) { /* empty-catch-allow: storage blocked -> no pre-ask floor */ }
     function _paintQuotaNote() {
       try {
         const el = document.getElementById("assistant-quota-note");
         if (!el) return;
         if (typeof _lastRemaining === 'number') {
-          try { localStorage.setItem('wh_ai_remaining', JSON.stringify({ n: _lastRemaining, at: Date.now() })); } catch (_) { /* empty-catch-allow */ }
+          // Only persist a real reading. Before this the page stored its own null for twelve hours.
+          if (typeof _lastRemaining === 'number') {
+            try { localStorage.setItem('wh_ai_remaining', JSON.stringify({ n: _lastRemaining, at: Date.now() })); } catch (_) { /* empty-catch-allow */ }
+          }
         }
         const q = (typeof window.whQuotaNotice === "function")
           ? window.whQuotaNotice(_lastRemaining) : { text: "", level: "none" };
@@ -858,7 +1551,9 @@ happens to know maintenance, not a manual.`;
     }
 
     // ── Start chat ────────────────────────────────────────────────
+    let _resumeExisting = false;   // set when startChat is re-entered on a thread the reader has used
     async function startChat() {
+      _resumeExisting = false;
       const nameEl  = document.getElementById('worker-name');
       const nameErr = document.getElementById('name-error');
 
@@ -870,7 +1565,6 @@ happens to know maintenance, not a manual.`;
       }
 
       workerName = nameEl.value.trim();
-      const contextNote = document.getElementById('today-context').value.trim();
 
       // Persist for convenience
       localStorage.setItem(KEY_WORKER, workerName);
@@ -883,8 +1577,20 @@ happens to know maintenance, not a manual.`;
       const _pe = document.getElementById('chat-persona-name');
       if (_pe && _pn) _pe.textContent = '· ' + _pn;
     } catch (_) { /* empty-catch-allow: the label is decoration, never block the chat */ }
+      // ★SETUP -> START CHAT STACKED A SECOND GREETING ON THE FIRST (round 5, 2026-09-15). This resets
+      // sessionMessages and never clears the thread, and showScreen only toggles display - so every round
+      // trip through the leftmost control in the header appended another "Hi ..." and another TRY ASKING
+      // block under the existing conversation, while the local record silently restarted underneath.
+      // A thread the reader has actually used is returned to, not re-greeted; an unused one is cleared.
+      (function oneGreetingPerThread() {
+        const _box = document.getElementById('chat-messages');
+        if (!_box) return;
+        if (_box.querySelector('.bubble-user')) { _resumeExisting = true; return; }
+        _box.innerHTML = '';
+      })();
+      if (_resumeExisting) { showScreen('chat-screen'); return; }
       showScreen('chat-screen');
-      addTypingIndicator();
+      addTypingIndicator({ stoppable: false });
 
       // Build system prompt and welcome message in background.
       // Cold-load 401 sibling: this count runs in PARALLEL with buildSystemPrompt (whose own
@@ -896,7 +1602,7 @@ happens to know maintenance, not a manual.`;
          they are missing" and is the one thing we DO know the cause of. Not-signed-in is a
          third truth condition, distinct from read-failed and from genuinely-empty, and it is
          the only one the person can act on (2026-08-20). */
-      let _authedUser = null;
+      _authedUser = null;   // module-scope (see the note beside _reachedFallback); assigned, not re-declared
       try { _authedUser = (await db.auth.getUser())?.data?.user || null; } catch (_) { /* empty-catch-allow: proceed; count degrades to 0 */ }
       // buildSystemPrompt is NOT called here any more. Its result was assigned to
       // window._systemPrompt, which is written once in the whole codebase and read nowhere: the
@@ -918,9 +1624,7 @@ happens to know maintenance, not a manual.`;
       let lc = null, ac = null, pc = null;
       try {
         const _uid = _authedUser && _authedUser.id;
-        const scopeOwn = (q) => whHiveId()
-          ? q.or(`hive_id.eq.${whHiveId()},and(hive_id.is.null,auth_uid.eq.${_uid})`)
-          : q.is('hive_id', null).eq('auth_uid', _uid);
+        const scopeOwn = (q) => whScopeOwn(q, _uid);
         [lc, ac, pc] = await Promise.all([
           db.from('v_logbook_truth').select('id', { count: 'exact', head: true }).eq('worker_name', workerName),
           _uid ? scopeOwn(db.from('asset_nodes').select('id', { count: 'exact', head: true })) : Promise.resolve({ count: 0 }), // canonical-allow: lightweight solo hasRecords count (not a truth read); scoped by hive_id/auth_uid via scopeOwn
@@ -945,15 +1649,28 @@ happens to know maintenance, not a manual.`;
          (KEY_WORKER is 'wh_last_worker', a convenience prefill), so it is never presented as
          an identity the platform has verified. */
       const recordsNote = !_authedUser
-        ? "You're not signed in, so I can't reach your job records -- I only have the name you entered. Sign in to get answers grounded in your own history. I can still help with technical questions, procedures and calculations."
+        // ★THE ONE BRANCH OF FOUR THAT WAS NEVER TRANSLATED (design lens critique, 2026-09-15), and it is
+        // the branch a signed-out visitor gets - interpolated into a Filipino greeting, so the sentence
+        // read "Kumusta Hector! ... You're not signed in". Its three siblings below are all _t()'d. The
+        // `--` also rendered as two literal hyphens, which is the same tell: nobody had read it on screen.
+        ? _t("You're not signed in, so I can't reach your job records \u2014 I only have the name you entered. Sign in to get answers grounded in your own history. I can still help with technical questions, procedures and calculations.",
+             "Hindi ka naka-sign in, kaya hindi ko maabot ang mga job record mo \u2014 ang pangalan lang na inilagay mo ang hawak ko. Mag-sign in para maiugnay ang mga sagot sa sarili mong kasaysayan. Makakatulong pa rin ako sa teknikal na tanong, procedure at kalkulasyon.")
         : hasRecords
         // a POSITIVE signal (logbook OR assets/PM) wins over an unknown logbook read: a vehicle
         // owner with a car + schedule has records even before their first logged repair
-        ? "I can see your job records and will reference them when relevant."
+        ? _t("I can see your job records and will reference them when relevant.",
+              "Nakikita ko ang mga tala mo sa trabaho at sasangguni ako sa mga ito kapag may kinalaman.")
         : lcUnknown
         ? _t("I couldn't reach your job records just now, so I may not have them to hand. That does not mean they are missing. Ask me anything technical in the meantime, and try again in a moment for anything about your own history.", "Hindi ko maabot ang job records mo ngayon, kaya baka wala ako nito sa kamay. Hindi ibig sabihin nawala ang mga ito. Magtanong ka muna ng kahit anong teknikal, at subukan muli mamaya para sa sarili mong history.")
-        : "You don't have any records yet. Add logbook entries or parts to unlock personalised insights. For now I can help with technical questions, procedures, or anything on your mind.";
-      addAssistantBubble(`Hi ${workerName}! I'm your WorkHive Work Assistant. ${recordsNote}\n\nWhat do you need?`);
+        // ★THE SAME SENTENCE AS THE MARKUP NUDGE, AND ONLY THE MARKUP ONE WAS FIXED (design lens critique,
+        // 2026-09-15). "parts" moves none of the three counts hasRecords reads - logbook, asset_nodes,
+        // pm_assets - so a worker who adds parts and comes back is told again that he has no records.
+        : _t("You don't have any records yet. Add a logbook entry, an asset or a PM schedule to unlock personalised insights. For now I can help with technical questions, procedures, or anything on your mind.",
+              "Wala ka pang mga tala. Magdagdag ng logbook entry, isang asset o isang PM schedule para ma-unlock ang personalised insights. Sa ngayon, makakatulong ako sa teknikal na tanong, proseso, o kahit ano pang nasa isip mo.");
+      // ★THE ASSISTANT INTRODUCED ITSELF IN ENGLISH (design lens copy, 2026-09-15) - the first sentence on
+      // the one surface whose premise is being spoken to in a worker's own words.
+      addAssistantBubble(_t(`Hi ${workerName}! I'm your WorkHive Work Assistant. ${recordsNote}\n\nWhat do you need?`,
+                            `Kumusta ${workerName}! Ako ang iyong WorkHive Work Assistant. ${recordsNote}\n\nAno ang kailangan mo?`));
       // Arc P · Wave 3 (P1/P5): starter-prompt chips guide first use + fill the empty
       // chat void (was a blank area with no next step). Data-aware: grounded prompts
       // when the worker has records, general technical prompts when they don't.
@@ -970,16 +1687,195 @@ happens to know maintenance, not a manual.`;
       wrap/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `<div class="bubble-user">${escHtml(text)}</div>`;
       container.appendChild(wrap);
       scrollToBottom();
+      return wrap;  // the caller marks it unsent if the turn never lands
+    }
+
+    // ★A FAILED TURN LEFT A PHANTOM QUESTION IN THE THREAD (design lens critique, 2026-09-15). The user
+    // bubble is painted optimistically, before the request - and on failure nothing ever went back to say
+    // so. The thread showed the question sitting there exactly as a delivered one does, while the same text
+    // reappeared in the composer, so the reader could not tell whether it had been asked once, twice or not
+    // at all. The bubble says which, and carries the retry rather than making him find it.
+    // ★AND EACH RETRY LEFT ITS LAST ERROR BEHIND (design lens critique round 3, 2026-09-15). This
+    // function removes the question and its label so the retried turn reads as one attempt - but the error
+    // box that explained the failure was appended by addSystemNotice, whose return value both call sites
+    // threw away, and nothing in this file ever removed one. Executed on the server-500 path, one send plus
+    // two retries left three identical red boxes with the question sitting BELOW two of them, because the
+    // question moves to the end of the thread on every attempt and its old errors do not. That is the
+    // phantom-question ambiguity this function exists to end, reintroduced by its own retry - and it is the
+    // shape a worker on weak plant Wi-Fi produces by definition. The notice belongs to the turn now and
+    // leaves with it, so one question shows one error.
+    function _markTurnUnsent(wrap, text, reason, notice) {
+      if (!wrap || wrap.dataset.unsent === '1') return;
+      wrap.dataset.unsent = '1';
+      wrap.classList.add('turn-unsent');
+      const row = document.createElement('div');
+      row.className = 'flex justify-end fade-up';
+      row.style.cssText = 'gap:8px; align-items:center; margin-top:-6px;';
+      const label = document.createElement('span');
+      label.style.cssText = 'font-size:0.75rem; color:var(--wh-red-text, #FDC9C9);';
+      label.textContent = reason;
+      const retry = document.createElement('button');
+      retry.type = 'button';
+      retry.textContent = _t('Retry', 'Subukan muli');
+      retry.setAttribute('aria-label', _t('Send this question again', 'Ipadala muli ang tanong na ito'));
+      retry.style.cssText = 'background:transparent; border:1px solid var(--wh-navy-light, #2A3D58);' +
+        'color:rgba(255,255,255,0.90); border-radius:999px; min-height:44px; padding:0 16px;' +
+        'font-size:0.8rem; cursor:pointer;';
+      retry.addEventListener('click', function () {
+        // ★THE CONTROL SAID "send this question again" AND SENT THE COMPOSER'S (design lens critique,
+        // 2026-09-15). It filled the composer only when the composer was EMPTY and then called
+        // sendMessage(), which reads the composer - so a worker who typed a follow-up during the wait and
+        // then tapped Retry had his failed question deleted and a different one sent in its name. The
+        // question travels with the button now; the composer is a default, not the source.
+        row.remove();
+        wrap.remove();
+        if (notice && notice.remove) notice.remove();
+        sendMessage(text);
+      });
+      row.appendChild(label);
+      row.appendChild(retry);
+      wrap.insertAdjacentElement('afterend', row);
+      scrollToBottom();
+    }
+
+    // ★AN ERROR WORE THE ASSISTANT'S FACE (design lens critique, 2026-09-15). Every failure rendered
+    // through addAssistantBubble, so it arrived with the same gradient, the same alignment and the same
+    // shape as a real answer - and the last branch interpolated the raw exception, which means a JS
+    // TypeError could appear as something the assistant said about his plant. A system notice is a
+    // different thing from a reply and now looks like one, and announces itself as an alert.
+    function addSystemNotice(text) {
+      const container = document.getElementById('chat-messages');
+      const wrap = document.createElement('div');
+      wrap.className = 'flex justify-start fade-up';
+      wrap.setAttribute('role', 'alert');
+      const box = document.createElement('div');
+      box.style.cssText = 'max-width:min(85%,70ch); border:1px solid rgba(248,113,113,0.35);' +
+        'background:rgba(248,113,113,0.10); color:var(--wh-red-text, #FDC9C9); border-radius:12px;' +
+        'padding:10px 16px; font-size:0.85rem; line-height:1.45;';
+      box.textContent = text;          // textContent, never innerHTML: this string can carry an exception
+      wrap.appendChild(box);
+      container.appendChild(wrap);
+      scrollToBottom();
+      return wrap;
+    }
+
+    // ★THE MODEL IS TOLD TO WRITE LISTS THIS BUBBLE COULD NOT DRAW (design lens critique, 2026-09-15).
+    // ai-orchestrator's live SYNTH_SYSTEM says "Use bullet points for lists", and its own comment calls the
+    // payload "readable markdown-ish bullets so the chat UI can render it" - while this function rendered
+    // exactly two things, **bold** and newlines. Every `- `, `* `, `## ` and single asterisk arrived as a
+    // literal character. The instruction that FORBADE bullets lives in buildSystemPrompt, which the comment
+    // above that function confirms is never called - so the only live instruction asked for lists and the
+    // only live renderer could not draw one, on a surface where multi-item answers are the common case.
+    // Scope is deliberately small: the subset the prompt asks for, and nothing else. A `#` line becomes a
+    // BOLD BLOCK, not a heading - an h3 inside a message would insert itself into the page's heading order,
+    // which the audit lens measures and which a reply has no business changing.
+    // Escaping order is unchanged in substance: model text goes through escHtml FIRST, and the only tags
+    // introduced afterwards are ones this function writes itself.
+    function _mdish(raw) {
+      const e = escHtml(String(raw == null ? '' : raw));
+      // ★A LINK THE MODEL WROTE ARRIVED AS BRACKET NOISE (round 5, 2026-09-15). The live grounding rule
+      // tells the model to point the reader at the matching page - Analytics, Inventory, PM Scheduler - and
+      // `[the PM page](pm-scheduler.html)` rendered as those literal characters, so the hand-off dead-ended
+      // and the reader had to find the page himself, mid-shift, from memory. An anchor ONLY for http(s) or a
+      // same-origin .html page; anything else is left exactly as it arrived, because a link that cannot be
+      // proven safe is better as characters. The text is already escHtml'd when this runs.
+      const _safeHref = (u) => (/^https?:\/\/[^\s"'<>]+$/i.test(u) || /^[a-z0-9_-]+\.html(?:\?[^\s"'<>]*)?$/i.test(u));
+      const inline = (t) => t
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/(^|[\s(])\*(?!\s)([^*\n]+?)\*(?=[\s).,;:!?]|$)/g, '$1<em>$2</em>')
+        .replace(/\[([^\]\n]{1,120})\]\(([^)\s]{1,300})\)/g,
+          (m, txt, url) => (_safeHref(url)
+            ? '<a href="' + url + '" class="underline" style="color:var(--wh-blue-light);">' + txt + '</a>'
+            : m));
+      const out = [];
+      let list = null;                         // 'ul' | 'ol' | null
+      const closeList = () => { if (list) { out.push('</' + list + '>'); list = null; } };
+      // ★A BLANK LINE BETWEEN ITEMS RESTARTED THE NUMBERING (design lens critique, 2026-09-15). Executed
+      // against the shipped code, "1. Isolate...\n\n2. Apply...\n\n3. Verify..." produced THREE <ol>
+      // elements of one <li> each and rendered 1, 1, 1 - on what is, on this surface, a lockout/tagout
+      // sequence. A LOOSE list (blank lines between items) is the commonest shape a model emits and the
+      // one the live SYNTH_SYSTEM asks for, so a blank line now HOLDS the list open and only a real
+      // paragraph closes it. The ol also carries the number it actually started at, because a reply that
+      // continues "4. ..." after a sentence must not restart at one.
+      let pendingBlank = false;
+      const para = [];                         // consecutive plain lines join with <br>
+      // ★A PARAGRAPH IS A BLOCK, AND THIS PUSHED IT AS A BARE INLINE STRING (design lens critique,
+      // 2026-09-15). Without a wrapper, a blank line between two paragraphs rendered as NOTHING - the two
+      // ran together mid-sentence. It was visible on this page's own greeting: "...will reference them
+      // when relevant.What do you need?", because addAssistantBubble joins those with \n\n. The previous
+      // renderer turned every newline into a <br> and so never had the problem; teaching it lists and
+      // headings introduced it. Wrapping in <p> also revives `.bubble-assistant p { margin-bottom: .5rem }`
+      // a hundred lines above, which had been dead for exactly as long as _mdish existed.
+      const flushPara = () => {
+        if (!para.length) return;
+        out.push('<p>' + inline(para.join('<br>')) + '</p>');
+        para.length = 0;
+      };
+      // ★AND IT COULD NOT DRAW A TABLE, ON THE PAGE WHOSE FIRST SUGGESTION ASKS FOR A RANKING (round 5,
+      // 2026-09-15). "Which of my assets has the worst MTBF" is the question a model answers with a table,
+      // and a pipe block came back as literal pipes joined by <br> - unreadable on a 390px screen. Rows are
+      // collected while they keep arriving and emitted as one table inside an overflow-x:auto wrapper, so a
+      // wide one scrolls instead of spilling the bubble.
+      const _lines = e.split('\n');
+      let _tbl = null;                         // { head: [], rows: [][] } while a table is being read
+      const _cells = (t) => t.replace(/^\||\|$/g, '').split('|').map((c) => c.trim());
+      const _isRow = (t) => /^\|.*\|$/.test(t);
+      const _isSep = (t) => /^\|?\s*:?-{2,}:?\s*(\|\s*:?-{2,}:?\s*)*\|?$/.test(t);
+      const closeTable = () => {
+        if (!_tbl) return;
+        const th = _tbl.head.map((c) => '<th style="text-align:left;padding:4px 8px;border-bottom:1px solid rgba(255,255,255,0.18);white-space:nowrap;">' + inline(c) + '</th>').join('');
+        const tr = _tbl.rows.map((r) => '<tr>' + r.map((c) => '<td style="padding:4px 8px;border-bottom:1px solid rgba(255,255,255,0.07);">' + inline(c) + '</td>').join('') + '</tr>').join('');
+        out.push('<div style="overflow-x:auto;margin:6px 0;"><table style="border-collapse:collapse;font-size:0.8rem;min-width:100%;"><caption style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;">' + escHtml((typeof window._t === 'function') ? window._t('Table from the assistant answer', 'Talahanayan mula sa sagot ng assistant') : 'Table from the assistant answer') + '</caption>'
+          + (th ? '<thead><tr>' + th + '</tr></thead>' : '') + '<tbody>' + tr + '</tbody></table></div>');
+        _tbl = null;
+      };
+      for (let _i = 0; _i < _lines.length; _i++) {
+        const line = _lines[_i];
+        const t = line.trim();
+        if (_tbl) {
+          if (_isRow(t)) { if (!_isSep(t)) _tbl.rows.push(_cells(t)); continue; }
+          closeTable();
+        } else if (_isRow(t) && _i + 1 < _lines.length && _isSep(_lines[_i + 1].trim())) {
+          flushPara(); closeList();
+          _tbl = { head: _cells(t), rows: [] };
+          _i++;                                // step over the separator
+          continue;
+        }
+        const ul = /^[-*\u2022]\s+(.*)$/.exec(t);
+        const ol = /^(\d{1,2})[.)]\s+(.*)$/.exec(t);
+        const hd = /^#{1,3}\s+(.*)$/.exec(t);
+        if (ul || ol) {
+          flushPara();
+          pendingBlank = false;
+          const want = ul ? 'ul' : 'ol';
+          if (list !== want) {
+            closeList();
+            const start = (want === 'ol' && ol && +ol[1] !== 1) ? ' start="' + (+ol[1]) + '"' : '';
+            out.push('<' + want + ' class="bubble-list"' + start + '>');
+            list = want;
+          }
+          out.push('<li>' + inline(ul ? ul[1] : ol[2]) + '</li>');
+          continue;
+        }
+        // A blank line does NOT close a list - it is how a loose list is written. It is remembered, and
+        // only a line with content decides whether the list ends.
+        if (!t) { pendingBlank = true; if (!list) flushPara(); continue; }
+        closeList();
+        pendingBlank = false;
+        if (hd) { flushPara(); out.push('<div class="bubble-head">' + inline(hd[1]) + '</div>'); continue; }
+        para.push(t);
+      }
+      flushPara();
+      closeList();
+      closeTable();
+      return out.join('');
     }
 
     function addAssistantBubble(text) {
       const container = document.getElementById('chat-messages');
       const wrap = document.createElement('div');
       wrap.className = 'flex justify-start fade-up';
-      // Simple markdown-ish: newlines to <br>, **bold**
-      const formatted = escHtml(text)
-        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-        .replace(/\n/g, '<br>');
+      const formatted = _mdish(text);
       wrap/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `<div class="bubble-assistant">${formatted}</div>`;
       container.appendChild(wrap);
       scrollToBottom();
@@ -995,19 +1891,26 @@ happens to know maintenance, not a manual.`;
     function addStarterChips(hasRecords) {
       const container = document.getElementById('chat-messages');
       if (!container) return;
+      _lastHasRecords = !!hasRecords;   // so clearChat can put the examples back
       const prompts = hasRecords
-        ? ['Which of my assets has the worst MTBF, and what should I do?',
-           'What should I prioritise this week?',
-           'Any parts running low that I should reorder?']
-        : ['How do I troubleshoot a motor bearing that runs hot?',
-           'What is a sensible PM interval for a centrifugal pump?',
-           'Explain MTBF vs MTTR in plain terms.'];
+        // ★THE ONBOARDING WAS ENGLISH-ONLY (design lens copy, 2026-09-15). These three chips are what a
+        // first-time worker reads to learn WHAT the assistant answers - the reason the empty chat is not a
+        // dead end - and they are exactly the sentences he would want to ask in his own language.
+        ? [_t('Which of my assets has the worst MTBF, and what should I do?',
+              'Aling asset ko ang may pinakamasamang MTBF, at ano ang dapat kong gawin?'),
+           _t('What should I prioritise this week?', 'Ano ang dapat kong unahin ngayong linggo?'),
+           _t('Any parts running low that I should reorder?', 'May mga parts bang nauubos na dapat kong i-reorder?')]
+        : [_t('How do I troubleshoot a motor bearing that runs hot?',
+              'Paano ko i-troubleshoot ang motor bearing na umiinit?'),
+           _t('What is a sensible PM interval for a centrifugal pump?',
+              'Ano ang tamang PM interval para sa centrifugal pump?'),
+           _t('Explain MTBF vs MTTR in plain terms.', 'Ipaliwanag ang MTBF laban sa MTTR sa simpleng salita.')];
       const wrap = document.createElement('div');
       wrap.className = 'fade-up';
       wrap.style.cssText = 'display:flex; flex-wrap:wrap; gap:8px; max-width:32rem;';
       wrap/* xss-allow: static author-controlled prompt strings, escHtml'd */ .innerHTML =
-        `<h2 style="width:100%; font-size:0.68rem; color:rgba(255,255,255,0.80); margin:0 0 2px; text-transform:uppercase; letter-spacing:0.06em; font-weight:700;" data-i="tryasking">Try asking</h2>`
-        + prompts.map(p => `<button type="button" translate="no" class="starter-chip" style="font-size:0.8rem; line-height:1.25; color:var(--wh-orange-text); background:rgba(247,162,27,0.10); border:1px solid rgba(247,162,27,0.30); border-radius:999px; padding:8px 14px; min-height:44px; cursor:pointer; text-align:left;">${escHtml(p)}</button>`).join('');
+        `<h2 style="width:100%; font-size:0.75rem; color:rgba(255,255,255,0.80); margin:0 0 2px; text-transform:uppercase; letter-spacing:0.06em; font-weight:700;" data-i="tryasking">Try asking</h2>`
+        + prompts.map(p => `<button type="button" translate="no" class="starter-chip" style="font-size:0.8rem; line-height:1.25; color:var(--wh-orange-text); background:rgba(247,162,27,0.10); border:1px solid rgba(247,162,27,0.30); border-radius:999px; padding:8px 16px; min-height:44px; cursor:pointer; text-align:left;">${escHtml(p)}</button>`).join('');
       container.appendChild(wrap);
       wrap.querySelectorAll('.starter-chip').forEach((chip, i) => {
         chip.addEventListener('click', () => {
@@ -1016,7 +1919,11 @@ happens to know maintenance, not a manual.`;
           input.value = prompts[i];
           if (typeof autoResize === 'function') autoResize(input);
           input.focus();
-          wrap.remove();  // chips served their purpose
+          // ★AND THEY USED TO LEAVE ON A TOUCH (round 5, 2026-09-15). These three are the page's only
+          // statement of WHAT the assistant answers, so a mis-tap deleted the menu and getting it back cost
+          // destroying the conversation. They leave when a question is actually SENT - which is when they
+          // have served their purpose - and sendMessage removes them by this id.
+          wrap.id = 'assistant-starter-chips';
         });
       });
       scrollToBottom();
@@ -1083,14 +1990,22 @@ happens to know maintenance, not a manual.`;
         b.setAttribute('aria-label', label);
         b.title = label;
         b.textContent = glyph;
-        b.style.cssText = 'background:transparent;border:1px solid var(--border,rgba(0,0,0,.15));' +
-          'color:var(--muted,#888);border-radius:50%;width:28px;height:28px;line-height:1;' +
-          'cursor:pointer;font-size:.85rem;display:flex;align-items:center;justify-content:center;' +
+        // ★TWO 28px TARGETS WITH AN INVISIBLE BORDER, IN A STATE NO WALK MEASURES (design lens critique,
+        // 2026-09-15). These exist only AFTER a reply, so every walk that reported "0 tap targets under 44"
+        // was measuring an empty chat - true, and true of a chat nobody has used. 28px is 40% under the
+        // floor, on a gloved hand mid-shift. And both colours read undefined tokens: `--border` and
+        // `--muted` appear in NEITHER tokens.css NOR components.css NOR this page, so the border fell back
+        // to 15%-black - invisible on navy - and the glyph to #888 by accident. Real tokens, real floor.
+        b.style.cssText = 'background:transparent;border:1px solid var(--wh-navy-light, #2A3D58);' +
+          'color:rgba(255,255,255,0.80);border-radius:50%;min-width:44px;min-height:44px;line-height:1;' +
+          'cursor:pointer;font-size:.95rem;display:inline-flex;align-items:center;justify-content:center;' +
           'transition:background .15s,opacity .15s;';
         return b;
       }
-      const up   = mkBtn(1,  '👍', 'Helpful reply');
-      const down = mkBtn(-1, '👎', 'Unhelpful reply');
+      // Two of these three controls announced English while the third - Copy, twelve lines below -
+      // announced Filipino. One row, one reader, two decisions (design lens critique, 2026-09-15).
+      const up   = mkBtn(1,  '👍', _t('Helpful reply', 'Nakatulong ang sagot'));
+      const down = mkBtn(-1, '👎', _t('Unhelpful reply', 'Hindi nakatulong ang sagot'));
       // ★THE ONLY EVIDENCE THE FEEDBACK LANDED WAS A BACKGROUND COLOUR. The row held two glyph buttons and
       // no text, so a recorded rating was signalled by tinting the pressed button and dimming both - which
       // a colour-blind worker cannot distinguish from the disabled state, and which announces nothing at
@@ -1102,8 +2017,44 @@ happens to know maintenance, not a manual.`;
       const note = document.createElement('span');
       note.setAttribute('role', 'status');
       note.setAttribute('aria-live', 'polite');
-      note.style.cssText = 'font-size:.7rem;color:var(--muted,#888);margin-left:2px;';
-      row.appendChild(up); row.appendChild(down); row.appendChild(note);
+      // --muted is defined in none of tokens.css, components.css, wh-tw.css or this page, so this line
+      // rendered at #888 by accident - the same undefined-token pair the thumbs themselves carried.
+      note.style.cssText = 'font-size:0.8rem;color:rgba(255,255,255,0.80);margin-left:2px;';
+      // ★THERE WAS NO WAY TO ACT ON AN ANSWER (design lens critique, 2026-09-15). Not a copy, not a save,
+      // not a link - the only controls under a reply rated it for us. A worker who asked for a PM interval
+      // and wants it in the work order had to select navy-on-navy text by hand on a phone, mid-shift. Copy
+      // is the smallest honest version of "do something with this", and it needs no new storage, no schema
+      // and no promise about where the answer goes next.
+      const copy = document.createElement('button');
+      copy.type = 'button';
+      copy.textContent = _t('Copy', 'Kopyahin');
+      copy.setAttribute('aria-label', _t('Copy this answer', 'Kopyahin ang sagot na ito'));
+      copy.title = copy.getAttribute('aria-label');
+      copy.style.cssText = 'background:transparent;border:1px solid var(--wh-navy-light, #2A3D58);' +
+        'color:rgba(255,255,255,0.80);border-radius:999px;min-height:44px;padding:0 16px;' +
+        'cursor:pointer;font-size:0.8rem;transition:background .15s;';
+      copy.addEventListener('click', async function () {
+        let ok = false;
+        try { await navigator.clipboard.writeText(answer); ok = true; }
+        catch (_) {
+          // No clipboard API on an older Android WebView, and none at all on an insecure origin. The
+          // fallback is the one that has always worked; if BOTH fail the control says so rather than
+          // going quiet, because a copy button that silently did nothing is the empty-send-button shape.
+          try {
+            const ta = document.createElement('textarea');
+            ta.value = answer;
+            ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;';
+            document.body.appendChild(ta);
+            ta.select();
+            ok = document.execCommand('copy');
+            ta.remove();
+          } catch (_e) { ok = false; }
+        }
+        note.textContent = ok
+          ? _t('Copied.', 'Nakopya.')
+          : _t('Could not copy - select the text and copy it.', 'Hindi makopya - piliin ang teksto at kopyahin.');
+      });
+      row.appendChild(up); row.appendChild(down); row.appendChild(copy); row.appendChild(note);
       [up, down].forEach(function (btn) {
         btn.addEventListener('click', async function () {
           const rating = Number(btn.getAttribute('data-rate')) || 0;
@@ -1125,7 +2076,12 @@ happens to know maintenance, not a manual.`;
           } else {
             // Only on a write that actually landed - never on the best-effort failure path, where saying
             // "noted" would be the same false claim the tint used to make.
-            note.textContent = 'Noted - this tunes future replies. Nothing else on the page changes.';
+            // ★AND IT PROMISED A LOOP THAT DOES NOT EXIST (round 4, 2026-09-15). No edge function reads
+            // ai_reply_feedback - its only readers are offline tools in tools/ - so a rating changes nothing
+            // about the next answer. Shown only on a write that landed, which was the honest half, and then
+            // making the one claim the runtime cannot keep. It says where the rating actually goes.
+            note.textContent = _t('Noted - this goes to the team that improves the assistant. Nothing else on the page changes.',
+                                  'Naitala - napupunta ito sa team na nagpapabuti ng assistant. Walang ibang nagbabago sa pahina.');
           }
         });
       });
@@ -1133,7 +2089,13 @@ happens to know maintenance, not a manual.`;
       scrollToBottom();
     }
 
-    function addTypingIndicator() {
+    // ★A STOP THAT CANNOT STOP (round 5, 2026-09-15). startChat renders this skeleton while it resolves
+    // the session and three counted reads - seconds on plant Wi-Fi - and `isLoading` is set only inside
+    // sendMessage, so stopAsk returns immediately and the button does nothing. It is the FIRST control a
+    // reader can reach in the FIRST state he sees. The opening skeleton asks for { stoppable: false }; a
+    // real turn still gets its Stop.
+    function addTypingIndicator(opts) {
+      const _stoppable = !(opts && opts.stoppable === false);
       const container = document.getElementById('chat-messages');
       const wrap = document.createElement('div');
       wrap.id = 'typing-indicator';
@@ -1145,73 +2107,169 @@ happens to know maintenance, not a manual.`;
       // loading indication whatsoever. utils.js's own whListSkeleton sets aria-busy="true" aria-live="polite";
       // matching that convention fixes the announcement and the measurability in one change, rather than
       // teaching the instrument about a signal only this page uses.
+      // ★AND aria-busy WITHHELD THE VERY SENTENCES THIS EXISTS TO SAY (round 4, 2026-09-15). All three
+      // attributes sat on one node, and aria-busy is never cleared - the node is deleted instead - so by
+      // ARIA 1.2 assistive technology is instructed to withhold changes to this live region until it goes
+      // false, which it never does. The staged 8/20/40s notes are written into a child of it. The outer
+      // #chat-messages cannot cover the gap either: it is aria-relevant="additions", which excludes a text
+      // change to a node already present. aria-busy belongs on the dots, which are what is genuinely busy;
+      // the announcing role moves to the note that carries the words (see #typing-note below).
       wrap.setAttribute('aria-busy', 'true');
-      wrap.setAttribute('aria-live', 'polite');
-      wrap.setAttribute('role', 'status');
+      // ★UP TO 61 SECONDS OF UNDIFFERENTIATED DOTS, WITH NO WAY OUT (design lens critique, 2026-09-15).
+      // The chain is 6s semantic search + 25s orchestrator + 30s fallback, and this was the whole of what
+      // the page said during it: three dots that look identical at second 2 and second 58. On a weak plant
+      // link that is the common case, not the tail, and a person with no signal of progress assumes it is
+      // broken and retypes. Two additions, and the second is the one that matters: the wait now names its
+      // stage as it passes 8s, 20s and 40s, and it can be LEFT. Stop cannot cancel the invoke - nothing
+      // here can, as the T146 note above says - but the generation stamp that note introduced is exactly
+      // what lets a stopped turn's late reply be discarded instead of painted into a thread that moved on.
       wrap/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
-        <div class="bubble-assistant flex items-center gap-1.5 py-3 px-4">
-          <span class="sr-only">Thinking…</span>
-          <div class="typing-dot" aria-hidden="true"></div>
-          <div class="typing-dot" aria-hidden="true"></div>
-          <div class="typing-dot" aria-hidden="true"></div>
+        <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-start;">
+          <div class="bubble-assistant flex items-center gap-1.5 py-3 px-4">
+            <span class="sr-only" id="typing-sr">Thinking…</span>
+            <div class="typing-dot" aria-hidden="true"></div>
+            <div class="typing-dot" aria-hidden="true"></div>
+            <div class="typing-dot" aria-hidden="true"></div>
+          </div>
+          <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+            <span id="typing-note" role="status" aria-live="polite" style="font-size:0.75rem; color:rgba(255,255,255,0.75);"></span>
+            ${_stoppable ? `<button type="button" id="typing-stop" onclick="stopAsk()"
+                    style="background:transparent; border:1px solid var(--wh-navy-light, #2A3D58);
+                           color:rgba(255,255,255,0.90); border-radius:999px; min-height:44px;
+                           padding:0 16px; font-size:0.8rem; cursor:pointer;">${escHtml(_t('Stop', 'Itigil'))}</button>` : ''}
+          </div>
         </div>`;
       container.appendChild(wrap);
+      // The sr-only line is the ONLY thing a screen-reader user gets during a wait of up to a minute,
+      // and it was English on a bilingual page (design lens critique, 2026-09-15).
+      const _sr = wrap.querySelector('#typing-sr');
+      if (_sr) _sr.textContent = _t('Thinking…', 'Nag-iisip…');
+      const _note = wrap.querySelector('#typing-note');
+      [[8000,  _t('Still working - reading your records.', 'Ginagawa pa - binabasa ang mga record mo.')],
+       [20000, _t('Still working - trying a faster route.', 'Ginagawa pa - sinusubukan ang mas mabilis na ruta.')],
+       [40000, _t('Still working - slower than usual today.', 'Ginagawa pa - mas mabagal ngayon kaysa dati.')]
+      ].forEach(function (stage) {
+        _typingTimers.push(setTimeout(function () { if (_note) _note.textContent = stage[1]; }, stage[0]));
+      });
       scrollToBottom();
     }
 
     function removeTypingIndicator() {
+      _typingTimers.forEach(clearTimeout);
+      _typingTimers = [];
       const el = document.getElementById('typing-indicator');
       if (el) el.remove();
     }
 
+    // Stop ends the WAIT, not the request. `_askGen` moving is what makes every later check in the turn
+    // that owned it fail, so its reply - which will still arrive, because Promise.race cannot cancel a
+    // loser - is dropped rather than appended under a question the thread has already marked unsent.
+    function stopAsk() {
+      if (!isLoading) return;
+      _askGen++;
+      removeTypingIndicator();
+      isLoading = false;
+      if (_pendingUserEl) {
+        _markTurnUnsent(_pendingUserEl, _pendingText, _reachedFallback === 'written'
+          ? _t('stopped - saved to your Journal', 'itinigil - naka-save sa Journal mo')
+          : _t('stopped - not sent', 'itinigil - hindi naipadala'));
+        _pendingUserEl = null;
+      }
+      syncSendBtn();
+      const inp = document.getElementById('chat-input');
+      if (inp) inp.focus();
+    }
+    window.stopAsk = stopAsk;
+
+    // ★THE FIRST PAINT SCROLLED THE GREETING OFF (round 5, 2026-09-15). Both the greeting and the chips
+    // end in this call, and on the first paint there is nothing below to catch up with - so at 390 the
+    // opening bubble was clipped to its last line and the sentence naming what the assistant can see was
+    // pushed above the fold. In the signed-out branch that sentence is the longest and the most useful one
+    // on the page. Auto-scroll only when the reader was already near the bottom; the first paint stays put.
+    function _nearBottom(c) {
+      try { return (c.scrollHeight - c.scrollTop - c.clientHeight) < 80; } catch (_) { return true; }
+    }
     function scrollToBottom() {
       const c = document.getElementById('chat-messages');
+      if (!c) return;
+      // Nothing asked yet: the top of the thread IS the right place to be, because everything in it was
+      // written BY the page and the first sentence is the one that says what it can see.
+      if (!c.querySelector('.bubble-user')) { c.scrollTop = 0; return; }
+      // And once a conversation exists, do not yank the view away from someone re-reading an earlier
+      // answer when a late reply lands. Follow only a reader who was already at the bottom.
+      if (!_nearBottom(c)) return;
       c.scrollTop = c.scrollHeight;
     }
 
     // ── Send message ──────────────────────────────────────────────
-    // ── Fetch semantic context before AI call ─────────────────────
-    async function getSemanticContext(query) {
-      try {
-        // Hive-context consistency (2026-07-19): resolve the ACTIVE hive first, exactly like the page's
-        // data reads (wh_active_hive_id, set on sign-in/hive-switch) — the legacy `wh_hive_id` alone is
-        // often null in the modern flow, so the AI-gateway/RAG got NO hive grounding (assistant answered
-        // WITHOUT the team knowledge base) even when the user was in a hive. Live-confirmed: active=<hive>,
-        // legacy=null -> sent null. Now mirrors the reads' `wh_active_hive_id || wh_hive_id` resolution.
-        const hiveId = whHiveId();
-        // Forward the USER's session JWT: semantic-search's Pillar I tenancy check
-        // (verify_jwt=false fn on a service-role client) requires a resolvable identity
-        // when hive_id is set, else it 401s and the assistant answers WITHOUT the hive's
-        // KB grounding (silent: the empty-context path degrades to no-RAG). apikey stays
-        // the anon key for the functions gateway. Residual of the companion-unification
-        // migration, which fixed the main ai-orchestrator call but missed this one.
-        const { data: { session: _s } } = await db.auth.getSession();
-        const _tok = _s?.access_token || SUPABASE_ANON;
-        // 6s ceiling: if semantic search is slow we proceed without RAG
-        // rather than block the user behind a hung embedding lookup.
-        const res = await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/semantic-search`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON, 'Authorization': 'Bearer ' + _tok },
-          body: JSON.stringify({ query, hive_id: hiveId, match_count: 3 }),
-        }, 6000);
-        if (!res || !res.ok) return '';
-        const { context } = await res.json();
-        return context || '';
-      } catch {
-        return '';
-      }
-    }
+    // ★`getSemanticContext` LIVED HERE AND IS NOW DELETED, NOT MERELY UNCALLED (2026-09-28).
+    // The 2026-09-15 critique removed its ONE call site (six seconds on every question to fill
+    // `context.team_knowledge`, which no edge function reads) and kept the body "unused,
+    // deliberately" so the call could come back. That left a top-level function nothing references,
+    // which is precisely what the no-dead-feature-remnants ratchet counts, and it pushed the board
+    // 14 -> 15. The ratchet offers exactly two remedies - delete it, or wire the caller back - and
+    // teaching it a third ("but this orphan is intentional") is how a ratchet stops ratcheting.
+    // So the code is gone and the SPEC stays here, which is the part worth keeping:
+    //   POST {SUPABASE_URL}/functions/v1/semantic-search  body {query, hive_id, match_count: 3}
+    //   • hive_id MUST resolve as `wh_active_hive_id || wh_hive_id` (whHiveId()) - the legacy key
+    //     alone is usually null in the modern flow, which silently cost the hive's KB grounding.
+    //   • Authorization MUST be the USER's session access_token, not the anon key: semantic-search
+    //     is verify_jwt=false on a service-role client and its Pillar I tenancy check 401s without
+    //     a resolvable identity when hive_id is set - and the empty-context path degrades to no-RAG
+    //     silently, so the failure is invisible from the page.
+    //   • 6000 ms ceiling via fetchWithTimeout, proceeding without RAG rather than blocking.
+    // Restore it only when a gateway key actually consumes team_knowledge, proven end to end.
+    // Full previous implementation: `git show HEAD:assistant.html` (defined ~line 1174).
 
-    async function sendMessage() {
+    // `preset` is the question a Retry is resending. Without it the composer is the source, which is the
+    // right default for the send button and the wrong one for a control attached to a specific bubble.
+    async function sendMessage(preset) {
       if (isLoading) return;
       const input = document.getElementById('chat-input');
-      const text = input.value.trim();
+      const text = (typeof preset === 'string' && preset.trim()) ? preset.trim() : input.value.trim();
       if (!text) return;
 
-      input.value = '';
-      autoResize(input);
-      addUserBubble(text);
+      // ★THE PAGE WOULD SPEND 61 SECONDS TO DISCOVER IT WAS OFFLINE (design lens critique, 2026-09-15).
+      // The whole chain - semantic search, orchestrator, fallback - runs before anything notices there is no
+      // link at all, and the sentence at the end of it was the generic one. This is the single most common
+      // failure for a worker mid-shift and the only one with an obvious remedy, so it is answered first and
+      // the question stays in the composer where he left it.
+      if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+        const _off = addUserBubble(text);
+        const _offNotice = addSystemNotice(window.whAiError
+          ? window.whAiError({ message: 'offline' })
+          : _t('Network problem: check your connection and try again.',
+               'May problema sa koneksyon: tingnan ang iyong koneksyon at subukan muli.'));
+        _markTurnUnsent(_off, text, _t('not sent', 'hindi naipadala'), _offNotice);
+        return;
+      }
+
+      // Only clear the composer when the composer is what was sent. A Retry carries its own question, and
+      // anything he typed while waiting is his, not this turn's.
+      if (!(typeof preset === 'string' && preset.trim())) { input.value = ''; autoResize(input); }
+      // The suggestions have served their purpose once a question is really on its way.
+      try { const _chips = document.getElementById('assistant-starter-chips'); if (_chips) _chips.remove(); }
+      catch (_) { /* empty-catch-allow */ }
+      const _myAsk = ++_askGen;
+      _reachedFallback = false;   // false | 'dispatched' | 'written' (round 5)
+      _servedFromCache = false;
+      // The identity this TURN is sent under, not the one the chat opened with. getSession reads the stored
+      // session instead of the network round-trip getUser makes, on a path that is already slow by
+      // definition; and it is the same resolution the gateway performs on the JWT, so "did this become a
+      // Journal row?" is answered by the same fact the server answers it with.
+      try { _authedUser = (await db.auth.getSession())?.data?.session?.user || null; }
+      catch (_) { /* empty-catch-allow: an unresolvable session is the signed-out answer */ }
+      _pendingUserEl = addUserBubble(text);
+      _pendingText   = text;
       sessionMessages.push({ role: 'user', content: text });
+      // ★MY OWN FIX WAS WRONG ON ITS OWN TERMS (design lens critique, 2026-09-15). Batch 4 packed the last
+      // six turns into `context.recent_turns` saying the page "stops withholding what it has". Two things
+      // are true instead. The only `recent_turns` in the functions tree is in _shared/memory.ts, a SERVER
+      // structure loaded from the agent_memory table - a name collision, not a reader. And the thread was
+      // never withheld: ai-gateway calls loadMemory(agent_memory), forwards it as `memory: redactedMemory`,
+      // and ai-orchestrator reads exactly that. The conversation is carried server-side, persisted and
+      // redacted, which is better than a client mirror. `sessionMessages` stays as what it actually is -
+      // this page's local record of the thread it is drawing - and is not sent a second time.
 
       isLoading = true;
       document.getElementById('send-btn').disabled = true;
@@ -1226,10 +2284,17 @@ happens to know maintenance, not a manual.`;
         const hiveId = whHiveId();
         let reply = null;
 
-        // Fetch semantic context FIRST: enriches both orchestrator and fallback paths
-        // Previously only the fallback got RAG enrichment; now team knowledge base
-        // context reaches the orchestrator on every question.
-        const semanticContext = await getSemanticContext(text);
+        // ★SIX SECONDS ON EVERY QUESTION, FOR A FIELD NOTHING READS (design lens critique, 2026-09-15).
+        // getSemanticContext made a JWT-forwarded semantic-search POST with a 6000ms ceiling on the
+        // critical path of every ask, and its result went into `context.team_knowledge`. Grepped across
+        // supabase/functions/**: `team_knowledge` appears in NO function. ai-gateway forwards `context`
+        // wholesale and ai-orchestrator reads body.question/message, hive_id, mode, body.memory,
+        // body.worker_name - never body.context. So on bad plant Wi-Fi this was up to six seconds of dead
+        // time before the real request even started, every time, to fill a field nobody opens - the first
+        // six of the sixty-one in a timeout. The function is kept, unused, deliberately: bring the call
+        // back when a gateway key actually consumes it, and prove that end to end before re-adding it.
+        // This page's own note below already conceded the point - "both agents are already grounded
+        // server-side (ops-snapshot + KB RAG), so the client block was belt-and-braces".
         // T12 THIRD SENDER (caught BY the journal-transcript gate's DB layer, 2026-09-02): this
         // page used to bake the scaffold into `message` for BOTH gateway calls - and ai-gateway
         // persists `message` VERBATIM as the journal transcript, so every enriched assistant
@@ -1239,7 +2304,16 @@ happens to know maintenance, not a manual.`;
         // and both agents are already grounded server-side (ops-snapshot + KB RAG), so the client
         // block was belt-and-braces from the pre-gateway era. `message` is the worker's words.
         const enrichedQuestion = text;   // name kept so downstream failure paths stay untouched
-        const _teamKnowledge = semanticContext || null;
+
+        // ★MAP A CAUSE, NEVER A SENTENCE (design lens critique, 2026-09-15). The catch below hands the
+        // error to whAiError, which is what makes its 401 and network branches reachable at all. But the
+        // two throws in this function have ALREADY produced the right sentence - including the rate-limit
+        // one, the best message on the page, which carries the server's own retry horizon ("try again in
+        // about 45 seconds"). Running a finished sentence back through the taxonomy finds nothing it
+        // recognises ("The AI is at its limit right now" holds no 429, no "rate limit", no "quota") and
+        // falls through to the generic line, so the page would lose its best message while appearing to
+        // improve. An error this page phrased says so, and is shown as written.
+        const _phrased = (sentence) => { const e = new Error(sentence); e.whPhrased = true; return e; };
 
         // Race an ai-gateway invoke against a timeout; unwrap the standard
         // envelope ({ ok, data:{answer}, ... }; error/gibberish paths are flat)
@@ -1274,26 +2348,65 @@ happens to know maintenance, not a manual.`;
            FIX: stamp each race with a generation and let a late handler write only while it is
            still the current one. The zombie still resolves - we cannot cancel it - but it can no
            longer speak for a question nobody asked it. */
-        let _gwGen = 0;
         async function _raceGatewayData(invokePromise, timeoutMs) {
           const myGen = ++_gwGen;
-          const setFailure = (v) => { if (myGen === _gwGen) window.__whGatewayFailure = v; };
+          // ★THE LABEL WAS KEPT AND THE OBJECT THROWN AWAY (design lens critique, 2026-09-15), which is
+          // why every rate limit on this page says "wait a moment". whAiError reads the server's own
+          // retry_after_seconds out of err.body / err.context / err.data and says "try again in about 45
+          // seconds" instead - and _shared/rate-limit.ts sets that field, plus a Retry-After header, on
+          // every deny. Reducing the failure to the string 'rate_limit' meant the call sites had nothing
+          // to hand it but a synthetic { message: '429' }, which carries no body, no context, no data. The
+          // flag still drives the branch; the object rides beside it so the sentence can be specific.
+          const setFailure = (v, err) => {
+            if (myGen !== _gwGen) return;
+            window.__whGatewayFailure = v;
+            window.__whGatewayError = err || null;
+          };
           window.__whGatewayFailure = null;
+          window.__whGatewayError = null;
           const isRateLimited = (x) => {
             const s = (() => { try { return JSON.stringify(x); } catch (_) { return String(x); } })();
             return /\b429\b|rate.?limit|too many requests/i.test(s || '')
               || (x && x.context && x.context.status === 429);
           };
+          // ★err.context IS A Response, AND ITS BODY HAS TO BE AWAITED (design lens critique, 2026-09-15).
+          // Passing the raw error through was necessary and not sufficient: whAiError reads
+          // retry_after_seconds out of err.body / err.context / err.data SYNCHRONOUSLY, and on a
+          // FunctionsHttpError the number is inside a Response nobody has read yet. So the body is read
+          // here and what rides on is a plain { message:'429', retryAfter:n } - deliberately not whFnError,
+          // which would return the SERVER's own English sentence and lose the bilingual one.
+          const _horizon = async (err) => {
+            try {
+              const c = err && err.context;
+              if (c && typeof c.clone === 'function' && typeof c.json === 'function') {
+                const b = await c.clone().json();
+                const v = (b && (b.retry_after_seconds != null ? b.retry_after_seconds
+                        : (b.retryAfter != null ? b.retryAfter : b.retry_after)));
+                if (v != null && isFinite(Number(v)) && Number(v) > 0) {
+                  return { message: '429', retryAfter: Math.ceil(Number(v)) };
+                }
+              }
+            } catch (_) { /* empty-catch-allow: a body we cannot read is not an error, it is less detail */ }
+            // ★AND WITHOUT A HORIZON IT IS STILL A RATE LIMIT (design lens critique round 3, 2026-09-15).
+            // This returned the raw error, whose message is the generic non-2xx string, so the one 429 shape
+            // the platform produces most - globalBudgetResponse("global-day") in _shared/rate-limit.ts, which
+            // carries neither retry_after_seconds nor a Retry-After header - fell through whAiError's
+            // rate-limit branch and printed "Something went wrong" on the thread AND the toast. The synthetic
+            // loses nothing: retryAfter is already carried on the path that has one.
+            return { message: '429' };
+          };
           return Promise.race([
-            invokePromise.then(r => {
+            invokePromise.then(async (r) => {
               if (!r || r.error || !r.data) {
-                setFailure((r && r.error && isRateLimited(r.error)) ? 'rate_limit' : 'error');
+                const rl = !!(r && r.error && isRateLimited(r.error));
+                setFailure(rl ? 'rate_limit' : 'error', rl ? await _horizon(r.error) : (r && r.error));
                 return null;
               }
               const env = r.data;
               return (env.ok === true && env.data && typeof env.data === 'object') ? env.data : env;
-            }).catch((e) => {
-              setFailure(isRateLimited(e) ? 'rate_limit' : 'error');
+            }).catch(async (e) => {
+              const rl = isRateLimited(e);
+              setFailure(rl ? 'rate_limit' : 'error', rl ? await _horizon(e) : e);
               return null;
             }),
             new Promise(resolve => setTimeout(() => {
@@ -1321,13 +2434,52 @@ happens to know maintenance, not a manual.`;
               agent:   'assistant',
               message: enrichedQuestion,
               hive_id: hiveId,
-              context: { source: 'assistant-page', team_knowledge: _teamKnowledge },
+              // ★THE PAGE NEVER TOLD THE MODEL WHICH LANGUAGE IT WAS ASKED IN (round 5, 2026-09-15).
+              // ai-gateway reads context.lang and persists it onto the journal row; voice-journal.html - the
+              // sibling page that owns the same agent - sends it; this page sent only a source tag. So the
+              // language toggle changed the chrome and left the ANSWER untouched, and every
+              // assistant-originated journal row was written with lang null while every voice-journal row
+              // carried its language: one table, two data qualities, decided by which tab he happened to use.
+              // The persona rides along, which is what the note at the head of this file already claims.
+              context: {
+                source: 'assistant-page',
+                lang: (window.WH_LANG === 'fil' ? 'fil' : 'en'),
+                persona: (typeof window.getPersonaKey === 'function' ? window.getPersonaKey() : undefined),
+              },
             },
           });
           // Preserve the 25s ceiling: if the chain is slow, fall back to the
           // personal assistant rather than hang behind the gateway's own 60s
           // downstream budget. Unwrap via the shared _raceGatewayData helper.
           const orchData = await _raceGatewayData(gwInvoke, 25000);
+          // ★THE CATCH BELOW CANNOT FIRE (design lens critique round 3, 2026-09-15). The vendored
+          // supabase-js invoke() wraps its own throw in a try whose catch RESOLVES {data:null,error}, so this
+          // await never rejects and _authFailure was always null - the session-expired sentence, the only
+          // failure on this page with a remedy the reader can act on, was dead code by construction. The
+          // failure resolves instead, into window.__whGatewayError, so it is read from there. A bare
+          // { message } is stored rather than the Response-carrying error because whAiError classifies by
+          // MESSAGE: handed the real object it returns the generic sentence, which is the second half of why
+          // this was unreachable.
+          if (!orchData) {
+            const _s1 = _gwStatus(window.__whGatewayError);
+            // ★AND IT MUST NOT FIRE FOR SOMEONE WHO NEVER HAD A SESSION (round 4, 2026-09-15). Step 1 is
+            // agent:'assistant', which is NOT in the gateway's ANON_OK_AGENTS, so an anonymous reader gets a
+            // 401 here on every single turn, by design. Stored unconditionally, that turned the sentence this
+            // fix exists to reach into a lie for exactly the reader who cannot act on it: any later failure
+            // told a man with no account that his session had expired, on a page with no sign-in control,
+            // while discarding "The AI service is busy right now", which he could have acted on.
+            // ★AND A 403 IS NOT AN EXPIRED SESSION (round 5, 2026-09-15). ai-gateway proves MEMBERSHIP
+            // separately from authentication and returns 403 "not an active member of this hive" - so a
+            // supervisor whose membership ended, or whose stale wh_active_hive_id points at a hive he has
+            // left, was told to sign in again. His session is fine, signing in changes nothing, and there is
+            // no sign-in control on this page. Measured live: 5 of 24 accounts have no active membership.
+            // The 403 keeps its own identity here and the chip stops naming a plant it cannot read.
+            if (_s1 === 401 && _authedUser) _authFailure = { message: '401' };
+            if (_s1 === 403) {
+              _authFailure = { message: '403' };
+              try { _setAssistantScopeChip('nohive'); } catch (_) { /* empty-catch-allow */ }
+            }
+          }
           if (orchData && orchData.answer && !orchData.error) {
             // T16 stream-orphan guard (critic walk 2026-09-02): a downstream provider dying
             // MID-GENERATION can surface here as a 200 whose answer is the first token(s) — the
@@ -1340,10 +2492,31 @@ happens to know maintenance, not a manual.`;
             const _fragment = _a.length < 4 || (!/[.!?…]["')\]]?$/.test(_a) && _a.length < 12);
             if (!_fragment) {
               reply = _a;
+              // ★A CACHED ANSWER LOOKED EXACTLY LIKE A FRESH ONE (round 4, 2026-09-15). On a rate limit the
+              // gateway serves cacheLookup() with usage.served_from = "adaptive_cache" and a 3600s TTL, so an
+              // answer up to an hour old - computed against a different alert count and a different
+              // overdue-PM count - rendered byte-identically to a live one, under a chip that promises
+              // "recomputed per question". The page already receives the field and read none of it.
+              try {
+                const _sf = orchData && orchData.usage && orchData.usage.served_from;
+                if (_sf && /cache/i.test(String(_sf))) _servedFromCache = true;
+              } catch (_) { /* empty-catch-allow: provenance must never displace the answer */ }
               if (typeof orchData.remaining === 'number') _lastRemaining = orchData.remaining;
             }
           }
-        } catch { /* fall through */ /* empty-catch-allow: best-effort silent swallow */ }
+        } catch (e1) {
+          // ★THE SWALLOW IS DELIBERATE AND THE FORGETTING WAS NOT (design lens critique, 2026-09-15).
+          // Falling through to the conversational fallback is the fail-open this page wants, and it stays.
+          // But it also meant a 401 could never reach the catch below, so whAiError's session-expired
+          // sentence - "Sign in again, then retry - your typed work is still on this page", the one
+          // failure here with a precise remedy - was dead code on this page. Remembered on the way past,
+          // so that if the fallback ALSO fails, the catch can say the true thing.
+          try {
+            const _m = String((e1 && (e1.message || e1.error)) || '');
+            if (/\b401\b|jwt|not authenticated|session expired/i.test(_m)
+                || (e1 && e1.context && e1.context.status === 401)) _authFailure = e1;
+          } catch (_) { /* empty-catch-allow: diagnostics must never outrank the real failure */ }
+        }
 
         // ── Step 2: Fall back to the FAST conversational gateway agent ──
         // SECURITY (K1, 2026-07-12): this fallback used to POST the full system
@@ -1358,15 +2531,45 @@ happens to know maintenance, not a manual.`;
         // the graceful retry error below. `enrichedQuestion` already carries the
         // team-knowledge context (the gateway re-redacts it) so grounding survives.
         if (!reply) {
+          // ★THE CLAIM NEEDS A SESSION AND A RESOLVED RESPONSE (design lens critique, 2026-09-15).
+          // Set here unconditionally, it was FALSE for every signed-out reader, always: ai-gateway's
+          // ANON_OK_AGENTS holds only 'voice-journal', so an anon Step 1 always 401s and always falls
+          // through to here - while the journal write is guarded on authUid, which an anon caller does
+          // not have, so no row is ever written. And setting it BEFORE the invoke resolved claimed
+          // persistence for a request that might never leave the phone. Both conditions now hold before
+          // the page tells anyone their question was kept.
           const fbInvoke = db.functions.invoke('ai-gateway', {
             body: {
               agent:   'voice-journal',
               message: enrichedQuestion,
               hive_id: hiveId,
-              context: { source: 'assistant-page-fallback', team_knowledge: _teamKnowledge },
+              context: {
+                source: 'assistant-page-fallback',
+                lang: (window.WH_LANG === 'fil' ? 'fil' : 'en'),
+                persona: (typeof window.getPersonaKey === 'function' ? window.getPersonaKey() : undefined),
+              },
             },
           });
+          // ★THE FLAG WAS SET WHEN THE ANSWER CAME BACK; THE ROW IS WRITTEN WHEN THE QUESTION GOES OUT
+          // (round 4, 2026-09-15). ai-gateway persists the journal note BEFORE its quota gates - its own
+          // comment says so - so the row exists from the moment this invoke is dispatched. Setting the flag
+          // after the await meant stopAsk's 'saved to your Journal' branch could never run: everything
+          // between the resolve and the next await is synchronous, and the typing indicator that hosts the
+          // Stop button is removed first. So Stop printed "not sent" for precisely the 25-55s window it
+          // exists to serve, for a question already sitting in the Journal tab beside it. Set at dispatch,
+          // which is when the server writes, and still guarded on a session because the write is.
+          // ★DISPATCHED IS NOT WRITTEN, AND ROUND 4 CONFLATED THEM (round 5, 2026-09-15). Moving this to
+          // dispatch time was right about the SERVER - ai-gateway persists the journal row before its quota
+          // gates - and wrong about the phone: a request that never leaves the device writes nothing.
+          // Executed against the vendored client's real FunctionsFetchError, a dropped request made the
+          // thread say "Network problem: check your connection and try again" while the same turn was
+          // labelled "no answer - saved to your Journal". navigator.onLine is often true on a captive or
+          // degraded plant AP, so the offline pre-flight above does not catch it - this IS that case.
+          // Tri-state: dispatched now, written only once the gateway demonstrably answered.
+          if (_authedUser) _reachedFallback = 'dispatched';
           const fbData = await _raceGatewayData(fbInvoke, 30000);
+          // A resolved fbData, or a failure carrying a real HTTP status, both prove the request arrived.
+          if (_authedUser && (fbData || _gwStatus(window.__whGatewayError))) _reachedFallback = 'written';
           if (!fbData || !fbData.answer || fbData.error) {
             // NAME THE CAUSE THE PERSON CAN ACT ON. A rate limit and a slow link need opposite responses —
             // wait vs move somewhere with better signal — so one sentence cannot serve both. The quota case
@@ -1385,32 +2588,88 @@ happens to know maintenance, not a manual.`;
             // network when the server had failed, which is the one thing they cannot fix. Same shape as
             // the rate-limit bug the comment above records, one branch further along. whAiError owns
             // the CAUSE for the error case too, exactly as this file's own note says it should.
-            throw new Error(window.__whGatewayFailure === 'rate_limit'
-              ? (window.whAiError ? window.whAiError({ message: '429' }) : 'You have hit the AI rate limit.')
-                + ' Nothing you typed was lost.'
+            throw _phrased(window.__whGatewayFailure === 'rate_limit'
+              // The REAL error when there is one, so whAiError can read the server's retry horizon out of
+              // it; the synthetic is the fallback for the case where the failure carried no object at all.
+              ? (window.whAiError ? window.whAiError(window.__whGatewayError || { message: '429' }) : 'You have hit the AI rate limit.')
+                + _t(' Nothing you typed was lost.', ' Walang nawala sa inilagay mo.')
               : window.__whGatewayFailure === 'timeout'
-              ? 'Assistant timed out. Please retry on a faster connection.'
-              : (window.whAiError ? window.whAiError({ message: 'error' }) : 'Something went wrong. Please try again.')
-                + ' Nothing you typed was lost.');
+              // ★THE ONLY BRANCH OF THREE WITHOUT THE REASSURANCE, and the one where a worker has just spent
+              // 55 seconds (design lens critique, 2026-09-15). The other two say the question survived; this
+              // said only that he should find a faster connection - which is also advice about the one
+              // variable he does not control, so it now names the two causes honestly.
+              ? _t('The assistant took too long to answer. Try again, or move somewhere with better signal.',
+                   'Masyadong natagalan ang assistant. Subukan muli, o lumipat sa may mas malakas na signal.')
+                + _t(' Nothing you typed was lost.', ' Walang nawala sa inilagay mo.')
+              // ★THE OFFLINE SENTENCE WAS UNREACHABLE (design lens critique, 2026-09-15). This passed the
+              // literal string 'error', and whAiError's network branch tests
+              // /network|failed to fetch|offline|connection/ - which 'error' cannot match - so the generic
+              // "Something went wrong" fired for every cause including the one with an obvious remedy.
+              // ★AND THE SAME DIAGNOSIS WAS STILL TRUE OF EVERY OTHER CAUSE (design lens critique round 3,
+              // 2026-09-15). The note above fixed the offline case and kept passing the literal 'error' for
+              // the rest - so a 500, 502 or 503 printed "Something went wrong" while whAiError has carried a
+              // sentence for exactly those since it was written ("The AI service is busy right now. Please
+              // try again shortly."), which tells a worker to wait rather than to go hunting his signal. The
+              // status the page already stored is passed instead of a word that matches nothing.
+              : (window.whAiError
+                  ? window.whAiError({ message: (typeof navigator !== 'undefined' && navigator.onLine === false)
+                      ? 'offline'
+                      : (String(_gwStatus(window.__whGatewayError) || '')
+                          || (_gwIsTransport(window.__whGatewayError) ? 'network' : 'error')) })
+                  : 'Something went wrong. Please try again.')
+                + _t(' Nothing you typed was lost.', ' Walang nawala sa inilagay mo.'));
           }
           // T16 stream-orphan guard, fallback half: the same mid-generation death can hand THIS
           // path a fragment too. A fragment here has nowhere lower to fall — throw to the catch,
           // whose inline bubble + input-restore is the designed failure surface.
           const _fb = String(fbData.answer).trim();
           if (_fb.length < 4 || (!/[.!?…]["')\]]?$/.test(_fb) && _fb.length < 12)) {
-            throw new Error((window.whAiError ? window.whAiError({ message: 'error' }) : 'Something went wrong. Please try again.')
-              + ' Nothing you typed was lost.');
+            throw _phrased((window.whAiError
+                ? window.whAiError({ message: (typeof navigator !== 'undefined' && navigator.onLine === false) ? 'offline' : 'error' })
+                : 'Something went wrong. Please try again.')
+              + _t(' Nothing you typed was lost.', ' Walang nawala sa inilagay mo.'));
           }
           reply = _fb;
           if (typeof fbData.remaining === 'number') _lastRemaining = fbData.remaining;
         }
 
+        // The turn that owned this wait may have been stopped while it ran. Its reply still arrives -
+        // Promise.race cannot cancel a loser - and appending it here would drop an answer under a question
+        // the thread has already marked unsent, which is the zombie the T146 note describes wearing a
+        // different coat. Bail before anything is written, and leave the finally block to the turn that
+        // now owns the composer.
+        if (_myAsk !== _askGen) return;
         removeTypingIndicator();
+        _pendingUserEl = null;
         sessionMessages.push({ role: 'assistant', content: reply });
         // Thumbs only on REAL replies (this path): never on greetings, the
         // clear-chat line, or the error bubble below (rating canned/error text
         // would poison the harvest). `text` holds the question for this turn.
         const replyEl = addAssistantBubble(reply);
+        // ★THE FLAG WAS ONLY EVER CONSULTED WHEN THINGS WENT WRONG (design lens critique round 3,
+        // 2026-09-15). _reachedFallback exists to say a question became a permanent Journal row, and it was
+        // read on two failure paths and nowhere else - so the turn where the row is ACTUALLY written, the
+        // one that succeeded through Step 2, said nothing. A supervisor asking about a colleague's error
+        // could not tell that his question now sits in the Journal tab beside him, looking exactly like
+        // something he chose to write. One line, under the answer, only when the turn really reached the
+        // leg that persists and only for a reader whose session makes the write possible at all.
+        try {
+          if (_servedFromCache && replyEl) {
+            const _cm = document.createElement('p');
+            _cm.style.cssText = 'font-size:0.75rem;margin:6px 0 0;color:rgba(255,255,255,0.75);';
+            _cm.textContent = _t('Repeat of an earlier answer - the AI was at its limit. Ask again in a few minutes for fresh numbers.',
+                                 'Ulit ito ng naunang sagot - nasa limitasyon ang AI. Magtanong muli maya-maya para sa sariwang numero.');
+            (replyEl.querySelector('.bubble-assistant') || replyEl).appendChild(_cm);
+          }
+          if (_reachedFallback === 'written' && replyEl) {
+            const _mark = document.createElement('p');
+            _mark.style.cssText = 'font-size:0.75rem;margin:6px 0 0;color:rgba(255,255,255,0.75);';
+            _mark.textContent = _t('Saved to your Journal.', 'Naka-save sa Journal mo.');
+            // Inside the bubble, not beside it: the wrapper this function returns is `flex justify-start`,
+            // so a second child of it becomes a second flex ITEM and lands to the RIGHT of the answer.
+            (replyEl.querySelector('.bubble-assistant') || replyEl).appendChild(_mark);
+          }
+        } catch (_) { /* empty-catch-allow: a provenance note must never displace the answer */ }
         // T2 S1 conversion nudge (2026-09-02): an anon could try the assistant (good) but the
         // conversion moment - right after their first REAL answer - passed unmarked (the Sign Up
         // CTA sits in the header, not beside the thing they just tried). One nudge, once per
@@ -1421,9 +2680,26 @@ happens to know maintenance, not a manual.`;
             if (!_u) {
               window.__whNudgedSignup = true;
               const _n = document.createElement('p');
-              _n.style.cssText = 'font-size:.68rem;margin:4px 0 0;color:rgba(255,255,255,0.75);';
-              _n.innerHTML = 'Answers like this get grounded in <b>your own logbook</b> once you have an account - <a href="index.html?signup=1&return=assistant.html" class="underline font-bold" style="color:var(--wh-blue-light);">sign up free</a>.';
-              replyEl && replyEl.appendChild(_n);
+              _n.style.cssText = 'font-size:0.75rem;margin:4px 0 0;color:rgba(255,255,255,0.75);';
+              // Raw English on the one element only a signed-out reader ever sees. Split so the link text
+              // and the sentence around it are both translated, and the markup is assembled rather than
+              // interpolated - the sentence is translated copy, the anchor is structure.
+              _n.textContent = _t('Answers like this get grounded in your own logbook once you have an account - ',
+                                  'Ang ganitong sagot ay maiuugnay sa sarili mong logbook kapag may account ka na - ');
+              const _a = document.createElement('a');
+              _a.href = 'index.html?signup=1&return=assistant.html';
+              _a.className = 'underline font-bold';
+              _a.style.color = 'var(--wh-blue-light)';
+              _a.textContent = _t('sign up free', 'mag-sign up nang libre');
+              _n.appendChild(_a);
+              _n.appendChild(document.createTextNode('.'));
+              // ★IT RENDERED BESIDE THE ANSWER, NOT UNDER IT (design lens critique round 3, 2026-09-15).
+              // addAssistantBubble returns a `flex justify-start` WRAPPER, so appending here made the nudge a
+              // second flex ITEM: measured at 390 signed out, the bubble ran 16..204 and this sentence sat at
+              // 204..364 - the conversion moment's copy squeezed into a 160px column beside the answer,
+              // level with its first line. Inside the bubble it reads as what it is, a line under the reply.
+              const _host = replyEl && (replyEl.querySelector('.bubble-assistant') || replyEl);
+              _host && _host.appendChild(_n);
             }
           }
         } catch (_) { /* empty-catch-allow: a nudge must never break the reply */ }
@@ -1431,17 +2707,45 @@ happens to know maintenance, not a manual.`;
         if (reply) _attachChatFeedback(replyEl, text, reply);
 
       } catch (err) {
+        if (_myAsk !== _askGen) return;     // stopped: the person already has their answer, which is none
         removeTypingIndicator();
         // SaaS-layer L (observability): capture the AI-turn failure so it is greppable/aggregatable,
         // not just shown to the user. Without this, an assistant that starts failing for users leaves
         // NO log trace to debug (the L-layer "ungreppable logs" failure mode). Mirrors loadRecordsSummary.
         console.error('assistant sendMessage failed:', err);
-        const msg = err.message.includes('401')
-          ? 'Invalid API key. Please go back to Setup and check your key.'
-          : err.message.includes('429')
-          ? 'Rate limit reached. Please wait a moment and try again.'
-          : `Error: ${err.message}`;
-        addAssistantBubble(msg);
+        // ★THREE SENTENCES, AND TWO OF THEM COULD NOT BE ACTED ON (design lens critique, 2026-09-15).
+        // The 401 branch said "go back to Setup and check your key" - the setup screen holds exactly
+        // #worker-name and #today-context, so an expired session became a hunt for a field that has never
+        // existed on this page. The last branch printed `Error: ${err.message}`, a raw JS exception, into
+        // what looks like the assistant speaking. And all three were hand-rolled beside a shared mapper
+        // that already owns this taxonomy - the same drift that gave the platform four wordings for a rate
+        // limit. whAiError is handed the REAL error object now, which is what makes its 401 and network
+        // branches reachable at all, and anything it cannot name falls back to a sentence a person can read.
+        // An auth failure outranks the generic one: it is the only cause on this page with a remedy the
+        // reader can act on, and Step 1 is the only leg that can see it.
+        // ★MAKING _authFailure REACHABLE WOULD HAVE MADE THIS WORSE (design lens critique round 3,
+        // 2026-09-15). It outranked err.whPhrased unconditionally, so now that a Step-1 401 can actually be
+        // seen, a turn that then hit a rate limit would have replaced this page's best sentence - the one
+        // carrying the server's own retry horizon - with the session one, and a worker waiting out a quota
+        // would have been sent to sign in again instead. The root cause wins only where the CURRENT failure
+        // has no specific cause of its own.
+        const _specificNow = window.__whGatewayFailure === 'rate_limit' || window.__whGatewayFailure === 'timeout';
+        const _useAuth = !!_authFailure && !_specificNow;
+        const _cause = (typeof navigator !== 'undefined' && navigator.onLine === false)
+          ? { message: 'offline' }
+          : (_useAuth ? _authFailure : err);
+        const msg = (err && err.whPhrased && !_useAuth)
+          ? err.message                                   // this page already said it, and said it better
+          : (window.whAiError
+              ? window.whAiError(_cause)
+              : _t('Something went wrong. Please try again.', 'May nangyaring mali. Pakisubukan muli.'));
+        const _failNotice = addSystemNotice(msg);
+        if (_pendingUserEl) {
+          _markTurnUnsent(_pendingUserEl, text, _reachedFallback === 'written'
+            ? _t('no answer - saved to your Journal', 'walang sagot - naka-save sa Journal mo')
+            : _t('not sent', 'hindi naipadala'), _failNotice);
+          _pendingUserEl = null;
+        }
         // D4 recovery (deepwalk): the turn FAILED, so the optimistic input-clear at the top must be
         // reverted — restore the question so "try again" is one tap, not a full retype. Guard against
         // clobbering a new question the user may have started typing during the async wait.
@@ -1450,10 +2754,23 @@ happens to know maintenance, not a manual.`;
         // induced 429: the reply said "You have reached the assistant's request limit..." and the toast
         // said "Something went wrong" — so a person watching the toast learned nothing, and the two
         // surfaces disagreed about the same event. The cause is already known here; say it.
-        showToast(window.__whGatewayFailure === 'rate_limit'
-          ? (window.whAiError ? window.whAiError({ message: '429' }) : 'You have hit the AI rate limit.')
-          : _t('Something went wrong', 'May nangyaring mali'));
+        // ★AND IT DRIFTED APART AGAIN THE MOMENT THE THREAD LEARNED MORE CAUSES (design lens critique
+        // round 3, 2026-09-15). The note above fixed the disagreement for the rate limit by RE-DERIVING the
+        // sentence here - and re-deriving is exactly what lets two surfaces diverge, so when the thread
+        // gained the session-expired and server-busy sentences this one still said "Something went wrong".
+        // Measured live: thread "Your session has expired. Sign in again..." / toast "Something went wrong".
+        // The toast is handed the sentence the thread was actually given, so they cannot disagree; only the
+        // reassurance is trimmed, because "nothing you typed was lost" is a claim about the composer and the
+        // composer is not what a toast points at.
+        const _reassure = _t(' Nothing you typed was lost.', ' Walang nawala sa inilagay mo.');
+        const _toast = (typeof msg === 'string' && msg.endsWith(_reassure))
+          ? msg.slice(0, msg.length - _reassure.length)
+          : msg;
+        showToast(_toast || _t('Something went wrong', 'May nangyaring mali'));
       } finally {
+        // Only the turn that still owns the composer may hand it back. Without this, a stopped turn's
+        // finally would re-enable the send button underneath a NEW question already in flight.
+        if (_myAsk !== _askGen) return;
         isLoading = false;
         // NOT `disabled = false` — after a reply the composer is empty again, and an unconditional
         // re-enable would hand back the same enabled-but-inert button this fix removes. syncSendBtn()
@@ -1464,15 +2781,51 @@ happens to know maintenance, not a manual.`;
     }
 
     // ── Clear chat ────────────────────────────────────────────────
+    // ★THE MOST DESTRUCTIVE CONTROL ON THE PAGE ASKED NOTHING, AND LEFT LESS BEHIND THAN IT FOUND
+    // (design lens critique, 2026-09-15). The thread lives in memory only - this function's own first line
+    // IS the entire persistence story - and it was ended by one tap on a text link that lands, at 390px
+    // where the header wraps, directly under the back arrow in the top-left corner a one-handed thumb
+    // brushes constantly. Mid-shift that is a troubleshooting conversation gone with no undo and no copy.
+    // Second defect, in the same four lines: addStarterChips removes the chips on first use and this never
+    // re-added them, so the chat AFTER a clear offered no examples at all - the second empty state was
+    // emptier than the first. Both are fixed here; the confirm only fires when there is something to lose.
+    let _lastHasRecords = false;   // what addStarterChips was last called with, so a clear can restore them
     function clearChat() {
+      // ★THE CONFIRM MADE A CLAIM THE PAGE CANNOT KEEP (design lens critique, 2026-09-15). "It is not
+      // saved anywhere" is true of this thread and false of a large share of the questions in it: the
+      // Step 2 fallback posts agent:'voice-journal', ai-gateway's SEMANTIC_RECALL_AGENTS contains that
+      // agent, and persistJournalEntry writes the question verbatim into voice_journal_entries - the tab
+      // in this same header. Step 2 runs whenever the 25s orchestrator ceiling trips, so on plant Wi-Fi
+      // it is the common case. The sentence now says what is true of the thread and stops denying what
+      // the Journal holds; the Journal itself is disclosed beside the Journal tab, not in a dialog that
+      // only appears when someone is already deleting something.
+      // native-dialog-allow: a destructive clear needs a SYNCHRONOUS boolean for this early
+      // return; the platform's whConfirm is async and cannot gate it.
+      if (sessionMessages.length && !window.confirm(_t(
+            'Clear this conversation? The thread here is not kept, so it will not come back.',
+            'Burahin ang usapang ito? Hindi nakatago ang thread dito, kaya hindi na ito babalik.'))) return;
+      // ★CLEARING DID NOT STOP THE TURN IT WAS CLEARING (design lens critique, 2026-09-15). This emptied
+      // the thread and left _askGen, isLoading and _pendingUserEl alone, so an in-flight turn's own guard
+      // still passed and it appended its answer - with thumbs attached to a question no longer on screen -
+      // under "Chat cleared! What would you like to ask?". It also deleted #typing-indicator, which is the
+      // only host of the Stop button, so the control that WOULD have cancelled correctly was destroyed by
+      // the control that did not. stopAsk owns that transition; call it.
+      if (isLoading) { try { stopAsk(); } catch (_) { /* empty-catch-allow: clearing must not be blocked */ } }
       sessionMessages = [];
       document.getElementById('chat-messages')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '';
-      addAssistantBubble(`Chat cleared! What would you like to ask, ${workerName}?`);
-      showToast('Chat cleared');
+      addAssistantBubble(_t(`Chat cleared! What would you like to ask, ${workerName}?`,
+                            `Nabura ang chat! Ano ang gusto mong itanong, ${workerName}?`));
+      try { addStarterChips(_lastHasRecords); } catch (_) { /* empty-catch-allow: examples, never a blocker */ }
+      showToast(_t('Chat cleared', 'Nabura ang chat'));
     }
 
     // ── Input helpers ─────────────────────────────────────────────
     function handleInputKey(e) {
+      // ★A PREDICTIVE-TEXT ENTER SENT THE HALF-TYPED QUESTION (design lens critique, 2026-09-15). On an
+      // Android IME - and a Filipino keyboard is one - Enter accepts the suggestion mid-composition, and
+      // without this guard that keystroke submitted. keyCode 229 is the legacy signal for the same thing;
+      // both are checked because the phones this page is built for are not new.
+      if (e.isComposing || e.keyCode === 229) return;
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
         sendMessage();
@@ -1528,7 +2881,20 @@ happens to know maintenance, not a manual.`;
       // scope chip if so. Until this resolves the chip carries the cautious sentence, which is the
       // right way round: it may under-promise for a moment, and it can never over-promise.
       db.auth.getSession()
-        .then(r => { if (r && r.data && r.data.session) _setAssistantScopeChip(true); })
+        .then(r => {
+          // ★A SESSION IS NOT A HIVE (round 4, 2026-09-15). The chip promised "grounded in this hive's
+          // live data" as soon as a session resolved, while ai-gateway guards the ops snapshot on
+          // `authUid && hive_id` - so a signed-in reader with no hive was promised four named sources and
+          // sent none of them, and with a stale wh_hive_name in storage the chip even named a plant. Measured
+          // live: 5 of 24 accounts have no hive_members row. The page's own W3-DF rule says a promise about
+          // data must be conditional on being able to READ the data; this was that rule one variable short.
+          const _has = !!(r && r.data && r.data.session);
+          const _grounded = _has && !!(typeof whHiveId === 'function' && whHiveId());
+          if (_has) _setAssistantScopeChip(_grounded ? true : 'nohive');
+          // The journal sentence is true of exactly the same reader the chip is describing, so it resolves
+          // from the same verdict rather than from a second guess that can disagree with this one.
+          _setJournalNote(_has);
+        })
         .catch(() => {});
 
       // T85 (2026-08-26): the companion persona needs the identical treatment, and did not
@@ -1540,7 +2906,19 @@ happens to know maintenance, not a manual.`;
       // identity refresh above - it lands long before anyone finishes typing a first message,
       // and the persona is resolved at send time, not at load.
       if (typeof window.hydratePersonaFromCloud === 'function') {
-        window.hydratePersonaFromCloud(db).catch(() => {});
+        // ★AND THE LABEL WAS STAMPED BEFORE THIS RESOLVED (round 4, 2026-09-15). This returns the persona
+        // it resolved - its own comment says so, and index.html awaits it - and the result was discarded,
+        // while startChat stamps the name from localStorage in this same handler, before the first await. So
+        // a worker who chose a persona on his phone and opened the plant PC was told the wrong name on the
+        // one label whose entire purpose is to say who is answering: the T85 case the note above describes.
+        window.hydratePersonaFromCloud(db).then((_k) => {
+          try {
+            const _pe = document.getElementById('chat-persona-name');
+            if (!_pe || !_k || typeof window.personaName !== 'function') return;
+            const _nm = window.personaName(_k);
+            if (_nm) _pe.textContent = '· ' + _nm;
+          } catch (_) { /* empty-catch-allow: a name is decoration, never a blocker */ }
+        }).catch(() => {});
       }
 
       const savedName = localStorage.getItem(KEY_WORKER) || /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ whWorker();
@@ -1549,7 +2927,8 @@ happens to know maintenance, not a manual.`;
         document.getElementById('worker-name').value = savedName;
         startChat();
       } else {
-        loadRecordsSummary().catch(e => { console.error('loadRecordsSummary:', e); showToast('Could not load your records: check your connection.'); });
+        loadRecordsSummary().catch(e => { console.error('loadRecordsSummary:', e); showToast(_t('Could not load your records: check your connection.',
+                       'Hindi ma-load ang iyong mga record: suriin ang koneksyon mo.')); });
       }
 
       // Deep-link via ?q= (companion-launcher's "continue in Assistant" carries the
@@ -1560,6 +2939,12 @@ happens to know maintenance, not a manual.`;
         const input = document.getElementById('chat-input');
         if (deepQ && input) {
           input.value = deepQ.slice(0, 300);
+          // ★THE HAND-OFF ARRIVED WITH SEND GREYED OUT (design lens critique, 2026-09-15). This path set
+          // the value and focused, and called neither autoResize nor syncSendBtn - so the companion
+          // launcher's "continue in Assistant" landed a worker on his own question with the primary
+          // button disabled. autoResize syncs the button, which is why every other composer write calls
+          // it; the comment on that function already says so. This was the one path that did not.
+          if (typeof autoResize === 'function') autoResize(input);
           input.focus();
         }
       } catch (_) { /* empty-catch-allow: best-effort deep-link; chat still works */ }
@@ -1567,17 +2952,60 @@ happens to know maintenance, not a manual.`;
   </script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
   <script src="nav-hub.js"></script>
-<script>window.addEventListener('load', function () { if (window.whAutoSaveDraft) whAutoSaveDraft('context', ['today-context']); });</script>
+<!-- the #today-context draft hook is gone with the field it outlived (design lens critique, 2026-09-15) -->
   <!-- L2 anchor for floating_ai_disclaimer scenario: must be visible DOM,
        not just script. Plain-language disclaimer matches the qa-tester rule:
        any AI-generated narrative carries a "may be inaccurate / verify" line. -->
+  <!-- ★THE SENTENCE ASKING HIM TO VERIFY BEFORE ACTING WAS ENGLISH-ONLY (design lens critique,
+       2026-09-15), and authoring the Filipino was not enough to fix it: tools/i18n_page_dict.py tags only
+       the elements in its TAGS list (h1-h6, p, label, th, td, li, a, span, button, summary, legend, option,
+       small, strong, em, b, dt, dd, figcaption, div, caption) and `footer` is not one of them - so a
+       sentence sitting directly inside a <footer> is invisible to the platform's translation pipeline, on
+       every page that has one. The sentence lives in a <p> now, which the tool sees and which is the more
+       correct markup regardless: <footer> is a landmark, not a paragraph. data-l2-anchor stays where the
+       L2 scenario looks for it. The TOOL gap is a platform finding and goes to the skills writeback. -->
   <footer data-l2-anchor="ai-disclaimer"
-          class="text-[0.7rem] text-slate-400 px-4 py-3 text-center border-t border-white/5">
-    AI-generated. Replies may be inaccurate, so verify against your records before acting. Advisory only, not a substitute for engineering judgment.
+          class="text-xs text-slate-400 px-4 py-3 text-center border-t border-white/5">
+    <p data-i="p_aigeneratedrepliesmaybeinacc_a5a7" style="margin:0;">AI-generated. Replies may be inaccurate, so verify against your records before acting. Advisory only, not a substitute for engineering judgment.</p>
   </footer>
 </main>
 
-<script>window.WH_FIL_PAGE={chattitle:'Katulong sa Trabaho',tryasking:'Subukang itanong',newchat:'Bagong Chat',a_chat:'Chat',a_journal:'Journal'};</script>
+<script>
+// ★SIXTEEN HOOKS, FIVE TRANSLATIONS - AND TWO OF THE FIVE WERE THE SAME WORD TWICE (design lens copy,
+// 2026-09-15). `a_chat:'Chat'` and `a_journal:'Journal'` are the identical-arm pattern the
+// bilingual-t-arms ratchet catches in _t() calls, sitting in a page dictionary where that ratchet does
+// not look. Rendered in both languages and compared, 17 of this page's 24 visible strings came back
+// byte-identical - on the one surface whose whole premise is being spoken to in a worker's own words.
+window.WH_FIL_PAGE = {
+  // Verified against the markup: every key below is carried by a real data-i / data-ia / data-ip on
+  // an element this page builds in JS. askq1-3 and whatneed were removed - the starter chips are
+  // authored with inline _t() and carry no data-i, so editing those keys changed nothing at all -
+  // and p_typeaquestionorsetupthedaily_ed42 went with the English it was derived from.
+  // ★ONE DICTIONARY PER KEY (design lens critique, 2026-09-15). This block used to re-declare nine
+  // keys that i18n/pages/assistant.fil.json already owns, and because whI18nApply merges the INLINE
+  // dict LAST, the copy here won every one of them - including three that were worse than the file:
+  // the "ask anything" sentence dropped planning and safety, the records heading was a dangling
+  // linker rather than a sentence, and the no-records line dropped both "or parts" and the whole
+  // reassurance that technical questions still work. What remains here is exactly the set the
+  // extractor cannot reach: strings built in JS, which never exist as static markup for it to tag.
+  chattitle: 'Katulong sa Trabaho',
+  tryasking: 'Subukang itanong',
+  newchat:   'Bagong Chat',
+  a_chat:    'Usapan',
+  a_journal: 'Talaan',
+  a_setup:   'Pag-setup',
+  startchat: 'Simulan ang chat',
+  poweredby: 'Pinapagana ng WorkHive AI',
+  a_tabs:'Surface ng kasama',
+  a_journal_frame:'Voice Journal',
+  a_ask:     'Magtanong ng kahit ano...',
+  a_send:    'Ipadala ang mensahe',
+  // p_livehivedatabasedonyourlogbo_6885 is deliberately ABSENT: whether answers are grounded is a
+  // fact the runtime decides from the session, and a static table cannot know it - so whatever
+  // value it held was wrong half the time. _setAssistantScopeChip owns both sentences, in both
+  // languages (design lens critique, 2026-09-15).
+};
+</script>
   <!-- AV1 (FULLSTACK_COMPONENT_LIBRARY Layer AV): the offline canonical set — ships as one unit -->
   <script src="offline-banner.js"></script>
   <script defer src="offline-queue.js"></script>

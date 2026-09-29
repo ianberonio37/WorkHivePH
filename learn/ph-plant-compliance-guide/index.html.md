@@ -4,9 +4,9 @@
 
 Source: https://workhiveph.com/learn/ph-plant-compliance-guide/
 
-By WorkHive Editorial Team · Updated 2026-08-05 · 8 min read
+By WorkHive Editorial Team · Published 2026-08-05 · 8 min read
 
-Three regimes cover most Philippine plant maintenance compliance: **DOLE OSHS** (the Occupational Safety and Health Standards, made mandatory and penalised under RA 11058 and DO 198-18) requires documented safety procedures and training; **lockout/tagout** under the same DO 198-18 requires a written, auditable energy-isolation procedure for every maintenance intervention; and **RA 11285** (the Energy Efficiency and Conservation Act) requires designated establishments to report energy use and run a conservation programme. In every case an inspector asks the same thing: *show me the records*: and a dated digital audit trail is the fastest way to pass. RA 11058 penalties for wilful violations reach **₱100,000 per day**.
+Three regimes cover most Philippine plant maintenance compliance: **DOLE OSHS** (the Occupational Safety and Health Standards, made mandatory and penalised under RA 11058 and DO 198-18) requires documented safety procedures and training; **lockout/tagout** under the same DO 198-18 requires a written, auditable energy-isolation procedure for every maintenance intervention; and **RA 11285** (the Energy Efficiency and Conservation Act) requires designated establishments to report energy use and run a conservation programme. In every case an inspector asks the same thing : *show me the records*, and a dated digital audit trail is the fastest way to pass. RA 11058 penalties for wilful violations reach **₱100,000 per day**.
 
 ## DOLE OSHS and the audit trail
 
@@ -18,7 +18,7 @@ Every maintenance task that exposes a worker to stored or live energy needs a do
 
 ## RA 11285: energy efficiency reporting
 
-The Energy Efficiency and Conservation Act (RA 11285) requires *designated establishments*: those above defined energy-consumption thresholds, to appoint an energy manager, report annual energy consumption to the Department of Energy, and run a conservation programme. Maintenance is central: well-maintained motors, compressors, and steam systems are the single largest lever on industrial energy use. The plant-readiness checklist is in [the RA 11285 energy-efficiency checklist](https://workhiveph.com/learn/ra-11285-energy-efficiency-plant-checklist/), and the design side is covered by the free [power factor correction](https://workhiveph.com/tools/power-factor-correction-calculator/) and [compressed air](https://workhiveph.com/tools/compressed-air-calculator/) calculators.
+The Energy Efficiency and Conservation Act (RA 11285) requires *designated establishments* to report annual energy consumption to the Department of Energy and run a conservation programme. **Which officer you appoint depends on your type**: a plant consuming **500,000 to under 4 million kWh** a year is Type 1 and employs a **Certified Energy Conservation Officer**; at **4 million kWh** a year and above it is Type 2 and employs a **Certified Energy Manager**, who must be a licensed engineer (RA 11285 § 19–20). The DOE may adjust these thresholds, so confirm your current designation with the DOE rather than from a summary. Maintenance is central: well-maintained motors, compressors, and steam systems are the single largest lever on industrial energy use. The plant-readiness checklist is in [the RA 11285 energy-efficiency checklist](https://workhiveph.com/learn/ra-11285-energy-efficiency-plant-checklist/), and the design side is covered by the free [power factor correction](https://workhiveph.com/tools/power-factor-correction-calculator/) and [compressed air](https://workhiveph.com/tools/compressed-air-calculator/) calculators.
 
 ## Why digital records win inspections
 
@@ -32,7 +32,7 @@ Start the audit trail with a [digital maintenance rollout](https://workhiveph.co
 
 ### Is DOLE OSHS mandatory for a small plant?
 
-Yes. Republic Act 11058 and its implementing rules (DO 198-18) made the Occupational Safety and Health Standards mandatory for all workplaces, with administrative fines of up to 100,000 pesos per day for wilful violations. Documentation (training, inspections, permits) is what inspectors check.
+Yes. Republic Act 11058 and its implementing rules (DO 198-18) made the Occupational Safety and Health Standards mandatory for all workplaces, with administrative fines of up to 100,000 pesos per day for wilful violations. Documentation: training, inspections, permits: is what inspectors check.
 
 ### What records prove lockout/tagout compliance?
 
@@ -40,7 +40,7 @@ A written LOTO procedure per equipment (isolation points, sequence, verification
 
 ### Who must comply with RA 11285?
 
-Designated establishments: those whose annual energy consumption exceeds the thresholds in the Energy Efficiency and Conservation Act: must appoint a certified energy manager, report annual consumption to the Department of Energy, and run a conservation programme. Good maintenance of motors, compressors, and steam systems is the largest practical lever.
+Designated establishments: those whose annual energy consumption reaches 500,000 kWh a year. The type decides the officer: 500,000 to under 4 million kWh a year is Type 1, which employs a Certified Energy Conservation Officer; 4 million kWh a year and above is Type 2, which employs a Certified Energy Manager (a licensed engineer). Both report annual consumption to the Department of Energy and run a conservation programme. The DOE may adjust the thresholds, so confirm your designation with the DOE rather than from a summary. Good maintenance of motors, compressors, and steam systems is the largest practical lever.
 
 ### Can a paper logbook pass a DOLE inspection?
 
@@ -48,7 +48,7 @@ It can, but it fails often: missing entries, ambiguous dates, and records that c
 
 ### Does WorkHive help with compliance reporting?
 
-Yes. WorkHive timestamps every logbook entry, PM completion, and permit, and tags records to the applicable standard, producing the dated, searchable audit trail that DOLE OSHS, LOTO, and RA 11285 inspections require, at no software cost.
+Yes. WorkHive timestamps every logbook entry, PM completion, and permit, and tags records to the applicable standard, producing the dated, searchable audit trail that DOLE OSHS, LOTO, and RA 11285 inspections require: at no software cost.
 
 **[Build your DOLE-ready audit trail](https://workhiveph.com/logbook.html)**: Timestamped, attributed, append-only: free at the worker tier.
 
@@ -61,4 +61,4 @@ Yes. WorkHive timestamps every logbook entry, PM completion, and permit, and tag
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 841836c582e77e8b -->
+<!-- md-twin source-sha: 696831ff21f2abb6 -->

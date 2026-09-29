@@ -5,8 +5,10 @@
  * Receives a natural-language question about a specific asset and returns a
  * grounded answer with cited sources. Three retrieval lanes run in parallel:
  *
- *   Lane A - Graph context: the asset itself, its parents, and its neighbors
- *            via asset_edges. Plus aggregate stats from v_asset_truth (canonical asset 360).
+ *   Lane A - Graph context: the asset itself plus its parent, both from
+ *            v_asset_truth (canonical asset 360), which also carries the
+ *            aggregate stats. The asset_edges "neighbours" lane was cut in
+ *            Arc Y Y5 - see fetchAssetGraphContext for what that left behind.
  *   Lane B - Timeline: most recent logbook entries (via legacy_asset_id) and
  *            pm_completions (via pm_asset_id), capped at 20 events.
  *   Lane C - Similar failures: keyword search on logbook entries within the
@@ -63,7 +65,7 @@ const MAX_TOKENS_OUT        = 700;
 const SYSTEM_PROMPT = `You are WorkHive Asset Brain, an industrial maintenance assistant grounded in real plant data.
 
 You will receive a JSON payload with:
-- asset: the asset's tag, name, criticality, hierarchy, neighbors
+- asset: the asset's tag, name, criticality, and its parent in the hierarchy (if it has one)
 - stats: aggregate counts (logbook entries, PM completions, last failure)
 - risk: the canonical risk snapshot from v_risk_truth (daily, 365-day failure window) — risk_score 0..1, risk_level, mtbf_days, days_until_failure, and a structured top_factors array. This is the same risk the Predictive Maintenance page and Alert Hub show.
 - timeline: the 20 most recent events on this asset
@@ -84,7 +86,7 @@ Your job is to answer the question using ONLY the provided context. Rules:
 8. Use Filipino industrial vocabulary (PEC 2017, PSME, ISO 14224) when appropriate.
 9. No em dashes in the response. Use colons, commas, parentheses, or restructure.
 
-Output JSON: { "answer": string, "cited": [ { "kind": "logbook"|"pm"|"neighbor"|"stat"|"fmea"|"rcm"|"weibull"|"pf"|"risk"|"risk-factor", "index": number } ], "narration": string }
+Output JSON: { "answer": string, "cited": [ { "kind": "logbook"|"pm"|"similar"|"stat"|"fmea"|"rcm"|"weibull"|"pf"|"risk"|"risk-factor", "index": number } ], "narration": string }
 
 narration is a 1-2 sentence prose summary of the answer in your persona's voice (Phase 7 TTS picks the voice). Paraphrase only what's in the answer; quote any number or asset name verbatim.`;
 
@@ -127,7 +129,7 @@ async function fetchAssetGraphContext(
       }
     : null;
 
-  // Parent (single hop) and immediate neighbors via asset_edges.
+  // Parent, single hop, from v_asset_truth.parent_id.
   let parent: AnyRow | null = null;
   if (node && (node as AnyRow).parent_id) {
     const { data: parr } = await db.from("v_asset_truth")
@@ -140,9 +142,19 @@ async function fetchAssetGraphContext(
   // entirely. The graph-edge UI was confusing jargon and the table is no longer
   // maintained, so the AI Asset Brain no longer reads it for neighbor context.
   // `parent` (from v_asset_truth.parent_id) still provides asset hierarchy.
-  const neighbors: AnyRow[] = [];
-
-  return { node, overview, parent, neighbors };
+  //
+  // W46078 (copy lens, 2026-09-21): the CUT left three live declarations behind, and
+  // together they cost tokens on every call while making one real lane uncitable.
+  // (1) `const neighbors: AnyRow[] = []` was still returned and still mapped into the
+  // model's payload as an always-empty `neighbors` array. (2) The system prompt still
+  // announced "neighbors" in the asset block and still listed "neighbor" as a legal
+  // citation kind — so the model could cite a source `resolveCitations` would silently
+  // drop, leaving prose that names a connected asset with no chip beneath it. (3) The
+  // mirror image, and the worse half: `similar` (peer assets in the same iso_class) is
+  // fetched, passed, and resolvable, but "similar" was NEVER in the citation union, so
+  // an answer resting on a peer's failure shipped UNCITED. Removing the dead lane and
+  // swapping neighbor -> similar in the prompt fixes both directions at once.
+  return { node, overview, parent };
 }
 
 async function fetchAssetTimeline(
@@ -342,7 +354,7 @@ async function fetchReliability(
 function resolveCitations(context: AnyRow, cited: unknown): AnyRow[] {
   if (!Array.isArray(cited)) return [];
   const ctx = context as {
-    stats?: AnyRow | null; risk?: AnyRow | null; neighbors?: AnyRow[];
+    stats?: AnyRow | null; risk?: AnyRow | null;
     timeline?: { logbook?: AnyRow[]; pm?: AnyRow[] };
     similar?: AnyRow[];
     reliability?: { fmea?: AnyRow[]; rcm?: AnyRow[]; weibull?: AnyRow | null; pf?: AnyRow[] };
@@ -381,10 +393,6 @@ function resolveCitations(context: AnyRow, cited: unknown): AnyRow[] {
       case "pm":
         row = pick(ctx.timeline?.pm);
         if (row) label = `PM completed · ${day(row.when)}`;
-        break;
-      case "neighbor":
-        row = pick(ctx.neighbors);
-        if (row) label = `Connected asset · ${trim(row.tag, 30)}${row.edge_type ? ` (${trim(row.edge_type, 20)})` : ""}`;
         break;
       case "similar":
         row = pick(ctx.similar);
@@ -431,7 +439,7 @@ function resolveCitations(context: AnyRow, cited: unknown): AnyRow[] {
 }
 
 function composeContext(
-  graph: { node: AnyRow | null; overview: AnyRow | null; parent: AnyRow | null; neighbors: AnyRow[] },
+  graph: { node: AnyRow | null; overview: AnyRow | null; parent: AnyRow | null },
   timeline: { logbook: AnyRow[]; pm: AnyRow[] },
   similar: AnyRow[],
   reliability: { fmea: AnyRow[]; rcm: AnyRow[]; weibull: AnyRow | null; pf: AnyRow[] },
@@ -488,9 +496,6 @@ function composeContext(
           })
         : [],
     },
-    neighbors: graph.neighbors.map((n, i) => ({
-      index: i, tag: n.tag, edge_type: n.edge_type, criticality: n.criticality,
-    })),
     timeline: {
       logbook: timeline.logbook.map((r, i) => ({
         index: i,

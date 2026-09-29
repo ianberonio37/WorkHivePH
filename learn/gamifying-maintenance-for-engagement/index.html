@@ -62,7 +62,7 @@
           "name": "Does gamification really work in industrial maintenance?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Yes, when it rewards behaviours that compound (documentation, prevention, mentoring, skill growth). No, when it rewards vanity metrics (logins, speed, volume without quality). Studies of plants that adopt outcome-tied gamification show 10 to 20 percentage point lifts in PM compliance and 25 to 35 percent more logbook entries within 6 months. Studies of plants that gamify the wrong metrics show no lift and sometimes safety regressions."
+            "text": "Yes, when it rewards behaviours that compound (documentation, prevention, mentoring, skill growth). No, when it rewards vanity metrics (logins, speed, volume without quality). The mechanism is the whole of it: a badge for \"100 logbook entries with photo evidence\" tells a team what management will look at in a pay review, and what gets looked at gets done. Reward the wrong metric and the same mechanism works against you - speed badges buy faster closures by trading away quality, and that shows up later as a falling MTBF."
           }
         },
         {
@@ -86,7 +86,7 @@
           "name": "Are the badges and XP portable when I change employers?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Yes. WorkHive Achievements are owned by the worker, not the hive. When you change employers, your badges and XP history move with you. A new plant can verify your achievement history when you apply. This is the career-protection design: your maintenance reputation compounds across employers, not against you."
+            "text": "Your BADGES are, and they are the half that matters for a CV: skill badges are held against you rather than against the plant, so they survive leaving and a new employer can verify them when you apply. Your XP is NOT - it is counted per hive, so the number resets when you join a new one. Treat the badges as the portable credential and the XP as a scoreboard for the plant you are in. This is the career-protection design: your maintenance reputation compounds across employers, not against you."
           }
         },
         {
@@ -137,7 +137,15 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
-    tailwind.config = { theme: { extend: { colors: {
+    tailwind.config = { theme: { extend: {
+      /* the platform's six-step ramp plus one display step, declared where the utilities read it
+         (W46084, 2026-09-16): text-sm rendered 14px - 0.4px from 13.6 and 1.2px from 15.2, noise
+         rather than a step - and the h1 ran 30 -> 36 -> 43.2px across three breakpoints. Pinning the
+         scale here rather than overriding each class matters because `sm:text-4xl` compiles inside a
+         media query, and a media query adds no specificity. */
+      fontSize: { xs: '0.75rem', sm: '0.95rem', base: '1.05rem', lg: '1.25rem', xl: '1.25rem',
+                  '2xl': '1.75rem', '3xl': '2.25rem', '4xl': '2.25rem', '5xl': '2.25rem' },
+      colors: {
       orange: { wh: '#F7A21B', dark: '#D88A0E', light: '#FDB94A' },
       blue:   { wh: '#29B6D9', dark: '#1A9ABF', light: '#5FCCE8' },
       navy:   { wh: '#162032', mid: '#1F2E45', light: '#2A3D58' },
@@ -159,8 +167,14 @@
     * { font-family: 'Poppins', sans-serif; } body { background: #162032; color: #F4F6FA; }
     .hex-pattern { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='92' viewBox='0 0 80 92'%3E%3Cpath d='M40 0 L80 23 L80 69 L40 92 L0 69 L0 23 Z' fill='none' stroke='%23ffffff08' stroke-width='1.5'/%3E%3C/svg%3E"); background-size: 80px 92px; }
     .prose-wh { overflow-wrap: anywhere; word-break: break-word; color: rgba(244,246,250,0.85); font-size: 1.05rem; line-height: 1.8; }
+    /* craft floor (W46284, 2026-09-16, measured live at 390 and 1280): `small` took the UA default 0.8em of the
+       16.8px body and rendered 13.4px - a size off the six-step ramp that no font-size declaration could show,
+       because a ramp is what the page RENDERS. And the measure ran to 76ch at 1280, one over the 65-75 floor,
+       so the text caps itself; below ~1100px the column is already narrower than the cap and nothing moves. */
+    .prose-wh small { font-size: 0.85rem; }
+    .prose-wh p, .prose-wh li { max-width: 72ch; }
     .prose-wh h2 { color: #F4F6FA; font-size: 1.75rem; font-weight: 800; line-height: 1.25; letter-spacing: -0.015em; margin-top: 3rem; margin-bottom: 1rem; scroll-margin-top: 80px; }
-    .prose-wh h3 { color: #F4F6FA; font-size: 1.2rem; font-weight: 700; margin-top: 2rem; margin-bottom: 0.5rem; }
+    .prose-wh h3 { color: #F4F6FA; font-size: 1.25rem; font-weight: 700; margin-top: 2rem; margin-bottom: 0.5rem; }
     .prose-wh p { overflow-wrap: anywhere; word-break: break-word; margin-bottom: 1.25rem; }
     .prose-wh ul, .prose-wh ol { padding-left: 1.5rem; margin-bottom: 1.25rem; }
     .prose-wh li { margin-bottom: 0.5rem; }
@@ -169,45 +183,51 @@
     .prose-wh a { color: #5FCCE8; text-decoration: underline; text-underline-offset: 3px; } .prose-wh a:hover { color: #29B6D9; }
     .prose-wh table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.95rem; }
     .prose-wh th, .prose-wh td { padding: 12px 14px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.08); vertical-align: top; }
-    .prose-wh th { background: rgba(31,46,69,0.6); font-weight: 700; color: #F4F6FA; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; }
-    .pill { display: inline-block; font-size: 0.65rem; font-weight: 700; padding: 3px 10px; border-radius: 100px; letter-spacing: 0.05em; text-transform: uppercase; }
+    .prose-wh th { background: rgba(31,46,69,0.6); font-weight: 700; color: #F4F6FA; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em;
+      /* the [data-table-scroll] wrapper announces a scrollable region and could never scroll: the table is
+         pinned to width:100%, so it crushed columns instead - at 390 the headers "Product" and "Paid entry"
+         wrapped to THREE lines in 66px (W46083, 2026-09-16). One line here is what makes the wrapper real. */
+      white-space: nowrap; }
+    .pill { display: inline-block; font-size: 0.75rem; font-weight: 700; padding: 4px 10px; border-radius: 100px; letter-spacing: 0.02em; }
     .pill-orange { background: rgba(247,162,27,0.18); color: #F7A21B; border: 1px solid rgba(247,162,27,0.35); }
-    .toc { background: rgba(31,46,69,0.55); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 22px 26px; margin: 2rem 0 3rem; }
-    .toc h2 { color: rgba(244,246,250,0.8); font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 12px; }
-    .toc ol { padding-left: 1.5rem; margin: 0; } .toc li { margin-bottom: 6px; font-size: 0.92rem; }
+    .toc { background: rgba(31,46,69,0.55); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 24px 26px; margin: 2rem 0 3rem; }
+    .toc h2, .toc h4 { color: rgba(244,246,250,0.8); font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 12px; }
+    .toc ol { padding-left: 1.5rem; margin: 0; } .toc li { margin-bottom: 6px; font-size: 0.95rem; }
     .toc a { color: rgba(244,246,250,0.85); text-decoration: none; } .toc a:hover { color: #F7A21B; }
-    .answer-first { background: rgba(247,162,27,0.08); border-left: 3px solid #F7A21B; border-radius: 8px; padding: 18px 22px; margin-bottom: 2rem; font-size: 1.05rem; line-height: 1.75; color: rgba(244,246,250,0.85); }
+    .answer-first { background: rgba(247,162,27,0.08); border: 1px solid rgba(247,162,27,0.30); border-radius: 8px; padding: 20px 22px; margin-bottom: 2rem; font-size: 1.05rem; line-height: 1.75; color: rgba(244,246,250,0.85); }
     .audience-block { background: rgba(41,182,217,0.05); border: 1px solid rgba(41,182,217,0.18); border-radius: 12px; padding: 16px 20px; margin: 0 0 2rem; }
-    .audience-block .audience-label { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: #5FCCE8; margin-bottom: 10px; }
-    .audience-block ul { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 18px; font-size: 0.9rem; color: rgba(244,246,250,0.85); }
+    .audience-block .audience-label { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: #5FCCE8; margin-bottom: 12px; }
+    .audience-block ul { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 18px; font-size: 0.95rem; color: rgba(244,246,250,0.85); }
     .audience-block ul li { list-style: none !important; position: relative; padding-left: 16px; margin: 0; }
-    .audience-block ul li::before { content: '\B7'; position: absolute; left: 4px; color: #29B6D9; font-weight: 800; font-size: 1.2rem; line-height: 1; top: 0; }
+    .audience-block ul li::before { content: '\B7'; position: absolute; left: 4px; color: #29B6D9; font-weight: 800; font-size: 1.25rem; line-height: 1; top: 0; }
     @media (max-width: 640px) { .audience-block ul { grid-template-columns: 1fr; } }
-    .callout { background: rgba(41,182,217,0.06); border-left: 3px solid #29B6D9; border-radius: 8px; padding: 18px 22px; margin: 2rem 0; font-size: 0.98rem; line-height: 1.7; color: rgba(244,246,250,0.85); }
+    .callout { background: rgba(41,182,217,0.06); border: 1px solid rgba(41,182,217,0.28); border-radius: 8px; padding: 20px 22px; margin: 2rem 0; font-size: 0.95rem; line-height: 1.7; color: rgba(244,246,250,0.85); }
     .callout strong { color: #A4E2F2; }
     .cta-box { background: linear-gradient(135deg, rgba(247,162,27,0.12) 0%, rgba(31,46,69,0.85) 100%); border: 1px solid rgba(247,162,27,0.35); border-radius: 16px; padding: 28px 30px; margin: 3rem 0; }
-    .cta-box .cta-eyebrow { color: #F7A21B; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
-    .cta-box h4 { font-size: 1.35rem; font-weight: 800; color: #F4F6FA; margin-bottom: 8px; }
-    .cta-box p { color: rgba(244,246,250,0.85); margin-bottom: 18px; line-height: 1.65; }
+    .cta-box .cta-eyebrow { color: #F7A21B; font-size: 0.75rem; font-weight: 800; letter-spacing: 0.02em; margin-bottom: 8px; }
+    .cta-box h3, .cta-box h4 { font-size: 1.25rem; font-weight: 800; color: #F4F6FA; margin-bottom: 8px; }
+    .cta-box p { color: rgba(244,246,250,0.85); margin-bottom: 16px; line-height: 1.65; }
     .cta-btn { display: inline-block; background: linear-gradient(135deg, #F7A21B 0%, #D88A0E 100%); color: #162032; font-weight: 700; padding: 12px 28px; border-radius: 10px; text-decoration: none; transition: transform .18s, box-shadow .18s; }
     .prose-wh a.cta-btn { color: #162032; text-decoration: none; }  /* (0,2,1) beats .prose-wh a (0,1,1): a button inside the article body keeps its own colour instead of being painted as a prose link (measured 1.11:1 before this) */
-    .cta-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px -4px rgba(247,162,27,0.45); }
-    .cta-secondary { font-size: 0.82rem; color: rgba(244,246,250,0.8); margin-top: 14px; margin-bottom: 0; }
+    .cta-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 22px -8px rgba(0,0,0,0.55); }
+    .cta-secondary { font-size: 0.85rem; color: rgba(244,246,250,0.8); margin-top: 16px; margin-bottom: 0; }
+    /* (0,2,1) beats .cta-box p (0,1,1): the margin-bottom:0 above was written and never applied - the walk measured 18px (2026-09-16). */
+    .cta-box p.cta-secondary { margin-bottom: 0; }
     .cta-secondary a { color: #5FCCE8; text-decoration: underline; text-underline-offset: 2px; }
     .faq-item { background: rgba(31,46,69,0.55); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; margin-bottom: 12px; }
     .faq-item[open] { border-color: rgba(247,162,27,0.35); background: rgba(31,46,69,0.85); }
     .faq-item summary { cursor: pointer; list-style: none; padding: 16px 20px; font-weight: 600; color: #F4F6FA; display: flex; justify-content: space-between; gap: 14px; }
     .faq-item summary::-webkit-details-marker { display: none; }
-    .faq-item summary::after { content: '+'; font-size: 1.4rem; color: #F7A21B; } .faq-item[open] summary::after { content: '\2212'; }
-    .faq-item .faq-answer { padding: 0 20px 18px; color: rgba(244,246,250,0.85); line-height: 1.7; font-size: 0.95rem; }
+    .faq-item summary::after { content: '+'; font-size: 1.25rem; color: #F7A21B; } .faq-item[open] summary::after { content: '\2212'; }
+    .faq-item .faq-answer { padding: 0 20px 20px; color: rgba(244,246,250,0.85); line-height: 1.7; font-size: 0.95rem; }
     .author-card { background: rgba(31,46,69,0.5); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 20px 24px; margin: 2rem 0; display: flex; gap: 16px; align-items: center; }
-    .author-card .avatar { width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #F7A21B, #FDB94A); display: flex; align-items: center; justify-content: center; font-weight: 800; color: #162032; font-size: 1.1rem; flex-shrink: 0; }
+    .author-card .avatar { width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #F7A21B, #FDB94A); display: flex; align-items: center; justify-content: center; font-weight: 800; color: #162032; font-size: 1.05rem; flex-shrink: 0; }
     .author-card .meta p:first-child { font-weight: 700; color: #F4F6FA; font-size: 0.95rem; margin-bottom: 2px; }
-    .author-card .meta p:last-child { font-size: 0.82rem; color: rgba(244,246,250,0.8); }
-    nav a.nav-link { font-size: 0.9rem; color: rgba(244,246,250,0.85); font-weight: 500; } nav a.nav-link:hover { color: #F4F6FA; }
+    .author-card .meta p:last-child { font-size: 0.85rem; color: rgba(244,246,250,0.8); }
+    nav a.nav-link { font-size: 0.95rem; color: rgba(244,246,250,0.85); font-weight: 500; } nav a.nav-link:hover { color: #F4F6FA; }
     .breadcrumb { font-size: 0.85rem; color: rgba(244,246,250,0.8); margin-bottom: 1.5rem; }
     .breadcrumb a { color: rgba(244,246,250,0.8); text-decoration: none; } .breadcrumb a:hover { color: #F7A21B; }
-    .breadcrumb span { margin: 0 8px; opacity: 0.4; }
+    .breadcrumb span { margin: 0 8px; }
       /* Z2/R2 (critic re-sweep 2026-09-07): a long unbroken token (a citation URL) widened a paragraph to 463px at 390 and the page scrolled sideways; long words now wrap */
   </style>
   <script>
@@ -268,15 +288,17 @@
   <script src="/wh-ga4.js" defer></script>
   <!-- /WorkHive GA4 -->
 <link rel="stylesheet" href="/learn-print.css" media="print" />
-<style data-wh-chrome-i18n>nav a,header a,footer a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;min-width:44px;}nav a{padding:0 .25rem;}.breadcrumb a,.toc a{display:inline-flex;align-items:center;min-height:44px;}.breadcrumb a{min-width:44px;justify-content:center;}a.text-sm[href$='/learn/'],a.text-sm[href$='/learn/index.html']{display:inline-flex;align-items:center;min-height:44px;}.wh-tap{display:inline-flex;align-items:center;min-height:44px;}td a,th a{display:inline-flex;align-items:center;min-height:44px;}</style>
+<style data-wh-chrome-i18n>nav a,header a,footer a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;min-width:44px;}nav a{padding:0 .25rem;}.breadcrumb a,.toc a{display:inline-flex;align-items:center;min-height:44px;}.breadcrumb a{min-width:44px;justify-content:center;}a.text-sm[href$='/learn/'],a.text-sm[href$='/learn/index.html']{display:inline-flex;align-items:center;min-height:44px;}.wh-tap{display:inline-flex;align-items:center;min-height:44px;}td a,th a{display:inline-flex;align-items:center;min-height:44px;}/*wh-brand-header-gap*/@media (max-width:399px){header nav.flex{gap:.75rem;}}</style>
 <script src="/wh-i18n-lite.js" data-wh-chrome-i18n></script>
 </head>
 <body class="bg-navy-wh text-white antialiased">
+<a class="wh-skip-link" href="#wh-main-content" data-wh-skip="learn" style="position:fixed;top:0;left:0;z-index:10001;transform:translateY(-120%);background:var(--wh-orange,#F7A21B);color:var(--wh-navy,#162032);padding:0 20px;min-height:44px;display:inline-flex;align-items:center;font-weight:700;font-size:14px;text-decoration:none;border-radius:0 0 10px 0;box-shadow:0 4px 16px rgba(0,0,0,.35);transition:transform .15s cubic-bezier(0.23,1,0.32,1);box-sizing:border-box;" onfocus="this.style.transform='translateY(0)'" onblur="this.style.transform='translateY(-120%)'">Skip to main content</a>
+
 <header class="border-b border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
   <div class="max-w-6xl mx-auto px-5 sm:px-8 py-4 flex items-center justify-between">
     <a href="/" class="flex items-center gap-3">
       <img src="/brand_assets/workhive-logo-transparent.png" alt="WorkHive" style="height: 36px; width: auto;" />
-      <span class="font-black text-lg tracking-tight hidden sm:inline">WorkHive</span>
+      <span class="font-extrabold tracking-tight hidden sm:inline" style="font-size: 1.25rem" aria-hidden="true">WorkHive</span>
     </a>
     <nav class="flex items-center gap-6">
       <a href="/" class="nav-link" data-i="home">Home</a>
@@ -286,13 +308,13 @@
     </nav>
   </div>
 </header>
-<article class="hex-pattern">
+<main id="wh-main-content"><article class="hex-pattern">
   <div class="max-w-3xl mx-auto px-5 sm:px-8 py-14 lg:py-20">
     <div class="breadcrumb">
       <a href="/" data-i="home">Home</a><span>/</span><a href="/learn/" data-i="learn">Learn</a><span>/</span><span>Gamifying maintenance</span>
     </div>
     <p class="pill pill-orange mb-4">Achievements · Engagement</p>
-    <h1 class="text-3xl sm:text-4xl lg:text-[2.7rem] font-black leading-[1.15] tracking-[-0.02em] mb-5">Gamifying maintenance <span class="text-white/55 font-bold">(for technician engagement on the Philippine plant floor)</span></h1>
+    <h1 class="text-3xl sm:text-4xl font-extrabold leading-[1.15] tracking-[-0.02em] mb-5">Gamifying maintenance <span class="text-white/55 font-bold">(for technician engagement on the Philippine plant floor)</span></h1>
     <div class="flex items-center gap-4 text-sm text-white/45 mb-8 flex-wrap">
       <span>By <strong class="text-white/75">WorkHive Editorial Team</strong></span>
       <span class="opacity-40">·</span>
@@ -313,7 +335,7 @@
         <li>Existing workers chasing promotion</li>
         <li>Contractors growing reputation</li></ul>
     </div>
-    <div class="toc"><h4 aria-level="2">What's in this guide</h4><ol><li><a href="#why-gamify" class="wh-tap">Why gamify maintenance at all</a></li>
+    <div class="toc"><h2>What's in this guide</h2><ol><li><a href="#why-gamify" class="wh-tap">Why gamify maintenance at all</a></li>
         <li><a href="#what-works" class="wh-tap">What gamification actually drives</a></li>
         <li><a href="#what-backfires" class="wh-tap">What backfires and why</a></li>
         <li><a href="#badge-design" class="wh-tap">Badge design that survives 12 months</a></li>
@@ -328,7 +350,7 @@
       <div data-table-scroll style="overflow-x:auto;-webkit-overflow-scrolling:touch;" role="region" aria-label="Scrollable table" tabindex="0"><table><thead><tr><th>Reward target</th><th>Effect</th><th>Recommended?</th></tr></thead><tbody>
       <tr><td>Logbook entry volume</td><td>More entries but quality drops</td><td>No (vanity metric)</td></tr>
       <tr><td>Logbook entry quality (peer-rated useful)</td><td>Slower start, sustained quality improvement</td><td>Yes</td></tr>
-      <tr><td>PM completion on time</td><td>Compliance rises 10 to 20 percentage points</td><td>Yes</td></tr>
+      <tr><td>PM completion on time</td><td>Compliance rises and holds; the target is the schedule itself</td><td>Yes</td></tr>
       <tr><td>Skill matrix level advancement</td><td>Sustained training engagement</td><td>Yes</td></tr>
       <tr><td>Fault-recurrence prevention (logged once, never again)</td><td>The most valuable behaviour gets rewarded</td><td>Yes</td></tr>
       <tr><td>Speed of repair</td><td>Quality drops, safety risks rise</td><td>No (perverse incentive)</td></tr>
@@ -339,24 +361,25 @@
       <p>Four design rules:</p>
       <ol><li><strong>Hard to earn.</strong> If 80 percent of workers have it, it stops meaning anything. Top 20 to 30 percent is the right rarity for the prestigious badges.</li><li><strong>Tied to documented outcomes.</strong> Not "knows about RCM" but "completed 5 verified RCM-driven PM changes."</li><li><strong>Stackable with skill matrix.</strong> Earning the badge unlocks or evidences a skill matrix level advance.</li><li><strong>Recognised externally.</strong> The badge appears on the worker's portable WorkHive portfolio that they can share with future employers.</li></ol>
       <h2 id="xp-economy">The XP economy: how points are earned</h2>
-      <p>WorkHive Achievements awards XP for behaviours that compound. Indicative weights:</p>
-      <ul><li>Logbook entry with photo: 5 XP</li><li>Logbook entry peer-rated useful: 15 XP</li><li>PM completed on time with proper checklist evidence: 10 XP</li><li>Fault diagnosed with documented root cause: 25 XP</li><li>Asset that did not have recurrence in 90 days after your fix: 50 XP (delayed bonus)</li><li>Skill matrix Level 3 reached in a new discipline: 200 XP</li><li>Community answer marked helpful by 3+ workers: 30 XP</li></ul>
+      <p>WorkHive Achievements awards XP for behaviours that compound. These are the rates the platform actually awards, so you can decide before you do the work rather than after - the Achievements page carries the same list:</p>
+      <ul><li>Log an entry: 20 XP, plus 20 more when problem, action and knowledge together run past 200 characters</li><li>Close a job: 50 XP, plus 30 for a root cause, 15 for machine and downtime hours, and 25 if you close it within 24 hours - up to 120</li><li>Close a breakdown with a root cause: 100 XP (Failure Hunter)</li><li>Safety-category entry: 60 XP (Safety Sentinel)</li><li>Complete a PM: 60 XP</li><li>Community post: 20 XP, plus 40 when it is a safety post</li><li>Earn a skill badge: 250 XP, the largest single award</li><li>Run a calculator: 40 XP. Publish a shift plan: 40 XP. Add a team member: 50 XP</li></ul>
       <p>Workers see their XP and recent earnings; they do not see other workers' rankings unless their hive supervisor opts in.</p>
       <h2 id="career-portability">Career portability for Filipino workers</h2>
-      <p>The defining feature of WorkHive Achievements: badges and XP are owned by the worker, not the hive. When a worker moves to a new plant or applies for an OFW posting, they take their badges with them. The new employer can see the verified achievement history.</p>
+      <p>The defining feature of WorkHive Achievements is that the BADGES are held against the worker rather than the plant. When someone moves to a new hive or applies for an OFW posting, the badges go with them and a new employer can see the verified history.</p>
+      <p><strong>The XP does not travel, and it is worth knowing which is which before you invest a year in it.</strong> XP is counted per hive, so the number starts again when you join a new one. Think of the badges as the credential you carry and the XP as the scoreboard for the plant you are currently in - useful there, not a CV line. If that distinction matters to you, the practical move is the same one the calculators guide gives: what leaves with you is what is held against your name, plus anything you exported while you still had access.</p>
       <p>This is the difference between gamification as employer retention tool (rare) and gamification as worker career insurance (the WorkHive design). The first is paternalistic; the second compounds in the worker's favour over decades.</p>
       <div class="cta-box">
         <p class="cta-eyebrow">The tool this guide is about</p>
-        <h4 aria-level="3">WorkHive Achievements rewards what compounds, not what is shiny</h4>
-        <p>XP for documented entries, peer-rated quality, PM on-time, fault-recurrence prevention, skill matrix advancement, Community helpfulness. Badges that survive the rarity test and stack with the Skill Matrix. Worker-owned (portable across employers). Free at the worker tier; corporate roll-up unlocks at Stage 4.</p>
+        <h3>WorkHive Achievements rewards what compounds, not what is shiny</h3>
+        <p>XP for logbook entries, job and breakdown closures that carry a root cause, safety entries, PM completion, skill badges, Community posts, and the tools you run. Badges that survive the rarity test, stack with the Skill Matrix, and are held against your name so they travel between employers - while the XP total stays with the hive that awarded it. Free at the worker tier. There is no corporate roll-up across hives: a group running several plants runs several hives, and comparing them is done by hand.</p>
         <a href="/achievements.html" class="cta-btn">Open Achievements</a>
         <p class="cta-secondary">No hive yet? <a href="/?signup=1">Join WorkHive</a> first (free, takes 30 seconds).</p>
       </div>
       <h2 id="faq">Frequently asked questions</h2>
-      <details class="faq-item"><summary>Does gamification really work in industrial maintenance?</summary><div class="faq-answer">Yes, when it rewards behaviours that compound (documentation, prevention, mentoring, skill growth). No, when it rewards vanity metrics (logins, speed, volume without quality). Studies of plants that adopt outcome-tied gamification show 10 to 20 percentage point lifts in PM compliance and 25 to 35 percent more logbook entries within 6 months. Studies of plants that gamify the wrong metrics show no lift and sometimes safety regressions.</div></details>
+      <details class="faq-item"><summary>Does gamification really work in industrial maintenance?</summary><div class="faq-answer">Yes, when it rewards behaviours that compound (documentation, prevention, mentoring, skill growth). No, when it rewards vanity metrics (logins, speed, volume without quality). The mechanism is the whole of it: a badge for “100 logbook entries with photo evidence” tells a team what management will look at in a pay review, and what gets looked at gets done. Reward the wrong metric and the same mechanism works against you - speed badges buy faster closures by trading away quality, and that shows up later as a falling MTBF.</div></details>
       <details class="faq-item"><summary>What badges should I avoid creating?</summary><div class="faq-answer">Avoid speed badges (rewarding fast repairs trades quality for visibility), public leaderboards (demoralises the bottom 40 percent and triggers gaming), vanity badges (most logins, most clicks), and one-shot badges with no maintenance schedule. These patterns consistently backfire within 6 months.</div></details>
       <details class="faq-item"><summary>How do I prevent gaming the system?</summary><div class="faq-answer">Three defences: (1) tie badges to peer-rated quality, not raw counts; (2) include delayed bonuses (a badge for fix-with-no-recurrence-in-90-days cannot be gamed in week 1); (3) supervisor approval on the highest-prestige badges. Workers can game raw counts; they cannot game peer rating plus delayed verification.</div></details>
-      <details class="faq-item"><summary>Are the badges and XP portable when I change employers?</summary><div class="faq-answer">Yes. WorkHive Achievements are owned by the worker, not the hive. When you change employers, your badges and XP history move with you. A new plant can verify your achievement history when you apply. This is the career-protection design: your maintenance reputation compounds across employers, not against you.</div></details>
+      <details class="faq-item"><summary>Are the badges and XP portable when I change employers?</summary><div class="faq-answer">Your BADGES are, and they are the half that matters for a CV: skill badges are held against you rather than against the plant, so they survive leaving and a new employer can verify them when you apply. Your XP is NOT - it is counted per hive, so the number resets when you join a new one. Treat the badges as the portable credential and the XP as a scoreboard for the plant you are in. This is the career-protection design: your maintenance reputation compounds across employers, not against you.</div></details>
       <details class="faq-item"><summary>How does this fit with the Skill Matrix?</summary><div class="faq-answer">Achievements and Skill Matrix are complementary. Skill Matrix tracks certified competency level (1-4 scale) per discipline. Achievements track the evidence of work actually done; the explainer on each shows the details. Many achievements unlock or evidence Skill Matrix advances: earning the "RCM Driver" badge contributes to your reliability-engineering Level 3 evidence pack.</div></details>
       <details class="faq-item"><summary>Will my employer think this is childish?</summary><div class="faq-answer">Mature WorkHive customers do not. The framing matters: do not call them "badges and XP" in management presentations; call them "competency markers and engagement metrics." The substance is the same. The plant manager wants better PM compliance and more useful logbook entries; achievements drive both. The label is for the worker, not the boardroom.</div></details>
       <h2 id="sources">Sources</h2>
@@ -376,7 +399,7 @@
       <a href="/learn/" class="text-sm text-white/55 hover:text-orange-wh transition-colors">&larr; Back to all guides</a>
     </div>
   </div>
-</article>
+</article></main>
 <footer class="py-10 border-t border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
   <div class="max-w-4xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">
     <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-08-24">24 Aug 2026</time></p>

@@ -30,6 +30,16 @@ from validator_utils import read_file, format_result
 PY_CHAIN_PATH = "tools/ai_chain.py"
 TS_CHAIN_PATH = "supabase/functions/_shared/ai-chain.ts"
 
+# ★A MIRROR GATE THAT READ TWO OF THREE MIRRORS (2026-09-28).
+# The 2026-09-10 lesson that created this file recorded, in its own words, "the mirror is a trio, not
+# a pair" - and this validator was still built to compare exactly two files. So on 2026-09-28 the
+# pair was in perfect lockstep, this gate printed "15 == 15, all pairs match, 4/4 PASS", and
+# tools/lib/ai_chain.py - the third copy, the one used by tools/lib callers - was four models out of
+# date, every one of them a name its provider had stopped serving. The gate was not wrong about what
+# it checked; its REACH was narrower than the rule it exists to enforce, which is the same defect as
+# a glob that describes where you looked rather than where the code is.
+LIB_CHAIN_PATH = "tools/lib/ai_chain.py"
+
 
 def _parse_py_chain(content: str):
     """Extract list of dicts from `PROVIDER_CHAIN = [...]` in Python.
@@ -67,10 +77,72 @@ def _parse_ts_chain(content: str):
     return entries
 
 
+def _parse_lib_chain(content: str):
+    """Extract entries from tools/lib/ai_chain.py's `_CHAIN` list.
+
+    That file writes POSITIONAL dataclass calls - `_Provider("groq", <base_url>, <model>, <ENV_KEY>)`
+    - and wraps the OpenRouter ones across two lines, so neither of the line-oriented parsers above
+    can see it. Parsing it is the whole point: a parser that quietly returns [] would restore the
+    exact silence this check was added to end, so `check_files_parse` treats an empty list as a
+    failure rather than as a mirror with nothing in it.
+    """
+    m = re.search(r"_CHAIN\s*:\s*list\[_Provider\]\s*=\s*\[(.*?)\n\]", content, re.DOTALL)
+    if not m:
+        return None
+    return [(p, mdl, env) for p, _base, mdl, env in
+            re.findall(r'_Provider\(\s*"([^"]+)"\s*,\s*"([^"]+)"\s*,\s*"([^"]+)"\s*,\s*"([^"]+)"',
+                       m.group(1))]
+
+
+def check_third_mirror_matches():
+    """L5: tools/lib/ai_chain.py must carry the same (provider, model) set as the other two."""
+    issues = []
+    ts_c, lib_c = read_file(TS_CHAIN_PATH), read_file(LIB_CHAIN_PATH)
+    if ts_c is None or lib_c is None:
+        return [{"check": "third_mirror", "reason": f"Missing {LIB_CHAIN_PATH} or {TS_CHAIN_PATH}"}]
+    ts, lib = _parse_ts_chain(ts_c), _parse_lib_chain(lib_c)
+    if not ts or not lib:
+        return [{"check": "third_mirror",
+                 "reason": f"Could not parse a chain out of {LIB_CHAIN_PATH} "
+                           f"(got {len(lib or [])} entries) - refusing to report parity from an "
+                           f"empty read, which is how the third mirror went unchecked for 18 days"}]
+    ts_set  = {(p, m) for p, m, _ in ts}
+    lib_set = {(p, m) for p, m, _ in lib}
+    for p, m in sorted(ts_set - lib_set):
+        issues.append({"check": "third_mirror",
+                       "reason": f"{LIB_CHAIN_PATH} is MISSING ({p}, {m}) that ai-chain.ts carries"})
+    for p, m in sorted(lib_set - ts_set):
+        issues.append({"check": "third_mirror",
+                       "reason": f"{LIB_CHAIN_PATH} carries ({p}, {m}) that ai-chain.ts dropped - "
+                                 f"a model removed from the TS chain is usually one its provider "
+                                 f"stopped serving, so this copy is calling a dead endpoint"})
+    return issues
+
+
+def selftest():
+    """Teeth: L5 must actually READ the third file, and must FAIL on a planted divergence."""
+    lib_c = read_file(LIB_CHAIN_PATH) or ""
+    parsed = _parse_lib_chain(lib_c) or []
+    planted = re.sub(r'_Provider\(\s*"groq"', '_Provider("groq-TYPO"', lib_c, count=1)
+    cases = [
+        (f"the third mirror parses to real entries (got {len(parsed)})", len(parsed) >= 6),
+        ("a planted divergence changes the parsed set",
+         {(p, m) for p, m, _ in (_parse_lib_chain(planted) or [])} !=
+         {(p, m) for p, m, _ in parsed}),
+        ("the third mirror agrees with ai-chain.ts today", not check_third_mirror_matches()),
+    ]
+    ok = all(v for _n, v in cases)
+    for name, v in cases:
+        print(("  PASS  " if v else "  FAIL  ") + name)
+    print("  selftest: " + ("teeth intact" if ok else "VACUOUS - L5 is not reading the third file"))
+    return 0 if ok else 1
+
+
 def check_files_parse():
     issues = []
     for path, parser in [(PY_CHAIN_PATH, _parse_py_chain),
-                          (TS_CHAIN_PATH, _parse_ts_chain)]:
+                          (TS_CHAIN_PATH, _parse_ts_chain),
+                          (LIB_CHAIN_PATH, _parse_lib_chain)]:
         content = read_file(path)
         if content is None:
             issues.append({"check": "files_parse", "page": path,
@@ -181,18 +253,21 @@ def check_provider_tier_order():
 
 
 CHECK_NAMES  = ["files_parse", "models_match", "env_keys_match",
-                "provider_tier_order"]
+                "provider_tier_order", "third_mirror"]
 CHECK_LABELS = {
-    "files_parse":         "L1  Both ai_chain.py and ai-chain.ts exist and parse",
+    "files_parse":         "L1  All THREE chain files exist and parse",
     "models_match":        "L2  (provider, model) pairs match across Python and TS chains",
     "env_keys_match":      "L3  Same provider uses same env_key in both chains",
     "provider_tier_order": "L4  Provider tier order (groq -> cerebras -> openrouter) matches",
+    "third_mirror":        "L5  tools/lib/ai_chain.py (the THIRD mirror) matches ai-chain.ts",
 }
 
 
 def main():
+    if "--selftest" in sys.argv:
+        return selftest()
     def bold(s): return f"\033[1m{s}\033[0m"
-    print(bold("\nAI Chain Mirror Validator (4-layer)"))
+    print(bold("\nAI Chain Mirror Validator (5-layer)"))
     print("=" * 55)
 
     all_issues = []
@@ -200,6 +275,7 @@ def main():
     all_issues += check_models_match()
     all_issues += check_env_keys_match()
     all_issues += check_provider_tier_order()
+    all_issues += check_third_mirror_matches()
 
     n_pass, n_warn, n_fail = format_result(CHECK_NAMES, CHECK_LABELS, all_issues)
 

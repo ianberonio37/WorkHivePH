@@ -1,0 +1,643 @@
+{
+ "_doc": "THE CONFUSION LEDGER (Ian, 2026-09-14: 'even you sometimes confused like the sign in, that is why we have to have more trajectories, targeting that makes you confused, and work our way to improve it. it is the same way improving our UFAI UI UX platform wide' - and, asked whether that meant sign-in: 'I am not referring to signing in only, I am referring to any other kinds and types'). Every point of ANY kind where a WALK - an agent driving the platform as a person - hesitated, mis-clicked, picked the wrong control, waited without knowing, lost its place, hit a dead end, landed somewhere else than it meant to, or read a sentence it could not act on is written here the day it happens, and tools/seed_expansion_wave4.py --add-confusions turns each entry into one W4 trajectory per axis (kind 'confusion'): lived start to end, fixed, re-walked, locked. What confuses the agent confuses a person; the ledger is the UFAI improvement backlog in its rawest form. Append-only; an entry is never deleted, only marked fixed with its verification. Two kinds are also MEASURED automatically on every step by tools/phone_fit_audit.mjs (`ambiguity`, `unactionable`); the rest are read from the walk.",
+ "kinds": {
+  "ambiguity": "two or more controls announce the same name for different jobs (the wall's two 'Sign In'); measured per step",
+  "wait-without-knowing": "a state that takes long with nothing said about why, how long, or what to do (25 s of 'Signing in…')",
+  "unactionable-sentence": "an error, status or alert in the transport's or the developer's words, not the person's ('name resolution failed'); measured per step",
+  "silent-scope": "a view, filter or mode that quietly narrows what a search or list shows ('No tools match' inside Engineer view)",
+  "lost-place": "focus or scroll position lost after a close, a save, a repaint (focus on <body> after every overlay closes)",
+  "look-alike-controls": "two controls that look and read alike but do different things (a search button and a filter input)",
+  "silent-failure": "something breaks and only the console knows (the _tt ReferenceError on every mode click)",
+  "dead-end": "a state with no way onward or back (an empty state with no next step)",
+  "wrong-arrival": "the person lands somewhere other than where they meant to (a return= that does not return, a deep link that drops its target)",
+  "hidden-by-chrome": "a control the person cannot reach because chrome covers it (the FAB over Save); measured per step as occlusion",
+  "chrome-stands-down": "the shell disappears behind a dialog and the person cannot tell whether it is gone or hidden (the hub invisible behind the sign-in wall)",
+  "off-screen": "a control clipped by the viewport edge, hidden by no chrome (assistant's New Chat running 21px past 320); measured per step as element overflow",
+  "wrapped-label": "a one-line control's label breaks onto two lines at a narrow width (a tab strip whose items may shrink); measured per step as wrapped",
+  "small-target": "a control a person can see but not reliably hit: narrower or shorter than the platform's 44px floor at the viewport it was met on"
+ },
+ "entries": [
+  {
+   "id": "C1",
+   "page": "index.html",
+   "seen": "2026-09-14",
+   "walk": "W41366 (nav-hub, achievements, phone-390 en) - the sign-in wall",
+   "confusion": "Two controls on the wall are both named 'Sign In': the nav's opener (openSignIn) and the modal's submit (#si-btn). A person using a screen reader hears the same name twice; the walker's role locator resolved both and could not choose. The page behind an open modal is not inert, so the opener stays in the accessibility tree while the dialog is up.",
+   "improvement": "While the sign-in dialog is open, the page behind it is inert (aria-modal + inert on main/nav), and the submit is named for what it does ('Sign in to WorkHive'), so only one 'Sign In' is ever announced.",
+   "layers": [
+    "F",
+    "AU"
+   ],
+   "ufai": [
+    "U",
+    "I"
+   ],
+   "status": "fixed-verified 2026-09-14: with the dialog open the page behind it is inert + aria-hidden (10 inert, 6 hidden siblings; the nav opener inert) - a role query for 'Sign In' now counts ONE (was 2); after sign-in 0 inert / 0 hidden remain",
+   "kind": "ambiguity"
+  },
+  {
+   "id": "C2",
+   "page": "index.html",
+   "seen": "2026-09-14",
+   "walk": "W41366 - the sign-in wall after the seeder restart",
+   "confusion": "The button read 'Signing in…' for more than 25 seconds with nothing else said. Neither the walker nor a person can tell a slow network from a hung sign-in; there is no elapsed-time hint, no 'still working', no way to retry or cancel.",
+   "improvement": "After ~8 s the wall says it is still trying and names the likely cause (slow connection / the sign-in service waking up), offers Cancel, and after a hard timeout says what to do next - in both languages.",
+   "layers": [
+    "AV",
+    "A"
+   ],
+   "ufai": [
+    "U",
+    "A"
+   ],
+   "status": "fixed-verified 2026-09-14: the login call stubbed to answer after 12 s (CDP setBypassServiceWorker + page.route) - at 9 s the wall reads 'Still signing in… your connection is slow or the sign-in service is waking up. This can take up to 30 seconds.'; the sign-in then completes and the person lands on the return page",
+   "kind": "wait-without-knowing"
+  },
+  {
+   "id": "C3",
+   "page": "index.html",
+   "seen": "2026-09-14",
+   "walk": "W41366 entry - the login edge function was down (503)",
+   "confusion": "With the sign-in service unavailable the wall showed the raw sentence 'name resolution failed' in the error region - an infrastructure phrase, not a sentence a person can act on.",
+   "improvement": "A server/network failure on sign-in is rendered as 'Sign-in is temporarily unavailable - please try again in a moment' (and the Filipino twin), never the transport's own words; the raw text goes to whLogError only.",
+   "layers": [
+    "AV",
+    "L"
+   ],
+   "ufai": [
+    "U",
+    "I"
+   ],
+   "status": "fixed-verified 2026-09-14: the login call stubbed to 503 {message:'name resolution failed'} - the wall reads 'Sign-in is temporarily unavailable. Please try again in a moment.' and the button is usable again; the raw text goes to whLogError('signin-unavailable')",
+   "kind": "unactionable-sentence"
+  },
+  {
+   "id": "C4",
+   "page": "nav-hub.js",
+   "seen": "2026-09-14",
+   "walk": "W41366 - the hub's tools filter",
+   "confusion": "In Engineer view, typing 'logbook' into the tools filter answered 'No tools match your search.' while Logbook sits one mode away under All. Nothing said the view was filtered; a person concludes the tool does not exist.",
+   "improvement": "When the current view hides a match, the no-results line names the view and offers 'Show all tools' (landed 2026-09-14 in filterTools; verify on re-walk).",
+   "layers": [
+    "F"
+   ],
+   "ufai": [
+    "U"
+   ],
+   "status": "fixed-verified 2026-09-14: live at 390 after reload - Engineer view + 'logbook' -> 'No Engineer tools match. Show all tools'; the control switches to All and shows Logbook",
+   "kind": "silent-scope",
+   "lived_again": "lived again at phone-390 en (W45770, 2026-09-14): 'logbook' in the Engineer view -> 'No Engineer tools match. Show all tools' (offer present, view named) - row banked."
+  },
+  {
+   "id": "C5",
+   "page": "nav-hub.js",
+   "seen": "2026-09-14",
+   "walk": "W41366 - the hub, companion, feedback and global search",
+   "confusion": "Closing the hub (Escape or the fab), the companion, the feedback panel or the global search left keyboard focus on <body>: a keyboard or screen-reader person does not know where they are after every close.",
+   "improvement": "Every close returns focus to the control that opened it, or to the hub fab when that control is hidden (closeHub(restoreFocus), companion/feedback/search-overlay close paths; landed 2026-09-14, verify on re-walk).",
+   "layers": [
+    "F"
+   ],
+   "ufai": [
+    "U",
+    "A"
+   ],
+   "status": "fixed-verified 2026-09-14: live at 390 after reload - Escape from the hub, the companion, the feedback panel AND the global search opened from the hub all return focus to #wh-hub-fab (utils.js whFocusWhenVisible; search-overlay never remembers an opener inside the hub panel, whose 0.2s visibility delay had made it look focusable); sw.js v384",
+   "kind": "lost-place"
+  },
+  {
+   "id": "C6",
+   "page": "nav-hub.js",
+   "seen": "2026-09-14",
+   "walk": "W41366 - the hub panel",
+   "confusion": "The panel holds two search-shaped controls with similar affordances: 'Search assets, jobs, parts, PMs' (a button that opens the global search overlay) and 'Search tools…' (an input that filters the tiles). The walker typed into the wrong one first; a person can too.",
+   "improvement": "The two are visibly different kinds of control and announced differently: the FILTER input now uses the ic-filter icon and reads 'Filter tools' (label + placeholder, both _tt-translated); the global-search LAUNCHER keeps the ic-search icon and 'Search assets, jobs, parts, PMs'. Ctrl/⌘-K focuses the filter, so the shortcut badge (which had wrongly appeared on BOTH) now lives only on the filter it drives - the launcher, which opens the overlay on click, no longer wears a ⌘K it does not own.",
+   "layers": [
+    "F"
+   ],
+   "ufai": [
+    "U"
+   ],
+   "status": "fixed 2026-09-14 (source; pending ratchet re-walk at RAM >= 2GB - the 30-context nav-hub ratchet is not viable at the 0.6 GB free this session): nav-hub.js - ic-filter icon + 'Filter tools' label/placeholder on #wh-hub-search; the ⌘K badge removed from #wh-hub-global-search (Ctrl-K focuses the filter, verified in the keydown handler). sw.js v387.",
+   "kind": "look-alike-controls"
+  },
+  {
+   "id": "C7",
+   "page": "nav-hub.js",
+   "seen": "2026-09-14",
+   "walk": "W41366 - every mode click",
+   "confusion": "Every mode switch threw ReferenceError: _tt is not defined (nav-hub.js:607) and the community badge / fab label never repainted - invisible to a person until the badge is wrong, visible to the console on all 31 host pages.",
+   "improvement": "A module-level _tt so every caller can translate (landed 2026-09-14; verify 0 console errors on re-walk).",
+   "layers": [
+    "F",
+    "L"
+   ],
+   "ufai": [
+    "F",
+    "I"
+   ],
+   "status": "fixed-verified 2026-09-14: live at 390 after reload - 0 console errors across Field/Supervisor/Engineer/All clicks (module-level _tt in nav-hub.js)",
+   "kind": "silent-failure"
+  },
+  {
+   "id": "C8",
+   "page": "hive.html",
+   "seen": "2026-09-14",
+   "walk": "W41366 - hive.html at rest (automatic ambiguity detector)",
+   "kind": "ambiguity",
+   "confusion": "Two disclosure controls (<summary>) on the hive board are both announced as 'how this is computed' inside the main region. A screen-reader user hears the same name twice with no way to tell which figure each explains; the walker's role/name query resolved both.",
+   "improvement": "Each disclosure names its subject ('How readiness is computed', 'How the stair is computed'), so the two are told apart by name.",
+   "layers": [
+    "F"
+   ],
+   "ufai": [
+    "U"
+   ],
+   "status": "fixed (utils.js renderSourceChip subject/subjectFil + hive.html callers, sw v390) + verified on the real page 2026-09-14",
+   "lived_again": "lived again on hive.html at phone-390 en (W45782, cast Ben Ocampo, 2026-09-14): 6 visible disclosures, all uniquely named ('how the open-items summary is computed', 'hive readiness details', 'how hive value is computed', ...) - row banked."
+  },
+  {
+   "id": "C9",
+   "page": "learn-link.js",
+   "seen": "2026-09-14",
+   "walk": "W41366 ratchet (prove_w4_navhub.mjs) - hive.html at rest, cast as Christine Dizon (a Manila member with a shift-summary tile)",
+   "kind": "hidden-by-chrome",
+   "confusion": "The fixed 'New to this page?' page-guide chip (#wh-guide-link, position:fixed left:12 bottom:132 z-index:60) sat on top of hive's shift-summary 'Snooze this tile' control (44x44 at 134,652): document.elementFromPoint at the snooze centre returned #wh-guide-link. SECOND occurrence of this chip occluding a control (the first was pm-scheduler's modal Save, handled by standing down while a dialog is up); this one is at rest and persona-dependent - a plain worker never sees the tile, so a single-persona walk missed it. The instrument casting the row's own hive member caught it.",
+   "improvement": "learn-link.js: the chip's stand-down sync (already dialog-aware) now also measures the chip against the page's own visible controls each layout and takes the first LIFT (0/84/168/252/336px) that occludes nothing; if none is clear it stands down entirely, ceding to the page - the same behavioural rule as for a dialog. Verified: the ratchet re-walk of W41366 as Christine Dizon reads 0 findings, 11/11 controls.",
+   "layers": [
+    "F"
+   ],
+   "ufai": [
+    "U"
+   ],
+   "status": "fixed-verified 2026-09-14 via the ratchet (W41366 achievements as Christine Dizon: 0 findings). The lift's second hardening: the collision HIDE now runs synchronously in the MutationObserver callback (not deferred to rAF), so the chip vacates in the same microtask a late-rendering control (hive's shift-summary Snooze) appears - closing the ~16ms race the per-step audit could catch; childList observed; delayed re-checks to 12s.",
+   "lived_again": "lived again at phone-390 en (W45785, 2026-09-14): the chip @12,648 195x64 shown with 0 controls sharing its band - row banked. | narrow-320 en (W45786, 2026-09-14): a first reading said the chip covered 'Logbook' and 'Inventory' - those were the hub's quick tiles inside the CLOSED panel (visibility:hidden keeps the box, elementFromPoint returns the chip); with a visibility-aware probe the chip @12,524 195x64 shares its band with 0 visible controls - row banked. phone-390 en (W45785) banked the same day."
+  },
+  {
+   "id": "C10",
+   "page": "offline-banner.js",
+   "seen": "2026-09-14",
+   "walk": "W41369/W41372 ratchet (prove_w4_navhub.mjs) - ai-quality.html & alert-hub.html, offline, at 'hub closed'",
+   "kind": "hidden-by-chrome",
+   "confusion": "The offline/online banner (div.wh-offline-banner, position:fixed top:0 z-index:9999, full width) sits ON the wayfinding back button (#wh-wayfinding .wf-back, fixed top:10 left:10 z-index:9000) whenever it shows: elementFromPoint at the back button's centre returned .wh-offline-banner on EVERY host. An offline person - exactly the person the banner is warning - cannot use Back. Shared chrome, so it recurs platform-wide; found because the walk provokes offline via the connectivity pill.",
+   "improvement": "offline-banner.js publishes its height as --wh-offline-banner-h on the document root while shown (0 when hidden); wayfinding.js adds that to its top offset and transitions, so the back button (and any top-anchored chrome) drops below the banner. sw.js v385.",
+   "layers": [
+    "F",
+    "AV"
+   ],
+   "ufai": [
+    "U",
+    "A"
+   ],
+   "status": "fixed-verified 2026-09-14 via the ratchet (W41369 ai-quality, W41372 alert-hub: 0 findings; the wf-back is no longer under the offline banner).",
+   "lived_again": "re-verified at phone-390 en on skillmatrix.html (W45788, 2026-09-14, --force): offline banner SETTLED at 38px, the wayfinding pill's top at 49, wf-back the element at the pill - a first pass had been read on a 6px mid-transition banner and was re-earned on a settled one before the bank was allowed to stand."
+  },
+  {
+   "id": "C11",
+   "page": "assistant.html",
+   "seen": "2026-09-14",
+   "walk": "W41384 ratchet (prove_w4_navhub.mjs) - assistant.html, cast as Christine Dizon, at 'hub closed'",
+   "kind": "hidden-by-chrome",
+   "confusion": "A signed-in worker lands STRAIGHT on assistant's chat screen (the page skips setup when a session exists), whose header carries the page's own 'Setup' back button top-left (button.flex @16,60 63x44). wayfinding.js did not recognize assistant's handleBack() buttons (they had no .back-link/.back-btn class) and injected its FIXED back-pill (#wh-wayfinding) on top - elementFromPoint at the Setup button's centre returned #wh-wayfinding. THIRD occurrence of the chrome-over-control class (after pm-scheduler's Save and the offline banner over wf-back), and the first where the covering chrome is a DUPLICATE back control the platform added on top of the page's OWN back control; worse under the offline banner, which slides the pill down onto the button. A plain worker who lands on setup first never sees it - persona/route-dependent, caught because the ratchet casts the row's own hive member who is already signed in.",
+   "improvement": "A page that manages its OWN back affordance (a multi-screen SPA like assistant, whose two screens each ship a handleBack() button) marks those buttons with class 'back-link', which wayfinding.js already treats as the SKIP path - it returns without injecting the pill AND without rewiring, so handleBack survives - and which the W1/L rubric credits as an in-layout way back. The general rule: an owned back affordance opts OUT of the injected pill by wearing a class wayfinding recognizes, so the platform never stacks a second back control on the page's own.",
+   "layers": [
+    "F",
+    "AU"
+   ],
+   "ufai": [
+    "U",
+    "A"
+   ],
+   "status": "fixed + verified on the real page 2026-09-14: the serial single-host re-walk of assistant.html (W41384, cast Christine Dizon) read 0 findings, 11/11 controls, and the row is banked to locking. Also gated by tools/prove_navhub_chrome_fixes.mjs (a .back-link suppresses the pill; a page without one gets it). assistant.html is network-first, so no sw bump was needed.",
+   "lived_again": "lived again at phone-390 en (W45791, 2026-09-14): wayfinding pill absent on assistant, own 'Setup' back reachable at its own centre - row banked."
+  },
+  {
+   "id": "C12",
+   "page": "offline-banner.js",
+   "seen": "2026-09-14",
+   "walk": "W41399 serial nav-hub walk (prove_w4_navhub.mjs) - hive.html, cast as Ben Ocampo, offline, at 'hub closed'",
+   "kind": "hidden-by-chrome",
+   "confusion": "With the offline banner up, hive's OWN top-left Back link (the <nav class=\"fixed top-0\"> header's a[data-wh-back] @20,6 50x44) sat under div.wh-offline-banner: elementFromPoint at its centre returned the banner. C10 (v385/v386) had fixed the same class for the wayfinding PILL (it reads --wh-offline-banner-h) and for IN-FLOW content (the body drops by a margin) - but a page's own header is position:fixed, and a body margin cannot move a fixed element, so every page built on the shared Tailwind fixed header still lost its Back / logo / bell to the banner exactly when a person is offline and most needs them. Third manifestation of the banner-covers-top-chrome class; found only because the serial walk provokes offline on the real page.",
+   "improvement": "offline-banner.js now also drops a page's fixed top nav/header by the banner's height while the banner is up (html.wh-offline-banner-open nav.fixed / header.fixed { top: var(--wh-offline-banner-h) }, transitioned) - the identical rule wayfinding.js got in v385, applied platform-wide to the shared header pattern instead of page by page. sw.js v388.",
+   "layers": [
+    "F",
+    "AV"
+   ],
+   "ufai": [
+    "U",
+    "A"
+   ],
+   "status": "fixed + mechanism-VERIFIED 2026-09-14 (source, v388; registered teeth gate tools/prove_offline_banner_fixed_nav.mjs PASSES: while offline the 33px banner shows, the fixed nav drops to top 33 and its Back link is the element at its own centre; control: top 0 and reachable before offline). Real-page re-walk of hive.html is host-blocked (hive crashes the headless renderer at page load on this 8 GB machine), so the synthetic gate is the achievable verification here.",
+   "lived_again": "lived again on the REAL hive.html at phone-390 en by prove_w4_confusions.mjs (W45794, 2026-09-14): offline banner settled at 38px, the fixed nav's top at 38, its first control the element at its own centre - row banked. (A first reading at 6px mid-transition had read 'nav top 0' - the predicate now waits for the banner to settle.)"
+  },
+  {
+   "id": "C13",
+   "page": "index.html (sign-in wall) + the cookie-consent chrome (#wh-consent)",
+   "seen": "2026-09-14",
+   "walk": "W41367 narrow-320 en nav-hub walk (prove_w4_navhub.mjs) - achievements.html, cast Christine Dizon, at the sign-in wall at rest, and at every hub step",
+   "kind": "hidden-by-chrome",
+   "confusion": "At 320px the cookie-consent dialog (#wh-consent, position:fixed z-9000, 288x212 at 16,492) sits ON the sign-in wall: the audit's elementFromPoint at 'Forgot your password?' @103,485 returned #wh-consent, at 'Create one for free' @105,640 returned #wh-consent-no (the consent's own button), and at the SSO button a wh-notice-retry button. Then the hub fab could not be tapped and 4 of 4 mode buttons were 'not clickable (chrome may be covered)' - 8/11 hub controls - because the same consent box spans y 492-704, the bottom band where the FAB stack lives. At 390 the box fits beside these; at 320 it covers them, so a NEW person on a narrow phone (exactly who meets the consent box, first visit) cannot recover a password, create an account, or open the nav hub until they find the consent buttons under everything else. One shared-chrome layout is the single cause of five occlusions.",
+   "improvement": "The consent box must never cover a control at 320: below ~360px it should become a bottom SHEET that pushes content (or sit above the FAB band and cap its height), with its own buttons 44px and nothing behind it in the covered band - the same 'chrome stands down / makes room' rule the page-guide chip (C9) and the offline banner (C10-C12) now follow.",
+   "layers": [
+    "F",
+    "CA"
+   ],
+   "ufai": [
+    "U",
+    "A"
+   ],
+   "status": "fixed + verified twice (<=360 reflow; every width while the sign-in dialog is open) - 2026-09-14, gate + real page at 390",
+   "lived_again": "2026-09-14 tools/prove_w4_confusions.mjs at phone-390 en (W45797): STILL CONFUSING - the fixed card (z 9000, 358x193 at 16,635) sat ON the open sign-in dialog's SSO button (45,612) and 'Create one for free' (204,672); the dialog is z-50, so 'behind the modal' was true for the accessibility tree and false for the eyes. The 361px+ design was never measured with the dialog open (the nav-hub walks audit the host page after sign-in, never the wall).",
+   "fix": "2026-09-14 (second fix, every width): wh-consent.js injects a :has() rule - body:has(#signin-modal:not(.hidden)) #wh-consent { position:static … } - so while the sign-in dialog is open the card stands down into the flow (behind the dialog's backdrop, covering nothing) and returns to its fixed place when the dialog closes; holds for a dialog opened later by a tap, no observer.",
+   "verified": "2026-09-14 second fix: gate consent-narrow-reflow PASS (390 with #signin-modal open: the card is static, SSO/Create reachable; without the rule both covered - negative control; fixed again when the dialog closes) AND lived again on the REAL wall at phone-390 en by prove_w4_confusions.mjs (W45797): consent card shown (static); 3 sign-in controls each the element at their own centre - row banked."
+  },
+  {
+   "id": "C14",
+   "page": "achievements.html (a page's own mobile sticky CTA) + the nav-hub FAB stack",
+   "seen": "2026-09-14",
+   "walk": "W41367 narrow-320 en nav-hub walk (prove_w4_navhub.mjs) - achievements.html, cast Christine Dizon, at 'the whole hub'",
+   "kind": "hidden-by-chrome",
+   "confusion": "At 320px the hub FAB (#wh-hub-fab, fixed bottom-right) could not be tapped: what sat at its centre was div#sticky-mobile-cta (md:hidden) > p.text-lg > div.order-1 - the page's OWN mobile-only sticky bottom CTA bar, which at 320 spans the whole width and lands on the shared nav launcher, so 8/11 hub controls could not be exercised and a person on a narrow phone has no way into the nav from this page. The walker's error string had printed 'undefined' for this until the precedence fix named the coverer. Same class as C9-C13 (chrome that does not make room), found only because the serial walk runs the real page at 320.",
+   "improvement": "A page's sticky bottom CTA must leave the shared FAB band clear at narrow widths - reserve the FAB's column (right padding/max-width on the bar) or lift the FAB stack above the bar by the bar's height (publish --wh-sticky-cta-h the way the offline banner publishes its height), so the nav launcher is always reachable.",
+   "layers": [
+    "F",
+    "CA"
+   ],
+   "ufai": [
+    "U",
+    "A"
+   ],
+   "status": "RETRACTED as an occlusion 2026-09-14 (a walk artifact, kept for the record): #wh-hub is z-index 9998, far above the bar's 40, so the bar cannot cover a LIVE fab. The fab was absent from the fabStack because the walk was still on the SIGN-IN WALL with the modal up - nav-hub.js hides #wh-hub (visibility:hidden) while an overlay is open, by design (the chrome-stands-down rule), and the bar simply occupies that spot. Root cause was the WALKER: a fixed 2s sleep then a textbox count read 0 at 320 on this loaded host (the modal opens later under RAM pressure), so sign-in was never attempted, the gated host bounced back to the wall, and index.html was graded as the host (idKept false). Fixed in w4_navhub_walk.body.js: wait up to 15s for the username box before deciding there is no wall. The ONE real finding on that wall - the bar's 'Get Early Access: It's Free' label wrapping to 2 lines in its 216px column at 320 - is fixed in index.html (one size step down + nowrap below 360px). Lesson: read a fabStack as a z-order snapshot at a moment, and ask WHICH page the walk is actually on before naming a coverer."
+  },
+  {
+   "id": "C15",
+   "page": "index.html (sign-in wall) - the shared notice's retry button",
+   "seen": "2026-09-14",
+   "walk": "W41367 narrow-320 en nav-hub walk - the sign-in wall at rest (after the C13 fix, the only occlusion left there)",
+   "kind": "hidden-by-chrome",
+   "confusion": "At 320px a button.wh-notice-retry (66x32 at 136,565) sits on the 'Enterprise SSO (Okta / Azure AD)' button (230x46 at 45,564): elementFromPoint at the SSO button's centre returned the retry button. A small in-flow 'retry' affordance from the shared notice component renders over a real sign-in control at narrow width.",
+   "improvement": "The notice's retry control must sit in the notice's own box (in flow, below or beside its text), never over a sibling control; at 320 the notice should stack, not overlap.",
+   "fix": "utils.js _whShowNotice (precached SHELL, sw v389): the retry button was never in flow - the whole notice is a position:fixed bar (z 2147483000) that lands on whatever sits in its band, so the honest fix is a way OUT: every notice now carries a 44px Dismiss (✕, .wh-notice-close, aria-label) that removes it, and the SAME words re-shown within 60s stay dismissed (a poller repeating the failure already reported) while a different message shows as normal. The bar keeps its place (a person must still see a failed read); it no longer traps the control under it.",
+   "verified": "gate notice-dismissible (tools/prove_notice_dismissible.mjs, registered in run_platform_checks Platform): real utils.js on a 320x720 page served from a real origin; the notice placed over a control covers it (negative control, teeth) and Dismiss makes the control the element at its own centre again - PASS 2026-09-14. | lived again on the REAL wall at phone-390 en by prove_w4_confusions.mjs (W45800): notice triggered through the shared component, SSO not covered while up, Dismiss removed it - row banked 2026-09-14.",
+   "layers": [
+    "F"
+   ],
+   "ufai": [
+    "U"
+   ],
+   "status": "fixed + verified (2026-09-14, gate)"
+  },
+  {
+   "id": "C16",
+   "page": "hive.html (a summary tile's own snooze control) + the nav-hub FAB",
+   "seen": "2026-09-14",
+   "walk": "W41367 narrow-320 en nav-hub walk (prove_w4_navhub.mjs) re-walk #5 - hive.html at rest, cast Christine Dizon (Manila Electronics Assembly, worker)",
+   "kind": "hidden-by-chrome",
+   "confusion": "At 320px the tile's 'Snooze this tile for now' control (span.ss-snooze, 44x44 at 249,635) sits under the shared hub FAB (#wh-hub-fab, 56x56 at 248,640): elementFromPoint at the snooze control's centre returned the FAB. A page's own bottom-right action lands in the column the FAB owns, so a person tapping Snooze opens the navigation hub instead.",
+   "improvement": "A page's own control never sits in the FAB's column at narrow widths: the tile's action row keeps the FAB band clear (right padding of at least the FAB's width on that row, or the snooze control moves to the tile's left edge) so Snooze is the element at its own centre.",
+   "layers": [
+    "F",
+    "CA"
+   ],
+   "ufai": [
+    "U",
+    "A"
+   ],
+   "status": "fixed + verified on the real page (2026-09-14, re-walk #6)",
+   "fix": "hive.html (precached SHELL, sw v390): below 360px the tile snooze steps 64px in from the tile's right edge (@media (max-width:360px) .ss-tile .ss-tile-top .ss-snooze { margin-right:64px }) so it is never in the FAB's column at any scroll position.",
+   "verified": "re-walk #6 of achievements at narrow-320 en (W41367, cast Christine Dizon): hive.html at rest 0 findings, 11/11 hub controls, the row banked to locking. Lived again by tools/prove_w4_confusions.mjs C16 (every visible .ss-snooze reachable and clear of the FAB column).",
+   "lived_again": "lived again on the REAL hive.html at phone-390 en (W45803, 2026-09-14): 2 tile snooze controls, each reachable at its own centre - row banked; the <=360 step-in rule is exercised by the narrow-320 en row."
+  },
+  {
+   "id": "C17",
+   "page": "assistant.html (the chat header's action row)",
+   "seen": "2026-09-14",
+   "walk": "W41367 narrow-320 en nav-hub walk (prove_w4_navhub.mjs) re-walk #5 - assistant.html at rest and with the hub open, cast Christine Dizon",
+   "kind": "off-screen",
+   "confusion": "At 320px the chat header's 'New Chat' button (button.text-xs) spans 283..341: its right edge is 21px past the 320px viewport and past its parent, so part of the control is off the screen and the row can scroll sideways. A person sees a clipped button and may not know it is a button.",
+   "improvement": "The header's action row fits 320: its buttons wrap or shrink (flex-wrap, or a shorter label at narrow widths) so every control ends inside the viewport and nothing extends past its parent.",
+   "layers": [
+    "F",
+    "LB"
+   ],
+   "ufai": [
+    "U"
+   ],
+   "status": "fixed + verified on the real page (2026-09-14, re-walk #6)",
+   "fix": "assistant.html (network-first, no sw bump): the chat header row may wrap (flex-wrap:wrap; row-gap:2px), the title group shrinks (min-width:0; flex:1 1 auto) with the worker name truncating, so New Chat drops to a second line instead of past the viewport.",
+   "verified": "re-walk #6 of achievements at narrow-320 en (W41367): assistant.html at rest and with the hub open 0 findings (was: New Chat 283..341 > 320). Lived again by tools/prove_w4_confusions.mjs C17 (New Chat inside the viewport and its parent; no horizontal page scroll).",
+   "lived_again": "lived again at phone-390 en (W45806, 2026-09-14): New Chat spans 16..75 in a 390 viewport, no horizontal scroll - row banked."
+  },
+  {
+   "id": "C18",
+   "page": "community.html (the page's own bottom-left post FAB) + its wrapped filter-chip row",
+   "seen": "2026-09-14",
+   "walk": "narrow-320 en nav-hub axis runner (tools/walk_navhub_axis.py -> prove_w4_navhub.mjs) - community.html at rest and after closing the companion, cast the row's worker",
+   "kind": "hidden-by-chrome",
+   "confusion": "At 320px the filter chips wrap onto several lines and the header pushes the 'All' chip (45x44 at 16,663) into the band the page's own post FAB owns (#fab-post, fixed z-40, 56x56 at 24,640, bottom-LEFT on phones by the D1 U5 decision): elementFromPoint at the chip's centre returned the FAB, so a tap meant for a category opens the composer.",
+   "improvement": "A page's own controls never share a band with either FAB at narrow widths: below 360px the chip block reserves both FAB columns (this page's post FAB on the left, the shared hub FAB on the right), so every chip is the element at its own centre at every scroll position.",
+   "fix": "community.html (network-first, no sw bump): @media (max-width:360px) { #filter-chips { padding-left:72px; padding-right:72px } } - BOTH FAB columns: the first fix reserved only the left (post FAB) column and the 320 re-walk found the 'Safety' chip under the shared hub FAB on the right instead.",
+   "layers": [
+    "F",
+    "CA"
+   ],
+   "ufai": [
+    "U",
+    "A"
+   ],
+   "status": "fixed + verified on the real page at 320 (2026-09-14) - the confusion rows are lived by prove_w4_confusions.mjs at both English axes",
+   "verified": "re-walk of community.html at narrow-320 en by the nav-hub axis runner (2026-09-14 night): 0 findings at rest and at every hub state, the row banked to locking (gate w4-nav-hub-320-en)."
+  },
+  {
+   "id": "C19",
+   "page": "analytics-report.html (the Reports tab strip)",
+   "seen": "2026-09-14",
+   "walk": "narrow-320 en nav-hub axis runner - analytics-report.html at rest and at every hub state, cast the row's worker",
+   "kind": "wrapped-label",
+   "confusion": "At 320px the two report tabs ('Analytics report', 'Send / schedule ->') broke onto two lines each (2 lines at 79px and 89px): the strip forbids wrapping (flex-wrap:nowrap; overflow-x:auto) but its ITEMS could still shrink, so flex squeezed them instead of letting the strip scroll - the same class report-sender's tabs were fixed for at 390 (W41441), on the sibling page that was not fixed.",
+   "improvement": "Every item of a one-line strip carries flex-shrink:0 and white-space:nowrap, so the strip scrolls sideways as its own comment promises and no label wraps at any width.",
+   "fix": "analytics-report.html (network-first, no sw bump): flex-shrink:0; white-space:nowrap on both tabs.",
+   "layers": [
+    "F",
+    "CA"
+   ],
+   "ufai": [
+    "U"
+   ],
+   "status": "fixed + verified on the real page at 320 (2026-09-14) - the confusion rows are lived by prove_w4_confusions.mjs at both English axes",
+   "verified": "re-walk of analytics-report.html at narrow-320 en by the nav-hub axis runner (2026-09-14 night): 0 findings at rest and at every hub state, the row banked to locking (gate w4-nav-hub-320-en)."
+  },
+  {
+   "id": "C20",
+   "page": "report-sender.html (the page header's Install button)",
+   "seen": "2026-09-14",
+   "walk": "narrow-320 en nav-hub axis runner - report-sender.html at rest and at every hub state, cast the row's worker",
+   "kind": "off-screen",
+   "confusion": "At 320px the header row (title block with the tabs strip and source chip, plus a flex-shrink:0 Install button) summed past the viewport: #install-icon-btn spanned 299..382, 62px of a real control off the screen and past its parent.",
+   "improvement": "A header row with a fixed-width action wraps at narrow widths (the action drops under the title block) and the title block may shrink (min-width:0), so every control ends inside the viewport.",
+   "fix": "report-sender.html (precached SHELL - needs a sw bump): flex-wrap:wrap on the header row, min-width:0 on the title block.",
+   "layers": [
+    "F",
+    "LB"
+   ],
+   "ufai": [
+    "U"
+   ],
+   "status": "fixed + verified on the real page at 320 (2026-09-14) - the confusion rows are lived by prove_w4_confusions.mjs at both English axes",
+   "verified": "re-walk of report-sender.html at narrow-320 en by the nav-hub axis runner (2026-09-14 night): 0 findings at rest and at every hub state, the row banked to locking (gate w4-nav-hub-320-en)."
+  },
+  {
+   "id": "C21",
+   "page": "resume.html (the upload card's two half-width buttons)",
+   "seen": "2026-09-14",
+   "walk": "narrow-320 en nav-hub axis runner - resume.html at rest and at every hub state, cast the row's worker",
+   "kind": "wrapped-label",
+   "confusion": "At 320px the two half-width buttons (#btn-photo 'Take photos', #btn-file 'Choose files', flex:1; min-width:calc(50% - 0.6rem)) were ~119px wide and each label broke onto two lines.",
+   "improvement": "Below 360px each upload button takes the full row (they stack) and its label never wraps; wider phones keep the side-by-side pair.",
+   "fix": "resume.html (network-first, no sw bump): @media (max-width:360px) { #btn-photo, #btn-file { min-width:100% !important } } + white-space:nowrap inline on both. (!important because the buttons carry min-width INLINE and an inline declaration beats an id selector - the first cut was silently overridden and the re-walk still read 119px.)",
+   "layers": [
+    "F",
+    "CA"
+   ],
+   "ufai": [
+    "U"
+   ],
+   "status": "fixed + verified on the real page at 320 (2026-09-14) - the confusion rows are lived by prove_w4_confusions.mjs at both English axes",
+   "verified": "re-walk of resume.html at narrow-320 en by the nav-hub axis runner (2026-09-14 night): 0 findings at rest and at every hub state, the row banked to locking (gate w4-nav-hub-320-en)."
+  },
+  {
+   "id": "C22",
+   "page": "voice-journal.html (the history entries' 'Speak again' buttons)",
+   "seen": "2026-09-14",
+   "walk": "narrow-320 en nav-hub axis runner - voice-journal.html at rest and at every hub state, cast the row's worker",
+   "kind": "wrapped-label",
+   "confusion": "At 320px the .speak-btn 'Speak again' press control in a history entry's flex row was squeezed to 86-88px and its label broke onto two lines (two entries at rest).",
+   "improvement": "A press control keeps its natural width and a one-line label (white-space:nowrap; flex-shrink:0); the text beside it in the row is what gives way.",
+   "fix": "voice-journal.html (network-first, no sw bump): .speak-btn { white-space:nowrap; flex-shrink:0 }.",
+   "layers": [
+    "F",
+    "CA"
+   ],
+   "ufai": [
+    "U"
+   ],
+   "status": "fixed + verified on the real page at 320 (2026-09-14) - the confusion rows are lived by prove_w4_confusions.mjs at both English axes",
+   "verified": "re-walk of voice-journal.html at narrow-320 en by the nav-hub axis runner (2026-09-14 night): 0 findings at rest and at every hub state, the row banked to locking (gate w4-nav-hub-320-en)."
+  },
+  {
+   "id": "C23",
+   "page": "analytics-report.html (the page header's BETA badge)",
+   "seen": "2026-09-14",
+   "walk": "narrow-320 en nav-hub axis runner, re-walk after C19 - analytics-report.html at rest and at every hub state",
+   "kind": "off-screen",
+   "confusion": "At 320px the header row (.ar-header: title block containing the tabs strip, plus a nowrap BETA badge) summed past the viewport: span.ar-badge spanned 307..351, past the screen and its parent - the same header-row class as report-sender's Install button (C20), one page over.",
+   "improvement": "A header row with a fixed-width trailing item wraps at narrow widths and its title block may shrink (min-width:0), so nothing extends past the viewport.",
+   "fix": "analytics-report.html (network-first, no sw bump): .ar-header { flex-wrap:wrap } + .ar-header > div:first-child { min-width:0 }.",
+   "layers": [
+    "F",
+    "LB"
+   ],
+   "ufai": [
+    "U"
+   ],
+   "status": "fixed + verified on the real page at 320 (2026-09-14) - the confusion rows are lived by prove_w4_confusions.mjs at both English axes",
+   "verified": "re-walk of analytics-report.html at narrow-320 en by the nav-hub axis runner (2026-09-14 night): 0 findings at rest and at every hub state, the row banked to locking (gate w4-nav-hub-320-en)."
+  },
+  {
+   "id": "C24",
+   "page": "index.html (the sign-in wall's username field)",
+   "seen": "2026-09-14",
+   "walk": "phone-390 en nav-hub walk of pm-scheduler.html as Oscar Ramos (Ramos Jeepney Line) - the heavy-host trial after the Docker recovery",
+   "kind": "unactionable-sentence",
+   "confusion": "The wall said 'Wrong username or password.' to a person whose account exists and whose password was right: _syntheticEmail() silently strips every character outside [a-z0-9_] from the typed username, so 'jeepney.oscarph' became jeepneyoscarph@auth.workhiveph.com - an address no account had (the seeder had created jeepney.oscarph@). Three local accounts (two active hive members) could never be signed into from the front door, and the sentence blamed the person.",
+   "improvement": "Two halves: (1) a synthetic username is [a-z0-9_] at creation - the seeders and the sign-up path produce the same handle the wall will send, never one it cannot address; (2) when normalisation changes what was typed, the wall shows the handle it will use ('Signs in as jeepneyoscarph') under the field, so a person sees why a dotted username does not match.",
+   "fix": "local data: the 3 dotted accounts renamed to their normalised form (auth.users.email + identities.identity_data.email); index.html: a live hint under #si-username showing the normalised handle whenever it differs from what was typed (network-first, no sw bump).",
+   "layers": [
+    "F",
+    "AU"
+   ],
+   "ufai": [
+    "U",
+    "I"
+   ],
+   "status": "fixed (2026-09-14) - verify on the pm-scheduler re-walk (sign-in as the renamed cast) and by the C24 confusion rows"
+  },
+  {
+   "id": "C25",
+   "page": "index.html as a signed-in host (the landing page) + the consent card + the hub FAB",
+   "seen": "2026-09-14",
+   "walk": "phone-390 en nav-hub walk of index.html as host (night chain, --include-heavy), cast Christine Dizon - 'the whole hub' step",
+   "kind": "hidden-by-chrome",
+   "confusion": "With no dialog open the analytics-consent card (fixed bottom, 358x193 at 16,635 at 390x844) sat on the shared hub FAB (56x56 at 318,764): page.click on the FAB timed out and elementFromPoint at its centre returned the card's own <summary>, so a signed-in person on the landing page could not open the navigation until they answered the card. Under the global search / companion / feedback overlays the card's own Allow / No thanks buttons read as covered, because a fixed card stays painted beneath an overlay. ROOT (found on the 320 re-read, where the card was already in-flow and the FAB centre hit the ops card beneath): the card carried role=\"dialog\", and nav-hub's standDownWhileDialogOpen() hides the whole hub (visibility:hidden) while ANY [role=dialog] is visible - so on the signed-in landing page the navigation was gone at every width until the card was answered.",
+   "improvement": "The consent card is never fixed chrome: at every width it reflows into the page (static at the top of <main>), pushes content down, covers nothing (the FAB included) and sits under an overlay like the rest of the page. The <=360 reflow (C13) becomes the rule everywhere.",
+   "fix": "index.html: #wh-consent role=\"dialog\" -> role=\"region\" (an in-flow notice with two buttons is not a dialog; the hub no longer stands down for it). wh-consent.js: the reflow is unconditional (every width) so the card is never fixed chrome over the FAB or under an overlay. Teeth: prove_consent_narrow_reflow.mjs expects static-in-main at 390 with a negative control.",
+   "layers": [
+    "F",
+    "CA"
+   ],
+   "ufai": [
+    "U",
+    "A"
+   ],
+   "status": "fixed (2026-09-15) - verify on the re-walk of index.html as host at 390 en / 320 en / 390 fil"
+  },
+  {
+   "id": "C26",
+   "page": "shift-brain.html (the 'Publish to crew' button)",
+   "seen": "2026-09-15",
+   "walk": "narrow-320 en nav-hub walk of shift-brain.html as host (night chain, --include-heavy), cast Oscar Ramos - at rest and at every hub state",
+   "kind": "wrapped-label",
+   "confusion": "At 320px #publish-btn 'Publish to crew' was squeezed to 89px and its label broke onto two lines - a press control beside other controls in a flex row, the same class as voice-journal's 'Speak again' (C22) and resume's upload pair (C21).",
+   "improvement": "A press control keeps its natural width and a one-line label (white-space:nowrap; flex-shrink:0), or the row wraps below 360px so the control takes a full line; the text beside it gives way, never the label.",
+   "layers": [
+    "F",
+    "CA"
+   ],
+   "ufai": [
+    "U"
+   ],
+   "status": "fixed + verified on the real page at 320 (2026-09-15); rows W45833..W45835 seeded for the confusion prover",
+   "fix": "shift-brain.html (precached SHELL → sw v392): .actions-row { flex-wrap:wrap } + .actions-row > button { white-space:nowrap; flex-shrink:0 }.",
+   "verified": "re-walk of shift-brain.html at narrow-320 en (night chain, 2026-09-15 00:16): 0 findings at rest and at every hub state, row banked (gate w4-nav-hub-320-en)."
+  },
+  {
+   "id": "C27",
+   "page": "engineering-design.html (arrival from the 60 tools/<slug>-calculator guide pages)",
+   "seen": "2026-09-15",
+   "walk": "designing the compute prover for the 180 'work the example, compute, export or print, follow the CTA' rows: every tools/* guide's CTA is href=/engineering-design.html?calc=<slug>, and engineering-design.html / .js contain no location.search, URLSearchParams or hash handling at all",
+   "kind": "wrong-arrival",
+   "confusion": "A person who follows 'Open the interactive AHU Sizing Calculator in WorkHive' lands on the calculator GRID with nothing selected - the ?calc=ahu-sizing the guide sent is never read - and must find the calculator again among 55 cards. Sixty guide pages send this link; none of them arrives where it promised.",
+   "improvement": "engineering-design honours ?calc=<slug>: at init it resolves the slug against CALC_TYPES_UI (normalised ids), selects that calculator (selectCalcType), opens the calculator tab and scrolls the form into view; an unknown slug leaves the grid as today.",
+   "layers": [
+    "F",
+    "A"
+   ],
+   "ufai": [
+    "U"
+   ],
+   "status": "fixed (2026-09-15) - lived by prove_w4_confusions.mjs C27 (?calc=ahu-sizing selects the AHU card); rows W45836..W45838 seeded",
+   "fix": "engineering-design.js (page script, not precached - validator PASS): applyCalcDeepLink() at the end of init() resolves ?calc=<slug> against CALC_TYPES_UI by token coverage (51/60 guide slugs) plus CALC_SLUG_ALIASES for guide wordings that differ (boiler-steam, chiller-sizing, load-schedule, vibration-isolation, sewer-drainage), selects the calculator, opens the calculator tab and scrolls the form into view; a slug with no such calculator (mtbf, oee, hydraulic-cylinder, domestic-water-demand) leaves the grid."
+  },
+  {
+   "id": "C28",
+   "page": "achievements.html (host; the notice is shared chrome - utils.js _whShowNotice via nav-hub.js 'wh-update-notice')",
+   "seen": "2026-09-15",
+   "walk": "W41366 through the Playwright MCP, the first nav-hub walk after the retraction: at rest on achievements.html at phone-390 en, #wh-update-notice (position fixed, z-index 2147483000, 368x117 at x8 y567) covers the page's own 'Read the guide: Gamifying...' link (119x44 at y658) and its 44x44 'Dismiss guide link' button; with the companion open it covers #wh-ai-messages, with the feedback panel open it covers #wh-fb-body; the hub itself walked clean (11/11 controls)",
+   "kind": "hidden-by-chrome",
+   "confusion": "A person opening achievements on a phone sees the page's own 'Read the guide' link and its dismiss button sitting behind the update notice: on screen, but not tappable until the notice is dismissed, and nothing says so. With the companion or feedback panel open, the notice sits over what they are reading or typing.",
+   "improvement": "A notice never covers something interactive: _whShowNotice measures the fixed bottom chrome already on the page (learn chip, sticky CTA, hub fab, open panels) and places itself above the tallest of them, and an open companion/feedback panel raises the notice above its own body; nothing a person can tap sits under a notice at rest or with a panel open.",
+   "layers": [
+    "F"
+   ],
+   "ufai": [
+    "U",
+    "A"
+   ],
+   "status": "fixed BOTH HALVES (2026-09-16, sw v417) - verified live through the Playwright MCP at phone-390 on the shipped shell. FIRST HALF (v394, 2026-09-15, unchanged and still holding): the notice raises itself above the page-guide chip, data-wh-bottom 203px. SECOND HALF (v417): the notice now YIELDS to an overlay that covers it. Measured before: notice 532..643 (z 2147483000) over #wh-fb-body 522..622 inside #wh-feedback-panel 0..844 (z 9999) - overlaps true. Placement could never fix that: clearing an 844px full-height panel needs bottom >= 844, past the 60% cap (506px) the placement deliberately refuses to cross, so this was a z-order problem and the z-index is itself correct (a stale-version message must outrank page CONTENT, just not a panel opened a second ago). Measured after: panel open -> notice display none, height 0; panel closed via its own 'Close feedback panel' button -> display block, height 111. The fix tests INTERSECTION, not mere presence, so a popover elsewhere does not silence the message; it ignores display:none / visibility:hidden / zero-opacity / under-8px overlays because a CLOSED off-canvas panel keeps its box; and its 500ms re-check is created with the notice and cleared by the same 30s cleanup, so no page carries a timer for a message that is gone. BOTH occlusions cleared with the one change - span.wh-notice-ref (the companion finding) lives inside the notice, so hiding it took that too, which is why the re-walk went 2 findings -> 0. RE-WALKED AND BANKED: dayplanner.html through the Playwright MCP, 24 records, withFindings 0, 11/11 controls, 0 problems, identity kept across all 4 pages; W41393 banked locking/60 on instrument playwright-mcp, PASS trajectory-registry. FOUND ONLY BECAUSE THE GATE LEARNED TO LOOK: bank_mcp_navhub_walk.py summed the 4 at-rest page arrivals and never opened <id>.records.json, the ~24 interaction records where the panels are actually opened - a page at rest is the one state where a panel cannot be covering anything. It now reads them and refuses a row while an interactive state carries an occlusion. W41367 and W41368 still carry an uncounted 'feedback open from the hub' finding from before the fix and want a re-walk.",
+   "fix": "utils.js _whShowNotice (precached SHELL, sw v393->v394): the bottom-chrome measurement that decides the notice's height ran ONCE at show time, and the page-guide chip (learn-link.js) paints on its own 300 ms..12 s schedule after the update notice fires, so the notice stayed at its literal 160px over the chip. The placement is now a function called at show time and again at 0.5/1.5/3/6/12.5 s while the notice is up; it only ever raises the notice (data-wh-bottom keeps the high-water mark) and the chip's own avoidance list deliberately excludes notices, so there is one mover. Also: the notice's Retry/Reload/Sign-in button 32 -> 44px. Teeth: prove_w4_confusions.mjs C28 (gate w4-confusions)."
+  },
+  {
+   "id": "C29",
+   "page": "achievements.html (host; the panel is shared chrome - wh-feedback-fab.js #wh-feedback-panel)",
+   "seen": "2026-09-15",
+   "walk": "W46599 (the C28 confusion row) and W41366 before it, both nav-hub walks through the Playwright MCP at phone-390 en: with the feedback panel open from the hub, the per-step record reads #wh-feedback-panel and its header div.wh-fb-hdr spanning x -6..384 - 6px of the panel and its header sit past the left edge of a 390px viewport (the same reading on every host walked)",
+   "kind": "off-screen",
+   "confusion": "A person who opens Send feedback from the hub on a phone sees the panel's left edge and the first letters of its header cut by the screen edge; the panel reads as mis-placed rather than designed, and the leftmost tap column is 6px narrower than it looks.",
+   "improvement": "The feedback panel is inset from both viewport edges (left/right 8px like the notice and the hub panel) at every width, so the whole panel and its header sit inside the screen at 320 and 390.",
+   "layers": [
+    "F"
+   ],
+   "ufai": [
+    "U"
+   ],
+   "status": "fixed (2026-09-15) - verified live by the W41370 nav-hub MCP walk at 320 (the feedback panel's box no longer reads -6..314; 0 outside findings); rows seeded",
+   "fix": "wh-feedback-fab.js .wh-fb-panel max-width 100vw -> 100%. Mechanism found with the MCP (containing-block probe): innerWidth 390 but documentElement.clientWidth 384 - the browser draws a 6px classic scrollbar; 100vw includes it, a fixed box's right:0 does not, so a 390px-wide panel anchored at 384 starts at -6. A phone with overlay scrollbars never shows it; any desktop window narrower than 380px with a classic bar does. Network-first file, no sw bump."
+  },
+  {
+   "id": "C30",
+   "page": "achievements.html (host; the chip is shared chrome - utils.js renderSourceChip + _whSettleStuckLoaders)",
+   "seen": "2026-09-15",
+   "walk": "W45842, the design lens copy on achievements through the Playwright MCP, degraded pass (service worker dropped, every REST and function read aborted): the source chip read 'Read failed · Live · refreshed on load · Based on your achievements, XP history & worker' in English and 'Nabigo ang pagbasa · Live · nire-refresh sa pag-load · ...' in Filipino, above figures that were the last data loaded",
+   "kind": "ambiguity",
+   "confusion": "One sentence says the read failed and that the figures are live and were refreshed on load. A person cannot tell whether the numbers under it are current or stale, which is the one thing the chip exists to say.",
+   "improvement": "When a read fails, the chip replaces its freshness clause with what is true - 'Read failed · showing the last data loaded · Based on ...' / 'Nabigo ang pagbasa · ipinapakita ang huling na-load na data · ...' - and keeps the rest; a later successful read repaints it as live.",
+   "layers": [
+    "F",
+    "CA"
+   ],
+   "ufai": [
+    "U"
+   ],
+   "status": "fixed (2026-09-15) - verified live through the Playwright MCP (copy lens re-walk, degraded pass, en + fil): the chip reads 'Read failed · showing the last data loaded · Based on ...' / 'Nabigo ang pagbasa · ipinapakita ang huling na-load na data · ...'; rows seeded by --add-confusions"
+  },
+  {
+   "id": "C31",
+   "page": "achievements.html (host; the control is shared chrome - nav-hub.js .wh-hub-mode-btn)",
+   "seen": "2026-09-15",
+   "walk": "W41367, the nav-hub walk of achievements at narrow-320 en through the Playwright MCP: the hub's mode row squeezes its buttons to 37px wide at 320 (hub.tapUnder44: '⊞All' 37x44); every other hub control measured 44 or more",
+   "kind": "small-target",
+   "confusion": "On a 320px phone the mode buttons in the hub are 37px wide: a gloved thumb aimed at 'All' lands on the neighbour or the gap. The platform's own floor is 44px (tokens.css --wh-control-h).",
+   "improvement": "Every hub mode button keeps min-width:44px at every viewport; the mode row wraps or scrolls sideways rather than shrinking its targets below the floor.",
+   "layers": [
+    "F"
+   ],
+   "ufai": [
+    "U",
+    "A"
+   ],
+   "status": "fixed (2026-09-15) - verified live by the W41370 nav-hub MCP walk at 320 (hub.tapUnder44 empty; was ⊞All 37x44); rows seeded",
+   "fix": "nav-hub.js: .wh-hub-mode-btn min-width:44px and #wh-hub-mode flex-wrap:wrap - six 44px buttons with 4px gaps need 284px, which fits a 320px hub panel; if a locale ever needs more the row wraps instead of shrinking a target. Precached: sw v394 note."
+  },
+  {
+   "id": "C32",
+   "page": "achievements.html (host; the notice is shared chrome - utils.js _whShowNotice)",
+   "seen": "2026-09-15",
+   "walk": "W45845, the design lens critique on achievements through the Playwright MCP at desktop-1280x800: the service-worker update notice rendered edge to edge (left 8px, right 8px = 1,258px wide, 74px tall) at bottom 203px and sat over the 'What to do next' recommendation text; the overlap record has nothing to say because the text is not a control",
+   "kind": "hidden-by-chrome",
+   "confusion": "On a laptop the notice becomes a red banner across the whole window, parked in the middle of the page over the sentence that tells the person what to do next; it reads as an outage, not a notice, and hides the recommendation until dismissed.",
+   "improvement": "From 700px the notice is a toast: at most 560px wide, anchored bottom-left beside the guide chip, so the page's text stays readable around it; on a phone it stays edge to edge.",
+   "layers": [
+    "F"
+   ],
+   "ufai": [
+    "U"
+   ],
+   "status": "fixed (2026-09-15) - utils.js _whShowNotice sizes by viewport (precached, sw v394 note); verification by the next design walk that meets an update notice at 1280; rows by --add-confusions"
+  },
+  {
+   "id": "C33",
+   "page": "alert-hub.html",
+   "seen": "2026-09-15",
+   "walk": "W41372, the nav-hub walk of alert-hub at phone-390 through the Playwright MCP (cast Hector Salvador): the overlap record's ambiguity check found 30 alert rows whose three controls carry identical accessible names - 'open in asset hub →' x30, 'snooze this alert for 7 days' x30, 'mark this alert handled' x30 - in one main region",
+   "kind": "look-alike-controls",
+   "confusion": "Ninety controls with thirty identical names each: a screen-reader user hears 'mark this alert handled' thirty times with no way to tell which alert; a sighted person tabbing through the list has the same problem. Each button belongs to one alert and should say which.",
+   "improvement": "Every alert's controls carry the alert's own subject in their accessible name - 'Open Pump 3 vibration in asset hub', 'Snooze Pump 3 vibration for 7 days', 'Mark Pump 3 vibration handled' - while the visible label stays short.",
+   "layers": [
+    "F"
+   ],
+   "ufai": [
+    "A",
+    "U"
+   ],
+   "status": "fixed (2026-09-15) - verified live by the W45853 design walk through the Playwright MCP: every alert control names its alert in the accessibility tree (controlNames); rows seeded",
+   "fix": "alert-hub.html alert row template: the action link, the hail link and the seen / snooze / handled buttons carry the alert's own title in aria-label ('Snooze for 7 days: UPS-002', 'Mark handled: UPS-002'); visible labels unchanged."
+  },
+  {
+   "id": "C34",
+   "page": "ai-quality.html and achievements.html (the chip is shared chrome - learn-link.js #wh-guide-link)",
+   "seen": "2026-09-15",
+   "walk": "the design-lens walks of achievements (W45839) and ai-quality (W45846-W45850) through the Playwright MCP at phone-390: in the first viewport the fixed page-guide chip ('New to this page? Read the guide', ~200x62 at bottom 132px) sits over the third KPI tile - the Total level sub-line on achievements, the ₱0.00 cost hero on ai-quality; the overlap record is silent because the covered text is not a control",
+   "kind": "hidden-by-chrome",
+   "confusion": "A person opening a dashboard on a phone sees the third number half-hidden behind a chip that offers a guide they did not ask for; the chip stays over the content until dismissed, and on every dashboard the same band of the first screen is lost.",
+   "improvement": "The chip folds to its icon (44x44) after 8 s at rest or on the first scroll and unfolds on tap, so the guide stays reachable while the numbers stay readable; a dismissed chip stays dismissed.",
+   "layers": [
+    "F"
+   ],
+   "ufai": [
+    "U"
+   ],
+   "status": "fixed (2026-09-15) - verified live through the Playwright MCP on ai-quality at 390: chip 203x63 at 2 s, 45x63 folded at 10 s, 203x63 after a tap; rows seeded",
+   "fix": "learn-link.js: after 8 s at rest or the first scroll the chip folds to its icon (45x63, the text block and the dismiss hidden, aria-expanded=false); a tap unfolds it, the next tap follows the link; the dismiss is unchanged. Network-first file, no sw bump. Follow-up (W45855 audit walk, 2026-09-15): the folded icon measured 22x44 at 1280 - the anchor now keeps min-width 44px and centres the icon while folded."
+  }
+ ]
+}

@@ -14,7 +14,7 @@ Updated 24 Aug 2026
 ·
 7 min read
 
-**Short answer:** A predictive alert that gets silenced after 3 weeks is worse than no alert. The pattern that works in Philippine plants: 3 alert tiers (Notice, Warning, Action) with explicit escalation rules, ISO 10816-compliant vibration thresholds adjusted for asset class, named owners per tier, and a weekly alert-fatigue review that retires or retunes any alert silenced more than 3 times. Plants that follow this discipline catch 30 to 40 percent of developing failures before they hit; plants that buy a sensor and never tune the thresholds get expensive shelf decoration.
+**Short answer:** A predictive alert that gets silenced after 3 weeks is worse than no alert. The pattern that works in Philippine plants: 3 alert tiers (Notice, Warning, Action) with explicit escalation rules, ISO 10816-compliant vibration thresholds adjusted for asset class, named owners per tier, and a weekly alert-fatigue review that retires or retunes any alert silenced more than 3 times. The discipline is what turns a sensor into a warning; plants that buy the sensor and never tune the thresholds get expensive shelf decoration. How much it catches depends on your assets and your baseline, so measure it against your own failure history rather than against a number from an article.
 
 Who this is for
 
@@ -87,9 +87,9 @@ The single most important discipline: weekly review of any alert silenced more t
 
 The tool this guide is about
 
-#### WorkHive Alert Hub manages the threshold + escalation discipline
+### WorkHive Alert Hub manages the threshold + escalation discipline
 
-Define 3-tier thresholds per asset, name owners per tier, configure escalation timing, get the weekly silenced-alert report. Integrates with Predictive Maintenance, Logbook, and Asset Hub. Free at the worker tier; phone-call escalation via SMS/voice gateway unlocks at Stage 3.
+Be clear about the division of labour here, because it decides how you roll this out. **The threshold discipline above is yours to run** — naming the three tiers, assigning an owner to each, agreeing the escalation clock and holding the weekly review are decisions a plant makes, and Alert Hub does not hold a screen for configuring them. What it does is the part that is tedious by hand: it collects asset-risk, PM-due, low-stock, failure-pattern and automation alerts into one chronological inbox with a severity on each, lets you snooze or dismiss so the list stays honest, and delivers the AMC daily brief at 06:00 PHT for batch approval. Note the vocabulary differs: the product labels severity critical, high, medium and watch rather than Notice/Warning/Action, so map your tiers onto those when you write your procedure. There is no SMS or voice-call escalation; alerts live in-app. Free at the worker tier, and Alert Hub opens at **Stair 3 (Predictive-Ready)** — PM compliance at or above 70 percent and logbook hygiene at or above 80 percent on your hive’s readiness score.
 
 No hive yet? [Join WorkHive](https://workhiveph.com/?signup=1) first (free, takes 30 seconds).
 
@@ -129,4 +129,4 @@ Start with vendor defaults (or ISO 10816 for vibration), but tune within 90 days
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: fbecef7503f8ebdc -->
+<!-- md-twin source-sha: 9e0d7f27dc407365 -->

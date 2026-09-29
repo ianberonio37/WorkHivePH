@@ -3184,6 +3184,25 @@ def workhive_index():
     return render_template("workhive_index.html", pages=PUBLIC_PAGES, supabase_url=LOCAL_URL)
 
 
+@app.route("/api/w4/steps", methods=["POST"])
+def w4_steps():
+    """Wave 4 (2026-09-14): an MCP walk hands its per-step record here to be written to .tmp/w4_steps/<id>.json.
+
+    The walker (tools/w4_navhub_walk.js) runs inside the playwright MCP's vm, which cannot import() a Node
+    module, so it cannot write a file itself; Playwright's request context can POST. Local-only, like every
+    route here: the id is reduced to [A-Za-z0-9_-], the body is stored verbatim as JSON, nothing is executed.
+    """
+    data = request.get_json(force=True, silent=True) or {}
+    wid = re.sub(r"[^A-Za-z0-9_\-]", "", str(data.get("id") or "walk"))[:60] or "walk"
+    out_dir = WORKHIVE_ROOT / ".tmp" / "w4_steps"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    steps_path = out_dir / f"{wid}.json"
+    steps_path.write_text(json.dumps(data.get("steps"), indent=1, ensure_ascii=False), encoding="utf-8")
+    (out_dir / f"{wid}.records.json").write_text(json.dumps(data.get("records"), indent=1, ensure_ascii=False), encoding="utf-8")
+    return jsonify({"ok": True, "path": str(steps_path.relative_to(WORKHIVE_ROOT)).replace("\\", "/"),
+                    "steps": len(data.get("steps") or []), "records": len(data.get("records") or [])})
+
+
 @app.route("/workhive/<path:filename>")
 def workhive_file(filename):
     # Block path traversal

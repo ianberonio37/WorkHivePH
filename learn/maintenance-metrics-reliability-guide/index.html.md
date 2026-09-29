@@ -1,16 +1,16 @@
 # Maintenance metrics: OEE, MTBF, MTTR & reliability, explained for Philippine plants
 
-> The five maintenance metrics every Philippine plant should track (OEE, MTBF, MTTR, availability, and PM compliance) with formulas, worked examples, and free calculators.
+> The five maintenance metrics every Philippine plant should track: OEE, MTBF, MTTR, availability, and PM compliance: with formulas, worked examples, and free calculators.
 
 Source: https://workhiveph.com/learn/maintenance-metrics-reliability-guide/
 
-By WorkHive Editorial Team · Updated 2026-08-05 · 9 min read
+By WorkHive Editorial Team · Published 2026-08-05 · 9 min read
 
 The five metrics every Philippine plant should track are **OEE** (Overall Equipment Effectiveness = Availability × Performance × Quality; world-class is 85%), **MTBF** (Mean Time Between Failures = operating hours ÷ number of failures), **MTTR** (Mean Time To Repair = total repair time ÷ number of repairs), **Availability** (MTBF ÷ (MTBF + MTTR)), and **PM compliance** (PMs completed on time ÷ PMs scheduled; the SMRP benchmark is ≥90%). Together they turn “the line keeps breaking” into a number you can act on.
 
 ## Why maintenance metrics matter
 
-Most Philippine plants run maintenance on memory and firefighting: the senior mechanic knows which pump is “always a problem,” and everyone reacts when a line stops. The trouble is that memory does not scale, does not transfer when the senior mechanic retires, and cannot be put in a budget request. Metrics fix that. A plant that measures reliability can say “this filler cost us 62 hours of downtime last quarter, and 80% of it was the same bearing”: a sentence that unlocks a purchase order.
+Most Philippine plants run maintenance on memory and firefighting: the senior mechanic knows which pump is “always a problem,” and everyone reacts when a line stops. The trouble is that memory does not scale, does not transfer when the senior mechanic retires, and cannot be put in a budget request. Metrics fix that. A plant that measures reliability can say “this filler cost us 62 hours of downtime last quarter, and 80% of it was the same bearing” a sentence that unlocks a purchase order.
 
 Reliability metrics also standardise language across shifts and disciplines. When maintenance, production, and management all agree that availability means `MTBF ÷ (MTBF + MTTR)`, the morning meeting stops being an argument about whose fault the downtime was and starts being a decision about where to spend the next peso.
 
@@ -18,13 +18,13 @@ Reliability metrics also standardise language across shifts and disciplines. Whe
 
 **OEE = Availability × Performance × Quality.** It is the single number that captures how much saleable output a line actually produced versus its theoretical maximum. Worked example for a bottling line: available 90% of planned time, running at 95% of rated speed, producing 98% good bottles → OEE = 0.90 × 0.95 × 0.98 = **83.8%**. World-class is 85%; a typical plant sits at 40–60%, so the gap is usually enormous and cheap to close.
 
-The trap is measuring only one factor. A line that looks 90% “available” but runs slow and scraps 5% of output is really at ~80% OEE. Run your own line through the free [OEE calculator](https://workhiveph.com/tools/oee-calculator/), or see the full method in [What is OEE and how to calculate it](https://workhiveph.com/learn/what-is-oee-how-to-calculate/), and read the four maturity stages in [the four phases of maintenance analytics](https://workhiveph.com/learn/four-phases-maintenance-analytics-philippine-plants/).
+The trap is measuring only one factor. A line that looks 90% “available” but runs slow and scraps 5% of output is really at ~80% OEE. See the full method in [What is OEE and how to calculate it](https://workhiveph.com/learn/what-is-oee-how-to-calculate/), and read the four maturity stages in [the four phases of maintenance analytics](https://workhiveph.com/learn/four-phases-maintenance-analytics-philippine-plants/).
 
 ## MTBF and MTTR: the reliability pair
 
 **MTBF** measures how *reliable* an asset is; **MTTR** measures how *maintainable* it is. A pump that runs 4,000 hours and fails 5 times has MTBF = 4,000 ÷ 5 = **800 hours**. If those five repairs took 40 hours total, MTTR = 40 ÷ 5 = **8 hours**. Push MTBF up with better PM and root-cause fixes; push MTTR down with spares availability, standard work, and good documentation.
 
-The two are often confused, which leads to the wrong fix (buying spares when the real problem is repeat failures). Both figures come out of the free [MTBF and MTTR calculator](https://workhiveph.com/tools/mtbf-calculator/); the plain-language breakdown is in [MTBF vs MTTR for supervisors](https://workhiveph.com/learn/mtbf-vs-mttr-for-supervisors/).
+The two are often confused, which leads to the wrong fix (buying spares when the real problem is repeat failures). The plain-language breakdown is in [MTBF vs MTTR for supervisors](https://workhiveph.com/learn/mtbf-vs-mttr-for-supervisors/).
 
 ## Availability and how the metrics chain together
 
@@ -83,4 +83,4 @@ No. You can start with a disciplined logbook and a checklist. The value is in co
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: c6a6503ee26238b3 -->
+<!-- md-twin source-sha: 793fa86fed0bacab -->

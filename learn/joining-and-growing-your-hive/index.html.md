@@ -1,6 +1,6 @@
 # Joining and growing your WorkHive hive (your team's private workspace)
 
-> How a WorkHive hive works: solo mode for individual workers, joining an existing plant hive, supervisor approval, role-based access, multi-site hive groups, and data isolation guarantees.
+> How a WorkHive hive works: solo mode for individual workers, joining an existing plant hive, supervisor approval, how the two roles differ from the four nav view modes, and data isolation between hives.
 
 Source: https://workhiveph.com/learn/joining-and-growing-your-hive/
 
@@ -14,7 +14,7 @@ Updated 24 Aug 2026
 ·
 7 min read
 
-**Short answer:** A WorkHive hive is your plant's isolated workspace containing assets, logbook, PM schedules, people, and history. Workers can use WorkHive in solo mode (private to them) or join a plant hive (supervisor-approved). Each hive has 4 role levels (field, supervisor, engineer, plant manager) with role-based access control. Data isolation is enforced at the database row level; nothing leaks between hives. Multi-site operations use hive groups for corporate roll-up while keeping each plant autonomous day-to-day.
+**Short answer:** A WorkHive hive is your plant's isolated workspace containing assets, logbook, PM schedules, people, and history. Workers can use WorkHive in solo mode (private to them) or join a plant hive (supervisor-approved). A hive has two roles, worker and supervisor, and separately the navigation offers four view modes that change which tools you see rather than what you may do. Data isolation is enforced at the database row level; nothing leaks between hives. A group running several plants runs several hives: one per plant: because corporate roll-up across them is roadmap, not product.
 
 Who this is for
 
@@ -48,7 +48,7 @@ Many workers do not have a plant hive yet. They might be:
 - A student learning industrial maintenance during practicum
 - A worker whose plant is still on paper and they want to start digital personally
 
-Solo mode is for them. Sign up with email, get the full WorkHive toolset (Logbook, Engineering Design, Skill Matrix, AI Assistant, Day Planner) scoped to a personal hive of one. Solo data stays private; nobody else sees it. When the worker later joins a plant hive, they choose what solo history to import (skill matrix evidence usually comes with them; logbook entries from a previous employer usually stay private).
+Solo mode is for them. Sign up with a username and password - no email needed - and get the full WorkHive toolset (Logbook, Engineering Design, Skill Matrix, AI Assistant, Day Planner) scoped to a personal hive of one. Solo data stays private; nobody else sees it. Joining a plant hive later does not move any of it: there is no import step, and no choice to make. Your solo hive stays yours and keeps its entries; the plant hive is a second membership alongside it. Your skill badges are held against your name rather than against either hive, so those show up wherever you are.
 
 This is one of the under-told values of WorkHive: it works as a personal professional toolkit, not only as a plant tool.
 
@@ -57,27 +57,26 @@ This is one of the under-told values of WorkHive: it works as a personal profess
 Three steps:
 
 1. **Sign in or create an account.** Username plus password, no email needed; takes about 30 seconds.
-2. **Find the hive.** Either enter the hive code your supervisor gave you, or search the directory for your plant by name.
-3. **Request to join.** Pick your role (field, supervisor, engineer). Supervisor sees the request and approves within minutes.
+2. **Enter the hive code.** Your supervisor gives it to you. There is no public directory of plants to browse: deliberately, because a searchable list of which plants use which software is not yours to publish.
+3. **Request to join.** You join as a worker; there is no role to pick. The supervisor sees the request and approves it, and can promote you afterwards if your job calls for it.
 
 After approval, the worker gets immediate access to the hive's tools. Existing logbook entries become searchable; PM assignments start appearing in their queue.
 
-## The 4 role levels and what each can do
+## Two roles, and four ways to view the same nav
 
-| Role | Can do | Cannot do |
-| --- | --- | --- |
-| **Field** | Log entries, view assets, complete assigned PMs, use AI assistant, voice journal | Approve PMs, assign work, edit skill matrix, see financial views |
-| **Supervisor** | Everything in Field plus assign work, approve PMs, edit skill matrix, draft handovers, view team analytics | Edit engineering calculations, change integration config, see AI Quality dashboard |
-| **Engineer** | Everything in Supervisor plus engineering design tool, deep analytics, integration setup, asset register edits | Approve plant-level budgets, change hive roles |
-| **Plant Manager** | Everything in Engineer plus AI Quality dashboard, full audit log, financial views, hive role changes, founder console access | Nothing within their hive; everything is available |
+This trips people up because the words overlap, so take them separately.
 
-Roles are additive (Plant Manager can do everything a Field worker can). Workers do not see tools they cannot act on; the nav adapts based on role.
+**There are two ROLES: worker and supervisor.** That is the whole list. Creating a hive makes you its supervisor. Everyone who joins is a worker until a supervisor promotes them. A supervisor can approve and reject join requests, remove members, publish a shift plan, recompute risk scores, and read the full audit log; a worker does the maintenance work and records it.
+
+**Separately, the navigation has four VIEW MODES** — All, Field, Supervisor and Engineer: which filter which tools you see so a technician is not scrolling past integration settings to reach the logbook. Switching to Engineer view does not grant you anything; it is a lens on the same menu, and anyone can switch it.
+
+Two gates are worth separating from both: the full audit log is supervisor-only, and the AI Quality dashboard is gated by the hive's maturity stair rather than by anyone's role: a hive earns it, a person is not granted it.
 
 The tool this guide is about
 
-#### WorkHive Hive is your plant's workspace
+### WorkHive Hive is your plant's workspace
 
-The Hive dashboard is the supervisor's home for the plant team: who is in the hive, who is requesting to join, current PM compliance, open issues, and adoption score. Set up your hive once and every other WorkHive tool inherits the membership and roles. Free at the worker tier; multi-site hive groups and corporate roll-up unlock at Stage 4.
+The Hive dashboard is the supervisor's home for the plant team: who is in the hive, who is requesting to join, current PM compliance, open issues, and adoption score. Set up your hive once and every other WorkHive tool inherits the membership and roles. Free at the worker tier. One plant is one hive today; grouping several sites under one roll-up is on the roadmap rather than in the product, so plan a multi-site rollout as separate hives for now.
 
 No hive yet? [Join WorkHive](https://workhiveph.com/?signup=1) first (free, takes 30 seconds).
 
@@ -93,15 +92,15 @@ WorkHive enforces isolation at three layers:
 
 Cross-hive access exists but only via explicit, scoped, named permissions: a contractor whose work spans multiple plants, a supplier on consignment stock across a network. Default is total isolation.
 
-## Multi-site operations and hive groups
+## Running several plants
 
 Filipino conglomerates often run 3 to 20 plants across the country. The pattern that works:
 
 - **Each plant is its own hive.** Day-to-day operations stay autonomous; each plant's supervisor manages their own membership and PM schedule.
-- **A hive group ties them together.** The corporate maintenance director gets a roll-up dashboard showing PM compliance, MTBF, MTTR, and OEE across all child hives without seeing operational detail.
+- **There is no group layer yet.** A corporate roll-up across child hives: one dashboard showing PM compliance, MTBF, MTTR and OEE for every plant: is on the roadmap and not in the product, so a director wanting the comparison today collects it per plant. Worth knowing before you plan a rollout around it.
 - **Per-plant benchmarking** becomes natural. Plant A's PM compliance is 87 percent; Plant B's is 62 percent. The corporate team can see the gap and dispatch help.
 
-**The bigger picture:** The hive is not just a workspace; it is the trust boundary. Plants adopt WorkHive because the boundary is real and enforced at the database. Workers join hives because their data goes with them when they leave (skill matrix history, work portfolio). Both halves of the trust equation are needed for a free industrial platform to work in the Philippines, where data sensitivity is high and trust in cloud SaaS is still being earned.
+**The bigger picture:** The hive is not just a workspace; it is the trust boundary. Plants adopt WorkHive because the boundary is real and enforced at the database. Workers join hives because their skill badges are held against their own name and survive leaving; the plant's records stay with the plant, which is the same boundary read from the other side. Both halves of the trust equation are needed for a free industrial platform to work in the Philippines, where data sensitivity is high and trust in cloud SaaS is still being earned.
 
 ## Frequently asked questions
 
@@ -111,15 +110,15 @@ A hive is your plant's isolated workspace in WorkHive. Each hive contains its ow
 
 ### Can I use WorkHive solo, without a plant hive?
 
-Yes. Solo mode lets an individual worker (a freelance maintenance engineer, an OFW-track new graduate building a portfolio, a contractor between gigs) use the full WorkHive toolset (Logbook, Engineering Design, Skill Matrix, AI Assistant, Day Planner) without joining any plant. Solo data stays private to that worker. When the worker joins a hive later, they can choose what solo history to import or keep separate.
+Yes. Solo mode lets an individual worker (a freelance maintenance engineer, an OFW-track new graduate building a portfolio, a contractor between gigs) use the full WorkHive toolset (Logbook, Engineering Design, Skill Matrix, AI Assistant, Day Planner) without joining any plant. Solo data stays private to that worker. Joining a hive later adds a membership rather than moving anything: the solo hive keeps its own entries, and there is no import step to decide about.
 
 ### How does joining a plant hive work?
 
-Three steps: (1) the worker creates an account or signs in; (2) the worker enters the plant's hive code or search the directory and request to join; (3) the plant's supervisor approves the request. Approval typically takes minutes; the supervisor sees who is requesting and assigns the appropriate role (field, supervisor, engineer). The new joiner gets immediate access to the hive's data and tools.
+Three steps: (1) the worker creates an account or signs in; (2) the worker enters the plant's hive code - there is no public directory of plants to search - and requests to join; (3) the plant's supervisor approves the request. Everyone joins as a worker; a supervisor can promote someone afterwards. The new joiner gets immediate access to the hive's data and tools.
 
 ### What roles exist within a hive?
 
-Four primary roles: field (technician or operator with logbook + asset access), supervisor (everything plus PM approval, skill matrix edits, work assignment), engineer (everything plus engineering design, analytics deep-dives, integration config), and plant manager (everything plus AI quality dashboard, full audit log, financial views). Roles control what each worker sees and can do; nobody sees a tool they cannot act on.
+Two: worker and supervisor. Creating a hive makes you its supervisor; everyone who joins is a worker until a supervisor promotes them. Supervisors approve join requests, remove members, publish shift plans, recompute risk scores and read the full audit log. Separately - and this is the part that causes confusion - the navigation has four VIEW MODES (All, Field, Supervisor, Engineer) that filter which tools you see. Switching to Engineer view grants nothing; anyone can switch it. The AI Quality dashboard is gated by the hive's maturity stair rather than by any role.
 
 ### How is plant data kept private from other hives?
 
@@ -137,4 +136,4 @@ Each site is its own hive. The parent company can create a hive group that lets 
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 530ce8010f928b77 -->
+<!-- md-twin source-sha: d52630bd63ebfb7d -->

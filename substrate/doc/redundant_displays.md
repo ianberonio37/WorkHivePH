@@ -2,7 +2,7 @@
 name: doc-redundant_displays
 type: doc
 source: file:redundant_displays.md
-source_sha: 7b18abc3e2ff9d1a
+source_sha: 3c583a1f5755e2c1
 last_verified: 2026-07-13
 supersedes: null
 ---

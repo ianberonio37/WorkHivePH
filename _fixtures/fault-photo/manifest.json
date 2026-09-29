@@ -1,0 +1,17 @@
+{
+  "_doc": "Provenance for the real internet-sourced files in this directory (wave 4). The files are gitignored; this manifest is tracked. Written only by tools/fetch_fixture.py.",
+  "kind": "fault-photo",
+  "files": [
+    {
+      "file": "nameplate-600v-dc-marine-motor.jpg",
+      "source_url": "https://upload.wikimedia.org/wikipedia/commons/a/af/Nameplate_for_one_of_Fireboat_Firefighter_%27s_600V_DC_Marine_Motors.jpg",
+      "license": "CC BY-SA 4.0",
+      "author": "Kaylee La Spisa",
+      "note": "a real motor nameplate: 600V DC marine motor, Fireboat Firefighter - the photo a technician takes of the plate before filing a fault | source page https://commons.wikimedia.org/wiki/File:Nameplate_for_one_of_Fireboat_Firefighter_'s_600V_DC_Marine_Motors.jpg",
+      "mime": "image/jpeg",
+      "bytes": 6104394,
+      "sha256": "c1ec4d9d65621fda96040019ad4583d5a104efb1e4e99794048c472e2a920ad6",
+      "fetched": "2026-09-13T20:27:40Z"
+    }
+  ]
+}

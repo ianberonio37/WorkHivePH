@@ -67,7 +67,7 @@
         q.style.cssText = 'min-height:36px; padding:4px 10px; border-radius:8px; border:1px solid rgba(255,255,255,.45); background:rgba(0,0,0,.25); color:#fff; font-size:13px;';
         var go = document.createElement('button');
         go.type = 'submit'; go.textContent = 'Search';
-        go.style.cssText = 'min-height:36px; padding:4px 14px; border-radius:8px; border:1px solid rgba(255,255,255,.5); background:rgba(255,255,255,.12); color:#fff; font-size:13px; font-weight:600; cursor:pointer;';
+        go.style.cssText = 'min-height:36px; padding:4px 16px; border-radius:8px; border:1px solid rgba(255,255,255,.5); background:rgba(255,255,255,.12); color:#fff; font-size:13px; font-weight:600; cursor:pointer;';
         f.appendChild(lab); f.appendChild(q); f.appendChild(go);
         d.appendChild(f);
         document.body.insertBefore(d, document.body.firstChild);
@@ -299,7 +299,7 @@
             "name": "What languages does WorkHive support?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "English by default, with Filipino (Tagalog) support in the AI work assistant. Workers can ask questions in either language and receive responses appropriate to their role and stage. The Voice Journal additionally understands 10 Philippine languages, including Cebuano, Hiligaynon, and Ilocano."
+              "text": "English by default, with Filipino (Tagalog) support in the AI work assistant. Workers can ask questions in either language and receive responses appropriate to their role and stage. The Voice Journal additionally understands eight Philippine languages, including Cebuano, Hiligaynon, and Ilocano."
             }
           },
           {
@@ -368,14 +368,45 @@
   <style>
     * { font-family: 'Poppins', sans-serif; }
 
-    /* ---- logo glow ---- */
-    @keyframes logo-shimmer {
-      0%, 100% { filter: drop-shadow(0 0 28px rgba(247,162,27,0.80)) drop-shadow(0 0 56px rgba(247,162,27,0.45)) drop-shadow(0 0 18px rgba(41,182,217,0.65)); }
-      50%       { filter: drop-shadow(0 0 42px rgba(247,162,27,1.00)) drop-shadow(0 0 80px rgba(247,162,27,0.60)) drop-shadow(0 0 28px rgba(41,182,217,0.90)) drop-shadow(0 0 6px #fff); }
+    /* ★★THE DESKTOP HEADER HAD NO SIGN IN, AND THE CAUSE IS THAT A MEDIA QUERY ADDS NO SPECIFICITY
+       (design lens critique, 2026-09-17, W45929). Measured at desktop-1280, signed out: the ONLY clickable
+       thing in the header was the logo, and no sign-in, sign-up or join control existed anywhere in the
+       first 900px. Both nav groups - the links (The Hive / Impact / Community / Learn) and the actions
+       (Install WorkHive / Sign In) - are written "hidden md:flex" and both computed display:none at EVERY
+       width. A returning supervisor or planner on a desktop could not sign in from the front door at all.
+       The mechanism, read out of the live cascade rather than guessed: wh-tw.css declares .hidden{display:none}
+       and then, at the END of the file, @media (min-width:768px){.md\:flex{display:flex}} - which would win,
+       being later at equal specificity. But tokens.css:375 and components.css:226 EACH re-declare
+       .hidden{display:none}, and they load after wh-tw.css. A media query adds no specificity, so the last
+       plain .hidden wins at every width and md:flex never applies. The duplicates cannot simply be deleted:
+       32 app pages load tokens.css WITHOUT wh-tw.css and rely on that .hidden for their own toggles.
+       So the override lives HERE, in the page's own stylesheet, which is the last one this page loads. Only
+       three files in the repo use a "hidden <breakpoint>:" pair at all, so this is narrow on purpose.
+       This page uses exactly two such pairs - "hidden md:flex" x3 and "hidden sm:block" x5 - and BOTH are
+       covered here. The sm: half was missed on the first pass and caught by re-measuring rather than by
+       re-reading: five w-px separator bars in the trust row were still computing display:none at 1280. */
+    @media (min-width: 640px) {
+      .hidden.sm\:block  { display: block; }
     }
+    @media (min-width: 768px) {
+      .hidden.md\:flex   { display: flex; }
+      .md\:hidden        { display: none; }
+    }
+
+    /* ---- logo glow ---- */
+    /* THE MARK WAS PULSING NEON, THREE SECONDS AT A TIME, FOREVER (2026-09-17). logo-shimmer stacked
+       FOUR zero-offset chromatic drop-shadows on the hero logo - amber at 0.80 growing to 1.00, a 56px
+       amber bloom growing to 80px, a blue counter-glow at 0.65 growing to 0.90, and at the peak a pure
+       white 6px core - and looped that forever. A zero-offset coloured halo on a dark page is the pattern
+       the slop rule names; animating it to a white flash is that pattern with the volume up, on the largest
+       element in the first viewport. It was also the most expensive thing on the page: filter is not a
+       compositor-only property, so every frame of a 3s infinite loop repainted a blurred 80px layer around
+       an 80-130px image, on the low-end Android this product is built for, for the whole time the page is
+       open. What the mark actually needs is to sit off the navy rather than blend into it, which one static
+       shadow does. The float stays (see .logo-glow-img below): transform-only, seven seconds, one authored
+       moment instead of a strobe. */
     .logo-glow-img {
-      animation: logo-shimmer 3s ease-in-out infinite;
-      will-change: filter;
+      filter: drop-shadow(0 6px 18px rgba(0,0,0,0.55)) drop-shadow(0 0 24px rgba(247,162,27,0.22));
       image-rendering: -webkit-optimize-contrast;
       image-rendering: crisp-edges;
     }
@@ -397,7 +428,11 @@
 
     /* ---- glow card ---- */
     .card-glow {
-      box-shadow: 0 4px 24px -4px rgba(41, 182, 217, 0.12), 0 1px 4px rgba(0,0,0,0.18);
+      /* NEUTRAL AT REST (2026-09-16): a class named .card-glow casting a blue shadow while nobody is
+         touching it is neon, not elevation. Same geometry, neutral colour; the hover tint below stays,
+         on the reasoning already banked for .btn-primary:hover - a tint that exists only under the
+         pointer is an affordance, and it leaves again when the pointer does. */
+      box-shadow: 0 4px 24px -4px rgba(0,0,0,0.30), 0 1px 4px rgba(0,0,0,0.18);
       transition: box-shadow 0.2s ease-out, transform 0.2s ease-out;
     }
     .card-glow:hover {
@@ -430,11 +465,11 @@
       background: linear-gradient(135deg, var(--wh-orange-light) 0%, var(--wh-orange) 100%);
       color: var(--wh-navy);
       font-weight: 700;
-      padding: 14px 36px;
+      padding: 16px 36px;
       border-radius: var(--wh-radius-sm);
       display: inline-block;
       letter-spacing: 0.01em;
-      box-shadow: 0 4px 18px -2px rgba(247,162,27,0.45);
+      box-shadow: 0 4px 18px -2px rgba(0,0,0,0.45);
       transition: transform 0.18s ease-out, box-shadow 0.18s ease, opacity 0.18s ease;
     }
     .btn-primary:hover {
@@ -448,7 +483,7 @@
       background: transparent;
       color: var(--wh-blue);
       font-weight: 600;
-      padding: 13px 35px;
+      padding: 12px 36px;
       border-radius: var(--wh-radius-sm);
       border: 2px solid var(--wh-blue);
       display: inline-block;
@@ -466,7 +501,7 @@
     .btn-ghost {
       color: var(--wh-cloud);
       font-weight: 500;
-      padding: 13px 28px;
+      padding: 12px 28px;
       border-radius: var(--wh-radius-sm);
       display: inline-block;
       border: 1px solid rgba(244,246,250,0.2);
@@ -498,21 +533,25 @@
     .nav-link:hover { color: var(--wh-cloud); }
     .nav-link:hover::after { width: 100%; }
 
-    /* ---- stat number gradient ----
-       THE DARKEST STOP OF A background-clip:text GRADIENT IS TEXT, SO IT TAKES THE -text TOKEN.
-       Found 2026-08-06 walking the anon landing: '60-80%' and '15-25%' (.stat-blue, 48px on the
-       #impact card rgb(29,71,94)) measured APCA Lc 44.6 against a floor of 45. A gradient clipped
-       to text paints the GRADIENT's colours, so the darkest stop is the real foreground -- the
-       declared color:#fff is never painted, which is why a stylesheet read would call this fine.
+    /* ---- stat numbers ----
+       THESE ARE SOLID, AND THE TOKEN IS A MEASURED CHOICE, NOT A PREFERENCE.
+       Until 2026-09-16 both rules painted their text through a clipped gradient. DESIGN.md:167
+       lists `gradient text` among this platform's Don'ts, so the gradient was removed and the
+       numbers now take a flat fill; weight (font-black) carries the emphasis, which is where the
+       craft floor says emphasis belongs.
+       The -text tokens stay, and they are the whole reason this block exists. Found 2026-08-06
+       walking the anon landing: '60-80%' and '15-25%' (.stat-blue, 48px on the #impact card
+       rgb(29,71,94)) measured APCA Lc 44.6 against a floor of 45 -- the old gradient painted its
+       own darkest stop as the real foreground while the declared color:#fff was never painted,
+       which is why a stylesheet read would have called it fine.
        --wh-blue #29B6D9 is a FILL hue; as text it fails (Lc 44.6). --wh-blue-text #5FCCE8 -> Lc 56.8.
-       Same fix as the .text-blue-wh utility override lower in tokens.css (PB-index-147, 2026-08-05):
-       this page-local gradient clone never adopted it. .stat-orange carried the identical defect
-       (--wh-orange #F7A21B -> Lc 57.8 at 18px vs floor 60; --wh-orange-text #FDB94A -> Lc 67.6) and
-       is fixed here too even though no .stat-orange element currently renders at a failing size --
-       fixing only the walked path is how the sibling ships broken. Fills/icons/borders KEEP the
-       brand hues; only text-clipped gradients use the -text stop. */
-    .stat-orange { background: linear-gradient(135deg, var(--wh-orange-text), var(--wh-orange-light)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-    .stat-blue   { background: linear-gradient(135deg, var(--wh-blue-text), var(--wh-blue-light)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+       Same fix as the .text-blue-wh utility override lower in tokens.css (PB-index-147, 2026-08-05).
+       .stat-orange carried the identical defect (--wh-orange #F7A21B -> Lc 57.8 at 18px vs floor 60;
+       --wh-orange-text #FDB94A -> Lc 67.6) and was fixed with it even though no .stat-orange element
+       renders at a failing size -- fixing only the walked path is how the sibling ships broken.
+       Fills, icons and borders KEEP the brand hues; text takes the -text stop. */
+    .stat-orange { color: var(--wh-orange-text); }
+    .stat-blue   { color: var(--wh-blue-text); }
 
     /* ---- section divider hex ---- */
     .hex-divider {
@@ -537,8 +576,8 @@
       color:var(--wh-orange-text);
       font-size: 0.75rem;
       font-weight: 600;
-      padding: 5px 14px;
-      border-radius: 100px;
+      padding: 6px 16px;
+      border-radius: var(--wh-radius-pill);
       letter-spacing: 0.05em;
       text-transform: uppercase;
     }
@@ -549,10 +588,10 @@
       background: rgba(41,182,217,0.12);
       border: 1px solid rgba(41,182,217,0.25);
       color: var(--wh-blue-light);
-      font-size: 0.7rem;
+      font-size: 0.75rem;
       font-weight: 600;
-      padding: 3px 10px;
-      border-radius: 100px;
+      padding: 4px 12px;
+      border-radius: var(--wh-radius-pill);
       letter-spacing: 0.04em;
     }
 
@@ -569,12 +608,22 @@
     }
 
     /* ---- scroll reveal ---- */
-    .reveal {
+    /* ★THE HIDING IS NOW OPT-IN, SO CONTENT CANNOT BE LOST WITH THE ANIMATION (design lens critique,
+       2026-09-17, W45929). T119 already fixed the ENGINE case below - feature-detect IntersectionObserver
+       and reveal everything when it is missing - and that branch is measured working. Q2 then made keyboard
+       focus a declared guarantee with :focus-within. What neither can cover is the script not running at
+       ALL: no JavaScript, or a parse or runtime error anywhere EARLIER in this page's 199KB of inline
+       script, leaves the observer block unreached and all 14 .reveal sections at opacity 0 forever - which
+       is the entire marketing body of the front door, on a product whose reader is on a low-end Android.
+       So the rule is inverted. .reveal paints normally by default; the hidden start state applies ONLY
+       under html.wh-reveal-armed, a class the script adds on the line immediately before it constructs the
+       observer. If the script never reaches that line, nothing was ever hidden. All three reveal rules are
+       gated at the same specificity so .visible and :focus-within still win inside the armed state. */
+    html.wh-reveal-armed .reveal {
       opacity: 0;
       transform: translateY(28px);
-      transition: opacity 0.6s ease, transform 0.6s ease;
     }
-    .reveal.visible {
+    html.wh-reveal-armed .reveal.visible {
       opacity: 1;
       transform: translateY(0);
     }
@@ -589,7 +638,7 @@
        focus enters the section it is visible, with no timing, no observer and no scroll involved. Costs
        nothing when the observer works, and is the difference between "we tested it once" and "it cannot
        break". Pairs the feature-detect fallback in the observer block below. [WCAG 2.4.11] */
-    .reveal:focus-within {
+    html.wh-reveal-armed .reveal:focus-within {
       opacity: 1;
       transform: translateY(0);
     }
@@ -668,12 +717,10 @@
 
     .light-beam.beam-orange {
       background: linear-gradient(to top, rgba(247,162,27,0.9), rgba(253,185,74,0.4), transparent);
-      box-shadow: 0 0 6px rgba(247,162,27,0.8), 0 0 16px rgba(247,162,27,0.3);
     }
 
     .light-beam.beam-blue {
       background: linear-gradient(to top, rgba(41,182,217,0.9), rgba(95,204,232,0.4), transparent);
-      box-shadow: 0 0 6px rgba(41,182,217,0.8), 0 0 16px rgba(41,182,217,0.3);
     }
 
     @keyframes rise {
@@ -720,11 +767,13 @@
       mix-blend-mode: screen; will-change: transform; transition: opacity .4s ease;
     }
 
-    /* ── Logo float (layered on existing shimmer) ── */
+    /* ── Logo float (the one authored moment; the shimmer it used to layer on is gone) ── */
     @keyframes logo-float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-11px)} }
     .logo-glow-img {
-      animation: logo-shimmer 3s ease-in-out infinite, logo-float 7s ease-in-out infinite;
-      will-change: filter, transform;
+      animation: logo-float 7s ease-in-out infinite;
+      /* will-change drops filter: the filter is static now, and promising the compositor a property that
+         never changes costs a layer for nothing. */
+      will-change: transform;
     }
 
     /* ── Button ripple ── */
@@ -742,7 +791,13 @@
     /* ── Staggered grid reveal ── */
     .stagger-wrap > * {
       opacity: 0; transform: translateY(22px);
-      transition: opacity .5s ease, transform .6s cubic-bezier(.34,1.56,.64,1);
+      /* SAME DEAD-TIMING STORY, AND THIS ONE HID A DECISION (2026-09-17, W45927). The line removed here
+         read "opacity .5s ease, transform .6s cubic-bezier(.34,1.56,.64,1)" - an overshoot curve, the
+         page asking its grids to arrive with a little bounce. It has never fired: the later block sets
+         .stagger-wrap > * to 0.35s ease/ease-out, and that is what the elements compute. Anyone reading
+         this file would have believed the page bounces. It does not. Recorded rather than silently
+         deleted, because the bounce is a taste question for Ian - restoring it means moving the curve
+         into the live block, not reviving this one. */
     }
     .stagger-wrap.fired > *:nth-child(1) { transition-delay:   0ms }
     .stagger-wrap.fired > *:nth-child(2) { transition-delay:  85ms }
@@ -753,12 +808,21 @@
     .stagger-wrap.fired > * { opacity: 1; transform: translateY(0); }
 
     /* ── Hero CTA pulse ring ── */
+    /* THE RING PULSED; THE GLOW UNDERNEATH IT NEVER MOVED (2026-09-17). Two shadows were stacked here and
+       only one was the animation. The expanding ring (0 spread growing to 10px and fading to nothing) is a
+       ripple, the ordinary way a primary call to action asks for a look, and it stays. The SECOND shadow -
+       0 4px 18px -2px amber at 0.45 - was byte-identical at all three stops, so it was not animating at
+       all: it was a constant amber glow under the button, the same thing already taken off .btn-primary at
+       rest under this row, hidden from the detector only because it was written inside a keyframe. It is
+       neutral now, the same geometry, so the button is lifted rather than lit. This also fixes a split the
+       old shape caused: line 856 turns this animation off on mobile, and because the resting shadow lived
+       only in the keyframe, the CTA had a shadow on desktop and none at all on a phone. */
     @keyframes cta-pulse-ring {
-      0%   { box-shadow: 0 0 0 0   rgba(247,162,27,.55), 0 4px 18px -2px rgba(247,162,27,.45); }
-      70%  { box-shadow: 0 0 0 10px rgba(247,162,27,.0),  0 4px 18px -2px rgba(247,162,27,.45); }
-      100% { box-shadow: 0 0 0 0   rgba(247,162,27,.0),  0 4px 18px -2px rgba(247,162,27,.45); }
+      0%   { box-shadow: 0 0 0 0   rgba(247,162,27,.55), 0 4px 18px -2px rgba(0,0,0,.55); }
+      70%  { box-shadow: 0 0 0 10px rgba(247,162,27,.0),  0 4px 18px -2px rgba(0,0,0,.55); }
+      100% { box-shadow: 0 0 0 0   rgba(247,162,27,.0),  0 4px 18px -2px rgba(0,0,0,.55); }
     }
-    .cta-pulse { animation: cta-pulse-ring 2.4s ease-out infinite; }
+    .cta-pulse { box-shadow: 0 4px 18px -2px rgba(0,0,0,.55); animation: cta-pulse-ring 2.4s ease-out infinite; }
 
     /* ── Sticky mobile CTA bar ── */
     #sticky-mobile-cta {
@@ -778,14 +842,23 @@
       /* --wh-blue-text, not the base hue at 70%: this is a real CTA and measured APCA Lc 41.6
          against a 60 floor. tokens.css ships the -text variant for small text on dark. */
       color: var(--wh-blue-text); font-weight: 600; font-size: 1rem;
-      transition: color .2s ease, gap .2s ease;
+      /* GAP IS A LAYOUT PROPERTY (design lens motion, 2026-09-17, W45927). The arrow nudging right on
+         hover was done by transitioning gap from 6px to 10px, which makes the browser re-run layout on
+         this flex line for every frame of the hover. The standards are explicit that only transform and
+         opacity should animate, because they skip layout and paint. Same 4px of movement, same 200ms, now
+         as a transform on the icon alone - and ease-out rather than ease, which is the curve the decision
+         order gives for something moving into place. */
+      transition: color .2s ease;
     }
-    .cta-text-link:hover { color: var(--wh-blue); gap: 10px; }
+    .cta-text-link .ic { transition: transform .2s cubic-bezier(0.23, 1, 0.32, 1); }
+    .cta-text-link:hover { color: var(--wh-blue); }
+    .cta-text-link:hover .ic { transform: translateX(4px); }
 
     /* ── Before/after rows slide-in ── */
     .before-after-row {
       opacity: 0; transform: translateX(-10px);
-      transition: opacity .4s ease, transform .4s ease;
+      /* Dead timing removed (2026-09-17, W45927): declared 0.4s here, computes 0.3s from the later
+         block. Starting state stays; timing lives in one place. */
     }
     .before-after-row.in { opacity: 1; transform: none; }
 
@@ -799,7 +872,7 @@
       color:var(--wh-orange-text);
       font-size: 0.8rem;
       font-weight: 700;
-      padding: 6px 14px;
+      padding: 6px 16px;
       border-radius: var(--wh-radius-sm);
       cursor: pointer;
       transition: background .2s ease, border-color .2s ease, transform .2s cubic-bezier(.34,1.56,.64,1);
@@ -844,7 +917,10 @@
       /* Additional kills: discovered April 2026 (iOS "A problem repeatedly occurred") */
       #scroll-progress { animation: none; }
       .light-beam { animation: none !important; }
-      .hc3-elite  { animation: none !important; } /* !important: overrides inline <style> declared later in DOM */
+      /* .hc3-elite's mobile animation kill retired 2026-09-17: the hc3-pulse keyframe it overrode is gone,
+         so there is no longer any animation on that card to kill at any width. Left as a note rather than a
+         silent deletion because this line records a real iOS crash, and the next person to add a pulse to
+         that card should know one already crashed there. */
     }
 
     /* ════════════════════════════════════════
@@ -880,20 +956,32 @@
       transition: background 0.18s ease, transform 0.18s ease-out;
     }
 
+    /* ONE CURVE PER TRANSITION (design lens motion, 2026-09-17, W45927). Each of these entering
+       transitions drove its transform with ease-out and its opacity with plain ease, so the two halves of
+       the same arrival were on different curves - the element finished moving before it finished
+       appearing. The decision order for anything ENTERING is ease-out, for both. Durations are left as
+       they are: 300-400ms is over the sub-300ms rule for UI, but these are scroll reveals on a marketing
+       page, which is the case that rule exempts, and they are the only motion here a person waits on. */
     .reveal {
-      transition: opacity 0.4s ease, transform 0.4s ease-out;
+      transition: opacity 0.4s ease-out, transform 0.4s ease-out;
     }
 
     .stagger-wrap > * {
-      transition: opacity 0.35s ease, transform 0.35s ease-out;
+      transition: opacity 0.35s ease-out, transform 0.35s ease-out;
     }
 
     #sticky-mobile-cta {
       transition: transform 0.25s ease-out;
     }
+    /* At 320 CSS px the bar's content column is 320 - 20 - 84 = 216px, and "Get Early Access: It's Free" wrapped
+       to two lines inside its button (wave-4 narrow-320 walk, 2026-09-14: `button.btn-primary 2 lines @216px` on
+       every step). A control label must stay on one line: one size step down keeps the whole phrase within 216px. */
+    @media (max-width: 360px) {
+      #sticky-mobile-cta button { font-size: 0.8rem; white-space: nowrap; letter-spacing: 0; }
+    }
 
     .before-after-row {
-      transition: opacity 0.3s ease, transform 0.3s ease-out;
+      transition: opacity 0.3s ease-out, transform 0.3s ease-out;
     }
 
     #pwa-install-btn {
@@ -916,7 +1004,15 @@
     /* ── Respect prefers-reduced-motion (JS fallback path: Safari) ── */
     @media (prefers-reduced-motion: reduce) {
       body                  { animation: none; }
-      .logo-glow-img        { animation: logo-shimmer 3s ease-in-out infinite; }
+      /* THE REDUCED-MOTION BLOCK WAS KEEPING THE ANIMATION ALIVE (2026-09-17). Every other line here reads
+         animation: none; this one re-declared logo-shimmer 3s infinite INSIDE the guard - the one place
+         on the page that promised a person who asked for less motion that the logo would keep pulsing. It
+         never actually did: tokens.css:415 sets animation-name: none !important for anything not named
+         spinner/loader/shimmer/loading, and .logo-glow-img matches none of those, so the platform reset
+         out-ranked it and the logo has been still for these users all along. Dead code that stated the
+         opposite of the behaviour. The keyframe itself is now gone; the float is stopped by the same
+         platform reset, and this line says so. */
+      .logo-glow-img        { animation: none; }
       .badge                { animation: none; }
       #scroll-progress      { animation: none; }
       .cta-pulse            { animation: none; }
@@ -941,7 +1037,7 @@
     .faq-item summary {
       cursor: pointer;
       list-style: none;
-      padding: 18px 22px;
+      padding: 20px 24px;
       font-weight: 600;
       font-size: 1rem;
       color: var(--wh-cloud);
@@ -960,10 +1056,10 @@
     }
     .faq-item[open] summary::after { content: '\2212'; }
     .faq-item .faq-answer {
-      padding: 0 22px 20px;
+      padding: 0 24px 20px;
       color:rgba(244,246,250,0.83);
       line-height: 1.7;
-      font-size: 0.95rem;
+      font-size: 1rem;
     }
   </style>
   <script>
@@ -1074,10 +1170,16 @@
        (the beams sit behind content, off the hit-test path) and the viewport-only view crops the
        band almost entirely. This is the Whole-Artifact rule in one line — a swap is defined by what
        it DELETES as much as by what it reveals. -->
-  <style>html.wh-signed-in #mkt-wrap{display:none !important;} html.wh-signed-in #ops-home{display:block !important;} html.wh-signed-in #aurora-scene{display:none !important;}</style>
+  <style>html.wh-signed-in #mkt-wrap{display:none !important;} html.wh-signed-in #ops-home{display:block !important;} html.wh-signed-in #aurora-scene{display:none !important;}
+  /* W45926: the nav and mobile-menu Sign Up ANCHORS live in the shared header, outside
+     #mkt-wrap, so the rule above never reached them and a signed-in worker saw "Sign Up"
+     beside her own name. Anchors only - the <button data-i="signup"> tab inside the sign-in
+     modal stays, because switching accounts from there is a real thing to do. */
+  html.wh-signed-in a[data-i="signup"]{display:none !important;}</style>
 </head>
 <body class="bg-navy-wh text-white antialiased overflow-x-hidden">
-<main>
+<a class="wh-skip-link" href="#wh-main-content" data-wh-skip="home" style="position:fixed;top:0;left:0;z-index:10001;transform:translateY(-120%);background:var(--wh-orange,#F7A21B);color:var(--wh-navy,#162032);padding:0 20px;min-height:44px;display:inline-flex;align-items:center;font-weight:700;font-size:14px;text-decoration:none;border-radius:0 0 10px 0;box-shadow:0 4px 16px rgba(0,0,0,.35);transition:transform .15s cubic-bezier(0.23,1,0.32,1);box-sizing:border-box;" onfocus="this.style.transform='translateY(0)'" onblur="this.style.transform='translateY(-120%)'">Skip to main content</a>
+<main id="wh-main-content">
 
 
 <div id="scroll-progress" role="presentation" aria-hidden="true"></div>
@@ -1123,7 +1225,7 @@
       <div class="relative user-menu-wrapper">
         <button type="button" onclick="openSignIn(event)" class="signin-btn btn-ghost text-sm py-2 px-5" data-i="signin">Sign In</button>
         <div id="user-menu" class="hidden absolute right-0 top-10 rounded-xl py-2 w-44 z-50" style="background:#1a2535; border:1px solid rgba(255,255,255,0.1); box-shadow:0 8px 32px rgba(0,0,0,0.4);">
-          <p class="text-[11px] text-white/80 px-4 pb-1 uppercase tracking-widest">Signed in as</p>
+          <p class="text-xs text-white/80 px-4 pb-1 uppercase tracking-widest">Signed in as</p>
           <p id="user-menu-name" class="text-white text-sm font-bold px-4 pb-3 truncate"></p>
           <div style="border-top:1px solid rgba(255,255,255,0.07);" class="pt-1">
             <button onclick="signOut()" class="w-full text-left px-4 py-2 text-xs text-white/80 hover:text-white/70 transition-colors" data-i="signoutmenu">Sign out</button>
@@ -1139,7 +1241,7 @@
       <div class="relative user-menu-wrapper-mobile">
         <button type="button" onclick="openSignIn(event)" class="signin-btn btn-ghost text-sm py-1.5 px-4" data-i="signin">Sign In</button>
         <div id="user-menu-mobile" class="hidden absolute right-0 top-10 rounded-xl py-2 w-44 z-50" style="background:#1a2535; border:1px solid rgba(255,255,255,0.1); box-shadow:0 8px 32px rgba(0,0,0,0.4);">
-          <p class="text-[11px] text-white/80 px-4 pb-1 uppercase tracking-widest">Signed in as</p>
+          <p class="text-xs text-white/80 px-4 pb-1 uppercase tracking-widest">Signed in as</p>
           <p id="user-menu-name-mobile" class="text-white text-sm font-bold px-4 pb-3 truncate"></p>
           <div style="border-top:1px solid rgba(255,255,255,0.07);" class="pt-1">
             <button onclick="signOut()" class="w-full text-left px-4 py-2 text-xs text-white/80 hover:text-white/70 transition-colors" data-i="signoutmenu">Sign out</button>
@@ -1184,27 +1286,27 @@
 <div id="ops-home" style="display:none; padding-top:calc(64px + env(safe-area-inset-top, 0px)); background:#0f1923; font-family:'Poppins',sans-serif; position:relative; z-index:1;">
   <style>
     #ops-home .oh-card { background:rgba(22,32,50,0.85); border:1px solid rgba(255,255,255,0.07); border-radius:12px; }
-    #ops-home .oh-sec-lbl { font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:rgba(255,255,255,.6); margin:0 0 10px; }
-    #ops-home .oh-job-row { display:flex; align-items:center; gap:10px; padding:10px 14px; background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.06); border-radius:var(--wh-radius); min-height:44px; }
-    #ops-home .oh-badge { font-size:.55rem; font-weight:800; text-transform:uppercase; letter-spacing:.05em; padding:.2rem .5rem; border-radius:var(--wh-radius-sm); }
+    #ops-home .oh-sec-lbl { font-size: 0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:rgba(255,255,255,.6); margin:0 0 12px; }
+    #ops-home .oh-job-row { display:flex; align-items:center; gap:10px; padding:12px 16px; background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.06); border-radius:var(--wh-radius); min-height:44px; }
+    #ops-home .oh-badge { font-size: 0.75rem; font-weight:800; text-transform:uppercase; letter-spacing:.05em; padding:0.25rem .5rem; border-radius:var(--wh-radius-sm); }
     #ops-home .oh-badge-open { background:rgba(251,146,60,.15); color:var(--wh-orange); }
     #ops-home .oh-badge-crit, #ops-home .oh-badge-critical { background:rgba(248,113,113,.15); color:var(--wh-red-text); }
     #ops-home .oh-badge-high { background:rgba(251,146,60,.15); color:var(--wh-orange); }
     /* Calm stat tile: only renders when count > 0. Container is flex so
        tiles flow without leaving holes. */
-    #ops-home .oh-tile { position:relative; display:flex; flex-direction:column; align-items:flex-start; padding:14px 16px; min-width:120px; flex:1; text-decoration:none; transition:transform .15s, border-color .15s; }
+    #ops-home .oh-tile { position:relative; display:flex; flex-direction:column; align-items:flex-start; padding:16px; min-width:120px; flex:1; text-decoration:none; transition:transform .15s, border-color .15s; }
     #ops-home .oh-tile:hover { transform:translateY(-1px); border-color:rgba(255,255,255,0.18); }
     /* D1 affordance: a subtle corner chevron signifies each stat tile is tappable (it deep-links
        to its source page). Decorative, so aria-hidden via content-only; brightens on hover. */
     #ops-home .oh-tile::after { content:"\203A"; position:absolute; top:9px; right:12px; font-size:.95rem; font-weight:700; line-height:1; color:rgba(255,255,255,0.28); transition:color .15s; }
     #ops-home .oh-tile:hover::after { color:rgba(255,255,255,0.80); }
     #ops-home .oh-tile-num { font-size:1.5rem; font-weight:800; line-height:1; font-variant-numeric:tabular-nums; }
-    #ops-home .oh-tile-lbl { font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:rgba(255,255,255,.6); margin-top:6px; }
+    #ops-home .oh-tile-lbl { font-size: 0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:rgba(255,255,255,.6); margin-top:6px; }
     /* Primary action buttons (max 2 above the fold) */
-    #ops-home .oh-action { display:flex; align-items:center; justify-content:center; gap:9px; padding:14px 16px; border-radius:12px; text-decoration:none; font-size:.85rem; font-weight:700; border:1px solid; transition:opacity .15s; min-height:48px; }
+    #ops-home .oh-action { display:flex; align-items:center; justify-content:center; gap:9px; padding:16px; border-radius:12px; text-decoration:none; font-size:.85rem; font-weight:700; border:1px solid; transition:opacity .15s; min-height:48px; }
     #ops-home .oh-action:hover { opacity:.85; }
     /* Mobile tap-target floor (WCAG 2.5.5 / Arc K K1): the greeting-header chips ship
-       compact (padding:6px → ~31px) for desktop; bump them to a ≥44px touch area on phones.
+       compact (padding:6px → ~32px) for desktop; bump them to a ≥44px touch area on phones.
        Same mobile-scoped pattern as the GROUNDED_SWEEP header-control fix. min-height is
        used (not padding) so it overrides the inline shorthand without !important. */
     @media (max-width:600px) {
@@ -1213,25 +1315,25 @@
       }
     }
     /* Secondary tools grid (inside More) */
-    #ops-home .oh-qa-btn { display:flex; align-items:center; gap:9px; padding:12px 14px; border-radius:var(--wh-radius-sm); text-decoration:none; font-size:.78rem; font-weight:700; border:1px solid; transition:opacity .15s; min-height:44px; }
+    #ops-home .oh-qa-btn { display:flex; align-items:center; gap:9px; padding:12px 16px; border-radius:var(--wh-radius-sm); text-decoration:none; font-size:.78rem; font-weight:700; border:1px solid; transition:opacity .15s; min-height:44px; }
     #ops-home .oh-qa-btn:hover { opacity:.8; }
     /* N1 i18n EN/FIL segmented toggle (mirrors the persona/hive header chips) */
     #oh-lang { display:inline-flex; border:1px solid rgba(255,255,255,.12); border-radius:8px; overflow:hidden; flex-shrink:0; }
-    #oh-lang button { font-size:.66rem; font-weight:700; padding:6px 11px; background:transparent; color:rgba(255,255,255,.55); border:none; cursor:pointer; font-family:inherit; min-height:31px; }
+    #oh-lang button { font-size: 0.75rem; font-weight:700; padding:6px 12px; background:transparent; color:rgba(255,255,255,.55); border:none; cursor:pointer; font-family:inherit; min-height:31px; }
     #oh-lang button + button { border-left:1px solid rgba(255,255,255,.12); }
     #oh-lang button.on { background:rgba(41,182,217,.15); color:var(--wh-blue); }
     @media (max-width:600px){ #oh-lang button { min-height:44px; min-width:44px; box-sizing:border-box; } }
     /* Disclosure for everything that isn't the verdict, stats, or primary actions */
     #ops-home .oh-more { background:transparent; border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:0; overflow:hidden; }
-    #ops-home .oh-more > summary { list-style:none; padding:14px 18px; cursor:pointer; font-size:.78rem; font-weight:700; color:rgba(255,255,255,.6); display:flex; align-items:center; gap:8px; }
+    #ops-home .oh-more > summary { list-style:none; padding:16px 20px; cursor:pointer; font-size:.78rem; font-weight:700; color:rgba(255,255,255,.6); display:flex; align-items:center; gap:8px; }
     #ops-home .oh-more > summary::-webkit-details-marker { display:none; }
     #ops-home .oh-more > summary::before { content:"▸"; transition:transform .15s; color:rgba(255,255,255,.6); }
     #ops-home .oh-more[open] > summary::before { transform:rotate(90deg); }
-    #ops-home .oh-more-body { padding:6px 18px 18px; display:flex; flex-direction:column; gap:18px; }
+    #ops-home .oh-more-body { padding:6px 20px 20px; display:flex; flex-direction:column; gap:18px; }
     /* Hive activity strip (inside More) */
     #ops-home .oh-activity { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
     #ops-home .oh-activity .ac-num { font-size:1.3rem; font-weight:800; display:block; line-height:1.05; font-variant-numeric:tabular-nums; }
-    #ops-home .oh-activity .ac-lbl { font-size:0.55rem; font-weight:600; color:rgba(255,255,255,.6); text-transform:uppercase; letter-spacing:.05em; margin-top:3px; display:block; }
+    #ops-home .oh-activity .ac-lbl { font-size: 0.75rem; font-weight:600; color:rgba(255,255,255,.6); text-transform:uppercase; letter-spacing:.05em; margin-top:4px; display:block; }
     #ops-home .oh-tools-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
     @media(max-width:500px){ #ops-home .oh-tile { min-width:0; flex-basis:calc(50% - 5px); } }
     /* Q1 (WCAG 2.3.3): honor the OS reduce-motion setting for the dashboard's own transitions:
@@ -1261,19 +1363,19 @@
       <div>
         <!-- heading-allow: signed-in dashboard h1, mutually-exclusive (display-switched) with the #mkt-wrap hero h1; one h1 per view. axe page-has-heading-one needs a visible h1 here. -->
         <h1 id="oh-greeting" style="font-size:1.35rem; font-weight:800; color:var(--wh-cloud); margin:0 0 4px;"></h1>
-        <p id="oh-date" style="font-size:.72rem; color:rgba(255,255,255,.6); margin:0;"></p>
+        <p id="oh-date" style="font-size: 0.75rem; color:rgba(255,255,255,.6); margin:0;"></p>
       </div>
       <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; justify-content:flex-end;">
         <!-- Persona Contract Phase 5: WorkHive companion picker. Persists
              to localStorage and syncs to worker_profiles.preferred_persona
              so ai-gateway routes the same persona on every device. -->
         <button id="oh-persona-toggle" type="button" onclick="togglePersona()"
-                style="display:none; font-size:.7rem; font-weight:700; padding:6px 12px; background:rgba(247,162,27,.10); color:var(--wh-orange); border:1px solid rgba(247,162,27,.30); border-radius:999px; font-family:inherit; cursor:pointer;"
+                style="display:none; font-size: 0.75rem; font-weight:700; padding:6px 12px; background:rgba(247,162,27,.10); color:var(--wh-orange); border:1px solid rgba(247,162,27,.30); border-radius:999px; font-family:inherit; cursor:pointer;"
                 aria-label="Change AI companion (Hezekiah or Zaniah)">
           <label for="oh-persona-toggle" class="sr-only" data-i="aicompanion">AI companion</label>
           <span aria-hidden="true" data-i="companionlbl">Companion: </span><span id="oh-persona-name" translate="no">Zaniah</span>
         </button>
-        <a href="hive.html" id="oh-hive-btn" style="display:none; font-size:.7rem; font-weight:700; padding:6px 14px; background:rgba(41,182,217,.12); color:var(--wh-blue-text); border:1px solid rgba(41,182,217,.25); border-radius:8px; text-decoration:none;" aria-label="Open hive board"></a>
+        <a href="hive.html" id="oh-hive-btn" style="display:none; font-size: 0.75rem; font-weight:700; padding:6px 16px; background:rgba(41,182,217,.12); color:var(--wh-blue-text); border:1px solid rgba(41,182,217,.25); border-radius:8px; text-decoration:none;" aria-label="Open hive board"></a>
         <!-- N1 i18n: language switch (rubric N1 "offer a language switch"). Persists to
              wh_lang; setLang() swaps [data-i] statics + re-renders the dashboard's _t() labels. -->
         <div id="oh-lang" role="group" aria-label="Language / Wika">
@@ -1290,8 +1392,8 @@
              already works, in the one place the platform keeps account actions, beside Sign Out.
              forgotPassword() is already window-scoped and states its own caveat for the many field
              workers who have no email on file: ask your supervisor. -->
-        <button type="button" onclick="forgotPassword(event)" class="oh-signout" data-i="changepwd" style="font-size:.7rem; font-weight:600; padding:6px 14px; background:rgba(255,255,255,.05); color:rgba(255,255,255,.7); border:1px solid rgba(255,255,255,.1); border-radius:8px; font-family:inherit; cursor:pointer;">Change Password</button>
-        <button onclick="signOut()" class="oh-signout" data-i="signout" style="font-size:.7rem; font-weight:600; padding:6px 14px; background:rgba(255,255,255,.05); color:rgba(255,255,255,.7); border:1px solid rgba(255,255,255,.1); border-radius:8px; font-family:inherit; cursor:pointer;">Sign Out</button>
+        <button type="button" onclick="forgotPassword(event)" class="oh-signout" data-i="changepwd" style="font-size: 0.75rem; font-weight:600; padding:6px 16px; background:rgba(255,255,255,.05); color:rgba(255,255,255,.7); border:1px solid rgba(255,255,255,.1); border-radius:8px; font-family:inherit; cursor:pointer;">Change Password</button>
+        <button onclick="signOut()" class="oh-signout" data-i="signout" style="font-size: 0.75rem; font-weight:600; padding:6px 16px; background:rgba(255,255,255,.05); color:rgba(255,255,255,.7); border:1px solid rgba(255,255,255,.1); border-radius:8px; font-family:inherit; cursor:pointer;">Sign Out</button>
       </div>
     </div>
 
@@ -1408,7 +1510,7 @@
          (both siblings of #ops-home, OUTSIDE #mkt-wrap) are hidden by _showOpsHome() in the
          signed-in state; this gives the operational dashboard a proper, honest bottom edge
          (© + legal) without the acquisition CTA a signed-in user has no use for (rubric L1). -->
-    <footer style="margin-top:24px; padding-top:16px; border-top:1px solid rgba(255,255,255,0.07); display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px; font-size:.68rem; color:rgba(255,255,255,.5);">
+    <footer style="margin-top:24px; padding-top:16px; border-top:1px solid rgba(255,255,255,0.07); display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px; font-size: 0.75rem; color:rgba(255,255,255,.5);">
       <span>&copy; 2026 WorkHive Engineering Services</span>
       <span style="display:flex; gap:16px;">
         <a href="privacy-policy/" style="color:rgba(255,255,255,.6); text-decoration:none; display:inline-flex; align-items:center; justify-content:center; min-height:44px; min-width:44px;">Privacy</a>
@@ -1427,11 +1529,16 @@
 ═══════════════════════════════════════════════ -->
 <section class="relative min-h-screen flex items-center pt-16 hex-pattern grain overflow-hidden" style="background: linear-gradient(135deg, rgba(13,24,36,0.72) 0%, rgba(22,32,50,0.68) 40%, rgba(26,38,56,0.72) 100%); position: relative; z-index: 1; padding-top:calc(4rem + env(safe-area-inset-top, 0px));">
 
-  <!-- radial glows -->
-  <div class="absolute top-1/4 -left-40 w-[600px] h-[600px] rounded-full opacity-20 pointer-events-none"
-       style="background: radial-gradient(circle, var(--wh-orange) 0%, transparent 70%); filter: blur(80px);"></div>
-  <div class="absolute bottom-1/4 -right-40 w-[500px] h-[500px] rounded-full opacity-20 pointer-events-none"
-       style="background: radial-gradient(circle, var(--wh-blue) 0%, transparent 70%); filter: blur(80px);"></div>
+  <!-- TWO FLOATING BLOBS BECAME ONE DIRECTIONAL WASH (2026-09-17). This was a 600px circle of full-strength
+       --wh-orange and a 500px circle of full-strength --wh-blue, each at opacity-20 under blur(80px), parked
+       off the left and right edges. Blurring a saturated circle until it is a cloud is the radial halo the
+       slop rule names, and this page already had the better answer twice: #platform and #impact light
+       themselves with an edge-anchored wash at 6-7 percent, which reads as light entering the frame rather
+       than as colour floating in the middle of it. Same two colours, same corners, one element instead of
+       two, and the page now speaks one lighting language instead of two. Also cheaper: no blur filter on two
+       600px layers, which on the low-end Android this product is built for is a real compositing cost. -->
+  <div class="absolute inset-0 pointer-events-none"
+       style="background: radial-gradient(ellipse 55% 60% at 8% 30%, rgba(247,162,27,0.07) 0%, transparent 65%), radial-gradient(ellipse 50% 55% at 96% 72%, rgba(41,182,217,0.07) 0%, transparent 65%);"></div>
 
   <div class="relative max-w-7xl mx-auto px-5 sm:px-8 py-24 lg:py-32 overflow-hidden">
 
@@ -1456,7 +1563,7 @@
 
         <h1 class="text-4xl sm:text-6xl lg:text-[4.2rem] font-black leading-[1.05] tracking-[-0.03em] mb-6">
           <span data-i="accessyour">Access Your</span>
-          <span style="background: linear-gradient(135deg, var(--wh-orange) 30%, var(--wh-orange-light) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;" data-i="memory">Memory</span>
+          <span style="color: var(--wh-orange-text);" data-i="memory">Memory</span>
           <span class="block text-2xl sm:text-3xl lg:text-4xl text-white/85 font-bold tracking-normal mt-3" data-i="herosub">Free Industrial Tools for Every Filipino Worker</span>
         </h1>
 
@@ -1506,15 +1613,26 @@
         <!-- micro stats with cited sources so they read as evidence, not aspiration -->
         <div class="flex flex-wrap gap-x-10 gap-y-5">
           <div>
-            <p class="text-3xl font-black stat-orange leading-none">40-60%</p>
+            <!-- THE FRONT DOOR OVERSTATED OUR OWN GUIDE, AND CREDITED IT TO SOMEONE WHO NEVER SAID IT
+                 (2026-09-17). This read "40-60% Less Unplanned Downtime / SMRP world-class benchmarks".
+                 Both halves were wrong. Our own article on this exact subject says mature predictive
+                 programmes reach 35 to 50 percent and that most plants see 15 to 25 percent by month 18 -
+                 so the landing page claimed ten points more at each end than the page it sends people to.
+                 And it cited SMRP for it, when SMRP publishes benchmark LEVELS (PM compliance >= 90
+                 percent, OEE 85 percent), not reduction deltas; reduce-unplanned-downtime-guide already
+                 says so in as many words: "treat those as widely-reported industry ranges rather than a
+                 published standard: the figure that IS standardised is the SMRP PM-compliance benchmark of
+                 90%." The number now matches the guide, and the second line gives the figure a new plant
+                 can actually reach instead of a citation that does not exist. -->
+            <p class="text-3xl font-black stat-orange leading-none">35-50%</p>
             <p class="text-xs text-white/80 font-medium mt-1 tracking-wide">Less Unplanned Downtime</p>
-            <p class="text-[10px] text-white/80 mt-0.5 tracking-wide">SMRP world-class benchmarks</p>
+            <p class="text-xs text-white/80 mt-0.5 tracking-wide">Mature programmes; 15-25% by month 18</p>
           </div>
           <div class="w-px bg-white/10"></div>
           <div>
             <p class="text-3xl font-black stat-blue leading-none">4 Gaps</p>
             <p class="text-xs text-white/80 font-medium mt-1 tracking-wide">Execution · Skills · Intelligence · Marketplace</p>
-            <p class="text-[10px] text-white/80 mt-0.5 tracking-wide">closed by one hive</p>
+            <p class="text-xs text-white/80 mt-0.5 tracking-wide">closed by one hive</p>
           </div>
         </div>
       </div>
@@ -1523,9 +1641,11 @@
       <div class="relative flex justify-center lg:justify-start order-2 lg:order-1">
         <div class="relative w-full max-w-sm lg:max-w-md">
 
-          <!-- glow ring -->
-          <div class="absolute inset-0 rounded-3xl opacity-30 pointer-events-none"
-               style="background: radial-gradient(ellipse at center, rgba(247,162,27,0.3) 0%, transparent 70%); filter: blur(40px); transform: scale(1.2);"></div>
+              <!-- GLOW RING REMOVED (2026-09-17): a blurred amber radial-gradient at 30 percent, scaled 1.2
+                   and blurred 40px, sitting behind the card purely as light. It is the same chromatic-halo
+                   family as the two light-beam shadows removed under this row, and the rule names it exactly:
+                   a zero-offset coloured glow on a dark page is the default look of generated UI. The card
+                   keeps its own rounded border, which is what actually defines it. -->
 
           <div class="relative rounded-3xl border border-white/10 overflow-hidden"
                style="background: linear-gradient(145deg, rgba(42,61,88,0.85) 0%, rgba(22,32,50,0.97) 100%); box-shadow: 0 32px 80px -12px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.07);">
@@ -1533,19 +1653,41 @@
             <!-- card header -->
             <div class="px-6 pt-6 pb-4 border-b border-white/[0.07]">
               <div class="flex items-center justify-between mb-1">
-                <p class="text-[10px] text-orange-wh font-bold uppercase tracking-[0.15em]">Operational Readiness Layer</p>
-                <span class="text-[10px] text-orange-wh font-semibold uppercase tracking-wider px-2 py-1 rounded-lg border border-white/10" style="background: linear-gradient(135deg, rgba(247,162,27,0.2) 0%, rgba(31,46,69,0.95) 100%);">4 Stages</span>
+                <p class="text-xs text-orange-wh font-bold uppercase tracking-[0.15em]">Operational Readiness Layer</p>
+                <span class="text-xs text-orange-wh font-semibold uppercase tracking-wider px-2 py-1 rounded-lg border border-white/10" style="background: linear-gradient(135deg, rgba(247,162,27,0.2) 0%, rgba(31,46,69,0.95) 100%);">4 Stages</span>
               </div>
-              <h2 class="font-black text-white text-lg leading-snug"><span data-i="findyour">Find your</span> <span style="background: linear-gradient(135deg,var(--wh-orange-text),var(--wh-orange-light)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;" data-i="hivesstage">hive's stage</span></h2>
-              <p class="text-[11px] text-white/80 mt-1 leading-relaxed">We don't replace your ERP or CMMS. We make digital tools actually work in your plant.</p>
-              <p class="text-[10px] text-white/80 mt-2 leading-relaxed">No predictions on insufficient data. No rigid workflows. No enterprise infrastructure assumed. Free at the worker tier forever.</p>
+              <h2 class="font-black text-white text-lg leading-snug"><span data-i="findyour">Find your</span> <span style="color: var(--wh-orange-text);" data-i="hivesstage">hive's stage</span></h2>
+              <p class="text-xs text-white/80 mt-1 leading-relaxed">We don't replace your ERP or CMMS. We make digital tools actually work in your plant.</p>
+              <!-- THE CLAIMS WERE REAL, THE CADENCE WAS NOT (2026-09-17). This read "No predictions on
+                   insufficient data. No rigid workflows. No enterprise infrastructure assumed." - three
+                   fragments in a row, each opening with No, which is the staccato that makes marketing copy
+                   read as generated whether or not it is. Each commitment is genuine and checkable (the
+                   platform really does withhold predictions until it has enough history, really does let a
+                   hive work its own way, really does run offline without a server), so the words stayed and
+                   the rhythm went: one sentence that says all three and can be argued with. -->
+              <p class="text-xs text-white/80 mt-2 leading-relaxed">It will not predict from data it does not have yet, it does not make you work its way, and it runs on the phone already in your pocket rather than on infrastructure you would have to buy. Free at the worker tier forever.</p>
             </div>
 
             <!-- Stage Cards Grid -->
-            <div style="padding: 16px 16px 8px;">
+            <div style="padding:16px 8px;">
               <style>
-                @keyframes hc3-pulse { 0%,100%{opacity:.8; box-shadow:0 0 16px rgba(247,162,27,0.12)} 50%{opacity:1; box-shadow:0 0 28px rgba(247,162,27,0.22)} }
-                .hc3-elite { animation: hc3-pulse 2.8s ease-in-out infinite; }
+                /* THE LAST BREATHING HALO (2026-09-17). hc3-pulse cycled a zero-offset amber box-shadow
+                   from 16px/0.12 to 28px/0.22 every 2.8 seconds, forever, on the stage-4 card - the same
+                   chromatic-glow pattern removed from the beams, the button, the ring and the logo under
+                   this row, and invisible to the detector only because it lives inside a keyframe rather
+                   than a rule. Two things make it easy to let go. It was already the suspect in a crash:
+                   the mobile block up at line 861 kills it with !important under the note "discovered
+                   April 2026 (iOS 'A problem repeatedly occurred')", so it has been desktop-only for
+                   months. And it was HIDING the card rather than marking it - the keyframe rests at
+                   opacity .8, so the one card meant to stand out spent most of every cycle dimmer than
+                   its three neighbours. It does not need the animation to read as the destination: it
+                   alone carries an amber border, a full --wh-orange top edge and an amber-tinted fill.
+                   Now it simply sits at full opacity, which is all it ever needed.
+                   NO REPLACEMENT SHADOW, and that was measured, not assumed: a first attempt gave it a
+                   neutral resting elevation instead, and the detector's nested-cards count went 8 -> 9
+                   on the next run - a shadow is one of the things that makes a div read as a card, and
+                   this one sits inside the stage panel. The rule is gone entirely rather than emptied,
+                   since with no animation left the card's own border and fill are the whole treatment. */
                 .stage-card { cursor:pointer; transition: transform .18s, box-shadow .18s; position: relative; overflow: clip; }
                 .stage-card:hover  { transform: translateY(-2px); }
                 .stage-card:active { transform: scale(0.97); opacity: 0.85; }
@@ -1560,7 +1702,7 @@
                   width: 26px; height: 30px; flex-shrink: 0;
                   clip-path: polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
                   display: flex; align-items: center; justify-content: center;
-                  font-size: 9px; font-weight: 900; color: var(--wh-navy); margin-bottom: 8px;
+                  font-size: 12px; font-weight: 900; color: var(--wh-navy); margin-bottom: 8px;
                 }
                 .stage-hex-watermark {
                   position: absolute; bottom: -18px; right: -18px;
@@ -1577,12 +1719,12 @@
               </style>
 
               <!-- Label above grid -->
-              <p style="font-size:9.5px;color:rgba(255,255,255,0.80);text-align:center;letter-spacing:0.1em;margin-bottom:12px;font-weight:600;">Every hive grows in 4 stages · Every stage unlocks tools</p>
+              <p style="font-size: 12px;color:rgba(255,255,255,0.80);text-align:center;letter-spacing:0.02em;margin-bottom:12px;font-weight:600;">Every hive grows in 4 stages · Every stage unlocks tools</p>
 
               <style>
-                .stage-meta { font-size:9px; color:rgba(255,255,255,0.80); line-height:1.5; margin-top:8px; padding-top:8px; border-top:1px dotted rgba(255,255,255,0.08); }
+                .stage-meta { font-size: 12px; color:rgba(255,255,255,0.80); line-height:1.5; margin-top:8px; padding-top:8px; border-top:1px dotted rgba(255,255,255,0.08); }
                 .stage-meta-row { display:flex; gap:5px; align-items:flex-start; }
-                .stage-meta-tag { font-weight:800; letter-spacing:0.04em; text-transform:uppercase; font-size:9px; min-width:32px; padding-top:1px; }
+                .stage-meta-tag { font-weight:800; letter-spacing:0.04em; text-transform:uppercase; font-size: 12px; min-width:32px; padding-top:2px; }
                 /* opacity:0.7 REMOVED and 8px -> 9px. These tags already used the AA-safe -text
                    tokens and still measured WCAG 3.36-3.65 against 4.5, because the dimming sat on
                    TOP of the token - and element opacity does not appear in computed `color`, so
@@ -1594,11 +1736,11 @@
               <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
 
                 <!-- Card 1: Paper-to-Digital -->
-                <div class="stage-card" onclick="openStagePopup(1)" style="border-radius:14px; border:1px solid rgba(74,159,212,0.25); border-top:3px solid var(--wh-blue); background:linear-gradient(150deg,rgba(74,159,212,0.13) 0%,rgba(22,32,50,0.95) 100%); padding:14px 12px;">
+                <div class="stage-card" onclick="openStagePopup(1)" style="border-radius:14px; border:1px solid rgba(74,159,212,0.25); border-top:1px solid var(--wh-blue); background:linear-gradient(150deg,rgba(74,159,212,0.13) 0%,rgba(22,32,50,0.95) 100%); padding:12px;">
                   <div class="stage-hex-num" style="background:var(--wh-blue);">01</div>
                   <p style="font-size:14px;font-weight:800;color:#E8F4FF;line-height:1.2;margin:0 0 6px;">Paper to<br>Digital</p>
-                  <p style="font-size:10px;color:rgba(255,255,255,0.80);line-height:1.45;margin:0 0 10px;">Get out of paper. Build the operating rhythm.</p>
-                  <span style="font-size:9px;font-weight:800;color:var(--wh-blue-text);background:rgba(74,159,212,0.10);border-radius:999px;padding:3px 9px;">Free · Start Here</span>
+                  <p style="font-size: 12px;color:rgba(255,255,255,0.80);line-height:1.45;margin:0 0 12px;">Get out of paper. Build the operating rhythm.</p>
+                  <span style="font-size: 12px;font-weight:800;color:var(--wh-blue-text);background:rgba(74,159,212,0.10);border-radius:999px;padding:4px 8px;">Free · Start Here</span>
                   <div class="stage-meta">
                     <div class="stage-meta-row"><span class="stage-meta-tag" style="color:var(--wh-blue-text);">Now</span><span>Hive joined</span></div>
                     <div class="stage-meta-row"><span class="stage-meta-tag" style="color:var(--wh-blue-text);">Next</span><span>10 assets logged, 1 SOP documented</span></div>
@@ -1608,11 +1750,11 @@
                 </div>
 
                 <!-- Card 2: Disciplined -->
-                <div class="stage-card" onclick="openStagePopup(2)" style="border-radius:14px; border:1px solid rgba(0,196,180,0.25); border-top:3px solid var(--wh-blue); background:linear-gradient(150deg,rgba(0,196,180,0.13) 0%,rgba(22,32,50,0.95) 100%); padding:14px 12px;">
+                <div class="stage-card" onclick="openStagePopup(2)" style="border-radius:14px; border:1px solid rgba(0,196,180,0.25); border-top:1px solid var(--wh-blue); background:linear-gradient(150deg,rgba(0,196,180,0.13) 0%,rgba(22,32,50,0.95) 100%); padding:12px;">
                   <div class="stage-hex-num" style="background:var(--wh-blue);">02</div>
                   <p style="font-size:14px;font-weight:800;color:#E0FFFC;line-height:1.2;margin:0 0 6px;">Disciplined</p>
-                  <p style="font-size:10px;color:rgba(255,255,255,0.80);line-height:1.45;margin:0 0 10px;">PMs compliant. Logbook hygiene. Approvals routine.</p>
-                  <span style="font-size:9px;font-weight:800;color:var(--wh-blue-text);background:rgba(11,15,25,0.45);border-radius:999px;padding:3px 9px;">Free</span>
+                  <p style="font-size: 12px;color:rgba(255,255,255,0.80);line-height:1.45;margin:0 0 12px;">PMs compliant. Logbook hygiene. Approvals routine.</p>
+                  <span style="font-size: 12px;font-weight:800;color:var(--wh-blue-text);background:rgba(11,15,25,0.45);border-radius:999px;padding:4px 8px;">Free</span>
                   <div class="stage-meta">
                     <div class="stage-meta-row"><span class="stage-meta-tag" style="color:var(--wh-blue-text);">Now</span><span>Stage 1 complete</span></div>
                     <div class="stage-meta-row"><span class="stage-meta-tag" style="color:var(--wh-blue-text);">Next</span><span>PM compliance ≥70% for 30 days</span></div>
@@ -1621,11 +1763,11 @@
                 </div>
 
                 <!-- Card 3: Predictive-Ready -->
-                <div class="stage-card" onclick="openStagePopup(3)" style="border-radius:14px; border:1px solid rgba(155,89,232,0.25); border-top:3px solid var(--wh-violet); background:linear-gradient(150deg,rgba(155,89,232,0.13) 0%,rgba(22,32,50,0.95) 100%); padding:14px 12px;">
+                <div class="stage-card" onclick="openStagePopup(3)" style="border-radius:14px; border:1px solid rgba(155,89,232,0.25); border-top:1px solid var(--wh-violet); background:linear-gradient(150deg,rgba(155,89,232,0.13) 0%,rgba(22,32,50,0.95) 100%); padding:12px;">
                   <div class="stage-hex-num" style="background:var(--wh-violet);">03</div>
                   <p style="font-size:14px;font-weight:800;color:#EEE5FF;line-height:1.2;margin:0 0 6px;">Predictive<br>Ready</p>
-                  <p style="font-size:10px;color:rgba(255,255,255,0.80);line-height:1.45;margin:0 0 10px;">Move from reacting to predicting.</p>
-                  <span style="font-size:9px;font-weight:800;color:var(--wh-violet-text);background:rgba(155,89,232,0.10);border-radius:999px;padding:3px 9px;">AI · Sensor</span>
+                  <p style="font-size: 12px;color:rgba(255,255,255,0.80);line-height:1.45;margin:0 0 12px;">Move from reacting to predicting.</p>
+                  <span style="font-size: 12px;font-weight:800;color:var(--wh-violet-text);background:rgba(155,89,232,0.10);border-radius:999px;padding:4px 8px;">AI · Sensor</span>
                   <div class="stage-meta">
                     <div class="stage-meta-row"><span class="stage-meta-tag" style="color:var(--wh-violet-text);">Now</span><span>Stage 2 complete</span></div>
                     <div class="stage-meta-row"><span class="stage-meta-tag" style="color:var(--wh-violet-text);">Next</span><span>90+ days history OR sensors live</span></div>
@@ -1635,11 +1777,11 @@
                 </div>
 
                 <!-- Card 4: Industry Leader -->
-                <div class="stage-card hc3-elite" onclick="openStagePopup(4)" style="border-radius:14px; border:1px solid rgba(255,184,0,0.35); border-top:3px solid var(--wh-orange); background:linear-gradient(150deg,rgba(247,162,27,0.16) 0%,rgba(22,32,50,0.95) 100%); padding:14px 12px;">
+                <div class="stage-card hc3-elite" onclick="openStagePopup(4)" style="border-radius:14px; border:1px solid rgba(255,184,0,0.35); border-top:1px solid var(--wh-orange); background:linear-gradient(150deg,rgba(247,162,27,0.16) 0%,rgba(22,32,50,0.95) 100%); padding:12px;">
                   <div class="stage-hex-num" style="background:var(--wh-orange);">04</div>
                   <p style="font-size:14px;font-weight:800;color:#FFF0C0;line-height:1.2;margin:0 0 6px;">Industry<br>Leader</p>
-                  <p style="font-size:10px;color:rgba(255,255,255,0.80);line-height:1.45;margin:0 0 10px;">Become an industrial intelligence source.</p>
-                  <span style="font-size:9px;font-weight:800;color:var(--wh-orange-text);background:rgba(247,162,27,0.05);border-radius:999px;padding:3px 9px;border:1px solid rgba(255,184,0,0.35);">Premium</span>
+                  <p style="font-size: 12px;color:rgba(255,255,255,0.80);line-height:1.45;margin:0 0 12px;">Become an industrial intelligence source.</p>
+                  <span style="font-size: 12px;font-weight:800;color:var(--wh-orange-text);background:rgba(247,162,27,0.05);border-radius:999px;padding:4px 8px;border:1px solid rgba(255,184,0,0.35);">Premium</span>
                   <div class="stage-meta">
                     <div class="stage-meta-row"><span class="stage-meta-tag" style="color:var(--wh-orange-text);">Now</span><span>Stage 3 complete</span></div>
                     <div class="stage-meta-row"><span class="stage-meta-tag" style="color:var(--wh-orange-text);">Next</span><span>4-of-4: sensor + RCM + audit + benchmarks</span></div>
@@ -1688,7 +1830,7 @@
       <li><a href="/pm-scheduler.html">PM Scheduler: Replace spreadsheet PM trackers. Add assets, build PM scope by category, set Monthly/Quarterly/Semi-Annual/Yearly frequencies, track every due date.</a></li>
       <li><a href="/inventory.html">Spare-Parts Inventory: Replace Excel parts lists. Stock ledger, reorder alerts, supervisor-approved restocks, transaction audit, running stock balance.</a></li>
       <li><a href="/dayplanner.html">Maintenance Day Planner: DILO / WILO / MILO / YILO multi-resolution personal scheduler. Pulls from your logbook entries and PM schedule.</a></li>
-      <li><a href="/voice-journal.html">Voice Journal: Speak in any of 10 Philippine languages (Tagalog, Cebuano, Ilocano, Hiligaynon, Bikol, Waray, Kapampangan, Pangasinan). Semantic recall + private rolling memory.</a></li>
+      <li><a href="/voice-journal.html">Voice Journal: Speak in any of eight Philippine languages (Tagalog, Cebuano, Ilocano, Hiligaynon, Bikol, Waray, Kapampangan, Pangasinan). Semantic recall + private rolling memory.</a></li>
       <li><a href="/resume.html">Resume / CV Builder: Turn your Skill Matrix, badges and logbook into a professional, ATS-friendly resume. Snap a photo or upload a PDF/Word/Excel from your phone. AI extracts the details into an editable checklist you control. Free for every worker.</a></li>
       <li><a href="/assistant.html">AI Work Assistant: Floating helper on every page. Knows your hive, your role, your context. Routes through our AI service with memory + private-information redaction. Available across all 4 stages.</a></li>
       <li><a href="/skillmatrix.html">Skill Matrix: Discipline-by-level matrix across 5 industrial disciplines. Timed assessments with cooldown logic. Badges gate PM eligibility and project task assignment.</a></li>
@@ -1724,9 +1866,20 @@
 ═══════════════════════════════════════════════ -->
 <section id="what-is-workhive" class="py-16 reveal" style="background: rgba(22,32,50,0.5); position: relative; z-index: 1;">
   <div class="max-w-4xl mx-auto px-5 sm:px-8 text-center">
-    <p class="text-xs text-orange-wh font-bold uppercase tracking-[0.15em] mb-4">In one paragraph</p>
     <h2 class="text-3xl sm:text-4xl font-black leading-[1.15] tracking-[-0.02em] mb-6 text-white" data-i="whatiswh">What is WorkHive?</h2>
-    <p class="text-base sm:text-lg text-white/85 leading-[1.75] font-light max-w-3xl mx-auto">
+    <!-- 89 CHARACTERS A LINE, AND THE 65-75 RULE MEANS CHARACTERS (design lens craft, 2026-09-17, W45924).
+         This is the longest paragraph on the page and the one the walk reports as its measure. It ran 768px
+         wide at 18px, and the three ways of counting that disagree in a way worth writing down: the walker
+         divides by fontSize * 0.55 and says 78ch; the CSS ch unit is the advance of "0", which in Poppins
+         measures 0.628em, not 0.55, so by the unit it is 68ch and inside the band; and counting the
+         characters that ACTUALLY land on the longest rendered line - walked with a Range, one character at a
+         time, watching for the y to change - gives 89. The third number is the one the rule is about.
+         Lowercase letters are narrower than a zero, so a box 68 zero-widths across holds about 89 real
+         letters, and the typographic guidance was always about letters. So the constant is wrong AND the
+         paragraph is too wide; arguing the constant would have been tuning the page to the instrument.
+         max-w-3xl (48rem) -> max-w-xl (36rem) puts it at about 67 characters a line. max-w-2xl was measured
+         too and lands at 78, still outside. -->
+    <p class="text-base sm:text-lg text-white/85 leading-[1.75] font-light max-w-xl mx-auto">
       WorkHive is a <strong class="text-white font-semibold">free industrial intelligence platform</strong> for every Filipino industrial worker, from field to management: field technicians and operators, engineers, supervisors and planners, plant and operations managers, suppliers, contractors, new graduates entering the labor market, and existing workers expanding their capabilities with AI. It bundles a digital logbook, preventive maintenance scheduler, spare-parts inventory, skill matrix, engineering design calculators, and an AI work assistant in one browser-based hive.
     </p>
     <p class="text-sm text-white/80 mt-6 font-medium">Free · Philippines-first · Works offline · Mobile and desktop</p>
@@ -1742,7 +1895,16 @@
 ═══════════════════════════════════════════════ -->
 <section class="py-8 border-y border-white/[0.06]" style="background: rgba(31,46,69,0.75); position: relative; z-index: 1;">
   <div class="max-w-7xl mx-auto px-5 sm:px-8">
-    <p class="text-center text-xs text-white/80 font-medium uppercase tracking-widest mb-6">Designed for Philippine Industry</p>
+    <!-- THIRTY-TWO CHARACTERS IS A PHRASE, NOT A LABEL (2026-09-17). Uppercase plus tracking-widest (0.1em)
+         on "Designed for Philippine Industry" - and this is the exact finding the detector's all-caps-body
+         rule reports on this page, its "32 chars" matching this string to the character. Caps work on short
+         labels; past roughly twenty characters the reader loses the word shapes that make reading fast, and
+         the wide tracking pulls the letters further apart still. This is the third time the same call has
+         been made in this wave and it should be the same call each time: hive.html's 33-character "Handover
+         to (incoming technician)" went to sentence case, and the 55-character stage sentence on this very
+         page lost its 0.1em tracking under this row. Sentence case, tracking-wide instead of widest, and the
+         weight and the centring still make it read as the bar's label. -->
+    <p class="text-center text-xs text-white/80 font-medium tracking-wide mb-6">Designed for Philippine industry</p>
     <div class="flex flex-wrap justify-center items-center gap-x-12 gap-y-4">
       <div class="flex items-center gap-2.5 text-white/80 hover:text-white/60 transition-colors">
         <span class="ic ic-factory" aria-hidden="true"></span>
@@ -1791,12 +1953,11 @@
   <div class="relative max-w-7xl mx-auto px-5 sm:px-8">
     <div class="text-center max-w-2xl mx-auto mb-20 reveal">
       <div class="hex-divider justify-center"><span></span><span style="background:var(--wh-orange); width:6px; height:6px;"></span><span></span></div>
-      <p class="text-xs text-orange-wh font-semibold uppercase tracking-[0.15em] mb-4">How the hive works</p>
       <h2 class="text-4xl sm:text-5xl font-black leading-[1.1] tracking-[-0.025em] mb-6">
         <span data-i="fourgaps">Four gaps.</span><br/>
-        <span style="background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;" data-i="onehive">One hive.</span>
+        <span style="color: var(--wh-orange-text);" data-i="onehive">One hive.</span>
       </h2>
-      <p class="text-white/80 leading-[1.75] font-light">
+      <p class="text-white/80 leading-[1.75] font-light max-w-lg mx-auto">
         Philippine industrial work is held back by four compounding gaps. WorkHive is the first
         hive designed to close all of them, simultaneously, from a single system.
       </p>
@@ -1813,14 +1974,32 @@
             <h3 class="text-xl font-bold text-white" data-i="chaoscoord">From Chaos to Coordination</h3>
           </div>
         </div>
-        <p class="text-xs text-red-300 leading-relaxed mb-3"><span class="font-semibold text-red-400">The gap:</span> Departments run in isolation and failures strike without warning. An unplanned breakdown costs 4 to 8 times a planned repair.</p>
-        <p class="text-white/80 text-sm leading-relaxed mb-6">
+        <!-- A CLASS THAT NEVER EXISTED, AND A RED THAT MISSED AA BY 0.08 (2026-09-17). Measured live in
+             the signed-out marketing state, which is the only state these cards render in. (1) The
+             paragraph asked for text-red-300 and computed rgb(255,255,255): the purged build generated
+             .text-red-300\/70 but never the bare .text-red-300, so the class has been inert since it was
+             written and this copy has always been white. White at 12.2:1 is the better read for a
+             four-line problem statement anyway, so it stays white - but stated, not inherited by
+             accident, and without a class name claiming a colour it does not produce. (2) The label was
+             text-red-400 (#f87171), which against this card's composited ground of rgb(37,54,79)
+             measures 4.42:1 - under the 4.5 floor, and not rescued by size (12px) or weight (600, below
+             the large-text threshold). #f87171 is --wh-red, whose own token comment says it is a FILL
+             and that the AA text pair is --wh-red-text; that token measures 8.36:1 here. All four cards
+             changed together, because they are one component repeated. -->
+        <p class="text-sm leading-relaxed mb-3" style="color: rgba(255,255,255,0.92);"><span class="font-semibold" style="color: var(--wh-red-text);">The gap:</span> Departments run in isolation and failures strike without warning. An unplanned breakdown costs 4 to 8 times a planned repair.</p>
+        <p class="text-white/80 text-base leading-relaxed mb-6">
           Every job pre-loaded with the right parts, procedures, and the right person. Planned replaces reactive.
         </p>
         <div class="grid grid-cols-2 gap-3">
           <div class="rounded-xl px-4 py-3 border border-white/[0.06]" style="background: rgba(247,162,27,0.07);">
-            <p class="text-orange-wh font-bold text-xl">40-60%</p>
-            <p class="text-white/80 text-xs mt-0.5">Less Unplanned Downtime Costs</p>
+            <!-- SAME FIGURE, SECOND MEANING (2026-09-17). This tile said the range was a reduction in
+                 downtime COSTS while the hero said it was a reduction in downtime - two different
+                 quantities behind one number, on one page. Hours is what the guide measures, and the tile
+                 beside this one already carries the cost claim (4-8x, the same ratio the paragraph above
+                 states), so the duplication goes with the contradiction. Figure corrected to the guide's
+                 35-50 with the hero. -->
+            <p class="text-orange-wh font-bold text-xl">35-50%</p>
+            <p class="text-white/80 text-xs mt-0.5">Less Unplanned Downtime</p>
           </div>
           <div class="rounded-xl px-4 py-3 border border-white/[0.06]" style="background: rgba(247,162,27,0.07);">
             <p class="text-orange-wh font-bold text-xl">4-8x</p>
@@ -1838,8 +2017,8 @@
             <h3 class="text-xl font-bold text-white" data-i="guessprecision">From Guesswork to Precision</h3>
           </div>
         </div>
-        <p class="text-xs text-red-300 leading-relaxed mb-3"><span class="font-semibold text-red-400">The gap:</span> Organizations can't deploy their best people because they don't know what their people can actually do. Jobs go by availability, not competence.</p>
-        <p class="text-white/80 text-sm leading-relaxed mb-6">
+        <p class="text-sm leading-relaxed mb-3" style="color: rgba(255,255,255,0.92);"><span class="font-semibold" style="color: var(--wh-red-text);">The gap:</span> Organizations can't deploy their best people because they don't know what their people can actually do. Jobs go by availability, not competence.</p>
+        <p class="text-white/80 text-base leading-relaxed mb-6">
           Right person, right job, every time. Competence replaces availability.
         </p>
         <div class="grid grid-cols-2 gap-3">
@@ -1863,8 +2042,8 @@
             <h3 class="text-xl font-bold text-white" data-i="amnesiamemory">From Amnesia to Memory</h3>
           </div>
         </div>
-        <p class="text-xs text-red-300 leading-relaxed mb-3"><span class="font-semibold text-red-400">The gap:</span> When a technician retires, 12 years of expertise disappears. Replacing it costs ₱800K to ₱2.4M per transition.</p>
-        <p class="text-white/80 text-sm leading-relaxed mb-6">
+        <p class="text-sm leading-relaxed mb-3" style="color: rgba(255,255,255,0.92);"><span class="font-semibold" style="color: var(--wh-red-text);">The gap:</span> When a technician retires, 12 years of expertise disappears. Replacing it costs ₱800K to ₱2.4M per transition.</p>
+        <p class="text-white/80 text-base leading-relaxed mb-6">
           When an expert retires, the knowledge stays. Every repair makes the hive smarter.
         </p>
         <div class="grid grid-cols-2 gap-3">
@@ -1888,8 +2067,8 @@
             <h3 class="text-xl font-bold text-white" data-i="lucktodesign">From Luck to Design</h3>
           </div>
         </div>
-        <p class="text-xs text-red-300 leading-relaxed mb-3"><span class="font-semibold text-red-400">The gap:</span> The right specialist takes weeks to find, if you find them at all.</p>
-        <p class="text-white/80 text-sm leading-relaxed mb-6">
+        <p class="text-sm leading-relaxed mb-3" style="color: rgba(255,255,255,0.92);"><span class="font-semibold" style="color: var(--wh-red-text);">The gap:</span> The right specialist takes weeks to find, if you find them at all.</p>
+        <p class="text-white/80 text-base leading-relaxed mb-6">
           The right specialist found in hours, not weeks. Luck replaced by design.
         </p>
         <div class="grid grid-cols-2 gap-3">
@@ -1921,42 +2100,41 @@
 
       <div class="reveal">
         <div class="hex-divider"><span></span><span style="background:var(--wh-orange); width:6px; height:6px;"></span><span></span></div>
-        <p class="text-xs text-orange-wh font-semibold uppercase tracking-[0.15em] mb-4">The hive in action</p>
         <h2 class="text-4xl sm:text-5xl font-black leading-[1.1] tracking-[-0.025em] mb-6">
           <span data-i="dayafter">The day after</span><br/>
-          <span style="background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;" translate="no">WorkHive.</span>
+          <span style="color: var(--wh-orange-text);" translate="no">WorkHive.</span>
         </h2>
-        <p class="text-white/80 leading-[1.75] font-light mb-10">
+        <p class="text-white/80 leading-[1.75] font-light mb-10 max-w-md">
           The gap is not talent or ambition. It is systems. WorkHive gives capable Filipino workers the infrastructure they deserve.
         </p>
 
         <!-- before/after -->
         <div class="space-y-4">
           <div class="flex items-center gap-4 before-after-row">
-            <div class="w-2 h-2 rounded-full bg-red-500 flex-shrink-0"></div>
+            <!-- --wh-red, not Tailwind red-500 (design lens audit, 2026-09-17, W45925): rgb(239,68,68) was one of twelve colour values on this page tracing to no token, and it sits one shade off the platform danger fill #f87171 - a near-miss reads as sloppy where a deliberate difference would not. --><div class="w-2 h-2 rounded-full flex-shrink-0" style="background: var(--wh-red, #f87171);"></div>
             <p class="text-white/80 text-sm line-through">Equipment fails without warning. 24h downtime. Millions lost.</p>
           </div>
           <div class="flex items-center gap-4 before-after-row">
             <div class="w-2 h-2 rounded-full bg-green-400 flex-shrink-0"></div>
-            <p class="text-white/80 text-sm">Anomaly detected 72h early. Right tech dispatched. 20-minute fix.</p>
+            <p class="text-white/80 text-base">Anomaly detected 72h early. Right tech dispatched. 20-minute fix.</p>
           </div>
           <div class="w-px h-5 bg-white/10 ml-1"></div>
           <div class="flex items-center gap-4 before-after-row">
-            <div class="w-2 h-2 rounded-full bg-red-500 flex-shrink-0"></div>
+            <!-- --wh-red, not Tailwind red-500 (design lens audit, 2026-09-17, W45925): rgb(239,68,68) was one of twelve colour values on this page tracing to no token, and it sits one shade off the platform danger fill #f87171 - a near-miss reads as sloppy where a deliberate difference would not. --><div class="w-2 h-2 rounded-full flex-shrink-0" style="background: var(--wh-red, #f87171);"></div>
             <p class="text-white/80 text-sm line-through">Skills guessed at. Wrong person assigned. Job takes 2x longer.</p>
           </div>
           <div class="flex items-center gap-4 before-after-row">
             <div class="w-2 h-2 rounded-full bg-green-400 flex-shrink-0"></div>
-            <p class="text-white/80 text-sm">AI matches the best available worker by skill and availability. Done right, first time.</p>
+            <p class="text-white/80 text-base">AI matches the best available worker by skill and availability. Done right, first time.</p>
           </div>
           <div class="w-px h-5 bg-white/10 ml-1"></div>
           <div class="flex items-center gap-4 before-after-row">
-            <div class="w-2 h-2 rounded-full bg-red-500 flex-shrink-0"></div>
+            <!-- --wh-red, not Tailwind red-500 (design lens audit, 2026-09-17, W45925): rgb(239,68,68) was one of twelve colour values on this page tracing to no token, and it sits one shade off the platform danger fill #f87171 - a near-miss reads as sloppy where a deliberate difference would not. --><div class="w-2 h-2 rounded-full flex-shrink-0" style="background: var(--wh-red, #f87171);"></div>
             <p class="text-white/80 text-sm line-through">Expert retires. ₱800K to ₱2.4M in knowledge walks out the door. Start from scratch.</p>
           </div>
           <div class="flex items-center gap-4 before-after-row">
             <div class="w-2 h-2 rounded-full bg-green-400 flex-shrink-0"></div>
-            <p class="text-white/80 text-sm">Every insight captured before they leave. Organizational memory compounds, forever.</p>
+            <p class="text-white/80 text-base">Every insight captured before they leave. Organizational memory compounds, forever.</p>
           </div>
         </div>
       </div>
@@ -1964,9 +2142,13 @@
       <!-- Stat grid -->
       <div class="grid grid-cols-2 gap-5 reveal stagger-wrap">
         <div class="rounded-3xl p-7 border border-white/[0.08] card-orange" style="background: linear-gradient(145deg, rgba(247,162,27,0.12) 0%, rgba(31,46,69,0.8) 100%);">
-          <p class="text-5xl font-black stat-orange mb-2">40-60%</p>
-          <p class="text-sm font-semibold text-white mb-1">Less Downtime</p>
-          <p class="text-xs text-white/80 leading-relaxed">Reduction in unplanned downtime costs through predictive maintenance</p>
+          <!-- THIRD PRINTING OF THE SAME CLAIM, THIRD WORDING (2026-09-17). "Less Downtime" over
+               "reduction in unplanned downtime costs" - the heading dropped the qualifier that makes the
+               number mean anything (planned downtime is not what falls) and the body swapped hours for
+               costs again. One number, one quantity, one wording, matching the guide. -->
+          <p class="text-5xl font-black stat-orange mb-2">35-50%</p>
+          <p class="text-sm font-semibold text-white mb-1">Less Unplanned Downtime</p>
+          <p class="text-xs text-white/80 leading-relaxed">What mature predictive programmes reach. Most plants see 15-25% in their first 18 months.</p>
         </div>
         <div class="rounded-3xl p-7 border border-white/[0.08] card-glow" style="background: linear-gradient(145deg, rgba(41,182,217,0.12) 0%, rgba(31,46,69,0.8) 100%);">
           <p class="text-5xl font-black stat-blue mb-2">60-80%</p>
@@ -1996,10 +2178,9 @@
   <div class="max-w-7xl mx-auto px-5 sm:px-8">
     <div class="text-center max-w-2xl mx-auto mb-12 reveal">
       <div class="hex-divider justify-center"><span></span><span style="background:var(--wh-blue); width:6px; height:6px;"></span><span></span></div>
-      <p class="text-xs text-blue-wh font-semibold uppercase tracking-[0.15em] mb-4">Find your role</p>
       <h2 class="text-4xl sm:text-5xl font-black leading-[1.1] tracking-[-0.025em] mb-6">
         <span data-i="everyworker">Every worker</span><br/>
-        <span style="background: linear-gradient(135deg, var(--wh-blue), var(--wh-blue-light)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;" data-i="roleinhive">has a role in the hive.</span>
+        <span style="color: var(--wh-blue-text);" data-i="roleinhive">has a role in the hive.</span>
       </h2>
       <p class="text-white/80 leading-[1.75] font-light">
         Whether you're on the floor or running the floor, the hive works for you.
@@ -2039,7 +2220,13 @@
          and the CoP explainer. -->
     <div class="mt-10 rounded-2xl p-8 sm:p-10 border border-white/[0.07] reveal text-center" style="background: linear-gradient(145deg, rgba(41,182,217,0.10) 0%, rgba(247,162,27,0.06) 100%);">
       <h3 class="font-black text-white text-2xl sm:text-3xl mb-3 tracking-[-0.02em]" data-i="communitypractice">A community of practice, not just a forum</h3>
-      <p class="text-white/80 leading-relaxed font-light max-w-2xl mx-auto mb-7">
+        <!-- THE WALK MEASURES THE LONGEST PARAGRAPH, NOT THE WIDEST LINE (design lens craft, 2026-09-17,
+           W45924). Scanning every long paragraph with a Range - one character at a time, watching the y
+           change - found this one running 97 characters to a line at desktop-1280, worse than the 89 of than the paragraph the
+           walk actually reports, which is chosen by TOTAL character count. A shorter paragraph in a wide
+           column has a worse measure than a long one in a narrow column, and the heuristic cannot see it.
+           max-w-2xl (42rem) -> max-w-lg (32rem) puts it at about 74. -->
+      <p class="text-white/80 leading-relaxed font-light max-w-md mx-auto mb-7">
         Ask a question at 2am and a technician three plants away answers it. Share the fix that saved your shift.
         The trust you build by helping others follows you, from the community straight to the free marketplace,
         where it becomes real jobs and trades.
@@ -2110,7 +2297,7 @@
 
       <details class="faq-item">
         <summary>What languages does WorkHive support?</summary>
-        <div class="faq-answer">English by default, with Filipino (Tagalog) support in the AI work assistant. Workers can ask questions in either language and receive responses appropriate to their role and stage. The Voice Journal additionally understands 10 Philippine languages, including Cebuano, Hiligaynon, and Ilocano.</div>
+        <div class="faq-answer">English by default, with Filipino (Tagalog) support in the AI work assistant. Workers can ask questions in either language and receive responses appropriate to their role and stage. The Voice Journal additionally understands eight Philippine languages, including Cebuano, Hiligaynon, and Ilocano.</div>
       </details>
 
       <details class="faq-item">
@@ -2153,11 +2340,16 @@
 <section id="learn-teaser" class="py-12 lg:py-16 reveal" style="background: rgba(22,32,50,0.55); position: relative; z-index: 1;">
   <div class="max-w-6xl mx-auto px-5 sm:px-8">
     <div class="text-center max-w-2xl mx-auto mb-12">
-      <p class="text-xs font-bold uppercase tracking-[0.15em] text-orange-wh mb-4">Free guides</p>
       <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black leading-[1.1] tracking-[-0.025em] mb-5" data-i="practicalwriting">
         Practical writing for the Philippine plant floor
       </h2>
-      <p class="text-white/80 leading-relaxed font-light">
+      <!-- THE WALK MEASURES THE LONGEST PARAGRAPH, NOT THE WIDEST LINE (design lens craft, 2026-09-17,
+           W45924). Scanning every long paragraph with a Range - one character at a time, watching the y
+           change - found this one running 85 characters to a line at desktop-1280, wider than than the paragraph the
+           walk actually reports, which is chosen by TOTAL character count. A shorter paragraph in a wide
+           column has a worse measure than a long one in a narrow column, and the heuristic cannot see it.
+           no cap at all inside a max-w-2xl container -> max-w-xl (36rem) puts it at about 73. -->
+      <p class="text-white/80 leading-relaxed font-light max-w-xl mx-auto">
         <!--CATALOG:guide_count-->54<!--/CATALOG:guide_count--> in-depth guides covering OEE, MTBF, PM checklists, skill matrix, shift handover, AI assistants, CMMS integrations, and more. Every guide is tool-aligned with WorkHive and free to read.
       </p>
     </div>
@@ -2198,7 +2390,7 @@
       background: rgba(31,46,69,0.55);
       border: 1px solid rgba(255,255,255,0.07);
       border-radius: 16px;
-      padding: 22px 24px;
+      padding: 24px 24px;
       transition: border-color .2s ease, background .2s ease, transform .2s ease;
       text-decoration: none;
       color: inherit;
@@ -2210,26 +2402,33 @@
     }
     .learn-teaser-pill {
       display: inline-block;
-      font-size: 0.65rem;
+      font-size: 0.75rem;
       font-weight: 700;
-      padding: 3px 10px;
-      border-radius: 100px;
+      padding: 4px 12px;
+      border-radius: var(--wh-radius-pill);
       letter-spacing: 0.05em;
       text-transform: uppercase;
       background: rgba(247,162,27,0.18);
       color:var(--wh-orange-text);
       border: 1px solid rgba(247,162,27,0.35);
-      margin-bottom: 14px;
+      margin-bottom: 16px;
     }
+    /* THE RAMP HAD FIFTEEN STEPS AND SIX OF THEM WERE ONE RULE EACH (design lens craft, 2026-09-17,
+       W45924, measured at desktop-1280). A type ramp is a promise that two things the same size mean the
+       same thing. Six sizes on this page were held by a single rule apiece and sat BETWEEN the steps
+       everything else uses - 0.95rem, 1.05rem, 0.86rem, 0.82rem, a 0.78rem meta line and a 4.2rem
+       display - so the page declared fifteen sizes to say what nine say. Each is snapped to the nearest
+       step that ALREADY carries weight here rather than to a round number, and nothing is snapped DOWN
+       through the 12px floor. */
     .learn-teaser-title {
-      font-size: 1.05rem;
+      font-size: 1.125rem;
       font-weight: 700;
       line-height: 1.3;
       color: var(--wh-cloud);
-      margin-bottom: 10px;
+      margin-bottom: 12px;
     }
     .learn-teaser-meta {
-      font-size: 0.78rem;
+      font-size: 0.75rem;
       color:rgba(244,246,250,0.80);  /* 0.45 was 3.82:1 (fail); 0.62 clears WCAG 4.5:1 */
     }
   </style>
@@ -2239,19 +2438,27 @@
      CTA: JOIN
 ═══════════════════════════════════════════════ -->
 <section id="join" class="py-24 lg:py-32 hex-pattern grain relative overflow-hidden" style="background: linear-gradient(135deg, rgba(13,24,36,0.72) 0%, rgba(22,32,50,0.68) 100%); z-index: 1;">
-  <!-- glows -->
-  <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] rounded-full opacity-25 pointer-events-none"
-       style="background: radial-gradient(ellipse, var(--wh-orange) 0%, transparent 70%); filter: blur(80px);"></div>
-  <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[300px] rounded-full opacity-20 pointer-events-none"
-       style="background: radial-gradient(ellipse, var(--wh-blue) 0%, transparent 70%); filter: blur(60px);"></div>
+  <!-- TWO STACKED BLOBS BECAME ONE POOL OF LIGHT (2026-09-17). An amber ellipse at opacity-25 under
+       blur(80px) with a blue one at opacity-20 under blur(60px) sat concentrically on the same centre point,
+       so the second only muddied the first. The closing call to action does want its own light - it is a
+       full-width dark band and the eye needs somewhere to land - so the wash stays, centred, at the 8 percent
+       this page uses elsewhere, and the second layer goes. -->
+  <div class="absolute inset-0 pointer-events-none"
+       style="background: radial-gradient(ellipse 60% 70% at 50% 50%, rgba(247,162,27,0.08) 0%, transparent 65%);"></div>
 
   <div class="relative max-w-3xl mx-auto px-5 sm:px-8 text-center reveal">
     <div class="mb-6 flex justify-center">
-      <img src="brand_assets/workhive-logo-transparent.png" alt="WorkHive" class="w-auto" style="height: 80px; filter: drop-shadow(0 0 20px rgba(247,162,27,0.35));" />
+      <!-- SAME MARK, SAME TREATMENT (2026-09-17). This carried a bare zero-offset amber halo at 0.35 - a
+           glow with no shadow under it, so the mark emitted light instead of sitting in it - while the hero
+           copy of the same logo glowed a different amount again. Both now read the same: a real drop shadow
+           that lifts the mark off the navy, plus a quarter-strength amber that reads as the band's light
+           catching it. Written inline rather than by adding .logo-glow-img, because that class also carries
+           the 7s float and a height: 118px !important mobile override that would resize this one. -->
+      <img src="brand_assets/workhive-logo-transparent.png" alt="WorkHive" class="w-auto" style="height: 80px; filter: drop-shadow(0 6px 18px rgba(0,0,0,0.55)) drop-shadow(0 0 24px rgba(247,162,27,0.22));" />
     </div>
     <h2 class="text-4xl sm:text-5xl lg:text-6xl font-black leading-[1.05] tracking-[-0.03em] mb-6">
       <span data-i="jointhehive">Join the hive.</span><br/>
-      <span style="background: linear-gradient(135deg, var(--wh-orange) 30%, var(--wh-orange-light) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;" data-i="buildfuture">Build the future.</span>
+      <span style="color: var(--wh-orange-text);" data-i="buildfuture">Build the future.</span>
     </h2>
     <p class="text-lg text-white/80 leading-[1.75] font-light mb-10 max-w-xl mx-auto">
       The beehive has been showing us how for 80 million years: every worker valued, every role
@@ -2281,14 +2488,14 @@
           placeholder="you@company.com"
           required
           autocomplete="email"
-          class="flex-1 px-5 py-3.5 rounded-xl text-white wh-ph text-sm font-medium border border-white/[0.12] focus:outline-none focus:border-orange-wh/60 focus:ring-2 focus:ring-orange-wh/20 transition-colors"
+          class="flex-1 px-5 py-4 rounded-xl text-white wh-ph text-sm font-medium border border-white/[0.12] focus:outline-none focus:border-orange-wh/60 focus:ring-2 focus:ring-orange-wh/20 transition-colors"
           style="background: rgba(42,61,88,0.7);"
         />
         <button type="submit" class="btn-ghost text-sm whitespace-nowrap">Get updates</button>
       </div>
     </form>
 
-    <p class="text-xs text-white/80 mb-12">Adds you to the updates list, not an account · Philippines-first · No spam, ever</p>
+    <p class="text-xs text-white/80 mb-12 max-w-lg mx-auto">Adds you to the updates list, not an account · Philippines-first · No spam, ever</p>
 
     <div class="flex flex-wrap items-center justify-center gap-8 pt-8 border-t border-white/[0.07]">
       <div class="flex items-center gap-3">
@@ -2359,6 +2566,54 @@
      SCRIPTS
 ═══════════════════════════════════════════════ -->
 <script>
+  /* ── FOLDED HERE, NOT A SEPARATE SCRIPT TAG (2026-09-28) ──────────────────────────────
+     This was a standalone inline block right after the skip link, which took index.html from 12 to
+     13 un-nonced inline scripts and reddened validate_csp's strict-CSP ratchet. The page already
+     states the convention a few comments above the stylesheet: fold new inline code into an existing
+     block so it adds no net-new script tag. The skip link it edits is parsed far above this point,
+     and the IIFE keeps its own readyState guard, so the behaviour is unchanged. */
+/* W45926 (design lens copy, 2026-09-22): index.html is the ONE page that hand-rolls its own skip
+   link instead of letting wayfinding.js inject it - it loads wayfinding.js zero times - so the fix
+   that file already carries never reached the busiest page on the platform. Its comment is the
+   reason this matters: "THE FIRST THING ANNOUNCED ON 21 PAGES WAS THE ONE STRING NOBODY
+   TRANSLATED ... the first focusable element on EVERY page". Same approach copied here: read
+   WH_LANG directly with an English floor rather than calling _t(), because this runs before
+   utils.js may have defined the translator and the skip link is focusable immediately; and declare
+   lang on any element whose words are swapped (WCAG 3.1.2, language of parts). */
+(function () {
+  var fil = false;
+  try { fil = (window.WH_LANG === 'fil') || (localStorage.getItem('wh_lang') === 'fil'); }
+  catch (_) { fil = (window.WH_LANG === 'fil'); }
+  if (!fil) return;
+  var setText = function (el, s) { if (el) { el.textContent = s; el.lang = 'fil'; } };
+  var setLabel = function (el, s) { if (el) { el.setAttribute('aria-label', s); el.lang = 'fil'; } };
+
+  /* The skip link is immediately above this script and must be swapped NOW: it is the first
+     focusable element, so a keyboard user can reach it before DOMContentLoaded fires. */
+  setText(document.querySelector('a.wh-skip-link, a[href="#wh-main-content"]'),
+          'Laktawan papunta sa main content');
+
+  /* Everything else is further down the document and does not exist yet - the first version of
+     this block looked for them here and silently found nothing, which the fil walk caught: the
+     skip link changed and the other four did not. */
+  var rest = function () {
+    setLabel(document.getElementById('hamburger'), 'Buksan ang menu');
+    setLabel(document.querySelector('[aria-label="Change AI companion (Hezekiah or Zaniah)"]'),
+             'Palitan ang AI companion (Hezekiah o Zaniah)');
+    setLabel(document.querySelector('[aria-label="Open hive board"]'), 'Buksan ang hive board');
+    /* the consent prompt is rendered by wh-consent.js's markup at the end of body */
+    var byText = function (sel, want) {
+      return Array.prototype.find.call(document.querySelectorAll(sel), function (b) {
+        return (b.textContent || '').trim() === want;
+      });
+    };
+    setText(byText('button', 'No thanks'), 'Huwag na lang');
+    setText(byText('button', 'Allow'), 'Payagan');
+  };
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', rest);
+  } else { rest(); }
+})();
   // ---- Mobile menu toggle ----
   const hamburger = document.getElementById('hamburger');
   const mobileMenu = document.getElementById('mobile-menu');
@@ -2421,6 +2676,9 @@
   // So: feature-detect, and when it is missing REVEAL EVERYTHING IMMEDIATELY. Losing the fade is a
   // cosmetic downgrade; losing the content is the landing page.
   if (typeof IntersectionObserver === 'function') {
+    // Arm the hidden start state only HERE, with the observer constructed on the very next line. Before
+    // this point nothing on this page has ever been hidden, which is the whole idea (W45929).
+    document.documentElement.classList.add('wh-reveal-armed');
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
@@ -2521,7 +2779,7 @@
     <!-- popup top bar: stage tabs + close -->
     <div class="px-5 pt-5 pb-0 flex-shrink-0">
       <div class="flex items-center justify-between mb-4">
-        <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-white/80">Your Growth Path</p>
+        <p class="text-xs font-bold uppercase tracking-[0.15em] text-white/80">Your Growth Path</p>
         <button onclick="closeStagePopup()" class="w-8 h-8 rounded-full flex items-center justify-center text-white/80 hover:text-white hover:bg-white/10 transition-colors" aria-label="Close">
           <span class="ic ic-close" aria-hidden="true"></span>
         </button>
@@ -2529,19 +2787,19 @@
       <!-- stage tabs -->
       <div id="popup-tabs-row" class="grid grid-cols-4 gap-1.5 mb-5">
         <button onclick="switchPopupStage(1)" id="ptab-1" class="popup-tab rounded-xl px-2 py-2.5 text-center transition-all duration-200 border border-transparent">
-          <span class="text-[10px] font-bold block text-white/80 mb-0.5">01</span>
+          <span class="text-xs font-bold block text-white/80 mb-0.5">01</span>
           <span class="text-xs font-bold block text-white/80 leading-tight" data-i="stfoundation">Foundation</span>
         </button>
         <button onclick="switchPopupStage(2)" id="ptab-2" class="popup-tab rounded-xl px-2 py-2.5 text-center transition-all duration-200 border border-transparent">
-          <span class="text-[10px] font-bold block text-white/80 mb-0.5">02</span>
+          <span class="text-xs font-bold block text-white/80 mb-0.5">02</span>
           <span class="text-xs font-bold block text-white/80 leading-tight" data-i="stdiscipline">Discipline</span>
         </button>
         <button onclick="switchPopupStage(3)" id="ptab-3" class="popup-tab rounded-xl px-2 py-2.5 text-center transition-all duration-200 border border-transparent">
-          <span class="text-[10px] font-bold block text-white/80 mb-0.5">03</span>
+          <span class="text-xs font-bold block text-white/80 mb-0.5">03</span>
           <span class="text-xs font-bold block text-white/80 leading-tight" data-i="stpredictive">Predictive</span>
         </button>
         <button onclick="switchPopupStage(4)" id="ptab-4" class="popup-tab rounded-xl px-2 py-2.5 text-center transition-all duration-200 border border-transparent">
-          <span class="text-[10px] font-bold block text-white/80 mb-0.5">04</span>
+          <span class="text-xs font-bold block text-white/80 mb-0.5">04</span>
           <span class="text-xs font-bold block text-white/80 leading-tight" data-i="stleader">Leader</span>
         </button>
       </div>
@@ -2549,7 +2807,7 @@
 
     <!-- stage info -->
     <div id="popup-stage-info" class="px-5 pb-4 border-b border-white/[0.07] flex-shrink-0">
-      <p id="popup-stage-label" class="text-[10px] font-bold uppercase tracking-[0.15em] mb-1" style="color:var(--wh-orange-text);"></p>
+      <p id="popup-stage-label" class="text-xs font-bold uppercase tracking-[0.15em] mb-1" style="color:var(--wh-orange-text);"></p>
       <p id="popup-stage-quote" class="text-white/80 text-xs italic"></p>
     </div>
 
@@ -2589,7 +2847,7 @@
         { name: 'PM Scheduler',        desc: 'Replace spreadsheet PM trackers. Add assets, build PM scope by category, set Monthly/Quarterly/Semi-Annual/Yearly frequencies, track every due date.',                                                          link: 'pm-scheduler.html',  icon: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z' },
         { name: 'Spare-Parts Inventory',   desc: 'Replace Excel parts lists. Stock ledger, reorder alerts, supervisor-approved restocks, transaction audit, running stock balance.',                                                                          link: 'inventory.html',     icon: 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4' },
         { name: 'Maintenance Day Planner',         desc: 'DILO / WILO / MILO / YILO multi-resolution personal scheduler. Pulls from your logbook entries and PM schedule.',                                                                                              link: 'dayplanner.html',    icon: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z' },
-        { name: 'Voice Journal',       desc: 'Speak in any of 10 Philippine languages (Tagalog, Cebuano, Ilocano, Hiligaynon, Bikol, Waray, Kapampangan, Pangasinan). Semantic recall + private rolling memory.',                                            link: 'voice-journal.html', icon: 'M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3zM19 10v2a7 7 0 01-14 0v-2M12 19v4M8 23h8' },
+        { name: 'Voice Journal',       desc: 'Speak in any of eight Philippine languages (Tagalog, Cebuano, Ilocano, Hiligaynon, Bikol, Waray, Kapampangan, Pangasinan). Semantic recall + private rolling memory.',                                            link: 'voice-journal.html', icon: 'M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3zM19 10v2a7 7 0 01-14 0v-2M12 19v4M8 23h8' },
         { name: 'Resume / CV Builder', desc: 'Turn your Skill Matrix, badges and logbook into a professional, ATS-friendly resume. Snap a photo or upload a PDF/Word/Excel from your phone. AI extracts the details into an editable checklist you control. Free for every worker.', link: 'resume.html',        icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' },
         { name: 'AI Work Assistant',        desc: 'Floating helper on every page. Knows your hive, your role, your context. Routes through our AI service with memory + private-information redaction. Available across all 4 stages.',                                              link: 'assistant.html',     icon: 'M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z' },
       ]
@@ -2674,8 +2932,8 @@
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="${s.color}" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="${t.icon}"/></svg>
         </div>
         <p class="font-bold text-white text-xs mb-1">${t.name}</p>
-        <p class="text-white/80 text-[11px] leading-relaxed">${t.desc}</p>
-        ${isLink ? `<p class="text-[10px] font-semibold mt-2 flex items-center gap-1" style="color:${s.color}">Open Tool <span class="ic ic-next" aria-hidden="true"></span></p>` : ''}
+        <p class="text-white/80 text-xs leading-relaxed">${t.desc}</p>
+        ${isLink ? `<p class="text-xs font-semibold mt-2 flex items-center gap-1" style="color:${s.color}">Open Tool <span class="ic ic-next" aria-hidden="true"></span></p>` : ''}
       </${closeTag}>`;
     }).join('');
   }
@@ -2797,8 +3055,16 @@
 <!-- T1: was <a href="#join"> — a dead tap on the page's most prominent phone control (the anchor
      scroll was swallowed while the bar itself sat inert/aria-hidden). Now a real button through
      whPrimaryCta (utils.js): the primary action IS the signup, and the tap is attributable. -->
+<!-- ONE ACTION SHOULD NOT HAVE THREE NAMES, AND ONE OF THEM SAID THE OPPOSITE OF THE BADGE (design lens
+     critique, 2026-09-17, W45929). The hero badge reads "The Hive is Open - Philippines", the hero button
+     reads "Join the Hive", and this bar - which is the call to action a phone reader actually sees for most
+     of the scroll, since the hero button leaves the viewport in the first screen - read "Get Early Access".
+     Early access means a waitlist. A maintenance technician who reads it concludes he cannot use this today
+     and closes the tab, which is the most expensive misread available on this page, and it contradicts a
+     badge sitting two hundred pixels above it. Same verb as the hero now; the free signal stays, because
+     that is the part that is true and worth repeating. -->
 <div id="sticky-mobile-cta" class="md:hidden" aria-hidden="true" inert>
-  <button type="button" data-wh-cta="sticky" class="btn-primary text-sm w-full text-center block">Get Early Access: It's Free</button>
+  <button type="button" data-wh-cta="sticky" class="btn-primary text-sm w-full text-center block">Join the Hive - It's Free</button>
 </div>
 
 <!-- ── SIGN IN MODAL ── -->
@@ -2881,12 +3147,17 @@
            session-timeout clears only the IDENTITY keys, never the whAutoSaveDraft entries, and
            saved work is in the database. Populated from ?reason= (idle | othertab); stays hidden
            when the person simply chose to sign in. -->
-      <p id="si-reason" role="status" class="hidden" style="margin:0 0 0.9rem;font-size:0.72rem;line-height:1.5;color:rgba(255,255,255,0.78);background:rgba(41,182,217,0.10);border:1px solid rgba(41,182,217,0.22);border-radius:var(--wh-radius-sm, 0.6rem);padding:0.6rem 0.7rem;"></p>
+      <p id="si-reason" role="status" class="hidden" style="margin:0 0 0.9rem;font-size: 0.75rem;line-height:1.5;color:rgba(255,255,255,0.78);background:rgba(41,182,217,0.10);border:1px solid rgba(41,182,217,0.22);border-radius:var(--wh-radius-sm, 0.6rem);padding:0.6rem 0.7rem;"></p>
       <div class="space-y-3 mb-3">
         <label for="si-username" class="block text-xs mb-1" style="color:rgba(255,255,255,0.86);font-weight:600;">Username</label>
         <input id="si-username" type="text" placeholder="Username" autocomplete="username"
           class="w-full rounded-xl px-4 py-3 text-sm text-white outline-none wh-ph"
           style="background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.12);" />
+        <!-- ★C24 (wave-4, 2026-09-14): _syntheticEmail() silently strips everything outside [a-z0-9_] from the typed
+             username before building the address, so a person who types "jeepney.oscarph" is signed in as
+             jeepneyoscarph - and, when no such account exists, is told "Wrong username or password". When the
+             normalisation changes what was typed, say which handle will be used, right under the field. -->
+        <p id="si-username-hint" role="status" aria-live="polite" class="hidden" style="margin:-0.35rem 0 0.5rem;font-size: 0.75rem;line-height:1.4;color:rgba(255,255,255,0.72);"></p>
         <label for="si-password" class="block text-xs mb-1" style="color:rgba(255,255,255,0.86);font-weight:600;">Password</label>
         <div style="position:relative;">
           <input id="si-password" type="password" placeholder="Password" autocomplete="current-password"
@@ -2904,12 +3175,12 @@
         style="background:var(--wh-orange); color:var(--wh-navy);" data-i="signin">Sign In</button>
       <!-- Arc I I3/I — password recovery: email reset (real-email users) + supervisor-assisted (no-email workers) -->
       <p style="margin-top:10px; text-align:center;">
-        <button type="button" onclick="forgotPassword(event)" style="display:inline-flex; align-items:center; min-height:44px; font-size:.7rem; color:rgba(41,182,217,0.85); text-decoration:none; background:none; border:none; padding:0; cursor:pointer; font-family:inherit;" data-i="forgotpwd">Forgot your password?</button>
+        <button type="button" onclick="forgotPassword(event)" style="display:inline-flex; align-items:center; min-height:44px; font-size: 0.75rem; color:rgba(41,182,217,0.85); text-decoration:none; background:none; border:none; padding:0; cursor:pointer; font-family:inherit;" data-i="forgotpwd">Forgot your password?</button>
       </p>
 
       <!-- SSO (Phase 4.2) -->
       <div style="margin-top:12px; text-align:center;">
-        <p style="font-size:.65rem; color:rgba(255,255,255,0.80); margin-bottom:8px; text-transform:uppercase; letter-spacing:.06em;">Or</p>
+        <p style="font-size: 0.75rem; color:rgba(255,255,255,0.80); margin-bottom:8px; text-transform:uppercase; letter-spacing:.06em;">Or</p>
         <button type="button" id="si-sso-btn" onclick="signInWithSSO()"
           class="w-full rounded-xl py-3 text-sm font-semibold"
           style="min-height:44px; background:rgba(41,182,217,0.08); color:var(--wh-blue-text); border:1px solid rgba(41,182,217,0.25);" translate="no">
@@ -2918,7 +3189,7 @@
       </div>
       <!-- T1 (Ian verbatim): "when you face the sign in, there should also be a sign up." The tab
            above says it structurally; this says it in words, at the moment of facing the wall. -->
-      <p class="text-center text-xs" style="margin-top:14px; color:rgba(255,255,255,0.80);">
+      <p class="text-center text-xs" style="margin-top:16px; color:rgba(255,255,255,0.80);">
         Don&#39;t have an account?
         <button type="button" data-wh-authtab="signup"
           style="background:none;border:none;padding:0 2px;min-height:44px;cursor:pointer;font-family:inherit;font-size:inherit;font-weight:700;color:var(--wh-orange-text);text-decoration:underline;">
@@ -3026,6 +3297,23 @@
   function _syntheticEmail(username) {
     return username.toLowerCase().replace(/[^a-z0-9_]/g, '') + _AUTH_DOMAIN;
   }
+  // ★C24 (wave-4, 2026-09-14): the normalisation above is silent - "jeepney.oscarph" signs in as jeepneyoscarph and,
+  // when no such account exists, the person reads "Wrong username or password" for a handle they never typed. When
+  // the handle the wall will send differs from what was typed, say so under the field (both languages).
+  (function () {
+    var f = document.getElementById('si-username'), h = document.getElementById('si-username-hint');
+    if (!f || !h) return;
+    f.addEventListener('input', function () {
+      var typed = f.value.trim();
+      var norm = typed.toLowerCase().replace(/[^a-z0-9_]/g, '');
+      if (typed && norm !== typed) {
+        h.textContent = (typeof _t === 'function') ? _t('Signs in as ' + norm, 'Magsa-sign in bilang ' + norm) : 'Signs in as ' + norm;
+        h.classList.remove('hidden');
+      } else {
+        h.classList.add('hidden');
+      }
+    });
+  })();
 
   // Arc I I3/I — email-reset fallback (works for users with a REAL email; field technicians whose
   // identity is a synthetic username@auth.workhiveph.com have no inbox → the supervisor-assisted reset
@@ -3125,7 +3413,33 @@
     if (name && !force) { toggleUserMenu(e); return; }
     _signinOpener = (e && e.currentTarget) || document.activeElement;
     document.getElementById('signin-modal').classList.remove('hidden');
+    _signinInertPage(true);
     switchAuthTab('signin');
+  }
+
+  // ★TWO "SIGN IN"s (wave-4 confusion C1, 2026-09-14): with the dialog open, the nav's own "Sign In"
+  // opener stayed in the accessibility tree beside the dialog's submit, so a screen reader announced
+  // the same name twice and a role locator resolved both. A modal makes the page behind it inert - the
+  // WCAG dialog pattern - so the only "Sign In" a person can reach is the dialog's. Undone on close.
+  function _signinInertPage(on) {
+    const m = document.getElementById('signin-modal');
+    if (!m || !m.parentElement) return;
+    for (const sib of m.parentElement.children) {
+      if (sib === m || sib.tagName === 'SCRIPT' || sib.tagName === 'STYLE' || sib.tagName === 'LINK') continue;
+      try {
+        if (on) {
+          sib.setAttribute('inert', '');
+          // inert alone removes the subtree for assistive tech in modern engines; aria-hidden is the
+          // belt to that brace (older readers, and any tool that reads roles without honouring inert -
+          // verified 2026-09-14: a role query still counted two "Sign In" with inert alone). Only what
+          // this function hid is un-hidden on close, so an element that was aria-hidden by design stays so.
+          if (!sib.hasAttribute('aria-hidden')) { sib.setAttribute('aria-hidden', 'true'); sib.setAttribute('data-wh-signin-hid', '1'); }
+        } else {
+          sib.removeAttribute('inert');
+          if (sib.getAttribute('data-wh-signin-hid') === '1') { sib.removeAttribute('aria-hidden'); sib.removeAttribute('data-wh-signin-hid'); }
+        }
+      } catch (_) { /* empty-catch-allow: inert is best-effort on old engines */ }
+    }
   }
 
   // Free-platform CTA: the tools are free to USE but need a (free) account (C4 removed
@@ -3137,11 +3451,13 @@
     if (name && !force) { toggleUserMenu(e); return; }   // already signed in → user menu, not signup (force: see openSignIn's T8 note)
     _signinOpener = (e && e.currentTarget) || document.activeElement;
     document.getElementById('signin-modal').classList.remove('hidden');
+    _signinInertPage(true);
     switchAuthTab('signup');
   }
 
   function closeSignIn() {
     document.getElementById('signin-modal').classList.add('hidden');
+    _signinInertPage(false);
     // a11y: return focus to the control that opened the dialog (WCAG dialog pattern,
     // matches utils.js whConfirm/whPrompt).
     try { if (_signinOpener && typeof _signinOpener.focus === 'function') _signinOpener.focus(); } catch (_) { /* empty-catch-allow: focus restore best-effort */ }
@@ -3312,6 +3628,17 @@
     }
 
     btn.textContent = 'Signing in…'; btn.disabled = true;
+    // ★WAITING WITHOUT KNOWING (wave-4 confusion C2, 2026-09-14): the button read "Signing in…" for
+    // 25+ seconds after the sign-in service restarted (its cold start), and nothing said whether to
+    // wait. At 8 s, while still signing in and with no error shown, say what is likely happening.
+    const _slowHint = setTimeout(() => {
+      const stillWaiting = btn.disabled && errEl.classList.contains('hidden')
+        && !document.getElementById('signin-modal').classList.contains('hidden');
+      if (!stillWaiting) return;
+      errEl.textContent = _t('Still signing in… your connection is slow or the sign-in service is waking up. This can take up to 30 seconds.',
+                             'Nagsa-sign in pa… mabagal ang koneksyon o ginigising pa ang sign-in service. Maaaring umabot ng 30 segundo.');
+      errEl.classList.remove('hidden');
+    }, 8000);
 
     const db = _getDb();
     // Arc I I7/A — route sign-in through the server-side brute-force-protected `login` proxy, NOT
@@ -3351,9 +3678,23 @@
         errEl.classList.remove('hidden'); return;
       }
       if (!_resp.ok || !_r.access_token) {
-        errEl.textContent = _r.message || 'Wrong username or password.';
+        clearTimeout(_slowHint);
+        btn.textContent = 'Sign In'; btn.disabled = false;
+        // ★THE TRANSPORT'S OWN WORDS REACHED THE PERSON (wave-4 confusion C3, 2026-09-14): with the
+        // sign-in function down the gateway answered 503 {"message":"name resolution failed"} and that
+        // sentence was printed on the wall. A 5xx (or a gateway phrase) is the platform's outage, said
+        // plainly in the person's language; the raw text goes to the error log where it belongs.
+        const _gatewayWords = /name resolution|upstream|bad gateway|gateway|unavailable|timed? ?out|econn|failed to fetch/i;
+        if (_resp.status >= 500 || (_r.message && _gatewayWords.test(String(_r.message)))) {
+          try { if (typeof whLogError === 'function') whLogError('signin-unavailable', `${_resp.status} ${String(_r.message || '').slice(0, 120)}`); } catch (_) { /* empty-catch-allow: logging is best-effort */ }
+          errEl.textContent = _t('Sign-in is temporarily unavailable. Please try again in a moment.',
+                                 'Pansamantalang hindi available ang pag-sign in. Pakisubukan muli sandali.');
+        } else {
+          errEl.textContent = _r.message || 'Wrong username or password.';
+        }
         errEl.classList.remove('hidden'); return;
       }
+      clearTimeout(_slowHint);
       ({ data, error } = await db.auth.setSession({ access_token: _r.access_token, refresh_token: _r.refresh_token }));
     } catch (_e) {
       console.error('index sign-in failed:', _e);
@@ -3611,7 +3952,15 @@
   // ── Navbar helpers ─────────────────────────────────────────────────────────
   function updateNavbarName(name) {
     const first = name.split(' ')[0];
-    document.querySelectorAll('.signin-btn').forEach(el => el.textContent = first);
+    // W45926 (design lens copy, 2026-09-22): this button is REPURPOSED as the user chip, but
+    // it still carried data-i="signin", and wh-i18n-lite swaps the text of every [data-i] it
+    // knows. English needs no swap so "Gloria" survived; Filipino put "Mag-sign In" back over
+    // her own name, on a page whose h1 greets her by it. While it is the chip it is not a
+    // translation target; signOut() restores the key.
+    document.querySelectorAll('.signin-btn').forEach(el => {
+      el.textContent = first;
+      el.removeAttribute('data-i');
+    });
     const nameEl = document.getElementById('user-menu-name');
     if (nameEl) nameEl.textContent = name;
     const nameElMobile = document.getElementById('user-menu-name-mobile');
@@ -3640,6 +3989,13 @@
      gate's own search pattern verbatim made the regex match THIS COMMENT instead of the code below it -
      a comment about a grep, found by the grep. Hence the pattern is described rather than reproduced.
      A gate that reads source with a fixed window is a constraint on how that source may be written. */
+  // signOut() restores the translation key the sign-in chip dropped, and sets the right words
+  // immediately rather than waiting for the next i18n pass - a Filipino reader signing out should
+  // not see English. Kept OUTSIDE the function body on purpose: validate_sso_readiness reads a
+  // FIXED 800-character window that begins at this function's declaration and ends at the first
+  // forEach pushed that brace to offset 849, so the gate reported the function as ABSENT while it
+  // was clearing all three identity keys correctly. The comment above says the same thing about
+  // this window; this is that constraint being honoured rather than re-learned.
   async function signOut() {
     if (typeof whClearIdentity === 'function') whClearIdentity();
     else ['wh_last_worker','wh_worker_name','workerName',
@@ -3647,7 +4003,12 @@
       .forEach(k => localStorage.removeItem(k));
     document.getElementById('user-menu')?.classList.add('hidden');
     document.getElementById('user-menu-mobile')?.classList.add('hidden');
-    document.querySelectorAll('.signin-btn').forEach(el => el.textContent = 'Sign In');
+    document.querySelectorAll('.signin-btn').forEach(el => {
+      el.textContent = (typeof window._t === 'function')
+        ? window._t('Sign In', 'Mag-sign In')
+        : 'Sign In';
+      el.setAttribute('data-i', 'signin');
+    });
     _getDb().auth.signOut(); // best effort, fire-and-forget after clearing local state
   }
 
@@ -3681,6 +4042,8 @@
       // toast on purpose: it blocks, and a failure on THIS action must not be missed.
       const { error } = await _getDb().rpc('deactivate_my_account');
       if (error) {
+        // native-dialog-allow: a FAILED account deactivation must block - a toast can be
+        // missed and the person then believes they have erased themselves when they have not.
         window.alert(typeof whWriteError === 'function'
           ? whWriteError(error, _t('Your account was NOT deactivated. Nothing was changed.',
                                    'HINDI na-deactivate ang account mo. Walang nabago.'))
@@ -3693,6 +4056,8 @@
       // remedy is offered to someone it cannot help. whWriteError names the CLASS (session expired /
       // offline / refused) exactly as the `if (error)` branch above already does; the old sentence
       // stays as its fallback, so a browser without utils still gets a truthful message.
+      // native-dialog-allow: same reason as the if (error) branch above - a THROWN failure on
+      // account deactivation must block rather than scroll past as a toast.
       window.alert(typeof whWriteError === 'function'
         ? whWriteError(err, _t('Your account was NOT deactivated. Nothing was changed.',
                                'HINDI na-deactivate ang account mo. Walang nabago.'))
@@ -3703,6 +4068,8 @@
     await signOut();
     // bilingual for the same reason as the confirm: this is the last thing the platform ever says
     // to this person, and it is the sentence that tells them it actually worked
+    // native-dialog-allow: fires AFTER signOut(), when this page's toast host is gone, and
+    // it is the last sentence the platform ever shows this person.
     window.alert(_t('Your account has been deactivated and your personal data anonymized.',
                     'Na-deactivate na ang account mo at na-anonymize na ang personal na data mo.'));
   }
@@ -4012,7 +4379,7 @@
           const note = document.createElement('div');
           note.id = 'oh-session-dead';
           note.setAttribute('role', 'status');
-          note.style.cssText = 'margin:0 0 14px;padding:12px 14px;border-radius:10px;'
+          note.style.cssText = 'margin:0 0 16px;padding:12px 16px;border-radius:10px;'
             + 'background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.42);'
             + 'color:#fde68a;font-size:0.8rem;line-height:1.5;';
           note.innerHTML = '<strong>Your session ended. These numbers were not read.</strong><br>'
@@ -4754,14 +5121,14 @@
       // shimmers FOREVER, telling the person something is loading that will never arrive
       // (plain string: `_t` in THIS branch is the #oh-today element, shadowing the translator)
       const _ohJobsEl = document.getElementById('oh-jobs');
-      if (_ohJobsEl) _ohJobsEl.innerHTML = '<div class="oh-card" style="padding:12px 16px; font-size:.72rem; color:rgba(255,255,255,.7);">'
+      if (_ohJobsEl) _ohJobsEl.innerHTML = '<div class="oh-card" style="padding:12px 16px; font-size: 0.75rem; color:rgba(255,255,255,.7);">'
         + 'Open jobs are unknown right now, not zero.</div>';
       if (_t && typeof whListError === 'function') {
         whListError(_t, whReadError(_ohErr, 'your latest hive data')
           + ' These numbers are unknown right now, not zero.', () => location.reload());
       } else if (_t) {
-        _t.innerHTML = '<div style="background:rgba(248,113,113,.10); border:1px solid rgba(248,113,113,.30); border-radius:12px; padding:14px 16px;">'
-        + '<p style="font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--wh-red-text); margin:0 0 2px;">Couldn\'t refresh</p>'
+        _t.innerHTML = '<div style="background:rgba(248,113,113,.10); border:1px solid rgba(248,113,113,.30); border-radius:12px; padding:12px 16px;">'
+        + '<p style="font-size: 0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--wh-red-text); margin:0 0 2px;">Couldn\'t refresh</p>'
         + '<p style="font-size:.9rem; color:var(--wh-cloud); margin:0;">' + escHtml(whReadError(_ohErr, 'your latest hive data')) + '</p></div>';
       }
       return;
@@ -4893,11 +5260,11 @@
              style="display:flex; align-items:center; gap:14px; padding:18px; text-decoration:none; border-left:3px solid var(--wh-orange);">
             <div style="width:36px; height:36px; border-radius:50%; background:rgba(247,162,27,0.12); color:var(--wh-orange-text); display:flex; align-items:center; justify-content:center; flex:none; font-size:1.05rem;">&#128029;</div>
             <div style="flex:1; min-width:0;">
-              <p style="font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--wh-orange-text); margin:0 0 2px;">${_t('You are not in a hive yet','Wala ka pang hive')}</p>
+              <p style="font-size: 0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--wh-orange-text); margin:0 0 2px;">${_t('You are not in a hive yet','Wala ka pang hive')}</p>
               <p style="font-size:.92rem; font-weight:700; color:var(--wh-cloud); margin:0;">${_t('Join one with a code, or start your own.','Sumali gamit ang code, o gumawa ng sarili mo.')}</p>
-              <p style="font-size:.72rem; color:rgba(255,255,255,.6); margin:3px 0 0;">${_t('Your own records stay yours either way. A hive adds the people you work with.','Sa iyo pa rin ang sarili mong records. Ang hive ay nagdadagdag ng mga kasama mo sa trabaho.')}</p>
+              <p style="font-size: 0.75rem; color:rgba(255,255,255,.6); margin:3px 0 0;">${_t('Your own records stay yours either way. A hive adds the people you work with.','Sa iyo pa rin ang sarili mong records. Ang hive ay nagdadagdag ng mga kasama mo sa trabaho.')}</p>
             </div>
-            <span style="font-size:.7rem; color:rgba(255,255,255,.6);">&#8594;</span>
+            <span style="font-size: 0.75rem; color:rgba(255,255,255,.6);">&#8594;</span>
           </a>`;
         return;
       }
@@ -5153,13 +5520,13 @@
              style="display:flex; align-items:center; gap:14px; padding:18px; text-decoration:none; border-left:3px solid var(--wh-orange);">
             <div style="width:36px; height:36px; border-radius:50%; background:rgba(247,162,27,0.12); color:var(--wh-orange-text); display:flex; align-items:center; justify-content:center; font-size:1.2rem; flex-shrink:0;">&#9888;</div>
             <div style="flex:1; min-width:0;">
-              <p style="font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--wh-orange-text); margin:0 0 2px;">${_t('Could not check','Hindi ma-check')}</p>
+              <p style="font-size: 0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--wh-orange-text); margin:0 0 2px;">${_t('Could not check','Hindi ma-check')}</p>
               <p style="font-size:.92rem; font-weight:700; color:var(--wh-cloud); margin:0;">${_t('This is not an all-clear.','Hindi ito all-clear.')}</p>
-              <p style="font-size:.72rem; color:rgba(255,255,255,.6); margin:3px 0 0;">${_t(
+              <p style="font-size: 0.75rem; color:rgba(255,255,255,.6); margin:3px 0 0;">${_t(
                 'Could not read: ' + _signalsUnread.join(', ') + '. Reload, or open Alert Hub directly.',
                 'Hindi mabasa: ' + _signalsUnread.join(', ') + '. I-reload, o buksan ang Alert Hub.')}</p>
             </div>
-            <span style="font-size:.7rem; color:rgba(255,255,255,.6);">&#8594;</span>
+            <span style="font-size: 0.75rem; color:rgba(255,255,255,.6);">&#8594;</span>
           </a>`;
         return;
       }
@@ -5172,11 +5539,11 @@
              style="display:flex; align-items:center; gap:14px; padding:18px; text-decoration:none; border-left:3px solid var(--wh-green);">
             <div style="width:36px; height:36px; border-radius:50%; background:rgba(74,222,128,0.12); color:var(--wh-green); display:flex; align-items:center; justify-content:center; font-size:1.2rem; flex-shrink:0;">&#10003;</div>
             <div style="flex:1; min-width:0;">
-              <p style="font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--wh-green); margin:0 0 2px;">${_t('All clear','Malinaw lahat')}</p>
+              <p style="font-size: 0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--wh-green); margin:0 0 2px;">${_t('All clear','Malinaw lahat')}</p>
               <p style="font-size:.92rem; font-weight:700; color:var(--wh-cloud); margin:0;">${_t('Nothing urgent right now.','Walang urgent ngayon.')}</p>
-              <p style="font-size:.72rem; color:rgba(255,255,255,.6); margin:3px 0 0;">${role === 'supervisor' /* role-check-allow: display-role (nav-mode||hive_role) */ ? _t('Review the alert feed or the AMC daily brief.','Tingnan ang alert feed o ang AMC daily brief.') : ((jobs.length === 0 && closedToday === 0) ? _t('Log your first job to get started.','Mag-log ng unang trabaho para makapagsimula.') : _t('Plan your shift in the Day Planner.','Planuhin ang shift mo sa Day Planner.'))}</p>
+              <p style="font-size: 0.75rem; color:rgba(255,255,255,.6); margin:3px 0 0;">${role === 'supervisor' /* role-check-allow: display-role (nav-mode||hive_role) */ ? _t('Review the alert feed or the AMC daily brief.','Tingnan ang alert feed o ang AMC daily brief.') : ((jobs.length === 0 && closedToday === 0) ? _t('Log your first job to get started.','Mag-log ng unang trabaho para makapagsimula.') : _t('Plan your shift in the Day Planner.','Planuhin ang shift mo sa Day Planner.'))}</p>
             </div>
-            <span style="font-size:.7rem; color:rgba(255,255,255,.6);">&#8594;</span>
+            <span style="font-size: 0.75rem; color:rgba(255,255,255,.6);">&#8594;</span>
           </a>`;
         return;
       }
@@ -5187,11 +5554,11 @@
            style="display:flex; align-items:center; gap:14px; padding:18px; text-decoration:none; border-left:3px solid ${pick.accent};">
           <div style="width:36px; height:36px; border-radius:50%; background:${pick.accent}1f; color:${pick.accent}; display:flex; align-items:center; justify-content:center; font-size:1rem; font-weight:800; flex-shrink:0;">!</div>
           <div style="flex:1; min-width:0;">
-            <p style="font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:${pick.accent}; margin:0 0 2px;">${_t('Today','Ngayon')} &middot; ${escHtml(_tv(pick.label))}</p>
+            <p style="font-size: 0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:${pick.accent}; margin:0 0 2px;">${_t('Today','Ngayon')} &middot; ${escHtml(_tv(pick.label))}</p>
             <p style="font-size:.92rem; font-weight:700; color:var(--wh-cloud); margin:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escHtml(pick.headline)}</p>
-            <p style="font-size:.72rem; color:rgba(255,255,255,.55); margin:3px 0 0;">${escHtml(_tv(pick.detail))}</p>
+            <p style="font-size: 0.75rem; color:rgba(255,255,255,.55); margin:3px 0 0;">${escHtml(_tv(pick.detail))}</p>
           </div>
-          <span style="font-size:.65rem; font-weight:700; color:${pick.accent}; white-space:nowrap; padding:6px 12px; border-radius:8px; background:${pick.accent}14; border:1px solid ${pick.accent}33;">${escHtml(_tv(pick.cta))} &#8594;</span>
+          <span style="font-size: 0.75rem; font-weight:700; color:${pick.accent}; white-space:nowrap; padding:6px 12px; border-radius:8px; background:${pick.accent}14; border:1px solid ${pick.accent}33;">${escHtml(_tv(pick.cta))} &#8594;</span>
         </a>`;
     })();
 
@@ -5240,25 +5607,25 @@
         <div class="oh-card" style="padding:16px 18px; border-left:3px solid var(--wh-orange);">
           <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:10px;">
             <div>
-              <p style="font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--wh-orange); margin:0;">${_t('Getting Started','Pagsisimula')} &middot; ${done} ${_t('of','ng')} ${steps.length}</p>
+              <p style="font-size: 0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--wh-orange); margin:0;">${_t('Getting Started','Pagsisimula')} &middot; ${done} ${_t('of','ng')} ${steps.length}</p>
               <p style="font-size:.78rem; font-weight:600; color:rgba(255,255,255,.7); margin:2px 0 0;">${_t('Finish these three steps to unlock the platform.','Tapusin ang tatlong hakbang para ma-unlock ang platform.')}</p>
             </div>
             <button type="button" onclick="(function(){ try{ if(typeof whSetDismissed==='function'){ whSetDismissed('wh_onboarding_dismissed'); } else { localStorage.setItem('wh_onboarding_dismissed','1'); } }catch(_){ /* empty-catch-allow: best-effort silent swallow */ }; document.getElementById('oh-onboarding').style.display='none'; })()"
-                    style="font-size:.62rem; color:rgba(255,255,255,.6); background:none; border:none; cursor:pointer; padding:6px 8px; min-height:44px;">
+                    style="font-size: 0.75rem; color:rgba(255,255,255,.6); background:none; border:none; cursor:pointer; padding:6px 8px; min-height:44px;">
               ${_t('Dismiss','I-dismiss')} &times;
             </button>
           </div>
-          <div style="height:4px; background:rgba(255,255,255,.06); border-radius:4px; overflow:hidden; margin-bottom:14px;">
+          <div style="height:4px; background:rgba(255,255,255,.06); border-radius:4px; overflow:hidden; margin-bottom:16px;">
             <div style="height:100%; width:${pct}%; background:linear-gradient(90deg,var(--wh-orange),var(--wh-orange-light)); transition:width .4s ease;"></div>
           </div>
           <div style="display:flex; flex-direction:column; gap:8px;">
             ${steps.map(s => `
               <a ${s.done ? '' : `href="${escHtml(s.href)}"`} style="display:flex; align-items:center; gap:12px; padding:10px 12px; min-height:44px; background:rgba(255,255,255,${s.done ? '.02' : '.04'}); border-radius:8px; text-decoration:none; ${s.done ? 'opacity:.55;' : ''}">
-                <div style="width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; ${s.done ? 'background:rgba(74,222,128,.18); color:var(--wh-green);' : 'background:rgba(247,162,27,.15); color:var(--wh-orange); border:1px solid rgba(247,162,27,.4);'} font-size:.7rem; font-weight:800;">
+                <div style="width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; ${s.done ? 'background:rgba(74,222,128,.18); color:var(--wh-green);' : 'background:rgba(247,162,27,.15); color:var(--wh-orange); border:1px solid rgba(247,162,27,.4);'} font-size: 0.75rem; font-weight:800;">
                   ${s.done ? '&#10003;' : s.id}
                 </div>
                 <span style="flex:1; font-size:.82rem; font-weight:600; color:${s.done ? 'rgba(255,255,255,.5)' : 'var(--wh-cloud)'}; ${s.done ? 'text-decoration:line-through;' : ''}">${escHtml(s.label)}</span>
-                ${s.done ? '' : `<span style="font-size:.62rem; font-weight:700; color:var(--wh-orange); white-space:nowrap;">${escHtml(s.cta)} &#8594;</span>`}
+                ${s.done ? '' : `<span style="font-size: 0.75rem; font-weight:700; color:var(--wh-orange); white-space:nowrap;">${escHtml(s.cta)} &#8594;</span>`}
               </a>`).join('')}
           </div>
         </div>`;
@@ -5281,7 +5648,7 @@
       activityEl.style.display = 'block';
       activityEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
         <h2 class="oh-sec-lbl">${_t('Hive Activity Today','Aktibidad ng Hive Ngayon')}</h2>
-        <div class="oh-card oh-activity" data-rag-tile="index:hive_activity" data-rag-label="Hive Activity Today" style="padding:14px;">
+        <div class="oh-card oh-activity" data-rag-tile="index:hive_activity" data-rag-label="Hive Activity Today" style="padding:16px;">
           <div style="text-align:center;">
             <span class="ac-num" style="color:var(--wh-green);">${closedToday === null ? '&mdash;' : closedToday}</span>
             <span class="ac-lbl">${_t('Jobs Closed','Tapos na Trabaho')}</span>
@@ -5304,7 +5671,7 @@
         jobsEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `<div class="oh-card" style="text-align:center; padding:24px 20px;">
           <div style="font-size:1.4rem; margin-bottom:6px;">✓</div>
           <div style="font-size:.82rem; font-weight:700; color:var(--wh-green); margin-bottom:4px;">${_t('All clear','Malinaw lahat')}</div>
-          <div style="font-size:.7rem; color:rgba(255,255,255,.6);">${_t('No open jobs right now. Tap','Walang bukas na trabaho ngayon. I-tap ang')} <strong style="color:var(--wh-orange);">+ ${_t('Log a Job','Mag-log ng Trabaho')}</strong> ${_t('below if a fault comes up.','sa ibaba kung may masira.')}</div>
+          <div style="font-size: 0.75rem; color:rgba(255,255,255,.6);">${_t('No open jobs right now. Tap','Walang bukas na trabaho ngayon. I-tap ang')} <strong style="color:var(--wh-orange);">+ ${_t('Log a Job','Mag-log ng Trabaho')}</strong> ${_t('below if a fault comes up.','sa ibaba kung may masira.')}</div>
         </div>`;
       } else {
         jobsEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = jobs.map(j => {
@@ -5318,10 +5685,10 @@
           return `<div class="oh-job-row">
             <div style="flex:1; min-width:0;">
               <div style="font-size:.82rem; font-weight:700; color:var(--wh-cloud); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escHtml(j.machine || 'Unknown machine')}</div>
-              <div style="font-size:.65rem; color:rgba(255,255,255,.6); margin-top:2px;">${escHtml(cat)}${ts ? ' · ' + _timeAgo(ts) : ''}</div>
+              <div style="font-size: 0.75rem; color:rgba(255,255,255,.6); margin-top:2px;">${escHtml(cat)}${ts ? ' · ' + _timeAgo(ts) : ''}</div>
             </div>
             <span class="oh-badge oh-badge-open">Open</span>
-            <a href="${escHtml(_jhref)}" aria-label="View in logbook" style="font-size:.65rem; color:rgba(255,255,255,.6); text-decoration:none; flex-shrink:0; min-width:44px; min-height:44px; display:inline-flex; align-items:center; justify-content:center; margin:-10px -8px -10px 0;">→</a>
+            <a href="${escHtml(_jhref)}" aria-label="${escHtml(_t('View in logbook', 'Tingnan sa logbook'))}" style="font-size: 0.75rem; color:rgba(255,255,255,.6); text-decoration:none; flex-shrink:0; min-width:44px; min-height:44px; display:inline-flex; align-items:center; justify-content:center; margin:-10px -8px -10px 0;">→</a>
           </div>`;
         }).join('');
       }
@@ -5333,13 +5700,13 @@
       stockEl.style.display = 'block';
       stockEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
         <div class="oh-card" style="padding:12px 16px; border-left:3px solid var(--wh-orange);">
-          <p style="font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:var(--wh-orange); margin:0 0 8px;">${_t('Low Stock','Kulang na Stock')} (${lowStock.length} ${_t(lowStock.length === 1 ? 'part' : 'parts', 'piyesa')})</p>
+          <p style="font-size: 0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:var(--wh-orange); margin:0 0 8px;">${_t('Low Stock','Kulang na Stock')} (${lowStock.length} ${_t(lowStock.length === 1 ? 'part' : 'parts', 'piyesa')})</p>
           <div style="display:flex; flex-wrap:wrap; gap:6px;">
             ${lowStock.slice(0,8).map(i => `
-              <div style="font-size:.72rem; font-weight:600; background:rgba(251,146,60,.08); border:1px solid rgba(251,146,60,.2); border-radius:6px; padding:.25rem .6rem; color:rgba(255,255,255,.7);">
+              <div style="font-size: 0.75rem; font-weight:600; background:rgba(251,146,60,.08); border:1px solid rgba(251,146,60,.2); border-radius:6px; padding:.25rem .6rem; color:rgba(255,255,255,.7);">
                 ${escHtml(i.part_name)} <span style="color:var(--wh-orange-text);">(${Number(i.qty_on_hand)})</span>
               </div>`).join('')}
-            ${lowStock.length > 8 ? `<div style="font-size:.7rem; color:rgba(255,255,255,.6); padding:.25rem .6rem;">+${lowStock.length - 8} more</div>` : ''}
+            ${lowStock.length > 8 ? `<div style="font-size: 0.75rem; color:rgba(255,255,255,.6); padding:.25rem .6rem;">+${lowStock.length - 8} more</div>` : ''}
           </div>
         </div>`;
     }
@@ -5365,20 +5732,33 @@
        reading - a notice that shoves the page down to ask a favour is its own small insult, and this
        page has an explicit CLS budget it must not spend here. It renders only when no answer is stored,
        and "No thanks" is a real answer that is remembered, not a dismissal that re-asks next visit. -->
-  <div id="wh-consent" hidden role="dialog" aria-labelledby="wh-consent-t" aria-describedby="wh-consent-d"
+  <!-- ★role=region, not dialog (C25, 2026-09-15): nav-hub's standDownWhileDialogOpen() hides the hub while ANY [role=dialog]
+     is open, so with this card showing on the signed-in landing page the FAB was never hit-testable at 390 or 320
+     (elementFromPoint at its centre returned the card's summary / the ops card beneath) - the navigation was gone until
+     the person answered the card. It is an in-flow notice with two buttons, not a dialog: a labelled region. -->
+<!-- THE ONE COMPONENT ON THE PAGE PAINTED IN A DIFFERENT PALETTE (design lens audit, 2026-09-17, W45925).
+     Measured live: of the colour values on the rendered page that trace to no --wh-* token, SEVEN belonged
+     to this notice alone - #12181f, #2b3947, #f5b301, #151a1f, #3a4a5a, #e6edf3 and #aebdcc. Not one is a
+     platform colour, and two are near-misses of platform colours, which is worse than a clean contrast:
+     #f5b301 sits beside --wh-orange #F7A21B and #12181f beside --wh-navy #162032, so the card reads as
+     slightly-wrong rather than deliberately different. They are tokens now - every value below maps to the
+     token nearest what it was trying to be, with hex fallbacks kept so the card still paints if tokens.css
+     ever fails to load, which matters more here than anywhere: this is the notice that asks for consent
+     and it must render legibly even in a broken state. Contrast re-measured after the swap. -->
+<div id="wh-consent" hidden role="region" aria-labelledby="wh-consent-t" aria-describedby="wh-consent-d"
        style="position:fixed;left:1rem;right:1rem;bottom:1rem;max-width:34rem;margin:0 auto;z-index:9000;
-              background:#12181f;color:#e6edf3;border:1px solid #2b3947;border-radius:0.75rem;
-              padding:0.95rem 1.05rem;box-shadow:0 8px 28px rgba(0,0,0,.42);font-size:0.82rem;line-height:1.5">
-    <strong id="wh-consent-t" style="display:block;font-size:0.86rem;margin-bottom:0.3rem">Analytics on this page</strong>
-    <p id="wh-consent-d" style="margin:0 0 0.75rem;color:#aebdcc">
+              background:var(--wh-navy,#162032);color:var(--wh-cloud,#F4F6FA);border:1px solid rgba(255,255,255,0.12);border-radius:0.75rem;
+              padding:1rem;box-shadow:0 8px 28px rgba(0,0,0,.42);font-size:0.875rem;line-height:1.5">
+    <strong id="wh-consent-t" style="display:block;font-size:1rem;margin-bottom:0.25rem">Analytics on this page</strong>
+    <p id="wh-consent-d" style="margin:0 0 0.75rem;color:rgba(244,246,250,0.80)">
       We would like to count anonymous page views to see which guides are useful. No names, emails or
       phone numbers are collected. Nothing is measured until you choose.
     </p>
     <div style="display:flex;gap:0.5rem;flex-wrap:wrap">
-      <button type="button" id="wh-consent-yes" style="min-height:44px;padding:0 1.05rem;border-radius:0.5rem;
-              border:0;background:#f5b301;color:#151a1f;font-weight:600;cursor:pointer">Allow</button>
-      <button type="button" id="wh-consent-no" style="min-height:44px;padding:0 1.05rem;border-radius:0.5rem;
-              border:1px solid #3a4a5a;background:transparent;color:#e6edf3;cursor:pointer">No thanks</button>
+      <button type="button" id="wh-consent-yes" style="min-height:44px;padding:0 1rem;border-radius:0.5rem;
+              border:0;background:var(--wh-orange,#F7A21B);color:var(--wh-navy,#162032);font-weight:600;cursor:pointer">Allow</button>
+      <button type="button" id="wh-consent-no" style="min-height:44px;padding:0 1rem;border-radius:0.5rem;
+              border:1px solid rgba(255,255,255,0.18);background:transparent;color:var(--wh-cloud,#F4F6FA);cursor:pointer">No thanks</button>
     </div>
   </div>
   <script defer src="wh-consent.js"></script>

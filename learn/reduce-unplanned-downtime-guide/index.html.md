@@ -4,7 +4,7 @@
 
 Source: https://workhiveph.com/learn/reduce-unplanned-downtime-guide/
 
-By WorkHive Editorial Team · Updated 2026-08-05 · 8 min read
+By WorkHive Editorial Team · Published 2026-08-05 · 8 min read
 
 Cut unplanned downtime in four steps, in this order: **(1) measure it by cause** so you know what actually stops the line, **(2) fix the recurring few at root cause** instead of repeatedly restoring them, **(3) hold PM compliance above the SMRP benchmark of 90%**, and **(4) add condition monitoring to the critical assets only**. Most plants find their downtime hours concentrated in a small minority of assets, which is why measurement comes first, and preventive maintenance done on schedule runs **12-18% cheaper** than the reactive repair it replaces. Programmes that follow this order typically report a **15 to 25% reduction in unplanned downtime by month 18**.
 
@@ -28,7 +28,7 @@ The test of a root-cause fix is simple: the interval to the next identical failu
 
 ## Step 3: hold PM compliance above 90%
 
-PM compliance is the leading indicator: it moves before MTBF does. The SMRP benchmark is at least **90%** of preventive tasks completed on time, and **95%+** for critical assets. “On time” has a precise definition worth knowing: completed by the due date plus 20% of the task's own frequency, capped at 28 days, so a monthly PM has roughly a six-day window, not a whole month. Below 80% the programme is not functioning; below 90% it is not protective.
+PM compliance is the leading indicator: it moves before MTBF does. The SMRP benchmark is at least **90%** of preventive tasks completed on time, and **95%+** for critical assets. “On time” has a precise definition worth knowing: completed by the due date plus 20% of the task's own frequency, capped at 28 days, so a monthly PM has roughly a six-day window, not a whole month. Worth knowing before you compare: WorkHive’s own compliance figure is computed as completions against scheduled tasks inside a period (30 or 90 days), not by applying that per-task grace window, so the in-app number and an SMRP-audited number are not the same calculation. Compare like with like before judging yourself against the 90% benchmark. Below 80% the programme is not functioning; below 90% it is not protective.
 
 Two rules make it stick: schedule work the crew can actually do (an over-ambitious plan produces 40% compliance and cynicism), and make overdue work visible to a named owner. Start from [free PM checklist templates](https://workhiveph.com/learn/free-pm-checklist-templates/) rather than a blank sheet.
 
@@ -82,4 +82,4 @@ Record every stoppage with asset, duration and cause. Without that record you ca
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 68b73ac08dc7ebbf -->
+<!-- md-twin source-sha: ed96b9acdb64e6ce -->

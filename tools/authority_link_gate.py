@@ -57,14 +57,39 @@ for _s in (sys.stdout, sys.stderr):
         pass
 
 # Asset hosts, not citations. A font CDN is not an authority and its uptime is not ours.
+# schema.org / w3.org are vocabulary namespaces quoted by JSON-LD, and the analytics hosts
+# are infrastructure; none of them is a source a reader would check us against.
 SKIP = ("fonts.googleapis.com", "fonts.gstatic.com", "cdn.tailwindcss.com",
-        "workhiveph.com", "unpkg.com", "cdnjs.cloudflare.com")
+        "workhiveph.com", "unpkg.com", "cdnjs.cloudflare.com",
+        "schema.org", "www.w3.org", "googletagmanager.com", "google-analytics.com")
 
 # Markers that prove a non-2xx came from a SHIELD rather than a missing page.
 CHALLENGE = ("just a moment", "cf-browser-verification", "cf_chl", "attention required",
              "request could not be satisfied", "access denied", "enable javascript and cookies")
 
 LINK_RE = re.compile(r'href="(https?://[^"]+)"')
+# ★A CITATION DOES NOT STOP BEING A CITATION BECAUSE NOBODY MADE IT A LINK (2026-09-21).
+# This gate read href attributes only, so a source printed as plain text in a Sources list
+# was invisible to it. Measured on learn/philippine-plants-now-pay-the-highest-power-rates:
+# the gate correctly failed TWO dead hrefs on that page and silently passed over a THIRD
+# dead URL - a World Bank "Energy Sector Outlook for Southeast Asia 2024" that returns 404 -
+# because the Sources list prints it as text. The <ul class="sources-list"> convention is
+# exactly where a reader looks to check us, which made the href-only pattern blind in the
+# one place blindness costs most. Bare URLs are now collected too.
+BARE_RE = re.compile(r'''(?<![\w"'=])(https?://[^\s"'<>()\[\]]+)''')
+# Prose punctuation that ends a sentence, not a URL.
+_TRAIL = ".,;:!?’”—-"
+# Inside JSON-LD the quote that closes an href is written &quot;, so a bare-URL pattern that
+# only stops at a literal quote runs straight through it and invents a URL that was never
+# cited - first run produced `https://smrp.org/&quot;&gt;Society`. Cut at the entity, not at
+# every ampersand, because a real query string legitimately contains one.
+_ENTITY_END = ("&quot;", "&gt;", "&lt;", "&#", "&nbsp;")
+
+
+def _clean(url: str) -> str:
+    for e in _ENTITY_END:
+        url = url.split(e)[0]
+    return url.rstrip(_TRAIL)
 UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
       "(KHTML, like Gecko) Chrome/124.0 Safari/537.36")
 
@@ -82,10 +107,13 @@ def collect_links() -> dict:
         f = ROOT / rel
         if not f.exists():
             continue
-        for u in LINK_RE.findall(f.read_text(encoding="utf-8", errors="replace")):
+        text = f.read_text(encoding="utf-8", errors="replace")
+        for u in LINK_RE.findall(text) + BARE_RE.findall(text):
+            u = _clean(u)
             if any(s in u for s in SKIP):
                 continue
-            out.setdefault(u, []).append(rel)
+            if rel not in out.setdefault(u, []):
+                out[u].append(rel)
     return out
 
 
@@ -179,6 +207,15 @@ def self_test() -> int:
     ck(len(links) > 5, "finds outbound citations across the surface (%d)" % len(links))
     ck(not any("fonts.googleapis" in u for u in links), "font CDNs are not treated as citations")
     ck(not any("workhiveph.com" in u for u in links), "self-links are not outbound citations")
+    # ★the bare-text blind spot that let a 404 sit in a Sources list (2026-09-21)
+    ck(_clean('https://smrp.org/&quot;&gt;Society') == "https://smrp.org/",
+       "an HTML entity ends a bare URL instead of being swallowed into it")
+    ck(_clean("https://example.org/a?x=1&y=2") == "https://example.org/a?x=1&y=2",
+       "a real query string keeps its ampersand")
+    ck(_clean("https://example.org/doc.") == "https://example.org/doc",
+       "sentence punctuation is not part of the URL")
+    ck(any(u.endswith("/electricity-tariff-rates") for u in links),
+       "a citation printed as plain text in a Sources list is collected, not just hrefs")
     # the distinction this gate exists for, asserted without touching the network
     ck(any(m in "just a moment..." for m in CHALLENGE),
        "Cloudflare's 'Just a moment...' is recognised as a challenge, not a dead page")

@@ -68,7 +68,7 @@ If your plant is not at Stage 2, do not buy sensors yet. Start with the [digital
 | **Tier 3** | 500K to 2M | Ultrasonic leak detector + portable alignment laser | Adds compressed air loss, steam trap audit, alignment-driven failures |
 | **Tier 4** | 2M+ | Permanent wireless sensors on top critical assets + cloud dashboard | Continuous monitoring, AI anomaly detection, automatic alerts |
 
-Most Philippine plants we benchmark plateau at Tier 2 because the ROI of Tier 3 and Tier 4 requires PM compliance and skill matrix maturity that the plant has not yet built. Stop at the tier where your discipline runs out, not where your budget runs out.
+Most plants plateau at Tier 2, and the reason is worth naming: the ROI of Tier 3 and Tier 4 requires PM compliance and skill matrix maturity that the plant has not yet built. Stop at the tier where your discipline runs out, not where your budget runs out.
 
 ## Phone-based vibration: real or theatre?
 
@@ -84,9 +84,9 @@ The right use of phone vibration: monthly operator route on 15 to 30 critical as
 
 The tool this guide is about
 
-#### WorkHive Predictive Maintenance starts at Tier 0 and scales with you
+### WorkHive Predictive Maintenance starts at Tier 0 and scales with you
 
-The Predictive Maintenance surface in WorkHive sits inside Analytics. It reads your Logbook history, your PM compliance, and (when added) sensor data from any source: phone app, handheld analyzer export, wireless sensor API. AI anomaly detection unlocks at Stage 3 once your data has 90+ days of history. Free at the worker tier; sensor integrations roll on as you mature.
+The Predictive Maintenance surface in WorkHive sits inside Analytics. It reads your Logbook history and your PM compliance, and those two alone carry Tier 0 and Tier 1: readings you type in by hand count, and the ingest accepts a `manual` source for exactly that. Automatic sensor feeds are a bigger step than the tier table suggests: the path is an MQTT or OPC-UA bridge, which means a small always-on machine at the plant (a Pi or the plant gateway) running a subscriber that batches readings and posts them in. Budget for that box and whoever maintains it before you budget for sensors. Anomaly detection holds back until there is roughly 90 days of history behind it: the platform’s stated rule is that it surfaces the gap rather than drawing charts on data too thin to support them. Free at the worker tier; sensor integrations roll on as you mature.
 
 No hive yet? [Join WorkHive](https://workhiveph.com/?signup=1) first (free, takes 30 seconds).
 
@@ -121,7 +121,7 @@ Preventive maintenance (PM) replaces parts on a schedule (every 3 months, every 
 
 ### How much does predictive maintenance cost in a Philippine plant?
 
-Budget range: PHP 0 for phone-based vibration and basic thermography, PHP 25,000 to PHP 80,000 for a starter handheld vibration analyzer, PHP 150,000 to PHP 500,000 for a thermal camera plus oil-analysis subscription, and PHP 1M+ for permanently mounted wireless sensors with cloud dashboards. The honest first step is the phone, not the sensor: most plants get 70 percent of PdM value from phone-based vibration and operator route inspections before any sensor purchase.
+Budget range: PHP 0 for phone-based vibration and basic thermography, PHP 25,000 to PHP 80,000 for a starter handheld vibration analyzer, PHP 150,000 to PHP 500,000 for a thermal camera plus oil-analysis subscription, and PHP 1M+ for permanently mounted wireless sensors with cloud dashboards. The honest first step is the phone, not the sensor: on most plants the early wins come from phone-based vibration and disciplined operator routes, and they arrive before any sensor purchase rather than because of one.
 
 ### Can I really do vibration analysis with a phone?
 
@@ -137,7 +137,7 @@ Phase A (months 1 to 3): operator route with phone vibration app on 20 critical 
 
 ### Will PdM eliminate breakdowns completely?
 
-No. PdM reduces unplanned downtime by 35 to 50 percent in mature programs (SMRP benchmark), not 100 percent. Some failures are sudden (electronic, structural, foreign object damage) and no condition monitoring catches them. Some failures are caught but the plant cannot schedule the fix before they progress. PdM shifts the balance from reactive to planned; it does not eliminate the reactive bucket. Realistic target for a Philippine plant transitioning from reactive: 30 percent reduction in unplanned hours by month 18.
+No. PdM reduces unplanned downtime by 35 to 50 percent in mature programs (SMRP benchmark), not 100 percent. Some failures are sudden (electronic, structural, foreign object damage) and no condition monitoring catches them. Some failures are caught but the plant cannot schedule the fix before they progress. PdM shifts the balance from reactive to planned; it does not eliminate the reactive bucket. Realistic target for a Philippine plant transitioning from reactive: 15 to 25 percent reduction in unplanned hours by month 18, with 30 percent and above reachable from year 3 once PdM is paired with PM discipline and skill-matrix coverage.
 
 ## Sources
 
@@ -150,4 +150,4 @@ No. PdM reduces unplanned downtime by 35 to 50 percent in mature programs (SMRP 
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 8681a8bb1c45c191 -->
+<!-- md-twin source-sha: 5e6dea2a5fb50527 -->

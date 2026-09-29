@@ -38,7 +38,7 @@ Gamification, done right, makes the invisible visible. A badge for "100 logbook 
 | --- | --- | --- |
 | Logbook entry volume | More entries but quality drops | No (vanity metric) |
 | Logbook entry quality (peer-rated useful) | Slower start, sustained quality improvement | Yes |
-| PM completion on time | Compliance rises 10 to 20 percentage points | Yes |
+| PM completion on time | Compliance rises and holds; the target is the schedule itself | Yes |
 | Skill matrix level advancement | Sustained training engagement | Yes |
 | Fault-recurrence prevention (logged once, never again) | The most valuable behaviour gets rewarded | Yes |
 | Speed of repair | Quality drops, safety risks rise | No (perverse incentive) |
@@ -61,29 +61,32 @@ Four design rules:
 
 ## The XP economy: how points are earned
 
-WorkHive Achievements awards XP for behaviours that compound. Indicative weights:
+WorkHive Achievements awards XP for behaviours that compound. These are the rates the platform actually awards, so you can decide before you do the work rather than after - the Achievements page carries the same list:
 
-- Logbook entry with photo: 5 XP
-- Logbook entry peer-rated useful: 15 XP
-- PM completed on time with proper checklist evidence: 10 XP
-- Fault diagnosed with documented root cause: 25 XP
-- Asset that did not have recurrence in 90 days after your fix: 50 XP (delayed bonus)
-- Skill matrix Level 3 reached in a new discipline: 200 XP
-- Community answer marked helpful by 3+ workers: 30 XP
+- Log an entry: 20 XP, plus 20 more when problem, action and knowledge together run past 200 characters
+- Close a job: 50 XP, plus 30 for a root cause, 15 for machine and downtime hours, and 25 if you close it within 24 hours - up to 120
+- Close a breakdown with a root cause: 100 XP (Failure Hunter)
+- Safety-category entry: 60 XP (Safety Sentinel)
+- Complete a PM: 60 XP
+- Community post: 20 XP, plus 40 when it is a safety post
+- Earn a skill badge: 250 XP, the largest single award
+- Run a calculator: 40 XP. Publish a shift plan: 40 XP. Add a team member: 50 XP
 
 Workers see their XP and recent earnings; they do not see other workers' rankings unless their hive supervisor opts in.
 
 ## Career portability for Filipino workers
 
-The defining feature of WorkHive Achievements: badges and XP are owned by the worker, not the hive. When a worker moves to a new plant or applies for an OFW posting, they take their badges with them. The new employer can see the verified achievement history.
+The defining feature of WorkHive Achievements is that the BADGES are held against the worker rather than the plant. When someone moves to a new hive or applies for an OFW posting, the badges go with them and a new employer can see the verified history.
+
+**The XP does not travel, and it is worth knowing which is which before you invest a year in it.** XP is counted per hive, so the number starts again when you join a new one. Think of the badges as the credential you carry and the XP as the scoreboard for the plant you are currently in - useful there, not a CV line. If that distinction matters to you, the practical move is the same one the calculators guide gives: what leaves with you is what is held against your name, plus anything you exported while you still had access.
 
 This is the difference between gamification as employer retention tool (rare) and gamification as worker career insurance (the WorkHive design). The first is paternalistic; the second compounds in the worker's favour over decades.
 
 The tool this guide is about
 
-#### WorkHive Achievements rewards what compounds, not what is shiny
+### WorkHive Achievements rewards what compounds, not what is shiny
 
-XP for documented entries, peer-rated quality, PM on-time, fault-recurrence prevention, skill matrix advancement, Community helpfulness. Badges that survive the rarity test and stack with the Skill Matrix. Worker-owned (portable across employers). Free at the worker tier; corporate roll-up unlocks at Stage 4.
+XP for logbook entries, job and breakdown closures that carry a root cause, safety entries, PM completion, skill badges, Community posts, and the tools you run. Badges that survive the rarity test, stack with the Skill Matrix, and are held against your name so they travel between employers - while the XP total stays with the hive that awarded it. Free at the worker tier. There is no corporate roll-up across hives: a group running several plants runs several hives, and comparing them is done by hand.
 
 No hive yet? [Join WorkHive](https://workhiveph.com/?signup=1) first (free, takes 30 seconds).
 
@@ -91,7 +94,7 @@ No hive yet? [Join WorkHive](https://workhiveph.com/?signup=1) first (free, take
 
 ### Does gamification really work in industrial maintenance?
 
-Yes, when it rewards behaviours that compound (documentation, prevention, mentoring, skill growth). No, when it rewards vanity metrics (logins, speed, volume without quality). Studies of plants that adopt outcome-tied gamification show 10 to 20 percentage point lifts in PM compliance and 25 to 35 percent more logbook entries within 6 months. Studies of plants that gamify the wrong metrics show no lift and sometimes safety regressions.
+Yes, when it rewards behaviours that compound (documentation, prevention, mentoring, skill growth). No, when it rewards vanity metrics (logins, speed, volume without quality). The mechanism is the whole of it: a badge for “100 logbook entries with photo evidence” tells a team what management will look at in a pay review, and what gets looked at gets done. Reward the wrong metric and the same mechanism works against you - speed badges buy faster closures by trading away quality, and that shows up later as a falling MTBF.
 
 ### What badges should I avoid creating?
 
@@ -103,7 +106,7 @@ Three defences: (1) tie badges to peer-rated quality, not raw counts; (2) includ
 
 ### Are the badges and XP portable when I change employers?
 
-Yes. WorkHive Achievements are owned by the worker, not the hive. When you change employers, your badges and XP history move with you. A new plant can verify your achievement history when you apply. This is the career-protection design: your maintenance reputation compounds across employers, not against you.
+Your BADGES are, and they are the half that matters for a CV: skill badges are held against you rather than against the plant, so they survive leaving and a new employer can verify them when you apply. Your XP is NOT - it is counted per hive, so the number resets when you join a new one. Treat the badges as the portable credential and the XP as a scoreboard for the plant you are in. This is the career-protection design: your maintenance reputation compounds across employers, not against you.
 
 ### How does this fit with the Skill Matrix?
 
@@ -122,4 +125,4 @@ Mature WorkHive customers do not. The framing matters: do not call them "badges 
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: ee1416a86bb15df2 -->
+<!-- md-twin source-sha: 6c26b37a97212d0d -->

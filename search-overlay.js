@@ -79,9 +79,25 @@
     }
   });
 
+  let _returnTo = null;
   function openOverlay() {
     if (_isOpen) return;
     _isOpen = true;
+    // ★REMEMBER WHO OPENED THE SEARCH (Wave 4 walk W41420, 2026-09-14): closing it left focus on <body>. The
+    // nav-hub hides itself before calling open(), so the button that was pressed is already invisible and
+    // document.activeElement has fallen to <body>; the honest return target is then the nav-hub fab.
+    const ae = document.activeElement;
+    // offsetParent alone was not enough: the hub's "Open global search" button stays the active element
+    // after the hub hides its panel (visibility:hidden keeps an offsetParent), so the overlay remembered a
+    // control that would never become visible again and focus fell to <body> on close. A returnable
+    // opener must be visible in the checkVisibility sense; otherwise the fab is where the person came from.
+    const visibleNow = (el) => !!el && (typeof el.checkVisibility === 'function' ? el.checkVisibility({ visibilityProperty: true }) : el.offsetParent !== null);
+    // ...and visibility at THIS instant is not enough either (measured 2026-09-14): the nav-hub hides its
+    // panel with a 0.2s visibility delay before calling open(), so its "Open global search" button still
+    // read visible here, was remembered, and never became focusable again. An opener inside the hub panel
+    // always returns to the hub fab - that is where the person came from.
+    const fromHub = !!(ae && ae.closest && ae.closest('#wh-hub-panel'));
+    _returnTo = (ae && ae !== document.body && !fromHub && visibleNow(ae)) ? ae : document.getElementById('wh-hub-fab');
     if (!_overlay) buildOverlay();
     document.body.appendChild(_overlay);
     document.body.style.overflow = 'hidden';
@@ -97,6 +113,9 @@
     _overlay = null; _searchInput = null; _resultsEl = null; _emptyEl = null; _statusEl = null;
     _activeIndex = -1; _flatResults = [];
     document.body.style.overflow = '';
+    // the hub fab is visibility:hidden until its reveal transition ends - focus it when it can take focus
+    if (_returnTo && document.contains(_returnTo)) { try { (window.whFocusWhenVisible || function (el) { el.focus(); })(_returnTo); } catch (_) { /* empty-catch-allow: focus is best-effort */ } }
+    _returnTo = null;
   }
 
   // ── Overlay DOM ───────────────────────────────────────────────────────────

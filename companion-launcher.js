@@ -242,7 +242,24 @@
         /* ── Widget Shell ── */
         #wh-ai-widget {
           position: fixed;
-          bottom: 24px;   /* same anchor as nav-hub; springs to 96px when hub opens */
+          /* ★BOTTOM WAS BEING ANIMATED, IT IS A LAYOUT PROPERTY, AND IT NEVER MOVED ANYWAY (design lens
+             motion, 2026-09-17, W45927). Three things, and the third is why the fix is a deletion.
+             (1) The transition list carried 'bottom 0.22s ease' beside the transform spring, so every
+             frame of an open or a close asked for layout on shared chrome that draws on every page.
+             (2) The standards are explicit that only transform and opacity should animate.
+             (3) It was animating a value that CANNOT change here. Read live at 1280 and at 390, this
+             element computes bottom:24px in BOTH states, because nav-hub.js's loadSavedPosition()
+             applies 'inset: auto 16px 24px auto' INLINE on every load, which beats any stylesheet rule.
+             So the body.wh-companion-open rule's bottom:96px was dead, the mobile safe-area bottom was
+             dead, and the transition was animating a constant.
+             None of them should be revived. #wh-ai-widget is a member of nav-hub's FAB_STACK_SEL, and
+             that file's own comment states the rule: the stack is hard-anchored relative to hub
+             bottom:24px and 'lifting ONE member breaks the stack' - clearance, the notch included, is
+             applied uniformly as --wh-fab-lift margin-bottom precisely so each member KEEPS its bottom.
+             A 96px lift here would have re-created the collision that mechanism exists to prevent.
+             So: bottom stays 24px as the stack anchor, it is out of the transition list, and the spring
+             is transform-only - scale(0.4) translateY(24px) to scale(1) translateY(0), unchanged. */
+          bottom: 24px;   /* the FAB stack's anchor. Do not animate it and do not lift it; see above. */
           right: 24px;
           z-index: 9999;
           /* Hidden by default. FAB-CONSOLIDATION (2026-07-20): the companion no
@@ -266,7 +283,6 @@
           visibility: hidden;
           transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
                       opacity 0.18s ease,
-                      bottom 0.22s ease,
                       visibility 0s linear 0.25s;
           font-family: var(--wh-font, 'Poppins', sans-serif);
         }
@@ -274,7 +290,6 @@
         /* Spring in when launched from the nav-hub Companion row; tuck back on close.
            openPanel() adds body.wh-companion-open, closePanel() removes it. */
         body.wh-companion-open #wh-ai-widget {
-          bottom: 96px;
           transform: scale(1) translateY(0);
           opacity: 1;
           pointer-events: all;
@@ -584,7 +599,10 @@
 
         /* ── Mobile Adjustments ── */
         @media (max-width: 480px) {
-          body.wh-companion-open #wh-ai-widget { bottom: max(88px, calc(env(safe-area-inset-bottom) + 88px)); }
+          /* the safe-area bottom that used to be here is REMOVED, not moved (2026-09-17, W45927): it
+             never won against nav-hub's inline inset, and a per-member lift is the thing that breaks the
+             FAB stack. The notch is cleared for the whole stack by --wh-fab-lift. Only the horizontal
+             inset remains. */
           #wh-ai-widget { right: 16px; }
           #wh-ai-panel  { width: calc(100vw - 32px); right: 0; }
         }
@@ -1306,6 +1324,18 @@ happens to know maintenance, not a manual.`;
   function closePanel() {
     isOpen = false;
     document.getElementById('wh-ai-panel').classList.remove('open');
+    // ★A CLOSE MUST GIVE FOCUS BACK (Wave 4 walk W41420, 2026-09-14): after Escape the active element was
+    // <body>. The companion is opened from the nav-hub (which hides itself first, so the button that opened
+    // it is gone) or from its own launcher (hidden while the hub hosts it) - so the honest return target is
+    // the visible one: the launcher if it is shown, else the nav-hub fab. Best-effort, never throws.
+    setTimeout(function () {
+      const launcher = document.getElementById('wh-ai-launcher');
+      const fab = document.getElementById('wh-hub-fab');
+      const target = (launcher && launcher.offsetParent !== null) ? launcher : fab;
+      // the hub (and its fab) is visibility:hidden until the companion's close transition ends - focus it
+      // when it can take focus (utils.js whFocusWhenVisible), never before
+      if (target) { try { (window.whFocusWhenVisible || function (el) { el.focus(); })(target); } catch (_) { /* empty-catch-allow: focus is best-effort */ } }
+    }, 0);
     // FAB-CONSOLIDATION + Axis-3 reveal-decouple: tuck the whole widget away again
     // (idle corner = just the single nav-hub FAB). Kept out of the drag handler so a
     // drag doesn't hide it. Delegated to the canonical WHPatterns.revealVia.

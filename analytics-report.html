@@ -50,6 +50,12 @@
     .aurora-blob { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.06; }
     .aurora-blob-1 { width: 500px; height: 500px; background: var(--wh-violet); top: -100px; left: -100px; }
     .aurora-blob-2 { width: 400px; height: 400px; background: var(--wh-blue); bottom: 0; right: -100px; }
+    /* ★DECORATION THAT COSTS A PHONE MORE THAN IT GIVES IT (design lens audit, 2026-09-15). The audit probe
+       measured both blobs as FIXED elements WIDER than a 390px viewport, each carrying an 80px blur - two
+       large blurred layers the compositor keeps for a page whose actual job is to compile a printed report,
+       on the low-end Android this platform is built for. They stay on the wide screens they were drawn for
+       and stand down below 700px, where they are 128% of the viewport and nobody can see the gradient. */
+    @media (max-width: 699px) { .aurora { display: none; } }
 
     /* ── Page wrapper ── */
     #ar-page { position: relative; z-index: 1; max-width: 880px; margin: 0 auto; padding: 1.25rem 1rem; }
@@ -59,11 +65,15 @@
     #ar-print-wrapper { position: relative; z-index: 1; max-width: 880px; margin: 0 auto; padding: 0 1rem 2rem; }
 
     /* ── Page header ── */
-    .ar-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; }
+    /* ★C23 (wave-4 narrow-320 nav-hub walk, 2026-09-14): the title block's min-content (the tabs strip inside it) plus
+       the nowrap BETA badge summed past 320px, so .ar-badge ran 307..351 - past the viewport and its parent. The
+       header may wrap (the badge drops under the title block) and the title block may shrink; at 361px+ it fits. */
+    .ar-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; }
+    .ar-header > div:first-child { min-width: 0; }
     .ar-header h1 { font-size: 1.4rem; font-weight: 800; color: #fff; line-height: 1.2; }
     .ar-header p  { font-size: 0.75rem; color: #9AA8B6; margin-top: 0.2rem; }
     .ar-badge {
-      font-size: 0.6rem; font-weight: 700; padding: 0.2rem 0.55rem; border-radius: 999px;
+      font-size: 0.75rem; font-weight: 600; padding: 4px 8px; border-radius: 999px;   /* 9.6px -> 12px, on the 4px grid (design lens slop, 2026-09-15) */
       background: rgba(167,139,250,0.15); color: var(--wh-violet);
       border: 1px solid rgba(167,139,250,0.3); white-space: nowrap; margin-top: 0.25rem;
     }
@@ -77,15 +87,15 @@
       border-radius: 0.75rem /* S1 2026-09-05: 10px was off the 8/12/16 scale */;
     }
     .toolbar-label {
-      font-size: 0.6rem; font-weight: 700; letter-spacing: 0.07em;
-      text-transform: uppercase; color:rgba(255,255,255,0.80);
+      font-size: 0.75rem; font-weight: 600; color:rgba(255,255,255,0.80);   /* "Period" and "Audience" told him what the toolbar does, at 9.6px in tracked capitals */
       margin-right: 0.4rem;
     }
     .pill-btn {
-      font-family: inherit; font-size: 0.72rem; font-weight: 600;
-      padding: 0.4rem 0.875rem; border-radius: 999px; cursor: pointer;
+      font-family: inherit; font-size: 0.8rem; font-weight: 600;
+      padding: 8px 16px; border-radius: 999px; cursor: pointer;   /* 11.5px -> 12.8px, and on the grid */
       background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
-      color:rgba(255,255,255,0.83); min-height: 44px; display: inline-flex; align-items: center; justify-content: center; transition: all 0.15s;
+      color:rgba(255,255,255,0.83); min-height: 44px; display: inline-flex; align-items: center; justify-content: center;
+      transition: color .15s ease, background .15s ease, border-color .15s ease, transform .12s var(--wh-ease-out);   /* was `all`: it animated layout properties too (design lens motion, 2026-09-15) */
     }
     .pill-btn.active {
       background: rgba(167,139,250,0.15);
@@ -93,24 +103,34 @@
       color: var(--wh-violet-text);
     }
     .pill-btn:hover:not(.active) { color: rgba(255,255,255,0.85); }
-    .pill-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+    .pill-btn:disabled { opacity: 0.6; cursor: not-allowed; }   /* 0.35 measured 1.43:1 - WCAG exempts a disabled control, but he still has to read what it offers */
 
     .toolbar-spacer { flex: 1; min-width: 0; }
     .btn-action {
-      font-family: inherit; font-size: 0.75rem; font-weight: 700;
-      padding: 0.55rem 1.1rem; border-radius: 0.75rem /* S1 2026-09-05: 10px was off the 8/12/16 scale */;
+      font-family: inherit; font-size: 0.8rem; font-weight: 700;
+      padding: 12px 20px; border-radius: 0.75rem /* S1 2026-09-05: 10px was off the 8/12/16 scale */;
       cursor: pointer; min-height: 44px; border: none;
-      transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
+      transition: transform .12s var(--wh-ease-out), box-shadow .15s ease, opacity .15s ease;
     }
     .btn-generate { background: linear-gradient(135deg, var(--wh-violet), var(--wh-violet-text)); color: #1a1132; }
-    .btn-generate:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(167,139,250,0.35); }
-    .btn-generate:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+    .btn-generate:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,0,0,0.35); }   /* a shadow is cast by light, not emitted by the button (craft floor: a coloured halo is decoration) */
+    .btn-generate:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
     .btn-pdf {
       background: rgba(255,255,255,0.06); color: #fff;
       border: 1px solid rgba(255,255,255,0.15);
     }
     .btn-pdf:hover { background: rgba(255,255,255,0.12); }
-    .btn-pdf:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-pdf:disabled { opacity: 0.6; cursor: not-allowed; }
+    /* ★THE THIRD TOOLBAR ACTION HAD NO STYLE AT ALL (design lens slop, 2026-09-15). #csv-btn carries
+       .btn-action, which sets size and shape but no colour, and no .btn-generate or .btn-pdf beside it -
+       so it fell back to the browser's own button chrome and measured 1.43:1 (near-black on grey) while
+       its two neighbours wore the platform's vocabulary. It is a secondary action, like Save as PDF. */
+    .btn-csv {
+      background: rgba(255,255,255,0.06); color: var(--wh-cloud);
+      border: 1px solid rgba(255,255,255,0.15);
+    }
+    .btn-csv:hover { background: rgba(255,255,255,0.12); }
+    .btn-csv:disabled { opacity: 0.6; cursor: not-allowed; }
 
     /* ── Empty / loading ── */
     .ar-status {
@@ -127,6 +147,17 @@
       animation: spin 0.8s linear infinite;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
+    .pill-btn:active, .btn-action:active { transform: scale(0.97); }   /* a tap answers physically, 120 ms */
+    /* ★A FROZEN SPINNER READS AS A CRASH, AND THIS ONE RUNS FOR UP TO 35 SECONDS (design lens motion,
+       2026-09-15). The platform's reduced-motion rule exempts .spinner and .loader by CLASS, and this is
+       .ar-spinner - so a person who asked for less motion got a STATIONARY ring above 'Compiling analytics...'
+       for the whole compile. review-animations/STANDARDS.md asks for an intentional alternative that preserves
+       the state change, not the absence of one: the ring stops rotating and breathes instead, which still says
+       'working' without any rotation. */
+    @media (prefers-reduced-motion: reduce) {
+      .ar-spinner { animation: ar-spinner-breathe 2s ease-in-out infinite !important; }
+      @keyframes ar-spinner-breathe { 0%, 100% { opacity: 0.35; } 50% { opacity: 1; } }
+    }
 
     .ar-error {
       padding: 1.25rem; border-radius: 0.75rem /* S1 2026-09-05: 10px was off the 8/12/16 scale */;
@@ -167,7 +198,9 @@
 
     .doc-panel h1 { font-size: 1.25rem; font-weight: 800; margin-bottom: 0.25rem; color: #1a1a1a; }
     .doc-panel h2 {
-      font-size: 0.84rem; font-weight: 700; margin: 1.5rem 0 0.55rem;
+      /* was 0.84rem - the same size as body text, and smaller than several inline-styled h3s, so a
+         7,000px document had no section signal but a hairline rule (design lens critique, 2026-09-15) */
+      font-size: 1rem; font-weight: 700; margin: 1.5rem 0 0.55rem;
       border-bottom: 1.5px solid #e0e0e0; padding-bottom: 0.25rem;
       text-transform: uppercase; letter-spacing: 0.05em; color: #1a1a1a;
     }
@@ -185,12 +218,25 @@
     .doc-panel .doc-meta { font-size: 0.76rem; color: #555; line-height: 1.6; }
     .doc-panel .doc-title-block { flex: 1 1 220px; }
     .doc-panel .doc-logo {
+      /* ★THE WORDMARK PRINTED PURPLE ON THE ONE ARTIFACT THAT LEAVES THE PLATFORM (design lens critique,
+         2026-09-15). DESIGN.md binds amber #F7A21B on navy and calls violet 'a status hue for the companion,
+         NOT a surface'. The contrast reasoning below was right and its premise about the brand was wrong:
+         amber on white fails the same test, so the wordmark takes the navy the brand actually pairs with,
+         and the amber rides the rule beneath it - which is how the brand reads on paper. */
       font-weight: 800; font-size: 1rem;
       /* The brand lilac (var(--wh-violet)) is tuned for the dark app shell; on this doc's WHITE
          print surface it measures ~2.6:1 and fails SC 1.4.3 (bold 16px still needs 4.5).
          #7c3aed is the same brand purple, darker step, ~5.8:1 on white -- and it also
          survives a greyscale office printer. (C2, 2026-07-15) */
-      color: #7c3aed; letter-spacing: 0.04em;
+      /* the navy the brand actually pairs with: 14.8:1 on this white page, and it survives a greyscale
+         office printer exactly as the purple did (design lens critique, 2026-09-15) */
+      color: #0f1e30; letter-spacing: 0.04em;
+      /* MERGED from a second `.doc-panel .doc-logo` rule that sat directly above (2026-09-28).
+         Two rules for ONE selector is drift by construction, and it had already cost something: the
+         analytics-UFAI invariant reads the FIRST matching rule for this selector to check the print
+         ink, found the border-only rule, and reported the wordmark's colour as MISSING while the navy
+         below was doing its job. One selector, one rule. */
+      border-bottom: 3px solid #F7A21B; padding-bottom: 2px; display: inline-block;   /* the brand's amber, where it can carry weight on white */
     }
     .doc-panel .doc-subtitle {
       font-size: 0.78rem; color: #555; margin-top: 0.2rem;
@@ -230,7 +276,7 @@
     .doc-panel table { width: 100%; border-collapse: collapse; font-size: 0.78rem; min-width: 0; font-variant-numeric: tabular-nums; }
     .doc-panel th {
       background: #f0f0f0; text-align: left; padding: 0.4rem 0.55rem;
-      border: 1px solid #ccc; font-weight: 600; font-size: 0.74rem;
+      border: 1px solid #ccc; font-weight: 600; font-size: 0.8rem;
     }
     .doc-panel td { padding: 0.35rem 0.55rem; border: 1px solid #ddd; vertical-align: middle; }
     .doc-panel td.nowrap-cell { white-space: nowrap; }
@@ -250,8 +296,8 @@
        given the tabular-nums it was missing so RAG counts align in their row like every other
        KPI on the platform. (2026-07-15, found by the A-R rubric lens.) */
     .doc-panel .rag-tile-num   { font-size: 1.45rem; font-weight: 800; line-height: 1.1; font-variant-numeric: tabular-nums; }
-    .doc-panel .rag-tile-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; margin-top: 0.3rem; font-weight: 600; }
-    .doc-panel .rag-tile-note  { font-size: 0.7rem; margin-top: 0.4rem; opacity: 0.85; line-height: 1.4; }
+    .doc-panel .rag-tile-label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; margin-top: 0.3rem; font-weight: 600; }
+    .doc-panel .rag-tile-note  { font-size: 0.8rem; margin-top: 0.4rem; opacity: 0.85; line-height: 1.4; }
 
     /* Result-highlight tile (single big number) */
     .doc-panel .result-tile {
@@ -259,9 +305,9 @@
       background: #f5f3ff; border: 1px solid #ddd6fe; border-radius: 0.5rem;
       min-width: 140px;
     }
-    .doc-panel .result-tile-label { font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.07em; color: var(--wh-violet); font-weight: 700; }
+    .doc-panel .result-tile-label { font-size: 0.75rem; color: var(--wh-violet); font-weight: 700; }
     .doc-panel .result-tile-value { font-size: 1.4rem; font-weight: 800; color: #1a1132; line-height: 1.1; margin-top: 0.2rem; }
-    .doc-panel .result-tile-unit  { font-size: 0.7rem; color: #6b7280; margin-left: 0.25rem; }
+    .doc-panel .result-tile-unit  { font-size: 0.8rem; color: #6b7280; margin-left: 0.25rem; }
 
     /* SOW clause format (action plan) */
     .doc-panel .sow-clause { margin: 0.65rem 0; page-break-inside: avoid; }
@@ -270,7 +316,7 @@
     .doc-panel .sow-clause-body { margin-top: 0.2rem; padding-left: 3rem; color: #333; }
     .doc-panel .sow-meta {
       display: flex; flex-wrap: wrap; gap: 0.5rem 1.25rem;
-      font-size: 0.7rem; color: #6b7280; margin: 0.25rem 0 0 3rem;
+      font-size: 0.8rem; color: #6b7280; margin: 0.25rem 0 0 3rem;
     }
     .doc-panel .sow-meta b { color: #1a1a1a; font-weight: 600; }
 
@@ -278,7 +324,7 @@
     .doc-panel .tip-banner {
       background: #fef3c7; border: 1px solid var(--wh-amber); color: #78350f;
       padding: 0.55rem 0.75rem; border-radius: 0.5rem;
-      font-size: 0.72rem; margin-bottom: 1rem; line-height: 1.5;
+      font-size: 0.8rem; margin-bottom: 1rem; line-height: 1.5;
     }
 
     /* Signature block */
@@ -289,7 +335,7 @@
     .doc-panel .sig-block > div { flex: 1 1 220px; }
     .doc-panel .sig-line {
       border-top: 1px solid #999; padding-top: 0.3rem;
-      font-size: 0.74rem; color: #666; margin-top: 2.25rem;
+      font-size: 0.8rem; color: #666; margin-top: 2.25rem;
     }
 
     /* Section anchor scroll (mobile keyboard offset) */
@@ -311,10 +357,7 @@
     }
     .doc-panel .hero-finding.amber { border-left-color: var(--wh-orange); background: linear-gradient(90deg, #fffbeb 0%, #ffffff 70%); }
     .doc-panel .hero-finding.green { border-left-color: var(--wh-green); background: linear-gradient(90deg, #f0fdf4 0%, #ffffff 70%); }
-    .doc-panel .hero-finding-label {
-      font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.1em;
-      color: #6b7280; font-weight: 700; margin-bottom: 0.25rem;
-    }
+    .doc-panel .hero-finding-label { font-size: 0.75rem; letter-spacing: 0.1em; color: #6b7280; font-weight: 700; margin-bottom: 0.25rem; }
     .doc-panel .hero-finding-text {
       font-size: 1.1rem; font-weight: 700; color: #1a1132; line-height: 1.35;
     }
@@ -342,20 +385,24 @@
       margin-bottom: 0.4rem;
     }
     .doc-panel .insight-card-head  { font-size: 0.78rem; font-weight: 700; color: #1a1132; line-height: 1.3; margin-bottom: 0.3rem; }
-    .doc-panel .insight-card-body  { font-size: 0.72rem; color: #444; line-height: 1.5; }
+    .doc-panel .insight-card-body  { font-size: 0.8rem; color: #444; line-height: 1.5; }
     .doc-panel .insight-card-action {
       display: inline-block; margin-top: 0.5rem;
-      font-size: 0.66rem; font-weight: 600;
+      font-size: 0.75rem; font-weight: 600;
       padding: 2px 8px; border-radius: 999px;
       background: rgba(0,0,0,0.06); color: #1a1132;
     }
 
     /* Severity chips — small colored pills for risk/criticality */
     .doc-panel .sev-chip {
-      display: inline-block; font-size: 0.66rem; font-weight: 700;
+      display: inline-block; font-size: 0.75rem; font-weight: 700;
       padding: 2px 8px; border-radius: 999px; letter-spacing: 0.04em;
       text-transform: uppercase;
     }
+    /* ...but NOT when the chip carries statistics. The code writes r = 0.02 / p = 0.917 and the uppercase
+       rule printed R = / P =, which is wrong notation to any reliability engineer reading this document
+       (design lens critique, 2026-09-15). */
+    .doc-panel .sev-chip.stat { text-transform: none; letter-spacing: 0; }
     /* DARK INK ON A PALE TINT — this is a PRINT surface, so the whole chip family sits on light
        backgrounds. .amber, .green and .gray already followed that rule with the 800-weight ink of their
        own hue; .red and .purple reached for the brand FILL tokens instead and were the only two that
@@ -396,11 +443,11 @@
       font-family: ui-monospace, SFMono-Regular, monospace; letter-spacing: -0.01em;
     }
     .doc-panel .asset-card-stats {
-      font-size: 0.72rem; color: #555; line-height: 1.55; margin-bottom: 0.3rem;
+      font-size: 0.8rem; color: #555; line-height: 1.55; margin-bottom: 0.3rem;
     }
     .doc-panel .asset-card-stats b { color: #1a1132; font-weight: 600; }
     .doc-panel .asset-card-why {
-      font-size: 0.7rem; color: #666; font-style: italic; line-height: 1.45;
+      font-size: 0.8rem; color: #666; font-style: italic; line-height: 1.45;
       border-top: 1px dashed #e5e7eb; padding-top: 0.35rem; margin-top: 0.35rem;
     }
 
@@ -408,20 +455,23 @@
     .doc-panel .hbar {
       display: grid; grid-template-columns: 130px 1fr 60px;
       gap: 0.5rem; align-items: center; margin: 4px 0;
-      font-size: 0.74rem;
+      font-size: 0.8rem;
     }
     .doc-panel .hbar-label { color: #1a1132; font-weight: 500; }
     .doc-panel .hbar-track {
       height: 12px; background: #f3f4f6; border-radius: 999px; overflow: hidden;
     }
     .doc-panel .hbar-fill {
+      /* ★A BAR IS A GRAPHICAL OBJECT AND NEEDS 3:1 AGAINST ITS TRACK (design lens critique, 2026-09-15):
+         the dark-theme violet measured 2.47:1 on the #f3f4f6 track of this WHITE document, and the red 2.51:1.
+         These are the darker steps of the same hues - the document's own ink, not the app shell's. */
       height: 100%; border-radius: 999px;
-      background: linear-gradient(90deg, var(--wh-violet), var(--wh-violet));
+      background: #6d28d9;
     }
-    .doc-panel .hbar-fill.red   { background: linear-gradient(90deg, var(--wh-red), var(--wh-red)); }
-    .doc-panel .hbar-fill.amber { background: linear-gradient(90deg, var(--wh-orange), var(--wh-orange)); }
-    .doc-panel .hbar-fill.green { background: linear-gradient(90deg, var(--wh-green), var(--wh-green)); }
-    .doc-panel .hbar-value { font-size: 0.72rem; color: #555; text-align: right; font-weight: 600; }
+    .doc-panel .hbar-fill.red   { background: #b91c1c; }
+    .doc-panel .hbar-fill.amber { background: #b45309; }
+    .doc-panel .hbar-fill.green { background: #15803d; }
+    .doc-panel .hbar-value { font-size: 0.8rem; color: #555; text-align: right; font-weight: 600; }
 
     /* Stacked bar (one row, multiple colored segments — for RCM consequence split) */
     .doc-panel .stack-bar {
@@ -430,12 +480,16 @@
     }
     .doc-panel .stack-bar > div {
       display: flex; align-items: center; justify-content: center;
-      font-size: 0.66rem; font-weight: 700; color: white;
+      font-size: 0.75rem; font-weight: 700;
       min-width: 20px;
     }
+    /* NO `color` here on purpose (design lens slop, 2026-09-15). stackedBar() sets each segment's ink from
+       that segment's own luminance (_segInk, C2 2026-07-15), so this declaration was a dead default that
+       only ever applied to a segment the renderer had missed - white text on a light fill, on a white
+       printed page. Keeping it was keeping the trap the JS exists to avoid. */
     .doc-panel .stack-legend {
       display: flex; flex-wrap: wrap; gap: 0.5rem 1rem;
-      font-size: 0.7rem; color: #444; margin-top: 0.35rem;
+      font-size: 0.8rem; color: #444; margin-top: 0.35rem;
     }
     .doc-panel .stack-legend-dot {
       display: inline-block; width: 10px; height: 10px; border-radius: 2px;
@@ -466,7 +520,7 @@
 
     /* Caption under charts ("What this means") */
     .doc-panel .chart-caption {
-      font-size: 0.72rem; color: #555; font-style: italic;
+      font-size: 0.8rem; color: #555; font-style: italic;
       margin-top: 0.4rem; padding-left: 0.5rem;
       border-left: 3px solid #ddd6fe;
     }
@@ -485,9 +539,9 @@
     .doc-panel .kpi-cell.bad  { background: #fef2f2; border-color: #fecaca; }
     .doc-panel .kpi-cell.good { background: #f0fdf4; border-color: #bbf7d0; }
     /* #6b7280 fell under 4.5:1 on the .bad tint (#fef2f2); #4b5563 clears it on white AND on every KPI tint (C2). */
-    .doc-panel .kpi-label { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.07em; color: #4b5563; font-weight: 700; }
+    .doc-panel .kpi-label { font-size: 0.75rem; color: #4b5563; font-weight: 700; }
     .doc-panel .kpi-value { font-size: 1.45rem; font-weight: 800; color: #1a1132; line-height: 1.1; margin-top: 0.2rem; font-variant-numeric: tabular-nums; }
-    .doc-panel .kpi-unit  { font-size: 0.72rem; color: #6b7280; margin-left: 0.25rem; font-weight: 500; }
+    .doc-panel .kpi-unit  { font-size: 0.8rem; color: #6b7280; margin-left: 0.25rem; font-weight: 500; }
 
     /* Donut chart container (SVG sized intrinsically) */
     .doc-panel .donut-row {
@@ -496,7 +550,7 @@
     }
     .doc-panel .donut-row svg { flex-shrink: 0; }
     .doc-panel .donut-legend {
-      flex: 1; min-width: 200px; font-size: 0.72rem; line-height: 1.6;
+      flex: 1; min-width: 200px; font-size: 0.8rem; line-height: 1.6;
     }
     .doc-panel .donut-legend-row {
       display: flex; gap: 0.5rem; align-items: center; padding: 2px 0;
@@ -508,19 +562,55 @@
     .doc-panel .donut-legend-val  { color: #555; font-weight: 600; }
 
     /* Appendix tables — smaller, compact */
+    /* ★THE REPORT'S RENDERERS WROTE THEIR OWN font-size INLINE (design lens craft, 2026-09-15): twelve
+       nodes stayed at 10.6-11.8px after the 24 stylesheet rules were lifted, because an inline style is
+       not a rule. They are all the same thing - the document's fine print (a truncation note, a method
+       line, the signature captions) - so they share one class, which the print block restores like the
+       rest. An inline font-size could not be restored for paper without !important. */
+    .doc-panel .doc-fine { font-size: 0.8rem; color: #555; }
     .doc-panel .appendix-note {
-      font-size: 0.72rem; color: #6b7280; font-style: italic;
+      font-size: 0.8rem; color: #6b7280; font-style: italic;
       margin: 0.4rem 0 0.75rem; padding: 0.55rem 0.75rem;
       background: #f9fafb; border-left: 3px solid #d1d5db; border-radius: 4px;
     }
-    .doc-panel .appendix-section table { font-size: 0.7rem; }
-    .doc-panel .appendix-section th { font-size: 0.66rem; padding: 0.3rem 0.4rem; }
+    .doc-panel .appendix-section table { font-size: 0.8rem; }
+    .doc-panel .appendix-section th { font-size: 0.75rem; padding: 0.3rem 0.4rem; }
     .doc-panel .appendix-section td { padding: 0.25rem 0.4rem; }
 
     /* ════════════════════════════════════════════════════
        PRINT — only the report renders, dark UI hides
     ════════════════════════════════════════════════════ */
     @media print {
+      /* ★THE DOCUMENT'S TYPE ROSE FOR THE SCREEN, AND PAPER KEEPS ITS DENSITY (design lens craft,
+         2026-09-15). Measured in the generated report: 501 of 609 text nodes sat under the platform's
+         12px floor, and a supervisor reads this on a phone before he shares it. On paper the tighter
+         scale is honest - a report that grows from three pages to five is a real cost to him - so every
+         lifted rule is restored here, exactly as it was. */
+      .doc-panel .doc-fine { font-size: 0.7rem; }
+      .doc-panel th { font-size: 0.74rem; }
+      .doc-panel .rag-tile-label { font-size: 0.7rem; }
+      .doc-panel .rag-tile-note { font-size: 0.7rem; }
+      .doc-panel .result-tile-label { font-size: 0.66rem; }
+      .doc-panel .result-tile-unit { font-size: 0.7rem; }
+      .doc-panel .sow-meta { font-size: 0.7rem; }
+      .doc-panel .tip-banner { font-size: 0.72rem; }
+      .doc-panel .sig-line { font-size: 0.74rem; }
+      .doc-panel .hero-finding-label { font-size: 0.66rem; }
+      .doc-panel .insight-card-body { font-size: 0.72rem; }
+      .doc-panel .insight-card-action { font-size: 0.66rem; }
+      .doc-panel .sev-chip { font-size: 0.66rem; }
+      .doc-panel .asset-card-stats { font-size: 0.72rem; }
+      .doc-panel .asset-card-why { font-size: 0.7rem; }
+      .doc-panel .hbar { font-size: 0.74rem; }
+      .doc-panel .hbar-value { font-size: 0.72rem; }
+      .doc-panel .stack-legend { font-size: 0.7rem; }
+      .doc-panel .chart-caption { font-size: 0.72rem; }
+      .doc-panel .kpi-label { font-size: 0.62rem; }
+      .doc-panel .kpi-unit { font-size: 0.72rem; }
+      .doc-panel .donut-legend { font-size: 0.72rem; }
+      .doc-panel .appendix-note { font-size: 0.72rem; }
+      .doc-panel .appendix-section table { font-size: 0.7rem; }
+      .doc-panel .appendix-section th { font-size: 0.66rem; }
       body { background: #ffffff; padding: 0; }
       body > *:not(#ar-print-wrapper) { display: none !important; }
       #ar-print-wrapper { display: block !important; }
@@ -580,15 +670,19 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     </details>
 
         <p data-i="arsub">Standards-grade. Print-ready. Save as PDF for client delivery.</p>
-        <p data-i="p_builtondemandfromthishiveslo_8457" class="wh-source-chip" role="status" aria-live="polite" style="font-size:.62rem; opacity:.8; margin:.25rem 0 0;">Built on demand · from this hive's logbook, PM completions and asset history · nothing is stored until you save the PDF</p><!-- G1+E3 (rubric 2026-09-05): the list view had no status region and no provenance chip -->
+        <p data-i="p_builtondemandfromthishiveslo_8457" class="wh-source-chip" role="status" aria-live="polite" style="font-size:.75rem; opacity:.9; margin:4px 0 0; max-width:70ch;">Built on demand · from this hive's logbook, PM completions and asset history · nothing is stored until you save the PDF</p><!-- G1+E3 (rubric 2026-09-05): the list view had no status region and no provenance chip -->
         <!-- STREAMLINE F6: analytics-report + report-sender are ONE "Reports" surface
              (same supervisor audience: GENERATE an analytics report, then SEND/schedule
              it). project-report is deliberately NOT tabbed here — it is a PER-PROJECT
              print document (needs a project_id, reached from project-manager), a
              different job; fusing it would land users on an empty report. -->
         <div class="wh-reports-tabs" role="tablist" style="display:flex; gap:8px; margin:8px 0 6px; flex-wrap:nowrap; overflow-x:auto; -webkit-overflow-scrolling:touch;"><!-- I1 CLS (EX-PF F07, 2026-09-07): the strip wrapped from 44px to 96px at 390 once its icons loaded, pushing the whole page down; a one-line strip that scrolls sideways keeps its height from first paint -->
-          <span role="tab" aria-selected="true" style="padding:6px 12px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(247,162,27,0.15); color:var(--wh-orange); font-size:.76rem; font-weight:700; border:1px solid rgba(247,162,27,0.4);"><span data-i="artab1">Analytics report</span></span>
-          <a role="tab" aria-selected="false" href="report-sender.html" style="padding:6px 12px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.83); font-size:.76rem; font-weight:600; text-decoration:none; border:1px solid rgba(255,255,255,0.08);"><span data-i="artab2">Send / schedule &rarr;</span></a>
+          <!-- flex-shrink:0 + nowrap on EACH tab (wave-4 narrow-320 nav-hub walk, 2026-09-14): the strip forbids wrapping, but
+               its ITEMS could still shrink, so at 320 flex squeezed both tabs and "Analytics report" / "Send / schedule" broke
+               onto two lines (the same class report-sender's tabs were fixed for at 390, W41441). Fixed items make the strip
+               scroll sideways as its own comment promises. -->
+          <span role="tab" aria-selected="true" style="padding:6px 12px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(247,162,27,0.15); color:var(--wh-orange); font-size:.76rem; font-weight:700; border:1px solid rgba(247,162,27,0.4); flex-shrink:0; white-space:nowrap;"><span data-i="artab1">Analytics report</span></span>
+          <a role="tab" aria-selected="false" href="report-sender.html" style="padding:6px 12px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.83); font-size:.76rem; font-weight:600; text-decoration:none; border:1px solid rgba(255,255,255,0.08); flex-shrink:0; white-space:nowrap;"><span data-i="artab2">Send / schedule &rarr;</span></a>
         </div>
       </div>
       <span class="ar-badge">BETA</span>
@@ -617,8 +711,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
            read on screen and printed as a picture, and taken nowhere else: no spreadsheet, no trend
            against last quarter, nothing to hand an analyst. The CSV carries the same generated data
            the page is showing, one row per figure, with its phase and path naming what it is. -->
-      <button type="button" class="btn-action" id="csv-btn" onclick="saveAsCsv()" disabled
-              title="Export the report's figures to CSV" aria-label="Export the report's figures to CSV"><span data-i="csv">CSV</span></button>
+      <button type="button" class="btn-action btn-csv" id="csv-btn" onclick="saveAsCsv()" disabled
+              title="Export the report's figures to CSV" aria-label="Export the report's figures to CSV" data-i-aria="ar_csv_aria"><span data-i="csv">CSV</span></button>
     </div>
 
   </main>
@@ -631,8 +725,13 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
        still looks centered in normal viewing. -->
   <div id="ar-print-wrapper">
     <div id="ar-report-mount">
-      <div class="ar-status" id="ar-empty">
-        Click <b data-i="p_generatereport_7ff2" style="color:var(--wh-violet);">Generate Report</b> to compile the latest analytics into a print-ready document.
+      <!-- ★THE SENTENCE OWNS ITSELF (design lens copy, 2026-09-15). This read "Click <b>Generate Report</b> to
+           compile..." and the [data-i] swapper translated ONLY the embedded button name, so a Filipino reader
+           met "Click Gumawa ng Report to compile the latest analytics into a print-ready document." - one
+           sentence in two languages. A sentence that contains a control's name is translated whole, by the
+           same key, or it is guaranteed to split the moment the label changes. -->
+      <div class="ar-status" id="ar-empty" data-i="ar_empty">
+        Press Generate Report to compile the latest analytics into a print-ready document.
       </div>
     </div>
   </div>
@@ -922,7 +1021,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         var dt    = topP1.total_downtime_h != null ? Number(topP1.total_downtime_h).toFixed(0) + ' hrs of downtime' : '';
         var fc    = topP1.failure_count != null ? topP1.failure_count + ' failures' : '';
         var bits  = [fc, dt].filter(function(x){ return x; }).join(' · ');
-        heroSub   = 'Tied with ' + counts.p1 + ' other Critical (P1) asset' + (counts.p1 === 1 ? '' : 's') +
+        // ★OFF BY ONE, AND 'TIED' WAS THE WRONG WORD (design lens critique, 2026-09-15): counts.p1 is the
+        // TOTAL P1 count and includes the asset this sentence is about, so the page claimed one more than
+        // its own tile; and these assets are RANKED by risk score, not tied.
+        heroSub   = 'Highest-ranked of ' + counts.p1 + ' Critical (P1) asset' + (counts.p1 === 1 ? '' : 's') +
                     ' and ' + counts.p2 + ' At-Risk (P2) asset' + (counts.p2 === 1 ? '' : 's') +
                     ' over the last ' + _period + ' days.' +
                     (bits ? ' ' + topP1.machine + ': ' + bits + '.' : '');
@@ -937,7 +1039,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       }
 
       return '' +
-        '<div class="tip-banner no-print">Tip: click any purple-dashed field to edit (project name, client, prepared-by) before saving as PDF.</div>' +
+        '<div class="tip-banner no-print">Tip: click any dashed field to edit it before saving as PDF - the project or site, who prepared it, and who reviews and approves it.</div>' +
         '<div class="doc-header-row">' +
           '<div class="doc-title-block">' +
             '<div class="doc-logo">WORKHIVE</div>' +
@@ -964,9 +1066,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
             ? '<div class="ar-provenance" style="margin:0.35rem 0 0.5rem;">' +
                 renderSourceChip({
                   freshness: 'Recomputed when this report was generated',
-                  source:    'v_logbook_truth via Postgres RPCs', // source-chip-allow: read via the analytics-orchestrator RPC path (same canonical source as analytics.html, per the header comment), not a direct .from() on this print-ready report
+                  source:    'your hive logbook, PM records and asset history', // source-chip-allow: read via the analytics-orchestrator RPC path (same canonical source as analytics.html, per the header comment), not a direct .from() on this print-ready report
                   window:    'Period: last ' + _period + ' days',
-                  method:    ['MTBF / MTTR / OEE / PM compliance computed per ISO 14224 + SMRP definitions',
+                  method:    ['MTBF / MTTR per ISO 14224, OEE per ISO 22400-2 (Nakajima 3-factor), PM compliance per SMRP 2.1.1',
                               'Risk and predictive figures come from the daily risk snapshot, refreshed on demand'],
                 }) +
               '</div>'
@@ -1274,7 +1376,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           body: 'Top: ' + topP1.machine + ' (' + (topP1.criticality || 'Critical') + '): ' +
                 topP1.failure_count + ' failures, ' +
                 Number(topP1.total_downtime_h || 0).toFixed(0) + ' hrs downtime.',
-          action: 'See §3 Action Plan',
+          action: 'See §4 Action Plan',
         }));
       } else {
         insights.push(insightCard({
@@ -1306,9 +1408,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       if (predHigh > 0) {
         insights.push(insightCard({
           color: 'amber', icon: '🔮',
-          head: predHigh + ' asset' + (predHigh === 1 ? '' : 's') + ' likely to fail in the coming weeks',
-          body: 'The predictive model flags these as HIGH risk based on MTBF + failure history. Review §4 to see specific dates.',
-          action: 'See §4 Predictive',
+          head: predHigh + ' asset' + (predHigh === 1 ? '' : 's') + ' past their predicted failure date',
+          body: 'The predictive model flags these as HIGH risk based on MTBF + failure history. Review §3 to see specific dates.',
+          action: 'See §3 Predictive',
         }));
       } else {
         insights.push(insightCard({
@@ -1352,6 +1454,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
     // Small helpers to render data tables without [object Object] traps.
     // Each picks 2-3 fields, escapes them, and skips when no rows.
+    // `opts.noHeading` exists because renderActionPlan's subSections loop wraps each body in its OWN numbered
+    // <h3>, and this function emitted a second one - so §4.1 printed its heading twice, differing only in the
+    // case of one word (design lens critique, 2026-09-15). The appendix calls keep their heading.
     function tableSection(title, rows, columns, opts){
       if (!rows || !rows.length) return '';
       var topN = (opts && opts.topN) || rows.length;
@@ -1366,12 +1471,13 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         }).join('') + '</tr>';
       }).join('') + '</tbody>';
       var more = rows.length > topN
-        ? '<p style="font-size:0.7rem;color:#555;margin-top:0.25rem;">Showing top ' + topN + ' of ' + rows.length + '. Full list in §7 Drilldowns.</p>'
+        ? '<p class="doc-fine" style="margin-top:0.25rem">Showing top ' + topN + ' of ' + rows.length + '. Full list in the Appendix.</p>'
         : '';
       // role=group + tabindex="0" makes the horizontally-scrollable wrapper reachable by
       // keyboard (axe scrollable-region-focusable, SC 2.1.1) -- a mouse user can drag it, a
       // keyboard user could not scroll it at all without this.
-      return '<h3>' + escHtml(title) + '</h3><div class="table-wrap" role="group" tabindex="0" aria-label="' + escHtml(title) + ' (scrollable table)"><!-- table-name-allow: maintenance analytics report data table --> <table>' + thead + tbody + '</table></div>' + more;
+      var heading = (opts && opts.noHeading) ? '' : '<h3>' + escHtml(title) + '</h3>';
+      return heading + '<div class="table-wrap" role="group" tabindex="0" aria-label="' + escHtml(title) + ' (scrollable table)"><!-- table-name-allow: maintenance analytics report data table --> <table>' + thead + tbody + '</table></div>' + more;
     }
 
     // ─── AR-FINDINGS (revamped: charts + asset cards) ────────
@@ -1394,7 +1500,13 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
       // Build downtime lookup for asset cards
       var dtByMachine = {};
+      // ★THE SAME ASSET'S DOWNTIME WAS PUBLISHED TWICE, FROM TWO PHASES (design lens critique, 2026-09-15).
+      // This map fed §2.1 from the MTTR phase (UPS-002 = 45h) while §4.1, the This-Week box and appendix A1
+      // read the PRESCRIPTIVE ranking (50.2 / 50 / 49.5) - the two phases count over different event sets,
+      // and the document printed both without a word. One source: the ranking, because that is the number
+      // the action plan acts on, with MTTR as the fallback for an asset the ranking has not scored.
       mttrRows.forEach(function(r){ if (r && r.machine != null) dtByMachine[r.machine] = r.total_downtime_h; });
+      ranking.forEach(function(r){ if (r && r.machine != null && r.total_downtime_h != null) dtByMachine[r.machine] = r.total_downtime_h; });
 
       // Build criticality lookup from ranking
       var critByMachine = {};
@@ -1415,7 +1527,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         var maxFail = topAssets[0].failure_count || 1;
         html +=
           '<h3 style="margin-top:0.8rem;font-size:0.84rem;color:#1a1132;">2.1 The Worst Offenders</h3>' +
-          '<p style="color:#555;font-size:0.74rem;margin-bottom:0.5rem;">Assets with the most failures in the last ' + _period + ' days. Focus PM attention on these first.</p>' +
+          '<p class="doc-fine" style="margin-bottom:0.5rem">Assets with the most failures in the last ' + _period + ' days. Focus PM attention on these first.</p>' +
           '<div class="asset-card-grid">' +
             topAssets.map(function(a){
               var rk = critByMachine[a.machine] || {};
@@ -1457,7 +1569,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         });
         html +=
           '<h3 style="margin-top:1rem;font-size:0.84rem;color:#1a1132;">2.2 Why It Broke: Top Root Causes</h3>' +
-          '<p style="font-size:0.7rem;color:#555;margin:0 0 0.35rem;font-variant-numeric:tabular-nums;">' +
+          '<p class="doc-fine" style="margin:0 0 0.35rem;font-variant-numeric:tabular-nums">' +
             escHtml(String(totalFailMode)) + ' failures by root cause (top ' + topModeRows.length + ')</p>' +
           hbarChart(topModeRows, {
             fmt: function(v){
@@ -1489,13 +1601,30 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         var stoppedCount = segs.find(function(s){ return s.label === 'Stopped production'; });
         var safetyCount  = segs.find(function(s){ return s.label === 'Safety risk'; });
         var stoppedTxt   = stoppedCount ? stoppedCount.value + ' production stops' : '';
-        var safetyTxt    = safetyCount ? safetyCount.value + ' safety incidents' : '';
+        // ★A CLASSIFICATION IS NOT AN INCIDENT REGISTER (design lens critique, 2026-09-15). This printed
+        // 'N safety incidents this period' from the count of failures whose RCM CONSEQUENCE CATEGORY is
+        // 'Safety risk'. A supervisor cannot substantiate that sentence from any log he keeps, and it sits
+        // in a document with three signature lines. Say what the number is.
+        var safetyTxt    = safetyCount ? safetyCount.value + ' failures classified as a safety risk' : '';
         var bits = [stoppedTxt, safetyTxt].filter(function(x){ return x; }).join(' and ');
+        // ★THE BAR PRESENTED ITS CLASSIFIED SUBSET AS THE WHOLE (design lens critique, 2026-09-15): the four
+        // segments summed to 211 while the report's own KPI strip said 313 total failures, so 102 failures -
+        // a third of them - were silently outside a chart drawn as 100%. A percentage without its denominator
+        // is the defect this platform has recorded before; say what the bar counts.
+        var segTotal = segs.reduce(function(a, x){ return a + (Number(x.value) || 0); }, 0);
+        // the same sum the executive KPI strip prints as 'Total Failures', computed from the same rows
+        // (failFreq is already in scope here) rather than from a field invented for this sentence
+        var allFailures = failFreq.reduce(function(a, r){ return a + (Number(r.failure_count) || 0); }, 0);
+        var denomTxt = segTotal
+          ? 'Of ' + segTotal + ' failures with a consequence recorded'
+            + (allFailures > segTotal ? ' (' + (allFailures - segTotal) + ' of ' + allFailures + ' not yet classified)' : '')
+            + ': '
+          : '';
         html +=
           '<h3 style="margin-top:1rem;font-size:0.84rem;color:#1a1132;">2.3 Failure Consequences (RCM, SAE JA1011)</h3>' +
           stackedBar(segs) +
           '<div class="chart-caption"><b>What this means:</b> ' +
-            (bits ? bits + ' this period. ' : '') +
+            denomTxt + (bits ? bits + ' this period. ' : '') +
             'Stopped + safety bars are your highest-priority categories: RCM ranks these above the others.' +
           '</div>';
       }
@@ -1522,9 +1651,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         html +=
           '<h3 style="margin-top:1rem;font-size:0.84rem;color:#1a1132;">2.5 Are PMs Preventing Failures?</h3>' +
           '<div style="display:flex;gap:0.75rem;align-items:center;margin:0.4rem 0 0.4rem;flex-wrap:wrap;">' +
-            '<span class="sev-chip ' + sigCls + '">r = ' + rVal + '</span>' +
-            '<span class="sev-chip gray">p = ' + pVal + '</span>' +
-            '<span style="font-size:0.74rem;color:#444;">' + escHtml(safeText(interp)) + '</span>' +
+            '<span class="sev-chip stat ' + sigCls + '">r = ' + rVal + '</span>' +
+            '<span class="sev-chip stat gray">p = ' + pVal + '</span>' +
+            '<span class="doc-fine">' + escHtml(safeText(interp)) + '</span>' +
           '</div>' +
           '<div class="chart-caption"><b>Plain English:</b> ' +
             (sig
@@ -1579,10 +1708,20 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           '<h3 style="margin-top:0.6rem;font-size:0.84rem;color:#1a1132;">3.1 Watch These First</h3>' +
           '<div class="asset-card-grid">' +
             topRisks.map(function(p){
-              var days = Number(p.days_until);
-              var isOverdue = days < 0;
-              var daysTxt = isOverdue ? 'Overdue ' + Math.abs(days).toFixed(0) + ' days' : 'In ' + days.toFixed(0) + ' days';
+              // ★THE COUNT AND THE DATE BESIDE IT DISAGREED ON 3 OF 4 CARDS (design lens critique, 2026-09-15):
+              // days_until arrives as a float with a time component while the date is calendar-truncated, so
+              // 'Overdue 56 days (Jul 20, 2026)' was 57 calendar days from the report date. Two visible facts
+              // about the same event must agree, so the count is derived from the date the reader can see.
               var dateTxt = p.predicted_next ? fmtDate(p.predicted_next) : '';
+              var days = Number(p.days_until);
+              if (p.predicted_next) {
+                var _d0 = new Date(p.predicted_next), _d1 = new Date();
+                var _a = Date.UTC(_d0.getFullYear(), _d0.getMonth(), _d0.getDate());
+                var _b = Date.UTC(_d1.getFullYear(), _d1.getMonth(), _d1.getDate());
+                days = Math.round((_a - _b) / 86400000);
+              }
+              var isOverdue = days < 0;
+              var daysTxt = isOverdue ? 'Overdue ' + Math.abs(days) + ' days' : 'In ' + days + ' days';
               var risk = (p.risk || '').toLowerCase();
               var sevCls = risk === 'high' ? 'red' : risk === 'medium' ? 'amber' : 'green';
               var stats =
@@ -1604,16 +1743,21 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
       // ── 3.2 Composite asset health (horizontal bars) ───
       if (health.length) {
+        // ★THE BARS WERE ENCODED BACKWARDS (design lens critique, 2026-09-15). Length was proportional to the
+        // HEALTH SCORE, so the longest red bar was the HEALTHIEST asset - length and colour pointed in opposite
+        // directions, and the list is ordered worst-first, so reading order fought bar length too. The bar now
+        // draws the GAP to healthy, which points the same way as the colour and the order; the value label still
+        // reads the score itself, because that is the number a person quotes.
         var healthBars = health.slice(0, 8).map(function(h){
           var score = Number(h.health_score) || 0;
           var sev = score < 30 ? 'red' : score < 60 ? 'amber' : 'green';
-          return { label: h.machine || '', value: score, severity: sev };
+          return { label: h.machine || '', value: Math.max(0, 100 - score), severity: sev, _score: score };
         });
         html +=
           '<h3 style="margin-top:1rem;font-size:0.84rem;color:#1a1132;">3.2 Asset Health Scores (0-100)</h3>' +
-          hbarChart(healthBars, { max: 100, fmt: function(v){ return v + '/100'; } }) +
+          hbarChart(healthBars, { max: 100, fmt: function(v){ return (100 - v) + '/100'; } }) +
           '<div class="chart-caption"><b>Reading the chart:</b> ' +
-            'red = under 30 (critical), amber = 30-60 (degrading), green = 60+ (healthy). ' +
+            'a LONGER bar is further from healthy. Red = under 30 (critical), amber = 30-60 (degrading), green = 60+ (healthy). ' +
             'Composite of failure count, downtime, MTBF, and recency.' +
           '</div>';
       }
@@ -1665,12 +1809,16 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       // 2) Top P1 priorities — always show as a table for accountability
       var p1Rows = ranking.filter(function(r){ return r.priority === 'P1'; });
       var p1Table = tableSection('Critical priorities (P1): act this week', p1Rows, [
-        { label: 'Asset',        get: function(r){ return r.machine || ''; } },
+        { label: 'Asset',        get: function(r){ return r.machine || ''; }, nowrap: true },
         { label: 'Criticality',  get: function(r){ return r.criticality || ''; } },
         { label: 'Risk score',   get: function(r){ return r.risk_score != null ? Number(r.risk_score).toFixed(0) : ''; } },
         { label: 'Failures',     get: function(r){ return r.failure_count != null ? r.failure_count : 0; } },
         { label: 'Downtime (h)', get: function(r){ return r.total_downtime_h != null ? Number(r.total_downtime_h).toFixed(1) : ''; } },
-      ], { topN: 8 });
+        // noHeading: the subSections loop below prints the numbered '4.1 Critical Priorities...' heading, and
+        // this call printed a second, near-identical one right under it (design lens critique, 2026-09-15).
+        // nowrap on the Asset column: a nameplate code broke as 'HPU-' / '001' on 3 of 3 rows at 390, and a
+        // code read character by character against a plate is exactly what must not wrap.
+      ], { topN: 8, noHeading: true });
 
       // 3) PM interval changes — actionable adjustments.
       // The full table was overwhelming (30 near-identical rows + a wide "Why"
@@ -1727,7 +1875,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
               });
             }).join('') +
           '</div>' +
-          '<p style="font-size:0.7rem;color:#555;font-style:italic;margin-top:0.4rem;">' +
+          '<p class="doc-fine" style="font-style:italic;margin-top:0.4rem">' +
             'Full list (' + pmIntervals.length + ' rows) in <b>Appendix A2</b>.' +
           '</p>';
       }
@@ -1816,12 +1964,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       var techAssign  = technicianAssignments(presc);
 
       var fullPriority = tableSection('A1. All asset priorities', ranking, [
-        { label: 'Asset',        get: function(r){ return r.machine || ''; } },
+        { label: 'Asset',        get: function(r){ return r.machine || ''; }, nowrap: true },
         { label: 'Tier',         get: function(r){ return r.priority || ''; } },
         { label: 'Criticality',  get: function(r){ return r.criticality || ''; } },
         { label: 'Risk score',   get: function(r){ return r.risk_score != null ? Number(r.risk_score).toFixed(0) : ''; } },
         { label: 'Failures',     get: function(r){ return r.failure_count != null ? r.failure_count : 0; } },
-        { label: 'Avg DT (h)',   get: function(r){ return r.avg_downtime_h != null ? Number(r.avg_downtime_h).toFixed(1) : ''; } },
+        { label: 'Avg downtime per failure (h)', get: function(r){ return r.avg_downtime_h != null ? Number(r.avg_downtime_h).toFixed(1) : ''; } },   /* 'Avg DT (h)' sat beside 'Downtime (h)' in section 4 and meant something different (design lens critique, 2026-09-15) */
       ], { topN: ranking.length });
 
       var fullPm = tableSection('A2. All PM interval recommendations', pmIntervals, [
@@ -1834,7 +1982,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       ], { topN: pmIntervals.length });
 
       var techTable = tableSection('A3. Technician assignments (workload-balanced)', techAssign, [
-        { label: 'Asset',       get: function(r){ return r.machine || ''; } },
+        { label: 'Asset',       get: function(r){ return r.machine || ''; }, nowrap: true },
         { label: 'Problem',     get: function(r){ return r.problem || ''; } },
         { label: 'Discipline',  get: function(r){ return r.required_discipline || ''; } },
         { label: 'Assigned to', get: function(r){ return r.assigned_to || ''; } },
@@ -1866,28 +2014,31 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
             '<div>' +
               '<div class="sig-line"></div>' +
               'Prepared by' +
-              '<div style="font-size:0.7rem;color:#555;margin-top:0.2rem;">Maintenance / Reliability Lead</div>' +
+              '<div class="doc-fine" style="margin-top:0.2rem">Maintenance / Reliability Lead</div>' +
             '</div>' +
             '<div>' +
               '<div class="sig-line"></div>' +
               'Reviewed by' +
-              '<div style="font-size:0.7rem;color:#555;margin-top:0.2rem;">Operations / Engineering Manager</div>' +
+              // ★HE COULD NOT NAME HIS OWN REVIEWERS (design lens critique, 2026-09-15). Three ruled signature
+              // lines invite everyone present to treat this as a controlled record, and the two names that
+              // make it one were fixed prose. They are editable now, like the fields above them.
+              '<div class="doc-fine" style="margin-top:0.2rem"><span class="editable-field" contenteditable="true" data-placeholder="Operations / Engineering Manager"></span></div>' +
             '</div>' +
             '<div>' +
               '<div class="sig-line"></div>' +
               'Approved by' +
-              '<div style="font-size:0.7rem;color:#555;margin-top:0.2rem;">Plant / Site Manager</div>' +
+              '<div class="doc-fine" style="margin-top:0.2rem"><span class="editable-field" contenteditable="true" data-placeholder="Plant / Site Manager"></span></div>' +
             '</div>' +
           '</div>' +
           // Compliance footnote — folds the old Standards section into a one-liner
-          '<p style="font-size:0.7rem;color:#555;margin-top:1.25rem;text-align:center;line-height:1.55;">' +
+          '<p class="doc-fine" style="margin-top:1.25rem;text-align:center;line-height:1.55">' +
             '<b>Computed against:</b> ISO 14224:2016 (failure taxonomy + reliability metrics) · ' +
             'SMRP Best Practices (KPIs + composite health) · ' +
             'ISO 13381-1:2015 (prognostics) · ' +
             'SAE JA1011 (RCM evaluation) · ' +
             'ISO 55000:2014 (asset management priority).' +
           '</p>' +
-          '<p style="font-size:0.66rem;color:#555;margin-top:0.6rem;text-align:center;">' +
+          '<p class="doc-fine" style="margin-top:0.6rem;text-align:center">' +
             'Generated by WorkHive Analytics Engine on ' + escHtml(generated) + ' · workhiveph.com' +
           '</p>' +
         '</section>';
@@ -2072,7 +2223,18 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   // the generated report body translates at render through _t().
   window.WH_FIL_PAGE = Object.assign(window.WH_FIL_PAGE || {}, {
     'ar-title': 'Mga Ulat', 'ar-build': 'Bumuo ng ulat',
-    'ar-30d': '30 araw', 'ar-90d': '90 araw', 'ar-180d': '180 araw', 'ar-365d': '365 araw'
+    'ar-30d': '30 araw', 'ar-90d': '90 araw', 'ar-180d': '180 araw', 'ar-365d': '365 araw',
+    'ar_empty': 'Pindutin ang Bumuo ng Ulat para tipunin ang pinakabagong analytics sa isang dokumentong handa nang i-print.',
+    'ar_csv_aria': 'I-export sa CSV ang mga numero ng ulat'
+  });
+  // the [data-i] swapper writes textContent; an accessible NAME needs its own pass (design lens copy,
+  // 2026-09-15 - the same channel that left alert-hub's primary CTA speaking English to a Filipino reader)
+  document.addEventListener('DOMContentLoaded', function () {
+    if (window.WH_LANG !== 'fil') return;
+    document.querySelectorAll('[data-i-aria]').forEach(function (el) {
+      var t = (window.WH_FIL_PAGE || {})[el.getAttribute('data-i-aria')];
+      if (t) { el.setAttribute('aria-label', t); if (el.hasAttribute('title')) el.setAttribute('title', t); }
+    });
   });
 </script>
 </body>

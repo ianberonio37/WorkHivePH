@@ -14,7 +14,7 @@ Updated 24 Aug 2026
 ·
 10 min read
 
-**Short answer:** A working spare parts inventory in a Philippine plant needs three things: ABC classification so management time goes to the top 20 percent of SKUs that drive 80 percent of value, FIFO discipline on every shelf so shelf-life parts do not silently degrade, and reorder points calculated from real usage history so critical parts arrive before they are needed. Done well, this cuts MTTR by 20 to 40 percent because the part is on the shelf when the technician walks in.
+**Short answer:** A working spare parts inventory in a Philippine plant needs three things: ABC classification so management time goes to the top 20 percent of SKUs that drive 80 percent of value, FIFO discipline on every shelf so shelf-life parts do not silently degrade, and reorder points calculated from real usage history so critical parts arrive before they are needed. Done well, this takes 20 to 25 percent off MTTR, because waiting for the part is 40 to 50 percent of it and a stocked shelf halves that.
 
 Who this is for
 
@@ -93,15 +93,15 @@ When the bin drops to 16, the PO triggers automatically. The 21-day lead time ge
 
 The tool this guide is about
 
-#### WorkHive Inventory does ABC, FIFO, and reorder points out of the box
+### WorkHive Inventory holds the reorder point and deducts parts as you log the job
 
-Every SKU has a date-received field for FIFO, an ABC class auto-computed from usage value, and a reorder-point alert wired to the supervisor's dashboard. The data comes from your WorkHive Logbook entries automatically; no double-entry. Free at the worker tier forever.
+Each item carries a reorder point, and low-stock and critical-low flags ride into Alert Hub from there, so the trigger this guide describes is the one the product implements. The counting half is automatic too: closing a logbook entry with parts used cascades an inventory deduction and writes an `inventory_transactions` row as the per-movement record, so there is no second stock ledger to keep. What it does NOT do is the classification: there is no date-received field to drive FIFO and no ABC class computed for you, so the sort above and the paint-rotation discipline stay yours to run: use the reorder point to hold the A items and review the rest on the cycle this guide sets out. Free at the worker tier forever.
 
 No hive yet? [Join WorkHive](https://workhiveph.com/?signup=1) first (free, takes 30 seconds).
 
 ## Why this is the cheapest MTTR fix you can buy
 
-In our [MTBF vs MTTR guide](https://workhiveph.com/learn/mtbf-vs-mttr-for-supervisors/) we showed a Pampanga beverage-line conveyor with MTTR of 3.17 hours, of which 42 percent was waiting for the part to arrive. That pattern is consistent across every Philippine plant we have benchmarked: 40 to 50 percent of total MTTR is parts-waiting, not work time.
+In our [MTBF vs MTTR guide](https://workhiveph.com/learn/mtbf-vs-mttr-for-supervisors/) we showed a Pampanga beverage-line conveyor with MTTR of 3.17 hours, of which 42 percent was waiting for the part to arrive. That pattern is the common one: on a plant without a disciplined store, a large share of total MTTR is parts-waiting rather than work time: which is why the reorder point, not the technician, is usually the thing to fix. Measure the split on your own repairs before you size the fix.
 
 This means that for every hour you reduce parts-waiting time, you reduce MTTR by roughly 25 minutes. Compare cost-per-hour saved:
 
@@ -129,7 +129,7 @@ ABC analysis classifies parts into three tiers by annual usage value. A items (t
 
 ### What is the reorder point formula?
 
-Reorder Point equals Average Daily Usage times Lead Time in Days, plus Safety Stock. Example: a bearing used 3 per week (0.43 per day) from a supplier with a 21-day lead time, with 5-unit safety stock has a reorder point of 0.43 times 21 plus 5 equals 14 units. When the bin drops to 14, the PO triggers automatically. Get the lead time and usage from the WorkHive Logbook history; do not guess.
+Reorder Point equals Average Daily Usage times Lead Time in Days, plus Safety Stock. Example: a bearing used 3 per week (0.43 per day) from a supplier with a 21-day lead time, peaking at 22 a month, gives a safety stock of (0.73 minus 0.43) times 21, which rounds up to 7 - so the reorder point is 0.43 times 21 plus 7, which is 16 units. When the bin drops to 16, the PO triggers automatically. Derive the safety stock from your own peak rather than assuming a round number. Get the lead time and usage from the WorkHive Logbook history; do not guess.
 
 ### Why is FIFO important for spare parts?
 
@@ -141,7 +141,7 @@ Industry rule of thumb: 1 to 3 percent of asset replacement value for a typical 
 
 ### Why does spare parts inventory affect MTTR?
 
-Studies of Philippine plant breakdowns consistently show that 40 to 50 percent of MTTR (Mean Time To Repair) is waiting for the part to arrive at the asset. The technician has diagnosed the fault, knows the fix, but the part is not on the shelf or is on the wrong shelf or has expired. A well-run storeroom with FIFO discipline and accurate reorder points cuts that 40 percent in half. The cheapest hour of MTTR you can buy is good inventory management.
+Because the clock does not stop when the fault is found. The technician has diagnosed it and knows the fix, and then waits - the part is not on the shelf, or is on the wrong shelf, or has expired. That waiting is counted in MTTR exactly like the repair is, and it is the part of MTTR a storeroom controls: FIFO discipline and an accurate reorder point shorten it without changing the repair at all. Time your own next three breakdowns in two halves - diagnosis to part-in-hand, and part-in-hand to running - and you will know which half your plant should spend on. The cheapest hour of MTTR you can buy is usually good inventory management.
 
 ### Do I need a paid inventory system?
 
@@ -157,4 +157,4 @@ No, not for plants with fewer than 1,000 SKUs. A clean spreadsheet or the free W
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: ae585ff9feecc43c -->
+<!-- md-twin source-sha: b432802a39df2e20 -->

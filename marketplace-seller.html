@@ -38,9 +38,9 @@
 
     /* Gate */
     #auth-gate { display: none; position: fixed; inset: 0; z-index: 200; background: #0f1923; align-items: center; justify-content: center; flex-direction: column; gap: 1rem; text-align: center; padding: 2rem; }
-    #auth-gate h2 { font-size: 1.1rem; font-weight: 700; }
-    #auth-gate p { font-size: 0.82rem; color: var(--wh-steel-bright); max-width: 300px; }
-    #auth-gate a { margin-top: 0.5rem; padding: 0.6rem 1.5rem; background: rgba(247,162,27,0.1); border: 1px solid rgba(247,162,27,0.3); border-radius: 0.625rem; color:var(--wh-orange-text); font-weight: 600; font-size: 0.82rem; text-decoration: none; display: inline-block; }
+    #auth-gate h2 { font-size: 1.125rem; font-weight: 700; }
+    #auth-gate p { font-size: 0.875rem; color: var(--wh-steel-bright); max-width: 300px; }
+    #auth-gate a { margin-top: 0.5rem; padding: 0.5rem 1.5rem; background: rgba(247,162,27,0.1); border: 1px solid rgba(247,162,27,0.3); border-radius: var(--wh-radius); color:var(--wh-orange-text); font-weight: 600; font-size: 0.875rem; text-decoration: none; display: inline-block; }
 
     /* Profile card */
     .profile-card {
@@ -68,47 +68,61 @@
          label colour (Reject used the danger fill, the community XP number used the blue fill). The
          initials sit on a 0.25-alpha orange wash over the dark card, where the fill scores APCA
          Lc 51.9 against the Lc 60 floor for 20px/800. The text tier exists for exactly this. */
-      display: flex; align-items: center; justify-content: center; font-size: 1.25rem; font-weight: 800; color: var(--wh-orange-text);
+      display: flex; align-items: center; justify-content: center; font-size: 1.125rem; font-weight: 800; color: var(--wh-orange-text);
     }
     /* `flex: 1` means flex-basis 0, so once the row wraps this column collapsed to 33px and the
        seller's name spilled out of a 33px box. A real basis lets it claim its own line at narrow
        widths instead of being crushed between two non-shrinking links. */
     .profile-info { flex: 1 1 14rem; min-width: 0; }
     .profile-name { font-size: 1.5rem; font-weight: 800; margin: 0; }  /* D1 U1: promoted div→h1 (page's semantic title); reset h1 default margin. Arc-W focal: ≥2.3× body (was 1.1rem/2.0×) */
-    .profile-badges { display: flex; gap: 0.35rem; margin-top: 0.35rem; flex-wrap: wrap; }
-    .badge-tier { padding: 0.2rem 0.5rem; border-radius: 999px; font-size: 0.62rem; font-weight: 700; font-family: 'Poppins', sans-serif; }
+    .profile-badges { display: flex; gap: 0.375rem; margin-top: 0.375rem; flex-wrap: wrap; }
+    .badge-tier { padding: 0.25rem 0.5rem; border-radius: 999px; font-size: 0.75rem; font-weight: 700; font-family: 'Poppins', sans-serif; }
     .badge-tier.bronze { background: rgba(205,127,50,0.2); color: var(--wh-orange); border: 1px solid rgba(205,127,50,0.3); }
     .badge-tier.silver { background: rgba(192,192,192,0.15); color: #c0c0c0; border: 1px solid rgba(192,192,192,0.3); }
     .badge-tier.gold   { background: rgba(247,162,27,0.15); color: var(--wh-orange); border: 1px solid rgba(247,162,27,0.35); }
-    .badge-kyb { padding: 0.2rem 0.5rem; border-radius: 999px; font-size: 0.62rem; font-weight: 700; background: rgba(41,182,217,0.15); color: var(--wh-blue-light); border: 1px solid rgba(41,182,217,0.3); display: inline-flex; align-items: center; gap: 0.2rem; }
-    .badge-unverified { padding: 0.2rem 0.5rem; border-radius: 999px; font-size: 0.62rem; font-weight: 700; background: rgba(251,191,36,0.1); color:var(--wh-orange-text); border: 1px solid rgba(251,191,36,0.25); }
+    .badge-kyb { padding: 0.25rem 0.5rem; border-radius: 999px; font-size: 0.75rem; font-weight: 700; background: rgba(41,182,217,0.15); color: var(--wh-blue-light); border: 1px solid rgba(41,182,217,0.3); display: inline-flex; align-items: center; gap: 0.25rem; }
+    .badge-unverified { padding: 0.25rem 0.5rem; border-radius: 999px; font-size: 0.75rem; font-weight: 700; background: rgba(251,191,36,0.1); color:var(--wh-orange-text); border: 1px solid rgba(251,191,36,0.25); }
 
     /* Profile stats grid */
-    .profile-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.625rem; }
-    .pstat { text-align: center; background: rgba(0,0,0,0.2); border-radius: 0.625rem; padding: 0.625rem 0.35rem; }
+    .profile-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; }   /* three tiles, three tracks: the 4th was removed with its Avg Reply tile and the count was not */
+    /* ★PROSE MEASURE (craft lens, 2026-09-18, MEASURED). 52ch, not 70ch: `ch` is the advance of the
+       ZERO glyph and Poppins' lowercase runs ~1.37x narrower, so 70ch holds ~95 real letters and
+       52ch holds ~71 - inside the 65-75 band. Measured before: three blocks at 137, 132 and 115
+       characters a line at desktop-1280, every one of them the full 687px content column. The
+       Scoped to PROSE: a p used as a flex item or a control label is not a column.
+       48ch AND NOT THE PLATFORM'S 52, and the difference is the lesson rather than a disagreement: a
+       ch cap yields a different number of LETTERS at every size and letter mix, so it has to be
+       back-calculated from what it actually produces. 52ch was measured here first and #cw-note still
+       ran 81 characters a line at desktop - 392px of 12px Poppins holds more lowercase than the
+       platform's larger prose does. 48ch measures inside the band on the same text. The rule is the
+       band, never the number. */
+    .ps-next, #cw-note, #auth-gate p, .empty-state p, .seller-intro-p, .cert-note {
+      max-width: 48ch;
+    }
+    .pstat { text-align: center; background: rgba(0,0,0,0.2); border-radius: var(--wh-radius); padding: 0.75rem 0.375rem; }
     /* TEXT tier, not the FILL tier -- the fourth instance of this on this page (see the seller
        initials at :67). #F7A21B on the dark card scores APCA Lc 59.5 against the Lc 60 floor for
        19px/800, so all three stat numbers missed by half a point while WCAG passed them at 7.56.
        --wh-orange-text / --wh-blue-text exist for exactly this. */
-    .pstat-num { font-size: 1.2rem; font-weight: 800; color: var(--wh-orange-text); }
+    .pstat-num { font-size: 1.125rem; font-weight: 800; color: var(--wh-orange-text); }
     .pstat-num.blue { color: var(--wh-blue-text); }
     .pstat-num.green { color: var(--wh-green); }
     /* `.red` was USED at :290 and :2736 and DEFINED NOWHERE, so "New Inquiries" and "Pending"
        fell back to the base orange: a warning-coloured metric rendered as the normal accent, and
        nothing could reveal it because the fallback looks deliberate. */
     .pstat-num.red { color: var(--wh-red-text); }
-    .pstat-lbl { font-size: 0.62rem; color: var(--wh-steel-bright); margin-top: 0.1rem; }
+    .pstat-lbl { font-size: 0.75rem; color: var(--wh-steel-bright); margin-top: 0.125rem; }
 
     /* Tabs */
-    .tab-bar { display: flex; gap: 0.375rem; margin-bottom: 1.5rem; background: rgba(22,32,50,0.6); border: 1px solid rgba(255,255,255,0.07); border-radius: 0.75rem; padding: 0.35rem; }
-    .tab-btn { flex: 1; padding: 0.55rem; border: none; border-radius: 0.5rem; background: transparent; color: var(--wh-steel-bright); font-family: 'Poppins', sans-serif; font-size: 0.78rem; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 0.3rem; min-height: 44px; }
+    .tab-bar { display: flex; gap: 0.375rem; margin-bottom: 1.5rem; background: rgba(22,32,50,0.6); border: 1px solid rgba(255,255,255,0.07); border-radius: 0.75rem; padding: 0.375rem; }
+    .tab-btn { flex: 1; padding: 0.5rem; border: none; border-radius: 0.5rem; background: transparent; color: var(--wh-steel-bright); font-family: 'Poppins', sans-serif; font-size: 0.75rem; font-weight: 600; cursor: pointer; transition: background-color var(--wh-dur, 0.2s) var(--wh-ease-out, ease-out), border-color var(--wh-dur, 0.2s) var(--wh-ease-out, ease-out), color var(--wh-dur, 0.2s) var(--wh-ease-out, ease-out); display: flex; align-items: center; justify-content: center; gap: 0.25rem; min-height: 44px; }
     .tab-btn.active { background: linear-gradient(135deg, rgba(247,162,27,0.15), rgba(247,162,27,0.08)); color: var(--wh-orange); border: 1px solid rgba(247,162,27,0.25); }
-    .tab-count { background: rgba(247,162,27,0.2); color:var(--wh-orange-text); border-radius: 999px; font-size: 0.6rem; padding: 0.1rem 0.4rem; font-weight: 700; }
-    .tab-count.red { background: rgba(248,113,113,0.2); color: var(--wh-red); }
+    .tab-count { background: rgba(247,162,27,0.2); color:var(--wh-orange-text); border-radius: 999px; font-size: 0.75rem; padding: 0.125rem 0.375rem; font-weight: 700; }
+    .tab-count.red { background: rgba(248,113,113,0.2); color: var(--wh-red-text); }
 
     /* Status filter chips */
-    .filter-row { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 1rem; }
-    .filter-chip { padding: 0.3rem 0.75rem; border-radius: 999px; border: 1px solid rgba(255,255,255,0.12); background: rgba(22,32,50,0.5); color: #86929D; font-size: 0.72rem; font-family: 'Poppins', sans-serif; cursor: pointer; transition: all 0.15s; min-height: 44px; min-width: 44px; display: inline-flex; align-items: center; justify-content: center; }  /* D1 U2: min-width so a short chip ("All") still meets the 44px target. FB2 WCAG color-contrast: inactive label color page-scoped from --wh-steel var(--wh-steel) (4.73:1, axe-flagged at the mobile/field-tech viewport on data-status="published"/"draft"/"removed") to #86929D (5.40:1 over rgba(22,32,50,0.5)/body) — same steel hue, clears 4.5:1 AA with margin. Page-scoped override; NOT editing the shared --wh-steel token. */
+    .filter-row { display: flex; gap: 0.375rem; flex-wrap: wrap; margin-bottom: 1rem; }
+    .filter-chip { padding: 0.25rem 0.75rem; border-radius: 999px; border: 1px solid rgba(255,255,255,0.12); background: rgba(22,32,50,0.5); color: var(--wh-steel-bright); font-size: 0.75rem; font-family: 'Poppins', sans-serif; cursor: pointer; transition: background-color var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out), border-color var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out), color var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out); min-height: 44px; min-width: 44px; display: inline-flex; align-items: center; justify-content: center; }  /* D1 U2: min-width so a short chip ("All") still meets the 44px target. FB2 WCAG color-contrast: inactive label color page-scoped from --wh-steel var(--wh-steel-bright) (4.73:1, axe-flagged at the mobile/field-tech viewport on data-status="published"/"draft"/"removed") to #86929D (5.40:1 over rgba(22,32,50,0.5)/body) — same steel hue, clears 4.5:1 AA with margin. Page-scoped override; NOT editing the shared --wh-steel token. */
     .filter-chip.active { background: rgba(247,162,27,0.12); border-color: rgba(247,162,27,0.35); color: var(--wh-orange); }
 
     /* Listing items */
@@ -132,7 +146,7 @@
        clipped, and nothing overlaps. Every overflow probe asks "is content cut or pushed off-screen"
        and the honest answer was no. See feedback_a_zero_that_was_never_a_fallback's sibling lesson:
        an instrument answering its own question truthfully while the artefact is unreadable. */
-    .li-body { display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.875rem; flex-wrap: wrap; }
+    .li-body { display: flex; align-items: flex-start; gap: 0.75rem; padding: 1rem; flex-wrap: wrap; }
     .li-thumb { width: 56px; height: 56px; border-radius: 0.5rem; flex-shrink: 0; background: rgba(42,61,88,0.8); display: flex; align-items: center; justify-content: center; color: var(--wh-steel-bright); overflow: hidden; }
     .li-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
     /* `flex: 1` alone gave this column the REMAINDER of the row, which at 200% zoom was 40px. The
@@ -143,49 +157,49 @@
        normal widths flex-grow still fills the row beside the 56px thumb, so wide layouts are
        unchanged. */
     .li-info { flex: 1 1 9rem; min-width: 0; }
-    .li-title { font-size: 0.85rem; font-weight: 700; margin-bottom: 0.25rem; }
-    .li-meta { display: flex; gap: 0.35rem; flex-wrap: wrap; margin-bottom: 0.25rem; }
-    .meta-chip { padding: 0.12rem 0.45rem; border-radius: 999px; font-size: 0.62rem; font-weight: 600; background: rgba(255,255,255,0.06); color: var(--wh-steel-bright); border: 1px solid rgba(255,255,255,0.08); }
+    .li-title { font-size: 0.875rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .li-meta { display: flex; gap: 0.375rem; flex-wrap: wrap; margin-bottom: 0.25rem; }
+    .meta-chip { padding: 0.125rem 0.5rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600; background: rgba(255,255,255,0.06); color: var(--wh-steel-bright); border: 1px solid rgba(255,255,255,0.08); }
     .meta-chip.gold   { background: rgba(247,162,27,0.1); color: var(--wh-orange); border-color: rgba(247,162,27,0.25); }
     .meta-chip.green  { background: rgba(74,222,128,0.1); color: var(--wh-green); border-color: rgba(74,222,128,0.2); }
     .meta-chip.yellow { background: rgba(251,191,36,0.1); color: var(--wh-orange); border-color: rgba(251,191,36,0.2); }
-    .meta-chip.red    { background: rgba(248,113,113,0.1); color: var(--wh-red); border-color: rgba(248,113,113,0.2); }
+    .meta-chip.red    { background: rgba(248,113,113,0.1); color: var(--wh-red-text); border-color: rgba(248,113,113,0.2); }
     .meta-chip.blue   { background: rgba(41,182,217,0.1); color: var(--wh-blue); border-color: rgba(41,182,217,0.25); }
-    .li-actions { display: flex; gap: 0.4rem; padding: 0.625rem 0.875rem; border-top: 1px solid rgba(255,255,255,0.05); background: rgba(0,0,0,0.12); }
-    .btn-sm { padding: 0.35rem 0.75rem; border-radius: 0.5rem; cursor: pointer; font-family: 'Poppins', sans-serif; font-size: 0.72rem; font-weight: 600; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.04); color: var(--wh-steel-bright); transition: background 0.15s; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; gap: 0.3rem; }  /* radius 0.5rem=8px matches the press vocabulary (was 0.45rem=7px rogue → S1/R3); min-height 44px meets the tap target (Edit/View Live were 25px → F1/K2) */
+    .li-actions { display: flex; gap: 0.375rem; padding: 0.75rem 1rem; border-top: 1px solid rgba(255,255,255,0.05); background: rgba(0,0,0,0.12); }
+    .btn-sm { padding: 0.375rem 0.75rem; border-radius: 0.5rem; cursor: pointer; font-family: 'Poppins', sans-serif; font-size: 0.75rem; font-weight: 600; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.04); color: var(--wh-steel-bright); transition: background-color var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out); min-height: 44px; display: inline-flex; align-items: center; justify-content: center; gap: 0.25rem; }  /* radius 0.5rem=8px matches the press vocabulary (was 0.45rem=7px rogue → S1/R3); min-height 44px meets the tap target (Edit/View Live were 25px → F1/K2) */
     .btn-sm:hover { background: rgba(255,255,255,0.08); }
     .btn-sm.primary { background: rgba(247,162,27,0.1); border-color: rgba(247,162,27,0.25); color: var(--wh-orange); }
     .btn-sm.primary:hover { background: rgba(247,162,27,0.2); }
-    .btn-sm.danger { background: rgba(248,113,113,0.08); border-color: rgba(248,113,113,0.2); color: var(--wh-red); }
+    .btn-sm.danger { background: rgba(248,113,113,0.08); border-color: rgba(248,113,113,0.2); color: var(--wh-red-text); }
     .btn-sm.danger:hover { background: rgba(248,113,113,0.16); }
     .btn-sm:disabled { opacity: 0.5; cursor: not-allowed; }
 
     /* Inquiry items */
-    .inquiry-item { background: linear-gradient(145deg, rgba(42,61,88,0.45), rgba(31,46,69,0.65)); border: 1px solid rgba(255,255,255,0.07); border-radius: 0.875rem; padding: 0.875rem; }
+    .inquiry-item { background: linear-gradient(145deg, rgba(42,61,88,0.45), rgba(31,46,69,0.65)); border: 1px solid rgba(255,255,255,0.07); border-radius: 0.875rem; padding: 1rem; }
     .inquiry-item.replied { opacity: 0.65; }
     .inq-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 0.5rem; gap: 0.5rem; }
-    .inq-buyer { font-size: 0.82rem; font-weight: 700; }
-    .inq-date { font-size: 0.7rem; color: var(--wh-steel-bright); white-space: nowrap; }
-    .inq-listing { font-size: 0.72rem; color:var(--wh-blue-text); margin-bottom: 0.5rem; }
-    .inq-message { font-size: 0.78rem; color: #b0b8c4; line-height: 1.5; margin-bottom: 0.625rem; padding: 0.625rem; background: rgba(0,0,0,0.2); border-radius: 0.5rem; }
-    .inq-contact { font-size: 0.72rem; color: var(--wh-steel-bright); margin-bottom: 0.625rem; }
+    .inq-buyer { font-size: 0.875rem; font-weight: 700; }
+    .inq-date { font-size: 0.75rem; color: var(--wh-steel-bright); white-space: nowrap; }
+    .inq-listing { font-size: 0.75rem; color:var(--wh-blue-text); margin-bottom: 0.5rem; }
+    .inq-message { font-size: 0.75rem; color: var(--wh-steel-bright); line-height: 1.5; margin-bottom: 0.75rem; padding: 0.75rem; background: rgba(0,0,0,0.2); border-radius: 0.5rem; }
+    .inq-contact { font-size: 0.75rem; color: var(--wh-steel-bright); margin-bottom: 0.75rem; }
     .inq-contact strong { color: var(--wh-cloud); }
     .reply-area { margin-top: 0.5rem; }
-    .reply-textarea { width: 100%; padding: 0.6rem 0.75rem; background: rgba(22,32,50,0.7); border: 1px solid rgba(255,255,255,0.1); border-radius: 0.5rem; color: var(--wh-cloud); font-family: 'Poppins', sans-serif; font-size: 1rem; resize: vertical; min-height: 70px; margin-bottom: 0.4rem; }
+    .reply-textarea { width: 100%; padding: 0.5rem 0.75rem; background: rgba(22,32,50,0.7); border: 1px solid rgba(255,255,255,0.1); border-radius: 0.5rem; color: var(--wh-cloud); font-family: 'Poppins', sans-serif; font-size: 1rem; resize: vertical; min-height: 70px; margin-bottom: 0.375rem; }
     .reply-textarea:focus { outline: none; border-color: rgba(247,162,27,0.4); }
     .reply-textarea::placeholder { color: var(--wh-steel-bright); }
-    .inq-actions { display: flex; gap: 0.4rem; }
+    .inq-actions { display: flex; gap: 0.375rem; }
 
     /* Empty state */
     .empty-state { text-align: center; padding: 2.5rem 1rem; color: var(--wh-steel-bright); }
     .empty-state svg { opacity: 0.25; margin-bottom: 0.75rem; }
-    .empty-state h3 { font-size: 0.95rem; font-weight: 700; color: var(--wh-cloud); margin-bottom: 0.35rem; }
-    .empty-state p { font-size: 0.78rem; }
+    .empty-state h3 { font-size: 0.95rem; font-weight: 700; color: var(--wh-cloud); margin-bottom: 0.375rem; }
+    .empty-state p { font-size: 0.75rem; }
     /* min-height: the same 44px floor its twin on marketplace.html was missing. Identical padding and
        font-size, so identical 39px result — the empty state's only control, on the surface a seller
        reaches when they have nothing listed yet. Fixed by class rather than by instance, because the
        measurement was taken on one page and the shape lives on two. */
-    .btn-post-now { min-height: 44px; margin-top: 1rem; display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.6rem 1.25rem; background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light)); border: none; border-radius: 0.625rem; color: #0f1923; font-size: 0.82rem; font-weight: 700; font-family: 'Poppins', sans-serif; cursor: pointer; text-decoration: none; }
+    .btn-post-now { min-height: 44px; margin-top: 1rem; display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.5rem 1.25rem; background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light)); border: none; border-radius: var(--wh-radius); color: #0f1923; font-size: 0.875rem; font-weight: 700; font-family: 'Poppins', sans-serif; cursor: pointer; text-decoration: none; }
 
     /* Skeleton */
     .skel { background: rgba(255,255,255,0.04); border-radius: 0.5rem; }
@@ -194,41 +208,72 @@
     @media (max-width: 767px) { .skel-pulse { animation: none; } }
 
     /* Toast */
-    #toast { position: fixed; top: 1rem; left: 50%; transform: translateX(-50%) translateY(-80px); background: rgba(31,46,69,0.97); border: 1px solid rgba(255,255,255,0.12); border-radius: 0.75rem; padding: 0.75rem 1.25rem; font-size: 0.82rem; font-weight: 600; z-index: 200; transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1); white-space: nowrap; max-width: 90vw; }
+    #toast { position: fixed; top: 1rem; left: 50%; transform: translateX(-50%) translateY(-80px); background: rgba(31,46,69,0.97); border: 1px solid rgba(255,255,255,0.12); border-radius: 0.75rem; padding: 0.75rem 1.25rem; font-size: 0.875rem; font-weight: 600; z-index: 200; /* ★THE RETIRED BOUNCE, STILL HARD-CODED (design lens, 2026-09-16). tokens.css retired
+         --wh-ease-spring - cubic-bezier(0.34, 1.56, 0.64, 1) - for overshooting by 56%, and the grep
+         that confirmed it was unused searched the token's NAME. These files spell the curve as a
+         LITERAL, so the platform's one dated bounce outlived the decision that removed it. A toast
+         entering is an entrance, and review-animations/STANDARDS.md gives entrances ease-out at the
+         platform's own duration step. Same fix already recorded on integrations.html. */
+        transition: transform var(--wh-dur-slow, 0.25s) var(--wh-ease-out, ease-out); white-space: nowrap; max-width: 90vw; }
     #toast.show { transform: translateX(-50%) translateY(0); }
     #toast.success { border-color: rgba(74,222,128,0.3); color: var(--wh-green); }
     #toast.error   { border-color: rgba(248,113,113,0.3); color: var(--wh-red); }
     #toast.info    { border-color: rgba(41,182,217,0.3);  color: var(--wh-blue); }
 
     /* Bottom sheet */
-    .sheet-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 100; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
+    .sheet-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 100; opacity: 0; pointer-events: none; transition: opacity var(--wh-dur-slow, 0.25s) var(--wh-ease-out, ease-out); }
     .sheet-overlay.open { opacity: 1; pointer-events: all; }
     .sheet { position: fixed; bottom: 0; left: 0; right: 0; z-index: 101; background: linear-gradient(160deg, var(--wh-navy-mid) 0%, var(--wh-navy) 100%); border-radius: 1rem 1.25rem 0 0; border-top: 1px solid rgba(255,255,255,0.1); padding: 1.25rem 1.25rem calc(2rem + env(safe-area-inset-bottom)); transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.32,0.72,0,1); max-height: 92vh; overflow-y: auto; }
     .sheet.open { transform: translateY(0); }
     .sheet-handle { width: 40px; height: 4px; background: rgba(255,255,255,0.15); border-radius: 2px; margin: 0 auto 1rem; }
     .sheet-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
-    .sheet-title { font-size: 1rem; font-weight: 700; }
+    .sheet-title { font-size: 1.125rem; font-weight: 700; }
     .btn-close-sheet { width: 44px; height: 44px; border-radius: 50%; background: rgba(255,255,255,0.06); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--wh-steel-bright); }
 
     /* Form elements */
     .form-group { margin-bottom: 1rem; }
-    .form-label { font-size: 0.75rem; font-weight: 600; color: var(--wh-steel-bright); margin-bottom: 0.4rem; display: block; }
-    .wh-input { width: 100%; padding: 0.65rem 0.875rem; background: rgba(22,32,50,0.7); border: 1px solid rgba(255,255,255,0.1); border-radius: 0.625rem; color: var(--wh-cloud); font-family: 'Poppins', sans-serif; font-size: 1rem; }
+    .form-label { font-size: 0.75rem; font-weight: 600; color: var(--wh-steel-bright); margin-bottom: 0.375rem; display: block; }
+    .wh-input { width: 100%; padding: 0.75rem 1rem; background: rgba(22,32,50,0.7); border: 1px solid rgba(255,255,255,0.1); border-radius: var(--wh-radius); color: var(--wh-cloud); font-family: 'Poppins', sans-serif; font-size: 1rem; }
     .wh-input:focus { outline: none; border-color: rgba(247,162,27,0.4); }
     .wh-input::placeholder { color: var(--wh-steel-bright); }
-    .wh-select { width: 100%; padding: 0.65rem 0.875rem; background: rgba(22,32,50,0.7); border: 1px solid rgba(255,255,255,0.1); border-radius: 0.625rem; color: var(--wh-cloud); font-family: 'Poppins', sans-serif; font-size: 1rem; cursor: pointer; appearance: none; -webkit-appearance: none; }
+    .wh-select { width: 100%; padding: 0.75rem 1rem; background: rgba(22,32,50,0.7); border: 1px solid rgba(255,255,255,0.1); border-radius: var(--wh-radius); color: var(--wh-cloud); font-family: 'Poppins', sans-serif; font-size: 1rem; cursor: pointer; appearance: none; -webkit-appearance: none; }
     .wh-select:focus { outline: none; border-color: rgba(247,162,27,0.4); }
-    .wh-textarea { width: 100%; padding: 0.65rem 0.875rem; background: rgba(22,32,50,0.7); border: 1px solid rgba(255,255,255,0.1); border-radius: 0.625rem; color: var(--wh-cloud); font-family: 'Poppins', sans-serif; font-size: 1rem; resize: vertical; min-height: 80px; }
+    .wh-textarea { width: 100%; padding: 0.75rem 1rem; background: rgba(22,32,50,0.7); border: 1px solid rgba(255,255,255,0.1); border-radius: var(--wh-radius); color: var(--wh-cloud); font-family: 'Poppins', sans-serif; font-size: 1rem; resize: vertical; min-height: 80px; }
     .wh-textarea:focus { outline: none; border-color: rgba(247,162,27,0.4); }
     .wh-textarea::placeholder { color: var(--wh-steel-bright); }
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
-    .btn-primary { width: 100%; padding: 0.75rem; background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light)); border: none; border-radius: 0.625rem; color: #0f1923; font-family: 'Poppins', sans-serif; font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: opacity 0.2s; }
+    .btn-primary { width: 100%; padding: 0.75rem; background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light)); border: none; border-radius: var(--wh-radius); color: #0f1923; font-family: 'Poppins', sans-serif; font-size: 0.875rem; font-weight: 700; cursor: pointer; transition: opacity var(--wh-dur, 0.2s) var(--wh-ease-out, ease-out); }
     .btn-primary:hover { opacity: 0.92; }
     .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
 
+    /* ★THE TWO FIELD-LEVEL SAVES, GIVEN A NAME SO THE PHONE RULE BELOW CAN REACH THEM. Both were
+       anonymous inline `display:flex` rows, and an inline declaration cannot be overridden by a
+       stylesheet - so the corner repair below was impossible until the layout moved into CSS. */
+    .field-save-row { display: flex; gap: 0.5rem; }
+    .field-save-row > .wh-input { flex: 1; }
+    .field-save-row--end { justify-content: flex-end; }
+
     /* Mobile */
     @media (max-width: 480px) {
-      .profile-stats { grid-template-columns: repeat(2, 1fr); }
+      /* ★MY OWN SHORTENING OF THIS CARD PUT A CONTROL UNDER THE NAVIGATION HUB (2026-09-18, W45964).
+         The critique row took three stat tracks down to one row, dropped the duplicated hold sentence
+         and hid the duplicated total - about 60px - and the messenger row rose into the band the hub
+         owns. Measured at 390x844 AT REST, no scrolling: #btn-save-messenger @294,779 53x49, its centre
+         at (320, 803); #wh-hub is fixed bottom:24px right:24px at z-index 9998, so #wh-hub-fab occupies
+         x310-366, y764-820. document.elementFromPoint at the button's centre returns the FAB. A seller
+         aiming at Save opens the navigation hub - worse than a dead control, because something happens.
+         THE FIX IS WHAT THE ROW RENDERS, NOT WHERE IT SITS ([[feedback_scrolling_the_page_put_a_control
+         _under_the_fixed_band]]): no offset makes a flow control safe from a fixed corner, because the
+         corner is there at every scroll position. Both saves align to the START of their field on the
+         phone, where x is ~42 and the hub can never reach them, and the handle input takes the whole
+         width it was sharing with a 53px button. The certifications save is changed WITH it although
+         it was not the finding: it is the same right-aligned 53px-from-the-gutter geometry one block
+         lower, invisible to an at-rest probe only because it starts below the fold. */
+      .field-save-row, .field-save-row--end { flex-wrap: wrap; justify-content: flex-start; }
+      .field-save-row > .wh-input { flex: 1 0 100%; }
+      /* 3 tiles in 2 tracks orphaned the third at half width - the same dead-cell defect as the
+         desktop 4-track rule, one breakpoint down. Three tiles, three tracks, at every width. */
+      .profile-stats { grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
       .form-row { grid-template-columns: 1fr; }
       /* ★THE SAME NAME-LOSS AS marketplace's .tab-label, AND HALF-FIXED (D1, walked 2026-09-10 at 390px).
          `display:none` removes the label from the ACCESSIBILITY TREE, not just from view. The icon is
@@ -269,7 +314,7 @@
   <a data-i="p_signin_f849" href="index.html?signin=1">Sign In</a>
   <!-- ...and a way OUT. This screen had exactly one link, so a signed-out visitor who did not want to
        sign in had nowhere to go but the back button. -->
-  <a data-i="p_browsethemarketplaceinstead_1999" href="marketplace.html" style="display:block;margin-top:0.75rem;font-size:0.85rem;opacity:0.75;">Browse the marketplace instead</a>
+  <a data-i="p_browsethemarketplaceinstead_1999" href="marketplace.html" style="display:block;margin-top:0.75rem;font-size:0.875rem;opacity:0.75;">Browse the marketplace instead</a>
 </div>
 
 <div id="toast" role="alert" aria-live="polite"></div>
@@ -287,9 +332,9 @@
       </div>
 <details class="wh-help">
   <summary data-i="p_howthispageworks_c540">How this page works</summary>
-  <p data-i="p_manageyourlistingsanswerinqu_e9e5">Manage your listings, answer inquiries, and track views here. Verification badges raise buyer trust. There are no fees.</p>
+  <p class="seller-intro-p" data-i="p_manageyourlistingsanswerinqu_e9e5">Manage your listings, answer inquiries, and track views here. Verification badges raise buyer trust. There are no fees.</p>
 </details>
-      <a href="marketplace.html" class="back-link" aria-label="Back to marketplace" style="font-size:0.72rem;color:var(--wh-steel-bright);text-decoration:none;white-space:nowrap;display:inline-flex;align-items:center;gap:0.25rem;min-height:44px;"><!-- D1 U2: back-link as a 44px tap target; .back-link so wayfinding recognizes it (no duplicate pill/CLS) + W1 credits it -->
+      <a href="marketplace.html" class="back-link" aria-label="Back to marketplace" style="font-size: 0.75rem;color:var(--wh-steel-bright);text-decoration:none;white-space:nowrap;display:inline-flex;align-items:center;gap:0.25rem;min-height:44px;"><!-- D1 U2: back-link as a 44px tap target; .back-link so wayfinding recognizes it (no duplicate pill/CLS) + W1 credits it -->
         <span class="ic ic-back" aria-hidden="true"></span>
         Browse
       </a>
@@ -300,9 +345,9 @@
            seller who already has listings never sees it at all. Found on a live provider walk 2026-08-01.
            Links to the existing sheet rather than duplicating the form — one create path, two doors. -->
       <a href="marketplace.html?post=1" class="btn-primary"
-         style="font-size:0.72rem;text-decoration:none;white-space:nowrap;display:inline-flex;align-items:center;gap:0.3rem;min-height:44px;padding:0 0.75rem;border-radius:0.5rem;">
+         style="font-size: 0.75rem;text-decoration:none;white-space:nowrap;display:inline-flex;align-items:center;gap:0.25rem;min-height:44px;padding:0 0.75rem;border-radius:0.5rem;">
         <span class="ic ic-post" aria-hidden="true"></span>
-        Post a listing
+        <span data-i="p_postalisting_9c23">Post a listing</span>
       </a>
     </div>
     <div class="profile-stats">
@@ -314,10 +359,22 @@
          honest but silent: the seller cannot tell "nothing yet" from "we could not look". The toast
          that fires alongside is transient and gone by the time they read the tiles, so the gap says
          so itself, persistently, with a way to retry. -->
+    <!-- ★A TOKEN THAT NEVER EXISTED, FALLING BACK TO A COLOUR THAT FAILS AA (design lens, 2026-09-16).
+         This read `var(--wh-danger, #d9534f)`, and `--wh-danger` is defined in NO file on the platform -
+         not tokens.css, not utils.js, not components.css - so the fallback was always what rendered: a
+         red that appears in no token file, measured at 3.4:1 on this page's #1f2f43 against the 4.5:1
+         floor. A var() that looks like it participates in the design system and never does is worse
+         than a hardcoded colour, because it reads as already-decided.
+         tokens.css:118 names this exact trap - "--wh-red: #f87171 - alert / danger fill (AA text =
+         --wh-red-text)" - so the text takes --wh-red-text (#FDC9C9) and the sibling border, which is a
+         FILL and not held to the text ratio, takes --wh-red. Both occurrences of the phantom token
+         were in this file and nowhere else (ripgrep, whole tree).
+         What this sentence says matters for the choice: it is the notice that tells a seller their
+         numbers FAILED to load rather than being zero. -->
     <div id="ps-gap-note" role="status" hidden
-         style="margin:0.35rem 0 0;font-size:0.75rem;color:var(--wh-danger,#d9534f);">
+         style="margin:0.375rem 0 0;font-size:0.75rem;color:var(--wh-red-text,#FDC9C9);">
       Couldn't load these numbers, so they're showing as a dash rather than as zero.<span id="ps-gap-why"></span>
-      <button type="button" onclick="location.reload()"
+      <button type="button" id="ps-gap-retry"
               style="background:none;border:0;color:inherit;text-decoration:underline;cursor:pointer;padding:0;font:inherit;" data-i="retry">Retry</button>
     </div>
 
@@ -336,13 +393,12 @@
            moderation guard forbids self-publishing (a listing goes live only after WorkHive review,
            verified live in T34), and sellers were meeting 'Draft: Pending Review' right after copy
            promised immediacy. The promise now matches the enforced flow. -->
-      Post a listing and WorkHive reviews it first. It shows as "Pending Review" until it goes live to buyers. 10% of its price is HELD from the credits below, not spent. The hold comes back in full if it does not sell. If it sells, it goes to your buyer. Taking a listing down releases its hold immediately. Edit your profile or certifications and every listing shows the change. A person reviews each verification you request before the badge appears.
-    </p>
+      Post a listing and WorkHive reviews it first. It shows as "Pending Review" until it goes live to buyers. <span data-i="ps_next_hold">The credits below cover the hold.</span></p>
     <div id="credit-wallet" style="margin-top:1rem;padding-top:1rem;border-top:1px solid rgba(255,255,255,0.07);">
       <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;">
         <span class="ic ic-secure" aria-hidden="true"></span>
-        <strong style="font-size:0.85rem;">WorkHive Credits</strong>
-        <span id="cw-total" style="margin-left:auto;font-size:0.8rem;opacity:0.85;"></span>
+        <h2 style="font-size:0.875rem;font-weight:700;margin:0;">WorkHive Credits</h2>
+        <span id="cw-total" style="margin-left:auto;font-size:0.75rem;opacity:0.85;"></span>
       </div>
       <!-- auto-fit, not a hard `1fr 1fr` (fixed 2026-08-08 at 200% zoom). Two fixed columns split a
            172px layout into ~34px each, so "Held by live listings" broke mid-word under the credits
@@ -356,13 +412,13 @@
            PRIMARY viewport. Two 8rem (128px) tracks need 264px, which fits at 390 and still cannot
            fit in the 122px available at 200% zoom, so it stacks exactly where it should. -->
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(8rem,1fr));gap:0.5rem;">
-        <div style="background:rgba(255,255,255,0.04);border-radius:var(--wh-radius-sm);padding:0.55rem 0.7rem;">
-          <div id="cw-available" style="font-size:1.05rem;font-weight:700;">-</div>
-          <div data-i="p_availabletolist_06a2" style="font-size:0.7rem;opacity:0.75;">Available to list</div>
+        <div style="background:rgba(255,255,255,0.04);border-radius:var(--wh-radius-sm);padding:0.5rem 0.75rem;">
+          <div id="cw-available" style="font-size:1.125rem;font-weight:700;">-</div>
+          <div data-i="p_availabletolist_06a2" style="font-size: 0.75rem;opacity:0.75;">Available to list</div>
           <!-- A NEGATIVE balance had no words at all. The panel handled zero (offer the starter grant)
                and positive (fine), and rendered a bare "₱-200" for below-zero - the one state where
                the seller is BLOCKED and least able to guess why. Filled in by loadCreditWallet. -->
-          <div id="cw-negative-note" style="display:none;font-size:0.68rem;line-height:1.4;margin-top:0.35rem;color:var(--wh-orange-text);"></div>
+          <div id="cw-negative-note" style="display:none;font-size: 0.75rem;line-height:1.4;margin-top:0.375rem;color:var(--wh-orange-text);"></div>
           <!-- THE ROUTE, not just the reason. The comment above says the below-zero seller was shown
                "no explanation AND no route", and the last pass fixed only the explanation: the note
                tells a blocked provider to "Top up by PHP200 to clear this" and was a plain div with
@@ -371,19 +427,19 @@
                is named - a refusal that names a way out the reader cannot take. Found walking
                BI-ux-comprehension 2026-08-04. -->
           <button type="button" id="cw-topup-route"
-                  style="display:none;margin-top:0.4rem;min-height:44px;padding:0 0.8rem;font-size:0.72rem;
+                  style="display:none;margin-top:0.375rem;min-height:44px;padding:0 0.75rem;font-size: 0.75rem;
                          font-weight:700;border-radius:0.5rem;border:1px solid var(--wh-orange);
                          background:transparent;color:var(--wh-orange-text);cursor:pointer;" data-i="gototopup">Go to top up</button>
         </div>
-        <div style="background:rgba(255,255,255,0.04);border-radius:var(--wh-radius-sm);padding:0.55rem 0.7rem;">
-          <div id="cw-reserved" style="font-size:1.05rem;font-weight:700;">-</div>
-          <div data-i="p_heldbylivelistings_a446" style="font-size:0.7rem;opacity:0.75;">Held by live listings</div>
+        <div style="background:rgba(255,255,255,0.04);border-radius:var(--wh-radius-sm);padding:0.5rem 0.75rem;">
+          <div id="cw-reserved" style="font-size:1.125rem;font-weight:700;">-</div>
+          <div data-i="p_heldbylivelistings_a446" style="font-size: 0.75rem;opacity:0.75;">Held by live listings</div>
         </div>
       </div>
-      <p id="cw-note" style="font-size:0.72rem;opacity:0.8;margin:0.5rem 0 0;">
+      <p id="cw-note" style="font-size: 0.75rem;opacity:0.8;margin:0.5rem 0 0;">
         Publishing holds 10% of the price in credits. It is not a fee. It comes back in full if the listing does not sell. If it sells, your buyer gets it as their reward.
       </p>
-      <button data-i="p_claimyourstartercredits_8029" type="button" id="cw-claim" onclick="claimStarter()" style="display:none;min-height:44px;width:100%;margin-top:0.5rem;padding:0 12px;border-radius:var(--wh-radius-sm);border:1px solid rgba(74,222,128,0.4);background:rgba(74,222,128,0.12);color:rgb(74,222,128);font-weight:700;cursor:pointer;">
+      <button data-i="p_claimyourstartercredits_8029" type="button" id="cw-claim" style="display:none;min-height:44px;width:100%;margin-top:0.5rem;padding:0 12px;border-radius:var(--wh-radius-sm);border:1px solid rgba(74,222,128,0.4);background:rgba(74,222,128,0.12);color:rgb(74,222,128);font-weight:700;cursor:pointer;">
         Claim your starter credits
       </button>
     </div>
@@ -392,12 +448,12 @@
     <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid rgba(255,255,255,0.07);">
       <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;">
         <span class="ic ic-message" aria-hidden="true"></span>
-        <strong style="font-size:0.82rem;">Facebook Messenger handle</strong>
+        <h2 style="font-size:0.875rem;font-weight:700;margin:0;">Facebook Messenger handle</h2>
       </div>
-      <p style="font-size:0.72rem;color:var(--wh-steel-bright);margin-bottom:0.5rem;">Buyers see a "Message on Messenger" button on your listings that opens m.me/<your-handle> directly. Find your handle at facebook.com/settings under Username.</p>
-      <label data-i="messengerhandle" for="messenger-input" style="display:block;font-size:0.72rem;font-weight:700;margin-bottom:0.35rem;color:var(--wh-steel-bright);">Messenger handle</label>
-      <div style="display:flex;gap:0.5rem;">
-        <input class="wh-input" id="messenger-input" type="text" placeholder="your.handle (without m.me/)" style="flex:1;font-size:1rem;" />
+      <p style="font-size: 0.75rem;color:var(--wh-steel-bright);margin-bottom:0.5rem;">Buyers see a "Message on Messenger" button on your listings that opens m.me/<your-handle> directly. Find your handle at facebook.com/settings under Username.</p>
+      <label data-i="messengerhandle" for="messenger-input" style="display:block;font-size: 0.75rem;font-weight:700;margin-bottom:0.375rem;color:var(--wh-steel-bright);">Messenger handle</label>
+      <div class="field-save-row">
+        <input class="wh-input" id="messenger-input" type="text" placeholder="your.handle (without m.me/)" style="font-size:1rem;" />
         <!-- ★A FIELD-LEVEL SAVE WAS WEARING THE PAGE'S PRIMARY (measured 2026-09-11). This carried the
              SAME solid orange gradient, weight 700 and 44px height as "Post a listing" - the page's
              actual call to action - so a seller opening this dashboard met THREE filled orange buttons
@@ -414,22 +470,23 @@
              page's orange-tinted variant, and its class WORD is literally "primary", so the rubric counts
              it - correctly. A control whose own class declares it primary IS claiming primacy, whatever
              its fill; the demotion has to be real, not just quieter. -->
-        <button id="btn-save-messenger" class="btn-sm" style="white-space:nowrap;" data-i="save">Save</button>
+        <button id="btn-save-messenger" class="btn-sm" style="white-space:nowrap;" data-i="save"
+                aria-label="Save Messenger handle" data-i-aria="aria_savemsgr">Save</button>
       </div>
-      <div id="messenger-preview" style="display:none;margin-top:0.5rem;font-size:0.72rem;color:var(--wh-green);"></div>
+      <div id="messenger-preview" style="display:none;margin-top:0.5rem;font-size: 0.75rem;color:var(--wh-green);"></div>
     </div>
 
     <!-- Certifications input — admin verifies before the Certified badge shows -->
     <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid rgba(255,255,255,0.07);">
       <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;">
         <span class="ic ic-star" aria-hidden="true"></span>
-        <strong data-i="p_certifications_b65e" id="cert-input-label" style="font-size:0.82rem;">Certifications</strong>
-        <span data-i="p_notverified_fbc0" id="cert-status-pill" style="margin-left:auto;font-size:0.65rem;padding:0.15rem 0.5rem;border-radius:999px;background:rgba(255,255,255,0.06);color:var(--wh-steel-bright);">Not verified</span>
+        <h2 data-i="p_certifications_b65e" id="cert-input-label" style="font-size:0.875rem;font-weight:700;margin:0;">Certifications</h2>
+        <span data-i="p_notverified_fbc0" id="cert-status-pill" style="margin-left:auto;font-size: 0.75rem;padding:0.125rem 0.5rem;border-radius:999px;background:rgba(255,255,255,0.06);color:var(--wh-steel-bright);">Not verified</span>
       </div>
-      <p style="font-size:0.72rem;color:var(--wh-steel-bright);margin-bottom:0.5rem;">List your trade certifications, one per line. Admin reviews before the "Certified" badge appears on your listings. Examples: <em>PRC ME License, TESDA HVAC NC II, Welder NC III</em>.</p>
+      <p class="cert-note" style="font-size: 0.75rem;color:var(--wh-steel-bright);margin-bottom:0.5rem;">List your trade certifications, one per line. Admin reviews before the "Certified" badge appears on your listings. Examples: <em>PRC ME License, TESDA HVAC NC II, Welder NC III</em>.</p>
       <textarea class="wh-textarea" id="cert-input" maxlength="1000" placeholder="PRC Master Electrician License&#10;TESDA Welder NC II&#10;HVAC Technician Certification" aria-labelledby="cert-input-label" style="min-height:90px;font-size:1rem;"></textarea>
-      <div style="display:flex;justify-content:flex-end;margin-top:0.5rem;">
-        <button id="btn-save-certs" style="padding:0.5rem 1rem;border-radius:0.5rem;border:1px solid rgba(167,139,250,0.3);background:rgba(167,139,250,0.1);color:var(--wh-violet-text);font-family:'Poppins',sans-serif;font-size:0.78rem;font-weight:600;cursor:pointer;min-height:44px;" data-i="savecerts">Save certifications</button>
+      <div class="field-save-row field-save-row--end" style="margin-top:0.5rem;">
+        <button id="btn-save-certs" class="btn-sm" style="padding:0.5rem 1rem;font-family:'Poppins',sans-serif;font-size:0.75rem;font-weight:600;cursor:pointer;min-height:44px;" data-i="savecerts">Save certifications</button>
       </div>
     </div>
   </div>
@@ -458,7 +515,7 @@
   </div>
 
   <!-- Listings filter chips -->
-  <h2 data-i="mymarket-h" style="font-size:1rem; margin:0 0 .5rem;">Your listings and inquiries</h2>
+  <h2 data-i="mymarket-h" style="font-size:1.125rem; margin:0 0 .5rem;">Your listings and inquiries</h2>
 <div class="filter-row" id="listing-filter" role="group" aria-label="Filter listings by status">
     <button class="filter-chip active" data-status="all" data-i="f_all" aria-pressed="true">All</button>
     <button class="filter-chip" data-status="published" data-i="f_pub" aria-pressed="false">Published</button>
@@ -474,17 +531,27 @@
      like panels (stat-draft, badge-draft) are STAT COUNTERS, not panels. -->
 <div id="content-area" class="item-list" role="tabpanel" aria-labelledby="tab-listings" tabindex="0"></div>
   <div id="seller-load-more-wrap" class="hidden" style="margin-top:0.25rem;padding-bottom:1rem;">
-    <button onclick="loadMoreSeller()" style="width:100%;padding:0.75rem;border-radius:0.5rem;font-size:0.875rem;font-weight:600;background:rgba(247,162,27,0.1);color:var(--wh-orange-text);border:1px solid rgba(247,162,27,0.3);cursor:pointer;min-height:44px;" data-i="loadmore">Load More</button>
+    <button id="btn-load-more-seller" type="button" style="width:100%;padding:0.75rem;border-radius:0.5rem;font-size:0.875rem;font-weight:600;background:rgba(247,162,27,0.1);color:var(--wh-orange-text);border:1px solid rgba(247,162,27,0.3);cursor:pointer;min-height:44px;" data-i="loadmore">Load More</button>
   </div>
 </main>
 
 <!-- Edit listing sheet -->
+<!-- ★THE DIALOG ROLE IS ON THE SCRIM, WHICH CONTAINS NOTHING, and it is not this page's to move
+     (critique lens, 2026-09-18, MEASURED). The form lives in the sibling #sheet-edit; a screen
+     reader entering this aria-modal dialog finds an empty div, labelled by an element outside
+     it. The placement comes from shared chrome: utils.js whSheetA11y() wires EVERY
+     .sheet-overlay / .modal-overlay through whModalA11y(), which sets role + aria-modal there
+     and arms the focus trap, Escape-close and focus-restore on that element. Moving it here was
+     tried and measured: the scrim got its role back at runtime and the panel kept the one I had
+     added - TWO dialogs, worse than one misplaced. Fixing it means teaching whSheetA11y to
+     prefer an inner .sheet / .modal-content when one exists, once, for the seven pages that ship
+     a sheet - which is that module's row, not this page's. -->
 <div class="sheet-overlay" id="overlay-edit" role="dialog" aria-modal="true" aria-labelledby="title-sheet-edit"></div>
 <div class="sheet" id="sheet-edit">
   <div class="sheet-handle"></div>
   <div class="sheet-header">
     <span data-i="p_editlisting_e568" class="sheet-title" id="title-sheet-edit">Edit Listing</span>
-    <button class="btn-close-sheet" id="btn-close-edit" aria-label="Close">
+    <button class="btn-close-sheet" id="btn-close-edit" aria-label="Close this editor without saving">
       <span class="ic ic-close" aria-hidden="true"></span>
     </button>
   </div>
@@ -532,7 +599,7 @@
     <div class="form-group">
       <div id="li-hold" role="status" aria-live="polite"
            style="border:1px solid var(--wh-border,rgba(255,255,255,.14)); border-radius:var(--wh-radius-sm);
-                  padding:.75rem .9rem; font-size:.82rem; background:rgba(255,255,255,.03);">
+                  padding:.75rem 1rem; font-size:0.875rem; background:rgba(255,255,255,.03);">
         <div id="li-hold-rows"></div>
         <div id="li-hold-note" style="opacity:.8; margin-top:.5rem; line-height:1.45;"></div>
       </div>
@@ -545,17 +612,17 @@
     <!-- Image picker — same component as the post form -->
     <div class="form-group">
       <label data-i="p_photo_d01d" class="form-label">Photo</label>
-      <div id="edit-image-zone" style="position:relative;border:2px dashed rgba(255,255,255,0.15);border-radius:0.625rem;padding:1.25rem;text-align:center;cursor:pointer;">
+      <div id="edit-image-zone" style="position:relative;border:2px dashed rgba(255,255,255,0.15);border-radius:var(--wh-radius);padding:1.25rem;text-align:center;cursor:pointer;">
         <input type="file" id="edit-image-file" accept="image/jpeg,image/jpg,image/png,image/webp" style="position:absolute;inset:0;opacity:0;cursor:pointer;" aria-label="Choose listing photo" />
         <div id="edit-image-empty" style="color:var(--wh-steel-bright);">
           <span class="ic ic-image" aria-hidden="true"></span>
-          <div data-i="p_taptoaddorreplacephoto_91a0" style="font-size:0.78rem;font-weight:600;color:var(--wh-cloud);">Tap to add or replace photo</div>
-          <div data-i="p_jpegpngwebpuptomb_827e" style="font-size:0.7rem;margin-top:0.2rem;">JPEG/PNG/WebP up to 5MB</div>
+          <div data-i="p_taptoaddorreplacephoto_91a0" style="font-size:0.75rem;font-weight:600;color:var(--wh-cloud);">Tap to add or replace photo</div>
+          <div data-i="p_jpegpngwebpuptomb_827e" style="font-size: 0.75rem;margin-top:0.25rem;">JPEG/PNG/WebP up to 5MB</div>
         </div>
         <div id="edit-image-preview" style="display:none;">
           <img id="edit-image-preview-img" alt="Preview" style="max-width:100%;max-height:200px;border-radius:0.5rem;display:block;margin:0 auto;" />
-          <div id="edit-image-status" style="font-size:0.7rem;color:var(--wh-steel-bright);margin-top:0.5rem;"></div>
-          <button type="button" id="edit-image-remove" style="margin-top:0.5rem;padding:0.35rem 0.75rem;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);border-radius:0.5rem;color:var(--wh-red);font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;cursor:pointer;" data-i="removephoto">Remove photo</button>
+          <div id="edit-image-status" style="font-size: 0.75rem;color:var(--wh-steel-bright);margin-top:0.5rem;"></div>
+          <button type="button" id="edit-image-remove" style="margin-top:0.5rem;padding:0.375rem 0.75rem;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);border-radius:0.5rem;color:var(--wh-red-text);font-family:'Poppins',sans-serif;font-size: 0.75rem;font-weight:600;cursor:pointer;" data-i="removephoto">Remove photo</button>
         </div>
       </div>
       <input type="hidden" id="edit-image-url" value="" />
@@ -708,7 +775,11 @@
     const badgesEl  = document.getElementById('profile-badges');
 
     if (avatarEl)  avatarEl.textContent = initials(WORKER_NAME);
-    if (nameEl)    nameEl.textContent   = WORKER_NAME;
+    if (nameEl) {
+      // Composed here, so the dictionary must not overwrite it - see the block comment above.
+      nameEl.removeAttribute('data-i');
+      nameEl.textContent = WORKER_NAME;
+    }
 
     /* Fetch seller profile */
     try {
@@ -723,8 +794,8 @@
       badgesEl.innerHTML = `
         <span class="badge-tier ${e(tier)}">${tier.charAt(0).toUpperCase() + tier.slice(1)}</span>
         ${_seller?.kyb_verified
-          ? `<span class="badge-kyb"><span class="ic ic-check" aria-hidden="true"></span>ID Verified</span>`
-          : `<span class="badge-unverified">Verification Pending</span>`}`;
+          ? `<span class="badge-kyb"><span class="ic ic-check" aria-hidden="true"></span>${e(_t('ID Verified', 'ID na-verify'))}</span>`
+          : `<span class="badge-unverified" title="${e(_t('WorkHive verifies seller IDs during review. There is nothing for you to submit.', 'Ang WorkHive ang nagve-verify ng ID ng seller habang nagre-review. Wala kang kailangang isumite.'))}">${e(_t('ID not verified yet', 'Hindi pa na-verify ang ID'))}</span>`}`;
       // T98 (2026-08-25): tier progression was ILLEGIBLE — the chip named the tier but never
       // what advances it, so a seller could not plan toward Silver. The thresholds are per-hive
       // knobs (a hive can adjust them), so read the REAL values via service_knob rather than
@@ -742,7 +813,7 @@
             const nextName = tier === 'bronze' ? 'Silver' : 'Gold';
             const nextN = tier === 'bronze' ? silver : gold;
             const note = document.createElement('div');
-            note.style.cssText = 'font-size:0.68rem;opacity:0.75;margin-top:0.3rem;';
+            note.style.cssText = 'font-size: 0.75rem;opacity:0.75;margin-top:0.25rem;';
             note.textContent = _t(`${nextName} at ${nextN} sales to distinct buyers (Silver ${silver} · Gold ${gold}).`,
       `${nextName} sa ${nextN} benta sa magkakaibang buyer (Silver ${silver} · Gold ${gold}).`);
             badgesEl.appendChild(note);
@@ -782,7 +853,7 @@
       } else if (_seller?.certifications) {
         certPill.textContent = 'Pending admin review';
         certPill.style.background = 'rgba(251,191,36,0.1)';
-        certPill.style.color = '#f7a21b';
+        certPill.style.color = 'var(--wh-orange)';
       }
     }
   }
@@ -821,7 +892,7 @@
         .eq('seller_name', WORKER_NAME);
       if (cErr || count === null || count === undefined) { _readFailed.listings = true; _listingsTotal = null; }
       else _listingsTotal = Number(count);
-    } catch (_e) { _readFailed.listings = true; _readFailErr.listings = _e; _listings = []; if (typeof showToast === 'function') showToast(_failCopy(_e, 'your listings'), 'error'); } // dim-10: surface load failure, don't disguise as "no listings"
+    } catch (_e) { _readFailed.listings = true; _readFailErr.listings = _e; _listings = []; if (typeof showToast === 'function') showToast(_failCopy(_e, { en: 'your listings', fil: 'mga listing mo' }), 'error'); } // dim-10: surface load failure, don't disguise as "no listings"
     renderListings();
     updateBadges();
     updateProfileStats();
@@ -849,7 +920,15 @@
      connection and invites the immediate retry that extends the limit. Same fix the marketplace got
      this session; the seller console is its sibling and had the same single message for every cause. */
   let _lastFailReason = null;   // the persistent gap note reads this after the toast has faded
+  /* ★COMPOSED WHOLE PER LANGUAGE, NOT STITCHED (copy lens, 2026-09-18). The Filipino walk read
+     "Hindi ma-load ang your inquiries. Check your connection and retry." - a Filipino prefix glued to
+     an English subject and an English tail, which is a sentence in neither language, on the one screen
+     telling a seller their shop failed to load. Every branch below wrapped a FRAGMENT in _t() and
+     concatenated literals around it, so only the fragment ever moved. `what` is a PAIR now: a subject
+     cannot be translated by the sentence that contains it. Same wound, same answer, as the Recent
+     Reports label on report-sender. */
   function _failCopy(err, what) {
+    const subj = (typeof what === 'string') ? { en: what, fil: what } : what;
     const st = err && (err._httpStatus || err.status);
     const code = String((err && err.code) || '');
     _lastFailReason = null;
@@ -860,8 +939,8 @@
                     : Math.round(n / 60) + ' minute' + (Math.round(n / 60) === 1 ? '' : 's'))
                  : 'a moment';
       _lastFailReason = 'Too many requests. Your connection is fine: wait about ' + wait + ', then retry.';
-      return 'Too many requests, so ' + what + _t(" couldn't be read. Your connection is fine: wait about ", " ay hindi mabasa. Maayos ang koneksyon mo: maghintay ng mga ")
-             + wait + ', then retry.';
+      return _t(`Too many requests, so ${subj.en} could not be read. Your connection is fine: wait about ${wait}, then retry.`,
+                `Masyadong maraming request, kaya hindi mabasa ang ${subj.fil}. Maayos ang koneksyon mo: maghintay ng mga ${wait}, tapos subukan muli.`);
     }
     /* 401 IS A DEAD SESSION; 403 IS A LIVE SESSION AND A REFUSED ROW. PostgREST answers 401 when the
        caller is anonymous or the token is dead, 403 when they are authenticated and the row was
@@ -871,15 +950,16 @@
     if (st === 401 || /jwt|token/i.test(String((err && err.message) || ''))
         || (st == null && code === '42501')) {
       _lastFailReason = 'Your session expired. Sign in again to continue; nothing you did was lost.';
-      return 'Your session expired, so ' + what + _t(" couldn't be read. Sign in again to continue. ", " ay hindi mabasa. Mag-sign in muli para magpatuloy. ")
-             + 'Nothing you did was lost.';
+      return _t(`Your session expired, so ${subj.en} could not be read. Sign in again to continue. Nothing you did was lost.`,
+                `Nag-expire ang session mo, kaya hindi mabasa ang ${subj.fil}. Mag-sign in muli para magpatuloy. Walang nawala sa ginawa mo.`);
     }
     if (st === 403 || code === '42501') {
       _lastFailReason = 'This account does not have access to that. Your session is fine.';
-      return 'This account does not have access to ' + what + '. Your session is fine, so signing in '
-             + 'again will not change it. Ask a supervisor if you need access.';
+      return _t(`This account does not have access to ${subj.en}. Your session is fine, so signing in again will not change it. Ask a supervisor if you need access.`,
+                `Walang access ang account na ito sa ${subj.fil}. Maayos ang session mo, kaya hindi ito magbabago kahit mag-sign in ka ulit. Magtanong sa supervisor kung kailangan mo ng access.`);
     }
-    return _t("Couldn't load ", "Hindi ma-load ang ") + what + '. Check your connection and retry.';
+    return _t(`Could not load ${subj.en}. Check your connection and retry.`,
+              `Hindi ma-load ang ${subj.fil}. Tingnan ang koneksyon mo at subukan muli.`);
   }
   const _statOrGap = (failed, value) => (failed ? '\u2014' : String(value));
   let _listingsTotal  = 0;
@@ -916,7 +996,7 @@
           .eq('status', 'pending');
         _inquiriesPendingTotal = Number(pendingCount || 0);
       } catch (_) { /* fall back to .length below */ /* empty-catch-allow: best-effort silent swallow */ }
-    } catch (_e) { _readFailed.inquiries = true; _readFailErr.inquiries = _e; _inquiries = []; if (typeof showToast === 'function') showToast(_failCopy(_e, 'your inquiries'), 'error'); } // dim-10: surface load failure, don't disguise as "no inquiries"
+    } catch (_e) { _readFailed.inquiries = true; _readFailErr.inquiries = _e; _inquiries = []; if (typeof showToast === 'function') showToast(_failCopy(_e, { en: 'your inquiries', fil: 'mga inquiry mo' }), 'error'); } // dim-10: surface load failure, don't disguise as "no inquiries"
     renderInquiries();
     updateBadges();
   }
@@ -946,6 +1026,29 @@
          where it persists as long as the gap does. */
       const why = document.getElementById('ps-gap-why');
       if (why) { why.textContent = anyFailed && _lastFailReason ? ' ' + _lastFailReason : ''; }
+
+      /* ★THE RECOVERY CONTROL WAS UNDER THE NOTICE ANNOUNCING THE FAILURE (copy lens, 2026-09-18).
+         Measured by the degraded walk in BOTH languages, with the same geometry each time:
+         #ps-gap-retry "Retry" at 173,486 (29x14) covered by #wh-connection-notice at 8,482 (368x130),
+         position:fixed, z-index 2147483000. utils.js pins that notice at bottom:calc(232px + safe
+         area), so on an 844px viewport it owns the band from y482 down - exactly where this note's
+         Retry lands at the moment the failure is announced, before anyone has scrolled.
+         The page does not win a fight with shared chrome for a fixed band, and it should not need to:
+         when the notice is up it carries its own Reload, so the inline Retry is a SECOND recovery
+         control for the same failure - redundant as well as covered. One recovery, and it is the one
+         on top. Re-checked on a delay because the notice is created by a retry envelope that settles
+         after this render runs. */
+      const _hideRetryUnderNotice = () => {
+        const btn = document.getElementById('ps-gap-retry');
+        if (!btn) return;
+        // gid-allow: utils.js CREATES this notice at runtime; no static markup exists to match.
+        const notice = document.getElementById('wh-connection-notice');
+        const up = !!notice && getComputedStyle(notice).display !== 'none'
+                   && notice.getBoundingClientRect().height > 0;
+        btn.hidden = up;
+      };
+      _hideRetryUnderNotice();
+      if (anyFailed) { setTimeout(_hideRetryUnderNotice, 1500); setTimeout(_hideRetryUnderNotice, 4000); }
     }
     if (psl) psl.textContent = _statOrGap(_readFailed.listings, _listingsTotal || _listings.length);
     if (pss) pss.textContent = _statOrGap(_readFailed.seller, _seller?.total_sales || 0);
@@ -982,7 +1085,7 @@
   function _holdRow(label, value, opts) {
     const o = opts || {};
     return '<div style="display:flex; justify-content:space-between; gap:1rem;'
-         + (o.rule ? 'border-top:1px solid rgba(255,255,255,.16); margin-top:.4rem; padding-top:.4rem;' : '')
+         + (o.rule ? 'border-top:1px solid rgba(255,255,255,.16); margin-top:0.375rem; padding-top:0.375rem;' : '')
          + (o.strong ? 'font-weight:800;' : '') + '">'
          + '<span>' + escHtml(label) + '</span>'
          + '<span style="font-variant-numeric:tabular-nums;' + (o.color ? 'color:' + o.color + ';' : '') + '">'
@@ -1132,7 +1235,10 @@
       const t = document.getElementById('cw-total');
       if (a) a.textContent = pesoOrGap(avail);
       if (r) r.textContent = pesoOrGap(held);
-      if (t) t.textContent = (known(total) && total > 0) ? peso(total) + ' total' : '';
+      // Only when it SAYS something: a total identical to the available figure is the same number
+      // twice, which DESIGN.md's Don't list names, and it is the state every new seller is in.
+      if (t) t.textContent = (known(total) && known(avail) && total > 0 && total !== avail)
+        ? peso(total) + _t(' total', ' kabuuan') : '';
 
       /* SAY WHAT A NEGATIVE BALANCE MEANS. This panel exists because "being blocked with no
          explanation is the cold-start failure the simulation put at 31% of providers" -- its own
@@ -1232,7 +1338,7 @@
          "No activity yet.", fixed earlier this week. */
       if (_readFailed.listings) {
         if (typeof whListError === 'function') {
-          whListError(area, _failCopy(_readFailErr.listings, 'your listings'), () => loadListings());
+          whListError(area, _failCopy(_readFailErr.listings, { en: 'your listings', fil: 'mga listing mo' }), () => loadListings());
         } else {
           area.innerHTML = `<div class="empty-state">
         <h2>${escHtml(_t("Couldn't load your listings", "Hindi ma-load ang mga listing mo"))}</h2>
@@ -1245,7 +1351,7 @@
       }
       area.innerHTML = `<div class="empty-state">
         <span class="ic ic-list" aria-hidden="true"></span>
-        <h2>${escHtml(_t('No listings yet', 'Wala pang listing'))}</h2>
+        <h3>${escHtml(_t('No listings yet', 'Wala pang listing'))}</h3>
         <p>${escHtml(_t('Post your first listing to start selling on WorkHive.', 'I-post ang iyong unang listing para magsimulang magbenta sa WorkHive.'))}</p>
         <!-- THE ONE CONTROL WHOSE JOB IS THE FIRST LISTING DID NOT START ONE (2026-09-10, walked as
              a seller with no listings). This empty state says "Post your first listing to start
@@ -1311,17 +1417,17 @@
               <span class="meta-chip">${e(timeAgo(item.created_at))}</span>
             </div>
             ${item.status === 'draft' && _draftAgeDays(item) >= 7 ? `
-            <div style="margin-top:0.5rem;padding:0.5rem 0.65rem;border-radius:0.5rem;background:rgba(250,204,21,0.08);border:1px solid rgba(250,204,21,0.25);font-size:0.75rem;color:rgba(255,255,255,0.85);line-height:1.4;">
+            <div style="margin-top:0.5rem;padding:0.5rem 0.75rem;border-radius:0.5rem;background:rgba(250,204,21,0.08);border:1px solid rgba(250,204,21,0.25);font-size:0.75rem;color:rgba(255,255,255,0.85);line-height:1.4;">
               In review for ${e(String(_draftAgeDays(item)))} days - longer than it should be. Your listing is safe and stays in the queue; editing it keeps its place.
             </div>` : ''}
             ${item.status === 'removed' && item.moderation_reason ? `
-            <div role="alert" style="margin-top:0.5rem;padding:0.5rem 0.65rem;border-radius:0.5rem;background:rgba(248,113,113,0.10);border:1px solid rgba(248,113,113,0.30);">
-              <div style="font-size:0.7rem;font-weight:700;color:var(--wh-red-text);margin-bottom:0.15rem;">Not approved${item.moderated_at ? ' · ' + e(timeAgo(item.moderated_at)) : ''}</div>
+            <div role="alert" style="margin-top:0.5rem;padding:0.5rem 0.75rem;border-radius:0.5rem;background:rgba(248,113,113,0.10);border:1px solid rgba(248,113,113,0.30);">
+              <div style="font-size: 0.75rem;font-weight:700;color:var(--wh-red-text);margin-bottom:0.125rem;">Not approved${item.moderated_at ? ' · ' + e(timeAgo(item.moderated_at)) : ''}</div>
               <div style="font-size:0.75rem;color:rgba(255,255,255,0.85);line-height:1.4;">${e(item.moderation_reason)}</div>
-              <div style="font-size:0.7rem;color:rgba(255,255,255,0.80);margin-top:0.3rem;">Edit this listing to fix it, then save: it goes back into review automatically.</div>
+              <div style="font-size: 0.75rem;color:rgba(255,255,255,0.80);margin-top:0.25rem;">Edit this listing to fix it, then save: it goes back into review automatically.</div>
             </div>` : ''}
             ${item.status === 'removed' && !item.moderation_reason ? `
-            <div role="alert" style="margin-top:0.5rem;padding:0.5rem 0.65rem;border-radius:0.5rem;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.10);font-size:0.75rem;color:rgba(255,255,255,0.85);">
+            <div role="alert" style="margin-top:0.5rem;padding:0.5rem 0.75rem;border-radius:0.5rem;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.10);font-size:0.75rem;color:rgba(255,255,255,0.85);">
               This listing was removed by WorkHive. No reason was recorded, so contact support if you need details.
             </div>` : ''}
           </div>
@@ -1329,7 +1435,7 @@
         <div class="li-actions">
           ${item.status !== 'removed' ? `<button data-i="edit" class="btn-sm primary" data-action="edit" data-id="${e(item.id)}">Edit</button>` : ''}
           ${item.status === 'draft' ? `<button class="btn-sm danger" data-action="delete" data-id="${e(item.id)}" data-i="delete">Delete</button>` : ''}
-          ${item.status === 'published' ? `<a href="marketplace.html" class="btn-sm" style="text-decoration:none;display:inline-flex;align-items:center;gap:0.3rem;">View Live</a>` : ''}
+          ${item.status === 'published' ? `<a href="marketplace.html" class="btn-sm" style="text-decoration:none;display:inline-flex;align-items:center;gap:0.25rem;">View Live</a>` : ''}
         </div>
       </div>`).join('');
 
@@ -1356,10 +1462,10 @@
          toasts; the pane never asked. */
       if (_readFailed.inquiries) {
         if (typeof whListError === 'function') {
-          whListError(area, _failCopy(_readFailErr.inquiries, 'your inquiries'), () => loadInquiries());
+          whListError(area, _failCopy(_readFailErr.inquiries, { en: 'your inquiries', fil: 'mga inquiry mo' }), () => loadInquiries());
         } else {
           area.innerHTML = `<div class="empty-state">
-        <h2>${escHtml(_t('Couldn\'t load your inquiries', 'Hindi ma-load ang mga inquiry mo'))}</h2>
+        <h3>${escHtml(_t('Couldn\'t load your inquiries', 'Hindi ma-load ang mga inquiry mo'))}</h3>
         <p>${escHtml(_t('This is a problem reading them, not an empty inbox - a buyer may still be waiting.', 'Problema ito sa pagbasa ng mga ito, hindi walang laman na inbox - maaaring may buyer na naghihintay pa.'))}</p>
         <button type="button" class="btn-post-now" onclick="svcRetryAll()" data-i="retry">Retry</button>
       </div>`;
@@ -1368,7 +1474,7 @@
       }
       area.innerHTML = `<div class="empty-state">
         <span class="ic ic-message" aria-hidden="true"></span>
-        <h2 data-i="noinq">No inquiries yet</h2>
+        <h3 data-i="noinq">No inquiries yet</h3>
         <p>${escHtml(_t('Buyers will appear here when they contact you about your listings.', 'Lalabas dito ang mga buyer kapag kinontak ka nila tungkol sa mga listing mo.'))}</p>
       </div>`;
       return;
@@ -1393,18 +1499,19 @@
           <div class="inq-contact">Contact buyer:
             ${inq.buyer_contact
               ? `<button type="button" class="btn-sm" data-action="reveal-contact" data-contact="${e(inq.buyer_contact)}"
-                   style="min-height:44px;padding:0 10px;border-radius:8px;border:1px solid rgba(255,255,255,0.18);background:rgba(255,255,255,0.06);color:inherit;cursor:pointer;font-size:0.72rem;" data-i="showcontact">Show contact</button>`
+                   style="min-height:44px;padding:0 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.18);background:rgba(255,255,255,0.06);color:inherit;cursor:pointer;font-size: 0.75rem;" data-i="showcontact">Show contact</button>`
               : `<strong>Not provided</strong>`}
           </div>
-          ${inq.reply_text ? `<div style="font-size:0.72rem;color:var(--wh-green);padding:0.4rem 0.625rem;background:rgba(74,222,128,0.06);border-radius:0.4rem;margin-bottom:0.5rem;">Your reply: ${e(inq.reply_text)}</div>` : ''}
+          ${inq.reply_text ? `<div style="font-size: 0.75rem;color:var(--wh-green);padding:0.375rem 0.75rem;background:rgba(74,222,128,0.06);border-radius:0.4rem;margin-bottom:0.5rem;">Your reply: ${e(inq.reply_text)}</div>` : ''}
           ${!isReplied ? `
             <div class="reply-area">
               <textarea class="reply-textarea" placeholder="Type your reply… (optional, you can also reply directly via the buyer's contact)" aria-label="Your reply to this inquiry" data-inq-id="${e(inq.id)}"></textarea>
               <div class="inq-actions">
                 <button class="btn-sm primary" data-action="reply" data-id="${e(inq.id)}" data-i="sendreplymarkreplied">Send Reply + Mark Replied</button>
-                <button class="btn-sm" data-action="close" data-id="${e(inq.id)}" data-i="close">Close</button>
+                <button class="btn-sm" data-action="close" data-id="${e(inq.id)}" data-i="close"
+                        aria-label="${e(_t(`Close this inquiry from ${inq.buyer_name || 'this buyer'} without replying`, `Isara ang inquiry na ito mula kay ${inq.buyer_name || 'buyer na ito'} nang hindi sumasagot`))}">Close</button>
               </div>
-            </div>` : `<span style="font-size:0.7rem;color:var(--wh-green);">Replied ${e(timeAgo(inq.replied_at))}</span>`}
+            </div>` : `<span style="font-size: 0.75rem;color:var(--wh-green);">Replied ${e(timeAgo(inq.replied_at))}</span>`}
         </div>`;
     }).join('');
 
@@ -1514,7 +1621,7 @@
         const publicUrl = await uploadImageBlob(blob);
         if (urlInput) urlInput.value = publicUrl;
         if (statusEl) {
-          statusEl.style.color = '#4ade80';
+          statusEl.style.color = 'var(--wh-green)';
           statusEl.textContent = '✓ Photo ready (' + Math.round(blob.size / 1024) + ' KB)';
         }
       } catch (err) {
@@ -1535,7 +1642,7 @@
     if (urlInput)    urlInput.value    = '';
     if (emptyView)   emptyView.style.display   = 'block';
     if (previewView) previewView.style.display = 'none';
-    if (statusEl)   { statusEl.style.color = '#7B8794'; statusEl.textContent = ''; }
+    if (statusEl)   { statusEl.style.color = 'var(--wh-steel-bright)'; statusEl.textContent = ''; }
   }
 
   function preloadEditImageFromExisting(item) {
@@ -1549,7 +1656,7 @@
       if (urlInput)    urlInput.value = item.image_url;
       if (emptyView)   emptyView.style.display   = 'none';
       if (previewView) previewView.style.display = 'block';
-      if (statusEl)   { statusEl.style.color = '#7B8794'; statusEl.textContent = 'Current photo (replace by tapping above)'; }
+      if (statusEl)   { statusEl.style.color = 'var(--wh-steel-bright)'; statusEl.textContent = 'Current photo (replace by tapping above)'; }
     } else {
       resetEditImagePicker();
     }
@@ -1572,7 +1679,15 @@
     const condWrap   = document.getElementById('edit-condition-wrap');
     const catEl      = document.getElementById('edit-category');
 
-    if (titleEl)    titleEl.textContent   = 'Edit ' + item.section.charAt(0).toUpperCase() + item.section.slice(1) + ' Listing';
+    if (titleEl) {
+      // The SECOND element on this page whose computed text the dictionary would overwrite - found
+      // by scanning for elements that carry data-i AND have their textContent assigned. Composed
+      // whole per language rather than stitched: 'Edit' + a capitalised section + 'Listing' cannot
+      // be translated by moving one of the three pieces.
+      titleEl.removeAttribute('data-i');
+      const _sec = item.section.charAt(0).toUpperCase() + item.section.slice(1);
+      titleEl.textContent = _t(`Edit ${_sec} Listing`, `I-edit ang ${_sec} Listing`);
+    }
     if (idEl)       idEl.value            = item.id;
     if (titleInput) titleInput.value      = item.title || '';
     if (descInput)  descInput.value       = ''; /* will set below after select render */
@@ -1620,10 +1735,10 @@
     let saved = null;
     try { saved = localStorage.getItem(_editDraftKey(item.id)); } catch (_) { /* empty-catch-allow: private mode */ }
     if (!saved || saved === (item.description || '')) return;   // nothing to offer, or it matches what is saved
-    slot.innerHTML = '<p style="font-size:0.75rem;margin:0.35rem 0 0;color:var(--wh-text-muted);">'
+    slot.innerHTML = '<p style="font-size:0.75rem;margin:0.375rem 0 0;color:var(--wh-text-muted);">'
       + 'You have an unsaved edit to this description from earlier. '
-      + '<button type="button" id="edit-draft-restore" style="font-size:0.75rem;min-height:44px;padding:0.3rem 0.7rem;border-radius:var(--wh-radius-sm);border:1px solid rgba(255,255,255,0.18);background:transparent;color:inherit;" data-i="restoreit">Restore it</button> '
-      + '<button type="button" id="edit-draft-discard" style="font-size:0.75rem;min-height:44px;padding:0.3rem 0.7rem;border-radius:var(--wh-radius-sm);border:0;background:transparent;color:inherit;text-decoration:underline;" data-i="discard">Discard</button></p>';
+      + '<button type="button" id="edit-draft-restore" style="font-size:0.75rem;min-height:44px;padding:0.25rem 0.75rem;border-radius:var(--wh-radius-sm);border:1px solid rgba(255,255,255,0.18);background:transparent;color:inherit;" data-i="restoreit">Restore it</button> '
+      + '<button type="button" id="edit-draft-discard" style="font-size:0.75rem;min-height:44px;padding:0.25rem 0.75rem;border-radius:var(--wh-radius-sm);border:0;background:transparent;color:inherit;text-decoration:underline;" data-i="discard">Discard</button></p>';
     document.getElementById('edit-draft-restore').addEventListener('click', () => {
       descInput.value = saved;
       descInput.dispatchEvent(new Event('input', { bubbles: true }));
@@ -1661,7 +1776,20 @@
     const contact  = (document.getElementById('edit-contact')?.value || '').trim();
     const imageUrl = (document.getElementById('edit-image-url')?.value || '').trim() || null;
 
-    if (!title || !desc) { showToast('Title and description are required.', 'error'); return; }
+    // The price branch below already does this properly - it names the problem and focuses the
+    // field. This one named neither which of the two was empty nor where to go.
+    if (!title) {
+      showToast(_t('Give the listing a title - that is what buyers see first.',
+                   'Bigyan ng pamagat ang listing - iyon ang unang nakikita ng mga buyer.'), 'error');
+      document.getElementById('edit-title')?.focus();
+      return;
+    }
+    if (!desc) {
+      showToast(_t('Add a description so a buyer knows what they are getting.',
+                   'Magdagdag ng paglalarawan para alam ng buyer kung ano ang makukuha nila.'), 'error');
+      document.getElementById('edit-desc')?.focus();
+      return;
+    }
     if (!_priceRes.ok) { showToast(_priceRes.error, 'error'); document.getElementById('edit-price')?.focus(); return; }
     /* The form already computed whether this can publish, from the same functions the guard uses. Saying
        it HERE beats letting the seller submit and learn days later from an admin's rejection. A draft
@@ -1935,9 +2063,9 @@
   let _svcMyIds = [];
 
   function _svcPeso(v) { return (typeof whFmtPeso === 'function') ? whFmtPeso(v, { decimals: 0 }) : ('₱' + Number(v || 0).toLocaleString()); }
-  const _svcBtn = 'padding:0.55rem 1rem;border-radius:var(--wh-radius-sm);border:1px solid transparent;background:linear-gradient(135deg,var(--wh-orange),var(--wh-orange-light));color:var(--wh-navy);font-family:\'Poppins\',sans-serif;font-size:0.8rem;font-weight:700;cursor:pointer;min-height:44px;';
-  const _svcBtnGhost = 'padding:0.55rem 1rem;border-radius:var(--wh-radius-sm);border:1px solid rgba(247,162,27,0.3);background:rgba(247,162,27,0.1);color:var(--wh-orange-text);font-family:\'Poppins\',sans-serif;font-size:0.8rem;font-weight:600;cursor:pointer;min-height:44px;';
-  const _svcInput = 'padding:0.55rem;border-radius:var(--wh-radius-sm);border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:inherit;min-height:44px;box-sizing:border-box;';
+  const _svcBtn = 'padding:0.5rem 1rem;border-radius:var(--wh-radius-sm);border:1px solid transparent;background:linear-gradient(135deg,var(--wh-orange),var(--wh-orange-light));color:var(--wh-navy);font-family:\'Poppins\',sans-serif;font-size:0.75rem;font-weight:700;cursor:pointer;min-height:44px;';
+  const _svcBtnGhost = 'padding:0.5rem 1rem;border-radius:var(--wh-radius-sm);border:1px solid rgba(247,162,27,0.3);background:rgba(247,162,27,0.1);color:var(--wh-orange-text);font-family:\'Poppins\',sans-serif;font-size:0.75rem;font-weight:600;cursor:pointer;min-height:44px;';
+  const _svcInput = 'padding:0.5rem;border-radius:var(--wh-radius-sm);border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:inherit;min-height:44px;box-sizing:border-box;';
 
   async function loadServices(_retried) {
     const area = document.getElementById('content-area');
@@ -2076,8 +2204,8 @@
       // L-layer: a backend failure shown to the user must ALSO reach the console/aggregator,
       // or a services console that starts failing for providers is invisible in observability.
       console.error('services console load failed:', err);
-      area.innerHTML = '<div class="empty-state"><h2>Couldn\'t load services</h2><p>' + escHtml((err && err.message) || _t('Please try again.', 'Pakisubukan muli.')) + '</p>' +
-        '<button type="button" onclick="svcRetryAll()" style="' + _svcBtnGhost + 'margin-top:0.6rem;" data-i="retry">Retry</button></div>';
+      area.innerHTML = '<div class="empty-state"><h3>Couldn\'t load services</h3><p>' + escHtml((err && err.message) || _t('Please try again.', 'Pakisubukan muli.')) + '</p>' +
+        '<button type="button" onclick="svcRetryAll()" style="' + _svcBtnGhost + 'margin-top:0.5rem;" data-i="retry">Retry</button></div>';
     }
   }
 
@@ -2089,23 +2217,23 @@
       cats = [...new Set((data || []).map(r => r.category))].sort();
     } catch (_) { /* empty-catch-allow: category list is a convenience; the form still works */ }
     const catBoxes = cats.map(c =>
-      '<label style="display:inline-flex;align-items:center;gap:0.35rem;padding:0.55rem 0.7rem;border:1px solid rgba(255,255,255,0.12);border-radius:var(--wh-radius-sm);cursor:pointer;min-height:44px;box-sizing:border-box;">' +
+      '<label style="display:inline-flex;align-items:center;gap:0.375rem;padding:0.5rem 0.75rem;border:1px solid rgba(255,255,255,0.12);border-radius:var(--wh-radius-sm);cursor:pointer;min-height:44px;box-sizing:border-box;">' +
       '<input type="checkbox" class="svc-cat" value="' + e(c) + '" style="width:1.05rem;height:1.05rem;accent-color:var(--wh-orange);"> ' + e(c) + '</label>').join(' ');
     area.innerHTML =
       '<div class="empty-state" style="text-align:left;max-width:560px;margin:0 auto;">' +
       '<h2 style="text-align:center;">Become a service provider</h2>' +
       '<p style="text-align:center;">Get hailed for jobs near you, like a ride-hailing driver for your trade. Your skill matrix and resume back your profile.</p>' +
-      '<label style="display:block;margin-top:0.9rem;font-size:0.8rem;font-weight:600;">Provider name' +
-      '<input id="svc-reg-name" type="text" aria-label="Provider name" value="' + e((WORKER_NAME ? WORKER_NAME + ' ' : '') + 'Services') + '" maxlength="80" style="display:block;width:100%;margin-top:0.3rem;padding:0.6rem;border-radius:var(--wh-radius-sm);border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:inherit;box-sizing:border-box;min-height:44px;"></label>' +
-      '<label style="display:block;margin-top:0.7rem;font-size:0.8rem;font-weight:600;">Contact (mobile no.)' +
-      '<input id="svc-reg-contact" type="tel" aria-label="Contact (mobile no.)" placeholder="09xx xxx xxxx" maxlength="20" style="display:block;width:100%;margin-top:0.3rem;padding:0.6rem;border-radius:var(--wh-radius-sm);border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:inherit;box-sizing:border-box;min-height:44px;"></label>' +
-      '<label style="display:block;margin-top:0.7rem;font-size:0.8rem;font-weight:600;">City / service area' +
-      '<input id="svc-reg-area" type="text" aria-label="Service area" placeholder="e.g. Baguio" maxlength="60" style="display:block;width:100%;margin-top:0.3rem;padding:0.6rem;border-radius:var(--wh-radius-sm);border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:inherit;box-sizing:border-box;min-height:44px;"></label>' +
-      '<div style="margin-top:0.9rem;font-size:0.8rem;font-weight:600;">What services do you offer?</div>' +
-      '<div id="svc-reg-cats" style="display:flex;flex-wrap:wrap;gap:0.4rem;margin-top:0.4rem;">' + (catBoxes || '<em>Loading categories…</em>') + '</div>' +
+      '<label style="display:block;margin-top:1rem;font-size:0.75rem;font-weight:600;">Provider name' +
+      '<input id="svc-reg-name" type="text" aria-label="Provider name" value="' + e((WORKER_NAME ? WORKER_NAME + ' ' : '') + 'Services') + '" maxlength="80" style="display:block;width:100%;margin-top:0.25rem;padding:0.5rem;border-radius:var(--wh-radius-sm);border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:inherit;box-sizing:border-box;min-height:44px;"></label>' +
+      '<label style="display:block;margin-top:0.75rem;font-size:0.75rem;font-weight:600;">Contact (mobile no.)' +
+      '<input id="svc-reg-contact" type="tel" aria-label="Contact (mobile no.)" placeholder="09xx xxx xxxx" maxlength="20" style="display:block;width:100%;margin-top:0.25rem;padding:0.5rem;border-radius:var(--wh-radius-sm);border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:inherit;box-sizing:border-box;min-height:44px;"></label>' +
+      '<label style="display:block;margin-top:0.75rem;font-size:0.75rem;font-weight:600;">City / service area' +
+      '<input id="svc-reg-area" type="text" aria-label="Service area" placeholder="e.g. Baguio" maxlength="60" style="display:block;width:100%;margin-top:0.25rem;padding:0.5rem;border-radius:var(--wh-radius-sm);border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:inherit;box-sizing:border-box;min-height:44px;"></label>' +
+      '<div style="margin-top:1rem;font-size:0.75rem;font-weight:600;">What services do you offer?</div>' +
+      '<div id="svc-reg-cats" style="display:flex;flex-wrap:wrap;gap:0.375rem;margin-top:0.375rem;">' + (catBoxes || '<em>Loading categories…</em>') + '</div>' +
       '<button type="button" onclick="_svcJobGuard(this,\'Registering…\',function(){return svcRegister();})" style="' + _svcBtn + 'width:100%;margin-top:1rem;" data-i="registerasaprovider">Register as a provider</button>' +
-      '<p style="font-size:0.72rem;opacity:0.75;margin-top:0.5rem;">Verification is granted by the platform after review. Your profile starts unverified and can take jobs right away.</p>' +
-      '<div id="svc-hive-reg" style="margin-top:0.9rem;"></div>' +
+      '<p style="font-size: 0.75rem;opacity:0.75;margin-top:0.5rem;">Verification is granted by the platform after review. Your profile starts unverified and can take jobs right away.</p>' +
+      '<div id="svc-hive-reg" style="margin-top:1rem;"></div>' +
       '</div>';
     // Hive-company path (D3: providers = freelancers AND hives): a supervisor can register
     // their hive as a service company - its workers get dispatched from the same console.
@@ -2122,7 +2250,7 @@
       const slot = document.getElementById('svc-hive-reg');
       if (slot && sup && sup.length) {
         const e2 = escHtml;
-        slot.innerHTML = '<div style="border-top:1px solid rgba(255,255,255,0.1);padding-top:0.8rem;font-size:0.8rem;font-weight:600;">You supervise a hive</div>' +
+        slot.innerHTML = '<div style="border-top:1px solid rgba(255,255,255,0.1);padding-top:0.75rem;font-size:0.75rem;font-weight:600;">You supervise a hive</div>' +
           sup.map(s => '<button type="button" onclick="_svcJobGuard(this,\'Registering…\',function(){return svcRegisterHive(\'' + e2(s.hive_id) + '\',\'' + e2(((s.hives && s.hives.name) || 'Our hive').replace(/'/g, '')) + '\');})" style="' + _svcBtnGhost + 'width:100%;margin-top:0.5rem;">Register ' + e2((s.hives && s.hives.name) || 'your hive') + ' as a service company</button>').join('');
       }
     } catch (_) { /* empty-catch-allow: hive-company option is additive; the freelancer form stands alone */ }
@@ -2280,25 +2408,25 @@
         .order('created_at', { ascending: false }).order('id').limit(5);
       pending = _p || [];
     } catch (_) { /* empty-catch-allow: no receipt is better than a broken wallet card */ }
-    return '<div class="simple-card" style="margin-bottom:0.8rem;padding:0.9rem 1rem;">' +
-      '<div style="display:flex;flex-wrap:wrap;gap:0.6rem;align-items:baseline;justify-content:space-between;">' +
-      '<strong>Credit wallet' + (provName ? ' <span style="font-weight:600;opacity:0.75;font-size:0.8rem;">· ' + e(provName) + '</span>' : '') + '</strong>' +
-      '<span style="font-size:1.05rem;font-weight:800;color:' + (bal != null && bal < 0 ? 'var(--wh-orange-text)' : 'inherit') + ';">' +
+    return '<div class="simple-card" style="margin-bottom:0.75rem;padding:1rem 1rem;">' +
+      '<div style="display:flex;flex-wrap:wrap;gap:0.5rem;align-items:baseline;justify-content:space-between;">' +
+      '<strong>Credit wallet' + (provName ? ' <span style="font-weight:600;opacity:0.75;font-size:0.75rem;">· ' + e(provName) + '</span>' : '') + '</strong>' +
+      '<span style="font-size:1.125rem;font-weight:800;color:' + (bal != null && bal < 0 ? 'var(--wh-orange-text)' : 'inherit') + ';">' +
       (bal == null ? '-' : '₱' + bal.toLocaleString(undefined, { minimumFractionDigits: 2 })) + '</span></div>' +
-      (bal != null && bal < 0 ? '<div style="font-size:0.75rem;color:var(--wh-orange-text);margin-top:0.2rem;">Negative balance: top up to keep accepting jobs.</div>' : '') +
+      (bal != null && bal < 0 ? '<div style="font-size:0.75rem;color:var(--wh-orange-text);margin-top:0.25rem;">Negative balance: top up to keep accepting jobs.</div>' : '') +
       /* T94 (2026-08-26): the UNIT stated at the boundary - the balance renders with a peso sign,
          which is true only because of a rule the glass never stated: 1 WorkHive Credit = PHP1,
          fixed (migration 20260803000012 forbids a rate column), spendable in WorkHive only, never
          withdrawable. A money figure whose unit is by-convention is the units_at_boundary debt. */
-      '<div style="font-size:0.68rem;opacity:0.7;margin-top:0.2rem;">WorkHive Credits · 1 credit = ₱1, fixed · spendable in WorkHive only, not withdrawable</div>' +
+      '<div style="font-size: 0.75rem;opacity:0.7;margin-top:0.25rem;">WorkHive Credits · 1 credit = ₱1, fixed · spendable in WorkHive only, not withdrawable</div>' +
       /* T94: held credits are already spoken for. Shown only when there ARE some - a "reserved ₱0"
          on every wallet is noise, and a card people stop reading is worse than one line shorter. */
       (held != null && held > 0
-        ? '<div style="font-size:0.72rem;color:var(--wh-orange-text);margin-top:0.25rem;">'
+        ? '<div style="font-size: 0.75rem;color:var(--wh-orange-text);margin-top:0.25rem;">'
           + whFmtPeso(held) + ' of this is reserved against your live listings, so it cannot be spent '
           + 'until they sell or you delist them.</div>'
         : '') +
-      (lines.length ? '<div style="font-size:0.72rem;opacity:0.85;margin-top:0.4rem;">' +
+      (lines.length ? '<div style="font-size: 0.75rem;opacity:0.85;margin-top:0.375rem;">' +
         /* T68 (2026-08-27): NAME WHAT THIS LIST IS. Three unlabelled amounts sitting under a
            balance read as the whole story - and the balance is SUM(ledger) over EVERY entry,
            via provider_credit_balance(). A seller checking their own money deserves to know
@@ -2329,7 +2457,7 @@
          that decides it lives on a page they cannot open. A pending row is the smallest honest answer:
          what you sent, when, and that it is waiting on a human. */
       (pending.length
-        ? '<div style="margin-top:0.55rem;padding:0.5rem 0.6rem;border-radius:var(--wh-radius-sm);'
+        ? '<div style="margin-top:0.5rem;padding:0.5rem 0.5rem;border-radius:var(--wh-radius-sm);'
           + 'background:rgba(247,162,27,0.10);border:1px solid rgba(247,162,27,0.30);font-size:0.75rem;">'
           + '<strong style="color:var(--wh-orange-text);">Waiting for the founder to verify</strong>'
           /* whFmtPeso, not an ad-hoc '₱' + Number(...). Number(null) is 0, so an amount that failed
@@ -2342,7 +2470,7 @@
               + ' · ref ' + e(t.gcash_ref || '-')
               + ' · filed ' + e(new Date(t.created_at).toLocaleString())
               + '</div>').join('')
-          + '<div style="margin-top:0.3rem;opacity:0.8;">Credits appear here the moment it is verified. '
+          + '<div style="margin-top:0.25rem;opacity:0.8;">Credits appear here the moment it is verified. '
           + 'Nothing is lost while it waits.</div></div>'
         : '') +
       /* TAP THE NUMBER INSTEAD OF MEMORISING IT. Reading 11 digits off one screen to type into
@@ -2357,9 +2485,9 @@
         : 'the WorkHive GCash number (ask your platform admin)') +
       ', then file it below. <strong>Paste your receipt</strong> into either box, or upload the ' +
       'screenshot, and the amount and reference fill themselves.</div>' +
-      '<div style="display:flex;flex-wrap:wrap;gap:0.4rem;margin-top:0.45rem;">' +
-      '<input id="svc-topup-amt-' + e(provId) + '" type="number" min="1" step="50" placeholder="Amount ₱" aria-label="Top-up amount in pesos" style="width:8rem;padding:0.55rem;border-radius:var(--wh-radius-sm);border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:inherit;min-height:44px;box-sizing:border-box;">' +
-      '<input id="svc-topup-ref-' + e(provId) + '" type="text" maxlength="20" placeholder="GCash reference no." aria-label="GCash reference number" style="width:12rem;padding:0.55rem;border-radius:var(--wh-radius-sm);border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:inherit;min-height:44px;box-sizing:border-box;">' +
+      '<div style="display:flex;flex-wrap:wrap;gap:0.375rem;margin-top:0.5rem;">' +
+      '<input id="svc-topup-amt-' + e(provId) + '" type="number" min="1" step="50" placeholder="Amount ₱" aria-label="Top-up amount in pesos" style="width:8rem;padding:0.5rem;border-radius:var(--wh-radius-sm);border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:inherit;min-height:44px;box-sizing:border-box;">' +
+      '<input id="svc-topup-ref-' + e(provId) + '" type="text" maxlength="20" placeholder="GCash reference no." aria-label="GCash reference number" style="width:12rem;padding:0.5rem;border-radius:var(--wh-radius-sm);border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:inherit;min-height:44px;box-sizing:border-box;">' +
       /* DOUBLE-TAP FILED IT TWICE (2026-08-04, U-recovery double_submit probe: two clicks
          produced FOUR writes). This page has loaded button-lock.js all along and called it
          nowhere - its own header says pages adopt it 'incrementally', and this one adopted
@@ -2374,14 +2502,14 @@
          where a top-up becomes unmatchable later. Pasting the TEXT stays available too — some
          people copy, some screenshot, and both habits are real. */
       '<label for="svc-topup-img-' + e(provId) + '" style="display:inline-flex;align-items:center;' +
-      'gap:0.4rem;margin-top:0.5rem;font-size:0.75rem;cursor:pointer;color:var(--wh-blue);' +
+      'gap:0.375rem;margin-top:0.5rem;font-size:0.75rem;cursor:pointer;color:var(--wh-blue);' +
       'min-height:44px;">&#128196; Upload your GCash receipt instead</label>' +
       '<input id="svc-topup-img-' + e(provId) + '" type="file" accept="image/*" ' +
       'onchange="svcReadTopupReceipt(\'' + e(provId) + '\', this)" ' +
       'aria-label="Upload a screenshot of your GCash receipt" style="display:none;">' +
       /* HOW MUCH? The form asked for an amount and gave no way to arrive at one -- a provider had to
          work out 10% of listings they have not made yet. State the rule in the units they think in. */
-      '<div style="font-size:0.72rem;opacity:0.78;margin-top:0.45rem;line-height:1.45;">' +
+      '<div style="font-size: 0.75rem;opacity:0.78;margin-top:0.5rem;line-height:1.45;">' +
       'How much: you hold 10% of a listing price, so ₱1,000 of credits covers ₱10,000 of ' +
       'listings at once. It comes back when a listing sells or is taken down.</div></div>';
   }
@@ -2496,12 +2624,12 @@
       const onJob = p.availability === 'on_job';
       const online = p.availability === 'online';
       html +=
-        '<div class="simple-card" style="margin-bottom:0.8rem;display:flex;flex-wrap:wrap;gap:0.6rem;align-items:center;justify-content:space-between;padding:0.9rem 1rem;">' +
+        '<div class="simple-card" style="margin-bottom:0.75rem;display:flex;flex-wrap:wrap;gap:0.5rem;align-items:center;justify-content:space-between;padding:1rem 1rem;">' +
         '<div><strong>' + e(p.display_name) + '</strong> ' +
         (p.verified ? '<span style="color:var(--wh-green, rgb(74,222,128));font-size:0.75rem;font-weight:700;">✓ Verified</span>' : '<span style="opacity:0.7;font-size:0.75rem;">Pending verification</span>') +
-        '<div style="font-size:0.75rem;opacity:0.8;margin-top:0.15rem;">' + e((p.categories || []).join(' · ')) + (p.service_areas && p.service_areas.length ? ' - ' + e(p.service_areas.join(', ')) : '') + ' · ' + Number(p.completed_jobs || 0) + ' job' + (Number(p.completed_jobs || 0) === 1 ? '' : 's') + ' done' + (p.rating_avg != null ? ' · ★' + Number(p.rating_avg).toFixed(1) + ' (' + Number(p.rating_count || 0) + ')' : '') + (p.tier === 'gold' ? ' · 🥇 Gold' : p.tier === 'silver' ? ' · 🥈 Silver' : ' · 🥉 Bronze') + '</div></div>' +
+        '<div style="font-size:0.75rem;opacity:0.8;margin-top:0.125rem;">' + e((p.categories || []).join(' · ')) + (p.service_areas && p.service_areas.length ? ' - ' + e(p.service_areas.join(', ')) : '') + ' · ' + Number(p.completed_jobs || 0) + ' job' + (Number(p.completed_jobs || 0) === 1 ? '' : 's') + ' done' + (p.rating_avg != null ? ' · ★' + Number(p.rating_avg).toFixed(1) + ' (' + Number(p.rating_count || 0) + ')' : '') + (p.tier === 'gold' ? ' · 🥇 Gold' : p.tier === 'silver' ? ' · 🥈 Silver' : ' · 🥉 Bronze') + '</div></div>' +
         (onJob
-          ? '<span style="font-size:0.8rem;font-weight:700;color:var(--wh-orange-text);">On a job</span>'
+          ? '<span style="font-size:0.75rem;font-weight:700;color:var(--wh-orange-text);">On a job</span>'
           : '<button type="button" role="switch" aria-checked="' + (online ? 'true' : 'false') + '" onclick="_svcJobGuard(this,\'Updating…\',function(){return svcToggleAvail(\'' + e(p.id) + '\',\'' + (online ? 'offline' : 'online') + '\');})" style="' + (online ? _svcBtn : _svcBtnGhost) + '">' + (online ? 'Online: receiving jobs' : 'Offline: go Online') + '</button>') +
         '</div>';
     });
@@ -2514,15 +2642,15 @@
     const _pushSilentlyOff = svcPushSupported()
       && Notification.permission === 'granted' && pushRowKnown === false;
     if (svcPushSupported() && Notification.permission !== 'granted') {
-      html += '<div class="simple-card" style="margin-bottom:0.8rem;padding:0.8rem 1rem;display:flex;flex-wrap:wrap;gap:0.6rem;align-items:center;justify-content:space-between;">' +
-        '<div style="font-size:0.8rem;">🔔 <strong>Hear new hails with this tab closed</strong><div style="opacity:0.8;font-size:0.74rem;margin-top:0.1rem;">Job offers arrive as notifications, like a ride-hailing driver app.</div></div>' +
+      html += '<div class="simple-card" style="margin-bottom:0.75rem;padding:0.75rem 1rem;display:flex;flex-wrap:wrap;gap:0.5rem;align-items:center;justify-content:space-between;">' +
+        '<div style="font-size:0.75rem;">🔔 <strong>Hear new hails with this tab closed</strong><div style="opacity:0.8;font-size: 0.75rem;margin-top:0.125rem;">Job offers arrive as notifications, like a ride-hailing driver app.</div></div>' +
         '<button type="button" onclick="_svcJobGuard(this,\'Turning on…\',function(){return svcEnablePush();})" style="' + _svcBtn + '" data-i="enablejobalerts">Enable job alerts</button></div>';
     }
     if (_pushSilentlyOff) {
-      html += '<div class="simple-card" style="margin-bottom:0.8rem;padding:0.8rem 1rem;'
+      html += '<div class="simple-card" style="margin-bottom:0.75rem;padding:0.75rem 1rem;'
         + 'border:1px solid rgba(247,162,27,0.35);background:rgba(247,162,27,0.08);">'
-        + '<div style="font-size:0.8rem;">🔕 <strong>Job alerts are not actually on</strong>'
-        + '<div style="opacity:0.8;margin-top:0.15rem;">Your browser still allows notifications, but '
+        + '<div style="font-size:0.75rem;">🔕 <strong>Job alerts are not actually on</strong>'
+        + '<div style="opacity:0.8;margin-top:0.125rem;">Your browser still allows notifications, but '
         + 'we have no subscription for this device - so new hails will NOT reach you with this tab '
         + 'closed. Turning them back on takes one tap.</div></div>'
         + '<button type="button" onclick="_svcJobGuard(this,\'Turning on…\',function(){return svcEnablePush();})" '
@@ -2542,8 +2670,8 @@
            +  '<span class="tab-count">' + disputed.length + '</span></h2>';
       disputed.forEach(j => {
         html +=
-          '<div class="simple-card" role="alert" style="margin-bottom:0.6rem;padding:0.9rem 1rem;'
-          + 'border-left:3px solid var(--wh-danger,#d9534f);">'
+          '<div class="simple-card" role="alert" style="margin-bottom:0.5rem;padding:1rem 1rem;'
+          + 'border-left:3px solid var(--wh-red,#f87171);">'
           + '<strong>' + e(j.catalog_name || j.custom_scope || 'Service job') + '</strong>'
           + '<div style="font-size:0.75rem;opacity:0.85;margin:0.25rem 0 0.5rem;">'
           + 'The client reported a problem with this job, so it has not settled. WorkHive is '
@@ -2567,13 +2695,13 @@
       jobs.forEach(j => {
         const nxt = SVC_NEXT[j.status];
         html +=
-          '<div class="simple-card" style="margin-bottom:0.6rem;padding:0.9rem 1rem;">' +
+          '<div class="simple-card" style="margin-bottom:0.5rem;padding:1rem 1rem;">' +
           '<strong>' + e(j.catalog_name || j.custom_scope || 'Service job') + '</strong>' +
-          '<div style="font-size:0.75rem;opacity:0.8;margin:0.2rem 0 0.5rem;">' + e(SVC_STATUS_LABEL[j.status] || j.status) + ' · ' + e(j.address || '') + (j.client_worker_name ? ' · for ' + e(j.client_worker_name) : '') + '</div>' +
-          (nxt ? '<button type="button" onclick="_svcJobGuard(this,\'Updating…\',function(){return svcAdvance(\'' + e(j.id) + '\',\'' + nxt[0] + '\');})" style="' + _svcBtn + 'margin-right:0.4rem;">' + nxt[1] + '</button>' : '') +
-          '<button type="button" onclick="_svcJobGuard(this,\'Cancelling…\',function(){return svcCancelJob(\'' + e(j.id) + '\');})" style="' + _svcBtnGhost + 'margin-right:0.4rem;" data-i="canceljob">Cancel job</button>' +
+          '<div style="font-size:0.75rem;opacity:0.8;margin:0.25rem 0 0.5rem;">' + e(SVC_STATUS_LABEL[j.status] || j.status) + ' · ' + e(j.address || '') + (j.client_worker_name ? ' · for ' + e(j.client_worker_name) : '') + '</div>' +
+          (nxt ? '<button type="button" onclick="_svcJobGuard(this,\'Updating…\',function(){return svcAdvance(\'' + e(j.id) + '\',\'' + nxt[0] + '\');})" style="' + _svcBtn + 'margin-right:0.375rem;">' + nxt[1] + '</button>' : '') +
+          '<button type="button" onclick="_svcJobGuard(this,\'Cancelling…\',function(){return svcCancelJob(\'' + e(j.id) + '\');})" style="' + _svcBtnGhost + 'margin-right:0.375rem;" data-i="canceljob">Cancel job</button>' +
           // dayplanner hook (P5/§1c): the platform's existing ?add=1 deep-link contract
-          '<a href="dayplanner.html?add=1&title=' + encodeURIComponent('Service job: ' + (j.catalog_name || (j.custom_scope || 'hailed job').slice(0, 60))) + '&kind=shift&ref=svc-' + e(j.id) + '&cat=CM" style="' + _svcBtnGhost + 'display:inline-flex;align-items:center;text-decoration:none;margin-right:0.4rem;" aria-label="Add this job to my Day Planner">+ Add to my day</a>' +
+          '<a href="dayplanner.html?add=1&title=' + encodeURIComponent('Service job: ' + (j.catalog_name || (j.custom_scope || 'hailed job').slice(0, 60))) + '&kind=shift&ref=svc-' + e(j.id) + '&cat=CM" style="' + _svcBtnGhost + 'display:inline-flex;align-items:center;text-decoration:none;margin-right:0.375rem;" aria-label="Add this job to my Day Planner">+ Add to my day</a>' +
           // parts cross-sell (P9/§1c): a job that needs a part feeds the parts marketplace
           '<a href="marketplace.html" style="' + _svcBtnGhost + 'display:inline-flex;align-items:center;text-decoration:none;" aria-label="Find a replacement part in the parts marketplace">🔩 Find a part</a>' +
           '</div>';
@@ -2585,13 +2713,13 @@
        controls here on purpose — the job is over and there is nothing left to do to it; the value is
        entirely in the row still existing and naming its own ending. */
     if (closed && closed.length) {
-      html += '<h2 style="font-size:0.95rem;margin:1.1rem 0 0.5rem;">Closed '
+      html += '<h2 style="font-size:0.95rem;margin:1rem 0 0.5rem;">Closed '
            +  '<span class="tab-count">' + closed.length + '</span></h2>';
       closed.forEach(j => {
         html +=
-          '<div class="simple-card" style="margin-bottom:0.6rem;padding:0.9rem 1rem;opacity:0.85;">'
+          '<div class="simple-card" style="margin-bottom:0.5rem;padding:1rem 1rem;opacity:0.85;">'
           + '<strong>' + e(j.catalog_name || j.custom_scope || 'Service job') + '</strong>'
-          + '<div style="font-size:0.75rem;opacity:0.85;margin:0.2rem 0 0;">'
+          + '<div style="font-size:0.75rem;opacity:0.85;margin:0.25rem 0 0;">'
           + e(SVC_STATUS_LABEL[j.status] || j.status)
           + (j.address ? ' · ' + e(j.address) : '')
           + (j.client_worker_name ? ' · ' + e(j.client_worker_name) : '')
@@ -2602,13 +2730,13 @@
     // P6 bidirectional reviews, provider -> client: the other half of the tracker's client-side
     // rating, so a provider can flag a client who was not ready. One per direction (mig 46).
     if (done && done.length) {
-      html += '<h2 style="font-size:0.95rem;margin:1.1rem 0 0.5rem;">Recently finished <span class="tab-count">' + done.length + '</span></h2>';
+      html += '<h2 style="font-size:0.95rem;margin:1rem 0 0.5rem;">Recently finished <span class="tab-count">' + done.length + '</span></h2>';
       done.forEach(j => {
         const rated = ratedIds && ratedIds.has(j.id);
         html +=
-          '<div class="simple-card" style="margin-bottom:0.6rem;padding:0.9rem 1rem;">' +
+          '<div class="simple-card" style="margin-bottom:0.5rem;padding:1rem 1rem;">' +
           '<strong>' + e(j.catalog_name || j.custom_scope || 'Service job') + '</strong>' +
-          '<div style="font-size:0.75rem;opacity:0.8;margin:0.2rem 0 0.5rem;">' + e(SVC_STATUS_LABEL[j.status] || j.status) +
+          '<div style="font-size:0.75rem;opacity:0.8;margin:0.25rem 0 0.5rem;">' + e(SVC_STATUS_LABEL[j.status] || j.status) +
           (j.client_worker_name ? ' · for ' + e(j.client_worker_name) : '') + '</div>' +
           (function () {
             /* T35: what the client actually paid, and - when it differs from the agreed figure -
@@ -2622,10 +2750,10 @@
               : '₱' + e(String(pay.amount_paid));
             const how = pay.method ? ' · ' + e(String(pay.method)) : '';
             const ref = pay.gcash_ref ? ' · ref ' + e(String(pay.gcash_ref)) : '';
-            return '<div style="font-size:0.78rem;margin:0 0 0.5rem;"><strong>' + amt + '</strong>'
+            return '<div style="font-size:0.75rem;margin:0 0 0.5rem;"><strong>' + amt + '</strong>'
               + '<span style="opacity:0.75;">' + how + ref + '</span></div>'
               + (pay.variance_reason
-                  ? '<div style="font-size:0.72rem;margin:0 0 0.5rem;padding:0.45rem 0.55rem;'
+                  ? '<div style="font-size: 0.75rem;margin:0 0 0.5rem;padding:0.5rem 0.5rem;'
                     + 'border-radius:var(--wh-radius-sm);background:rgba(247,162,27,0.10);'
                     + 'border:1px solid rgba(247,162,27,0.28);">'
                     + '<span style="opacity:0.8;">Why this amount:</span> '
@@ -2633,8 +2761,8 @@
                   : '');
           })() +
           (rated
-            ? '<span style="font-size:0.78rem;opacity:0.75;">✓ You rated this client</span>'
-            : '<div id="svc-prate-' + e(j.id) + '" style="margin:0.3rem 0;"></div>' +
+            ? '<span style="font-size:0.75rem;opacity:0.75;">✓ You rated this client</span>'
+            : '<div id="svc-prate-' + e(j.id) + '" style="margin:0.25rem 0;"></div>' +
               '<button type="button" onclick="svcRateClient(\'' + e(j.id) + '\')" style="' + _svcBtnGhost + '" data-i="rateclient">Rate client</button>') +
           '</div>';
       });
@@ -2659,26 +2787,26 @@
       _seenJob.set(k, row);
       _byJob.push(row);
     });
-    html += '<h2 style="font-size:0.95rem;margin:1.1rem 0 0.5rem;">Open requests near you <span class="tab-count">' + _byJob.length + '</span></h2>';
+    html += '<h2 style="font-size:0.95rem;margin:1rem 0 0.5rem;">Open requests near you <span class="tab-count">' + _byJob.length + '</span></h2>';
     if (!_byJob.length) {
       html += '<div class="empty-state" style="padding:1rem;"><p>No open requests in your service area right now. Stay Online and new hails appear here live.</p></div>';
     } else {
       _byJob.forEach(f => {
         const rate = f.catalog_rate != null ? _svcPeso(f.catalog_rate) + (f.catalog_unit === 'per_hour' ? '/hr' : '/visit') : (f.budget != null ? 'Budget ' + _svcPeso(f.budget) : 'Quote it');
         html +=
-          '<div class="simple-card" style="margin-bottom:0.6rem;padding:0.9rem 1rem;">' +
+          '<div class="simple-card" style="margin-bottom:0.5rem;padding:1rem 1rem;">' +
           '<strong>' + e(f.catalog_name || f.custom_scope || 'Service request') + '</strong>' +
-          '<div style="font-size:0.75rem;opacity:0.8;margin:0.2rem 0 0.5rem;">' +
+          '<div style="font-size:0.75rem;opacity:0.8;margin:0.25rem 0 0.5rem;">' +
           (f.catalog_category ? e(f.catalog_category) + ' · ' : '') + e(f.urgency || 'normal') + ' priority' +
           (f.distance_km != null ? ' · ' + Number(f.distance_km).toFixed(1) + ' km away' : '') +
           (f.area_hint ? ' · ' + e(f.area_hint) : '') + ' · ' + rate +
           e(svcHoldHint(f.catalog_rate != null ? f.catalog_rate : f.budget)) + '</div>' +
           (f.already_responded
-            ? '<span style="font-size:0.8rem;opacity:0.75;">Responded. Waiting for the client</span>'
+            ? '<span style="font-size:0.75rem;opacity:0.75;">Responded. Waiting for the client</span>'
             : (f.mode === 'instant'
                 ? '<button type="button" onclick="_svcJobGuard(this,\'Accepting…\',function(){return svcAccept(\'' + e(f.request_id) + '\');})" style="' + _svcBtn + '" data-i="acceptjob">Accept job</button>'
-                : '<span style="display:inline-flex;gap:0.4rem;align-items:center;flex-wrap:wrap;">' +
-                  '<input id="svc-q-' + e(f.request_id) + '" type="number" min="0" step="50" placeholder="Your price ₱" aria-label="Your quote price in pesos" style="width:9rem;padding:0.55rem;border-radius:var(--wh-radius-sm);border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:inherit;min-height:44px;box-sizing:border-box;">' +
+                : '<span style="display:inline-flex;gap:0.375rem;align-items:center;flex-wrap:wrap;">' +
+                  '<input id="svc-q-' + e(f.request_id) + '" type="number" min="0" step="50" placeholder="Your price ₱" aria-label="Your quote price in pesos" style="width:9rem;padding:0.5rem;border-radius:var(--wh-radius-sm);border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:inherit;min-height:44px;box-sizing:border-box;">' +
                   '<button type="button" onclick="_svcJobGuard(this,\'Sending…\',function(){return svcQuote(\'' + e(f.request_id) + '\');})" style="' + _svcBtnGhost + '" data-i="sendquote">Send quote</button></span>')) +
           '</div>';
       });
@@ -2847,9 +2975,9 @@
     if (!slot) return;
     if (slot.innerHTML) { slot.innerHTML = ''; return; }   // toggle
     const e = escHtml;
-    slot.innerHTML = '<div style="border:1px solid rgba(255,255,255,0.12);border-radius:var(--wh-radius-sm);padding:0.6rem 0.7rem;">' +
-      '<div style="font-size:0.78rem;font-weight:600;margin-bottom:0.3rem;">How was this client?</div>' +
-      '<div role="radiogroup" aria-label="Rating from 1 to 5 stars" style="display:flex;gap:0.3rem;margin-bottom:0.4rem;flex-wrap:wrap;">' +
+    slot.innerHTML = '<div style="border:1px solid rgba(255,255,255,0.12);border-radius:var(--wh-radius-sm);padding:0.5rem 0.75rem;">' +
+      '<div style="font-size:0.75rem;font-weight:600;margin-bottom:0.25rem;">How was this client?</div>' +
+      '<div role="radiogroup" aria-label="Rating from 1 to 5 stars" style="display:flex;gap:0.25rem;margin-bottom:0.375rem;flex-wrap:wrap;">' +
       [1, 2, 3, 4, 5].map(n => '<button type="button" aria-label="' + n + ' star' + (n > 1 ? 's' : '') + '" onclick="_svcJobGuard(this,\'…\',function(){return svcProvPickStar(\'' + e(requestId) + '\',' + n + ');})" style="' + _svcBtnGhost + 'min-width:44px;">' + n + '★</button>').join('') + '</div>' +
       '<input id="svc-prate-comment-' + e(requestId) + '" type="text" maxlength="200" placeholder="A sentence for other providers (optional)" aria-label="Review comment (optional)" style="width:100%;' + _svcInput + '">' +
       '</div>';
@@ -2968,7 +3096,7 @@
       el = document.createElement('div');
       el.id = 'svc-geo-indicator';
       el.setAttribute('role', 'status');
-      el.style.cssText = 'position:fixed;bottom:76px;left:50%;transform:translateX(-50%);z-index:60;background:rgba(22,32,50,0.92);border:1px solid rgba(247,162,27,0.4);color:var(--wh-orange-text);padding:0.4rem 0.9rem;border-radius:999px;font-size:0.72rem;font-weight:600;';
+      el.style.cssText = 'position:fixed;bottom:76px;left:50%;transform:translateX(-50%);z-index:60;background:rgba(22,32,50,0.92);border:1px solid rgba(247,162,27,0.4);color:var(--wh-orange-text);padding:0.375rem 1rem;border-radius:999px;font-size: 0.75rem;font-weight:600;';
       el.textContent = '📍 Sharing your live location with this job\'s client';
       document.body.appendChild(el);
     }
@@ -2996,9 +3124,24 @@
   }
   window.svcGeoSync = svcGeoSync;
 
-  // The page script is an IIFE (line ~368): inline onclick handlers only reach
-  // window-attached functions (the window.loadMoreSeller precedent) - caught live
-  // when svcRegister() threw ReferenceError from the onboarding button.
+  // The page script is an IIFE (line ~368): inline onclick handlers only reach window-attached
+  // functions - caught live when svcRegister() threw ReferenceError from the onboarding button.
+  //
+  // ★THE PRECEDENT THIS COMMENT USED TO CITE IS GONE, AND THE SHAPE IT DESCRIBES IS THE FINDING
+  // (audit lens, 2026-09-18, COUNTED IN SOURCE). It named window.loadMoreSeller, whose only consumer
+  // was an inline onclick in static markup; that button is bound with addEventListener now and the
+  // global went with it, along with the page's two other STATIC inline handlers (location.reload and
+  // claimStarter). What remains is not strays - it is an architecture: NINETEEN inline on* handlers,
+  // every one of them written into a JS template string in the services / provider pane, and
+  // TWENTY-ONE window-attached functions that exist only so those strings can reach them. A live
+  // count reported ONE, because the pane those nineteen live in had not rendered; the source is the
+  // instrument for this, not the browser.
+  //
+  // It is named rather than rewritten here on purpose. Converting nineteen generated handlers to
+  // delegation touches topups, GCash receipts, job-state guards and provider ratings - a refactor
+  // with real regression risk on a money surface - and it is one decision taken once, not an audit
+  // row's to take in passing. It also matters beyond style: an inline handler is the binding a strict
+  // CSP without 'unsafe-inline' refuses, and this product has already shipped one CSP repair.
   window.loadServices = loadServices;
 
   /* THE THIRD PARTIAL RETRY IN THIS ARC, and the same shape each time: a Retry that re-runs only the
@@ -3093,9 +3236,9 @@
 
     /* Render */
     const respColor =
-      myAvgH == null ? '#7B8794'
-        : platformAvgH == null ? '#F7A21B'
-          : myAvgH <= platformAvgH ? '#4ade80' : '#f7a21b';
+      myAvgH == null ? 'var(--wh-steel-bright)'
+        : platformAvgH == null ? 'var(--wh-orange)'
+          : myAvgH <= platformAvgH ? 'var(--wh-green)' : 'var(--wh-orange)';
     const respCmp =
       myAvgH == null ? 'No replies yet'
         : platformAvgH == null ? 'Your average'
@@ -3105,7 +3248,7 @@
 
     let html = `
       <!-- Overview cards -->
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.625rem;margin-bottom:1rem;">
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.75rem;margin-bottom:1rem;">
         <div class="pstat" style="background:linear-gradient(145deg, rgba(42,61,88,0.5), rgba(31,46,69,0.7));"><div class="pstat-num">${totalViews}</div><div class="pstat-lbl">Total Views</div></div>
         <div class="pstat" style="background:linear-gradient(145deg, rgba(42,61,88,0.5), rgba(31,46,69,0.7));"><div class="pstat-num blue">${totalInquiries}</div><div class="pstat-lbl">Inquiries</div></div>
         <div class="pstat" style="background:linear-gradient(145deg, rgba(42,61,88,0.5), rgba(31,46,69,0.7));"><div class="pstat-num green">${conversionRate}%</div><div class="pstat-lbl">Conversion</div></div>
@@ -3118,32 +3261,32 @@
              counter. The same seller's speed was called a RESPONSE here and a REPLY one page over,
              which is the cross-surface half of one-concept-one-word: a seller checking their own
              console against their public profile had to match two words to one number. -->
-        <div style="font-size:0.78rem;font-weight:700;margin-bottom:0.625rem;">Reply Time</div>
+        <div style="font-size:0.75rem;font-weight:700;margin-bottom:0.75rem;">Reply Time</div>
         <div style="display:flex;align-items:flex-end;gap:1.5rem;flex-wrap:wrap;">
           <div>
-            <div style="font-size:1.6rem;font-weight:800;color:${e(respColor)};line-height:1;">
+            <div style="font-size:1.5rem;font-weight:800;color:${e(respColor)};line-height:1;">
               ${myAvgH == null ? '-' : myAvgH < 1 ? '<1h' : Math.round(myAvgH) + 'h'}
             </div>
-            <div style="font-size:0.65rem;color:var(--wh-steel-bright);margin-top:0.2rem;">YOUR AVERAGE</div>
+            <div style="font-size: 0.75rem;color:var(--wh-steel-bright);margin-top:0.25rem;">YOUR AVERAGE</div>
           </div>
           <div>
-            <div style="font-size:1.1rem;font-weight:600;color:var(--wh-steel-bright);line-height:1;">
+            <div style="font-size:1.125rem;font-weight:600;color:var(--wh-steel-bright);line-height:1;">
               ${platformAvgH == null ? '-' : platformAvgH < 1 ? '<1h' : Math.round(platformAvgH) + 'h'}
             </div>
-            <div style="font-size:0.65rem;color:var(--wh-steel-bright);margin-top:0.2rem;">PLATFORM AVG</div>
+            <div style="font-size: 0.75rem;color:var(--wh-steel-bright);margin-top:0.25rem;">PLATFORM AVG</div>
           </div>
           <div style="flex:1;min-width:140px;">
-            <div style="font-size:0.78rem;color:${e(respColor)};font-weight:600;">${e(respCmp)}</div>
-            <div style="font-size:0.7rem;color:var(--wh-steel-bright);margin-top:0.2rem;">Quick Reply badge unlocks at &lt;4h with 5+ replies.</div>
+            <div style="font-size:0.75rem;color:${e(respColor)};font-weight:600;">${e(respCmp)}</div>
+            <div style="font-size: 0.75rem;color:var(--wh-steel-bright);margin-top:0.25rem;">Quick Reply badge unlocks at &lt;4h with 5+ replies.</div>
           </div>
         </div>
       </div>
 
       <!-- Per-listing performance table -->
-      <div style="font-size:0.78rem;font-weight:700;margin-bottom:0.5rem;">Listing Performance</div>`;
+      <div style="font-size:0.75rem;font-weight:700;margin-bottom:0.5rem;">Listing Performance</div>`;
 
     if (!myListings.length) {
-      html += `<div class="empty-state" style="padding:1.5rem 1rem;"><p>Post a listing to start tracking performance.</p><button type="button" onclick="switchTab('listings')" style="margin-top:0.6rem;padding:0.45rem 1rem;border-radius:0.5rem;background:rgba(247,162,27,0.12);border:1px solid rgba(247,162,27,0.3);color:var(--wh-orange);font-weight:600;cursor:pointer;" data-i="postalisting">Post a Listing →</button></div>`;
+      html += `<div class="empty-state" style="padding:1.5rem 1rem;"><p>Post a listing to start tracking performance.</p><button type="button" onclick="switchTab('listings')" style="margin-top:0.5rem;padding:0.5rem 1rem;border-radius:0.5rem;background:rgba(247,162,27,0.12);border:1px solid rgba(247,162,27,0.3);color:var(--wh-orange);font-weight:600;cursor:pointer;" data-i="postalisting">Post a Listing →</button></div>`;
     } else {
       const sorted = [...myListings].sort((a, b) => Number(b.view_count || 0) - Number(a.view_count || 0));
       html += `<div style="display:flex;flex-direction:column;gap:0.5rem;">`;
@@ -3153,17 +3296,17 @@
         const conv  = views > 0 ? Math.round((inq / views) * 1000) / 10 : 0;
         const isPub = l.status === 'published';
         html += `
-          <div style="background:rgba(31,46,69,0.5);border:1px solid rgba(255,255,255,0.06);border-radius:0.625rem;padding:0.75rem;display:flex;align-items:center;gap:0.75rem;${!isPub ? 'opacity:0.55;' : ''}">
+          <div style="background:rgba(31,46,69,0.5);border:1px solid rgba(255,255,255,0.06);border-radius:var(--wh-radius);padding:0.75rem;display:flex;align-items:center;gap:0.75rem;${!isPub ? 'opacity:0.55;' : ''}">
             <div style="flex:1;min-width:0;">
-              <div style="font-size:0.78rem;font-weight:600;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${e(l.title)}</div>
-              <div style="font-size:0.65rem;color:var(--wh-steel-bright);margin-top:0.15rem;">
+              <div style="font-size:0.75rem;font-weight:600;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${e(l.title)}</div>
+              <div style="font-size: 0.75rem;color:var(--wh-steel-bright);margin-top:0.125rem;">
                 ${e(l.section)} &nbsp;·&nbsp; ${e(l.status)}${isPub ? '' : ' (not visible)'}
               </div>
             </div>
-            <div style="display:flex;gap:0.875rem;text-align:right;">
-              <div><div style="font-size:0.95rem;font-weight:700;">${views}</div><div style="font-size:0.6rem;color:var(--wh-steel-bright);">VIEWS</div></div>
-              <div><div style="font-size:0.95rem;font-weight:700;color:var(--wh-blue-text);">${inq}</div><div style="font-size:0.6rem;color:var(--wh-steel-bright);">INQUIRIES</div></div>
-              <div><div style="font-size:0.95rem;font-weight:700;color:${conv >= 5 ? 'var(--wh-green)' : 'var(--wh-steel)'};">${views ? conv + '%' : '-'}</div><div style="font-size:0.6rem;color:var(--wh-steel-bright);">CONV</div></div>
+            <div style="display:flex;gap:1rem;text-align:right;">
+              <div><div style="font-size:0.95rem;font-weight:700;">${views}</div><div style="font-size: 0.75rem;color:var(--wh-steel-bright);">VIEWS</div></div>
+              <div><div style="font-size:0.95rem;font-weight:700;color:var(--wh-blue-text);">${inq}</div><div style="font-size: 0.75rem;color:var(--wh-steel-bright);">INQUIRIES</div></div>
+              <div><div style="font-size:0.95rem;font-weight:700;color:${conv >= 5 ? 'var(--wh-green)' : 'var(--wh-steel-bright)'};">${views ? conv + '%' : '-'}</div><div style="font-size: 0.75rem;color:var(--wh-steel-bright);">CONV</div></div>
             </div>
           </div>`;
       });
@@ -3298,11 +3441,11 @@
         if (normalized) {
           pill.textContent = 'Pending admin review';
           pill.style.background = 'rgba(251,191,36,0.1)';
-          pill.style.color = '#f7a21b';
+          pill.style.color = 'var(--wh-orange)';
         } else {
           pill.textContent = 'Not verified';
           pill.style.background = 'rgba(255,255,255,0.06)';
-          pill.style.color = '#7B8794';
+          pill.style.color = 'var(--wh-steel-bright)';
         }
       }
       try { window._whSellerCertDraft && window._whSellerCertDraft.clear(); } catch (_) { void _; }
@@ -3337,7 +3480,11 @@
       });
     });
 
-    window.loadMoreSeller = () => { _sellerDisplayCount += 30; renderListings(); };
+    // Bound rather than attached to window: the only reason loadMoreSeller lived on window was
+    // that an inline onclick could not see a module-scoped name. With the binding moved, the
+    // global goes too - a function on window is reachable from any script the page ever loads.
+    const loadMoreSeller = () => { _sellerDisplayCount += 30; renderListings(); };
+    document.getElementById('btn-load-more-seller')?.addEventListener('click', loadMoreSeller);
 
 
     document.getElementById('overlay-edit')?.addEventListener('click', () => { document.getElementById('overlay-edit')?.classList.remove('open'); document.getElementById('sheet-edit')?.classList.remove('open'); document.body.style.overflow = ''; });
@@ -3359,6 +3506,11 @@
        onclick attribute, so the lock goes on at the wiring, which also means every future listener
        added here inherits it. */
     const _lockClick = fn => function (ev) { return withButtonLock(this, () => fn.call(this, ev)); };
+    // The last two inline on* handlers on this page, moved to where every other control on it is
+    // bound. An inline handler is also the one binding style a strict CSP without 'unsafe-inline'
+    // refuses, and this product has already shipped one CSP repair.
+    document.getElementById('ps-gap-retry')?.addEventListener('click', () => location.reload());
+    document.getElementById('cw-claim')?.addEventListener('click', () => claimStarter());
     document.getElementById('btn-save-messenger')?.addEventListener('click', _lockClick(handleSaveMessenger));
     document.getElementById('btn-save-certs')?.addEventListener('click', _lockClick(handleSaveCerts));
 
@@ -3443,7 +3595,7 @@ window.addEventListener('load', function () {
   window.addEventListener('load', function () {
     var el = document.getElementById('ms-source-chip');
     if (!el) { el = document.createElement('div'); el.id = 'ms-source-chip'; var host = document.querySelector('.page') || document.querySelector('main') || document.body; host.appendChild(el); }
-    el.setAttribute('role', 'status'); el.setAttribute('aria-live', 'polite');  // G1 (Nielsen #1): this in-content provenance chip IS the page's system-status/freshness region
+    // W45981 audit: this wrapper used to set role=status + aria-live=polite ITSELF, and renderSourceChip() emits a <p class="wh-source-chip" role="status" aria-live="polite"> into it - so the page carried a live region INSIDE a live region and announced the same provenance sentence twice on arrival. The G1 reasoning was right (this chip IS the page's status region) and is now satisfied by the chip itself, which is where the role belongs: one element, one announcement.
     if (typeof renderSourceChip === 'function') el.innerHTML = renderSourceChip({
       freshness: 'Live · refreshed on load',
       source: 'v_marketplace_inquiries_truth + v_marketplace_listings_truth + marketplace_sellers',
@@ -3451,12 +3603,67 @@ window.addEventListener('load', function () {
   });
 </script>
 
-<script>window.WH_FIL_PAGE={savecerts:'I-save ang mga sertipiko',f_all:'Lahat',f_pub:'Nai-publish',f_draft:'Draft',f_rem:'Inalis',noinq:'Wala pang inquiry'};</script>
+<script>window.WH_FIL_PAGE={savecerts:'I-save ang mga sertipiko',f_all:'Lahat',f_pub:'Nai-publish',f_draft:'Draft',f_rem:'Inalis',noinq:'Wala pang inquiry','aria_savemsgr':'I-save ang Messenger handle'};</script>
   <!-- AV1 (FULLSTACK_COMPONENT_LIBRARY Layer AV): the offline canonical set — ships as one unit -->
   <script src="offline-banner.js"></script>
   <script defer src="offline-queue.js"></script>
   <script defer src="connectivity-widget.js"></script>
   <script defer src="session-timeout.js"></script>
   <script defer src="device-fingerprint.js"></script>
+<script>(function(){try{var d=window.WH_FIL_PAGE||{};if((window.WH_LANG||'en')!=='fil')return;document.querySelectorAll('[data-i-aria]').forEach(function(el){var v=d[el.getAttribute('data-i-aria')];if(v){el.setAttribute('aria-label',v);if(el.hasAttribute('title'))el.setAttribute('title',v);}});}catch(e){/* empty-catch-allow: a label that cannot be translated stays English */}})();</script>
+<script>
+/* Untranslated accessible names (design lens copy, 2026-09-22). These attributes are STATIC markup,
+   so there is nowhere to put a _t() call and they stayed English while the rest of the page
+   translated - the visible words in Filipino, the announced ones in English. Matched by their
+   English VALUE rather than by id, so duplicates are covered and nothing depends on an id.
+   WH_LANG is read directly with an English floor, as wayfinding.js does, because these must be
+   right on first paint and must not wait for utils.js to define the translator. Every swapped
+   element declares its own lang (WCAG 3.1.2, language of parts). */
+(function () {
+  var fil = false;
+  try { fil = (window.WH_LANG === 'fil') || (localStorage.getItem('wh_lang') === 'fil'); }
+  catch (_) { fil = (window.WH_LANG === 'fil'); }
+  if (!fil) return;
+  var MAP = [
+    ['aria-label', 'Back to marketplace', 'Balik sa marketplace'],
+    ['title', 'Back to marketplace', 'Balik sa marketplace'],
+    ['aria-label', 'Close this editor without saving', 'Isara ang editor na ito nang hindi nagse-save'],
+    ['placeholder', 'Leave blank if negotiable', 'Iwanang blangko kung negotiable'],
+    ['placeholder', 'Phone or email', 'Telepono o email'],
+    ['aria-label', 'Choose listing photo', 'Pumili ng larawan ng listing']
+  ];
+  /* "View Live" on each listing row is NOT fixed here, deliberately. It resisted both remedies and
+     the evidence about which one applies is contradictory, so it is recorded rather than guessed:
+     a ${_t(...)} wrap was refused by the backtick-parity check (116 before it = outside a template
+     literal, and on hive.html today that exact mistake rendered the placeholder as visible text),
+     while a DOMContentLoaded text swap never fires because the listing rows are rendered later
+     from a DB read. The right fix is at the row's render site, which the next pass on this page
+     should take. */
+  var TEXTS = [];
+  var apply = function () {
+    MAP.forEach(function (row) {
+      var attr = row[0], en = row[1], tl = row[2];
+      var sel = '[' + attr + '="' + en.replace(/"/g, '\\"') + '"]';
+      var nodes;
+      try { nodes = document.querySelectorAll(sel); } catch (_) { return; }
+      Array.prototype.forEach.call(nodes, function (el) {
+        el.setAttribute(attr, tl);
+        el.lang = 'fil';
+      });
+    });
+    TEXTS.forEach(function (row) {
+      var sel = row[0], en = row[1], tl = row[2];
+      var nodes;
+      try { nodes = document.querySelectorAll(sel); } catch (_) { return; }
+      Array.prototype.forEach.call(nodes, function (el) {
+        if ((el.textContent || '').trim() === en) { el.textContent = tl; el.lang = 'fil'; }
+      });
+    });
+  };
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', apply);
+  } else { apply(); }
+})();
+</script>
 </body>
 </html>

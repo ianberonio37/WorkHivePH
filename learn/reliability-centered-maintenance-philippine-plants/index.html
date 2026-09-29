@@ -104,29 +104,36 @@
     html, body, a, button { touch-action: manipulation; }   /* T3: no 300 ms tap delay, no double-tap zoom (the rubric reads html/body) */
     body { font-family: 'Poppins', sans-serif; }
     .hex-pattern { background-image: radial-gradient(circle, rgba(247,162,27,0.04) 1px, transparent 1px); background-size: 28px 28px; }
-    .audience-block { background: linear-gradient(135deg, rgba(41,182,217,0.10), rgba(41,182,217,0.04)); border: 1px solid rgba(41,182,217,0.22); border-radius: 14px; padding: 18px 22px; margin: 1.75rem 0; }
-    .audience-label { font-size: 11px; font-weight: 700; color: #5FCCE8; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
-    .audience-block ul { margin: 0; padding-left: 1.2rem; color: rgba(244,246,250,0.85); font-size: 0.92rem; line-height: 1.7; }
-    .answer-first { background: rgba(247,162,27,0.06); border-left: 3px solid #F7A21B; padding: 18px 22px; border-radius: 0 12px 12px 0; margin: 1.5rem 0; color: rgba(244,246,250,0.85); font-size: 1.02rem; line-height: 1.65; }
-    .toc { background: rgba(31,46,69,0.6); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; padding: 18px 22px; margin: 2rem 0; }
-    .toc h2 { margin: 0 0 8px; font-size: 13px; color: rgba(244,246,250,0.8); font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; }
-    .toc ol { margin: 0; padding-left: 1.2rem; color: rgba(244,246,250,0.85); font-size: 0.92rem; line-height: 1.85; }
+    .audience-block { background: linear-gradient(135deg, rgba(41,182,217,0.10), rgba(41,182,217,0.04)); border: 1px solid rgba(41,182,217,0.22); border-radius: 14px; padding: 20px 24px; margin: 1.75rem 0; }
+    .audience-label { font-size: 0.75rem; font-weight: 700; color: #5FCCE8; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
+    .audience-block ul { margin: 0; padding-left: 1.2rem; color: rgba(244,246,250,0.85); font-size: 0.95rem; line-height: 1.7; }
+    .answer-first { background: rgba(247,162,27,0.06); border: 1px solid rgba(247,162,27,0.30); padding: 20px 24px; border-radius: 0 12px 12px 0; margin: 1.5rem 0; color: rgba(244,246,250,0.85); font-size: 1.05rem; line-height: 1.65; }
+    .toc { background: rgba(31,46,69,0.6); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; padding: 20px 24px; margin: 2rem 0; }
+    .toc h2, .toc h4 { margin: 0 0 8px; font-size: 0.85rem; color: rgba(244,246,250,0.8); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+    .toc ol { margin: 0; padding-left: 1.2rem; color: rgba(244,246,250,0.85); font-size: 0.95rem; line-height: 1.85; }
     .toc a { color: rgba(244,246,250,0.85); }
     .toc a:hover { color: #FDB94A; }
-    .prose-wh h2 { font-size: 1.55rem; font-weight: 800; color: #F4F6FA; margin: 2.25rem 0 0.85rem; letter-spacing: -0.01em; }
-    .prose-wh p { overflow-wrap: anywhere; word-break: break-word; font-size: 1.005rem; color: rgba(244,246,250,0.85); line-height: 1.75; margin: 0.85rem 0; }
+    .prose-wh h2 { font-size: 1.55rem; font-weight: 800; color: #F4F6FA; margin: 2.25rem 0 1rem; letter-spacing: -0.01em; }
+    .prose-wh { overflow-wrap: anywhere; word-break: break-word; color: rgba(244,246,250,0.85); font-size: 1.05rem; line-height: 1.8; }
+    .prose-wh p { overflow-wrap: anywhere; word-break: break-word; font-size: 1.05rem; color: rgba(244,246,250,0.85); line-height: 1.75; margin: 1rem 0; }
+    /* MEASURE (2026-09-16): 72ch, inside the 65-75 craft floor. Measured at 1280 before the
+       cap: 80ch here against 73ch on the articles that already carried this rule. Below ~1100px
+       the column is already narrower than the cap, so nothing moves on a phone. */
+    .prose-wh p, .prose-wh li { max-width: 72ch; }
     .prose-wh strong { color: #F4F6FA; }
     .prose-wh a { color: #5FCCE8; text-decoration: underline; text-underline-offset: 3px; }
-    .prose-wh ol, .prose-wh ul { color: rgba(244,246,250,0.85); padding-left: 1.4rem; margin: 0.85rem 0; line-height: 1.75; }
-    .tool-cta { background: linear-gradient(135deg, rgba(247,162,27,0.14), rgba(247,162,27,0.04)); border: 1px solid rgba(247,162,27,0.32); border-radius: 14px; padding: 22px 26px; margin: 2.25rem 0; }
-    .tool-cta a { display: inline-block; margin-top: 10px; background: linear-gradient(135deg, #F7A21B, #FDB94A); color: #162032; font-weight: 700; padding: 10px 22px; border-radius: 10px; text-decoration: none; transition: transform 0.15s; }
+    .prose-wh ol, .prose-wh ul { color: rgba(244,246,250,0.85); padding-left: 1.4rem; margin: 1rem 0; line-height: 1.75; }
+    .callout { background: rgba(41,182,217,0.06); border: 1px solid rgba(41,182,217,0.28); border-radius: 8px; padding: 20px 22px; margin: 2rem 0; font-size: 0.95rem; line-height: 1.7; color: rgba(244,246,250,0.85); }
+    .callout strong { color: #A4E2F2; }
+    .tool-cta { background: linear-gradient(135deg, rgba(247,162,27,0.14), rgba(247,162,27,0.04)); border: 1px solid rgba(247,162,27,0.32); border-radius: 14px; padding: 24px 28px; margin: 2.25rem 0; }
+    .tool-cta a { display: inline-block; margin-top: 12px; background: linear-gradient(135deg, #F7A21B, #FDB94A); color: #162032; font-weight: 700; padding: 12px 24px; border-radius: 10px; text-decoration: none; transition: transform 0.15s; }
     .tool-cta a:hover { transform: translateY(-1px); }
-    .faq-item { background: rgba(31,46,69,0.6); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 16px 20px; margin: 0.7rem 0; }
-    .faq-item summary { cursor: pointer; font-weight: 600; color: #F4F6FA; font-size: 1rem; }
+    .faq-item { background: rgba(31,46,69,0.6); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 16px 20px; margin: 0.75rem 0; }
+    .faq-item summary { cursor: pointer; font-weight: 600; color: #F4F6FA; font-size: 1.05rem; }
     .faq-item[open] summary { color: #FDB94A; }
-    .faq-item .faq-answer { margin-top: 12px; color: rgba(244,246,250,0.85); font-size: 0.97rem; line-height: 1.7; }
+    .faq-item .faq-answer { margin-top: 12px; color: rgba(244,246,250,0.85); font-size: 0.95rem; line-height: 1.7; }
     .sources-list { list-style: none; padding: 0; }
-    .sources-list li { overflow-wrap: anywhere; word-break: break-word; padding: 8px 0; border-bottom: 1px dashed rgba(255,255,255,0.07); color: rgba(244,246,250,0.85); font-size: 0.9rem; }
+    .sources-list li { overflow-wrap: anywhere; word-break: break-word; padding: 8px 0; border-bottom: 1px dashed rgba(255,255,255,0.07); color: rgba(244,246,250,0.85); font-size: 0.95rem; }
       /* Z2/R2 (critic re-sweep 2026-09-07): a long unbroken token (a citation URL) widened a paragraph to 463px at 390 and the page scrolled sideways; long words now wrap */
   </style>
 <!-- WorkHive GA4 -->
@@ -140,16 +147,18 @@
   <script src="/wh-ga4.js" defer></script>
   <!-- /WorkHive GA4 -->
 <link rel="stylesheet" href="/learn-print.css" media="print" />
-<style data-wh-chrome-i18n>nav a,header a,footer a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;min-width:44px;}nav a{padding:0 .25rem;}.breadcrumb a,.toc a{display:inline-flex;align-items:center;min-height:44px;}.breadcrumb a{min-width:44px;justify-content:center;}a.text-sm[href$='/learn/'],a.text-sm[href$='/learn/index.html']{display:inline-flex;align-items:center;min-height:44px;}.wh-tap{display:inline-flex;align-items:center;min-height:44px;}td a,th a{display:inline-flex;align-items:center;min-height:44px;}</style>
+<style data-wh-chrome-i18n>nav a,header a,footer a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;min-width:44px;}nav a{padding:0 .25rem;}.breadcrumb a,.toc a{display:inline-flex;align-items:center;min-height:44px;}.breadcrumb a{min-width:44px;justify-content:center;}a.text-sm[href$='/learn/'],a.text-sm[href$='/learn/index.html']{display:inline-flex;align-items:center;min-height:44px;}.wh-tap{display:inline-flex;align-items:center;min-height:44px;}td a,th a{display:inline-flex;align-items:center;min-height:44px;}/*wh-brand-header-gap*/@media (max-width:399px){header nav.flex{gap:.75rem;}}</style>
 <script src="/wh-i18n-lite.js" data-wh-chrome-i18n></script>
 </head>
 <body class="bg-navy-wh text-white antialiased">
+<a class="wh-skip-link" href="#wh-main-content" data-wh-skip="learn" style="position:fixed;top:0;left:0;z-index:10001;transform:translateY(-120%);background:var(--wh-orange,#F7A21B);color:var(--wh-navy,#162032);padding:0 20px;min-height:44px;display:inline-flex;align-items:center;font-weight:700;font-size:14px;text-decoration:none;border-radius:0 0 10px 0;box-shadow:0 4px 16px rgba(0,0,0,.35);transition:transform .15s cubic-bezier(0.23,1,0.32,1);box-sizing:border-box;" onfocus="this.style.transform='translateY(0)'" onblur="this.style.transform='translateY(-120%)'">Skip to main content</a>
+
 
 <nav class="border-b border-white/10" style="background: rgba(13,24,36,0.85);">
   <div class="max-w-5xl mx-auto px-5 sm:px-8 h-14 flex items-center justify-between">
     <a href="/" class="flex items-center gap-2 text-sm font-bold tracking-tight">
       <img src="/brand_assets/workhive-logo-transparent.png" alt="WorkHive" class="h-7 w-auto" />
-      <span class="text-white">WorkHive</span>
+      <span class="text-white wh-brand-word hidden sm:inline" aria-hidden="true">WorkHive</span>
     </a>
     <div class="flex items-center gap-5 text-xs sm:text-sm">
       <a href="/learn/" class="text-white/55 hover:text-white transition-colors" data-i="learn">Learn</a>
@@ -160,7 +169,7 @@
   </div>
 </nav>
 
-<article class="hex-pattern">
+<main id="wh-main-content"><article class="hex-pattern">
   <div class="max-w-3xl mx-auto px-5 sm:px-8 py-10 sm:py-14">
 
     <p class="text-xs uppercase tracking-[0.18em] text-orange-wh font-bold mb-3">WorkHive Learn · Philippines</p>
@@ -190,7 +199,7 @@
     </div>
 
     <div class="toc">
-      <h4 aria-level="2">What's in this guide</h4>
+      <h2>What's in this guide</h2>
       <ol>
         <li><a href="#what-is-rcm" class="wh-tap">What is Reliability-Centered Maintenance (RCM)?</a></li>
         <li><a href="#rcm-questions" class="wh-tap">The 7 RCM Questions</a></li>
@@ -205,46 +214,46 @@
       <div class="callout">Part of the <a href="/learn/maintenance-metrics-reliability-guide/">maintenance metrics guide: OEE, MTBF, MTTR and reliability</a>: the hub that connects every reliability metric and shows how they chain together.</div>
 
       <h2 id="what-is-rcm">What is Reliability-Centered Maintenance (RCM)?</h2>
-      <p>Reliability-Centered Maintenance prioritizes plant upkeep by failure consequence and P-F interval, so you fix what actually causes downtime instead of servicing everything on a fixed calendar. For a Cabuyao bottling line where a pump stoppage costs PHP 180,000 per hour, RCM targets that risk first, and it aligns with DOLE OSHS proactive-maintenance guidelines.</p>
+      <p>Reliability-Centered Maintenance prioritizes plant upkeep by failure consequence and P-F interval, so you fix what actually causes downtime instead of servicing everything on a fixed calendar. For a Cabuyao bottling line where a pump stoppage is costed at PHP 180,000 an hour, RCM targets that risk first, and it aligns with DOLE OSHS proactive-maintenance guidelines.</p>
 
-      <p>Reliability-Centered Maintenance (RCM) is a proactive approach to maintenance that helps Philippine plants like those in Cabuyao's PEZA zone minimize downtime and reduce costs. Developed in the 1970s by John Nowlan and Howard Heap, RCM focuses on identifying and addressing the root causes of equipment failures. By using a structured methodology, plant supervisors and maintenance planners can prioritize maintenance tasks and optimize resource allocation. In the Philippines, where labor costs can be as low as PHP 180,000 per month for a maintenance planner, RCM can help ensure that maintenance activities are cost-effective.</p>
-      <p>At its core, RCM is about understanding the reliability characteristics of equipment and scheduling maintenance tasks accordingly. This approach recognizes that not all equipment failures are equal and that some failures have more significant consequences than others. For example, a pump failure at a bottling plant in Calabarzon can lead to costly production downtime. By applying RCM principles, plant engineers can identify potential failure modes and develop effective maintenance strategies. Tools like WorkHive's PM Scheduler can help streamline the RCM process by capturing RCM-derived tasks and scheduling them efficiently.</p>
+      <p>Reliability-Centered Maintenance (RCM) is a proactive approach to maintenance that helps Philippine plants like those in Cabuyao's PEZA zone minimize downtime and reduce costs. Developed in the 1970s by John Nowlan and Howard Heap, RCM focuses on identifying and addressing the root causes of equipment failures. By using a structured methodology, plant supervisors and maintenance planners can prioritize maintenance tasks and optimize resource allocation. In a Philippine plant the planner's hours are the scarce resource rather than the tooling, so RCM earns its keep mostly in what it stops the team doing.</p>
+      <p>At its core, RCM is about understanding the reliability characteristics of equipment and scheduling maintenance tasks accordingly. This approach recognizes that not all equipment failures are equal and that some failures have more significant consequences than others. For example, a pump failure at a bottling plant in Calabarzon can lead to costly production downtime. By applying RCM principles, plant engineers can identify potential failure modes and develop effective maintenance strategies. An RCM analysis is only worth the days it takes if its conclusions end up on a schedule; WorkHive's PM Scheduler is where the derived tasks land, with their frequency and their owner.</p>
       <p>RCM's origins date back to the 1970s, when Nowlan and Heap developed the methodology for the US Department of Defense. Since then, RCM has become widely adopted across various industries, including manufacturing, oil and gas, and power generation. In the Philippines, where many plants operate 24/7, RCM can help ensure that equipment is available when needed. For instance, a plant in Batangas might have a critical pump (Pump P-204B) that requires regular maintenance to prevent failure during a 02:30 night shift. By applying RCM principles, plant engineers can develop a maintenance schedule that minimizes downtime and ensures equipment reliability.</p>
-      <p>In practice, RCM involves a structured process that includes seven key questions. These questions help plant engineers understand equipment functions, identify potential failure modes, and develop effective maintenance strategies. By answering these questions, plant engineers can prioritize maintenance tasks, allocate resources efficiently, and reduce the risk of equipment failures. For example, during a 14:45 shift at a plant in Bulacan, a maintenance planner might use RCM principles to schedule routine maintenance on a critical conveyor (Conveyor #2) and ensure that it operates reliably during production hours.</p>
+      <p>In practice, RCM involves a structured process that includes seven key questions. These questions help plant engineers understand equipment functions, identify potential failure modes, and develop effective maintenance strategies. By answering these questions, plant engineers can prioritize maintenance tasks, allocate resources efficiently, and reduce the risk of equipment failures. For example, on the afternoon shift at a plant in Bulacan, a maintenance planner might use RCM principles to schedule routine maintenance on a critical conveyor (Conveyor #2) and ensure that it operates reliably during production hours.</p>
       <h2 id="rcm-questions">The 7 RCM Questions</h2>
-      <p>Reliability-Centered Maintenance (RCM) analysis relies on a set of guiding questions to identify and prioritize maintenance tasks. These questions were first introduced by J. William Nowlan and H. F. Heap in their 1978 report 'Reliability-Centered Maintenance.' The 7 RCM questions help maintenance teams, like those at the Cabuyao bottling plant in Laguna, Philippines, focus on tasks that prevent equipment failures and reduce downtime.</p>
+      <p>Reliability-Centered Maintenance (RCM) analysis relies on a set of guiding questions to identify and prioritize maintenance tasks. They come from the 1978 report <em>Reliability-Centered Maintenance</em> by F. Stanley Nowlan and Howard F. Heap, prepared at United Airlines and published by the U.S. Department of Defense, and they are fixed today by <strong>SAE JA1011</strong>, the standard that defines what may be called an RCM process at all. The 7 RCM questions help maintenance teams, like those at the Cabuyao bottling plant in Laguna, Philippines, focus on tasks that prevent equipment failures and reduce downtime.</p>
       <p>The 7 RCM questions are:</p>
       <ol>
-        <li>What is the asset's function?</li>
-        <li>How does it fail to perform its function?</li>
-        <li>What causes the failure?</li>
-        <li>What are the consequences of failure?</li>
-        <li>How can we detect the failure?</li>
-        <li>What are the existing tasks and intervals?</li>
-        <li>Can we improve the task interval or add a new task?</li>
+        <li><strong>Functions.</strong> What is the asset supposed to do, and to what standard of performance? Not “run”: “deliver 300 litres a minute at 4 bar”.</li>
+        <li><strong>Functional failures.</strong> In what ways can it fail to deliver that? Partial failure counts: a pump at 200 l/min has failed its function.</li>
+        <li><strong>Failure modes.</strong> What causes each of those failures: bearing wear, seal leak, impeller erosion, a blocked suction line?</li>
+        <li><strong>Failure effects.</strong> What actually happens when it occurs? What does the operator see, what stops, how long does it take to put right?</li>
+        <li><strong>Failure consequences.</strong> In what way does each failure MATTER: safety, environment, production, or repair cost alone? This is the triage step, and it is the reason RCM exists rather than a checklist.</li>
+        <li><strong>Proactive tasks.</strong> What can be done in advance to prevent the failure or spot it developing, and at what interval?</li>
+        <li><strong>Default actions.</strong> What is done when no proactive task is worth doing: run to failure, scheduled discard, scheduled restoration, a failure-finding check on a hidden function, or redesign? Leaving this question out is the commonest way an “RCM” exercise turns back into a PM list.</li>
       </ol>
       <p>By answering these questions, maintenance planners and engineers can determine the most effective maintenance strategy for each asset. For example, Pump P-204B at the Cabuyao bottling plant requires regular maintenance to prevent failure.</p>
-      <p>When applying the 7 RCM questions, consider the equipment's criticality, failure modes, and operating conditions. For instance, a 24-hour shift at a Philippine plant might require more frequent checks on critical equipment. The goal is to prevent failures, not just to perform routine maintenance. By using a Computerized Maintenance Management System (CMMS) like WorkHive PM Scheduler, maintenance teams can streamline their RCM analysis and task management.</p>
+      <p>When applying the 7 RCM questions, consider the equipment's criticality, failure modes, and operating conditions. For instance, round-the-clock operation at a Philippine plant might require more frequent checks on critical equipment. The goal is to prevent failures, not just to perform routine maintenance. Without somewhere to put the output, an RCM study becomes a document nobody reopens - which is how most of them end.</p>
       <p>A practical example of the 7 RCM questions in action is a bottling-line pump at a Cabuyao plant. Suppose the pump's function is to supply water to the bottling line. If the pump fails, the line shuts down, resulting in a loss of PHP 180,000 per hour. By answering the 7 RCM questions, the maintenance team can identify potential failure modes, such as worn-out bearings or clogged filters, and schedule tasks to prevent or detect these failures. WorkHive PM Scheduler can help capture and schedule these RCM-derived tasks.</p>
       <h2 id="pf-intervals">P-F Intervals and FMEA Tie-in</h2>
       <p>Reliability-Centered Maintenance (RCM) involves understanding the P-F interval, which is the time between the onset of a potential failure (P) and the actual failure (F). For example, in a Cabuyao bottling plant, a maintenance team might notice that a pump's vibration readings start to increase 30 days before it fails. This 30-day period is the P-F interval. Knowing this interval helps the team schedule maintenance before a failure occurs. WorkHive's PM Scheduler can help capture and track these intervals.</p>
-      <p>The P-F interval is critical because it determines the frequency of maintenance tasks. If the interval is too long, maintenance might not be performed in time, resulting in equipment failure. Conversely, if it's too short, maintenance may be performed too frequently, wasting resources. In a Philippine plant, where labor costs are PHP 180,000 per month for a maintenance planner, efficient scheduling is essential. By analyzing P-F intervals, maintenance teams can optimize their schedules and reduce downtime.</p>
+      <p>Two different intervals live here and mixing them up is the commonest RCM mistake. The <strong>P-F interval</strong> is a property of the failure mode: how long that particular failure takes to go from first detectable sign to functional failure. You do not choose it; you measure or estimate it. What you choose is the <strong>inspection interval</strong>, and the rule connecting the two is this: <strong>inspect at no more than half the P-F interval</strong>, so at least two inspections fall inside the window and a single missed round does not cost you the catch. SAE JA1011 puts it as the P-F interval divided by two, tightened further by a safety factor where the consequence is severe. A 30-day P-F interval means a 14-day inspection, not a 30-day one: set them equal and you will reliably miss the failure you are inspecting for. In a Philippine plant the planner's hours are the binding constraint, so what goes on the schedule matters more than how many tasks are on it. By analyzing P-F intervals, maintenance teams can optimize their schedules and reduce downtime.</p>
       <p>FMEA (Failure Mode and Effects Analysis) is closely tied to RCM and P-F intervals. FMEA helps identify potential failure modes, their effects, and their causes. For instance, a plant supervisor at a Bulacan manufacturing site might use FMEA to identify that a pump's failure could be caused by worn-out bearings. By understanding these failure modes, the maintenance team can develop targeted maintenance tasks to prevent failures. The 7 RCM questions, which we discussed earlier, also inform the FMEA process.</p>
-      <p>In practice, a maintenance planner in a Pampanga plant can use WorkHive's PM Scheduler to create a maintenance task schedule based on RCM and FMEA analysis. For example, if the analysis indicates that a pump's bearings should be replaced every 12 months, the planner can schedule this task in the PM Scheduler. At 02:30, during a night shift, the planner can review the schedule and make any necessary adjustments for the next day's maintenance activities, ensuring that critical tasks are completed before the 14:45 shift change.</p>
+      <p>In practice, a maintenance planner in a Pampanga plant can use WorkHive's PM Scheduler to create a maintenance task schedule based on RCM and FMEA analysis. For example, if the analysis indicates that a pump's bearings should be replaced every 12 months, the planner can schedule this task in the PM Scheduler. At 02:30, during a night shift, the planner can review the schedule and make any necessary adjustments for the next day's maintenance activities, ensuring that critical tasks are completed before the next handover.</p>
       <h2 id="rcm-rollout">90-Day RCM Rollout for Philippine Plants</h2>
-      <p>Implementing Reliability-Centered Maintenance (RCM) in a Philippine plant with no Computerized Maintenance Management System (CMMS) requires a structured approach. A 90-day rollout plan can help ensure a smooth transition. For example, let's consider a plant in Cabuyao, Laguna, with a bottling line that operates 24/7. At 02:30 and 14:45 every day, the plant's shift in-charge oversees critical equipment like Pump P-204B, which requires a reliable maintenance schedule.</p>
+      <p>Implementing Reliability-Centered Maintenance (RCM) in a Philippine plant with no Computerized Maintenance Management System (CMMS) requires a structured approach. A 90-day rollout plan can help ensure a smooth transition. For example, let's consider a plant in Cabuyao, Laguna, with a bottling line that operates 24/7. At every handover, the plant's shift in-charge oversees critical equipment like Pump P-204B, which requires a reliable maintenance schedule.</p>
       <p>The first 30 days of the RCM rollout plan focus on data collection and equipment prioritization. The maintenance planner and plant supervisor will identify critical assets, gather historical maintenance data, and conduct Failure Mode and Effects Analysis (FMEA). This step helps determine the initial list of equipment to prioritize for RCM analysis. With PM Scheduler, maintenance teams can easily track and manage equipment data, work orders, and schedules.</p>
       <p>During the next 30 days, the RCM team will conduct the 7 RCM questions for each prioritized equipment. This involves analyzing failure modes, effects, and consequences, as well as determining P-F intervals. For Pump P-204B, the team might identify a potential failure mode of bearing failure, with a P-F interval of 60 days. The team can then schedule condition-based maintenance tasks using PM Scheduler to capture RCM-derived tasks and ensure timely interventions.</p>
-      <p>The final 30 days of the rollout plan involve implementing the RCM-derived maintenance tasks and reviewing their effectiveness. The maintenance team will use PM Scheduler to schedule and track work orders, while the plant supervisor monitors progress and adjusts the plan as needed. With a PHP 180,000 budget for CMMS implementation, the plant can expect significant returns on investment through reduced downtime and increased equipment reliability. By following this 90-day plan, Philippine plants can successfully adopt RCM and improve overall asset performance.</p>
+      <p>The final 30 days of the rollout plan involve implementing the RCM-derived maintenance tasks and reviewing their effectiveness. The maintenance team will use PM Scheduler to schedule and track work orders, while the plant supervisor monitors progress and adjusts the plan as needed. WorkHive PM Scheduler costs nothing at the worker tier, so what the plant invests in RCM is analysis time, and that is what the return has to be measured against. By following this 90-day plan, Philippine plants can successfully adopt RCM and improve overall asset performance.</p>
       <h2 id="worked-example">Worked Example: Cabuyao Bottling-Line Pump</h2>
-      <p>Let's apply RCM to a pump in a Cabuyao bottling plant. We focus on Pump P-204B, which supplies water to the bottling line. This pump operates 24/7, with regular checks at 02:30 and 14:45 daily. The plant's maintenance planner wants to ensure it's running reliably. By using the 7 RCM questions, we identify potential failures and suitable tasks to prevent them. With PM Scheduler, we can schedule and track these tasks efficiently.</p>
+      <p>Let's apply RCM to a pump in a Cabuyao bottling plant. We focus on Pump P-204B, which supplies water to the bottling line. This pump operates 24/7 and is checked on every shift. The plant's maintenance planner wants to ensure it's running reliably. By using the 7 RCM questions, we identify potential failures and suitable tasks to prevent them. With PM Scheduler, we can schedule and track these tasks efficiently.</p>
       <p>Pump P-204B's failure mode could be a sudden loss of suction, causing downtime. The maintenance team must respond quickly to avoid production delays. Using FMEA, we assess the risk priority number (RPN) for this failure mode. With an RPN of 180, we prioritize tasks to prevent suction loss. We decide on a monthly inspection of the pump's suction line and a yearly replacement of the suction strainer. These tasks are captured in PM Scheduler for easy tracking.</p>
       <p>The P-F interval for Pump P-204B's suction line inspection is 30 days. This means that every 30 days, the maintenance team must inspect the suction line to prevent potential failures. With PM Scheduler, we schedule this task and assign it to the maintenance planner. The planner can then review and adjust the schedule as needed. For example, if the inspection is due on a Sunday, the planner can reschedule it to the following Monday.</p>
-      <p>By implementing RCM on Pump P-204B, the Cabuyao bottling plant can reduce downtime and save on maintenance costs. For instance, a single day of unplanned downtime can cost PHP 180,000 in lost production. By preventing suction loss and other potential failures, the plant can ensure reliable operation and maximize production. With PM Scheduler, the maintenance team can easily track and manage these tasks, ensuring that Pump P-204B runs smoothly and efficiently.</p>
+      <p>By implementing RCM on Pump P-204B, the Cabuyao bottling plant can reduce downtime and save on maintenance costs. For instance, on the line costed above, a single hour of unplanned downtime costs PHP 180,000 in lost production. By preventing suction loss and other potential failures, the plant can ensure reliable operation and maximize production. With PM Scheduler, the maintenance team can easily track and manage these tasks, ensuring that Pump P-204B runs smoothly and efficiently.</p>
       <h2 id="rcm-tools">Capturing RCM-Derived Tasks with WorkHive PM Scheduler</h2>
       <p>Reliability-Centered Maintenance (RCM) analysis yields a set of tasks to preserve equipment function. For Philippine plants, capturing these tasks in a Computerized Maintenance Management System (CMMS) like WorkHive's PM Scheduler is crucial. Consider a pump like P-204B at a Cabuyao bottling plant. After RCM analysis, the maintenance planner must ensure that tasks like vibration monitoring and bearing lubrication are scheduled and tracked.</p>
-      <p>WorkHive's PM Scheduler is designed to streamline this process. The planner can create a new task template for Pump P-204B, specifying the task type, frequency, and responsible personnel. For example, a vibration monitoring task might be set to occur every 3 months, with the shift in-charge responsible for data collection. PM Scheduler can also send automated reminders and notifications to ensure compliance.</p>
-      <p>At a PEZA industrial estate in Batangas, a plant supervisor might use PM Scheduler to review and approve scheduled tasks. This ensures that RCM-derived tasks are aligned with plant priorities and resources. For instance, a task to inspect the pump's suction line might be scheduled during a 02:30 maintenance window, with a PHP 180,000 budget allocated for necessary repairs.</p>
+      <p>That hand-off is where RCM programmes usually die, so it is worth doing deliberately. The planner creates a task template for Pump P-204B with its type and frequency: a vibration check every three months, say. Know what the scheduler does and does not hold: there is no assignee field, so accountability lives in your own shift plan rather than on the task, and the scheduler records who <em>completed</em> each PM rather than who owed it. Nothing chases an individual either: what runs is a daily PM-overdue report compiled for the supervisor, so the overdue list reaches one person who then has to push it out to the crew.</p>
+      <p>At a PEZA industrial estate in Batangas, a plant supervisor reviews the schedule and the overdue report: there is no approval step to click, so the review is a habit rather than a workflow the tool enforces. This ensures that RCM-derived tasks are aligned with plant priorities and resources. For instance, a task to inspect the pump's suction line might be scheduled during a 02:30 maintenance window, with the parts staged beforehand so the window is spent working rather than fetching.</p>
       <p>By integrating RCM-derived tasks into WorkHive's PM Scheduler, Philippine plants can improve equipment reliability and reduce downtime. For example, a bottling plant in Calabarzon might use PM Scheduler to track P-F intervals for critical equipment like Boiler B-1. At 14:45 on a busy production day, the maintenance planner can review the schedule and adjust tasks as needed to prevent equipment failure.</p>
 
       <div class="tool-cta">
@@ -262,7 +271,8 @@
 
       <h2 id="sources">Sources</h2>
       <ul class="sources-list">
-        <li>Nowlan, F. S., &amp; Heap, H. F. (1978). Reliability-Centered Maintenance. U.S. Department of Energy.</li>
+        <li>Nowlan, F. S., &amp; Heap, H. F. (1978). <strong>Reliability-Centered Maintenance</strong>. Prepared at United Airlines; published by the U.S. Department of Defense.</li>
+        <li>SAE <strong>JA1011</strong>, <strong>Evaluation Criteria for Reliability-Centered Maintenance (RCM) Processes</strong>: the seven questions above, and the test of whether a process may be called RCM.</li>
         <li>ISO 14224:2016. Petroleum, petrochemical and natural gas industries -- Reliability, availability and maintainability (RAM) data exchange.</li>
         <li>SMRP (2015). CMRP BoK (Body of Knowledge). Society for Maintenance and Reliability Professionals.</li>
         <li>DOLE OSHS (2019). Guidelines on Occupational Safety and Health Standards. Department of Labor and Employment.</li>
@@ -270,7 +280,7 @@
     </div>
 
   </div>
-</article>
+</article></main>
 
 <footer class="py-10 border-t border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
   <div class="max-w-5xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">

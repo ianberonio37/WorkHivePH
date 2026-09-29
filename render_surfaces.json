@@ -8,15 +8,15 @@
     ]
   },
   "totals": {
-    "pages_with_tiles": 17,
-    "N_total_cells": 83,
-    "N_value_cells": 47,
-    "N_panel_cells": 36,
-    "credited_cells": 13,
-    "value_cells_credited": 12,
+    "pages_with_tiles": 16,
+    "N_total_cells": 72,
+    "N_value_cells": 44,
+    "N_panel_cells": 28,
+    "credited_cells": 10,
+    "value_cells_credited": 9,
     "value_cells_uncredited": 35,
-    "credited_pct": 15.7,
-    "value_credited_pct": 25.5
+    "credited_pct": 13.9,
+    "value_credited_pct": 20.5
   },
   "non_tile_proven_pages": {
     "voice-journal.html": "J4 (voice-journal.html)",
@@ -29,9 +29,9 @@
   "pages": {
     "achievements.html": {
       "in_nav_registry": false,
-      "n_tiles": 7,
+      "n_tiles": 4,
       "n_value": 3,
-      "n_panel": 4,
+      "n_panel": 1,
       "n_credited": 0,
       "tiles": [
         {
@@ -68,36 +68,6 @@
           "tile_id": "achievements:detail_panel",
           "label": "Achievements detail",
           "container_id": "ac-summary-details",
-          "sc_hero_id": null,
-          "cell_type": "panel",
-          "credited": false,
-          "credit_source": null,
-          "source_query": "<TODO C1>"
-        },
-        {
-          "tile_id": "achievements:composite_score",
-          "label": "Composite skill score",
-          "container_id": "stat-composite",
-          "sc_hero_id": null,
-          "cell_type": "panel",
-          "credited": false,
-          "credit_source": null,
-          "source_query": "<TODO C1>"
-        },
-        {
-          "tile_id": "achievements:active_domains_stat",
-          "label": "Active domains stat",
-          "container_id": "stat-active",
-          "sc_hero_id": null,
-          "cell_type": "panel",
-          "credited": false,
-          "credit_source": null,
-          "source_query": "<TODO C1>"
-        },
-        {
-          "tile_id": "achievements:top_domain",
-          "label": "Top skill domain",
-          "container_id": "stat-top",
           "sc_hero_id": null,
           "cell_type": "panel",
           "credited": false,
@@ -155,7 +125,7 @@
         },
         {
           "tile_id": "alert-hub:amc_assets",
-          "label": "AMC assets checked",
+          "label": "AMC high-risk assets",
           "container_id": "amc-stat-assets",
           "sc_hero_id": null,
           "cell_type": "panel",
@@ -256,9 +226,9 @@
     },
     "asset-hub.html": {
       "in_nav_registry": true,
-      "n_tiles": 8,
+      "n_tiles": 7,
       "n_value": 3,
-      "n_panel": 5,
+      "n_panel": 4,
       "n_credited": 2,
       "tiles": [
         {
@@ -330,16 +300,6 @@
           "credited": false,
           "credit_source": null,
           "source_query": "<TODO C1>"
-        },
-        {
-          "tile_id": "asset-hub:rcm_edges",
-          "label": "Asset RCM edges",
-          "container_id": "stat-edges",
-          "sc_hero_id": null,
-          "cell_type": "panel",
-          "credited": false,
-          "credit_source": null,
-          "source_query": "<TODO C1>"
         }
       ]
     },
@@ -397,37 +357,37 @@
       "n_tiles": 4,
       "n_value": 3,
       "n_panel": 1,
-      "n_credited": 1,
+      "n_credited": 0,
       "tiles": [
         {
-          "tile_id": "hive:maturity_stair",
-          "label": "Hive maturity stair",
-          "container_id": "ss-card-stair",
-          "sc_hero_id": "ss-stair-hero",
+          "tile_id": "hive:pm_overdue",
+          "label": "Assets with PM overdue",
+          "container_id": "ss-card-pm",
+          "sc_hero_id": "ss-pm-hero",
           "cell_type": "value",
           "credited": false,
           "credit_source": null,
           "source_query": "<TODO C1>"
         },
         {
-          "tile_id": "hive:adoption_health",
-          "label": "Adoption health",
-          "container_id": "ss-card-adoption",
-          "sc_hero_id": "ss-adoption-hero",
+          "tile_id": "hive:low_stock",
+          "label": "Parts low on stock",
+          "container_id": "ss-card-stock",
+          "sc_hero_id": "ss-stock-hero",
           "cell_type": "value",
           "credited": false,
           "credit_source": null,
           "source_query": "<TODO C1>"
         },
         {
-          "tile_id": "hive:open_issues",
-          "label": "Open issues",
-          "container_id": "ss-card-issues",
-          "sc_hero_id": "ss-issues-hero",
+          "tile_id": "hive:your_open_jobs",
+          "label": "Your open jobs",
+          "container_id": "ss-card-jobs",
+          "sc_hero_id": "ss-jobs-hero",
           "cell_type": "value",
-          "credited": true,
-          "credit_source": "J1 (hive.html)",
-          "source_query": "credited"
+          "credited": false,
+          "credit_source": null,
+          "source_query": "<TODO C1>"
         },
         {
           "tile_id": "hive:detail_panel",
@@ -725,85 +685,6 @@
         }
       ]
     },
-    "predictive.html": {
-      "in_nav_registry": false,
-      "n_tiles": 7,
-      "n_value": 3,
-      "n_panel": 4,
-      "n_credited": 2,
-      "tiles": [
-        {
-          "tile_id": "predictive:hot_assets",
-          "label": "Hot assets",
-          "container_id": "pr-card-hot",
-          "sc_hero_id": "pr-hot-hero",
-          "cell_type": "value",
-          "credited": true,
-          "credit_source": "T_predictive (predictive.html)",
-          "source_query": "credited"
-        },
-        {
-          "tile_id": "predictive:healthy_assets",
-          "label": "Healthy assets",
-          "container_id": "pr-card-healthy",
-          "sc_hero_id": "pr-healthy-hero",
-          "cell_type": "value",
-          "credited": true,
-          "credit_source": "T_predictive (predictive.html)",
-          "source_query": "credited"
-        },
-        {
-          "tile_id": "predictive:earliest_forecast",
-          "label": "Earliest forecast failure",
-          "container_id": "pr-card-soonest",
-          "sc_hero_id": "pr-soonest-hero",
-          "cell_type": "value",
-          "credited": false,
-          "credit_source": null,
-          "source_query": "<TODO C1>"
-        },
-        {
-          "tile_id": "predictive:detail_panel",
-          "label": "Predictive detail breakdown",
-          "container_id": "pr-summary-details",
-          "sc_hero_id": null,
-          "cell_type": "panel",
-          "credited": false,
-          "credit_source": null,
-          "source_query": "<TODO C1>"
-        },
-        {
-          "tile_id": "predictive:risk_ranking",
-          "label": "Risk ranking table",
-          "container_id": "panel-ranking",
-          "sc_hero_id": null,
-          "cell_type": "panel",
-          "credited": false,
-          "credit_source": null,
-          "source_query": "<TODO C1>"
-        },
-        {
-          "tile_id": "predictive:risk_heatmap",
-          "label": "Risk heatmap",
-          "container_id": "panel-heatmap",
-          "sc_hero_id": null,
-          "cell_type": "panel",
-          "credited": false,
-          "credit_source": null,
-          "source_query": "<TODO C1>"
-        },
-        {
-          "tile_id": "predictive:mtbf_trend",
-          "label": "MTBF trend panel",
-          "container_id": "panel-trend",
-          "sc_hero_id": null,
-          "cell_type": "panel",
-          "credited": false,
-          "credit_source": null,
-          "source_query": "<TODO C1>"
-        }
-      ]
-    },
     "project-manager.html": {
       "in_nav_registry": true,
       "n_tiles": 5,
@@ -864,7 +745,7 @@
       ]
     },
     "report-sender.html": {
-      "in_nav_registry": false,
+      "in_nav_registry": true,
       "n_tiles": 4,
       "n_value": 3,
       "n_panel": 1,

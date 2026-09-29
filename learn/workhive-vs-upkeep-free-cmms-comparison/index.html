@@ -165,7 +165,15 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
-    tailwind.config = { theme: { extend: { colors: {
+    tailwind.config = { theme: { extend: {
+      /* the platform's six-step ramp plus one display step, declared where the utilities read it
+         (W46084, 2026-09-16): text-sm rendered 14px - 0.4px from 13.6 and 1.2px from 15.2, noise
+         rather than a step - and the h1 ran 30 -> 36 -> 43.2px across three breakpoints. Pinning the
+         scale here rather than overriding each class matters because `sm:text-4xl` compiles inside a
+         media query, and a media query adds no specificity. */
+      fontSize: { xs: '0.75rem', sm: '0.95rem', base: '1.05rem', lg: '1.25rem', xl: '1.25rem',
+                  '2xl': '1.75rem', '3xl': '2.25rem', '4xl': '2.25rem', '5xl': '2.25rem' },
+      colors: {
       orange: { wh: '#F7A21B', dark: '#D88A0E', light: '#FDB94A' },
       blue:   { wh: '#29B6D9', dark: '#1A9ABF', light: '#5FCCE8' },
       navy:   { wh: '#162032', mid: '#1F2E45', light: '#2A3D58' },
@@ -187,8 +195,14 @@
     * { font-family: 'Poppins', sans-serif; } body { background: #162032; color: #F4F6FA; }
     .hex-pattern { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='92' viewBox='0 0 80 92'%3E%3Cpath d='M40 0 L80 23 L80 69 L40 92 L0 69 L0 23 Z' fill='none' stroke='%23ffffff08' stroke-width='1.5'/%3E%3C/svg%3E"); background-size: 80px 92px; }
     .prose-wh { overflow-wrap: anywhere; word-break: break-word; color: rgba(244,246,250,0.85); font-size: 1.05rem; line-height: 1.8; }
+    /* craft floor (W46284, 2026-09-16, measured live at 390 and 1280): `small` took the UA default 0.8em of the
+       16.8px body and rendered 13.4px - a size off the six-step ramp that no font-size declaration could show,
+       because a ramp is what the page RENDERS. And the measure ran to 76ch at 1280, one over the 65-75 floor,
+       so the text caps itself; below ~1100px the column is already narrower than the cap and nothing moves. */
+    .prose-wh small { font-size: 0.85rem; }
+    .prose-wh p, .prose-wh li { max-width: 72ch; }
     .prose-wh h2 { color: #F4F6FA; font-size: 1.75rem; font-weight: 800; line-height: 1.25; letter-spacing: -0.015em; margin-top: 3rem; margin-bottom: 1rem; scroll-margin-top: 80px; }
-    .prose-wh h3 { color: #F4F6FA; font-size: 1.2rem; font-weight: 700; margin-top: 2rem; margin-bottom: 0.5rem; }
+    .prose-wh h3 { color: #F4F6FA; font-size: 1.25rem; font-weight: 700; margin-top: 2rem; margin-bottom: 0.5rem; }
     .prose-wh p  { margin-bottom: 1.25rem; }
     .prose-wh ul, .prose-wh ol { padding-left: 1.5rem; margin-bottom: 1.25rem; }
     .prose-wh li { margin-bottom: 0.5rem; }
@@ -198,31 +212,35 @@
     .prose-wh blockquote { border-left: 3px solid #F7A21B; padding: 0.5rem 0 0.5rem 1.25rem; margin: 1.5rem 0; color: rgba(244,246,250,0.85); font-style: italic; background: rgba(247,162,27,0.04); }
     .prose-wh table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.95rem; }
     .prose-wh th, .prose-wh td { padding: 12px 14px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.08); vertical-align: top; }
-    .prose-wh th { background: rgba(31,46,69,0.6); font-weight: 700; color: #F4F6FA; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; }
-    .prose-wh code { background: rgba(31,46,69,0.7); border: 1px solid rgba(255,255,255,0.08); padding: 2px 8px; border-radius: 6px; font-family: 'Consolas','Courier New',monospace; font-size: 0.92rem; color: #FED38D; }
-    .toc { background: rgba(31,46,69,0.55); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 22px 26px; margin: 2rem 0 3rem; }
-    .toc h2 { color: rgba(244,246,250,0.8); font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 12px; }
-    .toc ol { padding-left: 1.5rem; margin: 0; } .toc li { margin-bottom: 6px; font-size: 0.92rem; }
+    .prose-wh th { background: rgba(31,46,69,0.6); font-weight: 700; color: #F4F6FA; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em;
+      /* the [data-table-scroll] wrapper announces a scrollable region and could never scroll: the table is
+         pinned to width:100%, so it crushed columns instead - at 390 the headers "Product" and "Paid entry"
+         wrapped to THREE lines in 66px (W46083, 2026-09-16). One line here is what makes the wrapper real. */
+      white-space: nowrap; }
+    .prose-wh code { background: rgba(31,46,69,0.7); border: 1px solid rgba(255,255,255,0.08); padding: 2px 8px; border-radius: 6px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; font-size: 0.95rem; color: #FED38D; }
+    .toc { background: rgba(31,46,69,0.55); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 24px 26px; margin: 2rem 0 3rem; }
+    .toc h2, .toc h4 { color: rgba(244,246,250,0.8); font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 12px; }
+    .toc ol { padding-left: 1.5rem; margin: 0; } .toc li { margin-bottom: 6px; font-size: 0.95rem; }
     .toc a { color: rgba(244,246,250,0.85); text-decoration: none; } .toc a:hover { color: #F7A21B; }
-    .answer-first { background: rgba(247,162,27,0.08); border-left: 3px solid #F7A21B; border-radius: 8px; padding: 18px 22px; margin-bottom: 2rem; font-size: 1.05rem; line-height: 1.75; color: rgba(244,246,250,0.85); }
-    .callout { background: rgba(41,182,217,0.06); border-left: 3px solid #29B6D9; border-radius: 8px; padding: 18px 22px; margin: 2rem 0; font-size: 0.98rem; line-height: 1.7; color: rgba(244,246,250,0.85); }
+    .answer-first { background: rgba(247,162,27,0.08); border: 1px solid rgba(247,162,27,0.30); border-radius: 8px; padding: 20px 22px; margin-bottom: 2rem; font-size: 1.05rem; line-height: 1.75; color: rgba(244,246,250,0.85); }
+    .callout { background: rgba(41,182,217,0.06); border: 1px solid rgba(41,182,217,0.28); border-radius: 8px; padding: 20px 22px; margin: 2rem 0; font-size: 0.95rem; line-height: 1.7; color: rgba(244,246,250,0.85); }
     .callout strong { color: #A4E2F2; }
-    .pill { display: inline-block; font-size: 0.65rem; font-weight: 700; padding: 3px 10px; border-radius: 100px; letter-spacing: 0.05em; text-transform: uppercase; }
+    .pill { display: inline-block; font-size: 0.75rem; font-weight: 700; padding: 4px 10px; border-radius: 100px; letter-spacing: 0.02em; }
     .pill-orange { background: rgba(247,162,27,0.18); color: #F7A21B; border: 1px solid rgba(247,162,27,0.35); }
     .faq-item { background: rgba(31,46,69,0.55); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; margin-bottom: 12px; }
     .faq-item[open] { border-color: rgba(247,162,27,0.35); background: rgba(31,46,69,0.85); }
     .faq-item summary { cursor: pointer; list-style: none; padding: 16px 20px; font-weight: 600; color: #F4F6FA; display: flex; justify-content: space-between; gap: 14px; }
     .faq-item summary::-webkit-details-marker { display: none; }
-    .faq-item summary::after { content: '+'; font-size: 1.4rem; color: #F7A21B; } .faq-item[open] summary::after { content: '\2212'; }
-    .faq-item .faq-answer { padding: 0 20px 18px; color: rgba(244,246,250,0.85); line-height: 1.7; font-size: 0.95rem; }
+    .faq-item summary::after { content: '+'; font-size: 1.25rem; color: #F7A21B; } .faq-item[open] summary::after { content: '\2212'; }
+    .faq-item .faq-answer { padding: 0 20px 20px; color: rgba(244,246,250,0.85); line-height: 1.7; font-size: 0.95rem; }
     .author-card { background: rgba(31,46,69,0.5); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 20px 24px; margin: 2rem 0; display: flex; gap: 16px; align-items: center; }
-    .author-card .avatar { width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #F7A21B, #FDB94A); display: flex; align-items: center; justify-content: center; font-weight: 800; color: #162032; font-size: 1.1rem; flex-shrink: 0; }
+    .author-card .avatar { width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #F7A21B, #FDB94A); display: flex; align-items: center; justify-content: center; font-weight: 800; color: #162032; font-size: 1.05rem; flex-shrink: 0; }
     .author-card .meta p:first-child { font-weight: 700; color: #F4F6FA; font-size: 0.95rem; margin-bottom: 2px; }
-    .author-card .meta p:last-child { font-size: 0.82rem; color: rgba(244,246,250,0.8); }
-    nav a.nav-link { font-size: 0.9rem; color: rgba(244,246,250,0.85); font-weight: 500; } nav a.nav-link:hover { color: #F4F6FA; }
+    .author-card .meta p:last-child { font-size: 0.85rem; color: rgba(244,246,250,0.8); }
+    nav a.nav-link { font-size: 0.95rem; color: rgba(244,246,250,0.85); font-weight: 500; } nav a.nav-link:hover { color: #F4F6FA; }
     .breadcrumb { font-size: 0.85rem; color: rgba(244,246,250,0.8); margin-bottom: 1.5rem; }
     .breadcrumb a { color: rgba(244,246,250,0.8); text-decoration: none; } .breadcrumb a:hover { color: #F7A21B; }
-    .breadcrumb span { margin: 0 8px; opacity: 0.4; }
+    .breadcrumb span { margin: 0 8px; }
       /* Z2/R2 (critic re-sweep 2026-09-07): a long unbroken token (a citation URL) widened a paragraph to 463px at 390 and the page scrolled sideways; long words now wrap */
   </style>
   <script>
@@ -259,16 +277,18 @@
   <script src="/wh-ga4.js" defer></script>
   <!-- /WorkHive GA4 -->
 <link rel="stylesheet" href="/learn-print.css" media="print" />
-<style data-wh-chrome-i18n>nav a,header a,footer a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;min-width:44px;}nav a{padding:0 .25rem;}.breadcrumb a,.toc a{display:inline-flex;align-items:center;min-height:44px;}.breadcrumb a{min-width:44px;justify-content:center;}a.text-sm[href$='/learn/'],a.text-sm[href$='/learn/index.html']{display:inline-flex;align-items:center;min-height:44px;}.wh-tap{display:inline-flex;align-items:center;min-height:44px;}td a,th a{display:inline-flex;align-items:center;min-height:44px;}</style>
+<style data-wh-chrome-i18n>nav a,header a,footer a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;min-width:44px;}nav a{padding:0 .25rem;}.breadcrumb a,.toc a{display:inline-flex;align-items:center;min-height:44px;}.breadcrumb a{min-width:44px;justify-content:center;}a.text-sm[href$='/learn/'],a.text-sm[href$='/learn/index.html']{display:inline-flex;align-items:center;min-height:44px;}.wh-tap{display:inline-flex;align-items:center;min-height:44px;}td a,th a{display:inline-flex;align-items:center;min-height:44px;}/*wh-brand-header-gap*/@media (max-width:399px){header nav.flex{gap:.75rem;}}</style>
 <script src="/wh-i18n-lite.js" data-wh-chrome-i18n></script>
 </head>
 <body class="bg-navy-wh text-white antialiased">
+<a class="wh-skip-link" href="#wh-main-content" data-wh-skip="learn" style="position:fixed;top:0;left:0;z-index:10001;transform:translateY(-120%);background:var(--wh-orange,#F7A21B);color:var(--wh-navy,#162032);padding:0 20px;min-height:44px;display:inline-flex;align-items:center;font-weight:700;font-size:14px;text-decoration:none;border-radius:0 0 10px 0;box-shadow:0 4px 16px rgba(0,0,0,.35);transition:transform .15s cubic-bezier(0.23,1,0.32,1);box-sizing:border-box;" onfocus="this.style.transform='translateY(0)'" onblur="this.style.transform='translateY(-120%)'">Skip to main content</a>
+
 
 <header class="border-b border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
   <div class="max-w-6xl mx-auto px-5 sm:px-8 py-4 flex items-center justify-between">
     <a href="/" class="flex items-center gap-3">
       <img src="/brand_assets/workhive-logo-transparent.png" alt="WorkHive" style="height: 36px; width: auto;" />
-      <span class="font-black text-lg tracking-tight hidden sm:inline">WorkHive</span>
+      <span class="font-extrabold tracking-tight hidden sm:inline" style="font-size: 1.25rem" aria-hidden="true">WorkHive</span>
     </a>
     <nav class="flex items-center gap-6">
       <a href="/" class="nav-link" data-i="home">Home</a>
@@ -279,7 +299,7 @@
   </div>
 </header>
 
-<article class="hex-pattern">
+<main id="wh-main-content"><article class="hex-pattern">
   <div class="max-w-3xl mx-auto px-5 sm:px-8 py-14 lg:py-20">
 
     <div class="breadcrumb">
@@ -287,8 +307,8 @@
     </div>
 
     <span class="pill pill-orange">Comparison</span>
-    <h1 class="text-3xl sm:text-4xl font-black tracking-tight mt-4 mb-4" style="line-height:1.15;">WorkHive vs UpKeep: an honest comparison for small teams</h1>
-    <p class="text-white/50 text-sm mb-8">By WorkHive Editorial Team · Updated 2026-08-05 · 6 min read</p>
+    <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight mt-4 mb-4" style="line-height:1.15;">WorkHive vs UpKeep: an honest comparison for small teams</h1>
+    <p class="text-white/50 text-sm mb-8">By WorkHive Editorial Team · Published 2026-08-05 · 6 min read</p>
 
     <div class="answer-first"><strong>Choose UpKeep</strong> if you need mature manufacturing-compliance and audit-readiness workflows, a large integration catalogue, and vendor support you can escalate to: its published entry pricing is about <strong>$20 per user per month</strong>. <strong>Choose WorkHive</strong> if cost per seat is the blocker and your plant floor has unreliable wifi: WorkHive is <strong>free at the worker tier</strong> (not a capped trial), works <strong>offline-first</strong>, is built for the Philippine context (DOLE OSHS records, Tagalog/Taglish voice capture, peso context), and bundles <strong>60 engineering calculators</strong>. The honest summary: UpKeep is the more established product with the deeper enterprise feature set; WorkHive removes the per-seat cost and the connectivity assumption.</div>
 
@@ -317,8 +337,8 @@
         <tr><td>Offline capability</td><td>Offline-first; entries captured on the floor and synced later</td><td>Mobile app; generally assumes connectivity</td></tr>
         <tr><td>Core maintenance features</td><td>Logbook, PM scheduler, inventory, asset register, skill matrix</td><td>Work orders, PM, inventory, asset management</td></tr>
         <tr><td>Engineering calculators</td><td>60 standards-referenced calculators included</td><td>Not a core focus</td></tr>
-        <tr><td>Language</td><td>English, Filipino, Taglish (incl. voice capture)</td><td>English (plus other locales)</td></tr>
-        <tr><td>Compliance orientation</td><td>DOLE OSHS / RA 11285 / Philippine plumbing + electrical codes</td><td>OSHA-oriented manufacturing compliance</td></tr>
+        <tr><td>Language</td><td>English plus eight Philippine languages by voice, including Filipino and Taglish</td><td>English (plus other locales)</td></tr>
+        <tr><td>Compliance orientation</td><td>DOLE OSHS audit trail, LOTO permits, the RA 11285 action record (not the kilowatt-hours), Philippine plumbing + electrical codes</td><td>OSHA-oriented manufacturing compliance</td></tr>
         <tr><td>Integrations</td><td>SAP / Maximo patterns documented; smaller catalogue</td><td>Large third-party integration catalogue</td></tr>
         <tr><td>Best for</td><td>Small Philippine plants, zero budget, patchy wifi</td><td>Teams needing mature compliance workflows and vendor support</td></tr>
         </tbody></table></div><p><small>Pricing verified against vendor and directory listings on 5 August 2026; SaaS pricing moves, so confirm current terms with the vendor before deciding. This comparison is reviewed quarterly for pricing and feature accuracy.</small></p>
@@ -327,7 +347,7 @@
       <p>Being straight about this matters. UpKeep is a mature, well-resourced product, and there are real cases where it is the right buy:</p><ul><li><strong>You need vendor support with an SLA.</strong> UpKeep has a commercial support organisation you can escalate to. WorkHive is free, and support is best-effort by email.</li><li><strong>You need a broad integration catalogue out of the box.</strong> UpKeep connects to many third-party systems without custom work.</li><li><strong>You are standardising a multi-site enterprise</strong> with procurement, audit, and vendor-management requirements that go beyond maintenance execution.</li><li><strong>Your organisation requires a paid vendor relationship</strong> for compliance or accountability reasons: some do, and "free" can be a procurement obstacle rather than a benefit.</li></ul>
 
       <h2 id="where-workhive-wins">Where WorkHive is the better choice than UpKeep</h2>
-      <p>Equally straight in the other direction:</p><ul><li><strong>Cost per seat is the blocker.</strong> At ~$20/user/month, a 10-technician team is about $2,400/year before anything else. WorkHive is free at the worker tier, so cost does not scale with headcount.</li><li><strong>The plant floor has unreliable wifi.</strong> WorkHive is offline-first: entries are captured locally and sync when a connection returns. If capture waits for signal, it does not happen.</li><li><strong>Your team works in Filipino or Taglish.</strong> Voice-to-text capture in Tagalog/Taglish removes the "I'll write it later" failure mode. See <a href="/learn/voice-to-text-maintenance-philippine-plant-floor/">voice-to-text on the plant floor</a>.</li><li><strong>You need Philippine compliance records</strong>: DOLE OSHS audit trails, LOTO permits, RA 11285 energy reporting. See the <a href="/learn/ph-plant-compliance-guide/">PH plant compliance guide</a>.</li><li><strong>Your engineers also do design work.</strong> The <a href="/learn/free-engineering-calculators-philippine-plants/">60 engineering calculators</a> are included, not a separate purchase.</li></ul>
+      <p>Equally straight in the other direction:</p><ul><li><strong>Cost per seat is the blocker.</strong> At ~$20/user/month, a 10-technician team is about $2,400/year before anything else. WorkHive is free at the worker tier, so cost does not scale with headcount.</li><li><strong>The plant floor has unreliable wifi.</strong> WorkHive is offline-first: entries are captured locally and sync when a connection returns. If capture waits for signal, it does not happen.</li><li><strong>Your team works in Filipino or Taglish.</strong> Voice-to-text capture in Tagalog/Taglish removes the "I'll write it later" failure mode. See <a href="/learn/voice-to-text-maintenance-philippine-plant-floor/">voice-to-text on the plant floor</a>.</li><li><strong>You need Philippine compliance records</strong>: DOLE OSHS audit trails, LOTO permits, and the action record an RA 11285 energy audit asks for: a reading logged, a figure corrected, an efficiency measure signed off, each against the person and the date. WorkHive does not meter your plant, so the kilowatt-hours still come from your meters and your energy management system. See the <a href="/learn/ph-plant-compliance-guide/">PH plant compliance guide</a>.</li><li><strong>Your engineers also do design work.</strong> The <a href="/learn/free-engineering-calculators-philippine-plants/">60 engineering calculators</a> are included, not a separate purchase.</li></ul>
 
       <h2 id="switching">Switching from UpKeep, or running both together</h2>
       <p>These are not mutually exclusive. A common pattern is to keep the incumbent system as the system of record for enterprise reporting while using WorkHive for floor-level capture where seats are expensive or connectivity is poor: the same coexistence pattern documented for <a href="/learn/connecting-workhive-to-sap-maximo-cmms/">SAP and IBM Maximo</a>.</p><p>If you are starting from spreadsheets rather than switching, the ordered path is in <a href="/learn/start-digital-maintenance-guide/">how to start digital maintenance</a>: logbook first, then asset register, then PM schedule, then handover.</p>
@@ -379,7 +399,7 @@
     </div>
 
   </div>
-</article>
+</article></main>
 
 <footer class="py-10 border-t border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
   <div class="max-w-4xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">

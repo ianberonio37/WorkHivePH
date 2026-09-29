@@ -1,0 +1,39 @@
+{
+  "_doc": "Provenance for the real internet-sourced files in this directory (wave 4). The files are gitignored; this manifest is tracked. Written only by tools/fetch_fixture.py.",
+  "kind": "listing-photo",
+  "files": [
+    {
+      "file": "smaw-welding-machine.jpg",
+      "source_url": "https://upload.wikimedia.org/wikipedia/commons/b/b9/SMAW_Welding_machine-1.jpg",
+      "license": "CC BY-SA 3.0",
+      "author": "Klaudio (Claudio Nardi)",
+      "note": "a real listing photo: an SMAW (stick) welding machine | source page https://commons.wikimedia.org/wiki/File:SMAW_Welding_machine-1.jpg",
+      "mime": "image/jpeg",
+      "bytes": 1190524,
+      "sha256": "f340165398c97516da94ca4405fa3c5fa4c16c3520834da2a81b0ee40de5f949",
+      "fetched": "2026-09-13T20:27:45Z"
+    },
+    {
+      "file": "miller-syncrowave-350lx.jpg",
+      "source_url": "https://upload.wikimedia.org/wikipedia/commons/7/79/Welding_power_supply-Miller-Syncrowave350LX-front-triddle.jpg",
+      "license": "Public domain",
+      "author": "Wikimedia Commons contributor",
+      "note": "a real listing photo: Miller Syncrowave 350LX welding power supply, front | source page https://commons.wikimedia.org/wiki/File:Welding_power_supply-Miller-Syncrowave350LX-front-triddle.jpg",
+      "mime": "image/jpeg",
+      "bytes": 828232,
+      "sha256": "c40817e9cf5b7e4588284960bbebb86ed0df7c6f1ffda4dbab23031650c17454",
+      "fetched": "2026-09-13T20:27:47Z"
+    },
+    {
+      "file": "centrifugal-pump.jpg",
+      "source_url": "https://upload.wikimedia.org/wikipedia/commons/7/71/Centrifugal_pump.JPG",
+      "license": "Public domain",
+      "author": "Henry Kreitzer Benson",
+      "note": "a real listing photo: a centrifugal pump | source page https://commons.wikimedia.org/wiki/File:Centrifugal_pump.JPG",
+      "mime": "image/jpeg",
+      "bytes": 31892,
+      "sha256": "c6f016a78a134b515a3f60d27d458c169a72790bf91e20df5d6020b5ef98442e",
+      "fetched": "2026-09-13T20:27:48Z"
+    }
+  ]
+}

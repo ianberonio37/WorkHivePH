@@ -82,7 +82,17 @@
        copy: Taglish, technical nouns left in English (session, AI service, koneksyon). */
     var T = (typeof window !== 'undefined' && typeof window._t === 'function')
       ? window._t : function (en) { return en; };
-    if (/\b401\b|\b403\b|jwt|not authenticated|session expired|row-level security|42501|permission denied/i.test(m))
+    /* ★403 IS NOT 401 (design lens critique round 5 on assistant.html, 2026-09-15). They were one branch,
+       so "you are not a member of this hive" was reported as "your session has expired" - and the reader
+       then does the one thing that cannot help, on pages that often have no sign-in control anyway. The
+       gateway proves membership separately from authentication (tenant-context returns 403 "Caller is not
+       an active member of this hive"), and a stale wh_active_hive_id survives leaving a hive, so this is
+       reachable without anything being wrong with the session. Measured live: 5 of 24 accounts have no
+       active membership. RLS's own 42501 stays with 401: that one really is about identity. */
+    if (/\b403\b|not an active member|not_a_member|no_profile|forbidden/i.test(m))
+      return T('You are not an active member of this hive, so its data cannot be read. Switch or rejoin a hive, then retry.',
+               'Hindi ka aktibong miyembro ng hive na ito, kaya hindi mabasa ang datos nito. Lumipat o sumali muli sa hive, tapos subukan muli.');
+    if (/\b401\b|jwt|not authenticated|session expired|row-level security|42501|permission denied/i.test(m))
       return T('Your session has expired. Sign in again, then retry - your typed work is still on this page.',
                'Nag-expire na ang session mo. Mag-sign in ulit, tapos subukan muli - nasa page pa rin ang na-type mo.');
     // "call limit|limit reached" (EX-AT, 2026-09-07): rate-limit.ts's OWN sentence is "AI call limit reached for this
@@ -119,7 +129,20 @@
       return T('The AI is at its limit right now. Wait a moment and try again.',
                'Nasa limitasyon ang AI ngayon. Maghintay sandali at subukan muli.');
     }
-    if (/\b50[234]\b|unavailable|overloaded|timeout|timed out/i.test(m))
+    /* ★THE ONE 5xx AN EDGE FUNCTION ACTUALLY RETURNS WAS THE ONE NOT LISTED (design lens critique round 3
+       on assistant.html, 2026-09-15). This matched 502, 503 and 504 - the shapes a proxy or load balancer
+       emits - and not 500, which is what a Deno function throwing inside itself returns, and therefore the
+       commonest server failure on this platform. Measured live: the assistant, handed a 500 from both legs,
+       printed "Something went wrong. Please try again." while this sentence sat one regex character away.
+       Every 5xx is a server-side failure the reader cannot act on except by waiting, which is what the
+       sentence says, so the whole 500-504 range belongs here. \b keeps "1500" and "£500" out. */
+    /* ★413 IS THE ONLY FAILURE HERE THE READER CAN FIX (same walk). It fell to "Something went wrong" on
+       a composer that accepts 2000 characters. And 408 is a request timeout - the same class as 502-504
+       for the person waiting - so it joins that band rather than the generic one. */
+    if (/\b413\b|too large|payload too/i.test(m))
+      return T('That question is too long. Shorten it and send again.',
+               'Masyadong mahaba ang tanong. Paikliin at ipadala muli.');
+    if (/\b40[8]\b|\b50[0-4]\b|unavailable|overloaded|timeout|timed out/i.test(m))
       return T('The AI service is busy right now. Please try again shortly.',
                'Busy ang AI service ngayon. Subukan muli mamaya.');
     if (/network|failed to fetch|offline|connection|name resolution/i.test(m))
@@ -287,16 +310,30 @@ window.whQuotaNotice = function (remaining) {
   }
   var n = Number(remaining);
   if (!isFinite(n) || n < 0) return { text: '', level: 'none' };
+  /* ★ENGLISH ON A BILINGUAL PLATFORM, AT THE MOMENT A LIMIT BITES (design lens critique, 2026-09-15).
+     whAiError sits directly above this in the same file and is fully bilingual, with a note explaining
+     why: "a worker on the FIL toggle got Filipino chrome and an English sentence at the exact moment
+     something failed and precision mattered most". This helper is that same kind of sentence - it fires
+     just before an ask is refused - and it returned three English literals. Shared chrome, so this
+     reaches every page that shows a quota. _t falls back to EN when a phrase has no FIL, exactly as the
+     mapper above relies on. */
+  var T = (typeof window !== 'undefined' && typeof window._t === 'function')
+    ? window._t : function (en) { return en; };
   if (n === 0) {
-    return { text: 'No AI calls left this hour. The limit resets on the hour.', level: 'out' };
+    return {
+      text: T('No AI calls left this hour. The limit resets on the hour.',
+              'Wala nang natitirang AI call ngayong oras. Nagre-reset ang limit sa tuktok ng oras.'),
+      level: 'out',
+    };
   }
   if (n <= 5) {
     return {
-      text: 'Only ' + n + ' AI call' + (n === 1 ? '' : 's') + ' left this hour. The limit resets on the hour.',
+      text: T('Only ' + n + ' AI call' + (n === 1 ? '' : 's') + ' left this hour. The limit resets on the hour.',
+              n + ' na lang ang natitirang AI call ngayong oras. Nagre-reset ang limit sa tuktok ng oras.'),
       level: 'low',
     };
   }
-  return { text: n + ' AI calls remaining this hour', level: 'ok' };
+  return { text: T(n + ' AI calls remaining this hour', n + ' AI call ang natitira ngayong oras'), level: 'ok' };
 };
 
 // ── Native-app feel fallback (rubric class T · React-Native benchmark, 2026-07-18) ──────────
@@ -473,7 +510,26 @@ if (typeof window !== 'undefined') window.whCleanNumericPaste = whCleanNumericPa
     var css =
       '.sheet-overlay:not(.open),.modal-overlay:not(.open){visibility:hidden;' +
       'transition:opacity .25s,visibility 0s linear .25s;}' +
-      '.sheet-overlay.open,.modal-overlay.open{visibility:visible;transition-delay:0s;}';
+      '.sheet-overlay.open,.modal-overlay.open{visibility:visible;transition-delay:0s;}' +
+      // ★THE OVERLAY WAS HIDDEN AND THE SHEET ITSELF WAS NOT (2026-09-18, W45964). A closed
+      // bottom sheet is pushed off-screen by transform:translateY(100%) alone - it stays
+      // visibility:visible at opacity 1, which is invisible to a PERSON and fully painted to a
+      // FULL-PAGE SCREENSHOT, because that capture expands the viewport to the document height
+      // and a position:fixed element then lands in the middle of the document. Measured on
+      // marketplace-seller at phone-390: #sheet-edit reported transform translateY(776px),
+      // visibility visible, opacity 1, z-index 101, inert true - and painted over the document
+      // band y844..1620, covering the tab bar, the filter chips and the whole listings pane.
+      // BOTH isolated critique assessments opened with it, and both correctly refused to report
+      // it as a page defect; one of them then had to disclaim every finding about the panes
+      // underneath, because the state the row was commissioned to judge was not in evidence.
+      // So this is not cosmetic: it was corrupting the bank's own screenshots on all seven
+      // pages that ship a sheet. The overlay rule two lines up already made exactly this
+      // decision for exactly this reason; the sheet was simply never given it. Same transition
+      // shape, so the open animation is unchanged: visibility flips instantly on open and only
+      // after the slide-out completes on close.
+      '.sheet:not(.open),.bottom-sheet:not(.open){visibility:hidden;' +
+      'transition:transform .3s cubic-bezier(0.32,0.72,0,1),visibility 0s linear .3s;}' +
+      '.sheet.open,.bottom-sheet.open{visibility:visible;transition-delay:0s;}';
     var st = document.createElement('style');
     st.id = 'wh-a11y-overlay-focus';
     st.textContent = css;
@@ -877,17 +933,49 @@ async function whBuildVersion() {
 }
 if (typeof window !== 'undefined') window.whBuildVersion = whBuildVersion;
 
+/* ★THE BOTTOM-CHROME STACK, MEASURED AND LEFT FOR ITS OWN ROW (2026-09-18, W45975).
+   Callers pass a literal offset - '88px', '160px', '232px' - and the connectivity notice's 232px was
+   chosen to clear a bottom tab bar and a composer. On a page with neither it floats 232px above the
+   bottom edge and sits on whatever is there. Measured at 390x844 in BOTH languages, identical geometry:
+   #wh-connection-notice @8,482 368x130 covering ph-intelligence's "How this page works" disclosure at
+   @33,501 319x44. Second page caught by this notice - on marketplace-seller it covered #ps-gap-retry,
+   the recovery control for the very failure it was announcing (W45961), fixed there by standing a
+   redundant control down.
+
+   A MEASURED OFFSET WAS BUILT, TRIED, AND REVERTED, and the reason is the useful part. Replacing the
+   constant with "sit 16px above whatever fixed furniture actually reaches up" moved the notice from a
+   blind 232px to a measured 209px - and the disclosure was STILL covered, because the cause is not the
+   constant. Measured on the healthy page: the only bottom-anchored fixed furniture is #wh-hub, which
+   reaches 80px up (56px FAB at bottom:24px), and #wh-ai-widget at 54px, which does not paint. In the
+   DEGRADED state learn-link.js's page-guide chip is bottom-fixed too and reaches ~193px, so stacking
+   above it walks the notice UP INTO the page's content. Five independent pieces of chrome anchor
+   themselves to the bottom edge - the hub, the guide chip, this notice, the update notice, the AI
+   widget - each positioned by its own literal, and any two of them showing at once pushes the stack
+   over content.
+
+   That is one shared decision about a bottom-edge reserve, verified across the pages that ship a tab
+   bar, and it is NOT a page's copy row. Shipping a behavioural change to the most-shared module that
+   did not fix the defect it was written for is how the next regression gets made, so the measurement is
+   recorded here and the behaviour is unchanged. */
 function _whShowNotice(id, msg, bottomPx) {
+  // the SAME words dismissed within the last minute stay dismissed (see the Dismiss control below)
+  var _dis = (window._whNoticeDismissed || {})[id];
+  if (_dis && _dis.msg === String(msg || '') && (Date.now() - _dis.at) < 60000) return;
   var el = document.getElementById(id);
   if (!el) {
     el = document.createElement('div');
     el.id = id;
     el.setAttribute('role', 'status');
     el.setAttribute('aria-live', 'polite');
-    el.style.cssText = 'position:fixed;left:8px;right:8px;bottom:calc(' + bottomPx
+    // ★A NOTICE IS A TOAST, NOT A BANNER, ON A WIDE SCREEN (ledger C32, design lens critique on achievements at 1280,
+    // 2026-09-15): left:8px + right:8px stretched it across 1,258px and parked it over the page's recommendation text.
+    // On a phone it stays edge to edge; from 700px it is at most 560px wide, anchored bottom-RIGHT: the page's content
+    // is left-aligned, so a bottom-left toast sat on the action card's CTA at 1280 (W45855, alert-hub, 2026-09-15).
+    var _wide = (window.innerWidth || 0) >= 700;
+    el.style.cssText = 'position:fixed;left:8px;' + (_wide ? 'left:auto;right:16px;max-width:560px;' : 'right:8px;') + 'bottom:calc(' + bottomPx
       + ' + env(safe-area-inset-bottom,0px));'
-      + 'z-index:2147483000;padding:12px 14px;border-radius:12px;font-size:13px;line-height:1.45;'
-      + 'background:rgba(60,20,24,0.97);color:#FDC9C9;border:1px solid rgba(253,201,201,0.35);'
+      + 'z-index:2147483000;padding:12px 14px;border-radius:12px;font-size:0.8rem;line-height:1.45;'
+      + 'background:rgba(60,20,24,0.97);color:var(--wh-red-text, #FDC9C9);border:1px solid rgba(253,201,201,0.35);'
       + 'box-shadow:0 8px 28px rgba(0,0,0,0.45)';
     (document.body || document.documentElement).appendChild(el);
   }
@@ -913,10 +1001,12 @@ function _whShowNotice(id, msg, bottomPx) {
   // are stand leaves reloading as the only exit, which is the one action that throws the work away. The
   // return path carries the page they were on, so signing in brings them back to it.
   var _isSession = /session|sign in again|log in again|expired/i.test(String(msg || ''));
-  _rb.textContent = _isSession ? 'Sign in' : ((typeof window.whPageRetry === 'function') ? 'Retry' : 'Reload');
+  // the notice speaks the page's language (design lens copy on ai-quality, 2026-09-15: Reload / Dismiss were English on a Filipino page)
+  var _tN = (typeof window !== 'undefined' && typeof window._t === 'function') ? window._t : function (en) { return en; };
+  _rb.textContent = _isSession ? _tN('Sign in', 'Mag-sign in') : ((typeof window.whPageRetry === 'function') ? _tN('Retry', 'Subukan ulit') : _tN('Reload', 'I-reload'));
   _rb.style.cssText = 'margin-left:10px;padding:4px 12px;border-radius:8px;font-size:12px;font-weight:600;'
-    + 'cursor:pointer;background:rgba(253,201,201,0.14);color:#FDC9C9;border:1px solid rgba(253,201,201,0.45);'
-    + 'min-height:32px;vertical-align:middle';
+    + 'cursor:pointer;background:rgba(253,201,201,0.14);color:var(--wh-red-text, #FDC9C9);border:1px solid rgba(253,201,201,0.45);'
+    + 'min-height:44px;vertical-align:middle';   /* 44px tap floor (was 32; measured 68x32 on the update notice, 2026-09-15) */
   _rb.addEventListener('click', function () {
     if (_isSession) {
       var _here = location.pathname.split('/').pop() || 'index.html';
@@ -933,6 +1023,30 @@ function _whShowNotice(id, msg, bottomPx) {
     }
   });
   el.appendChild(_rb);
+  // ★A NOTICE WITH NO WAY TO CLEAR IT SAT ON THE SIGN-IN BUTTON (2026-09-14, W4 narrow-320 walk, confusion
+  // C15, gate notice-dismissible). Measured at 320x720 on the front-door sign-in form with a read failed: this
+  // fixed bar (z 2147483000) landed exactly on "Enterprise SSO" - elementFromPoint at that button's centre
+  // returned button.wh-notice-retry - and the only way past it was for the read to succeed. A message a person
+  // has read must be dismissible, so a 44px Dismiss (✕) removes it; the SAME words re-shown within a minute stay
+  // dismissed (a page's poller repeating the failure it already reported), while a different message - "session
+  // expired" after "could not load" - shows as normal, because that is new information.
+  var _cb = document.createElement('button');
+  _cb.type = 'button';
+  _cb.className = 'wh-notice-close';
+  _cb.setAttribute('aria-label', _tN('Dismiss this notice', 'Isara ang paunawang ito'));
+  _cb.title = _tN('Dismiss', 'Isara');
+  _cb.textContent = '✕';
+  _cb.style.cssText = 'position:absolute;top:0;right:0;min-width:44px;min-height:44px;padding:0;border:0;'
+    + 'background:transparent;color:var(--wh-red-text, #FDC9C9);font-size:16px;line-height:44px;text-align:center;cursor:pointer;'
+    + 'border-radius:0 12px 0 12px';
+  _cb.addEventListener('click', function () {
+    window._whNoticeDismissed = window._whNoticeDismissed || {};
+    window._whNoticeDismissed[id] = { msg: String(msg || ''), at: Date.now() };
+    var n3 = document.getElementById(id);
+    if (n3 && n3.parentNode) n3.parentNode.removeChild(n3);
+  });
+  el.style.paddingRight = '52px';   // keep the words clear of the ✕
+  el.appendChild(_cb);
   // ★THE PERSON HAD NOTHING TO QUOTE (2026-09-06, layer L, §LX, gate failure-traceable). Every page
   // told them the read had failed and not one gave them a handle on WHICH failure - no time, no
   // version, no code - so a report arrived as "it broke earlier" and could not be matched to any
@@ -942,7 +1056,7 @@ function _whShowNotice(id, msg, bottomPx) {
   // support needs and what "something went wrong" never gave them.
   var _ref = document.createElement('span');
   _ref.className = 'wh-notice-ref';
-  _ref.style.cssText = 'display:block;margin-top:6px;font-size:11px;opacity:0.72;letter-spacing:0.02em';
+  _ref.style.cssText = 'display:block;margin-top:6px;font-size:0.75rem;opacity:0.8;';
   var _now = new Date();
   var _hhmmss = String(_now.getHours()).padStart(2, '0') + ':' + String(_now.getMinutes()).padStart(2, '0')
               + ':' + String(_now.getSeconds()).padStart(2, '0');
@@ -966,30 +1080,150 @@ function _whShowNotice(id, msg, bottomPx) {
   // for the hub reserve - one shared bar takes one shared reserve. Measure what is actually on
   // screen and clear it; never lower a notice, only raise it, and never past 60% of the viewport so
   // a heavily-stacked page cannot push the message out of sight.
-  try {
-    var _gap = 8;
-    var _stack = '#wh-hub, .wh-conn-chip, .wh-conn-popover, .wh-fb-fab, #wh-guide-link, '
-               + '#wh-ai-widget, #fab, .wh-companion-trigger';
-    var _floor = 0;
-    Array.prototype.forEach.call(document.querySelectorAll(_stack), function (c) {
-      if (!c || c === el) return;
-      var cs = window.getComputedStyle(c);
-      if (cs.display === 'none' || cs.visibility === 'hidden' || parseFloat(cs.opacity || '1') === 0) return;
-      var r = c.getBoundingClientRect();
-      if (r.height < 4 || r.bottom <= 0 || r.top >= window.innerHeight) return;
-      var above = window.innerHeight - r.top;      // how far this element's TOP sits above the bottom
-      if (above > _floor) _floor = above;
-    });
-    var _want = parseFloat(bottomPx) || 0;
-    var _need = _floor + _gap;
-    var _cap = window.innerHeight * 0.6;
-    if (_need > _want && _need < _cap) {
-      el.style.bottom = 'calc(' + Math.round(_need) + 'px + env(safe-area-inset-bottom,0px))';
-    }
-  } catch (e) { void e; /* empty-catch-allow: placement is best-effort; the message still shows */ }
+  // ★AND THE CHROME IT MEASURES ARRIVES LATER THAN THE NOTICE (2026-09-15, ledger C28, the first design-lens walk
+  // of achievements through the Playwright MCP). The service-worker update notice fires within a second of load,
+  // while the page-guide chip paints itself on its own schedule (learn-link.js: 300 ms ... 12 s) and the hub FAB
+  // lifts at runtime - so the single measurement at show time saw an empty bottom, left the notice at its literal
+  // 160px, and there it covered the chip's "Read the guide" link and its Dismiss button (fit record: both @y658
+  // under #wh-update-notice @y567..684, at 390 and at 1280). One mover, re-measuring: the notice re-places itself
+  // as the chrome settles and only ever rises; the chip's own avoidance list deliberately does not include a
+  // notice, so the two cannot chase each other up the screen.
+  var _placeNotice = function () {
+    try {
+      // C32, second half (design walk 2026-09-15): the width rule was read ONCE at creation, so a notice raised at a phone
+      // width and carried into a wide window stayed edge-to-edge (1258px at 1280, covering the action card's CTA). The
+      // re-measure re-reads it: a toast at >= 700px, a banner below.
+      var _w = (window.innerWidth || 0) >= 700;
+      el.style.left = _w ? 'auto' : '8px'; el.style.right = _w ? '16px' : '8px'; el.style.maxWidth = _w ? '560px' : '';
+      var _gap = 8;
+      // ★C28 CLOSED: THE LITERAL IS NOW THE FALLBACK, AND _stack NAMES WHAT IT WAS STANDING IN FOR
+      // (2026-09-19, W46059 on voice-journal). The list below used to cover only the floating chrome,
+      // so on a page whose bottom furniture is a docked BAR the measurement found 80px of hub, the
+      // literal stayed in charge, and the notice hung in mid-page. These four are the bars, found by
+      // reading every fixed bottom-docked element on the platform rather than by guessing: index's
+      // sticky mobile CTA, the bottom sheets, and the consent banner. [data-wh-bottom-bar] is the
+      // opt-in for anything added later, so the next bar does not have to wait for another walk to
+      // find it - a selector list is a claim about coverage, and this one now says how to extend it.
+      var _stack = '#wh-hub, .wh-conn-chip, .wh-conn-popover, .wh-fb-fab, #wh-guide-link, '
+                 + '#wh-ai-widget, #fab, .wh-companion-trigger, '
+                 + '#sticky-mobile-cta, .sheet-inner, .bottom-sheet, #wh-consent, [data-wh-bottom-bar]';
+      var _floor = 0;
+      Array.prototype.forEach.call(document.querySelectorAll(_stack), function (c) {
+        if (!c || c === el) return;
+        var cs = window.getComputedStyle(c);
+        if (cs.display === 'none' || cs.visibility === 'hidden' || parseFloat(cs.opacity || '1') === 0) return;
+        var r = c.getBoundingClientRect();
+        if (r.height < 4 || r.bottom <= 0 || r.top >= window.innerHeight) return;
+        var above = window.innerHeight - r.top;      // how far this element's TOP sits above the bottom
+        if (above > _floor) _floor = above;
+      });
+      var _want = Math.max(parseFloat(bottomPx) || 0, parseFloat(el.getAttribute('data-wh-bottom') || '0') || 0);
+      var _need = _floor + _gap;
+      var _cap = window.innerHeight * 0.6;
+      // ★C28, THE THIRD HALF: THIS PLACEMENT CAN ONLY EVER RAISE, NEVER LOWER - SO A LITERAL THAT IS TOO
+      // BIG IS UNREACHABLE BY THE MEASUREMENT (measured 2026-09-18, W45975). The guard below is
+      // `_need > _want`, and `_want` starts at the caller's literal: '88px', '160px' or the connectivity
+      // notice's '232px'. On a page whose only bottom furniture is the hub, _floor is 80 and _need is 88
+      // - so 88 > 232 is FALSE and the notice stays pinned at 232px, floating in the middle of the
+      // viewport over whatever is there. Measured at 390x844 on ph-intelligence, identical in en and fil:
+      // #wh-connection-notice @8,482 368x130 covering the "How this page works" disclosure at @33,501
+      // 319x44. Second page this notice has been caught on (marketplace-seller's #ps-gap-retry, W45961).
+      // The literal was chosen to clear a composer and a tab bar that are NOT in the _stack selector
+      // list, so it is doing a real job on the pages that have them - which is why this is not a
+      // one-character fix. The right shape is for the literal to be the fallback used when the
+      // measurement finds nothing, and for _stack to name the furniture the literals were standing in
+      // for. ★THAT IS DONE, 2026-09-19 (W46059, voice-journal): _stack above now names the four
+      // bottom-docked BARS on this platform, found by reading every fixed bottom element rather than
+      // guessing, plus [data-wh-bottom-bar] so the next one does not need another walk to be seen.
+      // THE FIX THE PARAGRAPH ABOVE SPECIFIED. The first placement TRUSTS THE MEASUREMENT: if anything
+      // in _stack is on screen, the notice sits a gap above the tallest of it, whether that is higher
+      // or LOWER than the caller's literal. The literal is used only when the measurement finds
+      // nothing at all - which is what a fallback is. Every LATER re-measure can still only rise, so
+      // the notice cannot chase settling chrome down the screen, which is the property the original
+      // one-directional rule was protecting and the reason this is not simply `_need` everywhere.
+      // ★AND THE FIRST DRAFT OF THIS FIX PUT THE NOTICE BACK WHERE IT STARTED, one re-measure later.
+      // It used `_want` on the later passes, and `_want` is a Math.max that still has the caller's
+      // literal inside it - so the first placement measured 88, the timer fired, and 232 won again.
+      // Measured: the walk reported the notice at the same @8,482 it had before the change. Once a
+      // measurement has been made, the literal is SPENT; the only floor that matters afterwards is
+      // where this notice was last put, which is what data-wh-bottom records.
+      // ★AND THE SECOND DRAFT FAILED FOR THE REASON THE PARAGRAPH TWO ABOVE ALREADY RECORDS: THE FIRST
+      // PLACEMENT HAS NOTHING TO MEASURE. _placeNotice runs the instant the notice is created, and the
+      // hub FAB, the guide chip and the companion all arrive later on their own schedules - so "trust
+      // the first measurement" trusted an empty screen, fell back to the literal, and then locked it
+      // in. Measured: the walk reported the notice at the same @8,482 after two supposed fixes.
+      // The literal is therefore PROVISIONAL, not a first answer: while nothing is on screen the notice
+      // wears it, and the first re-measure that actually FINDS furniture may move it either way. Only
+      // then does the rise-only rule start, so the notice still cannot chase settling chrome downward.
+      var _measured = _floor > 0;
+      var _placedOnce = el.getAttribute('data-wh-placed') === '1';
+      var _prev = parseFloat(el.getAttribute('data-wh-bottom') || '0') || 0;
+      var _target = !_measured ? _want
+                  : (_placedOnce ? Math.max(_prev, _need) : _need);
+      if (_target > _cap) _target = _cap;     // never past 60% of the viewport: a message out of sight is no message
+      if (_target < _gap) _target = _gap;
+      el.style.bottom = 'calc(' + Math.round(_target) + 'px + env(safe-area-inset-bottom,0px))';
+      el.setAttribute('data-wh-bottom', String(Math.round(_target)));
+      if (_measured) el.setAttribute('data-wh-placed', '1');
+      // ★A SCROLL RESERVE WAS ADDED HERE AND REMOVED AGAIN THE SAME HOUR, BECAUSE THE MEASUREMENT
+      // REFUSED IT (2026-09-19). The reasoning was that a correctly-placed notice still covers whatever
+      // sits at the foot of a SHORT page, so reserving its height would at least give the reader
+      // somewhere to scroll to. Two numbers killed it. First, voice-journal's document is 2659px tall
+      // against an 844px viewport - it already scrolls 1815px, and the covered control scrolls clear
+      // without any help, so the premise that the page is too short was wrong. Second, setting
+      // document.body.style.paddingBottom did not change the computed value at all: it stayed at the
+      // 80px something else already declares, so the mechanism would have been inert even where it was
+      // needed. A reserve that neither applies nor is required is two unverified claims in one line.
+      // What remains true, and is NOT solved: a bottom-fixed notice overlaps whatever is in its band AT
+      // REST, and raising it only chooses a different victim - this attempt moved the overlap from the
+      // mic button to the "Prefer to type?" disclosure. The shape worth trying next is to stop making
+      // it fixed when the document does not scroll, and render it in flow at the end of the content.
+    } catch (e) { void e; /* empty-catch-allow: placement is best-effort; the message still shows */ }
+  };
+  // ★AND A NOTICE MUST YIELD TO A PANEL THE READER JUST OPENED (ledger C28, second half, 2026-09-16).
+  // The placement above raises the notice over bottom CHROME; it cannot help against an OVERLAY,
+  // and measurement says so: #wh-feedback-panel is fixed, z 9999 and 844px tall - the full viewport -
+  // while the notice is z 2147483000 at 532..643, so it paints over #wh-fb-body at 522..622. To clear
+  // an 844px panel the notice would need bottom >= 844, past the 60% cap (506px) the placement rightly
+  // refuses to cross. The cap is correct and the z-index is correct - a stale-version message must
+  // outrank page CONTENT. It must not outrank a panel opened a second ago.
+  // So while a visible overlay INTERSECTS the notice, the notice hides, and returns when it closes.
+  // Intersection, not mere presence: a popover elsewhere on screen does not silence the message.
+  var _OVERLAYS = '[aria-modal="true"], [role="dialog"], .sheet.open, #wh-hub-panel, #wh-ai-panel, '
+                + '#wh-feedback-panel, .wh-fb-panel.open';
+  var _yieldToOverlay = function () {
+    try {
+      var nr = el.getBoundingClientRect();
+      if (!nr.width || !nr.height) { if (el.style.display === 'none') { el.style.display = ''; } return; }
+      var covered = Array.prototype.some.call(document.querySelectorAll(_OVERLAYS), function (o) {
+        if (!o || o === el || el.contains(o) || o.contains(el)) return false;
+        var cs = window.getComputedStyle(o);
+        // a CLOSED off-canvas panel keeps its box - visibility/display/opacity decide, not geometry
+        if (cs.display === 'none' || cs.visibility === 'hidden' || parseFloat(cs.opacity || '1') === 0) return false;
+        var r = o.getBoundingClientRect();
+        if (r.width < 8 || r.height < 8) return false;
+        return !(r.bottom <= nr.top || r.top >= nr.bottom || r.right <= nr.left || r.left >= nr.right);
+      });
+      el.style.display = covered ? 'none' : '';
+    } catch (e) { void e; /* empty-catch-allow: yielding is best-effort; the message still shows */ }
+  };
+  _placeNotice();
+  _yieldToOverlay();
+  [500, 1500, 3000, 6000, 12500].forEach(function (ms) {
+    setTimeout(function () { if (document.getElementById(id) === el) _placeNotice(); }, ms);
+  });
+  // Lives exactly as long as the notice: created with it, cleared by the same 30s cleanup below, so
+  // no page carries a timer for a message that is gone.
+  var _yieldTimer = setInterval(function () {
+    if (document.getElementById(id) !== el) { clearInterval(_yieldTimer); return; }
+    _yieldToOverlay();
+  }, 500);
+  var _onResize = function () { if (document.getElementById(id) === el) _placeNotice(); else window.removeEventListener('resize', _onResize); };
+  window.addEventListener('resize', _onResize);
   var key = '_whNoticeTimer_' + id;
   if (window[key]) clearTimeout(window[key]);
   window[key] = setTimeout(function () {
+    try { clearInterval(_yieldTimer); } catch (e) { void e; }
     var n = document.getElementById(id);
     if (n && n.parentNode) n.parentNode.removeChild(n);
   }, 30000);
@@ -1100,11 +1334,19 @@ function _whNoteTransportFailure(err) {
     var now = Date.now();
     if (now - (window._whConnNoted || 0) < 8000) return;
     window._whConnNoted = now;
+    var _tC = (typeof window._t === 'function') ? window._t : function (en) { return en; };
+    // ★"YOU APPEAR TO BE OFFLINE" WAS SAID TO A CONNECTED PERSON (critique lens on ai-quality, 2026-09-15): every
+    // non-timeout rejection blamed the connection without asking the browser. When the browser says it is online,
+    // the honest sentence is that the server could not be reached.
+    var _online = (typeof navigator !== 'undefined' && navigator.onLine === true);
     var text = timedOut
-      ? 'This is taking longer than expected, so part of this page could not be loaded. Your work is '
-        + 'safe. Try again in a moment.'
-      : 'You appear to be offline, so part of this page could not be loaded. Your work is safe, and it '
-        + 'will load again once your connection is back.';
+      ? _tC('This is taking longer than expected, so part of this page could not be loaded. Your work is safe. Try again in a moment.',
+            'Mas matagal ito kaysa inaasahan, kaya hindi na-load ang bahagi ng page na ito. Ligtas ang trabaho mo. Subukan ulit maya-maya.')
+      : _online
+        ? _tC('The server could not be reached, so part of this page could not be loaded. Your work is safe. Try again in a moment.',
+              'Hindi maabot ang server, kaya hindi na-load ang bahagi ng page na ito. Ligtas ang trabaho mo. Subukan ulit maya-maya.')
+        : _tC('You appear to be offline, so part of this page could not be loaded. Your work is safe, and it will load again once your connection is back.',
+              'Mukhang offline ka, kaya hindi na-load ang bahagi ng page na ito. Ligtas ang trabaho mo, at magloload ulit ito kapag bumalik ang koneksyon.');
     _whShowNotice('wh-connection-notice', text, '232px');
     // A notice above a page that keeps pulsing skeletons and 'Computing...' texts is two contradictory claims. Settle
     // the stuck loaders into the shared error card once the retry envelope has passed (2026-09-05: 13 of 21 DB pages
@@ -1158,6 +1400,16 @@ function _whSettleStuckLoaders() {
         c.setAttribute('data-wh-read-failed', '1');
         var _tRF = (typeof window !== 'undefined' && typeof window._t === 'function') ? window._t : function (en) { return en; };
         c.insertAdjacentText('afterbegin', _tRF('Read failed · ', 'Nabigo ang pagbasa · '));
+        // ★"READ FAILED · LIVE · REFRESHED ON LOAD" IS ONE SENTENCE CONTRADICTING ITSELF (design lens copy on
+        // achievements, 2026-09-15, ledger C30): the marker was prefixed and the freshness words stayed, so the chip
+        // claimed a failure and a live refresh in the same breath. The freshness clause - the 'Live' part and its
+        // 'refreshed on load' companion, in either language - is replaced with what is true: the last data loaded
+        // is what the page is showing. The rest of the chip (what the figures are based on) stays.
+        var _fn = c.firstChild ? c.firstChild.nextSibling : null;
+        if (_fn && _fn.nodeType === 3) {
+          _fn.nodeValue = _fn.nodeValue.replace(/^\s*Live\b[^·]*(?:·\s*[^·]*refresh[^·]*)?\s*·\s*/i,
+            _tRF('showing the last data loaded · ', 'ipinapakita ang huling na-load na data · '));
+        }
       }
     }
     window._whSettled++;
@@ -1485,6 +1737,13 @@ async function whLoadRewardKnobs(dbClient) {
 }
 
 var WH_SOURCE_LABELS = {
+  // ── THE WORDS THE LENSES READ ON THE CHIP (2026-09-15, design lens copy on achievements and ai-quality): the generic
+  // fallback printed "worker" for v_worker_truth (a dangling noun beside "achievements, XP history") and "ai reply
+  // feedback" for ai_reply_feedback (a proper noun in lower case). The chip is user-facing prose.
+  'v_worker_truth':        'your profile',
+  'ai_reply_feedback':     'AI reply feedback',
+  'v_ai_reply_feedback':   'AI reply feedback',
+  'ai_usage_log':          'AI usage',
   // ── THE MONEY VOCABULARY (added 2026-08-05, from a live MCP walk of platform-actions) ─────────
   // Without these the generic fallback (strip v_/_truth, underscores -> spaces) rendered the
   // provenance chip as "service credit topups" and "gcash receipts needing eyes" — on a page whose
@@ -1708,6 +1967,32 @@ function whI18nApply(dict) {
     el.textContent = merged[k];
     el.setAttribute('data-i-applied', merged[k]);
   });
+  // ★NO ACCESSIBLE NAME ON THE PLATFORM COULD BE TRANSLATED (design lens copy, 2026-09-15). This swapper
+  // wrote textContent and nothing else, so a control whose name comes from aria-label announced English to
+  // a Filipino screen-reader user however well the page's visible copy was translated - measured on
+  // asset-hub, where five of twenty control names came back in English while every visible label was
+  // Filipino. [data-ia] reads the same merged dictionary and carries the same application-owns-it-now
+  // guard: a label the app has since rewritten is left alone.
+  document.querySelectorAll('[data-ia]').forEach(function (el) {
+    var k = el.getAttribute('data-ia');
+    if (merged[k] == null) return;
+    var stamp = el.getAttribute('data-ia-applied');
+    if (stamp !== null && el.getAttribute('aria-label') !== stamp) return;
+    el.setAttribute('aria-label', merged[k]);
+    el.setAttribute('data-ia-applied', merged[k]);
+  });
+  // ★AND THE PLACEHOLDER, for the same reason (design lens copy, 2026-09-15). A placeholder is the words
+  // a SIGHTED reader sees inside an empty field, and it was as unreachable as the accessible name was -
+  // the assistant's own input said "Ask anything..." in English on a fully Filipino page. Same dictionary,
+  // same application-owns-it-now guard.
+  document.querySelectorAll('[data-ip]').forEach(function (el) {
+    var k = el.getAttribute('data-ip');
+    if (merged[k] == null) return;
+    var stamp = el.getAttribute('data-ip-applied');
+    if (stamp !== null && el.getAttribute('placeholder') !== stamp) return;
+    el.setAttribute('placeholder', merged[k]);
+    el.setAttribute('data-ip-applied', merged[k]);
+  });
 }
 if (typeof document !== 'undefined') {
   document.addEventListener('DOMContentLoaded', function () {
@@ -1742,14 +2027,26 @@ function whProgressStrip(label, done, total, opts) {
   var pct = Math.round((k / total) * 100);
   var fillCol = pct >= 100 ? '#86EFAC' : 'linear-gradient(90deg, var(--wh-orange), var(--wh-orange-light))';
   return '<div class="wh-progress-strip" role="progressbar" aria-valuemin="0" aria-valuemax="' + total + '" aria-valuenow="' + k + '"'
-    + ' aria-label="' + e(_tt(label)) + ': ' + k + ' of ' + total + '"'
-    + ' style="margin:0 0 12px;padding:10px 12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;">'
+    /* ★THE ACCESSIBLE NAME JOINED THE COUNT WITH AN ENGLISH WORD (design lens copy on dayplanner,
+       2026-09-15): a bare ' of ' literal, never offered to the translator at all, on every strip the
+       platform draws. And _tt(label) is a ONE-ARGUMENT call - _t(en, fil) returns en whenever fil is
+       undefined, so it cannot translate anything; it is kept only because the CALLER passes a string it
+       has already translated, which is where a strip's label should be decided. */
+    + ' aria-label="' + e(_tt(label)) + ': ' + k + ' ' + _tt('of', 'sa') + ' ' + total + '"'
+    + ' style="margin:0 0 12px;padding:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;">'
     + '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;">'
-    +   '<span style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:rgba(255,255,255,0.80);">' + e(_tt(label)) + '</span>'
-    +   '<span style="font-size:.72rem;font-weight:800;color:var(--wh-cloud, #F4F6FA);font-variant-numeric:tabular-nums;">' + k + ' <span style="font-weight:600;color:rgba(255,255,255,0.80);">' + e(_tt('of')) + ' ' + total + '</span></span>'
+    /* ★AT 10.88px THIS WAS THE SMALLEST TEXT ON EVERY PAGE THAT DRAWS A STRIP (design lens critique,
+       W45908 Assessment A, 2026-09-15). .68rem uppercase at 80% white, and it is the CAPTION - the only
+       thing that says what the number counts. The platform floor is 12px and the value beside it was
+       .72rem (11.52px), so the whole component sat below its own floor on 30-odd surfaces. */
+    +   '<span style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:rgba(255,255,255,0.80);">' + e(_tt(label)) + '</span>'
+    +   '<span style="font-size:.75rem;font-weight:800;color:var(--wh-cloud, #F4F6FA);font-variant-numeric:tabular-nums;">' + k + ' <span style="font-weight:600;color:rgba(255,255,255,0.80);">' + e(_tt('of', 'sa')) + ' ' + total + '</span></span>'
     + '</div>'
     + '<div class="wh-progress-track" style="height:6px;border-radius:999px;background:rgba(255,255,255,0.08);overflow:hidden;">'
-    +   '<div class="wh-progress-fill" style="width:' + pct + '%;height:100%;border-radius:999px;background:' + fillCol + ';transition:width .4s;"></div>'
+    +   '<div class="wh-progress-fill" style="width:' + pct + '%;height:100%;border-radius:999px;background:' + fillCol + ';"></div>'   /* ★a 400ms transition on `width` that never runs: the width is
+        written inline at insertion, so there is no starting value to animate from, and it is a layout
+        property past the 300ms ceiling on every page that draws a progress bar - the `layout-transition`
+        the Chrome DevTools trace flagged (design lens motion, 2026-09-15). */
     + '</div>'
     + '</div>';
 }
@@ -1781,7 +2078,7 @@ function whAiTrustRow(container, opts) {
   var row = document.createElement('div');
   row.className = 'wh-ai-trust';
   row.setAttribute('data-ai-trust', opts.agent || 'ai');
-  row.style.cssText = 'display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:6px;font-size:.72rem;color:var(--muted,#888);';
+  row.style.cssText = 'display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:6px;font-size:.75rem;color:var(--muted,#888);';
   if (opts.groundedOn) {
     var chip = document.createElement('span');
     chip.className = 'wh-source-chip';
@@ -1965,9 +2262,24 @@ function renderSourceChip(opts) {
   // data-wh-fresh marks "this chip carries a freshness claim", so _whSettleStuckLoaders can find the
   // chips that would otherwise go on saying "Live" after every read failed WITHOUT matching on the
   // English word "Live" (C-AK: a safety behaviour must not depend on another string staying English).
-  var chipHtml = '<p class="wh-source-chip" role="status" aria-live="polite"'
+  // ★A PAGE WITH THREE SOURCE CHIPS HAD THREE POLITE LIVE REGIONS (2026-09-19, W45918 audit lens on
+  // hive.html). The G1 reasoning above is right for ONE chip: it makes the page's provenance a genuine
+  // status region so the rubric finds it. It does not scale. Measured on hive: three chips, all three
+  // announced, 333 characters of provenance queued after every settle - "Live · updates automatically
+  // · Based on your adoption score & risk tier · Tiers: healthy under..." and two more. The comparison
+  // is what makes it a finding rather than a preference: analytics has one chip at 80 characters,
+  // status one at 49, shift-brain one announced at 174. Only hive stacks them, and it stacks them on
+  // the busiest page on the platform.
+  // So the CALLER says which of its chips is the page's status region. It defaults to announcing,
+  // because one chip is the common case and a page that never thinks about it keeps the behaviour it
+  // has; a page with several passes announce:false on the rest. Deliberately not inferred from "is
+  // there already a chip with role=status in the document" - a page that re-renders its only chip
+  // would find its own previous copy and silently drop the role, which is the kind of mechanism that
+  // works until the day something re-renders.
+  var _announce = (opts.announce !== false);
+  var chipHtml = '<p class="wh-source-chip"' + (_announce ? ' role="status" aria-live="polite"' : '')
     + (freshness ? ' data-wh-fresh="1"' : '') + ' '
-    + 'style="font-size:.62rem;color:rgba(255,255,255,0.80);margin:0;padding:3px 0 0;line-height:1.35;">'
+    + 'style="font-size:.75rem;color:rgba(255,255,255,0.80);margin:0;padding:4px 0 0;line-height:1.35;">'
     + parts.join(' &middot; ')
     + '</p>';
 
@@ -1982,8 +2294,21 @@ function renderSourceChip(opts) {
       if (method[j]) mItems += '<li>' + escHtml(String(method[j])) + '</li>';
     }
     if (mItems) {
+      // ★TWO DISCLOSURES WITH THE SAME NAME (wave-4 confusion C8, 2026-09-14, hive board): a page that renders
+      // two source chips with methodology - readiness and the maturity stair on hive - announced two <summary>
+      // controls both named "How this is computed" inside one main region, so a screen-reader user heard the
+      // same name twice with no way to tell which figure each explains. A caller names its subject (opts.subject,
+      // a short noun such as "hive readiness") and the disclosure says "How hive readiness is computed"; a chip
+      // without a subject keeps the generic name, which is right where the page carries only one.
+      // Both halves named by the caller (subject + subjectFil): gluing the English noun into the Filipino
+      // template is the C-AK class ("Batay sa your schedule") this file already fixed once above.
+      var _subject = String(opts.subject || '').replace(/\s+/g, ' ').trim();
+      var _subjectFil = String(opts.subjectFil || _subject).replace(/\s+/g, ' ').trim();
+      var _summary = _subject
+        ? _tt('How ' + _subject + ' is computed', 'Paano kinalkula ang ' + _subjectFil)
+        : _tt('How this is computed', 'Paano ito kinalkula');
       chipHtml += '<details class="wh-method">'
-        + '<summary>' + escHtml(_tt('How this is computed', 'Paano ito kinalkula')) + '</summary>'
+        + '<summary>' + escHtml(_summary) + '</summary>'
         + '<ul>' + mItems + '</ul>'
         + '</details>';
     }
@@ -2034,10 +2359,13 @@ function whListSkeleton(el, rows) {
   var st = document.createElement('style');
   st.id = 'wh-help-css';
   st.textContent =
-    '.wh-help{margin:0 0 16px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:10px 14px}' +   /* identical to components.css (2026-09-07): a second, different rule after first paint was a layout shift. 14px->16px 2026-09-10 (R1 off-scale gap) — changed in BOTH files in one edit, for that same reason */
+    '.wh-help{margin:0 0 16px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:12px 16px}' +   /* identical to components.css (2026-09-07): a second, different rule after first paint was a layout shift. 14px->16px 2026-09-10 (R1 off-scale gap) — changed in BOTH files in one edit, for that same reason */
     'html{scrollbar-gutter:stable}.wh-back{margin:0.5rem 0}.wh-back a{display:inline-flex;align-items:center;min-height:44px;padding:0 0.5rem;margin-left:-0.5rem;text-decoration:none}' +
-    '.wh-help>summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font-size:0.74rem;font-weight:700;color:rgba(255,255,255,0.85)}' +
-    '.wh-help>p{margin:0.25rem 0 0.2rem;color:rgba(255,255,255,0.86);line-height:1.5}';
+    '.wh-help>summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font-size:0.75rem;font-weight:700;color:rgba(255,255,255,0.85)}' +
+    /* the disclosure marker, byte-identical to components.css (design lens critique round 5,
+       2026-09-15): display:flex removes a summary's triangle, so nothing said the block opens. */
+    '.wh-help>summary::-webkit-details-marker{display:none}.wh-help>summary::after{content:"";margin-left:auto;flex:0 0 auto;width:8px;height:8px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg) translateY(-2px);transition:transform 150ms var(--wh-ease-out, ease-out)}.wh-help[open]>summary::after{transform:rotate(-135deg) translateY(-2px)}' +
+    '.wh-help>p{margin:4px 0;color:rgba(255,255,255,0.86);line-height:1.5}';
   (document.head || document.documentElement).appendChild(st);
 })();
 
@@ -2144,7 +2472,7 @@ function whFreshnessChip(target, tsMillis, opts) {
   el.innerHTML =
     '<span class="wh-fresh-dot" aria-hidden="true" style="width:8px;height:8px;border-radius:50%;'
     + 'display:inline-block;margin-right:6px;background:' + (stale ? 'var(--wh-orange)' : 'var(--wh-green, #4ade80)') + ';"></span>'
-    + '<span class="wh-fresh-txt" style="font-size:0.72rem;color:rgba(255,255,255,0.80);">'
+    + '<span class="wh-fresh-txt" style="font-size:0.75rem;color:rgba(255,255,255,0.80);">'
     + _tt('Updated', 'Na-update') + ' ' + when + suffix + '</span>';
 }
 if (typeof window !== 'undefined') window.whFreshnessChip = whFreshnessChip;
@@ -2331,7 +2659,13 @@ function whPhotoFallback(img) {
   box.style.cssText =
     'display:flex; align-items:center; justify-content:center; text-align:center;' +
     'background:rgba(255,255,255,0.04); border:1px dashed rgba(255,255,255,0.18);' +
-    'color:rgba(255,255,255,0.45); font-size:0.7rem; line-height:1.3; padding:6px;' +
+    // W46009 audit: 0.7rem is 11.2px, under the platform's 12px floor, in shared code. This is the
+    // sentence shown when a photo cannot load - the one thing a reader has left when the image is
+    // gone - so it is exactly the text that must not be the smallest on the page. Lifted to the
+    // label step. Not observed rendering in any state walked this wave (no page calls
+    // whPhotoFallback directly), so this is fixed from the declaration with its trigger named
+    // rather than claimed as a measured regression.
+    'color:rgba(255,255,255,0.45); font-size:0.75rem; line-height:1.3; padding:6px;' +
     'border-radius:8px; box-sizing:border-box;' +
     (r.width  ? 'width:' + r.width  + 'px;' : 'width:100%;') +
     (r.height ? 'height:' + r.height + 'px;' : 'min-height:80px;');
@@ -2396,11 +2730,24 @@ function whIdVerified(seller, listing) {
 function whListError(el, message, onRetry) {
   if (!el) return;
   var e = escHtml;
+  // ★THREE ENGLISH STRINGS IN THE CARD ~20 PAGES SHOW WHEN A READ FAILS (2026-09-18, W46017). The
+  // Filipino walk of marketplace-seller recorded them in W45961 and named them as shared chrome; the
+  // Filipino walk of public-feed hit the same three today, which is the second page and therefore the
+  // point at which a page-side note stops being the answer. Measured in the fil-degraded step: the
+  // page's OWN sentence arrives fully translated ("Hindi ma-load ang public feed...") and then the card
+  // around it offers "Retry", "Is it just you? Check the platform status page" and "Report this
+  // problem" - so the reader is told what went wrong in their language and what to DO about it in
+  // somebody else's. The helper was already in this file, two hundred lines up.
+  // ★AND THE TWO LINKS WERE 11.52px, UNDER THE 12px FLOOR. 0.72rem, riding in every adopter's failure
+  // state - the moment a person is least able to read something small. The floor gate walks served
+  // PAGES, so a module that injects markup into every page sits outside its reach; this is two of the
+  // 33 sub-floor declarations that census found across 12 shared modules.
+  var _tE = (typeof window !== 'undefined' && typeof window._t === 'function') ? window._t : function (en) { return en; };
   el.innerHTML =
     '<div class="wh-list-error" role="alert">'
     + '<div class="wh-list-error-icon" aria-hidden="true">⚠️</div>'
     + '<div>' + e(message || "Couldn’t load this. Check your connection and try again.") + '</div>'
-    + (onRetry ? '<button type="button" class="wh-list-retry">Retry</button>' : '')
+    + (onRetry ? '<button type="button" class="wh-list-retry">' + e(_tE('Retry', 'Subukan ulit')) + '</button>' : '')
     // T71 (2026-08-25): "is it me or them?" - every failure state now points at the one page
     // built to answer that. ONE central edit reaches every whListError adopter (~20 pages);
     // status.html is static-first, so it loads even when the DB that broke this read is down.
@@ -2409,7 +2756,7 @@ function whListError(el, message, onRetry) {
     // A 12px target is hard for anyone and hopeless in gloves, at the exact moment a person is
     // already stuck. The idiom was already in this file two functions away (the "All assets" and
     // "PM Scheduler" links use inline-flex + min-height:44px); this one just did not follow it.
-    + '<div style="margin-top:0.5rem;"><a href="status.html" style="font-size:0.72rem;color:rgba(255,255,255,0.6);text-decoration:underline;text-underline-offset:2px;display:inline-flex;align-items:center;min-height:44px;">Is it just you? Check the platform status page</a>'
+    + '<div style="margin-top:0.5rem;"><a href="status.html" style="font-size:0.75rem;color:rgba(255,255,255,0.6);text-decoration:underline;text-underline-offset:2px;display:inline-flex;align-items:center;min-height:44px;">' + e(_tE('Is it just you? Check the platform status page', 'Ikaw lang ba? Tingnan ang status page ng platform')) + '</a>'
     // T193 (2026-08-26): the ESCALATION DOOR, from the state that needs it. When retry has
     // failed and status says the platform is fine, the person is stuck with nowhere to go -
     // "dead ends have a door". The feedback widget already exists on every page; this opens it
@@ -2417,7 +2764,7 @@ function whListError(el, message, onRetry) {
     // so a report arrives describing the failure instead of "it doesn't work". Rendered only
     // where the widget is actually present, so it can never be a door onto nothing.
     + (typeof window !== 'undefined' && window.WHFeedback && typeof window.WHFeedback.open === 'function'
-        ? ' <button type="button" class="wh-list-report" style="font-size:0.72rem;color:rgba(255,255,255,0.6);background:none;border:none;text-decoration:underline;text-underline-offset:2px;cursor:pointer;min-height:44px;padding:0 4px;">Report this problem</button>'
+        ? ' <button type="button" class="wh-list-report" style="font-size:0.75rem;color:rgba(255,255,255,0.6);background:none;border:none;text-decoration:underline;text-underline-offset:2px;cursor:pointer;min-height:44px;padding:0 4px;">' + e(_tE('Report this problem', 'I-report ang problemang ito')) + '</button>'
         : '')
     + '</div>'
     + '</div>';
@@ -2458,9 +2805,12 @@ if (typeof document !== 'undefined' && !document.getElementById('wh-list-states-
   whListStatesCss.id = 'wh-list-states-css';
   whListStatesCss.textContent =
     '.wh-skeleton{display:flex;flex-direction:column;gap:8px;padding:4px 0}' +
-    '.wh-skeleton-row{height:44px;border-radius:12px;background:linear-gradient(100deg,rgba(255,255,255,0.04) 30%,rgba(255,255,255,0.09) 50%,rgba(255,255,255,0.04) 70%);background-size:200% 100%;animation:wh-shimmer 1.3s ease-in-out infinite}' +
-    '@keyframes wh-shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}' +
-    '@media (prefers-reduced-motion:reduce){.wh-skeleton-row{animation:none}}' +
+    /* composited sweep, not an animated background-position - DevTools named the old rule a non-composited
+       animation and attributed 0.0241 of alert-hub's layout-shift cluster to it (2026-09-15) */
+    '.wh-skeleton-row{position:relative;overflow:hidden;height:44px;border-radius:12px;background:rgba(255,255,255,0.05)}' +
+    '.wh-skeleton-row::after{content:"";position:absolute;inset:0;background:rgba(255,255,255,0.05);animation:wh-shimmer 1.4s ease-in-out infinite}' +
+    '@keyframes wh-shimmer{0%,100%{opacity:0.45}50%{opacity:1}}' +
+    '@media (prefers-reduced-motion:reduce){.wh-skeleton-row::after{animation:none}}' +
     /* D1 U2: shared brief row-links (risk/pm-due/parts) were 39px tall (padding:8px) — bump to a 44px gloved-field tap target everywhere these render */
     '.wh-risk-row,.wh-pmdue-row,.wh-parts-row{min-height:44px;box-sizing:border-box}' +
     '.wh-list-error{text-align:center;padding:1.4rem 1rem;font-size:0.82rem;color:rgba(255,255,255,0.86);line-height:1.5}' +
@@ -2478,7 +2828,7 @@ if (typeof document !== 'undefined' && !document.getElementById('wh-method-css')
   var whMethodCss = document.createElement('style');
   whMethodCss.id = 'wh-method-css';
   whMethodCss.textContent =
-    '.wh-method{margin:2px 0 0;font-size:.62rem;line-height:1.4}' +
+    '.wh-method{margin:2px 0 0;font-size:.75rem;line-height:1.4}' +
     // 44px-tall tap zone (mobile-maestro floor) but visually a single small caption line;
     // marker hidden, replaced by an ⓘ so it reads as an info toggle, not a code affordance.
     '.wh-method>summary{display:flex;align-items:center;gap:5px;min-height:44px;cursor:pointer;list-style:none;color:rgba(255,255,255,0.80);font-weight:600;user-select:none}' +
@@ -2486,7 +2836,7 @@ if (typeof document !== 'undefined' && !document.getElementById('wh-method-css')
     '.wh-method>summary::before{content:"\\24D8";font-weight:400;opacity:.75}' +
     '.wh-method>summary:hover,.wh-method[open]>summary{color:rgba(255,255,255,0.85)}' +
     '.wh-method>ul{margin:0 0 6px;padding:0 0 0 18px;color:rgba(255,255,255,0.80);line-height:1.5}' +
-    '.wh-method>ul>li{margin:1px 0}';
+    '.wh-method>ul>li{margin:2px 0}';
   (document.head || document.documentElement).appendChild(whMethodCss);
 }
 
@@ -3000,10 +3350,15 @@ function whReadError(err, what) {
   // T71 (2026-08-26): the connection fallback now answers "is it me or them?" - every failure
   // state pointed nowhere, so a plant-wide outage read exactly like bad plant wifi. The Status
   // page is static-first (loads when the DB cannot), which is what makes the pointer honest.
+  // ★AND IT TOLD A PERSON TO OPEN A FILENAME (2026-09-18, W46017 copy). "Open status.html" is how a
+  // developer refers to that page; a maintenance technician on a phone has no address bar in mind and
+  // no reason to know the product ships .html files. It is also redundant as an instruction: the card
+  // this sentence renders inside already carries a real, tappable link to the same page, at the 44px
+  // floor, directly underneath. So the sentence names the place and lets the link do the going.
   return T('Couldn’t load ' + thing + '. Check your connection and try again. Still failing on good '
-       + 'internet? Open status.html - it shows if WorkHive itself is having trouble.',
+       + 'internet? The Status page below shows whether WorkHive itself is having trouble.',
            'Hindi ma-load ang ' + thingFil + '. Suriin ang koneksyon at subukan muli. Hindi pa rin '
-         + 'gumagana kahit maayos ang internet? Buksan ang status.html - ipinapakita nito kung '
+         + 'gumagana kahit maayos ang internet? Ipinapakita ng Status page sa ibaba kung '
          + 'may problema ang WorkHive mismo.');
 }
 if (typeof window !== 'undefined') window.whReadError = whReadError;
@@ -3362,7 +3717,15 @@ function whFmtDate(d, opts) {
   if (opts.time) { fmt.hour = '2-digit'; fmt.minute = '2-digit'; }
   if (opts.timeOnly) fmt = { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Manila' }; // clock-only variant
   if (opts.hour12 != null) fmt.hour12 = opts.hour12;
-  return dt.toLocaleString('en-PH', fmt);
+  /* ★EVERY DATE ON THE PLATFORM WAS ENGLISH (design lens copy on dayplanner, 2026-09-15). This tag was
+     hard-coded 'en-PH', so a page rendering in Filipino still read "Tuesday, September 15, 2026" - and on
+     the day planner that is the single string the reader looks at most, the day he is planning against.
+     Intl has the data (fil-PH resolves and returns "Martes, Setyembre 15, 2026"); only the tag was wrong.
+     The REGION stays PH and the time zone stays pinned to Asia/Manila in every branch, so the one clock
+     this platform promises is unchanged - what moves is the language of the month and the weekday, for
+     the 73 call sites that draw a date through here. */
+  var _loc = (typeof window !== 'undefined' && window.WH_LANG === 'fil') ? 'fil-PH' : 'en-PH';
+  return dt.toLocaleString(_loc, fmt);
 }
 function whFmtDuration(value, unit) {
   var v = Number(value);
@@ -3379,10 +3742,14 @@ function whFmtAgo(d) {
   var dt = (d instanceof Date) ? d : new Date(d);
   if (!d || isNaN(dt.getTime())) return '';
   var s = (Date.now() - dt.getTime()) / 1000;
-  if (s < 60) return 'just now';
-  if (s < 3600) return Math.floor(s / 60) + 'm ago';
-  if (s < 86400) return Math.floor(s / 3600) + 'h ago';
-  return Math.floor(s / 86400) + 'd ago';
+  // ★THE SHARED CLOCK SPOKE ONLY ENGLISH (design lens copy, 2026-09-15). Sixteen pages render a
+  // relative time through this helper and every one of them read "just now" or "5m ago" to a Filipino
+  // worker, inside sentences that were otherwise translated. It is a display helper - nothing parses
+  // what it returns - so the arms are free to differ.
+  if (s < 60) return _t('just now', 'ngayon lang');
+  if (s < 3600) return Math.floor(s / 60) + _t('m ago', 'm ang nakalipas');
+  if (s < 86400) return Math.floor(s / 3600) + _t('h ago', 'h ang nakalipas');
+  return Math.floor(s / 86400) + _t('d ago', 'd ang nakalipas');
 }
 if (typeof window !== 'undefined') {
   window.whFmtPeso = whFmtPeso; window.whFmtNum = whFmtNum;
@@ -3617,7 +3984,7 @@ function whOhBadge(lvl, text) {
     medium:   ['rgba(253,224,71,0.14)',  '#FDE047'],
     low:      ['rgba(134,239,172,0.14)', '#86EFAC'],
   }[String(lvl || '').toLowerCase()] || ['rgba(255,255,255,0.08)', 'rgba(255,255,255,0.75)'];
-  return '<span class="oh-badge oh-badge-' + escHtml(String(lvl || '')) + '" style="font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;padding:.15rem .45rem;border-radius:999px;background:' + c[0] + ';color:' + c[1] + ';white-space:nowrap;">' + escHtml(String(text == null ? lvl : text)) + '</span>';
+  return '<span class="oh-badge oh-badge-' + escHtml(String(lvl || '')) + '" style="font-size:.75rem;font-weight:700;padding:2px 8px;border-radius:999px;background:' + c[0] + ';color:' + c[1] + ';white-space:nowrap;">' + escHtml(String(text == null ? lvl : text)) + '</span>';
 }
 
 function renderRiskStrip(rows, opts) {
@@ -3635,23 +4002,37 @@ function renderRiskStrip(rows, opts) {
     var mtbf = (r.mtbf_days != null) ? ('MTBF ' + Math.round(r.mtbf_days) + 'd') : '';
     var href = 'asset-hub.html?tag=' + encodeURIComponent(r.asset_name || '');
     var lvl  = String(r.risk_level || '').toLowerCase();
-    return '<a href="' + e(href) + '" class="wh-risk-row" style="display:flex;align-items:center;justify-content:space-between;gap:10px;text-decoration:none;padding:8px 10px;background:rgba(255,255,255,0.03);border-radius:8px;">'
+    // Third link in this file built the same way, found by reading rather than by a walk: the parts and
+    // PM strips announced their fields run together, and so does this one — "HIGH2019 Isuzu JeepneyMTBF
+    // 41d68%". Same composed name, same reason. AND the risk PERCENTAGE — the number this whole strip
+    // exists to show — was declared at .72rem, 11.52px, under the 12px floor; it is the FIFTH sub-floor
+    // value found in shared JS this session and, like the other four, invisible to the type-floor gate
+    // because that gate walks served PAGES and a module is not a page. Lifted to the label step.
+    var _riskName = [r.risk_level, r.asset_name, mtbf, pct + '%'].filter(Boolean).join(' · ');
+    return '<a href="' + e(href) + '" class="wh-risk-row" aria-label="' + e(_riskName) + '" style="display:flex;align-items:center;justify-content:space-between;gap:10px;text-decoration:none;padding:8px 10px;background:rgba(255,255,255,0.03);border-radius:8px;">'
       +   '<div style="display:flex;align-items:center;gap:8px;min-width:0;flex:1;">'
       +     whOhBadge(lvl, r.risk_level)
       +     '<span style="font-size:.78rem;font-weight:600;color:var(--wh-cloud, #F4F6FA);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + e(r.asset_name) + '</span>'
       +   '</div>'
       +   '<div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">'
-      +     '<span style="font-size:.65rem;color:rgba(255,255,255,.6);white-space:nowrap;">' + e(mtbf) + '</span>'
-      +     '<span style="font-size:.72rem;font-weight:800;color:var(--wh-red-text,#FCA5A5);">' + pct + '%</span>'
+      +     '<span style="font-size:0.75rem;color:rgba(255,255,255,.6);white-space:nowrap;">' + e(mtbf) + '</span>'
+      +     '<span style="font-size:.75rem;font-weight:800;color:var(--wh-red-text,#FCA5A5);">' + pct + '%</span>'
       +   '</div>'
       + '</a>';
   }).join('');
   var inner = '<div style="display:flex;flex-direction:column;gap:8px;">' + rowsHtml + '</div>';
   if (!opts.title) return inner;
-  return '<div class="oh-card" data-rag-tile="' + e(opts.ragTile || 'shared:risk_strip') + '" data-rag-label="' + e(opts.title) + '" style="padding:14px 16px;border-left:3px solid var(--wh-red, #f87171);">'
+/* ★DESIGN.md FORBIDS THE THICK COLOURED BAR, AND I HAD PINNED IT AS 'OUR VOCABULARY' (2026-09-16).
+   Shapes: "Hairlines 1px solid rgba(255,255,255,0.07-0.10); accent borders are 1 px tints of the status
+   hue, NEVER a thick coloured border-left." The craft floor refuses the same thing from the other side
+   ("a colored border-left ABOVE 1px on cards, list items, callouts, or alerts"). I had pinned 183 of
+   these findings as a false positive on the grounds that the platform does it everywhere - which is what
+   a drift looks like from the inside, not a defence. The objection is the THICKNESS, so 1px is the
+   minimal compliant change and keeps the status hue doing its job. */
+  return '<div class="oh-card" data-rag-tile="' + e(opts.ragTile || 'shared:risk_strip') + '" data-rag-label="' + e(opts.title) + '" style="padding:16px;border-left:1px solid var(--wh-red, #f87171);">'
     +   '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">'
-    +     '<p style="font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--wh-red-text,#FCA5A5);margin:0;">' + e(opts.title) + '</p>'
-    +     '<a href="asset-hub.html" style="font-size:.62rem;color:rgba(255,255,255,.6);text-decoration:none;display:inline-flex;align-items:center;min-height:44px;">' + e(_tt('All assets', 'Lahat ng asset')) + ' &#8594;</a>'
+    +     '<p style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--wh-red-text,#FCA5A5);margin:0;">' + e(opts.title) + '</p>'
+    +     '<a href="asset-hub.html" style="font-size:.75rem;color:rgba(255,255,255,.6);text-decoration:none;display:inline-flex;align-items:center;min-height:44px;">' + e(_tt('All assets', 'Lahat ng asset')) + ' &#8594;</a>'
     +   '</div>' + inner + '</div>';
 }
 if (typeof window !== 'undefined') window.renderRiskStrip = renderRiskStrip;
@@ -3687,26 +4068,36 @@ function renderPmDueStrip(rows, opts) {
     // opens that asset's PM detail + schedule action), so the strip hands off the
     // record instead of dumping the user on the full overdue list (Issue #2).
     var href = 'pm-scheduler.html?asset=' + encodeURIComponent(name);
-    return '<a href="' + e(href) + '" class="wh-pmdue-row" style="display:flex;align-items:center;justify-content:space-between;gap:10px;text-decoration:none;padding:8px 10px;background:rgba(255,255,255,0.03);border-radius:8px;">'
+    // ★FOUR FIELDS, ZERO SEPARATORS, ONE ACCESSIBLE NAME (2026-09-18, W46038 copy lens on shift-brain).
+    // Measured on the live strip, this link announced as "OVERDUE2019 Isuzu JeepneyMajorOverdue by 2d":
+    // the badge, the asset, the criticality and the due status are four inline spans held apart by a
+    // flex `gap`, and a gap contributes nothing to the text an accessible name is computed from. Same
+    // class as the section-count pill (padding is not text) and the <br> in a heading (a break is not
+    // text) - three different CSS/markup devices that separate for the EYE and not for the NAME. The
+    // separator has to exist in the text, so the name is composed here with the platform's own middot,
+    // in the visible order and containing every visible word (WCAG 2.5.3 Label in Name). Shared chrome:
+    // this pays on every page that renders a PM-due strip, not only the one whose walk caught it.
+    var _pmName = [(over ? 'OVERDUE' : 'DUE'), name, crit, status].filter(Boolean).join(' · ');
+    return '<a href="' + e(href) + '" class="wh-pmdue-row" aria-label="' + e(_pmName) + '" style="display:flex;align-items:center;justify-content:space-between;gap:10px;text-decoration:none;padding:8px 10px;background:rgba(255,255,255,0.03);border-radius:8px;">'
       +   '<div style="display:flex;align-items:center;gap:8px;min-width:0;flex:1;">'
       +     whOhBadge(badge, over ? 'OVERDUE' : 'DUE')
       +     '<span style="font-size:.78rem;font-weight:600;color:var(--wh-cloud, #F4F6FA);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + e(name) + '</span>'
       +   '</div>'
       +   '<div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">'
-      +     (crit ? '<span style="font-size:.62rem;color:rgba(255,255,255,.6);white-space:nowrap;">' + e(crit) + '</span>' : '')
-      +     '<span style="font-size:.68rem;font-weight:700;color:' + (over ? 'var(--wh-red-text, #FCA5A5)' : 'var(--wh-orange-light, #FDB94A)') + ';white-space:nowrap;">' + e(status) + '</span>'
+      +     (crit ? '<span style="font-size:.75rem;color:rgba(255,255,255,.6);white-space:nowrap;">' + e(crit) + '</span>' : '')
+      +     '<span style="font-size:0.75rem;font-weight:700;color:' + (over ? 'var(--wh-red-text, #FCA5A5)' : 'var(--wh-orange-light, #FDB94A)') + ';white-space:nowrap;">' + e(status) + '</span>'
       +   '</div>'
       + '</a>';
   }).join('');
   var scopeChip = opts.scope
-    ? '<span style="font-size:.55rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:rgba(255,255,255,.45);">' + e(opts.scope) + '</span>'
+    ? '<span style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.72);">' + e(opts.scope) + '</span>'
     : '';
   var inner = '<div style="display:flex;flex-direction:column;gap:8px;">' + rowsHtml + '</div>';
   if (!opts.title) return inner;
-  return '<div class="oh-card" data-rag-tile="' + e(opts.ragTile || 'shared:pm_due_strip') + '" data-rag-label="' + e(opts.title) + '" style="padding:14px 16px;border-left:3px solid var(--wh-blue, #29B6D9);">'
+  return '<div class="oh-card" data-rag-tile="' + e(opts.ragTile || 'shared:pm_due_strip') + '" data-rag-label="' + e(opts.title) + '" style="padding:16px;border-left:1px solid var(--wh-blue, #29B6D9);">'
     +   '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">'
-    +     '<p style="font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--wh-blue, #29B6D9);margin:0;">' + e(opts.title) + '</p>'
-    +     (scopeChip || '<a href="pm-scheduler.html" style="font-size:.62rem;color:rgba(255,255,255,.6);text-decoration:none;display:inline-flex;align-items:center;min-height:44px;">PM Scheduler &#8594;</a>')
+    +     '<p style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--wh-blue, #29B6D9);margin:0;">' + e(opts.title) + '</p>'
+    +     (scopeChip || '<a href="pm-scheduler.html" style="font-size:.75rem;color:rgba(255,255,255,.6);text-decoration:none;display:inline-flex;align-items:center;min-height:44px;">PM Scheduler &#8594;</a>')
     +   '</div>' + inner + '</div>';
 }
 if (typeof window !== 'undefined') window.renderPmDueStrip = renderPmDueStrip;
@@ -3776,20 +4167,25 @@ function renderPartsStrip(rows, opts) {
     // Arc X A1: deep-link to the NAMED part (inventory.html reads ?q= -> filters +
     // scrolls to it), so the strip hands off the record instead of a bare list.
     var href = 'inventory.html?q=' + encodeURIComponent(r.part_name || '');
-    return '<a href="' + e(href) + '" class="wh-parts-row" style="display:flex;align-items:center;justify-content:space-between;gap:10px;text-decoration:none;padding:8px 10px;background:rgba(255,255,255,0.03);border-radius:8px;">'
+    // The identical shape two functions above, fixed in the same pass rather than left for the walk
+    // that happens to catch it: badge + name + meta, three inline spans held apart by a flex gap, so
+    // this link announced as "OUT<part>on hand 0 / min 5". The parts list was EMPTY on the walk that
+    // found the PM one, which is exactly why a defect gets fixed on one path and survives on the other.
+    var _partName = [label, name, meta].filter(Boolean).join(' · ');
+    return '<a href="' + e(href) + '" class="wh-parts-row" aria-label="' + e(_partName) + '" style="display:flex;align-items:center;justify-content:space-between;gap:10px;text-decoration:none;padding:8px 10px;background:rgba(255,255,255,0.03);border-radius:8px;">'
       +   '<div style="display:flex;align-items:center;gap:8px;min-width:0;flex:1;">'
       +     whOhBadge(badge, label)
       +     '<span style="font-size:.78rem;font-weight:600;color:var(--wh-cloud, #F4F6FA);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + e(name) + '</span>'
       +   '</div>'
-      +   '<span style="font-size:.62rem;color:rgba(255,255,255,.6);white-space:nowrap;flex-shrink:0;">' + e(meta) + '</span>'
+      +   '<span style="font-size:.75rem;color:rgba(255,255,255,.6);white-space:nowrap;flex-shrink:0;">' + e(meta) + '</span>'
       + '</a>';
   }).join('');
   var inner = '<div style="display:flex;flex-direction:column;gap:8px;">' + rowsHtml + '</div>';
   if (!opts.title) return inner;
-  return '<div class="oh-card" data-rag-tile="' + e(opts.ragTile || 'shared:parts_strip') + '" data-rag-label="' + e(opts.title) + '" style="padding:14px 16px;border-left:3px solid #fb923c;">'
+  return '<div class="oh-card" data-rag-tile="' + e(opts.ragTile || 'shared:parts_strip') + '" data-rag-label="' + e(opts.title) + '" style="padding:16px;border-left:1px solid #fb923c;">'
     +   '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">'
-    +     '<p style="font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#fb923c;margin:0;">' + e(opts.title) + '</p>'
-    +     '<a href="inventory.html" style="font-size:.62rem;color:rgba(255,255,255,.6);text-decoration:none;display:inline-flex;align-items:center;min-height:44px;">Inventory &#8594;</a>'
+    +     '<p style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#fb923c;margin:0;">' + e(opts.title) + '</p>'
+    +     '<a href="inventory.html" style="font-size:.75rem;color:rgba(255,255,255,.6);text-decoration:none;display:inline-flex;align-items:center;min-height:44px;">Inventory &#8594;</a>'
     +   '</div>' + inner + '</div>';
 }
 if (typeof window !== 'undefined') window.renderPartsStrip = renderPartsStrip;
@@ -3819,25 +4215,35 @@ function renderActionBrief(brief, opts) {
     if (a || why) return '<strong>' + e(a) + '</strong>' + (why ? ' &middot; ' + e(why) : '');
     return e(Object.values(it).filter(function (v) { return typeof v === 'string'; }).join(' · '));
   };
+  /* ★THE FILL TOKEN USED AS TEXT, IN THE ACTION BRIEF'S TWO SECTION LABELS (2026-09-18, W46035).
+     shift-brain's walk measured 4.05:1 on "Action Brief" in rgb(167,139,250) and 3.98:1 on "This shift"
+     in rgb(248,113,113), both at 12px over the card's rgb(42,61,88) - both under the 4.5:1 floor for
+     normal text. Those are --wh-violet and --wh-red, which tokens.css annotates as FILLS, and it names
+     --wh-violet-text (#C4B5FD) and --wh-red-text (#FDC9C9) as the AA-safe text variants for exactly  (purity-allow: prose comment naming the tokens, not a declaration)
+     this. The distinction is already written down; these two call sites just did not use it, and the
+     brief is shared chrome, so the failure rode onto every page that renders one.
+     ★NOT mapped to a nearby grey or dimmed - the same family's TEXT member, which is the rule that
+     matters: substituting a colour for its nearest neighbour once turned an undeclared #86929D into
+     var(--wh-steel) and broke 4.5:1 at a measured 4.46:1. Same family, text variant, measured after. */
   var listBlock = function (label, arr, color) {
     arr = Array.isArray(arr) ? arr.filter(Boolean) : [];
     if (!arr.length) return '';
     return '<div style="margin-top:10px;">'
-      + '<p style="font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:' + color + ';margin:0 0 4px;">' + e(label) + '</p>'
-      + '<ul style="margin:0;padding-left:16px;display:flex;flex-direction:column;gap:4px;">'
-      + arr.slice(0, 8).map(function (it) { return '<li style="font-size:.74rem;color:rgba(255,255,255,.82);line-height:1.35;">' + asLine(it) + '</li>'; }).join('')
+      + '<p style="font-size:.75rem;font-weight:700;color:' + color + ';margin:0 0 4px;">' + e(label) + '</p>'
+      + '<ul style="margin:0;padding-left:16px;display:flex;flex-direction:column;gap:4px;max-width:68ch;">'
+      + arr.slice(0, 8).map(function (it) { return '<li style="font-size:.875rem;color:rgba(255,255,255,.82);line-height:1.4;">' + asLine(it) + '</li>'; }).join('')
       + '</ul></div>';
   };
   var hChip = opts.horizon
-    ? '<span style="font-size:.55rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:rgba(255,255,255,.72);">' + e(opts.horizon) + '</span>'
+    ? '<span style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.72);">' + e(opts.horizon) + '</span>'
     : '';
-  return '<div class="oh-card" data-rag-tile="' + e(opts.ragTile || 'shared:action_brief') + '" data-rag-label="' + e(opts.title || 'Action Brief') + '" style="padding:14px 16px;border-left:3px solid var(--wh-violet, #a78bfa);">'
+  return '<div class="oh-card" data-rag-tile="' + e(opts.ragTile || 'shared:action_brief') + '" data-rag-label="' + e(opts.title || 'Action Brief') + '" style="padding:16px;border-left:1px solid var(--wh-violet, #a78bfa);">'
     +   '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">'
-    +     '<p style="font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--wh-violet, #a78bfa);margin:0;">' + e(opts.title || 'Action Brief') + '</p>' + hChip
+    +     '<p style="font-size:.75rem;font-weight:700;color:var(--wh-violet-text, #C4B5FD);margin:0;">' + e(opts.title || _t('Action brief', 'Action brief')) + '</p>' + hChip
     +   '</div>'
-    +   (summary ? '<p style="font-size:.82rem;font-weight:600;color:var(--wh-cloud, #F4F6FA);margin:0;line-height:1.4;">' + e(summary) + '</p>' : '')
-    +   listBlock(opts.horizon === 'strategic' ? 'This quarter' : opts.horizon === 'shift' ? 'This shift' : opts.horizon === 'today' ? 'Today' : 'This week', brief.this_week, 'var(--wh-red, #f87171)')
-    +   listBlock('Watch list', brief.watch_list, 'var(--wh-orange, #F7A21B)')
+    +   (summary ? '<p style="font-size:.875rem;font-weight:600;color:var(--wh-cloud, #F4F6FA);margin:0;line-height:1.4;max-width:68ch;">' + e(summary) + '</p>' : '')
+    +   listBlock(opts.horizon === 'strategic' ? _t('This quarter', 'Ngayong quarter') : opts.horizon === 'shift' ? _t('This shift', 'Ngayong shift') : opts.horizon === 'today' ? _t('Today', 'Ngayon') : _t('This week', 'Ngayong linggo'), brief.this_week, 'var(--wh-red-text, #FDC9C9)')
+    +   listBlock(_t('Watch list', 'Bantayan'), brief.watch_list, 'var(--wh-orange, #F7A21B)')
     + '</div>';
 }
 if (typeof window !== 'undefined') window.renderActionBrief = renderActionBrief;
@@ -4016,7 +4422,7 @@ let _whKpiTileId = 0;
 function renderKpiTile(opts) {
   opts = opts || {};
   const COLORS = {
-    green:  { bg: 'rgba(74,222,128,0.08)',   border: 'rgba(74,222,128,0.3)',   text: 'var(--wh-green, #4ade80)',  label: '✓ Healthy'  },
+    green:  { bg: 'rgba(74,222,128,0.08)',   border: 'rgba(74,222,128,0.3)',   text: 'var(--wh-green, #4ade80)',  label: _t('✓ Healthy', '✓ Maayos')  },
     // ★THE VERDICT CHIP USED THE FILL COLOUR AS TEXT (C2, walked 2026-09-10). This label renders at
     // 0.63rem, so WCAG 1.4.3 asks 4.5:1, and "✗ Critical" measured 4.18:1 on analytics — on EVERY page
     // that renders a red KPI tile, since this is the shared helper. tokens.css declares an AA-safe text
@@ -4027,12 +4433,12 @@ function renderKpiTile(opts) {
     // So this was adoption, not a palette question. The grey row below was already tuned for APCA in
     // 2026-09-07 and red/yellow were left behind — the partial-fix shape again. Green keeps its fill:
     // no --wh-green-text is declared and it was not an offender; inventing one is a palette decision.
-    yellow: { bg: 'rgba(247,162,27,0.08)',   border: 'rgba(247,162,27,0.3)',   text: 'var(--wh-orange-text, #FDB94A)',  label: '⚠ Watch'    },
-    red:    { bg: 'rgba(248,113,113,0.08)',  border: 'rgba(248,113,113,0.3)',  text: 'var(--wh-red-text, #FDC9C9)',  label: '✗ Critical' },
+    yellow: { bg: 'rgba(247,162,27,0.08)',   border: 'rgba(247,162,27,0.3)',   text: 'var(--wh-orange-text, #FDB94A)',  label: _t('⚠ Watch', '⚠ Bantayan')    },
+    red:    { bg: 'rgba(248,113,113,0.08)',  border: 'rgba(248,113,113,0.3)',  text: 'var(--wh-red-text, #FDC9C9)',  label: _t('✗ Critical', '✗ Kritikal') },
     // ★GREY AT 0.6 ALPHA FAILED APCA ON A 24px NUMBER (critic C5, 2026-09-07: design-system's "92%"
     // tile read Lc 0/45). WCAG passed it; APCA, which weighs the large-text case honestly, did not.
     // 0.78 clears Lc 45 on this platform's navy and is still visibly "no data" beside the tones.
-    grey:   { bg: 'rgba(255,255,255,0.03)',  border: 'rgba(255,255,255,0.08)', text: 'rgba(255,255,255,0.78)', label: 'No data' },
+    grey:   { bg: 'rgba(255,255,255,0.03)',  border: 'rgba(255,255,255,0.08)', text: 'rgba(255,255,255,0.78)', label: _t('No data', 'Walang datos') },
   };
   // ★TWO VOCABULARIES FOR ONE THING. design-system.html calls this with `tone: 'ok'` and the map is
   // keyed green/yellow/red, so a healthy KPI fell through to grey - "No data" on a tile that had data.
@@ -4050,14 +4456,14 @@ function renderKpiTile(opts) {
   // has nothing to fail on when there are no headings at all). An <h2> may not live
   // INSIDE a <button> (phrasing content only), so the heading WRAPS the button --
   // the ARIA Authoring Practices accordion pattern. Margins zeroed = pixel-identical.
-  return `<div class="card" style="border-left:3px solid ${c.border};margin-bottom:1rem;">
+  return `<div class="card" style="border-left:1px solid ${c.border};margin-bottom:1rem;">
     <h2 style="margin:0;font:inherit;color:inherit;">
     <button class="kpi-toggle" aria-expanded="${autoOpen ? 'true' : 'false'}" aria-controls="${id}" onclick="if(window.toggleKPI)toggleKPI('${id}')" style="background:${c.bg};border:1px solid ${c.border};color:inherit;min-height:${detail ? '72px' : '0'};">
       <div style="flex:1;text-align:left;">
-        <div style="font-size:0.68rem;font-weight:700;color:rgba(255,255,255,0.80);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.25rem;">
-          ${escHtml(opts.title || '')} <span style="font-size:0.58rem;font-weight:500;">${escHtml(opts.standard || '')}</span>
+        <div style="font-size:0.75rem;font-weight:600;color:rgba(255,255,255,0.80);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.25rem;">
+          ${escHtml(opts.title || '')} <span style="font-size:0.75rem;font-weight:500;">${escHtml(opts.standard || '')}</span>
         </div>
-        <div style="display:flex;align-items:baseline;gap:0.4rem;margin-bottom:0.15rem;">
+        <div style="display:flex;align-items:baseline;gap:4px;margin-bottom:4px;">
           <!-- 1.5rem == the canonical KPI tier (.sc-hero in components.css). This tile
                rendered 1.9rem, a THIRD size for the same concept, which inverted the
                hierarchy on analytics: the DETAIL card values (30px) shouted louder than
@@ -4068,18 +4474,18 @@ function renderKpiTile(opts) {
           <span style="font-size:1.5rem;font-weight:800;line-height:1.15;color:${c.text};font-variant-numeric:tabular-nums;">${escHtml(String(opts.value === undefined ? '-' : opts.value))}</span>
           <span style="font-size:0.78rem;color:rgba(255,255,255,0.80);">${escHtml(opts.unit || '')}</span>
         </div>
-        ${opts.sublabel ? `<div style="font-size:0.67rem;color:rgba(255,255,255,0.80);">${escHtml(opts.sublabel)}</div>` : ''}
+        ${opts.sublabel ? `<div style="font-size:0.75rem;color:rgba(255,255,255,0.80);">${escHtml(opts.sublabel)}</div>` : ''}
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:0.4rem;flex-shrink:0;margin-left:0.75rem;">
-        <span style="font-size:0.63rem;font-weight:700;padding:0.2rem 0.55rem;border-radius:999px;background:${c.bg};border:1px solid ${c.border};color:${c.text};white-space:nowrap;">${c.label}</span>
+        <span style="font-size:0.75rem;font-weight:600;padding:4px 8px;border-radius:999px;background:${c.bg};border:1px solid ${c.border};color:${c.text};white-space:nowrap;">${c.label}</span>
         ${detail ? `<span class="kpi-chevron${autoOpen ? ' open' : ''}" id="${id}-chevron">▼</span>` : ''}
       </div>
     </button>
     </h2>
     ${detail ? `
-      <div class="kpi-detail${autoOpen ? ' open' : ''}" id="${id}" style="border-top:1px solid rgba(255,255,255,0.06);">
+      <div class="kpi-detail${autoOpen ? ' open' : ''}"${autoOpen ? '' : ' inert'} id="${id}" style="border-top:1px solid rgba(255,255,255,0.06);">
         ${detail}
-        ${legend ? `<p style="font-size:0.62rem;color:rgba(255,255,255,0.80);margin-top:0.5rem;">${escHtml(legend)}</p>` : ''}
+        ${legend ? `<p style="font-size:0.75rem;color:rgba(255,255,255,0.80);margin-top:0.5rem;">${escHtml(legend)}</p>` : ''}
       </div>` : ''}
   </div>`;
 }
@@ -4128,13 +4534,19 @@ function renderCompactStat(opts) {
 
   const inner =
     `<div style="display:flex;flex-direction:column;align-items:flex-start;gap:0.15rem;padding:0.5rem 0.85rem;min-width:84px;">` +
-      `<span style="font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:rgba(255,255,255,0.80);">${escHtml(opts.label || '')}</span>` +
+      `<span style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:rgba(255,255,255,0.80);">${escHtml(opts.label || '')}</span>` +
       `<span style="display:flex;align-items:baseline;gap:0.25rem;">` +
         (opts.icon ? `<span style="font-size:0.85rem;">${escHtml(opts.icon)}</span>` : '') +
         `<span style="font-size:1.05rem;font-weight:800;line-height:1;color:${color};">${escHtml(String(opts.value === undefined || opts.value === null ? '-' : opts.value))}</span>` +
-        (opts.unit ? `<span style="font-size:0.7rem;color:rgba(255,255,255,0.72);">${escHtml(opts.unit)}</span>` : '') +
+        // W46009 audit: the UNIT was 0.7rem - 11.2px, under the 12px floor - beside a 16.8px value.
+        // A number without its unit is not a measurement, so "hrs", "%" and "pcs" are load-bearing
+        // text rather than decoration, and they were the smallest thing in the component. At the
+        // label step they still read as secondary to the figure, which is what the size difference
+        // is for. Not observed rendering this wave (asset-hub is its only caller and showed no
+        // compact stats in the state walked), so fixed from the declaration with its caller named.
+        (opts.unit ? `<span style="font-size:0.75rem;color:rgba(255,255,255,0.72);">${escHtml(opts.unit)}</span>` : '') +
       `</span>` +
-      (opts.sublabel ? `<span style="font-size:0.6rem;color:rgba(255,255,255,0.80);">${escHtml(opts.sublabel)}</span>` : '') +
+      (opts.sublabel ? `<span style="font-size:0.75rem;color:rgba(255,255,255,0.80);">${escHtml(opts.sublabel)}</span>` : '') +
     `</div>`;
 
   if (opts.href) {
@@ -4187,13 +4599,13 @@ function renderAlertPreview(opts) {
   }
 
   const href = opts.href || 'alert-hub.html';
-  return `<a href="${escHtml(href)}" class="alert-preview" style="display:block;padding:0.6rem 0.8rem;margin-bottom:0.4rem;background:${s.bg};border-left:3px solid ${s.border};border-radius:0.5rem;text-decoration:none;color:inherit;">
+  return `<a href="${escHtml(href)}" class="alert-preview" style="display:block;padding:0.6rem 0.8rem;margin-bottom:0.4rem;background:${s.bg};border-left:1px solid ${s.border};border-radius:0.5rem;text-decoration:none;color:inherit;">
     <div style="display:flex;align-items:baseline;justify-content:space-between;gap:0.5rem;margin-bottom:0.15rem;">
-      <span style="font-size:0.7rem;font-weight:700;letter-spacing:0.04em;">${kindIcon} ${escHtml(opts.title || 'Alert')}</span>
-      <span style="font-size:0.6rem;color:rgba(255,255,255,0.80);white-space:nowrap;">${escHtml(s.label)}${rel ? ' · ' + escHtml(rel) : ''}</span>
+      <span style="font-size:0.75rem;font-weight:600;letter-spacing:0.04em;">${kindIcon} ${escHtml(opts.title || 'Alert')}</span>
+      <span style="font-size:0.75rem;color:rgba(255,255,255,0.80);white-space:nowrap;">${escHtml(s.label)}${rel ? ' · ' + escHtml(rel) : ''}</span>
     </div>
-    ${opts.asset ? `<div style="font-size:0.62rem;color:rgba(255,255,255,0.80);">Asset: ${escHtml(opts.asset)}</div>` : ''}
-    ${opts.message ? `<div style="font-size:0.65rem;color:rgba(255,255,255,0.80);margin-top:0.15rem;">${escHtml(opts.message)}</div>` : ''}
+    ${opts.asset ? `<div style="font-size:0.75rem;color:rgba(255,255,255,0.80);">Asset: ${escHtml(opts.asset)}</div>` : ''}
+    ${opts.message ? `<div style="font-size:0.75rem;color:rgba(255,255,255,0.80);margin-top:0.15rem;">${escHtml(opts.message)}</div>` : ''}
   </a>`;
 }
 
@@ -4541,6 +4953,27 @@ if (typeof window !== 'undefined' && !window.WH_STATUS_ENUMS) {
     });
   }
   window.whSheetA11y = whSheetA11y;
+
+  // ★FOCUS AN ELEMENT ONCE IT CAN TAKE FOCUS (Wave 4 walk W41366, 2026-09-14). Closing the nav-hub, the
+  // companion, the feedback panel or the global search all tried to give focus back to the hub fab, and
+  // every one landed on <body>: #wh-hub is visibility:hidden while an overlay is open and stays hidden for
+  // the length of its close transition, and a hidden element cannot receive focus - the call simply does
+  // nothing. So the return target is focused when it becomes visible (polled per frame, bounded), which
+  // is the one shape every "return focus to the opener" path on this platform needs. Best-effort: never
+  // throws, never scrolls the page under the person's hands.
+  function whFocusWhenVisible(el, maxMs) {
+    if (!el || typeof el.focus !== 'function') return;
+    var deadline = Date.now() + (maxMs || 1200);
+    var tick = function () {
+      var cs = null;
+      try { cs = getComputedStyle(el); } catch (_) { /* empty-catch-allow: detached node */ }
+      var visible = cs && cs.visibility !== 'hidden' && cs.display !== 'none' && el.offsetParent !== null || (cs && cs.position === 'fixed' && cs.visibility !== 'hidden' && cs.display !== 'none');
+      if (visible) { try { el.focus({ preventScroll: true }); } catch (_) { try { el.focus(); } catch (_2) { /* empty-catch-allow: best-effort */ } } return; }
+      if (Date.now() < deadline) requestAnimationFrame(tick);
+    };
+    tick();
+  }
+  window.whFocusWhenVisible = whFocusWhenVisible;
   if (typeof document !== 'undefined') {
     var _wireSheets = function () {
       whSheetA11y();
@@ -5099,7 +5532,20 @@ function renderWorkerAvatar(workerName, topLevel, size) {
   const initials = String(workerName || '?').trim().split(/\s+/)
     .map(function (w) { return w[0]; }).join('').toUpperCase();
   const init = escHtml(initials.slice(0, sz >= 26 ? 2 : 1));
-  const fs = sz >= 42 ? '0.95rem' : sz >= 32 ? '0.72rem' : sz >= 28 ? '0.65rem' : '0.55rem';
+  // 11px floor for the initials (design lens slop, 2026-09-15): the 28px avatars on achievements' standings and
+  // activity rows drew "CD" at 0.65rem (10.4px) and anything smaller at 8.8px - functional text under the floor.
+  // ★RAISED 11px -> 12px (design lens craft on marketplace, 2026-09-17, W45966). The 11px above was the floor
+  // as it stood on 2026-09-15; two days later this wave set the platform floor at 12px and moved fourteen
+  // declarations in nav-hub.js and utils.js to 0.75rem to meet it, because 12px is also the smallest size the
+  // type ramp already uses - so a 12px floor costs the ramp nothing while an 11px one adds a step. These
+  // initials were the last text under it: nine avatars on the marketplace listing grid drew a seller's initial
+  // at 11px. The small-avatar case the comment above describes is unaffected - below 26px the circle still
+  // shows ONE initial, and one 12px capital in a 24px circle with 4px borders fits its content box.
+  // Verified before and after: the 4 overflowing avatars on marketplace's listing grid overflow at 11px TOO
+  // (scrollWidth 25-28 against clientWidth 18, while every non-overflowing one sits exactly at 18), so the
+  // cause is the tier decoration on legend/platinum, not the glyph size. 4 before, 4 after - this change is
+  // neutral to it, and the tier overflow is recorded as its own finding rather than blamed on the floor.
+  const fs = sz >= 42 ? '0.95rem' : sz >= 32 ? '0.75rem' : '0.75rem';
   const badge = (sz >= 32 && (topLevel || 0) > 0)
     ? '<span class="wh-avatar-lvl">' + (topLevel || 0) + '</span>'
     : '';
@@ -5164,18 +5610,31 @@ async function loadWorkerTiers(db, workerNames) {
     '.wh-avatar > img{width:100%;height:100%;object-fit:cover;border-radius:50%;}',
     '.wh-avatar-lvl{position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);',
     'background:var(--tier-clr,#7B8794);color:var(--wh-navy, #162032);',
-    'font-size:9px;font-weight:800;padding:1px 5px;',
+    /* 11px, not 9 (design lens slop on achievements, 2026-09-15): the level number is functional text a person reads
+       ("95", "38") and 9px was the smallest type on the page - 15 nodes under the 11px floor after every other label
+       was lifted. min-width follows so two digits keep their pill.
+       NOW 12px (W46009 audit, 2026-09-19): that row lifted it against an ELEVEN-pixel floor and the platform's floor is
+       TWELVE - DESIGN.md's label step, and the value every design receipt this wave reports as minFontPx. So the level
+       badge was still the one sub-floor element on the pages that render it: measured live on community.html, two
+       .wh-avatar-lvl badges reading "34" at 11px, the only text under the floor on the page. The earlier row's own
+       argument is the reason to finish it - functional text a person reads belongs on the ramp, not one step below it. */
+    'font-size:12px;font-weight:800;padding:1px 6px;',
     'border-radius:999px;border:2px solid var(--wh-navy, #162032);',
-    'min-width:20px;text-align:center;line-height:1.5;',
+    'min-width:22px;text-align:center;line-height:1.5;',
     'pointer-events:none;white-space:nowrap;z-index:3;',
     'box-shadow:0 2px 6px rgba(0,0,0,0.45),',
     '           inset 0 1px 0 rgba(255,255,255,0.3);}',
 
     /* ── IRON: DASHED border (incomplete/starting feel) + slow breathing ──── */
-    '.wh-tier-iron{border:4px dashed var(--wh-steel, #7B8794);animation:wh-breathe-iron 4s ease-in-out infinite;}',
+    /* ★A TIER IS A RING, NOT A PULSE (design lens motion on achievements, 2026-09-15). Four tiers ran INFINITE box-shadow animations
+       (2.4-4 s, ease-in-out) on every avatar on screen - 20 elements breathing at once on achievements, a page a person opens every
+       shift. Emil Kowalski's standards read that three ways: motion with no state change to explain (a ring that never changes),
+       motion on a high-frequency surface (should be none), and box-shadow - a paint property - animated instead of transform/opacity.
+       The rings keep their colour, border style and metallic inset; the one authored moment stays the level-up pop. */
+    '.wh-tier-iron{border:4px dashed var(--wh-steel, #7B8794);}',
 
     /* ── BRONZE: RIDGE border (3D embossed metal) + warm shimmer ─────────── */
-    '.wh-tier-bronze{border:4px ridge #CD7F32;animation:wh-shimmer 3s ease-in-out infinite;}',
+    '.wh-tier-bronze{border:4px ridge #CD7F32;}',
 
     /* ── SILVER: solid + COMET light sweeping around the rim ─────────────── */
     '.wh-tier-silver{border:4px solid #94A3B8;}',
@@ -5185,10 +5644,10 @@ async function loadWorkerTiers(db, workerNames) {
     '  rgba(255,255,255,0.4) 330deg,rgba(255,255,255,0.95) 358deg,rgba(255,255,255,0.2) 360deg);',
     '-webkit-mask:radial-gradient(circle,transparent 56%,black 60%);',
     'mask:radial-gradient(circle,transparent 56%,black 60%);',
-    'animation:wh-spin 3s linear infinite;}',
+    '}',
 
     /* ── GOLD: solid + 4 SPARKLE DOTS rotating like a crown ──────────────── */
-    '.wh-tier-gold{border:4px solid var(--wh-orange, #F7A21B);animation:wh-glow-gold 2.4s ease-in-out infinite;}',
+    '.wh-tier-gold{border:4px solid var(--wh-orange, #F7A21B);box-shadow:inset 1px 1px 2px rgba(255,255,255,0.22), inset -1px -1px 2px rgba(0,0,0,0.45);}',
     '.wh-tier-gold::after{content:"";position:absolute;inset:-3px;border-radius:50%;',
     'pointer-events:none;z-index:0;',
     'background:',
@@ -5196,38 +5655,30 @@ async function loadWorkerTiers(db, workerNames) {
     '  radial-gradient(circle 1.8px at 100% 50%,rgba(255,255,255,1),transparent 60%),',
     '  radial-gradient(circle 1.8px at 50% 100%,rgba(255,255,255,1),transparent 60%),',
     '  radial-gradient(circle 1.8px at 0% 50%,rgba(255,255,255,1),transparent 60%);',
-    'animation:wh-spin 4s linear infinite;}',
+    '}',
 
     /* ── PLATINUM: CONCENTRIC — solid inner + outer rotating dashed ring ─── */
-    '.wh-tier-platinum{border:4px solid var(--wh-blue, #29B6D9);animation:wh-glow-blue 2.4s ease-in-out infinite;}',
+    '.wh-tier-platinum{border:4px solid var(--wh-blue, #29B6D9);box-shadow:inset 1px 1px 2px rgba(255,255,255,0.22), inset -1px -1px 2px rgba(0,0,0,0.45);}',
     '.wh-tier-platinum::after{content:"";position:absolute;inset:-7px;border-radius:50%;',
     'border:2px dashed rgba(41,182,217,0.85);',
     'pointer-events:none;z-index:0;',
-    'animation:wh-spin 6s linear infinite;}',
+    '}',
 
     /* ── LEGEND: animated multi-color gradient ring + halo ───────────────── */
     '.wh-tier-legend{border:4px solid transparent;}',
     '.wh-tier-legend::before{content:"";position:absolute;inset:-4px;border-radius:50%;',
     'background:conic-gradient(var(--wh-orange, #F7A21B),var(--wh-orange-light, #FDB94A),var(--wh-blue, #29B6D9),var(--wh-blue-light, #5FCCE8),var(--wh-orange, #F7A21B));',
-    'animation:wh-spin 2s linear infinite;z-index:-1;',
+    'z-index:-1;',
     'filter:drop-shadow(0 0 10px rgba(247,162,27,0.6));}',
     '.wh-tier-legend::after{content:"";position:absolute;inset:-10px;border-radius:50%;',
     'border:1px solid rgba(247,162,27,0.25);pointer-events:none;z-index:0;',
-    'animation:wh-spin 8s linear infinite reverse;}',
+    '}',
 
-    /* Keyframes — only Iron/Bronze/Gold/Platinum animate the parent box-shadow. */
-    /* Silver uses ::after only (rotating mask). Legend uses ::before/::after.   */
-    '@keyframes wh-breathe-iron{0%,100%{box-shadow:inset 1px 1px 2px rgba(255,255,255,0.18), inset -1px -1px 2px rgba(0,0,0,0.45), 0 0 0 rgba(123,135,148,0);}',
-    '50%{box-shadow:inset 1px 1px 2px rgba(255,255,255,0.18), inset -1px -1px 2px rgba(0,0,0,0.45), 0 0 8px rgba(180,195,210,0.35);}}',
+    /* No tier animates at rest (design lens motion, 2026-09-15): the silver/gold/platinum/legend masks that spun forever
+       (wh-spin 2-8 s, 26 rings turning on community.html, ten of them off-screen) are static now; wh-spin stays for loaders. */
 
-    '@keyframes wh-shimmer{0%,100%{box-shadow:inset 1px 1px 2px rgba(255,255,255,0.2), inset -1px -1px 2px rgba(0,0,0,0.45), 0 0 6px rgba(205,127,50,0.45);}',
-    '50%{box-shadow:inset 1px 1px 2px rgba(255,255,255,0.32), inset -1px -1px 2px rgba(0,0,0,0.45), 0 0 18px rgba(205,127,50,0.9);}}',
 
-    '@keyframes wh-glow-gold{0%,100%{box-shadow:inset 1px 1px 2px rgba(255,255,255,0.22), inset -1px -1px 2px rgba(0,0,0,0.45), 0 0 8px rgba(247,162,27,0.55);}',
-    '50%{box-shadow:inset 1px 1px 2px rgba(255,255,255,0.32), inset -1px -1px 2px rgba(0,0,0,0.45), 0 0 22px rgba(247,162,27,0.95);}}',
 
-    '@keyframes wh-glow-blue{0%,100%{box-shadow:inset 1px 1px 2px rgba(255,255,255,0.22), inset -1px -1px 2px rgba(0,0,0,0.45), 0 0 8px rgba(41,182,217,0.55);}',
-    '50%{box-shadow:inset 1px 1px 2px rgba(255,255,255,0.32), inset -1px -1px 2px rgba(0,0,0,0.45), 0 0 22px rgba(41,182,217,0.95);}}',
 
     '@keyframes wh-spin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}',
 

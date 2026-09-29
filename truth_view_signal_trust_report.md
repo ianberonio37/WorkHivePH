@@ -313,7 +313,7 @@ re-deriving what the canonical view should expose:
 | `v_rcm_truth` | `strategy_id` | ✅ OK | 1 | direct |
 | `v_rcm_truth` | `task_text` | ✅ OK | 2 | direct |
 | `v_rcm_truth` | `written_to_pm_scope_item_id` | ✅ OK | 2 | direct |
-| `v_risk_truth` | `asset_id` | ✅ OK | 4 | direct |
+| `v_risk_truth` | `asset_id` | ✅ OK | 5 | direct |
 | `v_risk_truth` | `asset_name` | ✅ OK | 10 | direct |
 | `v_risk_truth` | `days_until_failure` | ✅ OK | 5 | direct |
 | `v_risk_truth` | `generated_at` | ✅ OK | 7 | direct |

@@ -27,15 +27,15 @@
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Poppins', system-ui, sans-serif; background: var(--bg); color: var(--text); padding-top: 60px; min-height: 100vh; }
-  main { max-width: 1280px; margin: 0 auto; padding: 18px; }
+  main { max-width: 1280px; margin: 0 auto; padding: 20px; }
   h1 { font-weight: 800; font-size: 1.6rem; margin-bottom: 4px; letter-spacing: -0.01em; }
-  .sub { color: var(--muted); font-size: 0.92rem; margin-bottom: 18px; }
+  .sub { color: var(--muted); font-size: 0.92rem; margin-bottom: 20px; }
   .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
   .grow { flex: 1; min-width: 0; }
   button, .btn {
     font-family: inherit; font-size: 0.92rem; font-weight: 600;
     background: var(--card); color: var(--text); border: 1px solid var(--border);
-    border-radius: var(--wh-radius-sm); padding: 9px 14px; cursor: pointer; transition: all 0.15s;
+    border-radius: var(--wh-radius-sm); padding: 8px 16px; cursor: pointer; transition: all 0.15s;
     min-height: 44px; display: inline-flex; align-items: center; justify-content: center; gap: 4px;
   }
   button:hover, .btn:hover { background: var(--card-hover); }
@@ -47,7 +47,7 @@
   input, select, textarea {
     font-family: inherit; font-size: 16px; /* iOS no-zoom */
     background: var(--bg); color: var(--text); border: 1px solid var(--border);
-    border-radius: 8px; padding: 9px 11px; width: 100%;
+    border-radius: 8px; padding: 8px 12px; width: 100%;
   }
   /* WCAG 2.5.8 / K2: 44px touch floor for text controls (9px padding + 16px font gave ~42px).
      Excludes checkbox/radio, which keep their fixed 16px box. */
@@ -60,10 +60,10 @@
   @media (max-width: 640px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
 
   /* ── Tabs / filters ───────────────────────────────────────── */
-  .tab-strip { display: flex; gap: 6px; border-bottom: 1px solid var(--border); margin-bottom: 14px; overflow-x: auto; }
+  .tab-strip { display: flex; gap: 6px; border-bottom: 1px solid var(--border); margin-bottom: 16px; overflow-x: auto; }
   .tab-strip button {
     background: transparent; border: none; border-bottom: 2px solid transparent;
-    border-radius: 0; padding: 10px 14px; color: var(--muted); white-space: nowrap;
+    border-radius: 0; padding: 12px 16px; color: var(--muted); white-space: nowrap;
   }
   .tab-strip button.active { color: var(--gold); border-bottom-color: var(--gold); }
   /* PJ18 — the same hidden-destinations defect as .detail-tabs, on the list view. Measured at
@@ -74,7 +74,7 @@
   @media (max-width: 640px) {
     .tab-strip { flex-wrap: wrap; overflow-x: visible; row-gap: 0; }
   }
-  .filter-row { display: grid; grid-template-columns: 1fr 1fr 2fr auto; gap: 8px; margin-bottom: 14px; }
+  .filter-row { display: grid; grid-template-columns: 1fr 1fr 2fr auto; gap: 8px; margin-bottom: 16px; }
   @media (max-width: 720px) { .filter-row { grid-template-columns: 1fr 1fr; } .filter-row > .new-btn { grid-column: 1 / -1; } }
 
   /* ── Recents strip ────────────────────────────────────────── */
@@ -83,16 +83,16 @@
   .recent-chip {
     display: inline-flex; align-items: center; gap: 6px;
     background: var(--card); border: 1px solid var(--border); border-radius: 999px;
-    padding: 5px 11px; font-size: 0.82rem; cursor: pointer; transition: all 0.15s;
+    padding: 6px 12px; font-size: 0.82rem; cursor: pointer; transition: all 0.15s;
   }
   .recent-chip:hover { border-color: var(--gold); background: var(--card-hover); }
-  .recent-chip .pcode { font-size: 0.7rem; color: var(--muted); font-weight: 600; }
-  .recent-chip .ptype-pill { font-size: 0.6rem; padding: 1px 6px; }
+  .recent-chip .pcode { font-size: 0.75rem; color: var(--muted); font-weight: 600; }
+  .recent-chip .ptype-pill { font-size: 0.75rem; padding: 1px 6px; }
 
   /* ── Tab counts ───────────────────────────────────────────── */
   .tab-count {
     display: inline-block; background: rgba(255,255,255,0.08); color: var(--muted);
-    border-radius: 999px; padding: 1px 8px; font-size: 0.72rem; font-weight: 600; margin-left: 5px;
+    border-radius: 999px; padding: 1px 8px; font-size: 0.75rem; font-weight: 600; margin-left: 6px;
   }
   .tab-strip button.active .tab-count { background: rgba(247,162,27,0.22); color: var(--gold); }
 
@@ -103,7 +103,7 @@
   }
   .group-header {
     display: flex; justify-content: space-between; align-items: center;
-    padding: 10px 14px; cursor: pointer; user-select: none;
+    padding: 12px 16px; cursor: pointer; user-select: none;
     background: rgba(255,255,255,0.02); border-bottom: 1px solid var(--border);
   }
   .group-header:hover { background: rgba(255,255,255,0.04); }
@@ -120,7 +120,15 @@
     padding: 24px; margin-top: 8px;
   }
   .empty-tiles-headline { font-size: 1.05rem; font-weight: 700; margin-bottom: 4px; text-align: center; }
-  .empty-tiles-sub { font-size: 0.88rem; color: var(--muted); text-align: center; margin-bottom: 18px; }
+      /* PROSE WIDTH (2026-09-16): these paragraph classes carry sentences and were stretching to the full
+       1280px, so they get a reading width. NOTE, HONESTLY: this does NOT move the craft walk's bodyMeasureCh,
+       which still reads 140 at desktop-1280 - the walker measures the LONGEST VISIBLE <p> on the page, and
+       that one is not .sub or .small. I have not yet identified it (this page needs a signed-in session to
+       render, so it wants a live probe rather than a grep), and the 140 stands open in this row's receipt
+       rather than being claimed as fixed. What IS fixed is these two classes. */
+    main p.sub, main p.small, .empty-tiles-sub { max-width: 68ch; }
+    .empty-tiles-sub, main p.sub { margin-left: auto; margin-right: auto; }
+    .empty-tiles-sub { font-size: 0.88rem; color: var(--muted); text-align: center; margin-bottom: 20px; }
 
   /* ── Project cards ────────────────────────────────────────── */
   /* min(310px, 100%) rather than a bare 310px: auto-fill still lays out multi-column wherever
@@ -131,13 +139,13 @@
   .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(310px, 100%), 1fr)); gap: 12px; }
   .pcard {
     background: var(--surface); border: 1px solid var(--border); border-radius: var(--wh-radius);
-    padding: 14px 16px; cursor: pointer; transition: all 0.15s;
+    padding:16px; cursor: pointer; transition: all 0.15s;
   }
   .pcard:hover { border-color: var(--gold); transform: translateY(-1px); }
   .pcard-head { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
-  .pcode { font-size: 0.72rem; color: var(--muted); font-weight: 600; letter-spacing: 0.04em; }
+  .pcode { font-size: 0.75rem; color: var(--muted); font-weight: 600; letter-spacing: 0.04em; }
   .ptype-pill {
-    display: inline-block; font-size: 0.66rem; padding: 2px 7px; border-radius: 999px;
+    display: inline-block; font-size: 0.75rem; padding: 2px 8px; border-radius: 999px;
     font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
   }
   .ptype-workorder  { background: rgba(41,182,217,0.18); color: var(--blue); }
@@ -145,21 +153,21 @@
   .ptype-capex      { background: rgba(247,162,27,0.18); color: var(--gold); }
   .ptype-contractor { background: rgba(48,208,104,0.18); color: var(--green); }
   .nature-pill {
-    display: inline-block; font-size: 0.6rem; padding: 2px 7px; border-radius: 999px;
+    display: inline-block; font-size: 0.75rem; padding: 2px 8px; border-radius: 999px;
     font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; border: 1px solid transparent;
   }
   .nature-reactive   { background: rgba(225,85,84,0.14);  color: var(--wh-red);     border-color: rgba(225,85,84,0.3); }
   .nature-preventive { background: rgba(48,208,104,0.14); color: var(--green); border-color: rgba(48,208,104,0.3); }
   .nature-project    { background: rgba(247,162,27,0.14); color: var(--gold);  border-color: rgba(247,162,27,0.3); }
   .pname { font-size: 1rem; font-weight: 700; margin: 4px 0 8px; line-height: 1.25; }
-  .pmeta { font-size: 0.78rem; color: var(--muted); display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+  .pmeta { font-size: 0.78rem; color: var(--muted); display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
   .progress { height: 6px; background: rgba(255,255,255,0.08); border-radius: 4px; overflow: hidden; }
   .progress-bar { height: 100%; background: var(--blue); transition: width 0.3s; }
   .progress-bar.green { background: var(--green); }
   .progress-bar.amber { background: var(--amber); }
   .progress-bar.red   { background: var(--red); }
-  .pcard-foot { display: flex; justify-content: space-between; font-size: 0.74rem; color: var(--muted); margin-top: 7px; }
-  .status-pill { padding: 2px 8px; border-radius: 999px; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.03em; }
+  .pcard-foot { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--muted); margin-top: 8px; }
+  .status-pill { padding: 2px 8px; border-radius: 999px; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.03em; }
   .status-planning  { background: rgba(255,255,255,0.08); color: var(--muted); }
   .status-active    { background: rgba(48,208,104,0.18); color: var(--green); }
   .status-on_hold   { background: rgba(244,196,48,0.18); color: var(--amber); }
@@ -170,12 +178,12 @@
   /* ── Detail view ──────────────────────────────────────────── */
   #detail-view { display: none; }
   #detail-view.open { display: block; }
-  .detail-head { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; margin-bottom: 14px; flex-wrap: wrap; }
+  .detail-head { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; margin-bottom: 16px; flex-wrap: wrap; }
   .detail-head h2 { font-size: 1.25rem; font-weight: 700; margin: 4px 0; }
-  .detail-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 14px; overflow-x: auto; scroll-behavior: smooth; }
+  .detail-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 16px; overflow-x: auto; scroll-behavior: smooth; }
   .detail-tabs button {
     background: transparent; border: none; border-bottom: 2px solid transparent;
-    border-radius: 0; padding: 9px 13px; color: var(--muted); font-size: 0.88rem; white-space: nowrap;
+    border-radius: 0; padding: 8px 12px; color: var(--muted); font-size: 0.88rem; white-space: nowrap;
   }
   .detail-tabs button.active { color: var(--text); border-bottom-color: var(--gold); }
 
@@ -192,28 +200,28 @@
      so the horizontal-scroll behaviour is left exactly as it was. */
   @media (max-width: 640px) {
     .detail-tabs { flex-wrap: wrap; overflow-x: visible; row-gap: 0; }
-    .detail-tabs button { padding: 11px 12px; }
+    .detail-tabs button { padding: 12px 12px; }
   }
   .detail-pane { display: none; }
   .detail-pane.active { display: block; }
 
   /* ── KPI tiles ────────────────────────────────────────────── */
-  .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 14px; }
+  .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 16px; }
   .kpi {
     background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
-    padding: 12px 14px;
+    padding: 12px 16px;
   }
-  .kpi-label { font-size: 0.74rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+  .kpi-label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
   .kpi-value { font-size: 1.4rem; font-weight: 800; margin-top: 4px; }
-  .kpi-sub { font-size: 0.74rem; color: var(--muted); margin-top: 2px; }
+  .kpi-sub { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
   .kpi.green .kpi-value { color: var(--green); }
   .kpi.amber .kpi-value { color: var(--amber); }
   .kpi.red   .kpi-value { color: var(--red); }
 
   /* ── Tables ───────────────────────────────────────────────── */
   table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
-  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); vertical-align: middle; }
-  th { font-size: 0.74rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600; }
+  th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  th { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600; }
   tr.critical td { background: rgba(225,85,84,0.06); }
   tr.done td { opacity: 0.55; }
 
@@ -226,25 +234,25 @@
   .modal-bg.open { display: flex; }
   .modal {
     background: var(--surface); border: 1px solid var(--border); border-radius: var(--wh-radius);
-    padding: 22px; max-width: 560px; width: 100%;
+    padding: 24px; max-width: 560px; width: 100%;
   }
-  .modal h3 { font-size: 1.1rem; margin-bottom: 14px; font-weight: 700; }
-  .modal-foot { display: flex; gap: 8px; justify-content: flex-end; margin-top: 14px; }
+  .modal h3 { font-size: 1.1rem; margin-bottom: 16px; font-weight: 700; }
+  .modal-foot { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
 
   /* ── Hive gate ────────────────────────────────────────────── */
   #hive-gate {
     display: none; position: fixed; inset: 0; background: rgba(15,25,35,0.96);
-    z-index: 500; align-items: center; justify-content: center; padding: 30px; text-align: center;
+    z-index: 500; align-items: center; justify-content: center; padding: 32px; text-align: center;
   }
   #hive-gate .gate-card {
     max-width: 440px; background: var(--surface); border: 1px solid var(--border);
-    border-radius: 16px; padding: 30px;
+    border-radius: 16px; padding: 32px;
   }
 
   /* ── Progress log entries ─────────────────────────────────── */
   .log-entry {
     background: var(--card); border: 1px solid var(--border); border-radius: var(--wh-radius);
-    padding: 12px 14px; margin-bottom: 8px;
+    padding: 12px 16px; margin-bottom: 8px;
   }
   .log-entry-head { display: flex; justify-content: space-between; font-size: 0.82rem; color: var(--muted); margin-bottom: 4px; }
   .log-entry-body { font-size: 0.92rem; line-height: 1.45; }
@@ -255,16 +263,16 @@
   .link-pill {
     display: inline-flex; align-items: center; gap: 6px;
     background: var(--card); border: 1px solid var(--border); border-radius: 999px;
-    padding: 4px 10px 4px 8px; margin: 3px 4px 3px 0; font-size: 0.82rem;
+    padding: 4px 12px 4px 8px; margin: 4px 4px 4px 0; font-size: 0.82rem;
   }
   .link-pill button { background: transparent; border: none; color: var(--muted); padding: 0 0 0 4px; font-size: 1.1rem; line-height: 1; cursor: pointer; }
-  .link-type { font-size: 0.66rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+  .link-type { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
 
   /* ── Toast ────────────────────────────────────────────────── */
   #toast-container { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); z-index: 600; pointer-events: none; }
   .toast {
     background: var(--card); color: var(--text); border-left: 3px solid var(--gold);
-    padding: 10px 14px; margin-top: 8px; border-radius: 8px; font-size: 0.9rem;
+    padding: 12px 16px; margin-top: 8px; border-radius: 8px; font-size: 0.9rem;
     box-shadow: 0 4px 14px rgba(0,0,0,0.4); animation: slideUp 0.25s ease;
     max-width: 90vw;
   }
@@ -283,7 +291,7 @@
   /* ── Wizard ───────────────────────────────────────────────── */
   .wizard-modal { max-width: 720px; }
   .wizard-progress { display: flex; gap: 6px; margin-bottom: 16px; font-size: 0.78rem; color: var(--muted); }
-  .wizard-progress .step { flex: 1; padding: 6px 10px; background: var(--card); border-radius: 8px; text-align: center; }
+  .wizard-progress .step { flex: 1; padding: 6px 12px; background: var(--card); border-radius: 8px; text-align: center; }
   .wizard-progress .step.active { background: var(--gold); color: #1a1208; font-weight: 700; }
   .wizard-progress .step.done { background: rgba(48,208,104,0.18); color: var(--green); }
   .wizard-pane { display: none; }
@@ -295,7 +303,7 @@
   @media (max-width: 520px) { .type-tile-grid { grid-template-columns: 1fr; } }
   .type-tile {
     background: var(--card); border: 2px solid var(--border); border-radius: 12px;
-    padding: 16px 18px; cursor: pointer; transition: all 0.15s;
+    padding: 16px 20px; cursor: pointer; transition: all 0.15s;
   }
   .type-tile:hover { border-color: var(--gold); transform: translateY(-1px); }
   .type-tile.selected { border-color: var(--gold); background: rgba(247,162,27,0.08); }
@@ -307,12 +315,12 @@
   .template-card-list { display: flex; flex-direction: column; gap: 8px; max-height: 50vh; overflow-y: auto; padding-right: 4px; }
   .template-card {
     background: var(--card); border: 1px solid var(--border); border-radius: var(--wh-radius);
-    padding: 12px 14px; cursor: pointer; transition: all 0.15s;
+    padding: 12px 16px; cursor: pointer; transition: all 0.15s;
   }
   .template-card:hover { border-color: var(--gold); background: var(--card-hover); }
   .template-card.selected { border-color: var(--gold); background: rgba(247,162,27,0.08); }
-  .template-card-name { font-size: 0.95rem; font-weight: 700; margin-bottom: 3px; }
-  .template-card-meta { font-size: 0.75rem; color: var(--muted); margin-bottom: 5px; display: flex; gap: 12px; flex-wrap: wrap; }
+  .template-card-name { font-size: 0.95rem; font-weight: 700; margin-bottom: 4px; }
+  .template-card-meta { font-size: 0.75rem; color: var(--muted); margin-bottom: 6px; display: flex; gap: 12px; flex-wrap: wrap; }
   .template-card-desc { font-size: 0.82rem; color: var(--muted); line-height: 1.45; }
   .blank-link { font-size: 0.85rem; color: var(--blue); cursor: pointer; text-decoration: underline; margin-top: 6px; display: inline-block; background: none; border: none; padding: 0; font-family: inherit; }
 
@@ -329,7 +337,7 @@
   .item-row input[type="text"], .item-row input[type="number"] { padding: 4px 8px; font-size: 0.85rem; }
   .item-row .est-input { width: 60px; }
   .phase-tag {
-    font-size: 0.65rem; padding: 2px 7px; border-radius: 999px;
+    font-size: 0.75rem; padding: 2px 8px; border-radius: 999px;
     font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; white-space: nowrap;
   }
   .phase-pre        { background: rgba(255,255,255,0.08); color: var(--muted); }
@@ -347,19 +355,19 @@
     border: 1px dashed var(--border); border-radius: 8px; margin-top: 6px; font-size: 0.85rem;
   }
   .add-custom-row:hover { background: var(--card); }
-  .field-hint { font-size: 0.74rem; color: var(--muted); margin-top: 3px; }
+  .field-hint { font-size: 0.75rem; color: var(--muted); margin-top: 4px; }
 
   /* ── Critical path bar ────────────────────────────────────── */
-  .gantt-row { display: grid; grid-template-columns: 220px 1fr; gap: 10px; align-items: center; padding: 5px 0; font-size: 0.85rem; border-bottom: 1px solid var(--border); }
+  .gantt-row { display: grid; grid-template-columns: 220px 1fr; gap: 10px; align-items: center; padding: 6px 0; font-size: 0.85rem; border-bottom: 1px solid var(--border); }
   .gantt-bar-wrap { background: rgba(255,255,255,0.04); height: 16px; border-radius: 4px; position: relative; overflow: hidden; }
   .gantt-bar { position: absolute; top: 0; bottom: 0; background: var(--blue); border-radius: 4px; }
   .gantt-bar.critical { background: var(--red); }
   .gantt-bar.done { background: var(--green); }
 /* Plain-Read summary (Layer D — UX Contract) */
-.verdict { display:flex; align-items:center; gap:12px; padding:14px 16px; margin-bottom:14px; border-radius:12px; border:1px solid; }
+.verdict { display:flex; align-items:center; gap:12px; padding:16px; margin-bottom:16px; border-radius:12px; border:1px solid; }
 .verdict-icon { font-size:1.5rem; line-height:1; font-weight:800; }
 .verdict-text { font-size:0.9rem; font-weight:700; line-height:1.35; }
-.verdict-text small { display:block; font-size:0.72rem; font-weight:500; color:rgba(255,255,255,0.83); margin-top:3px; }
+.verdict-text small { display:block; font-size: 0.75rem; font-weight:500; color:rgba(255,255,255,0.83); margin-top:4px; }
 .verdict.healthy { background:rgba(74,222,128,0.07);  border-color:rgba(74,222,128,0.3); }
 .verdict.healthy .verdict-icon { color:var(--wh-green); }
 .verdict.watch   { background:rgba(247,162,27,0.07);  border-color:rgba(247,162,27,0.3); }
@@ -387,7 +395,7 @@
 #hive-tag { display:inline-block; min-height: 18px; } /* h1-row chip fills with hive name */
 .simple-row .sc-sub { min-height: 47px; }        /* "Loading..." 16 → wrapped real text up to 47 (overdue 3-line) */
 #pm-action-text { min-height: 79px; }            /* recommendation 60→79 (longer real text wraps) */
-#pm-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:14px; }
+#pm-summary-details { display:none; padding:16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:16px; }
 #pm-summary-details.open { display:block; }
 </style>
 <style>/* I1 CLS: static wayfinding back-pill band reserve (wayfinding.js sets this body padding-top post-paint on pill-pages = a late shift under full-run contention; present at first paint -> its `if(band>cur)` skips, layout unchanged). VERIFIED this page gets the pill (has <main>, no back-affordance, not home). */
@@ -490,7 +498,7 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
         <li><strong data-i="p_onholdorplanning_0ca5">On hold or planning</strong>: on hold or planning: work that's not moving yet.</li>
         <li><strong data-i="p_verdict_7f6e">Verdict</strong>: red if 3+ past end date; amber if any past end OR blocked count exceeds active; green when active &gt; blocked and nothing overdue.</li>
       </ul>
-      <p data-i="p_usethestatustabsbelowforthep_6863" style="margin-top:8px;color:rgba(255,255,255,0.80);font-size:11px;">Use the status tabs below for the per-project drilldown.</p>
+      <p data-i="p_usethestatustabsbelowforthep_6863" style="margin-top:8px;color:rgba(255,255,255,0.80);font-size: 12px;">Use the status tabs below for the per-project drilldown.</p>
     </div>
 
     <div class="recent-row" id="recent-strip"></div>
@@ -573,7 +581,7 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
     <!-- Step 1: pick type -->
     <div class="wizard-pane" data-pane="1">
       <h3 data-i="whatkind">What kind of project?</h3>
-      <p data-i="p_picktheclosestmatchyoucancha_5713" class="sub" style="font-size:0.85rem; margin-bottom:14px;">Pick the closest match. You can change scope later.</p>
+      <p data-i="p_picktheclosestmatchyoucancha_5713" class="sub" style="font-size:0.85rem; margin-bottom:16px;">Pick the closest match. You can change scope later.</p>
       <div class="type-tile-grid">
         <div class="type-tile" data-type="workorder" onclick="wizardPickType('workorder')">
           <div class="type-tile-icon">🔧</div>
@@ -640,7 +648,7 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
         <input type="number" id="wiz-budget" min="0" step="100" placeholder="e.g. 250000">
         <div class="field-hint">Required for Earned Value tracking. Hidden for work-order and shutdown types unless you want it. WorkHive applies no VAT adjustment: the figure is stored exactly as you enter it, so use the basis your finance team tracks (VAT-inclusive or exclusive) and keep it consistent.</div>
       </div>
-      <div class="field"><label for="wiz-desc" data-i="description">Description</label><textarea id="wiz-desc" maxlength="2000" placeholder="Scope summary, drivers, success criteria…"></textarea><p id="wiz-desc-count" style="text-align:right;font-size:0.7rem;color:rgba(255,255,255,0.80);margin:4px 0 0;">0 / 2000</p></div>
+      <div class="field"><label for="wiz-desc" data-i="description">Description</label><textarea id="wiz-desc" maxlength="2000" placeholder="Scope summary, drivers, success criteria…"></textarea><p id="wiz-desc-count" style="text-align:right;font-size: 0.75rem;color:rgba(255,255,255,0.80);margin:4px 0 0;">0 / 2000</p></div>
 
       <div style="margin: 16px 0 6px;">
         <strong data-i="p_scopeitems_b736" style="font-size:0.92rem;">Scope items</strong>
@@ -698,7 +706,7 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
           <div class="field-hint">WorkHive applies no VAT adjustment: the figure is stored exactly as you enter it, so use the basis your finance team tracks (VAT-inclusive or exclusive) and keep it consistent.</div>
         </div>
       </div>
-      <div class="field"><label for="f-desc" data-i="description">Description</label><textarea id="f-desc" maxlength="2000" placeholder="Scope summary, drivers, success criteria…"></textarea><p id="f-desc-count" style="text-align:right;font-size:0.7rem;color:rgba(255,255,255,0.80);margin:4px 0 0;">0 / 2000</p></div>
+      <div class="field"><label for="f-desc" data-i="description">Description</label><textarea id="f-desc" maxlength="2000" placeholder="Scope summary, drivers, success criteria…"></textarea><p id="f-desc-count" style="text-align:right;font-size: 0.75rem;color:rgba(255,255,255,0.80);margin:4px 0 0;">0 / 2000</p></div>
       <div class="modal-foot">
         <button type="button" class="btn ghost" onclick="closeModal('modal-project')" data-i="cancel">Cancel</button>
         <button type="submit" class="btn primary" id="f-submit" data-i="create">Create</button>
@@ -755,7 +763,7 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
         <select id="s-preds" multiple style="min-height: 80px;"></select>
         <div data-i="p_holdctrlcmdtoselectmultipled_889a" class="field-hint">Hold Ctrl/Cmd to select multiple. Drives critical-path calculation. Defaults to the previous item.</div>
       </div>
-      <div class="field"><label for="s-notes" data-i="notes">Notes</label><textarea id="s-notes" maxlength="1000" placeholder="Free-text notes (not the phase, that's above)."></textarea><p id="s-notes-count" style="text-align:right;font-size:0.7rem;color:rgba(255,255,255,0.80);margin:4px 0 0;">0 / 1000</p></div>
+      <div class="field"><label for="s-notes" data-i="notes">Notes</label><textarea id="s-notes" maxlength="1000" placeholder="Free-text notes (not the phase, that's above)."></textarea><p id="s-notes-count" style="text-align:right;font-size: 0.75rem;color:rgba(255,255,255,0.80);margin:4px 0 0;">0 / 1000</p></div>
       <div class="modal-foot">
         <button type="button" class="btn ghost" onclick="closeModal('modal-scope')" data-i="cancel">Cancel</button>
         <button type="submit" class="btn primary" data-i="save">Save</button>
@@ -845,7 +853,7 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
     <h3 data-i="raiseco">Raise change order</h3>
     <form id="form-co" onsubmit="event.preventDefault(); saveChangeOrder();">
       <div class="field"><label for="co-title" data-i="title">Title *</label><input type="text" id="co-title" required maxlength="200" placeholder="e.g. Add seismic anchor restraints"></div>
-      <div class="field"><label for="co-scope" data-i="scopechange">Scope change *</label><textarea id="co-scope" required maxlength="2000" placeholder="What's changing in the scope. Be specific."></textarea><p id="co-scope-count" style="text-align:right;font-size:0.7rem;color:rgba(255,255,255,0.80);margin:4px 0 0;">0 / 2000</p></div>
+      <div class="field"><label for="co-scope" data-i="scopechange">Scope change *</label><textarea id="co-scope" required maxlength="2000" placeholder="What's changing in the scope. Be specific."></textarea><p id="co-scope-count" style="text-align:right;font-size: 0.75rem;color:rgba(255,255,255,0.80);margin:4px 0 0;">0 / 2000</p></div>
       <div class="field"><label for="co-reason" data-i="reason">Reason</label>
         <select id="co-reason">
           <option value="">-</option>
@@ -1759,7 +1767,7 @@ function renderWizardTemplates() {
 function renderWizardItems() {
   const list = $('wiz-item-list');
   if (!_wizardState.items.length) {
-    list/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<div class="empty" style="padding: 14px;">Blank project: add custom items below or skip and add scope items inside the project.</div>';
+    list/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<div class="empty" style="padding: 16px;">Blank project: add custom items below or skip and add scope items inside the project.</div>';
   } else {
     list/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = _wizardState.items.map((it, idx) => `
       <div class="item-row ${it._checked ? '' : 'unchecked'}" data-idx="${idx}">
@@ -2273,7 +2281,7 @@ function renderOverview() {
       <p style="line-height: 1.55; font-size: 0.92rem; color: ${_detail.description ? 'var(--text)' : 'var(--muted)'};">
         ${_detail.description ? e(_detail.description).replace(/\n/g, '<br>') : 'No description yet. Click Edit to add one.'}
       </p>
-      <div class="grid-3" style="margin-top: 14px; font-size: 0.85rem;">
+      <div class="grid-3" style="margin-top: 16px; font-size: 0.85rem;">
         <div><strong>Owner</strong><br>${e(_detail.owner_name || '-')}</div>
         <div><strong>Start</strong><br>${e(fmtDate(_detail.start_date))}</div>
         <div><strong>End</strong><br>${e(fmtDate(_detail.end_date))}</div>
@@ -2359,7 +2367,7 @@ function renderScope() {
     const phaseLabel = p ? PHASE_LABELS[p] : 'Other';
     const phaseClass = p ? `phase-${p}` : 'phase-pre';
     return `
-      <div style="margin-bottom: 14px;">
+      <div style="margin-bottom: 16px;">
         <div style="display:flex; gap:8px; align-items:center; padding:6px 0; border-bottom:1px solid var(--border); margin-bottom:6px;">
           <span class="phase-tag ${phaseClass}">${e(phaseLabel)}</span>
           <span class="small" style="color:var(--muted);">${items.length} item${items.length === 1 ? '' : 's'}</span>
@@ -2597,7 +2605,7 @@ function renderLinked() {
     </div>`;
   }).join('');
   const suggestionBanner = _linkSuggestions.length ? `
-    <div style="background: rgba(247,162,27,0.06); border: 1px solid rgba(247,162,27,0.28); border-radius: 10px; padding: 10px 14px; margin-bottom: 12px;">
+    <div style="background: rgba(247,162,27,0.06); border: 1px solid rgba(247,162,27,0.28); border-radius: 10px; padding: 10px 16px; margin-bottom: 12px;">
       <div style="font-weight: 600; margin-bottom: 4px; font-size: 0.92rem;">💡 ${_linkSuggestions.length} open logbook ${_linkSuggestions.length === 1 ? 'entry' : 'entries'} from the last 30 days</div>
       <div class="small" style="color: var(--muted); margin-bottom: 8px;">Consider linking related work to this project.</div>
       <div>
@@ -2852,7 +2860,7 @@ function renderCpm() {
   if (risk?.available) {
     const cls = risk.p80_days > cp.total_days * 1.25 ? 'red' : risk.p80_days > cp.total_days * 1.10 ? 'amber' : 'green';
     riskHtml = `
-      <h3 style="font-size: 0.92rem; margin-top: 14px;">Schedule Risk (Monte Carlo, ${risk.n_runs} runs)</h3>
+      <h3 style="font-size: 0.92rem; margin-top: 16px;">Schedule Risk (Monte Carlo, ${risk.n_runs} runs)</h3>
       <div class="kpi-row">
         <div class="kpi"><div class="kpi-label">P50 finish</div><div class="kpi-value">${risk.p50_days}d</div><div class="kpi-sub">50% likely</div></div>
         <div class="kpi ${cls}"><div class="kpi-label">P80 finish</div><div class="kpi-value">${risk.p80_days}d</div><div class="kpi-sub">contingency target</div></div>
@@ -2869,8 +2877,8 @@ function renderCpm() {
   let resHtml = '';
   if (res && Array.isArray(res.overloaded_days) && res.overloaded_days.length) {
     resHtml = `
-      <h3 style="font-size: 0.92rem; margin-top: 14px;">Resource Overload</h3>
-      <div style="background: rgba(225,85,84,0.08); border: 1px solid rgba(225,85,84,0.3); border-radius: 10px; padding: 10px 14px;">
+      <h3 style="font-size: 0.92rem; margin-top: 16px;">Resource Overload</h3>
+      <div style="background: rgba(225,85,84,0.08); border: 1px solid rgba(225,85,84,0.3); border-radius: 10px; padding: 10px 16px;">
         <div style="font-weight: 600; margin-bottom: 6px;">⚠ ${res.overloaded_days.length} overloaded day-worker pair${res.overloaded_days.length === 1 ? '' : 's'} (>${res.daily_hours}h capacity)</div>
         <div class="small" style="color: var(--muted); margin-bottom: 6px;">Worker / day combinations exceeding daily capacity:</div>
         <ul style="font-size: 0.82rem; padding-left: 20px; line-height: 1.5;">
@@ -2894,7 +2902,7 @@ function renderCpm() {
       <div class="kpi"><div class="kpi-label">Critical path</div><div class="kpi-value">${cp.total_days}d</div><div class="kpi-sub">${cp.item_ids.length} of ${_items.length} item${_items.length === 1 ? '' : 's'} on critical path</div></div>
     </div>
     <h3 style="font-size: 0.92rem;">Gantt</h3>
-    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px;">
+    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px;">
       ${rows}
     </div>
     <div class="small" style="margin-top: 8px; color: var(--muted);">${escHtml(_t('Red bars = zero slack (any delay slips the project finish). Green = done.', 'Pulang bar = walang slack (anumang pagkaantala ay magpapaurong sa pagtatapos). Berde = tapos.'))}</div>
@@ -2924,7 +2932,7 @@ function renderRoles() {
                disputed assignment turns on - had no answer in the app. Same shape as the logbook's
                LOTO column and the same fix the community's best-answer took ("chosen by X · when"),
                so the vocabulary matches what the platform already says elsewhere. -->
-          ${r.assigned_by ? `<span style="color: var(--muted); margin-left: 4px; font-size: 0.72rem;">&middot; by ${e(r.assigned_by)}${r.assigned_at ? ' ' + e(fmtDate(r.assigned_at)) : ''}</span>` : ''}
+          ${r.assigned_by ? `<span style="color: var(--muted); margin-left: 4px; font-size: 0.75rem;">&middot; by ${e(r.assigned_by)}${r.assigned_at ? ' ' + e(fmtDate(r.assigned_at)) : ''}</span>` : ''}
           ${isSupervisor() ? `<button onclick="removeRole('${e(r.id)}')" title="Remove" aria-label="Remove ${e(r.worker_name)} from this project">×</button>` : ''}
         </span>`).join('')}
     </div>`).join('');
@@ -3004,7 +3012,7 @@ function renderChangeOrders() {
     const costLine = co.cost_impact_php ? `${co.cost_impact_php > 0 ? '+' : ''}${fmtPHP(co.cost_impact_php)}` : '-';
     const daysLine = co.schedule_impact_days ? `${co.schedule_impact_days > 0 ? '+' : ''}${co.schedule_impact_days}d` : '-';
     return `
-      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 10px;">
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 10px;">
         <div class="row" style="justify-content: space-between; align-items: flex-start; margin-bottom: 6px; gap: 8px;">
           <div>
             <span class="pcode">${e(co.co_number)}</span>
@@ -3194,7 +3202,7 @@ function renderBudget() {
       <div class="kpi ${cls}"><div class="kpi-label">SPI</div><div class="kpi-value">${ev.spi ?? '-'}</div><div class="kpi-sub">schedule</div></div>
       <div class="kpi ${cls}"><div class="kpi-label">CPI</div><div class="kpi-value">${ev.cpi ?? '-'}</div><div class="kpi-sub">cost</div></div>
     </div>
-    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px;">
+    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px;">
       <h3 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 6px;">${escHtml(_t('Variance summary', 'Buod ng variance'))}</h3>
       <!-- table-name-allow: project WBS / scope data table --> <div class="wh-scroll-x"><table>
         <tr><td>${escHtml(_t('Schedule variance (SV = EV − PV)', 'Schedule variance (SV = EV − PV)'))}</td><td>${fmtPHP(ev.sv)}</td></tr>
@@ -3223,19 +3231,19 @@ function renderSignoff() {
     <div class="kpi-row">
       <div class="kpi"><div class="kpi-label">Sign-off readiness</div><div class="kpi-value">${passed}/${checks.length}</div><div class="kpi-sub">checks passed</div></div>
     </div>
-    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 12px;">
+    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 12px;">
       ${checks.map(c => `<div style="padding:6px 0; border-bottom: 1px solid var(--border); display:flex; justify-content:space-between;">
         <span>${c.ok ? '✓' : '○'} ${e(c.label)}</span>
         <span class="small" style="color:${c.ok ? 'var(--green)' : 'var(--muted)'};">${c.ok ? 'OK' : 'pending'}</span>
       </div>`).join('')}
-      <div class="row" style="gap:8px; margin-top: 14px;">
+      <div class="row" style="gap:8px; margin-top: 16px;">
         <button class="btn primary" onclick="markComplete()" ${_detail.status === 'complete' ? 'disabled' : ''} data-i="markcomplete">Mark complete</button>
         <button class="btn" onclick="markStatus('on_hold')" data-i="putonhold">Put on hold</button>
         <button class="btn" onclick="markStatus('archived')" data-i="archive">Archive</button>
         <a href="project-report.html?project_id=${e(_detail.id)}" class="btn small" style="text-decoration: none; margin-left: auto;">📄 ${escHtml(_t('Print report', 'I-print ang report'))}</a>
       </div>
     </div>
-    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px;">
+    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px;">
       <h3 id="lessons-text-label" style="font-size: 0.95rem; font-weight: 700; margin-bottom: 6px;">${escHtml(_t('Lessons learned', 'Mga natutunan'))}</h3>
       <div class="small" style="color: var(--muted); margin-bottom: 8px;">${escHtml(_t('What went well, what to do differently next time. Feeds the Project Report appendix and the searchable lessons archive.', 'Ano ang naging maganda, ano ang gagawing iba sa susunod. Napupunta ito sa appendix ng Project Report at sa nahahanap na lessons archive.'))}</div>
       <textarea aria-labelledby="lessons-text-label" id="lessons-text" maxlength="4000" style="min-height: 100px;" placeholder="• Mech alignment took 2x estimated: consider buffer hours for next pump overhaul\n• Parts staging was on point, keep weekly cadence\n• PTW issued late by 2h: pre-stage on the prior shift">${e(lessonsExisting)}</textarea>

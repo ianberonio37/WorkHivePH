@@ -164,6 +164,24 @@ if W3_PROGRAM_TOTAL:
             _seen_w3.append(_r["wave"])
     NAMED_WAVE_ORDER = NAMED_WAVE_ORDER + _seen_w3
 
+# ★EXPANSION WAVE 4, W41.. (2026-09-14) — every served page x every action x every layer, lived start to
+# end, x 3 axes (phone-390 en · narrow-320 en · phone-390 fil). The ★×16 rule a seventh time: the wave's
+# size is decided in exactly one place - tools/seed_expansion_wave4.py's plan(), which MEASURES it (the
+# substrate-verified actions per page, the pages that load nav-hub.js, the (page, layer) cells no gated
+# journey has lived) - and this gate derives its expected ids from that function. plan() REPLAYS the
+# seeded rows once any W4 row exists, for the same reason wave 3's does. One wave code, W4.
+_W4_IMPORT_ERROR = None
+try:
+    from seed_expansion_wave4 import plan as _w4_plan, WAVE as _W4_WAVE
+    _w4_rows = _w4_plan()
+    W4_PROGRAM_TOTAL = len(_w4_rows)
+    NAMED_WAVES[_W4_WAVE] = [f"W4{_i}" for _i in range(1, W4_PROGRAM_TOTAL + 1)]
+except Exception as _e:                                          # seeder missing -> fail loudly
+    W4_PROGRAM_TOTAL = 0
+    _W4_IMPORT_ERROR = _e
+if W4_PROGRAM_TOTAL:
+    NAMED_WAVE_ORDER = NAMED_WAVE_ORDER + [_W4_WAVE]
+
 
 def wave_of(n: int) -> str:
     for w, a, b in WAVES:

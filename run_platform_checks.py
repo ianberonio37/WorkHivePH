@@ -45,8 +45,66 @@ FAST     = "--fast" in sys.argv
 GATE     = "--gate-only" in sys.argv
 AUTOFIX  = "--autofix" in sys.argv
 
+
+# ── `--only <id>[,<id>]` and the unknown-flag refusal ─────────────────────────
+# ★A FLAG THIS FILE NEVER IMPLEMENTED WAS SILENTLY RUNNING THE WHOLE BOARD
+# (2026-09-20, found while verifying W46330). `--only <gate-id>` reads like a
+# spot-check and was used as one: 69 replay lines inside live_mcp_registry.json
+# carry `python run_platform_checks.py --only <id>` as the recorded way to re-prove
+# a banked row (seller_pane_populated x29, svc_pane_populated x19, cl_a11y_states
+# x14, cl_page_contrast x7), and this session used it twice more. Every one of those
+# four ids is a REAL registered check, so nothing looked wrong - but argv was only
+# ever scanned for --fast / --gate-only / --autofix, so the unrecognised flag fell
+# through and the FULL board ran instead. That board is Ian's ~6h gate. One such run
+# from the previous day was still alive after twenty hours, and two more were started
+# today before the cause was found; on an 8GB host three concurrent boards is the
+# whole machine. A replay line that cannot do what it says is worse than a missing
+# one, because it reports success for a check it never isolated.
+#
+# Implemented rather than removed, because 69 banked rows and the CI workflow already
+# describe this behaviour - making the flag real makes those lines true at once.
+#
+# ★AND IT WRITES ITS REPORT TO A DIFFERENT PATH, which is this repo's own rule for a
+# narrowing flag (see the `narrowing-prover-report-path` gate below: "if a prover
+# accepts a narrowing flag the path it writes its report to must DEPEND on that
+# flag"). That gate was written for the 30 provers and never applied to the board
+# that hosts it. It matters here more than anywhere: save_baseline() serialises
+# {id: status} for whatever ran, so a one-check run would have rewritten
+# platform_baseline.json from ~600 entries down to 1, and every other check would
+# then read as newly-missing on the next full sweep. A narrowed run therefore never
+# touches the baseline and writes its health to platform_health.only-<slug>.json.
+_KNOWN_FLAGS = {"--fast", "--gate-only", "--autofix", "--only"}
+
+
+def _parse_only(argv):
+    ids, i = [], 1
+    while i < len(argv):
+        a = argv[i]
+        if a == "--only":
+            if i + 1 >= len(argv) or argv[i + 1].startswith("--"):
+                sys.stderr.write("run_platform_checks: --only needs a check id\n")
+                raise SystemExit(2)
+            ids += [x.strip() for x in argv[i + 1].split(",") if x.strip()]
+            i += 2
+            continue
+        if a.startswith("--") and a not in _KNOWN_FLAGS:
+            sys.stderr.write(
+                f"run_platform_checks: unknown flag {a!r}.\n"
+                f"  known flags: {', '.join(sorted(_KNOWN_FLAGS))}\n"
+                "  refusing rather than ignoring it - an ignored flag here runs the\n"
+                "  entire board, which is a multi-hour job.\n")
+            raise SystemExit(2)
+        i += 1
+    return ids
+
+
+ONLY = _parse_only(sys.argv)
+
 BASELINE_FILE = "platform_baseline.json"
 HEALTH_FILE   = "platform_health.json"
+if ONLY:
+    _slug = "-".join(ONLY)[:60].replace("/", "-")
+    HEALTH_FILE = f"platform_health.only-{_slug}.json"
 
 # ── Colour helpers (Windows-safe ANSI) ────────────────────────────────────────
 def green(s):  return f"\033[92m{s}\033[0m"
@@ -7118,6 +7176,29 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        # ★A CALCULATOR PAGE MUST PRINT WHAT ITS ENGINE COMPUTES (2026-09-16). The 60 /tools/<calc>/
+        # pages are STATIC: the worked example was computed once at build time and baked into the lede
+        # AND the result table. `calc-pages` above validates the JSON-LD's structure and never looks at
+        # a number, so a page whose printed values have drifted from the module that produced them
+        # passed every gate on this board. Four calculations were corrected in one day by the W4 design
+        # lens - fire-sprinkler published a Light Hazard design for an Ordinary Hazard Group 1 example
+        # (4.08 mm/min where the code needs 6.12), hoist-capacity sized a motor at 1/n of the real duty,
+        # heat-exchanger printed an effectiveness its own temperatures contradict, load-schedule charged
+        # NEC 430.24's motor allowance twice - and every one needed the page rewritten by hand beside
+        # the module. Remembering to do both is exactly the step that does not happen. This runs each
+        # module on its own CALC_DATA example and requires the page to state every headline row - label,
+        # value AND unit - in both places, so it bites whichever side moves. Static, offline (~3s).
+        # Self-test: `python tools/prove_calc_pages_match_engine.py --self-test` (perturbs one printed
+        # value, expects FAIL, restores, expects PASS).
+        "id":      "calc-pages-match-engine",
+        "script":  "tools/prove_calc_pages_match_engine.py",
+        "args":    ["--check"],
+        "label":   "Calculator page == its engine (the static worked example still equals a fresh run of its own module, in the lede and the table)",
+        "group":   "AI Validation",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
         # AIO-readiness gate (SEO_AEO_GEO_V3 §5) — the instrument for the pillar V3 split
         # out of GEO. Three of AIO's four levers were already built; the fourth,
         # MULTI-SOURCE CREDIBILITY, is the one our own pages cannot supply, and nothing
@@ -7217,10 +7298,125 @@ VALIDATORS = [
         "script":  "tools/authority_link_gate.py",
         "args":    [],
         "label":   "Authority-link resolution (V3 5, AIO: every outbound citation still resolves; "
-                   "404/410 = dead and ratcheted, bot-challenge 403 = shielded and reported, never failed)",
+                   "404/410 = dead and ratcheted, bot-challenge 403 = shielded and reported, never failed). "
+                   "★NOW IN --fast, AND IT NOW READS BARE TEXT (2026-09-21, W46181). This gate was "
+                   "registered skip_if_fast, and '--fast at milestones, the full board is Ian's ~6h gate' is "
+                   "the discipline this project actually runs - so it was structurally unrun for the entire "
+                   "duration of every edit wave, which is exactly when a citation rots. Found red on a "
+                   "routine audit row with THREE dead citations on ONE page: lawphil ra_11285.html (404 - the "
+                   "correct doc, ra_11285_2019.html, was linked by the same page), an ADB PDF that was the "
+                   "sole source for a 'PHP 1,200 per MWh' claim, and a World Bank 'publication' that does not "
+                   "exist. The gate caught the first two and was BLIND to the third, because it matched "
+                   "href= only and the Sources list prints that one as plain text - blind in the one place a "
+                   "reader looks to check us. Both holes are closed: BARE_RE collects plain-text URLs (cut at "
+                   "HTML entities so a JSON-LD &quot; does not get swallowed into the URL, which the first "
+                   "draft did, inventing 'https://smrp.org/&quot;&gt;Society'). COST, measured twice and "
+                   "stated as a RANGE because it is network-bound, not CPU-bound: 13.7s direct with warm "
+                   "connections, 58.7s through the registry on a cold one - it fetches ~18 third-party URLs "
+                   "with a 12s timeout each, so a slow or shielded host dominates it. That is the most "
+                   "expensive check in --fast and it is still worth it: this page shipped THREE dead "
+                   "citations past every other gate. Same repair as md-twins-current, same reasoning: a "
+                   "check guarding a PUBLISHING CHANNEL must run in the mode you actually run. "
+                   "FIX ON FAIL: open the page and either correct the URL or remove the claim the dead source "
+                   "was carrying - a claim whose only citation 404s is a claim with no source.",
         "group":   "AI Validation",
         "report":  "authority_link_report.json",
-        "skip_if_fast": True,
+        "skip_if_fast": False,
+    },
+    {
+        # Self-test: `python tools/prove_article_ui_claims.py --self-test` (10 assertions,
+        # including the two regressions this gate caused itself while being written).
+        "id":      "article-ui-claims",
+        "script":  "tools/prove_article_ui_claims.py",
+        "args":    ["--check"],
+        "label":   "W46181: an article may only tell a reader to press a control that EXISTS. "
+                   "learn/philippine-plants-now-pay-the-highest-power-rates measured perfect on every "
+                   "design instrument - contrastLow 0 across 163 nodes, rhythmOffGrid 0, 10 headings with "
+                   "0 skips - while instructing the reader five times, in numbered steps, to press a "
+                   "'⚡ Electrical 14' button and claiming the tool 'flags any machine over the limit', "
+                   "'pulls the DOE’s current rate' and 'applies the RA 11285 audit rule'. None of it "
+                   "exists. The string 'Electrical 14' occurs ONCE in the repository: inside an HTML "
+                   "COMMENT in engineering-design.html listing discipline counts. An LLM read the comment "
+                   "and promoted it to a button. ★THE GUARD THAT ALREADY EXISTED WAS AIMED AT THE "
+                   "CHEAPER SURFACE: tools/topic_post.py has a real, self-tested fabrication guard "
+                   "(numbers_sourced traces every figure back to Ian’s notes, and it earned its place "
+                   "on run one by catching an invented '11.8 cent per kilowatt-hour' in the wrong "
+                   "currency) - but it runs on the FACEBOOK CAPTION. The /learn article, the surface that "
+                   "is indexed, mirrored into a markdown twin and quoted by answer engines, went out "
+                   "through scaffold_article with no equivalent check. The ephemeral thing was guarded "
+                   "and the permanent one was not. ★THIS GATE STRIPS COMMENTS, which IS the point: "
+                   "its own teeth test failed at first because 'Electrical 14' IS in the repo, in that "
+                   "comment - a gate that reads comments is fooled by the same text that fooled the "
+                   "model. Then stripping them naively reported a REAL button as invented, because "
+                   "accept=\"image/*\" opened a false /*…*/ that ate 10,553 characters of resume.html "
+                   "- this project’s own recorded lesson, reproduced verbatim while writing the gate "
+                   "to prevent fabrication. Both are pinned by assertions. SCOPE, stated honestly: it "
+                   "proves a NAMED CONTROL exists, nothing more - not that a statistic is real "
+                   "(authority-links checks the citation resolves), not that arithmetic is sound (the "
+                   "same page claimed a 500-kW boiler room drawing 12 kWh an hour saved ₱3,000 a day, "
+                   "off by ~10x). Registers GREEN at 21 controls across 5 articles, so it is a ratchet, "
+                   "not a backlog. Costs 0.9s. FIX ON FAIL: correct the label to the control that "
+                   "exists, or delete the instruction - never add a button to make an article true.",
+        "group":   "AI Validation",
+        "skip_if_fast": False,
+    },
+    {
+        # Self-test: `python tools/fix_learn_th_nowrap.py --self-test` (8 assertions incl. idempotency).
+        "id":      "learn-th-nowrap",
+        "script":  "tools/fix_learn_th_nowrap.py",
+        "args":    ["--check"],
+        "label":   "W46205: a [data-table-scroll] region that cannot scroll is a CRUSHED HEADER. The wrapper "
+                   "announces a horizontally scrollable region, but the table inside is pinned to width:100%, "
+                   "so it can never overflow and therefore never scrolls — it crushes the columns instead, "
+                   "and the header cell is the first thing to give. W46083 diagnosed this on the pillar "
+                   "template ('Product' and 'Paid entry' wrapped to THREE lines in 66px at 390) and fixed it "
+                   "with white-space:nowrap on th, which is what makes the wrapper real: the header holds one "
+                   "line, the table finally exceeds its container, and the region scrolls. The NINETEEN "
+                   "off-template learn articles never got that fix, and it resurfaced on a routine audit walk "
+                   "— W46205 produced the ONLY non-zero fit finding in a run of nine otherwise clean pages: "
+                   "'th 3 lines @124px \"Annual membership\"'. MEASURED 2026-09-21: 38 of 54 learn articles have "
+                   "tables, ALL 38 carry the [data-table-scroll] wrapper, and NINE lacked the rule — every "
+                   "one of the nine off-template, and their .prose-wh th rule otherwise byte-identical to the "
+                   "canonical one, so the sweep appends the single missing declaration rather than rewriting "
+                   "the rule. All nine fixed; registers GREEN as a ratchet. FIX ON FAIL: python "
+                   "tools/fix_learn_th_nowrap.py --apply",
+        "group":   "Frontend",
+        "skip_if_fast": False,
+    },
+    {
+        # Self-test: `python tools/validate_vendor_pricing_freshness.py --self-test` (8 assertions,
+        # including the live false positive that forced the proximity rule).
+        "id":      "vendor-pricing-freshness",
+        "script":  "tools/validate_vendor_pricing_freshness.py",
+        "args":    ["--check"],
+        "label":   "W46273: a price we quote for SOMEONE ELSE must stay true. Three comparison pages "
+                   "(workhive-vs-maintainx, workhive-vs-upkeep, best-free-cmms-software-philippines) "
+                   "carry 26 dollar figures belonging to vendors we do not control. Each already makes "
+                   "the right promise in its own words — 'Pricing verified against vendor and directory "
+                   "listings on 5 August 2026 ... This comparison is REVIEWED QUARTERLY for pricing and "
+                   "feature accuracy' — and NOTHING ENFORCED EITHER the date or the cadence. That is the "
+                   "shape this project has already been burned by: a step that depends on somebody "
+                   "remembering does not happen (v_kpi_truth's hourly refresh shipped as a root 'run this "
+                   "manually' file). The failure mode is specific: a competitor raises its price, our page "
+                   "keeps quoting the old one, and a comparison that was accurate when written becomes a "
+                   "misleading claim about another company's product — worse to be wrong about than our "
+                   "own. The gate parses each page's own stated date and cadence and fails when the page "
+                   "outlives its own promise, or when a named vendor's price carries no date at all. "
+                   "★SCOPE IS PROXIMITY, NOT CO-OCCURRENCE, and that was learned the hard way: the first "
+                   "version scoped in any page where a brand appeared anywhere and a price appeared "
+                   "anywhere, and immediately produced a FALSE POSITIVE — the platform guide names Fiix as "
+                   "an INTEGRATION TARGET in one table row and quotes a generic 'often around $20 to $50 "
+                   "per user per month' in another, and neither is a claim about Fiix's price. A brand and "
+                   "a figure must now sit within 200 characters of each other, and that exact page is "
+                   "pinned as an out-of-scope assertion. Generic category prices with no vendor attached "
+                   "('paid products commonly start around $20', 'an analyzer can range from $5,000 to "
+                   "$10,000') stay out of scope deliberately. MEASURED 2026-09-21: 3 pages in scope, all "
+                   "dated 5 August 2026 on a quarterly cadence, 47 of 92 days — registers GREEN and begins "
+                   "failing on 3 November 2026. FIX ON FAIL: re-check the vendor's published pricing, "
+                   "update the figures, then move the 'verified ... on <date>' line. Never move the date "
+                   "without re-checking — the date IS the claim.",
+        "group":   "AI Validation",
+        "skip_if_fast": False,
     },
     {
         "id":      "aio-readiness",
@@ -11783,6 +11979,847 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        # ★THE WAVE-4 LAYER-H STORIES, PROVEN AGAINST THE SERVED HEADERS (2026-09-14, no browser). The H-layer
+        # story - "serve this page correctly from the edge: headers, caching, offline" - does not depend on the
+        # viewport or the language, so it is answered by the local Vercel-headers substitute
+        # (serve_vercel_headers.py = vercel.json applied the way the edge does) on each row's own page: a CSP is
+        # served, X-Frame-Options DENY, Permissions-Policy grants mic+camera, HTML is no-cache, a shipped asset is
+        # max-age=3600, sw.js is no-store. It writes each row a `witness` receipt (the contract-layer evidence
+        # live_walk_manifest._w4_missing requires), so a passing H row advances fixing -> locking on this gate.
+        "id":      "w4-layer-headers",
+        "script":  "tools/prove_w4_layer_headers.py",
+        "args":    ["--check"],
+        "label":   "Wave-4 layer-H stories: every H-layer row's page serves the correct CSP / X-Frame-Options / Permissions-Policy / Cache-Control (the local vercel.json substitute), the non-browser witness the header layer needs",
+        "group":   "DevOps",
+        "skip_if_fast": False,
+    },
+    {
+        # ★THE WAVE-4 LAYER-L STORIES, PROVEN AT SOURCE (2026-09-14, no browser). "Record who did what on this
+        # page, in a trail somebody can read": a page that CHANGES a domain row owes an audit-trail write; a
+        # read-only page or a static document owes nothing (n/a). Reuses prove_clock_and_trail's TRAIL_CALL and
+        # page_source (so the two cannot drift) + tools/page_kind; the shared error telemetry (client_errors via
+        # whLogError, on every page) is excluded so a page that only logs its own errors does not read as a
+        # change without a trail. Writes a `witness` receipt per row; a passing L row advances fixing -> locking here.
+        "id":      "w4-layer-trail",
+        "script":  "tools/prove_w4_layer_trail.py",
+        "args":    ["--check"],
+        "label":   "Wave-4 layer-L stories: every L-layer row's page either records its domain changes in the audit trail or has none to record (source-level, the non-browser witness the trail layer needs)",
+        "group":   "Analytics Engineer",
+        "skip_if_fast": False,
+    },
+    {
+        # ★THE WAVE-4 LAYER-RL STORIES, PROVEN AT SOURCE (2026-09-14, no browser). "Bound what this page can
+        # consume, and say so": a page that reads a list of domain rows must cap what it fetches; a page that
+        # reads nothing of its own, or a static document, has nothing to bound. Reuses prove_consumption_bound's
+        # BOUND / INSURANCE matchers so the two cannot drift; the say-so half stays enforced platform-wide by the
+        # consumption-bound gate. Writes a `witness` receipt per row; a passing RL row advances fixing -> locking here.
+        "id":      "w4-layer-rl",
+        "script":  "tools/prove_w4_layer_rl.py",
+        "args":    ["--check"],
+        "label":   "Wave-4 layer-RL stories: every RL-layer row's page bounds what it fetches or has no list to bound (source-level, the non-browser witness the rate-limit layer needs)",
+        "group":   "Performance",
+        "skip_if_fast": False,
+    },
+    {
+        # ★THE WAVE-4 LAYER-C STORIES, PROVEN AT SOURCE (2026-09-14, no browser). "State which clock and which
+        # period this page's figures belong to": a page showing AGGREGATE domain figures must name the period and
+        # the timezone; a calculator's computed values, a health page's probes, a form or a static document owe no
+        # window (n/a). Reuses prove_clock_and_trail's PERIOD/CLOCK + a domain-read gate so computed/probed figures
+        # are not mistaken for dated ones. Writes a `witness` receipt per row; a passing C row advances fixing -> locking.
+        "id":      "w4-layer-clock",
+        "script":  "tools/prove_w4_layer_clock.py",
+        "args":    ["--check"],
+        "label":   "Wave-4 layer-C stories: every C-layer row's page names the period + timezone of its dated domain figures, or shows none (source-level, the non-browser witness the clock layer needs)",
+        "group":   "Analytics Engineer",
+        "skip_if_fast": False,
+    },
+    {
+        # ★THE WAVE-4 LAYER-D STORIES, PROVEN AT SOURCE (2026-09-14, no browser). "Show where this page's data came
+        # from": a page that reads domain rows owes a provenance source chip ("Live · based on your <x> · refreshed
+        # <when>"), so a number is never a bare assertion; a static document or a page that reads no domain data of
+        # its own owes none (n/a). Reuses prove_w4_layer_rl.READS (a .from().select / a data rpc) + tools/page_kind,
+        # and credits the platform's own source-chip idioms (.wh-source-chip / renderSourceChip / _whFriendlySource /
+        # data-source). Writes a `witness` receipt per row; a passing D row advances fixing -> locking on this gate.
+        "id":      "w4-layer-provenance",
+        "script":  "tools/prove_w4_layer_d.py",
+        "args":    ["--check"],
+        "label":   "Wave-4 layer-D stories: every D-layer row's page shows the provenance of its domain data (a source chip) or reads none (source-level, the non-browser witness the data-provenance layer needs)",
+        "group":   "Data Engineer",
+        "skip_if_fast": False,
+    },
+    {
+        # ★THE WAVE-4 LAYER-S STORIES, PROVEN AT THE DATABASE (2026-09-14, no browser). "Refuse, on this page, a
+        # person who is not entitled to what it shows": on this platform entitlement is enforced by Postgres RLS,
+        # so the per-page proof is that every TENANT-SHAPED base table the page reads (one carrying hive_id /
+        # auth_uid / a per-user owner column) has row-level security ENABLED - a table with RLS off but no tenant
+        # column is a public reference, and a read through a v_*/_truth view or an rpc is server-enforced. One psql
+        # round trip asks the live DB. Writes a `witness` receipt per row; a passing S row advances fixing -> locking.
+        "id":      "w4-layer-entitlement",
+        "script":  "tools/prove_w4_layer_s.py",
+        "args":    ["--check"],
+        "label":   "Wave-4 layer-S stories: every S-layer row's page reads its tenant tables under RLS (or reads only public/reference/server-enforced data), so a non-entitled person is refused (DB-grounded, the non-browser witness the entitlement layer needs)",
+        "group":   "Multitenant Engineer",
+        "skip_if_fast": False,
+    },
+    {
+        # ★THE WAVE-4 LAYER-A STORIES, PROVEN AT SOURCE (2026-09-14, no browser). "Keep this page working when the
+        # service behind it answers slowly or not at all": a page that calls a service (a Supabase read/rpc, an edge
+        # invoke, a fetch) and does not CATCH the failure hangs on a spinner or blanks silently - the silent-page
+        # family this repo has been bitten by. So the source witness is: every page that makes a network call both
+        # catches the failure AND shows the reader a legible degraded state (an error line, a retry, an offline
+        # notice); a static doc or a page with no network call of its own is n/a. A passing A row advances fixing ->
+        # locking; its non-browser witness satisfies _w4_missing and the basis names the prover (a playwright marker).
+        "id":      "w4-layer-availability",
+        "script":  "tools/prove_w4_layer_a.py",
+        "args":    ["--check"],
+        "label":   "Wave-4 layer-A stories: every A-layer row's page catches a slow/absent service and shows a legible degraded state, or makes no network call of its own (source-level, the non-browser witness the availability layer needs)",
+        "group":   "Performance",
+        "skip_if_fast": False,
+    },
+    {
+        # ★THE WAVE-4 LAYER-LB STORIES, PROVEN AT SOURCE (2026-09-14, no browser). "Keep this page responsive as its
+        # data grows past the size it was designed for": where layer-RL bounds what a page FETCHES, LB bounds what it
+        # RENDERS - a page that reads a growing list and paints every row janks as the table grows. The source
+        # witness is a bounded rendered list: a fetch cap (.limit/.range/PAGE_SIZE, which bounds the DOM too),
+        # pagination / load-more / infinite scroll, virtualization, or a pre-render slice; a page with no list of its
+        # own is n/a. A passing LB row advances fixing -> locking; witness satisfies _w4_missing, basis names the prover.
+        "id":      "w4-layer-loadbearing",
+        "script":  "tools/prove_w4_layer_lb.py",
+        "args":    ["--check"],
+        "label":   "Wave-4 layer-LB stories: every LB-layer row's page keeps its rendered list bounded (a fetch cap, pagination, virtualization, or a pre-render slice), or reads no list of its own (source-level, the non-browser witness the load-bearing layer needs)",
+        "group":   "Performance",
+        "skip_if_fast": False,
+    },
+    {
+        # ★THE WAVE-4 LAYER-CI STORIES, PROVEN AGAINST THE REGISTERED GATE SUITE (2026-09-14, no browser). "Catch
+        # this page's regressions before a person meets them" is a claim about the check suite, not the page's bytes:
+        # a page is CI-covered when a registered gate exercises it. Every SERVED page is swept by the phone-fit gate
+        # (390/360/320) and carried by the trajectory-registry gate, and many have a dedicated validator. The gap CI
+        # guards is a shipped page NO gate watches (not in the served roster the sweeps enumerate) -> BAD. A retired
+        # page is n/a. A passing CI row advances fixing -> locking; witness satisfies _w4_missing, basis names the prover.
+        "id":      "w4-layer-regression",
+        "script":  "tools/prove_w4_layer_ci.py",
+        "args":    ["--check"],
+        "label":   "Wave-4 layer-CI stories: every CI-layer row's page is watched by a registered gate (the phone-fit sweep + the trajectory-registry gate + any dedicated validator), so a regression is caught before a person meets it (the non-browser witness the CI layer needs)",
+        "group":   "DevOps",
+        "skip_if_fast": False,
+    },
+    {
+        # ★THE WAVE-4 LAYER-AU STORIES, PROVEN AT SOURCE (2026-09-14, no browser). "Keep this page's identity honest
+        # when a session ends or a role changes": the dishonest shape is a page that trusts a URL-injected id or a
+        # stale localStorage hint as WHO YOU ARE, so a revoked member still sees the old view. The source witness is
+        # that an identity-bound page derives who from a REAL session (auth.getUser / getSession / onAuthStateChange /
+        # requireAuth / the shared authenticated getDb); a public page with no per-person view is n/a. A passing AU
+        # row advances fixing -> locking; witness satisfies _w4_missing, basis names the prover.
+        "id":      "w4-layer-session",
+        "script":  "tools/prove_w4_layer_au.py",
+        "args":    ["--check"],
+        "label":   "Wave-4 layer-AU stories: every AU-layer row's page derives identity from a real auth session (not a URL-injected or stale-cached id), or binds no identity at all (source-level, the non-browser witness the session layer needs)",
+        "group":   "Security",
+        "skip_if_fast": False,
+    },
+    {
+        # ★THE WAVE-4 LAYER-AV STORIES, PROVEN AT SOURCE (2026-09-14, no browser). "Keep this page truthful when the
+        # model or the pipeline behind it is wrong": applies only where a page presents MODEL / AI / PREDICTION output
+        # (an answer, a forecast, a recommendation, an AI-quality read), because only there can a wrong pipeline
+        # mislead. Such a page owes an honesty marker - grounding (a source chip), a qualifier (confidence / estimated
+        # / may vary / a range), or an honest fallback when the model fails; a page with no model behind it (a form, a
+        # deterministic calc, a plain list) is n/a. A passing AV row advances fixing -> locking; witness satisfies
+        # _w4_missing, basis names the prover.
+        "id":      "w4-layer-model-honesty",
+        "script":  "tools/prove_w4_layer_av.py",
+        "args":    ["--check"],
+        "label":   "Wave-4 layer-AV stories: every AV-layer row's page marks the honesty of its model/AI/prediction output (grounding, confidence, caveat, or honest fallback), or presents no model output at all (source-level, the non-browser witness the model-honesty layer needs)",
+        "group":   "AI Engineer",
+        "skip_if_fast": False,
+    },
+    {
+        # ★THE WAVE-4 NAV-HUB RATCHET (2026-09-14, §LW.2: the MCP walk discovers, the batch prover re-proves in
+        # bulk and is what a gate is). Runs THE SAME HANDS as the hand walk (tools/w4_navhub_walk.js) over every
+        # W4 nav-hub row of the phone-390 English axis in a fresh headless context per row, cast as a worker of
+        # the row's own hive from the database: fab -> panel -> 4 modes -> filter + no-results -> global search ->
+        # Recent -> companion (covers no primary control) -> feedback -> assist row -> connectivity pill provoked
+        # offline -> close (focus back on the fab), then the row's onward pages by the hub's own tiles, with the
+        # per-step overlap/occlusion record after every step. A row holds only with every control exercised and
+        # ZERO overlap findings. The W4 nav-hub rows lock on this gate; a hand walk alone banks `fixing`.
+        "id":      "w4-nav-hub",
+        "script":  "tools/prove_w4_navhub.mjs",
+        "args":    ["--axis", "phone-390 en"],
+        "label":   "Wave-4 nav-hub journeys, phone-390 English (31 host pages): every hub control exercised as the row's own worker, no control occluded at any step, focus returned on close, onward pages reached by the hub's own tiles",
+        "group":   "Frontend",
+        "skip_if_fast": True,
+    },
+    {
+        # ★THE CONFUSION LEDGER, LIVED AGAIN (2026-09-14, Ian: "more trajectories, targeting that makes you confused").
+        # Every w4_confusions.json entry is a registry row per axis; this walks each on its real page as the row's
+        # own worker, along the row's path, and reads whether the improvement holds (C1 one hittable "Sign In",
+        # C2 the 8 s still-signing-in hint, C3 the outage said plainly, C4 the scoped filter names its view and
+        # offers all tools, C5 focus back on the fab, C6 launcher and filter no longer alike, C7 no script fault on a
+        # mode click, C8 disclosures told apart by name, C10/C12 the offline banner clears the pill and the fixed
+        # nav, C11 assistant's own back left alone, C13 consent covers no sign-in control, C15 the notice has a way
+        # out). A predicate that fails keeps its row open - a walked confusion that is not fixed stays owed.
+        "id":      "w4-confusions",
+        "script":  "tools/prove_w4_confusions.mjs",
+        "args":    ["--axis", "phone-390 en"],
+        "label":   "Wave-4 confusion rows, phone-390 English: each ledger confusion lived again on its page as the row's worker along its path - the improvement holds, identity kept, no overlap at any step",
+        "group":   "Frontend",
+        "skip_if_fast": True,
+    },
+    # ★THE OTHER TWO AXES ARE THEIR OWN GATES (2026-09-14): a row banked from a narrow-320 or a Filipino walk names
+    # the gate that re-earns IT, not the phone-390-English one - a gate id must re-run the instrument at the axis the
+    # row claims, or the lock is decoration. Same provers, the axis argument is the whole difference.
+    {
+        "id":      "w4-nav-hub-320-en",
+        "script":  "tools/prove_w4_navhub.mjs",
+        "args":    ["--axis", "narrow-320 en"],
+        "label":   "Wave-4 nav-hub journeys, narrow-320 English: every hub control exercised as the row's own worker at 320x720, no control occluded at any step, focus returned on close, onward pages reached by the hub's own tiles",
+        "group":   "Frontend",
+        "skip_if_fast": True,
+    },
+    {
+        "id":      "w4-nav-hub-390-fil",
+        "script":  "tools/prove_w4_navhub.mjs",
+        "args":    ["--axis", "phone-390 fil"],
+        "label":   "Wave-4 nav-hub journeys, phone-390 Filipino: every hub control exercised as the row's own worker with wh_lang=fil, no control occluded at any step, focus returned on close, onward pages reached by the hub's own tiles",
+        "group":   "Frontend",
+        "skip_if_fast": True,
+    },
+    {
+        "id":      "w4-confusions-320-en",
+        "script":  "tools/prove_w4_confusions.mjs",
+        "args":    ["--axis", "narrow-320 en"],
+        "label":   "Wave-4 confusion rows, narrow-320 English: each ledger confusion lived again at 320x720 on its page as the row's worker along its path - the improvement holds, identity kept, no overlap at any step",
+        "group":   "Frontend",
+        "skip_if_fast": True,
+    },
+    # ★THE ACTION ROWS THAT A WALK CAN READ WITHOUT A HAND (2026-09-14): rpc ("call X and read what it returns"), edge
+    # ("invoke X and see the answer land with provenance") and learn-cta ("follow the tool this guide is about") are
+    # lived by one prover that walks each (path, cast) once and answers every row from the responses the person's own
+    # session received. write / upload / compute / cta / print stay open until their own prover exists.
+    {
+        "id":      "w4-actions",
+        "script":  "tools/prove_w4_actions.mjs",
+        "args":    ["--axis", "phone-390 en"],
+        "label":   "Wave-4 action rows (rpc / edge / learn-cta), phone-390 English: each lived along its path as the row's worker or as the anonymous reader - the rpc answered, the edge answer landed with provenance, the guide's CTA reached its tool; identity kept, no overlap at any step",
+        "group":   "Frontend",
+        "skip_if_fast": True,
+    },
+    {
+        "id":      "w4-actions-320-en",
+        "script":  "tools/prove_w4_actions.mjs",
+        "args":    ["--axis", "narrow-320 en"],
+        "label":   "Wave-4 action rows (rpc / edge / learn-cta), narrow-320 English: the same at 320x720",
+        "group":   "Frontend",
+        "skip_if_fast": True,
+    },
+    {
+        "id":      "w4-actions-390-fil",
+        "script":  "tools/prove_w4_actions.mjs",
+        "args":    ["--axis", "phone-390 fil"],
+        "label":   "Wave-4 action rows (rpc / edge / learn-cta), phone-390 Filipino: the same with wh_lang=fil",
+        "group":   "Frontend",
+        "skip_if_fast": True,
+    },
+    # ★THE CA PERSON LAYER (2026-09-15): "the platform must speak, on this page, the words a Philippine maintenance crew
+    # uses" - lived on the real page along the row's path: language stamps present, the crew's own terms in the visible
+    # copy at the English axes, the platform's own Filipino vocabulary rendered at the Filipino axis.
+    {
+        "id":      "w4-layer-ca",
+        "script":  "tools/prove_w4_layer_ca.mjs",
+        "args":    ["--axis", "phone-390 en"],
+        "label":   "Wave-4 CA layer, phone-390 English: on each row's subject page the crew's own maintenance words are in the visible copy and the language stamps are present; path walked, identity kept, no overlap",
+        "group":   "Frontend",
+        "skip_if_fast": True,
+    },
+    {
+        "id":      "w4-layer-ca-320-en",
+        "script":  "tools/prove_w4_layer_ca.mjs",
+        "args":    ["--axis", "narrow-320 en"],
+        "label":   "Wave-4 CA layer, narrow-320 English: the same at 320x720",
+        "group":   "Frontend",
+        "skip_if_fast": True,
+    },
+    {
+        "id":      "w4-layer-ca-390-fil",
+        "script":  "tools/prove_w4_layer_ca.mjs",
+        "args":    ["--axis", "phone-390 fil"],
+        "label":   "Wave-4 CA layer, phone-390 Filipino: on each row's subject page the platform's own Filipino vocabulary is rendered (wh_lang=fil), not merely stamped",
+        "group":   "Frontend",
+        "skip_if_fast": True,
+    },
+    {
+        "id":      "w4-confusions-390-fil",
+        "script":  "tools/prove_w4_confusions.mjs",
+        "args":    ["--axis", "phone-390 fil"],
+        "label":   "Wave-4 confusion rows, phone-390 Filipino: each ledger confusion lived again with wh_lang=fil on its page as the row's worker along its path - the improvement holds in Filipino, identity kept, no overlap at any step",
+        "group":   "Frontend",
+        "skip_if_fast": True,
+    },
+    {
+        # ★THE RUBRIC'S BLIND-SPOT TEETH (Wave 4, 2026-09-14). 118 of 119 public pages read green on V1 while a
+        # person on a phone saw overlap: V1 excluded fixed/sticky chrome as by-design and had no occlusion check;
+        # overflow was measured only at page level. V1 gained the occlusion branch (elementFromPoint at a control's
+        # centre must be the control) and R6 was added (element overflow inside its clipping container). A gate that
+        # only ever passes is a no-op, so this proves on synthetic pages that both dims BITE (a FAB over Save, a box
+        # past its hidden card) and stay quiet on a clean page and under an open modal - before either banks a finding.
+        "id":      "rubric-teeth",
+        "script":  "tools/prove_rubric_teeth.mjs",
+        "args":    ["--self-test"],
+        "label":   "Rubric teeth: V1 occlusion + R6 element-overflow bite on synthetic pages (FAB over Save; 420px box in a 300px hidden card) and stay quiet on a clean page / under an open modal",
+        "group":   "Platform",
+        "skip_if_fast": True,
+    },
+    {
+        # ★TEETH for the phone_fit_audit occlusion VISIBLE-RECT fix (Wave 4, 2026-09-14). The nav-hub ratchet
+        # false-flagged the last search-result row of the global-search overlay as "covered by #wh-search-overlay"
+        # (W41438/W41390): the row was scrolled partway out of its scroll container, so its GEOMETRIC centre fell in
+        # the clipped band where elementFromPoint returned chrome, not the row. The audit now probes the centre of a
+        # control's VISIBLE (clip-intersected) rect. This asks it to be RIGHT both ways: a row scrolled into its clip
+        # band must NOT read as occluded, and a button under a fixed bar MUST still bite (the fix cannot blind the
+        # real case). Light: one synthetic headless page, no stack - runs where the 30-host ratchet cannot.
+        "id":      "audit-visible-rect",
+        "script":  "tools/prove_audit_visible_rect.mjs",
+        "args":    [],
+        "label":   "phone-fit audit teeth: a control scrolled into its clip band no longer false-flags as occluded, and a control under fixed chrome still does (the visible-rect occlusion fix)",
+        "group":   "Platform",
+        "skip_if_fast": True,
+    },
+    {
+        # ★TEETH for two wave-4 nav-hub chrome fixes (2026-09-14), synthetic + light (the 30-host ratchet is not
+        # viable on this host). W41441: report-sender's two report-tabs had default flex-shrink in a nowrap strip and
+        # wrapped to 2 lines at 390; flex-shrink:0 + white-space:nowrap keeps them one line (a shrinkable negative
+        # control still wraps, so the test bites). W41384: a page that ships its own .back-link makes wayfinding.js
+        # SKIP its floating pill (line-180 path), so the platform never stacks a second back control on the page's
+        # own; without a .back-link the pill IS injected (the negative control).
+        "id":      "navhub-chrome-fixes",
+        "script":  "tools/prove_navhub_chrome_fixes.mjs",
+        "args":    [],
+        "label":   "nav-hub chrome teeth: report-sender's report-tabs hold one line at 390 (flex-shrink:0), and a page's own .back-link makes wayfinding skip its duplicate pill (W41441 + W41384)",
+        "group":   "Platform",
+        "skip_if_fast": True,
+    },
+    {
+        # ★TEETH for the nav-hub receipt PLUMBING (2026-09-14, no browser). The ratchet once wrote receipts with no
+        # `steps`, so live_walk_manifest._w4_missing rejected every one of the ~90 nav-hub rows and none could ever
+        # close. The fix: the walker returns per-page steps with a fit dict, the driver writes them, and _w4_receipts
+        # reads BOTH the mcp_walks and the full_journeys_w4navhub namespaces. This asserts the plumbing bites: a
+        # well-formed 4-page fit receipt closes the row, a stepless (old-shape) one is rejected, and a receipt in the
+        # full_journeys_w4navhub namespace is visible to _w4_receipts. Non-browser; synthetic; cleans up after itself.
+        "id":      "w4-navhub-receipt-shape",
+        "script":  "tools/prove_w4_navhub_receipt_shape.py",
+        "args":    ["--check"],
+        "label":   "nav-hub receipt teeth: a 4-page fit receipt closes the row and a stepless receipt is rejected, and _w4_receipts reads the driver's own full_journeys_w4navhub namespace (the plumbing that lets any nav-hub row close)",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
+        # ★THE CONFUSION-ROW PLUMBING BITES BOTH WAYS (2026-09-14): a confusion receipt (mcp_walks/W4confusions_*) with
+        # 4 distinct pages + a fit dict per step closes its row and satisfies the banker; a FAILED predicate (ok:false)
+        # never banks however clean its overlap record; a 3-page path and a fit-less step are refused.
+        "id":      "w4-confusions-receipt-shape",
+        "script":  "tools/prove_w4_confusions_receipt_shape.py",
+        "args":    ["--check"],
+        "label":   "confusion receipt teeth: a 4-page fit receipt in mcp_walks/W4confusions_* closes a confusion row and banks; a failed predicate, a 3-page path and a fit-less step are each refused",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
+        # ★THE DESIGN LENSES HOLD ONLY WHILE THEIR EVIDENCE HOLDS (2026-09-15, Ian: "your own designing skills are
+        # all slop"). A banked design-lens receipt (w4.lens set) must carry both viewports with a fit record, a
+        # detector file, after-scores for a scored lens, both languages for copy, the Figma nodes for figma - and
+        # its page is RE-SCANNED with `impeccable detect --json` now: a page that regressed since it was banked
+        # fails this gate by name, which is how a closed design row is reopened.
+        "id":      "w4-design",
+        "script":  "tools/prove_w4_design_receipts.py",
+        "args":    ["--check"],
+        "label":   "design-lens receipts: shape (lens, both viewports + fit, detector file, scores/languages/figma per lens) and a live detector re-scan of every banked page - a regressed page reopens its rows",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
+        # ★A CONTRACT WITH THREE COPIES NEEDS ALL THREE EDITED (2026-09-17, design lens craft on
+        # project-report). `.wh-help` ships three times on purpose - components.css for the app pages,
+        # wh-help.css for the three pages that do not load it, and a utils.js runtime fallback - and BOTH css
+        # copies carry comments saying they must move together, because a second, DIFFERENT rule arriving
+        # after first paint is a layout shift. Those comments were written by people who then edited two of
+        # the three files: wh-help.css was found FOUR values behind at once (margin 14px vs 16px, padding
+        # 10px 14px vs 12px 16px, summary 0.74rem vs 0.75rem, > p margin 3.2px vs 4px), each fixed in the
+        # other two weeks earlier under a comment asking the next editor to remember. A step that depends on
+        # remembering does not happen, so this gate does the remembering.
+        "id":      "wh-help-contract",
+        "script":  "tools/prove_wh_help_contract.py",
+        "args":    ["--check"],
+        "label":   "the inline-help disclosure ships in three copies (components.css, wh-help.css, the utils.js fallback) and they must agree on margin, padding, font-size and radius",
+        "group":   "Platform",
+        "skip_if_fast": True,
+    },
+    {
+        # ★FIFTY-FOUR PUBLIC GUIDES WITH NO <main> AND NO SKIP LINK (2026-09-19, W46073 audit lens). Measured on
+        # the running page: querySelector('main') null, [role="main"] null, no skip link, and the FIRST focusable
+        # element the WorkHive wordmark - so a keyboard or screen-reader reader had to travel the whole header
+        # and nav to reach the article, on every guide, with no landmark to jump to. It is the PUBLIC library,
+        # which is where a first-time visitor using assistive tech is most likely to meet the product, and the
+        # one surface wayfinding.js's shared skip link cannot reach because these pages load no app chrome.
+        # The library has TWO origins and both were fixed: build_pillar_pages.py emits the landmark for the three
+        # generated pillars, and fix_learn_main_landmark.py swept the other 51 static files. This gate holds the
+        # result, because a template fix protects three pages and nothing protects the other fifty-one.
+        "id":      "learn-main-landmark",
+        "script":  "tools/fix_learn_main_landmark.py",
+        "args":    ["--check"],
+        "label":   "every learn guide exposes a <main> landmark and a skip link as its first focusable element",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
+        # ★THE BRAND LINK PAINTED OVER THE NAV ON EVERY PHONE (2026-09-19, W46077 audit lens, walked on the
+        # asset-brain-360 guide). fix_learn_chrome.py's blanket `nav a,header a,footer a{min-width:44px}` buys a
+        # 44px tap target and, on a flex row, REPLACES the `min-width:auto` that stops a flex item shrinking below
+        # its content - so the one nav anchor whose content is 139px wide collapsed to 44 and spilled out both
+        # sides. Measured at 320: the logo drawn from x = -9.6 (off the left edge of the screen) and the wordmark
+        # painted 24px on top of the "Learn" link's text. Two more in the same header: the nav overflowed a 320
+        # viewport (scrollWidth 328), and <img alt="WorkHive"> beside <span>WorkHive</span> made the accessible
+        # name "WorkHive WorkHive" on all 114 public pages. Both origins fixed - SITE_HEADER/HEAD_ASSETS in
+        # build_pillar_pages.py (imported by build_calc_pages.py too) and this sweep over the static files.
+        "id":      "learn-brand-header",
+        "script":  "tools/fix_learn_brand_header.py",
+        "args":    ["--check"],
+        "label":   "the public brand link names itself once and never paints outside its own box on a phone",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
+        # ★THE LEGAL PAGES HAD 16px FOOTER LINKS AND NO WAY PAST THE HEADER (2026-09-19, W46593 audit
+        # lens, walked on privacy-policy/). about, feedback, privacy-policy and terms-of-service are the
+        # platform's identity and legal surface - what a regulator, a partner or a first-time visitor
+        # reads before anything else - and measured at 390: privacy-policy 14 of 14 controls under 44px,
+        # terms-of-service 17 of 17, about 12 of 12, with ELEVEN standalone on each. The footer was the
+        # worst of it, five links at 16px TALL, and none of the four had a skip link while three had no
+        # <main>. An earlier row fixed the HEADER nav on all three and left a comment saying the repair
+        # matched across them - it had reached one axis on one row. This gate asserts the result instead.
+        "id":      "public-pages-chrome",
+        "script":  "tools/fix_public_pages_chrome.py",
+        "args":    ["--check"],
+        "label":   "the four public pages carry a main landmark, a skip link and 44px tap targets",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
+        # ★39 OF 60 CALCULATORS WERE UNREACHABLE FROM THEIR OWN FAMILY (2026-09-20, W46330 audit lens,
+        # walked on compressed-air-calculator/). build_calc_pages._siblings returned `sibs[:2]` - the
+        # first two members of the discipline in CALC_DATA order. Positional, not related: 13 Electrical
+        # pages all pointed at wire-sizing + transformer-sizing, 12 Plumbing pages at pump-tdh +
+        # pipe-sizing, 8 HVAC pages at hvac-cooling-load + ventilation-ach. So every member past the
+        # second was linked FROM nothing, and three rows of this same family had already been banked
+        # praising the block as "the discipline chain a designer works in" - it was a slice. Cyclic
+        # neighbours make the graph reciprocal instead. The second defect on the same <ul>: `rel`
+        # defaulted to PILLAR, so 57 of 60 pages listed the pillar twice, same href and same anchor
+        # text. This gate asserts BOTH the graph (0 orphans, 0 repeated pairs) and that the live pages
+        # still agree with the generator - the live tools/*/index.html are what a reader gets, while
+        # the builder writes to seo_assets/calc_pages_staging, which is Ian's promotion gate.
+        "id":      "calc-related-links",
+        "script":  "tools/fix_calc_related_links.py",
+        "args":    ["--check"],
+        "label":   "every calculator is linked from a sibling block (0 orphans, 0 repeated pairs) and no Related list prints one destination twice",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
+        # ★45 OF 54 LEARN ARTICLES RENDERED THEIR TABLE-OF-CONTENTS LABEL UNSTYLED (2026-09-20,
+        # W46101 audit lens, walked on connecting-workhive-to-sap-maximo-cmms/). The walk reported a
+        # NINE-step type ramp where the calculator family has seven, and the extra step was a single
+        # 16px node among 200 - the browser's UA default, which is what an element gets when no rule
+        # matches it. The label markup is <h4 aria-level="2"> on 49 articles and <h2> on 5; the rule
+        # that dresses it is `.toc h2` on 50 and `.toc h4` on 4. Crossed, 45 pages had a selector
+        # that matched nothing: 16px, weight 400, margin 0, no uppercase, against 15.2px list items
+        # directly beneath it - a heading indistinguishable from the list it introduces.
+        # ★THE COMMENT ON THE FIVE CORRECT PAGES PREDICTED THIS EXACTLY: "the selector had to move
+        # with the tag, or the swap would have silently rendered a full-size heading." The SELECTOR
+        # move reached ~50 pages and the MARKUP move reached 5 - one half of a paired write landed.
+        # The root was that styling was COUPLED TO THE TAG, so the selector is now `.toc h2, .toc h4`
+        # and cannot come apart again; tracking went to 0.04em per DESIGN.md, without which 45
+        # newly-rendering uppercase labels would have raised the anti-slop ratchet's wide-tracking
+        # count. Two legs: no article renders the label unstyled, and every rule matches both tags.
+        "id":      "learn-toc-label",
+        "script":  "tools/fix_learn_toc_label.py",
+        "args":    ["--check"],
+        "label":   "every learn article's table-of-contents label is actually styled (selector matches both h2 and h4) and tracks at 0.04em",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
+        # ★A CALLOUT BOX THAT IS NOT A BOX (2026-09-20, W46113 audit lens, walked on
+        # fmea-worked-example-philippine-bottling-line/). Found by the same fingerprint as
+        # learn-toc-label one row earlier: a UA-DEFAULT VALUE IN A MEASURED DISTRIBUTION. The walk
+        # reported 16px nodes on a page whose body copy is 16.8px, and 16px is what an element gets
+        # when nothing sets its size. `<div class="callout">` carries an article's cross-reference
+        # or aside; 42 articles define `.callout` + `.callout strong`, and FIVE use the class while
+        # defining nothing for it - so 8 elements rendered with no background, no border, no radius,
+        # no padding and at 16px, which is SMALLER than the body copy they interrupt. An aside that
+        # reads as slightly-shrunken body text is worse than no aside. All five are on the older
+        # chrome generation, which is where the rule was dropped rather than five separate slips.
+        # ★THE TAG AND THE ACCESSIBILITY LEVEL DISAGREED ON 33 HEADINGS (2026-09-20, W46129).
+        # `impeccable detect` reported `skipped-heading: <h2> ... followed by <h4> (missing h3)` on
+        # 27 learn articles while the walk, which honours aria-level, measured headingSkips ZERO on
+        # the same pages. The ARIA level was right and the TAG was wrong - fix_learn_heading_order.py
+        # chose aria-level precisely to avoid breaking styling keyed to the tag, which was correct
+        # then and stopped being necessary once the selectors matched both tags. Leaving it meant
+        # re-refuting a false finding on every future walk of all 27.
+        # ★BOTH HALVES, BECAUSE THIS IS THE DEFECT IT CLEANS UP: the TOC label rendered at the
+        # browser default for an unknown stretch precisely because a selector moved and a tag did
+        # not. Every h4-targeting selector in the family was enumerated first - there are exactly
+        # three - and a LIVE probe found the second one: five `.related-group` headings at
+        # 12px/800/cyan that a grep for `.cta-box h4` alone would have silently unstyled.
+        # ★THREE FIX TOOLS WITH WORKING --check, NONE REGISTERED, AND THE SAME 3 PAGES MISSED ALL OF
+        # THEM (2026-09-20, W46153 audit lens, walked on maintenance-metrics-reliability-guide).
+        # The walk reported contrastLow 3 - the first non-zero contrast reading in 70 walked pages -
+        # on breadcrumb text at 4.11:1. tools/fix_breadcrumb_contrast.py had already fixed exactly
+        # this on 95 pages on 2026-09-10 and its own --check said 3 pages were still at alpha 0.45.
+        # tools/fix_learn_chrome.py's --check said the same 3 lacked the tap-target chrome. Both had
+        # run once; neither was ever registered here, so "already fixed" and "never reached" were
+        # indistinguishable for ten days. This file's own notes record the class - 629 gate-shaped
+        # scripts exist and 96 are absent from it; unregistered, unrun and skipped all look green
+        # from outside. All three breadcrumb/chrome tools are registered below so a page cannot
+        # silently fall out of a fix that already exists.
+        # Registered ~W46153 after a census found 43 --check tools absent from this file. Green at
+        # registration; its teeth are `if check and files: return 1`.
+        "id":      "callout-accent-border",
+        "script":  "tools/fix_callout_accent_border.py",
+        "args":    ["--check"],
+        "label":   "no public page gives a rounded callout a thick coloured left edge (DESIGN.md's side-tab don't)",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
+        # Registered ~W46153. A relative script path that works locally and 404s in prod is invisible
+        # until someone loads the deployed page; teeth are `return 1 if (check and changed)`.
+        "id":      "learn-fab-path",
+        "script":  "tools/fix_learn_fab_path.py",
+        "args":    ["--check"],
+        "label":   "the learn articles load the feedback FAB from a path that resolves in production",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
+        # ★THIS ONE WAS RED WHEN THE CENSUS FOUND IT (2026-09-20, ~W46153): 3 files still carried
+        # `'Consolas','Courier New',monospace`, which falls straight to a 1955 typewriter face on
+        # macOS and Linux for every engineering formula on the public funnel. The 3 were the 3
+        # generated pillar pages, the same 3 that missed two other sweeps. Unregistered meant
+        # nobody could tell 'already fixed' from 'never reached'.
+        "id":      "mono-stack-unify",
+        "script":  "tools/fix_mono_stack_unify.py",
+        "args":    ["--check"],
+        "label":   "one monospace stack platform-wide - the one DESIGN.md records - so a formula is not set in Courier New off Windows",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
+        # Registered ~W46153. Teeth are `if check and changed: return 1`.
+        "id":      "public-funnel-kicker-floor",
+        "script":  "tools/fix_public_funnel_kicker_floor.py",
+        "args":    ["--check"],
+        "label":   "no .pill or .cta-eyebrow on the public funnel renders below the 12px type floor",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
+        # Registered ~W46153. Teeth are `return 1 if (check and changed)`.
+        "id":      "sc-label-contrast",
+        "script":  "tools/fix_sc_label_contrast.py",
+        "args":    ["--check"],
+        "label":   ".sc-label text clears its contrast floor",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
+        # ★ALSO RED AT CENSUS TIME (~W46153): 1 pending edit on
+        # learn/ai-quality-and-roi-stage-2-plants. Applied in the same change.
+        "id":      "subpage-a11y",
+        "script":  "tools/fix_subpage_a11y.py",
+        "args":    ["--check"],
+        "label":   "the learn subpages carry their accessibility scaffolding",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "breadcrumb-contrast",
+        "script":  "tools/fix_breadcrumb_contrast.py",
+        "args":    ["--check"],
+        "label":   "no public page renders its breadcrumb at alpha 0.45 (4.13:1, below WCAG AA 4.5)",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
+        # ★AND THE HALF THAT SWEEP COULD NOT SEE, BECAUSE IT LIVES IN A DIFFERENT PROPERTY. Raising
+        # the colour alpha 0.45 -> 0.55 fixed the LINKS (5.47:1). The SPANS carry
+        # `.breadcrumb span { opacity: 0.4 }` on 98 pages, and opacity multiplies the composite
+        # AFTER the colour alpha: 0.55 x 0.4 = 0.22 effective = 1.98:1. In a span sits both the "/"
+        # separator and the trailing CURRENT-PAGE LABEL - the most informative element in the trail
+        # for a search arrival, the exact audience a breadcrumb exists for.
+        # ★THE WALK UNDER-REPORTED IT: its contrast sampler reads an element's own computed colour
+        # and does not compound ancestor opacity, so it said 4.11:1 where the truth was 1.98:1. A
+        # `contrastLow 0` elsewhere in this bank therefore means "no element whose OWN colour is too
+        # faint", not "no faint text". There is no middle setting - 0.55 x 0.82 is already 4.12:1 -
+        # so the opacity is removed and spans inherit the 0.55 the earlier sweep chose.
+        "id":      "breadcrumb-span-opacity",
+        "script":  "tools/fix_breadcrumb_span_opacity.py",
+        "args":    ["--check"],
+        "label":   "no breadcrumb compounds an opacity onto its colour alpha - the separators and the current-page label clear WCAG AA, not just the links",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
+        # ★The shared-chrome fix for the 54 learn articles - bilingual labels plus 44px tap targets
+        # on the standalone header, footer and breadcrumb links (prose links are correctly left
+        # inline per WCAG 2.5.8). It had reached 51 of 54; the 3 it missed are the same 3 that
+        # missed the breadcrumb contrast fix, and their breadcrumb links measured 41x19 and 37x19
+        # live while every sibling measured 44x44.
+        "id":      "learn-shared-chrome",
+        "script":  "tools/fix_learn_chrome.py",
+        "args":    ["--check"],
+        "label":   "all 54 learn articles carry the shared chrome: bilingual labels and 44px standalone header/footer/breadcrumb tap targets",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "hub-skip-link",
+        "script":  "tools/fix_hub_skip_link.py",
+        "args":    ["--check"],
+        "label":   "the learn hub and the site root carry a skip link that targets a real <main> - a keyboard reader can reach the content without tabbing the whole nav",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
+        # ★THE TWO HUB PAGES COULD NOT BE SKIPPED PAST (2026-09-20, W46281 audit lens, walked on
+        # learn/index.html). All 54 learn ARTICLES carry a skip link and <main id="wh-main-content">;
+        # the hub that links to all of them carried NEITHER - measured live: skipLinks [], landmarks
+        # 0, first four tab stops WorkHive / Home / Learn / My Hive, so a keyboard reader lands in
+        # the site nav and tabs through it and the whole category filter row before reaching a guide.
+        # The site ROOT had the other half: a real <main> and no way to jump to it. Same defect
+        # ~W46285 fixed on the 60 calculators, now on the two pages with the most nav to skip past.
+        # ★TWO COMMENT TRAPS ON index.html, BOTH CAUGHT BEFORE EDITING: that file is 377KB with long
+        # comments that quote markup, and the FIRST <body> and FIRST <main> matches are both inside
+        # comments. Anchoring on either would have inserted the skip link into a comment, where it
+        # renders as nothing and measures as done. The sweep blanks comments (preserving offsets)
+        # before locating anchors. Verified by pressing Tab: the skip link is the first tab stop on
+        # both pages, 44px tall, href resolving to exactly one <main>.
+        "id":      "learn-cta-heading",
+        "script":  "tools/fix_learn_cta_heading.py",
+        "args":    ["--check"],
+        "label":   "no learn heading declares aria-level=\"3\" on an h4 - the tag, the accessibility level and the styling selector all agree",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "learn-callout-rule",
+        "script":  "tools/fix_learn_callout_rule.py",
+        "args":    ["--check"],
+        "label":   "every learn article that uses .callout also styles it - no callout renders as plain unboxed text",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
+        # ★BULLET LISTS RENDERED SMALLER THAN THE PARAGRAPHS AROUND THEM ON 19 ARTICLES (2026-09-20,
+        # W46113). Third find in three rows from the same fingerprint. 35 articles carry a bare
+        # `.prose-wh { ... font-size: 1.05rem ... }`; 19 carry only the descendant rules, so
+        # paragraphs are right everywhere (`.prose-wh p` sizes itself) and every unsized element
+        # inside the article body falls to the root 16px - most visibly each <li>, which on a how-to
+        # article is a large share of the reading surface. Measured live: paragraphs 16.8px, list
+        # items 16px on the same page. ★THE FIRST READING WAS WRONG AND CHECKING THE CLEAN PAGES IS
+        # WHAT CAUGHT IT: "no article defines a list font-size" is true of all 54 and is NOT the
+        # mechanism - the 35 correct ones never needed one because their lists inherit from the
+        # container. The fix was simulated in the live DOM first: list items 16px -> 16.8px with
+        # proportional line-height, body paragraphs byte-identical, colour unchanged.
+        "id":      "learn-prose-base-size",
+        "script":  "tools/fix_learn_prose_base_size.py",
+        "args":    ["--check"],
+        "label":   "every learn article sets a base font-size on .prose-wh, so bullet lists read at body size rather than the root default",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
+        # ★THE ANTI-SLOP RATCHET (2026-09-15): `impeccable detect --json` over every served page + the shared chrome,
+        # per-(file, antipattern) counts against design_detector_baseline.json (1,143 primary findings on the day it
+        # was written). Any increase fails; a fix lowers the floor with --rebase. The number can only fall.
+        "id":      "design-detector-ratchet",
+        "script":  "tools/prove_design_detector_ratchet.py",
+        "args":    ["--check"],
+        "label":   "anti-slop ratchet: the Impeccable detector's primary-finding counts per (file, antipattern) never rise above design_detector_baseline.json; fixes lower the floor",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
+        # ★THE RULE THAT REACHES NOTHING IT RENDERS (2026-09-18). validate_css_class_existence already proves the
+        # other direction - every class the JS adds with classList.add is defined somewhere in CSS, 792 calls, 0
+        # missing. Nothing proved that a rule the stylesheet WRITES ever reaches markup, and that is where this
+        # wave kept finding shipped defects a lens, a detector and a release commit had all walked past:
+        # report-sender declared .chip-check{opacity:0} and .chip.selected .chip-check{opacity:1} while the markup
+        # emitted class="ic ic-check", so EVERY UNSELECTED CHIP PAINTED A CHECKMARK on a page whose whole job is
+        # choosing (W46027); marketplace-seller declared .empty-state h3 and every empty state emitted an <h2>, so
+        # those headings rendered at the UA's 24px, louder than the section above them and chosen by nobody
+        # (W45964). The test needs no browser and cannot be fooled by markup built at runtime: markup here is
+        # written either in the HTML or in a JS template string IN THE SAME FILE, so a selector token that appears
+        # ONLY inside that file's <style> blocks cannot match anything the file renders. First run: 224 tokens
+        # across 37 pages, and five more dead heading rules besides the one that started it.
+        "id":      "css-rules-reach-markup",
+        "script":  "tools/prove_css_rules_reach_markup.py",
+        "args":    ["--check"],
+        "label":   "a page's CSS rules must be able to reach its own markup: no page gains a class or heading-tag selector that appears only inside its <style> blocks",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
+        # ★THE 12px TYPE FLOOR, HELD RATHER THAN RE-SWEPT (2026-09-16). A census of the detector baseline found
+        # `undersized-ui-text` + `tiny-text` to be the largest REAL antipattern class on the platform, once the
+        # two artefact classes were set aside (logbook's 92 and pm-scheduler's 30 low-contrast findings are
+        # `@media print`'s #111 read against screen navy, both pinned disproven). 752 declarations were lifted
+        # across 239 files - including index.html's four signed-in section headings at 9.92px and its language
+        # switch at 10.56px, and one public-funnel `.pill` rule copied byte-identically into 95 search-arrival
+        # pages at 10.4px. The sweep took the ratchet 943 -> 671.
+        #
+        # This gate is what stops it coming back one declaration at a time. It is the SWEEPER in --check mode,
+        # so the gate and the fix can never disagree about what the floor is - and it carries the same
+        # `@media print` exemption, because a printed page is a different medium and lifting its density would
+        # be the same category error as the 122 findings above, made in the other direction.
+        "id":      "type-floor",
+        "script":  "tools/fix_type_floor_sweep.py",
+        "args":    ["--check"],
+        "label":   "12px type floor: no served page declares functional text below 11.5px (font-size px/rem or a Tailwind arbitrary value); @media print is exempt and the exemption is reported",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
+        # ★A STAGING COPY OLDER THAN THE LIVE PAGE IT WOULD OVERWRITE (2026-09-16). build_calc_pages.py
+        # writes to seo_assets/calc_pages_staging/ and says "nothing ships until Ian reviews + moves
+        # it". Measured: all 60 staged pages have a served twin, NONE is byte-identical, NONE is new,
+        # and all 60 are OLDER than the live page - staged 2026-09-11, live maintained continuously
+        # since through the i18n pass, the contrast and tap-target fixes, the 12px type floor, the
+        # monospace unification and the callout-border correction.
+        #
+        # So "move staging to the site root" reads like shipping new work and would in fact REVERT five
+        # days of fixes across 60 public pages, silently, because a file copy leaves no diff to review.
+        # That is the loaded-trap shape: a path that looks like the normal next step and is destructive
+        # because the world moved under it while it sat there.
+        #
+        # The gate promotes nothing and deletes nothing - promotion is Ian's gate. It refuses to let
+        # the trap stay invisible, and names both ways to clear it (refresh staging from source, or
+        # delete the stale copies now their content has landed).
+        # ★A CONTRACT ENUM IS A GATE ON THE SAVE PATH, NOT DOCUMENTATION (2026-09-16).
+        # wh-capture-validate.js fetches canonical_capture_contracts.contract_schema and validates
+        # CLIENT-SIDE, so a value the enum omits cannot be saved at all. This has now blocked real
+        # saves twice on two fields of ONE contract: schedule_item_v1.category in June (migration
+        # 20260609000004: "every real user Schedule Item save with a category hit
+        # [capture-violation] and was blocked") and schedule_item_v1.item_status today, where 139 of
+        # 231 live rows hold `planned` and the enum does not - latent for months because the page
+        # silently rewrote the value, and a hard block the moment a fix made the page honest.
+        #
+        # Both were found by a person operating the product and watching a row fail to appear.
+        # Nothing compared the enum to the column, which is one query. This does.
+        #
+        # It reports SKIPPED and exits non-zero when the database is unreachable, rather than PASS:
+        # "I could not check" must never read as "I checked and it was fine".
+        "id":      "capture-enums-cover-the-data",
+        "script":  "tools/prove_capture_enums_cover_the_data.py",
+        "args":    [],
+        "label":   "every capture contract's enum covers every value its column actually holds - on a capture some page actually CALLS, a value the enum omits is a row that cannot be re-saved; a contract with no caller is reported LATENT, not failed",
+        "group":   "Platform",
+        "skip_if_fast": True,
+    },
+    {
+        # A DATE THAT IS TYPED GOES STALE SILENTLY. `TODAY = "2026-09-05"` sat in
+        # advance_trajectory.py for ELEVEN DAYS, stamping the `[date]` prefix of every basis entry
+        # and `reg["updated"]` - which the generated roadmap header prints - so the registry
+        # announced an update date on a day it had been rewritten thousands of times since. It hid
+        # because the sentence beside the prefix carries the receipt's own correct date, so one
+        # string was right and wrong at once. This gate's FIRST run found a second copy of the same
+        # constant in repoint_p_row.py, which is why it is a gate and not a one-line fix.
+        "id":      "no-stale-typed-dates",
+        "script":  "tools/prove_no_stale_typed_dates.py",
+        "args":    ["--check"],
+        "label":   "no tool hard-codes a constant that NAMES the present (TODAY/NOW/AS_OF) and holds a date more than 7 days old - a named historical anchor (BASELINE_DATE, CUTOFF) is deliberately not matched",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "calc-staging-not-stale",
+        "script":  "tools/prove_calc_staging_not_stale.py",
+        "args":    [],
+        "label":   "calculator staging is not a trap: no staged page would REINTRODUCE a construct the live page has already had fixed (asked of the sweep tools, not of the timestamps)",
+        "group":   "Platform",
+        "skip_if_fast": True,
+    },
+    {
+        # ★A TRANSLATION THAT CAN NEVER TRANSLATE (design lens critique on alert-hub, 2026-09-15). _t(en, fil)
+        # falls back to the English arm when the Filipino one is empty - so a call whose two arms are BYTE
+        # IDENTICAL is wrapped, passes every "is it translated?" grep, and renders English to a Filipino reader
+        # forever. I wrote one myself in the copy lens two hours before Impeccable's Assessment A caught it.
+        # Forward-only, because some identical pairs are honest (a product name, a loan word the floor says).
+        "id":      "bilingual-t-arms",
+        "script":  "tools/prove_bilingual_t_arms.py",
+        "args":    ["--check"],
+        "label":   "bilingual ratchet: no NEW _t(en, fil) call whose two arms are identical (a wrapped string that can never translate); floor in bilingual_t_arms_baseline.json",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
+        # ★TEETH for the W41399 offline-banner fix (ledger C12, 2026-09-14). The banner (fixed top:0 z-9999) covered
+        # a page's OWN fixed top nav's Back link: v386 pushed the in-flow body down, but <nav class="fixed top-0">
+        # (hive.html:428 + every page on the shared Tailwind header) is position:fixed and a body margin cannot move
+        # it. offline-banner.js now drops nav.fixed/header.fixed by --wh-offline-banner-h while the banner is open.
+        # hive.html crashes this host's headless renderer at load, so the real page cannot verify it here; this
+        # synthetic page proves the MECHANISM with a control: nav at top 0 + Back reachable before offline; after
+        # offline the nav's top equals the banner's height and the Back link is still the element at its own centre.
+        "id":      "offline-banner-fixed-nav",
+        "script":  "tools/prove_offline_banner_fixed_nav.mjs",
+        "args":    [],
+        "label":   "offline-banner teeth: while offline, a page's fixed top nav drops below the banner and its Back link stays reachable at its own centre (W41399 / C12; the shared-header class C10's body-margin fix could not move)",
+        "group":   "Platform",
+        "skip_if_fast": True,
+    },
+    {
+        # ★TEETH for the C13 consent-card fix (wave-4 narrow-320 nav-hub walk, 2026-09-14). index.html's analytics
+        # consent (#wh-consent) is a fixed bottom card that at 320 CSS px grew to ~212px and sat ON the sign-in
+        # wall's "Forgot your password?", "Create one for free", the SSO button and the hub FAB band - so every 320
+        # nav-hub walk failed at the fab and a new person on a narrow phone could not recover a password or open the
+        # nav. wh-consent.js now reflows the card INTO <main> (static) below 360px. This proves it on a synthetic page
+        # with the card's real inline styles: at 320 the card is static in main and every control it covered is the
+        # element at its own centre; forcing the old fixed card back covers them again (negative control, teeth);
+        # at 390 the designed fixed bottom card is untouched.
+        "id":      "consent-narrow-reflow",
+        "script":  "tools/prove_consent_narrow_reflow.mjs",
+        "args":    [],
+        "label":   "consent-card teeth: at 320 the analytics consent reflows into the page and covers no sign-in control or the hub FAB; the old fixed card provably did; at 390 it stays the designed bottom card (C13)",
+        "group":   "Platform",
+        "skip_if_fast": True,
+    },
+    {
+        # ★C15 (wave-4 narrow-320 walk, 2026-09-14): utils.js's shared transport notice (position:fixed, z 2147483000) sat on
+        # the front door's "Enterprise SSO" button whenever a read failed, and offered nothing but Retry/Reload - a person lost a
+        # sign-in control until the read succeeded. Loads the REAL utils.js on a synthetic 320 page served from a real origin,
+        # places the notice over a control (it covers it - the defect, reproduced as the negative control), then proves the 44px
+        # Dismiss (.wh-notice-close) removes it and the control is the element at its own centre again.
+        "id":      "notice-dismissible",
+        "script":  "tools/prove_notice_dismissible.mjs",
+        "args":    [],
+        "label":   "transport-notice teeth: _whShowNotice paints Retry AND a 44px Dismiss; placed over a control it covers it; Dismiss clears it and the control is reachable again (C15)",
+        "group":   "Platform",
+        "skip_if_fast": True,
+    },
+    {
+        # ★THE AXES A PERSON ACTUALLY USES (Wave 4, 2026-09-14): signed OUT (the public pages' real reader), at
+        # narrow-320 (46 of 60 calculators had never been walked there), in Filipino (108 public pages had no Filipino
+        # row; Filipino expands and spills), WITH the interaction sweep (the states a journey passes through: sheet,
+        # menu, modal, filter, hub, companion, focused input). The same record as `phone-fit`, on the axis the sloppiness
+        # lives in. The public pages only - a signed-out walk of an app page measures the sign-in wall, not the page.
+        "id":      "phone-fit-320-fil",
+        "script":  "tools/prove_phone_fit.mjs",
+        "args":    ["--width", "320", "--anon", "--lang", "fil", "--sweep", "--pages",
+                    "index.html,learn/index.html,tools/oee-calculator/index.html,tools/mtbf-calculator/index.html,"
+                    "learn/what-is-oee-how-to-calculate/index.html,about/index.html,feedback/index.html,marketplace.html,public-feed.html,status.html"],
+        "label":   "Phone fit at 320 wide, signed out, Filipino, with the interaction sweep: occlusion + element overflow + the P-M lenses on the public funnel (10 pages)",
+        "group":   "Platform",
+        "skip_if_fast": True,
+    },
+    {
         # Phone fit (P-M wave, Ian 2026-09-06: "text wrapped on their container in inventory; the hive board's More overflows
         # left on a phone"): signed in at 390x844, every root/tools page must FIT - no horizontal overflow, no control label
         # wrapped onto a second line box, no text spilling past its card, and every more/kebab menu, once tapped, inside the
@@ -12498,7 +13535,27 @@ def main():
     results    = []
     group_seen = set()
 
+    if ONLY:
+        # An id that matches nothing must FAIL loudly. Silently running zero checks
+        # and printing "0 failed" is the same lie the unimplemented flag told.
+        known = {v["id"] for v in VALIDATORS}
+        unknown = [i for i in ONLY if i not in known]
+        if unknown:
+            print(f"\n  {red('UNKNOWN CHECK ID')}: {', '.join(unknown)}")
+            for u in unknown:
+                near = sorted(k for k in known if u.lower() in k.lower()
+                              or k.lower() in u.lower())[:6]
+                if near:
+                    print(f"    {u!r} - did you mean: {', '.join(near)}")
+            print(f"\n  {len(known)} checks are registered. Nothing was run.\n")
+            return 2
+        print(f"\n  {cyan('NARROWED')}  --only {', '.join(ONLY)} "
+              f"({len(ONLY)} of {len(VALIDATORS)} checks)")
+        print(f"  baseline untouched; health -> {HEALTH_FILE}")
+
     for v in VALIDATORS:
+        if ONLY and v["id"] not in ONLY:
+            continue
         if FAST and v.get("skip_if_fast"):
             results.append((v, {"status": "SKIP", "output": "--fast", "elapsed": 0}))
             continue
@@ -12631,8 +13688,12 @@ def main():
         json.dump(health, f, indent=2)
     print(f"  Saved {HEALTH_FILE}")
 
-    # Save baseline only when everything passes
-    if fail_count == 0 and not regressions:
+    # Save baseline only when everything passes — and NEVER from a narrowed run,
+    # whose `results` holds only the checks --only selected (see the note at the top
+    # of this file: a one-check run would rewrite ~600 entries down to 1).
+    if ONLY:
+        print(f"  baseline NOT saved — narrowed run (--only {', '.join(ONLY)})\n")
+    elif fail_count == 0 and not regressions:
         save_baseline(results, gate)
         print(f"  Saved {BASELINE_FILE} (new clean baseline)\n")
 

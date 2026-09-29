@@ -135,7 +135,9 @@
       .wh-fb-panel {
         position: fixed;
         top: 0; right: 0; bottom: 0;
-        width: 380px; max-width: 100vw;
+        width: 380px; max-width: 100%;   /* not 100vw: vw counts a classic scrollbar, right:0 does not, so at <=380px the panel hung
+                                           6px past the left edge (-6..384 at 390, measured by the W41366/W41367/W41368/W46599 nav-hub
+                                           walks through the Playwright MCP, ledger C29). 100% of a fixed box is the viewport minus the bar. */
         background: linear-gradient(180deg, var(--wh-navy-mid, #1F2E45), var(--wh-navy, #162032));
         color: var(--wh-cloud, #F4F6FA);
         font-family: var(--wh-font, 'Poppins', system-ui, sans-serif);
@@ -460,7 +462,14 @@
     panel.classList.remove('open');
     panel.setAttribute('aria-hidden', 'true');
     setTimeout(() => resetForm(), 250);
-    document.getElementById('wh-feedback-fab')?.focus();
+    // ★THE RETURN TARGET WAS HIDDEN (Wave 4 walk W41420, 2026-09-14): this already tried to give focus back
+    // to the corner FAB, but that FAB is hidden whenever the nav-hub hosts the feedback button - so
+    // .focus() on it did nothing and the active element fell to <body>. Return to the FAB when it is shown,
+    // else to the nav-hub fab the person actually came from.
+    const corner = document.getElementById('wh-feedback-fab');
+    const target = (corner && corner.offsetParent !== null) ? corner : document.getElementById('wh-hub-fab');
+    // the hub fab is visibility:hidden until the panel's close transition ends - focus it when it can take focus
+    if (target) { try { (window.whFocusWhenVisible || function (el) { el.focus(); })(target); } catch (_) { /* empty-catch-allow: focus is best-effort */ } }
   }
 
   function selectKind(kindId) {

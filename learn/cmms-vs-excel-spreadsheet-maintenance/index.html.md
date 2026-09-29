@@ -4,7 +4,7 @@
 
 Source: https://workhiveph.com/learn/cmms-vs-excel-spreadsheet-maintenance/
 
-By WorkHive Editorial Team · Updated 2026-08-05 · 6 min read
+By WorkHive Editorial Team · Published 2026-08-05 · 6 min read
 
 A spreadsheet is genuinely fine when **one person** maintains **under ~50 assets** and nobody needs history older than the current year. Switch to a CMMS when any of four things is true: **more than one person edits it**, **you need PM due-dates to trigger** rather than be remembered, **you need history that survives staff turnover**, or **an auditor will ask for dated records**. The deciding factor is rarely features: it is that a spreadsheet has one owner and no memory, and preventive maintenance run on a real schedule runs **12-18% cheaper** than the reactive breakdowns it prevents.
 
@@ -72,9 +72,9 @@ Lost history and missed PMs. The US Department of Energy's O&M Best Practices Gu
 ## Sources
 
 - [US Department of Energy / PNNL](https://www.energy.gov/femp/articles/operations-and-maintenance-best-practices-guide-achieving-operational-efficiency), **Operations & Maintenance Best Practices Guide, Release 3.0** (preventive vs reactive cost savings: 12-18%; predictive adds 8-12%).
-- SMRP, **Best Practices Metric 5.4 (PM Compliance)**.
+- [SMRP](https://smrp.org/), **Best Practices Metric 2.1.1 (PM Compliance)** — target ≥90% schedule compliance.
 - Related: [Start digital maintenance](https://workhiveph.com/learn/start-digital-maintenance-guide/) · [Best free CMMS options](https://workhiveph.com/learn/best-free-cmms-software-philippines/).
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: ba1288eb2028c659 -->
+<!-- md-twin source-sha: d2950a68e7dcef7d -->

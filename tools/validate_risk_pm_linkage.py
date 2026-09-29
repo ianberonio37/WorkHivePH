@@ -35,7 +35,17 @@ TAG_KEY_RE = re.compile(r"pmByName\[_pmNorm\([^\]]*tag_id[^\]]*\)\]\s*=")
 LOOKUP_RE = re.compile(r"pmByName\[_pmNorm\(\s*machine\s*\)\]")
 # T19 S2 severity-voice: asset-hub's verdict must LEAD with active critical/high risk (one
 # narrative with ops-home's 'CRITICAL RISK - inspect now', never 'mostly healthy' over a 91% risk).
-VERDICT_RE = re.compile(r"_riskHot > 0[\s\S]{0,300}?critical or high predicted risk")
+# ★THE SEVERITY WORDS MAY BE DERIVED, AND HERE THAT IS MORE HONEST (2026-09-28). This demanded the
+# literal "critical or high predicted risk". asset-hub now builds the words from the bands that
+# ACTUALLY have rows - `['critical','high'].filter(b => _riskBands.includes(b)).join(' or ')` - because,
+# as its own comment records, the hive had ZERO critical assets and the fixed sentence was naming an
+# empty band. The lock is that the verdict LEADS on active critical/high risk, not that it recites one
+# sentence, so the derived form is accepted - but the band list stays pinned to ['critical','high'], so
+# softening the population (adding 'medium', or dropping to a gentler word) still reddens.
+# Kin of feedback_an_oracles_vocabulary_is_part_of_the_oracle.
+VERDICT_RE = re.compile(
+    r"_riskHot > 0[\s\S]{0,400}?(?:critical or high predicted risk"
+    r"|\[\s*'critical'\s*,\s*'high'\s*\][\s\S]{0,250}?\$\{_bandsEn\}\s*predicted risk)")
 
 
 def _psql(sql: str):

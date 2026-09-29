@@ -190,6 +190,19 @@ def check_timeout_in_loop(pages):
             window_after = "\n".join(lines[i + 1:min(len(lines), i + 3)])
             if re.search(r"^\s*return\b|^\s*break\b", window_after, re.MULTILINE):
                 continue
+            # ★A LITERAL ARRAY IS A FIXED SCHEDULE, NOT A STORM (2026-09-28). The hazard named above is
+            # "N timers simultaneously - one per iteration", where N is the size of some DATA. When the
+            # loop iterates an array LITERAL the count is a constant the author wrote down, and both
+            # live cases are exactly that, each with its own cleanup:
+            #     utils.js       [500, 1500, 3000, 6000, 12500].forEach(ms => setTimeout(...))   5 timers,
+            #                    cleared by the notice's own 30s cleanup
+            #     assistant.html [[8000, ...], [20000, ...], [40000, ...]].forEach(...)          3 timers,
+            #                    every one pushed onto _typingTimers and cleared with the bubble
+            # A data-driven `rows.forEach(r => setTimeout(...))` has no literal to match and still fails,
+            # which is what the added self-test case pins.
+            window_back_wide = "\n".join(lines[max(0, i - 6):i + 1])
+            if re.search(r"\[\s*(?:\[|[0-9'\"])[\s\S]{0,400}?\]\s*\.\s*(?:forEach|map)\s*\(", window_back_wide):
+                continue
             fn = "setInterval" if "setInterval" in line else "setTimeout"
             issues.append({"check": "timeout_in_loop", "page": page, "line": i + 1,
                            "reason": f"{page}:{i+1} {fn}() inside a loop — creates N timers simultaneously: `{line.strip()[:70]}`"})

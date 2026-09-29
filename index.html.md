@@ -39,11 +39,11 @@ Free Forever · worker tier
 
 PDPA Compliant · data isolated per hive
 
-40-60%
+35-50%
 
 Less Unplanned Downtime
 
-SMRP world-class benchmarks
+Mature programmes; 15-25% by month 18
 
 4 Gaps
 
@@ -57,7 +57,7 @@ Operational Readiness Layer
 
 We don't replace your ERP or CMMS. We make digital tools actually work in your plant.
 
-No predictions on insufficient data. No rigid workflows. No enterprise infrastructure assumed. Free at the worker tier forever.
+It will not predict from data it does not have yet, it does not make you work its way, and it runs on the phone already in your pocket rather than on infrastructure you would have to buy. Free at the worker tier forever.
 
 Every hive grows in 4 stages · Every stage unlocks tools
 
@@ -113,7 +113,7 @@ See All Tools
 - [PM Scheduler: Replace spreadsheet PM trackers. Add assets, build PM scope by category, set Monthly/Quarterly/Semi-Annual/Yearly frequencies, track every due date.](https://workhiveph.com/pm-scheduler.html)
 - [Spare-Parts Inventory: Replace Excel parts lists. Stock ledger, reorder alerts, supervisor-approved restocks, transaction audit, running stock balance.](https://workhiveph.com/inventory.html)
 - [Maintenance Day Planner: DILO / WILO / MILO / YILO multi-resolution personal scheduler. Pulls from your logbook entries and PM schedule.](https://workhiveph.com/dayplanner.html)
-- [Voice Journal: Speak in any of 10 Philippine languages (Tagalog, Cebuano, Ilocano, Hiligaynon, Bikol, Waray, Kapampangan, Pangasinan). Semantic recall + private rolling memory.](https://workhiveph.com/voice-journal.html)
+- [Voice Journal: Speak in any of eight Philippine languages (Tagalog, Cebuano, Ilocano, Hiligaynon, Bikol, Waray, Kapampangan, Pangasinan). Semantic recall + private rolling memory.](https://workhiveph.com/voice-journal.html)
 - [Resume / CV Builder: Turn your Skill Matrix, badges and logbook into a professional, ATS-friendly resume. Snap a photo or upload a PDF/Word/Excel from your phone. AI extracts the details into an editable checklist you control. Free for every worker.](https://workhiveph.com/resume.html)
 - [AI Work Assistant: Floating helper on every page. Knows your hive, your role, your context. Routes through our AI service with memory + private-information redaction. Available across all 4 stages.](https://workhiveph.com/assistant.html)
 - [Skill Matrix: Discipline-by-level matrix across 5 industrial disciplines. Timed assessments with cooldown logic. Badges gate PM eligibility and project task assignment.](https://workhiveph.com/skillmatrix.html)
@@ -141,15 +141,13 @@ See All Tools
 - [Seller Dashboard: Become a supplier on the platform. Seller dashboard, listings, inquiries, watchlist, analytics, multi-tier verification badges, public seller profile.](https://workhiveph.com/marketplace-seller.html)
 - [AI Quality + ROI: WorkHive AI Quality + ROI dashboard. Honest visibility into AI cost, quality, and predicted savings, gated to Stair 2+ so the numbers only appear when the hive has earned the right to trust them.](https://workhiveph.com/ai-quality.html)
 
-In one paragraph
-
 ## What is WorkHive?
 
 WorkHive is a **free industrial intelligence platform** for every Filipino industrial worker, from field to management: field technicians and operators, engineers, supervisors and planners, plant and operations managers, suppliers, contractors, new graduates entering the labor market, and existing workers expanding their capabilities with AI. It bundles a digital logbook, preventive maintenance scheduler, spare-parts inventory, skill matrix, engineering design calculators, and an AI work assistant in one browser-based hive.
 
 Free · Philippines-first · Works offline · Mobile and desktop
 
-Designed for Philippine Industry
+Designed for Philippine industry
 
 Manufacturing
 
@@ -162,8 +160,6 @@ Electronics
 Facilities & BMS
 
 Petrochemicals
-
-How the hive works
 
 ## Four gaps.
 
@@ -178,9 +174,9 @@ The gap: Departments run in isolation and failures strike without warning. An un
 
 Every job pre-loaded with the right parts, procedures, and the right person. Planned replaces reactive.
 
-40-60%
+35-50%
 
-Less Unplanned Downtime Costs
+Less Unplanned Downtime
 
 4-8x
 
@@ -234,8 +230,6 @@ Faster Time-to-Source Specialists
 
 Services, Parts, Training, Jobs
 
-The hive in action
-
 ## The day after
 
 The gap is not talent or ambition. It is systems. WorkHive gives capable Filipino workers the infrastructure they deserve.
@@ -252,11 +246,11 @@ Expert retires. ₱800K to ₱2.4M in knowledge walks out the door. Start from s
 
 Every insight captured before they leave. Organizational memory compounds, forever.
 
-40-60%
+35-50%
 
-Less Downtime
+Less Unplanned Downtime
 
-Reduction in unplanned downtime costs through predictive maintenance
+What mature predictive programmes reach. Most plants see 15-25% in their first 18 months.
 
 60-80%
 
@@ -275,8 +269,6 @@ Improvement in maintenance labor efficiency through AI-matched assignments
 Faster Sourcing
 
 Average reduction in time-to-source for specialized maintenance services
-
-Find your role
 
 ## Every worker
 
@@ -341,7 +333,7 @@ Yes. WorkHive is mobile-first and installable as a PWA on Android and iPhone. Th
 
 ### What languages does WorkHive support?
 
-English by default, with Filipino (Tagalog) support in the AI work assistant. Workers can ask questions in either language and receive responses appropriate to their role and stage. The Voice Journal additionally understands 10 Philippine languages, including Cebuano, Hiligaynon, and Ilocano.
+English by default, with Filipino (Tagalog) support in the AI work assistant. Workers can ask questions in either language and receive responses appropriate to their role and stage. The Voice Journal additionally understands eight Philippine languages, including Cebuano, Hiligaynon, and Ilocano.
 
 ### How do I sign up?
 
@@ -367,8 +359,6 @@ Expect 2 weeks for first signal, 90 days for measurable change, 12 months for co
 
 Yes. WorkHive targets the realistic Philippine plant-floor device: a 5-year-old Android phone with 3G data and a cracked screen, used with gloves. The app installs as a PWA in under 5 MB, the logbook works offline with IndexedDB queueing, touch targets are sized for gloved hands, the interface still loads on Chrome 90+. We test against the slowest devices on purpose because that is the real audience.
 
-Free guides
-
 ## Practical writing for the Philippine plant floor
 
 CATALOG:guide_count54/CATALOG:guide_count in-depth guides covering OEE, MTBF, PM checklists, skill matrix, shift handover, AI assistants, CMMS integrations, and more. Every guide is tool-aligned with WorkHive and free to read.
@@ -384,6 +374,13 @@ What is OEE and how do I calculate it?
 10 min · worked PH example · 6 FAQs](https://workhiveph.com/learn/what-is-oee-how-to-calculate/)
 
 [See all CATALOG:guide_count54/CATALOG:guide_count guides](https://workhiveph.com/learn/)
+
+SAME MARK, SAME TREATMENT (2026-09-17). This carried a bare zero-offset amber halo at 0.35 - a
+ glow with no shadow under it, so the mark emitted light instead of sitting in it - while the hero
+ copy of the same logo glowed a different amount again. Both now read the same: a real drop shadow
+ that lifts the mark off the navy, plus a quarter-strength amber that reads as the band's light
+ catching it. Written inline rather than by adding .logo-glow-img, because that class also carries
+ the 7s float and a height: 118px !important mobile override that would resize this one.
 
 ## Join the hive.
 
@@ -414,7 +411,7 @@ Predictive
 04
 Leader
 
-Get Early Access: It's Free
+Join the Hive - It's Free
 
 T60 (2026-08-26): this read "Signed in as <name>" and the ONLY condition that shows it
  is `session === null` - a name on this device with no auth session. So the one person
@@ -440,4 +437,4 @@ Secure account →
 Sign In
 Sign Up
 
-<!-- md-twin source-sha: b1381854aebf4a5f -->
+<!-- md-twin source-sha: 2a012e026f5f41c5 -->

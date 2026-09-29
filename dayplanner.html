@@ -49,7 +49,17 @@
     .app-layout { display: flex; height: 100vh; overflow: hidden; position: relative; z-index: 1; }
     .sidebar { width: 280px; min-width: 280px; background: linear-gradient(180deg, rgba(31,46,69,0.95) 0%, rgba(22,32,50,0.98) 100%); border-right: 1px solid rgba(255,255,255,0.07); display: flex; flex-direction: column; overflow: hidden; transition: width 0.3s ease; }
     .sidebar.collapsed { width: 48px; min-width: 48px; }
-    .main-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+    /* ★THE CALENDAR HAD 4px AND NOTHING SAID SO (design lens critique, W45908 Assessment A,
+       2026-09-15). This was `overflow: hidden`, and the calendar below was `flex:1; overflow:auto` -
+       so the grid received whatever the summary band left, a flex scroll container's automatic minimum
+       resolves to 0, and the band's own reserved minimums sum to ~796px of an 800px laptop viewport.
+       The result was a day planner rendering no calendar at all on a standard 1280x800 or 1366x768
+       screen, silently, while the same build showed all 24 hours on a phone.
+       The column now scrolls and the calendar keeps its natural height - which is exactly what the
+       <=767px unlock below already does, so the two layouts stop disagreeing. The floor on the
+       calendar is belt-and-braces: even when the band grows again, the grid cannot be squeezed to
+       nothing, it pushes the column into scroll instead. */
+    .main-area { flex: 1; display: flex; flex-direction: column; overflow-y: auto; overflow-x: hidden; }
 
     /* Mobile scroll fix (live prod journey 2026-07-18): the desktop shell locks .app-layout
        to 100vh + overflow:hidden and scrolls .calendar-wrap internally. On a short phone
@@ -72,25 +82,39 @@
       .sidebar       { width: 100%; min-width: 0; border-right: none;
                        border-bottom: 1px solid rgba(255,255,255,0.07); }
       .main-area     { overflow: visible; min-width: 0; }
-      .calendar-wrap { flex: none; overflow: visible; }
+      /* .calendar-wrap is `flex:none; overflow:visible` at EVERY width now (see the base rule) -
+         the mobile unlock no longer has to special-case it. */
     }
 
     /* Header */
-    .top-bar { background: linear-gradient(135deg, rgba(31,46,69,0.95) 0%, rgba(22,32,50,0.98) 100%); border-bottom: 1px solid rgba(255,255,255,0.07); padding: 0.875rem 1.5rem; display: flex; align-items: center; gap: 1rem; flex-shrink: 0; flex-wrap: wrap; }
+    .top-bar { background: linear-gradient(135deg, rgba(31,46,69,0.95) 0%, rgba(22,32,50,0.98) 100%); border-bottom: 1px solid rgba(255,255,255,0.07); padding: 0.75rem 1.5rem; display: flex; align-items: center; gap: 1rem; flex-shrink: 0; flex-wrap: wrap; }   /* 14 -> 12px (craft, 2026-09-15) */
 
     /* View tabs */
     .view-tabs { display: flex; gap: 0.25rem; background: rgba(22,32,50,0.6); border-radius: 0.75rem; padding: 0.25rem; }
-    .view-tab { padding: 0.5rem 1.25rem; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; border-radius: 0.5rem; font-size: 0.8125rem; font-weight: 600; cursor: pointer; transition: all 0.2s; color:rgba(255,255,255,0.80); border: none; background: none; }
+    /* ★transition:`all` animates every property that ever changes, layout included - the declaration that makes a hover cost a reflow (design lens motion, 2026-09-15). Narrowed to what each rule actually changes on hover or selection. */
+    .view-tab { padding: 0.5rem 1.25rem; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; border-radius: 0.5rem; font-size: 0.8125rem; font-weight: 600; cursor: pointer; transition: background-color 0.2s, color 0.2s, border-color 0.2s; color:rgba(255,255,255,0.80); border: none; background: none; }
     .view-tab:hover { color:rgba(255,255,255,0.86); background: rgba(255,255,255,0.05); }
     .view-tab.active { background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light)); color: var(--wh-navy); }
 
     /* Mobile: stack tabs on second row */
     @media (max-width: 520px) {
-      .top-bar { padding: 0.625rem 0.75rem; gap: 0.5rem; }
+      .top-bar { padding: 0.75rem; gap: 0.5rem; }   /* 10 -> 12px (craft, 2026-09-15) */
       .view-tabs { order: 10; width: 100%; justify-content: center; }
-      .view-tab { padding: 0.4rem 0.75rem; font-size: 0.75rem; flex: 1; text-align: center; }
+      .view-tab { padding: 0.5rem 0.75rem; font-size: 0.75rem; flex: 1; text-align: center; }   /* 6.4 -> 8px; min-height:44px above is untouched */
       .top-bar > div[style*="flex:1"] { display: none; }
     }
+
+    /* The rail badge is OFF everywhere by default and switched on only inside the collapsed phone
+       rail below. Written as a CSS default rather than the `hidden` attribute on purpose: the rule
+       that turns it on is an id inside a class selector, which outranks `[hidden]{display:none}` and
+       would have shown it in every state - the trap this bank has recorded for pinned boxes. */
+    #sidebar-rail-count {
+      display: none; position: absolute; top: 3px; right: 3px;
+      min-width: 18px; height: 18px; padding: 0 4px; box-sizing: border-box;
+      border-radius: var(--wh-radius-pill); background: var(--wh-orange); color: var(--wh-navy);   /* was 9px - half of an 18px box, hand-computed; the pill token stays a circle if the badge grows */
+      font-size: 0.75rem; font-weight: 700; line-height: 18px; text-align: center;
+    }
+    #sidebar-toggle { position: relative; }
 
     /* Mobile: collapse sidebar so calendar has full width */
     @media (max-width: 640px) {
@@ -101,6 +125,13 @@
          second half of this selector used to hide the injected provenance markers, which were removed
          platform-wide on 2026-08-06 (Ian: "remove the provenance button platform wide entirely"). */
       .sidebar:not(.expanded) .cap-bar-wrap { display: none; }
+      /* ★THE COLLAPSED RAIL NOW SAYS HOW MUCH IS BEHIND IT (W45908 Assessment A, 2026-09-15). A bare
+         square tells a reader nothing about whether opening it is worth a tap; a count does, and it is
+         the only thing that fits in 48px. Shown ONLY in the collapsed phone rail - when the sidebar is
+         expanded the real headings and counts are visible and a badge would just repeat them. 12px is
+         the platform floor and this stays on it; the 18px disc sits inside the 44px target without
+         reducing it. */
+      .sidebar:not(.expanded) #sidebar-rail-count { display: block; }
       /* TWO CORRECT RULES IN COLLISION, found 2026-08-06 walking this page at a VERIFIED innerWidth
          of 390. The rail above is 48px by design. .sidebar-header carries padding:1rem = 32px, which
          leaves 16px of content box -- but the toggle inside it is a .btn-icon at 44px, because 44px
@@ -138,28 +169,39 @@
        scrolling, and this card's own `overflow:hidden` then clips the evidence so the collapse looks
        like an empty box rather than a broken one. flex-shrink:0 makes the container scroll, which is
        what overflow-y:auto was there for. */
-    .lb-card { background: linear-gradient(145deg, rgba(42,61,88,0.5) 0%, rgba(31,46,69,0.7) 100%); border: 1px solid rgba(255,255,255,0.07); border-radius: 0.75rem; cursor: pointer; transition: all 0.2s; overflow: hidden; flex-shrink: 0; }
+    .lb-card { background: linear-gradient(145deg, rgba(42,61,88,0.5) 0%, rgba(31,46,69,0.7) 100%); border: 1px solid rgba(255,255,255,0.07); border-radius: 0.75rem; cursor: pointer; transition: background-color 0.2s, border-color 0.2s, transform 0.2s; overflow: hidden; flex-shrink: 0; }
     .lb-card:hover { border-color: rgba(247,162,27,0.3); background: linear-gradient(145deg, rgba(52,74,108,0.6) 0%, rgba(35,52,78,0.8) 100%); }
     .lb-card.selected { border-color: rgba(247,162,27,0.6); box-shadow: 0 0 0 2px rgba(247,162,27,0.15); }
-    .lb-card-header { padding: 0.625rem 0.75rem; display: flex; align-items: flex-start; gap: 0.5rem; }
+    /* ★ONE VALUE, RENDERED SEVENTY TIMES (design lens craft, 2026-09-15): 10px on the header of every
+       logbook card down a sidebar of 35. A single declaration was 70 of the page's 187 off-grid
+       paddings. 12px is the grid step above it. */
+    .lb-card-header { padding: 0.75rem; display: flex; align-items: flex-start; gap: 0.5rem; }
     .lb-card-body { padding: 0 0.75rem 0.625rem; display: none; }
     .lb-card-body.open { display: block; }
     .lb-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
 
     /* Calendar content */
-    .calendar-wrap { flex: 1; overflow: auto; padding: 1rem 1.5rem 1.5rem; }
-    .calendar-wrap::-webkit-scrollbar { width: 6px; height: 6px; }
-    .calendar-wrap::-webkit-scrollbar-track { background: transparent; }
-    .calendar-wrap::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+    .calendar-wrap { flex: none; min-height: 320px; overflow: visible; padding: 1rem 1.5rem 1.5rem; }
+    .calendar-wrap:focus-visible { outline: 2px solid var(--wh-orange); outline-offset: -2px; }
+    .main-area::-webkit-scrollbar { width: 6px; height: 6px; }
+    .main-area::-webkit-scrollbar-track { background: transparent; }
+    .main-area::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
 
     /* DILO: day timeline */
     .dilo-grid { display: grid; grid-template-columns: 56px 1fr; gap: 0; }
-    .time-label { font-size: 0.7rem; color:rgba(255,255,255,0.80); text-align: right; padding-right: 0.75rem; line-height: 1; padding-top: 2px; }
-    .time-slot { border-top: 1px solid rgba(255,255,255,0.04); min-height: 56px; position: relative; cursor: pointer; transition: background 0.15s; }
-    .time-slot:hover { background: rgba(247,162,27,0.04); }
-    .time-slot.droptarget { background: rgba(247,162,27,0.08); border-color: rgba(247,162,27,0.2); }
-    .sched-block { position: absolute; left: 4px; right: 4px; border-radius: 0.5rem; padding: 0.25rem 0.5rem; font-size: 0.7rem; font-weight: 600; cursor: pointer; overflow: hidden; z-index: 2; }
-    .sched-block:hover { filter: brightness(1.15); }
+    .time-label { font-size: 0.75rem; color:rgba(255,255,255,0.80); text-align: right; padding-right: 0.75rem; line-height: 1; padding-top: 2px; }
+    /* ★THREE RULES MATCHING NOTHING, REMOVED (design lens critique W45908, 2026-09-15). The live
+       sweep counted `.time-slot` elements on the rendered page: ZERO at both viewports. The hour
+       slots are built by renderDILO with `class="dp-slot"` and their hover written inline, so this
+       ruleset - including the `.droptarget` state for a drag the page does not implement (zero drag
+       handlers in the file) - styled nothing and had not for as long as the slots have carried
+       dp-slot. It is the same shape recorded on `.wilo-grid`, whose note says the class the grid was
+       styled by was never on it; that one was fixed by putting the class BACK, because the rule was
+       load-bearing. Here it is not: dp-slot already carries the border, the cursor and the 90ms
+       hover, so the honest fix is deletion rather than a second source of truth for one element. */
+    /* `.sched-block` went the same way and for the same reason (2026-09-15): the two rules were the
+       file's only mentions of the class, so nothing has ever matched them. Both grids position their
+       blocks with inline styles computed from the item's own times. */
 
     /* WILO: week grid */
     .wilo-grid { display: grid; grid-template-columns: 52px repeat(7, 1fr); gap: 0; }
@@ -168,7 +210,7 @@
     .wilo-cell { border-top: 1px solid rgba(255,255,255,0.04); border-left: 1px solid rgba(255,255,255,0.04); min-height: 40px; position: relative; cursor: pointer; transition: background 0.15s; }
     .wilo-cell:hover { background: rgba(247,162,27,0.04); }
     .wilo-cell.today-col { background: rgba(247,162,27,0.02); }
-    .wilo-block { margin: 2px; border-radius: 0.375rem; padding: 0.2rem 0.375rem; font-size: 0.65rem; font-weight: 600; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; cursor: pointer; }
+    .wilo-block { margin: 2px; border-radius: 0.375rem; padding: 0.2rem 0.375rem; font-size: 0.75rem; font-weight: 600; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; cursor: pointer; }
     .wilo-block:hover { filter: brightness(1.15); }
 
     /* MILO: month grid */
@@ -198,35 +240,48 @@
       .wilo-grid { grid-template-columns: 52px repeat(7, minmax(45px, 1fr)); overflow-x: auto; }
     }
     .milo-day-name { text-align: center; padding: 0.5rem 0; font-size: 0.75rem; font-weight: 600; color:rgba(255,255,255,0.80); }
-    .milo-cell { background: linear-gradient(145deg, rgba(42,61,88,0.3) 0%, rgba(31,46,69,0.4) 100%); border: 1px solid rgba(255,255,255,0.05); border-radius: 0.5rem; min-height: 80px; padding: 0.375rem; cursor: pointer; transition: all 0.15s; position: relative; }
+    .milo-cell { background: linear-gradient(145deg, rgba(42,61,88,0.3) 0%, rgba(31,46,69,0.4) 100%); border: 1px solid rgba(255,255,255,0.05); border-radius: 0.5rem; min-height: 80px; padding: 0.375rem; cursor: pointer; transition: background-color 0.15s, border-color 0.15s; position: relative; }
     .milo-cell:hover { border-color: rgba(247,162,27,0.2); background: linear-gradient(145deg, rgba(52,74,108,0.4) 0%, rgba(42,61,88,0.5) 100%); }
     .milo-cell.today { border-color: rgba(247,162,27,0.5); box-shadow: 0 0 0 1px rgba(247,162,27,0.15); }
     .milo-cell.other-month { opacity: 0.35; }
     .milo-date { font-size: 0.75rem; font-weight: 600; margin-bottom: 0.25rem; }
     .milo-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; margin: 1px; }
-    .milo-more { font-size: 0.6rem; color:rgba(255,255,255,0.80); margin-top: 2px; }
+    .milo-more { font-size: 0.75rem; color:rgba(255,255,255,0.80); margin-top: 2px; }
 
     /* YILO: year grid */
     .yilo-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
     .yilo-month { background: linear-gradient(145deg, rgba(42,61,88,0.3) 0%, rgba(31,46,69,0.4) 100%); border: 1px solid rgba(255,255,255,0.06); border-radius: 0.75rem; padding: 0.75rem; }
     .yilo-month-name { font-size: 0.8rem; font-weight: 700; margin-bottom: 0.5rem; color:rgba(255,255,255,0.83); }
     .yilo-mini-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
-    .yilo-mini-day-name { text-align: center; font-size: 0.55rem; color:rgba(255,255,255,0.80); padding: 1px 0; }
-    .yilo-mini-cell { aspect-ratio: 1; border-radius: 3px; display: flex; align-items: center; justify-content: center; font-size: 0.55rem; color:rgba(255,255,255,0.80); cursor: pointer; transition: all 0.15s; position: relative; }
+    .yilo-mini-day-name { text-align: center; font-size: 0.75rem; color:rgba(255,255,255,0.80); padding: 1px 0; }
+    .yilo-mini-cell { aspect-ratio: 1; border-radius: 3px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; color:rgba(255,255,255,0.80); cursor: pointer; transition: background-color 0.15s, border-color 0.15s; position: relative; }
     .yilo-mini-cell:hover { background: rgba(247,162,27,0.15); color: white; }
     .yilo-mini-cell.today { background: var(--wh-orange); color: var(--wh-navy); font-weight: 700; border-radius: 50%; }
     .yilo-mini-cell.has-items { background: rgba(41,182,217,0.2); color: rgba(255,255,255,0.8); border-radius: 50%; }
     .yilo-mini-cell.has-items.today { background: var(--wh-orange); }
     .yilo-month.current-month { border-color: rgba(247,162,27,0.3); }
+    .yilo-month:focus-visible { outline: 2px solid var(--wh-orange); outline-offset: 2px; }
+    /* ★FOUR MONTHS ACROSS A 390px PHONE MADE EVERY DAY CELL 5.36px (design lens critique, W45908
+       Assessment A, 2026-09-15). `repeat(4, 1fr)` had NO media query anywhere, while .milo-grid and
+       .wilo-grid each got a minmax() floor with a long note explaining why it was mandatory - this
+       grid was simply missed. Measured at 390: usable 342 -> 73.5px per card -> minus 24px card
+       padding -> 49.5px -> seven tracks with 2px gaps -> 5.36px, holding a 12px digit, and
+       unreachable by scrolling because html/body carry `overflow-x: clip` (clip cannot scroll).
+       Two across takes the cell to ~20px: not a tap target, and not pretending to be one - see the
+       pointer-events rule, and the month card above which is the real control. */
+    @media (max-width: 640px) {
+      .yilo-grid { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+      .yilo-mini-cell { pointer-events: none; cursor: default; }
+    }
 
     /* Buttons */
     .btn-primary { background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light)); color: var(--wh-navy); font-weight: 700; border-radius: var(--wh-radius-sm); padding: 0.5rem 1rem; font-size: 0.8rem; cursor: pointer; transition: opacity 0.2s; border: none; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
     .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(247,162,27,0.35); }
     .btn-primary:active { opacity: 0.75; transform: scale(0.97); box-shadow: none; }
-    .btn-ghost { background: rgba(255,255,255,0.06); color:rgba(255,255,255,0.83); font-weight: 500; border-radius: var(--wh-radius-sm); padding: 0.4rem 0.75rem; font-size: 0.8rem; cursor: pointer; border: 1px solid rgba(255,255,255,0.08); transition: all 0.2s; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
+    .btn-ghost { background: rgba(255,255,255,0.06); color:rgba(255,255,255,0.83); font-weight: 500; border-radius: var(--wh-radius-sm); padding: 0.5rem 0.75rem; font-size: 0.8rem; cursor: pointer; border: 1px solid rgba(255,255,255,0.08); transition: background-color 0.2s, color 0.2s, border-color 0.2s; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
     .btn-ghost:hover { background: rgba(255,255,255,0.1); color: white; }
     .btn-ghost:active { background: rgba(255,255,255,0.15); transform: scale(0.97); }
-    .btn-icon { background: rgba(255,255,255,0.06); color:rgba(255,255,255,0.80); border-radius: 0.5rem; padding: 0.4rem; min-height: 44px; min-width: 44px; cursor: pointer; border: 1px solid rgba(255,255,255,0.08); transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
+    .btn-icon { background: rgba(255,255,255,0.06); color:rgba(255,255,255,0.80); border-radius: 0.5rem; padding: 0.5rem;   /* 6.4 -> 8px (craft, 2026-09-15) */ min-height: 44px; min-width: 44px; cursor: pointer; border: 1px solid rgba(255,255,255,0.08); transition: background-color 0.2s, color 0.2s, border-color 0.2s; display: flex; align-items: center; justify-content: center; }
     .btn-icon:hover { background: rgba(255,255,255,0.12); color: white; }
     .btn-icon:active { background: rgba(255,255,255,0.18); transform: scale(0.93); }
 
@@ -240,11 +295,19 @@
     select.wh-input option { background: var(--wh-navy-mid); }
 
     /* Badge */
-    .badge { display: inline-flex; align-items: center; padding: 0.15rem 0.5rem; border-radius: 9999px; font-size: 0.65rem; font-weight: 600; }
+    /* 2.4px x60 - the discipline pill inside each of those same cards (design lens craft, 2026-09-15). */
+    .badge { display: inline-flex; align-items: center; padding: 0.25rem 0.5rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; }
 
     /* Capacity bar */
     .cap-bar-wrap { height: 3px; background: rgba(255,255,255,0.06); border-radius: 2px; overflow: hidden; margin-top: 4px; }
-    .cap-bar { height: 100%; border-radius: 2px; transition: width 0.4s; }
+    /* ★400ms OF LAYOUT ON A 3px BAR (design lens motion, 2026-09-15). This transitioned `width`, so
+       every frame ran layout, paint and composite - on the sidebar of a page whose main column is a
+       24-row grid - and 400ms is past the 300ms ceiling review-animations/STANDARDS.md sets for UI. A
+       scaleX from the left edge is the identical visual on a bar this size and composites alone; 220ms
+       with the platform's own strong ease-out curve. The bar is full-width now so the scale has
+       something to scale, and renderSidebar writes the transform. */
+    .cap-bar { height: 100%; width: 100%; border-radius: 2px; transform: scaleX(0);
+               transform-origin: left center; transition: transform 220ms var(--wh-ease-out); }
     /* REMOVED 2026-08-06 — this whole block existed only to accommodate the injected provenance ⓘ
        markers, which are gone platform-wide (Ian: "remove the provenance button platform wide
        entirely"). It un-clipped .cap-bar-wrap, neutralised the injector's negative margins, forced
@@ -260,10 +323,15 @@
     @keyframes pulse-border { 0%,100%{box-shadow:0 0 0 2px rgba(247,162,27,0.2)} 50%{box-shadow:0 0 0 4px rgba(247,162,27,0.35)} }
     .selected-pulse { animation: pulse-border 1.5s ease-in-out infinite; }
     /* Plain-Read summary (Layer D — UX Contract) */
-    .verdict { display:flex; align-items:center; gap:12px; padding:14px 16px; margin-bottom:14px; border-radius:12px; border:1px solid; }
+    /* 14px x3 -> 12px: the last of this page's own off-grid rules (design lens craft, 2026-09-15) */
+    .verdict { display:flex; align-items:center; gap:12px; padding:12px 16px; margin-bottom:12px; border-radius:12px; border:1px solid; }
+    /* ★113ch AT 1280 (design lens craft, 2026-09-15). The main column is a calendar GRID, so most of that
+       width is correct - but the prose inside it is not, and the craft floor's band is 65-75. The reading
+       text takes the cap; the grid is untouched. */
+    .section-note, .verdict-text, #dp-verdict-sub { max-width: 70ch; }
     .verdict-icon { font-size:1.5rem; line-height:1; font-weight:800; }
     .verdict-text { font-size:0.9rem; font-weight:700; line-height:1.35; }
-    .verdict-text small { display:block; font-size:0.72rem; font-weight:500; color:rgba(255,255,255,0.83); margin-top:3px; }
+    .verdict-text small { display:block; font-size:0.75rem; font-weight:500; color:rgba(255,255,255,0.83); margin-top:4px; }
     .verdict.healthy { background:rgba(74,222,128,0.07);  border-color:rgba(74,222,128,0.3); }
     .verdict.healthy .verdict-icon { color:var(--wh-green); }
     .verdict.watch   { background:rgba(247,162,27,0.07);  border-color:rgba(247,162,27,0.3); }
@@ -273,7 +341,24 @@
     .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
     .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.80); }
     /* .simple-row / .simple-card / .sc-* / .action-card / .details-toggle → components.css (STREAMLINE S11) */
-    #dp-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:14px; }
+    /* ★THE TILE RESERVE WAS SIZED AGAINST "Loading..." (design lens audit, 2026-09-15). components.css
+       reserves min-height:154px, which is exactly what a tile measures while its sub-line is still the
+       placeholder. The real sentence ("No items scheduled for today") is longer, and .simple-row is
+       auto-fit minmax(160px, 1fr), so the column count - and therefore whether that sentence wraps to a
+       second line - follows the viewport with no breakpoint at all. Measured settled: 154 at 320 (one
+       column), 162 at 340/360/390/430 (two columns, two lines), 163 at 600 (three narrow columns), and
+       154-155 again at 768-1280. So the tile grew up to 9px when the reads resolved and carried the
+       action card, the disclosure and the whole day grid down with it - the 0.034 that was left after
+       the shared .wh-progress-slot fix - and the three tiles in one row disagreed, 162/162/155 at 390.
+       This is the worst height measured anywhere, on the 4px grid: one tile height at every width. */
+    #dp-card-today, #dp-card-week, #dp-card-overdue { min-height: 164px; }
+    /* ★AND THE VERDICT'S TEXT RE-CENTRED (same walk). The 90px box is right and never moves; the text
+       inside it does. The sub-line resolves from one line to two, the block grows 39 -> 55, and
+       align-items:center lifts it 8px - under the eye of someone already reading it. Measured 32px
+       settled at 320/340/390/430/768 and 16 at 600/1024/1280, the same in en and fil, so the two-line
+       height is the honest reserve. */
+    #dp-verdict-sub { min-height: 32px; }
+    #dp-summary-details { display:none; padding:12px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:16px; }
     #dp-summary-details.open { display:block; }
   </style>
 </head>
@@ -302,15 +387,37 @@
           <span class="ic ic-list" aria-hidden="true"></span>
           <span data-i="p_openitems_1fe5" style="font-size:0.8rem;font-weight:700;color:rgba(255,255,255,0.85)">Open Items</span>
         </div>
-        <button class="btn-icon" onclick="toggleSidebar()" title="Collapse sidebar" aria-label="Collapse sidebar">
-          <span class="ic ic-back" aria-hidden="true"></span>
+        <!-- ★THIRTY-ONE ACCESSIBLE NAMES ANNOUNCED ENGLISH TO A FILIPINO READER (design lens copy,
+             2026-09-15): the 24 hour slots, the four view tabs, this toggle and the two date-nav buttons.
+             [data-ia] is the platform's own pass for exactly this, added by the asset-hub copy row; the
+             values live in this page's WH_FIL_PAGE at the foot of the file. -->
+        <!-- ★AND ON A PHONE THIS BUTTON WAS THE WHOLE PAGE, UNLABELLED, NAMED FOR THE OPPOSITE ACTION
+             (design lens critique, W45908 Assessment A, 2026-09-15). At <=640px the sidebar is forced
+             to a 48px rail, so everything this page knows about work to do - the reader's open logbook
+             faults AND his hive's due PMs, the entire reason this page beats a notebook - sits behind
+             this one control. It rendered as a bordered square containing a LEFT ARROW, above the page
+             title, with no text. And `sidebarCollapsed` initialises to true at 390, so the first press
+             EXPANDS - while the name was the static string "Collapse sidebar". The one control that
+             reveals the content announced that it would hide something.
+             Three changes: the name is now derived from the state (and says what is behind it, with a
+             count), `aria-expanded` carries the state a static string cannot, and the glyph is the
+             list icon rather than a left arrow on a vertically-stacked layout. `data-ia` is gone on
+             purpose - a dynamic name cannot also be a dictionary key, so the Filipino lives in the
+             _t() call in _dpSyncSidebarToggle where the name is actually built. -->
+        <button class="btn-icon" id="sidebar-toggle" onclick="toggleSidebar()" aria-controls="sidebar-items" aria-expanded="false" title="Open items" aria-label="Open items">
+          <span class="ic ic-list" aria-hidden="true"></span>
+          <span id="sidebar-rail-count" aria-hidden="true"></span>
         </button>
       </div>
-      <p data-i="p_clickitemthenclickatimeslott_afbe" id="sidebar-hint" style="font-size:0.65rem;color:rgba(255,255,255,0.80);margin-top:0.25rem">Click item then click a time slot to schedule</p>
+      <p data-i="p_clickitemthenclickatimeslott_afbe" id="sidebar-hint" style="font-size:0.75rem;color:rgba(255,255,255,0.80);margin-top:0.25rem">Click item then click a time slot to schedule</p>
       <div class="cap-bar-wrap" style="margin-top:6px">
-        <div id="sidebar-count-bar" class="cap-bar" style="background:linear-gradient(90deg,var(--wh-orange),var(--wh-orange-light));width:0%"></div>
+        <!-- ★AND THE INLINE WIDTH BEAT THE RULE (design lens motion, 2026-09-15). This carried width:0% so
+             the OLD width transition had somewhere to start; the scaleX version needs a full-width box to
+             scale, and an inline declaration outranks the stylesheet - measured, the bar rendered 0px wide
+             and scaleX(0.5) of nothing is still nothing. The starting point is the transform now. -->
+        <div id="sidebar-count-bar" class="cap-bar" style="background:linear-gradient(90deg,var(--wh-orange),var(--wh-orange-light))"></div>
       </div>
-      <p data-i="p_loading_b04b" id="sidebar-count-label" style="font-size:0.6rem;color:rgba(255,255,255,0.80);margin-top:2px">Loading...</p>
+      <p data-i="p_loading_b04b" id="sidebar-count-label" style="font-size:0.75rem;color:rgba(255,255,255,0.80);margin-top:2px">Loading...</p>
     </div>
     <div class="sidebar-items" id="sidebar-items">
       <div style="text-align:center;padding:2rem 0;color:rgba(255,255,255,0.80);font-size:0.75rem">
@@ -324,7 +431,11 @@
   <div class="main-area">
 
     <!-- Top bar -->
-    <div class="top-bar">
+    <!-- ★A header LANDMARK, not a styled div (design lens audit, 2026-09-15): the probe read main, nav
+         and h1 and found header:false at both viewports, so on a page whose main column is a 24-row
+         calendar grid, the landmark a screen-reader user reaches for to skip the chrome did not exist.
+         Same class, same styling. Third page today with this gap. -->
+    <header class="top-bar">
       <!-- Visually hidden H1 for SEO -->
       <h1 data-i="pagetitle" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;">Maintenance Day Planner: WorkHive</h1>
       <!-- Back + Logo -->
@@ -332,12 +443,20 @@
         <span class="ic ic-back" aria-hidden="true"></span>
       </a>
       <div style="display:flex;align-items:center;gap:0.5rem">
-        <span data-i="p_day_987b" id="logo-view" translate="no" style="font-size:1rem;font-weight:800;background:linear-gradient(135deg,var(--wh-orange-text),var(--wh-orange-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent">Day</span>
+        <!-- ★GRADIENT TEXT, AND ITS FALLBACK IS UNREADABLE (design lens slop, 2026-09-15). This painted an
+             amber gradient and clipped it to the glyphs with -webkit-background-clip:text plus
+             -webkit-text-fill-color:transparent. On any engine where that fill-color does not apply, the
+             word renders in its inherited WHITE straight onto the amber gradient box - which is exactly
+             what the walk measured: 1.72:1, white on rgb(253,185,74). Not a near-miss; unreadable. The
+             detector bans gradient-text on its own grounds and this one also had a live consequence.
+             Solid --wh-orange-text is the colour the gradient was imitating, and it cannot fall back to
+             anything. -->
+        <span data-i="p_day_987b" id="logo-view" translate="no" style="font-size:1rem;font-weight:800;color:var(--wh-orange-text)">Day</span>
         <span translate="no" style="font-size:1rem;font-weight:800;color:rgba(255,255,255,0.85)">Planner</span>
       </div>
       <div style="flex:1"></div>
       <!-- T51 (2026-08-26): the current-hive chip - this page renders HIVE-SCOPED data, and a multi-hive contractor could not tell WHICH hive they were acting in (the single most important chrome question for that persona). Same visual pattern as pm-scheduler's chip; self-filling so no page init needs touching. -->
-      <span id="wh-hive-chip" translate="no" style="display:none;align-items:center;gap:4px;padding:3px 10px;border-radius:999px;font-size:.68rem;font-weight:700;background:rgba(247,162,27,0.1);border:1px solid rgba(247,162,27,0.25);color:var(--wh-orange-text);max-width:140px;"><span id="wh-hive-chip-name" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span></span>
+      <span id="wh-hive-chip" translate="no" style="display:none;align-items:center;gap:4px;padding:4px 10px;border-radius:999px;font-size:0.75rem;font-weight:700;background:rgba(247,162,27,0.1);border:1px solid rgba(247,162,27,0.25);color:var(--wh-orange-text);max-width:140px;"><span id="wh-hive-chip-name" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span></span>
       <script>try{var _hn=localStorage.getItem('wh_hive_name');/* storage-key-allow: pre-utils chip paint */if(_hn){document.getElementById('wh-hive-chip-name').textContent=_hn;document.getElementById('wh-hive-chip').style.display='inline-flex';}}catch(_){/* empty-catch-allow: the chip is context decoration */}</script>
 
       <!-- View tabs -->
@@ -348,36 +467,56 @@
         <!-- R3: role=tablist/tab makes this the connected TAB-BAR navigate vocabulary (a view
              switcher IS a tablist), distinct from the 8px press buttons — was read as select,
              colliding 8px across two roles. aria-selected is the tab's selected-state (synced below). -->
-        <button class="view-tab active" role="tab" aria-selected="true" onclick="switchView('dilo')" id="tab-dilo" title="Day view (DILO: Day In the Life Of)" aria-label="Day view" data-i="day">Day</button>
-        <button class="view-tab" role="tab" aria-selected="false" onclick="switchView('wilo')" id="tab-wilo" title="Week view (WILO: Week In the Life Of)" aria-label="Week view" data-i="week">Week</button>
-        <button class="view-tab" role="tab" aria-selected="false" onclick="switchView('milo')" id="tab-milo" title="Month view (MILO: Month In the Life Of)" aria-label="Month view" data-i="month">Month</button>
-        <button class="view-tab" role="tab" aria-selected="false" onclick="switchView('yilo')" id="tab-yilo" title="Year view (YILO: Year In the Life Of)" aria-label="Year view" data-i="year">Year</button>
+        <button class="view-tab active" role="tab" aria-selected="true" onclick="switchView('dilo')" id="tab-dilo" aria-controls="calendar-wrap" title="Day view (DILO: Day In the Life Of)" data-ia="a_dayview" aria-label="Day view" data-i="day">Day</button>
+        <button class="view-tab" role="tab" aria-selected="false" onclick="switchView('wilo')" id="tab-wilo" aria-controls="calendar-wrap" title="Week view (WILO: Week In the Life Of)" data-ia="a_weekview" aria-label="Week view" data-i="week">Week</button>
+        <button class="view-tab" role="tab" aria-selected="false" onclick="switchView('milo')" id="tab-milo" aria-controls="calendar-wrap" title="Month view (MILO: Month In the Life Of)" data-ia="a_monthview" aria-label="Month view" data-i="month">Month</button>
+        <button class="view-tab" role="tab" aria-selected="false" onclick="switchView('yilo')" id="tab-yilo" aria-controls="calendar-wrap" title="Year view (YILO: Year In the Life Of)" data-ia="a_yearview" aria-label="Year view" data-i="year">Year</button>
       </div>
 
       <div style="flex:1"></div>
 
       <!-- Nav controls -->
       <div style="display:flex;align-items:center;gap:0.5rem">
-        <button class="btn-icon" onclick="navigate(-1)" title="Previous" aria-label="Previous">
+        <button class="btn-icon" onclick="navigate(-1)" title="Previous" data-ia="a_prev" aria-label="Previous">
           <span class="ic ic-back" aria-hidden="true"></span>
         </button>
-        <button class="btn-ghost" onclick="goToday()" style="font-size:0.75rem;padding:0.4rem 0.75rem" data-i="today">Today</button>
-        <button class="btn-icon" onclick="navigate(1)" title="Next" aria-label="Next">
+        <button class="btn-ghost" onclick="goToday()" style="font-size:0.75rem;padding:0.5rem 0.75rem" data-i="today">Today</button>
+        <button class="btn-icon" onclick="navigate(1)" title="Next" data-ia="a_next" aria-label="Next">
           <span class="ic ic-next" aria-hidden="true"></span>
         </button>
       </div>
 
-      <div id="period-label" style="font-size:0.85rem;font-weight:600;color:rgba(255,255,255,0.86);min-width:180px;min-height:2.75rem;display:flex;align-items:center;justify-content:center;text-align:center"></div><!-- I1 CLS: reserve 2 lines (the long date "Today, Thursday, July 23, 2026" wraps @ 180px) so empty→populated doesn't shift -->
+      <!-- ★THE RESERVE HELD A HEIGHT AND NOT A WIDTH (design lens audit, 2026-09-15). The note below is
+           right about the intent and wrong about the mechanism: min-width is a FLOOR, not a cap, and this
+           is a flex item with an auto basis, so the long date did not wrap at 180px - it grew the element
+           to 250px. Measured at 390: the date-nav group beside it is 167px in a 366px content box, so
+           167 + 180 sits on one row and 167 + 250 cannot; the label dropped to a row of its own, the
+           + Schedule button followed, and the header went 233px -> 285px, pushing the chip, the verdict,
+           the tiles and the whole day grid down 52px. The browser recorded it as a 0.053 shift at 358ms,
+           the largest left on the page. A fixed basis makes the element do what the note already says it
+           does: wrap to two lines inside the width the header always reserved for it. -->
+      <div id="period-label" style="font-size:0.85rem;font-weight:600;color:rgba(255,255,255,0.86);flex:0 0 180px;min-width:180px;max-width:180px;min-height:2.75rem;display:flex;align-items:center;justify-content:center;text-align:center"></div><!-- I1 CLS: reserve 2 lines (the long date "Today, Thursday, July 23, 2026" wraps @ 180px) so empty→populated doesn't shift -->
 
       <!-- Add schedule item -->
       <button class="btn-primary" onclick="openAddModal()" style="white-space:nowrap" data-i="addschedule">
         + Schedule
       </button>
-    </div>
+    </header>
 
     <!-- Source chip — anchors the day planner verdict + cards to the
          canonical views they read. Populated by loadBoard(). -->
-    <p id="dayplanner-source-chip" style="margin:0 0 8px; min-height:76px;"></p><!-- I1 CLS: reserve the source-chip height (grows 0→62-76px on load, shifting the KPI row = CLS 0.182) -->
+    <!-- ★THE UNCAPPED WRAPPER WAS THE 113ch MEASURE (design lens craft, 2026-09-15). renderSourceChip
+         fills this with a .wh-source-chip that IS capped at 70ch - and the wrapper around it had
+         max-width:none, so it spanned 994px of a 1280 viewport and was the longest paragraph on the
+         page. The measure is taken from the longest visible <p>, which is why the cap inside was
+         invisible to it. Same cap, same reason. The min-height reservation below is the CLS fix and
+         stays exactly as it was. -->
+    <!-- ★THE RESERVE WAS 32px SHORT (design lens audit, 2026-09-15). Measured at 390: this settles at
+         108px and reserved 76, so the verdict strip, the KPI row and the day grid all moved down after
+         the reads resolved - CLS 0.112, above the 0.1 line, against 0.007 at desktop where the chip is
+         one line shorter. The trace names div.simple-row and div.verdict-text as its sources; those are
+         the VICTIMS. The reserve is now what the chip actually settles at. -->
+    <p id="dayplanner-source-chip" style="margin:0 0 8px; min-height:108px; max-width:70ch;"></p><!-- I1 CLS: reserve the source-chip height (grows 0→62-76px on load, shifting the KPI row = CLS 0.182) -->
     <!-- Plain-Read summary (Layer D — UX Contract).
          Populated by renderDayplannerSummary() from scheduleItems. -->
     <div id="dp-verdict" class="verdict empty" style="min-height:90px;box-sizing:border-box"><!-- I1 CLS: reserve the verdict height (placeholder→real swap) so the KPI row below doesn't shift -->
@@ -423,7 +562,7 @@
         <li><strong data-i="p_overdue_0721">Overdue</strong>: items with <code>date &lt; today</code> AND not yet done: open work that slipped.</li>
         <li><strong data-i="p_verdict_7f6e">Verdict</strong>: red if 3+ overdue; amber if today &gt; 6 OR any overdue; green when the day is plannable.</li>
       </ul>
-      <p data-i="p_clickintodilowilomiloyilotab_0f79" style="margin-top:8px;color:rgba(255,255,255,0.80);font-size:11px;">Click into DILO / WILO / MILO / YILO tabs for the day / week / month / year drilldown.</p>
+      <p data-i="p_clickintodilowilomiloyilotab_0f79" style="margin-top:8px;color:rgba(255,255,255,0.80);font-size:12px;">Click into DILO / WILO / MILO / YILO tabs for the day / week / month / year drilldown.</p>
     </div>
 
     <!-- Calendar content -->
@@ -447,7 +586,7 @@
       <div>
         <label for="m-title" style="font-size:0.75rem;color:rgba(255,255,255,0.80);display:block;margin-bottom:0.375rem" data-i="mtitle">Title *</label>
         <input class="wh-input" id="m-title" aria-describedby="m-required-error" placeholder="What needs to be done?" oninput="document.getElementById('m-required-error').style.display='none'" />
-        <div data-i="p_titleanddatearerequired_718d" role="alert" aria-live="assertive" id="m-required-error" style="display:none;color:var(--wh-red);font-size:0.7rem;margin-top:0.25rem">Title and date are required.</div>
+        <div data-i="p_titleanddatearerequired_718d" role="alert" aria-live="assertive" id="m-required-error" style="display:none;color:var(--wh-red);font-size:0.75rem;margin-top:0.25rem">Title and date are required.</div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem">
         <div>
@@ -456,14 +595,14 @@
         </div>
         <div>
           <label for="m-start" style="font-size:0.75rem;color:rgba(255,255,255,0.80);display:block;margin-bottom:0.375rem" data-i="mstart">Start Time</label>
-          <input class="wh-input" id="m-start" type="time" oninput="(function(){const s=document.getElementById('m-start').value,e=document.getElementById('m-end');e.min=s;if(e.value&&e.value<=s){const[h,m]=s.split(':').map(Number);const t=(h*60+m+60)%1440;e.value=(String(Math.floor(t/60)).padStart(2,'0')+':'+String(t%60).padStart(2,'0'))}})()" />
+          <input class="wh-input" id="m-start" type="time" oninput="(function(){const s=document.getElementById('m-start').value,e=document.getElementById('m-end');e.removeAttribute('min');if(e.value&&e.value===s){const[h,m]=s.split(':').map(Number);const t=(h*60+m+60)%1440;e.value=(String(Math.floor(t/60)).padStart(2,'0')+':'+String(t%60).padStart(2,'0'))}})()" />
         </div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem">
         <div>
           <label for="m-end" style="font-size:0.75rem;color:rgba(255,255,255,0.80);display:block;margin-bottom:0.375rem" data-i="mend">End Time</label>
           <input class="wh-input" id="m-end" type="time" aria-describedby="m-end-error" oninput="document.getElementById('m-end-error').style.display='none'" />
-          <div data-i="p_mustbeafterstarttime_8b1b" role="alert" aria-live="assertive" id="m-end-error" style="display:none;color:var(--wh-red);font-size:0.7rem;margin-top:0.25rem">Must be after Start Time</div>
+          <div data-i="p_mustbeafterstarttime_8b1b" role="alert" aria-live="assertive" id="m-end-error" style="display:none;color:var(--wh-red);font-size:0.75rem;margin-top:0.25rem">Must be after Start Time</div>
         </div>
         <div>
           <label for="m-category" style="font-size:0.75rem;color:rgba(255,255,255,0.80);display:block;margin-bottom:0.375rem" data-i="category">Category</label>
@@ -490,11 +629,11 @@
       </div>
       <!-- Status row (edit mode only) -->
       <div id="m-status-row" style="display:none;background:rgba(22,32,50,0.6);border:1px solid rgba(255,255,255,0.07);border-radius:0.75rem;padding:0.75rem">
-        <div data-i="p_itemstatus_b596" style="font-size:0.72rem;color:rgba(255,255,255,0.80);margin-bottom:0.5rem;font-weight:600">Item Status</div>
+        <div data-i="p_itemstatus_b596" style="font-size:0.75rem;color:rgba(255,255,255,0.80);margin-bottom:0.5rem;font-weight:600">Item Status</div>
         <div style="display:flex;gap:0.5rem">
-          <button onclick="setItemStatus('upcoming')" id="s-btn-upcoming" class="status-btn" style="flex:1;padding:0.4rem;border-radius:0.5rem;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.80);font-size:0.7rem;font-weight:600;cursor:pointer" data-i="upcoming">Upcoming</button>
-          <button onclick="setItemStatus('done')" id="s-btn-done" class="status-btn" style="flex:1;padding:0.4rem;border-radius:0.5rem;border:1px solid rgba(104,211,145,0.3);background:rgba(104,211,145,0.08);color:var(--wh-green);font-size:0.7rem;font-weight:600;cursor:pointer" data-i="done">Done</button>
-          <button onclick="setItemStatus('missed')" id="s-btn-missed" class="status-btn" style="flex:1;padding:0.4rem;border-radius:0.5rem;border:1px solid rgba(252,92,92,0.3);background:rgba(252,92,92,0.08);color:var(--wh-red-text);font-size:0.7rem;font-weight:600;cursor:pointer" data-i="missed">Missed</button>
+          <button onclick="setItemStatus('upcoming')" id="s-btn-upcoming" class="status-btn" style="flex:1;padding:0.4rem;border-radius:0.5rem;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.80);font-size:0.75rem;font-weight:600;cursor:pointer" data-i="upcoming">Upcoming</button>
+          <button onclick="setItemStatus('done')" id="s-btn-done" class="status-btn" style="flex:1;padding:0.4rem;border-radius:0.5rem;border:1px solid rgba(104,211,145,0.3);background:rgba(104,211,145,0.08);color:var(--wh-green);font-size:0.75rem;font-weight:600;cursor:pointer" data-i="done">Done</button>
+          <button onclick="setItemStatus('missed')" id="s-btn-missed" class="status-btn" style="flex:1;padding:0.4rem;border-radius:0.5rem;border:1px solid rgba(252,92,92,0.3);background:rgba(252,92,92,0.08);color:var(--wh-red-text);font-size:0.75rem;font-weight:600;cursor:pointer" data-i="missed">Missed</button>
         </div>
       </div>
       <div style="display:flex;gap:0.75rem;justify-content:flex-end;margin-top:0.25rem">
@@ -559,6 +698,9 @@ let plantWorkTotal = 0;  // K2: PMs due/overdue composed from v_pm_scope_items_t
    to say why it is gone. Asked via the shared probe, which fails open on a DB error. */
 let plantWorkHiveLost = false;
 let plantWorkFailed = false;  // T27/T29: a read that FAILED must not vanish silently
+// The third reader of the same panel, added 2026-09-15 (W45908 Assessment A): the logbook read had no
+// failure flag at all, so its failure was indistinguishable from an empty queue. See loadLogbook.
+let logbookFailed = false;
 let editingScheduleId = null;
 
 // ─────────────────────────────────────────────
@@ -586,6 +728,16 @@ const schedCatColors = {
 
 function getSchedColor(cat) { return schedCatColors[cat] || schedCatColors.Other; }
 
+// Case-insensitive match against this page's own category list. Returns the canonical spelling when
+// one matches, and the ORIGINAL value when none does - an unmapped category is data this page did not
+// author, and rewriting it would be the defect this function exists to fix.
+function _dpNormalizeCat(cat) {
+  if (!cat) return cat;
+  const want = String(cat).toLowerCase();
+  const hit = Object.keys(schedCatColors).find(k => k.toLowerCase() === want);
+  return hit || cat;
+}
+
 // ─────────────────────────────────────────────
 // ITEM STATUS: upcoming / done / missed
 // ─────────────────────────────────────────────
@@ -595,9 +747,15 @@ function getItemStatus(item) {
   if (item.itemStatus === 'missed') return 'missed';
   // Auto-detect missed: past date+time with no explicit status
   const now = new Date();
-  const endMins = item.endTime ? timeToMins(item.endTime) : (item.startTime ? timeToMins(item.startTime) + 60 : null);
+  // ★A CROSSING JOB READ "MISSED" TWENTY HOURS BEFORE IT STARTED (W45908 Assessment B, 2026-09-15).
+  // The end instant was built on the item's OWN date, so a 23:00-01:00 job resolved to 01:00 that
+  // morning - already long past. _dpEndMins returns minutes past the start, which can exceed 1440;
+  // the Date below absorbs the overflow correctly because setting an hour above 23 rolls the day.
+  const startMins = item.startTime ? timeToMins(item.startTime) : null;
+  const endMins = startMins !== null ? _dpEndMins(startMins, item.endTime) : null;
   if (endMins !== null && item.date) {
-    const itemEnd = new Date(item.date + 'T' + String(Math.floor(endMins/60)).padStart(2,'0') + ':' + String(endMins%60).padStart(2,'0') + ':00');
+    const itemEnd = new Date(item.date + 'T00:00:00');
+    itemEnd.setMinutes(itemEnd.getMinutes() + endMins);
     if (itemEnd < now) return 'missed';
   } else if (item.date && item.date < toYMD(now)) {
     return 'missed';
@@ -634,8 +792,16 @@ function dpCanonToDisplay(s) {
 
 let currentModalStatus = 'upcoming';
 
-function setItemStatus(status) {
-  currentModalStatus = status;
+// ★THE LAST LINE OF openEditModal UNDID THE FIX WRITTEN ABOVE IT (design lens critique,
+// W45908 Assessment B round 2, 2026-09-16). That function clears currentModalStatus to null
+// for a row nobody has judged - under a comment explaining that writing a DERIVED 'missed'
+// as 'skipped' turns "nobody decided yet" into a compliance record - and then called
+// setItemStatus(effStatus) to highlight the right button. The first statement of
+// setItemStatus is an assignment to currentModalStatus, so the derived value went straight
+// back into the variable the fix had just cleared, and the defect survived inside its own fix.
+//
+// Painting the buttons and CHOOSING a value are two different acts. This one only paints.
+function _dpPaintStatusButtons(status) {
   ['upcoming','done','missed'].forEach(s => {
     const btn = document.getElementById('s-btn-' + s);
     if (!btn) return;
@@ -652,6 +818,13 @@ function setItemStatus(status) {
       btn.style.fontWeight = '600';
     }
   });
+}
+
+// The three status buttons' onclick - here a person really is choosing, so this one records
+// the choice as well as painting it.
+function setItemStatus(status) {
+  currentModalStatus = status;
+  _dpPaintStatusButtons(status);
 }
 
 // ─────────────────────────────────────────────
@@ -694,7 +867,12 @@ function toDBRow(item) {
     category:    item.category,
     notes:       item.notes,
     logbook_ref: item.logbookRef,
-    item_status: dpDisplayToCanon(item.itemStatus),  // K4: persist canonical enum only
+    // If the row arrived with a canonical value this page does not model, and the user has NOT moved
+    // the status buttons (the display term still round-trips to what arrived), re-send exactly what
+    // arrived. Only a real change writes a new value.
+    item_status: (item.canonStatus && dpCanonToDisplay(item.canonStatus) === item.itemStatus)
+                   ? item.canonStatus
+                   : dpDisplayToCanon(item.itemStatus),  // K4: persist canonical enum only
     source_kind: item.sourceKind || null,  // K2: task provenance (pm/risk/alert/shift/logbook/manual)
     source_ref:  item.sourceRef  || null,  // K2: the source id/tag that motivated the task
   };
@@ -707,10 +885,20 @@ function fromDBRow(row) {
     date:       row.date,
     startTime:  row.start_time,
     endTime:    row.end_time,
-    category:   row.category,
+    // ★A LOWERCASE `pm` RENDERED GREY BESIDE AN IDENTICAL UPPERCASE `PM` (W45908 Assessment B,
+    // 2026-09-15; 10 live rows carry off-list categories). getSchedColor is an exact-key lookup, so
+    // case alone decided whether a PM looked like a PM. Matched case-insensitively against this
+    // page's own list; anything with no match is left untouched rather than guessed at.
+    category:   _dpNormalizeCat(row.category),
     notes:      row.notes,
     logbookRef: row.logbook_ref,
     itemStatus: dpCanonToDisplay(row.item_status),  // K4: canonical enum -> display term
+    // ★THE ROW'S OWN WORD FOR ITS STATE, KEPT SO A SAVE CANNOT SILENTLY REPLACE IT (W45908
+    // Assessment B, 2026-09-15). 139 of 231 live rows say `planned`, which is not in this page's
+    // enum, so it displayed as `upcoming` and saved back as `pending` - a rewrite of another
+    // surface's vocabulary, performed by a reader who only edited a title. toDBRow re-sends this
+    // untouched whenever the display term still agrees with it.
+    canonStatus: row.item_status || null,
     sourceKind: row.source_kind || null,  // K2: task provenance
     sourceRef:  row.source_ref  || null,
     // W3-LC W31395 (2026-09-10): the row's server-authoritative edit stamp, carried so the save can
@@ -808,7 +996,68 @@ function _ensureDpQueue() {
   return window._whDpQueue || null;
 }
 
-async function syncItemToSupabase(item) {
+// ★A REFUSED SAVE LEFT A PHANTOM ITEM ON THE PLAN (design lens critique, W45908 Assessment A,
+// 2026-09-15). saveScheduleItem pushes the item into `scheduleItems` and renders it BEFORE the write
+// is attempted - correct, that is the optimistic update the offline queue depends on - and then every
+// non-network failure below toasted "Nothing on your schedule changed" and returned WITHOUT removing
+// it. So the screen showed the job at 22:00 while the message said nothing was saved. Both were on
+// screen at once and only one was true, and the reader could not tell which until a reload.
+//
+// This is the most damaging shape on the page precisely BECAUSE the error copy here is otherwise so
+// careful: a reader who has learned that this page names consequences honestly has no reason to doubt
+// the item he can see. The optimistic-concurrency branch was already the only path that recovered
+// correctly (it calls loadSchedule()); this gives the refusal paths the same property.
+//
+// `undo` is optional: {prev} carries the pre-edit object for an edit, or null/absent for a create.
+// The offline-queue drain does not pass it, because a queued row is not a failed write.
+function _dpRollbackLocal(item, undo) {
+  if (!undo || !item || !item.id) return null;
+  const idx = scheduleItems.findIndex(i => i.id === item.id);
+  if (undo.prev) {
+    if (idx !== -1) scheduleItems[idx] = undo.prev; else scheduleItems.push(undo.prev);
+  } else if (idx !== -1) {
+    scheduleItems.splice(idx, 1);
+  }
+  try { renderSidebar(); } catch (_) { /* empty-catch-allow: rollback must not depend on the sidebar */ }
+  try { render(); } catch (_) { /* empty-catch-allow: rollback must not depend on the grid */ }
+  // The sentence names what the reader can now see, which is the whole point of rolling back.
+  return undo.prev
+    ? _t('Could not save that change. Your edit was undone - the item is as it was.',
+         'Hindi ma-save ang pagbabago. Ibinalik ang item sa dati nitong laman.')
+    : _t('Could not save that change. The item has been removed from your plan.',
+         'Hindi ma-save ang pagbabago. Inalis ang item sa plano mo.');
+}
+
+// Puts the values a CONFLICTED save carried back into the edit modal, on top of the version
+// that just arrived. Field by field rather than by re-rendering, because openEditModal reads
+// the item from scheduleItems - which now holds THEIR row, and that is exactly what must stay
+// underneath. Returns false when the item is gone, so the caller can say so rather than
+// promise an editor that will not open.
+function _dpReopenWithAttempt(attempt) {
+  if (!attempt || !attempt.id) return false;
+  if (!scheduleItems.some(i => i.id === attempt.id)) return false;   // they deleted it
+  try {
+    openEditModal(attempt.id);
+    const set = (elId, v) => { const el = document.getElementById(elId); if (el) el.value = (v == null ? '' : v); };
+    set('m-title',    attempt.title);
+    set('m-date',     attempt.date);
+    set('m-start',    attempt.start_time);
+    set('m-end',      attempt.end_time);
+    set('m-category', attempt.category || 'Other');
+    set('m-notes',    attempt.notes);
+    // The status this person chose is part of what they typed, and it is the row's honest
+    // canonical value (toDBRow preserves canonStatus), never a derived one - so setItemStatus,
+    // which records as well as paints, is the right call here.
+    if (attempt.item_status && typeof dpCanonToDisplay === 'function') {
+      const disp = dpCanonToDisplay(attempt.item_status);
+      if (disp) setItemStatus(disp);
+    }
+    return true;
+  } catch (_) { /* empty-catch-allow: a failed re-open must not swallow the toast below */ }
+  return false;
+}
+
+async function syncItemToSupabase(item, undo) {
   _dpLastLocalWrite = Date.now();
   try {
     const row = toDBRow(item);
@@ -818,15 +1067,21 @@ async function syncItemToSupabase(item) {
     // needs the DB); the queued row is the same toDBRow shape the contract governs.
     if (!navigator.onLine && _ensureDpQueue() && row.id) {
       await window._whDpQueue.enqueue({ id: row.id, op: 'upsert', payload: row });
-      showToast('Saved offline. Will sync when you reconnect.');
+      showToast(_t('Saved offline. Will sync when you reconnect.',
+                    'Na-save offline. Magsi-sync kapag nakakonekta ka na.'));
       return;
     }
     // Tier F capture contract — schedule_item_v1 runtime validation.
     if (window.whValidateCapture) {
       const vr = await window.whValidateCapture(db, 'schedule_item_v1', row);
       if (!vr.ok) {
-        showToast('Cannot save: ' + (vr.errors[0]?.message || 'contract violation'), 'error');
+        // "Cannot save: contract violation" is the validator's vocabulary, not a person's. The reader
+        // needs two things: that nothing was kept, and what is now on their screen. The machine detail
+        // stays in the console for whoever debugs it.
         console.error('[capture-violation] schedule_item_v1:', vr.errors);
+        const undone = _dpRollbackLocal(item, undo);
+        showToast(undone || _t('Could not save that change. Nothing on your schedule changed.',
+                               'Hindi ma-save ang pagbabagong iyon. Walang nagbago sa schedule mo.'), 'error');
         return;
       }
     }
@@ -847,25 +1102,46 @@ async function syncItemToSupabase(item) {
       error = uErr;
       if (!uErr && hit && hit.length) item.updatedAt = hit[0].updated_at;
       if (!uErr && (!hit || !hit.length)) {
-        showToast(_t('Someone else changed this item while you were editing. Showing you their version - make your change again.',
-                     'May ibang nagbago nito habang nag-e-edit ka. Ipinapakita ang bersyon nila - ulitin ang pagbabago mo.'), 'error');
+        // ★"MAKE YOUR CHANGE AGAIN" ASKED FOR SOMETHING THE PAGE HAD JUST DESTROYED (W45908
+        // Assessment B round 2, 2026-09-16). loadSchedule() replaces scheduleItems with the
+        // server's rows, so after it ran the person's words existed nowhere - the UPDATE matched
+        // no row, and the reload overwrote the local copy that held them. The editor was already
+        // closed too (this function is called un-awaited at the save site), so "again" meant
+        // retyping from memory. Losing a conflicting WRITE is right; losing the TEXT is not.
+        const _attempt = Object.assign({}, row);
         await loadSchedule();   // ends in renderSidebar() + render(), so the plan on screen is theirs
+        const _kept = _dpReopenWithAttempt(_attempt);
+        showToast(_kept
+          ? _t('Someone else changed this item while you were editing. Their version is on your plan now, and your wording is back in the editor - save again to apply it.',
+               'May ibang nagbago nito habang nag-e-edit ka. Nasa plano mo na ang bersyon nila, at nasa editor pa rin ang sinulat mo - i-save ulit para ilapat ito.')
+          : _t('Someone else removed this item while you were editing, so your change could not be saved.',
+               'May ibang nag-alis nito habang nag-e-edit ka, kaya hindi na-save ang pagbabago mo.'), 'error');
         return;
       }
     } else {
-      ({ error } = await db.from('schedule_items').upsert(row));
+      // .select() so a CREATE returns its server stamp: without it the first edit after a create
+      // still had no updatedAt and fell through to the unguarded path (the P5 hole, one step later).
+      const { data: up, error: upsErr } = await db.from('schedule_items').upsert(row).select('id, updated_at');
+      error = upsErr;
+      if (!upsErr && up && up.length) item.updatedAt = up[0].updated_at;
     }
     if (error) {
       // network hiccup while nominally "online": queue it, don't lose the capture
       if (_ensureDpQueue() && row.id && /fetch|network|load failed|connection|timeout/i.test(error.message || '')) {
         await window._whDpQueue.enqueue({ id: row.id, op: 'upsert', payload: row });
-        showToast('Network issue: saved offline, will retry automatically.');
+        showToast(_t('Network issue: saved offline, will retry automatically.',
+                      'May problema sa koneksyon: na-save offline, awtomatikong susubukan ulit.'));
         return;
       }
       // The network branch above already claimed anything connection-shaped, so "check your
       // connection" was actively misleading here: what reaches this line is a REFUSAL. Guarded call
       // because utils.js loads at the BOTTOM of this page (see the note at the top of this block).
       console.warn('Schedule sync failed:', error.message);
+      // The rollback runs BEFORE the toast so the screen and the sentence agree by the time the
+      // reader looks up; `undone` names what he can now see, and falls back to the old wording only
+      // for callers that pass no snapshot (the queue drain).
+      const _undone = _dpRollbackLocal(item, undo);
+      if (_undone) { showToast(typeof whWriteError === 'function' ? whWriteError(error, _undone) : _undone, 'error'); return; }
       showToast(typeof whWriteError === 'function'
         /* T176 (2026-08-27): the FALLBACK said "check your connection" while the comment three
            lines up already established that anything connection-shaped was claimed by the branch
@@ -880,7 +1156,8 @@ async function syncItemToSupabase(item) {
     if (_ensureDpQueue() && item && item.id) {
       try {
         await window._whDpQueue.enqueue({ id: item.id, op: 'upsert', payload: toDBRow(item) });
-        showToast('Network issue: saved offline, will retry automatically.');
+        showToast(_t('Network issue: saved offline, will retry automatically.',
+                      'May problema sa koneksyon: na-save offline, awtomatikong susubukan ulit.'));
         return;
       } catch (_) { /* empty-catch-allow: fall through to the honest failure toast */ }
     }
@@ -891,13 +1168,26 @@ async function syncItemToSupabase(item) {
        problem really were the network, the queue would have taken it. What reaches this line is a
        refusal or a bug, and sending someone to their wifi for either wastes the one action they
        are willing to take. Say the outcome instead, matching its sibling three lines above. */
+    const _undone = _dpRollbackLocal(item, undo);
+    if (_undone) { showToast(typeof whWriteError === 'function' ? whWriteError(e, _undone) : _undone, 'error'); return; }
     showToast(typeof whWriteError === 'function'
       ? whWriteError(e, _t('Could not save that change. Nothing on your schedule changed.', 'Hindi ma-save ang pagbabagong iyon. Walang nagbago sa schedule mo.'))
       : _t('Could not save that change. Nothing on your schedule changed.', 'Hindi ma-save ang pagbabagong iyon. Walang nagbago sa schedule mo.'), 'error');
   }
 }
 
-async function deleteItemFromSupabase(id) {
+// `removed` is the item as it was, so a refusal can put it back. Optional: the offline drain passes
+// none, because a queued delete is not a failed one.
+function _dpRestoreDeleted(removed) {
+  if (!removed) return null;
+  if (!scheduleItems.some(i => i.id === removed.id)) scheduleItems.push(removed);
+  try { renderSidebar(); } catch (_) { /* empty-catch-allow: the restore must not depend on the sidebar */ }
+  try { render(); } catch (_) { /* empty-catch-allow: the restore must not depend on the grid */ }
+  return _t('Could not delete that item. It is back on your schedule.',
+            'Hindi ma-delete ang item na iyon. Nakabalik na ito sa schedule mo.');
+}
+
+async function deleteItemFromSupabase(id, removed) {
   _dpLastLocalWrite = Date.now();
   // Y1b offline-capture: an offline delete queues (op:'delete', match by id; the queue's
   // identityKey adds the worker_name guard at drain) — same keyPath id as the item's own
@@ -906,30 +1196,90 @@ async function deleteItemFromSupabase(id) {
   if (!navigator.onLine && _ensureDpQueue() && id) {
     try {
       await window._whDpQueue.enqueue({ id, op: 'delete', match: { id } });
-      showToast('Deleted offline. Will sync when you reconnect.');
+      showToast(_t('Deleted offline. Will sync when you reconnect.',
+                      'Na-delete offline. Magsi-sync kapag nakakonekta ka na.'));
       return;
     } catch (_) { /* empty-catch-allow: fall through to the online attempt */ }
   }
   try {
-    const { error } = await db.from('schedule_items').delete().eq('id', id).eq('worker_name', WORKER_NAME);
+    // .select('id') is what makes a no-op VISIBLE: PostgREST answers a delete that matched
+    // nothing with 204 and error === null, so without it an RLS refusal and a worker_name
+    // mismatch both read as success while the row stays in the database (W45908 round 2).
+    const { data: _deleted, error } = await db.from('schedule_items').delete().eq('id', id).eq('worker_name', WORKER_NAME).select('id');
     if (error) {
       console.warn('Schedule delete failed:', error.message);
       /* T176: same as the save path - a refusal, not a connection problem. And a failed delete
          has one certain consequence worth stating: the item is still there. */
+      const _back = _dpRestoreDeleted(removed);
       showToast(typeof whWriteError === 'function'
-        ? whWriteError(error, _t('Could not delete that item. It is still on your schedule.', 'Hindi ma-delete ang item na iyon. Nasa schedule mo pa ito.'))
-        : _t('Could not delete that item. It is still on your schedule.', 'Hindi ma-delete ang item na iyon. Nasa schedule mo pa ito.'), 'error');
+        ? whWriteError(error, _back || _t('Could not delete that item. It is still on your schedule.', 'Hindi ma-delete ang item na iyon. Nasa schedule mo pa ito.'))
+        : (_back || _t('Could not delete that item. It is still on your schedule.', 'Hindi ma-delete ang item na iyon. Nasa schedule mo pa ito.')), 'error');
+    } else if (!_deleted || _deleted.length === 0) {
+      // No error and no row: the delete was filtered out before it reached the table. The
+      // item goes back, which is the safe one of the two possible wrong answers - if it had
+      // genuinely been deleted elsewhere the next load corrects this, whereas a false
+      // success loses a delete the person believes they made.
+      console.warn('Schedule delete removed no row (RLS or worker_name mismatch):', id);
+      const _none = _dpRestoreDeleted(removed);
+      showToast(_none || _t('Could not delete that item. It is still on your schedule.', 'Hindi ma-delete ang item na iyon. Nasa schedule mo pa ito.'), 'error');
     }
   } catch(e) {
     console.warn('Schedule delete error:', e);
+    const _back = _dpRestoreDeleted(removed);
     showToast(typeof whWriteError === 'function'
-      ? whWriteError(e, _t('Could not delete that item. It is still on your schedule.', 'Hindi ma-delete ang item na iyon. Nasa schedule mo pa ito.'))
-      : _t('Could not delete that item. It is still on your schedule.', 'Hindi ma-delete ang item na iyon. Nasa schedule mo pa ito.'), 'error');
+      ? whWriteError(e, _back || _t('Could not delete that item. It is still on your schedule.', 'Hindi ma-delete ang item na iyon. Nasa schedule mo pa ito.'))
+      : (_back || _t('Could not delete that item. It is still on your schedule.', 'Hindi ma-delete ang item na iyon. Nasa schedule mo pa ito.')), 'error');
   }
 }
 
-const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-const DAY_NAMES = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+// ★THE MONTH AND YEAR VIEWS WERE ENGLISH WHATEVER THE DAY VIEW DID (design lens copy, 2026-09-15).
+// This array is drawn by the MILO title, the week-strip labels and all twelve cells of YILO, and it was
+// twelve hard-coded English words - so a Filipino reader who switched from Day to Month left the language
+// behind. Asked of the same Intl the shared whFmtDate uses, in the same Asia/Manila zone, so the twelve
+// names cannot drift from the date rendered beside them. Computed once per load; WH_LANG is settled by
+// utils.js before any page script runs.
+// ★THESE RAN ~108,000 CHARACTERS BEFORE THE VALUE THEY TEST EXISTED (design lens critique, W45908
+// round 2, 2026-09-16). Both were IIFEs evaluated at parse time, and they read `window.WH_LANG` -
+// which on this page is assigned ONLY by utils.js, whose <script> tag is at character 195,563 while
+// MONTH_NAMES was evaluated at 87,969. Nothing sets it earlier and wh-i18n-lite.js is not loaded
+// here, so the fil branch could never be taken by any reader.
+//
+// Round 1 localised DAY_NAMES to match MONTH_NAMES and left a note saying this ended the case where
+// "the month view rendered 'Setyembre 2026' above columns headed Sun Mon Tue Wed Thu Fri Sat". It did
+// not: it made the page consistently English instead of inconsistently English, and the note asserted
+// the opposite. That is the SAME defect round 1 found on this page - a guard whose comment explains
+// why it is essential and which cannot execute - recurring in the fix written for it.
+//
+// Proven in node with the real expression: eager -> "September", lazy -> "Setyembre" (the runtime
+// does have fil-PH). whFmtDate in utils.js was right all along because it reads WH_LANG INSIDE the
+// function, which is why the period labels were Filipino while the month and weekday names were not -
+// two paths disagreeing inside one view.
+//
+// Evaluated on first USE and memoised, so the Intl construction still happens once.
+let _whLocaleNames = null;
+function _localeNames() {
+  if (_whLocaleNames) return _whLocaleNames;
+  const loc = (typeof window !== 'undefined' && window.WH_LANG === 'fil') ? 'fil-PH' : 'en-PH';
+  let months, days;
+  try {
+    const mf = new Intl.DateTimeFormat(loc, { month: 'long', timeZone: 'Asia/Manila' });
+    months = Array.from({ length: 12 }, (_, m) => mf.format(new Date(Date.UTC(2026, m, 15, 4, 0, 0))));
+    // the anchor week is a real Sunday (2026-09-13) read at Manila noon, so the seven names come out
+    // in calendar order whatever the runtime's own first-day-of-week convention is
+    const df = new Intl.DateTimeFormat(loc, { weekday: 'short', timeZone: 'Asia/Manila' });
+    days = Array.from({ length: 7 }, (_, i) => df.format(new Date(Date.UTC(2026, 8, 13 + i, 4, 0, 0))));
+  } catch (_) {
+    months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  }
+  _whLocaleNames = { months, days };
+  return _whLocaleNames;
+}
+
+// Proxies so the ~20 existing `MONTH_NAMES[m]` / `DAY_NAMES[d]` call sites need no change and cannot
+// be missed - an index read resolves through the lazy builder at the moment it is read.
+const MONTH_NAMES = new Proxy({}, { get: (_t, k) => _localeNames().months[k] });
+const DAY_NAMES = new Proxy({}, { get: (_t, k) => _localeNames().days[k] });
 
 // ─────────────────────────────────────────────
 // SIDEBAR
@@ -948,8 +1298,42 @@ function syncSidebarState() {
   const sb = document.getElementById('sidebar');
   if (!sb) return;
   if (window.innerWidth <= 640) sidebarCollapsed = !sb.classList.contains('expanded');
+  _dpSyncSidebarToggle();
 }
 window.addEventListener('resize', syncSidebarState);
+// ★THE NAME IS DERIVED, NOT STAMPED (W45908 Assessment A, 2026-09-15). A toggle whose accessible name
+// is a static string is wrong in one of its two states by construction - here it was wrong in the state
+// a phone reader meets FIRST. The name now says what the press will do AND what is behind it, because
+// "Show open items" with no number still does not tell a supervisor whether it is worth the tap. Called
+// from the toggle, from the resize handler (the breakpoint decides which state is rendered) and from
+// renderSidebar (the counts arrive after the reads land).
+function _dpSyncSidebarToggle() {
+  const btn = document.getElementById('sidebar-toggle');
+  if (!btn) return;
+  const open = logbookItems.length;
+  const pms  = plantWorkTotal || 0;
+  const unknown = _dpCloudReadFailed || logbookFailed;
+  let name;
+  if (!sidebarCollapsed) {
+    name = _t('Hide open items', 'Itago ang mga open na item');
+  } else if (unknown) {
+    // Never claim a count the page could not read - the same rule the panel itself follows.
+    name = _t('Show open items', 'Ipakita ang mga open na item');
+  } else {
+    const parts = [_t(`${open} from Logbook`, `${open} mula sa Logbook`)];
+    if (pms) parts.push(_t(`${pms} PMs due`, `${pms} PM na nakatakda`));
+    name = _t(`Show open items (${parts.join(', ')})`, `Ipakita ang mga open na item (${parts.join(', ')})`);
+  }
+  btn.setAttribute('aria-label', name);
+  btn.setAttribute('title', name);
+  btn.setAttribute('aria-expanded', String(!sidebarCollapsed));
+  const badge = document.getElementById('sidebar-rail-count');
+  if (badge) {
+    const n = open + pms;
+    badge.textContent = unknown ? '?' : (n > 99 ? '99+' : String(n));
+  }
+}
+
 function toggleSidebar() {
   syncSidebarState();
   sidebarCollapsed = !sidebarCollapsed;
@@ -963,6 +1347,7 @@ function toggleSidebar() {
   document.getElementById('sidebar-hint').style.display = sidebarCollapsed ? 'none' : 'block';
   document.getElementById('sidebar-count-label').style.display = sidebarCollapsed ? 'none' : 'block';
   document.getElementById('sidebar-items').style.display = sidebarCollapsed ? 'none' : 'flex';
+  _dpSyncSidebarToggle();
 }
 
 async function loadLogbook() {
@@ -971,9 +1356,23 @@ async function loadLogbook() {
     if (error) throw error;
     // Show open items: not Closed/Resolved
     logbookItems = (data || []).filter(r => r.status !== 'Closed' && r.status !== 'Resolved');
+    logbookFailed = false;   // a recovered read must clear it, or one glitch marks the page forever
     renderSidebar();
   } catch(e) {
+    // ★THE GUARD EXISTED AND THIS READ NEVER SET IT (design lens critique, W45908 Assessment A,
+    // 2026-09-15). renderSidebar's zero-branch has exactly the right protection - "a failed cloud read
+    // also yields total === 0, and a tick beside 'No open items' then reads as good news" - but it keys
+    // on `_dpCloudReadFailed`, which is set ONLY by loadSchedule. This catch logged to the console and
+    // called renderSidebar() with `logbookItems` still [] and no flag, and the three reads run in one
+    // Promise.all, so v_logbook_truth can fail ALONE: the schedule tiles then render correctly while
+    // this panel says "0 open items from Logbook" and "No open items" beside a green check.
+    //
+    // The identical class was found, diagnosed and fixed for the SCHEDULE read and for the PM rail
+    // (plantWorkFailed, declared beside this one) and left open on the third. A lesson written for two
+    // of three readers of the same panel is not a lesson that landed.
     console.warn('Logbook load failed:', e);
+    logbookItems = [];
+    logbookFailed = e || true;
     renderSidebar();
   }
 }
@@ -1021,13 +1420,13 @@ function renderPlantWorkSection() {
   if (!plantWork.length) {
     /* Silence is only honest when the read ANSWERED. */
     if (plantWorkFailed) {
-      return '<div class="section-note" style="font-size:0.72rem;opacity:0.8;padding:0.5rem 0;">'
+      return '<div class="section-note" style="font-size:0.75rem;opacity:0.8;padding:0.5rem 0;">'
         + '' + _t("Could not load plant PM work, so this rail is empty for a reason that is not \"nothing due\". Reload to try again.", "Hindi ma-load ang plant PM work, kaya walang laman ang rail na ito sa dahilang hindi \"walang due\". I-reload para subukan muli.") + '</div>';
     }
     if (plantWorkHiveLost) {
       // The read ANSWERED - with nothing, because it was refused. Vanishing here reads as "no plant work
       // today" to someone who is simply no longer allowed to see it.
-      return '<div class="section-note" style="font-size:0.72rem;opacity:0.8;padding:0.5rem 0;">'
+      return '<div class="section-note" style="font-size:0.75rem;opacity:0.8;padding:0.5rem 0;">'
         + escHtml((typeof whHiveContextLost === 'function')
             ? whHiveContextLost('this hive')
             : 'You are no longer a member of this hive, so its plant PM work is not shown.')
@@ -1047,12 +1446,12 @@ function renderPlantWorkSection() {
       <div class="lb-card-header">
         <div class="lb-dot" style="background:var(--wh-blue)"></div>
         <div style="flex:1;min-width:0">
-          <div style="font-size:0.72rem;font-weight:600;color:rgba(255,255,255,0.85);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${e(pm.item_text || 'PM task')}</div>
-          <div style="font-size:0.65rem;color:rgba(255,255,255,0.80);margin-top:1px">${e(pm.asset_name || pm.asset_tag || 'Asset')} &bull; due ${e(pm.next_due_date || '')}</div>
+          <div style="font-size:0.75rem;font-weight:600;color:rgba(255,255,255,0.85);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${e(pm.item_text || 'PM task')}</div>
+          <div style="font-size:0.75rem;color:rgba(255,255,255,0.80);margin-top:4px;font-weight:400">${e(pm.asset_name || pm.asset_tag || 'Asset')} &bull; due ${e(pm.next_due_date || '')}</div>
         </div>
         ${badge}
       </div>
-      <button class="btn-ghost" data-i="addtoday" style="width:100%;font-size:0.72rem;min-height:44px;padding:0.5rem 0.75rem;margin-top:0.5rem" ${added ? 'disabled' : ''}
+      <button class="btn-ghost" data-i="addtoday" style="width:100%;font-size:0.75rem;min-height:44px;padding:0.5rem 0.75rem;margin-top:0.5rem" ${added ? 'disabled' : ''}
         onclick="addPmToDay('${escJsAttr(pm.scope_item_id)}')">
         ${added ? 'On your day &#10003;' : '+ Add to my day'}
       </button>
@@ -1064,13 +1463,13 @@ function renderPlantWorkSection() {
         <span class="ic ic-clock" aria-hidden="true"></span>
         <!-- "your plant" said to a solo car owner read wrong (VP13); "your assets" is true for
              every persona - plant crew, fleet, or one Ranger -->
-        <span style="font-size:0.72rem;font-weight:700;color:rgba(255,255,255,0.8)">Due from your assets</span>
-        <span style="font-size:0.6rem;color:rgba(255,255,255,0.80)">${plantWorkTotal > plantWork.length
+        <span style="font-size:0.75rem;font-weight:700;color:rgba(255,255,255,0.8)">Due from your assets</span>
+        <span style="font-size:0.75rem;color:rgba(255,255,255,0.80)">${plantWorkTotal > plantWork.length
           ? `${plantWork.length} of ${plantWorkTotal} PMs`
           : `${plantWork.length} PM${plantWork.length !== 1 ? 's' : ''}`}</span>
       </div>
       ${cards}
-      ${plantWorkTotal > plantWork.length ? `<div class="section-note" style="font-size:0.65rem;opacity:0.8;padding:0.35rem 0 0">
+      ${plantWorkTotal > plantWork.length ? `<div class="section-note" style="font-size:0.75rem;opacity:0.8;padding:0.5rem 0 0">
         Showing the ${plantWork.length} most urgent of ${plantWorkTotal} due across your plant. Open PM Scheduler for the full list.</div>` : ''}
     </div>`;
 }
@@ -1105,6 +1504,7 @@ function addPmToDay(scopeItemId) {
 }
 
 function renderSidebar() {
+  _dpSyncSidebarToggle();   // the counts land with the reads, and the name quotes them
   const container = document.getElementById('sidebar-items');
   const label = document.getElementById('sidebar-count-label');
   const bar = document.getElementById('sidebar-count-bar');
@@ -1112,15 +1512,19 @@ function renderSidebar() {
   // C-BR: Filipino has no plural -s, so the count carries the number on its own.
   label.textContent = _t(`${total} open item${total !== 1 ? 's' : ''} from Logbook`,
                          `${total} bukas na item mula sa Logbook`);
-  bar.style.width = Math.min(100, total * 10) + '%';
+  // The transform, not the width: see the .cap-bar rule (design lens motion, 2026-09-15).
+  bar.style.transform = 'scaleX(' + (Math.min(100, total * 10) / 100) + ')';
 
   if (total === 0) {
     // A FAILED CLOUD READ ALSO YIELDS total === 0, and a tick beside "No open items" then reads as
     // good news - "nothing outstanding" - at the moment the page cannot tell. Measured under an
     // injected 500: the hero tiles correctly dashed and said "Could not load your plan", while this
     // panel still said "0 open items from Logbook" and "No open items" beside a check icon.
-    if (_dpCloudReadFailed) {
-      label.textContent = 'Open items unknown';
+    // Either read failing yields the same zero, so either one must claim it. (2026-09-15: the second
+    // term is the logbook's own flag - this branch used to fire only when the SCHEDULE read failed,
+    // which is the one read that does not populate this panel.)
+    if (_dpCloudReadFailed || logbookFailed) {
+      label.textContent = _t('Open items unknown', 'Hindi alam ang mga open na item');
       container.innerHTML = `<div style="text-align:center;padding:2rem 0;color:rgba(255,255,255,0.85);font-size:0.75rem">
         <span class="ic ic-warn" aria-hidden="true"></span>
         ${escHtml(_t('Could not load your open items. This is a connection problem, not an empty queue.', 'Hindi ma-load ang mga open item mo. Problema ito sa koneksyon, hindi walang laman na queue.'))}</div>`
@@ -1174,28 +1578,28 @@ function renderSidebar() {
       <div class="lb-card-header">
         <div class="lb-dot" style="background:${c.text}"></div>
         <div style="flex:1;min-width:0">
-          <div style="font-size:0.72rem;font-weight:600;color:rgba(255,255,255,0.85);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(item.machine) || 'Unknown Machine'}</div>
+          <div style="font-size:0.75rem;font-weight:600;color:rgba(255,255,255,0.85);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(item.machine) || 'Unknown Machine'}</div>
           <!-- item.date is a raw DB timestamptz and was printed VERBATIM here: the card read
                "AC-02 2026-07-19T23:48:14.44094+00:00 . Pneumatic". Found 2026-08-06 while measuring
                this card's 2px collapse - the defect was hidden inside a box clipped to two pixels.
                whFmtDate is the platform's canonical formatter (en-PH, Asia/Manila) and is already used
                four times elsewhere in this same file, so this was an adoption gap, not a missing tool.
                It is null/NaN-safe and returns '-' for an unparseable value, so no guard is needed. -->
-          <div style="font-size:0.65rem;color:rgba(255,255,255,0.80);margin-top:1px">${item.date ? escHtml(whFmtDate(item.date, { year: false })) : ''} &bull; ${escHtml(item.category) || ''}</div>
+          <div style="font-size:0.75rem;color:rgba(255,255,255,0.80);margin-top:4px;font-weight:400">${item.date ? escHtml(whFmtDate(item.date, { year: false })) : ''} &bull; ${escHtml(item.category) || ''}</div>
         </div>
         <div style="display:flex;align-items:center;gap:4px">
           ${schedBadge}
-          <span class="ic ic-caret" aria-hidden="true"></span>
+          <span class="ic ic-caret" id="lbc-arrow-${item.id}" style="display:inline-block;transition:transform 150ms var(--wh-ease-out, ease-out)" aria-hidden="true"></span>
         </div>
       </div>
       <div class="lb-card-body" id="lbc-body-${item.id}">
-        <div style="font-size:0.68rem;color:rgba(255,255,255,0.80);margin-bottom:0.5rem;line-height:1.4">${escHtml((item.problem || '').substring(0,120))}${(item.problem||'').length > 120 ? '...' : ''}</div>
+        <div style="font-size:0.75rem;color:rgba(255,255,255,0.80);margin-bottom:0.5rem;line-height:1.4">${escHtml((item.problem || '').substring(0,120))}${(item.problem||'').length > 120 ? '...' : ''}</div>
         <div style="display:flex;gap:0.375rem;flex-wrap:wrap;margin-bottom:0.5rem">
           <span class="badge" style="background:${c.bg};color:${c.text};border:1px solid ${c.border}">${escHtml(item.category)}</span>
           <span class="badge" style="background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.80)">${escHtml(item.status) || 'Open'}</span>
         </div>
-        ${linked.length ? `<div style="font-size:0.62rem;color:rgba(255,255,255,0.80);margin-bottom:0.375rem">${linked.length} scheduled slot${linked.length>1?'s':''}</div>` : ''}
-        <button class="btn-ghost" style="width:100%;font-size:0.72rem;min-height:44px;padding:0.5rem 0.75rem" onclick="event.stopPropagation();selectAndSchedule('${escJsAttr(item.id)}')" data-i="placeonschedule">+ Place on Schedule</button>
+        ${linked.length ? `<div style="font-size:0.75rem;color:rgba(255,255,255,0.80);margin-bottom:0.375rem">${linked.length} scheduled slot${linked.length>1?'s':''}</div>` : ''}
+        <button class="btn-ghost" style="width:100%;font-size:0.75rem;min-height:44px;padding:0.5rem 0.75rem" onclick="event.stopPropagation();selectAndSchedule('${escJsAttr(item.id)}')" data-i="placeonschedule">+ Place on Schedule</button>
       </div>
     </div>`;
   }).join('') + renderPlantWorkSection();
@@ -1207,6 +1611,16 @@ function selectLogbookItem(id) {
 
   // Toggle expand/collapse
   const body = document.getElementById(`lbc-body-${id}`);
+  // ★THE FIRST TAP ON EVERY LOGBOOK CARD THREW (design lens critique, W45908 Assessment B,
+  // 2026-09-15, EXECUTED: selectLogbookItem('L') raised "Cannot read properties of null (reading
+  // 'style')" and left selectedLogbookItem null). No template emitted `id="lbc-arrow-*"` - the card
+  // rendered a bare `<span class="ic ic-caret">` - so this lookup returned null and the assignment
+  // below threw, ABORTING the rest of the function. The body had already received `.open`, so the
+  // card LOOKED like it responded while nothing was selected; the reader's next tap on a time slot
+  // then opened a blank modal, which is precisely the flow the sidebar's own instruction describes.
+  // The second tap worked, which is how a defect like this survives casual use.
+  // Both halves are fixed: the caret now carries the id (so the rotation the code always intended
+  // actually happens) and the use is guarded (so a future template change cannot re-arm the throw).
   const arrow = document.getElementById(`lbc-arrow-${id}`);
   const isOpen = body.classList.contains('open');
   // Close all
@@ -1215,7 +1629,7 @@ function selectLogbookItem(id) {
 
   if (!isOpen) {
     body.classList.add('open');
-    arrow.style.transform = 'rotate(180deg)';
+    if (arrow) arrow.style.transform = 'rotate(180deg)';
   }
 
   // Toggle selection
@@ -1260,9 +1674,16 @@ function switchView(view) {
 }
 
 function navigate(dir) {
+  _dpShowAllHours = false;   // a new day re-derives its own window
   if (currentView === 'dilo') currentDate.setDate(currentDate.getDate() + dir);
   else if (currentView === 'wilo') currentDate.setDate(currentDate.getDate() + dir * 7);
-  else if (currentView === 'milo') currentDate.setMonth(currentDate.getMonth() + dir);
+  // ★ON THE 31st, "NEXT MONTH" SKIPPED A MONTH (design lens critique, W45908 Assessment B,
+  // 2026-09-15, EXECUTED: standing 2026-01-31, Next in Month view landed on 2026-03-03 - February
+  // unreachable; also 03-31->05-01, 05-31->07-01, 08-31->10-01, 10-31->12-01, and Previous from
+  // 05-31 -> 05-01). setMonth keeps the day-of-month and rolls over when the target month is shorter.
+  // Both month views render from the month of currentDate, so the day-of-month carries no meaning
+  // here; anchoring to the 1st before the arithmetic is the whole fix.
+  else if (currentView === 'milo') { currentDate.setDate(1); currentDate.setMonth(currentDate.getMonth() + dir); }
   else if (currentView === 'yilo') currentDate.setFullYear(currentDate.getFullYear() + dir);
   render();
 }
@@ -1320,7 +1741,19 @@ function renderDayplannerSummary() {
     const todayItems = scheduleItems.filter(i => i.date === ymdToday);
     const weekItems  = scheduleItems.filter(i => i.date >= ymdMon && i.date <= ymdSun);
     const pool = todayItems.length ? todayItems : weekItems.length ? weekItems : scheduleItems;
-    const lbl  = todayItems.length ? "Today's plan done" : weekItems.length ? "This week's plan done" : 'Plan items completed';
+    // ★AND THE GOAL-GRADIENT'S LABEL WAS ENGLISH ON A FILIPINO PAGE (design lens copy, 2026-09-15):
+    // measured 'Plan items completed' under wh_lang=fil. It is the caption on the one element that tells a
+    // supervisor how much of his own day is done.
+    const lbl  = todayItems.length ? _t("Today's plan done", 'Tapos sa plano ngayong araw')
+               : weekItems.length  ? _t("This week's plan done", 'Tapos sa plano ngayong linggo')
+               // ★AND THE FALLBACK LABEL DID NOT SAY WHICH POOL IT WAS COUNTING (design lens critique,
+               // W45908 Assessment A, 2026-09-15). The first two branches name their pool - today's
+               // plan, this week's plan - and the third, which fires exactly when both are empty,
+               // said only "Plan items completed". So a supervisor with nothing planned this week saw
+               // a half-full amber bar reading "3 of 6" and read it as half of TODAY, when it is half
+               // of every item he has ever planned, three of them finished two months ago. A bar that
+               // credits old work as current progress is worse than no bar.
+               :                     _t('All plan items', 'Lahat ng item sa plano');
     const done = pool.filter(i => getItemStatus(i) === 'done').length;
     dpProg.innerHTML = whProgressStrip(lbl, done, pool.length);
   }
@@ -1379,22 +1812,44 @@ function renderDayplannerSummary() {
     return;
   }
 
+  // ★THE FAILURE PANEL HAD NO WAY OUT (design lens critique, W45908 Assessment B, 2026-09-15,
+  // EXECUTED: after _dpCloudReadFailed was cleared and the summary re-rendered successfully,
+  // #empty-state.hidden was still false and still showed the failure text and its Retry button).
+  // `eS.hidden = false` above had no counterpart anywhere in the file, so one glitch left the panel
+  // painted over a recovered page for the rest of the session - the read-failure design's one hole,
+  // and the same "a recovered read must clear the failure" rule the flags above already follow.
+  const _eSok = document.getElementById('empty-state');
+  if (_eSok) _eSok.hidden = true;
+
+  // ★THE EMPTY STATE WAS TRANSLATED AND THE WORKING STATE WAS NOT (design lens copy, 2026-09-15).
+  // Measured by the two-language walk: every zero branch in this function speaks Filipino and every
+  // branch a plant with actual work shows speaks English - so the page is bilingual exactly while there
+  // is nothing on it. The tags are the sharpest case: one uppercase word per tile is what a supervisor
+  // scans, and all ten were English. Short forms, because the chip is ~90px on a 390 screen.
   setCard('today',
     String(todayCount),
-    todayCount === 0 ? _t('No items scheduled for today', 'Walang naka-iskedyul ngayong araw') : `${todayCount} item${todayCount === 1 ? '' : 's'} on today's plan`,
-    todayCount === 0 ? 'OPEN' : todayCount > 6 ? 'BUSY' : 'PLANNED',
+    todayCount === 0 ? _t('No items scheduled for today', 'Walang naka-iskedyul ngayong araw')
+                     : _t(`${todayCount} item${todayCount === 1 ? '' : 's'} on today's plan`,
+                          `${todayCount} item sa plano ngayong araw`),
+    todayCount === 0 ? _t('OPEN', 'BUKAS') : todayCount > 6 ? _t('BUSY', 'ABALA') : _t('PLANNED', 'NAKAPLANO'),
     todayCount === 0 ? 'green' : todayCount > 6 ? 'amber' : 'green'
   );
   setCard('week',
     String(weekCount),
-    weekCount === 0 ? _t('No items scheduled this week', 'Walang naka-iskedyul ngayong linggo') : `${weekCount} item${weekCount === 1 ? '' : 's'} between Mon-Sun`,
-    weekCount === 0 ? 'EMPTY' : weekCount > 30 ? 'PACKED' : weekCount > 10 ? 'NORMAL' : 'LIGHT',
+    weekCount === 0 ? _t('No items scheduled this week', 'Walang naka-iskedyul ngayong linggo')
+                    : _t(`${weekCount} item${weekCount === 1 ? '' : 's'} between Mon-Sun`,
+                         `${weekCount} item sa pagitan ng Lun-Lin`),
+    weekCount === 0 ? _t('EMPTY', 'WALA') : weekCount > 30 ? _t('PACKED', 'SIKSIK')
+                    : weekCount > 10 ? _t('NORMAL', 'KATAMTAMAN') : _t('LIGHT', 'MAGAAN'),
     weekCount === 0 ? 'grey' : weekCount > 30 ? 'amber' : 'green'
   );
   setCard('overdue',
     String(overdueCount),
-    overdueCount === 0 ? _t('No items past their date', 'Walang item na lumipas na ang petsa') : `${overdueCount} item${overdueCount === 1 ? '' : 's'} past their scheduled date`,
-    overdueCount === 0 ? 'CLEAR' : overdueCount >= 3 ? 'STACKING' : 'CLOSE OUT',
+    overdueCount === 0 ? _t('No items past their date', 'Walang item na lumipas na ang petsa')
+                       : _t(`${overdueCount} item${overdueCount === 1 ? '' : 's'} past their scheduled date`,
+                            `${overdueCount} item na lampas na sa nakatakdang petsa`),
+    overdueCount === 0 ? _t('CLEAR', 'MALINIS') : overdueCount >= 3 ? _t('STACKING', 'NAIIPON')
+                       : _t('CLOSE OUT', 'ISARA NA'),
     overdueCount === 0 ? 'green' : overdueCount >= 3 ? 'red' : 'amber'
   );
 
@@ -1407,12 +1862,20 @@ function renderDayplannerSummary() {
     // The Filipino half needs none: Filipino does not inflect nouns for number.
     tone = 'attn'; label = _t(`${overdueCount} item${overdueCount === 1 ? '' : 's'} overdue`,
                               `${overdueCount} item na lampas na sa takda`);
-    sub  = 'Close them out (mark Closed) or re-schedule so the day plan reflects reality.';
+    // The label beside it was already bilingual; this - the instruction - was not.
+    // ★"MARK CLOSED" IS THE LOGBOOK'S WORD AND THIS PAGE HAS NO SUCH CONTROL (W45908 Assessment B,
+    // 2026-09-15). The editor offers Upcoming / Done / Missed; nothing here is labelled Close. Sending
+    // a reader to look for a button that does not exist costs them the trust they need to follow the
+    // next instruction. The planner's own vocabulary, and the control that actually carries it.
+    sub  = _t('Open each one and mark it Done, or change its date so the plan matches reality.',
+              'Buksan ang bawat isa at markahan itong Done, o palitan ang petsa para tumugma ang plano sa totoong nangyayari.');
   } else if (overdueCount > 0 || todayCount > 6) {
-    tone = 'watch'; label = 'Day is shaping up, a couple of things to manage';
+    // The 'watch' branch is the one a normal working day lands on, and it was English end to end.
+    tone = 'watch'; label = _t('Day is shaping up, a couple of things to manage',
+                               'Umaayos na ang araw, may ilang bagay na dapat asikasuhin');
     const parts = [];
-    if (overdueCount > 0) parts.push(`${overdueCount} overdue`);
-    if (todayCount > 6)   parts.push(`${todayCount} on today's plan`);
+    if (overdueCount > 0) parts.push(_t(`${overdueCount} overdue`, `${overdueCount} lampas sa takda`));
+    if (todayCount > 6)   parts.push(_t(`${todayCount} on today's plan`, `${todayCount} sa plano ngayong araw`));
     sub = parts.join(' · ') + '.';
   } else if (todayCount === 0 && weekCount === 0) {
     tone = 'empty'; label = _t('No plan yet', 'Wala pang plano');
@@ -1435,17 +1898,43 @@ function renderDayplannerSummary() {
     // C-BT: the whole cascade, not just the branch a stamped element happened to sit on. The FIRST
     // branch is the one a person with an empty plan meets - the same "the empty state is the
     // untranslated one" shape the J31 Filipino walk found across achievements and marketplace.
-    if (todayCount === 0 && weekCount === 0) {
-      text = _t('Nothing planned yet. Tap + Schedule to block out your week. Rough placeholders still help you group work by area.',
-                'Wala pang nakaplano. I-tap ang + Schedule para hatiin ang linggo mo. Malaking tulong pa rin ang magaspang na plano para pagsama-samahin ang trabaho.');
-    } else if (overdueCount >= 3) {
+    //
+    // ★AND THE ORDER OF THE BRANCHES WAS THE CONTRADICTION (design lens critique, W45908 Assessment A,
+    // 2026-09-15). This cascade tested the EMPTY branch first while the verdict cascade eight pixels
+    // above it tests `overdueCount >= 3` first - and those two conditions CO-OCCUR constantly: any
+    // overdue backlog with an unplanned week. Measured on the live database for the walk's own reader:
+    // Hector Salvador has 6 schedule_items, 3 not done, all dated July, so overdue=3, today=0, week=0
+    // and the page printed a red "3 items overdue" directly above a blue "Nothing planned yet."
+    //
+    // "What to do next" is the one element on the page written for a person who wants to be TOLD what
+    // to do. The first time it contradicts the banner above it, it stops being read - and it is the
+    // only place the page ever gives an instruction. So the precedence here now MATCHES the verdict's
+    // (overdue >= 3, then overdue > 0, then today > 6, then empty), and the two overdue branches carry
+    // the empty plan as a second clause instead of being overruled by it: both facts are true, and the
+    // one that decides what to do first is the backlog.
+    const _planEmpty = todayCount === 0 && weekCount === 0;
+    if (overdueCount >= 3) {
       // C-BR: four short sentences in both halves, each well inside the 20-word bar - the split is the
       // reason the Filipino fits, since it expands against the English.
-      text = _t(`${overdueCount} items overdue. Open the Week view. Drag the ones you still need to today or tomorrow. Close the rest.`,
-                `${overdueCount} item ang lampas na sa takda. Buksan ang Week view. I-drag sa ngayon o bukas ang mga kailangan pa. Isara ang iba.`);
+      // ★AND THE INSTRUCTION NAMED A GESTURE THE PAGE DOES NOT HAVE (W45908 Assessment B, 2026-09-15:
+      // zero drag handlers in the file). It also sent the reader to the Week view, which opens on the
+      // CURRENT week - B followed it with the real data and landed on an empty grid eight weeks away
+      // from the overdue work. The overdue items are in the sidebar and on their own dates; the way to
+      // move one is to open it and change its date, which is what this now says.
+      text = _planEmpty
+        ? _t(`${overdueCount} items overdue and nothing planned this week. Start there: open each overdue item and give it a new date.`,
+             `${overdueCount} item ang lampas na sa takda at wala pang plano ngayong linggo. Doon magsimula: buksan ang bawat isa at bigyan ng bagong petsa.`)
+        : _t(`${overdueCount} items overdue. Open each one. Mark it Done if it is finished, or give it a new date.`,
+             `${overdueCount} item ang lampas na sa takda. Buksan ang bawat isa. Markahang Done kung tapos na, o bigyan ng bagong petsa.`);
     } else if (overdueCount > 0) {
-      text = _t(`${overdueCount} overdue item${overdueCount === 1 ? '' : 's'}. Either close them out (if done) or push the date forward so the plan stays honest.`,
-                `${overdueCount} item ang lampas na sa takda. Isara ang mga tapos na, o iusod ang petsa para manatiling totoo ang plano.`);
+      text = _planEmpty
+        ? _t(`${overdueCount} overdue item${overdueCount === 1 ? '' : 's'} and nothing planned this week. Put ${overdueCount === 1 ? 'it' : 'them'} on a day first, then plan around ${overdueCount === 1 ? 'it' : 'them'}.`,
+             `${overdueCount} item ang lampas na sa takda at wala pang plano ngayong linggo. Ilagay muna sila sa isang araw, tapos magplano sa paligid nila.`)
+        : _t(`${overdueCount} overdue item${overdueCount === 1 ? '' : 's'}. Open ${overdueCount === 1 ? 'it' : 'each one'} and mark it Done, or push the date forward so the plan stays honest.`,
+             `${overdueCount} item ang lampas na sa takda. Buksan ang bawat isa at markahang Done, o iusod ang petsa para manatiling totoo ang plano.`);
+    } else if (_planEmpty) {
+      text = _t('Nothing planned yet. Tap + Schedule to block out your week. Rough placeholders still help you group work by area.',
+                'Wala pang nakaplano. I-tap ang + Schedule para hatiin ang linggo mo. Malaking tulong pa rin ang magaspang na plano para pagsama-samahin ang trabaho.');
     } else if (todayCount > 6) {
       // T131: the English half takes the singular branch. This branch only fires above 6 items, so n=1
       // cannot occur here today - but the ratchet counts the SHAPE, and a threshold is a thing that gets
@@ -1463,11 +1952,38 @@ function renderDayplannerSummary() {
 // ─────────────────────────────────────────────
 // DILO: Day In the Life Of
 // ─────────────────────────────────────────────
+// The scroll-to-now machinery that briefly lived here is gone (2026-09-15): the grid now OPENS at the
+// hour that matters (see renderDILO's derived window), so there is nothing to scroll to, and the
+// version that scrolled the page was failed by the nav-hub ratchet for leaving a control under the
+// fixed wayfinding band at rest. `_dpShowAllHours` below is what remains of it.
+let _dpShowAllHours = false;
+
 // Convert "HH:MM" to total minutes from midnight
+// One spelling of an hour, used by the caption, the hour labels and the "show earlier hours" control.
+// The caption used to be the hardcoded string "12 AM-11 PM" while the grid began at 6 AM - a window
+// that describes itself wrongly is worse than one that says nothing.
+function _hrLabel(h) { return h === 0 ? '12 AM' : h < 12 ? `${h} AM` : h === 12 ? '12 PM' : `${h - 12} PM`; }
+
 function timeToMins(t) {
   if (!t) return null;
   const [h, m] = t.split(':').map(Number);
   return h * 60 + m;
+}
+
+// ★A NIGHT SHIFT CROSSES MIDNIGHT AND EVERY SITE COMPUTED AS IF IT COULD NOT (design lens critique,
+// W45908 Assessment B, 2026-09-15). An end EARLIER than the start means the next day - on a plant
+// running three shifts that is the ordinary case, not an edge one, and this page's own capacity note
+// already says so in as many words while the form refused to accept it.
+// One helper, used by the validator, the capacity reducer, the block layout and the status
+// derivation, so a fifth caller added later cannot quietly reintroduce the split. `end === start` is
+// NOT treated as a crossing: that is a zero-length job, and reading it as 24 hours would turn a typo
+// into a full shift of phantom capacity.
+function _dpEndMins(startMins, endTime) {
+  if (startMins === null || startMins === undefined) return null;
+  if (!endTime) return startMins + 60;               // the renderer's long-standing default
+  const e = timeToMins(endTime);
+  if (e === null) return startMins + 60;
+  return e < startMins ? e + 1440 : e;               // crosses midnight
 }
 
 // Detect overlapping groups and assign column positions
@@ -1479,7 +1995,10 @@ function layoutBlocks(items) {
     .map(i => ({
       item: i,
       start: timeToMins(i.startTime),
-      end: i.endTime ? timeToMins(i.endTime) : timeToMins(i.startTime) + 60,
+      // A crossing job extends PAST 1440 here on purpose: the sweep-line below compares ends against
+      // starts, and folding the end back into the same day would make a 23:00-01:00 job look like it
+      // finished before it began, so it would never be detected as overlapping anything.
+      end: _dpEndMins(timeToMins(i.startTime), i.endTime),
     }))
     .sort((a, b) => a.start - b.start);
 
@@ -1523,15 +2042,62 @@ function renderDILO() {
   const todayStr = todayYMD();
   const isToday = ymd === todayStr;
   document.getElementById('period-label').textContent =
-    (isToday ? 'Today, ' : '') +
+    (isToday ? _t('Today, ', 'Ngayon, ') : '') +
     whFmtDate(currentDate, { long: true, weekday: 'long' }); // FD1a canonical (en-PH + Asia/Manila)
 
   const items = itemsOnDate(ymd);
 
+  const now = new Date();
+  const nowMins = isToday ? now.getHours() * 60 + now.getMinutes() : null;
+
+  // ★THE GRID NO LONGER STARTS AT MIDNIGHT, AND NOTHING SCROLLS ITSELF TO HIDE THE FIX (2026-09-15).
+  // The first attempt at A's finding #4 scrolled the page to the current hour; the nav-hub ratchet
+  // failed the page at once because an hour slot then sat under the fixed wayfinding band AT REST -
+  // a control hidden without the reader having scrolled, which is worse than the nine dead rows it
+  // was meant to spare them. A's own better suggestion is this one: stop rendering the hours nobody
+  // plans into.
+  //
+  // The start is DERIVED, never a constant, because the night shift became schedulable in this same
+  // batch: 06:00 by default, widened to the earliest hour that actually holds work, and to the
+  // current hour when the reader is on today. So a supervisor at 02:00 with a boiler watch booked
+  // sees both, and nobody is shown nine empty rows.
+  let startHour = 6;
+  items.forEach((i) => {
+    if (!i.startTime) return;
+    const h = Math.floor(timeToMins(i.startTime) / 60);
+    if (h < startHour) startHour = h;
+  });
+  if (isToday && now.getHours() < startHour) startHour = now.getHours();
+  if (_dpShowAllHours) startHour = 0;
+  const startMins = startHour * 60;
+  const totalH = (24 - startHour) * SLOT_H;
+  const nowTop = nowMins !== null ? Math.round((nowMins - startMins) / 60 * SLOT_H) : null;
+
   // Capacity bar
-  const scheduled = items.filter(i => i.startTime && i.endTime);
-  const totalMins = scheduled.reduce((a, i) => {
-    const s = timeToMins(i.startTime), e = timeToMins(i.endTime);
+  //
+  // ★THE METER READ 0% ON A DAY THAT HAD WORK ON IT (design lens critique, W45908 Assessment A,
+  // 2026-09-15). This filter was `i.startTime && i.endTime`, so an item with a start and no end
+  // contributed ZERO - while layoutBlocks two functions below renders that same item as a real block
+  // using `end = start + 60` (the default it has always had). So the grid showed four blocks and the
+  // row directly above them read "Capacity 0% · 0.0h / 8h", in GREEN, because capColor returns the
+  // healthy tone at 0%.
+  //
+  // That is not a rounding disagreement between two views, it is the one figure on the page that
+  // answers "can I fit this in?" being wrong in the REASSURING direction - which on a shift plan is
+  // how work gets dropped. And it is the ordinary case, not the edge: an end time is the field a
+  // supervisor skips when he does not yet know how long a job takes, which is exactly when he is
+  // adding it mid-shift.
+  //
+  // The renderer's default is now the meter's default, so the two agree by construction. The estimate
+  // is DISCLOSED rather than hidden - a figure that silently invents an hour per job is the same
+  // defect wearing the other sign - and untimed items are counted beside it instead of vanishing
+  // into a zero.
+  const timedItems   = items.filter(i => i.startTime);
+  const assumedEnd   = timedItems.filter(i => !i.endTime).length;
+  const untimedCount = items.length - timedItems.length;
+  const totalMins = timedItems.reduce((a, i) => {
+    const s = timeToMins(i.startTime);
+    const e = _dpEndMins(s, i.endTime);   // same default AND the same midnight crossing as layoutBlocks
     return a + Math.max(0, e - s);
   }, 0);
   // ★THE CLAMP THE BAR NEEDS WAS ALSO CAPPING THE NUMBER (live-caught 2026-08-19). capPct was
@@ -1547,9 +2113,13 @@ function renderDILO() {
   // "impossible" do not look alike to someone scanning a day plan.
   const capColor = capPct > 100 ? '#ef4444' : capPct > 85 ? '#f87171' : capPct > 60 ? '#F7A21B' : '#4ade80';
 
-  let html = `<div style="margin-bottom:1rem;display:flex;align-items:center;gap:0.75rem">
+  // ★AT 125% TEXT THIS RAN 75px PAST A 390px SCREEN (design lens audit, 2026-09-15). Both this row and
+  // the capacity group inside it are flex with no wrap, so a reader who scales text - which is the reader
+  // most likely to need the capacity figure - pushed "Capacity 0% · 0.0h / 8h" off the right edge. The
+  // top-bar above them already wraps; these now do the same.
+  let html = `<div style="margin-bottom:1rem;display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;row-gap:4px">
     <span style="font-size:0.75rem;font-weight:700;color:rgba(255,255,255,0.80);letter-spacing:0.1em">DILO</span>
-    <span style="font-size:0.75rem;color:rgba(255,255,255,0.80)">Day In the Life Of</span>
+    <span style="font-size:0.75rem;color:rgba(255,255,255,0.80)">${_t('Day In the Life Of', 'Isang Araw sa Buhay Ng')}</span>
     <!-- ★WHICH DAY, ON WHOSE CLOCK. The capacity figure now names its denominator (8h), but the DAY
          itself was undefined on the surface: the grid runs 12 AM to 11 PM - midnight to midnight -
          while a 3-shift plant's day is not, and the times are rendered in a FIXED Asia/Manila zone
@@ -1558,10 +2128,10 @@ function renderDILO() {
          and opened the modal on 2026-08-17, because the label read local date parts and the stored
          value read toYMD. The code was fixed; the reader still had no way to know which clock they
          were planning on. Stating it costs one span and makes the boundary checkable. -->
-    <span style="font-size:0.62rem;color:rgba(255,255,255,0.62)">12 AM–11 PM · PHT (Asia/Manila)</span>
+    <span style="font-size:0.75rem;color:rgba(255,255,255,0.62)">${_t(`${_hrLabel(startHour)}–11 PM · PHT (Asia/Manila)`, `${_hrLabel(startHour)}–11 PM · PHT (Asia/Manila) · oras ng Maynila`)}</span>
     <span style="flex:1"></span>
-    <div style="display:flex;align-items:center;gap:0.5rem">
-      <span style="font-size:0.7rem;color:rgba(255,255,255,0.80)">Capacity</span>
+    <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;row-gap:4px">
+      <span style="font-size:0.75rem;color:rgba(255,255,255,0.80)">${_t('Capacity', 'Kapasidad')}</span>
       <div style="width:80px;height:5px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden">
         <div style="width:${capBar}%;height:100%;background:${capColor};border-radius:3px"></div>
       </div>
@@ -1571,8 +2141,14 @@ function renderDILO() {
            and "Planned hours vs available hours are both shown". Stating the hours makes the figure
            decomposable AND surfaces the shift assumption, which matters on a 3-shift plant where 8h is
            not everyone's day. -->
-      <span style="font-size:0.7rem;color:${capColor};font-weight:600">${capPct}%</span>
-      <span style="font-size:0.62rem;color:rgba(255,255,255,0.80)">${(totalMins / 60).toFixed(1)}h / 8h${capPct > 100 ? ' · over capacity' : ''}</span>
+      <span style="font-size:0.75rem;color:${capColor};font-weight:600">${capPct}%</span>
+      <!-- ★AND THE FIGURE NOW SAYS WHAT IT ASSUMED. Counting a start-only item at one hour is a
+           judgement, not a measurement, so it is stated beside the number rather than folded into it;
+           and an untimed item is reported as its own count instead of being represented by nothing.
+           A supervisor who sees "3 counted at 1h" knows which way the figure can be wrong. -->
+      <span style="font-size:0.75rem;color:rgba(255,255,255,0.80)">${(totalMins / 60).toFixed(1)}h / 8h${capPct > 100 ? ' · over capacity' : ''}</span>
+      ${assumedEnd ? `<span style="font-size:0.75rem;color:rgba(255,255,255,0.62)">${_t(`${assumedEnd} without an end time, counted at 1h`, `${assumedEnd} na walang oras ng tapos, binilang na 1h`)}</span>` : ''}
+      ${untimedCount ? `<span style="font-size:0.75rem;color:rgba(255,255,255,0.62)">${_t(`+ ${untimedCount} untimed`, `+ ${untimedCount} walang oras`)}</span>` : ''}
     </div>
   </div>`;
 
@@ -1582,7 +2158,7 @@ function renderDILO() {
     html += `<div style="margin-bottom:0.75rem;display:flex;gap:0.375rem;flex-wrap:wrap">`;
     untimedItems.forEach(item => {
       const c = getSchedColor(item.category);
-      html += `<div style="background:${c.bg};color:${c.text};border:1px solid ${c.text}40;border-radius:0.5rem;padding:0.25rem 0.625rem;font-size:0.7rem;font-weight:600;cursor:pointer"
+      html += `<div style="background:${c.bg};color:${c.text};border:1px solid ${c.text}40;border-radius:0.5rem;padding:0.25rem 0.625rem;font-size:0.75rem;font-weight:600;cursor:pointer"
         onclick="openEditModal('${escJsAttr(item.id)}')" title="${escHtml(item.title)}">
         ${escHtml(item.title)}
       </div>`;
@@ -1590,21 +2166,27 @@ function renderDILO() {
     html += `</div>`;
   }
 
-  const totalH = 24 * SLOT_H;
-  const now = new Date();
-  const nowMins = isToday ? now.getHours() * 60 + now.getMinutes() : null;
-  const nowTop = nowMins !== null ? Math.round(nowMins / 60 * SLOT_H) : null;
 
   const layouts = layoutBlocks(items.filter(i => i.startTime));
+
+  // The hidden hours are one press away, and the control says exactly how many there are - a grid
+  // that silently begins at 6 AM would be its own small lie.
+  if (startHour > 0) {
+    html += `<button class="btn-ghost" onclick="_dpShowAllHours = true; render();"
+      style="width:100%;margin-bottom:0.5rem;font-size:0.75rem"
+      aria-label="${_t(`Show the ${startHour} earlier hours, from 12 AM`, `Ipakita ang ${startHour} na naunang oras, mula 12 AM`)}">
+      ${_t(`Show ${startHour} earlier hours (12 AM - ${_hrLabel(startHour - 1)})`, `Ipakita ang ${startHour} na naunang oras (12 AM - ${_hrLabel(startHour - 1)})`)}
+    </button>`;
+  }
 
   // Build timeline
   html += `<div style="display:grid;grid-template-columns:56px 1fr;gap:0">`;
 
   // Left: time labels column
   html += `<div style="position:relative;height:${totalH}px">`;
-  for (let h = 0; h < 24; h++) {
-    const label = h === 0 ? '12 AM' : h < 12 ? `${h} AM` : h === 12 ? '12 PM' : `${h-12} PM`;
-    html += `<div style="position:absolute;top:${h * SLOT_H - 8}px;right:8px;font-size:0.68rem;color:rgba(255,255,255,0.80);line-height:1;white-space:nowrap">${label}</div>`;
+  for (let h = startHour; h < 24; h++) {
+    const label = _hrLabel(h);
+    html += `<div style="position:absolute;top:${(h - startHour) * SLOT_H - 8}px;right:8px;font-size:0.75rem;color:rgba(255,255,255,0.80);line-height:1;white-space:nowrap">${label}</div>`;
   }
   html += `</div>`;
 
@@ -1612,24 +2194,26 @@ function renderDILO() {
   html += `<div style="position:relative;height:${totalH}px">`;
 
   // Hour lines (clickable)
-  for (let h = 0; h < 24; h++) {
+  for (let h = startHour; h < 24; h++) {
     const slotH = String(h).padStart(2, '0');
-    const slotLabel = h === 0 ? '12 AM' : h < 12 ? `${h} AM` : h === 12 ? '12 PM' : `${h-12} PM`;
+    const slotLabel = _hrLabel(h);
     html += `<div onclick="onSlotClick('${ymd}','${slotH}:00')" class="dp-slot" role="button" tabindex="0"
-      aria-label="Add task at ${slotLabel}"
+      aria-label="${_t('Add task at ' + slotLabel, 'Magdagdag ng task sa ' + slotLabel)}"
       onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}"
-      style="position:absolute;top:${h * SLOT_H}px;left:0;right:0;height:${SLOT_H}px;
-             border-top:1px solid rgba(255,255,255,0.05);cursor:pointer;transition:background 0.15s;z-index:0"
+      style="position:absolute;top:${(h - startHour) * SLOT_H}px;left:0;right:0;height:${SLOT_H}px;
+             border-top:1px solid rgba(255,255,255,0.05);cursor:pointer;transition:background-color 90ms var(--wh-ease-out);z-index:0"
       onmouseenter="this.style.background='rgba(247,162,27,0.03)'"
       onmouseleave="this.style.background='transparent'">
     </div>`;
     // Half-hour line
-    html += `<div style="position:absolute;top:${h * SLOT_H + SLOT_H/2}px;left:0;right:0;height:1px;border-top:1px dashed rgba(255,255,255,0.03);pointer-events:none;z-index:0"></div>`;
+    html += `<div style="position:absolute;top:${(h - startHour) * SLOT_H + SLOT_H/2}px;left:0;right:0;height:1px;border-top:1px dashed rgba(255,255,255,0.03);pointer-events:none;z-index:0"></div>`;
   }
 
   // Current time indicator
   if (nowTop !== null) {
-    html += `<div style="position:absolute;top:${nowTop}px;left:0;right:0;z-index:5;pointer-events:none">
+    // id: the scroll target below. An anchor works whichever ancestor is the scroller, which is the
+    // whole reason the old `wrap.scrollTop` could not work in either layout.
+    html += `<div id="dilo-now" style="position:absolute;top:${nowTop}px;left:0;right:0;z-index:5;pointer-events:none">
       <div style="height:2px;background:var(--wh-orange);box-shadow:0 0 8px rgba(247,162,27,0.6)"></div>
       <div style="position:absolute;top:-4px;left:-4px;width:10px;height:10px;border-radius:50%;background:var(--wh-orange);box-shadow:0 0 6px rgba(247,162,27,0.8)"></div>
     </div>`;
@@ -1638,14 +2222,25 @@ function renderDILO() {
   // Schedule blocks: absolute positioned, properly spanning duration
   layouts.forEach(({ item, start, end, col, totalCols }) => {
     if (start === null) return;
-    const top = Math.round(start / 60 * SLOT_H) + 2;
-    const height = Math.max(20, Math.round((end - start) / 60 * SLOT_H) - 4);
+    // A crossing job's end is past 1440 (see _dpEndMins), and this grid draws ONE day, so the block is
+    // clamped at midnight and says so rather than spilling past the last hour row into nothing.
+    const _visEnd = Math.min(end, 1440);   // the ' +1' suffix on endLabel is what tells the reader
+    const top = Math.round((start - startMins) / 60 * SLOT_H) + 2;
+    const height = Math.max(20, Math.round((_visEnd - start) / 60 * SLOT_H) - 4);
     const gapPx = 3;
     const totalGap = (totalCols - 1) * gapPx;
     const colW = `calc((100% - ${totalGap + 8}px) / ${totalCols})`;
     const colLeft = `calc(${col} * ((100% - ${totalGap + 8}px) / ${totalCols} + ${gapPx}px) + 4px)`;
     const c = getSchedColor(item.category);
-    const endLabel = item.endTime ? ` - ${item.endTime}` : '';
+    /* ★THE TIME FIELDS WERE THE ONE PAIR THAT SKIPPED escHtml (design lens critique, W45908
+       Assessment B, 2026-09-15, EXECUTED: a start_time containing a double quote broke out of this
+       title attribute and injected an event handler, in both DILO and WILO, while `title` and
+       `category` beside it escaped correctly). start_time is an untyped `text` column with NO CHECK
+       constraint and NO entry in the schedule_item_v1 capture contract - which validates only
+       worker_name, date, title, category and item_status - and the table has two writers besides this
+       page. Owner-scoped RLS narrows who can reach it; it does not make an unescaped interpolation
+       correct. One missed pair in an otherwise disciplined file. */
+    const endLabel = item.endTime ? ` - ${escHtml(item.endTime)}${timeToMins(item.endTime) < timeToMins(item.startTime) ? ' +1' : ''}` : '';
     const showDetail = height > 28;
     const status = getItemStatus(item);
     const sc = statusConfig[status];
@@ -1675,14 +2270,14 @@ function renderDILO() {
     const doneStrike = status === 'done' ? 'text-decoration:line-through;' : '';
 
     html += `<div onclick="event.stopPropagation();openEditModal('${escJsAttr(item.id)}')"
-      title="${escHtml(item.title)}: ${item.startTime}${endLabel} [${sc.label}]"
+      title="${escHtml(item.title)}: ${escHtml(item.startTime)}${endLabel} [${sc.label}]"
       style="position:absolute;top:${top}px;left:${colLeft};width:${colW};height:${height}px;
-             background:${blockBg};color:${blockColor};border:1px solid ${blockBorder}50;border-left:3px solid ${blockBorder};
-             border-radius:0.4rem;padding:0.2rem 0.4rem;font-size:0.68rem;font-weight:600;
+             background:${blockBg};color:${blockColor};border:1px solid ${blockBorder}50;border-left:1px solid ${blockBorder};
+             border-radius:0.4rem;padding:0.2rem 0.4rem;font-size:0.75rem;font-weight:600;
              overflow:hidden;cursor:pointer;z-index:2;transition:filter 0.15s;box-sizing:border-box;opacity:${blockOpacity}"
       onmouseenter="this.style.filter='brightness(1.2)';this.style.opacity='1'"
       onmouseleave="this.style.filter='brightness(1)';this.style.opacity='${blockOpacity}'">
-      <div style="display:flex;align-items:center;white-space:nowrap;overflow:hidden">${statusIcon}<span style="overflow:hidden;text-overflow:ellipsis;${doneStrike}">${item.startTime}${endLabel}</span></div>
+      <div style="display:flex;align-items:center;white-space:nowrap;overflow:hidden">${statusIcon}<span style="overflow:hidden;text-overflow:ellipsis;${doneStrike}">${escHtml(item.startTime)}${endLabel}</span></div>
       ${showDetail ? `<div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:0.85;${doneStrike}">${escHtml(item.title)}</div>` : ''}
     </div>`;
   });
@@ -1690,12 +2285,8 @@ function renderDILO() {
   html += `</div></div>`; // close right + grid
   document.getElementById('calendar-wrap').innerHTML = html;
 
-  // Scroll to 6 AM (or 1hr before current time if today)
-  setTimeout(() => {
-    const wrap = document.getElementById('calendar-wrap');
-    const scrollTo = isToday && nowMins ? Math.max(0, nowTop - 80) : 6 * SLOT_H;
-    wrap.scrollTop = scrollTo;
-  }, 50);
+  // No auto-scroll: the grid already OPENS at the hour that matters, so there is nothing to scroll to,
+  // and scrolling the page put a control under the fixed wayfinding band at rest (see the note above).
 }
 
 // ─────────────────────────────────────────────
@@ -1725,20 +2316,54 @@ function renderWILO() {
 
   let html = `<div style="margin-bottom:0.75rem;display:flex;align-items:center;gap:0.75rem">
     <span style="font-size:0.75rem;font-weight:700;color:rgba(255,255,255,0.80);letter-spacing:0.1em">WILO</span>
-    <span style="font-size:0.75rem;color:rgba(255,255,255,0.80)">Week In the Life Of</span>
+    <span style="font-size:0.75rem;color:rgba(255,255,255,0.80)">${_t('Week In the Life Of', 'Isang Linggo sa Buhay Ng')}</span>
   </div>`;
 
   html += `<div class="wilo-grid" style="position:sticky;top:0;z-index:3">
-    <div class="wilo-day-header" style="font-size:0.65rem;color:rgba(255,255,255,0.80)">Time</div>`;
+    <div class="wilo-day-header" style="font-size:0.75rem;color:rgba(255,255,255,0.80)">Time</div>`;
   days.forEach(day => {
     const isToday = toYMD(day) === todayStr;
     const ymd = toYMD(day);
-    html += `<div class="wilo-day-header ${isToday ? 'today' : ''}" onclick="goToDilDay('${ymd}')" style="cursor:pointer" title="Open ${DAY_NAMES[day.getDay()]} in DILO">
-      <div style="font-size:0.7rem">${DAY_NAMES[day.getDay()]}</div>
+    html += `<div class="wilo-day-header ${isToday ? 'today' : ''}" onclick="goToDilDay('${ymd}')" style="cursor:pointer" title="${_t('Open ' + DAY_NAMES[day.getDay()] + ' in DILO', 'Buksan ang ' + DAY_NAMES[day.getDay()] + ' sa DILO')}">
+      <div style="font-size:0.75rem">${DAY_NAMES[day.getDay()]}</div>
       <div style="font-size:1.1rem;font-weight:800;line-height:1">${day.getDate()}</div>
     </div>`;
   });
   html += `</div>`;
+
+  // ★THE MAJORITY OF PLAN ITEMS WERE COUNTED HERE AND DRAWN NOWHERE (design lens critique, W45908
+  // Assessment B, 2026-09-15, EXECUTED: a week of four items, three untimed, rendered one block while
+  // the Week tile above read "4 items between Mon-Sun"). renderWILO drops every item whose start is
+  // null, and 131 of 231 live rows have no start_time - so the view most used for planning a week
+  // showed a week emptier than it was. DILO has carried an untimed banner for exactly this reason and
+  // MILO dots every item; WILO was the one view that disagreed with its own tile.
+  const _wkUntimed = days.map(day => {
+    const ymd = toYMD(day);
+    return { ymd, items: itemsOnDate(ymd).filter(i => !i.startTime) };
+  });
+  if (_wkUntimed.some(d => d.items.length)) {
+    html += `<div class="wilo-grid" style="border-bottom:1px solid rgba(255,255,255,0.07)">
+      <div style="padding:0.375rem 0.25rem;font-size:0.75rem;color:rgba(255,255,255,0.80);text-align:center;align-self:center">${_t('No time', 'Walang oras')}</div>`;
+    _wkUntimed.forEach(d => {
+      html += `<div style="padding:4px;display:flex;flex-direction:column;gap:3px;min-height:28px">`;
+      d.items.forEach(item => {
+        const c = getSchedColor(item.category);
+        const st = getItemStatus(item);
+        const strike = st === 'done' ? 'text-decoration:line-through;opacity:0.65;' : '';
+        html += `<div onclick="event.stopPropagation();openEditModal('${escJsAttr(item.id)}')"
+          role="button" tabindex="0"
+          onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();event.stopPropagation();openEditModal('${escJsAttr(item.id)}');}"
+          aria-label="${escHtml(item.title)} - ${_t('no time set', 'walang nakatakdang oras')}"
+          title="${escHtml(item.title)} - ${_t('no time set', 'walang nakatakdang oras')}"
+          style="background:${c.bg};color:${c.text};border-left:1px solid ${c.text};border-radius:0.3rem;
+                 padding:2px 5px;font-size:0.75rem;font-weight:600;cursor:pointer;
+                 min-height:44px;display:flex;align-items:center;
+                 white-space:nowrap;overflow:hidden;text-overflow:ellipsis;${strike}">${escHtml(item.title)}</div>`;
+      });
+      html += `</div>`;
+    });
+    html += `</div>`;
+  }
 
   const WILO_SLOT_H = 56;
   const totalH = 24 * WILO_SLOT_H;
@@ -1755,8 +2380,8 @@ function renderWILO() {
   // Time label column
   html += `<div style="position:relative;height:${totalH}px;border-right:1px solid rgba(255,255,255,0.05)">`;
   for (let h = 0; h < 24; h++) {
-    const label = h === 0 ? '12 AM' : h < 12 ? `${h} AM` : h === 12 ? '12 PM' : `${h-12} PM`;
-    html += `<div style="position:absolute;top:${h * WILO_SLOT_H - 8}px;right:6px;font-size:0.62rem;color:rgba(255,255,255,0.80);white-space:nowrap;line-height:1">${label}</div>`;
+    const label = _hrLabel(h);
+    html += `<div style="position:absolute;top:${h * WILO_SLOT_H - 8}px;right:6px;font-size:0.75rem;color:rgba(255,255,255,0.80);white-space:nowrap;line-height:1">${label}</div>`;
   }
   html += `</div>`;
 
@@ -1776,7 +2401,7 @@ function renderWILO() {
     const dayLabel = whFmtDate(ymdLabelDate(ymd), { weekday: 'short', year: false }); // FD1a canonical
     for (let h = 0; h < 24; h++) {
       const slotH = String(h).padStart(2,'0');
-      const slotLabel = h === 0 ? '12 AM' : h < 12 ? `${h} AM` : h === 12 ? '12 PM' : `${h-12} PM`;
+      const slotLabel = _hrLabel(h);
       html += `<div onclick="onSlotClick('${ymd}','${slotH}:00')" class="dp-slot" role="button" tabindex="0"
         aria-label="Add task on ${dayLabel} at ${slotLabel}"
         onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}"
@@ -1795,8 +2420,10 @@ function renderWILO() {
     // Blocks
     layouts.forEach(({ item, start, end, col, totalCols }) => {
       if (start === null) return;
+      const _crosses = end > 1440;
+      const _visEnd = Math.min(end, 1440);
       const top = Math.round(start / 60 * WILO_SLOT_H) + 2;
-      const height = Math.max(16, Math.round((end - start) / 60 * WILO_SLOT_H) - 4);
+      const height = Math.max(16, Math.round((_visEnd - start) / 60 * WILO_SLOT_H) - 4);
       const gapPx = 2;
       const colW = `calc((100% - ${(totalCols-1)*gapPx + 4}px) / ${totalCols})`;
       const colLeft = `calc(${col} * ((100% - ${(totalCols-1)*gapPx + 4}px) / ${totalCols} + ${gapPx}px) + 2px)`;
@@ -1818,10 +2445,10 @@ function renderWILO() {
     const blockColor = status === 'done' ? 'var(--wh-green)' : status === 'missed' ? 'var(--wh-red-text)' : c.text;
       const doneStrike = status === 'done' ? 'text-decoration:line-through;' : '';
       html += `<div onclick="event.stopPropagation();openEditModal('${escJsAttr(item.id)}')"
-        title="${escHtml(item.title)}: ${item.startTime}${item.endTime ? ' - '+item.endTime : ''} [${statusConfig[status].label}]"
+        title="${escHtml(item.title)}: ${escHtml(item.startTime)}${item.endTime ? ' - ' + escHtml(item.endTime) + (_crosses ? ' +1' : '') : ''} [${statusConfig[status].label}]"
         style="position:absolute;top:${top}px;left:${colLeft};width:${colW};height:${height}px;
                background:${blockBg};color:${blockColor};border-left:2px solid ${blockBorder};
-               border-radius:0.3rem;padding:1px 4px;font-size:0.6rem;font-weight:600;
+               border-radius:0.3rem;padding:1px 4px;font-size:0.75rem;font-weight:600;
                overflow:hidden;cursor:pointer;z-index:2;box-sizing:border-box;transition:filter 0.15s;opacity:${blockOpacity}"
         onmouseenter="this.style.filter='brightness(1.2)';this.style.opacity='1'"
         onmouseleave="this.style.filter='brightness(1)';this.style.opacity='${blockOpacity}'">
@@ -1834,7 +2461,9 @@ function renderWILO() {
 
   html += `</div>`; // close wilo body grid
   document.getElementById('calendar-wrap').innerHTML = html;
-  setTimeout(() => { document.getElementById('calendar-wrap').scrollTop = 6 * WILO_SLOT_H; }, 50);
+  // WILO keeps all 24 rows: seven columns of blocks are read by SHAPE across the week, and hiding the
+  // night hours in one column but not another would distort that. It also no longer auto-scrolls, for
+  // the same reason DILO does not - a page that scrolls itself hides a control under the fixed band.
 }
 
 // ─────────────────────────────────────────────
@@ -1851,10 +2480,13 @@ function renderMILO() {
   // The WEEK view on this same page already got this right (title="Open <day> in DILO"), so this is a
   // consistency gap rather than a new decision. The label names the DATE, the LOAD (what the dots show)
   // and the ACTION - and the item count is included because that is the information the dots carry.
+  // The date parts were already localised (MONTH_NAMES); the three English fragments around them
+  // were not, so the accessible name of every cell in a Filipino month grid was half-translated.
   const miloLabel = (date, n) =>
     escHtml(date.getDate() + ' ' + MONTH_NAMES[date.getMonth()] + ' ' + date.getFullYear()
-      + (n ? ' - ' + n + (n === 1 ? ' item scheduled' : ' items scheduled') : ' - nothing scheduled')
-      + '. Open this day in DILO.');
+      + (n ? ' - ' + n + _t(n === 1 ? ' item scheduled' : ' items scheduled', ' item na nakatakda')
+           : _t(' - nothing scheduled', ' - walang nakatakda'))
+      + _t('. Open this day in DILO.', '. Buksan ang araw na ito sa DILO.'));
 
   const firstDay = new Date(y, m, 1);
   const lastDay = new Date(y, m+1, 0);
@@ -1863,7 +2495,7 @@ function renderMILO() {
 
   let html = `<div style="margin-bottom:0.75rem;display:flex;align-items:center;gap:0.75rem">
     <span style="font-size:0.75rem;font-weight:700;color:rgba(255,255,255,0.80);letter-spacing:0.1em">MILO</span>
-    <span style="font-size:0.75rem;color:rgba(255,255,255,0.80)">Month In the Life Of</span>
+    <span style="font-size:0.75rem;color:rgba(255,255,255,0.80)">${_t('Month In the Life Of', 'Isang Buwan sa Buhay Ng')}</span>
   </div>`;
 
   html += `<div class="milo-grid">`;
@@ -1929,12 +2561,12 @@ function onMiloClick(ymd) {
 // ─────────────────────────────────────────────
 function renderYILO() {
   const y = currentDate.getFullYear();
-  document.getElementById('period-label').textContent = `Year ${y}`;
+  document.getElementById('period-label').textContent = _t(`Year ${y}`, `Taon ${y}`);
   const todayStr = todayYMD();
 
   let html = `<div style="margin-bottom:0.75rem;display:flex;align-items:center;gap:0.75rem">
     <span style="font-size:0.75rem;font-weight:700;color:rgba(255,255,255,0.80);letter-spacing:0.1em">YILO</span>
-    <span style="font-size:0.75rem;color:rgba(255,255,255,0.80)">Year In the Life Of</span>
+    <span style="font-size:0.75rem;color:rgba(255,255,255,0.80)">${_t('Year In the Life Of', 'Isang Taon sa Buhay Ng')}</span>
   </div>`;
 
   const now = new Date();
@@ -1946,7 +2578,23 @@ function renderYILO() {
     const lastDay = new Date(y, m+1, 0);
     const startDow = firstDay.getDay();
 
-    html += `<div class="yilo-month ${isCurrentMonth ? 'current-month' : ''}" onclick="onYiloMonthClick(${m})">
+    // ★THE MONTH IS THE CONTROL, NOT THE 5px DAY CELL (design lens critique, W45908 Assessment A,
+    // 2026-09-15). It always carried the onclick and never carried a name, a role or a tab stop, while
+    // the 365 cells inside it were the ones announced as controls - at 5.36px on a phone. A twelve-month
+    // overview cannot give a day cell 44px at any width (even 1280 computes to ~28px), so the honest
+    // arrangement is the one the geometry already implies: the month is the target, the cells are the
+    // load indicator. Making all 365 cells focusable would also have put 365 tab stops between a
+    // keyboard reader and the rest of the page.
+    const _yMonthDays = (function () { let c = 0; for (let d = 1; d <= lastDay.getDate(); d++) {
+      if (itemsOnDate(`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`).length) c++; } return c; })();
+    const _yName = escHtml(MONTH_NAMES[m] + ' ' + y
+      + (_yMonthDays ? _t(` - ${_yMonthDays} day${_yMonthDays === 1 ? '' : 's'} with work scheduled`,
+                          ` - ${_yMonthDays} araw na may nakatakdang trabaho`)
+                     : _t(' - nothing scheduled', ' - walang nakatakda'))
+      + _t('. Open this month.', '. Buksan ang buwang ito.'));
+    html += `<div class="yilo-month ${isCurrentMonth ? 'current-month' : ''}" onclick="onYiloMonthClick(${m})"
+      role="button" tabindex="0" aria-label="${_yName}"
+      onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();onYiloMonthClick(${m});}">
       <div class="yilo-month-name" style="color:${isCurrentMonth ? 'var(--wh-orange)' : 'rgba(255,255,255,0.7)'}">${MONTH_NAMES[m]}</div>
       <div class="yilo-mini-grid">`;
 
@@ -1958,9 +2606,15 @@ function renderYILO() {
       const ymd = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
       const isToday = ymd === todayStr;
       const hasItems = itemsOnDate(ymd).length > 0;
-      html += `<div class="yilo-mini-cell ${isToday ? 'today' : hasItems ? 'has-items' : ''}"
+      // aria-hidden: the month's own name above already states the load, and announcing 365 undersized
+      // cells as controls was the defect. The click survives as a POINTER shortcut on wide screens;
+      // below 640px the CSS takes pointer-events away, because a 5px target books work on the wrong day.
+      // The title no longer prints a raw ISO date - whFmtDate is this file's canonical formatter.
+      const _cLbl = (typeof whFmtDate === 'function') ? whFmtDate(ymd, { year: false }) : ymd;
+      const _cN = hasItems ? itemsOnDate(ymd).length : 0;
+      html += `<div class="yilo-mini-cell ${isToday ? 'today' : hasItems ? 'has-items' : ''}" aria-hidden="true"
         onclick="event.stopPropagation();onYiloDayClick('${ymd}')"
-        title="${ymd}${hasItems ? ': '+itemsOnDate(ymd).length+' item(s)' : ''}">
+        title="${escHtml(_cLbl + (_cN ? ': ' + _cN + _t(_cN === 1 ? ' item' : ' items', ' item') : ''))}">
         ${d}
       </div>`;
     }
@@ -1973,6 +2627,8 @@ function renderYILO() {
 }
 
 function onYiloMonthClick(m) {
+  // Same rollover as navigate() above: from 2026-01-31, clicking February landed in March.
+  currentDate.setDate(1);
   currentDate.setMonth(m);
   switchView('milo');
 }
@@ -2009,17 +2665,36 @@ function goToDilDay(ymd) {
 function openAddModal(date, startTime, endTime, title, category) {
   editingScheduleId = null;
   currentModalStatus = 'upcoming';
-  document.getElementById('modal-title').textContent = 'Schedule Item';
+  // ★textContent OVERWROTE THE TRANSLATION data-i HAD ALREADY APPLIED (W45908 Assessment A,
+  // 2026-09-15). The heading is localised at load and then reset to English here on every open, so
+  // the sheet a Filipino reader opens is titled in English no matter what the dictionary says.
+  document.getElementById('modal-title').textContent = _t('Schedule Item', 'Item ng Iskedyul');
   document.getElementById('m-delete-btn').style.display = 'none';
   document.getElementById('m-status-row').style.display = 'none';
-  document.getElementById('m-title').value = title || (selectedLogbookItem ? selectedLogbookItem.machine || '' : '');
+  // ★THE TITLE WAS THE MACHINE, NOT THE JOB (W45908 Assessment A, 2026-09-15). Pre-filling
+  // "BLR-002" puts the asset tag on the grid block and says nothing about what the work IS - and the
+  // grid block is the thing a supervisor reads at a glance. The fault text is on the same record, so
+  // the block can read "BLR-002 - Stack temperature 280C" instead. The tag stays first because that is
+  // how this plant identifies a machine; the problem text is trimmed so the field stays usable.
+  document.getElementById('m-title').value = title || (selectedLogbookItem
+    ? [selectedLogbookItem.machine, (selectedLogbookItem.problem || '').trim().slice(0, 60)]
+        .filter(Boolean).join(' - ')
+    : '');
   document.getElementById('m-date').value = date || toYMD(currentDate);
   document.getElementById('m-start').value = startTime || '';
   document.getElementById('m-end').value = endTime || '';
-  document.getElementById('m-end').min = startTime || '';
-  const cat = category || (selectedLogbookItem ? selectedLogbookItem.category : 'PM');
-  const catMap = { Mechanical:'PM', Electrical:'CM', Hydraulic:'Inspection', Pneumatic:'Other', Instrumentation:'Other', Structural:'Inspection', Safety:'Inspection', General:'Other' };
-  document.getElementById('m-category').value = catMap[cat] || 'Other';
+  // No `min` on the end time: it is the start time on the NEXT day that a night shift needs, and a
+  // min attribute makes that unenterable in the picker whatever the validator permits.
+  document.getElementById('m-end').removeAttribute('min');
+  // ★A DISCIPLINE IS NOT A WORK TYPE (W45908 Assessment A, 2026-09-15). This map read the logbook
+  // entry's DISCIPLINE - Mechanical, Electrical, Safety - and pre-selected a work TYPE from it:
+  // Mechanical became "Preventive Maintenance" and Electrical became "Corrective". Those are different
+  // axes. A logbook entry is a REPORTED FAULT, so the work that answers it is corrective whatever
+  // trade performs it, and a technician scheduling a breakdown had to correct the dropdown every time -
+  // the kind of small wrongness that teaches a reader to distrust every other pre-fill on the sheet.
+  // An explicit `category` argument still wins: the PM rail passes 'PM' and means it.
+  const cat = category || (selectedLogbookItem ? 'CM' : 'PM');
+  document.getElementById('m-category').value = _DP_VALID_CATS.indexOf(cat) !== -1 ? cat : 'Other';
   document.getElementById('m-notes').value = selectedLogbookItem ? (selectedLogbookItem.problem || '').substring(0,200) : '';
   // The shared overlay CSS gates visibility on `.open`, NOT on `.hidden`:
   //   .modal-overlay:not(.open) { visibility: hidden }   .modal-overlay.open { visibility: visible }
@@ -2034,24 +2709,45 @@ function openEditModal(id) {
   const item = scheduleItems.find(i => i.id === id);
   if (!item) return;
   editingScheduleId = id;
-  // Determine current effective status
-  const effStatus = item.itemStatus || getItemStatus(item);
-  currentModalStatus = effStatus;
-  document.getElementById('modal-title').textContent = 'Edit Scheduled Item';
+  // ★EDITING ONE TASK CLOSED A DIFFERENT TASK'S LOGBOOK ENTRY (design lens critique, W45908
+  // Assessment B, 2026-09-15, EXECUTED: with a logbook card left selected, opening an unrelated block
+  // and ticking Done wrote logbook_ref 'log-99' onto it AND issued
+  // logbook.update({status:'Closed'}).eq('id','log-99')). `selectedLogbookItem` is cleared only at the
+  // END of a save, and this path never cleared it, so a selection made minutes ago silently became a
+  // link - and then a closure of someone's fault record. The sidebar selection means "I am about to
+  // schedule THIS fault"; it has no business surviving into the editing of an existing item.
+  selectedLogbookItem = null;
+  // ★A DERIVED STATUS WAS PRE-SELECTED AND THEN PERSISTED (design lens critique, W45908 Assessment B,
+  // 2026-09-15, EXECUTED: a row dated 2026-09-08 with item_status null opened with currentModalStatus
+  // 'missed', and editing ONLY the title wrote item_status 'skipped' to the database).
+  //
+  // getItemStatus DERIVES 'missed' for any past-dated row nobody has judged - which is the right thing
+  // to SHOW on a grid and the wrong thing to WRITE. "Nobody has decided yet" and "the supervisor
+  // marked this missed" are different facts, and the second is compliance-shaped: `skipped` is a real
+  // value in the capture contract's enum, it maps back to 'missed' on the way out, and the UI offers
+  // no word for returning a row to undecided. So a typo fix silently recorded a judgement.
+  //
+  // The buttons now reflect only what the ROW carries. A derived state is still shown on the grid;
+  // it is simply not pre-loaded into a control whose value gets saved.
+  currentModalStatus = item.itemStatus || null;
+  const effStatus = currentModalStatus || getItemStatus(item);
+  document.getElementById('modal-title').textContent = _t('Edit Scheduled Item', 'I-edit ang Naka-schedule na Item');
   document.getElementById('m-delete-btn').style.display = 'inline-flex';
   document.getElementById('m-status-row').style.display = 'block';
   document.getElementById('m-title').value = item.title || '';
   document.getElementById('m-date').value = item.date || '';
   document.getElementById('m-start').value = item.startTime || '';
   document.getElementById('m-end').value = item.endTime || '';
-  document.getElementById('m-end').min = item.startTime || '';
+  document.getElementById('m-end').removeAttribute('min');
   document.getElementById('m-category').value = item.category || 'Other';
   document.getElementById('m-notes').value = item.notes || '';
   // Same contract as openAddModal: `.open` is what the shared CSS keys visibility off.
   document.getElementById('modal').classList.remove('hidden');
   document.getElementById('modal').classList.add('open');
-  // Highlight the active status button
-  setItemStatus(effStatus);
+  // Highlight the active status button - WITHOUT recording it. effStatus may be derived
+  // (getItemStatus returns 'missed' for any past-dated row nobody has judged), and a derived
+  // state must never become the value a title edit saves.
+  _dpPaintStatusButtons(effStatus);
 }
 
 function closeModal() {
@@ -2069,7 +2765,8 @@ function saveScheduleItem() {
   const startVal = document.getElementById('m-start').value;
   const endVal = document.getElementById('m-end').value;
   const endErr = document.getElementById('m-end-error');
-  if (startVal && endVal && endVal <= startVal) { endErr.style.display='block'; document.getElementById('m-end').focus(); return; }
+  // Only a ZERO-length job is refused now; an end before the start is a shift that crosses midnight.
+  if (startVal && endVal && endVal === startVal) { endErr.style.display='block'; document.getElementById('m-end').focus(); return; }
   endErr.style.display='none';
 
   const existing = editingScheduleId ? scheduleItems.find(i=>i.id===editingScheduleId) : null;
@@ -2085,6 +2782,17 @@ function saveScheduleItem() {
     itemStatus: editingScheduleId ? currentModalStatus : null, // only save explicit status on edit
     sourceKind: existing ? (existing.sourceKind || null) : null, // K2: preserve provenance across edits
     sourceRef:  existing ? (existing.sourceRef  || null) : null,
+    // ★THE CONCURRENCY GUARD COULD NEVER FIRE BECAUSE THE STAMP NEVER TRAVELLED (design lens critique,
+    // W45908 Assessment B, 2026-09-15, EXECUTED at the write boundary: __syncCalls[0].updatedAt was
+    // undefined on every save). This literal rebuilds the item from the form and dropped the one field
+    // the guard in syncItemToSupabase tests - so `if (item.updatedAt)` was never true, the guarded
+    // .update().eq('updated_at', ...) branch was unreachable, and every save went through the
+    // unguarded .upsert(row): silent last-write-wins on a table with three writers, underneath a long
+    // comment explaining why that must not happen. A guard that cannot be reached is not a guard.
+    updatedAt: existing ? (existing.updatedAt || null) : null,
+    // Same reason as updatedAt: this literal rebuilds the item from the FORM, so anything the form
+    // does not hold has to be carried explicitly or it is silently dropped on every save.
+    canonStatus: existing ? (existing.canonStatus || null) : null,
   };
 
   if (editingScheduleId) {
@@ -2094,7 +2802,9 @@ function saveScheduleItem() {
     scheduleItems.push(payload);
   }
 
-  syncItemToSupabase(payload);
+  // The snapshot travels with the write so a refusal can put the screen back to what is true.
+  // `existing` is the object that WAS in the array - the line above replaced the slot, not the object.
+  syncItemToSupabase(payload, { prev: editingScheduleId ? (existing || null) : null });
 
   // ★A COMPLETED PM WAS RECORDED NOWHERE BUT THE PLAN. The block below syncs a done item back to
   // its LOGBOOK source, and that is the only source sync on this page - there is no sourceKind==='pm'
@@ -2149,9 +2859,22 @@ function saveScheduleItem() {
     // the generic save toast below and was overwritten by it within a few hundred milliseconds, which
     // is indistinguishable from never having been shown.
     const _pmDone = payload.itemStatus === 'done' && payload.sourceKind === 'pm' && payload.sourceRef;
+    // ★AND IT TOLD AN ONLINE READER HE WAS OFFLINE, IN ENGLISH, ON A RAW ISO DATE (design lens
+    // critique, W45908 Assessment A, 2026-09-15). The sentence "…and it syncs once you are back online"
+    // was emitted UNCONDITIONALLY - a reader with a working connection was told about a state he is not
+    // in, which is how a true sentence ("your work is queued") becomes a confusing one. The date printed
+    // as `2026-09-15`, the one date format this page never shows anywhere else; whFmtDate is the
+    // canonical formatter (Asia/Manila, and since this morning it follows WH_LANG) and is already used
+    // four times in this file.
+    const _dLbl = (typeof whFmtDate === 'function') ? whFmtDate(payload.date, { year: false }) : payload.date;
     showToast(_pmDone
-      ? `${payload.title} marked done. Record the PM completion in PM Scheduler so compliance updates.`
-      : `${payload.title} saved → on your ${payload.date} plan, and it syncs once you are back online.`);
+      ? _t(`${payload.title} marked done. Record the PM completion in PM Scheduler so compliance updates.`,
+           `${payload.title} minarkahang tapos. Itala ang PM completion sa PM Scheduler para ma-update ang compliance.`)
+      : navigator.onLine
+        ? _t(`${payload.title} saved → on your ${_dLbl} plan.`,
+             `${payload.title} na-save → nasa plano mo para sa ${_dLbl}.`)
+        : _t(`${payload.title} saved → on your ${_dLbl} plan, and it syncs once you are back online.`,
+             `${payload.title} na-save → nasa plano mo para sa ${_dLbl}, at magsi-sync ito kapag nakabalik ka na online.`));
   }
 }
 
@@ -2167,7 +2890,11 @@ function addGroundedItem({ title, category, date, startTime, sourceKind, sourceR
   const cat = _DP_VALID_CATS.includes(category) ? category : 'Other';
   if (sourceRef) {
     const dup = scheduleItems.find(i => i.sourceKind === kind && i.sourceRef === sourceRef && i.date === d);
-    if (dup) { showToast('Already on your day for ' + d); return dup; }
+    if (dup) {
+      const _dupLbl = (typeof whFmtDate === 'function') ? whFmtDate(d, { year: false }) : d;
+      showToast(_t('Already on your day for ' + _dupLbl, 'Nasa araw mo na para sa ' + _dupLbl));
+      return dup;
+    }
   }
   const item = {
     id: uid(),
@@ -2183,9 +2910,10 @@ function addGroundedItem({ title, category, date, startTime, sourceKind, sourceR
     sourceRef: sourceRef || null,
   };
   scheduleItems.push(item);
-  syncItemToSupabase(item);
+  // A create: no previous version, so a refusal removes it rather than restoring one.
+  syncItemToSupabase(item, { prev: null });
   render();
-  showToast('Added to your day');
+  showToast(_t('Added to your day', 'Naidagdag sa araw mo'));
   return item;
 }
 
@@ -2193,9 +2921,22 @@ async function deleteScheduleItem() {
   if (!editingScheduleId) return;
   // Migrated from native confirm() to whConfirm() (utils.js) — styled modal,
   // focus-trapped, ARIA-labelled. Cancel + Esc + backdrop click all resolve false.
-  if (!(await window.whConfirm('Remove this scheduled item?', { okLabel: 'Remove', cancelLabel: 'Keep' }))) return;
+  // ★THE ONE IRREVERSIBLE DIALOG ON THE PAGE HAD NO FILIPINO (design lens critique, W45908
+  // Assessment A, 2026-09-15). Every label in it - the question and both buttons - was English on a
+  // page the reader had set to Filipino. A confirmation someone cannot read is answered by guessing,
+  // and the guess here deletes work.
+  if (!(await window.whConfirm(_t('Remove this scheduled item?', 'Alisin ang naka-schedule na item na ito?'),
+        { okLabel: _t('Remove', 'Alisin'), cancelLabel: _t('Keep', 'Panatilihin') }))) return;
+  // ★AND THE DELETE PATH KEPT THE PHANTOM THE SAVE PATH JUST LOST (design lens critique, W45908
+  // Assessment B, 2026-09-15, EXECUTED: with the delete refused 42501, scheduleItems.length was 0, the
+  // grid no longer drew the item, the Today tile read 0 - and the toast read "Could not delete that
+  // item. It is still on your schedule."). The screen and the sentence said opposite things, and the
+  // sentence was the true one: the row is still in the database and returns on the next load.
+  // The save path was given exactly this rollback earlier today and its sibling was not, which is the
+  // recurring shape in this bank - a lesson applied to one of two paths that mutate the same state.
+  const _removed = scheduleItems.find(i => i.id === editingScheduleId) || null;
   scheduleItems = scheduleItems.filter(i => i.id !== editingScheduleId);
-  deleteItemFromSupabase(editingScheduleId);
+  deleteItemFromSupabase(editingScheduleId, _removed);
   closeModal();
   render();
 }
@@ -2261,12 +3002,24 @@ document.addEventListener('keydown', e => {
     if (!_authUid) { whSignInWall(); return; }
     const _dpChip = document.getElementById('dayplanner-source-chip');
     if (_dpChip && typeof renderSourceChip === 'function') {
+      // The chip is the page's provenance statement - where these numbers come from and how fresh they
+      // are - and all three of its sentences came back identical in the two-language walk. The table name
+      // stays as it is: it is an identifier, and a reader checking it wants the string the database uses.
       _dpChip.innerHTML = renderSourceChip({
-        freshness: 'Live · refreshed on each view switch',
+        freshness: _t('Live · refreshed on each view switch',
+                      'Live · nire-refresh sa bawat paglipat ng view'),
+        // ★TWO DISCLOSURES NAMED "How this is computed" IN ONE <main> (W45908 Assessment A,
+        // 2026-09-15). The verdict band renders one and this chip renders another; the shared component
+        // takes `subject` for exactly this collision and this call passed none, so a screen-reader user
+        // heard the same name twice with no way to tell which explained what.
+        subject:    'your day plan',
+        subjectFil: 'plano mo ngayong araw',
         source:    'schedule_items + v_logbook_truth',
         method:    [
-          'Schedule: DILO / WILO / MILO / YILO views (day / week / month / year)',
-          'Logbook context: recent job history cross-referenced with schedule',
+          _t('Schedule: DILO / WILO / MILO / YILO views (day / week / month / year)',
+             'Iskedyul: DILO / WILO / MILO / YILO na view (araw / linggo / buwan / taon)'),
+          _t('Logbook context: recent job history cross-referenced with schedule',
+             'Konteksto ng logbook: kamakailang kasaysayan ng trabaho na itinapat sa iskedyul'),
         ],
       });
     }
@@ -2320,7 +3073,7 @@ document.addEventListener('keydown', e => {
         ? debounce(() => {
             // Skip the echo of our own just-made write (local state is already current).
             if (Date.now() - _dpLastLocalWrite < 2500) return;
-            loadSchedule().then(() => showToast('Schedule updated live'))
+            loadSchedule().then(() => showToast(_t('Schedule updated live', 'Na-update ang schedule nang live')))
               .catch(e => console.warn('[dayplanner] live reload:', e.message));
           }, 700)
         : () => { loadSchedule().catch(() => {}); };
@@ -2345,9 +3098,12 @@ document.addEventListener('keydown', e => {
             if (!isEcho && modalOpen && changedId && changedId === editingScheduleId) {
               const t = (payload.new && payload.new.title) || '';
               showToast(payload.eventType === 'DELETE'
-                ? 'Someone else deleted this item while you had it open. Saving will re-create it.'
-                : 'Someone else changed this item while you had it open' + (t ? ' (now "' + t + '")' : '')
-                  + '. Saving will overwrite their version.', 'error');
+                ? _t('Someone else deleted this item while you had it open. Saving will re-create it.',
+                     'May ibang nag-delete nito habang bukas mo ito. Muli itong gagawin kapag nag-save ka.')
+                : _t('Someone else changed this item while you had it open' + (t ? ' (now "' + t + '")' : '')
+                     + '. Saving will overwrite their version.',
+                     'May ibang nagbago nito habang bukas mo ito' + (t ? ' (ngayon ay "' + t + '")' : '')
+                     + '. Mapapatungan ng pag-save mo ang bersyon nila.'), 'error');
               return;   // do NOT reload the list out from under an open editor
             }
             reloadSchedule();
@@ -2398,7 +3154,11 @@ document.addEventListener('keydown', e => {
 </script>
 <script src="companion-launcher.js"></script>
 
-<script>window.WH_FIL_PAGE={addtoday:"+ Idagdag sa araw ko",
+<script>window.WH_FIL_PAGE={
+  // the accessible names, read by whI18nApply's [data-ia] pass (design lens copy, 2026-09-15)
+  a_collapse:"I-collapse ang sidebar",a_dayview:"View ng araw",a_weekview:"View ng linggo",
+  a_monthview:"View ng buwan",a_yearview:"View ng taon",a_prev:"Nakaraan",a_next:"Susunod",
+  addtoday:"+ Idagdag sa araw ko",
   pagetitle:"Maintenance Day Planner",scheduleitem:"Item ng Iskedyul",addschedule:"Magdagdag sa iskedyul",
   mtitle:"Pamagat *",mdate:"Petsa *",mstart:"Oras ng Simula",mend:"Oras ng Pagtapos"};</script>
 </body>

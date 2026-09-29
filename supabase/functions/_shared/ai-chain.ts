@@ -4,7 +4,14 @@
 // Order: fastest / most generous limits first, deeper fallbacks last.
 // Only permanently free tiers — no credits that expire.
 //
-// AI_ASSET_VERSION: 5
+// AI_ASSET_VERSION: 6
+// v6 (2026-09-28): FOUR more entries had gone dead since v5 (groq qwen3.6-27b + compound-mini,
+// cerebras gemma-4-31b, openrouter nex-n2.5-mini) - and, one screen down, ALL TWELVE TASK_PROFILES
+// still named the v4 model IDs, so the tiered router had been silently reordering nothing since v5.
+// Three of the four dead entries had no live equivalent at their provider and were removed rather
+// than back-filled with a model built for another job; the fourth (the chain's last vision slot)
+// was replaced from OpenRouter's live :free list by reported input_modalities. 15 entries now
+// (counted by validate_ai_chain_mirror.py, not by hand).
 // v5 (2026-09-10): ELEVEN of the eighteen entries named models their providers no longer serve -
 // 4 of 6 Groq, all 3 Cerebras, 1 Mistral, 3 of 6 OpenRouter - measured against each provider's own
 // /models endpoint. Every AI call collected four 404s before one answered; the first entry now
@@ -52,14 +59,22 @@ const PROVIDER_CHAIN: ProviderEntry[] = [
   // qwen entries accept images, so `vision: true` sits exactly where the provider says it belongs.
   // Qwen3.8 27B: 131K context, accepts text AND image, tools + json_mode.
   { provider: "groq", baseUrl: "https://api.groq.com/openai/v1", model: "qwen/qwen3.8-27b",                          envKey: "GROQ_API_KEY", vision: true },
-  // Qwen3.6 27B: same shape, one generation back — the vision fallback.
-  { provider: "groq", baseUrl: "https://api.groq.com/openai/v1", model: "qwen/qwen3.6-27b",                          envKey: "GROQ_API_KEY", vision: true },
+  // v6 (2026-09-28): `qwen/qwen3.6-27b` sat here as "the vision fallback" and Groq had stopped
+  // serving it. Asked today, Groq's /models returns ELEVEN ids and only ONE of them accepts images
+  // (qwen3.8-27b, above) — the rest are the two gpt-oss chat models, a safeguard classifier, an
+  // Arabic 4K model, and TTS/ASR/prompt-guard endpoints that are not chat at all. So Groq has no
+  // second vision model to fall back to, and inventing one here is what produced this 404 in the
+  // first place. The vision fallback is now carried by the providers that actually report an image
+  // modality: gemini-2.5-flash, gemma-4-31b-it:free, gemma-4-26b-a4b-it:free and qwen3.8-27b:free.
   // GPT-OSS 20B: strict JSON schema adherence (structured_outputs), 131K context, cheapest per token.
   { provider: "groq", baseUrl: "https://api.groq.com/openai/v1", model: "openai/gpt-oss-20b",                        envKey: "GROQ_API_KEY" },
   // GPT-OSS 120B: largest on the Groq free tier, also structured_outputs — last quality resort.
   { provider: "groq", baseUrl: "https://api.groq.com/openai/v1", model: "openai/gpt-oss-120b",                       envKey: "GROQ_API_KEY" },
-  // Compound Mini: json_mode only, 8K output — the fast, small last stop on Groq.
-  { provider: "groq", baseUrl: "https://api.groq.com/openai/v1", model: "groq/compound-mini",                        envKey: "GROQ_API_KEY" },
+  // v6 (2026-09-28): `groq/compound-mini` was here and Groq no longer serves it either. Of the
+  // eleven ids Groq returns today the only general chat models are qwen3.8-27b and the two gpt-oss
+  // entries — all three already above — so there is nothing smaller to fall back to. Substituting
+  // `allam-2-7b` (Arabic, 4K context) or `gpt-oss-safeguard-20b` (a safety classifier) would keep
+  // the entry count up while sending WorkHive's prompts to a model built for another job.
 
   // ── Tier 2: Cerebras — 1M tokens/day free, 8K total context cap ─────────────
   // NOTE 2026-05-18: the first two entries 404'd on accounts without access.
@@ -67,7 +82,9 @@ const PROVIDER_CHAIN: ProviderEntry[] = [
   // chain named none of them. These are that list. Mirror with Python tools/ai_chain.py.
   { provider: "cerebras", baseUrl: "https://api.cerebras.ai/v1", model: "gpt-oss-120b",  envKey: "CEREBRAS_API_KEY", maxTokensCap: 4096, contextCap: 8192 },
   { provider: "cerebras", baseUrl: "https://api.cerebras.ai/v1", model: "qwen-3.8-27b",  envKey: "CEREBRAS_API_KEY", maxTokensCap: 4096, contextCap: 8192 },
-  { provider: "cerebras", baseUrl: "https://api.cerebras.ai/v1", model: "gemma-4-31b",   envKey: "CEREBRAS_API_KEY", maxTokensCap: 4096, contextCap: 8192 },
+  // v6 (2026-09-28): `gemma-4-31b` removed — asked today, Cerebras serves exactly TWO ids, the two
+  // above. The comment directly above already said "Cerebras serves exactly three models and the
+  // chain named none of them"; it is now two, and the third line had gone stale the same way again.
 
   // NOTE: SambaNova was evaluated (FreeLLMAPI lists it) but REJECTED — its free
   // tier is $5 of credits that expire in 30 days, not a permanently-free tier.
@@ -91,7 +108,10 @@ const PROVIDER_CHAIN: ProviderEntry[] = [
   { provider: "openrouter", baseUrl: "https://openrouter.ai/api/v1", model: "nvidia/nemotron-3.5-lightning:free",                  envKey: "OPENROUTER_API_KEY", extraHeaders: { "HTTP-Referer": "https://workhiveph.com", "X-Title": "WorkHive" } },
   { provider: "openrouter", baseUrl: "https://openrouter.ai/api/v1", model: "google/gemma-4-26b-a4b-it:free",            envKey: "OPENROUTER_API_KEY", extraHeaders: { "HTTP-Referer": "https://workhiveph.com", "X-Title": "WorkHive" }, vision: true },
   { provider: "openrouter", baseUrl: "https://openrouter.ai/api/v1", model: "nvidia/nemotron-3-ultra-550b-a55b:free",    envKey: "OPENROUTER_API_KEY", extraHeaders: { "HTTP-Referer": "https://workhiveph.com", "X-Title": "WorkHive" } },
-  { provider: "openrouter", baseUrl: "https://openrouter.ai/api/v1", model: "nex-agi/nex-n2.5-mini:free",                envKey: "OPENROUTER_API_KEY", extraHeaders: { "HTTP-Referer": "https://workhiveph.com", "X-Title": "WorkHive" }, vision: true },
+  // v6 (2026-09-28): was `nex-agi/nex-n2.5-mini:free`, which OpenRouter has stopped serving. This
+  // slot is the chain's last vision entry, so the replacement is picked from the live :free list by
+  // its REPORTED input_modalities (text,image,video), not by family name: qwen3.8-27b:free, 262K.
+  { provider: "openrouter", baseUrl: "https://openrouter.ai/api/v1", model: "qwen/qwen3.8-27b:free",                    envKey: "OPENROUTER_API_KEY", extraHeaders: { "HTTP-Referer": "https://workhiveph.com", "X-Title": "WorkHive" }, vision: true },
 ];
 
 // ── Phase 4 (AGENTIC_RAG_ROADMAP.md): Tiered Model Router ──────────────────
@@ -110,23 +130,41 @@ const PROVIDER_CHAIN: ProviderEntry[] = [
 //
 // See AGENTIC_RAG_ROADMAP.md §5 Phase 4 and feedback_free_tier_only_models.md
 // for the canonical task → model map.
+// ★EVERY PROFILE BELOW NAMED A MODEL THE CHAIN NO LONGER HELD, SO THE WHOLE ROUTER WAS A NO-OP
+// (2026-09-28). The v5 pass removed eleven retired model names from PROVIDER_CHAIN and did not look
+// one screen further down, where the SAME eleven names were the entire vocabulary of TASK_PROFILES:
+// `llama-3.1-8b-instant`, `llama-3.3-70b-versatile`, `qwen/qwen3-32b`, `llama-4-scout-17b-16e-instruct`.
+// reorderChain matches these as substrings of entry.model, so `matched` came back EMPTY for all
+// twelve profiles and `ordered` was just the base chain — every caller that carefully passed a
+// taskProfile got the default order, silently, and had done since v5. Nothing failed: the router is
+// a reordering, so when it does nothing the calls still succeed, just on the wrong tier.
+// validate_model_router.py reported 9/9 PASS throughout, because M03 checked these values against
+// its OWN hand-maintained ALLOWED_MODEL_SUBSTRINGS list — which still listed the dead names. Two
+// stale lists agreeing with each other is not a check. M03 now derives the allowed set from
+// PROVIDER_CHAIN itself and M11 fails when any profile value matches no live entry, so a profile
+// cannot outlive the model it names again. Every substring below was matched against the chain by
+// that gate. Kin: feedback_a_declared_mechanism_is_not_a_mechanism, feedback_seven_of_nine_models_did_not_exist.
 export const TASK_PROFILES: Record<string, string[]> = {
-  // Cheap, fast tasks → prefer the 8B model
-  intent_classification:   ["llama-3.1-8b-instant"],
-  slot_extraction:         ["llama-3.1-8b-instant"],
-  single_fact_retrieval:   ["llama-3.1-8b-instant"],
-  orchestrator_router:     ["llama-3.1-8b-instant"],
-  chunk_grader:            ["llama-3.1-8b-instant"],
-  hallucination_checker:   ["llama-3.1-8b-instant"],
-  // Mid-tier reasoning
-  multi_step_orchestration: ["llama-3.3-70b-versatile", "qwen/qwen3-32b"],
-  // Heavy synthesis / long output — prefer Scout-17B (30K TPM)
-  synthesis_long_output:   ["llama-4-scout-17b-16e-instruct", "llama-3.3-70b-versatile"],
-  temporal_fold:           ["llama-4-scout-17b-16e-instruct", "llama-3.3-70b-versatile"],
-  temporal_subagent:       ["llama-3.1-8b-instant"],
-  // Specialised
-  code_or_sql_generation:  ["qwen/qwen3-32b", "llama-3.3-70b-versatile"],
-  narrative_report:        ["llama-4-scout-17b-16e-instruct", "llama-3.1-8b-instant"],
+  // Cheap, fast tasks → the smallest general chat model the chain actually holds (Groq LPU, 131K),
+  // then Gemini Flash-Lite. "gpt-oss-20b" cannot collide with "gpt-oss-120b": the char after
+  // "gpt-oss-" is "1" there, so the substring does not occur.
+  intent_classification:   ["gpt-oss-20b", "gemini-2.5-flash-lite"],
+  slot_extraction:         ["gpt-oss-20b", "gemini-2.5-flash-lite"],
+  single_fact_retrieval:   ["gpt-oss-20b", "gemini-2.5-flash-lite"],
+  orchestrator_router:     ["gpt-oss-20b", "gemini-2.5-flash-lite"],
+  chunk_grader:            ["gpt-oss-20b", "gemini-2.5-flash-lite"],
+  hallucination_checker:   ["gpt-oss-20b", "gemini-2.5-flash-lite"],
+  temporal_subagent:       ["gpt-oss-20b", "gemini-2.5-flash-lite"],
+  // Mid-tier reasoning. "3.8-27b" (not "qwen3.8-27b") so it also matches Cerebras' hyphenated
+  // `qwen-3.8-27b` — the same model, spelled differently by two providers.
+  multi_step_orchestration: ["gpt-oss-120b", "3.8-27b"],
+  // Heavy synthesis / long output → the largest context the free tiers offer: gpt-oss-120b is 131K,
+  // nemotron-3.5-lightning is 1M.
+  synthesis_long_output:   ["gpt-oss-120b", "nemotron-3.5-lightning"],
+  temporal_fold:           ["gpt-oss-120b", "nemotron-3.5-lightning"],
+  narrative_report:        ["gpt-oss-120b", "gemini-2.5-flash"],
+  // Specialised — Codestral is Mistral's code/SQL model (see the Tier 4 note above).
+  code_or_sql_generation:  ["codestral-latest", "gpt-oss-120b"],
 };
 
 // Provider Health Autoswitch logic lives in _shared/provider-health.ts.

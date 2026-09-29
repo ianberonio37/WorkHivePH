@@ -89,10 +89,10 @@
     }
     header h1 { font-size: 24px; font-weight: 600; color: var(--text); }  /* C5 (2026-09-05): at 18px the amber brand span sat at Lc 62/75; at 24px the large-text floor is 45 */
     header h1 span { color: var(--amber); }
-    .row-title { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 18px 0 6px; font-weight: 600; }  /* A2 (2026-09-05): a visible caption per diagram row */
+    .row-title { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 18px 0 6px; font-weight: 600; }  /* A2 (2026-09-05): a visible caption per diagram row */
     .header-meta { display: flex; align-items: center; gap: 16px; }
     .audited-badge {
-      font-size: 11px;
+      font-size: 12px;
       color: var(--muted);
       background: var(--surface);
       border: 1px solid var(--border);
@@ -110,7 +110,7 @@
       gap: 24px;
       flex-wrap: wrap;
     }
-    .legend-label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+    .legend-label { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
     .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
     .legend-line { width: 28px; height: 2px; border-radius: 1px; }
     .legend-dot { width: 10px; height: 10px; border-radius: 3px; }
@@ -166,12 +166,12 @@
     }
     .node-icon { font-size: 20px; margin-bottom: 6px; }
     .node-name { font-size: 12px; font-weight: 700; color: var(--text); line-height: 1.3; }
-    .node-file { font-size: 10px; color: var(--muted); margin-top: 2px; font-family: monospace; }
-    .node-desc { font-size: 11px; color: var(--muted); margin-top: 6px; line-height: 1.4; }
+    .node-file { font-size: 12px; color: var(--muted); margin-top: 2px; font-family: monospace; }
+    .node-desc { font-size: 12px; color: var(--muted); margin-top: 6px; line-height: 1.4; }
     .node-stage {
       position: absolute;
       top: 8px; right: 8px;
-      font-size: 9px;
+      font-size: 12px;
       font-weight: 700;
       padding: 2px 5px;
       border-radius: 4px;
@@ -189,7 +189,7 @@
 
     /* ── Section labels ── */
     .section-label {
-      font-size: 10px;
+      font-size: 12px;
       font-weight: 700;
       letter-spacing: 0.08em;
       text-transform: uppercase;
@@ -220,9 +220,9 @@
       transition: border-color 0.15s;
     }
     .db-table:hover { border-color: var(--blue); }
-    .db-table-name { font-size: 11px; font-weight: 700; color: var(--blue); font-family: monospace; }
-    .db-table-owner { font-size: 10px; color: var(--muted); margin-top: 2px; }
-    .db-table-cols { font-size: 10px; color: var(--muted); margin-top: 6px; line-height: 1.6; font-family: monospace; }
+    .db-table-name { font-size: 12px; font-weight: 700; color: var(--blue); font-family: monospace; }
+    .db-table-owner { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .db-table-cols { font-size: 12px; color: var(--muted); margin-top: 6px; line-height: 1.6; font-family: monospace; }
     .db-col-risk { color: var(--orange); }
 
     /* ── localStorage layer ── */
@@ -237,17 +237,17 @@
       border-radius: 8px;
       padding: 10px 14px;
     }
-    .ls-chain-label { font-size: 10px; font-weight: 700; color: var(--purple); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+    .ls-chain-label { font-size: 12px; font-weight: 700; color: var(--purple); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
     .ls-keys { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
     .ls-key {
-      font-size: 10px;
+      font-size: 12px;
       font-family: monospace;
       background: var(--purple-dim);
       color: var(--purple);
       padding: 2px 6px;
       border-radius: 4px;
     }
-    .ls-sep { font-size: 11px; color: var(--muted); }
+    .ls-sep { font-size: 12px; color: var(--muted); }
 
     /* ── Flow detail panel ── */
     .flow-panel {
@@ -271,7 +271,7 @@
     @media (max-width: 640px) { .flow-table { min-width: 640px; } }
     .flow-table th {
       text-align: left;
-      font-size: 10px;
+      font-size: 12px;
       font-weight: 700;
       color: var(--wh-text-muted, rgba(255,255,255,0.80)); /* C2 2026-09-07: --muted read 4.41:1 on a 10px header; a header is what a reader scans FOR */
       text-transform: uppercase;
@@ -282,10 +282,10 @@
     }
     .flow-table td { padding: 9px 16px; font-size: 12px; border-bottom: 1px solid rgba(48,54,61,0.5); vertical-align: top; }
     .flow-table tr:last-child td { border-bottom: none; }
-    .flow-source { color: var(--amber); font-weight: 600; font-family: monospace; font-size: 11px; }
-    .flow-target { color: var(--blue); font-weight: 600; font-family: monospace; font-size: 11px; }
+    .flow-source { color: var(--amber); font-weight: 600; font-family: monospace; font-size: 12px; }
+    .flow-target { color: var(--blue); font-weight: 600; font-family: monospace; font-size: 12px; }
     .flow-trigger { color: var(--muted); }
-    .risk-col { color: var(--orange); font-family: monospace; font-size: 11px; }
+    .risk-col { color: var(--orange); font-family: monospace; font-size: 12px; }
 
     /* ── Tooltip ── */
     #tooltip {
@@ -305,11 +305,11 @@
     }
     #tooltip.visible { opacity: 1; }
     #tooltip strong { color: var(--amber); display: block; margin-bottom: 4px; }
-    #tooltip .t-risk { color: var(--orange); font-family: monospace; font-size: 11px; }
+    #tooltip .t-risk { color: var(--orange); font-family: monospace; font-size: 12px; }
 
     /* ── Arrow labels ── */
     .arrow-label {
-      font-size: 10px;
+      font-size: 12px;
       fill: var(--muted);
       font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     }
@@ -335,7 +335,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
 <header>
   <h1><span>WorkHive</span>: Platform Architecture</h1>
-  <p data-i="p_staticrenderedonloadarchitec_6ac5" class="wh-source-chip" role="status" aria-live="polite" style="font-size:.62rem; opacity:.8; margin:.3rem 0 0;">Static · rendered on load · architecture reference as of the last deploy (no live data)</p>
+  <p data-i="p_staticrenderedonloadarchitec_6ac5" class="wh-source-chip" role="status" aria-live="polite" style="font-size: 0.75rem; opacity:.8; margin:.3rem 0 0;">Static · rendered on load · architecture reference as of the last deploy (no live data)</p>
   <details style="margin:.6rem 0 0;font-size:.8rem;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:.1rem .8rem .45rem;max-width:720px;"><summary data-i="p_howtoreadthismap_ab87" style="cursor:pointer;min-height:44px;display:flex;align-items:center;">How to read this map</summary><p data-i="p_eachboxisonepageoftheplatfor_546a" style="margin:.4rem 0 0;">Each box is one page of the platform; rows group them by stage, and the lines show which page writes the data another page reads. Hover a box for what it owns.</p></details><!-- O2 (2026-09-05) --><!-- G1+E3: moved INSIDE main under the h1 (2026-09-05) - the rubric's content root is <main>, so a chip above it was invisible to E3/G1 -->
   <div class="header-meta">
     <div class="audited-badge">Last audited: <strong>2026-04-18</strong> · All checks PASS</div>
@@ -360,7 +360,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   <span class="legend-item">
     <span class="legend-dot" style="background:var(--surface);border:1.5px dashed var(--border);opacity:0.5;"></span> Retired
   </span>
-  <span data-i="p_hovernodesandarrowsfordetail_94d1" style="margin-left:auto;font-size:11px;color:var(--muted);">Hover nodes and arrows for detail</span>
+  <span data-i="p_hovernodesandarrowsfordetail_94d1" style="margin-left:auto;font-size: 12px;color:var(--muted);">Hover nodes and arrows for detail</span>
 </div>
 
 <!-- ═══════════════════════════════════════════════ DIAGRAM ═══ -->
@@ -632,14 +632,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <!-- table-name-allow: platform-architecture data flow table --> <table class="flow-table">
         <thead><tr><th>Page</th><th>In nav-hub.js</th><th>Match string</th></tr></thead>
         <tbody>
-          <tr><td>index.html</td><td style="color:var(--green)">✓ PASS</td><td><code style="font-size:10px;color:var(--muted)">index, /</code></td></tr>
-          <tr><td>logbook.html</td><td style="color:var(--green)">✓ PASS</td><td><code style="font-size:10px;color:var(--muted)">logbook</code></td></tr>
-          <tr><td>dayplanner.html</td><td style="color:var(--green)">✓ PASS</td><td><code style="font-size:10px;color:var(--muted)">dayplanner</code></td></tr>
-          <tr><td>assistant.html</td><td style="color:var(--green)">✓ PASS</td><td><code style="font-size:10px;color:var(--muted)">assistant</code></td></tr>
-          <tr><td>hive.html</td><td style="color:var(--green)">✓ PASS</td><td><code style="font-size:10px;color:var(--muted)">hive</code></td></tr>
-          <tr><td>inventory.html</td><td style="color:var(--green)">✓ PASS</td><td><code style="font-size:10px;color:var(--muted)">inventory</code></td></tr>
-          <tr><td>pm-scheduler.html</td><td style="color:var(--green)">✓ PASS</td><td><code style="font-size:10px;color:var(--muted)">pm-scheduler</code></td></tr>
-          <tr><td>skillmatrix.html</td><td style="color:var(--green)">✓ PASS</td><td><code style="font-size:10px;color:var(--muted)">skillmatrix</code></td></tr>
+          <tr><td>index.html</td><td style="color:var(--green)">✓ PASS</td><td><code style="font-size: 12px;color:var(--muted)">index, /</code></td></tr>
+          <tr><td>logbook.html</td><td style="color:var(--green)">✓ PASS</td><td><code style="font-size: 12px;color:var(--muted)">logbook</code></td></tr>
+          <tr><td>dayplanner.html</td><td style="color:var(--green)">✓ PASS</td><td><code style="font-size: 12px;color:var(--muted)">dayplanner</code></td></tr>
+          <tr><td>assistant.html</td><td style="color:var(--green)">✓ PASS</td><td><code style="font-size: 12px;color:var(--muted)">assistant</code></td></tr>
+          <tr><td>hive.html</td><td style="color:var(--green)">✓ PASS</td><td><code style="font-size: 12px;color:var(--muted)">hive</code></td></tr>
+          <tr><td>inventory.html</td><td style="color:var(--green)">✓ PASS</td><td><code style="font-size: 12px;color:var(--muted)">inventory</code></td></tr>
+          <tr><td>pm-scheduler.html</td><td style="color:var(--green)">✓ PASS</td><td><code style="font-size: 12px;color:var(--muted)">pm-scheduler</code></td></tr>
+          <tr><td>skillmatrix.html</td><td style="color:var(--green)">✓ PASS</td><td><code style="font-size: 12px;color:var(--muted)">skillmatrix</code></td></tr>
           <tr><td>checklist.html</td><td data-i="p_retired_484f" style="color:var(--red)">✗ Retired</td><td></td></tr>
           <tr><td>parts-tracker.html</td><td data-i="p_retired_484f" style="color:var(--red)">✗ Retired</td><td></td></tr>
         </tbody>

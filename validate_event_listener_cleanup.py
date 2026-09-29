@@ -56,13 +56,28 @@ CHECK_NAMES = ["event_listener_cleanup"]
 #     root.innerHTML = chips.join("");
 #     root.querySelectorAll(".filter-chip").forEach(btn => btn.addEventListener("click", ...))
 # A bare document/window bind is NOT exempted, because nothing removes those.
+# ★THE GAP IS A TEMPLATE LITERAL, AND THOSE ARE LONG (2026-09-28). The windows below were 400 (inner)
+# and 700 (lookback), which is shorter than the row template on a real list page: alert-hub.html binds
+# its anomaly actions and its filter chips with exactly the exempted shape -
+#     list.innerHTML = rows.map(...).join("");        <- ~50 lines of template above
+#     list.querySelectorAll("[data-anomaly-id]").forEach(btn => btn.addEventListener(...))
+# and the rebuild was simply out of reach, so 3 self-cleaning binds counted as sprawl and flipped a
+# 5-page ratchet to 6. Widening is safe HERE because the shape still REQUIRES a
+# querySelectorAll(...).forEach between the rebuild and the bind: a bare document/window listener has
+# neither, so it stays counted - which is exactly what selftest's third case pins.
 REBUILD_RE = __import__("re").compile(
-    r"(?:innerHTML\s*=|insertAdjacentHTML\(|replaceChildren\()[\s\S]{0,400}?"
+    r"(?:innerHTML\s*=|insertAdjacentHTML\(|replaceChildren\()[\s\S]{0,3000}?"
     r"querySelectorAll\([\s\S]{0,200}?forEach\([\s\S]{0,200}?$")
+
+# A listener on a node that was JUST created cannot accumulate on an existing node - the element is
+# new every time and the previous one is discarded with its listener. alert-hub's dismiss button is
+# built this way (createElement -> addEventListener -> appendChild).
+FRESH_NODE_RE = __import__("re").compile(r"createElement\([\s\S]{0,300}?$")
 
 
 def _rebuild_scoped(body, pos):
-    return bool(REBUILD_RE.search(body[max(0, pos - 700):pos]))
+    back = body[max(0, pos - 3500):pos]
+    return bool(REBUILD_RE.search(back)) or bool(FRESH_NODE_RE.search(back))
 
 def selftest() -> int:
     # Rebuild-scoped binds are exempted. That exemption must stay TIGHT: a bare document/window

@@ -14,7 +14,7 @@ Updated 24 Aug 2026
 ·
 9 min read
 
-**Short answer:** An asset register is the master list of every physical asset in a plant, with a unique identifier, location, criticality, and link to PM and fault history. Most Philippine plants do not have one (they have 3 contradictory spreadsheets). Building a clean 200 to 500 asset register takes 30 working days with one supervisor and one technician: 5 days walking and counting, 3 days hierarchy and naming, 5 days criticality, 7 days loading into WorkHive Asset Hub with photos, 10 days for the inevitable gap-filling. No software budget needed; the discipline matters more than the tool.
+**Short answer:** An asset register is the master list of every physical asset in a plant, with a unique identifier, location, criticality, and link to PM and fault history. Most Philippine plants do not have one (they have 3 contradictory spreadsheets). Building a clean 200 to 500 asset register takes 30 working days with one supervisor and one technician: 5 days walking and counting, 3 days hierarchy and naming, 5 days criticality, 7 days loading into WorkHive Asset Hub, 10 days for the inevitable gap-filling. No software budget needed; the discipline matters more than the tool.
  A clean **200 to 500 asset register takes about 30 working days** with one supervisor and one technician: 5 days walking and counting, 3 days on hierarchy and naming, 5 days on criticality, 7 days loading.
 
 Who this is for
@@ -85,13 +85,13 @@ Workshop with production, maintenance, and safety. Each asset gets a Tier from t
 
 ### Step 5: Load into WorkHive Asset Hub (Days 19 to 30)
 
-Import the CSV from steps 1 to 4 into WorkHive Asset Hub. Attach the photos from step 1 to each asset record. Link Tier 1 and Tier 2 assets to their PM templates. The register goes live; from this point on, every new asset must be created in Asset Hub before any logbook entry can reference it.
+Import the CSV from steps 1 to 4 into WorkHive Asset Hub. Keep the photos from step 1 in your own shared drive, named by asset tag: Asset Hub does not hold images. Link Tier 1 and Tier 2 assets to their PM templates. The register goes live; from this point on, every new asset must be created in Asset Hub before any logbook entry can reference it.
 
 The tool this guide is about
 
-#### WorkHive Asset Hub is the canonical asset register
+### WorkHive Asset Hub is the canonical asset register
 
-Asset Hub holds your ISO 14224-aligned hierarchy, photos, criticality, PM links, fault history, parts consumption, and skill-assignment matrix per asset. Every other WorkHive surface (Logbook, PM Scheduler, Inventory, Skill Matrix, Analytics, AI Assistant) reads from Asset Hub as the single source of truth. Free at the worker tier; scoped access for contractors and suppliers unlocks at Stage 2.
+Asset Hub holds your ISO 14224-aligned hierarchy, criticality, PM links, fault history, linked spare parts and the skill-assignment matrix per asset. Every other WorkHive surface (Logbook, PM Scheduler, Inventory, Skill Matrix, Analytics, AI Assistant) reads from Asset Hub as the single source of truth. Free at the worker tier, and note what the section above says: hive membership is whole-hive, so there is no contractor or supplier login that sees only its own assets.
 
 No hive yet? [Join WorkHive](https://workhiveph.com/?signup=1) first (free, takes 30 seconds).
 
@@ -116,17 +116,17 @@ Rules that survive:
 | **Tier 3 Medium** | Failure causes degradation; plant runs at reduced capacity | 30-50% | Semi-annual PM, run to failure with planned response |
 | **Tier 4 Low** | Failure is inconvenient; no production or safety impact | 30-50% | Annual PM or run to failure; reorder when stock dips |
 
-Most Philippine plants find 15 to 25 percent of assets fall in Tier 1 or 2. Those are where 80 percent of the maintenance attention should focus. Plants that treat all assets equally over-maintain non-critical and under-maintain critical.
+As a planning assumption rather than a measurement, expect a small minority of your assets to land in Tier 1 or 2 - and that minority is where the bulk of maintenance attention belongs. Rank your own plant before trusting any published share; the split depends on how much redundancy you have, which is a design decision unique to your site. Plants that treat all assets equally over-maintain non-critical and under-maintain critical.
 
-## Contractors and suppliers as scoped users
+## Contractors and outside work against the register
 
-A real asset register pays back massively when contractors and suppliers are wired in. The pattern:
+A register earns its keep the moment outside work is recorded against it rather than against a job description in an email. Be clear about what WorkHive does today, because this is an area where it is easy to promise more than any small platform delivers:
 
-- **Contractor on cooling water PM:** sees only the cooling-water-system assets in Asset Hub. Logs their PM completion against the exact asset ID. The completion flows back to your PM compliance dashboard and to SAP for invoicing.
-- **Supplier of seal kits:** sees the assets that consume their parts. Plans deliveries against forecast consumption. Suggests product upgrades when MTBF data shows a pattern.
-- **Insurance assessor:** can be granted read-only access for the asset hierarchy and criticality during policy renewal, reducing the 2-week document chase to an hour.
+- **What exists now:** outside work is tracked as a *contractor* project in the Project Manager, and the jobs under it point at the same asset IDs your own PMs use - so the cooling-water overhaul a vendor performed sits in the asset's timeline beside everything your team did. If you run SAP, a job closed in WorkHive is pushed back to SAP automatically.
+- **What does not exist yet:** a contractor login that sees only their own systems. Hive membership is whole-hive: everyone you invite can see the hive's assets, and the only elevated role is supervisor. If a vendor must not see the rest of your plant, do not invite them - have your own planner record the completion against the asset instead.
+- **Insurance and audit:** the value at renewal is not an account for the assessor, it is that you can EXPORT the hierarchy and criticality as a CSV in one pass instead of rebuilding it from three spreadsheets. That is what turns a fortnight of document-chasing into an afternoon.
 
-This multi-party access is impossible without a clean asset register. It is one of the highest-value patterns once the register reaches 90 percent coverage and stays stable.
+None of this is possible without a clean register, and all of it gets easier the closer your coverage gets to complete. Scoped external accounts are a genuinely valuable pattern and a fair thing to ask a vendor for; this guide will say so when WorkHive has them.
 
 ## Common mistakes that kill the register
 
@@ -146,11 +146,11 @@ An asset register is the master list of every physical asset in the plant, with 
 
 ### What is ISO 14224 and do I need to follow it?
 
-ISO 14224 is the international standard for collecting reliability and maintenance data for equipment. It defines a 9-level asset hierarchy (Industry, Business category, Installation, Plant unit, Section, Equipment unit, Subunit, Component, Part) and standardised failure-mode codes. You do not need to follow it strictly, but using its taxonomy makes your MTBF and failure data comparable to international benchmarks and exchangeable with future systems. Most Philippine plants use a simplified 5-level version of the ISO 14224 hierarchy.
+ISO 14224 is the international standard for collecting reliability and maintenance data for equipment. It defines a 9-level asset hierarchy (Industry, Business category, Installation, Plant unit, Section, Equipment unit, Subunit, Component, Part) and standardised failure-mode codes. You do not need to follow it strictly, but using its taxonomy makes your MTBF and failure data comparable to international benchmarks and exchangeable with future systems. For a plant below about 1,000 assets, a simplified 5-level version of the ISO 14224 hierarchy is usually enough.
 
 ### How long does it take to build an asset register from scratch?
 
-For a typical Philippine plant of 200 to 500 assets: 30 working days with one supervisor and one technician dedicated. Breakdown: 5 days walking the plant and counting, 3 days building the hierarchy and naming convention, 5 days criticality ranking with stakeholder input, 7 days loading into WorkHive Asset Hub with photos, 10 days for the inevitable corrections and gap-filling. Plants that try to rush this in 5 days end up with a register that needs a full rebuild within a year.
+For a typical Philippine plant of 200 to 500 assets: 30 working days with one supervisor and one technician dedicated. Breakdown: 5 days walking the plant and counting, 3 days building the hierarchy and naming convention, 5 days criticality ranking with stakeholder input, 7 days loading into WorkHive Asset Hub, 10 days for the inevitable corrections and gap-filling. Plants that try to rush this in 5 days end up with a register that needs a full rebuild within a year.
 
 ### How do I rank asset criticality fairly?
 
@@ -162,7 +162,7 @@ AREA-SYSTEM-ASSET-INSTANCE works for most Philippine plants. Example: LIN1-CW-PM
 
 ### Should suppliers and contractors see the asset register?
 
-Selectively. A contractor doing PM on the cooling water system needs to see those assets in WorkHive Asset Hub but not the rest of the plant. A supplier on consignment stock needs to see the assets that consume their parts but not the spec details. WorkHive's role-based access lets you grant scoped views without exposing the full register. This is one of the higher-value patterns for plants with heavy outsourced maintenance.
+Selectively. A contractor doing PM on the cooling water system needs to see those assets in WorkHive Asset Hub but not the rest of the plant. A supplier on consignment stock needs to see the assets that consume their parts but not the spec details. WorkHive's role-based access lets you grant scoped views without exposing the full register. Plants with heavy outsourced maintenance get the most from this: the contractor's work lands in your register instead of in their own spreadsheet.
 
 ## Sources
 
@@ -174,4 +174,4 @@ Selectively. A contractor doing PM on the cooling water system needs to see thos
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 6c34dd8668511d11 -->
+<!-- md-twin source-sha: 7a36ac822ee42d92 -->

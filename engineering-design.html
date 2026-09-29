@@ -82,7 +82,10 @@
       align-items: center;
       justify-content: center;
     }
-    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(247,162,27,0.35); }
+    /* An amber button lifting into an amber halo on a dark page - the coloured glow DESIGN.md
+       forbids, and the third instance of this exact shape this wave after voice-journal's mic and
+       primary. Neutral elevation: the lift still reads, and it reads as a lift rather than a bloom. */
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,0,0,0.45); }
     .btn-primary:active { opacity: 0.75; transform: scale(0.98); }
     .btn-primary:disabled { opacity: 0.35; cursor: not-allowed; transform: none; box-shadow: none; }
 
@@ -114,7 +117,7 @@
       /* 0.625rem = 10px: a phantom radius in no token (rubric S1). Same control ROLE as
          analytics' .phase-tab, so it takes the same vocabulary. */
       border-radius: var(--wh-radius-sm);
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       font-weight: 500;
       color:rgba(255,255,255,0.80);
       cursor: pointer;
@@ -124,7 +127,7 @@
       white-space: nowrap;
     }
     @media (min-width: 480px) {
-      .page-tab { padding: 0.6rem 1.25rem; font-size: 0.875rem; }
+      .page-tab { padding: 0.5rem 1.25rem; font-size: 0.875rem; }
     }
     .page-tab.active {
       background: rgba(247,162,27,0.15);
@@ -137,11 +140,11 @@
     .discipline-pill {
       flex: 1 1 auto;
       min-width: calc(50% - 0.75rem);
-      padding: 0.6rem 0.5rem;
+      padding: 0.5rem 0.5rem;
       /* R3 select-vocabulary = pill (family convention: filter-chips/reactions/discipline
          choosers are SELECTs → pill silhouette, distinct from the 12px PRESS rect of Run-Calc). */
       border-radius: 999px;
-      font-size: 0.78rem;
+      font-size: 0.75rem;
       font-weight: 600;
       text-align: center;
       cursor: pointer;
@@ -155,7 +158,7 @@
       justify-content: center;
     }
     @media (min-width: 480px) {
-      .discipline-pill { padding: 0.75rem 1rem; font-size: 0.9rem; }
+      .discipline-pill { padding: 0.75rem 1rem; font-size: 0.875rem; }
     }
     .discipline-pill.active {
       border-color: var(--wh-orange);
@@ -182,7 +185,7 @@
     .toggle-btn {
       padding: 0.5rem 0.9rem;
       border-radius: 999px;
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       font-weight: 500;
       border: 1px solid rgba(255,255,255,0.15);
       color:rgba(255,255,255,0.80);
@@ -201,8 +204,8 @@
     }
 
     /* Input label */
-    .field-label { font-size: 0.78rem; font-weight: 500; color:rgba(255,255,255,0.80); margin-bottom: 0.35rem; }
-    .field-unit { font-size: 0.8rem; color:rgba(255,255,255,0.80); margin-left: 0.5rem; }
+    .field-label { font-size: 0.75rem; font-weight: 500; color:rgba(255,255,255,0.80); margin-bottom: 0.25rem; }
+    .field-unit { font-size: 0.75rem; color:rgba(255,255,255,0.80); margin-left: 0.5rem; }
 
     /* Input with unit suffix */
     .input-group { position: relative; }
@@ -212,8 +215,14 @@
       right: 0.75rem;
       top: 50%;
       transform: translateY(-50%);
-      font-size: 0.8rem;
-      color: rgba(255,255,255,0.35);
+      font-size: 0.75rem;
+      /* W45911 audit: this was rgba(255,255,255,0.35) - 3.18:1 on the navy field, against a 4.5:1
+         floor - on the element that says what each number MEANS. "5" in a cooling-load field is not
+         a value until the m² beside it is legible, and this is the one label a person checks when
+         their answer looks wrong. tokens.css declares --wh-text-faint for exactly this tier and says
+         in as many words that a page must reference the token and never hardcode an alpha; measured
+         after, 12.32:1. */
+      color: var(--wh-text-faint);
       pointer-events: none;
     }
 
@@ -234,16 +243,16 @@
       font-family: 'Poppins', sans-serif;
       border-radius: 0.75rem;
       padding: 2.5rem;
-      font-size: 0.85rem;
+      font-size: .875rem;
       line-height: 1.7;
     }
     @media (max-width: 640px) {
-      #report-panel { padding: 1rem; font-size: 0.78rem; }
+      #report-panel { padding: 1rem; font-size: 0.75rem; }
       #report-panel h1 { font-size: 0.95rem; }
-      #report-panel h2 { font-size: 0.78rem; }
-      #report-panel table { font-size: 0.72rem; }
-      #report-panel th, #report-panel td { padding: 0.3rem 0.4rem; }
-      #report-panel .result-highlight .res-value { font-size: 1.1rem; }
+      #report-panel h2 { font-size: 0.75rem; }
+      #report-panel table { font-size: 0.75rem; }
+      #report-panel th, #report-panel td { padding: 0.25rem 0.4rem; }
+      #report-panel .result-highlight .res-value { font-size: 1.125rem; }
       /* A-3/A-4 (deep-arc P6): any report/doc table wider than the viewport scrolls horizontally
          instead of overflowing the page (WCAG 1.4.10 reflow), regardless of which renderer emitted
          it or whether it was wrapped in .table-wrap. */
@@ -255,17 +264,17 @@
         max-width: 100%;
       }
     }
-    #report-panel h1 { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.25rem; color: #1a1a1a; }
-    #report-panel h2 { font-size: 0.85rem; font-weight: 700; color: #1a1a1a; margin: 1.25rem 0 0.5rem; border-bottom: 1.5px solid #e0e0e0; padding-bottom: 0.25rem; text-transform: uppercase; letter-spacing: 0.05em; }
-    #report-panel h3 { font-size: 0.82rem; font-weight: 600; color: #333; margin: 0.75rem 0 0.25rem; }
+    #report-panel h1 { font-size: 1.125rem; font-weight: 700; margin-bottom: 0.25rem; color: #1a1a1a; }
+    #report-panel h2 { font-size: .875rem; font-weight: 700; color: #1a1a1a; margin: 1.25rem 0 0.5rem; border-bottom: 1.5px solid #e0e0e0; padding-bottom: 0.25rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    #report-panel h3 { font-size: 0.875rem; font-weight: 600; color: #333; margin: 0.75rem 0 0.25rem; }
     #report-panel .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-    #report-panel table { width: 100%; border-collapse: collapse; font-size: 0.82rem; margin: 0.5rem 0; min-width: 0; }
-    #report-panel th { background: #f5f5f5; text-align: left; padding: 0.4rem 0.6rem; border: 1px solid #ddd; font-weight: 600; font-size: 0.78rem; }
-    #report-panel td { padding: 0.4rem 0.6rem; border: 1px solid #ddd; }
+    #report-panel table { width: 100%; border-collapse: collapse; font-size: 0.875rem; margin: 0.5rem 0; min-width: 0; }
+    #report-panel th { background: #f5f5f5; text-align: left; padding: 0.4rem 0.5rem; border: 1px solid #ddd; font-weight: 600; font-size: 0.75rem; }
+    #report-panel td { padding: 0.4rem 0.5rem; border: 1px solid #ddd; }
     #report-panel td.num { text-align: right; font-family: monospace; }
     #report-panel .total-row td { font-weight: 700; background: #f9f9f9; }
     #report-panel .result-highlight { background: #fffbf0; border: 1.5px solid var(--wh-orange); border-radius: 0.5rem; padding: 0.75rem 1rem; margin: 0.75rem 0; }
-    #report-panel .result-highlight .res-label { font-size: 0.78rem; color: #666; }
+    #report-panel .result-highlight .res-label { font-size: 0.75rem; color: #666; }
     /* U-1 (deep-arc P3): --wh-orange-dark (var(--wh-orange-dark)) on cream #fffbf0 measured 2.68:1 — the
        headline RESULT was the least-readable text on the page. #8a4b00 is a dark amber that
        stays on-brand and clears WCAG AA 4.5:1 on the cream highlight (verified live via axe). */
@@ -277,7 +286,7 @@
     #report-panel .editable-field { border-bottom: 1.5px dashed var(--wh-orange); outline: none; min-width: 40px; display: inline-block; cursor: text; }
     #report-panel .editable-field:focus { background: #fffbf0; border-radius: 2px; }
     .doc-panel .editable-field { border-bottom: 1.5px dashed var(--wh-orange); outline: none; min-width: 40px; cursor: text; display: inline; }
-    .doc-panel .editable-field[style*="display:block"] { display: block !important; border-bottom: none; border: 1px dashed var(--wh-orange); padding: 0.3rem 0.4rem; border-radius: 4px; }
+    .doc-panel .editable-field[style*="display:block"] { display: block !important; border-bottom: none; border: 1px dashed var(--wh-orange); padding: 0.25rem 0.4rem; border-radius: 4px; }
     .doc-panel .editable-field:focus { background: #fffbf0; border-radius: 2px; }
     .doc-panel .editable-field[style*="display:block"]:focus { background: #fffbf0; }
 
@@ -295,7 +304,7 @@
     #drawing-panel.svg-edit-mode svg polygon,
     #drawing-panel.svg-edit-mode svg polyline,
     #drawing-panel.svg-edit-mode svg path { cursor: crosshair; }
-    #svg-edit-banner { display:none; background:#e3f2fd; border:1px solid var(--wh-blue); border-radius:0.4rem; padding:0.35rem 0.85rem; font-size:0.73rem; color:var(--wh-blue-text); margin-bottom:0.6rem; }
+    #svg-edit-banner { display:none; background:#e3f2fd; border:1px solid var(--wh-blue); border-radius:0.4rem; padding:0.25rem 0.85rem; font-size: 0.75rem; color:var(--wh-blue-text); margin-bottom:0.5rem; }
 
     /* History card */
     .hist-card {
@@ -320,9 +329,18 @@
       position: fixed; bottom: calc(5rem + env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%);
       background: rgba(31,46,69,0.97); color: white;
       padding: 0.75rem 1.5rem; border-radius: 999px;
-      font-size: 0.85rem; font-weight: 500;
+      font-size: .875rem; font-weight: 500;
       box-shadow: 0 4px 20px rgba(0,0,0,0.4);
       z-index: 9999; opacity: 0; transition: opacity 0.3s;
+      /* ★AN INVISIBLE TOAST STILL TAKES THE TAP (nav-hub walk W41397, narrow-320 en, 2026-09-16):
+         `opacity: 0` hides it from the eye, not from hit-testing, and with no text this fixed box
+         collapses to ~1px at left:50% bottom:5rem - which at 320 is dead centre of #calc-search
+         "Search all 55 calculations" (249x46 at 33,741). A finger placed in the middle of the search
+         box hit an empty alert; a tap slightly off-centre worked. Unconditional, not just while
+         hidden: this is role="alert" filled with TEXT by showToast and nothing injects a control
+         into it, so it never needs to receive a pointer - and a VISIBLE toast can no longer swallow
+         a tap either. */
+      pointer-events: none;
       border: 1px solid rgba(255,255,255,0.1);
       white-space: nowrap;
     }
@@ -346,9 +364,9 @@
 
     /* ── BOM + SOW styles ───────────────────────────────────────── */
     .bom-tab-btn {
-      padding: 0.45rem 1rem;
+      padding: 0.5rem 1rem;
       border-radius: 0.625rem;
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       font-weight: 500;
       border: 1px solid rgba(255,255,255,0.12);
       color:rgba(255,255,255,0.80);
@@ -363,11 +381,11 @@
       display: flex;
       align-items: flex-start;
       gap: 0.65rem;
-      padding: 0.65rem 0.75rem;
+      padding: 0.75rem 0.75rem;
       border-radius: 0.625rem;
       border: 1px solid rgba(255,255,255,0.07);
       background: rgba(22,32,50,0.45);
-      margin-bottom: 0.45rem;
+      margin-bottom: 0.5rem;
       transition: border-color 0.15s;
     }
     .bom-checklist-item.unchecked { opacity: 0.42; }
@@ -385,8 +403,8 @@
       border: 1px solid rgba(255,255,255,0.1);
       border-radius: 0.45rem;
       color: white;
-      padding: 0.3rem 0.55rem;
-      font-size: 0.78rem;
+      padding: 0.25rem 0.55rem;
+      font-size: 0.75rem;
       font-family: 'Poppins', sans-serif;
       outline: none;
     }
@@ -400,8 +418,8 @@
       border: 1px solid rgba(255,255,255,0.1);
       border-radius: 0.45rem;
       color: white;
-      padding: 0.3rem 0.4rem;
-      font-size: 0.78rem;
+      padding: 0.25rem 0.4rem;
+      font-size: 0.75rem;
       font-family: 'Poppins', sans-serif;
       outline: none;
       width: 90px;
@@ -412,7 +430,7 @@
       color: rgba(255,255,255,0.25);
       cursor: pointer;
       font-size: 0.95rem;
-      padding: 0.2rem 0.3rem;
+      padding: 0.2rem 0.25rem;
       border-radius: 4px;
       flex-shrink: 0;
       transition: color 0.15s;
@@ -420,15 +438,15 @@
     .bom-delete-btn:hover { color: rgba(239,68,68,0.7); }
 
     .sow-checklist-item {
-      padding: 0.7rem 0.75rem;
+      padding: 0.75rem 0.75rem;
       border-radius: 0.625rem;
       border: 1px solid rgba(255,255,255,0.07);
       background: rgba(22,32,50,0.45);
-      margin-bottom: 0.45rem;
+      margin-bottom: 0.5rem;
     }
     .sow-checklist-item.unchecked { opacity: 0.42; }
     .sow-item-header { display: flex; align-items: flex-start; gap: 0.65rem; cursor: pointer; }
-    .sow-item-body  { margin-top: 0.45rem; margin-left: 1.7rem; font-size: 0.76rem; color: rgba(255,255,255,0.45); line-height: 1.55; }
+    .sow-item-body  { margin-top: 0.5rem; margin-left: 1.7rem; font-size: 0.76rem; color: rgba(255,255,255,0.45); line-height: 1.55; }
 
     /* ── HVAC Drawing section ─────────────────────────────────── */
     #drawing-panel svg { max-width: 100%; height: auto; display: block; margin: 0 auto; }
@@ -444,27 +462,27 @@
       line-height: 1.7;
     }
     @media (max-width: 640px) { .doc-panel { padding: 1rem; font-size: 0.77rem; } }
-    .doc-panel h1 { font-size: 1.05rem; font-weight: 700; margin-bottom: 0.2rem; color: #1a1a1a; }
-    .doc-panel h2 { font-size: 0.82rem; font-weight: 700; margin: 1.1rem 0 0.45rem; border-bottom: 1.5px solid #e0e0e0; padding-bottom: 0.2rem; text-transform: uppercase; letter-spacing: 0.05em; color: #1a1a1a; }
+    .doc-panel h1 { font-size: 1.125rem; font-weight: 700; margin-bottom: 0.2rem; color: #1a1a1a; }
+    .doc-panel h2 { font-size: 0.875rem; font-weight: 700; margin: 1.1rem 0 0.5rem; border-bottom: 1.5px solid #e0e0e0; padding-bottom: 0.2rem; text-transform: uppercase; letter-spacing: 0.05em; color: #1a1a1a; }
     .doc-panel .doc-header-row { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.25rem; padding-bottom: 1rem; border-bottom: 2px solid #1a1a1a; }
     .doc-panel .doc-meta { font-size: 0.76rem; color: #555; line-height: 1.6; }
     .doc-panel .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-    .doc-panel table { width: 100%; border-collapse: collapse; font-size: 0.8rem; min-width: 0; }
+    .doc-panel table { width: 100%; border-collapse: collapse; font-size: 0.75rem; min-width: 0; }
     .doc-panel th { background: #f0f0f0; text-align: left; padding: 0.4rem 0.55rem; border: 1px solid #ccc; font-weight: 600; font-size: 0.76rem; }
-    .doc-panel td { padding: 0.35rem 0.55rem; border: 1px solid #ddd; vertical-align: middle; }
+    .doc-panel td { padding: 0.25rem 0.55rem; border: 1px solid #ddd; vertical-align: middle; }
     .doc-panel td input {
       border: none; outline: none; background: transparent;
       font-size: inherit; font-family: inherit;
       color: #1a1a1a; width: 100%; padding: 0; min-width: 20px;
     }
     .doc-panel td input[type="number"] { width: 50px; text-align: center; }
-    .doc-panel .sow-clause { margin: 0.65rem 0; }
+    .doc-panel .sow-clause { margin: 0.75rem 0; }
     .doc-panel .sow-clause-header { font-weight: 700; display: flex; gap: 0.5rem; }
     .doc-panel .sow-clause-no { color: var(--wh-orange-dark); min-width: 2.5rem; }
     .doc-panel .sow-clause-body { margin-top: 0.2rem; padding-left: 3rem; color: #333; }
     .doc-panel .sig-block { margin-top: 2.5rem; display: flex; flex-wrap: wrap; gap: 2rem; }
     .doc-panel .sig-block > div { flex: 1 1 200px; }
-    .doc-panel .sig-line { border-top: 1px solid #999; padding-top: 0.3rem; font-size: 0.74rem; color: #666; margin-top: 2rem; }
+    .doc-panel .sig-line { border-top: 1px solid #999; padding-top: 0.25rem; font-size: 0.75rem; color: #666; margin-top: 2rem; }
     .doc-panel .editable-field { border-bottom: 1.5px dashed var(--wh-orange); outline: none; min-width: 60px; display: inline-block; background: transparent; }
 
     /* Print styles */
@@ -504,7 +522,7 @@
     .pill-count {
       display: inline-flex; align-items: center; justify-content: center;
       background: rgba(255,255,255,0.12); border-radius: 999px;
-      font-size: 0.68rem; font-weight: 700; padding: 1px 6px; margin-left: 4px;
+      font-size: 0.75rem; font-weight: 700; padding: 2px 6px; margin-left: 4px;
       color:rgba(255,255,255,0.80);
     }
     .discipline-pill.active .pill-count {
@@ -517,7 +535,7 @@
       border: 1px solid rgba(255,255,255,0.1);
       border-radius: 0.75rem;
       color: white; width: 100%;
-      padding: 0.65rem 1rem 0.65rem 2.5rem;
+      padding: 0.75rem 1rem 0.75rem 2.5rem;
       font-size: 16px; outline: none;        /* exact 16px so iOS Safari does not auto-zoom on focus */
       transition: border-color 0.2s;
     }
@@ -561,7 +579,7 @@
     /* Subcategory headers in calc grid */
     .calc-subcat-header {
       grid-column: 1 / -1;
-      font-size: 0.7rem; font-weight: 700;
+      font-size: 0.75rem; font-weight: 700;
       text-transform: uppercase; letter-spacing: 0.1em;
       color:rgba(255,255,255,0.80);
       padding: 0.5rem 0 0.25rem;
@@ -572,10 +590,10 @@
 
     /* Search result discipline tag */
     .calc-disc-tag {
-      font-size: 0.65rem; font-weight: 600;
+      font-size: 0.75rem; font-weight: 600;
       color:rgba(255,255,255,0.80);
       background: rgba(255,255,255,0.06);
-      border-radius: 4px; padding: 1px 5px;
+      border-radius: 4px; padding: 2px 5px;
       margin-left: auto; flex-shrink: 0;
       white-space: nowrap;
     }
@@ -617,7 +635,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   <div style="background:rgba(22,32,50,0.8);border-bottom:1px solid rgba(255,255,255,0.07);backdrop-filter:blur(12px);padding-top:env(safe-area-inset-top);" class="sticky top-0 z-40">
     <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between flex-wrap gap-y-2">
       <div class="flex items-center gap-3 min-w-0 flex-1">
-        <a data-i="p_back_c32a" href="index.html" style="color:rgba(255,255,255,0.86);font-size:0.8rem;text-decoration:none;min-height:44px;min-width:44px;" class="hidden sm:inline-flex sm:items-center">← Back</a>
+        <a data-i="p_back_c32a" href="index.html" style="color:rgba(255,255,255,0.86);font-size:0.75rem;text-decoration:none;min-height:44px;min-width:44px;" class="hidden sm:inline-flex sm:items-center">← Back</a>
         <div>
           <h1 class="font-bold text-sm" style="color:var(--wh-orange-text);margin:0;" data-i="ed_title">Engineering Design</h1>
           <div data-i="p_designcalculationtool_b1ec" class="text-xs" style="color:rgba(255,255,255,0.80);">Design Calculation Tool</div>
@@ -702,7 +720,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
             <!-- A-6 (deep-arc P6): scoped SI/IP units toggle — converts DIMENSIONAL inputs only
                  (length/area/temp/pressure/mass/flow); electrical + dimensionless + ambiguous kW
                  stay untouched. The engine always receives SI (runCalculation normalizes). -->
-            <button id="units-toggle-btn" onclick="toggleUnitSystem()" translate="no" class="btn-ghost wh-toggle" style="font-size:0.68rem;padding:0.3rem 0.65rem;min-height:44px;white-space:nowrap;border-radius:999px;" aria-label="Units: switch dimensional inputs between Metric (SI) and Imperial" data-i="unitsmetricsi">⇄ Units: Metric (SI)</button>
+            <button id="units-toggle-btn" onclick="toggleUnitSystem()" translate="no" class="btn-ghost wh-toggle" style="font-size: 0.75rem;padding:0.25rem 0.75rem;min-height:44px;white-space:nowrap;border-radius:999px;" aria-label="Units: switch dimensional inputs between Metric (SI) and Imperial" data-i="unitsmetricsi">⇄ Units: Metric (SI)</button>
           </div>
           <div id="input-form-area">
             <p data-i="p_selectacalculationtypefirst_e3c7" class="text-sm" style="color:rgba(255,255,255,0.80);">Select a calculation type first.</p>

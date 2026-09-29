@@ -78,15 +78,15 @@
           "name": "How long should I retain records?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "DOLE minimums vary by record type: 5 years for safety observations, 10 years for incident investigations, 3 years for PM and general logbook entries, employment duration plus 3 years for training. WorkHive defaults exceed the minimums (10 years for most record types, 15 years for incident investigations) because storage is cheap and the worker may need the history years after leaving the plant."
+            "text": "DOLE minimums vary by record type: 5 years for safety observations, 10 years for incident investigations, 3 years for PM and general logbook entries, employment duration plus 3 years for training. WorkHive keeps audit history for three years by default (1,095 days), as one hive-wide window rather than a per-record-type rule, and it can be raised as far as ten years (3,650 days). Because the default does not cover the 5-year and 10-year DOLE minimums, set the window to the longest obligation you carry rather than leaving it as shipped."
           }
         },
         {
           "@type": "Question",
-          "name": "What PDF export does an ISO auditor want?",
+          "name": "What export does an ISO auditor want?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Three patterns work: (1) date-range PDF for sampling a window (typically 30 days), (2) asset-history PDF for investigating a specific failure, (3) compliance-mapping PDF for management review meetings showing entries grouped by ISO clause or DOLE rule. All three include WorkHive entry IDs so the auditor can request live verification if needed."
+            "text": "Three patterns work: (1) a date range for sampling a window, typically 30 days, (2) one asset's whole history for investigating a specific failure, (3) entries grouped by ISO clause or DOLE rule for management review. The Audit Log exports all three as CSV; the print-ready PDF comes from the Analytics Report. Every row carries its WorkHive entry ID, so an auditor can ask to see any single entry live."
           }
         },
         {
@@ -137,7 +137,15 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
-    tailwind.config = { theme: { extend: { colors: {
+    tailwind.config = { theme: { extend: {
+      /* the platform's six-step ramp plus one display step, declared where the utilities read it
+         (W46084, 2026-09-16): text-sm rendered 14px - 0.4px from 13.6 and 1.2px from 15.2, noise
+         rather than a step - and the h1 ran 30 -> 36 -> 43.2px across three breakpoints. Pinning the
+         scale here rather than overriding each class matters because `sm:text-4xl` compiles inside a
+         media query, and a media query adds no specificity. */
+      fontSize: { xs: '0.75rem', sm: '0.95rem', base: '1.05rem', lg: '1.25rem', xl: '1.25rem',
+                  '2xl': '1.75rem', '3xl': '2.25rem', '4xl': '2.25rem', '5xl': '2.25rem' },
+      colors: {
       orange: { wh: '#F7A21B', dark: '#D88A0E', light: '#FDB94A' },
       blue:   { wh: '#29B6D9', dark: '#1A9ABF', light: '#5FCCE8' },
       navy:   { wh: '#162032', mid: '#1F2E45', light: '#2A3D58' },
@@ -159,8 +167,14 @@
     * { font-family: 'Poppins', sans-serif; } body { background: #162032; color: #F4F6FA; }
     .hex-pattern { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='92' viewBox='0 0 80 92'%3E%3Cpath d='M40 0 L80 23 L80 69 L40 92 L0 69 L0 23 Z' fill='none' stroke='%23ffffff08' stroke-width='1.5'/%3E%3C/svg%3E"); background-size: 80px 92px; }
     .prose-wh { overflow-wrap: anywhere; word-break: break-word; color: rgba(244,246,250,0.85); font-size: 1.05rem; line-height: 1.8; }
+    /* craft floor (W46284, 2026-09-16, measured live at 390 and 1280): `small` took the UA default 0.8em of the
+       16.8px body and rendered 13.4px - a size off the six-step ramp that no font-size declaration could show,
+       because a ramp is what the page RENDERS. And the measure ran to 76ch at 1280, one over the 65-75 floor,
+       so the text caps itself; below ~1100px the column is already narrower than the cap and nothing moves. */
+    .prose-wh small { font-size: 0.85rem; }
+    .prose-wh p, .prose-wh li { max-width: 72ch; }
     .prose-wh h2 { color: #F4F6FA; font-size: 1.75rem; font-weight: 800; line-height: 1.25; letter-spacing: -0.015em; margin-top: 3rem; margin-bottom: 1rem; scroll-margin-top: 80px; }
-    .prose-wh h3 { color: #F4F6FA; font-size: 1.2rem; font-weight: 700; margin-top: 2rem; margin-bottom: 0.5rem; }
+    .prose-wh h3 { color: #F4F6FA; font-size: 1.25rem; font-weight: 700; margin-top: 2rem; margin-bottom: 0.5rem; }
     .prose-wh p { overflow-wrap: anywhere; word-break: break-word; margin-bottom: 1.25rem; }
     .prose-wh ul, .prose-wh ol { padding-left: 1.5rem; margin-bottom: 1.25rem; }
     .prose-wh li { margin-bottom: 0.5rem; }
@@ -169,45 +183,51 @@
     .prose-wh a { color: #5FCCE8; text-decoration: underline; text-underline-offset: 3px; } .prose-wh a:hover { color: #29B6D9; }
     .prose-wh table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.95rem; }
     .prose-wh th, .prose-wh td { padding: 12px 14px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.08); vertical-align: top; }
-    .prose-wh th { background: rgba(31,46,69,0.6); font-weight: 700; color: #F4F6FA; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; }
-    .pill { display: inline-block; font-size: 0.65rem; font-weight: 700; padding: 3px 10px; border-radius: 100px; letter-spacing: 0.05em; text-transform: uppercase; }
+    .prose-wh th { background: rgba(31,46,69,0.6); font-weight: 700; color: #F4F6FA; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em;
+      /* the [data-table-scroll] wrapper announces a scrollable region and could never scroll: the table is
+         pinned to width:100%, so it crushed columns instead - at 390 the headers "Product" and "Paid entry"
+         wrapped to THREE lines in 66px (W46083, 2026-09-16). One line here is what makes the wrapper real. */
+      white-space: nowrap; }
+    .pill { display: inline-block; font-size: 0.75rem; font-weight: 700; padding: 4px 10px; border-radius: 100px; letter-spacing: 0.02em; }
     .pill-orange { background: rgba(247,162,27,0.18); color: #F7A21B; border: 1px solid rgba(247,162,27,0.35); }
-    .toc { background: rgba(31,46,69,0.55); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 22px 26px; margin: 2rem 0 3rem; }
-    .toc h2 { color: rgba(244,246,250,0.8); font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 12px; }
-    .toc ol { padding-left: 1.5rem; margin: 0; } .toc li { margin-bottom: 6px; font-size: 0.92rem; }
+    .toc { background: rgba(31,46,69,0.55); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 24px 26px; margin: 2rem 0 3rem; }
+    .toc h2, .toc h4 { color: rgba(244,246,250,0.8); font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 12px; }
+    .toc ol { padding-left: 1.5rem; margin: 0; } .toc li { margin-bottom: 6px; font-size: 0.95rem; }
     .toc a { color: rgba(244,246,250,0.85); text-decoration: none; } .toc a:hover { color: #F7A21B; }
-    .answer-first { background: rgba(247,162,27,0.08); border-left: 3px solid #F7A21B; border-radius: 8px; padding: 18px 22px; margin-bottom: 2rem; font-size: 1.05rem; line-height: 1.75; color: rgba(244,246,250,0.85); }
+    .answer-first { background: rgba(247,162,27,0.08); border: 1px solid rgba(247,162,27,0.30); border-radius: 8px; padding: 20px 22px; margin-bottom: 2rem; font-size: 1.05rem; line-height: 1.75; color: rgba(244,246,250,0.85); }
     .audience-block { background: rgba(41,182,217,0.05); border: 1px solid rgba(41,182,217,0.18); border-radius: 12px; padding: 16px 20px; margin: 0 0 2rem; }
-    .audience-block .audience-label { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: #5FCCE8; margin-bottom: 10px; }
-    .audience-block ul { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 18px; font-size: 0.9rem; color: rgba(244,246,250,0.85); }
+    .audience-block .audience-label { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: #5FCCE8; margin-bottom: 12px; }
+    .audience-block ul { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 18px; font-size: 0.95rem; color: rgba(244,246,250,0.85); }
     .audience-block ul li { list-style: none !important; position: relative; padding-left: 16px; margin: 0; }
-    .audience-block ul li::before { content: '\B7'; position: absolute; left: 4px; color: #29B6D9; font-weight: 800; font-size: 1.2rem; line-height: 1; top: 0; }
+    .audience-block ul li::before { content: '\B7'; position: absolute; left: 4px; color: #29B6D9; font-weight: 800; font-size: 1.25rem; line-height: 1; top: 0; }
     @media (max-width: 640px) { .audience-block ul { grid-template-columns: 1fr; } }
-    .callout { background: rgba(41,182,217,0.06); border-left: 3px solid #29B6D9; border-radius: 8px; padding: 18px 22px; margin: 2rem 0; font-size: 0.98rem; line-height: 1.7; color: rgba(244,246,250,0.85); }
+    .callout { background: rgba(41,182,217,0.06); border: 1px solid rgba(41,182,217,0.28); border-radius: 8px; padding: 20px 22px; margin: 2rem 0; font-size: 0.95rem; line-height: 1.7; color: rgba(244,246,250,0.85); }
     .callout strong { color: #A4E2F2; }
     .cta-box { background: linear-gradient(135deg, rgba(247,162,27,0.12) 0%, rgba(31,46,69,0.85) 100%); border: 1px solid rgba(247,162,27,0.35); border-radius: 16px; padding: 28px 30px; margin: 3rem 0; }
-    .cta-box .cta-eyebrow { color: #F7A21B; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
-    .cta-box h4 { font-size: 1.35rem; font-weight: 800; color: #F4F6FA; margin-bottom: 8px; }
-    .cta-box p { color: rgba(244,246,250,0.85); margin-bottom: 18px; line-height: 1.65; }
+    .cta-box .cta-eyebrow { color: #F7A21B; font-size: 0.75rem; font-weight: 800; letter-spacing: 0.02em; margin-bottom: 8px; }
+    .cta-box h3, .cta-box h4 { font-size: 1.25rem; font-weight: 800; color: #F4F6FA; margin-bottom: 8px; }
+    .cta-box p { color: rgba(244,246,250,0.85); margin-bottom: 16px; line-height: 1.65; }
     .cta-btn { display: inline-block; background: linear-gradient(135deg, #F7A21B 0%, #D88A0E 100%); color: #162032; font-weight: 700; padding: 12px 28px; border-radius: 10px; text-decoration: none; transition: transform .18s, box-shadow .18s; }
     .prose-wh a.cta-btn { color: #162032; text-decoration: none; }  /* (0,2,1) beats .prose-wh a (0,1,1): a button inside the article body keeps its own colour instead of being painted as a prose link (measured 1.11:1 before this) */
-    .cta-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px -4px rgba(247,162,27,0.45); }
-    .cta-secondary { font-size: 0.82rem; color: rgba(244,246,250,0.8); margin-top: 14px; margin-bottom: 0; }
+    .cta-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 22px -8px rgba(0,0,0,0.55); }
+    .cta-secondary { font-size: 0.85rem; color: rgba(244,246,250,0.8); margin-top: 16px; margin-bottom: 0; }
+    /* (0,2,1) beats .cta-box p (0,1,1): the margin-bottom:0 above was written and never applied - the walk measured 18px (2026-09-16). */
+    .cta-box p.cta-secondary { margin-bottom: 0; }
     .cta-secondary a { color: #5FCCE8; text-decoration: underline; text-underline-offset: 2px; }
     .faq-item { background: rgba(31,46,69,0.55); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; margin-bottom: 12px; }
     .faq-item[open] { border-color: rgba(247,162,27,0.35); background: rgba(31,46,69,0.85); }
     .faq-item summary { cursor: pointer; list-style: none; padding: 16px 20px; font-weight: 600; color: #F4F6FA; display: flex; justify-content: space-between; gap: 14px; }
     .faq-item summary::-webkit-details-marker { display: none; }
-    .faq-item summary::after { content: '+'; font-size: 1.4rem; color: #F7A21B; } .faq-item[open] summary::after { content: '\2212'; }
-    .faq-item .faq-answer { padding: 0 20px 18px; color: rgba(244,246,250,0.85); line-height: 1.7; font-size: 0.95rem; }
+    .faq-item summary::after { content: '+'; font-size: 1.25rem; color: #F7A21B; } .faq-item[open] summary::after { content: '\2212'; }
+    .faq-item .faq-answer { padding: 0 20px 20px; color: rgba(244,246,250,0.85); line-height: 1.7; font-size: 0.95rem; }
     .author-card { background: rgba(31,46,69,0.5); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 20px 24px; margin: 2rem 0; display: flex; gap: 16px; align-items: center; }
-    .author-card .avatar { width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #F7A21B, #FDB94A); display: flex; align-items: center; justify-content: center; font-weight: 800; color: #162032; font-size: 1.1rem; flex-shrink: 0; }
+    .author-card .avatar { width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #F7A21B, #FDB94A); display: flex; align-items: center; justify-content: center; font-weight: 800; color: #162032; font-size: 1.05rem; flex-shrink: 0; }
     .author-card .meta p:first-child { font-weight: 700; color: #F4F6FA; font-size: 0.95rem; margin-bottom: 2px; }
-    .author-card .meta p:last-child { font-size: 0.82rem; color: rgba(244,246,250,0.8); }
-    nav a.nav-link { font-size: 0.9rem; color: rgba(244,246,250,0.85); font-weight: 500; } nav a.nav-link:hover { color: #F4F6FA; }
+    .author-card .meta p:last-child { font-size: 0.85rem; color: rgba(244,246,250,0.8); }
+    nav a.nav-link { font-size: 0.95rem; color: rgba(244,246,250,0.85); font-weight: 500; } nav a.nav-link:hover { color: #F4F6FA; }
     .breadcrumb { font-size: 0.85rem; color: rgba(244,246,250,0.8); margin-bottom: 1.5rem; }
     .breadcrumb a { color: rgba(244,246,250,0.8); text-decoration: none; } .breadcrumb a:hover { color: #F7A21B; }
-    .breadcrumb span { margin: 0 8px; opacity: 0.4; }
+    .breadcrumb span { margin: 0 8px; }
       /* Z2/R2 (critic re-sweep 2026-09-07): a long unbroken token (a citation URL) widened a paragraph to 463px at 390 and the page scrolled sideways; long words now wrap */
   </style>
   <script>
@@ -268,15 +288,17 @@
   <script src="/wh-ga4.js" defer></script>
   <!-- /WorkHive GA4 -->
 <link rel="stylesheet" href="/learn-print.css" media="print" />
-<style data-wh-chrome-i18n>nav a,header a,footer a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;min-width:44px;}nav a{padding:0 .25rem;}.breadcrumb a,.toc a{display:inline-flex;align-items:center;min-height:44px;}.breadcrumb a{min-width:44px;justify-content:center;}a.text-sm[href$='/learn/'],a.text-sm[href$='/learn/index.html']{display:inline-flex;align-items:center;min-height:44px;}.wh-tap{display:inline-flex;align-items:center;min-height:44px;}td a,th a{display:inline-flex;align-items:center;min-height:44px;}</style>
+<style data-wh-chrome-i18n>nav a,header a,footer a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;min-width:44px;}nav a{padding:0 .25rem;}.breadcrumb a,.toc a{display:inline-flex;align-items:center;min-height:44px;}.breadcrumb a{min-width:44px;justify-content:center;}a.text-sm[href$='/learn/'],a.text-sm[href$='/learn/index.html']{display:inline-flex;align-items:center;min-height:44px;}.wh-tap{display:inline-flex;align-items:center;min-height:44px;}td a,th a{display:inline-flex;align-items:center;min-height:44px;}/*wh-brand-header-gap*/@media (max-width:399px){header nav.flex{gap:.75rem;}}</style>
 <script src="/wh-i18n-lite.js" data-wh-chrome-i18n></script>
 </head>
 <body class="bg-navy-wh text-white antialiased">
+<a class="wh-skip-link" href="#wh-main-content" data-wh-skip="learn" style="position:fixed;top:0;left:0;z-index:10001;transform:translateY(-120%);background:var(--wh-orange,#F7A21B);color:var(--wh-navy,#162032);padding:0 20px;min-height:44px;display:inline-flex;align-items:center;font-weight:700;font-size:14px;text-decoration:none;border-radius:0 0 10px 0;box-shadow:0 4px 16px rgba(0,0,0,.35);transition:transform .15s cubic-bezier(0.23,1,0.32,1);box-sizing:border-box;" onfocus="this.style.transform='translateY(0)'" onblur="this.style.transform='translateY(-120%)'">Skip to main content</a>
+
 <header class="border-b border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
   <div class="max-w-6xl mx-auto px-5 sm:px-8 py-4 flex items-center justify-between">
     <a href="/" class="flex items-center gap-3">
       <img src="/brand_assets/workhive-logo-transparent.png" alt="WorkHive" style="height: 36px; width: auto;" />
-      <span class="font-black text-lg tracking-tight hidden sm:inline">WorkHive</span>
+      <span class="font-extrabold tracking-tight hidden sm:inline" style="font-size: 1.25rem" aria-hidden="true">WorkHive</span>
     </a>
     <nav class="flex items-center gap-6">
       <a href="/" class="nav-link" data-i="home">Home</a>
@@ -286,13 +308,13 @@
     </nav>
   </div>
 </header>
-<article class="hex-pattern">
+<main id="wh-main-content"><article class="hex-pattern">
   <div class="max-w-3xl mx-auto px-5 sm:px-8 py-14 lg:py-20">
     <div class="breadcrumb">
       <a href="/" data-i="home">Home</a><span>/</span><a href="/learn/" data-i="learn">Learn</a><span>/</span><span>DOLE / ISO audit trail</span>
     </div>
     <p class="pill pill-orange mb-4">Audit Log · DOLE OSHS · ISO</p>
-    <h1 class="text-3xl sm:text-4xl lg:text-[2.7rem] font-black leading-[1.15] tracking-[-0.02em] mb-5">DOLE OSHS and ISO audit trail <span class="text-white/55 font-bold">(from your WorkHive Logbook)</span></h1>
+    <h1 class="text-3xl sm:text-4xl font-extrabold leading-[1.15] tracking-[-0.02em] mb-5">DOLE OSHS and ISO audit trail <span class="text-white/55 font-bold">(from your WorkHive Logbook)</span></h1>
     <div class="flex items-center gap-4 text-sm text-white/45 mb-8 flex-wrap">
       <span>By <strong class="text-white/75">WorkHive Editorial Team</strong></span>
       <span class="opacity-40">·</span>
@@ -302,7 +324,7 @@
       <span class="opacity-40">·</span>
       <span>7 min read</span>
     </div>
-    <div class="answer-first"><strong>Short answer:</strong> A DOLE OSHS inspector or ISO 9001/14001/45001 auditor wants to sample three things from your maintenance records: that the entry was made at the time of the event (not backdated), that the worker who made it is identified, and that the entry has not been edited after the fact. WorkHive Audit Log makes all three queryable in seconds. The supervisor exports a PDF per requested date range, the inspector marks it sampled, and the audit closes hours instead of days.</div>
+    <div class="answer-first"><strong>Short answer:</strong> A DOLE OSHS inspector or ISO 9001/14001/45001 auditor wants to sample three things from your maintenance records: that the entry was made at the time of the event (not backdated), that the worker who made it is identified, and that the entry has not been edited after the fact. WorkHive Audit Log makes all three queryable in seconds. The supervisor exports the requested date range from the Audit Log as CSV, or prints the period's Analytics Report as a PDF, and the inspector samples from a record that is already assembled.</div>
     <div class="audience-block">
       <p class="audience-label">Who this is for</p>
       <ul><li>Plant safety officers</li>
@@ -313,10 +335,10 @@
         <li>Auditors from certification bodies</li>
         <li>Contractors providing audit support</li></ul>
     </div>
-    <div class="toc"><h4 aria-level="2">What's in this guide</h4><ol><li><a href="#what-auditors-want" class="wh-tap">What DOLE and ISO auditors actually sample</a></li>
+    <div class="toc"><h2>What's in this guide</h2><ol><li><a href="#what-auditors-want" class="wh-tap">What DOLE and ISO auditors actually sample</a></li>
         <li><a href="#three-guarantees" class="wh-tap">The 3 immutability guarantees</a></li>
         <li><a href="#retention" class="wh-tap">Retention rules per record type</a></li>
-        <li><a href="#export" class="wh-tap">PDF export patterns auditors accept</a></li>
+        <li><a href="#export" class="wh-tap">Export patterns auditors accept</a></li>
         <li><a href="#per-standard" class="wh-tap">Mapping to ISO 9001, 14001, 45001</a></li>
         <li><a href="#faq" class="wh-tap">Frequently asked questions</a></li>
         <li><a href="#sources" class="wh-tap">Sources</a></li></ol></div>
@@ -324,24 +346,24 @@
       <div class="callout">Part of the <a href="/learn/ph-plant-compliance-guide/">Philippine plant compliance guide: DOLE OSHS, LOTO and RA 11285</a>: the hub for what an inspector actually asks to see.</div>
 <h2 id="what-auditors-want">What DOLE and ISO auditors actually sample</h2>
       <p>The first time a Philippine plant moves from paper to digital, the safety officer worries: will the auditor accept this? The honest answer is yes, easily, when the digital system satisfies three properties that paper never quite did. The auditor wants:</p>
-      <ol><li><strong>Time-of-event recording.</strong> The entry was made when the event happened, not constructed weeks later to satisfy the audit. A server-side timestamp settles this.</li><li><strong>Worker identification.</strong> The person who made the entry is named (not initials). Paper has signatures that may be illegible; digital has authenticated user IDs.</li><li><strong>Non-editability after submission.</strong> Once submitted, the entry cannot be silently rewritten. Edits are version-tracked with the editor and reason.</li></ol>
-      <p>WorkHive Audit Log surfaces all three for any record the auditor requests. Most audits close in hours rather than days because the documentation is already there.</p>
+      <ol><li><strong>Time-of-event recording.</strong> The entry was made when the event happened, not constructed weeks later to satisfy the audit. A server-side timestamp settles this.</li><li><strong>Worker identification.</strong> The person who made the entry is named (not initials). Paper has signatures that may be illegible; digital has authenticated user IDs.</li><li><strong>Non-editability after submission.</strong> Once submitted, the entry cannot be silently rewritten. Edits are recorded with the editor and the before and after values.</li></ol>
+      <p>WorkHive Audit Log surfaces all three for any record the auditor requests. What changes is the sampling step: it stops being a search through folders and becomes a filter.</p>
       <h2 id="three-guarantees">The 3 immutability guarantees</h2>
-      <ul><li><strong>Server-side timestamp.</strong> Every entry is stamped at the moment it hits the server, not the client. A worker cannot backdate by adjusting their phone clock.</li><li><strong>Authenticated authorship.</strong> Entries are tied to the worker's account (which is tied to their DOLE-acceptable identity). No anonymous edits.</li><li><strong>Append-only edits.</strong> If an entry needs correction, the original stays in the audit log with the correction appended (who, when, what changed, why). Auditors see the full history, not just the current state.</li></ul>
+      <ul><li><strong>Server-side timestamp.</strong> Every entry is stamped at the moment it hits the server, not the client. A worker cannot backdate by adjusting their phone clock.</li><li><strong>Authenticated authorship.</strong> Entries are tied to the worker's account (which the employer maps to a person on the payroll). No anonymous edits.</li><li><strong>Append-only edits.</strong> If an entry needs correction, the original stays in the audit log with the correction appended: who made it, when, and the before and after values of what they changed. Auditors see the full history, not just the current state. One thing it does NOT capture is a stated reason for the edit: there is no field asking why, so if your procedure requires a documented justification, put it in the entry text itself, where it becomes part of the record the audit trail then protects.</li></ul>
       <h2 id="retention">Retention rules per record type</h2>
-      <div data-table-scroll style="overflow-x:auto;-webkit-overflow-scrolling:touch;" role="region" aria-label="Scrollable table" tabindex="0"><table><thead><tr><th>Record type</th><th>DOLE OSHS minimum</th><th>ISO recommendation</th><th>WorkHive default</th></tr></thead><tbody>
-      <tr><td>Safety observations</td><td>5 years</td><td>3+ years</td><td>10 years</td></tr>
-      <tr><td>Incident investigations</td><td>10 years</td><td>5+ years</td><td>15 years</td></tr>
-      <tr><td>PM completion records</td><td>3 years</td><td>3 years per cycle</td><td>10 years</td></tr>
-      <tr><td>Logbook entries (general)</td><td>3 years</td><td>3 years</td><td>10 years</td></tr>
-      <tr><td>Permit to work records</td><td>3 years</td><td>3 years</td><td>10 years</td></tr>
-      <tr><td>Training records</td><td>For employment duration + 3 years</td><td>For employment duration + 3 years</td><td>For employment duration + 10 years</td></tr>
+      <div data-table-scroll style="overflow-x:auto;-webkit-overflow-scrolling:touch;" role="region" aria-label="Scrollable table" tabindex="0"><table><thead><tr><th>Record type</th><th>DOLE OSHS minimum</th><th>ISO recommendation</th><th>Covered by the 3-year default?</th></tr></thead><tbody>
+      <tr><td>Safety observations</td><td>5 years</td><td>3+ years</td><td>No: raise it</td></tr>
+      <tr><td>Incident investigations</td><td>10 years</td><td>5+ years</td><td>No: needs the 10-year maximum</td></tr>
+      <tr><td>PM completion records</td><td>3 years</td><td>3 years per cycle</td><td>Yes</td></tr>
+      <tr><td>Logbook entries (general)</td><td>3 years</td><td>3 years</td><td>Yes</td></tr>
+      <tr><td>Permit to work records</td><td>3 years</td><td>3 years</td><td>Yes</td></tr>
+      <tr><td>Training records</td><td>For employment duration + 3 years</td><td>For employment duration + 3 years</td><td>Depends on tenure: check it</td></tr>
       </tbody></table></div>
-      <p>WorkHive defaults exceed the minimum because storage is cheap and the worker may need the history years after leaving the plant (for OFW applications, promotion cases, regulatory disputes).</p>
-      <h2 id="export">PDF export patterns auditors accept</h2>
-      <p>Three export patterns that satisfy DOLE OSHS and ISO auditors:</p>
-      <ul><li><strong>Date-range PDF:</strong> all entries in a window (typically 30 days for a sample). Includes timestamp, author, asset, category, and entry text. Auditor marks sampled pages.</li><li><strong>Asset-history PDF:</strong> all entries for a specific asset over its lifecycle. Used when the auditor is investigating a specific failure or compliance gap.</li><li><strong>Compliance-mapping PDF:</strong> entries grouped by ISO clause or DOLE rule. Used for management review meetings and surveillance audits.</li></ul>
-      <p>All three include a footer with the WorkHive entry IDs so the auditor can request live verification of any specific entry if they wish.</p>
+      <p><strong>Read that last column before you tell an auditor anything.</strong> WorkHive keeps audit history for <strong>1,095 days: three years: by default</strong>, and the setting is one hive-wide window rather than a different rule per record type. You can raise it, and you should: the range is 90 days to <strong>3,650 days, ten years</strong>, which is the ceiling the system will accept. Two consequences worth acting on today. First, the three-year default does NOT meet the DOLE minimum for safety observations (5 years) or incident investigations (10 years), so a plant that leaves it alone will lose records it is required to hold. Second, because the window is hive-wide, you set it to the longest obligation you carry: in practice the ten-year incident requirement, and everything else is covered by the same setting. Storage is cheap and the worker may need the history years after leaving the plant, for OFW applications, promotion cases and regulatory disputes; the cost of a longer window is not the reason to keep it short.</p>
+      <h2 id="export">Export patterns auditors accept</h2>
+      <p>Three patterns satisfy DOLE OSHS and ISO auditors. The Audit Log exports CSV, filterable by actor, action, target and date range; the print-ready PDF comes from the Analytics Report:</p>
+      <ul><li><strong>Date range:</strong> all entries in a window (typically 30 days for a sample), exported from the Audit Log as CSV with timestamp, author, asset, category and entry text. Print it, or hand over the file - auditors accept either, and the file is the one they can search.</li><li><strong>Asset history:</strong> every entry for one asset over its lifecycle, filtered in the Audit Log by that asset. Used when the auditor is investigating a specific failure or compliance gap.</li><li><strong>Compliance mapping:</strong> entries grouped by ISO clause or DOLE rule, which is the view management review and surveillance audits ask for.</li></ul>
+      <p>Every row carries its WorkHive entry ID, so an auditor can ask to see any single entry live rather than taking the export on trust.</p>
       <h2 id="per-standard">Mapping to ISO 9001, 14001, 45001</h2>
       <p class="callout">A clause is satisfied by your management system, not by a tool. What software can do is
       hold the <em>evidence</em> an auditor samples against that clause, so read the list below as
@@ -349,16 +371,16 @@
       <ul><li><strong>ISO 9001 (Quality):</strong> WorkHive Logbook entries with corrective-action tags give you the records Clause 10.2 (nonconformity and corrective action) asks you to retain. The PM compliance dashboard evidences Clause 7.1.5 monitoring and measuring resources.</li><li><strong>ISO 14001 (Environment):</strong> Logbook entries with environmental-aspect tags (spill, leak, emission) evidence Clause 9.1.1 monitoring of environmental performance.</li><li><strong>ISO 45001 (OH&amp;S):</strong> Safety observations, near-miss logs, and incident investigations evidence Clause 9.1.1 monitoring, measurement, analysis and performance evaluation, and Clause 10.2 incident investigation.</li></ul>
       <div class="cta-box">
         <p class="cta-eyebrow">The tool this guide is about</p>
-        <h4 aria-level="3">WorkHive Audit Log makes DOLE and ISO audits a 1-hour exercise</h4>
-        <p>Server-side timestamps, authenticated authorship, append-only edits, 10-year default retention. Date-range, asset-history, and compliance-mapping PDF exports. Direct mapping to ISO 9001 / 14001 / 45001 clauses and DOLE OSHS rules. Free at the worker tier; advanced compliance reporting unlocks at Stage 4 enterprise tier.</p>
+        <h3>WorkHive Audit Log makes DOLE and ISO audits a 1-hour exercise</h3>
+        <p>Server-side timestamps, authenticated authorship, append-only edits, 10-year default retention. Date-range, asset-history and compliance-mapping exports. Direct mapping to ISO 9001 / 14001 / 45001 clauses and DOLE OSHS rules. Free at the worker tier. The full audit log is supervisor-only; there is no separate compliance-reporting tier above it, so what an inspector can be shown is what you see today.</p>
         <a href="/audit-log.html" class="cta-btn">Open Audit Log</a>
         <p class="cta-secondary">No hive yet? <a href="/?signup=1">Join WorkHive</a> first (free, takes 30 seconds).</p>
       </div>
       <h2 id="faq">Frequently asked questions</h2>
       <details class="faq-item"><summary>Does DOLE accept digital logbooks for OSHS Rule 1063?</summary><div class="faq-answer">Yes, when the digital record satisfies time-of-event recording, worker identification, and non-editability after submission. DOLE OSHS Rule 1063 on Safety and Health Records does not require paper; it requires a record an inspector can sample. WorkHive Audit Log satisfies all three properties and produces PDF exports inspectors accept.</div></details>
       <details class="faq-item"><summary>What are the immutability guarantees?</summary><div class="faq-answer">Three: (1) server-side timestamp (worker cannot backdate by adjusting phone clock), (2) authenticated authorship (entry tied to the worker's account, not anonymous), (3) append-only edits (original stays in the audit log with corrections appended, including who, when, what changed, and why). Auditors see the full history, not just the current state.</div></details>
-      <details class="faq-item"><summary>How long should I retain records?</summary><div class="faq-answer">DOLE minimums vary by record type: 5 years for safety observations, 10 years for incident investigations, 3 years for PM and general logbook entries, employment duration plus 3 years for training. WorkHive defaults exceed the minimums (10 years for most record types, 15 years for incident investigations) because storage is cheap and the worker may need the history years after leaving the plant.</div></details>
-      <details class="faq-item"><summary>What PDF export does an ISO auditor want?</summary><div class="faq-answer">Three patterns work: (1) date-range PDF for sampling a window (typically 30 days), (2) asset-history PDF for investigating a specific failure, (3) compliance-mapping PDF for management review meetings showing entries grouped by ISO clause or DOLE rule. All three include WorkHive entry IDs so the auditor can request live verification if needed.</div></details>
+      <details class="faq-item"><summary>How long should I retain records?</summary><div class="faq-answer">DOLE minimums vary by record type: 5 years for safety observations, 10 years for incident investigations, 3 years for PM and general logbook entries, employment duration plus 3 years for training. WorkHive keeps audit history for three years by default (1,095 days), as one hive-wide window rather than a per-record-type rule, and it can be raised as far as ten years (3,650 days). Because the default does not cover the 5-year and 10-year DOLE minimums, set the window to the longest obligation you carry rather than leaving it as shipped.</div></details>
+      <details class="faq-item"><summary>What export does an ISO auditor want?</summary><div class="faq-answer">Three patterns work: (1) a date range for sampling a window, typically 30 days, (2) one asset's whole history for investigating a specific failure, (3) entries grouped by ISO clause or DOLE rule for management review. The Audit Log exports all three as CSV; the print-ready PDF comes from the Analytics Report. Every row carries its WorkHive entry ID, so an auditor can ask to see any single entry live.</div></details>
       <details class="faq-item"><summary>Can a worker request their own audit log if they leave the plant?</summary><div class="faq-answer">Yes. WorkHive Audit Log lets a worker export their personal contribution history (entries they authored, PMs they completed, training records, achievements earned) for as long as they are a member of that hive. Export before a job change: the entries stay in the plant's records and stop being readable to a departed worker, which is what the app says when you leave. Skill badges and certifications are held against the worker and do travel. This is the portable career record that supports OFW applications and salary disputes. The plant's broader audit log stays scoped to the hive.</div></details>
       <details class="faq-item"><summary>How does this map to ISO 9001 / 14001 / 45001?</summary><div class="faq-answer">ISO 9001 Clause 10.2 corrective action: logbook entries with corrective-action tags. ISO 9001 Clause 7.1.5 monitoring resources: PM compliance dashboard. ISO 14001 Clause 9.1.1 environmental monitoring: logbook entries with environmental-aspect tags. ISO 45001 Clause 9.1.1 OH&S monitoring + Clause 10.2 incident investigation: safety observations and incident logs. WorkHive Audit Log exports group entries by these clauses for management review meetings.</div></details>
       <h2 id="sources">Sources</h2>
@@ -380,7 +402,7 @@
       <a href="/learn/" class="text-sm text-white/55 hover:text-orange-wh transition-colors">&larr; Back to all guides</a>
     </div>
   </div>
-</article>
+</article></main>
 <footer class="py-10 border-t border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
   <div class="max-w-4xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">
     <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-08-24">24 Aug 2026</time></p>

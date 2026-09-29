@@ -25,21 +25,25 @@ Who this is for
 
 ## What is the WorkHive Analytics Report?
 
-The WorkHive Analytics Report is a print-ready maintenance report automatically compiled from the four analytics phases in WorkHive. For instance, a plant in Calabarzon, such as the Laguna Technopark, can utilize this report to streamline their maintenance analysis. The report provides an executive summary, KPI tiles with RAG colours, an AI-generated action plan, and a sign-off block.
+The WorkHive Analytics Report is a print-ready maintenance report automatically compiled from the four analytics phases in WorkHive. For a plant in Calabarzon like the Laguna Technopark, that means the month's review starts from a document rather than from someone re-keying figures the night before. The report provides an executive summary, KPI tiles with RAG colours, an AI-generated action plan, and a sign-off block.
 
-This report is the one-click output of the Analytics Engine, which is fed by logbook and PM completions. It mirrors the standard maintenance audit format, satisfying management, ISO auditors, and DOLE compliance reviews. The report includes **MTBF**, **MTTR**, **Availability**, **OEE**, and **PM Compliance** KPI tiles, providing a comprehensive overview of maintenance performance.
+This report is the one-click output of the Analytics Engine, which is fed by logbook and PM completions. It mirrors the standard maintenance audit format, satisfying management, ISO auditors, and DOLE compliance reviews. The KPI strip carries four tiles, each tinted green, amber or red against its own threshold: **PM Compliance** as a percentage, **Fleet MTBF** in days (note the unit: the metrics guides work in hours), **Total Failures** for the period, and **High Risk (Predicted)**, which is the count of assets the risk model expects to fail next. That last one is the tile a plant manager should read first, and it is the one a spreadsheet cannot produce.
 
-The Analytics Report is a management-ready document that turns raw entries into a printable, signed, audit-ready document. Plant managers, operations heads, and auditors can use it to assess maintenance performance. With the **Generate Report** button, users can create a PDF report, which can be saved and signed off by supervisors or workers, ensuring a seamless workflow.
+The Analytics Report is a management-ready document that turns raw entries into a printable, signed, audit-ready document. Plant managers, operations heads, and auditors can use it to assess maintenance performance. The **Generate Report** button produces a PDF that can be saved and signed off by a supervisor, so the signature sits on the same document the figures came from rather than on a summary of it.
 
 ## Who reads a maintenance report: managers, auditors, and plant heads
 
 The WorkHive Analytics Report is typically reviewed by senior personnel who oversee maintenance operations. In a Philippine plant, the **Plant Supervisor** or **Maintenance Planner** usually takes charge of ensuring the report's findings are addressed. They use the report to stay on top of maintenance performance and identify areas for improvement.
 
-The report is also useful for **Operations Heads** and **Reliability Engineers** who need to evaluate the effectiveness of maintenance strategies. It provides a comprehensive overview of key performance indicators, such as MTBF, MTTR, and OEE, which are essential for informed decision-making. The report's executive summary and RAG-coloured KPI tiles make it easy to quickly understand the plant's maintenance performance.
+The report is also useful for **Operations Heads** and **Reliability Engineers** who need to evaluate the effectiveness of maintenance strategies. It gives a plant-level read on PM compliance, fleet reliability, how many failures the period actually produced, and how many assets the risk model expects to fail next. The report's executive summary and RAG-coloured KPI tiles make it easy to quickly understand the plant's maintenance performance.
 
 Auditors, both internal and external, also rely on the Analytics Report to verify compliance with maintenance standards and regulations. The report's format mirrors the standard maintenance audit format, making it an essential document for ISO auditors and DOLE compliance reviews. By using the Analytics Report, plant managers and supervisors can ensure that their maintenance operations meet the required standards.
 
 ## How the WorkHive Analytics Report Works
+
+The WorkHive Analytics Report provides a print-ready maintenance report that your management will actually read. For example, at the end of a shift, your plant's reliability engineer can quickly generate a report to review the previous day's maintenance activities. The report is automatically compiled from the four analytics phases, giving you a comprehensive overview of your plant's performance.
+
+The report includes an executive summary, four RAG-coloured KPI tiles (PM Compliance, Fleet MTBF in days, Total Failures, and High Risk (Predicted)), an AI-generated action plan, and a sign-off block. These components mirror the standard maintenance audit format, making it easy to satisfy management, ISO auditors, and DOLE compliance reviews. The report is also customizable, allowing you to input your name and report title, such as 'Plant Reliability Q2'.
 
 1. Log in to WorkHive and navigate to the Analytics Report section.
 2. Choose a date range using the 30d, 90d, 180d, or 365d buttons.
@@ -49,7 +53,7 @@ Auditors, both internal and external, also rely on the Analytics Report to verif
 
 ## What Does the WorkHive Analytics Report Contain?
 
-The WorkHive Analytics Report contains a comprehensive overview of your plant's maintenance performance. It starts with an **Executive Summary** that provides a high-level view of your maintenance operations. This is followed by a series of **RAG-coloured KPI tiles** (red, amber, and green) that display key performance indicators such as **MTBF**, **MTTR**, **Availability**, **OEE**, and **PM Compliance** for a specific equipment like Pump P-204B.
+The WorkHive Analytics Report contains a comprehensive overview of your plant's maintenance performance. It starts with an **Executive Summary** that provides a high-level view of your maintenance operations. This is followed by four **RAG-coloured KPI tiles** (red, amber and green): **PM Compliance**, **Fleet MTBF** in days, **Total Failures** for the period, and **High Risk (Predicted)**. Note the scope: these are plant-wide figures across the hive, not a card for one asset like Pump P-204B; individual assets are where the action plan points, not where the tiles sit.
 
 The report also includes an **AI-generated action plan** that outlines recommended steps to address maintenance issues. Additionally, there is a **sign-off block** for approval and verification. The report's structure mirrors the standard maintenance audit format, making it suitable for management review, ISO auditors, and DOLE compliance reviews. The report is automatically compiled from the four analytics phases, providing a one-click output of your Analytics Engine.
 
@@ -59,7 +63,7 @@ The Analytics Report is a printable, signed, and audit-ready document that turns
 
 ## Benefits of the WorkHive Analytics Report
 
-The WorkHive Analytics Report offers numerous benefits to plant managers and maintenance teams in the Philippines. For instance, a plant in Calabarzon can easily generate a comprehensive report that highlights key performance indicators such as MTBF, MTTR, and OEE. This report provides a clear overview of maintenance performance, enabling managers to identify areas for improvement.
+The WorkHive Analytics Report offers numerous benefits to plant managers and maintenance teams in the Philippines. For instance, a plant in Calabarzon can generate the month's report in one click and hand over a document that already carries the compliance figure, the failure count and the predicted-risk list. This report provides a clear overview of maintenance performance, enabling managers to identify areas for improvement.
 
 The report's executive summary and RAG-coloured KPI tiles provide a quick and easy-to-understand snapshot of maintenance performance. The AI-generated action plan also helps teams prioritize corrective actions and optimize maintenance activities. This results in significant time savings, as the report compiles automatically from existing data, eliminating the need for manual reporting.
 
@@ -114,4 +118,4 @@ No, the report is a zero-budget solution that compiles from your existing data, 
 - DOLE OSHS - Department of Labor and Employment - Occupational Safety and Health Standards
 - Related WorkHive guides: [The 4 phases of maintenance analytics](https://workhiveph.com/learn/four-phases-maintenance-analytics-philippine-plants/) · [DOLE and ISO audit trail](https://workhiveph.com/learn/dole-iso-audit-trail-from-logbook/) · [What is OEE](https://workhiveph.com/learn/what-is-oee-how-to-calculate/)
 
-<!-- md-twin source-sha: f5e74e5dcdc5c193 -->
+<!-- md-twin source-sha: dc065f9032cb9bdb -->

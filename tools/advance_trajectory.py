@@ -30,6 +30,7 @@ from __future__ import annotations
 
 import argparse
 import io
+import datetime as _dt
 import json
 import os
 import subprocess
@@ -38,7 +39,12 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 REGISTRY = ROOT / "trajectory_registry.json"
-TODAY = "2026-09-05"
+# DERIVED, NEVER TYPED. This was the literal "2026-09-05" for eleven days, and it stamps both the
+# `[date]` prefix of every basis entry and reg["updated"] - which the generated roadmap header
+# prints. So the registry announced it was last updated on a day it had been rewritten several
+# thousand times since. It hid because the sentence beside the prefix carries the receipt's own
+# (correct) date: "[2026-09-05] ... WALKED LIVE 2026-09-16 ...", right and wrong in one string.
+TODAY = _dt.date.today().isoformat()
 
 STATUS_PCT = {"specced": 5, "walked": 25, "fixed": 60, "locked": 100}
 IN_FLIGHT = {"walking", "fixing", "locking"}
@@ -77,14 +83,36 @@ def _check(st, pct, basis, gate, ids, rows, allow_regress):
     return None
 
 
+def _append_basis(t: dict, basis: str) -> None:
+    """The ONLY place the basis grows. APPEND, never overwrite: the basis is the row's account of
+    itself, and a walk that replaces the previous reason destroys the evidence trail the gate reads
+    back.
+
+    A RE-RUN IS NOT A SECOND WALK. A banker killed part-way through is re-run to finish the job, and
+    an unconditional append re-states a claim that is already there - W41366 went 7 -> 8 -> 9 entries
+    on three consecutive re-banks (2026-09-16). Only the IMMEDIATE repeat is suppressed: the same
+    claim after other entries is a genuine re-visit, and two different walks differ in their numbers
+    anyway.
+
+    This function exists because there were TWO copies of this append - one in _apply for --batch and
+    one inline in the --id path - and a fix to the first silently did nothing, because every banker
+    on this project uses the second.
+    """
+    if not (basis or "").strip():
+        return
+    prev = (t.get("basis") or "").strip()
+    entry = f"[{TODAY}] {basis.strip()}"
+    if prev.endswith(entry):
+        return
+    t["basis"] = (prev + " \u00b7 " if prev else "") + entry
+
+
 def _apply(st, pct, basis, gate, ids, rows):
     """Write one entry into the in-memory rows. The basis APPENDS, never overwrites."""
     for i in ids:
         t = rows[i]
         t["status"], t["pct"] = st, pct
-        if (basis or "").strip():
-            prev = (t.get("basis") or "").strip()
-            t["basis"] = (prev + " \u00b7 " if prev else "") + f"[{TODAY}] {basis.strip()}"
+        _append_basis(t, basis)
         if gate:
             arts = t.setdefault("artifacts", {})
             gates = arts.setdefault("gates", [])
@@ -269,11 +297,7 @@ def main() -> int:
     for i in ids:
         t = rows[i]
         t["status"], t["pct"] = st, pct
-        if a.basis.strip():
-            # APPEND, never overwrite: the basis is the row's account of itself, and a walk that
-            # replaces the previous reason destroys the evidence trail the gate reads back.
-            prev = (t.get("basis") or "").strip()
-            t["basis"] = (prev + " · " if prev else "") + f"[{TODAY}] {a.basis.strip()}"
+        _append_basis(t, a.basis)
         if a.gate:
             arts = t.setdefault("artifacts", {})
             gates = arts.setdefault("gates", [])

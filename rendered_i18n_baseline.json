@@ -9,7 +9,6 @@
   "community.html": 37,
   "dayplanner.html": 14,
   "hive.html": 29,
-  "index.html": 22,
   "integrations.html": 30,
   "inventory.html": 23,
   "logbook.html": 60,
@@ -26,6 +25,6 @@
   "skillmatrix.html": 15,
   "voice-journal.html": 13
  },
- "overwrites": 67,
- "total": 587
+ "overwrites": 64,
+ "total": 565
 }

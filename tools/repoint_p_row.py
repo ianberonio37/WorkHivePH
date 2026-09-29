@@ -25,6 +25,7 @@ registry gate — the same three generated surfaces every registry change must l
 from __future__ import annotations
 
 import argparse
+import datetime as _dt
 import io
 import json
 import os
@@ -34,7 +35,11 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 REGISTRY = ROOT / "trajectory_registry.json"
-TODAY = "2026-09-05"
+# DERIVED, NEVER TYPED. This was the literal "2026-09-05" and it stamps both the basis prefix
+# a repoint writes and reg["updated"] - so running this tool set the registry's own updated
+# field BACKWARDS. Found by tools/prove_no_stale_typed_dates.py on its first run, after the
+# identical constant was found in advance_trajectory.py (2026-09-16).
+TODAY = _dt.date.today().isoformat()
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from seed_p_program_catalog import THEMES, CELLS, _lens_layers, _applies, _label  # noqa: E402
 

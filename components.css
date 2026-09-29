@@ -45,7 +45,7 @@
    whole command-center stack down. min-height = a floor, so shorter cards just pad to uniform. */
 /* Arc W · W1: lift the KPI card off the page with the navy ladder (was background:var(--wh-navy)
    == page bg → coplanar). The soft shadow comes from the global elevation rule below. */
-.simple-card { background:var(--wh-elev-1); border:1px solid rgba(255,255,255,0.07); border-radius:var(--wh-radius); padding:14px 16px; min-height:154px; }
+.simple-card { background:var(--wh-elev-1); border:1px solid rgba(255,255,255,0.07); border-radius:var(--wh-radius); padding:16px; min-height:154px; }   /* on the 4px grid (design lens craft, 2026-09-15) */
 /* ...BUT THE 154px FLOOR BELONGS TO A KPI TILE, NOT TO A LIST ROW. The floor above exists so an
    async value-fill cannot grow a tile and push the command-center stack down (CLS) — it assumes a
    label + hero number + sub + tag. Surfaces that reuse .simple-card for a two-line LIST ROW inherit
@@ -58,7 +58,11 @@
    CLS reserve is only protective where a number lands late, and a list row's text is already there
    when the row is built. */
 .simple-card.list-row { min-height:0; }
-.simple-card .sc-label { font-size:0.65rem; font-weight:700; color:rgba(255,255,255,0.80); text-transform:uppercase; letter-spacing:0.06em; }
+/* 600, not 700: these are uppercase tracked kickers, where the case and the tracking are already the
+   signal and the weight was doing the same job twice - the step analytics and achievements were given,
+   applied here in the file that writes them (design lens craft, 2026-09-15). */
+.simple-card .sc-label { font-size:0.75rem; font-weight:600; color:rgba(255,255,255,0.80); }
+.wh-disclose p, .wh-disclose li { max-width: 52ch; }   /* the data-sources disclosure sits outside a page's own column; its prose keeps the craft floor's measure (2026-09-15) */ /* sentence case (critique lens, 2026-09-15): DESIGN.md forbids all-caps tracked eyebrows as labels */ /* 12px floor (design lens slop, 2026-09-15): 0.65rem was 10.4px functional text on every KPI tile */
 /* THE canonical KPI number. Two tiers only, and this is the standard one:
      .sc-hero            -> 1.5rem  (every KPI tile on every page)
      .simple-card.hero   -> clamp(2rem,5.5vw,2.4rem) (the ONE key metric, Von Restorff)
@@ -66,8 +70,8 @@
    columns of KPIs line up and a refreshing value cannot jitter its own tile. Any page
    re-declaring .sc-hero locally SHADOWS this and silently opts out of both. (C4, 2026-07-15) */
 .simple-card .sc-hero  { font-size:1.5rem; font-weight:800; line-height:1.15; margin:4px 0 2px; color:var(--wh-cloud); font-variant-numeric:tabular-nums; }
-.simple-card .sc-sub   { font-size:0.7rem; color:rgba(255,255,255,0.80); line-height:1.4; }
-.simple-card .sc-tag   { display:inline-block; font-size:0.58rem; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; padding:0.18rem 0.5rem; border-radius:999px; margin-top:7px; }
+.simple-card .sc-sub   { font-size:0.75rem; color:rgba(255,255,255,0.80); line-height:1.4; }
+.simple-card .sc-tag   { display:inline-block; font-size:0.75rem; font-weight:600; padding:4px 8px; border-radius:999px; margin-top:8px; } /* 12px floor: 0.58rem was a 9.3px status pill; 4px grid and 600 so the tile's number stays the bold (craft, 2026-09-15) */
 /* sc-tag text colors LIGHTENED for WCAG 2.2 AA 4.5:1 at the 0.58rem badge size (FB2
    browser-CI persona walk caught these failing live over the 0.16-tinted bg on the
    var(--wh-navy-mid) card: red 3.95 + grey 4.16 FAIL, amber 4.93 borderline). Measured ratios
@@ -86,16 +90,35 @@
    usually NOT in the list at all. Reserving 131px here changed CLS by 0.0012 (0.1080 -> 0.1092) and
    was reverted. When several siblings shift together at the same timestamp, look for what inserted
    height ABOVE the first of them, not for the unreserved one among them. */
-.action-card { background:rgba(var(--wh-blue-rgb),0.06); border:1px solid rgba(var(--wh-blue-rgb),0.25); border-radius:var(--wh-radius); padding:14px 16px; margin-bottom:var(--wh-space-6); }
-.action-card .ac-label { font-size:0.65rem; font-weight:800; color:var(--wh-blue-text); text-transform:uppercase; letter-spacing:0.07em; }
+.action-card { background:rgba(var(--wh-blue-rgb),0.06); border:1px solid rgba(var(--wh-blue-rgb),0.25); border-radius:var(--wh-radius); padding:16px; margin-bottom:var(--wh-space-6); }
+.action-card .ac-label { font-size:0.75rem; font-weight:600; color:var(--wh-blue-text); }
 /* Arc L · L1 CLS: reserve ~3 lines for the async recommendation (measured 1-line placeholder
    20px → up to 79px when the real "what to do next" text fills) so it doesn't grow + shift. */
-.action-card .ac-text { font-size:0.82rem; line-height:1.5; margin-top:6px; color:rgba(255,255,255,0.85); min-height:60px; }
+/* ★A MEASURE CAP, BECAUSE THIS TEXT IS THE ONE A PERSON IS MEANT TO ACT ON (design lens craft on
+   marketplace, 2026-09-17, W45966). Measured at desktop-1280: this block ran 895px wide and put 120
+   characters on a single line - the widest reading line found anywhere in this wave, roughly double the
+   65-75 band, on the sentence that tells a technician what to do next. It is shared chrome, so the same
+   line length is on all 17 pages that draw an action card. 62ch caps it without touching the card, the
+   padding or the CTA: on a phone the card is already narrower than the cap so nothing changes there, and
+   at 1280 the text wraps at a readable width while the card keeps its full box. min-height:60px stays, so
+   the card does not change height when the text is short. */
+.action-card .ac-text { font-size:0.875rem; line-height:1.5; margin-top:6px; color:rgba(255,255,255,0.85); min-height:60px; max-width:55ch; }
 /* Arc P · Wave 1 (P3 "one obvious primary action"): the "What to do next" block ends in ONE
    primary CTA button that DOES the recommended action, not just prose. Shared so every dashboard's
    next-action block renders the same primary control (FUSION 3a). Orange = the page's single primary
    accent inside the blue advisory card. Renderers set label+href and un-hide it per-branch. */
-.action-card .ac-cta { display:inline-flex; align-items:center; gap:6px; margin-top:12px; min-height:44px; padding:0.6rem 1.15rem; background:var(--wh-orange); color:var(--wh-navy); font-family:inherit; font-size:0.8rem; font-weight:800; border:none; border-radius:var(--wh-radius-sm); cursor:pointer; text-decoration:none; transition:background 0.2s, transform 0.1s; }
+.action-card .ac-cta { display:inline-flex; align-items:center; gap:6px; margin-top:12px; min-height:44px; padding:8px 16px; background:var(--wh-orange); color:var(--wh-navy); font-family:inherit; font-size:0.8rem; font-weight:800; border:none; border-radius:var(--wh-radius-sm); cursor:pointer; text-decoration:none; transition:background var(--wh-dur, 0.2s) var(--wh-ease-out, ease-out), transform var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out); }
+/* ★THE SHARED CTA NAMED TWO DURATIONS AND NO CURVE (2026-09-18, W46039 motion lens on shift-brain).
+   .action-card .ac-cta is the button under every Action Brief - "Do the recommended next action" -
+   so it is pressed on a dozen pages, and it inherited the CSS default `ease` on both properties: an
+   ease-IN-out press, which begins slowly and reads as the tap not registering. The properties were
+   already the right two (background and transform, both compositable, neither reflowing the row);
+   only the curve was wrong, and a curve is invisible in a declaration that does not mention it,
+   which is why this survived being read many times. Both on --wh-ease-out; the 0.1s press moves to
+   --wh-dur-fast (0.15s) so the platform's press feedback is one value rather than a per-file guess.
+   Verified live under prefers-reduced-motion: the global block below drops `transform` from the
+   property list, so the movement half stops and the colour half stays - which is the distinction
+   that block exists to make. */
 .action-card .ac-cta:hover { background:var(--wh-orange-dark); }
 .action-card .ac-cta:active { transform:scale(0.98); }
 .action-card .ac-cta[hidden], .action-card .ac-cta.hidden { display:none; }
@@ -104,7 +127,21 @@
    (long feeds, benchmarks, action logs, big lists) collapse into <details class="wh-disclose"> so the
    default view stays glance-first (verdict + vital-20% + one action). Reused across dashboards. */
 .wh-disclose { margin-bottom:var(--wh-space-6); border:1px solid rgba(255,255,255,0.08); border-radius:var(--wh-radius); background:rgba(255,255,255,0.02); overflow:hidden; }
-.wh-disclose > summary { list-style:none; cursor:pointer; display:flex; align-items:center; justify-content:space-between; gap:8px; padding:12px 16px; min-height:44px; box-sizing:border-box; font-size:0.72rem; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; color:rgba(255,255,255,0.86); }
+/* ★A CONTROL'S LABEL UNDER THE 12px FLOOR, ON EVERY PAGE THAT DISCLOSES (2026-09-18, W46035).
+   0.72rem is 11.52px, and this is not decoration - it is the <summary> a reader presses to open
+   the details a glance-first dashboard deliberately hides. Found by shift-brain's walk, which
+   reported minFontPx 11.52 on a page whose OWN stylesheet declares nothing below 0.75rem; the
+   value was here, in the shared component, reaching four pages. The floor gate could not see it
+   for the same reason it misses the shared JS modules: it walks served PAGES, and a stylesheet
+   is not a page. Lifted to the label step. The 44px tap target is set by min-height and is
+   unaffected. */
+/* ★A DISCLOSURE'S SUMMARY IS A CONTROL'S LABEL, AND THESE ARE SENTENCES (2026-09-19, W45917 craft
+   lens on hive.html). It reads 'Hive readiness details', 'How your hive compares', 'Pattern Alerts',
+   'Hive Activity Live' - three and four words, set in caps at 0.05em. DESIGN.md reserves all-caps
+   for two-or-three-word status pills at no more than 0.04em, and a control a reader presses to open
+   something is not a pill. Sentence case, normal tracking; weight and colour still carry it. Shared,
+   so it pays on every page that discloses. */
+.wh-disclose > summary { list-style:none; cursor:pointer; display:flex; align-items:center; justify-content:space-between; gap:8px; padding:12px 16px; min-height:44px; box-sizing:border-box; font-size:0.75rem; font-weight:700; letter-spacing:normal; color:rgba(255,255,255,0.86); }
 .wh-disclose > summary::-webkit-details-marker { display:none; }
 .wh-disclose > summary::after { content:'\25B8'; font-size:0.7rem; opacity:0.6; transition:transform 0.2s; flex-shrink:0; }
 .wh-disclose[open] > summary::after { transform:rotate(90deg); }
@@ -114,7 +151,10 @@
 @media (prefers-reduced-motion: reduce) { .wh-disclose > summary::after { transition:none; } }
 
 /* "Show details" explainer toggle button (behavior = utils.js wireDetailToggle, S10) */
-.details-toggle { display:inline-flex; align-items:center; gap:6px; background:transparent; border:1px solid rgba(255,255,255,0.07); color:rgba(255,255,255,0.80); padding:8px 14px; border-radius:8px; font-family:inherit; font-size:0.7rem; font-weight:600; cursor:pointer; min-height:44px; margin-bottom:var(--wh-space-6); }
+/* the shared disclosure CONTROL rendered at 11.2px, under the platform floor, on every page that draws
+   one - the last sub-12px node left on asset-hub after its own 101 declarations were lifted, and a
+   per-page walk can only find it by measuring what the page RENDERS (design lens slop, 2026-09-15). */
+.details-toggle { display:inline-flex; align-items:center; gap:6px; background:transparent; border:1px solid rgba(255,255,255,0.07); color:rgba(255,255,255,0.80); padding:8px 16px; border-radius:8px; font-family:inherit; font-size:0.75rem; font-weight:600; cursor:pointer; min-height:44px; margin-bottom:var(--wh-space-6); }
 .details-toggle:hover { color:var(--wh-cloud); border-color:rgba(255,255,255,0.18); }
 
 /* ── List loading skeleton + inline error/retry (STREAMLINE E2 — consistent states) ──
@@ -122,12 +162,20 @@
    shimmer skeleton while fetching and an inline error+retry on failure, never a blank
    panel (the P14 IDB-blank class). Reduced-motion users get a static block. */
 .wh-skeleton { display:flex; flex-direction:column; gap:8px; padding:4px 0; }
-.wh-skeleton-row { height:44px; border-radius:10px; background:linear-gradient(100deg, rgba(255,255,255,0.04) 30%, rgba(255,255,255,0.09) 50%, rgba(255,255,255,0.04) 70%); background-size:200% 100%; animation:wh-shimmer 1.3s ease-in-out infinite; }
-@keyframes wh-shimmer { 0% { background-position:200% 0; } 100% { background-position:-200% 0; } }
-@media (prefers-reduced-motion: reduce) { .wh-skeleton-row { animation:none; } }
+/* The sweep is a COMPOSITED transform, not an animated background-position: Chrome DevTools measured the
+   old rule as a non-composited animation (UNSUPPORTED_CSS_PROPERTY: background-position-x) and blamed it
+   for 0.0241 of alert-hub's 0.032 layout-shift cluster on a 4x-throttled phone (2026-09-15). */
+.wh-skeleton-row { position:relative; overflow:hidden; height:44px; border-radius:10px; background:rgba(255,255,255,0.05); }
+/* ...and a PULSE, not a sweep: the translateX sweep that replaced the background-position animation was
+   composited but read as an auto-scrolling marquee (the detector says so, and it is right - an infinite
+   horizontal loop is motion that has not earned attention). Opacity is composited too, and a pulse is the
+   idiom achievements.html already uses for its own skeleton, so the platform now has ONE. */
+.wh-skeleton-row::after { content:''; position:absolute; inset:0; background:rgba(255,255,255,0.05); animation:wh-shimmer 1.4s ease-in-out infinite; }
+@keyframes wh-shimmer { 0%, 100% { opacity:0.45; } 50% { opacity:1; } }
+@media (prefers-reduced-motion: reduce) { .wh-skeleton-row::after { animation:none; } }
 .wh-list-error { text-align:center; padding:1.4rem 1rem; font-size:0.82rem; color:rgba(255,255,255,0.86); line-height:1.5; }
 .wh-list-error .wh-list-error-icon { font-size:1.4rem; }
-.wh-list-error button { margin-top:0.6rem; min-height:44px; padding:0 16px; border-radius:8px; border:1px solid rgba(255,255,255,0.18); background:transparent; color:var(--wh-cloud); font-family:inherit; font-size:0.78rem; font-weight:600; cursor:pointer; }
+.wh-list-error button { margin-top:0.6rem; min-height:44px; padding:0 16px; border-radius:8px; border:1px solid rgba(255,255,255,0.18); background:transparent; color:var(--wh-cloud); font-family:inherit; font-size:0.75rem; font-weight:600; cursor:pointer; }
 .wh-list-error button:hover { border-color:rgba(255,255,255,0.32); }
 /* D1 U2 (Arc D): shared reports-tab bar — tabs ship inline min-height:34px; an
    a11y floor must override it to the platform's 44px gloved-field tap target.
@@ -192,9 +240,9 @@ input:focus-visible, select:focus-visible, textarea:focus-visible, [tabindex]:fo
 /* FC2 (FULLSTACK_COMPONENT_LIBRARY §2.2): count-chip summary — PROMOTED 2026-07-17 from
    page-local twins (agentic-rag-observability.html:74, ai-quality.html). Pages' local rules
    keep working (same shape); this is the ONE canonical source new pages use. */
-.sum-card { background: var(--wh-navy); border: 1px solid rgba(255,255,255,0.07); border-radius: var(--wh-radius, 12px); padding: 14px; text-align: center; }
+.sum-card { background: var(--wh-navy); border: 1px solid rgba(255,255,255,0.07); border-radius: var(--wh-radius, 12px); padding: 16px; text-align: center; }
 .sum-card .sn { font-size: 1.6rem; font-weight: 800; display: block; line-height: 1; color: var(--wh-orange); font-variant-numeric: tabular-nums; }
-.sum-card .sl { font-size: 0.58rem; font-weight: 600; color:rgba(255,255,255,0.83); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 4px; }
+.sum-card .sl { font-size: 0.75rem; font-weight: 600; color:rgba(255,255,255,0.83); margin-top: 4px; }   /* 12px floor, sentence case (design lens craft, 2026-09-15) */
 
 /* FC4 (FULLSTACK_COMPONENT_LIBRARY, Ian 2026-07-17: "bless .card + promote"): the DASHBOARD-PANEL
    container — the second sanctioned container dialect beside the .simple-card family (FC1).
@@ -267,9 +315,15 @@ html { scrollbar-gutter: stable; }
    so the gate and the stylesheet agree on what "motion" means.
    --------------------------------------------------------------------------- */
 @media (prefers-reduced-motion: reduce) {
-  *:not(.wh-skeleton):not(.wh-skeleton-row):not(.spinner):not(.loader):not([class*="shimmer"]):not([class*="loading"]):not([class*="animate-pulse"]):not(progress),
-  *:not(.wh-skeleton):not(.wh-skeleton-row):not(.spinner):not(.loader):not([class*="shimmer"]):not([class*="loading"]):not([class*="animate-pulse"])::before,
-  *:not(.wh-skeleton):not(.wh-skeleton-row):not(.spinner):not(.loader):not([class*="shimmer"]):not([class*="loading"]):not([class*="animate-pulse"])::after {
+  /* ★THE EXEMPTIONS MATCHED A CLASS NAME EXACTLY WHILE THE PAGES USE PREFIXED ONES (design lens motion,
+     2026-09-15). This list already matches [class*="shimmer"] by SUBSTRING, but .spinner and .loader by
+     equality - so analytics-report's .ar-spinner, the only progress indicator on a compile that runs up to
+     35 seconds, was frozen for anyone who asked for less motion, and this rule out-specifies any page-level
+     repair (five :not() classes against one). A loader that stops reads as a crash. Matched by substring
+     now, like shimmer, so a page may still give its own reduced-motion alternative on top. */
+  *:not(.wh-skeleton):not(.wh-skeleton-row):not([class*="spinner"]):not([class*="loader"]):not([class*="shimmer"]):not([class*="loading"]):not([class*="animate-pulse"]):not(progress),
+  *:not(.wh-skeleton):not(.wh-skeleton-row):not([class*="spinner"]):not([class*="loader"]):not([class*="shimmer"]):not([class*="loading"]):not([class*="animate-pulse"])::before,
+  *:not(.wh-skeleton):not(.wh-skeleton-row):not([class*="spinner"]):not([class*="loader"]):not([class*="shimmer"]):not([class*="loading"]):not([class*="animate-pulse"])::after {
     /* Motion only. Colour/opacity transitions survive deliberately (see above). */
     transition-property: color, background-color, border-color, outline-color, fill, stroke, opacity, box-shadow !important;
     animation-name: none !important;
@@ -284,6 +338,28 @@ html { scrollbar-gutter: stable; }
      outcome than a residual transition. Suppressing the transition PROPERTY (above) already stops the
      movement; the transform itself is where the element is supposed to be. */
 }
+
+/* ── .wh-source-chip — the provenance line every page fills AFTER load ────────────────────────
+   ★FOUR PAGES PATCHED THE SAME SHIFT SEPARATELY (design lens audit, 2026-09-15). This chip is empty
+   in markup and written by renderSourceChip once the reads resolve, so the element it lives in grows
+   from nothing to a caption plus a 44px "How this is computed" control - and everything below it
+   moves. analytics.html, asset-hub.html and assistant.html each reserved 62px in their own file
+   before audit-log measured its header going 69px to 173px for the same reason. A per-page fix that
+   has to be repeated is a shared-component fix that has not been made yet.
+   62px is one caption line (16px) plus that 44px tap target - the floor, not the ceiling: a page
+   whose chip settles taller keeps its own larger reservation. */
+/* ★A MEASURE CAP ON THE PROVENANCE LINE (design lens craft on marketplace, 2026-09-17, W45966). Measured
+   at desktop-1280 this chip ran 93 characters to a line across three lines - the sentence that tells a
+   person where the numbers above it came from and when. It is shared chrome, so the same line length is on
+   every page that fills one. 68ch caps it and does nothing on a phone, where the column is already
+   narrower than the cap. min-height stays: the chip reserves its box before the text arrives, which is what
+   stops the page shifting when it does.
+   THE NUMBER WAS WRONG ON THE FIRST PASS AND THE RE-MEASURE CAUGHT IT. 68ch was set by reading the band as
+   if ch were a character; it is not - ch is the advance of "0", and lowercase runs about 1.37x narrower, so
+   a box 68 zero-widths across held 93 real letters and the cap changed nothing that mattered. 52ch lands it
+   near 71. The band is about letters on a line, so the cap has to be set in zero-widths that PRODUCE that
+   many letters, not in the band's own number. */
+.wh-source-chip { min-height: 62px; }   /* the measure cap lives in tokens.css with the rest of the prose family (W45966) */
 
 /* ── .wh-help — the "How this page works" disclosure ────────────────────────────────────────────
    Every page that explains itself was repeating the same ~200 characters of inline style, which is
@@ -302,23 +378,48 @@ html { scrollbar-gutter: stable; }
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: var(--wh-radius, 12px);
-  padding: 10px 14px;
+  /* 10px 14px -> 12px 16px (design lens craft, 2026-09-15): neither value is on the declared 4/8/12/16
+     scale, and this disclosure ships on 30 pages, so it was the last off-grid padding on audit-log and
+     is one on every page that carries it. Changed IN STEP with the utils.js fallback, as the note above
+     requires - a second, DIFFERENT rule arriving after first paint is the shift that note exists for. */
+  padding: 12px 16px;
 }
 .wh-help > summary {
   cursor: pointer;
   min-height: 44px;            /* the tap target this platform holds every control to */
   display: flex;
   align-items: center;
-  font-size: 0.74rem;
+  font-size: 0.75rem;
   font-weight: 700;
   color: rgba(255, 255, 255, 0.85);
 }
+.wh-help > summary::-webkit-details-marker { display: none; }
+/* ★NOTHING SAID IT OPENS (design lens critique round 5, 2026-09-15). A <summary> paints its disclosure
+   triangle only at display:list-item, and the rule above sets display:flex - which is what holds the 44px
+   tap target and the vertical centring, so the triangle is not worth trading for. This chevron is drawn
+   from borders, depends on no icon font, and rotates on open. It is duplicated verbatim in the string
+   utils.js injects: those two rules are byte-identical on purpose, because a second and different rule
+   after first paint is a layout shift this platform has already measured at 24px -> 55px. */
+.wh-help > summary::after {
+  content: '';
+  margin-left: auto;
+  flex: 0 0 auto;
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(45deg) translateY(-2px);
+  transition: transform 150ms var(--wh-ease-out, ease-out);
+}
+.wh-help[open] > summary::after { transform: rotate(-135deg) translateY(-2px); }
 /* I1 CLS (EX-PF F07, 2026-09-07): utils.js used to INJECT a second .wh-help rule after first paint with different
    margins, padding and a different summary display, so every page carrying the help block shifted (voice-journal's
    summary read 24px -> 55px at 118 ms). The static rule is the contract; the injection now stands down when this
    stylesheet is present, and the two rules it also carried live here. */
 .wh-help > p {
-  margin: 0.25rem 0 0.2rem;
+  /* 4px 0 4px, not 0.25rem 0 0.2rem: 3.2px was the last off-grid value on audit-log and it is one on
+     every page that carries this disclosure. Moved in step with the utils.js fallback below. */
+  margin: 4px 0;
   color: rgba(255, 255, 255, 0.86);
   line-height: 1.5;
 }
@@ -328,7 +429,7 @@ html { scrollbar-gutter: stable; }
 .wh-help > ul {
   margin: 8px 0 0;
   padding-left: 18px;
-  font-size: 0.74rem;
+  font-size: 0.75rem;
   line-height: 1.55;
   color: rgba(255, 255, 255, 0.8);
 }

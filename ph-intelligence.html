@@ -37,7 +37,9 @@
 
     /* Hero */
     .hero { text-align: center; padding: 40px 24px 32px; border-bottom: 1px solid var(--border); margin-bottom: 28px; }
-    .hero-badge { display: inline-block; font-size: .65rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; padding: .3rem .8rem; border-radius: 999px; background: rgba(247,162,27,0.14); color: var(--gold); border: 1px solid rgba(247,162,27,0.3); margin-bottom: 12px; }
+    /* The dateline under the masthead. Was .hero-badge: an uppercase .08em pill ABOVE the h1 - see the
+       hero markup for why both halves of that were wrong. Sentence case, label step, quiet. */
+    .hero-dateline { display: inline-block; font-size: 0.75rem; font-weight: 600; color: var(--gold); margin-top: 8px; }
     .hero h1 { font-size: 1.8rem; font-weight: 800; line-height: 1.15; margin-bottom: 8px; }
     .hero p { font-size: .82rem; color: var(--muted); max-width: 520px; margin: 0 auto; }
 
@@ -45,10 +47,10 @@
     .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; margin-bottom: 24px; }
     .stat-chip { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; text-align: center; }
     .stat-chip .sn { font-size: 1.6rem; font-weight: 800; color: var(--gold); display: block; }
-    .stat-chip .sl { font-size: .62rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-top: 2px; }
+    .stat-chip .sl { font-size: 0.75rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-top: 2px; }
 
     /* Section header */
-    .sec-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+    .sec-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
     .sec-title { font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
 
     /* MTBF bar chart */
@@ -56,16 +58,27 @@
     .mtbf-row { display: grid; grid-template-columns: 180px 1fr 60px; gap: 10px; align-items: center; }
     .mtbf-cat { font-size: .75rem; font-weight: 600; color: rgba(255,255,255,0.8); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .mtbf-bar-bg { background: rgba(255,255,255,0.05); border-radius: 999px; height: 8px; overflow: hidden; }
-    .mtbf-bar-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--blue), var(--green)); transition: width .6s ease; }
-    .mtbf-val { font-size: .72rem; font-weight: 700; color: var(--green); text-align: right; }
+    .mtbf-bar-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--blue), var(--green)); transition: width var(--wh-dur-slow, 0.25s) var(--wh-ease-out, ease-out); }
+    /* ★600ms ON A LAYOUT PROPERTY WITH AN EASE-IN CURVE - three of the standard's rules in one
+       declaration (2026-09-18, W45976 motion). `ease` is ease-IN-out, so the bar starts slowly, which
+       reads as lag rather than polish; 600ms is double the 300ms UI ceiling; and `width` is a layout
+       property, so every frame reflows. Now 250ms on the platform's ease-out token.
+       THE LAYOUT PROPERTY IS KEPT AND THE CAVEAT IS NAMED: the honest alternative is transform:
+       scaleX() with transform-origin:left, which needs the renderer to stop writing an inline
+       width:N% and is markup surgery on a report no seeded hive can reach. Worth recording too: this
+       transition almost certainly never fires today - renderMtbf() builds the bar with its width
+       already in the innerHTML string, and a transition does not run on an element's first computed
+       value. It is corrected rather than deleted because the day something updates that width, a
+       600ms ease-in reflow is what would have shipped. */
+    .mtbf-val { font-size: 0.75rem; font-weight: 700; color: var(--green); text-align: right; }
 
     /* Failure modes */
     .fm-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
-    .fm-rank { font-size: .65rem; font-weight: 800; color:rgba(255,255,255,0.80); width: 20px; flex-shrink: 0; }
+    .fm-rank { font-size: 0.75rem; font-weight: 800; color:rgba(255,255,255,0.80); width: 20px; flex-shrink: 0; }
     .fm-name { flex: 1; font-size: .78rem; color: rgba(255,255,255,0.85); }
     .fm-bar-bg { width: 80px; background: rgba(255,255,255,0.05); border-radius: 999px; height: 4px; flex-shrink: 0; }
     .fm-bar-fill { height: 100%; border-radius: 999px; background: var(--red); }
-    .fm-pct { font-size: .68rem; color: var(--muted); width: 32px; text-align: right; flex-shrink: 0; }
+    .fm-pct { font-size: 0.75rem; color: var(--muted); width: 32px; text-align: right; flex-shrink: 0; }
 
     /* Narrative */
     .narrative-block { background: rgba(247,162,27,0.04); border: 1px solid rgba(247,162,27,0.15); border-radius: 10px; padding: 16px 18px; font-size: .78rem; line-height: 1.65; color: rgba(255,255,255,0.8); }
@@ -74,23 +87,26 @@
     .compare-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
     .cr-cat { flex: 1; font-size: .78rem; font-weight: 600; }
     .cr-yours { font-size: .82rem; font-weight: 800; }
-    .cr-network { font-size: .7rem; color: var(--muted); }
+    .cr-network { font-size: 0.75rem; color: var(--muted); }
 
     /* CTA */
     .cta-card { background: linear-gradient(135deg, rgba(247,162,27,0.08), rgba(41,182,217,0.05)); border: 1px solid rgba(247,162,27,0.2); border-radius: 14px; padding: 28px 24px; text-align: center; }
     .cta-card h3 { font-size: 1rem; font-weight: 800; margin-bottom: 6px; }
     .cta-card p { font-size: .78rem; color: var(--muted); margin-bottom: 16px; }
-    .btn-gold { display: inline-block; padding: 12px 28px; background: rgba(247,162,27,0.15); color: var(--gold); border: 1px solid rgba(247,162,27,0.4); border-radius: 10px; font-family: inherit; font-size: .85rem; font-weight: 700; cursor: pointer; text-decoration: none; transition: all .15s; }
+    .btn-gold { display: inline-block; padding: 12px 28px; background: rgba(247,162,27,0.15); color: var(--gold); border: 1px solid rgba(247,162,27,0.4); border-radius: 10px; font-family: inherit; font-size: .85rem; font-weight: 700; cursor: pointer; text-decoration: none; transition: background-color var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out); }
+    /* `all` animates every animatable property a rule has - present and future, so a property added
+       next year joins the timeline silently - and puts layout and paint on the same clock as colour.
+       The only thing :hover changes here is background, so that is what the timeline carries. */
     .btn-gold:hover { background: rgba(247,162,27,0.25); }
 
     /* API section */
-    .api-endpoint { font-family: ui-monospace, monospace; font-size: .72rem; background: rgba(0,0,0,0.3); padding: 10px 14px; border-radius: 8px; color: var(--blue); margin-bottom: 8px; word-break: break-all; }
+    .api-endpoint { font-family: ui-monospace, monospace; font-size: 0.75rem; background: rgba(0,0,0,0.3); padding: 10px 16px; border-radius: 8px; color: var(--blue); margin-bottom: 8px; word-break: break-all; }
     .hidden { display: none !important; }
     /* Plain-Read summary (Layer D — UX Contract) */
-    .verdict { display:flex; align-items:center; gap:12px; padding:14px 16px; margin-bottom:14px; border-radius:12px; border:1px solid; }
+    .verdict { display:flex; align-items:center; gap:12px; padding:12px 16px; margin-bottom:16px; border-radius:12px; border:1px solid; }
     .verdict-icon { font-size:1.5rem; line-height:1; font-weight:800; }
     .verdict-text { font-size:0.9rem; font-weight:700; line-height:1.35; }
-    .verdict-text small { display:block; font-size:0.72rem; font-weight:500; color:rgba(255,255,255,0.83); margin-top:3px; }
+    .verdict-text small { display:block; font-size: 0.75rem; font-weight:500; color:rgba(255,255,255,0.83); margin-top:4px; }
     .verdict.healthy { background:rgba(74,222,128,0.07);  border-color:rgba(74,222,128,0.3); }
     .verdict.healthy .verdict-icon { color:var(--wh-green); }
     .verdict.watch   { background:rgba(247,162,27,0.07);  border-color:rgba(247,162,27,0.3); }
@@ -100,7 +116,7 @@
     .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
     .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.80); }
     /* .simple-row / .simple-card / .sc-* / .action-card / .details-toggle → components.css (STREAMLINE S11) */
-    #ph-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:14px; }
+    #ph-summary-details { display:none; padding:12px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:16px; }
     #ph-summary-details.open { display:block; }
   </style>
 </head>
@@ -117,15 +133,28 @@
 
   <!-- Hero -->
   <div class="hero">
-    <div data-i="p_loading_b04b" class="hero-badge" id="report-period-badge">Loading...</div>
-    <h1 translate="no">Philippine Industrial<br>Maintenance Intelligence</h1><!-- publication name: EN by design -->
-    <p>Anonymized benchmarking data from manufacturing plants across the Philippines using WorkHive. Each report covers a period and is generated on demand; the card below shows how old the current one is.</p>
+    <!-- ★THE KICKER ABOVE THE HEADING, AND WHAT IT ACTUALLY HELD (2026-09-18, W45972 slop).
+         #report-period-badge sat ABOVE the h1 as an uppercase pill with .08em tracking - a kicker above
+         a heading, which DESIGN.md's Don't list names outright, wearing an all-caps treatment DESIGN.md
+         reserves for 2-3-word STATUS pills at no more than .04em. It is neither: it holds the report's
+         PERIOD, and a period is not a status. A publication does not put its dateline above its
+         masthead; it puts it underneath. So it moves below the h1 and reads as the dateline it is,
+         sentence case, on the ramp's label step. The detector - not the browser - is the instrument that
+         verifies this one, which matters here because the page is stair-gated and renders none of this
+         markup for any seeded persona.
+         ★AND THE H1's ACCESSIBLE NAME WAS ONE WORD SHORT OF ENGLISH. <br> contributes NOTHING to
+         textContent, so "Philippine Industrial<br>Maintenance Intelligence" announced as "Philippine
+         IndustrialMaintenance Intelligence" - which the walk read back verbatim. A line break is a
+         visual instruction; the space has to be in the text. -->
+    <h1 translate="no">Philippine Industrial <br>Maintenance Intelligence</h1><!-- publication name: EN by design -->
+    <div data-i="p_loading_b04b" class="hero-dateline" id="report-period-badge">Loading...</div>
+    <p data-i="p_ph_hero_blurb">Anonymized benchmarking data from manufacturing plants across the Philippines using WorkHive. Each report covers a period and is generated on demand; the card below shows how old the current one is.</p>
   </div>
 <details class="wh-help">
   <summary data-i="p_howthispageworks_c540">How this page works</summary>
   <p data-i="p_compareyourhivewithanonymous_8e2f">Compare your hive with anonymous plants in your segment. Benchmarks unlock at 5+ hives in a segment and 30 days of your own history.</p>
 </details>
-<p class="wh-source-chip" style="font-size:.62rem;color:rgba(255,255,255,0.80);margin:0;padding:3px 0 0;line-height:1.35;">Updated when a report is generated &middot; Based on your logbook history + anonymized segment benchmarks (N&ge;5 privacy guard)</p>
+<p class="wh-source-chip" data-i="p_ph_source_chip" style="font-size: 0.75rem;color:rgba(255,255,255,0.80);margin:0;padding:3px 0 0;line-height:1.35;">Updated when a report is generated &middot; Based on your logbook history + anonymized segment benchmarks (N&ge;5 privacy guard)</p>
 
   <!-- Loading state -->
   <div id="loading-state" class="card loading-state" style="text-align:center; padding:32px;">
@@ -176,7 +205,7 @@
         <li><strong data-i="p_reportfreshness_7e9b">Report freshness</strong>: days since the report was generated. Nothing regenerates it on a schedule, so this is the number to read before trusting the figures.</li>
         <li><strong data-i="p_verdict_7f6e">Verdict</strong>: green when report has 3+ plants and was generated in last 45 days; empty otherwise.</li>
       </ul>
-      <p data-i="p_onlymembersofahivethatoptedi_d5ac" style="margin-top:8px;color:rgba(255,255,255,0.80);font-size:11px;">Only members of a hive that opted into anonymised contributions see "Your Plant vs Network" below.</p>
+      <p data-i="p_onlymembersofahivethatoptedi_d5ac" style="margin-top:8px;color:rgba(255,255,255,0.80);font-size: 12px;">Only members of a hive that opted into anonymised contributions see "Your Plant vs Network" below.</p>
     </div>
 
     <!-- Key stats -->
@@ -192,7 +221,7 @@
     <div class="card">
       <div class="sec-head">
         <span data-i="p_equipmentreliabilityranking_e97e" class="sec-title">Equipment Reliability Ranking</span>
-        <span data-i="p_daysbetweenfailureshigherbet_37f6" style="font-size:.65rem; color:var(--muted);">Days between failures (higher = better)</span>
+        <span data-i="p_daysbetweenfailureshigherbet_37f6" style="font-size: 0.75rem; color:var(--muted);">Days between failures (higher = better)</span>
       </div>
       <div class="mtbf-bar-wrap" id="mtbf-chart"></div>
     </div>
@@ -201,7 +230,7 @@
     <div class="card">
       <div class="sec-head">
         <span data-i="p_mostcommonfailurecauses_2188" class="sec-title">Most Common Failure Causes</span>
-        <span data-i="p_acrossallplantslastdays_8262" style="font-size:.65rem; color:var(--muted);">Across all plants, last 90 days</span>
+        <span data-i="p_acrossallplantslastdays_8262" style="font-size: 0.75rem; color:var(--muted);">Across all plants, last 90 days</span>
       </div>
       <div id="failure-modes-list"></div>
     </div>
@@ -216,7 +245,7 @@
     <div class="card hidden" id="your-plant-card">
       <div class="sec-head">
         <span data-i="p_yourplantvsnetwork_816f" class="sec-title">Your Plant vs Network</span>
-        <span data-i="p_hivemembersonly_e877" style="font-size:.65rem; color:var(--blue);">Hive members only</span>
+        <span data-i="p_hivemembersonly_e877" style="font-size: 0.75rem; color:var(--blue);">Hive members only</span>
       </div>
       <div id="your-plant-compare"></div>
     </div>
@@ -234,7 +263,11 @@
       <div class="api-endpoint">GET https://hzyvnjtisfgbksicrouu.supabase.co/functions/v1/intelligence-api?endpoint=benchmarks</div>
       <div class="api-endpoint">GET https://hzyvnjtisfgbksicrouu.supabase.co/functions/v1/intelligence-api?endpoint=failure-modes</div>
       <div class="api-endpoint">GET https://hzyvnjtisfgbksicrouu.supabase.co/functions/v1/intelligence-api?endpoint=report</div>
-      <p style="font-size:.7rem; color:var(--muted); margin-top:8px;">Generate API keys in <a href="integrations.html" style="color:var(--blue);">Integrations → API Keys</a>. Rate limit: 100 calls/hour.</p>
+      <!-- The lead-in carries the hook, not the whole sentence: the link text is a NAVIGATION PATH
+           ("Integrations → API Keys") that names two screens by their on-screen titles, and the rate
+           limit is a number. Translating the path would send a Filipino reader looking for a menu item
+           that does not exist under that name. -->
+      <p style="font-size: 0.75rem; color:var(--muted); margin-top:8px;"><span data-i="p_ph_apikeys">Generate API keys in</span> <a href="integrations.html" style="color:var(--blue);">Integrations → API Keys</a>. Rate limit: 100 calls/hour.</p>
     </div>
 
     <!-- CTA for non-members -->
@@ -301,10 +334,28 @@
     const gate = await window.checkMaturityGate(db, HIVE_ID, 3);
     if (gate.blocked) {
       const main = document.querySelector('main') || document.body;
+      // ★THIS SENTENCE EXPLAINED A GATE THAT IS NOT THE ONE THAT FIRED (2026-09-18, W45978 critique -
+      // both isolated assessments reached it independently, and the stair derivation confirms it).
+      // It read: "Peer benchmarking needs two things. First, at least 5 anonymous hives in your segment
+      // (the privacy guard). Second, 30+ days of your own logbook history. HIT BOTH AND THIS PAGE FILLS."
+      // Those are the REPORT's rules. The gate that actually fired is checkMaturityGate(db, HIVE_ID, 3),
+      // and compute_hive_readiness derives Stair 3 from PM compliance >= 70%, logbook hygiene >= 80% and
+      // 5 supervisor actions a week - none of which is named above, and the closest thing to "30 days",
+      // a 90-day history check, gates Stair FOUR. So "hit both and this page fills" was false as written:
+      // a supervisor could satisfy both stated conditions perfectly and the page would still be locked.
+      // Worse, one of the two is not hers to satisfy at all - "5 hives in your segment" is other plants
+      // adopting WorkHive - and it was stated in the imperative, as though it were a task.
+      // It now names the gate that fired, marks the part that is ours rather than hers, and keeps the
+      // report's own N>=5 rule where it belongs: as what happens AFTER the stair clears.
       window.renderMaturityHonestEmpty(main, gate, {
         pageName: 'PH Intelligence',
-        why: 'Peer benchmarking needs two things. First, at least 5 anonymous hives in your segment (the privacy guard). Second, 30+ days of your own logbook history. Hit both and this page fills with your segment benchmarks.',
-        alternateSuggestion: 'use the Analytics Engine on your own data (MTBF, MTTR, OEE). It works at any stair. Peer benchmarks unlock when you cross both thresholds.',
+        why: 'This page needs your hive at Stair 3, which is about PM discipline: preventive work done on '
+           + 'time, logbook entries filled in properly, and a supervisor signing off each week. Your '
+           + 'next step is below. Once you are at Stair 3, benchmarks appear as soon as five plants in '
+           + 'your segment have opted in - that part is on us, not on you.',
+        alternateSuggestion: 'open the Analytics Engine and read MTBF, MTTR and OEE on your own data. It '
+           + 'works at any stair, and it is the same maintenance picture without the peer comparison.',
+        alternateActions: [{ label: 'Open Analytics Engine →', href: 'analytics.html' }],
       });
       return true;
     }
@@ -420,7 +471,14 @@
     if (actBox) {
       let text;
       if (plants === 0) {
-        text = 'No regional report yet. Encourage other supervisors in your industry to opt into anonymised data sharing. Once 3+ plants contribute, benchmarks unlock.';
+        // TWO THRESHOLDS LIVE ON THIS PAGE AND THIS LINE CONFLATED THEM (2026-09-16). The REGIONAL REPORT
+        // needs 3 contributing plants before it stops reading as thin (the verdict branch below, and the
+        // legend at the top of the page). The PER-SEGMENT PEER BENCHMARKS are a different thing behind a
+        // different number: maturityGateCheck needs N>=5 hives in the segment, the source chip calls that
+        // the privacy guard, and the badge below only says NETWORK at 5. This line kept the report's 3 but
+        // promised that "benchmarks unlock" there, which named the guarded thing against the unguarded
+        // number. It now says which one 3 buys.
+        text = 'No regional report yet. Encourage other supervisors in your industry to opt into anonymised data sharing. Three contributing plants is enough to generate one; your own segment comparison needs five, which is the privacy guard.';
       } else if (plants < 3) {
         text = `Only ${plants} plant${plants === 1 ? '' : 's'} contributing. Benchmark numbers below are directional only: wait for the network to grow before using them in decisions.`;
       } else if (days != null && days > 90) {
@@ -474,7 +532,7 @@
         <div class="mtbf-bar-bg"><div class="mtbf-bar-fill" style="width:${pct}%;"></div></div>
         <div class="mtbf-val">${b.avg_mtbf_days}d</div>
       </div>`;
-    }).join('') || '<p style="color:var(--muted); font-size:.75rem;">No benchmark data yet: available once 3+ plants contribute data.</p>';
+    }).join('') || '<p style="color:var(--muted); font-size:.75rem;">No regional MTBF data yet: this chart comes from the regional report, which reads as thin below 3 contributing plants.</p>';
 
     // Failure modes
     const modes = r.failure_modes || [];
@@ -578,7 +636,11 @@
     if (!t) { t = document.createElement('div'); t.id = 'toast'; document.body.appendChild(t);
       Object.assign(t.style, { position:'fixed', top:'1rem', left:'50%', transform:'translateX(-50%) translateY(-72px)',
         background:'rgba(31,46,69,0.96)', color:'#F4F6FA', padding:'.6rem 1.25rem', borderRadius:'.625rem',
-        fontSize:'.8rem', fontWeight:'500', transition:'transform .3s', zIndex:'200',
+        fontSize:'.8rem', fontWeight:'500',
+        // transform and 300ms were already right; the easing was the CSS default, which is ease-IN-out,
+        // so this toast crept away from the edge before it moved. A response to the system should be
+        // fastest at its first frame.
+        transition:'transform .3s var(--wh-ease-out, ease-out)', zIndex:'200',
         border:'1px solid rgba(255,255,255,0.09)', backdropFilter:'blur(14px)' }); }
     t.textContent = msg; t.style.transform = 'translateX(-50%) translateY(0)';
     setTimeout(() => { t.style.transform = 'translateX(-50%) translateY(-72px)'; }, dur);

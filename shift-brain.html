@@ -43,9 +43,22 @@
       position: fixed; top: 1rem; left: 50%; transform: translateX(-50%);
       background: var(--wh-navy-mid); border: 1px solid var(--border);
       border-radius: 0.75rem; padding: 0.65rem 1.1rem;
-      font-size: 0.82rem; font-weight: 600; z-index: 9999;
+      font-size: 0.75rem; font-weight: 600; z-index: 9999;
       box-shadow: 0 8px 32px rgba(0,0,0,0.5);
-      transition: opacity 0.3s;
+      /* ★THE PAGE'S ONE AUTHORED MOMENT NAMED A DURATION AND NO CURVE (2026-09-18, W46039 motion lens).
+         `transition: opacity 0.3s` is the toast that confirms a supervisor published a shift plan or
+         re-ran it - the only motion this file declares. Two things were wrong with it and neither was
+         visible in the declaration. Omitting the easing inherits the CSS default `ease`, which is an
+         ease-IN-out: a confirmation that STARTS slowly reads as lag rather than acknowledgement, and
+         this one appears after a write the person is waiting on. And 0.3s is not under the 300ms
+         ceiling for interface motion, it IS the ceiling - measured at 0.3s in both directions. Now
+         --wh-dur-slow (0.25s) on --wh-ease-out, so it leaves at its fastest at the start, where the eye
+         is. Measured under prefers-reduced-motion: the platform's global block in components.css
+         rewrites transition-property to the colour/opacity family, so this fade SURVIVES a reduce
+         preference by design - an opacity change is not vestibular motion, and the block's own comment
+         argues that case. Nothing here needed a local reduced-motion rule; this page links
+         components.css, unlike resume.html, which needed its own. */
+      transition: opacity var(--wh-dur-slow, 0.25s) var(--wh-ease-out, ease-out);
     }
     /* V1 (2026-09-05): at 390 px the toast covered the page header; on phones it docks above the bottom safe area instead.
        I1: the briefing container grows when the brief arrives - reserve its settled height so the page does not jump. */
@@ -64,29 +77,29 @@
       cursor: pointer; color: var(--muted); text-decoration: none;
     }
     .back-btn:hover { background: rgba(255,255,255,0.1); }
-    .page-title { font-size: 1.05rem; font-weight: 700; }
-    .page-sub   { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+    .page-title { font-size: 1.125rem; font-weight: 700; }
+    .page-sub   { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
 
     #hive-gate {
       display: none; flex-direction: column; align-items: center; justify-content: center;
       min-height: 60vh; padding: 2rem; text-align: center;
     }
-    #hive-gate h2 { font-size: 1.15rem; font-weight: 700; margin-bottom: 0.5rem; }
-    #hive-gate p  { color: var(--muted); font-size: 0.85rem; max-width: 360px; }
+    #hive-gate h2 { font-size: 1.125rem; font-weight: 700; margin-bottom: 0.5rem; }
+    #hive-gate p  { color: var(--muted); font-size: 0.875rem; max-width: 360px; }
     #hive-gate a {
       margin-top: 1.25rem; padding: 0.65rem 1.25rem;
       background: linear-gradient(135deg, var(--orange-wh), var(--wh-orange-light));
       color: var(--navy-wh); border-radius: 0.6rem; font-weight: 700;
-      text-decoration: none; font-size: 0.85rem;
+      text-decoration: none; font-size: 0.75rem;
     }
 
     .shift-toolbar {
-      display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.85rem;
+      display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.75rem;
     }
     .shift-pill {
       flex: 1; min-width: max-content; white-space: nowrap;   /* phone fit (2026-09-06): three pills shared 114px each at 390px and '14-22 Afternoon' wrapped; the row already wraps, so the third pill drops down instead */
       background: rgba(255,255,255,0.04); border: 1px solid var(--border);
-      border-radius: var(--wh-radius-sm); padding: 0.55rem 0.7rem;
+      border-radius: var(--wh-radius-sm); padding: 0.5rem 0.75rem;
       min-height: 44px; display: inline-flex; align-items: center; justify-content: center;
       font-size: 0.75rem; font-weight: 600; cursor: pointer;
       color: var(--muted); text-align: center;
@@ -105,53 +118,72 @@
       margin-bottom: 0.75rem;
       min-height: 240px; /* I1 CLS: reserve the async briefing's settled height so its fill doesn't shift the page (0.27). 2026-07-23: a 480px bump was tried + REVERTED — the residual I1 is a complex reorganizing reflow at ~320ms (verdict/rows up 22px, briefing/section down 16px), NOT the briefing-card's own growth, and 480 risked visible empty space in the empty/no-plan state. The reflow is the documented irreducible contention-residual (passes on clean/isolation loads). */
     }
+    /* ★A SENTENCE IN CAPS IS NOT A STATUS PILL (2026-09-18, W46035). DESIGN.md reserves all-caps for
+       two-or-three-word status pills at no more than 0.04em tracking. This line carries the briefing's
+       provenance - "plan for this shift · loaded from storage, not regenerated just now" - which is 37
+       characters of running prose, and the detector reads it as body text shouting. Uppercase removes
+       the word shapes that let somebody skim a provenance line and decide whether to trust the plan
+       under it, which is the only reason the line exists. Sentence case, same size, same colour; the
+       0.55rem margin goes to 0.5rem in the same edit, the last value on this page off the 4px grid. */
     .briefing-meta {
-      font-size: 0.7rem; color: var(--muted); letter-spacing: 0.05em;
-      text-transform: uppercase; margin-bottom: 0.55rem;
+      font-size: 0.75rem; color: var(--muted); letter-spacing: 0.01em;
+      margin-bottom: 0.5rem;
       display: flex; align-items: center; gap: 0.5rem;
     }
     .status-pill {
       display: inline-block; padding: 2px 9px; border-radius: 999px;
-      font-size: 0.62rem; font-weight: 700; letter-spacing: 0.05em;
+      font-size: 0.75rem; font-weight: 700; letter-spacing: 0.05em;
     }
     .status-draft     { background: rgba(247,162,27,0.18); color: var(--wh-orange-light); }   /* C2: AA-safe orange (was --wh-orange @ 4.44:1) */
     .status-published { background: rgba(74,222,128,0.18); color: var(--wh-green); }
     .status-archived  { background: rgba(180,180,180,0.14); color: var(--muted); }
-    .briefing-text { font-size: 0.92rem; line-height: 1.5; white-space: pre-wrap; }
+    .briefing-text { font-size: 0.95rem; line-height: 1.5; white-space: pre-wrap; }
 
     .section-card {
       background: var(--card-bg);
       border: 1px solid var(--border);
-      border-radius: 1rem; padding: 0.95rem 1rem;
+      border-radius: 1rem; padding: 1rem;
       margin-bottom: 0.75rem;
     }
     .section-title {
-      font-size: 0.78rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
-      color: var(--muted); margin-bottom: 0.65rem;
+      /* ★THE SAME RULE HOLDS 'PMs due' AND 'Carry-forward (open from prior shift)' (2026-09-18,
+         W46035). All-caps is reserved for two-or-three-word status pills; that second title is 37
+         characters with a parenthetical, and the detector reads it as body text shouting - which
+         it is. The trap is that the rule looked fine against the short titles beside it: a caps
+         treatment chosen for 'PMs due' was inherited by a sentence, because one class serves
+         both. A section heading is not a pill, so the caps go and the weight and size stay to
+         mark it as a heading. */
+      font-size: 0.75rem; font-weight: 700; letter-spacing: 0.01em;
+      color: var(--muted); margin-bottom: 0.75rem;
       display: flex; justify-content: space-between; align-items: center;
     }
     .section-count {
       background: rgba(255,255,255,0.06); border-radius: 999px;
-      padding: 1px 8px; font-size: 0.66rem; color: var(--wh-cloud); font-weight: 700;
+      padding: 2px 8px; font-size: 0.75rem; color: var(--wh-cloud); font-weight: 700;
       letter-spacing: 0.02em; text-transform: none;
     }
 
     .row {
-      padding: 0.55rem 0; border-bottom: 1px dashed var(--border);
-      font-size: 0.83rem;
+      padding: 0.5rem 0; border-bottom: 1px dashed var(--border);
+      font-size: 0.875rem;
     }
     .row:last-child { border-bottom: none; }
-    .row-meta { font-size: 0.7rem; color: var(--muted); margin-top: 2px; }
-    .empty-row { font-size: 0.82rem; color: var(--muted); padding: 0.4rem 0; }
+    .row-meta { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+    .empty-row { font-size: 0.875rem; color: var(--muted); padding: 0.5rem 0; }
 
     .actions-row {
       display: flex; gap: 0.5rem; margin-top: 0.75rem;
+      /* ★C26 (wave-4 narrow-320 walk, 2026-09-15): three buttons in one no-wrap row squeezed "Publish to crew" to 89px
+         and its label broke onto two lines at 320. The row may wrap and a press control keeps its natural width and
+         a one-line label; "Archive plan" keeps its margin-left:auto on whichever line it lands. */
+      flex-wrap: wrap;
     }
+    .actions-row > button { white-space: nowrap; flex-shrink: 0; }
     /* 0.55rem = 8.8px: a near-miss that reads as 9px and belongs to no token. These are
        controls, so they take the ACTION radius (rubric S1 / NN/g #4). */
     .btn-primary, .btn-ghost {
       flex: 1; min-height: 44px; border-radius: var(--wh-radius-sm);
-      font-size: 0.85rem; font-weight: 600; font-family: inherit;
+      font-size: 0.75rem; font-weight: 600; font-family: inherit;
       cursor: pointer;
       display: inline-flex; align-items: center; justify-content: center;
     }
@@ -164,10 +196,10 @@
       background: rgba(255,255,255,0.06); border: 1px solid var(--border); color: var(--wh-cloud);
     }
     /* Plain-Read summary (Layer D — UX Contract) */
-    .verdict { display:flex; align-items:center; gap:12px; padding:14px 16px; margin-bottom:14px; border-radius:12px; border:1px solid; }
+    .verdict { display:flex; align-items:center; gap:12px; padding:12px 16px; margin-bottom:16px; border-radius:12px; border:1px solid; }
     .verdict-icon { font-size:1.5rem; line-height:1; font-weight:800; }
-    .verdict-text { font-size:0.9rem; font-weight:700; line-height:1.35; }
-    .verdict-text small { display:block; font-size:0.72rem; font-weight:500; color:rgba(255,255,255,0.83); margin-top:3px; }
+    .verdict-text { font-size:0.875rem; font-weight:700; line-height:1.35; }
+    .verdict-text small { display:block; font-size: 0.75rem; font-weight:500; color:rgba(255,255,255,0.83); margin-top:4px; }
     .verdict.healthy { background:rgba(74,222,128,0.07);  border-color:rgba(74,222,128,0.3); }
     .verdict.healthy .verdict-icon { color:var(--wh-green); }
     .verdict.watch   { background:rgba(247,162,27,0.07);  border-color:rgba(247,162,27,0.3); }
@@ -177,7 +209,7 @@
     .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
     .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.80); }
     /* .simple-row / .simple-card / .sc-* / .action-card / .details-toggle → components.css (STREAMLINE S11) */
-    #sb-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:14px; }
+    #sb-summary-details { display:none; padding:12px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.75rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:16px; }
     #sb-summary-details.open { display:block; }
   </style>
 </head>
@@ -196,13 +228,13 @@
   <div id="page-wrap" class="page-wrap" style="display:none;">
 
     <div class="page-header">
-      <a href="hive.html" class="back-btn" aria-label="Back">
+      <a href="hive.html" class="back-btn" aria-label="Back" data-i-aria="aria_back">
         <span class="ic ic-back" aria-hidden="true"></span>
       </a>
       <div>
         <h1 class="page-title" style="margin:0;" translate="no">Shift Brain</h1>
         <div data-i="p_autonomousshiftplannerforyou_8331" class="page-sub" id="page-sub">Autonomous shift planner for your hive</div>
-        <p id="shift-source-chip" style="margin-top:3px;"></p>
+        <p id="shift-source-chip" style="margin-top:4px;"></p>
       </div>
     </div>
 
@@ -243,7 +275,7 @@
       <div data-i="p_whattodonext_8ce2" class="ac-label">What to do next</div>
       <div data-i="p_computingshiftplan_adfc" class="ac-text" id="sb-action-text">Computing shift plan...</div>
       <!-- Arc P · Wave 1 (P3 / FUSION 3a): one primary button that DOES the next step. -->
-      <a data-i="p_takeaction_ee0b" id="sb-action-btn" class="ac-cta hidden" href="#" aria-label="Do the recommended next action">Take action &#8594;</a>
+      <a data-i="p_takeaction_ee0b" id="sb-action-btn" class="ac-cta hidden" href="#" aria-label="Do the recommended next action" data-i-aria="aria_do_next_action">Take action &#8594;</a>
     </div>
     <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="sb-summary-details" data-i="showdetails">
       Show details
@@ -268,35 +300,44 @@
         <span id="brief-status" class="status-pill status-draft">draft</span>
         <!-- ★E3/C2: text #f7a21b over a 13%-alpha amber (#f59e0b22) composited to 2.02:1 on the dark navy theme (dark-on-dark).
              A warning chip must be self-sufficient: a SOLID bright-amber fill with near-black text reads on any background (~9:1). -->
-        <span data-i="p_stale_86c1" id="brief-stale" style="display:none; align-items:center; gap:4px; font-size:.7rem; font-weight:700; color:#1a1206; background:var(--wh-orange); border:1px solid var(--wh-orange); padding:2px 8px; border-radius:8px;" title="This plan is not for the current shift; regenerate before acting on it.">⚠ STALE</span>
+        <span data-i="p_stale_86c1" id="brief-stale" style="display:none; align-items:center; gap:4px; font-size: 0.75rem; font-weight:700; color:#1a1206; background:var(--wh-orange); border:1px solid var(--wh-orange); padding:2px 8px; border-radius:8px;" title="This plan is not for the current shift; regenerate before acting on it.">⚠ STALE</span>
       </div>
       <div id="brief-degraded" role="alert" style="display:none; margin-top:8px; font-size:.75rem; font-weight:600; color:var(--wh-red); background:#ef444415; border:1px solid #ef444455; padding:8px 10px; border-radius:8px;"></div>
       <div data-i="p_loadingbriefing_875d" class="briefing-text" id="brief-text" data-ai-generated>Loading briefing...</div>   <!-- the shift brief is LLM prose (generate-shift-plan): excluded from the copy lenses like hive's pattern alerts and report-sender's summary; its quality is graded by the AI-output gates, not by B3 (2026-09-06) -->
     </div>
 
     <div class="section-card">
-      <h2 class="section-title" style="margin:0;"><span data-i="topriskassets">Top risk assets</span><span id="risk-count" class="section-count">0</span></h2>
+      <!-- ★THE COUNT RAN INTO THE TITLE FOR ANYONE LISTENING (2026-09-18, W46037 audit). The
+           heading outline read "Top risk assets0", "PMs due2", "Carry-forward (open from prior
+           shift)0" and "Parts pre-stage (low stock)0". .section-count is a pill with 2px 8px of
+           padding, so it LOOKS separated - and padding contributes nothing to textContent, which
+           is what a screen reader builds the accessible name from. The space between the two
+           spans is load-bearing. Third instance of this exact class this session: "Digital
+           Logbookcomposite 63/100" on marketplace-seller and "Philippine IndustrialMaintenance
+           Intelligence" on ph-intelligence, and all three were sitting in output already read.
+           A separator a reader SEES has to exist in the TEXT. -->
+      <h2 class="section-title" style="margin:0;"><span data-i="topriskassets">Top risk assets</span> <span id="risk-count" class="section-count">0</span></h2>
       <div id="risk-list"></div>
     </div>
 
     <div class="section-card">
-      <h2 class="section-title" style="margin:0;"><span data-i="pmsdue">PMs due</span><span id="pms-count" class="section-count">0</span></h2>
+      <h2 class="section-title" style="margin:0;"><span data-i="pmsdue">PMs due</span> <span id="pms-count" class="section-count">0</span></h2>
       <div id="pms-list"></div>
     </div>
 
     <div class="section-card">
-      <h2 class="section-title" style="margin:0;"><span data-i="carryforward">Carry-forward (open from prior shift)</span><span id="carry-count" class="section-count">0</span></h2>
+      <h2 class="section-title" style="margin:0;"><span data-i="carryforward">Carry-forward (open from prior shift)</span> <span id="carry-count" class="section-count">0</span></h2>
       <!-- ci_domain_truth CI3: carry-over must be DEFINED. The logbook records only Open/Closed
            (verified live: two status values, nothing else), so per-item not-started / deferred /
            blocked splits cannot be rendered honestly — the definition instead says plainly that the
            bucket hides those three states and routes the reader to the person who knows. If a
            carry-reason field is ever added to the log, replace this line with the real breakdown. -->
-      <p style="font-size:0.74rem; color:rgba(255,255,255,0.72); margin:4px 0 8px; line-height:1.5;" data-i="carrydef">Jobs still open from the prior shift. The log does not yet say <em>why</em> a job stays open. Not started, deferred and blocked all look the same here. Confirm the reason at handover before re-planning them.</p>
+      <p style="font-size: 0.75rem; color:rgba(255,255,255,0.72); margin:4px 0 8px; line-height:1.5;" data-i="carrydef">Jobs still open from the prior shift. The log does not yet say <em>why</em> a job stays open. Not started, deferred and blocked all look the same here. Confirm the reason at handover before re-planning them.</p>
       <div id="carry-list"></div>
     </div>
 
     <div class="section-card">
-      <h2 class="section-title" style="margin:0;"><span data-i="partsprestage">Parts pre-stage (low stock)</span><span id="parts-count" class="section-count">0</span></h2>
+      <h2 class="section-title" style="margin:0;"><span data-i="partsprestage">Parts pre-stage (low stock)</span> <span id="parts-count" class="section-count">0</span></h2>
       <div id="parts-list"></div>
     </div>
 
@@ -310,7 +351,7 @@
       <div id="empty-supervisor" style="margin-top:0.6rem;display:none;">
         <button class="btn-primary" id="generate-btn" data-i="generatenow">Generate now</button>
       </div>
-      <div data-i="p_yoursupervisorneedstogenerat_69e5" id="empty-worker" style="margin-top:0.4rem;font-size:0.78rem;display:none;">
+      <div data-i="p_yoursupervisorneedstogenerat_69e5" id="empty-worker" style="margin-top:0.5rem;font-size:0.75rem;display:none;">
         Your supervisor needs to generate one. The automatic schedule runs at 06:00, 14:00, and 22:00 PHT once enabled.
       </div>
     </div>
@@ -363,10 +404,17 @@
         // provisional string nobody re-reads had gone unnoticed.
         // The freshness line stays ONE line so the CLS work above is untouched; it just no longer
         // claims an event that has not occurred.
+        // ★C-AK AT THE CALL SITE (2026-09-18, W46038 copy lens): renderSourceChip translates `source`
+        // and a MAPPED `freshness`, and passes `notes` through verbatim — its own docstring names that
+        // as an honest limit needing per-site copy. This is that per-site copy. A Filipino reader was
+        // reading the chip's first words in English and its tail in Filipino, inside a role=status live
+        // region a screen reader announces as one sentence. Composed whole per language HERE, where the
+        // sentence is actually written, rather than by growing the shared phrase map with a one-off.
         _sbChip.innerHTML = renderSourceChip({
-          freshness: 'Checking · shift plan',
+          freshness: _t('Checking · shift plan', 'Sinusuri · plano ng shift'),
           source:    'shift_plans',
-          notes:     ['Top-risk + PMs-due + carry-forward + parts, composed by shift-planner-orchestrator'],
+          notes:     [_t('Top-risk + PMs-due + carry-forward + parts, composed by shift-planner-orchestrator',
+                         'Top-risk + PMs na due + carry-forward + parts, binuo ng shift-planner-orchestrator')],
         });
       }
     })();
@@ -705,13 +753,25 @@
           // So the provenance half is now derived from the plan's OWN timestamp: only a plan written in
           // the last two minutes was generated by this page load; an older one, however current, was
           // loaded from storage and says so.
+          // ★AND THE SETTLED CHIP SAID IT IN TWO LANGUAGES AT ONCE (2026-09-18, W46038 copy lens).
+          // Measured live in Filipino: "Live · plan for this shift · loaded from storage, not
+          // regenerated just now · Batay sa iyong naka-imbak na shift plan" — an English provenance
+          // claim with a Filipino connective welded on the end, announced as one sentence by the
+          // role=status region. Each clause now composes WHOLE per language, and the stale branch
+          // carries one template per locale with a single date slot rather than gluing a translated
+          // prefix onto a translated suffix around an untranslated middle.
           freshness: _fresh
             ? ((Date.now() - new Date(_activePlan.generated_at).getTime() < 120000)
-                ? 'Live · shift plan generated on load'
-                : 'Live · plan for this shift · loaded from storage, not regenerated just now')
-            : 'STALE · plan generated ' + fmtDate(_activePlan.generated_at) + ', not the current shift',
+                ? _t('Live · shift plan generated on load',
+                     'Live · ginawa ang plano ng shift sa pag-load')
+                : _t('Live · plan for this shift · loaded from storage, not regenerated just now',
+                     'Live · plano para sa shift na ito · kinuha sa naka-imbak, hindi ginawang muli ngayon'))
+            : _t('STALE · plan generated {d}, not the current shift',
+                 'LUMA · ginawa ang plano noong {d}, hindi para sa kasalukuyang shift')
+                .replace('{d}', fmtDate(_activePlan.generated_at)),
           source: 'shift_plans',
-          notes: ['Top-risk + PMs-due + carry-forward + parts, composed by shift-planner-orchestrator'],
+          notes: [_t('Top-risk + PMs-due + carry-forward + parts, composed by shift-planner-orchestrator',
+                     'Top-risk + PMs na due + carry-forward + parts, binuo ng shift-planner-orchestrator')],
         });
       }
 
@@ -767,13 +827,18 @@
         if (!pl) return;
         pl.innerHTML = (rows.length && typeof renderPmDueStrip === 'function')
           ? renderPmDueStrip(rows, { limit: 12, scope: 'this shift' })
-          : '<div class="empty-row">' + escHtml('No PMs flagged as due.') + '</div>';
+          // The risk strip and the carry list beside it both got a translated, non-dead-end zero
+          // state; this one was still an English full stop. Same remedy, same house style: say what
+          // the absence MEANS, then name where to look.
+          : '<div class="empty-row">' + escHtml(_t('No PMs land in this shift window - nothing is scheduled. Open the PM planner to see what is coming.',
+                                                   'Walang PM na papasok sa window ng shift na ito - walang nakatakda. Buksan ang PM planner para makita ang susunod.')) + '</div>';
       })();
       // ★THE SECOND DEAD END THE SAME WALK FOUND. "No carry-forward items from the prior shift." is
       // good news - the last shift closed clean - and it left the reader with nowhere to go. Same
       // remedy as the risk strip above: lead with what the absence MEANS, then name where the work is.
       renderRows('carry-list', p.carry_forward || [], 'carry-count', rowCarry,
-                 'No carry-forward items from the prior shift - it closed clean. Open the logbook to see what was done.', 6);
+                 _t('No carry-forward items from the prior shift - it closed clean. Open the logbook to see what was done.',
+                    'Walang carry-forward mula sa nakaraang shift - malinis itong natapos. Buksan ang logbook para makita ang nagawa.'), 6);
       // STREAMLINE F3: parts pre-stage renders through the shared renderPartsStrip
       // (utils.js) — one urgency-ranked parts list (out-of-stock first). rowPart kept
       // for reference but no longer the renderer.
@@ -809,10 +874,20 @@
         actions.style.display = 'flex';
         const pubBtn = document.getElementById('publish-btn');
         if (_activePlan.status === 'published') {
-          pubBtn.textContent = 'Already published';
+          // ★THE APPLICATION WROTE OVER THE DICTIONARY, AGAIN (2026-09-18, W46038 copy). This button
+          //    carries data-i="publishtocrew" and the key RESOLVES - all 35 of this page's hooks do, across
+          //    the page JSON, WH_FIL_COMMON and the inline WH_FIL_PAGE. It still rendered "Publish to crew"
+          //    in the Filipino walk, because this line runs AFTER the dictionary pass and overwrites it.
+          //    Fourth instance of one mechanism this session: marketplace-seller's h1 and edit-sheet title,
+          //    public-feed's header CTA, and now this. A value the APPLICATION computes must drop its data-i
+          //    and compose in BOTH languages at the write site - and this one is a STATE, so the attribute
+          //    must go or the dictionary will keep restoring the other state's word.
+          pubBtn.removeAttribute('data-i');
+          pubBtn.textContent = _t('Already published', 'Nai-publish na');
           pubBtn.disabled = true;
         } else {
-          pubBtn.textContent = 'Publish to crew';
+          pubBtn.removeAttribute('data-i');
+          pubBtn.textContent = _t('Publish to crew', 'I-publish sa crew');
           pubBtn.disabled = false;
         }
       } else {
@@ -846,13 +921,22 @@
       };
       setCard('risk',
         _cap('risk_top', riskCount),
-        riskCount === 0 ? _t('No assets above the risk threshold', 'Walang asset na lampas sa risk threshold') : `${riskCount} asset${riskCount === 1 ? '' : 's'} flagged for this window`,
+        // ★THE ZERO CASE WAS TRANSLATED AND THE NON-ZERO CASE WAS NOT (2026-09-18, W46038 copy lens).
+        // One ternary, two branches, one dictionary — so a Filipino hive with a clean shift read its
+        // own language and the same hive with work to do read English. The branch a supervisor sees on
+        // a BUSY shift is the one that was missed, which is the general shape here: the empty state is
+        // written by hand and translated, the populated state is composed by the application and is not.
+        riskCount === 0 ? _t('No assets above the risk threshold', 'Walang asset na lampas sa risk threshold')
+          : _t(`${riskCount} asset${riskCount === 1 ? '' : 's'} flagged for this window`,
+               `${riskCount} asset ang na-flag para sa window na ito`),
         riskCount === 0 ? 'CLEAR' : riskCount >= 3 ? 'HOT' : 'WATCH',
         riskCount === 0 ? 'green' : riskCount >= 3 ? 'red' : 'amber'
       );
       setCard('pms',
         _cap('pms_due', pmsCount),
-        pmsCount === 0 ? 'No PMs land in this shift window' : `${pmsCount} preventive task${pmsCount === 1 ? '' : 's'} due this window`,
+        pmsCount === 0 ? _t('No PMs land in this shift window', 'Walang PM na papasok sa window ng shift na ito')
+          : _t(`${pmsCount} preventive task${pmsCount === 1 ? '' : 's'} due this window`,
+               `${pmsCount} preventive task ang due sa window na ito`),
         pmsCount === 0 ? 'NONE' : pmsCount >= 5 ? 'BUSY' : 'PLAN',
         pmsCount === 0 ? 'green' : pmsCount >= 5 ? 'amber' : 'amber'
       );
@@ -863,31 +947,46 @@
         // of them needs the boundary, not the adjective: 'carried over' could mean deferred, blocked or
         // simply not finished, and here it means precisely one thing. Stating the rule also stops the
         // figure being read as every open job on the plant, which it is not.
-        carryCount === 0 ? 'No jobs still open from before this shift (open >8h)'
-          : `${carryCount} job${carryCount === 1 ? '' : 's'} still open from before this shift (open >8h)`,
+        carryCount === 0 ? _t('No jobs still open from before this shift (open >8h)',
+                              'Walang trabahong bukas pa mula bago ang shift na ito (bukas >8h)')
+          : _t(`${carryCount} job${carryCount === 1 ? '' : 's'} still open from before this shift (open >8h)`,
+               `${carryCount} trabaho ang bukas pa mula bago ang shift na ito (bukas >8h)`),
         carryCount === 0 ? 'CLEAR' : carryCount >= 5 ? 'STACKING' : 'CLOSE OUT',
         carryCount === 0 ? 'green' : carryCount >= 5 ? 'red' : 'amber'
       );
 
       let tone, label, sub;
       if (riskCount >= 3 || carryCount >= 5) {
-        tone = 'attn'; label = 'Heavy shift: prioritize hot assets and carry-forward';
+        tone = 'attn'; label = _t('Heavy shift: prioritize hot assets and carry-forward',
+                                  'Mabigat na shift: unahin ang mga hot asset at carry-forward');
         // same counts in plain language - so they must carry the SAME cap marker as the tiles above,
         // or the summary quietly contradicts them on exactly the hive where truncation matters.
-        sub  = `${_cap('risk_top', riskCount)} high-risk · ${_cap('pms_due', pmsCount)} PMs · ${_cap('carry_forward', carryCount)} carry-forward · ${_cap('parts_prestage', partsCount)} parts to stage.`;
+        sub  = _t(`${_cap('risk_top', riskCount)} high-risk · ${_cap('pms_due', pmsCount)} PMs · ${_cap('carry_forward', carryCount)} carry-forward · ${_cap('parts_prestage', partsCount)} parts to stage.`,
+                  `${_cap('risk_top', riskCount)} high-risk · ${_cap('pms_due', pmsCount)} PM · ${_cap('carry_forward', carryCount)} carry-forward · ${_cap('parts_prestage', partsCount)} parts na ihahanda.`);
       } else if (riskCount > 0 || pmsCount > 0 || carryCount > 0) {
-        tone = 'watch'; label = 'Manageable shift with a few priorities';
+        tone = 'watch'; label = _t('Manageable shift with a few priorities',
+                                   'Kayang-kaya ang shift, may ilang priority');
+        // ★THE LABEL SPOKE FILIPINO AND ITS OWN SUBTITLE SPOKE ENGLISH, ONE LINE APART. The Filipino
+        // walk read "Kayang-kaya ang shift, may ilang priority" followed immediately by "2 PMs." —
+        // a translated verdict whose evidence was assembled here, in English, from counts. The parts
+        // ARE the counts, so the join has to happen per language; translating the joined string
+        // afterwards would be translating a sentence that only exists at runtime.
         const parts = [];
-        if (riskCount  > 0) parts.push(`${riskCount} risk asset${riskCount === 1 ? '' : 's'}`);
-        if (pmsCount   > 0) parts.push(`${pmsCount} PM${pmsCount === 1 ? '' : 's'}`);
+        if (riskCount  > 0) parts.push(_t(`${riskCount} risk asset${riskCount === 1 ? '' : 's'}`,
+                                          `${riskCount} risk na asset`));
+        if (pmsCount   > 0) parts.push(_t(`${pmsCount} PM${pmsCount === 1 ? '' : 's'}`,
+                                          `${pmsCount} PM`));
         if (carryCount > 0) parts.push(`${carryCount} carry-forward`);
         sub = parts.join(' · ') + '.';
       } else if (riskCount === 0 && pmsCount === 0 && carryCount === 0 && partsCount === 0) {
-        tone = 'healthy'; label = 'Clean shift: nothing demanding';
-        sub  = 'No high-risk assets, no PMs due, no carry-forward. Use the shift for inspections and asset hub walkarounds.';
+        tone = 'healthy'; label = _t('Clean shift: nothing demanding',
+                                     'Malinis na shift: walang mabigat');
+        sub  = _t('No high-risk assets, no PMs due, no carry-forward. Use the shift for inspections and asset hub walkarounds.',
+                   'Walang high-risk na asset, walang PM na due, walang carry-forward. Gamitin ang shift sa inspeksyon at asset hub walkaround.');
       } else {
-        tone = 'empty'; label = 'No briefing yet';
-        sub  = 'The shift planner runs on the hour. Click Re-run plan if you need it now.';
+        tone = 'empty'; label = _t('No briefing yet', 'Wala pang briefing');
+        sub  = _t('The shift planner runs on the hour. Click Re-run plan if you need it now.',
+                   'Tumatakbo ang shift planner kada oras. Pindutin ang I-rerun ang plano kung kailangan mo na ngayon.');
       }
       const vBox = document.getElementById('sb-verdict');
       if (vBox) { vBox.classList.remove('healthy','watch','attn','empty'); vBox.classList.add(tone); }
@@ -971,7 +1070,7 @@
       const restId = elId + '-rest';
       el.innerHTML = rows.slice(0, cap).map(rowFn).join('')
         + `<div id="${restId}" style="display:none;">${rows.slice(cap).map(rowFn).join('')}</div>`
-        + `<button type="button" class="sb-showall" style="width:100%; margin-top:8px; min-height:44px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:var(--wh-radius-sm); color:rgba(255,255,255,0.83); font-family:inherit; font-size:0.78rem; font-weight:600; cursor:pointer;">Show all ${rows.length} &#8595;</button>`;
+        + `<button type="button" class="sb-showall" style="width:100%; margin-top:8px; min-height:44px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:var(--wh-radius-sm); color:rgba(255,255,255,0.83); font-family:inherit; font-size:0.75rem; font-weight:600; cursor:pointer;">Show all ${rows.length} &#8595;</button>`;
       const btn = el.querySelector('.sb-showall');
       if (btn) btn.addEventListener('click', () => { const r = document.getElementById(restId); if (r) { r.style.display = 'block'; btn.style.display = 'none'; } });
     }
@@ -987,7 +1086,7 @@
       // an incoming shift must verify zero-energy before touching the asset. The orchestrator
       // already carries loto_applied/permit_reference per row; surface it as a badge.
       const loto = r.loto_applied
-        ? `<span style="display:inline-flex; align-items:center; gap:4px; font-size:.65rem; font-weight:800; color:var(--wh-orange); background:#f59e0b22; border:1px solid #f59e0b66; padding:1px 7px; border-radius:8px; margin-left:6px;" title="Open job under energy isolation; verify zero-energy before touching">🔒 LOTO${r.permit_reference ? ' &middot; ' + e(r.permit_reference) : ''}</span>`
+        ? `<span style="display:inline-flex; align-items:center; gap:4px; font-size: 0.75rem; font-weight:800; color:var(--wh-orange); background:#f59e0b22; border:1px solid #f59e0b66; padding:1px 7px; border-radius:8px; margin-left:6px;" title="Open job under energy isolation; verify zero-energy before touching">🔒 LOTO${r.permit_reference ? ' &middot; ' + e(r.permit_reference) : ''}</span>`
         : '';
       // K2 (Ext-5 spine) — emit an "Add to my day" deep-link so a carry-forward open job flows
       // into the tech's Day Planner as a GROUNDED task (source_kind='shift') instead of the plan
@@ -1002,7 +1101,7 @@
         <div><strong>${e(r.machine || 'machine')}</strong> &middot; ${e(r.maintenance_type || '')}${loto}</div>
         <div class="row-meta">${e(r.problem || '').slice(0,140)}</div>
         <div class="row-meta">opened ${e(fmtDate(r.created_at))}${r.worker_name ? ' by ' + e(r.worker_name) : ''}</div>
-        <a href="${e(_addUrl)}" onclick="event.stopPropagation()" aria-label="Add this open job to my Day Planner" style="display:inline-flex; align-items:center; gap:4px; margin-top:2px; min-height:44px; font-size:.68rem; font-weight:700; color:var(--wh-blue); text-decoration:none;">+ Add to my day &#8594;</a>
+        <a href="${e(_addUrl)}" onclick="event.stopPropagation()" aria-label="Add this open job to my Day Planner" style="display:inline-flex; align-items:center; gap:4px; margin-top:2px; min-height:44px; font-size: 0.75rem; font-weight:700; color:var(--wh-blue); text-decoration:none;">+ Add to my day &#8594;</a>
       </div>`;
     }
     async function rerunPlan() {
@@ -1243,8 +1342,8 @@
 
 <!-- Calm Dashboard Contract footer: data-sources disclosure + hideZeroStat helper -->
 <details data-calm-disclosure="data-sources" style="max-width:680px; margin:1rem auto 2rem; padding:0 1rem;">
-  <summary data-i="p_aboutthisdashboardsdatasourc_8e23" style="cursor:pointer; font-size:.78rem; color:rgba(255,255,255,0.80); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
-  <p data-i="p_numberscomefromyourliveworkh_9c03" style="font-size:.78rem; color:rgba(255,255,255,0.80); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
+  <summary data-i="p_aboutthisdashboardsdatasourc_8e23" style="cursor:pointer; font-size:0.75rem; color:rgba(255,255,255,0.80); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
+  <p data-i="p_numberscomefromyourliveworkh_9c03" style="font-size:0.75rem; color:rgba(255,255,255,0.80); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
 </details>
 <script>
   window.hideZeroStat = window.hideZeroStat || function(el, val) {
@@ -1256,6 +1355,13 @@
 <script>
   // N1: static-label Filipino dict, applied by utils.js whI18nApply() when WH_LANG=fil.
   window.WH_FIL_PAGE = {
+    // ★TWO ARIA-LABELS WERE ENGLISH LITERALS WITH NOTHING TO TRANSLATE THEM (2026-09-18, W46038).
+    //    An aria-label is invisible to a data-i pass, so a page needs the [data-i-aria] pass that
+    //    analytics-report.html and marketplace-seller already ship - otherwise the one part of a
+    //    control only a screen-reader user hears stays in one language while its visible label is
+    //    translated. 'Back' and 'Do the recommended next action' were both in that position.
+    aria_back: 'Bumalik',
+    aria_do_next_action: 'Gawin ang inirerekomendang susunod na hakbang',
     gatetitle: 'Kailangan ng hive ang Shift Brain',
     shiftmorning: '06-14 Umaga',
     shiftafternoon: '14-22 Hapon',
@@ -1280,10 +1386,11 @@ window.addEventListener('load', function () { setTimeout(function () {
   try { console.error('[shift-brain] utils.js did not load; the page cannot render its data'); } catch (e) { void e; }
   var m = document.querySelector('main') || document.body; if (!m || m.querySelector('.wh-shared-missing')) return;
   var d = document.createElement('div'); d.className = 'honest-empty wh-shared-missing'; d.setAttribute('role', 'alert');
-  d.style.cssText = 'margin:12px;padding:14px 16px;border:1px solid rgba(248,113,113,.4);border-radius:10px;background:rgba(248,113,113,.08);color:#fca5a5;font:14px/1.5 system-ui,sans-serif;';
+  d.style.cssText = 'margin:12px;padding:12px 16px;border:1px solid rgba(248,113,113,.4);border-radius:10px;background:rgba(248,113,113,.08);color:#fca5a5;font:14px/1.5 system-ui,sans-serif;';
   d.innerHTML = 'WorkHive could not load its shared script (utils.js), so this page cannot show your data. <button type="button" onclick="location.reload()" style="color:inherit;text-decoration:underline;background:none;border:0;padding:0;font:inherit;cursor:pointer;min-height:44px;" data-i="reloadtotryagain">Reload to try again</button>.';
   m.insertBefore(d, m.firstChild);
   var sk = document.querySelectorAll('.wh-skeleton, [class*="skeleton"]'); for (var i = 0; i < sk.length; i++) sk[i].style.display = 'none';
 }, 2500); });</script>
+<script>(function(){try{var d=window.WH_FIL_PAGE||{};if((window.WH_LANG||'en')!=='fil')return;document.querySelectorAll('[data-i-aria]').forEach(function(el){var v=d[el.getAttribute('data-i-aria')];if(v){el.setAttribute('aria-label',v);if(el.hasAttribute('title'))el.setAttribute('title',v);}});}catch(e){/* empty-catch-allow: a label that cannot be translated stays English */}})();</script>
 </body>
 </html>

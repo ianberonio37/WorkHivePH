@@ -75,7 +75,7 @@
             "name": "What is a good OEE score?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "World-class OEE for discrete manufacturing is 85 percent or higher. Industry average is around 60 percent. Most Philippine plants we have benchmarked sit between 40 and 60 percent on first measurement. Anything below 40 percent usually means measurement errors, not actual performance, because real plants do not survive at that level."
+              "text": "World-class OEE for discrete manufacturing is 85 percent or higher. Industry average is around 60 percent. A plant measuring OEE honestly for the first time typically lands between 40 and 60 percent. Anything below 40 percent usually means measurement errors, not actual performance, because real plants do not survive at that level."
             }
           },
           {
@@ -137,7 +137,15 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
-    tailwind.config = { theme: { extend: { colors: {
+    tailwind.config = { theme: { extend: {
+      /* the platform's six-step ramp plus one display step, declared where the utilities read it
+         (W46084, 2026-09-16): text-sm rendered 14px - 0.4px from 13.6 and 1.2px from 15.2, noise
+         rather than a step - and the h1 ran 30 -> 36 -> 43.2px across three breakpoints. Pinning the
+         scale here rather than overriding each class matters because `sm:text-4xl` compiles inside a
+         media query, and a media query adds no specificity. */
+      fontSize: { xs: '0.75rem', sm: '0.95rem', base: '1.05rem', lg: '1.25rem', xl: '1.25rem',
+                  '2xl': '1.75rem', '3xl': '2.25rem', '4xl': '2.25rem', '5xl': '2.25rem' },
+      colors: {
       orange: { wh: '#F7A21B', dark: '#D88A0E', light: '#FDB94A' },
       blue:   { wh: '#29B6D9', dark: '#1A9ABF', light: '#5FCCE8' },
       navy:   { wh: '#162032', mid: '#1F2E45', light: '#2A3D58' },
@@ -159,8 +167,14 @@
     * { font-family: 'Poppins', sans-serif; } body { background: #162032; color: #F4F6FA; }
     .hex-pattern { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='92' viewBox='0 0 80 92'%3E%3Cpath d='M40 0 L80 23 L80 69 L40 92 L0 69 L0 23 Z' fill='none' stroke='%23ffffff08' stroke-width='1.5'/%3E%3C/svg%3E"); background-size: 80px 92px; }
     .prose-wh { overflow-wrap: anywhere; word-break: break-word; color: rgba(244,246,250,0.85); font-size: 1.05rem; line-height: 1.8; }
+    /* craft floor (W46284, 2026-09-16, measured live at 390 and 1280): `small` took the UA default 0.8em of the
+       16.8px body and rendered 13.4px - a size off the six-step ramp that no font-size declaration could show,
+       because a ramp is what the page RENDERS. And the measure ran to 76ch at 1280, one over the 65-75 floor,
+       so the text caps itself; below ~1100px the column is already narrower than the cap and nothing moves. */
+    .prose-wh small { font-size: 0.85rem; }
+    .prose-wh p, .prose-wh li { max-width: 72ch; }
     .prose-wh h2 { color: #F4F6FA; font-size: 1.75rem; font-weight: 800; line-height: 1.25; letter-spacing: -0.015em; margin-top: 3rem; margin-bottom: 1rem; scroll-margin-top: 80px; }
-    .prose-wh h3 { color: #F4F6FA; font-size: 1.2rem; font-weight: 700; margin-top: 2rem; margin-bottom: 0.5rem; }
+    .prose-wh h3 { color: #F4F6FA; font-size: 1.25rem; font-weight: 700; margin-top: 2rem; margin-bottom: 0.5rem; }
     .prose-wh p  { margin-bottom: 1.25rem; }
     .prose-wh ul, .prose-wh ol { padding-left: 1.5rem; margin-bottom: 1.25rem; }
     .prose-wh li { margin-bottom: 0.5rem; }
@@ -170,49 +184,55 @@
     .prose-wh blockquote { border-left: 3px solid #F7A21B; padding: 0.5rem 0 0.5rem 1.25rem; margin: 1.5rem 0; color: rgba(244,246,250,0.85); font-style: italic; background: rgba(247,162,27,0.04); }
     .prose-wh table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.95rem; }
     .prose-wh th, .prose-wh td { padding: 12px 14px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.08); }
-    .prose-wh th { background: rgba(31,46,69,0.6); font-weight: 700; color: #F4F6FA; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    .prose-wh th { background: rgba(31,46,69,0.6); font-weight: 700; color: #F4F6FA; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em;
+      /* the [data-table-scroll] wrapper announces a scrollable region and could never scroll: the table is
+         pinned to width:100%, so it crushed columns instead - at 390 the headers "Product" and "Paid entry"
+         wrapped to THREE lines in 66px (W46083, 2026-09-16). One line here is what makes the wrapper real. */
+      white-space: nowrap; }
     .prose-wh tr:hover { background: rgba(31,46,69,0.3); }
-    .prose-wh code { background: rgba(31,46,69,0.7); border: 1px solid rgba(255,255,255,0.08); padding: 2px 8px; border-radius: 6px; font-family: 'Consolas','Courier New',monospace; font-size: 0.92rem; color: #FED38D; }
-    .prose-wh pre { background: rgba(13,24,36,0.85); border: 1px solid rgba(255,255,255,0.08); padding: 18px 22px; border-radius: 12px; overflow-x: auto; margin: 1.5rem 0; font-family: 'Consolas','Courier New',monospace; font-size: 0.95rem; color: #FED38D; line-height: 1.6; }
-    .pill { display: inline-block; font-size: 0.65rem; font-weight: 700; padding: 3px 10px; border-radius: 100px; letter-spacing: 0.05em; text-transform: uppercase; }
+    .prose-wh code { background: rgba(31,46,69,0.7); border: 1px solid rgba(255,255,255,0.08); padding: 2px 8px; border-radius: 6px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; font-size: 0.95rem; color: #FED38D; }
+    .prose-wh pre { background: rgba(13,24,36,0.85); border: 1px solid rgba(255,255,255,0.08); padding: 20px 22px; border-radius: 12px; overflow-x: auto; margin: 1.5rem 0; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; font-size: 0.95rem; color: #FED38D; line-height: 1.6; }
+    .pill { display: inline-block; font-size: 0.75rem; font-weight: 700; padding: 4px 10px; border-radius: 100px; letter-spacing: 0.02em; }
     .pill-orange { background: rgba(247,162,27,0.18); color: #F7A21B; border: 1px solid rgba(247,162,27,0.35); }
-    .toc { background: rgba(31,46,69,0.55); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 22px 26px; margin: 2rem 0 3rem; }
-    .toc h2 { color: rgba(244,246,250,0.8); font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 12px; }
-    .toc ol { padding-left: 1.5rem; margin: 0; } .toc li { margin-bottom: 6px; font-size: 0.92rem; }
+    .toc { background: rgba(31,46,69,0.55); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 24px 26px; margin: 2rem 0 3rem; }
+    .toc h2, .toc h4 { color: rgba(244,246,250,0.8); font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 12px; }
+    .toc ol { padding-left: 1.5rem; margin: 0; } .toc li { margin-bottom: 6px; font-size: 0.95rem; }
     .toc a { color: rgba(244,246,250,0.85); text-decoration: none; } .toc a:hover { color: #F7A21B; }
-    .answer-first { background: rgba(247,162,27,0.08); border-left: 3px solid #F7A21B; border-radius: 8px; padding: 18px 22px; margin-bottom: 2rem; font-size: 1.05rem; line-height: 1.75; color: rgba(244,246,250,0.85); }
-    .callout { background: rgba(41,182,217,0.06); border-left: 3px solid #29B6D9; border-radius: 8px; padding: 18px 22px; margin: 2rem 0; font-size: 0.98rem; line-height: 1.7; color: rgba(244,246,250,0.85); }
+    .answer-first { background: rgba(247,162,27,0.08); border: 1px solid rgba(247,162,27,0.30); border-radius: 8px; padding: 20px 22px; margin-bottom: 2rem; font-size: 1.05rem; line-height: 1.75; color: rgba(244,246,250,0.85); }
+    .callout { background: rgba(41,182,217,0.06); border: 1px solid rgba(41,182,217,0.28); border-radius: 8px; padding: 20px 22px; margin: 2rem 0; font-size: 0.95rem; line-height: 1.7; color: rgba(244,246,250,0.85); }
     .callout strong { color: #A4E2F2; }
     .cta-box { background: linear-gradient(135deg, rgba(247,162,27,0.12) 0%, rgba(31,46,69,0.85) 100%); border: 1px solid rgba(247,162,27,0.35); border-radius: 16px; padding: 28px 30px; margin: 3rem 0; }
-    .cta-box .cta-eyebrow { color: #F7A21B; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
-    .cta-box h4 { font-size: 1.35rem; font-weight: 800; color: #F4F6FA; margin-bottom: 8px; }
-    .cta-box p { color: rgba(244,246,250,0.85); margin-bottom: 18px; line-height: 1.65; }
+    .cta-box .cta-eyebrow { color: #F7A21B; font-size: 0.75rem; font-weight: 800; letter-spacing: 0.02em; margin-bottom: 8px; }
+    .cta-box h3, .cta-box h4 { font-size: 1.25rem; font-weight: 800; color: #F4F6FA; margin-bottom: 8px; }
+    .cta-box p { color: rgba(244,246,250,0.85); margin-bottom: 16px; line-height: 1.65; }
     .cta-btn { display: inline-block; background: linear-gradient(135deg, #F7A21B 0%, #D88A0E 100%); color: #162032; font-weight: 700; padding: 12px 28px; border-radius: 10px; text-decoration: none; transition: transform .18s, box-shadow .18s; }
     .prose-wh a.cta-btn { color: #162032; text-decoration: none; }  /* (0,2,1) beats .prose-wh a (0,1,1): a button inside the article body keeps its own colour instead of being painted as a prose link (measured 1.11:1 before this) */
-    .cta-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px -4px rgba(247,162,27,0.45); }
-    .cta-secondary { font-size: 0.82rem; color: rgba(244,246,250,0.8); margin-top: 14px; margin-bottom: 0; }
+    .cta-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 22px -8px rgba(0,0,0,0.55); }
+    .cta-secondary { font-size: 0.85rem; color: rgba(244,246,250,0.8); margin-top: 16px; margin-bottom: 0; }
+    /* (0,2,1) beats .cta-box p (0,1,1): the margin-bottom:0 above was written and never applied - the walk measured 18px (2026-09-16). */
+    .cta-box p.cta-secondary { margin-bottom: 0; }
     .cta-secondary a { color: #5FCCE8; text-decoration: underline; text-underline-offset: 2px; }
     .cta-secondary a:hover { color: #29B6D9; }
     .audience-block { background: rgba(41,182,217,0.05); border: 1px solid rgba(41,182,217,0.18); border-radius: 12px; padding: 16px 20px; margin: 0 0 2rem; }
-    .audience-block .audience-label { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: #5FCCE8; margin-bottom: 10px; }
-    .audience-block ul { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 18px; font-size: 0.9rem; color: rgba(244,246,250,0.85); }
+    .audience-block .audience-label { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: #5FCCE8; margin-bottom: 12px; }
+    .audience-block ul { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 18px; font-size: 0.95rem; color: rgba(244,246,250,0.85); }
     .audience-block ul li { list-style: none !important; position: relative; padding-left: 16px; margin: 0; }
-    .audience-block ul li::before { content: '·'; position: absolute; left: 4px; color: #29B6D9; font-weight: 800; font-size: 1.2rem; line-height: 1; top: 0; }
+    .audience-block ul li::before { content: '·'; position: absolute; left: 4px; color: #29B6D9; font-weight: 800; font-size: 1.25rem; line-height: 1; top: 0; }
     @media (max-width: 640px) { .audience-block ul { grid-template-columns: 1fr; } }
     .faq-item { background: rgba(31,46,69,0.55); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; margin-bottom: 12px; }
     .faq-item[open] { border-color: rgba(247,162,27,0.35); background: rgba(31,46,69,0.85); }
     .faq-item summary { cursor: pointer; list-style: none; padding: 16px 20px; font-weight: 600; color: #F4F6FA; display: flex; justify-content: space-between; gap: 14px; }
     .faq-item summary::-webkit-details-marker { display: none; }
-    .faq-item summary::after { content: '+'; font-size: 1.4rem; color: #F7A21B; } .faq-item[open] summary::after { content: '\2212'; }
-    .faq-item .faq-answer { padding: 0 20px 18px; color: rgba(244,246,250,0.85); line-height: 1.7; font-size: 0.95rem; }
+    .faq-item summary::after { content: '+'; font-size: 1.25rem; color: #F7A21B; } .faq-item[open] summary::after { content: '\2212'; }
+    .faq-item .faq-answer { padding: 0 20px 20px; color: rgba(244,246,250,0.85); line-height: 1.7; font-size: 0.95rem; }
     .author-card { background: rgba(31,46,69,0.5); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 20px 24px; margin: 2rem 0; display: flex; gap: 16px; align-items: center; }
-    .author-card .avatar { width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #F7A21B, #FDB94A); display: flex; align-items: center; justify-content: center; font-weight: 800; color: #162032; font-size: 1.1rem; flex-shrink: 0; }
+    .author-card .avatar { width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #F7A21B, #FDB94A); display: flex; align-items: center; justify-content: center; font-weight: 800; color: #162032; font-size: 1.05rem; flex-shrink: 0; }
     .author-card .meta p:first-child { font-weight: 700; color: #F4F6FA; font-size: 0.95rem; margin-bottom: 2px; }
-    .author-card .meta p:last-child { font-size: 0.82rem; color: rgba(244,246,250,0.8); }
-    nav a.nav-link { font-size: 0.9rem; color: rgba(244,246,250,0.85); font-weight: 500; } nav a.nav-link:hover { color: #F4F6FA; }
+    .author-card .meta p:last-child { font-size: 0.85rem; color: rgba(244,246,250,0.8); }
+    nav a.nav-link { font-size: 0.95rem; color: rgba(244,246,250,0.85); font-weight: 500; } nav a.nav-link:hover { color: #F4F6FA; }
     .breadcrumb { font-size: 0.85rem; color: rgba(244,246,250,0.8); margin-bottom: 1.5rem; }
     .breadcrumb a { color: rgba(244,246,250,0.8); text-decoration: none; } .breadcrumb a:hover { color: #F7A21B; }
-    .breadcrumb span { margin: 0 8px; opacity: 0.4; }
+    .breadcrumb span { margin: 0 8px; }
       /* Z2/R2 (critic re-sweep 2026-09-07): a long unbroken token (a citation URL) widened a paragraph to 463px at 390 and the page scrolled sideways; long words now wrap */
   </style>
   <script>
@@ -273,16 +293,18 @@
   <script src="/wh-ga4.js" defer></script>
   <!-- /WorkHive GA4 -->
 <link rel="stylesheet" href="/learn-print.css" media="print" />
-<style data-wh-chrome-i18n>nav a,header a,footer a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;min-width:44px;}nav a{padding:0 .25rem;}.breadcrumb a,.toc a{display:inline-flex;align-items:center;min-height:44px;}.breadcrumb a{min-width:44px;justify-content:center;}a.text-sm[href$='/learn/'],a.text-sm[href$='/learn/index.html']{display:inline-flex;align-items:center;min-height:44px;}.wh-tap{display:inline-flex;align-items:center;min-height:44px;}td a,th a{display:inline-flex;align-items:center;min-height:44px;}</style>
+<style data-wh-chrome-i18n>nav a,header a,footer a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;min-width:44px;}nav a{padding:0 .25rem;}.breadcrumb a,.toc a{display:inline-flex;align-items:center;min-height:44px;}.breadcrumb a{min-width:44px;justify-content:center;}a.text-sm[href$='/learn/'],a.text-sm[href$='/learn/index.html']{display:inline-flex;align-items:center;min-height:44px;}.wh-tap{display:inline-flex;align-items:center;min-height:44px;}td a,th a{display:inline-flex;align-items:center;min-height:44px;}/*wh-brand-header-gap*/@media (max-width:399px){header nav.flex{gap:.75rem;}}</style>
 <script src="/wh-i18n-lite.js" data-wh-chrome-i18n></script>
 </head>
 <body class="bg-navy-wh text-white antialiased">
+<a class="wh-skip-link" href="#wh-main-content" data-wh-skip="learn" style="position:fixed;top:0;left:0;z-index:10001;transform:translateY(-120%);background:var(--wh-orange,#F7A21B);color:var(--wh-navy,#162032);padding:0 20px;min-height:44px;display:inline-flex;align-items:center;font-weight:700;font-size:14px;text-decoration:none;border-radius:0 0 10px 0;box-shadow:0 4px 16px rgba(0,0,0,.35);transition:transform .15s cubic-bezier(0.23,1,0.32,1);box-sizing:border-box;" onfocus="this.style.transform='translateY(0)'" onblur="this.style.transform='translateY(-120%)'">Skip to main content</a>
+
 
 <header class="border-b border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
   <div class="max-w-6xl mx-auto px-5 sm:px-8 py-4 flex items-center justify-between">
     <a href="/" class="flex items-center gap-3">
       <img src="/brand_assets/workhive-logo-transparent.png" alt="WorkHive" style="height: 36px; width: auto;" />
-      <span class="font-black text-lg tracking-tight hidden sm:inline">WorkHive</span>
+      <span class="font-extrabold tracking-tight hidden sm:inline" style="font-size: 1.25rem" aria-hidden="true">WorkHive</span>
     </a>
     <nav class="flex items-center gap-6">
       <a href="/" class="nav-link" data-i="home">Home</a>
@@ -293,7 +315,7 @@
   </div>
 </header>
 
-<article class="hex-pattern">
+<main id="wh-main-content"><article class="hex-pattern">
   <div class="max-w-3xl mx-auto px-5 sm:px-8 py-14 lg:py-20">
 
     <div class="breadcrumb">
@@ -301,7 +323,7 @@
     </div>
 
     <p class="pill pill-orange mb-4">OEE · Worked example</p>
-    <h1 class="text-3xl sm:text-4xl lg:text-[2.7rem] font-black leading-[1.15] tracking-[-0.02em] mb-5">
+    <h1 class="text-3xl sm:text-4xl font-extrabold leading-[1.15] tracking-[-0.02em] mb-5">
       What is OEE and how do I calculate it? <span class="text-white/55 font-bold">(worked Philippine factory example)</span>
     </h1>
 
@@ -316,7 +338,7 @@
     </div>
 
     <div class="answer-first">
-      <strong>Short answer:</strong> Overall Equipment Effectiveness (OEE) measures three things in one number: how often equipment runs, how fast it produces, and how much of what it produces is good. The formula is <code>OEE = Availability × Performance × Quality</code>. World-class is 85 percent or higher. Most Philippine plants score 40 to 60 percent on first measurement. The number matters less than what you do with it: catch losses you could not see before, prioritize the right fix, and turn maintenance from a cost center into a measurable contribution.
+      <strong>Short answer:</strong> Overall Equipment Effectiveness (OEE) measures three things in one number: how often equipment runs, how fast it produces, and how much of what it produces is good. The formula is <code>OEE = Availability × Performance × Quality</code>. World-class is 85 percent or higher, and a plant measuring honestly for the first time usually lands well below that: 40 to 60 percent is the ordinary starting point. The number matters less than what you do with it: catch losses you could not see before, prioritize the right fix, and turn maintenance from a cost center into a measurable contribution.
     </div>
 
     <div class="audience-block">
@@ -333,7 +355,7 @@
     </div>
 
     <div class="toc">
-      <h4 aria-level="2">What's in this guide</h4>
+      <h2>What's in this guide</h2>
       <ol>
         <li><a href="#what-oee-measures" class="wh-tap">What OEE actually measures</a></li>
         <li><a href="#formula" class="wh-tap">The OEE formula in plain language</a></li>
@@ -401,8 +423,8 @@ Quality        = 15,552 / 17,280 = 0.90 (90%)</pre>
 
       <h3>Step 5: OEE</h3>
       <pre tabindex="0">OEE = 0.80 × 0.80 × 0.90 = 0.576 (57.6%)</pre>
-      <p>This is roughly the median Philippine plant. Not embarrassing, not impressive. The number itself is the starting line, not the finish line.</p>
-      <p>To run this on your own line without redoing the arithmetic, use the free <a href="/tools/oee-calculator/">OEE calculator</a>: enter planned time, downtime, ideal cycle time, and your good and total counts, and it returns Availability, Performance, Quality and OEE separately, which is what tells you <em>which</em> of the three is costing you.</p>
+      <p>That is a perfectly ordinary first measurement, and nothing about it says the plant is badly run. Of the bars this line could have made in its planned time, 42 in every 100 never arrive good, and the three factors say where they went: it is down for a fifth of the planned time, it runs at 80 percent of rated speed while it is up, and one bar in ten is scrap.</p>
+      <p>To run this on your own line, know where the number comes from. WorkHive does not have a form you type these five figures into; it <em>derives</em> OEE from the shift entries your team already writes, and reports Availability, Performance and Quality separately in Analytics: which is the part that tells you <em>which</em> of the three is costing you. The <a href="/tools/oee-calculator/">OEE calculator page</a> walks through the formula and a second worked example if you want to check your own arithmetic by hand first.</p>
 
       <h2 id="six-losses">The 6 big losses OEE catches</h2>
       <p>Nakajima identified six specific losses that an OEE measurement reveals. Each maps to one of the three components:</p>
@@ -411,13 +433,13 @@ Quality        = 15,552 / 17,280 = 0.90 (90%)</pre>
         <tbody>
           <tr><td>1</td><td>Equipment breakdown</td><td>Availability</td><td>Wrapper jam (35 min)</td></tr>
           <tr><td>2</td><td>Setup / changeover</td><td>Availability</td><td>Sealer adjustment overrun (20 min)</td></tr>
-          <tr><td>3</td><td>Idling / minor stops</td><td>Performance</td><td>Waiting for foil batch (25 min)</td></tr>
+          <tr><td>3</td><td>Idling / minor stops</td><td>Performance</td><td>Brief photo-eye misfeeds and jams cleared in seconds: never logged as downtime</td></tr>
           <tr><td>4</td><td>Reduced speed</td><td>Performance</td><td>Line ran at 48/min not 60/min</td></tr>
           <tr><td>5</td><td>Production defects</td><td>Quality</td><td>1,728 wrapping defects (10%)</td></tr>
           <tr><td>6</td><td>Startup losses</td><td>Quality</td><td>First 50 bars after restart (scrap)</td></tr>
         </tbody>
       </table></div>
-      <p>Once you know the breakdown, the question is no longer "is our OEE bad?" but "which loss is the biggest, and what is the cheapest fix?" In the example above, the biggest single loss is the 35-minute wrapper jam. That is a maintenance fix (better PM on the wrapper) and a knowledge fix (a logbook entry so the next shift sees the recurrence pattern).</p>
+      <p>Once you know the breakdown, the question is no longer "is our OEE bad?" but "which loss is the biggest, and what is the cheapest fix?" Answer it in bars, not minutes, because that is the unit the three components share. In the example above the wrapper jam is the biggest single <em>stoppage</em> at 35 minutes, or 2,100 bars: a maintenance fix (better PM on the wrapper) and a knowledge fix (a logbook entry so the next shift sees the recurrence pattern). But it is not the biggest loss. Running at 48 bars a minute instead of 60 for all 360 running minutes cost <strong>4,320 bars</strong> &mdash; more than the jam and the sealer overrun put together, and it never appeared as a stoppage anyone logged. Loss 4, reduced speed, is the one this line should chase first, and the reason OEE separates the three components is that a shift report built only from downtime events would have hidden it.</p>
 
       <h2 id="no-sensors">How to measure OEE without expensive sensors</h2>
       <p>Most OEE software vendors will tell you that you need sensors on every machine, a SCADA layer, and a multi-million-peso MES rollout to track OEE properly. This is theatre. Plants that buy that stack before they have the operating habit waste the investment because the data is never reviewed.</p>
@@ -432,8 +454,8 @@ Quality        = 15,552 / 17,280 = 0.90 (90%)</pre>
 
       <div class="cta-box">
         <p class="cta-eyebrow">The tool this guide is about</p>
-        <h4 aria-level="3">WorkHive Analytics computes OEE automatically</h4>
-        <p>Every shift entry in the WorkHive Logbook (run time, unplanned downtime reasons, units produced, defects) flows into Analytics as A × P × Q. Track per asset, per shift, per day. No spreadsheets, no SCADA, no per-user license. Free at the worker tier forever.</p>
+        <h3>WorkHive Analytics computes OEE automatically</h3>
+        <p>Every shift entry in the WorkHive Logbook: run time, unplanned downtime reasons, units produced, defects: flows into Analytics, per asset, per shift, per day. Those four give you Availability and Quality. <strong>Performance needs one more field:</strong> the asset&rsquo;s ideal cycle time in seconds per unit, set once on the asset wizard (&ldquo;e.g. 6&rdquo; for a 600-unit-per-hour line). Leave it blank and Analytics is honest about it: the tile reads <em>OEE (avg, partial)</em> and the figure is A &times; Q, not the full number. Fill it in and the same tile becomes real three-factor OEE. The entry a technician already writes at the end of a shift is the OEE record, so nothing is typed a second time and nothing is counted per seat. Free at the worker tier forever.</p>
         <a href="/analytics.html" class="cta-btn">Open Analytics</a>
         <p class="cta-secondary">No hive yet? <a href="/?signup=1">Join WorkHive</a> first (free, takes 30 seconds).</p>
       </div>
@@ -462,7 +484,7 @@ Quality        = 15,552 / 17,280 = 0.90 (90%)</pre>
       </ul>
 
       <h2 id="fifty-to-seventy-five">The path from 50 percent to 75 percent OEE</h2>
-      <p>Most Philippine plants we have benchmarked sit between 40 and 60 percent OEE on first measurement. The path to 75 percent takes 12 to 18 months of disciplined improvement. The pattern is consistent:</p>
+      <p>A first honest OEE measurement typically lands between 40 and 60 percent. The path to 75 percent takes 12 to 18 months of disciplined improvement. The pattern is consistent:</p>
       <ul>
         <li><strong>Months 1 to 3: Just measure.</strong> No improvement projects yet. Get the OEE number to be the same number on the floor whiteboard as the supervisor reports up. Most plants discover their first 5 percentage points of "improvement" here just from measurement honesty.</li>
         <li><strong>Months 4 to 6: Fix the top loss.</strong> Pick one loss (usually a recurring breakdown or a slow-changeover) and run a focused improvement project. Aim for 5 to 10 OEE points.</li>
@@ -479,7 +501,7 @@ Quality        = 15,552 / 17,280 = 0.90 (90%)</pre>
 
       <details class="faq-item">
         <summary>What is a good OEE score?</summary>
-        <div class="faq-answer">World-class OEE for discrete manufacturing is 85 percent or higher. Industry average is around 60 percent. Most Philippine plants we have benchmarked sit between 40 and 60 percent on first measurement. Anything below 40 percent usually means measurement errors, not actual performance, because real plants do not survive at that level.</div>
+        <div class="faq-answer">World-class OEE for discrete manufacturing is 85 percent or higher. Industry average is around 60 percent. A plant measuring OEE honestly for the first time typically lands between 40 and 60 percent. Anything below 40 percent usually means measurement errors, not actual performance, because real plants do not survive at that level.</div>
       </details>
 
       <details class="faq-item">
@@ -531,7 +553,7 @@ Quality        = 15,552 / 17,280 = 0.90 (90%)</pre>
     </div>
 
   </div>
-</article>
+</article></main>
 
 <footer class="py-10 border-t border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
   <div class="max-w-4xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">

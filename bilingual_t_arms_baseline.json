@@ -1,0 +1,17 @@
+{
+ "_doc": "Forward-only floor for `_t(en, fil)` calls whose two arms are identical - a translation that can never happen. A NEW one fails the gate `bilingual-t-arms`; the floor only ever drops. Some entries are legitimate (a product name, a loan word the plant floor says in English).",
+ "reason": "asset-hub.html copy lens (W45877): the risk chip called _t('risk','risk'), so every asset card read 'HIGH RISK 74%' in English on the Filipino page - the one verdict on the register a supervisor scans for. The Filipino arm is 'panganib'.",
+ "total": 21,
+ "by_file": {
+  "achievements.html": 1,
+  "ai-quality.html": 5,
+  "alert-hub.html": 1,
+  "analytics.html": 2,
+  "hive.html": 2,
+  "index.html": 1,
+  "inventory.html": 2,
+  "marketplace-seller-profile.html": 1,
+  "project-manager.html": 5,
+  "utils.js": 1
+ }
+}

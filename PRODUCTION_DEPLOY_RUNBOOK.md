@@ -476,6 +476,16 @@ Ian's; nothing has been touched.
 
 ## 0i. 🔴 LOCAL IS NOT A REHEARSAL OF LEG A — the local migration ledger stops at 2026-06-13
 
+> **Re-measured 2026-09-16 — the WARNING below still holds, its SCOPE NUMBERS do not.**
+> The ledger is unchanged (209 rows, newest `20260613000001`), so everything since mid-June still
+> arrived outside `supabase migration up` and the rehearsal caveat stands. What has moved is the
+> repo: **613 migration files, newest `20260916000003`** — **64 added since the `…069` (2026-08-20)
+> snapshot this section was written against**, so "all 11 in this release" describes that snapshot
+> and not the current tree. Re-count before the next push; `db push --dry-run` remains the only
+> authoritative ordered list.
+> Three of the 64 (`20260916000001-3`) are capture-contract fixes written 2026-09-16 and applied
+> NOWHERE yet — their own headers carry the measurement and the reasoning.
+
     supabase_migrations.schema_migrations:  209 rows, newest 20260613000001
 
 The repo has migrations through `…069` (2026-08-20), so **everything since mid-June — including all

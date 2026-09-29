@@ -50,6 +50,22 @@
     .wh-offline-banner.show { transform: translateY(0); }
     .wh-offline-banner.offline { background: #c53030; }
     .wh-offline-banner.online  { background: #2f855a; }
+    /* ★AND PUSH THE PAGE'S OWN TOP CONTENT DOWN, not only the wayfinding chrome (2026-09-14). The var
+       --wh-offline-banner-h offsets the fixed wayfinding pill; an IN-FLOW top control (hive's own "Back"
+       link at the very top) still sat under the banner. While the banner is up, the body drops by the
+       banner's height so nothing at the top is covered - a margin (not padding) so a page's own top
+       padding is preserved, and fixed elements (the FAB stack) are unaffected. A margin, and a transition,
+       so it slides with the banner rather than jumping. */
+    html.wh-offline-banner-open body { margin-top: var(--wh-offline-banner-h, 0px); }
+    body { transition: margin-top 0.18s ease-out; }
+    /* ★AND DROP THE PAGE'S OWN FIXED TOP NAV TOO (W41399, wave-4 ratchet on hive.html, 2026-09-14). A body
+       margin moves in-flow content, but a page's <nav class="fixed top-0"> (hive, and every page built on the
+       same Tailwind header) is position:fixed and does not move - so its Back link / logo / bell still sat UNDER
+       the banner (elementFromPoint at hive's "Back" @20,6 returned .wh-offline-banner). Same fix wayfinding.js got
+       in v385: while the banner is up, a fixed top nav/header drops by the banner's height. Specificity
+       (html.class nav.class) beats Tailwind's .top-0, and the transition matches the banner's slide. */
+    html.wh-offline-banner-open nav.fixed,
+    html.wh-offline-banner-open header.fixed { top: var(--wh-offline-banner-h, 0px); transition: top 0.18s ease-out; }
   `;
 
   function inject() {
@@ -70,17 +86,33 @@
   let banner = null;
   let onlineTimer = null;
 
+  // ★THE BANNER COVERED THE BACK BUTTON (Wave-4 nav-hub ratchet, 2026-09-14). This full-width strip is
+  // position:fixed top:0 z-index:9999; the wayfinding back button (#wh-wayfinding .wf-back) is fixed top:10
+  // left:10 z-index:9000 - so whenever the banner shows, it sits ON the back button (measured on ai-quality,
+  // alert-hub and every host: elementFromPoint at the back button's centre returned .wh-offline-banner), and
+  // an offline person cannot go back. The banner publishes its height as --wh-offline-banner-h on the root;
+  // the top-anchored chrome (wayfinding) drops below it by that much, so nothing at the top is covered.
+  function _publishHeight() {
+    try {
+      var shown = !!(banner && banner.classList.contains('show'));
+      var h = shown ? Math.round(banner.getBoundingClientRect().height) : 0;
+      document.documentElement.style.setProperty('--wh-offline-banner-h', h + 'px');
+      document.documentElement.classList.toggle('wh-offline-banner-open', shown);
+    } catch (_) { /* empty-catch-allow: the offset is best-effort */ }
+  }
+
   function show(kind, text) {
     if (!banner) banner = inject();
     banner.classList.remove('offline', 'online');
     banner.classList.add(kind);
     banner.textContent = text;
-    requestAnimationFrame(() => banner.classList.add('show'));
+    requestAnimationFrame(() => { banner.classList.add('show'); requestAnimationFrame(_publishHeight); });
   }
 
   function hide() {
     if (!banner) return;
     banner.classList.remove('show');
+    _publishHeight();
   }
 
   function onOffline() {

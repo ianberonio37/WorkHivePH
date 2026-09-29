@@ -83,11 +83,11 @@ They share the same models and memory, so a fact you establish in one is availab
 
 ## Voice, Filipino, and Taglish
 
-Most Philippine plant technicians think in Filipino or Taglish on the floor, and often have gloves on. The companion accepts English, Filipino, and Taglish and replies in the language you used, and it supports voice through the [Voice Journal](https://workhiveph.com/voice-journal.html): speak your entry or your question and it transcribes and responds. A natural-language Taglish prompt usually carries more specific detail than a forced-English one, which gives the companion more to work with and produces a better answer.
+Most Philippine plant technicians think in Filipino or Taglish on the floor, and often have gloves on. The companion accepts English, Filipino and Taglish and replies in the language you used, and it supports voice through the [Voice Journal](https://workhiveph.com/voice-journal.html): speak your entry or your question and it transcribes and responds. Voice goes wider than Tagalog: it detects and answers in **Cebuano, Ilocano, Hiligaynon, Kapampangan, Waray, Bikol and Pangasinan** as well, and falls back to English for anything outside that set. If the floor you work on does not think in Tagalog, it does not have to. A natural-language Taglish prompt usually carries more specific detail than a forced-English one, which gives the companion more to work with and produces a better answer.
 
 The tool this guide is about
 
-#### Ask Hezekiah or Zaniah on any page
+### Ask Hezekiah or Zaniah on any page
 
 The AI Companion follows you across WorkHive with two expert personas, grounded in authoritative maintenance knowledge plus your own hive's data. Free at the worker tier. Open the assistant or tap the launcher on any page to start.
 
@@ -127,7 +127,7 @@ No. The global persona knowledge base holds only general expertise, no customer'
 
 ### Can I talk to the AI Companion in Filipino or Taglish, and by voice?
 
-Yes. It accepts English, Filipino, and Taglish and replies in the language you used, and it supports voice through the Voice Journal: speak your entry or question and it transcribes and responds, which is faster than typing with gloves on.
+Yes. It accepts English, Filipino and Taglish and replies in the language you used, and through the Voice Journal it also handles Cebuano, Ilocano, Hiligaynon, Kapampangan, Waray, Bikol and Pangasinan, and it supports voice through the Voice Journal: speak your entry or question and it transcribes and responds, which is faster than typing with gloves on.
 
 ## Sources
 
@@ -136,4 +136,4 @@ Yes. It accepts English, Filipino, and Taglish and replies in the language you u
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 1b2ccc878bd48437 -->
+<!-- md-twin source-sha: 9cb80f399d6d6189 -->

@@ -77,20 +77,26 @@
     .prose-wh { color: rgba(244,246,250,0.78); font-size: 1.05rem; line-height: 1.8; }
     .prose-wh h2 { color: #F4F6FA; font-size: 1.5rem; font-weight: 800; margin-top: 2.5rem; margin-bottom: 0.75rem; }
     .prose-wh h3 { color: #F4F6FA; font-size: 1.1rem; font-weight: 700; margin-top: 1.75rem; margin-bottom: 0.5rem; }
-    .prose-wh p { margin-bottom: 1.1rem; }
-    .prose-wh ul { list-style: disc; padding-left: 1.5rem; margin-bottom: 1.1rem; }
-    .prose-wh li { margin-bottom: 0.4rem; }
+    .prose-wh p { margin-bottom: 1rem; }
+    .prose-wh ul { list-style: disc; padding-left: 1.5rem; margin-bottom: 1rem; }
+    .prose-wh li { margin-bottom: 0.5rem; }
     .prose-wh strong { color: #F4F6FA; font-weight: 700; }
     .prose-wh a { color: #5FCCE8; text-decoration: underline; text-underline-offset: 3px; }
     .prose-wh a:hover { color: #29B6D9; }
-    .pill { display: inline-block; font-size: 0.65rem; font-weight: 700; padding: 3px 10px; border-radius: 100px; letter-spacing: 0.05em; text-transform: uppercase; background: rgba(247,162,27,0.18); color: #F7A21B; border: 1px solid rgba(247,162,27,0.35); }
-    nav a.nav-link { font-size: 0.9rem; color: rgba(244,246,250,0.65); font-weight: 500; }
+    .pill { display: inline-block; font-size: 0.75rem; font-weight: 700; padding: 4px 10px; border-radius: 100px; letter-spacing: 0.05em; text-transform: uppercase; background: rgba(247,162,27,0.18); color: #F7A21B; border: 1px solid rgba(247,162,27,0.35); }
+    /* TOUCH TARGET (2026-09-16): these were 22px-tall boxes - the text line and nothing else. The 24px gap
+       means they already passed WCAG 2.5.8 by its spacing exception, but the project's own rule is 44px and
+       this is the primary nav a gloved hand reaches for. inline-flex + min-height gives a real target; the
+       text does not move, because the header row is already items-center. The FOOTER links are left at
+       their spacing-exception size on purpose - see .tmp/fix_public_pages_floor.py. */
+    nav a.nav-link { font-size: 0.875rem; color: rgba(244,246,250,0.65); font-weight: 500;
+      display: inline-flex; align-items: center; min-height: 44px; }
     nav a.nav-link:hover { color: #F4F6FA; }
-    .breadcrumb { font-size: 0.85rem; color: rgba(244,246,250,0.45); margin-bottom: 1.5rem; }
+    .breadcrumb { font-size: 0.875rem; color: rgba(244,246,250,0.55); margin-bottom: 1.5rem; }
     .breadcrumb a { color: rgba(244,246,250,0.55); text-decoration: none; }
     .breadcrumb a:hover { color: #F7A21B; }
-    .breadcrumb span { margin: 0 8px; opacity: 0.4; }
-    .dti-badge { display: inline-flex; align-items: center; gap: 10px; background: rgba(247,162,27,0.08); border: 1px solid rgba(247,162,27,0.35); border-radius: 100px; padding: 8px 18px; font-size: 0.82rem; color: #FDB94A; font-weight: 600; }
+    .breadcrumb span { margin: 0 8px; }
+    .dti-badge { display: inline-flex; align-items: center; gap: 10px; background: rgba(247,162,27,0.08); border: 1px solid rgba(247,162,27,0.35); border-radius: 100px; padding: 8px 18px; font-size: 0.875rem; color: #FDB94A; font-weight: 600; }
     .dti-badge svg { flex-shrink: 0; }
   </style>
   <script>
@@ -137,14 +143,17 @@
   </script>
   <script src="/wh-ga4.js" defer></script>
   <!-- /WorkHive GA4 -->
+<style data-wh-public-chrome>/* W46593 audit: the four public pages are the platform's legal and identity surface and their    footer links measured 16px TALL - less than half the 44px floor - with the brand link at 36px    and the header nav 31-42px wide. inline-flex + min-height gives a real target and moves no    text, because each of these rows is already items-center. min-width covers the short header    words ('Home', 'Learn', 'Sign In') whose HEIGHT was fixed by an earlier repair and whose width    was not. */footer a,header a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;}header nav a{min-width:44px;}.breadcrumb a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;min-width:44px;}/*wh-brand-header-gap*/@media (max-width:399px){header nav.flex{gap:.75rem;}}</style>
 </head>
 <body class="bg-navy-wh text-white antialiased">
+<a class="wh-skip-link" href="#wh-main-content" data-wh-skip="public" style="position:fixed;top:0;left:0;z-index:10001;transform:translateY(-120%);background:var(--wh-orange,#F7A21B);color:var(--wh-navy,#162032);padding:0 20px;min-height:44px;display:inline-flex;align-items:center;font-weight:700;font-size:14px;text-decoration:none;border-radius:0 0 10px 0;box-shadow:0 4px 16px rgba(0,0,0,.35);transition:transform .15s cubic-bezier(0.23,1,0.32,1);box-sizing:border-box;" onfocus="this.style.transform='translateY(0)'" onblur="this.style.transform='translateY(-120%)'">Skip to main content</a>
+
 
 <header class="border-b border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
   <div class="max-w-6xl mx-auto px-5 sm:px-8 py-4 flex items-center justify-between">
     <a href="/" class="flex items-center gap-3">
       <img src="/brand_assets/workhive-logo-transparent.png" alt="WorkHive" style="height: 36px; width: auto;" />
-      <span class="font-black text-lg tracking-tight">WorkHive</span>
+      <span class="font-black text-lg tracking-tight wh-brand-word hidden sm:inline" aria-hidden="true">WorkHive</span>
     </a>
     <nav class="flex items-center gap-6">
       <a href="/" class="nav-link">Home</a>
@@ -155,14 +164,14 @@
   </div>
 </header>
 
-<article class="hex-pattern">
+<main id="wh-main-content" data-wh-public-main><article class="hex-pattern">
   <div class="max-w-3xl mx-auto px-5 sm:px-8 py-14 lg:py-20">
     <div class="breadcrumb">
       <a href="/">Home</a><span>/</span><span>Terms of Service</span>
     </div>
     <p class="pill mb-4">Terms</p>
     <h1 class="text-3xl sm:text-4xl lg:text-[2.7rem] font-black leading-[1.15] tracking-[-0.02em] mb-5">Terms of Service</h1>
-    <p class="text-sm text-white/45 mb-8">Last updated <time datetime="2026-05-17">17 May 2026</time></p>
+    <p class="text-sm text-white/60 mb-8">Last updated <time datetime="2026-05-17">17 May 2026</time></p>
     <div class="prose-wh"><p>By using WorkHive, you agree to these terms. Plain language; if any clause is unclear, email <a href="mailto:admin@workhiveph.com">admin@workhiveph.com</a> and we will explain.</p>
 
 <h2>What WorkHive is</h2>
@@ -171,6 +180,7 @@
 <h2>Free at the worker tier</h2>
 <p>All core platform features (Logbook, PM Scheduler, Inventory, Skill Matrix, Engineering Design, AI Work Assistant, Day Planner, Voice Journal, Asset Hub, Project Manager, Community, Achievements) are free at the worker tier and will remain free. No credit card is required to use these features. There is no trial period that ends, no per-user license, no usage cap that triggers a paywall.</p>
 <p>WorkHive may in the future add optional premium add-ons at the enterprise tier. Those add-ons, if they appear, will be clearly labelled, will not gate worker-level access to existing free features, and will require explicit opt-in.</p>
+      <p><strong>The Marketplace is the one place money already changes hands.</strong> A service provider who wants to sell work through the Marketplace buys service credits from WorkHive, paid in GCash, and WorkHive records the amount, the method and your GCash reference so the top-up can be verified. That is separate from everything listed above: it is optional, nobody needs it to use any maintenance tool, and no maintenance tool is behind it. Credits are not a subscription and buy no additional platform features.</p>
 
 <h2>Eligibility</h2>
 <p>WorkHive is for people of legal working age. By creating an account you represent that you are at least 18 years old, the age Philippine labor law sets for hazardous work, which industrial maintenance is. WorkHive does not verify age and relies on this representation; an employer deploying WorkHive remains responsible for its own workforce rules.</p>
@@ -227,7 +237,7 @@
 <p>Email <a href="mailto:admin@workhiveph.com">admin@workhiveph.com</a> with any question about these terms. Owner: WorkHive Engineering Services (DTI Business Name 8080496), Ian Lumayno Beronio, sole proprietor.</p>
 </div>
   </div>
-</article>
+</article></main>
 
 <footer class="py-10 border-t border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
   <div class="max-w-4xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">

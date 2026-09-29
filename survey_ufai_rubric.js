@@ -1,5 +1,5 @@
 /* ============================================================================
- * survey_ufai_rubric.js — the A–Z RUBRIC lens (90 dims encoded), as ONE injectable
+ * survey_ufai_rubric.js — the A–Z RUBRIC lens (91 dims encoded), as ONE injectable
  * ============================================================================
  * Ian, 2026-07-15: "retrieve our entire UFAI UI UX class dimensions by our
  * substrate, then use it as your lens to re-survey the entire analytics pages
@@ -2193,6 +2193,30 @@
       return !hasText && !hasMedia;
     });
     out.push(M('R4', 'Regions & whitespace (no orphan voids)', voids.length === 0 ? 1 : 0, 1, `${voids.length} orphan void(s)`));
+
+    // ── R6 · Element overflow inside its container (Wave 4, 2026-09-14) ──────────────────────────
+    // R2 measures overflow at PAGE level (body.scrollWidth against the viewport). A card spilling under an
+    // overflow:hidden edge, a table or image wider than its card, text clipped by its own box with no
+    // ellipsis — none of those move the page's scrollWidth, and every one of them is what a person on a
+    // phone calls "overflowing". So: each element against its nearest CLIPPING ancestor (overflow hidden/
+    // clip), the tools/prove_phone_fit.mjs checks promoted to a rubric dim. Out-of-flow boxes (absolute/
+    // fixed) are positioned on purpose and excluded; a scrolling ancestor (overflow auto/scroll) is the
+    // designed way to hold something wider, so it is not a clipper here.
+    {
+      const clipper = (e) => { let a = e.parentElement; while (a && a !== document.body) { const o = getComputedStyle(a); if (/hidden|clip/.test(o.overflowX + ' ' + o.overflow)) return a; if (/auto|scroll/.test(o.overflowX + ' ' + o.overflow)) return null; a = a.parentElement; } return null; };
+      const spills = [];
+      for (const e of $$('*', R)) {
+        if (spills.length >= 3 || e.closest('script,style,svg,[aria-hidden="true"]') || !vis(e)) continue;
+        const cs = getComputedStyle(e); if (cs.position === 'absolute' || cs.position === 'fixed') continue;
+        const r = e.getBoundingClientRect(); if (r.width < 4 || r.height < 4) continue;
+        const cp = clipper(e); if (!cp) continue;
+        const pr = cp.getBoundingClientRect();
+        if (r.right > pr.right + 3 || r.left < pr.left - 3) spills.push(`${e.tagName.toLowerCase()}${e.id ? '#' + e.id : ''} ${Math.round(r.width)}px past ${cp.tagName.toLowerCase()}${cp.id ? '#' + cp.id : ''} ${Math.round(pr.width)}px`);
+        else if (ownText(e) && e.scrollWidth > e.clientWidth + 2 && /hidden|clip/.test(cs.overflowX + cs.overflow) && cs.textOverflow !== 'ellipsis') spills.push(`${e.tagName.toLowerCase()}${e.id ? '#' + e.id : ''} text ${e.scrollWidth}>${e.clientWidth} clipped, no ellipsis`);
+      }
+      out.push(M('R6', 'Element overflow inside its container', spills.length === 0 ? 1 : 0, 1,
+        spills.length ? `${spills.length} element(s) overflow: ${spills.slice(0, 2).join(' · ')}` : 'no element past its clipping container'));
+    }
     out.push(J('R5', 'Vertical flow & section cohesion', 'whole-page reading order: needs the full-page screenshot diff'));
 
     // ══ NIGHT-CRAWLER RUBRIC EXTENSION (2026-07-17 — Ian's 8 field observations) ══════════════════
@@ -2319,10 +2343,40 @@
         }
       }
 
-      const v1ok = hits.length === 0 && !chromeHit;
+      // (3) OCCLUSION — an interactive control the person is meant to use right now that something else sits ON
+      // (Wave 4, 2026-09-14, Ian: "overlapping and overflowing in using the platform through phone"). Checks (1)
+      // and (2) ask whether boxes OVERLAP and exclude fixed/sticky chrome and the hub/companion shell as by
+      // design — which is exactly where a person on a phone meets the FAB over a Save button, the sticky header
+      // over a tab, the consent bar over a CTA: 118 of 119 public pages read green here while she saw overlap
+      // ([[feedback_a_gates_blind_spot_is_a_green_light]]). So the third check asks the tools/walk_page.mjs
+      // question of every visible control: is document.elementFromPoint at its own centre the control or a
+      // descendant? A covering element is a finding REGARDLESS of its position — never by design — named with
+      // its rect and z-index. Controls under an OPEN modal overlay are covered by design (the overlay IS the
+      // page right now) and are not asked; a label over its own input is the same control.
+      let occl = '';
+      {
+        const OV = '[aria-modal="true"], [role="dialog"], [role="menu"], .modal, .sheet.open, #wh-hub-panel, #wh-ai-panel, #wh-feedback-panel';
+        const open = [...document.querySelectorAll(OV)].filter((o) => visR(o));
+        const ctrls = [...document.querySelectorAll('a[href], button, [role="button"], [role="tab"], input:not([type="hidden"]), select, textarea, summary')]
+          .filter((c) => visR(c) && !c.closest('[inert], [disabled]') && !c.disabled && !(open.length && !open.some((o) => o.contains(c))));
+        for (const c of ctrls) {
+          const r = c.getBoundingClientRect(); if (r.width < 4 || r.height < 4) continue;
+          const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+          if (cx < 0 || cx > innerWidth || cy < 0 || cy > innerHeight) continue;
+          const hit = document.elementFromPoint(cx, cy);
+          if (!hit || hit === c || c.contains(hit) || hit.contains(c)) continue;
+          if (hit.closest('label') && hit.closest('label').control === c) continue;
+          const hs = getComputedStyle(hit);
+          const cover = hit.closest('[class*="fab"], [id*="fab"], header, [role="banner"], [class*="sticky"], [class*="toast"], [role="alert"], [role="status"], [class*="consent"], [class*="cookie"], [id^="wh-"], [class^="wh-"]') || hit;
+          const cr = cover.getBoundingClientRect();
+          occl = `occludes an interactive control: ${cover.id || cover.tagName.toLowerCase()} (${hs.position}, z ${hs.zIndex}, ${Math.round(cr.width)}x${Math.round(cr.height)}@${Math.round(cr.left)},${Math.round(cr.top)}) covers ${c.tagName.toLowerCase()}"${(c.getAttribute('aria-label') || ownText(c)).slice(0, 14)}" @${Math.round(r.left)},${Math.round(r.top)}`;
+          break;
+        }
+      }
+      const v1ok = hits.length === 0 && !chromeHit && !occl;
       out.push(M('V1', 'No collision / overlap (content + floating chrome)', v1ok ? 1 : 0, 1,
-        v1ok ? 'no overlapping elements or widgets'
-          : hits.length ? `${hits.length} content overlap(s): ${hits.slice(0, 2).join(' · ')}` : chromeHit));
+        v1ok ? 'no overlapping elements or widgets, no control occluded'
+          : occl ? occl : hits.length ? `${hits.length} content overlap(s): ${hits.slice(0, 2).join(' · ')}` : chromeHit));
     }
 
     // ── B4 · Explanation microcopy is plain (extends B) ──────────────────────

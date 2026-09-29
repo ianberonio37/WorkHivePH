@@ -2,7 +2,7 @@
 name: doc-PRODUCTION_DEPLOY_RUNBOOK
 type: doc
 source: file:PRODUCTION_DEPLOY_RUNBOOK.md
-source_sha: 2ff00724185f1725
+source_sha: bfc0c30240a6af2d
 last_verified: 2026-07-13
 supersedes: null
 ---

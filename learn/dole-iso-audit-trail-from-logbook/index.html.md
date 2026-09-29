@@ -14,7 +14,7 @@ Updated 24 Aug 2026
 ·
 7 min read
 
-**Short answer:** A DOLE OSHS inspector or ISO 9001/14001/45001 auditor wants to sample three things from your maintenance records: that the entry was made at the time of the event (not backdated), that the worker who made it is identified, and that the entry has not been edited after the fact. WorkHive Audit Log makes all three queryable in seconds. The supervisor exports a PDF per requested date range, the inspector marks it sampled, and the audit closes hours instead of days.
+**Short answer:** A DOLE OSHS inspector or ISO 9001/14001/45001 auditor wants to sample three things from your maintenance records: that the entry was made at the time of the event (not backdated), that the worker who made it is identified, and that the entry has not been edited after the fact. WorkHive Audit Log makes all three queryable in seconds. The supervisor exports the requested date range from the Audit Log as CSV, or prints the period's Analytics Report as a PDF, and the inspector samples from a record that is already assembled.
 
 Who this is for
 
@@ -34,38 +34,38 @@ The first time a Philippine plant moves from paper to digital, the safety office
 
 1. **Time-of-event recording.** The entry was made when the event happened, not constructed weeks later to satisfy the audit. A server-side timestamp settles this.
 2. **Worker identification.** The person who made the entry is named (not initials). Paper has signatures that may be illegible; digital has authenticated user IDs.
-3. **Non-editability after submission.** Once submitted, the entry cannot be silently rewritten. Edits are version-tracked with the editor and reason.
+3. **Non-editability after submission.** Once submitted, the entry cannot be silently rewritten. Edits are recorded with the editor and the before and after values.
 
-WorkHive Audit Log surfaces all three for any record the auditor requests. Most audits close in hours rather than days because the documentation is already there.
+WorkHive Audit Log surfaces all three for any record the auditor requests. What changes is the sampling step: it stops being a search through folders and becomes a filter.
 
 ## The 3 immutability guarantees
 
 - **Server-side timestamp.** Every entry is stamped at the moment it hits the server, not the client. A worker cannot backdate by adjusting their phone clock.
-- **Authenticated authorship.** Entries are tied to the worker's account (which is tied to their DOLE-acceptable identity). No anonymous edits.
-- **Append-only edits.** If an entry needs correction, the original stays in the audit log with the correction appended (who, when, what changed, why). Auditors see the full history, not just the current state.
+- **Authenticated authorship.** Entries are tied to the worker's account (which the employer maps to a person on the payroll). No anonymous edits.
+- **Append-only edits.** If an entry needs correction, the original stays in the audit log with the correction appended: who made it, when, and the before and after values of what they changed. Auditors see the full history, not just the current state. One thing it does NOT capture is a stated reason for the edit: there is no field asking why, so if your procedure requires a documented justification, put it in the entry text itself, where it becomes part of the record the audit trail then protects.
 
 ## Retention rules per record type
 
-| Record type | DOLE OSHS minimum | ISO recommendation | WorkHive default |
+| Record type | DOLE OSHS minimum | ISO recommendation | Covered by the 3-year default? |
 | --- | --- | --- | --- |
-| Safety observations | 5 years | 3+ years | 10 years |
-| Incident investigations | 10 years | 5+ years | 15 years |
-| PM completion records | 3 years | 3 years per cycle | 10 years |
-| Logbook entries (general) | 3 years | 3 years | 10 years |
-| Permit to work records | 3 years | 3 years | 10 years |
-| Training records | For employment duration + 3 years | For employment duration + 3 years | For employment duration + 10 years |
+| Safety observations | 5 years | 3+ years | No: raise it |
+| Incident investigations | 10 years | 5+ years | No: needs the 10-year maximum |
+| PM completion records | 3 years | 3 years per cycle | Yes |
+| Logbook entries (general) | 3 years | 3 years | Yes |
+| Permit to work records | 3 years | 3 years | Yes |
+| Training records | For employment duration + 3 years | For employment duration + 3 years | Depends on tenure: check it |
 
-WorkHive defaults exceed the minimum because storage is cheap and the worker may need the history years after leaving the plant (for OFW applications, promotion cases, regulatory disputes).
+**Read that last column before you tell an auditor anything.** WorkHive keeps audit history for **1,095 days: three years: by default**, and the setting is one hive-wide window rather than a different rule per record type. You can raise it, and you should: the range is 90 days to **3,650 days, ten years**, which is the ceiling the system will accept. Two consequences worth acting on today. First, the three-year default does NOT meet the DOLE minimum for safety observations (5 years) or incident investigations (10 years), so a plant that leaves it alone will lose records it is required to hold. Second, because the window is hive-wide, you set it to the longest obligation you carry: in practice the ten-year incident requirement, and everything else is covered by the same setting. Storage is cheap and the worker may need the history years after leaving the plant, for OFW applications, promotion cases and regulatory disputes; the cost of a longer window is not the reason to keep it short.
 
-## PDF export patterns auditors accept
+## Export patterns auditors accept
 
-Three export patterns that satisfy DOLE OSHS and ISO auditors:
+Three patterns satisfy DOLE OSHS and ISO auditors. The Audit Log exports CSV, filterable by actor, action, target and date range; the print-ready PDF comes from the Analytics Report:
 
-- **Date-range PDF:** all entries in a window (typically 30 days for a sample). Includes timestamp, author, asset, category, and entry text. Auditor marks sampled pages.
-- **Asset-history PDF:** all entries for a specific asset over its lifecycle. Used when the auditor is investigating a specific failure or compliance gap.
-- **Compliance-mapping PDF:** entries grouped by ISO clause or DOLE rule. Used for management review meetings and surveillance audits.
+- **Date range:** all entries in a window (typically 30 days for a sample), exported from the Audit Log as CSV with timestamp, author, asset, category and entry text. Print it, or hand over the file - auditors accept either, and the file is the one they can search.
+- **Asset history:** every entry for one asset over its lifecycle, filtered in the Audit Log by that asset. Used when the auditor is investigating a specific failure or compliance gap.
+- **Compliance mapping:** entries grouped by ISO clause or DOLE rule, which is the view management review and surveillance audits ask for.
 
-All three include a footer with the WorkHive entry IDs so the auditor can request live verification of any specific entry if they wish.
+Every row carries its WorkHive entry ID, so an auditor can ask to see any single entry live rather than taking the export on trust.
 
 ## Mapping to ISO 9001, 14001, 45001
 
@@ -79,9 +79,9 @@ A clause is satisfied by your management system, not by a tool. What software ca
 
 The tool this guide is about
 
-#### WorkHive Audit Log makes DOLE and ISO audits a 1-hour exercise
+### WorkHive Audit Log makes DOLE and ISO audits a 1-hour exercise
 
-Server-side timestamps, authenticated authorship, append-only edits, 10-year default retention. Date-range, asset-history, and compliance-mapping PDF exports. Direct mapping to ISO 9001 / 14001 / 45001 clauses and DOLE OSHS rules. Free at the worker tier; advanced compliance reporting unlocks at Stage 4 enterprise tier.
+Server-side timestamps, authenticated authorship, append-only edits, 10-year default retention. Date-range, asset-history and compliance-mapping exports. Direct mapping to ISO 9001 / 14001 / 45001 clauses and DOLE OSHS rules. Free at the worker tier. The full audit log is supervisor-only; there is no separate compliance-reporting tier above it, so what an inspector can be shown is what you see today.
 
 No hive yet? [Join WorkHive](https://workhiveph.com/?signup=1) first (free, takes 30 seconds).
 
@@ -97,11 +97,11 @@ Three: (1) server-side timestamp (worker cannot backdate by adjusting phone cloc
 
 ### How long should I retain records?
 
-DOLE minimums vary by record type: 5 years for safety observations, 10 years for incident investigations, 3 years for PM and general logbook entries, employment duration plus 3 years for training. WorkHive defaults exceed the minimums (10 years for most record types, 15 years for incident investigations) because storage is cheap and the worker may need the history years after leaving the plant.
+DOLE minimums vary by record type: 5 years for safety observations, 10 years for incident investigations, 3 years for PM and general logbook entries, employment duration plus 3 years for training. WorkHive keeps audit history for three years by default (1,095 days), as one hive-wide window rather than a per-record-type rule, and it can be raised as far as ten years (3,650 days). Because the default does not cover the 5-year and 10-year DOLE minimums, set the window to the longest obligation you carry rather than leaving it as shipped.
 
-### What PDF export does an ISO auditor want?
+### What export does an ISO auditor want?
 
-Three patterns work: (1) date-range PDF for sampling a window (typically 30 days), (2) asset-history PDF for investigating a specific failure, (3) compliance-mapping PDF for management review meetings showing entries grouped by ISO clause or DOLE rule. All three include WorkHive entry IDs so the auditor can request live verification if needed.
+Three patterns work: (1) a date range for sampling a window, typically 30 days, (2) one asset's whole history for investigating a specific failure, (3) entries grouped by ISO clause or DOLE rule for management review. The Audit Log exports all three as CSV; the print-ready PDF comes from the Analytics Report. Every row carries its WorkHive entry ID, so an auditor can ask to see any single entry live.
 
 ### Can a worker request their own audit log if they leave the plant?
 
@@ -122,4 +122,4 @@ ISO 9001 Clause 10.2 corrective action: logbook entries with corrective-action t
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 6c6ee5f098774762 -->
+<!-- md-twin source-sha: 22aef7a190f89160 -->

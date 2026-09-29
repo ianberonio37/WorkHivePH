@@ -104,15 +104,15 @@ The 3-hour morning block is the foundation. A supervisor who protects 3 hours ev
 
 The tool this guide is about
 
-#### WorkHive Day Planner runs the YILO down to DILO cascade
+### WorkHive Day Planner runs the YILO down to DILO cascade
 
-The Day Planner has separate views for supervisor and engineer modes. The YILO links to the plant's PM compliance, OEE, and MTTR targets so progress is visible. The WILO auto-suggests blocks based on the MILO. The DILO 5-minute morning view shows today's 3 priorities pulled from the WILO and the time-blocks they need. Free at the worker tier forever.
+The Day Planner is where this method stops being a notebook exercise. It carries the four horizons as four views of your schedule: the tabs read **Day**, **Week**, **Month** and **Year**, with the DILO/WILO/MILO/YILO names in the hover text, because a new technician should not need the acronym to use the tool. Week view is a seven-day time grid you block hours on; Day view is the same schedule at hour resolution, and it tells you when items have no time on them yet rather than quietly leaving them out. Be clear on one thing the method asks of you and the software does not: **the cascade is yours to keep**. The views are four zoom levels on the same schedule, so nothing auto-derives your week from your month: deciding what belongs in the week is the thinking this method is for. Free at the worker tier forever.
 
 No hive yet? [Join WorkHive](https://workhiveph.com/?signup=1) first (free, takes 30 seconds).
 
 ## A supervisor day in 5 buckets
 
-A realistic Philippine plant supervisor day allocates the 8-hour shift across 5 buckets. The percentages are starting estimates; adjust based on your actual.
+A realistic Philippine plant supervisor day allocates the 8-hour shift across 5 buckets. The percentages are starting estimates and the ranges deliberately overlap - taking the top of each would spend 110 percent of the shift - so pick one figure per bucket that adds to 100, then adjust against what the week actually did.
 
 | Bucket | Typical share | What it covers |
 | --- | --- | --- |
@@ -167,7 +167,7 @@ Plan only the first 3 hours of the day with strategic work. Leave the rest react
 
 ### Does this work for maintenance engineers too?
 
-Yes, even more so. Engineers have more strategic work (designs, calculations, root-cause investigations) that gets crushed by request-driven interruptions. The DILO/WILO cascade is even more important for engineers because their work is less visible. The WorkHive Day Planner has separate templates for supervisor mode and engineer mode.
+Yes, even more so. Engineers have more strategic work (designs, calculations, root-cause investigations) that gets crushed by request-driven interruptions. The DILO/WILO cascade matters more for engineers, not less, precisely because their work is less visible: nobody notices an un-started root-cause investigation the way they notice an un-answered breakdown. The Day Planner is the same tool for everyone - there are no per-role templates - so the discipline has to come from how you block the week, not from a mode you switch into.
 
 ### How long until I see results from using a day planner?
 
@@ -183,4 +183,4 @@ Two weeks for personal results (less end-of-day stress, better sleep, fewer carr
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 1f902ed9bb036b8a -->
+<!-- md-twin source-sha: 4158f9876391768f -->

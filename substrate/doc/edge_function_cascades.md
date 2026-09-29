@@ -2,7 +2,7 @@
 name: doc-edge_function_cascades
 type: doc
 source: file:edge_function_cascades.md
-source_sha: 98b5bbe8a5b3b324
+source_sha: 0acde16d778afcb2
 last_verified: 2026-07-13
 supersedes: null
 ---

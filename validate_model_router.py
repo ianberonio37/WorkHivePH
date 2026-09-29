@@ -41,24 +41,29 @@ EXPECTED_PROFILES = [
     "narrative_report",
 ]
 
-# Models allowed inside TASK_PROFILES values (free-tier substrings only).
-ALLOWED_MODEL_SUBSTRINGS = [
-    "llama-3.1-8b-instant",
-    "llama-3.3-70b-versatile",
-    "qwen/qwen3-32b",
-    "llama-4-scout-17b-16e-instruct",
-    "openai/gpt-oss-20b",
-    "openai/gpt-oss-120b",
-    "llama-3.3-70b",      # Cerebras name
-    "qwen-3-32b",         # Cerebras name
-    "llama3.1-8b",        # Cerebras name
-    "gemini-2.5-flash-lite",
-    "deepseek-v4-flash",
-    "nemotron",            # OpenRouter
-    "gemma-4",             # OpenRouter
-    "gpt-oss-120b:free",   # OpenRouter
-    "gemma-3-27b-it",      # OpenRouter
-]
+# ★TWO STALE LISTS AGREEING WITH EACH OTHER IS NOT A CHECK (2026-09-28).
+# A hand-maintained `ALLOWED_MODEL_SUBSTRINGS` used to live here, and it began with exactly the four
+# model IDs that v5 had already deleted from PROVIDER_CHAIN: llama-3.1-8b-instant,
+# llama-3.3-70b-versatile, qwen/qwen3-32b, llama-4-scout-17b-16e-instruct. Those four were also the
+# entire vocabulary of TASK_PROFILES. So M03 compared a stale list against a stale list, agreed with
+# itself, and printed PASS for a router in which NOT ONE profile matched a live chain entry -
+# reorderChain's `matched` array came back empty every single call and the tiered router silently
+# reordered nothing. The gate could not have caught it: nothing in this file had ever read
+# PROVIDER_CHAIN, the thing the profiles are supposed to be substrings OF.
+#
+# Derive it instead. `chain_models()` reads the real PROVIDER_CHAIN out of ai-chain.ts, so the
+# allowed set updates itself the moment a model is added or dropped, and a profile that names a
+# model the chain no longer carries fails LOUDLY instead of passing quietly. This is the same repair
+# validate_groq_fallback.check_models_are_live made one layer down, where a deny-list of 14 retired
+# names was replaced by asking the provider. Free-tier-ness comes along for free: PROVIDER_CHAIN is
+# free-tier-only by rule, enforced by M09/M10 below and L4 of validate_groq_fallback.
+def chain_models() -> list[str]:
+    """Every `model:` in ai-chain.ts's PROVIDER_CHAIN, as written there."""
+    src = read_file(AI_CHAIN) or ""
+    m = re.search(r"const PROVIDER_CHAIN[^=]*=\s*\[([\s\S]+?)\n\];", src)
+    if not m:
+        return []
+    return re.findall(r'\bmodel:\s*"([^"]+)"', m.group(1))
 
 PAID_PATTERNS = [r"\bhaiku\b", r"\bsonnet\b", r"\bopus\b", r"claude-3", r"claude-4", r"\bgpt-4\b", r"gpt-4o"]
 
@@ -93,24 +98,96 @@ def check_profiles_coverage() -> list[dict]:
     return issues
 
 
-def check_profiles_free_tier_only() -> list[dict]:
+def profile_values() -> tuple[list[str], str | None]:
+    """The model substrings written inside TASK_PROFILES, with `//` comments removed.
+
+    The comments are stripped because this file's own explanatory notes quote model IDs, and a bare
+    `"([^"]+)"` sweep would grade the prose as if it were configuration.
+    """
     src = read_file(AI_CHAIN) or ""
-    # Grab the TASK_PROFILES block
     m = re.search(r"TASK_PROFILES\s*:\s*Record<string,\s*string\[\]>\s*=\s*\{(.*?)\n\};", src, re.DOTALL)
     if not m:
-        return [{"check": "profiles_free_tier", "reason": "Could not locate TASK_PROFILES block"}]
-    block = m.group(1)
-    # Extract all quoted strings inside arrays
-    quoted = re.findall(r'"([^"]+)"', block)
+        return [], "Could not locate TASK_PROFILES block"
+    block = re.sub(r"^\s*//.*$", "", m.group(1), flags=re.MULTILINE)
+    return [s for s in re.findall(r'"([^"]+)"', block) if s not in EXPECTED_PROFILES], None
+
+
+def check_profiles_free_tier_only() -> list[dict]:
+    """M03: every profile value must name a model PROVIDER_CHAIN actually carries.
+
+    Matched exactly the way reorderChain matches it at runtime -
+    `entry.model.toLowerCase().includes(value.toLowerCase())` - so a PASS here means the profile
+    really does select an entry, not merely that it resembles something on a list.
+    """
+    values, err = profile_values()
+    if err:
+        return [{"check": "profiles_free_tier", "reason": err}]
+    models = chain_models()
+    if not models:
+        return [{"check": "profiles_free_tier",
+                 "reason": "Could not read PROVIDER_CHAIN out of ai-chain.ts - refusing to grade "
+                           "TASK_PROFILES against an empty chain (that is how M03 passed for a "
+                           "router in which nothing matched)."}]
     issues = []
-    for s in quoted:
-        # Each value must be one of the allowed substrings (or a known profile key).
-        if s in EXPECTED_PROFILES: continue   # the key itself, not a value
-        is_allowed = any(allowed.lower() in s.lower() or s.lower() in allowed.lower() for allowed in ALLOWED_MODEL_SUBSTRINGS)
-        if not is_allowed:
+    for s in values:
+        if not any(s.lower() in mdl.lower() for mdl in models):
             issues.append({"check": "profiles_free_tier",
-                           "reason": f'TASK_PROFILES value "{s}" is not in the allowed free-tier model list'})
+                           "reason": f'TASK_PROFILES value "{s}" matches no model in PROVIDER_CHAIN '
+                                     f'({len(models)} entries) - reorderChain will never select it, '
+                                     f'so every caller passing this profile silently gets the default order'})
     return issues
+
+
+def check_every_profile_selects() -> list[dict]:
+    """M11: every profile as a WHOLE must end up selecting at least one chain entry.
+
+    M03 grades each value; this grades each PROFILE. They differ in the case that actually bit us:
+    a profile whose values are individually plausible but which, together, match nothing - and a
+    profile is what a caller passes. `matched.length === 0` is the precise condition under which
+    reorderChain returns the base chain and the router becomes decoration.
+    """
+    src = read_file(AI_CHAIN) or ""
+    m = re.search(r"TASK_PROFILES\s*:\s*Record<string,\s*string\[\]>\s*=\s*\{(.*?)\n\};", src, re.DOTALL)
+    if not m:
+        return [{"check": "profile_selects", "reason": "Could not locate TASK_PROFILES block"}]
+    block = re.sub(r"^\s*//.*$", "", m.group(1), flags=re.MULTILINE)
+    models = chain_models()
+    if not models:
+        return [{"check": "profile_selects", "reason": "Could not read PROVIDER_CHAIN out of ai-chain.ts"}]
+    issues = []
+    for name, arr in re.findall(r"(\w+)\s*:\s*\[([^\]]*)\]", block):
+        vals = re.findall(r'"([^"]+)"', arr)
+        if not vals:
+            continue
+        if not any(v.lower() in mdl.lower() for v in vals for mdl in models):
+            issues.append({"check": "profile_selects",
+                           "reason": f'TASK_PROFILES.{name} = {vals} selects NOTHING from the '
+                                     f'{len(models)}-entry PROVIDER_CHAIN - reorderChain returns the '
+                                     f'base order, so this profile is inert'})
+    return issues
+
+
+def selftest() -> int:
+    """Teeth: the check must FAIL on the exact configuration that shipped for 18 days.
+
+    Guards against the vacuity this gate had - 9/9 PASS while no profile matched anything.
+    """
+    models = chain_models()
+    dead = ["llama-3.1-8b-instant", "llama-3.3-70b-versatile",
+            "qwen/qwen3-32b", "llama-4-scout-17b-16e-instruct"]
+    cases = [
+        ("PROVIDER_CHAIN is readable (>= 6 entries)", len(models) >= 6),
+        ("the four v4 names the router used to hold match NOTHING today",
+         all(not any(d.lower() in m.lower() for m in models) for d in dead)),
+        ("today's profile values all match a live chain entry", not check_profiles_free_tier_only()),
+        ("every profile selects at least one entry", not check_every_profile_selects()),
+    ]
+    ok = all(v for _n, v in cases)
+    for name, v in cases:
+        print(("  PASS  " if v else "  FAIL  ") + name)
+    print("  selftest: " + ("teeth intact" if ok else
+                            "VACUOUS - M03 is grading against something other than the live chain"))
+    return 0 if ok else 1
 
 
 def check_reorder_chain() -> list[dict]:
@@ -190,7 +267,8 @@ def check_no_paid_in_aichain() -> list[dict]:
 CHECKS = [
     ("task_profiles_export",   "M01 TASK_PROFILES exported",                       check_task_profiles_export),
     ("profiles_coverage",      "M02 All 11 expected profiles covered",             check_profiles_coverage),
-    ("profiles_free_tier",     "M03 Profile values are free-tier model substrings", check_profiles_free_tier_only),
+    ("profiles_free_tier",     "M03 Every profile value matches a live PROVIDER_CHAIN model", check_profiles_free_tier_only),
+    ("profile_selects",        "M11 Every profile selects >= 1 chain entry (router not inert)", check_every_profile_selects),
     ("reorder_chain",          "M04 reorderChain() exported",                       check_reorder_chain),
     ("callai_options",         "M05 callAI options include taskProfile?: string",   check_callai_options),
     ("callai_uses_reorder",    "M06 callAI iterates reorderChain(taskProfile)",     check_callai_uses_reorder),
@@ -201,6 +279,8 @@ CHECKS = [
 
 
 def main() -> int:
+    if "--selftest" in sys.argv:
+        return selftest()
     print("\033[1m\nTiered Model Router Validator (Phase 4 of AGENTIC_RAG_ROADMAP.md)\033[0m")
     print("=" * 70)
     all_issues = []

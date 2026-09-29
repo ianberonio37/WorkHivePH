@@ -70,7 +70,7 @@
           "name": "What is a reasonable AI accuracy target?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Month 1 to 3: 3.5 to 4.0 out of 5 (worker-rated, after verification). Month 4 to 6: 4.0 to 4.5. Month 7 to 12: 4.3 to 4.7 as the AI learns the plant's specifics. Plants below 3.5 at month 6 have a real problem: likely the knowledge base is incomplete, the prompts are not tuned, or the model needs upgrade. Above 4.7 average usually means workers are rating generously; spot-check the verification process."
+            "text": "There is no target score to hit, because the rating is a thumbs up or down rather than a mark out of five. What matters is the DIRECTION and the CONCENTRATION: a trust figure that climbs as your logbook and asset register fill in is the system working, and a run of thumbs-down clustered on one kind of question is the signal to act on — usually a thin patch in the knowledge base rather than a broken model. Ignore the figure entirely below about five ratings; a single tap swings it that far."
           }
         },
         {
@@ -78,7 +78,7 @@
           "name": "How do I measure cost per useful answer?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Total monthly AI cost (from the token-billing report) divided by number of queries rated 4+ accuracy AND saved 15+ minutes. Indicative ranges: PHP 50 to 200 per useful answer in months 1 to 3, PHP 5 to 30 per useful answer at maturity. Compare against the value of an hour of technician time (PHP 200 to 600 fully loaded for a Philippine plant) to see the ROI multiple."
+            "text": "Take the two figures AI Quality + ROI already shows you: Cost, last 30 days, and the share of answers your team marked useful. Divide one by the other and you have what a useful answer costs your plant. There is no benchmark worth comparing that against — it moves with which functions you lean on and how well your logbook is filled in — so watch your own number over successive months, and use the Per-function spend breakdown to see which surface is actually spending."
           }
         },
         {
@@ -137,7 +137,15 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
-    tailwind.config = { theme: { extend: { colors: {
+    tailwind.config = { theme: { extend: {
+      /* the platform's six-step ramp plus one display step, declared where the utilities read it
+         (W46084, 2026-09-16): text-sm rendered 14px - 0.4px from 13.6 and 1.2px from 15.2, noise
+         rather than a step - and the h1 ran 30 -> 36 -> 43.2px across three breakpoints. Pinning the
+         scale here rather than overriding each class matters because `sm:text-4xl` compiles inside a
+         media query, and a media query adds no specificity. */
+      fontSize: { xs: '0.75rem', sm: '0.95rem', base: '1.05rem', lg: '1.25rem', xl: '1.25rem',
+                  '2xl': '1.75rem', '3xl': '2.25rem', '4xl': '2.25rem', '5xl': '2.25rem' },
+      colors: {
       orange: { wh: '#F7A21B', dark: '#D88A0E', light: '#FDB94A' },
       blue:   { wh: '#29B6D9', dark: '#1A9ABF', light: '#5FCCE8' },
       navy:   { wh: '#162032', mid: '#1F2E45', light: '#2A3D58' },
@@ -156,14 +164,20 @@
     body .text-white\/70 { color: rgb(255 255 255 / 0.85); }
     body .text-white\/75 { color: rgb(255 255 255 / 0.85); }
     html, body, a, button { touch-action: manipulation; }   /* T3: no 300 ms tap delay, no double-tap zoom (the rubric reads html/body) */
-    /* the block below was 859px wide inside a 350px column and scrolled the whole page sideways at 390 (W3-LN, 2026-09-08); this is the rule the other nine <pre> articles use */
-    pre { background: rgba(13,24,36,0.85); border: 1px solid rgba(255,255,255,0.08); padding: 18px 22px; border-radius: 12px; overflow-x: auto; margin: 1.5rem 0; font-family: 'Consolas','Courier New',monospace; font-size: 0.95rem; color: #FDB94A; line-height: 1.6; }
+    /* the block below was 859px wide inside a 350px column and scrolled the whole page sideways at 390 (W3-LN, 2026-09-08); this is the rule the other nine <pre tabindex="0"> articles use */
+    pre { background: rgba(13,24,36,0.85); border: 1px solid rgba(255,255,255,0.08); padding: 20px 22px; border-radius: 12px; overflow-x: auto; margin: 1.5rem 0; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; font-size: 0.95rem; color: #FDB94A; line-height: 1.6; }
 
     * { font-family: 'Poppins', sans-serif; } body { background: #162032; color: #F4F6FA; }
     .hex-pattern { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='92' viewBox='0 0 80 92'%3E%3Cpath d='M40 0 L80 23 L80 69 L40 92 L0 69 L0 23 Z' fill='none' stroke='%23ffffff08' stroke-width='1.5'/%3E%3C/svg%3E"); background-size: 80px 92px; }
     .prose-wh { overflow-wrap: anywhere; word-break: break-word; color: rgba(244,246,250,0.85); font-size: 1.05rem; line-height: 1.8; }
+    /* craft floor (W46284, 2026-09-16, measured live at 390 and 1280): `small` took the UA default 0.8em of the
+       16.8px body and rendered 13.4px - a size off the six-step ramp that no font-size declaration could show,
+       because a ramp is what the page RENDERS. And the measure ran to 76ch at 1280, one over the 65-75 floor,
+       so the text caps itself; below ~1100px the column is already narrower than the cap and nothing moves. */
+    .prose-wh small { font-size: 0.85rem; }
+    .prose-wh p, .prose-wh li { max-width: 72ch; }
     .prose-wh h2 { color: #F4F6FA; font-size: 1.75rem; font-weight: 800; line-height: 1.25; letter-spacing: -0.015em; margin-top: 3rem; margin-bottom: 1rem; scroll-margin-top: 80px; }
-    .prose-wh h3 { color: #F4F6FA; font-size: 1.2rem; font-weight: 700; margin-top: 2rem; margin-bottom: 0.5rem; }
+    .prose-wh h3 { color: #F4F6FA; font-size: 1.25rem; font-weight: 700; margin-top: 2rem; margin-bottom: 0.5rem; }
     .prose-wh p { overflow-wrap: anywhere; word-break: break-word; margin-bottom: 1.25rem; }
     .prose-wh ul, .prose-wh ol { padding-left: 1.5rem; margin-bottom: 1.25rem; }
     .prose-wh li { margin-bottom: 0.5rem; }
@@ -172,45 +186,51 @@
     .prose-wh a { color: #5FCCE8; text-decoration: underline; text-underline-offset: 3px; } .prose-wh a:hover { color: #29B6D9; }
     .prose-wh table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.95rem; }
     .prose-wh th, .prose-wh td { padding: 12px 14px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.08); vertical-align: top; }
-    .prose-wh th { background: rgba(31,46,69,0.6); font-weight: 700; color: #F4F6FA; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; }
-    .pill { display: inline-block; font-size: 0.65rem; font-weight: 700; padding: 3px 10px; border-radius: 100px; letter-spacing: 0.05em; text-transform: uppercase; }
+    .prose-wh th { background: rgba(31,46,69,0.6); font-weight: 700; color: #F4F6FA; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em;
+      /* the [data-table-scroll] wrapper announces a scrollable region and could never scroll: the table is
+         pinned to width:100%, so it crushed columns instead - at 390 the headers "Product" and "Paid entry"
+         wrapped to THREE lines in 66px (W46083, 2026-09-16). One line here is what makes the wrapper real. */
+      white-space: nowrap; }
+    .pill { display: inline-block; font-size: 0.75rem; font-weight: 700; padding: 4px 10px; border-radius: 100px; letter-spacing: 0.02em; }
     .pill-orange { background: rgba(247,162,27,0.18); color: #F7A21B; border: 1px solid rgba(247,162,27,0.35); }
-    .toc { background: rgba(31,46,69,0.55); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 22px 26px; margin: 2rem 0 3rem; }
-    .toc h2 { color: rgba(244,246,250,0.8); font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 12px; }
-    .toc ol { padding-left: 1.5rem; margin: 0; } .toc li { margin-bottom: 6px; font-size: 0.92rem; }
+    .toc { background: rgba(31,46,69,0.55); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 24px 26px; margin: 2rem 0 3rem; }
+    .toc h2, .toc h4 { color: rgba(244,246,250,0.8); font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 12px; }
+    .toc ol { padding-left: 1.5rem; margin: 0; } .toc li { margin-bottom: 6px; font-size: 0.95rem; }
     .toc a { color: rgba(244,246,250,0.85); text-decoration: none; } .toc a:hover { color: #F7A21B; }
-    .answer-first { background: rgba(247,162,27,0.08); border-left: 3px solid #F7A21B; border-radius: 8px; padding: 18px 22px; margin-bottom: 2rem; font-size: 1.05rem; line-height: 1.75; color: rgba(244,246,250,0.85); }
+    .answer-first { background: rgba(247,162,27,0.08); border: 1px solid rgba(247,162,27,0.30); border-radius: 8px; padding: 20px 22px; margin-bottom: 2rem; font-size: 1.05rem; line-height: 1.75; color: rgba(244,246,250,0.85); }
     .audience-block { background: rgba(41,182,217,0.05); border: 1px solid rgba(41,182,217,0.18); border-radius: 12px; padding: 16px 20px; margin: 0 0 2rem; }
-    .audience-block .audience-label { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: #5FCCE8; margin-bottom: 10px; }
-    .audience-block ul { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 18px; font-size: 0.9rem; color: rgba(244,246,250,0.85); }
+    .audience-block .audience-label { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: #5FCCE8; margin-bottom: 12px; }
+    .audience-block ul { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 18px; font-size: 0.95rem; color: rgba(244,246,250,0.85); }
     .audience-block ul li { list-style: none !important; position: relative; padding-left: 16px; margin: 0; }
-    .audience-block ul li::before { content: '\B7'; position: absolute; left: 4px; color: #29B6D9; font-weight: 800; font-size: 1.2rem; line-height: 1; top: 0; }
+    .audience-block ul li::before { content: '\B7'; position: absolute; left: 4px; color: #29B6D9; font-weight: 800; font-size: 1.25rem; line-height: 1; top: 0; }
     @media (max-width: 640px) { .audience-block ul { grid-template-columns: 1fr; } }
-    .callout { background: rgba(41,182,217,0.06); border-left: 3px solid #29B6D9; border-radius: 8px; padding: 18px 22px; margin: 2rem 0; font-size: 0.98rem; line-height: 1.7; color: rgba(244,246,250,0.85); }
+    .callout { background: rgba(41,182,217,0.06); border: 1px solid rgba(41,182,217,0.28); border-radius: 8px; padding: 20px 22px; margin: 2rem 0; font-size: 0.95rem; line-height: 1.7; color: rgba(244,246,250,0.85); }
     .callout strong { color: #A4E2F2; }
     .cta-box { background: linear-gradient(135deg, rgba(247,162,27,0.12) 0%, rgba(31,46,69,0.85) 100%); border: 1px solid rgba(247,162,27,0.35); border-radius: 16px; padding: 28px 30px; margin: 3rem 0; }
-    .cta-box .cta-eyebrow { color: #F7A21B; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
-    .cta-box h4 { font-size: 1.35rem; font-weight: 800; color: #F4F6FA; margin-bottom: 8px; }
-    .cta-box p { color: rgba(244,246,250,0.85); margin-bottom: 18px; line-height: 1.65; }
+    .cta-box .cta-eyebrow { color: #F7A21B; font-size: 0.75rem; font-weight: 800; letter-spacing: 0.02em; margin-bottom: 8px; }
+    .cta-box h3, .cta-box h4 { font-size: 1.25rem; font-weight: 800; color: #F4F6FA; margin-bottom: 8px; }
+    .cta-box p { color: rgba(244,246,250,0.85); margin-bottom: 16px; line-height: 1.65; }
     .cta-btn { display: inline-block; background: linear-gradient(135deg, #F7A21B 0%, #D88A0E 100%); color: #162032; font-weight: 700; padding: 12px 28px; border-radius: 10px; text-decoration: none; transition: transform .18s, box-shadow .18s; }
     .prose-wh a.cta-btn { color: #162032; text-decoration: none; }  /* (0,2,1) beats .prose-wh a (0,1,1): a button inside the article body keeps its own colour instead of being painted as a prose link (measured 1.11:1 before this) */
-    .cta-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px -4px rgba(247,162,27,0.45); }
-    .cta-secondary { font-size: 0.82rem; color: rgba(244,246,250,0.8); margin-top: 14px; margin-bottom: 0; }
+    .cta-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 22px -8px rgba(0,0,0,0.55); }
+    .cta-secondary { font-size: 0.85rem; color: rgba(244,246,250,0.8); margin-top: 16px; margin-bottom: 0; }
+    /* (0,2,1) beats .cta-box p (0,1,1): the margin-bottom:0 above was written and never applied - the walk measured 18px (2026-09-16). */
+    .cta-box p.cta-secondary { margin-bottom: 0; }
     .cta-secondary a { color: #5FCCE8; text-decoration: underline; text-underline-offset: 2px; }
     .faq-item { background: rgba(31,46,69,0.55); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; margin-bottom: 12px; }
     .faq-item[open] { border-color: rgba(247,162,27,0.35); background: rgba(31,46,69,0.85); }
     .faq-item summary { cursor: pointer; list-style: none; padding: 16px 20px; font-weight: 600; color: #F4F6FA; display: flex; justify-content: space-between; gap: 14px; }
     .faq-item summary::-webkit-details-marker { display: none; }
-    .faq-item summary::after { content: '+'; font-size: 1.4rem; color: #F7A21B; } .faq-item[open] summary::after { content: '\2212'; }
-    .faq-item .faq-answer { padding: 0 20px 18px; color: rgba(244,246,250,0.85); line-height: 1.7; font-size: 0.95rem; }
+    .faq-item summary::after { content: '+'; font-size: 1.25rem; color: #F7A21B; } .faq-item[open] summary::after { content: '\2212'; }
+    .faq-item .faq-answer { padding: 0 20px 20px; color: rgba(244,246,250,0.85); line-height: 1.7; font-size: 0.95rem; }
     .author-card { background: rgba(31,46,69,0.5); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 20px 24px; margin: 2rem 0; display: flex; gap: 16px; align-items: center; }
-    .author-card .avatar { width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #F7A21B, #FDB94A); display: flex; align-items: center; justify-content: center; font-weight: 800; color: #162032; font-size: 1.1rem; flex-shrink: 0; }
+    .author-card .avatar { width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #F7A21B, #FDB94A); display: flex; align-items: center; justify-content: center; font-weight: 800; color: #162032; font-size: 1.05rem; flex-shrink: 0; }
     .author-card .meta p:first-child { font-weight: 700; color: #F4F6FA; font-size: 0.95rem; margin-bottom: 2px; }
-    .author-card .meta p:last-child { font-size: 0.82rem; color: rgba(244,246,250,0.8); }
-    nav a.nav-link { font-size: 0.9rem; color: rgba(244,246,250,0.85); font-weight: 500; } nav a.nav-link:hover { color: #F4F6FA; }
+    .author-card .meta p:last-child { font-size: 0.85rem; color: rgba(244,246,250,0.8); }
+    nav a.nav-link { font-size: 0.95rem; color: rgba(244,246,250,0.85); font-weight: 500; } nav a.nav-link:hover { color: #F4F6FA; }
     .breadcrumb { font-size: 0.85rem; color: rgba(244,246,250,0.8); margin-bottom: 1.5rem; }
     .breadcrumb a { color: rgba(244,246,250,0.8); text-decoration: none; } .breadcrumb a:hover { color: #F7A21B; }
-    .breadcrumb span { margin: 0 8px; opacity: 0.4; }
+    .breadcrumb span { margin: 0 8px; }
       /* Z2/R2 (critic re-sweep 2026-09-07): a long unbroken token (a citation URL) widened a paragraph to 463px at 390 and the page scrolled sideways; long words now wrap */
   </style>
   <script>
@@ -271,15 +291,17 @@
   <script src="/wh-ga4.js" defer></script>
   <!-- /WorkHive GA4 -->
 <link rel="stylesheet" href="/learn-print.css" media="print" />
-<style data-wh-chrome-i18n>nav a,header a,footer a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;min-width:44px;}nav a{padding:0 .25rem;}.breadcrumb a,.toc a{display:inline-flex;align-items:center;min-height:44px;}.breadcrumb a{min-width:44px;justify-content:center;}a.text-sm[href$='/learn/'],a.text-sm[href$='/learn/index.html']{display:inline-flex;align-items:center;min-height:44px;}.wh-tap{display:inline-flex;align-items:center;min-height:44px;}td a,th a{display:inline-flex;align-items:center;min-height:44px;}</style>
+<style data-wh-chrome-i18n>nav a,header a,footer a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;min-width:44px;}nav a{padding:0 .25rem;}.breadcrumb a,.toc a{display:inline-flex;align-items:center;min-height:44px;}.breadcrumb a{min-width:44px;justify-content:center;}a.text-sm[href$='/learn/'],a.text-sm[href$='/learn/index.html']{display:inline-flex;align-items:center;min-height:44px;}.wh-tap{display:inline-flex;align-items:center;min-height:44px;}td a,th a{display:inline-flex;align-items:center;min-height:44px;}/*wh-brand-header-gap*/@media (max-width:399px){header nav.flex{gap:.75rem;}}</style>
 <script src="/wh-i18n-lite.js" data-wh-chrome-i18n></script>
 </head>
 <body class="bg-navy-wh text-white antialiased">
+<a class="wh-skip-link" href="#wh-main-content" data-wh-skip="learn" style="position:fixed;top:0;left:0;z-index:10001;transform:translateY(-120%);background:var(--wh-orange,#F7A21B);color:var(--wh-navy,#162032);padding:0 20px;min-height:44px;display:inline-flex;align-items:center;font-weight:700;font-size:14px;text-decoration:none;border-radius:0 0 10px 0;box-shadow:0 4px 16px rgba(0,0,0,.35);transition:transform .15s cubic-bezier(0.23,1,0.32,1);box-sizing:border-box;" onfocus="this.style.transform='translateY(0)'" onblur="this.style.transform='translateY(-120%)'">Skip to main content</a>
+
 <header class="border-b border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
   <div class="max-w-6xl mx-auto px-5 sm:px-8 py-4 flex items-center justify-between">
     <a href="/" class="flex items-center gap-3">
       <img src="/brand_assets/workhive-logo-transparent.png" alt="WorkHive" style="height: 36px; width: auto;" />
-      <span class="font-black text-lg tracking-tight hidden sm:inline">WorkHive</span>
+      <span class="font-extrabold tracking-tight hidden sm:inline" style="font-size: 1.25rem" aria-hidden="true">WorkHive</span>
     </a>
     <nav class="flex items-center gap-6">
       <a href="/" class="nav-link" data-i="home">Home</a>
@@ -289,13 +311,13 @@
     </nav>
   </div>
 </header>
-<article class="hex-pattern">
+<main id="wh-main-content"><article class="hex-pattern">
   <div class="max-w-3xl mx-auto px-5 sm:px-8 py-14 lg:py-20">
     <div class="breadcrumb">
       <a href="/" data-i="home">Home</a><span>/</span><a href="/learn/" data-i="learn">Learn</a><span>/</span><span>AI quality + ROI</span>
     </div>
     <p class="pill pill-orange mb-4">AI Quality + ROI · Stage 2+</p>
-    <h1 class="text-3xl sm:text-4xl lg:text-[2.7rem] font-black leading-[1.15] tracking-[-0.02em] mb-5">Measuring AI quality and ROI <span class="text-white/55 font-bold">(for Stage 2+ industrial plants)</span></h1>
+    <h1 class="text-3xl sm:text-4xl font-extrabold leading-[1.15] tracking-[-0.02em] mb-5">Measuring AI quality and ROI <span class="text-white/55 font-bold">(for Stage 2+ industrial plants)</span></h1>
     <div class="flex items-center gap-4 text-sm text-white/45 mb-8 flex-wrap">
       <span>By <strong class="text-white/75">WorkHive Editorial Team</strong></span>
       <span class="opacity-40">·</span>
@@ -305,7 +327,7 @@
       <span class="opacity-40">·</span>
       <span>7 min read</span>
     </div>
-    <div class="answer-first"><strong>Short answer:</strong> AI assistants in industrial plants need explicit quality measurement; without it, drift goes undetected and trust erodes. Three metrics matter: accuracy (verified by the technician after acting on the advice), time saved (estimated by the worker per query), and cost per useful answer (the total AI cost divided by queries the worker rated useful). Plants that measure these monthly see AI ROI climb from negative in month 3 to 5 to 10x by month 12; plants that do not measure either over-trust or abandon the AI within 6 months.</div>
+    <div class="answer-first"><strong>Short answer:</strong> AI assistants in industrial plants need explicit quality measurement; without it, drift goes undetected and trust erodes. Three metrics matter: accuracy (verified by the technician after acting on the advice), time saved (estimated by the worker per query), and cost per useful answer (the total AI cost divided by queries the worker rated useful). Plants that measure these monthly see AI ROI climb from negative in month 3 to between 5x and 10x by month 12; plants that do not measure either over-trust or abandon the AI within 6 months.</div>
     <div class="audience-block">
       <p class="audience-label">Who this is for</p>
       <ul><li>Plant managers evaluating AI ROI</li>
@@ -316,7 +338,7 @@
         <li>Workers verifying AI suggestions</li>
         <li>New engineering graduates exploring AI</li></ul>
     </div>
-    <div class="toc"><h4 aria-level="2">What's in this guide</h4><ol><li><a href="#why-measure" class="wh-tap">Why AI quality needs explicit measurement</a></li>
+    <div class="toc"><h2>What's in this guide</h2><ol><li><a href="#why-measure" class="wh-tap">Why AI quality needs explicit measurement</a></li>
         <li><a href="#three-metrics" class="wh-tap">The 3 metrics that measure AI maintenance ROI</a></li>
         <li><a href="#accuracy" class="wh-tap">Accuracy: technician-verified, not vendor-claimed</a></li>
         <li><a href="#time-saved" class="wh-tap">Time saved: estimate per query</a></li>
@@ -329,39 +351,36 @@
       <p>The AI Quality + ROI dashboard shows the estimated 30-day ROI, per-function spend, and worker feedback behind every AI answer. Plants that measure trust the AI appropriately; plants that do not either swing into over-trust or abandon the AI.</p>
       <h2 id="three-metrics">The 3 metrics that measure AI maintenance ROI</h2>
       <div data-table-scroll style="overflow-x:auto;-webkit-overflow-scrolling:touch;" role="region" aria-label="Scrollable table" tabindex="0"><table><thead><tr><th>Metric</th><th>What it measures</th><th>How to capture</th></tr></thead><tbody>
-      <tr><td>Accuracy</td><td>Did the AI suggestion match what fixed the problem?</td><td>Worker rates after the fix is verified</td></tr>
-      <tr><td>Time saved</td><td>How much faster did this query make the work?</td><td>Worker estimate in 5-second tap</td></tr>
-      <tr><td>Cost per useful answer</td><td>Total AI spend divided by queries rated useful</td><td>Automated from token billing + ratings</td></tr>
+      <tr><td>Worker trust</td><td>Did the answer actually help the person who asked?</td><td>A thumbs up or down on the reply itself</td></tr>
+      <tr><td>Time saved (est.)</td><td>Roughly how much work the useful answers displaced</td><td>Estimated from the useful answers: nobody is asked to stop and log minutes</td></tr>
+      <tr><td>Cost, last 30 days</td><td>What the AI actually cost, and which function spent it</td><td>Automated from token billing, broken out per function</td></tr>
       </tbody></table></div>
       <h2 id="accuracy">Accuracy: technician-verified, not vendor-claimed</h2>
       <p>Vendor accuracy numbers (95 percent on benchmark X) are not your plant's reality. Your plant's AI accuracy is what your technicians verify after acting on the advice. The pattern that works:</p>
-      <ul><li>After every fix where the worker used an AI suggestion, the Logbook entry includes an AI-accuracy rating (1 to 5)</li><li>Ratings aggregate per asset type, fault category, and query type</li><li>Monthly review surfaces where the AI is below 4.0 average (likely needs prompt tuning, knowledge-base update, or model upgrade)</li></ul>
-      <p>Most Philippine plants find their AI starts at 3.5 to 4.0 average in month 1 and climbs to 4.3 to 4.7 by month 6 as the AI learns the plant's specifics. Plants below 3.5 at month 6 have a real problem and should investigate root cause.</p>
+      <ul><li>The worker rates the ANSWER, not the fix: a thumbs up or down on the reply, one tap, at the moment they know whether it helped</li><li>Those ratings are what the Worker trust figure on AI Quality + ROI is built from</li><li>A run of thumbs-down on one kind of question is the signal worth acting on: it usually means the knowledge base is thin there, not that the model is broken</li></ul>
+      <p><strong>Do not over-read a small sample.</strong> Below roughly five ratings a single tap swings the figure by twenty points, which is why the surface holds its verdict until there are enough. That guard exists because of a real reading: 348 AI calls and ONE thumbs-down once turned an owner's headline red with “AI is struggling”. Wait for the sample before you conclude anything, and look at which QUESTIONS drew the downs rather than at the percentage.</p>
       <h2 id="time-saved">Time saved: estimate per query</h2>
-      <p>After every AI query, the worker taps one of 4 buttons:</p>
-      <ul><li>Saved 5 minutes or less</li><li>Saved 15 to 30 minutes</li><li>Saved 1 to 2 hours</li><li>Saved 4+ hours (caught something I would have missed)</li></ul>
-      <p>Aggregate weekly. A typical Philippine plant with 20 active AI users sees 200 to 400 queries per week, averaging 15 to 25 hours of self-reported saved time. Worker estimates are imperfect but consistent enough to track trend.</p>
+      <p>Nobody is asked to stop and log minutes: a technician with gloves on will not do it, and a number they invent to dismiss a prompt is worse than no number. The figure is ESTIMATED instead: each answer the worker marked useful is counted as a few minutes of work displaced, and the total is shown as <em>Time saved (est.)</em>. The word 'est.' is doing real work in that label: it is a scale indicator, not a measurement, and it is honest about being one.</p>
+      <p>Read it as a trend rather than a total. Because it is derived rather than reported, the figure is only as good as the thumbs behind it: which is the argument for keeping the rating a one-tap habit instead of a form nobody fills in.</p>
       <h2 id="cost-per-useful">Cost per useful answer</h2>
-      <p>The honest ROI number is cost per useful answer, not cost per query. Calculation:</p>
-      <pre tabindex="0">Total monthly AI cost (token billing) / Number of queries rated 4+ accuracy and saved 15+ min</pre>
-      <p>Indicative ranges:</p>
-      <ul><li>Month 1 to 3: PHP 50 to 200 per useful answer (high cost, learning phase)</li><li>Month 4 to 6: PHP 20 to 80 per useful answer (improving)</li><li>Month 7 to 12: PHP 5 to 30 per useful answer (mature)</li><li>Year 2+: PHP 2 to 10 per useful answer for plants that mature the system</li></ul>
-      <p>Compare against the value of an hour of technician time (typically PHP 200 to 600 fully loaded) to see the ROI multiple.</p>
+      <p>The honest ROI number is cost against USEFUL answers, not cost per query: a cheap month where nothing helped is not a win. AI Quality + ROI gives you both halves: <em>Cost, last 30 days</em> with a <em>Per-function spend</em> breakdown, and the Worker trust figure that says how much of it landed.</p>
+      <pre tabindex="0">cost you can see  ÷  answers your team marked useful  =  what a useful answer costs you</pre>
+      <p>Do that division with YOUR two numbers rather than against a benchmark: the cost side moves with which functions your plant leans on, and the useful side moves with how well your logbook and asset register are filled in. The per-function breakdown is the actionable half: it shows WHICH surface is spending, so an expensive month usually has one answer behind it rather than a general problem.</p>
       <h2 id="drift">Catching AI drift before it hurts operations</h2>
       <p>AI drift is the silent failure mode where the AI gets gradually worse without anybody noticing because each individual answer looks plausible. The AI Quality dashboard catches drift with three signals:</p>
-      <ul><li><strong>Accuracy trend.</strong> Falling average rating per asset type or fault category is the first signal. Investigate.</li><li><strong>Query escalation rate.</strong> Rising percentage of queries that the worker then escalated to a human expert (instead of acting on the AI answer) signals declining trust.</li><li><strong>Cost-per-useful trending up.</strong> If total AI cost stays flat but useful-answer count drops, the cost per useful answer rises. This is the cleanest single-number indicator.</li></ul>
+      <ul><li><strong>Trust trend.</strong> A falling share of thumbs-up, especially concentrated on one kind of question, is the first signal. Investigate that question type rather than the model.</li><li><strong>Query escalation rate.</strong> Rising percentage of queries that the worker then escalated to a human expert (instead of acting on the AI answer) signals declining trust.</li><li><strong>Cost-per-useful trending up.</strong> If total AI cost stays flat but useful-answer count drops, the cost per useful answer rises. This is the cleanest single-number indicator.</li></ul>
       <p>Weekly 5-minute review by the reliability engineer catches drift early. Plants that skip this review notice problems 2 to 3 months late, by which time worker trust has eroded.</p>
       <div class="cta-box">
         <p class="cta-eyebrow">The tool this guide is about</p>
-        <h4 aria-level="3">WorkHive AI Quality + ROI dashboard makes AI value measurable</h4>
-        <p>Accuracy tracking from technician-rated outcomes, time-saved estimates per query, cost per useful answer, drift detection across asset types and fault categories. Stair 2+ (plants with 90+ days of Logbook history). Free at the worker tier; full enterprise reporting (per-shift accuracy, cross-hive benchmarks) unlocks at Stage 4.</p>
+        <h3>WorkHive AI Quality + ROI dashboard makes AI value measurable</h3>
+        <p>Accuracy tracking from technician-rated outcomes, time-saved estimates per query, cost per useful answer, drift detection across asset types and fault categories. Stage 2+ (plants with 90+ days of Logbook history). Free at the worker tier. AI Quality is one of the surfaces the maturity stair actually gates: a hive reads it from Stair 2 (Disciplined) onward, which it earns by logging, not by paying. Benchmarks across separate hives are not available: each hive&rsquo;s data stays inside it.</p>
         <a href="/ai-quality.html" class="cta-btn">Open AI Quality + ROI</a>
         <p class="cta-secondary">No hive yet? <a href="/?signup=1">Join WorkHive</a> first (free, takes 30 seconds).</p>
       </div>
       <h2 id="faq">Frequently asked questions</h2>
       <details class="faq-item"><summary>Why do I need to measure AI quality if the vendor says 95 percent accuracy?</summary><div class="faq-answer">Vendor accuracy is on their benchmark dataset, not your plant's reality. Your plant has specific assets, fault patterns, and language conventions that the vendor benchmark cannot capture. The only honest accuracy number is what your technicians verify after acting on the AI suggestions in your hive. Plants that rely on vendor numbers over-trust the AI; plants that measure their own catch problems early.</div></details>
-      <details class="faq-item"><summary>What is a reasonable AI accuracy target?</summary><div class="faq-answer">Month 1 to 3: 3.5 to 4.0 out of 5 (worker-rated, after verification). Month 4 to 6: 4.0 to 4.5. Month 7 to 12: 4.3 to 4.7 as the AI learns the plant's specifics. Plants below 3.5 at month 6 have a real problem: likely the knowledge base is incomplete, the prompts are not tuned, or the model needs upgrade. Above 4.7 average usually means workers are rating generously; spot-check the verification process.</div></details>
-      <details class="faq-item"><summary>How do I measure cost per useful answer?</summary><div class="faq-answer">Total monthly AI cost (from the token-billing report) divided by number of queries rated 4+ accuracy AND saved 15+ minutes. Indicative ranges: PHP 50 to 200 per useful answer in months 1 to 3, PHP 5 to 30 per useful answer at maturity. Compare against the value of an hour of technician time (PHP 200 to 600 fully loaded for a Philippine plant) to see the ROI multiple.</div></details>
+      <details class="faq-item"><summary>What is a reasonable AI accuracy target?</summary><div class="faq-answer">There is no target score to hit, because the rating is a thumbs up or down rather than a mark out of five. What matters is the DIRECTION and the CONCENTRATION: a trust figure that climbs as your logbook and asset register fill in is the system working, and a run of thumbs-down clustered on one kind of question is the signal to act on: usually a thin patch in the knowledge base rather than a broken model. Ignore the figure entirely below about five ratings; a single tap swings it that far.</div></details>
+      <details class="faq-item"><summary>How do I measure cost per useful answer?</summary><div class="faq-answer">Take the two figures AI Quality + ROI already shows you: Cost, last 30 days, and the share of answers your team marked useful. Divide one by the other and you have what a useful answer costs your plant. There is no benchmark worth comparing that against: it moves with which functions you lean on and how well your logbook is filled in, so watch your own number over successive months, and use the Per-function spend breakdown to see which surface is actually spending.</div></details>
       <details class="faq-item"><summary>What is AI drift and how do I catch it?</summary><div class="faq-answer">AI drift is the silent failure mode where the AI gets gradually worse without anybody noticing because each individual answer looks plausible. Three signals catch it: falling accuracy trend per asset type or fault category, rising query-escalation rate (workers escalating to a human after the AI answer), and rising cost-per-useful-answer. Weekly 5-minute review by the reliability engineer catches drift 2 to 3 months earlier than waiting for worker complaints.</div></details>
       <details class="faq-item"><summary>When should I upgrade the AI model?</summary><div class="faq-answer">Three triggers: (1) accuracy below 4.0 for 60+ days despite prompt tuning and knowledge-base updates (the underlying model may be the limit); (2) cost per useful answer rising for 90+ days (newer models often deliver better cost-per-quality); (3) a class of queries the current model consistently fails on (e.g., engineering-grade calculations). WorkHive AI Assistant abstracts the model so upgrade is configuration, not migration.</div></details>
       <details class="faq-item"><summary>Can I compare my AI ROI against other plants?</summary><div class="faq-answer">At Stage 4 enterprise tier, yes (anonymous benchmarking against the cohort of WorkHive plants by industry sector and size). Free worker tier shows only your own hive's metrics. Cross-hive benchmarking requires opt-in from both parties and respects the data-isolation rules in the multi-tenant guide.</div></details>
@@ -382,7 +401,7 @@
       <a href="/learn/" class="text-sm text-white/55 hover:text-orange-wh transition-colors">&larr; Back to all guides</a>
     </div>
   </div>
-</article>
+</article></main>
 <footer class="py-10 border-t border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
   <div class="max-w-4xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">
     <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-08-24">24 Aug 2026</time></p>

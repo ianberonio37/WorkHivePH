@@ -107,7 +107,21 @@ def check_img_alt(pages):
                 continue
             if _is_template_line(line):
                 continue
-            if "alt=" in line:
+            # ★AN ATTRIBUTE BELONGS TO THE TAG, NOT TO THE LINE (2026-09-28). This asked whether `alt=`
+            # appeared on the SAME line as `<img`, so a tag written across several lines was reported as
+            # missing an alt it actually carries. Both live examples do exactly that:
+            #   logbook.html   <img id="photo-thumb" ... \n title="Tap to replace photo" alt="Attached photo"
+            #   inventory.html <img id="f-photo-thumb" ... \n role="button" alt="Attached photo. Activate ..."
+            # Two false accusations against working, accessible markup - and the fix a reader would make
+            # on being told "add alt" is to add a SECOND alt. Read to the tag's closing `>` instead.
+            tag = line[line.index("<img"):]
+            if ">" not in tag:
+                for nxt in lines[i + 1:i + 8]:
+                    tag += "\n" + nxt
+                    if ">" in nxt:
+                        break
+            tag = tag[:tag.index(">") + 1] if ">" in tag else tag
+            if "alt=" in tag:
                 continue
             if re.search(r"<img\b", line) and "<!--" not in line.split("<img")[0]:
                 issues.append({"check": "img_alt", "page": page, "line": i + 1,

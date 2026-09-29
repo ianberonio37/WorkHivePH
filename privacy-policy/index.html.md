@@ -19,7 +19,9 @@ WorkHive collects only the data needed to operate the platform:
 - **Operational data you enter** in your hive: logbook entries, PM completions, asset records, skill matrix entries, voice journal recordings, fault notes.
 - **Technical metadata**: time stamps, IP address (for security audit), browser type, page views.
 
-We do not collect government IDs, payment information (the platform is free), location data, or any data not needed to make WorkHive work.
+We do not collect government IDs, card or bank credentials, location data, or any data not needed to make WorkHive work. WorkHive does not process payments: no money moves through the platform.
+
+**One exception, and it is worth naming.** The Marketplace lets a service provider buy service credits and settle a job, and those payments happen in GCash between people, outside WorkHive. When one does, we record what is needed to verify it: the amount, the method, and the GCash reference number you file. That is the only payment-related data on the platform, it exists so a top-up or a settlement can be checked against what actually arrived, and none of it is a card, an account number or a banking credential. Using the Marketplace is optional; every maintenance tool on WorkHive is free and records nothing of the kind.
 
 ## How we use it
 
@@ -71,4 +73,4 @@ Material changes to this Privacy Policy will be announced on the platform and at
 
 Email [admin@workhiveph.com](mailto:admin@workhiveph.com) for any privacy question. The data controller is WorkHive Engineering Services (DTI Business Name 8080496), operated by Ian Lumayno Beronio.
 
-<!-- md-twin source-sha: 21fb9ce15ff9e8c7 -->
+<!-- md-twin source-sha: 8262ead72524bcf2 -->

@@ -221,6 +221,49 @@
       "added_in":    "extension 2026-05-20 (engineering-design coverage)"
     },
     {
+      "standard_id":  "neta_mts_2023",
+      "short_name":   "NETA MTS-2023",
+      "full_title":   "Standard for Maintenance Testing Specifications for Electrical Power Equipment and Systems",
+      "publisher":    "InterNational Electrical Testing Association (NETA)",
+      "edition_year": 2023,
+      "clauses": {
+        "100.18_thermographic_similar_components": {
+          "name":            "Thermographic Survey \u2014 comparison against a similar component",
+          "canonical_formula": "\u0394T = T_component \u2212 T_similar_component (under similar load)",
+          "required_inputs": ["t_component_c", "t_similar_component_c", "load_comparable"],
+          "units":           "\u0394\u00b0C",
+          "notes":           "NETA MTS Table 100.18, similar-component rows: 1-3 \u00b0C possible deficiency, warrants investigation; 4-15 \u00b0C probable deficiency, repair as time permits; above 15 \u00b0C major discrepancy, repair immediately. VALID ONLY under similar load \u2014 two components at different loads are not comparable, which is the commonest source of a false thermography finding. Preferred over the ambient comparison whenever a second component on the same duty exists."
+        },
+        "100.18_thermographic_ambient": {
+          "name":            "Thermographic Survey \u2014 comparison against ambient air",
+          "canonical_formula": "\u0394T = T_component \u2212 T_ambient_air",
+          "required_inputs": ["t_component_c", "t_ambient_c"],
+          "units":           "\u0394\u00b0C",
+          "notes":           "NETA MTS Table 100.18, ambient rows: 1-10 \u00b0C possible deficiency, warrants investigation; 11-20 \u00b0C probable deficiency, repair as time permits; above 40 \u00b0C major discrepancy, repair immediately. The fallback for a component with no twin on the same duty. ADDED 2026-09-22 while fixing learn/thermography-for-pm-philippine-plants, which had published the similar-component 1-3 band in the ambient row and so left the reader no guidance at all between 3 and 40 \u00b0C. From domain knowledge, NOT yet checked against a copy of the MTS \u2014 confirm before any formula cites it."
+        }
+      },
+      "url":         "https://www.netaworld.org/standards/ansi-neta-mts",
+      "added_in":    "W46250 copy-lens row 2026-09-22 (thermography \u0394T action criteria)"
+    },
+    {
+      "standard_id":  "iso_18434_1_2008",
+      "short_name":   "ISO 18434-1:2008",
+      "full_title":   "Condition monitoring and diagnostics of machines \u2014 Thermography \u2014 Part 1: General procedures",
+      "publisher":    "ISO",
+      "edition_year": 2008,
+      "clauses": {
+        "general_procedures": {
+          "name":            "Thermographic Survey \u2014 general procedures",
+          "canonical_formula": "n/a (procedure specification)",
+          "required_inputs": [],
+          "units":           "categorical",
+          "notes":           "Covers how an infrared survey is planned, performed and reported: operator qualification, emissivity and reflected-temperature compensation, distance-to-spot ratio, and report contents. It specifies the PROCEDURE; the action thresholds come from neta_mts_2023 clause 100.18. An electrical survey is taken with the equipment ENERGISED and under normal load, because the measurand is the heat that load current produces \u2014 a de-energised survey measures nothing, and lockout/tagout belongs to the repair that follows a finding rather than to the scan."
+        }
+      },
+      "url":         "https://www.iso.org/standard/38717.html",
+      "added_in":    "W46250 copy-lens row 2026-09-22 (thermography survey procedure)"
+    },
+    {
       "standard_id":  "darcy_weisbach",
       "short_name":   "Darcy-Weisbach",
       "full_title":   "Darcy-Weisbach equation for pressure loss in pipe flow",

@@ -14,7 +14,7 @@ Updated 24 Aug 2026
 ·
 10 min read
 
-**Short answer:** WorkHive Engineering Design is a free set of 60 standards-referenced calculators across eight disciplines: HVAC and cooling, mechanical, electrical, plumbing, fire protection, and machine design. Each calculator is built on the relevant standard (PEC 2017, ASHRAE, PSME, NFPA, ISO) and applies Philippine tropical-climate constants where they matter. It replaces 30 minutes of careful spreadsheet work with 30 seconds of structured input, and produces a PDF report a licensed PME or PEE can sign off. Built for the full engineering team: junior engineers, design and project engineers, licensed engineers, consultants, contractors, and engineering students building a portfolio.
+**Short answer:** WorkHive Engineering Design is a free set of 60 standards-referenced calculators across eight disciplines: electrical and power (15), plumbing and pumps (14), HVAC and cooling (10), mechanical and machine design (10), fire protection (5), reliability and metrics (2), vertical transport (2), and boiler and utilities (2). Each calculator is built on the relevant standard (PEC 2017, ASHRAE, PSME, NFPA, ISO) and applies Philippine tropical-climate constants where they matter. It replaces 30 minutes of careful spreadsheet work with 30 seconds of structured input, and produces a PDF report a licensed PME or PEE can sign off. Built for the full engineering team: junior engineers, design and project engineers, licensed engineers, consultants, contractors, and engineering students building a portfolio.
  The pattern it replaces: three engineers, three spreadsheets, three different answers: wastes **2 to 4 hours per design** and produces inconsistent results.
 
 Who this is for
@@ -90,7 +90,7 @@ If a junior engineer uses De (541 mm) instead of D_h (467 mm) in the pressure-dr
 
 The tool this guide is about
 
-#### WorkHive Engineering Design replaces 30 minutes of spreadsheet work with 30 seconds
+### WorkHive Engineering Design replaces 30 minutes of spreadsheet work with 30 seconds
 
 60 standards-referenced calculators across 8 disciplines (electrical and power, plumbing and pumps, HVAC and cooling, mechanical and machine design, fire protection, reliability and metrics, vertical transport, boiler and utilities). Each output is tagged with its applied standard (PEC 2017, ASHRAE, PSME, NFPA, ISO) and Philippine tropical constants where they matter. PDF report ready for licensed PME or PEE sign-off. Saved designs build your engineering portfolio. Free at the worker tier forever.
 
@@ -219,7 +219,9 @@ What changes: the licensed engineer's review time drops from "redo the calculati
 
 ## Your design history as a career portfolio
 
-This is the part most Filipino engineers underuse: the design history saved in WorkHive Engineering Design is a verifiable professional portfolio.
+This is the part most Filipino engineers underuse, and there is one condition attached to it that decides whether it works at all, so it comes first. A calculation you save inside a hive belongs to that hive's records: you can read it while your membership is active, and you cannot once it ends. That is the correct rule: a plant's design work is the plant's, but it means the saved history is not, by itself, a portfolio you take with you.
+
+**The PDF report is the part that travels.** Every calculation can be downloaded as a dated, standards-referenced PDF, and a downloaded file sits on your own device where no access rule reaches it. So build the portfolio as you go: download the PDF for every calculation worth keeping, on the day you run it, into a folder you own. Engineers who do that have their evidence at the interview; engineers who plan to export it later discover that later is after their account lost access.
 
 When a Filipino engineer applies for:
 
@@ -228,9 +230,9 @@ When a Filipino engineer applies for:
 - A consulting engagement with a new client
 - A PRC licensure interview
 
-The hiring manager or reviewer wants to see verifiable work. A folder of saved WorkHive calculations with dates, applied standards, and PDF reports is exactly that. It is the engineering equivalent of the documented logbook history we make the worker-protection case for in the [Skill Matrix guide](https://workhiveph.com/learn/skill-matrix-for-maintenance-technicians/).
+The hiring manager or reviewer wants to see verifiable work, and a folder of dated PDF reports naming the standard each one applied is exactly that: it shows what you sized, when, and under which code. It is the engineering counterpart of the documented logbook history we make the worker-protection case for in the [Skill Matrix guide](https://workhiveph.com/learn/skill-matrix-for-maintenance-technicians/), with the same caveat that guide records: the records held inside a hive stay with the hive, so what leaves with you is what you exported while you were there.
 
-In the AI era, engineers whose work is documented get promoted. Engineers whose work lives only in PDFs scattered on local drives get bypassed. Document your designs.
+Engineers whose work is documented get promoted; engineers whose work lives only in one senior colleague's memory get bypassed. Document your designs, and keep your own copy of the documentation.
 
 ## Common mistakes when using design calculators
 
@@ -266,7 +268,7 @@ Yes. Every calculation in the WorkHive Engineering Design tool produces a struct
 
 ### What happens to my designs if I leave the plant?
 
-Your saved calculations stay in your hive's project history and can be exported with you (subject to your employment IP terms). For Filipino engineers building a portfolio for overseas work or OFW positions, the WorkHive design history is a verifiable record of work done, complete with date stamps and applied standards. This is the Engineering equivalent of the career-protection argument we make for technicians in the Skill Matrix guide: documented work compounds; undocumented work disappears.
+Your saved calculations stay in your hive's project history, and you can read and export them for as long as your membership is active - so export what you want to keep BEFORE you leave, not after, and subject to your employment IP terms. The downloaded PDFs are yours; the rows in the hive are the plant's. For Filipino engineers building a portfolio for overseas work or OFW positions, the WorkHive design history is a verifiable record of work done, complete with date stamps and applied standards. This is the Engineering equivalent of the career-protection argument we make for technicians in the Skill Matrix guide: documented work compounds; undocumented work disappears.
 
 ## Sources
 
@@ -283,4 +285,4 @@ Your saved calculations stay in your hive's project history and can be exported 
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: e93f97a25c56294a -->
+<!-- md-twin source-sha: 5f9a1e26b4863149 -->

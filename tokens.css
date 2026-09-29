@@ -122,6 +122,10 @@ button.btn-secondary:disabled, button.btn-ghost:disabled { cursor: not-allowed; 
   /* ── Brand RGB triplets — for rgba(var(--wh-*-rgb), a) ─────────────────── */
   --wh-orange-rgb:   247, 162, 27;
   --wh-blue-rgb:     41, 182, 217;
+  /* green's alpha channel, added 2026-09-16: the hive board filled its status dots with
+     var(--wh-green) and haloed them in a hand-picked rgba(34,197,94) - a different green on the
+     same 8px element. orange and blue already had their channel tokens; green did not. */
+  --wh-green-rgb:    74, 222, 128;
 }
 
 /* ── THE TEXT UTILITIES MUST USE THE -text HUES, NOT THE FILL HUES ─────────
@@ -193,8 +197,22 @@ button.btn-secondary:disabled, button.btn-ghost:disabled { cursor: not-allowed; 
   --wh-fab-size: 56px;       /* the canonical FAB square/circle */
   --wh-fab-gap: 12px;        /* spacing between stacked corner FABs */
   --wh-panel-max-h: calc(100dvh - 100px);   /* a corner panel caps to the viewport + scrolls */
-  /* Motion — the ONE spring + duration vocabulary (was hardcoded per widget). */
-  --wh-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  /* ★THE PLATFORM NEVER TOLD THE BROWSER IT WAS DARK (design lens audit, 2026-09-15). Every page measured
+     `color-scheme: normal`, so the parts nobody draws - scrollbars, the caret, native form controls, a
+     dialog's backdrop, the spellcheck underline - rendered in the light defaults on a navy UI. One
+     declaration fixes it everywhere, and it is exactly what the craft floor means by "the browser
+     surfaces still carry the design". */
+  color-scheme: dark;
+
+  /* Motion — the ONE easing + duration vocabulary (was hardcoded per widget).
+     --wh-ease-spring (cubic-bezier(0.34, 1.56, 0.64, 1)) was RETIRED on 2026-09-15 by the design lens motion:
+     it overshot by 56%, which review-animations/STANDARDS.md reserves for drag-to-dismiss and playful gestures
+     and the detector reads as dated bounce easing — and a git grep found it declared here and used NOWHERE.
+     A token no rule references is not a vocabulary, it is a claim about a decision nobody made. */
+  /* A STRONG ease-out for UI that enters, exits or answers a tap (design lens motion, 2026-09-15:
+     the platform had a spring and no ease-out, so every hover and exit fell back to the browser's
+     weak default `ease`). review-animations/STANDARDS.md: entering or exiting -> ease-out, always. */
+  --wh-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --wh-dur-fast: 0.15s; --wh-dur: 0.2s; --wh-dur-slow: 0.25s;
 
   /* Muted TEXT on dark surfaces — the recurring "secondary label" colour. This is the ONE
@@ -304,7 +322,18 @@ html, body { touch-action: manipulation; overscroll-behavior: contain; }
 /* I1 CLS — reserve the async goal-gradient strip's height so its 0->filled render
    doesn't push content down (measured: it caused logbook 0.34 / inventory 0.20 CLS).
    whProgressStrip settles at ~58px; reserving it is the shared CLS-stability fix. */
-.wh-progress-slot { min-height: 58px; }
+/* ★THE RESERVE MEASURED THE STRIP AND NOT ITS MARGIN (design lens audit on dayplanner, 2026-09-15).
+   The strip is 51px tall and carries margin-bottom:12px, so its OUTER height is 63 - measured
+   identical on all four pages that draw one, at 320 and 390, in en and fil. Whether that 12px counts
+   against the reserve depends on the PARENT: dayplanner's slot is a flex item of .main-area, which
+   is a block formatting context, so the margin cannot collapse out and the slot grew 58 -> 63 when
+   the strip arrived - a 5px push on everything below it, measured as a 0.096 shift at 664ms and the
+   whole of dayplanner's 0.097 phone CLS. On inventory, logbook and pm-scheduler the parent is a plain
+   block, the margin collapses through, and the same component sits 5px shorter. So the reserve is now
+   the strip's outer height rounded to the 4px grid, and flow-root makes the slot a BFC on every page
+   so the same component occupies the same 64px wherever it is drawn instead of 58 here and 63 there.
+   If the strip's height or margin changes, this number changes with it. */
+.wh-progress-slot { min-height: 64px; display: flow-root; }
 
 /* A2 (NN/g "chunking" / scannability) — the ONE shared section-heading style. Pages that
    label their content regions only with tabs/captions read as one undifferentiated block;
@@ -313,10 +342,28 @@ html, body { touch-action: manipulation; overscroll-behavior: contain; }
    heading TEXT is per-page content, which is inherent. Eyebrow scale so it orients without
    competing with the page <h1>. Was the ad-hoc sc-label/"Online now" caption on ~6 pages. */
 .wh-section-title {
-  font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+  /* A section title is a HEADING, not an eyebrow (design lens on ai-quality, 2026-09-15): the 0.72rem (11.5px) all-caps
+     tracked form was the "kicker used as a heading" DESIGN.md forbids, and under the 12px floor. Sentence case on the
+     title step of the ramp (0.95rem/700), the same weight the page sections on achievements now carry. */
+  font-size: 0.95rem; font-weight: 700; letter-spacing: normal; text-transform: none;
   /* 0.5rem/8px bottom gap: on the 8-pt grid (R1). 0.6rem=9.6px rounds to 10px = off-scale. */
-  color: var(--wh-text-faint); margin: 0 0 0.5rem; line-height: 1.3;
+  color: rgba(255,255,255,0.92); margin: 0 0 0.5rem; line-height: 1.3;
 }
+/* The data-sources disclosure and the source chip's legend render outside a page's own column; their prose keeps the
+   craft floor's measure everywhere (94ch measured on ai-quality at 1280, a page that links only this file). */
+/* ★70ch WAS THE BAND'S NUMBER, NOT A WIDTH THAT PRODUCES IT (design lens craft, 2026-09-17, W45966).
+   This rule is the platform's prose measure and it already existed - which is the finding. Set to 70ch, it
+   let .wh-source-chip render NINETY-THREE characters to a line at desktop-1280, measured by walking the text
+   with a Range one character at a time. The reason is that ch is not a character: it is the advance of the
+   "0" glyph, and lowercase letters run about 1.37x narrower, so a box 70 zero-widths across holds about 95
+   letters. The 65-75 band has always meant LETTERS. 52ch produces about 71 of them in Poppins, which is what
+   the band asks for. Anything set in ch has to be back-calculated from the letters it yields, never copied
+   from the band.
+   .faq-answer JOINS THE FAMILY, because it was never in it: the answers are divs, not p or li, so this rule
+   never reached them and index.html's FAQ ran 76-89 characters a line. A cap that names tags misses the one
+   container that does not use them. */
+.wh-disclose p, .wh-disclose li, details p, details li, .wh-source-chip, .wh-fresh-txt, .wh-method,
+.faq-answer, .faq-item .faq-answer { max-width: 52ch; }
 
 /* ── .hidden utility ─────────────────────────────────────────────────────────
    Found live 2026-07-24 (marketplace deepwalk J9, walking the first-time-seller
@@ -371,9 +418,15 @@ html, body { touch-action: manipulation; overscroll-behavior: contain; }
    Keep the two copies IDENTICAL. If one is edited, edit both.
    --------------------------------------------------------------------------- */
 @media (prefers-reduced-motion: reduce) {
-  *:not(.wh-skeleton):not(.wh-skeleton-row):not(.spinner):not(.loader):not([class*="shimmer"]):not([class*="loading"]):not([class*="animate-pulse"]):not(progress),
-  *:not(.wh-skeleton):not(.wh-skeleton-row):not(.spinner):not(.loader):not([class*="shimmer"]):not([class*="loading"]):not([class*="animate-pulse"])::before,
-  *:not(.wh-skeleton):not(.wh-skeleton-row):not(.spinner):not(.loader):not([class*="shimmer"]):not([class*="loading"]):not([class*="animate-pulse"])::after {
+  /* ★THE EXEMPTIONS MATCHED A CLASS NAME EXACTLY WHILE THE PAGES USE PREFIXED ONES (design lens motion,
+     2026-09-15). This list already matches [class*="shimmer"] by SUBSTRING, but .spinner and .loader by
+     equality - so analytics-report's .ar-spinner, the only progress indicator on a compile that runs up to
+     35 seconds, was frozen for anyone who asked for less motion, and this rule out-specifies any page-level
+     repair (five :not() classes against one). A loader that stops reads as a crash. Matched by substring
+     now, like shimmer, so a page may still give its own reduced-motion alternative on top. */
+  *:not(.wh-skeleton):not(.wh-skeleton-row):not([class*="spinner"]):not([class*="loader"]):not([class*="shimmer"]):not([class*="loading"]):not([class*="animate-pulse"]):not(progress),
+  *:not(.wh-skeleton):not(.wh-skeleton-row):not([class*="spinner"]):not([class*="loader"]):not([class*="shimmer"]):not([class*="loading"]):not([class*="animate-pulse"])::before,
+  *:not(.wh-skeleton):not(.wh-skeleton-row):not([class*="spinner"]):not([class*="loader"]):not([class*="shimmer"]):not([class*="loading"]):not([class*="animate-pulse"])::after {
     /* Motion only. Colour/opacity transitions survive deliberately. */
     transition-property: color, background-color, border-color, outline-color, fill, stroke, opacity, box-shadow !important;
     animation-name: none !important;

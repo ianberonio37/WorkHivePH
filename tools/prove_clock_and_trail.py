@@ -35,6 +35,12 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+
+# the ONE static-document test every layer gate shares (tools/page_kind.py, the rubric's _noDataClient rule)
+import sys as _sys
+_sys.path.insert(0, str(ROOT / 'tools'))
+from page_kind import is_static_doc as _is_static_doc  # noqa: E402
+
 REGISTRY = ROOT / "trajectory_registry.json"
 CLOCK_MARK = "which clock and which period"
 TRAIL_MARK = "record who did what"
@@ -115,6 +121,18 @@ def main() -> int:
         per, clk = PERIOD.search(txt), CLOCK.search(txt)
         if not txt:
             v, line = "n/a", f"{page} could not be read from disk"
+        # ★A STATIC DOCUMENT'S FIGURES ARE ILLUSTRATIONS, NOT MEASUREMENTS (Wave 4, 2026-09-14). The wave seeded
+        # a Cloud & Compute story for every served page and this lens graded 54 learn articles "no stated
+        # period/clock - its figures have no window a reader can check". An article's "MTBF 1,200 h" is a
+        # worked example about nobody's plant; the period-and-clock claim belongs to LIVE figures. The rubric's
+        # own static-document rule (tools/page_kind.py) draws the line; status.html and every DB page stay graded.
+        elif _is_static_doc(page):
+            v, line = "n/a", f"{page} ships no data client - its figures are illustrations, not a live window"
+        # ★A PAGE WITH NO FIGURES HAS NO WINDOW TO STATE (2026-09-14, feedback/index.html under wave 4): a form
+        # that collects feedback shows a reader no numbers, so "which period do these figures belong to" has
+        # no subject. Measured on the visible text: fewer than five numeric tokens is a page without figures.
+        elif len(re.findall(r"(?<![\w/.-])\d[\d,]*(?:\.\d+)?(?![\w/.-])", txt)) < 5:
+            v, line = "n/a", f"{page} shows no figures (a form or a notice) - there is no window for a reader to check"
         elif per and clk:
             v, line = "ok", f'names its period ("{per.group(0)[:26]}") and its clock ("{clk.group(0)[:20]}")'
         else:
@@ -128,8 +146,18 @@ def main() -> int:
         m = TRAIL_CALL.search(src)
         if not src:
             v, line = "n/a", f"{page} could not be read from disk"
+        elif _is_static_doc(page):
+            v, line = "n/a", f"{page} ships no data client - it writes nothing, so there is no trail to leave"
         elif m:
             v, line = "ok", f'writes to the trail ("{m.group(0)[:34]}")'
+        # ★SOME WRITES ARE THEMSELVES THE RECORD (2026-09-14, feedback/index.html under wave 4): a page whose
+        # only write is a feedback / vote / log row is leaving exactly the trail the lens asks for - the row
+        # says who, what and when. Demanding a second audit row for the act of writing the first would be a
+        # trail of the trail. Only self-recording tables qualify; a write to a working table still owes one.
+        elif (sm := re.search(r"\.from\(\s*['\"]([a-z0-9_]*(?:feedback|_votes|_log|audit|_events|_attempts)[a-z0-9_]*)['\"]\s*\)"
+                              r"[\s\S]{0,300}?\.(?:insert|upsert)\s*\(", src)
+              or re.search(r"\.rpc\(\s*['\"]([a-z0-9_]*(?:vote|feedback|audit|_log)[a-z0-9_]*)['\"]", src)):
+            v, line = "ok", f'its write is itself the record ("{sm.group(1)}")'
         else:
             v, line = "BAD", "nothing in this page or the scripts it loads writes to the audit trail"
         out.append({"id": t["id"], "page": page, "verdict": v, "line": line, "wave": t.get("wave")})

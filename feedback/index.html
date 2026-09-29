@@ -64,16 +64,27 @@
     };
   </script>
   <style>
-    .pill { display:inline-block; padding:.2rem .65rem; border-radius:999px; font-size:.7rem; font-weight:600; letter-spacing:.02em; }
+    /* ★TWO ELEMENTS BELOW THE 12px FLOOR ON A PUBLIC PAGE (2026-09-19, W46588 craft lens): .pill at
+       .7rem (11.2px) and .status-pill at .6rem (9.6px). This is the roadmap a visitor reads BEFORE
+       they have an account, on the phone they happen to be holding, and the two smallest things on
+       it are the labels that say what each item IS and where it stands. DESIGN.md's floor is 12px
+       for anything a person reads; both to the label step, with the padding rounded onto the 4px
+       grid at the same time. */
+    .pill { display:inline-block; padding:4px 12px; border-radius:999px; font-size:.75rem; font-weight:600; letter-spacing:.02em; }
     .pill-orange { background:rgba(247,162,27,.18); color:#FDB94A; border:1px solid rgba(247,162,27,.35); }
-    .nav-link { color:rgba(244,246,250,.65); transition:color .15s; font-weight:500; }
+    /* TOUCH TARGET (2026-09-16): a 24px-tall box - the text line and nothing else. It clears WCAG 2.5.8's
+       24x24 minimum by exactly nothing, and the project's own rule is 44px for the primary nav a gloved hand
+       reaches for on a phone. inline-flex + min-height gives a real target and moves no text, because the
+       header row is items-center. Matches the same repair on about, privacy-policy and terms-of-service. */
+    .nav-link { color:rgba(244,246,250,.65); transition:color .15s; font-weight:500;
+      display:inline-flex; align-items:center; min-height:44px; }
     .nav-link:hover { color:#F4F6FA; }
 
     .fb-card { background:linear-gradient(145deg,rgba(42,61,88,.5),rgba(31,46,69,.7));
       border:1px solid rgba(255,255,255,.07); border-radius:1rem; padding:1.25rem;
       transition:border-color .15s, transform .15s; }
     .fb-card:hover { border-color:rgba(247,162,27,.35); }
-    .kind-chip { display:inline-block; font-size:.7rem; font-weight:600; padding:.15rem .55rem;
+    .kind-chip { display:inline-block; font-size:.75rem; font-weight:600; padding:4px 8px;
       border-radius:999px; letter-spacing:.02em; }
     .kind-bug      { background:rgba(255,99,99,.18);   color:#ffb0b0; }
     .kind-idea     { background:rgba(252,211,77,.18);  color:#fef3c7; }
@@ -81,7 +92,7 @@
     .kind-review   { background:rgba(247,162,27,.18);  color:#fed7aa; }
     .kind-praise   { background:rgba(134,239,172,.18); color:#bbf7d0; }
     .kind-other    { background:rgba(255,255,255,.08); color:#cbd5e1; }
-    .status-pill { display:inline-block; font-size:.6rem; padding:.1rem .5rem; border-radius:999px;
+    .status-pill { display:inline-block; font-size:.75rem; padding:4px 8px; border-radius:999px;
       font-weight:600; text-transform:uppercase; letter-spacing:.04em; }
     .status-new          { background:rgba(252,211,77,.18); color:#fef3c7; }
     .status-triaged      { background:rgba(96,165,250,.18); color:#bfdbfe; }
@@ -102,7 +113,12 @@
     .vote-btn .arrow { font-size:1rem; line-height:1; }
     .vote-btn:focus-visible { outline:2px solid #29B6D9; outline-offset:2px; }
 
-    .filter-chip { padding:.4rem .9rem; border-radius:999px; font-size:.8rem; font-weight:500;
+    /* ★ELEVEN OF SIXTEEN CONTROLS WERE UNDER THE 44px TAP FLOOR, and six of them are these chips at
+       33px tall - the only way to filter this list. A public page is where a first-time visitor
+       meets the product, usually one-handed on a phone, so a control they cannot reliably hit is a
+       worse first impression here than anywhere behind the sign-in. min-height and a grid-aligned
+       padding; the chips keep their shape and gain the target. */
+    .filter-chip { padding:8px 16px; min-height:44px; display:inline-flex; align-items:center; border-radius:999px; font-size:.75rem; font-weight:500;
       background:rgba(255,255,255,.04); border:1px solid transparent; color:rgba(244,246,250,.65);
       cursor:pointer; transition:all .15s; font-family:inherit; }
     .filter-chip:hover { color:#F4F6FA; }
@@ -150,17 +166,27 @@
     gtag('config', 'G-ENMGLTFR2J', { anonymize_ip: true });
   </script>
   <script src="/wh-ga4.js" defer></script>
+<style data-wh-public-chrome>/* W46593 audit: the four public pages are the platform's legal and identity surface and their    footer links measured 16px TALL - less than half the 44px floor - with the brand link at 36px    and the header nav 31-42px wide. inline-flex + min-height gives a real target and moves no    text, because each of these rows is already items-center. min-width covers the short header    words ('Home', 'Learn', 'Sign In') whose HEIGHT was fixed by an earlier repair and whose width    was not. */footer a,header a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;}header nav a{min-width:44px;}.breadcrumb a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;min-width:44px;}/*wh-brand-header-gap*/@media (max-width:399px){header nav.flex{gap:.75rem;}}</style>
 </head>
 <body class="bg-navy-wh text-white antialiased">
+<a class="wh-skip-link" href="#wh-main-content" data-wh-skip="public" style="position:fixed;top:0;left:0;z-index:10001;transform:translateY(-120%);background:var(--wh-orange,#F7A21B);color:var(--wh-navy,#162032);padding:0 20px;min-height:44px;display:inline-flex;align-items:center;font-weight:700;font-size:14px;text-decoration:none;border-radius:0 0 10px 0;box-shadow:0 4px 16px rgba(0,0,0,.35);transition:transform .15s cubic-bezier(0.23,1,0.32,1);box-sizing:border-box;" onfocus="this.style.transform='translateY(0)'" onblur="this.style.transform='translateY(-120%)'">Skip to main content</a>
+
 
 <!-- Nav -->
 <header class="border-b border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
-  <div class="max-w-6xl mx-auto px-5 sm:px-8 py-4 flex items-center justify-between">
-    <a href="/" class="flex items-center gap-3">
+  <!-- SIDEWAYS SCROLL AT PHONE WIDTH (2026-09-16): this header was the only one on the site that did not
+       fit. Measured at 390: the document scrolled to 460px against a 375px content box because the logo
+       (121px) and a five-link nav (339px) were locked in one non-wrapping row - this is the only page whose
+       nav carries Roadmap, and the fifth link is what tipped it over. The footer in this same file already
+       solved it with flex-col sm:flex-row; the header never did. Both rows may now wrap, so the nav drops
+       below the logo at narrow widths instead of pushing the page sideways, and a sixth link would wrap
+       rather than break it again. -->
+  <div class="max-w-6xl mx-auto px-5 sm:px-8 py-4 flex flex-wrap items-center justify-between gap-y-3">
+    <a href="/" class="flex items-center gap-3" style="min-height:44px;">
       <img src="/brand_assets/workhive-logo-transparent.png" alt="WorkHive" style="height: 36px; width: auto;" />
-      <span class="font-black text-lg tracking-tight">WorkHive</span>
+      <span class="font-black text-lg tracking-tight wh-brand-word hidden sm:inline" aria-hidden="true">WorkHive</span>
     </a>
-    <nav class="flex items-center gap-6">
+    <nav class="flex flex-wrap items-center justify-end gap-x-5 gap-y-2">
       <a href="/" class="nav-link">Home</a>
       <a href="/learn/" class="nav-link">Learn</a>
       <a href="/feedback/" class="nav-link" style="color:#F4F6FA;">Roadmap</a>
@@ -175,7 +201,12 @@
   <div class="max-w-4xl mx-auto px-5 sm:px-8 text-center">
     <p class="pill pill-orange mb-5">Public roadmap</p>
     <h1 class="text-4xl sm:text-5xl font-black leading-tight tracking-tight mb-6">
-      What <span style="background:linear-gradient(135deg,#F7A21B 30%,#FDB94A 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Filipino plant workers</span> are asking for
+      What <!-- GRADIENT TEXT REMOVED (craft lens, 2026-09-16). The heading painted an amber gradient and clipped it
+         to the glyphs with -webkit-background-clip:text + -webkit-text-fill-color:transparent. On any engine
+         where that fill-color does not apply the word renders in its inherited WHITE straight onto the amber
+         box; dayplanner.html measured exactly that at 1.72:1 before the same fix. Solid #F7A21B is the colour
+         the gradient was imitating and it cannot fall back to anything - 7.8:1 on the page's #162032. -->
+      <span style="color:#F7A21B;">Filipino plant workers</span> are asking for
     </h1>
     <p class="text-lg text-white/70 leading-relaxed max-w-2xl mx-auto font-light">
       Vote on bug reports and feature ideas. The floating feedback button on every WorkHive page sends submissions here once the admin marks them public. Top-voted items get prioritized.
@@ -199,7 +230,10 @@
 </section>
 
 <!-- List -->
-<main class="max-w-4xl mx-auto px-5 sm:px-8 my-8 mb-20">
+<main id="wh-main-content" data-wh-main-id class="max-w-4xl mx-auto px-5 sm:px-8 my-8 mb-20">
+  <!-- D-layer provenance (Wave-4, W4 layer-D): the list below is domain data (platform_feedback), so the reader
+       is told where it came from and how it is ordered - the platform's wh-source-chip idiom (see assistant.html). -->
+  <p class="wh-source-chip" style="font-size:.75rem;color:rgba(255,255,255,0.80);margin:0 0 16px;line-height:1.4;">Community-submitted feedback &middot; public items, sorted by votes then newest &middot; top 200 &middot; loaded when you open this page</p>
   <div id="fb-roadmap-list" class="space-y-4" aria-live="polite">
     <div class="text-center text-white/50 text-sm py-16">Loading roadmap…</div>
   </div>
@@ -209,11 +243,17 @@
 <footer class="border-t border-white/[0.06] py-10 mt-10">
   <div class="max-w-6xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/50">
     <div>&copy; 2026 WorkHive Engineering Services · DTI 8080496</div>
-    <div class="flex items-center gap-6">
-      <a href="/about/" class="hover:text-white/60 transition-colors">About</a>
-      <a href="/learn/" class="hover:text-white/60 transition-colors">Learn</a>
-      <a href="/privacy-policy/" class="hover:text-white/60 transition-colors">Privacy</a>
-      <a href="/terms-of-service/" class="hover:text-white/60 transition-colors">Terms</a>
+    <!-- ★THESE FOUR ARE NAVIGATION, NOT LINKS IN A SENTENCE (2026-09-19, W46588 craft lens).
+           Measured at 36x16, 33x16, 43x16 and 37x16, display:block, inside a flex row with no prose
+           around them - so WCAG 2.5.8's exemption for a target in a line of text does not apply and
+           they are simply small. On the public roadmap page, which is where a first-time visitor
+           meets the product one-handed on a phone. 44px each, laid out inline so the row is
+           unchanged. -->
+      <div class="flex items-center gap-6" style="--wh-footer-tap:44px;">
+      <a href="/about/" class="hover:text-white/60 transition-colors" style="min-height:44px;display:inline-flex;align-items:center;">About</a>
+      <a href="/learn/" class="hover:text-white/60 transition-colors" style="min-height:44px;display:inline-flex;align-items:center;">Learn</a>
+      <a href="/privacy-policy/" class="hover:text-white/60 transition-colors" style="min-height:44px;display:inline-flex;align-items:center;">Privacy</a>
+      <a href="/terms-of-service/" class="hover:text-white/60 transition-colors" style="min-height:44px;display:inline-flex;align-items:center;">Terms</a>
     </div>
   </div>
 </footer>

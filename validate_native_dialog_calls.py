@@ -34,30 +34,49 @@ CALL_RE = re.compile(
 # on `// confirm with the user that ...` or `"alert(): blocking"`.
 LINE_COMMENT_RE = re.compile(r"//[^\n]*")
 BLOCK_COMMENT_RE = re.compile(r"/\*.*?\*/", re.DOTALL)
+# These files are HTML, and an HTML comment is not code either. alert-hub.html was reported for the
+# prose "every control names ITS alert (ledger C33...)" inside <!-- ... -->, which no browser executes.
+HTML_COMMENT_RE = re.compile(r"<!--.*?-->", re.DOTALL)
 
 
 # Sentinel binding: name the L2 test `test('native_dialog_calls: ...')` for coverage credit.
 CHECK_NAMES = ["native_dialog_calls"]
 
 
+def _blank(m: "re.Match[str]") -> str:
+    """Replace a comment with spaces, KEEPING its newlines, so offsets and line numbers survive."""
+    return "".join("\n" if ch == "\n" else " " for ch in m.group(0))
+
+
 def _strip(src: str) -> str:
-    return BLOCK_COMMENT_RE.sub("", LINE_COMMENT_RE.sub("", src))
+    # ★OFFSET-PRESERVING, AND THAT IS THE WHOLE FIX (2026-09-28). This used to DELETE comment text
+    # (sub("")), which shifted every offset after the first comment. Two things broke as a result and
+    # both were silent:
+    #   1. `line_no` came from the stripped text, so reported lines drifted from the real file - the
+    #      run that found these sites pointed at index.html:3828, a line reading
+    #      `errEl.classList.remove('hidden')`.
+    #   2. The documented `// native-dialog-allow: <reason>` exemption COULD NEVER FIRE for any call
+    #      that had a comment above it: the lookup did `body.find(stripped[start-30:end])`, and those
+    #      30 leading characters contained the collapsed comment, so `find` returned -1, `approx_idx`
+    #      fell back to 0, and the marker window became the first 200 bytes of the FILE. The mechanism
+    #      the module docstring advertises was dead on arrival for exactly the sites that need it.
+    # Blanking to spaces keeps every index identical to the original, so the match position IS the
+    # original position and the window around it is the real neighbourhood.
+    out = HTML_COMMENT_RE.sub(_blank, src)
+    out = BLOCK_COMMENT_RE.sub(_blank, out)
+    return LINE_COMMENT_RE.sub(_blank, out)
 
 
 def _check_file(path: Path) -> list:
     issues = []
     body = path.read_text(encoding="utf-8", errors="replace")
     stripped = _strip(body)
+    assert len(stripped) == len(body), "the stripper must preserve offsets"
     for m in CALL_RE.finditer(stripped):
         fn = m.group(2)
-        # Look up original position by walking the stripped match back into source
-        # Cheap approximation: count newlines up to match start in stripped
-        line_no = stripped.count("\n", 0, m.start()) + 1
-        # allow marker within ±200 chars of the match in ORIGINAL body
-        # (use line number to find the approximate region)
-        approx_idx = body.find(stripped[max(0, m.start()-30):m.end()])
-        if approx_idx < 0: approx_idx = 0
-        window = body[max(0, approx_idx-300): approx_idx+200]
+        line_no = body.count("\n", 0, m.start()) + 1
+        # the allow marker, within the real neighbourhood of the real position
+        window = body[max(0, m.start() - 300): m.start() + 200]
         if "native-dialog-allow" in window:
             continue
         issues.append({"file": str(path.relative_to(ROOT)).replace("\\", "/"), "fn": fn, "line": line_no})

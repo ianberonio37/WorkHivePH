@@ -88,6 +88,28 @@ OTHER = "other"
 # re-walk - including rows already banked `live` by a library sweep, when their lens is journey-shaped or needs an
 # outside witness. A kind whose server we do not have is marked MISSING, which is a queue item, never an excuse.
 MCP_FOR_KIND = [
+    # ★WAVE 4 FIRST OF ALL (2026-09-14) - its lenses say what they are. A "Lived start to end" action story
+    # is a journey walked with both eyes (the browser for each step's transition, postgres for what the step
+    # wrote); the whole nav-hub is a browser walk on its host page; a "lived start to end" LAYER story is
+    # answered by the instrument that can PROVOKE that layer - S by PostgREST as the person herself, H by the
+    # served headers, L by the trail in postgres, every other layer by the browser with the effect checked
+    # from outside. Matched before every older rule because these lenses reuse wave 3's own sentences
+    # ("The platform must ...") and would otherwise route by a word inside the surface's name.
+    # ★THE DESIGN LENSES (2026-09-15, Ian: "your own designing skills are all slop") - a skill playbook applied
+    # live through the browser MCPs at phone-390 AND desktop-1280; the figma lens also needs the Figma MCP (the
+    # page's design source). Matched before every other rule; _w4_missing holds each row to its lens's evidence.
+    ("playwright-mcp + figma-mcp", r"^Design lens figma:"),
+    # the audit lens scores five dimensions 0-4, and three of them (performance, a11y focus order, responsive
+    # under throttling) are only measurable in a TRACE - so it names both browsers and closes under neither alone
+    ("playwright-mcp + chrome-devtools-mcp", r"^Design lens audit:"),
+    ("playwright-mcp", r"^Design lens "),
+    ("playwright-mcp + postgres-mcp", r"^Lived start to end:"),
+    ("playwright-mcp", r"^The whole nav-hub, every control"),
+    ("invoke + PostgREST as the caller (never the owner connection)",
+     r"^The platform must refuse, on this page, a person who is not entitled.*lived start to end"),
+    ("raw-http", r"^The platform must serve this page correctly from the edge.*lived start to end"),
+    ("postgres-mcp", r"^The platform must record who did what on this page.*lived start to end"),
+    ("playwright-mcp + postgres-mcp", r", lived start to end - "),
     # ★WAVE 3 FIRST, ON THE LENS'S OWN WORDS (2026-09-07). Its rows name surfaces and topics that every rule
     # below would grab by keyword - a journey through report-sender says "e-mail", a function contract says
     # "refuse", a shared-component row says "cache" - and each of those would route a question to an instrument
@@ -299,6 +321,156 @@ def _red_receipt_ids() -> set:
 _RED_RECEIPTS = _red_receipt_ids()
 
 
+def _w4_receipts() -> dict:
+    """id -> the NEWEST MCP receipt result for a wave-4 row (its `w4` block carries axis, effect, layer,
+    hub_controls, fixture_provenance; every step carries `fit`, the overlap/occlusion record)."""
+    best: dict = {}
+    # BOTH W4 receipt namespaces: mcp_walks/<id>.json (the layer provers + hand MCP walks) AND the nav-hub
+    # ratchet's full_journeys_w4navhub_*.json (tools/prove_w4_navhub.mjs writes there, per its docstring). Without
+    # the second glob every nav-hub row read "no MCP receipt" and could never close, however clean its walk
+    # (2026-09-14). _w4_missing still gates each row (>=4 pages + fit), so widening the read cannot over-count.
+    globs = (sorted(glob.glob(str(ROOT / ".tmp" / "mcp_walks" / "W4*.json")))
+             + sorted(glob.glob(str(ROOT / ".tmp" / "full_journeys_w4navhub_*.json"))))
+    for path in globs:
+        try:
+            doc = json.loads(Path(path).read_text(encoding="utf-8"))
+            mtime = os.path.getmtime(path)
+        except Exception:
+            continue
+        for res in (doc.get("results") or []):
+            rid = res.get("id")
+            if rid and (rid not in best or mtime >= best[rid][1]):
+                best[rid] = (res, mtime)
+    return {rid: res for rid, (res, _m) in best.items()}
+
+
+def _w4_missing(row: dict, receipts: dict) -> str:
+    """Why a wave-4 row's evidence is incomplete ('' when it is complete).
+
+    ★THE VOCABULARY OF WAVE 4 (2026-09-14): a journey banked from ONE page, without a persisted-effect receipt
+    on a writing step, without its axis's width and language, without the layer it claims provoked, or without
+    the per-step overlap record stays OPEN - however green its walk reads. These are the four things Ian asked
+    for by name (start to end; the effect to its terminus; the three axes; the overlap/occlusion record at
+    every step), so a receipt that lacks one has not answered the row, and the ledger says so per row.
+    """
+    w4 = row.get("w4") or {}
+    if not w4:
+        return ""
+    res = receipts.get(row["id"])
+    if not res:
+        return "no MCP receipt"
+    steps = res.get("steps") or []
+    got = res.get("w4") or {}
+    ax = row.get("axis") or {}
+    want_axis = f"{ax.get('device')} {ax.get('language')}"
+    problems = []
+    kind = w4.get("kind")
+    # a design-lens row is ONE page studied at two viewports (arrival + the page at 390 and at 1280); the four-page
+    # rule is the journey rule and does not describe its evidence - the design branch below holds it to both viewports
+    if kind == "design":
+        if len({s.get("page") for s in steps}) < 2:
+            problems.append("no arrival step before the page")
+    elif len({s.get("page") for s in steps}) < 4:
+        problems.append("fewer than 4 pages walked")
+    if got.get("axis") != want_axis:
+        problems.append(f"axis {got.get('axis')!r} != {want_axis!r}")
+    layer = w4.get("layer")
+    # ★THE EVIDENCE IS SHAPED BY THE LAYER (2026-09-14). Not every W4 story is a browser walk: the overlap/
+    # occlusion record is the right witness for what a person SEES (Frontend F, the language/copy CA, an
+    # action's render, the nav-hub chrome) - but a contract layer answers with a non-browser instrument that
+    # produces no `fit`. S/AU are proven by a refusal received AS the person through PostgREST (never the
+    # owner connection); L by the trail in postgres; D by the provenance the write left; H by the served
+    # headers; A/AV/C/CI/LB/RL by the degraded/limit/release behaviour. So a browser-shaped row still needs
+    # `fit` on every step, and a contract-layer row needs a named `witness` instead - requiring `fit` of it
+    # would refuse honest evidence the way asking a poster for a status region does.
+    browser_shaped = kind in ("action", "nav-hub", "confusion", "design") or (kind == "layer" and layer in ("F", "CA"))
+    if browser_shaped:
+        if not steps or not all(isinstance(s.get("fit"), dict) for s in steps):
+            problems.append("a step has no overlap/occlusion record")
+    else:
+        if not got.get("witness"):
+            problems.append(f"no witness for the {layer} contract layer "
+                            "(a refusal / trail / provenance / headers / limit receipt, not a browser fit)")
+    if kind == "action" and (w4.get("action") or {}).get("kind") in ("write", "upload", "edge") \
+            and not got.get("effect"):
+        problems.append("no persisted-effect receipt for a writing step")
+    if kind == "layer" and got.get("layer") != w4.get("layer"):
+        problems.append(f"layer provoked {got.get('layer')!r} != {w4.get('layer')!r}")
+    if kind == "nav-hub" and int(got.get("hub_controls") or 0) < 11:
+        problems.append("fewer than the 11 nav-hub control groups exercised")
+    if w4.get("fixture") and not got.get("fixture_provenance"):
+        problems.append("no provenance for the real file")
+    # ★A DESIGN-LENS ROW CLOSES ON ITS LENS'S OWN EVIDENCE (2026-09-15): the lens named, both viewports walked,
+    # the detector's JSON for the page present AND clean (the mechanical anti-slop witness - a receipt that says
+    # "fixed" over a page the detector still flags is the slop the wave exists to end), the after-scores at the
+    # floor for the scored lenses, both languages for copy, the Figma file + nodes for figma.
+    if kind == "design":
+        want_lens = w4.get("lens")
+        if got.get("lens") != want_lens:
+            problems.append(f"lens {got.get('lens')!r} != {want_lens!r}")
+        vps = set(got.get("viewports") or [])
+        if not {"phone-390", "desktop-1280"} <= vps:
+            problems.append("not walked at both phone-390 and desktop-1280")
+        det = got.get("detector")
+        if not det or not (ROOT / det).exists():
+            problems.append("no detector output for the page")
+        else:
+            try:
+                # ★AND THE SAME SEMANTICS THE BANKER AND THE GATE APPLY (2026-09-16). The receipt FILE keeps
+                # every finding the detector reported, artifacts included - that is deliberate, it is the
+                # evidence. The VERDICT must not. `is_measurement_artifact` drops a low-contrast finding
+                # whose colour exists only inside @media print, and a skipped-heading finding whose two
+                # headings carry an `aria-level` that keeps the outline continuous. Without this, every
+                # learn-corpus design row read OPEN on skipped-heading x1-x2 - findings this repo had
+                # already refuted per finding, and which its own heading oracle passes 57/57. That is the
+                # SAME miss the comment below records, in the same consumer, five weeks later
+                # ([[feedback_a_new_roster_kind_must_teach_every_consumer]],
+                # [[feedback_three_readers_ignored_aria_level]]).
+                sys.path.insert(0, str(ROOT / "tools"))
+                from prove_design_detector_ratchet import is_measurement_artifact as _artifact
+                primary = [f for f in json.loads((ROOT / det).read_text(encoding="utf-8"))
+                           if f.get("severity") != "advisory" and not _artifact(f)]
+            except Exception:
+                primary = None
+            if primary is None:
+                problems.append("detector output unreadable")
+            elif primary:
+                # ★A FINDING A LIVE MEASUREMENT DISPROVED, PINNED TO ITS COUNT, IS NOT AN OPEN FINDING
+                # (2026-09-15). The banker and the w4-design gate both learned this when analytics-report
+                # forced it - one file holding a dark app shell AND a white printed document makes the
+                # detector pair the shell's white text with the document's ground - and THIS consumer was
+                # not taught in the same change, so three freshly banked, gate-green rows read OPEN. Same
+                # teeth here as there: the count must match exactly, and any finding of a kind the receipt
+                # never claimed still holds the row open. ([[feedback_a_new_roster_kind_must_teach_every_consumer]])
+                from collections import Counter as _C
+                _claimed = got.get("detectorDisproven") or {}
+                _seen = _C(f.get("antipattern") for f in primary)
+                _unclaimed = {k: v for k, v in _seen.items() if k not in _claimed}
+                _drift = {k: (c.get("count"), _seen.get(k, 0)) for k, c in _claimed.items()
+                          if _seen.get(k, 0) != c.get("count")}
+                if _unclaimed or _drift:
+                    _d = "; ".join(f"{k} x{v}" for k, v in sorted(_unclaimed.items()))
+                    for k, (wnt, gt) in sorted(_drift.items()):
+                        _d += f"; '{k}' disproven at {wnt}, now {gt}"
+                    problems.append(f"the detector reports {len(primary)} primary finding(s) on the page "
+                                    f"not covered by this receipt - {_d}")
+        if want_lens in ("audit", "critique"):
+            after = (got.get("scores") or {}).get("after") or {}
+            low = [k for k, v in after.items() if isinstance(v, (int, float)) and v < 3]
+            if not after:
+                problems.append("no after-scores for a scored lens")
+            elif low:
+                problems.append("scores below 3: " + ", ".join(low))
+        if want_lens == "copy" and not {"en", "fil"} <= set(got.get("languages") or []):
+            problems.append("copy lens not walked in both en and fil")
+        if want_lens == "figma" and not got.get("figma"):
+            problems.append("no Figma file / node ids for the page's design source")
+    return "; ".join(problems)
+
+
+_W4_RECEIPTS = _w4_receipts()
+
+
 def _pct(done: int, total: int) -> float:
     """Percent closed, and it may NEVER round up to 100 while a row is still open (2026-09-10).
 
@@ -326,6 +498,26 @@ def build() -> dict:
         basis = (r.get("basis") or "")
         # did this row's own evidence come from the instrument its lens demands?
         tag = want.split()[0].replace("-mcp", "").replace("-connector", "")
+        # ★A COMBINED INSTRUMENT MUST BE PROVEN BY BOTH HALVES, NOT BY ITS FIRST WORD (2026-09-15, Ian:
+        # "I thought we are using relevant live MCPs?"). `tag` is the first token, so a want of
+        # "playwright-mcp + chrome-devtools-mcp" was satisfied by a basis naming only Playwright - the
+        # second instrument was decorative. Every " + " want now carries EXTRA_TAGS, and each half must
+        # be recognised on its own before the row may read closed.
+        # ONLY a half that is itself an MCP counts. "invoke + PostgREST as the caller (never the owner
+        # connection)" has a PROSE second half describing how the first instrument is driven, and the S
+        # layer has closed 900/900 through the `invoke` marker family since 2026-09-14 - reading that
+        # phrase as a second instrument reopened 540 settled rows and dropped the headline 18 points in
+        # one run, which is how this was caught. A second INSTRUMENT ends in "-mcp".
+        # ...and only for the DESIGN lenses, which is where this rule was introduced and where the second
+        # instrument is load-bearing (the audit lens scores performance, and three of its five dimensions
+        # exist only in a trace; the figma lens needs the file that holds the page's design source).
+        # Applying it to wave 4's "Lived start to end" rows would re-define the closure of thousands of
+        # already-earned journeys and move the programme's denominator by 17 points - a scope change,
+        # not a repair, and not mine to make silently.
+        _design_row = str(r.get("title", "")).startswith("Design lens")
+        extra_tags = ([t.strip().replace("-mcp", "").replace("-connector", "")
+                       for t in want.split(" + ")[1:] if t.strip().endswith("-mcp")]
+                      if (" + " in want and _design_row) else [])
         # ★AN INSTRUMENT IS PROVEN BY THE PROVER THAT SPEAKS FOR IT, not only by its own name appearing in the
         # basis. The public-arrival family was mapped to crawl4ai, but crawl4ai returns cleaned MARKDOWN - useful
         # for reading someone else's page, useless for asserting our own served bytes - so the lens that actually
@@ -345,6 +537,12 @@ def build() -> dict:
                          "raw served html", "deployed origin", "Retry-After", "Location header",
                          "shared refusal builder", "rateLimitedResponse"),
             "postgres": ("prove_tenant_refusal", "prove_tile_canonical", "postgrest", "psql", "canonical query",
+                         # the W4 layer-L (audit trail) prover is source-level, exactly like the accepted
+                         # prove_clock_and_trail gate this repo already trusts for the same claim (2026-09-14)
+                         "prove_w4_layer_trail", "prove_clock_and_trail",
+                         # the W4 layer-D (data provenance) prover is source-level too: it reads the page's own
+                         # domain reads + credits the platform's source-chip idiom, no browser (2026-09-14)
+                         "prove_w4_layer_d",
                          # the hive-separation walk speaks postgres through PostgREST as the person herself
                          "prove_hive_separation", "prove_leaving_honesty",
                          # the concurrency guards are proven by RACING two writers in the database - a
@@ -359,7 +557,12 @@ def build() -> dict:
             # same change, or the ledger asks for evidence it has no way to accept.
             "invoke": ("prove_fn_contracts", "refused a foreign-hive request", "degraded legibly",
                        "in its own declared shape", "the caller's own words", "sentinel absent",
-                       "answered my own hive"),
+                       "answered my own hive",
+                       # the W4 layer-S prover impersonates a FOREIGN-hive member via PostgREST jwt-claims (never
+                       # the owner connection) and requires 0 rows - the "invoke + PostgREST as the caller" lens
+                       # the manifest routes S to; its own-hive control + a static/platform-scoped page report n/a
+                       # (nothing to refuse) and still name the prover (2026-09-14)
+                       "prove_w4_layer_s"),
             # ★A BROWSER WALK IS EVIDENCED BY WHAT IT DID, NOT BY NAMING ITS DRIVER (corrected 2026-09-06).
             # 102 rows sat in this queue holding bases like "walked 390 as bryangarcia through the REAL 3-step
             # wizard (asset auto-advance -> step2 -> step3 save)" - unmistakably a live browser walk, failing only
@@ -370,12 +573,20 @@ def build() -> dict:
                            "screenshot", "viewport", "the wizard", "modal", "on screen", "rendered"),
             "grafana": ("prove_ops_liveness", "grafana"),
             "chrome-devtools": ("chrome-devtools", "cwv_probe", "cwv trace", "gate cwv", "devtools protocol", "cdp session", "emulatenetworkconditions"),   # a Playwright CDP session IS the devtools instrument
+            "playwright-mcp + chrome-devtools-mcp": ("playwright-mcp + chrome-devtools-mcp", "chrome devtools mcp",
+                                                     "performance trace", "forcedreflow", "clsculprits", "lcpbreakdown"),
             "sentry": ("sentry", "glitchtip"),
             "mail-catcher": ("prove_mail_delivery", "mailpit", "outbox"),
             "axe": ("prove_a11y", "axe"),
         }
         low = basis.lower()
-        used = tag.lower() in low or (want.startswith("library") and kind == "live")             or any(m in low for m in MARKERS.get(tag.lower(), ()))
+        def _seen(t):
+            t = t.lower()
+            return t in low or any(m in low for m in MARKERS.get(t, ()))
+        used = (tag.lower() in low or (want.startswith("library") and kind == "live")
+                or any(m in low for m in MARKERS.get(tag.lower(), ())))
+        if used and extra_tags:
+            used = all(_seen(t) for t in extra_tags)   # both halves, or the row is not closed
         out_rows.append({
             "id": r["id"], "wave": r.get("wave"), "status": r.get("status"),
             "kind": kind, "gated": r.get("status") in gated,
@@ -384,6 +595,8 @@ def build() -> dict:
             "mcp": want, "mcp_used": bool(used),
             "needs_mcp_rewalk": bool(not used and not want.startswith("library") and want != "unassigned"),
             "receipt_red": r["id"] in _RED_RECEIPTS,
+            # wave 4 only: '' when the receipt carries everything the wave asks for, else why it is still open
+            "needs_w4_evidence": _w4_missing(r, _W4_RECEIPTS),
         })
     live = [r for r in out_rows if r["kind"] == "live"]
     # ★CLOSED TIGHTENED 2026-09-06 (Ian: "revisit the entire trajectories, and determine which needed to be rewalk
@@ -406,7 +619,8 @@ def build() -> dict:
     # which is the honest direction, exactly as it was when the instrument condition was added above.
     def _closed(r):
         return (r["kind"] == "live" and r["gated"]
-                and not r["needs_mcp_rewalk"] and not r["receipt_red"])
+                and not r["needs_mcp_rewalk"] and not r["receipt_red"]
+                and not r.get("needs_w4_evidence"))
     closed = [r for r in out_rows if _closed(r)]
     openq = [r for r in out_rows if not _closed(r)]
 

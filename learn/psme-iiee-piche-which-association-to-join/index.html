@@ -104,29 +104,45 @@
     html, body, a, button { touch-action: manipulation; }   /* T3: no 300 ms tap delay, no double-tap zoom (the rubric reads html/body) */
     body { font-family: 'Poppins', sans-serif; }
     .hex-pattern { background-image: radial-gradient(circle, rgba(247,162,27,0.04) 1px, transparent 1px); background-size: 28px 28px; }
-    .audience-block { background: linear-gradient(135deg, rgba(41,182,217,0.10), rgba(41,182,217,0.04)); border: 1px solid rgba(41,182,217,0.22); border-radius: 14px; padding: 18px 22px; margin: 1.75rem 0; }
-    .audience-label { font-size: 11px; font-weight: 700; color: #5FCCE8; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
-    .audience-block ul { margin: 0; padding-left: 1.2rem; color: rgba(244,246,250,0.85); font-size: 0.92rem; line-height: 1.7; }
-    .answer-first { background: rgba(247,162,27,0.06); border-left: 3px solid #F7A21B; padding: 18px 22px; border-radius: 0 12px 12px 0; margin: 1.5rem 0; color: rgba(244,246,250,0.85); font-size: 1.02rem; line-height: 1.65; }
-    .toc { background: rgba(31,46,69,0.6); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; padding: 18px 22px; margin: 2rem 0; }
-    .toc h2 { margin: 0 0 8px; font-size: 13px; color: rgba(244,246,250,0.8); font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; }
-    .toc ol { margin: 0; padding-left: 1.2rem; color: rgba(244,246,250,0.85); font-size: 0.92rem; line-height: 1.85; }
+    .audience-block { background: linear-gradient(135deg, rgba(41,182,217,0.10), rgba(41,182,217,0.04)); border: 1px solid rgba(41,182,217,0.22); border-radius: 14px; padding: 20px 24px; margin: 1.75rem 0; }
+    .audience-label { font-size: 0.75rem; font-weight: 700; color: #5FCCE8; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
+    .audience-block ul { margin: 0; padding-left: 1.2rem; color: rgba(244,246,250,0.85); font-size: 0.95rem; line-height: 1.7; }
+    .answer-first { background: rgba(247,162,27,0.06); border: 1px solid rgba(247,162,27,0.30); padding: 20px 24px; border-radius: 0 12px 12px 0; margin: 1.5rem 0; color: rgba(244,246,250,0.85); font-size: 1.05rem; line-height: 1.65; }
+    .toc { background: rgba(31,46,69,0.6); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; padding: 20px 24px; margin: 2rem 0; }
+    .toc h2, .toc h4 { margin: 0 0 8px; font-size: 0.85rem; color: rgba(244,246,250,0.8); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+    .toc ol { margin: 0; padding-left: 1.2rem; color: rgba(244,246,250,0.85); font-size: 0.95rem; line-height: 1.85; }
     .toc a { color: rgba(244,246,250,0.85); }
     .toc a:hover { color: #FDB94A; }
-    .prose-wh h2 { font-size: 1.55rem; font-weight: 800; color: #F4F6FA; margin: 2.25rem 0 0.85rem; letter-spacing: -0.01em; }
-    .prose-wh p { overflow-wrap: anywhere; word-break: break-word; font-size: 1.005rem; color: rgba(244,246,250,0.85); line-height: 1.75; margin: 0.85rem 0; }
+    .prose-wh h2 { font-size: 1.55rem; font-weight: 800; color: #F4F6FA; margin: 2.25rem 0 1rem; letter-spacing: -0.01em; }
+    .prose-wh { overflow-wrap: anywhere; word-break: break-word; color: rgba(244,246,250,0.85); font-size: 1.05rem; line-height: 1.8; }
+    .prose-wh p { overflow-wrap: anywhere; word-break: break-word; font-size: 1.05rem; color: rgba(244,246,250,0.85); line-height: 1.75; margin: 1rem 0; }
+    /* TABLES (2026-09-16): these two pages had no screen rule for td/th, so every cell fell through
+       to the user-agent default of 1px - measured live, 30 off-grid edges on the FMEA worksheet alone.
+       This is the rule the other 52 learn articles already carry, verbatim. */
+    .prose-wh table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.95rem; }
+    .prose-wh th, .prose-wh td { padding: 12px 14px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.08); vertical-align: top; }
+    .prose-wh th { background: rgba(31,46,69,0.6); font-weight: 700; color: #F4F6FA; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em;
+      /* [data-table-scroll] promises a scrollable region, and a table pinned to width:100%%
+         can never overflow - so it crushed the header instead. Measured: 3 lines @124px for
+         "Annual membership" at 390 (W46205, 2026-09-21). One line here is what makes the
+         wrapper real. Ported from the pillar template's W46083 fix. */
+      white-space: nowrap; }
+    /* MEASURE (2026-09-16): 72ch, inside the 65-75 craft floor. Measured at 1280 before the
+       cap: 80ch here against 73ch on the articles that already carried this rule. Below ~1100px
+       the column is already narrower than the cap, so nothing moves on a phone. */
+    .prose-wh p, .prose-wh li { max-width: 72ch; }
     .prose-wh strong { color: #F4F6FA; }
     .prose-wh a { color: #5FCCE8; text-decoration: underline; text-underline-offset: 3px; }
-    .prose-wh ol, .prose-wh ul { color: rgba(244,246,250,0.85); padding-left: 1.4rem; margin: 0.85rem 0; line-height: 1.75; }
-    .tool-cta { background: linear-gradient(135deg, rgba(247,162,27,0.14), rgba(247,162,27,0.04)); border: 1px solid rgba(247,162,27,0.32); border-radius: 14px; padding: 22px 26px; margin: 2.25rem 0; }
-    .tool-cta a { display: inline-block; margin-top: 10px; background: linear-gradient(135deg, #F7A21B, #FDB94A); color: #162032; font-weight: 700; padding: 10px 22px; border-radius: 10px; text-decoration: none; transition: transform 0.15s; }
+    .prose-wh ol, .prose-wh ul { color: rgba(244,246,250,0.85); padding-left: 1.4rem; margin: 1rem 0; line-height: 1.75; }
+    .tool-cta { background: linear-gradient(135deg, rgba(247,162,27,0.14), rgba(247,162,27,0.04)); border: 1px solid rgba(247,162,27,0.32); border-radius: 14px; padding: 24px 28px; margin: 2.25rem 0; }
+    .tool-cta a { display: inline-block; margin-top: 12px; background: linear-gradient(135deg, #F7A21B, #FDB94A); color: #162032; font-weight: 700; padding: 12px 24px; border-radius: 10px; text-decoration: none; transition: transform 0.15s; }
     .tool-cta a:hover { transform: translateY(-1px); }
-    .faq-item { background: rgba(31,46,69,0.6); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 16px 20px; margin: 0.7rem 0; }
-    .faq-item summary { cursor: pointer; font-weight: 600; color: #F4F6FA; font-size: 1rem; }
+    .faq-item { background: rgba(31,46,69,0.6); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 16px 20px; margin: 0.75rem 0; }
+    .faq-item summary { cursor: pointer; font-weight: 600; color: #F4F6FA; font-size: 1.05rem; }
     .faq-item[open] summary { color: #FDB94A; }
-    .faq-item .faq-answer { margin-top: 12px; color: rgba(244,246,250,0.85); font-size: 0.97rem; line-height: 1.7; }
+    .faq-item .faq-answer { margin-top: 12px; color: rgba(244,246,250,0.85); font-size: 0.95rem; line-height: 1.7; }
     .sources-list { list-style: none; padding: 0; }
-    .sources-list li { overflow-wrap: anywhere; word-break: break-word; padding: 8px 0; border-bottom: 1px dashed rgba(255,255,255,0.07); color: rgba(244,246,250,0.85); font-size: 0.9rem; }
+    .sources-list li { overflow-wrap: anywhere; word-break: break-word; padding: 8px 0; border-bottom: 1px dashed rgba(255,255,255,0.07); color: rgba(244,246,250,0.85); font-size: 0.95rem; }
       /* Z2/R2 (critic re-sweep 2026-09-07): a long unbroken token (a citation URL) widened a paragraph to 463px at 390 and the page scrolled sideways; long words now wrap */
   </style>
 <!-- WorkHive GA4 -->
@@ -140,16 +156,18 @@
   <script src="/wh-ga4.js" defer></script>
   <!-- /WorkHive GA4 -->
 <link rel="stylesheet" href="/learn-print.css" media="print" />
-<style data-wh-chrome-i18n>nav a,header a,footer a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;min-width:44px;}nav a{padding:0 .25rem;}.breadcrumb a,.toc a{display:inline-flex;align-items:center;min-height:44px;}.breadcrumb a{min-width:44px;justify-content:center;}a.text-sm[href$='/learn/'],a.text-sm[href$='/learn/index.html']{display:inline-flex;align-items:center;min-height:44px;}.wh-tap{display:inline-flex;align-items:center;min-height:44px;}td a,th a{display:inline-flex;align-items:center;min-height:44px;}</style>
+<style data-wh-chrome-i18n>nav a,header a,footer a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;min-width:44px;}nav a{padding:0 .25rem;}.breadcrumb a,.toc a{display:inline-flex;align-items:center;min-height:44px;}.breadcrumb a{min-width:44px;justify-content:center;}a.text-sm[href$='/learn/'],a.text-sm[href$='/learn/index.html']{display:inline-flex;align-items:center;min-height:44px;}.wh-tap{display:inline-flex;align-items:center;min-height:44px;}td a,th a{display:inline-flex;align-items:center;min-height:44px;}/*wh-brand-header-gap*/@media (max-width:399px){header nav.flex{gap:.75rem;}}</style>
 <script src="/wh-i18n-lite.js" data-wh-chrome-i18n></script>
 </head>
 <body class="bg-navy-wh text-white antialiased">
+<a class="wh-skip-link" href="#wh-main-content" data-wh-skip="learn" style="position:fixed;top:0;left:0;z-index:10001;transform:translateY(-120%);background:var(--wh-orange,#F7A21B);color:var(--wh-navy,#162032);padding:0 20px;min-height:44px;display:inline-flex;align-items:center;font-weight:700;font-size:14px;text-decoration:none;border-radius:0 0 10px 0;box-shadow:0 4px 16px rgba(0,0,0,.35);transition:transform .15s cubic-bezier(0.23,1,0.32,1);box-sizing:border-box;" onfocus="this.style.transform='translateY(0)'" onblur="this.style.transform='translateY(-120%)'">Skip to main content</a>
+
 
 <nav class="border-b border-white/10" style="background: rgba(13,24,36,0.85);">
   <div class="max-w-5xl mx-auto px-5 sm:px-8 h-14 flex items-center justify-between">
     <a href="/" class="flex items-center gap-2 text-sm font-bold tracking-tight">
       <img src="/brand_assets/workhive-logo-transparent.png" alt="WorkHive" class="h-7 w-auto" />
-      <span class="text-white">WorkHive</span>
+      <span class="text-white wh-brand-word hidden sm:inline" aria-hidden="true">WorkHive</span>
     </a>
     <div class="flex items-center gap-5 text-xs sm:text-sm">
       <a href="/learn/" class="text-white/55 hover:text-white transition-colors" data-i="learn">Learn</a>
@@ -160,7 +178,7 @@
   </div>
 </nav>
 
-<article class="hex-pattern">
+<main id="wh-main-content"><article class="hex-pattern">
   <div class="max-w-3xl mx-auto px-5 sm:px-8 py-10 sm:py-14">
 
     <p class="text-xs uppercase tracking-[0.18em] text-orange-wh font-bold mb-3">WorkHive Learn · Philippines</p>
@@ -173,27 +191,23 @@
       <span>10 min read</span>
     </div>
 
-    <div class="answer-first"><strong>Short answer:</strong> Filipino engineers and maintenance professionals often wonder which engineering association to join. With several options available, choosing the right one can be confusing. This article provides a guide to help you decide. The CPD requirements differ and drive the decision: <strong>PSME</strong> requires <strong>60 CPD points every 3 years</strong>, <strong>IIEE</strong> requires <strong>80</strong>.</div>
+    <div class="answer-first"><strong>Short answer:</strong> Filipino engineers and maintenance professionals often wonder which engineering association to join. With several options available, choosing the right one can be confusing. This article provides a guide to help you decide. One thing to clear up first, because it is the commonest reason people pick wrong: <strong>no association sets your CPD quota</strong>. Under RA 10912 the number of units you need to renew your Professional Identification Card is set by the <strong>PRC</strong>, through the Professional Regulatory Board for your discipline. What an association gives you is somewhere to earn those units, so the real decision is discipline match and which chapter actually meets near you.</div>
 
     <div class="audience-block">
       <p class="audience-label">Who this is for</p>
       <ul>
-        <li>Field workers looking to upskill and advance their careers</li>
-        <li>Technicians seeking to specialize in a specific trade</li>
-        <li>Supervisors and team leads responsible for maintenance operations</li>
-        <li>Engineers (mechanical, electrical, chemical) seeking professional development</li>
-        <li>Planners and schedulers looking to improve maintenance efficiency</li>
-        <li>Managers and directors overseeing maintenance and operations</li>
-        <li>Suppliers and contractors serving the Philippine industrial sector</li>
-        <li>Auditors and officers ensuring compliance with industry standards</li>
-        <li>Directors and analysts evaluating industry trends and best practices</li>
-        <li>OFW-track professionals seeking to connect with peers and stay updated on industry developments</li>
-        <li>Graduates and upskillers looking to enter the industry or transition to a new field</li>
+        <li>Mechanical, electrical and chemical engineers deciding which body to pay dues to</li>
+        <li>Engineers who need CPD credits before their PRC licence renewal</li>
+        <li>New graduates choosing a first association while the student rate still applies</li>
+        <li>OFW-track engineers who want a membership that travels</li>
+        <li>Supervisors whose employer will reimburse one membership and not three</li>
+        <li>Plant managers deciding which single membership is worth funding for an engineering team</li>
+        <li>Anyone who has paid dues for a year and cannot say what they got for them</li>
       </ul>
     </div>
 
     <div class="toc">
-      <h4 aria-level="2">What's in this guide</h4>
+      <h2>What's in this guide</h2>
       <ol>
         <li><a href="#overview" class="wh-tap">Overview of Philippine Engineering Associations</a></li>
         <li><a href="#membership-cost" class="wh-tap">Membership Cost and Benefits</a></li>
@@ -208,44 +222,44 @@
       <h2 id="overview">Overview of Philippine Engineering Associations</h2>
       <p>Filipino engineers and maintenance professionals often wonder which engineering association to join. In the Philippines, the top engineering associations are PSME (Philippine Society of Mechanical Engineers), IIEE (Institute of Integrated Electrical Engineers), and PIChE (Philippine Institute of Chemical Engineers). These associations offer various benefits, including networking events, training, and continuing professional development (CPD) credits. For instance, a plant supervisor at a PEZA-accredited facility in Calabarzon might consider joining PSME to stay updated on mechanical engineering best practices.</p>
       <p>PSME, IIEE, and PIChE each cater to specific engineering disciplines. PSME focuses on mechanical engineering, while IIEE concentrates on electrical engineering. PIChE, on the other hand, is geared towards chemical engineering. There are also adjacent associations, such as the Maintenance Association of the Philippines (MAP) and the ASEAN Federation of Engineering Organizations (AFEO). For example, a maintenance planner at a manufacturing plant in Bulacan might find value in MAP's resources and networking opportunities. The WorkHive Community provides a platform for professionals to discuss these associations and their benefits.</p>
-      <p>Membership costs vary among the associations. For instance, PSME's annual membership fee is around PHP 2,000, while IIEE's membership fee ranges from PHP 1,500 to PHP 3,000. PIChE's membership fee is approximately PHP 1,800. Exam pathways, such as the Professional Engineer (PE) licensure exam, are also available through these associations. A shift in-charge at a power plant in Mindanao might pursue a PE license to advance their career. CPD credits, which are essential for maintaining a professional license, can be earned through training and events offered by these associations.</p>
+      <p>Membership costs vary among the associations, and they vary again by membership class: student, associate, full, life, and are revised from year to year, so the figure that matters is the one on the association's own current schedule rather than any number quoted second-hand. Licensure itself sits with the <a href="https://www.prc.gov.ph/">Professional Regulation Commission</a>: the PRC administers the board exams and registers Professional Mechanical Engineers and Professional Electrical Engineers, while the associations run review classes, their own certifications, and CPD-accredited training that feeds the renewal requirement.</p>
       <p>When choosing an engineering association, consider factors such as membership cost, CPD credits, exam pathways, and networking events. For example, a plant engineer at a facility in Batangas might prioritize associations with active local chapters, such as the PSME Batangas Chapter. By joining the right association, professionals can enhance their skills, expand their network, and stay updated on industry developments. The WorkHive Community can facilitate discussions and help professionals find the most suitable association for their needs.</p>
       <h2 id="membership-cost">Membership Cost and Benefits</h2>
-      <p>When considering membership in a Philippine engineering association, one important factor to consider is the cost. For instance, a plant supervisor at a PEZA-accredited facility in Cabuyao, Laguna, might be interested in comparing membership fees. The WorkHive Community often discusses these costs and benefits. PSME, for example, has an annual membership fee of around PHP 2,500, while IIEE's fee is approximately PHP 3,000. PIChE's membership fee is around PHP 2,000.</p>
-      <p>In terms of benefits, each association offers a range of services, including CPD credits, networking events, and access to industry publications. For a maintenance planner working at a plant in Subic, Zambales, the opportunity to earn CPD credits might be a key consideration. PSME, IIEE, and PIChE all offer CPD credits to their members, but the specific requirements and benefits vary. For example, PSME requires 60 CPD points every 3 years, while IIEE requires 80 points.</p>
+      <p>When considering membership in a Philippine engineering association, one important factor to consider is the cost. For instance, a plant supervisor at a PEZA-accredited facility in Cabuyao, Laguna, might be interested in comparing membership fees. The WorkHive Community often discusses these costs and benefits. Ask each association for its current schedule and compare like with like: annual dues, the one-time application fee, and whether your membership class is the one being quoted.</p>
+      <p>In terms of benefits, each association offers a range of services, including CPD credits, networking events, and access to industry publications. For a maintenance planner working at a plant in Subic, Zambales, the opportunity to earn CPD credits might be a key consideration. PSME, IIEE and PIChE all run CPD-accredited activities, but none of them sets the quota. Under <strong>RA 10912</strong>, the CPD Act of 2016, CPD is the mandatory requirement for renewing your Professional Identification Card, and the number of units is set by the <strong>PRC</strong> through the Professional Regulatory Board for your discipline: PRC Resolution No. 2019-1146, effective 1 March 2019, reduced the units and widened the activities that earn them. Read the current figure from your own Board, then choose the association whose calendar makes it convenient to earn.</p>
       <p>Membership costs can also be offset by the potential savings and benefits of being part of a professional association. For example, a shift in-charge at a power plant in Mindanao might find that IIEE membership provides valuable access to industry events and training. The WorkHive Community surfaces discussion threads on these topics, allowing members to share their experiences and insights. In some cases, the cost of membership can be reimbursed by employers, especially for large companies with operations in Calabarzon or Batangas.</p>
-      <p>Another consideration is the potential return on investment for attending networking events and conferences. For instance, a maintenance engineer working on Boiler B-1 at a plant in Bulacan might find that attending a PIChE conference provides valuable opportunities for professional development. The cost of attending these events can range from PHP 5,000 to PHP 20,000 or more, but the benefits of networking and learning from peers can be substantial. By joining a professional association like PIChE, engineers can access these events and take their careers to the next level.</p>
+      <p>Another consideration is the potential return on investment for attending networking events and conferences. For instance, a maintenance engineer working on Boiler B-1 at a plant in Bulacan might find that attending a PIChE conference provides valuable opportunities for professional development. Conference fees differ by event, by length and by whether you are a member, and the benefits of networking and learning from peers can be substantial. By joining a professional association like PIChE, engineers can access these events and take their careers to the next level.</p>
       <p>Ultimately, the decision to join a Philippine engineering association depends on individual career goals and needs. For a plant engineer working on Pump P-204B at a facility in Pampanga, the benefits of PSME membership might outweigh the costs. By comparing the costs and benefits of each association, engineers can choose the one that best supports their professional development. The WorkHive Community is a valuable resource for engineers looking to connect with peers and stay up-to-date on industry developments.</p>
-      <p>To give you a better view, here are some examples of costs associated with each association. A 2-day training event by IIEE might cost around PHP 18,000, while a similar event by PIChE might cost PHP 15,000. PSME's 1-day seminar might cost around PHP 6,000. These costs can add up, especially for engineers working rotating shifts, such as 02:30-14:45. However, by investing in their professional development, engineers can enhance their skills and advance their careers.</p>
+      <p>Event pricing is published per event and usually differs for members and non-members, which is part of what membership buys. Budget for two things rather than one: the fee, and the leave days it takes to attend: for anyone on rotating shifts the second is often the harder cost to cover, and it is the one a supervisor has to plan around rather than simply approve.</p>
       <h2 id="cpd-credits">CPD Credits and Exam Pathways</h2>
       <p>For Filipino engineers and maintenance professionals, staying up-to-date with Continuing Professional Development (CPD) credits is crucial. In the Philippines, professional regulatory bodies require engineers to earn a certain number of CPD credits to maintain their licenses. PSME, IIEE, and PIChE offer CPD credits through various events, seminars, and workshops. For instance, PSME's annual convention in Manila often features CPD-accredited talks and presentations. The WorkHive Community surfaces discussion threads on these events, helping members plan their CPD activities.</p>
-      <p>Exam pathways are another essential consideration for engineers looking to advance their careers. IIEE, for example, offers the Certified Electrical Engineer (CEE) and Certified Electronics Engineer (ECE) exams, which are recognized by the Professional Regulation Commission (PRC). PIChE, on the other hand, has its own certification program for chemical engineers. PSME also provides resources for mechanical engineers preparing for the PRC licensure exam. At a plant like the one in Cabuyao, Laguna, a shift in-charge might need to ensure their team members have the necessary certifications and CPD credits to perform their tasks effectively.</p>
-      <p>The costs associated with CPD credits and exam pathways vary across associations. For instance, IIEE's CEE exam fee is around PHP 5,000, while PIChE's certification program costs around PHP 10,000. PSME's membership fees, which include access to CPD events, start at PHP 2,500 per year. In contrast, a plant supervisor at a facility like the Mindanao Industrial Development Complex might need to budget PHP 180,000 for a CPD-accredited training program. By joining the WorkHive Community, engineers can discuss these costs and benefits with peers and make more informed choices.</p>
+      <p>Exam pathways are another essential consideration for engineers looking to advance their careers. Keep two things separate here. The PRC licensure exams, and the Professional Mechanical Engineer and Professional Electrical Engineer registrations above them: are administered by the PRC and its Boards. The associations sit alongside that: they run review programmes, technical events and their own certifications, which are professional credentials rather than licences. Check with the association which of its programmes is a certification and which is review for a PRC exam, because the two are often listed on the same page. At a plant like the one in Cabuyao, Laguna, a shift in-charge might need to ensure their team members have the necessary certifications and CPD credits to perform their tasks effectively.</p>
+      <p>The costs associated with CPD activities and certification programmes vary across associations and are published per programme. In contrast, a plant supervisor at a large industrial site far from Metro Manila has to budget for a CPD-accredited programme AND the travel and leave days it takes to attend it, which is often the larger of the two costs. By joining the WorkHive Community, engineers can discuss these costs and benefits with peers and make more informed choices.</p>
       <p>Networking events are also an essential aspect of these engineering associations. PSME, IIEE, and PIChE regularly host conferences, seminars, and workshops that bring together professionals from across the Philippines. For example, the annual PIChE conference in Batangas often features presentations from experts in the chemical engineering field. At a plant like the one in Subic, Zambales, a maintenance planner might attend these events to stay updated on best practices and network with colleagues. The WorkHive Community provides a platform for engineers to discuss these events and connect with peers who share similar interests.</p>
       <h2 id="networking-events">Networking Events and Community</h2>
       <p>Regular networking events help engineers build connections and stay updated on industry trends. The Philippine Society of Mechanical Engineers (PSME) hosts annual conventions, like the 2022 event in Clark, Pampanga, which drew over 1,000 attendees. Similarly, the Institute of Integrated Electrical Engineers of the Philippines (IIEE) organizes national conventions and seminars, such as the 2020 convention in Davao City. The WorkHive Community also surfaces discussion threads on these events, allowing members to engage with one another and share experiences.</p>
       <p>The Philippine Institute of Chemical Engineers (PIChE) also holds regular events, including its annual National Convention, which often features site visits to local plants, such as those in the Calabarzon region. For example, a 2019 site visit to the Pililla, Rizal power plant allowed attendees to see firsthand the equipment and processes used in power generation. These on-site events provide valuable opportunities for engineers to learn from one another and build relationships. By joining the WorkHive Community, engineers can connect with others who have attended these events and gain insights from their experiences.</p>
       <p>Attending networking events can be a challenge for engineers with demanding schedules, such as those working rotating shifts at plants like the one in Cabuyao, Laguna. However, many associations offer virtual events and webinars, which can be more accessible. For instance, IIEE's webinars often take place during lunch breaks or after work hours, making it easier for engineers to participate. The WorkHive Community also offers a platform for engineers to connect with one another and share knowledge, regardless of their location or schedule.</p>
-      <p>Membership costs can be a factor in choosing an association. For example, PSME's annual membership fee is around PHP 5,000, while IIEE's is around PHP 3,500. PIChE's membership fee is around PHP 4,000. When considering the cost of membership, engineers should also think about the potential benefits, such as access to networking events and continuing professional development (CPD) credits. By joining the WorkHive Community, engineers can explore these benefits and connect with others who can help them make an informed decision.</p>
+      <p>Membership cost can be a factor in choosing an association, so take each one's current dues from its own site and set them beside what you will actually use. When considering the cost of membership, engineers should also think about the potential benefits, such as access to networking events and continuing professional development (CPD) credits. By joining the WorkHive Community, engineers can explore these benefits and connect with others who can help them make an informed decision.</p>
       <h2 id="chooser-matrix">Chooser Matrix: Which Association is Right for You?</h2>
       <p>Choosing the right Philippine engineering association can be a challenge. To help you decide, we've created a chooser matrix. Consider your work location, such as the Calabarzon region, and your role, like a plant supervisor. The matrix will guide you in selecting the best fit among PSME, IIEE, PIChE, and others.</p>
       <p>Our chooser matrix evaluates key factors like membership cost, CPD credits, exam pathways, and networking events. You can discuss these costs and benefits with fellow engineers in the WorkHive Community.</p>
       <div data-table-scroll style="overflow-x:auto;-webkit-overflow-scrolling:touch;" role="region" aria-label="Scrollable table" tabindex="0"><table>
         <thead><tr><th>Association</th><th>Annual membership</th><th>Discipline focus</th></tr></thead>
         <tbody>
-          <tr><td>PSME</td><td>around PHP 5,000</td><td>Mechanical engineering</td></tr>
-          <tr><td>IIEE</td><td>around PHP 3,500</td><td>Electrical engineering</td></tr>
-          <tr><td>PIChE</td><td>around PHP 4,000</td><td>Chemical engineering</td></tr>
+          <tr><td>PSME</td><td>See PSME's current dues</td><td>Mechanical engineering</td></tr>
+          <tr><td>IIEE</td><td>See IIEE's current dues</td><td>Electrical engineering</td></tr>
+          <tr><td>PIChE</td><td>See PIChE's current dues</td><td>Chemical engineering</td></tr>
         </tbody>
       </table></div>
-      <p>We also considered the types of equipment and systems you work with. Are you a mechanical engineer overseeing Pump P-204B at a Batangas plant? Or an electrical engineer managing the 02:30 to 14:45 shift at a Bulacan facility? Our matrix helps you match your expertise with the right association. You might find that PSME's mechanical focus aligns with your experience, or IIEE's electrical emphasis suits your skills better.</p>
-      <p>The chooser matrix also looks at continuing professional development opportunities. For instance, PIChE offers CPD credits for chemical engineers working on projects like the PHP 180,000 upgrade of Boiler B-1 at a Pampanga plant. By joining the right association, you can stay up-to-date with industry developments and advance your career as a maintenance planner or shift in-charge.</p>
+      <p>We also considered the types of equipment and systems you work with. Are you a mechanical engineer overseeing Pump P-204B at a Batangas plant? Or an electrical engineer running the night shift at a Bulacan facility? Our matrix helps you match your expertise with the right association. You might find that PSME's mechanical focus aligns with your experience, or IIEE's electrical emphasis suits your skills better.</p>
+      <p>The chooser matrix also looks at continuing professional development opportunities. For instance, PIChE offers CPD credits for chemical engineers working on projects like the Boiler B-1 upgrade at a Pampanga plant. By joining the right association, you can stay up-to-date with industry developments and advance your career as a maintenance planner or shift in-charge.</p>
       <p>Ultimately, the right association for you will depend on your specific needs and goals. That's why we've included a range of factors in our chooser matrix. Take a look and see which association comes out on top for you. You can also join the discussion in the WorkHive Community to hear from other engineers who have chosen PSME, IIEE, PIChE, or other associations.</p>
       <h2 id="workhive-community">How WorkHive Community Surfaces PH-Association Discussion Threads</h2>
-      <p>In the WorkHive Community, Filipino engineers and maintenance professionals frequently discuss their experiences with various Philippine engineering associations, including PSME, IIEE, and PIChE. For instance, a plant supervisor from Calabarzon shared insights on how IIEE's CPD credits helped them stay updated on electrical engineering best practices, particularly in managing the 24-hour shift schedule at their facility.</p>
-      <p>These discussion threads often revolve around the benefits and challenges of membership, such as the cost of attending networking events or the value of access to exclusive resources. A maintenance planner from a PEZA-accredited plant in Batangas mentioned that PSME's local chapter helped them connect with peers who face similar challenges in maintaining equipment like Pump P-204B. The Community provides a platform for these engineers to share their stories and gain knowledge from one another.</p>
+      <p>In the WorkHive Community, Filipino engineers and maintenance professionals frequently discuss their experiences with various Philippine engineering associations, including PSME, IIEE, and PIChE. The threads worth reading are the ones that answer what a membership page cannot: which chapter actually holds meetings, whether the CPD-accredited sessions are scheduled at times a shift worker can attend, and what a member got for their dues last year.</p>
+      <p>These discussion threads often revolve around the benefits and challenges of membership, such as the cost of attending networking events or the value of access to exclusive resources. That is also the kind of question worth asking before you pay: a chapter that is active near your plant is worth more than a larger association whose events are all in Manila. The Community provides a platform for these engineers to share their stories and gain knowledge from one another.</p>
       <p>WorkHive Community's open forum also allows members to ask questions and receive feedback on their specific situations. For example, a shift in-charge at a Bulacan-based plant asked about the process of obtaining CPD credits through PIChE's events, and received helpful responses from chemical engineers who have gone through the same process. This exchange of information helps engineers navigate the complexities of association membership and continuing professional development.</p>
-      <p>Moreover, the Community surfaces discussion threads on the costs associated with membership, such as the PHP 180,000 annual dues for a large company in Davao to participate in IIEE events. Members can engage with one another on the value of this investment, and compare it to their own experiences with PSME or PIChE. By facilitating these conversations, WorkHive Community empowers Filipino engineers and maintenance professionals to evaluate the benefits and costs of each association and choose the one that best suits their needs.</p>
+      <p>Moreover, the Community surfaces discussion threads on what membership actually costs, including the corporate dues a large company in Davao pays to take part in IIEE events. Members can engage with one another on the value of this investment, and compare it to their own experiences with PSME or PIChE. That is the part a brochure cannot give you: what a member of each body actually got for the dues, from someone with no stake in your choosing the one that best suits their needs.</p>
       <p>Through these discussion threads, WorkHive Community demonstrates its value as a platform for engineers to connect, share knowledge, and learn from one another. By joining the Community, Filipino engineers and maintenance professionals can tap into a network of peers who are navigating similar challenges and opportunities in their fields, from Subic to Pampanga, and make more informed choices about their professional development.</p>
 
       <div class="tool-cta">
@@ -264,15 +278,13 @@
       <p><strong>Keep reading:</strong> <a href="/learn/ofw-engineer-portable-portfolio/">build a portable engineering portfolio</a>, or <a href="/learn/tesda-nc-mapping-to-skill-matrix/">map TESDA NCs to a skill matrix</a>.</p>
       <h2 id="sources">Sources</h2>
       <ul class="sources-list">
-        <li>DOLE OSHS (Department of Labor and Employment, Occupational Safety and Health Standards)</li>
-        <li>IIEE Code (Institute of Integrated Electrical Engineers, Code of Ethics)</li>
-        <li>ISO 14224 (International Organization for Standardization, Petroleum, Petrochemical and Natural Gas Industries - Reliability, Availability and Maintainability)</li>
-        <li>SMRP CMRP BoK (Society for Maintenance and Reliability Professionals, Certified Maintenance and Reliability Professional Body of Knowledge)</li>
+        <li><a href="https://www.prc.gov.ph/">Professional Regulation Commission (PRC)</a>, <strong>Republic Act 10912 (CPD Act of 2016)</strong> and <strong>PRC Resolution No. 2019-1146</strong> (effective 1 March 2019, reducing the required CPD units). The PRC and its Professional Regulatory Boards set the CPD requirement and administer licensure.</li>
+        <li><strong>PSME</strong> (Philippine Society of Mechanical Engineers), <strong>IIEE</strong> (Institute of Integrated Electrical Engineers) and <strong>PIChE</strong> (Philippine Institute of Chemical Engineers): each publishes its own current membership schedule, chapter list and event calendar. Take fees from the association, not from a summary.</li>
       </ul>
     </div>
 
   </div>
-</article>
+</article></main>
 
 <footer class="py-10 border-t border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
   <div class="max-w-5xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">

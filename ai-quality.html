@@ -20,39 +20,40 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg: #0f1923; --surface: var(--wh-navy); --card: #1d2e44;
+      --bg: var(--wh-navy); --surface: var(--wh-navy-mid); --card: var(--wh-navy-light);   /* the elevation ladder: ground / card / raised (DESIGN.md); the page ground was an off-palette #0f1923 */
       --gold: var(--wh-orange); --blue: var(--wh-blue); --green: var(--wh-green);
       --red: var(--wh-red); --amber: var(--wh-orange); --yellow: var(--wh-amber); --purple: var(--wh-violet);
-      --text: var(--wh-cloud); --muted: rgba(255,255,255,0.62);
+      --text: var(--wh-cloud); --muted: rgba(255,255,255,0.80);
       --border: rgba(255,255,255,0.07);
     }
     body { font-family: 'Poppins', system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 90px; }
-    .page { max-width: 900px; margin: 0 auto; padding: 1rem 1rem 0; padding-top: 68px; }
+    .page { max-width: 680px; margin: 0 auto; padding: 1rem 1rem 0; padding-top: 68px; }   /* the app column (DESIGN.md); the fn table scrolls in wh-scroll-x */
     .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
     .page-title { font-size: 1.3rem; font-weight: 800; }
-    .page-sub { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+    .page-sub { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+    .page p, .verdict-text, .action-card .ac-text, .card .meta, .page-sub { max-width: 70ch; }   /* the craft floor's measure on a 900px column (design lens, 2026-09-15: 94ch measured at 1280) */
 
     .summary-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 16px; }
-    .sum-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px; text-align: center; }
+    .sum-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; text-align: center; }
     .sum-card .sn { font-size: 1.6rem; font-weight: 800; display: block; line-height: 1; color: var(--gold); }
-    .sum-card .sl { font-size: 0.58rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 4px; }
+    .sum-card .sl { font-size: 0.75rem; font-weight: 600; color: var(--muted); margin-top: 4px; }   /* 12px floor, sentence case (design lens slop, 2026-09-15; was 9.3px all-caps) */
     .sum-card.green .sn { color: var(--green); }
     .sum-card.red .sn   { color: var(--red); }
 
     .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
     .card h3 { font-size: 0.9rem; font-weight: 800; margin-bottom: 4px; }
-    .card .meta { font-size: 0.62rem; color: var(--muted); margin-bottom: 12px; }
+    .card .meta { font-size: 0.75rem; color: var(--muted); margin-bottom: 12px; }
 
     table.fn-table { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
-    table.fn-table th { text-align: left; font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); padding: 7px 8px; border-bottom: 1px solid var(--border); }
+    table.fn-table th { text-align: left; font-size: 0.75rem; font-weight: 700; color: var(--muted); padding: 7px 8px; border-bottom: 1px solid var(--border); }
     table.fn-table td { padding: 9px 8px; border-bottom: 1px solid rgba(255,255,255,0.04); }
     table.fn-table tr:hover td { background: rgba(255,255,255,0.02); }
     .num-right { text-align: right; font-variant-numeric: tabular-nums; }
 
     .roi-block { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
     .roi-block .hero { font-size: 2rem; font-weight: 800; color: var(--green); line-height: 1; }
-    .roi-block .hero-sub { font-size: 0.7rem; color: var(--muted); margin-top: 4px; }
-    .roi-confidence { display: inline-block; font-size: 0.62rem; font-weight: 700; padding: 0.18rem 0.55rem; border-radius: 999px; margin-top: 0.4rem;
+    .roi-block .hero-sub { font-size: 0.8rem; color: var(--muted); margin-top: 4px; }
+    .roi-confidence { display: inline-block; font-size: 0.75rem; font-weight: 700; padding: 0.18rem 0.55rem; border-radius: 999px; margin-top: 0.4rem;
       background: rgba(74,222,128,0.12); color: var(--green); border: 1px solid rgba(74,222,128,0.25); }
     .roi-confidence.amber { background: rgba(247,162,27,0.12); color: var(--gold); border-color: rgba(247,162,27,0.3); }
 
@@ -66,12 +67,12 @@
        per-fn table) are collapsed behind a toggle. */
     .verdict {
       display: flex; align-items: center; gap: 12px;
-      padding: 14px 16px; margin-bottom: 16px;
+      padding:16px; margin-bottom: 16px;
       border-radius: 12px; border: 1px solid;
     }
     .verdict-icon { font-size: 1.5rem; line-height: 1; font-weight: 800; }
-    .verdict-text { font-size: 0.85rem; font-weight: 700; line-height: 1.35; }
-    .verdict-text small { display: block; font-size: 0.7rem; font-weight: 500; color: rgba(255,255,255,0.65); margin-top: 3px; }
+    .verdict-text { font-size: 0.95rem; font-weight: 700; line-height: 1.35; }
+    .verdict-text small { display: block; font-size: 0.8rem; font-weight: 500; color: rgba(255,255,255,0.80); margin-top: 4px; }
     .verdict.healthy { background: rgba(74,222,128,0.07); border-color: rgba(74,222,128,0.3); }
     .verdict.healthy .verdict-icon { color: var(--green); }
     .verdict.watch   { background: rgba(247,162,27,0.07); border-color: rgba(247,162,27,0.3); }
@@ -79,46 +80,61 @@
     .verdict.attn    { background: rgba(248,113,113,0.07); border-color: rgba(248,113,113,0.3); }
     .verdict.attn    .verdict-icon { color: var(--red); }
     .verdict.empty   { background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.08); }
-    .verdict.empty   .verdict-icon { color: rgba(255,255,255,0.62); }
+    .verdict.empty   .verdict-icon { color: rgba(255,255,255,0.80); }
 
     .simple-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 16px; }
-    .simple-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; }
-    .simple-card .sc-label { font-size: 0.65rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+    .simple-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding:16px; }
+    .simple-card .sc-label { font-size: 0.75rem; font-weight: 700; color: var(--muted); }   /* matches components.css after the 2026-09-15 floor; this page does not link it */
     /* 1.5rem == the canonical KPI tier (components.css .sc-hero). This page does NOT
    link components.css, so the rule must live here -- but it must MATCH the canonical
    or the same KPI renders a different size than every other page. (Drift healed 2026-07-15.) */
     .simple-card .sc-hero  { font-size: 1.5rem; font-weight: 800; line-height: 1.15; margin: 4px 0 2px; color: var(--text); font-variant-numeric: tabular-nums; }
-    .simple-card .sc-sub   { font-size: 0.7rem; color: rgba(255,255,255,0.62); line-height: 1.4; }
-    .simple-card .sc-tag   { display: inline-block; font-size: 0.58rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; padding: 0.18rem 0.5rem; border-radius: 999px; margin-top: 7px; }
+    .simple-card .sc-sub   { font-size: 0.75rem; color: rgba(255,255,255,0.80); line-height: 1.4; }
+    .simple-card .sc-tag   { display: inline-block; font-size: 0.75rem; font-weight: 700; padding: 0.18rem 0.55rem; border-radius: 999px; margin-top: 7px; }
     .simple-card.tag-green .sc-tag { background: rgba(74,222,128,0.16);  color: var(--green); }
     .simple-card.tag-amber .sc-tag { background: rgba(247,162,27,0.16);  color: var(--gold); }
     .simple-card.tag-red   .sc-tag { background: rgba(248,113,113,0.16); color: var(--red); }
-    .simple-card.tag-grey  .sc-tag { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.62); }
+    .simple-card.tag-grey  .sc-tag { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.80); }
 
     .action-card {
       background: rgba(41,182,217,0.06);
       border: 1px solid rgba(41,182,217,0.25);
       border-radius: 12px;
-      padding: 14px 16px;
+      padding:16px;
       margin-bottom: 16px;
     }
     .action-card .ac-label {
-      font-size: 0.65rem; font-weight: 800; color: var(--blue);
-      text-transform: uppercase; letter-spacing: 0.07em;
+      font-size: 0.75rem; font-weight: 700; color: var(--blue);
     }
-    .action-card .ac-text { font-size: 0.82rem; line-height: 1.5; margin-top: 6px; color: rgba(255,255,255,0.85); }
+    .action-card .ac-text { font-size: 0.875rem; line-height: 1.5; margin-top: 6px; color: rgba(255,255,255,0.85); }
+    .action-card .ac-link { display: inline-flex; align-items: center; min-height: 44px; margin-top: 8px; padding: 4px 12px; border-radius: 8px; background: rgba(41,182,217,0.12); border: 1px solid rgba(41,182,217,0.35); color: var(--blue); font-weight: 700; font-size: 0.8rem; text-decoration: none; }
 
     .details-toggle {
       display: inline-flex; align-items: center; gap: 6px;
       background: transparent; border: 1px solid var(--border);
-      color: rgba(255,255,255,0.6);
-      padding: 8px 14px; border-radius: 8px;
-      font-family: inherit; font-size: 0.7rem; font-weight: 600;
+      color: rgba(255,255,255,0.80);
+      padding: 8px 16px; border-radius: 8px;
+      font-family: inherit; font-size: 0.75rem; font-weight: 600;
       cursor: pointer; min-height: 44px;
     }
     .details-toggle:hover { color: var(--text); border-color: rgba(255,255,255,0.18); }
     #details-pane { display: none; margin-top: 16px; }
     #details-pane.open { display: block; }
+    /* ★THE DISCLOSURE BELOW JUMPED WHEN THE PANEL LANDED (Chrome DevTools MCP on a 4x-throttled phone over
+       Slow 4G, 2026-09-15: CLS 0.067 at 390, every shift attributed to the same DETAILS being pushed down,
+       0.036 + 0.027 + 0.004 inside the first 300 ms). #content ships EMPTY and render() fills all ~785px of
+       it at once. The reservation applies ONLY while it is empty, so it disappears the instant anything -
+       the panel or a gated message - is written into it, and can never leave a void on a settled page. */
+    /* NOT :empty - the div ships with a newline and a comment inside it, and whitespace makes :empty false,
+       so the first version of this rule measured identically (CLS 0.066 before and after). :has(> *) asks
+       the question that was actually meant: has the panel been rendered into it yet? */
+    /* MEASURED, not guessed, and both directions count: 0 reservation = CLS 0.067, 62vh = 0.055, 92vh = 0.070
+       (over-reserving makes the panel SHRINK into place, which shifts the block below it upward just as far).
+       62vh is the measured best a single figure can do. The exact-match answer is a skeleton of the panel's
+       own shape rendered into #content at first paint - the platform already has .wh-skeleton for it - and
+       that is the named next unit on this page, not a bigger number here. */
+    #content:not(:has(> *)) { min-height: 62vh; }
+
   </style>
 <style>/* I1 CLS: static wayfinding back-pill band reserve (wayfinding.js sets this body padding-top post-paint on pill-pages = a late shift under full-run contention; present at first paint -> its `if(band>cur)` skips, layout unchanged). VERIFIED this page gets the pill (has <main>, no back-affordance, not home). */
 body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
@@ -136,16 +152,15 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
              surfaces the founder console launches into, and none of the six linked back, so a month-end
              pass across them returned through the public landing page each time. The console gates
              itself, so a reader without rights meets its refusal, not a broken door. -->
-        <p class="wh-back" style="margin:0 0 .35rem; font-size:.8rem;"><a data-i="p_hiveboard_45c9" href="hive.html" style="color:inherit; opacity:.85; text-decoration:underline;">Hive Board</a><span aria-hidden="true" style="opacity:.4; margin:0 .45rem;">&middot;</span><a data-i="p_backtoworkhive_13cc" href="index.html" style="color:inherit; opacity:.85; text-decoration:underline;">&#8592; Back to WorkHive</a></p>
+        <p class="wh-back" style="margin:0 0 .35rem; font-size:.8rem;"><a data-i="p_hiveboard_45c9" href="hive.html" style="color:inherit; opacity:.85; text-decoration:underline;">Hive Board</a></p>
         <h1 class="page-title" translate="no">AI Quality + ROI</h1>
         <p data-i="p_honestvisibilityintoyouraisp_2edc" class="page-sub">Honest visibility into your AI spend, quality, and predicted savings.</p>
       </div>
       <!-- A1: the page's primary action is to DRIVE more AI-drafted entries (that's the ROI loop
            it measures) — a filled CTA to the logbook, matching the empty-state's own CTA. -->
-      <a href="logbook.html" data-i="aq_draft_cta" style="flex-shrink:0;min-height:44px;display:inline-flex;align-items:center;padding:0.5rem 1rem;border-radius:12px;background:linear-gradient(135deg,var(--wh-orange),var(--wh-orange-light));color:var(--wh-navy);font-weight:700;font-size:0.8rem;text-decoration:none;">Draft with AI →</a>
+      <a href="logbook.html" data-i="aq_draft_cta" style="flex-shrink:0;min-height:44px;display:inline-flex;align-items:center;padding:0.5rem 1rem;border-radius:8px;background:linear-gradient(135deg,var(--wh-orange),var(--wh-orange-light));color:var(--wh-navy);font-weight:700;font-size:0.8rem;text-decoration:none;">Draft with AI →</a>
     </header>
 
-    <h2 class="wh-section-title" data-i="aq_overview_heading">Quality &amp; ROI overview</h2>
     <div id="content">
       <!-- Rendered by render() after maturity gate passes -->
     </div>
@@ -189,6 +204,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
             // before Stair 2 is a product call; saying something untrue about it is not.
             why: 'The quality numbers here need real data to be right: steady logs and PMs done on time. Reach Stair 2 and this page fills in. You will see your fallback rate, schema compliance, predicted savings, and what your AI use has cost.',
             alternateSuggestion: 'log 30 days of fault history. Add your top 5 assets. Finish at least one PM. When your hive reaches Stair 2, this page fills with real numbers.',
+            // Each task this sentence names, as a control. It named three and linked none.
+            alternateActions: [
+              { label: 'Open the logbook', href: 'logbook.html' },
+              { label: 'Add assets', href: 'asset-hub.html' },
+              { label: 'Open PM scheduler', href: 'pm-scheduler.html' },
+            ],
           });
           return;
         }
@@ -252,6 +273,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     // window.
     const PHP_PER_USD = 56;
     const FX_BASIS = 'converted at ₱' + PHP_PER_USD + ' to $1 (fixed rate)';
+    const FX_BASIS_FIL = 'naka-convert sa ₱' + PHP_PER_USD + ' = $1 (fixed rate)';
     // Time-saved heuristic: each useful AI answer (thumbs up) saves ~5 min
     // of diagnosis vs no AI assist. Honest, defensible, easy to explain to
     // a supervisor: "26 useful answers × 5 min = ~2 hours saved this month."
@@ -269,7 +291,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     const MIN_RATINGS_FOR_VERDICT = 5;
 
     function computeVerdict(s) {
-      if (s.totalCalls === 0) return { tone: 'empty', label: 'No AI activity yet', detail: 'Your workers have not used AI tools in the last 30 days.' };
+      if (s.totalCalls === 0) return { tone: 'empty', label: _t('No AI activity yet', 'Wala pang AI activity'), detail: _t('Your workers have not used AI tools in the last 30 days.', 'Hindi pa gumamit ng AI tools ang mga worker mo sa nakaraang 30 araw.') };
       const thumbsTotal = s.thumbsUp + s.thumbsDown;
       // Below the minimum the ratings carry no verdict — not a good one and not a bad one.
       const thumbsPct = thumbsTotal >= MIN_RATINGS_FOR_VERDICT ? s.thumbsUp / thumbsTotal : null;
@@ -282,17 +304,20 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const watch = (thumbsPct !== null && thumbsPct < 0.7)
                  || fallbackPct > 0.15
                  || (schemaPct !== null && schemaPct < 0.8);
-      if (bad)   return { tone: 'attn',    label: 'AI is struggling for your hive' };
-      if (watch) return { tone: 'watch',   label: 'AI is working but needs attention' };
+      if (bad)   return { tone: 'attn',    label: _t('AI is struggling for your hive', 'Nahihirapan ang AI para sa hive mo') };
+      if (watch) return { tone: 'watch',   label: _t('AI is working but needs attention', 'Gumagana ang AI pero kailangan ng atensyon') };
       // ★AND "HELPING" IS ALSO A VERDICT THE DATA MAY NOT SUPPORT. Gating only the BAD branch traded
       // a false alarm for a false reassurance: with one rating the headline flipped from "AI is
       // struggling" to "AI is helping your hive" while the line beneath it still read "rated it 0%
       // useful". When the ratings are too few to judge AND nothing else has flagged, the honest
       // answer is that there is no verdict yet — not the good one.
-      if (thumbsTotal < MIN_RATINGS_FOR_VERDICT && schemaPct === null) {
-        return { tone: 'empty', label: 'Not enough ratings to judge yet' };
+      // ★BELOW THE FLOOR THERE IS NO VERDICT, whatever else was measured (critique lens, 2026-09-15): the earlier
+      // guard only held when no schema rows existed, so one rating plus any schema data read 'AI is helping your hive'
+      // above a tile that said 0% - the screenshot was the proof the comment's fix had not landed.
+      if (thumbsTotal < MIN_RATINGS_FOR_VERDICT) {
+        return { tone: 'empty', label: _t('Not enough ratings to judge yet', 'Kulang pa ang rating para humusga') };
       }
-      return     { tone: 'healthy', label: 'AI is helping your hive' };
+      return     { tone: 'healthy', label: _t('AI is helping your hive', 'Tumutulong ang AI sa hive mo') };
     }
 
     function renderVerdict(s) {
@@ -300,19 +325,19 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const icon = v.tone === 'healthy' ? '✓' : v.tone === 'watch' ? '!' : v.tone === 'attn' ? '⚠' : '·';
       let line2 = '';
       if (s.totalCalls === 0) {
-        line2 = 'Once workers start using AI for logbook drafts, voice journals or visual defect capture, this page will fill in.';
+        line2 = _t('Once workers start using AI for logbook drafts, voice journals or visual defect capture, this page will fill in.', 'Kapag nagsimulang gumamit ng AI ang mga worker para sa logbook draft, voice journal o visual defect capture, mapupuno ang page na ito.');
       } else {
         const thumbsTotal = s.thumbsUp + s.thumbsDown;
         if (thumbsTotal >= MIN_RATINGS_FOR_VERDICT) {
           const pct = Math.round(100 * s.thumbsUp / thumbsTotal);
-          line2 = `Workers used AI ${s.totalCalls} times in the last 30 days and rated it ${pct}% useful (${s.thumbsUp} thumbs up / ${s.thumbsDown} down).${s.capped ? ' Totals cover the latest 2,000 calls / 5,000 ratings.' : ''}`;
+          line2 = _t(`Workers used AI ${s.totalCalls} times in the last 30 days and rated it ${pct}% useful (${s.thumbsUp} thumbs up / ${s.thumbsDown} down).`, `Gumamit ng AI ang mga worker nang ${s.totalCalls} beses sa nakaraang 30 araw at ${pct}% ang nagsabing kapaki-pakinabang (${s.thumbsUp} thumbs up / ${s.thumbsDown} down).`) + (s.capped ? _t(' Totals cover the latest 2,000 calls / 5,000 ratings.', ' Ang mga kabuuan ay mula sa pinakabagong 2,000 call / 5,000 rating.') : '');
         } else if (thumbsTotal > 0) {
           // A percentage over one or two ratings is noise wearing a number's clothes: one tap moves
           // it 50 points. State the raw counts, which are true, and say what would make a rate mean
           // something — the same discipline the trust card below already applies.
-          line2 = `Workers used AI ${s.totalCalls} times in the last 30 days. Only ${thumbsTotal} rating${thumbsTotal === 1 ? '' : 's'} so far (${s.thumbsUp} up / ${s.thumbsDown} down). Too few for a useful-rate; ${MIN_RATINGS_FOR_VERDICT}+ makes it meaningful.${s.capped ? ' Totals cover the latest 2,000 calls / 5,000 ratings.' : ''}`;
+          line2 = _t(`Workers used AI ${s.totalCalls} times in the last 30 days. Only ${thumbsTotal} rating${thumbsTotal === 1 ? '' : 's'} so far (${s.thumbsUp} up / ${s.thumbsDown} down). Too few for a useful-rate; ${MIN_RATINGS_FOR_VERDICT}+ makes it meaningful.`, `Gumamit ng AI ang mga worker nang ${s.totalCalls} beses sa nakaraang 30 araw. ${thumbsTotal} pa lang ang rating (${s.thumbsUp} up / ${s.thumbsDown} down). Kulang pa para sa useful-rate; ${MIN_RATINGS_FOR_VERDICT}+ ang kailangan.`) + (s.capped ? _t(' Totals cover the latest 2,000 calls / 5,000 ratings.', ' Ang mga kabuuan ay mula sa pinakabagong 2,000 call / 5,000 rating.') : '');
         } else {
-          line2 = `Workers used AI ${s.totalCalls} times in the last 30 days. No thumbs ratings yet: encourage workers to rate answers so this page gets sharper.${s.capped ? ' Totals cover the latest 2,000 calls / 5,000 ratings.' : ''}`;
+          line2 = _t(`Workers used AI ${s.totalCalls} times in the last 30 days. No thumbs ratings yet: encourage workers to rate answers so this page gets sharper.`, `Gumamit ng AI ang mga worker nang ${s.totalCalls} beses sa nakaraang 30 araw. Wala pang thumbs rating: hikayatin ang mga worker na i-rate ang mga sagot para lumawak ang page na ito.`) + (s.capped ? _t(' Totals cover the latest 2,000 calls / 5,000 ratings.', ' Ang mga kabuuan ay mula sa pinakabagong 2,000 call / 5,000 rating.') : '');
         }
       }
       return `
@@ -328,7 +353,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const thumbsTotal = s.thumbsUp + s.thumbsDown;
       let trust;
       if (thumbsTotal === 0) {
-        trust = { hero: '-', sub: 'No thumbs ratings yet', tag: 'NO DATA', tone: 'grey' };
+        trust = { hero: '-', sub: _t('No thumbs ratings yet', 'Wala pang thumbs rating'), tag: _t('No data', 'Walang data'), tone: 'grey' };
       } else {
         const pct = Math.round(100 * s.thumbsUp / thumbsTotal);
         // ★T65 (2026-08-26): THE VERDICT HAD NO SAMPLE FLOOR. With a single rating this card read
@@ -342,18 +367,18 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         // the counts - but it is not dressed as a verdict until it can support one, and the card
         // says what would make it meaningful. Same discipline the reliability workbench applies to a
         // Weibull fit with too few failures.
-        const MIN_RATINGS_FOR_VERDICT = 5;
         if (thumbsTotal < MIN_RATINGS_FOR_VERDICT) {
+          // the hero is the thing a supervisor may trust: how far the count is from the floor, not a percentage of one tap
           trust = {
-            hero: pct + '%',
-            sub: `${s.thumbsUp} up / ${s.thumbsDown} down: too few to judge yet (${MIN_RATINGS_FOR_VERDICT}+ needed)`,
-            tag: 'TOO FEW RATINGS',
+            hero: `${thumbsTotal} ${_t('of', 'sa')} ${MIN_RATINGS_FOR_VERDICT}`,
+            sub: _t(`ratings so far (${s.thumbsUp} up / ${s.thumbsDown} down). ${MIN_RATINGS_FOR_VERDICT} make a trust rate meaningful.`, `rating pa lang (${s.thumbsUp} up / ${s.thumbsDown} down). ${MIN_RATINGS_FOR_VERDICT} ang kailangan para may saysay ang trust rate.`),
+            tag: _t('Too few ratings', 'Kulang pa ang rating'),
             tone: 'grey',
           };
         } else {
-          const tag = pct >= 70 ? 'HEALTHY' : pct >= 50 ? 'WATCH' : 'LOW TRUST';
+          const tag = pct >= 70 ? _t('Healthy', 'Maayos') : pct >= 50 ? _t('Watch', 'Bantayan') : _t('Low trust', 'Mababa ang tiwala');
           const tone = pct >= 70 ? 'green' : pct >= 50 ? 'amber' : 'red';
-          trust = { hero: pct + '%', sub: `${s.thumbsUp} thumbs up · ${s.thumbsDown} down`, tag, tone };
+          trust = { hero: pct + '%', sub: _t(`${s.thumbsUp} thumbs up · ${s.thumbsDown} down`, `${s.thumbsUp} thumbs up · ${s.thumbsDown} down`), tag, tone };
         }
       }
 
@@ -361,11 +386,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const php = s.totalCost * PHP_PER_USD;
       // Soft budget signal: anything under ₱500/month is "modest", ₱500-2000
       // is "typical for active hive", over ₱2000 is "heavy use".
-      const costTag = php < 500 ? 'MODEST' : php < 2000 ? 'TYPICAL' : 'HEAVY USE';
-      const costTone = php < 2000 ? 'green' : 'amber';
+      const noCost = !(s.totalCost > 0);
+      const costTag = noCost ? _t('No cost recorded', 'Walang naitalang gastos') : php < 500 ? _t('Modest', 'Katamtaman') : php < 2000 ? _t('Typical', 'Karaniwan') : _t('Heavy use', 'Mabigat na gamit');
+      const costTone = noCost ? 'grey' : php < 2000 ? 'green' : 'amber';
       const cost = {
         hero: whFmtPeso(php, { decimals: 2 }),
-        sub: `${s.totalCalls} AI calls × avg ${whFmtPeso(php / Math.max(s.totalCalls, 1), { decimals: 2 })} each · ${FX_BASIS}${s.capped ? ' · over the latest 2,000 calls' : ''}`,
+        // one number, one place: the call count is in the verdict line; this sub says the unit cost and the FX basis
+        sub: noCost ? _t('No AI cost recorded in the last 30 days.', 'Walang naitalang gastos sa AI sa nakaraang 30 araw.')
+                    : _t(`avg ${whFmtPeso(php / Math.max(s.totalCalls, 1), { decimals: 2 })} per call · ${FX_BASIS}`, `avg ${whFmtPeso(php / Math.max(s.totalCalls, 1), { decimals: 2 })} bawat call · ${FX_BASIS_FIL}`) + (s.capped ? _t(' · over the latest 2,000 calls', ' · mula sa pinakabagong 2,000 call') : ''),
         tag: costTag,
         tone: costTone,
       };
@@ -374,14 +402,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const minsSaved = s.thumbsUp * MIN_SAVED_PER_THUMBS_UP;
       let timeSaved;
       if (s.thumbsUp === 0) {
-        timeSaved = { hero: '-', sub: 'Needs thumbs ratings to estimate', tag: 'NO DATA', tone: 'grey' };
+        timeSaved = { hero: '-', sub: _t('Needs thumbs-up ratings to estimate', 'Kailangan ng thumbs-up rating para tantiyahin'), tag: _t('No data', 'Walang data'), tone: 'grey' };
       } else {
         const hrs = minsSaved / 60;
         const heroStr = hrs >= 1 ? `~${hrs.toFixed(1)} hrs` : `~${minsSaved} min`;
         timeSaved = {
           hero: heroStr,
-          sub: `${s.thumbsUp} useful answers × ${MIN_SAVED_PER_THUMBS_UP} min each`,
-          tag: 'DIAGNOSIS',
+          sub: _t(`${s.thumbsUp} useful answers × ${MIN_SAVED_PER_THUMBS_UP} min each`, `${s.thumbsUp} kapaki-pakinabang na sagot × ${MIN_SAVED_PER_THUMBS_UP} min bawat isa`),
+          tag: _t('Estimate', 'Tantiya'),
           tone: 'green',
         };
       }
@@ -418,26 +446,30 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const schemaPct = s.schemaTotal > 0 ? s.schemaOk / s.schemaTotal : null;
       const php = s.totalCost * PHP_PER_USD;
 
-      let text;
+      let text; let link = null;
       if (s.totalCalls === 0) {
-        text = 'No AI activity yet. Open Logbook and try the AI draft button on any entry, or ask the floating AI assistant a question. The dashboard will populate from there.';
-      } else if (thumbsTotal < 10) {
-        text = `Only ${thumbsTotal} thumbs rating${thumbsTotal === 1 ? '' : 's'} so far. Ask workers to rate AI answers (👍 / 👎). Each rating sharpens the cost-vs-value picture above.`;
+        link = { href: 'logbook.html', label: _t('Open Logbook →', 'Buksan ang Logbook →') };
+        text = _t('No AI activity yet. Open Logbook and try the AI draft button on any entry, or ask the floating AI assistant a question. The dashboard will populate from there.', 'Wala pang AI activity. Buksan ang Logbook at subukan ang AI draft button sa kahit anong entry, o magtanong sa floating AI assistant. Mapupuno ang dashboard mula roon.');
+      } else if (thumbsTotal < MIN_RATINGS_FOR_VERDICT) {
+        // the count is on the trust tile; this card says what to do and where (critique lens: one floor, a handle to press)
+        text = _t('Too few ratings for a verdict yet. Ask workers to rate AI answers (👍 / 👎) in the assistant; each rating sharpens the picture above.', 'Kulang pa ang rating para sa hatol. Hilingin sa mga worker na i-rate ang mga sagot ng AI (👍 / 👎) sa assistant; bawat rating ay nagpapalinaw ng larawan sa itaas.');
+        link = { href: 'assistant.html', label: _t('Open the assistant →', 'Buksan ang assistant →') };
       } else if (thumbsTotal > 0 && (s.thumbsUp / thumbsTotal) < 0.5) {
-        text = 'AI answers are getting more thumbs down than up. Open the AI Assistant page and ask your workers what is confusing them; the prompts may need tuning.';
+        text = _t('AI answers are getting more thumbs down than up. Open the AI Assistant page and ask your workers what is confusing them; the prompts may need tuning.', 'Mas maraming thumbs down kaysa up ang mga sagot ng AI. Buksan ang AI Assistant page at tanungin ang mga worker kung ano ang nakalilito; baka kailangang ayusin ang mga prompt.');
       } else if (schemaPct !== null && schemaPct < 0.7) {
-        text = `AI is returning malformed answers ${Math.round(100 - schemaPct * 100)}% of the time. This is a platform issue, not a hive one, so report it via the assistant page so it reaches the platform admin.`;
+        text = _t(`AI is returning malformed answers ${Math.round(100 - schemaPct * 100)}% of the time. This is a platform issue, not a hive one, so report it via the assistant page so it reaches the platform admin.`, `Sira ang format ng ${Math.round(100 - schemaPct * 100)}% ng mga sagot ng AI. Isyu ito ng platform, hindi ng hive, kaya i-report sa assistant page para umabot sa platform admin.`);
       } else if (fallbackPct > 0.25) {
-        text = `AI fell back to a backup provider ${Math.round(fallbackPct * 100)}% of calls. Open Plant Connections → Gateway audit to see which routes are failing.`;
+        text = _t(`AI fell back to a backup provider ${Math.round(fallbackPct * 100)}% of calls. Open Plant Connections → Gateway audit to see which routes are failing.`, `Lumipat sa backup provider ang AI sa ${Math.round(fallbackPct * 100)}% ng mga call. Buksan ang Plant Connections → Gateway audit para makita kung aling ruta ang bumabagsak.`);
       } else if (php > 2000) {
-        text = 'AI spend is on the high side over the last 30 days. Open the Show details table below to see which AI function is consuming the most: voice journal and visual defect capture are usually the heaviest.';
+        text = _t('AI spend is on the high side over the last 30 days. Open Engineering details below to see which AI function is consuming the most: voice journal and visual defect capture are usually the heaviest.', 'Mataas ang gastos sa AI sa nakaraang 30 araw. Buksan ang Mga detalye ng engineering sa ibaba para makita kung aling AI function ang pinakamalaki ang gastos: kadalasang voice journal at visual defect capture.');
       } else {
-        text = 'Keep encouraging workers to rate AI answers (👍 / 👎). Each thumbs-up sharpens future suggestions and tightens the time-saved estimate above.';
+        text = _t('Keep encouraging workers to rate AI answers (👍 / 👎). Each thumbs-up sharpens future suggestions and tightens the time-saved estimate above.', 'Patuloy na hikayatin ang mga worker na i-rate ang mga sagot ng AI (👍 / 👎). Bawat thumbs-up ay nagpapahusay sa mga susunod na mungkahi at nagpapatibay sa tantiya ng natipid na oras sa itaas.');
       }
       return `
         <div class="action-card">
           <div class="ac-label" data-i="aq_whatnext">What to do next</div>
           <div class="ac-text">${escHtml(text)}</div>
+          ${link ? `<a href="${escHtml(link.href)}" class="ac-link">${escHtml(link.label)}</a>` : ''}
         </div>
       `;
     }
@@ -452,8 +484,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         renderFnTable(s),
       ].join('');
       return `
-        <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="details-pane" data-i="showdetails">
-          Show details
+        <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="details-pane" data-i="aq_engdetails">
+          Engineering details
         </button>
         <div id="details-pane" role="region" aria-label="Engineering details">${inner}</div>
       `;
@@ -466,7 +498,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     }
 
     function renderLoadingState() {
-      return `<div class="card" style="text-align:center;color:var(--muted);">Loading AI quality and ROI data...</div>`;
+      return `<div class="card" style="text-align:center;color:var(--muted);">${_t('Loading AI quality and ROI data…', 'Nilo-load ang AI quality at ROI data…')}</div>`;
     }
 
     async function loadCostLog() {
@@ -579,23 +611,23 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const schemaPct   = s.schemaTotal === 0 ? '-' : Math.round(100 * s.schemaOk / s.schemaTotal) + '%';
       return `
         <div class="summary-row">
-          <div class="sum-card"><span class="sn">${s.totalCalls}</span><span class="sl">AI calls (30d)</span></div>
-          <div class="sum-card"><span class="sn">$${usd}</span><span class="sl">Spend (30d)</span></div>
-          <div class="sum-card ${s.fallbackCount === 0 ? 'green' : (s.fallbackCount > s.totalCalls * 0.2 ? 'red' : '')}"><span class="sn">${escHtml(fallbackPct)}</span><span class="sl">Fallback rate</span></div>
-          <div class="sum-card ${schemaPct !== '-' && parseInt(schemaPct, 10) >= 90 ? 'green' : ''}"><span class="sn">${escHtml(schemaPct)}</span><span class="sl">Schema compliance</span></div>
+          <div class="sum-card"><span class="sn">${s.totalCalls}</span><span class="sl">${_t('AI calls (30d)', 'AI call (30 araw)')}</span></div>
+          <div class="sum-card"><span class="sn">$${usd}</span><span class="sl">${_t('Spend (30d)', 'Gastos (30 araw)')}</span></div>
+          <div class="sum-card ${s.fallbackCount === 0 ? 'green' : (s.fallbackCount > s.totalCalls * 0.2 ? 'red' : '')}"><span class="sn">${escHtml(fallbackPct)}</span><span class="sl">${_t('Fallback rate', 'Fallback rate')}</span></div>
+          <div class="sum-card ${schemaPct !== '-' && parseInt(schemaPct, 10) >= 90 ? 'green' : ''}"><span class="sn">${escHtml(schemaPct)}</span><span class="sl">${_t('Schema compliance', 'Schema compliance')}</span></div>
         </div>
       `;
     }
 
     function renderROIBlock(s) {
       const cBadge = s.roiConfidence === 'high'
-        ? `<span class="roi-confidence">High confidence (${s.thumbsUp + s.thumbsDown} ratings)</span>`
+        ? `<span class="roi-confidence">${_t(`High confidence (${s.thumbsUp + s.thumbsDown} ratings)`, `Mataas ang kumpiyansa (${s.thumbsUp + s.thumbsDown} rating)`)}</span>`
         : s.roiConfidence === 'medium'
-          ? `<span class="roi-confidence amber">Medium confidence (${s.thumbsUp + s.thumbsDown} ratings)</span>`
-          : `<span class="roi-confidence amber">Low confidence: fewer than 10 thumbs ratings; treat as directional only</span>`;
+          ? `<span class="roi-confidence amber">${_t(`Medium confidence (${s.thumbsUp + s.thumbsDown} ratings)`, `Katamtamang kumpiyansa (${s.thumbsUp + s.thumbsDown} rating)`)}</span>`
+          : `<span class="roi-confidence amber">${_t('Low confidence: fewer than 10 thumbs ratings; treat as directional only', 'Mababang kumpiyansa: wala pang 10 thumbs rating; direksyon lang ang basa')}</span>`;
       const honestNote = s.roiConfidence === 'low'
-        ? 'Ask your workers to rate AI answers (👍/👎). Ratings sharpen this number.'
-        : 'Computed from cost × quality ratio. Verify against your own downtime savings before booking.';
+        ? _t('Ask your workers to rate AI answers (👍/👎). Ratings sharpen this number.', 'Hilingin sa mga worker na i-rate ang mga sagot ng AI (👍/👎). Nagpapalinaw ng numerong ito ang mga rating.')
+        : _t('Computed from cost × quality ratio. Verify against your own downtime savings before booking.', 'Kinalkula mula sa cost × quality ratio. Tiyakin laban sa sarili mong natipid sa downtime bago i-book.');
       return `
         <div class="card">
           <h2 data-i="aq_roi_30d">Estimated 30-day ROI</h2>
@@ -606,7 +638,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
               <div class="hero-sub">predicted savings unlocked by AI assist</div>
               ${cBadge}
             </div>
-            <div style="font-size:0.72rem; color:var(--muted); line-height:1.5;">${escHtml(honestNote)}</div>
+            <div style="font-size:0.8rem; color:var(--muted); line-height:1.5;">${escHtml(honestNote)}</div>
           </div>
         </div>
       `;
@@ -622,10 +654,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           <p class="meta">Last 30 days</p>
           <div style="display:flex;align-items:baseline;gap:16px;">
             <span style="font-size:1.4rem;font-weight:800;color:var(--green);">${tup}</span>
-            <span style="font-size:0.7rem;color:var(--muted);">👍 thumbs up</span>
+            <span style="font-size:0.8rem;color:var(--muted);">👍 ${_t('thumbs up', 'thumbs up')}</span>
             <span style="font-size:1.4rem;font-weight:800;color:var(--red);margin-left:1rem;">${tdn}</span>
-            <span style="font-size:0.7rem;color:var(--muted);">👎 thumbs down</span>
-            <span style="font-size:0.7rem;color:var(--muted);margin-left:auto;">${total === 0 ? '-' : pct + '% positive'}</span>
+            <span style="font-size:0.8rem;color:var(--muted);">👎 ${_t('thumbs down', 'thumbs down')}</span>
+            <span style="font-size:0.8rem;color:var(--muted);margin-left:auto;">${total === 0 ? '-' : pct + _t('% positive', '% positibo')}</span>
           </div>
         </div>
       `;
@@ -633,7 +665,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
     function renderFnTable(s) {
       if (s.fns.length === 0) {
-        return `<div class="card"><h3>Per-function spend</h3><p class="meta" style="margin-top:6px;">No AI calls recorded in the last 30 days for this hive.</p></div>`;
+        return `<div class="card"><h3>${_t('Per-function spend', 'Gastos bawat function')}</h3><p class="meta" style="margin-top:6px;">${_t('No AI calls recorded in the last 30 days for this hive.', 'Walang naitalang AI call sa nakaraang 30 araw para sa hive na ito.')}</p></div>`;
       }
       const rows = s.fns.map(f => {
         const avgLat = f.latencyN > 0 ? Math.round(f.latencyTotal / f.latencyN) + ' ms' : '-';
@@ -691,12 +723,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   };
 </script>
 <!-- U3 status-feedback: persistent polite live region (STREAMLINE E2). showToast/whListError announce here; screen readers get status, never a silent fetch. -->
-<div id="toast" role="alert" aria-live="polite"></div>
+<div id="toast" role="status" aria-live="polite"></div>
 <script>
   // E3 provenance (FAMILY F3): sources = this page's verified reads.
   window.addEventListener('load', function () {
     var el = document.getElementById('aq-source-chip');
-    if (!el) { el = document.createElement('div'); el.id = 'aq-source-chip'; var host = document.querySelector('.page') || document.querySelector('main') || document.body; host.appendChild(el); }
+    if (!el) { el = document.createElement('div'); el.id = 'aq-source-chip'; el.style.margin = '0 0 12px'; var hdr = document.querySelector('.page-header'); var host = document.querySelector('.page') || document.querySelector('main') || document.body; if (hdr && hdr.parentNode) hdr.parentNode.insertBefore(el, hdr.nextSibling); else host.appendChild(el); }   // one provenance line, under the title (DESIGN.md), not at the page foot
     if (typeof renderSourceChip === 'function') el.innerHTML = renderSourceChip({
       // G4 (single freshness source): freshness lives in the live "Updated just now" stamp already on
       // this page — the source chip stays PROVENANCE-only so the two don't stack (Ian: redundant status).
@@ -709,7 +741,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       aq_empty:"Wala pang AI quality data",
       aq_draft_cta:"Mag-draft gamit ang AI →",              // was marked but had NO dict entry -> stayed EN in FIL
       aq_overview_heading:"Pangkalahatang-tingin sa Quality at ROI",  // was marked but had NO dict entry -> stayed EN in FIL
-      aq_worker_trust:"Tiwala ng manggagawa", aq_cost_month:"Gastos ngayong buwan",
+      aq_worker_trust:"Tiwala ng manggagawa", aq_cost_month:"Gastos, nakaraang 30 araw",
       aq_time_saved:"Naitipid na oras (tantiya)", aq_whatnext:"Ano ang susunod na gagawin",
       aq_roi_30d:"Tinatayang 30-araw na ROI", aq_worker_feedback:"Feedback ng manggagawa (👍 / 👎)",
       aq_perfn_spend:"Gastos bawat function"
@@ -722,7 +754,7 @@ window.addEventListener('load', function () { setTimeout(function () {
   try { console.error('[ai-quality] utils.js did not load; the page cannot render its data'); } catch (e) { void e; }
   var m = document.querySelector('main') || document.body; if (!m || m.querySelector('.wh-shared-missing')) return;
   var d = document.createElement('div'); d.className = 'honest-empty wh-shared-missing'; d.setAttribute('role', 'alert');
-  d.style.cssText = 'margin:12px;padding:14px 16px;border:1px solid rgba(248,113,113,.4);border-radius:10px;background:rgba(248,113,113,.08);color:#fca5a5;font:14px/1.5 system-ui,sans-serif;';
+  d.style.cssText = 'margin:12px;padding:12px 16px;border:1px solid rgba(248,113,113,.4);border-radius:10px;background:rgba(248,113,113,.08);color:#fca5a5;font:14px/1.5 system-ui,sans-serif;';
   d.innerHTML = 'WorkHive could not load its shared script (utils.js), so this page cannot show your data. <button type="button" onclick="location.reload()" style="color:inherit;text-decoration:underline;background:none;border:0;padding:0;font:inherit;cursor:pointer;min-height:44px;" data-i="reloadtotryagain">Reload to try again</button>.';
   m.insertBefore(d, m.firstChild);
   var sk = document.querySelectorAll('.wh-skeleton, [class*="skeleton"]'); for (var i = 0; i < sk.length; i++) sk[i].style.display = 'none';

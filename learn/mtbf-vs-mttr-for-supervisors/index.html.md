@@ -68,7 +68,7 @@ The formula:
 
 **Worked example: bottling line conveyor at a Pampanga beverage plant.**
 
-The conveyor had 12 breakdowns in the past year. The supervisor pulled the logbook entries with start and restart timestamps:
+The conveyor had 12 breakdowns in the past year. The supervisor pulled the logbook entries and added up the downtime hours recorded on each:
 
 Drilling into the 38 hours shows the typical Philippine-plant pattern:
 
@@ -108,9 +108,9 @@ MTTR breakdowns by category usually reveal that 40 to 60 percent of total repair
 
 The tool this guide is about
 
-#### WorkHive Analytics computes MTBF and MTTR per asset
+### WorkHive Analytics computes MTBF and MTTR per asset
 
-Every fault entry in the WorkHive Logbook (stop timestamp, restart timestamp, fault category, resolution notes) flows into the Analytics reliability dashboard. MTBF and MTTR are recomputed monthly per critical asset. No spreadsheets, no per-user CMMS license. Built for Stage 1 of the 4-stage path.
+Every fault entry in the WorkHive Logbook feeds the Analytics reliability dashboard. The field that does the work is **downtime hours** on the entry: there is no separate stop and restart timestamp to fill in: alongside the category, root cause and the closing time. MTBF and MTTR are recomputed on the first view of each day and saved, so the figures are never more than a day stale and nobody waits for a recalculation. One caveat worth carrying with you: the dashboard labels its own figure *“Worst MTBF (partial)”*, because it divides calendar time rather than operating time: which is the shortcut this page warns about, declared openly rather than hidden. For an asset that runs 24/7 the two are the same; for one that does not, treat the dashboard figure as the conservative one. No spreadsheets, no per-user CMMS license. Built for Stage 1 of the 4-stage path.
 
 No hive yet? [Join WorkHive](https://workhiveph.com/?signup=1) first (free, takes 30 seconds).
 
@@ -126,10 +126,10 @@ This is why MTBF and MTTR alone are not enough. They feed into OEE, RCM analysis
 
 ## Tracking both with zero CMMS budget
 
-You do not need to buy SAP PM, IBM Maximo, or any paid CMMS to track MTBF and MTTR. You need a digital logbook with three structured fields per fault:
+You do not need to buy SAP PM, IBM Maximo, or any paid CMMS to track MTBF and MTTR. You need a digital logbook that captures three things per fault:
 
-1. **Fault start timestamp** (server-side, not editable).
-2. **Restart timestamp** when the asset was producing again.
+1. **How long the asset was down**, in hours. Two timestamps: stopped and producing again: are the most rigorous way to get this, because they cannot drift the way a remembered number does. A single downtime-hours field entered at the close is the practical way, and it is what WorkHive’s logbook asks for.
+2. **When the job closed**, so the entries can be bucketed into a period without anyone re-typing dates.
 3. **Fault category** from a controlled list (mechanical, electrical, instrumentation, process, safety).
 
 That is it. Once a month, the supervisor exports the logbook, filters by asset, and calculates both metrics for the top 10 critical assets. 30 minutes per month. No software bill.
@@ -166,11 +166,11 @@ MTBF benchmarks depend heavily on equipment type. A critical pump motor in a pro
 
 ### What is a good MTTR value?
 
-Good MTTR is asset and plant specific but world-class is generally under 2 hours for critical line equipment. Most Philippine plants we benchmark sit between 3 and 8 hours. The biggest MTTR drivers are spare parts availability (40 percent of MTTR is usually waiting for the part), skill coverage (the right person being on shift), and procedure clarity. Logbook entries with photos cut MTTR faster than any other intervention.
+Good MTTR is asset and plant specific, and unlike OEE or PM compliance there is no published cross-industry benchmark to measure yourself against, so the number that matters is your own trend and its composition. The breakdown above is the useful target: when parts retrieval is 42 percent of your repair time, the fix is the store, not the technician. A plant without a disciplined store and a clear procedure typically sits between 3 and 8 hours. The biggest MTTR drivers are spare parts availability (40 percent of MTTR is usually waiting for the part), skill coverage (the right person being on shift), and procedure clarity. Logbook entries with photos cut MTTR faster than any other intervention.
 
 ### How are MTBF and MTTR used in availability?
 
-Equipment availability equals MTBF divided by the sum of MTBF and MTTR. A pump with MTBF 1,095 hours and MTTR 4 hours has availability of 1,095 divided by 1,099 equals 99.6 percent. This is the engineering availability used in reliability calculations and is different from operational availability used in OEE.
+Equipment availability equals MTBF divided by the sum of MTBF and MTTR. Taking the worked example above: a pump with MTBF 1,091 operating hours and MTTR 4 hours has availability of 1,091 divided by 1,095, or 99.6 percent. Use operating hours in that numerator, not calendar hours: subtracting the downtime is what makes it an ISO 14224 MTBF rather than an approximation of one. This is the engineering availability used in reliability calculations and is different from operational availability used in OEE.
 
 ### Do I need a CMMS to track MTBF and MTTR?
 
@@ -185,4 +185,4 @@ No. A digital logbook with structured fault entries (asset name, fault time, res
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: bc903c7a0b382656 -->
+<!-- md-twin source-sha: 8963f887c0cb2342 -->

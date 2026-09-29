@@ -498,6 +498,13 @@ def main() -> int:
             indent=1), encoding="utf-8")
         print(f"  {len(broken)} broken hop(s) written to {dest}")
 
+    # the report prints the platform's own arrows (→); on a cp1252 console that raised UnicodeEncodeError
+    # and the gate died mid-report (2026-09-14, the first wave-4 seed) - a gate that crashes while
+    # explaining a real finding is a gate whose finding nobody reads
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
     retired_hits = retired_in_paths(paths)
     if retired_hits:
         print(f"journeys declared across a RETIRED page: {len(retired_hits)} "

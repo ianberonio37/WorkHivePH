@@ -25,14 +25,14 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=optional" rel="stylesheet" />
   <link rel="stylesheet" href="components.css" />  <!-- S11 shared component CSS -->
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    *, *::before, *::after { box-sizing: border-box; margin:0; padding:0; }
 
     body {
       font-family: 'Poppins', sans-serif;
       background: #0f1923;
       color: var(--wh-cloud);
       min-height: 100vh;
-      padding-bottom: calc(80px + env(safe-area-inset-bottom));
+      padding-bottom:calc(80px + env(safe-area-inset-bottom));
     }
 
     /* ── Aurora (desktop only — gated in JS) ── */
@@ -46,9 +46,15 @@
       position: fixed; top: 1rem; left: 50%;
       transform: translateX(-50%) translateY(-72px);
       background: rgba(31,46,69,0.96); color: var(--wh-cloud);
-      padding: 0.6rem 1.25rem; border-radius: var(--wh-radius);
+      padding:0.5rem 1.25rem; border-radius: var(--wh-radius);
       font-size: 0.8rem; font-weight: 500;
-      transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+      /* ★THE RETIRED BOUNCE, STILL HARD-CODED (design lens, 2026-09-16). tokens.css retired
+         --wh-ease-spring - cubic-bezier(0.34, 1.56, 0.64, 1) - for overshooting by 56%, and the grep
+         that confirmed it was unused searched the token's NAME. These files spell the curve as a
+         LITERAL, so the platform's one dated bounce outlived the decision that removed it. A toast
+         entering is an entrance, and review-animations/STANDARDS.md gives entrances ease-out at the
+         platform's own duration step. Same fix already recorded on integrations.html. */
+        transition: transform var(--wh-dur-slow, 0.25s) var(--wh-ease-out, ease-out);
       z-index: 200; white-space: nowrap;
       border: 1px solid rgba(255,255,255,0.09);
       backdrop-filter: blur(14px);
@@ -57,27 +63,25 @@
     #toast.show { transform: translateX(-50%) translateY(0); }
 
     /* ── Page layout ── */
-    .page { position: relative; z-index: 1; max-width: 440px; margin: 0 auto; padding: 1.5rem 1rem; }
+    /* ★440px WAS THE NARROWEST COLUMN IN THE PRODUCT (critique lens, 2026-09-17, MEASURED). Both
+       isolated assessments reached it independently: at a 1280 viewport the card ran x433..841,
+       409px of content in 1274px, with ~420px of empty navy on each side. DESIGN.md documents
+       680px for app pages, and the other eighteen app pages that declare a column run 680 to
+       1000px - this page was the only 440. The bottom sheet keeps its own 440px: a sheet is a
+       phone-shaped surface by intent, and it is not the page. */
+    .page { position: relative; z-index: 1; max-width: 680px; margin:0 auto; padding:1.5rem 1rem; }
 
     /* ── Header ── */
-    .page-header { margin-bottom: 1.5rem; }
-    .header-badge {
-      display: inline-block;
-      font-size: 0.6rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
-      padding: 0.2rem 0.6rem; border-radius: 999px;
-      background: rgba(247,162,27,0.14); color:var(--wh-orange-text);
-      border: 1px solid rgba(247,162,27,0.28);
-      margin-bottom: 0.5rem;
-    }
-    .page-header h1 { font-size: 1.55rem; font-weight: 800; color: #fff; line-height: 1.2; }
-    .page-header p { font-size: 0.75rem; color:rgba(255,255,255,0.86); margin-top: 0.25rem; } /* D1 U5: --wh-steel <4.5:1 → WCAG 1.4.3 */
+    .page-header { margin-bottom:1.5rem; }
+    .page-header h1 { font-size: 1.5rem; font-weight: 800; color: #fff; line-height: 1.2; }
+    .page-header p { font-size: 0.75rem; color:rgba(255,255,255,0.86); margin-top:0.25rem; } /* D1 U5: --wh-steel <4.5:1 → WCAG 1.4.3 */
 
     /* ── Card ── */
     .card {
       background: linear-gradient(145deg, rgba(42,61,88,0.5), rgba(31,46,69,0.7));
       border: 1px solid rgba(255,255,255,0.07);
       border-radius: 1rem;
-      padding: 1.5rem;
+      padding:1.5rem;
       position: relative;
       overflow: hidden;
       min-height: 420px;
@@ -85,11 +89,11 @@
 
     /* ── Section label ── */
     .section-label {
-      font-size: 0.68rem; font-weight: 700;
-      color: var(--wh-steel-bright); text-transform: uppercase; letter-spacing: 0.07em;
-      margin-bottom: 0.75rem;
+      font-size: 0.75rem; font-weight: 700;
+      color: var(--wh-steel-bright); letter-spacing: 0.01em;
+      margin-bottom:0.75rem;
     }
-    .mt-lg { margin-top: 1.5rem; }
+    .mt-lg { margin-top:1.5rem; }
 
     /* ── Chips ── */
     .chips-grid { display: flex; flex-wrap: wrap; gap: 0.625rem; }
@@ -98,15 +102,15 @@
       min-width: calc(50% - 0.625rem);
       min-height: 52px;
       display: flex; align-items: center; gap: 0.625rem;
-      padding: 0.75rem 0.875rem;
+      padding:0.75rem 1rem;
       border-radius: 0.75rem;
       border: 1px solid rgba(255,255,255,0.1);
       background: rgba(22,32,50,0.55);
       cursor: pointer;
-      transition: border-color 0.15s, background 0.15s, transform 0.1s;
+      transition: border-color var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out), background-color var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out), transform var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out);
       font-family: 'Poppins', sans-serif;
       color:rgba(255,255,255,0.80);
-      font-size: 0.8rem; font-weight: 500;
+      font-size: 0.875rem; font-weight: 500;
       user-select: none;
       -webkit-tap-highlight-color: transparent;
       text-align: left;
@@ -117,25 +121,26 @@
       background: rgba(247,162,27,0.1);
       color: rgba(255,255,255,0.9);
     }
-    .chip.ph3 { opacity: 0.38; }
+    .chip.ph3 { border-style: dashed; border-color: rgba(255,255,255,0.16); background: rgba(22,32,50,0.35); }
+    .chip.ph3 .chip-dot { opacity: 0.45; }
     .chip-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; opacity: 0.7; }
     .chip.selected .chip-dot { opacity: 1; }
     .chip-label { flex: 1; line-height: 1.25; }
-    .chip-check { opacity: 0; flex-shrink: 0; transition: opacity 0.15s; }
+    .chip-check { opacity: 0; flex-shrink: 0; transition: opacity var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out); }
     .chip.selected .chip-check { opacity: 1; }
     .phase-badge {
       display: inline-block;
-      font-size: 0.58rem; font-weight: 700;
-      padding: 0.1rem 0.4rem; border-radius: 999px;
+      font-size: 0.75rem; font-weight: 700;
+      padding:0.125rem 0.375rem; border-radius: 999px;
       background: rgba(255,255,255,0.05);
       border: 1px solid rgba(255,255,255,0.1);
       color:rgba(255,255,255,0.80);
-      margin-left: auto; flex-shrink: 0;
+      margin-left:auto; flex-shrink: 0;
     }
     .chips-count {
-      font-size: 0.72rem; font-weight: 600;
+      font-size: 0.75rem; font-weight: 600;
       color: rgba(247,162,27,0.75);
-      margin-top: 0.625rem; min-height: 1.1em;
+      margin-top:0.5rem; min-height: 1.1em;
     }
 
     /* ── Email input ── */
@@ -143,38 +148,40 @@
       background: rgba(22,32,50,0.6);
       border: 1px solid rgba(255,255,255,0.1);
       border-radius: 0.75rem;
-      color: #fff; padding: 0.75rem 1rem;
+      color: #fff; padding:0.75rem 1rem;
       width: 100%; font-size: 1rem;
       font-family: 'Poppins', sans-serif;
-      outline: none; transition: border-color 0.2s;
+      outline: none; transition: border-color var(--wh-dur, 0.2s) var(--wh-ease-out, ease-out);
     }
     .wh-input:focus { border-color: rgba(247,162,27,0.5); }
     .wh-input::placeholder { color:rgba(255,255,255,0.80); }
-    .email-error { font-size: 0.7rem; color: var(--wh-red); margin-top: 0.375rem; min-height: 1em; }
+    .email-error { font-size: 0.75rem; color: var(--wh-red); margin-top:0.375rem; min-height: 1em; }
 
     /* ── Contacts ── */
     .section-label-row {
       display: flex; align-items: center; justify-content: space-between;
-      margin-top: 1.5rem; margin-bottom: 0.75rem;
+      margin-top:1.5rem; margin-bottom:0.75rem;
     }
-    .section-label-row .section-label { margin-bottom: 0; }
+    .section-label-row .section-label { margin-bottom:0; }
     .add-contact-btn {
-      font-family: 'Poppins', sans-serif; font-size: 0.7rem; font-weight: 600;
-      padding: 0.3rem 0.625rem; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; border-radius: var(--wh-radius-sm); /* R3: press rect */
+      font-family: 'Poppins', sans-serif; font-size: 0.75rem; font-weight: 600;
+      padding:0.25rem 0.5rem; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; border-radius: var(--wh-radius-sm); /* R3: press rect */
       background: rgba(247,162,27,0.1); border: 1px solid rgba(247,162,27,0.25);
       color:var(--wh-orange-text); cursor: pointer;
-      -webkit-tap-highlight-color: transparent; transition: all 0.15s;
+      -webkit-tap-highlight-color: transparent;
+      transition: background-color var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out), transform var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out);
     }
     .add-contact-btn:active { background: rgba(247,162,27,0.2); transform: scale(0.96); }
 
-    .contacts-list { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 0.5rem; }
-    .contacts-empty { font-size: 0.75rem; color:rgba(255,255,255,0.80); text-align: center; padding: 0.625rem 0; }
+    .contacts-list { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom:0.5rem; }
+    .contacts-empty { font-size: 0.75rem; color:rgba(255,255,255,0.80); text-align: center; padding:0.5rem 0; }
 
     .contact-chip {
       display: flex; align-items: center; gap: 0.75rem;
       background: rgba(22,32,50,0.55); border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 0.75rem; padding: 0.625rem 0.875rem;
-      cursor: pointer; transition: all 0.15s;
+      border-radius: 0.75rem; padding:0.5rem 1rem;
+      cursor: pointer;
+      transition: border-color var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out), background-color var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out), transform var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out);
       -webkit-tap-highlight-color: transparent; min-height: 52px;
     }
     .contact-chip:active { transform: scale(0.98); }
@@ -182,17 +189,30 @@
     .contact-avatar {
       width: 34px; height: 34px; border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
-      font-size: 0.72rem; font-weight: 700; color: var(--wh-navy); flex-shrink: 0;
+      font-size: 0.75rem; font-weight: 700; color: var(--wh-navy); flex-shrink: 0;
     }
     .contact-info { flex: 1; min-width: 0; }
-    .contact-name { display: block; font-size: 0.82rem; font-weight: 600; color: rgba(255,255,255,0.85); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .contact-tag  { font-size: 0.62rem; color:rgba(255,255,255,0.80); }
-    .contact-tag { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }   /* phone fit (2026-09-06): the tag carries an email - one line, ellipsized, never a wrapped or spilled token */
-    .contact-check { opacity: 0; transition: opacity 0.15s; flex-shrink: 0; }
+    .contact-name { display: block; font-size: 0.875rem; font-weight: 600; color: rgba(255,255,255,0.85); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    /* ★max-width, overflow AND text-overflow DO NOT APPLY TO AN INLINE BOX (measured 2026-09-17, W46021).
+       The line below is the 2026-09-06 phone-fit repair - "one line, ellipsized, never a wrapped or
+       spilled token" - and it was inert for eleven days, because .contact-tag is a <span> and none of
+       those three properties applies to a non-replaced inline element. Measured at phone-390 with a
+       seeded contact: the tag ran 99..398 against a .contact-info parent of 99..251 and was CHOPPED at
+       368 by #main-card's overflow-x:hidden, so the reader saw "management . manager+b4f7fe63@example.te"
+       with no ellipsis and no way to reach the rest. The document never spilled (scrollWidth 384 < 390),
+       which is why the walk's fit axis reported nothing - a clip inside a card is invisible to a spill
+       test. Its own sibling .contact-name, two lines up, carries display:block first and has always
+       worked; that is the whole difference. */
+    .contact-tag {
+      display: block; max-width: 100%;
+      font-size: 0.75rem; color:rgba(255,255,255,0.80);
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .contact-check { opacity: 0; transition: opacity var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out); flex-shrink: 0; }
     .contact-chip.selected .contact-check { opacity: 1; }
     .contact-delete {
       background: none; border: none; cursor: pointer;
-      color:rgba(255,255,255,0.80); font-size: 1rem; padding: 0;
+      color:rgba(255,255,255,0.80); font-size: 1rem; padding:0;
       /* 28px -> 44px (F1, walked 2026-09-10 as a fleet supervisor on phone-390): this is the REMOVE
          control for a saved recipient - destructive, and it was the smallest target on the page at
          28x28. The chip is 65px tall with a 45px content box, so 44px fits inside it without changing
@@ -204,7 +224,7 @@
     }
     .contact-delete:active { background: rgba(239,68,68,0.15); color: var(--wh-red); }
 
-    .one-time-label { font-size: 0.68rem; color:rgba(255,255,255,0.80); margin-bottom: 0.375rem; }
+    .one-time-label { font-size: 0.75rem; color:rgba(255,255,255,0.80); margin-bottom:0.375rem; }
 
     /* ── Bottom sheet ── */
     .sheet-overlay {
@@ -215,60 +235,62 @@
     .bottom-sheet {
       background: linear-gradient(160deg, var(--wh-navy-mid), var(--wh-navy));
       border: 1px solid rgba(255,255,255,0.09); border-bottom: none;
-      border-radius: 1rem 1.25rem 0 0;
-      width: 100%; max-width: 440px; margin: 0 auto;
+      border-radius: var(--wh-radius-lg) var(--wh-radius-lg) 0 0;   /* was 1rem 1.25rem 0 0 - a sheet with two DIFFERENT top corners (16px left, 20px right) */
+      width: 100%; max-width: 440px; margin:0 auto;
       max-height: 80vh; display: flex; flex-direction: column;
-      padding-bottom: env(safe-area-inset-bottom);
+      padding-bottom:env(safe-area-inset-bottom);
     }
-    .sheet-handle { width: 36px; height: 4px; border-radius: 999px; background: rgba(255,255,255,0.15); margin: 0.875rem auto 0; flex-shrink: 0; }
-    .sheet-header { padding: 0.875rem 1.25rem 0; flex-shrink: 0; }
+    .sheet-handle { width: 36px; height: 4px; border-radius: 999px; background: rgba(255,255,255,0.15); margin:1rem auto 0; flex-shrink: 0; }
+    .sheet-header { padding:1rem 1.25rem 0; flex-shrink: 0; }
     .sheet-title  { font-size: 1rem; font-weight: 700; color: #fff; }
-    .sheet-body   { padding: 1rem 1.25rem; overflow-y: auto; flex: 1; }
-    .sheet-field  { margin-bottom: 1rem; }
-    .field-label  { display: block; font-size: 0.68rem; font-weight: 700; color: var(--wh-steel-bright); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 0.5rem; }
-    .sheet-error  { font-size: 0.7rem; color: var(--wh-red); min-height: 1em; }
-    .sheet-footer { padding: 0.75rem 1.25rem 1rem; display: flex; flex-direction: column; gap: 0.5rem; flex-shrink: 0; }
+    .sheet-body   { padding:1rem 1.25rem; overflow-y: auto; flex: 1; }
+    .sheet-field  { margin-bottom:1rem; }
+    .field-label  { display: block; font-size: 0.75rem; font-weight: 700; color: var(--wh-steel-bright); letter-spacing: 0.01em; margin-bottom:0.5rem; }
+    .sheet-error  { font-size: 0.75rem; color: var(--wh-red); min-height: 1em; }
+    .sheet-footer { padding:0.75rem 1.25rem 1rem; display: flex; flex-direction: column; gap: 0.5rem; flex-shrink: 0; }
 
     .label-pills { display: flex; flex-wrap: wrap; gap: 0.375rem; }
     .label-pill {
-      font-family: 'Poppins', sans-serif; font-size: 0.72rem; font-weight: 600;
-      padding: 0.35rem 0.75rem; border-radius: 999px;
+      font-family: 'Poppins', sans-serif; font-size: 0.75rem; font-weight: 600;
+      padding:0.375rem 0.75rem; border-radius: 999px;
       /* ★TOUCH FLOOR. Measured 4 of these at 36px tall inside #sheet-overlay via tools/prove_dialog_layout.mjs, under this platform's 44px
          rule. Height-only fix: the width was already fine, so raising min-height cannot introduce the
          horizontal overflow the same prover checks in the same run. */
       min-height: 44px;
       background: rgba(22,32,50,0.6); border: 1px solid rgba(255,255,255,0.1);
       color:rgba(255,255,255,0.80); cursor: pointer;
-      transition: all 0.15s; -webkit-tap-highlight-color: transparent;
+      transition: background-color var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out), border-color var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out), color var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out), transform var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out);
+      -webkit-tap-highlight-color: transparent;
     }
     .label-pill.active { background: rgba(247,162,27,0.15); border-color: var(--wh-orange); color: var(--wh-orange); }
     .label-pill:active { transform: scale(0.95); }
 
     /* ── Report history ── */
-    .history-section { margin-top: 1rem; }
+    .history-section { margin-top:1rem; }
     .history-list { display: flex; flex-direction: column; gap: 0.4rem; }
     .history-item {
       display: flex; align-items: center; gap: 0.75rem;
       background: rgba(22,32,50,0.35);
       border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 0.75rem; padding: 0.75rem 1rem;
+      border-radius: 0.75rem; padding:0.75rem 1rem;
     }
     .history-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
     .history-body { flex: 1; min-width: 0; }
-    .history-type    { font-size: 0.78rem; font-weight: 600; color: rgba(255,255,255,0.8); }
-    .history-meta    { font-size: 0.65rem; color:rgba(255,255,255,0.86); margin-top: 0.1rem; } /* D1 a11y: 0.3→0.75 WCAG 1.4.3 (raised card) */
-    .history-summary { font-size: 0.68rem; color: var(--wh-steel-bright); margin-top: 0.15rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .history-type    { font-size: 0.75rem; font-weight: 600; color: rgba(255,255,255,0.8); }
+    .history-meta    { font-size: 0.75rem; color:rgba(255,255,255,0.86); margin-top:0.125rem; } /* D1 a11y: 0.3→0.75 WCAG 1.4.3 (raised card) */
+    .history-summary { font-size: 0.75rem; color: var(--wh-steel-bright); margin-top:0.125rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     /* AI6 principle applied to a FORWARDABLE artefact: these summaries come from ai_reports
        (written by the scheduled report agent) and sit under a neutral "Recent Reports" heading
        with a Resend button - a supervisor could forward machine-written prose with nothing
        saying so. project-report.html already uses this pattern; this is consistency, not new UI. */
-    .history-ai-mark { font-size: 0.62rem; color:rgba(255,255,255,0.80); margin-top: 0.15rem; letter-spacing: 0.02em; }
+    .history-ai-mark { font-size: 0.75rem; color:rgba(255,255,255,0.80); margin-top:0.125rem; letter-spacing: 0.02em; }
     .resend-btn {
-      font-family: 'Poppins', sans-serif; font-size: 0.68rem; font-weight: 600;
-      padding: 0.35rem 0.625rem; border-radius: 0.5rem;
+      font-family: 'Poppins', sans-serif; font-size: 0.75rem; font-weight: 600;
+      padding:0.375rem 0.5rem; border-radius: 0.5rem;
       background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
       color: rgba(255,255,255,0.78); cursor: pointer; /* D1 a11y: 0.45→0.78 WCAG 1.4.3 */
-      -webkit-tap-highlight-color: transparent; transition: all 0.15s;
+      -webkit-tap-highlight-color: transparent;
+      transition: background-color var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out), color var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out), transform var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out);
       white-space: nowrap; flex-shrink: 0; min-height: 44px; /* D1 U2: 32→44 gloved-field tap target */
     }
     .resend-btn:hover   { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.8); }
@@ -276,13 +298,13 @@
     .resend-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
 
     /* ── Mic circle ── */
-    .mic-wrap { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; margin: 1.625rem 0 1rem; }
+    .mic-wrap { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; margin:1.5rem 0 1rem; }
     .mic-circle {
       width: 72px; height: 72px; border-radius: 50%;
       border: 2px dashed rgba(255,255,255,0.13);
       background: rgba(22,32,50,0.4);
       display: flex; align-items: center; justify-content: center;
-      cursor: pointer; transition: border-color 0.2s, opacity 0.2s, color 0.2s;
+      cursor: pointer; transition: border-color var(--wh-dur, 0.2s) var(--wh-ease-out, ease-out), opacity var(--wh-dur, 0.2s) var(--wh-ease-out, ease-out), color var(--wh-dur, 0.2s) var(--wh-ease-out, ease-out);
       color:rgba(255,255,255,0.80); opacity: 0.55;
       -webkit-tap-highlight-color: transparent;
       position: relative;
@@ -320,24 +342,24 @@
       border-color: var(--wh-green); color: var(--wh-green);
     }
 
-    .mic-label { font-size: 0.7rem; color:rgba(255,255,255,0.80); text-align: center; font-weight: 500; }
+    .mic-label { font-size: 0.75rem; color:rgba(255,255,255,0.80); text-align: center; font-weight: 500; }
 
     /* ── Voice context card ── */
     .voice-ctx {
       background: rgba(22,32,50,0.6);
       border: 1px solid rgba(34,197,94,0.25);
       border-radius: var(--wh-radius);
-      padding: 0.5rem 0.75rem;
+      padding:0.5rem 0.75rem;
       display: flex; align-items: center; gap: 0.5rem;
-      font-size: 0.72rem; color:rgba(255,255,255,0.83);
-      width: 100%; margin-bottom: 0.5rem;
+      font-size: 0.75rem; color:rgba(255,255,255,0.83);
+      width: 100%; margin-bottom:0.5rem;
     }
     .voice-ctx-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--wh-green); flex-shrink: 0; }
     .voice-ctx-text { flex: 1; line-height: 1.35; font-style: italic; }
     .voice-ctx-clear {
       background: none; border: none; cursor: pointer;
       color:rgba(255,255,255,0.80); font-size: 1rem;
-      padding: 0; line-height: 1; min-width: 28px; min-height: 28px;
+      padding:0; line-height: 1; min-width: 28px; min-height: 28px;
       display: flex; align-items: center; justify-content: center;
       border-radius: 50%; -webkit-tap-highlight-color: transparent;
     }
@@ -348,19 +370,24 @@
       width: 100%; min-height: 48px;
       background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light));
       color: var(--wh-navy); font-weight: 700; border-radius: 0.5rem; /* R3: press rect, distinct from the 12px SELECT chips */
-      padding: 0.875rem 1.5rem; font-size: 0.9rem;
+      padding:1rem 1.5rem; font-size: 0.875rem;
       font-family: 'Poppins', sans-serif; border: none; cursor: pointer;
-      transition: all 0.2s;
+      transition: transform var(--wh-dur, 0.2s) var(--wh-ease-out, ease-out), opacity var(--wh-dur, 0.2s) var(--wh-ease-out, ease-out), box-shadow var(--wh-dur, 0.2s) var(--wh-ease-out, ease-out);
     }
-    .send-btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(247,162,27,0.35); }
+    .send-btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,0,0,0.45); }
     .send-btn:active:not(:disabled) { opacity: 0.75; transform: scale(0.98); box-shadow: none; }
     .send-btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; box-shadow: none; }
+    .send-why {
+      min-height: 1em; margin-top:0.5rem; text-align: center;
+      font-size: 0.75rem; line-height: 1.4; color:rgba(255,255,255,0.86);
+    }
+    .send-why:empty { margin-top:0; }
 
     /* ── State overlay base ── */
     #processing-overlay,
     #results-overlay {
       display: none; flex-direction: column; align-items: center;
-      gap: 0.875rem; padding: 1.25rem 0; min-height: 320px;
+      gap: 0.875rem; padding:1.25rem 0; min-height: 320px;
     }
     .card[data-state="processing"] .main-content { display: none; }
     .card[data-state="processing"] #processing-overlay { display: flex; }
@@ -376,13 +403,13 @@
       animation: spin 0.85s linear infinite;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
-    .proc-title { font-size: 0.9rem; font-weight: 700; color: #fff; }
+    .proc-title { font-size: 0.875rem; font-weight: 700; color: #fff; }
 
     .proc-list { width: 100%; display: flex; flex-direction: column; gap: 0.4rem; }
     .proc-row {
       display: flex; align-items: center; gap: 0.625rem;
       background: rgba(22,32,50,0.45); border-radius: var(--wh-radius);
-      padding: 0.625rem 0.875rem;
+      padding:0.5rem 1rem;
     }
     .proc-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
     .proc-dot.pending { background: rgba(255,255,255,0.18); }
@@ -396,8 +423,8 @@
       animation: spin 0.8s linear infinite;
       background: transparent;
     }
-    .proc-label { flex: 1; font-size: 0.8rem; font-weight: 500; color:rgba(255,255,255,0.86); }
-    .proc-status { font-size: 0.7rem; }
+    .proc-label { flex: 1; font-size: 0.75rem; font-weight: 500; color:rgba(255,255,255,0.86); }
+    .proc-status { font-size: 0.75rem; }
     .proc-status.pending { color:rgba(255,255,255,0.80); }
     .proc-status.running { color: var(--wh-orange); }
     .proc-status.done { color: var(--wh-green); }
@@ -407,15 +434,27 @@
     .results-header { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; text-align: center; }
     .check-circle {
       width: 56px; height: 56px; border-radius: 50%;
-      background: rgba(34,197,94,0.1); border: 2px solid rgba(34,197,94,0.3);
+      background: rgba(var(--wh-green-rgb),0.1); border: 2px solid rgba(var(--wh-green-rgb),0.3);
       display: flex; align-items: center; justify-content: center;
+      /* ★THE ONE AUTHORED MOMENT (motion lens, 2026-09-17). Everything else on this page moves only
+         because a finger touched it. This is the single event the page exists for - the reports went
+         out - and it arrived with no entrance at all, at the end of a wait the reader has just spent
+         watching a spinner per recipient. 260ms, ease-out so it is fastest at the first frame, scale
+         and opacity only, and it plays ONCE. It is deliberately NOT added to components.css's
+         reduced-motion exemption list: a reader who asked for less motion still gets the ring, the
+         check, the title and the sub-line, so the information survives the animation being removed. */
+      animation: rs-sent-in 0.26s var(--wh-ease-out, ease-out) both;
+    }
+    @keyframes rs-sent-in {
+      from { transform: scale(0.82); opacity: 0; }
+      to   { transform: scale(1);    opacity: 1; }
     }
     .state-title { font-size: 1rem; font-weight: 700; color: #fff; }
-    .state-sub { font-size: 0.78rem; color: var(--wh-steel-bright); }
+    .state-sub { font-size: 0.75rem; color: var(--wh-steel-bright); }
     /* Email status row inside results */
     .email-status {
       display: flex; align-items: center; gap: 0.5rem;
-      font-size: 0.72rem; font-weight: 600;
+      font-size: 0.75rem; font-weight: 600;
       color:rgba(255,255,255,0.80);
     }
     .email-status.sent  { color: var(--wh-green); }
@@ -428,7 +467,7 @@
     }
     .email-dot.done { animation: none; background: var(--wh-green); border-color: var(--wh-green); }
     .email-dot.err  { animation: none; background: var(--wh-red); border-color: var(--wh-red); }
-    .results-fail-note { font-size: 0.7rem; color: var(--wh-red); min-height: 1em; }
+    .results-fail-note { font-size: 0.75rem; color: var(--wh-red); min-height: 1em; }
 
     .results-list {
       width: 100%; display: flex; flex-direction: column; gap: 0.4rem;
@@ -439,20 +478,21 @@
       display: flex; align-items: flex-start; gap: 0.625rem;
       background: rgba(22,32,50,0.5);
       border: 1px solid rgba(255,255,255,0.06);
-      border-radius: var(--wh-radius); padding: 0.75rem;
+      border-radius: var(--wh-radius); padding:0.75rem;
       text-align: left;
     }
-    .result-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; margin-top: 0.3rem; }
+    .result-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; margin-top:0.25rem; }
     .result-body { flex: 1; min-width: 0; }
-    .result-type { font-size: 0.72rem; font-weight: 700; color: rgba(255,255,255,0.85); margin-bottom: 0.2rem; }
-    .result-summary { font-size: 0.7rem; color: var(--wh-steel-bright); line-height: 1.4; }
+    .result-type { font-size: 0.75rem; font-weight: 700; color: rgba(255,255,255,0.85); margin-bottom:0.25rem; }
+    .result-summary { font-size: 0.75rem; color: var(--wh-steel-bright); line-height: 1.4; }
 
     .btn-ghost {
-      font-family: 'Poppins', sans-serif; font-size: 0.8rem; font-weight: 600;
-      padding: 0.625rem 1.5rem; border-radius: var(--wh-radius-sm);
+      font-family: 'Poppins', sans-serif; font-size: 0.875rem; font-weight: 600;
+      padding:0.5rem 1.5rem; border-radius: var(--wh-radius-sm);
       border: 1px solid rgba(255,255,255,0.15); background: transparent;
       color:rgba(255,255,255,0.80); cursor: pointer;
-      transition: all 0.15s; min-height: 40px;
+      transition: background-color var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out), color var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out);
+      min-height: 40px;
       -webkit-tap-highlight-color: transparent;
     }
     .btn-ghost:hover { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.85); }
@@ -461,12 +501,13 @@
     /* ── Install icon button in header ── */
     .install-icon-btn {
       display: flex; align-items: center; gap: 0.35rem;
-      font-family: 'Poppins', sans-serif; font-size: 0.72rem; font-weight: 600;
-      padding: 0.45rem 0.75rem; min-height: 44px; border-radius: var(--wh-radius-sm);
+      font-family: 'Poppins', sans-serif; font-size: 0.75rem; font-weight: 600;
+      padding:0.5rem 0.75rem; min-height: 44px; border-radius: var(--wh-radius-sm);
       background: rgba(247,162,27,0.12); border: 1px solid rgba(247,162,27,0.28);
       color:var(--wh-orange-text); cursor: pointer; white-space: nowrap;
-      -webkit-tap-highlight-color: transparent; transition: all 0.15s;
-      flex-shrink: 0; margin-top: 0.2rem;
+      -webkit-tap-highlight-color: transparent;
+      transition: background-color var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out), transform var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out);
+      flex-shrink: 0; margin-top:0.25rem;
     }
     .install-icon-btn:active { background: rgba(247,162,27,0.22); transform: scale(0.96); }
     .install-icon-btn.installed { display: none; }
@@ -474,24 +515,29 @@
     /* ── Install guide ── */
     .install-guide {
       border-radius: 0.75rem;
-      padding: 0.75rem 1rem;
+      padding:0.75rem 1rem;
       display: flex; align-items: flex-start; gap: 0.625rem;
-      margin-bottom: 1rem;
-      font-size: 0.74rem;
+      margin-bottom:1rem;
+      font-size: 0.75rem;
     }
-    .install-guide.android { background: rgba(34,197,94,0.07);  border: 1px solid rgba(34,197,94,0.2);  color:rgba(255,255,255,0.83); }
+    .install-guide.android { background: rgba(var(--wh-green-rgb),0.07);  border: 1px solid rgba(var(--wh-green-rgb),0.2);  color:rgba(255,255,255,0.83); }
     .install-guide.desktop { background: rgba(247,162,27,0.07); border: 1px solid rgba(247,162,27,0.2); color:rgba(255,255,255,0.83); }
     .install-guide.ios-sf  { background: rgba(41,182,217,0.07); border: 1px solid rgba(41,182,217,0.2); color:rgba(255,255,255,0.83); }
-    .install-guide.ios-cr  { background: rgba(239,68,68,0.07);  border: 1px solid rgba(239,68,68,0.2);  color:rgba(255,255,255,0.83); }
-    .install-guide-icon { flex-shrink: 0; margin-top: 0.1rem; }
+    .install-guide.ios-cr  { background: rgba(248,113,113,0.07);  border: 1px solid rgba(248,113,113,0.2);  color:rgba(255,255,255,0.83); }
+    .install-guide-icon { flex-shrink: 0; margin-top:0.125rem; }
     .install-guide-text { flex: 1; line-height: 1.55; }
-    .install-guide-text strong { color: rgba(255,255,255,0.9); display: block; margin-bottom: 0.2rem; font-size: 0.78rem; }
-    .install-guide-text ol { margin: 0.25rem 0 0 1rem; padding: 0; }
-    .install-guide-text ol li { margin-bottom: 0.15rem; }
+    .install-guide-text strong { color: rgba(255,255,255,0.9); display: block; margin-bottom:0.25rem; font-size: 0.875rem; }
+    .install-guide-text ol { margin:0.25rem 0 0 1rem; padding:0; }
+    .install-guide-text ol li { margin-bottom:0.125rem; }
+    /* ★STYLED AND NEVER RENDERED (critique lens, 2026-09-17). No markup and no JS ever creates an
+       .ios-hint-close, so the install guide has no dismissal at all - it is expanded on every
+       non-standalone load of a page a supervisor opens to do a task. The rule is kept rather than
+       deleted because the DECISION it encodes (the guide should be dismissable) is right and the
+       wiring is the missing half; deleting it would erase the evidence that someone meant to. */
     .ios-hint-close {
       background: none; border: none; cursor: pointer;
       color:rgba(255,255,255,0.80); font-size: 1rem;
-      padding: 0; min-width: 28px; min-height: 28px;
+      padding:0; min-width: 44px; min-height: 44px;   /* the platform floor; 28px was the styled-and-never-rendered value */
       display: flex; align-items: center; justify-content: center;
       border-radius: 50%; flex-shrink: 0;
       -webkit-tap-highlight-color: transparent;
@@ -500,17 +546,17 @@
 
     /* ── Mobile overrides ── */
     @media (max-width: 480px) {
-      .page { padding: 1rem 0.875rem; }
-      .card { padding: 1.25rem; }
+      .page { padding:1rem 1rem; }
+      .card { padding:1.25rem; }
       .chip { min-height: 52px; }
-      .send-btn { min-height: 52px; font-size: 0.875rem; }
-      .mic-wrap { margin-bottom: max(1rem, env(safe-area-inset-bottom)); }
+      .send-btn { min-height: 52px; }
+      .mic-wrap { margin-bottom:max(1rem, env(safe-area-inset-bottom)); }
     }
     /* Plain-Read summary (Layer D — UX Contract) */
-    .verdict { display:flex; align-items:center; gap:12px; padding:14px 16px; margin-bottom:14px; border-radius:12px; border:1px solid; }
+    .verdict { display:flex; align-items:center; gap:12px; padding:12px 16px; margin-bottom:16px; border-radius:12px; border:1px solid; }
     .verdict-icon { font-size:1.5rem; line-height:1; font-weight:800; }
-    .verdict-text { font-size:0.9rem; font-weight:700; line-height:1.35; }
-    .verdict-text small { display:block; font-size:0.72rem; font-weight:500; color:rgba(255,255,255,0.83); margin-top:3px; }
+    .verdict-text { font-size:0.875rem; font-weight:700; line-height:1.35; }
+    .verdict-text small { display:block; font-size: 0.75rem; font-weight:500; color:rgba(255,255,255,0.83); margin-top:4px; }
     .verdict.healthy { background:rgba(74,222,128,0.07);  border-color:rgba(74,222,128,0.3); }
     .verdict.healthy .verdict-icon { color:var(--wh-green); }
     .verdict.watch   { background:rgba(247,162,27,0.07);  border-color:rgba(247,162,27,0.3); }
@@ -520,7 +566,7 @@
     .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
     .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.80); }
     /* .simple-row / .simple-card / .sc-* / .action-card / .details-toggle → components.css (STREAMLINE S11) */
-    #rs-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:14px; }
+    #rs-summary-details { display:none; padding:12px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.75rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:16px; }
     #rs-summary-details.open { display:block; }
   </style>
 <style>/* I1 CLS: static wayfinding back-pill band reserve (wayfinding.js sets this body padding-top post-paint on pill-pages = a late shift under full-run contention; present at first paint -> its `if(band>cur)` skips, layout unchanged). VERIFIED this page gets the pill (has <main>, no back-affordance, not home). */
@@ -539,9 +585,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
   <div class="page">
     <header class="page-header">
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.75rem">
-        <div>
-          <div class="header-badge" translate="no">WorkHive</div>
+      <!-- ★C20 (wave-4 narrow-320 nav-hub walk, 2026-09-14): the title block's min-content (tabs strip + chip) plus the
+           no-shrink Install button summed past 320px, so #install-icon-btn ran 299..382 - 62px of a real control off the
+           screen. The row may wrap (Install drops under the title block) and the title block may shrink (min-width:0);
+           at 361px+ nothing changes because the row still fits. -->
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.75rem;flex-wrap:wrap">
+        <div style="min-width:0">
           <h1 data-i="pagetitle">Reports</h1>
           <p data-i="p_selectreportsaddemailsend_8bd5">Select reports. Add email. Send.</p>
 <details class="wh-help">
@@ -550,14 +599,18 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 </details>
           <!-- STREAMLINE F6: part of the unified "Reports" surface (Analytics report ↔ Send). -->
           <div class="wh-reports-tabs" role="tablist" style="display:flex; gap:8px; margin:8px 0 6px; flex-wrap:nowrap; overflow-x:auto; -webkit-overflow-scrolling:touch;"><!-- I1 CLS (EX-PF F07, 2026-09-07): the strip wrapped from 44px to 96px at 390 once its icons loaded, pushing the whole page down; a one-line strip that scrolls sideways keeps its height from first paint -->
-            <a role="tab" aria-selected="false" href="analytics-report.html" style="padding:6px 12px; min-height:34px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.83); font-size:.76rem; font-weight:600; text-decoration:none; border:1px solid rgba(255,255,255,0.08);">&larr; Analytics report</a>
-            <span data-i="p_sendschedule_7b67" role="tab" aria-selected="true" style="padding:6px 12px; min-height:34px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(247,162,27,0.15); color:var(--wh-orange); font-size:.76rem; font-weight:700; border:1px solid rgba(247,162,27,0.4);">Send / schedule</span>
+<!-- flex-shrink:0 + white-space:nowrap (Wave-4 ratchet W41441): these tabs are flex items in a flex-wrap:nowrap
+                 overflow-x:auto strip; without shrink:0 flex squeezed them at 390px and their labels wrapped to 2 lines,
+                 breaking the "one-line strip that scrolls sideways" the comment above promises. Now they keep their
+                 natural width and the strip scrolls. -->
+            <a role="tab" aria-selected="false" href="analytics-report.html" data-i="p_analyticsreport_tab" style="padding:6px 12px; min-height:34px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.83); font-size:.75rem; font-weight:600; text-decoration:none; border:1px solid rgba(255,255,255,0.08); flex-shrink:0; white-space:nowrap;">&larr; Analytics report</a>
+            <span data-i="p_sendschedule_7b67" role="tab" aria-selected="true" style="padding:6px 12px; min-height:34px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(247,162,27,0.15); color:var(--wh-orange); font-size:.75rem; font-weight:700; border:1px solid rgba(247,162,27,0.4); flex-shrink:0; white-space:nowrap;">Send / schedule</span>
           </div>
-          <p id="report-sender-source-chip" style="margin-top:3px;"></p>
+          <p id="report-sender-source-chip" style="margin-top:4px;"></p>
           <style>/* I1 CLS (EX-PF F07, 2026-09-07): the chip is filled ~0.5 s after first paint and wraps to three lines at 390, pushing the install guide, the verdict and every card down 65px; reserve its phone height */
             @media (max-width: 420px) { #report-sender-source-chip { min-height: 70px; } }</style>
         </div>
-        <button class="install-icon-btn" id="install-icon-btn" aria-label="Install app">
+        <button class="install-icon-btn" id="install-icon-btn" aria-label="Install app" data-i-aria="aria_install">
           <span class="ic ic-install" aria-hidden="true"></span>
           <span data-i="install">Install</span>
         </button>
@@ -568,11 +621,19 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     <div class="install-guide" id="install-guide">
       <div class="install-guide-icon" id="install-guide-icon"></div>
       <div class="install-guide-text" id="install-guide-text"></div>
+      <!-- ★THE DISMISSAL WAS DESIGNED AND NEVER WIRED (critique lens, 2026-09-17). .ios-hint-close was
+           fully styled and no markup or JS had ever created one, so the guide was expanded on every
+           non-standalone load of a page a supervisor opens to do a task. This is the missing half. -->
+      <button type="button" class="ios-hint-close" id="install-guide-close"
+              aria-label="Hide the install guide" data-i-aria="aria_hideinstall">&#x2715;</button>
     </div>
 
     <!-- Plain-Read summary (Layer D — UX Contract).
          Populated by renderReportSenderSummary() from _selected + _contacts. -->
-    <div id="rs-verdict" class="verdict empty">
+    <!-- role=status + aria-live: this is the page's primary plain-read status and it is written
+         purely by JS. The toast and the email error on this same page are both announced; this
+         was the one that was not. -->
+    <div id="rs-verdict" class="verdict empty" role="status" aria-live="polite">
       <span id="rs-verdict-icon" class="verdict-icon">·</span>
       <div class="verdict-text"><span data-i="p_readywhenyouare_aec1" id="rs-verdict-label">Ready when you are</span><small data-i="p_pickareportpickrecipientssen_6fbc" id="rs-verdict-sub">Pick a report, pick recipients, send.</small></div>
     </div>
@@ -605,7 +666,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="rs-summary-details" data-i="showdetails">
       Show details
     </button>
-    <div data-ai-generated id="rs-summary-details" role="region" aria-label="Report sender explainer"
+    <div data-ai-generated id="rs-summary-details" role="region" aria-label="Report sender explainer" data-i-aria="aria_explainer"
     data-rag-tile="report-sender:detail_panel"
     data-rag-label="Report sender detail">
       <strong data-i="p_howsendingworks_8faa" style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How sending works</strong>
@@ -615,7 +676,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         <li><strong data-i="p_savedcontacts_963f">Saved contacts</strong>: contacts persisted to your hive, reusable across sends.</li>
         <li><strong data-i="p_verdict_7f6e">Verdict</strong>: green when at least one report and one recipient are picked; empty otherwise.</li>
       </ul>
-      <p data-i="p_voicecontextisoptionaltapthe_08c2" style="margin-top:8px;color:rgba(255,255,255,0.80);font-size:11px;">Voice context is optional: tap the mic to dictate a custom note that gets pre-pended to the email body.</p>
+      <p data-i="p_voicecontextisoptionaltapthe_08c2" style="margin-top:8px;color:rgba(255,255,255,0.80);font-size: 12px;">Voice context is optional: tap the mic to dictate a custom note that gets pre-pended to the email body.</p>
     </div>
 
     <div class="card" id="main-card" data-state="idle">
@@ -623,13 +684,13 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <!-- ── Main content ── -->
       <div class="main-content" id="main-content">
 
-        <div class="section-label" data-i="selectreports">Select Reports</div>
+        <h2 class="section-label" data-i="selectreports">Select Reports</h2>
         <div class="chips-grid" id="chips-grid"></div>
         <div class="chips-count" id="chips-count"></div>
 
         <!-- Contacts -->
         <div class="section-label-row">
-          <span class="section-label" data-i="sendto">Send to</span>
+          <h2 class="section-label" data-i="sendto">Send to</h2>
           <button class="add-contact-btn" id="add-contact-btn" data-i="addcontact">+ Add contact</button>
         </div>
         <div class="contacts-list" id="contacts-list"></div>
@@ -644,7 +705,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
         <!-- Mic circle -->
         <div class="mic-wrap" id="mic-wrap">
-          <button class="mic-circle" id="mic-btn" aria-label="Tap to add voice context">
+          <button class="mic-circle" id="mic-btn" aria-label="Tap to add voice context" data-i-aria="aria_mic">
             <!-- Mic icon -->
             <svg id="mic-icon" width="22" height="22" viewBox="0 0 24 24" fill="none"
                  stroke="currentColor" stroke-width="1.75"
@@ -667,10 +728,13 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         <div class="voice-ctx" id="voice-ctx" style="display:none">
           <div class="voice-ctx-dot"></div>
           <span class="voice-ctx-text" id="voice-ctx-text"></span>
-          <button class="voice-ctx-clear" id="voice-ctx-clear" aria-label="Clear voice context">&#x2715;</button>
+          <button class="voice-ctx-clear" id="voice-ctx-clear" aria-label="Clear voice context" data-i-aria="aria_clearvoice">&#x2715;</button>
         </div>
 
-        <button class="send-btn" id="send-btn" disabled data-i="sendreports">Send Reports</button>
+        <button class="send-btn" id="send-btn" disabled data-i="sendreports" aria-describedby="send-why">Send Reports</button>
+        <!-- ★THE REASON TRAVELS WITH THE BUTTON (critique lens, 2026-09-17). Measured: the verdict
+             block that says WHY Send cannot be pressed sits 1,460px above it. -->
+        <p class="send-why" id="send-why" role="status"></p>
 
       </div><!-- /main-content -->
 
@@ -712,14 +776,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <!-- The cap note is STATIC, and refined by JS once the true count is known. Writing it only in the
            script would tell nobody until the script runs, and would leave the page's own markup still
            saying "Recent Reports" for a list that is the five newest of fifty-four. -->
-      <div class="section-label" style="margin-bottom:0.75rem" data-i="recentreports">Recent Reports: the most recent 5</div>
+      <h2 class="section-label" style="margin-bottom:0.75rem" data-i="recentreports">Recent Reports: the most recent 5</h2>
       <div data-ai-generated class="history-list" id="history-list"></div>
     </div>
 
   </div><!-- /page -->
 
   <!-- Add Contact bottom sheet — must be in DOM before the <script> block runs -->
-  <div class="sheet-overlay" id="sheet-overlay" role="dialog" aria-modal="true" aria-label="Add contact" style="display:none">
+  <div class="sheet-overlay" id="sheet-overlay" role="dialog" aria-modal="true" aria-label="Add contact" data-i-aria="aria_addsheet" style="display:none">
     <div class="bottom-sheet" id="contact-sheet">
       <div class="sheet-handle"></div>
       <div class="sheet-header">
@@ -746,7 +810,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         <div role="alert" aria-live="assertive" class="sheet-error" id="sheet-error"></div>
       </div>
       <div class="sheet-footer">
-        <button class="btn-primary" id="save-contact-btn" style="width:100%;min-height:48px;font-size:0.9rem" data-i="savecontact">Save Contact</button>
+        <button class="btn-primary" id="save-contact-btn" style="width:100%;min-height:48px;font-size:0.875rem" data-i="savecontact">Save Contact</button>
         <button class="btn-ghost"   id="cancel-contact-btn" style="width:100%" data-i="cancel">Cancel</button>
       </div>
     </div>
@@ -774,22 +838,22 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     // Determine which guide to show
     function _getGuide() {
       if (_isIosCr) return {
-        cls: 'ios-cr', color: '#f87171',
+        cls: 'ios-cr',
         icon: `<span class="ic ic-post" aria-hidden="true"></span>`,
         html: `<strong>Chrome on iPhone cannot install apps</strong>Open this page in <strong>Safari</strong> instead, then tap Install.`
       };
       if (_isIos) return {
-        cls: 'ios-sf', color: '#29B6D9',
+        cls: 'ios-sf',
         icon: `<span class="ic ic-phone" aria-hidden="true"></span>`,
         html: `<strong>Install on iPhone (Safari)</strong><ol><li>Tap the <strong>Share</strong> icon at the bottom of Safari</li><li>Scroll down and tap <strong>Add to Home Screen</strong></li><li>Tap <strong>Add</strong></li></ol>`
       };
       if (_isAndroid) return {
-        cls: 'android', color: '#4ade80',
+        cls: 'android',
         icon: `<span class="ic ic-phone" aria-hidden="true"></span>`,
         html: `<strong>Install on Android</strong><ol><li>Tap the <strong>Install</strong> button above</li><li>Tap <strong>Install</strong> in the dialog that appears</li></ol>`
       };
       return {
-        cls: 'desktop', color: '#F7A21B',
+        cls: 'desktop',
         icon: `<span class="ic ic-post" aria-hidden="true"></span>`,
         html: `<strong>Install on Desktop (Chrome / Edge)</strong><ol><li>Look for the <strong>install icon</strong> (&#8853; or &#x1F4BB;) in the right side of your address bar</li><li>Click it and select <strong>Install</strong></li></ol>`
       };
@@ -804,7 +868,28 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       _installGuide.className = 'install-guide ' + guide.cls;
       document.getElementById('install-guide-icon').innerHTML = guide.icon;
       document.getElementById('install-guide-text').innerHTML = guide.html;
+      // A choice the reader already made is not a question worth asking again on every load. The
+      // Install control beside the title stays, so the guide is one tap away rather than gone.
+      let hidden = false;
+      try { hidden = localStorage.getItem('wh_rs_install_guide') === 'hidden'; } catch (e) { void e; }
+      _installGuide.style.display = hidden ? 'none' : 'flex';
+    }
+
+    // Reversible: pressing Install re-opens the guide, so the dismissal is a preference and not a
+    // one-way door. Without this the only way back would be clearing site data.
+    const _reopenGuide = () => {
+      if (_isStandalone) return;
       _installGuide.style.display = 'flex';
+      try { localStorage.removeItem('wh_rs_install_guide'); } catch (e) { void e; }
+    };
+
+    const _guideClose = document.getElementById('install-guide-close');
+    if (_guideClose) {
+      _guideClose.addEventListener('click', () => {
+        _installGuide.style.display = 'none';
+        try { localStorage.setItem('wh_rs_install_guide', 'hidden'); } catch (e) { void e; }
+        if (_installBtn && _installBtn.focus) _installBtn.focus();
+      });
     }
 
     // Capture Android/Chrome install prompt
@@ -820,6 +905,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
     // Install button tap — trigger native prompt on Android/desktop
     _installBtn.addEventListener('click', async () => {
+      // Unconditionally first: a reader who dismissed the guide and then pressed Install is asking for
+      // it back, and this must not sit behind an await on a native prompt that may never resolve.
+      _reopenGuide();
       if (_deferredInstall) {
         _deferredInstall.prompt();
         const { outcome } = await _deferredInstall.userChoice;
@@ -828,7 +916,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           _installGuide.style.display = 'none';
         }
         _deferredInstall = null;
+        return;
       }
+      // No native prompt to show - iOS, or Chrome before beforeinstallprompt fires. Pressing Install
+      // then did NOTHING AT ALL, which is why the guide had to be permanently open to compensate.
+      // Now the button does the thing its label promises: it shows you how.
+      _reopenGuide();
     });
 
     // ── Config ───────────────────────────────────────────────────────────────────
@@ -865,12 +958,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
        has a name for (two windows, one metric name). The gate report-window-parity asserts this
        array against REPORT_META, so the two cannot drift apart in silence. */
     const REPORTS = [
-      { id: 'pm_overdue',      label: 'PM Overdue',       color: '#F7A21B', window: 'current status as of this report' },
-      { id: 'failure_digest',  label: 'Failure Digest',   color: '#f87171', window: 'last 7 days' },
-      { id: 'shift_handover',  label: 'Shift Handover',   color: '#29B6D9', window: 'last 8 hours' },
-      { id: 'predictive',      label: 'Predictive',        color: '#a78bfa', window: 'last 90 days' },
-      { id: 'oee',             label: 'OEE Summary',       color: '#4ade80', phase3: true },
-      { id: 'descriptive',     label: 'Weekly Analytics',  color: '#29b6d9', phase3: true },
+      { id: 'pm_overdue',      label: 'PM Overdue',       color: 'var(--wh-orange)',     window: _t('current status as of this report', 'kasalukuyang kalagayan sa ulat na ito') },
+      { id: 'failure_digest',  label: 'Failure Digest',   color: 'var(--wh-red)',        window: _t('last 7 days', 'huling 7 araw') },
+      { id: 'shift_handover',  label: 'Shift Handover',   color: 'var(--wh-blue)',       window: _t('last 8 hours', 'huling 8 oras') },
+      { id: 'predictive',      label: 'Predictive',       color: 'var(--wh-violet)',     window: _t('last 90 days', 'huling 90 araw') },
+      { id: 'oee',             label: 'OEE Summary',      color: 'var(--wh-green)',      phase3: true },
+      /* was #29b6d9 - the SAME blue as shift_handover in a different case, so two of the six report
+         types painted an identical dot in the history list, where the dot is the type's only identity. */
+      { id: 'descriptive',     label: 'Weekly Analytics', color: 'var(--wh-blue-light)', phase3: true },
     ];
     // COUNT WHAT A PERSON CAN ACTUALLY PICK, not how many rows the array has.
     // Found 2026-08-06 walking PB-report-sender-159 (why_refused), whose oracle is "a refusal names
@@ -990,14 +1085,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         <button class="chip${_selected.has(r.id) ? ' selected' : ''}${r.phase3 ? ' ph3' : ''}"
                 data-id="${escHtml(r.id)}"
                 aria-pressed="${_selected.has(r.id)}"
-                ${r.phase3 ? 'aria-disabled="true"' : ''}>
+                ${r.phase3 ? 'data-ph3="1"' : ''}>
           <span class="chip-dot" style="background:${r.color}"></span>
           <span class="chip-label">${escHtml(r.label)}${r.window
-            ? `<span style="display:block;font-size:0.66rem;opacity:0.7;font-weight:400;">${escHtml(r.window)}</span>`
+            ? `<span style="display:block;font-size: 0.75rem;opacity:0.7;font-weight:400;">${escHtml(r.window)}</span>`
             : ''}</span>
           ${r.phase3
             ? `<span class="phase-badge">Phase 3</span>`
-            : `<span class="ic ic-check" aria-hidden="true"></span>`
+            : `<span class="ic ic-check chip-check" aria-hidden="true"></span>`
           }
         </button>
       `).join('');
@@ -1032,6 +1127,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const hasReports  = _selected.size > 0;
       const hasContacts = _selectedContacts.size > 0;
       const oneTime     = document.getElementById('email-input').value.trim();
+      // The same sentence the verdict shows, put where the control is. Composed by _rsSummary()
+      // below and written here, so the two can never disagree about why Send is unavailable.
       document.getElementById('send-btn').disabled =
         !(hasReports && (hasContacts || isValidEmail(oneTime)));
       renderReportSenderSummary();
@@ -1059,14 +1156,17 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
       setCard('reports',
         String(reports),
-        reports === 0 ? `Pick 1+ from the ${SELECTABLE_REPORTS} available` : `${reports} of ${SELECTABLE_REPORTS} reports ready to send`,
-        reports === 0 ? 'NONE' : 'READY',
+        reports === 0 ? _t(`Pick 1+ from the ${SELECTABLE_REPORTS} available`, `Pumili ng 1+ sa ${SELECTABLE_REPORTS} na available`)
+                      : _t(`of the ${SELECTABLE_REPORTS} available, ready to send`, `sa ${SELECTABLE_REPORTS} na available, handa nang ipadala`),
+        reports === 0 ? _t('NONE', 'WALA') : _t('READY', 'HANDA'),
         reports === 0 ? 'grey' : 'green'
       );
       setCard('recipients',
         String(recipients),
-        recipients === 0 ? 'Pick a saved contact or type an email' : `${contactsSelected} saved · ${oneTimeValid ? '1 one-time' : '0 one-time'}`,
-        recipients === 0 ? 'NONE' : 'PICKED',
+        recipients === 0 ? _t('Pick a saved contact or type an email', 'Pumili ng naka-save na contact o mag-type ng email')
+                         : _t(`${contactsSelected} saved · ${oneTimeValid ? '1 one-time' : '0 one-time'}`,
+                              `${contactsSelected} naka-save · ${oneTimeValid ? '1 one-time' : '0 one-time'}`),
+        recipients === 0 ? _t('NONE', 'WALA') : _t('PICKED', 'NAPILI'),
         recipients === 0 ? 'grey' : 'green'
       );
       // A failed contacts read must not be reported as a saved-contact COUNT. `saved` is derived from
@@ -1078,26 +1178,29 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         // STILL ASKING. Not zero, not failed — not yet known. The em-dash matches the card's own
         // authored default (:576) rather than inventing a placeholder, so the pending state looks
         // like the page before it spoke rather than like an answer.
-        setCard('contacts', '—', 'Checking your saved contacts…', 'CHECKING', 'grey');
+        setCard('contacts', '—', _t('Checking your saved contacts…', 'Tinitingnan ang mga naka-save mong contact…'),
+                _t('CHECKING', 'TINITINGNAN'), 'grey');
       } else if (_rsHiveLost) {
         // Settled, and empty because it was REFUSED - not because nobody has saved a contact. "Add one
         // above" would be advice about a hive this person is no longer a member of.
         setCard('contacts', '—',
           (typeof whHiveContextLost === 'function')
             ? whHiveContextLost('this hive')
-            : 'You are no longer a member of this hive, so its contacts are not shown.',
-          'NOT SHOWN', 'grey');
+            : _t('You are no longer a member of this hive, so its contacts are not shown.',
+                 'Hindi ka na miyembro ng hive na ito, kaya hindi ipinapakita ang mga contact nito.'),
+          _t('NOT SHOWN', 'HINDI IPINAPAKITA'), 'grey');
       } else if (_rsReadFailed && !_contacts.length) {
         setCard('contacts', '—',
           _t('Could not load your contacts. Unknown right now, not zero. Reload before adding one.', 'Hindi ma-load ang mga contact mo. Hindi alam ngayon, hindi zero. I-reload bago magdagdag.'),
-          'UNKNOWN', 'grey');
+          _t('UNKNOWN', 'HINDI ALAM'), 'grey');
       } else {
         setCard('contacts',
           String(saved),
           _rsUsedFallback
             ? `${saved}${_t(' from your saved copy · could not reach the server, may be out of date', ' mula sa saved copy mo · hindi maabot ang server, baka luma na')}`
-            : (saved === 0 ? 'No contacts saved yet, add one above' : `${saved} reusable contact${saved === 1 ? '' : 's'} on this hive`),
-          _rsUsedFallback ? 'SAVED COPY' : (saved === 0 ? 'START' : 'LIST'),
+            : (saved === 0 ? _t('No contacts saved yet, add one above', 'Wala pang naka-save na contact, magdagdag sa itaas')
+                           : _t('reusable on this hive', 'magagamit muli sa hive na ito')),
+          _rsUsedFallback ? _t('SAVED COPY', 'NAKA-SAVE NA KOPYA') : (saved === 0 ? _t('START', 'SIMULAN') : _t('LIST', 'LISTAHAN')),
           _rsUsedFallback ? 'grey' : (saved === 0 ? 'grey' : 'green')
         );
       }
@@ -1126,6 +1229,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const vIcon = document.getElementById('rs-verdict-icon'); if (vIcon) vIcon.textContent = tone === 'healthy' ? '✓' : tone === 'watch' ? '!' : tone === 'attn' ? '⚠' : '·';
       const vLbl = document.getElementById('rs-verdict-label'); if (vLbl) vLbl.textContent = label;
       const vSb  = document.getElementById('rs-verdict-sub');   if (vSb)  vSb.textContent  = sub;
+      // ...and beside the button it is about. Cleared the moment Send becomes pressable: a reason
+      // that outlives its problem is the next defect.
+      const vWhy = document.getElementById('send-why');
+      if (vWhy) vWhy.textContent = (reports > 0 && recipients > 0) ? '' : label;
 
       const actBox = document.getElementById('rs-action-text');
       if (actBox) {
@@ -1152,18 +1259,25 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
     // ── Report helpers ───────────────────────────────────────────────────────────
     function reportLabel(type) { return REPORTS.find(r => r.id === type)?.label || type; }
-    function reportColor(type) { return REPORTS.find(r => r.id === type)?.color || '#F7A21B'; }
+    function reportColor(type) { return REPORTS.find(r => r.id === type)?.color || 'var(--wh-orange)'; }
 
+    // ★COMPOSED WHOLE PER LANGUAGE, NOT STITCHED (copy lens, 2026-09-17). The Filipino walk read
+    //  "Ipadala muli ang PM Overdue mula 48m ago" - a Filipino sentence with an English timestamp
+    //  inside it, in an aria-label this same row had just written. It is the wound the Recent Reports
+    //  label a few hundred lines up already records, and the answer is the same: each branch is a
+    //  whole phrase in its own language. Filipino also puts the marker last differently - "48 minuto
+    //  ang nakalipas" rather than a suffixed "ago" - so translating the suffix alone would not have
+    //  produced a sentence anyone says.
     function relativeTime(dateStr) {
       const diff = Date.now() - new Date(dateStr).getTime();
       const mins = Math.floor(diff / 60000);
-      if (mins < 1)  return 'Just now';
-      if (mins < 60) return `${mins}m ago`;
+      if (mins < 1)  return _t('Just now', 'Ngayon lang');
+      if (mins < 60) return _t(`${mins}m ago`, `${mins} minuto ang nakalipas`);
       const hrs = Math.floor(mins / 60);
-      if (hrs < 24)  return `${hrs}h ago`;
+      if (hrs < 24)  return _t(`${hrs}h ago`, `${hrs} oras ang nakalipas`);
       const days = Math.floor(hrs / 24);
-      if (days === 1) return 'Yesterday';
-      return `${days}d ago`;
+      if (days === 1) return _t('Yesterday', 'Kahapon');
+      return _t(`${days}d ago`, `${days} araw ang nakalipas`);
     }
 
     // ── Report history ────────────────────────────────────────────────────────────
@@ -1238,11 +1352,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
               <div class="history-type">${escHtml(label)}</div>
               <div class="history-meta">${escHtml(time)}</div>
               ${item.summary ? `<div class="history-summary">${summary}</div>` : ''}
-              ${item.summary ? `<div class="history-ai-mark" title="This summary was written by the AI report agent, not by a person.">&#129302; AI-drafted summary</div>` : ''}
+              ${item.summary ? `<div class="history-ai-mark" title="${escHtml(_t('This summary was written by the AI report agent, not by a person.', 'Isinulat ang buod na ito ng AI report agent, hindi ng tao.'))}">&#129302; ${escHtml(_t('AI-drafted summary', 'Buod na isinulat ng AI'))}</div>` : ''}
             </div>
             <button data-i="rs2-resend" class="resend-btn"
                     data-type="${escHtml(item.report_type)}"
-                    data-summary="${escHtml(item.summary || '')}">
+                    data-summary="${escHtml(item.summary || '')}"
+                    aria-label="${escHtml(_t(`Send the ${label} from ${time} again, to whoever is selected above`, `Ipadala muli ang ${label} mula ${time}, sa sinumang napili sa itaas`))}">
               Resend
             </button>
           </div>`;
@@ -1269,7 +1384,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           : _outsiders.join(', ');
         const _ok = await window.whConfirm(
           `Send this report to ${_who}? This address is not a saved contact, and a sent report cannot be recalled.`,
-          { okLabel: 'Send', cancelLabel: 'Check the address' });
+          { okLabel: _t('Send', 'Ipadala'), cancelLabel: _t('Check the address', 'Tingnan ang address') });
         if (!_ok) return false;   // control stays enabled — the person is editing, not blocked
       }
       return true;
@@ -1279,10 +1394,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       // Same offline door as doSend — "a guard on one door is a guard on neither" (the comment
       // above confirmOutsiders is this file's own rule).
       if (typeof whRequireOnline === 'function'
-          && !whRequireOnline('Sending this report', (m) => showToast(m))) return;
+          && !whRequireOnline(_t('Sending this report', 'Pagpapadala ng ulat na ito'), (m) => showToast(m))) return;
       if (typeof whRequireOnline !== 'function'
           && typeof navigator !== 'undefined' && navigator.onLine === false) {
-        showToast('You appear to be offline. Nothing was sent: reconnect and send again.');
+        showToast(_t('You appear to be offline. Nothing was sent: reconnect and send again.',
+                     'Mukhang offline ka. Walang naipadala: kumonekta muli at ipadala ulit.'));
         return;
       }
       const recipients = [];
@@ -1294,7 +1410,16 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       if (oneTime && isValidEmail(oneTime)) recipients.push(oneTime);
 
       if (!recipients.length) {
-        showToast('Select a recipient first');
+        // Toasting at someone from 500px below the control they need is an instruction they cannot
+        // act on without first finding it. Take them there, and put the focus where the choice is.
+        showToast(_t('Pick who this goes to first - taking you there.',
+                     'Pumili muna kung kanino ito papunta - dadalhin ka doon.'));
+        const list = document.getElementById('contacts-list');
+        if (list) {
+          list.scrollIntoView({ block: 'center', behavior: 'smooth' });
+          const first = list.querySelector('.contact-chip') || document.getElementById('email-input');
+          if (first && first.focus) first.focus({ preventScroll: true });
+        }
         return;
       }
 
@@ -1311,7 +1436,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       // generic "are you sure" - the point is to make the person read what they typed.
       if (!await confirmOutsiders(recipients)) return;
 
-      btn.textContent = 'Sending...';
+      btn.textContent = _t('Sending...', 'Ipinapadala...');
       btn.disabled    = true;
 
       try {
@@ -1345,9 +1470,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         }));
 
         const sent   = results.filter(r => r.status === 'fulfilled').length;
-        const failed = results.filter(r => r.status === 'rejected').length;
+        // Promise.allSettled preserves INPUT ORDER, so results[i] belongs to recipients[i] - the
+        // failed addresses were recoverable all along. "1 failed" tells a supervisor someone is
+        // missing information without telling him who to chase.
+        const failedTo = results.map((r, i) => r.status === 'rejected' ? recipients[i] : null).filter(Boolean);
         if (sent > 0) {
-          showToast(`${reportLabel(reportType)} resent` + (failed ? ` (${failed} failed)` : ''));
+          showToast(`${reportLabel(reportType)} resent`
+            + (failedTo.length ? _t(` - did NOT reach ${failedTo.join(', ')}`,
+                                    ` - HINDI nakarating kay ${failedTo.join(', ')}`) : ''));
         } else {
           showToast(_t('Resend failed: ', 'Hindi natuloy ang resend: ') + (results[0]?.reason?.message || 'unknown error'));
         }
@@ -1355,12 +1485,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         showToast(whWriteError(err, _t('The report was NOT re-sent. Nothing went out; try again.', 'HINDI naipadala muli ang report. Walang lumabas; subukan muli.')));
       }
 
-      btn.textContent = 'Resend';
+      btn.textContent = _t('Resend', 'Ipadala muli');
       btn.disabled    = false;
     }
 
     // ── Contacts ─────────────────────────────────────────────────────────────────
-    const AVATAR_COLORS = ['#F7A21B','#29B6D9','#a78bfa','#4ade80','#f87171','#29b6d9','#f7a21b'];
+    const AVATAR_COLORS = ['var(--wh-orange)','var(--wh-blue)','var(--wh-violet)','var(--wh-green)','var(--wh-red)'];
 
     function avatarColor(name) {
       let h = 0;
@@ -1484,15 +1614,15 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       if (!_contacts.length) {
         // A failed read with an empty backup is NOT "no contacts yet" — it is "we could not find out".
         list.innerHTML = _rsReadFailed
-          ? `<div class="contacts-empty" style="opacity:1;">Could not load your contacts.<br><span style="font-size:0.72rem;">${escHtml(whReadError(_rsReadFailed, 'your contacts'))} This is a loading problem, not an empty contact list - do not add a contact you may already have, or assume a report has nowhere to go.</span><br><button data-i="rs2-retry" type="button" onclick="loadContacts();" style="margin-top:0.6rem;min-height:44px;padding:0 0.9rem;border-radius:8px;font-size:0.75rem;font-weight:600;background:rgba(247,162,27,0.12);border:1px solid rgba(247,162,27,0.3);color:var(--wh-orange-text);">Retry</button></div>`
-          : `<div class="contacts-empty">No contacts yet, tap Add contact</div>`;
+          ? `<div class="contacts-empty" style="opacity:1;">Could not load your contacts.<br><span style="font-size: 0.75rem;">${escHtml(whReadError(_rsReadFailed, 'your contacts'))} This is a loading problem, not an empty contact list - do not add a contact you may already have, or assume a report has nowhere to go.</span><br><button data-i="rs2-retry" type="button" onclick="loadContacts();" style="margin-top:0.5rem;min-height:44px;padding:0 1rem;border-radius:8px;font-size:0.75rem;font-weight:600;background:rgba(247,162,27,0.12);border:1px solid rgba(247,162,27,0.3);color:var(--wh-orange-text);">Retry</button></div>`
+          : `<div class="contacts-empty">${escHtml(_t('No saved contacts yet. Tap Add contact to save someone you send to often.', 'Wala pang naka-save na contact. Tapikin ang Add contact para i-save ang madalas mong padalhan.'))}</div>`;
         _rsSummaryAfterContacts();
         return;
       }
       // The fallback copy is real data, so it stays on screen — but it is LABELLED, because a saved
       // copy presented as live truth is the quieter half of the same defect.
       if (_rsUsedFallback) {
-        list.innerHTML = `<div class="contacts-empty" style="opacity:1;font-size:0.72rem;">${_t('⚠ Showing your saved copy. Could not reach the server, so this list may be out of date.', '⚠ Ipinapakita ang saved copy mo. Hindi maabot ang server, kaya baka luma na ang listahang ito.')}</div>`;
+        list.innerHTML = `<div class="contacts-empty" style="opacity:1;font-size: 0.75rem;">${_t('⚠ Showing your saved copy. Could not reach the server, so this list may be out of date.', '⚠ Ipinapakita ang saved copy mo. Hindi maabot ang server, kaya baka luma na ang listahang ito.')}</div>`;
       } else {
         list.innerHTML = '';
       }
@@ -1510,8 +1640,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
                 ? `<span class="contact-tag" style="color:var(--wh-orange-text);">&#9888; Last report ${escHtml(_bouncedEmails.get(String(c.email).toLowerCase()))}. This address did not receive it.</span>`
                 : ''}
             </div>
-            <span class="ic ic-check" aria-hidden="true"></span>
-            <button class="contact-delete" data-del="${escHtml(c.id)}" aria-label="Remove">&#x2715;</button>
+            <span class="ic ic-check contact-check" aria-hidden="true"></span>
+            <button class="contact-delete" data-del="${escHtml(c.id)}" aria-label="${escHtml(_t(`Remove ${c.name} from saved contacts`, `Alisin si ${c.name} sa mga naka-save na contact`))}">&#x2715;</button>
           </div>`;
       }).join('');
 
@@ -1542,14 +1672,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       // delete having been ignored. Refused before the confirmation, because committing someone to a
       // destructive choice that cannot be delivered is worse than declining it up front.
       if (typeof whRequireOnline === 'function'
-          && !whRequireOnline('Removing this contact', (m) => showToast(m))) return;
+          && !whRequireOnline(_t('Removing this contact', 'Pag-alis ng contact na ito'), (m) => showToast(m))) return;
       // E3 (Arc X recovery): deleting a saved recipient is destructive (removed from
       // localStorage + server) with no undo -> confirm first.
       if (typeof window.whConfirm === 'function') {
         const _c = _contacts.find(c => c.id === id);
         const ok = await window.whConfirm(
           `Remove ${_c && _c.name ? _c.name : 'this contact'} from your report recipients?`,
-          { okLabel: 'Remove', cancelLabel: 'Keep' });
+          { okLabel: _t('Remove', 'Alisin'), cancelLabel: _t('Keep', 'Panatilihin') });
         if (!ok) return;
       }
       _contacts = _contacts.filter(c => c.id !== id);
@@ -1601,8 +1731,18 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const errEl = document.getElementById('sheet-error');
       const saveBtn = document.getElementById('save-contact-btn');
 
-      if (!name)                     { errEl.textContent = 'Name is required.';        return; }
-      if (!email || !isValidEmail(email)) { errEl.textContent = 'Enter a valid email.'; return; }
+      // An error names the PROBLEM and the RECOVERY. The old pair - 'Name is required.' and
+      // 'Enter a valid email.' - named neither the reason the field matters nor what to change.
+      if (!name) {
+        errEl.textContent = _t('Add a name, so this contact is recognisable in the list later.',
+                               'Maglagay ng pangalan, para makilala ang contact na ito sa listahan mamaya.');
+        return;
+      }
+      if (!email || !isValidEmail(email)) {
+        errEl.textContent = _t('That is not an email address a report can reach. Check for a missing @ or a typo.',
+                               'Hindi ito email address na maaabot ng report. Tingnan kung may kulang na @ o typo.');
+        return;
+      }
       errEl.textContent = '';
 
       // ★OFFLINE, THIS FIRED THE INSERT ANYWAY AND SAID NOTHING. Measured live with
@@ -1617,7 +1757,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       // Placed AFTER the field validation so a malformed email is still reported as a malformed email,
       // and BEFORE saveBtn is disabled so a refusal never leaves a dead control.
       if (typeof whRequireOnline === 'function'
-          && !whRequireOnline('Adding a contact', (m) => { errEl.textContent = m; })) return;
+          && !whRequireOnline(_t('Adding a contact', 'Pagdagdag ng contact'), (m) => { errEl.textContent = m; })) return;
 
       const payload = { name, email, label: _selectedLabel };
 
@@ -1673,7 +1813,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           // one a person reaches by pressing this button, so it must say the specific thing that is
           // happening. A generic "Working…" on the one irreversible action is a wasted sentence: the
           // whole point is telling someone their report is ON ITS WAY, not that something is happening.
-          sb.textContent = (state === 'processing' || state === 'sending') ? 'Sending…' : 'Working…';
+          sb.textContent = (state === 'processing' || state === 'sending')
+        ? _t('Sending…', 'Ipinapadala…') : _t('Working…', 'Ginagawa…');
         } else {
           if (sb.dataset.idleLabel) sb.textContent = sb.dataset.idleLabel;
           // Do NOT blanket-enable: updateSendBtn owns whether a send is currently valid at all
@@ -1741,23 +1882,23 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
       switch (state) {
         case 'ready':
-          label.textContent = 'Tap to speak context';
+          label.textContent = _t('Tap to speak context', 'Tapikin para magsalita ng konteksto');
           micIcon.style.display   = '';
           checkIcon.style.display = 'none';
           document.getElementById('voice-ctx').style.display = 'none';
           break;
         case 'listening':
-          label.textContent = 'Listening...';
+          label.textContent = _t('Listening...', 'Nakikinig...');
           micIcon.style.display   = '';
           checkIcon.style.display = 'none';
           break;
         case 'processing':
-          label.textContent = 'Processing...';
+          label.textContent = _t('Processing...', 'Pinoproseso...');
           micIcon.style.display   = '';
           checkIcon.style.display = 'none';
           break;
         case 'set':
-          label.textContent = 'Tap to clear';
+          label.textContent = _t('Tap to clear', 'Tapikin para burahin');
           micIcon.style.display   = 'none';
           checkIcon.style.display = '';
           break;
@@ -1856,7 +1997,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         }, 15000);
 
       } catch (err) {
-        showToast('Microphone access denied');
+        showToast(_t('Microphone access denied', 'Hindi pinayagan ang mikropono'));
         setMicState('ready');
       }
     }
@@ -2061,7 +2202,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         } catch (_) { /* empty-catch-allow: a body we cannot read must not mask the original failure */ }
         // Carry the STATUS in the message so a caller aggregating many failures can still tell a rate
         // limit from a dead connection — the distinction the toast was getting wrong.
-        const detail = fromBody || error.message || 'Generation failed';
+        const detail = fromBody || error.message || _t('Generation failed', 'Nabigo ang paggawa ng ulat');
         throw new Error(status ? `${detail} [${status}]` : detail);
       }
       // results[0] because we passed hive_id — exactly one hive processed
@@ -2069,7 +2210,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       if (!result || result.status === 'failed') {
         throw new Error(result?.detail || 'Generation failed');
       }
-      return result.summary || 'Report generated successfully.';
+      return result.summary || _t('Report generated successfully.', 'Matagumpay na nagawa ang ulat.');
     }
 
     // ── Processing UI helpers ─────────────────────────────────────────────────────
@@ -2090,11 +2231,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       if (status === 'done') {
         dot.className     = 'proc-dot done';
         status_.className = 'proc-status done';
-        status_.textContent = 'Done';
+        status_.textContent = _t('Done', 'Tapos');
       } else {
         dot.className     = 'proc-dot err';
         status_.className = 'proc-status err';
-        status_.textContent = 'Failed';
+        status_.textContent = _t('Failed', 'Hindi natuloy');
       }
     }
 
@@ -2134,10 +2275,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       // prove_offline_refusal (report-sender/send: "refused before firing AND said so = false",
       // 2026-08-21). Same whRequireOnline contract, both doors (doSend + resendReport below).
       if (typeof whRequireOnline === 'function'
-          && !whRequireOnline('Sending this report', (m) => showToast(m))) return;
+          && !whRequireOnline(_t('Sending this report', 'Pagpapadala ng ulat na ito'), (m) => showToast(m))) return;
       if (typeof whRequireOnline !== 'function'
           && typeof navigator !== 'undefined' && navigator.onLine === false) {
-        showToast('You appear to be offline. Nothing was sent: reconnect and send again.');
+        showToast(_t('You appear to be offline. Nothing was sent: reconnect and send again.',
+                     'Mukhang offline ka. Walang naipadala: kumonekta muli at ipadala ulit.'));
         return;
       }
 
@@ -2151,7 +2293,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       if (oneTime && isValidEmail(oneTime)) recipients.push(oneTime);
 
       if (!recipients.length) {
-        document.getElementById('email-error').textContent = 'Select a contact or enter an email.';
+        document.getElementById('email-error').textContent =
+          _t('Nothing to send to yet. Tap a saved contact above, or type an email address.',
+             'Wala pang padadalhan. Tapikin ang naka-save na contact sa itaas, o mag-type ng email address.');
         return;
       }
       document.getElementById('email-error').textContent = '';
@@ -2168,7 +2312,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       // The sentence goes to #email-error, alongside this form's own 'Select a contact or enter an
       // email.', and sits AFTER the recipient check so a missing recipient is still reported as that.
       if (typeof whRequireOnline === 'function'
-          && !whRequireOnline('Sending these reports',
+          && !whRequireOnline(_t('Sending these reports', 'Pagpapadala ng mga ulat na ito'),
                               (m) => { document.getElementById('email-error').textContent = m; })) return;
 
       localStorage.setItem('wh_last_report_email', recipients[0]);
@@ -2224,7 +2368,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         const msgs = Object.values(results).map((v) => String((v && v.message) || '')).join(' ');
         const rateLimited = /\b429\b|rate.?limit|too many requests/i.test(msgs);
         showToast(rateLimited
-          ? (window.whAiError ? window.whAiError({ message: '429' }) : 'You have hit the AI rate limit.')
+          ? (window.whAiError ? window.whAiError({ message: '429' }) : _t('You have hit the AI rate limit.', 'Naabot mo na ang limitasyon ng AI.'))
             + ' Your selection and recipients are still here.'
           : _t('All reports failed, check connection and try again', 'Hindi natuloy ang lahat ng report, suriin ang koneksyon at subukan muli'));
         setCardState('idle');
@@ -2269,7 +2413,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           const label = sent.length === 1
             ? sent[0].value
             : `${sent.length} recipients`;
-          const suffix = failed.length > 0 ? ` (${failed.length} failed)` : '';
+          const failedTo = sendResults.map((r, i) => r.status === 'rejected' ? recipients[i] : null).filter(Boolean);
+          const suffix = failedTo.length > 0
+            ? _t(` - did NOT reach ${failedTo.join(', ')}`, ` - HINDI nakarating kay ${failedTo.join(', ')}`)
+            : '';
           setEmailStatus('sent', label + suffix);
           // Y2 stress-case: a receipt that carries FAILURES must never auto-wipe — a rushed user
           // needs time to read which recipients failed; "Reset now" is the manual path. Full
@@ -2294,7 +2441,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       if (status === 'sending') {
         wrap.className = 'email-status';
         dot.className  = 'email-dot';
-        text.textContent = 'Sending email...';
+        text.textContent = _t('Sending email...', 'Ipinapadala ang email...');
       } else if (status === 'sent') {
         wrap.className = 'email-status sent';
         dot.className  = 'email-dot done';
@@ -2392,12 +2539,15 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     const _rsChip = document.getElementById('report-sender-source-chip');
     if (_rsChip && typeof renderSourceChip === 'function') {
       _rsChip.innerHTML = renderSourceChip({
-        freshness: 'Live · contacts refreshed on load, history on load',
+        freshness: _t('Live · contacts refreshed on load, history on load',
+                      'Live · na-refresh ang mga contact at kasaysayan sa pag-load'),
         source:    'v_ai_reports_truth + report_contacts',
         notes:     [
-          'Reports: your hive’s AI reports, newest first',
-          'Contacts: saved on this device and synced to your hive',
-          'Delivery: sent by email',
+          _t('Reports: your hive’s AI reports, newest first',
+             'Mga ulat: ang AI reports ng hive mo, pinakabago muna'),
+          _t('Contacts: saved on this device and synced to your hive',
+             'Mga contact: naka-save sa device na ito at naka-sync sa hive mo'),
+          _t('Delivery: sent by email', 'Paghahatid: ipinapadala sa email'),
         ],
       });
     }
@@ -2435,6 +2585,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   <script defer src="connectivity-widget.js"></script>
   <script defer src="session-timeout.js"></script>
   <script defer src="device-fingerprint.js"></script>
-<script>window.WH_FIL_PAGE={'rs2-typeemail':'O mag-type ng email:','rs2-resend':'Ipadala muli','rs2-retry':'Subukan muli',pagetitle:'Mga Ulat',selectreports:'Pumili ng mga ulat',reportssel:'napiling ulat',recipients:'Mga Tatanggap',sendto:'Ipadala kay',sendreports:'Ipadala ang Mga Ulat',recentreports:'Mga Kamakailang Ulat',savedcontacts:'Mga Naka-save na Contact',addcontacttitle:'Magdagdag ng Contact',name:'Pangalan',role:'Tungkulin',savecontact:'I-save ang Contact',resetnow:'I-reset ngayon',install:'I-install'};</script>
+<script>window.WH_FIL_PAGE={'rs2-typeemail':'O mag-type ng email:','rs2-resend':'Ipadala muli','rs2-retry':'Subukan muli',pagetitle:'Mga Ulat',selectreports:'Pumili ng mga ulat',reportssel:'napiling ulat',recipients:'Mga Tatanggap',sendto:'Ipadala kay',sendreports:'Ipadala ang Mga Ulat',recentreports:'Mga Kamakailang Ulat',savedcontacts:'Mga Naka-save na Contact',addcontacttitle:'Magdagdag ng Contact',name:'Pangalan',role:'Tungkulin',savecontact:'I-save ang Contact',resetnow:'I-reset ngayon',install:'I-install','aria_install':'I-install ang app','aria_mic':'Tapikin para magdagdag ng voice context','p_analyticsreport_tab':'\u2190 Ulat ng analytics','aria_explainer':'Paliwanag ng report sender','aria_clearvoice':'Burahin ang voice context','aria_addsheet':'Magdagdag ng contact','aria_hideinstall':'Itago ang gabay sa pag-install','addcontact':'+ Magdagdag ng contact','cancel':'Kanselahin','showdetails':'Ipakita ang detalye','p_verdict_7f6e':'Hatol','p_loading_b04b':'Naglo-load...','p_recipients_78cb':'Mga Tatanggap','p_savedcontacts_963f':'Mga Naka-save na Contact','p_whattodonext_8ce2':'Ano ang susunod na gagawin','p_howthispageworks_c540':'Paano gumagana ang pahinang ito','p_howsendingworks_8faa':'Paano gumagana ang pagpapadala','p_sendschedule_7b67':'Ipadala / iskedyul','p_readywhenyouare_aec1':'Handa kapag handa ka na','p_reportsselected_5ee8':'Mga ulat na napili','p_reportsgenerated_f3db':'Mga ulat na nagawa','p_generatingreports_1a76':'Ginagawa ang mga ulat...','p_sendingemail_6abb':'Ipinapadala ang email...','p_taptospeakcontext_eac5':'Tapikin para magsalita ng konteksto','p_selectreportsaddemailsend_8bd5':'Pumili ng mga ulat. Magdagdag ng email. Ipadala.','p_pickareportandarecipient_2d6c':'Pumili ng ulat at tatanggap.','p_pickareportpickrecipientssen_6fbc':'Pumili ng ulat, pumili ng mga tatanggap, ipadala.','p_pickareportchipaddarecipient_3603':'Pumili ng report chip, magdagdag ng tatanggap, pindutin ang send. Ang mga naka-save na contact ang gumagawang isang tap na lang ang susunod na padala.','p_voicecontextisoptionaltapthe_08c2':'Opsyonal ang voice context: tapikin ang mic para magdikta ng sariling tala na ilalagay sa unahan ng katawan ng email.'};</script>
+<script>(function(){try{var d=window.WH_FIL_PAGE||{};if((window.WH_LANG||'en')!=='fil')return;document.querySelectorAll('[data-i-aria]').forEach(function(el){var v=d[el.getAttribute('data-i-aria')];if(v){el.setAttribute('aria-label',v);if(el.hasAttribute('title'))el.setAttribute('title',v);}});}catch(e){/* empty-catch-allow: a label that cannot be translated stays English */}})();</script>
 </body>
 </html>

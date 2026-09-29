@@ -100,7 +100,7 @@
       "page": "assistant.html",
       "channels": 0,
       "removes": 0,
-      "has_unmount": false
+      "has_unmount": true
     },
     {
       "page": "report-sender.html",

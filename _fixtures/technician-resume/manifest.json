@@ -1,0 +1,17 @@
+{
+  "_doc": "Provenance for the real internet-sourced files in this directory (wave 4). The files are gitignored; this manifest is tracked. Written only by tools/fetch_fixture.py.",
+  "kind": "technician-resume",
+  "files": [
+    {
+      "file": "aviation-technician-resume-sample.pdf",
+      "source_url": "https://careerdevelopment.siu.edu/_common/documents/resumes/aviation-tech-resume.pdf",
+      "license": "Public career-center sample; used as a test upload only",
+      "author": "Southern Illinois University Career Development Center",
+      "note": "a real aviation maintenance technician resume sample PDF published by a university career center - the document a technician uploads to resume.html",
+      "mime": "application/pdf",
+      "bytes": 111431,
+      "sha256": "65b81c97fd1cb31e3bed60469e4344c4f432d988846302503c86af8edf73833d",
+      "fetched": "2026-09-13T20:29:50Z"
+    }
+  ]
+}

@@ -1,22 +1,15 @@
 ---
 name: migration-catalog
 type: migration
-source: dir:supabase/migrations:607
-source_sha: 906a72ad3d1f0e26
+source: dir:supabase/migrations:614
+source_sha: 43240da575718d0c
 last_verified: 2026-07-13
 supersedes: null
 ---
-## migration · catalog (607 migrations)
+## migration · catalog (614 migrations)
 
 Append-only DDL history. Search here for 'has this table/policy been fixed' before re-diagnosing.
 
-- `20260728000031_lessons_learned_is_signed_content` — fns:guard_lessons_learned_is_supervisor · triggers:trg_lessons_learned_supervisor
-- `20260728000032_one_generate_project_code_not_two` — fns:generate_project_code
-- `20260728000033_a_progress_report_carries_who_filed_it` — fns:guard_progress_log_is_mine · triggers:trg_progress_log_is_mine · tables:project_progress_logs
-- `20260728000034_project_knowledge_is_a_write_only_index` — fns:search_all_knowledge
-- `20260728000035_the_progress_log_pin_joins_the_bind_convention` — fns:bind_progress_log_submitter · triggers:trg_bind_progress_log_submitter
-- `20260728000036_a_link_does_not_outlive_what_it_links_to` — fns:cleanup_project_links_on_target_delete · triggers:trg_cleanup_project_links
-- `20260728000039_service_hailing_foundation` — policies:service_catalog_admin_write,service_catalog_read,service_credit_ledger_own_read,service_credit_topups_admin_update,service_credit_topups_intake,service_credit_topups_own · fns:guard_service_provider_writes,guard_service_request_status,guard_service_topup_status,journal_service_request,my_service_provider_ids,sync_provider_availability · triggers:trg_guard_service_provider_writes,trg_guard_service_request_status,trg_guard_service_topup_status,trg_journal_service_request,trg_sync_provider_availability · tables:service_catalog,service_credit_ledger,service_credit_topups,service_job_events,service_offers,service_providers
 - `20260728000040_service_hailing_engine` — fns:accept_service_request,select_quote,submit_service_quote
 - `20260728000041_anchor_service_hailing_canonicals` — (misc DDL/DML)
 - `20260728000042_service_broadcast_ttl_sweep` — fns:sweep_service_broadcasts · tables:service_requests
@@ -210,6 +203,13 @@ Append-only DDL history. Search here for 'has this table/policy been fixed' befo
 - `20260910000001_schedule_items_edit_stamp` — triggers:tg_schedule_items_touch_updated · tables:schedule_items
 - `20260910000002_kb_chunks_need_their_document` — tables:if,kb_chunks
 - `20260911000001_marketplace_sellers_hide_auth_uid` — (misc DDL/DML)
+- `20260915000001_arm_v_kpi_truth_refresh_cron` — (misc DDL/DML)
+- `20260915000002_audit_asset_restore_to_pending` — fns:audit_asset_approval_decision
+- `20260915000003_pm_compliance_payload_carries_the_tag` — fns:get_pm_compliance_smrp
+- `20260916000001_schedule_item_v1_item_status_planned` — (misc DDL/DML)
+- `20260916000002_normalise_legacy_schedule_item_categories` — (misc DDL/DML)
+- `20260916000003_capture_contracts_match_the_columns_they_govern` — (misc DDL/DML)
+- `20260918000001_a_solo_worker_could_never_amend_a_pm_completion` — fns:audit_pm_completion_amendment
 
 (showing last 200)
 

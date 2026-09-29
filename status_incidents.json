@@ -4,7 +4,7 @@
   "health": "platform_health.json",
   "automation_log": "public.automation_log"
  },
- "open": 4,
+ "open": 2,
  "resolved": 4,
  "incidents": [
   {
@@ -44,38 +44,20 @@
    "status": "resolved"
   },
   {
+   "id": "gate-journey-paths",
+   "source": "gate",
+   "title": "journey-paths",
+   "severity": "major",
+   "started_at": "2026-09-28T23:33:14.370998+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
    "id": "gate-status-incidents-derived",
    "source": "gate",
    "title": "status-incidents-derived",
    "severity": "major",
-   "started_at": "2026-09-11T06:27:20.045488+00:00",
-   "ended_at": null,
-   "status": "open"
-  },
-  {
-   "id": "gate-destructive-proportional-confirm",
-   "source": "gate",
-   "title": "destructive-proportional-confirm",
-   "severity": "major",
-   "started_at": "2026-09-11T06:27:20.045488+00:00",
-   "ended_at": null,
-   "status": "open"
-  },
-  {
-   "id": "gate-logbook-consistency",
-   "source": "gate",
-   "title": "logbook-consistency",
-   "severity": "major",
-   "started_at": "2026-09-11T06:27:20.045488+00:00",
-   "ended_at": null,
-   "status": "open"
-  },
-  {
-   "id": "gate-deploy-root-hygiene",
-   "source": "gate",
-   "title": "deploy-root-hygiene",
-   "severity": "major",
-   "started_at": "2026-09-11T06:27:20.045488+00:00",
+   "started_at": "2026-09-28T23:33:14.370998+00:00",
    "ended_at": null,
    "status": "open"
   }

@@ -33,8 +33,62 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def basis_for(r: dict, pct: str = "60") -> str:
+def basis_for(r: dict, pct: str = "60", doc_tool: str = "") -> str:
     m = r.get("metrics") or {}
+    # ★AN MCP RECEIPT NAMES ITS OWN INSTRUMENT (Wave 4, 2026-09-14). tools/record_mcp_walk.py writes the
+    # same result shape with `instrument: playwright-mcp | chrome-devtools-mcp`, a free-text `note` and, for
+    # a W4 row, a `w4` block (axis, hub_controls, effect, layer, fixture_provenance) with `fit` - the per-step
+    # overlap/occlusion record - on every step. The first dry-run of this banker on such a receipt composed
+    # "WALKED LIVE via tools/prove_full_journeys.mjs - the whole story None tier None in None" - a basis that
+    # names an instrument that never ran and prints None for fields the receipt never had. A basis is the
+    # row's account of its own evidence; it must be written from the evidence the receipt actually carries.
+    if r.get("instrument"):
+        w4 = r.get("w4") or {}
+        steps = r.get("steps") or []
+        fits = [s.get("fit") for s in steps if isinstance(s.get("fit"), dict)]
+        findings = sum(int((f or {}).get("findings") or 0) for f in fits)
+        # ★A SOURCE-LEVEL WITNESS IS NOT A JOURNEY, AND MUST NOT BE WRITTEN UP AS ONE (2026-09-16).
+        # The layer provers are explicitly "proven at source (no browser)": they read the page's own
+        # code and state a witness. Composed by the branch below, one of them read "1/4 steps arrived
+        # as themselves (index.html -> hive.html -> alert-hub.html -> analytics.html); the identity
+        # held across every hop; 0 per-step overlap/occlusion records" - for evidence that is one
+        # regex over a file. No page was loaded and no hop was made; "0 occlusion records" is what a
+        # browser that never ran reports. The receipt was honest (instrument postgres, cast
+        # "(source-level)"); the write-up was not.
+        # The test is STRUCTURAL: a real MCP walk carries a `fit` on every step - bank_mcp_navhub_walk
+        # refuses a steps file without one - and a source-level receipt carries none, plus a witness.
+        # Naming the prover keeps the row closable and honest at once: LIVE_RE matches
+        # `tools/(prove|probe)_...` and MARKERS["playwright"] lists the prefix `prove_`.
+        witness = str(w4.get("witness") or "").strip()
+        if not fits and witness:
+            where = " · ".join(x for x in (
+                f"layer {w4['layer']}" if w4.get("layer") else "",
+                f"axis {w4['axis']}" if w4.get("axis") else "",
+                f"read as {r['cast']}" if r.get("cast") else "",
+            ) if x)
+            tool = str(r.get("_tool") or doc_tool or "tools/prove_w4_layer_*.py")
+            return (f"pct -> {pct}. PROVEN AT SOURCE {date.today().isoformat()} via {tool} - no browser, "
+                    f"no journey: this row's evidence is the page's own code and served bytes, read "
+                    f"directly. {where}. WITNESS: {witness}")
+        extras = " · ".join(x for x in (
+            f"axis {w4['axis']}" if w4.get("axis") else "",
+            f"nav-hub controls {w4['hub_controls']}/11" if w4.get("hub_controls") else "",
+            f"effect: {w4['effect']}" if w4.get("effect") else "",
+            f"layer {w4['layer']} provoked" if w4.get("layer") else "",
+            f"file provenance: {w4['fixture_provenance']}" if w4.get("fixture_provenance") else "",
+            # the design lenses (2026-09-15): the lens, both viewports, the detector file, the scores, the Figma nodes
+            f"design lens {w4['lens']} at {' + '.join(w4.get('viewports') or [])}" if w4.get("lens") else "",
+            f"detector {w4['detector']}" if w4.get("detector") else "",
+            f"scores {json.dumps(w4['scores'], ensure_ascii=False)}" if w4.get("scores") else "",
+            f"languages {'+'.join(w4.get('languages') or [])}" if w4.get("lens") == "copy" else "",
+            f"figma-mcp: {w4['figma']}" if w4.get("figma") else "") if x)
+        return (f"pct -> {pct}. WALKED LIVE {date.today().isoformat()} via {r['instrument']} (tools/record_mcp_walk.py) - "
+                f"{m.get('arrived', 0)}/{m.get('steps', 0)} steps arrived as themselves "
+                f"({' -> '.join(s.get('page', '?') for s in steps)}); the identity "
+                f"{'held across every hop' if m.get('idKept') else 'did NOT survive the hops'}; "
+                f"{len(fits)} per-step overlap/occlusion records, {findings} finding(s)"
+                + (f"; {extras}" if extras else "")
+                + (f". {r.get('note')}" if r.get('note') else ""))
     j = f"{r.get('archetype')} tier {r.get('tier')} in {r.get('vertical')}"
     cell = f"{r.get('device')} · {r.get('language')} · {r.get('condition')}"
     thread = (f"{m.get('own', 0)} hop(s) carried the next page in the page's own body, "

@@ -68,9 +68,9 @@ What just happened: the AI used the logbook history (Tech Santos's coupling work
 
 The tool this guide is about
 
-#### WorkHive AI Assistant runs on YOUR plant's data
+### WorkHive AI Assistant runs on YOUR plant's data
 
-Filipino, English, or Taglish. Reads your hive's logbook history, skill matrix, PM schedule, and asset register so answers are specific to your plant, not generic ChatGPT replies. Cites the senior technician whose entries it learned from. Free at the worker tier forever; ramps up to predictive features at Stage 3.
+Filipino, English, or Taglish. Reads your hive's logbook history, skill matrix, PM schedule, and asset register so answers are specific to your plant, not generic ChatGPT replies. Shows the entry each answer came from, so the technician who wrote it is one click away. Free at the worker tier forever; ramps up to predictive features at Stage 3.
 
 No hive yet? [Join WorkHive](https://workhiveph.com/?signup=1) first (free, takes 30 seconds).
 
@@ -86,8 +86,8 @@ ChatGPT and Gemini are general-purpose AI assistants trained on the public inter
 | Knows who fixed it last time | No | Yes (logbook + skill matrix) |
 | Knows your plant's spare parts | No | Yes (Inventory) |
 | Speaks Filipino fluently | Yes | Yes |
-| Reads OEM manuals you uploaded | No (free tier) | Yes |
-| Updates as your team logs new entries | No | Yes (every entry trains it) |
+| Reads the OEM manuals YOUR hive uploaded | Only what you paste into the chat | Yes: they stay in the hive and are searched on every question |
+| Updates as your team logs new entries | No | Yes: the next answer can already use it, with no training step to wait for |
 
 Same underlying language models in many cases. Very different practical value because of context.
 
@@ -97,7 +97,7 @@ This is the part most platforms will not say out loud. The Philippines is unusua
 
 For industrial maintenance technicians specifically, the question is not "will AI come?" but "when AI comes, are you visible to it as an expert, or invisible as a name nobody can find?"
 
-The technicians most at risk are the ones whose knowledge lives only in their heads, who refuse to use AI tools, who do not log their work, and whose competence is informal. When the plant adopts AI, those technicians become redundant because the AI cannot cite them; it cites the technicians who did log.
+The technicians most at risk are the ones whose knowledge lives only in their heads, who refuse to use AI tools, who do not log their work, and whose competence is informal. When the plant adopts AI, it answers out of the records the team wrote, so the knowledge that was never written down is simply not there to be found. The assistant cites the ENTRY, not the person; but the entry carries who wrote it, so the technician whose work the answers keep leaning on is one click behind them, and the one who logged nothing is nowhere in the trail at all.
 
 The technicians most protected are the ones who:
 
@@ -116,7 +116,7 @@ This is the part we want every Filipino industrial worker to internalise. The Wo
 2. **Describe what you observed, not what you assume.** "Vibration rose from 2.1 to 4.8 mm/s in 7 hours" is data. "The pump is dying" is a guess.
 3. **Ask for the next step, not the answer.** "What should I check next?" gives a ladder. "What is wrong?" gives a guess.
 4. **Cross-check against logbook history.** Before acting on a suggestion, ask "has this asset had this issue before?" The history plus the AI together beats either alone.
-5. **Log what worked.** When the fix succeeds, log it with your verification. Your name goes on the entry. The AI cites you for the next person who asks.
+5. **Log what worked.** When the fix succeeds, log it with your verification. Your name goes on the entry. When the assistant answers the next person from that entry, your name is on the record it points them to.
 
 ## Common mistakes that make AI useless
 
@@ -126,7 +126,7 @@ This is the part we want every Filipino industrial worker to internalise. The Wo
 - **Using it for safety decisions.** Permits, LOTO scope, confined-space entry: always human-signed, never AI-delegated.
 - **Skipping the logbook entry after a fix.** The whole compounding benefit is in the documentation. A fix without an entry trains nothing and protects nothing.
 
-**The bigger picture:** The AI assistant is the Stage 3 unlock in the WorkHive 4-stage path. It cannot exist without Stage 1 (Paper to Digital) because there is nothing to train on. It cannot deliver without Stage 2 (Disciplined) because the data quality is too poor. Plants that try to skip to AI without those foundations get expensive disappointment. Plants that build the foundations first get an assistant that materially changes diagnostic time, handover quality, and technician career outcomes.
+**The bigger picture:** The assistant itself is not gated. It is free on the worker tier from your first day, and it answers honestly about what your hive has not earned yet rather than inventing it. What Stage 3 unlocks is the predictive layer the assistant feeds, not the assistant. What the foundations change is the quality of its answers: without Stage 1 (Paper to Digital) there is nothing for it to read, and without Stage 2 (Disciplined) what it reads is too thin to reason from, so it can only talk in generalities. Plants that build those first get an assistant that materially changes diagnostic time, handover quality, and technician career outcomes.
 
 ## Frequently asked questions
 
@@ -140,7 +140,7 @@ Four things it should not do: (1) make safety decisions (LOTO scope, permit issu
 
 ### Will the AI replace my job?
 
-Not the technicians who document their work in the system. The AI cannot replace the person whose entries trained it; it cites them. The AI can replace the person whose work was never written down because there is nothing to compare against. Filipino technicians who use the WorkHive AI Assistant for fault diagnosis, log their fixes, and tag their skills become more visible at promotion time, not less. The honest framing: AI eliminates undocumented work, protects documented work.
+Not the technicians who document their work in the system. The AI answers out of the entries your team wrote, and it shows the entry it used, so the person who wrote it is one click away, and the work that was never written down is not there at all. The AI can replace the person whose work was never written down because there is nothing to compare against. Filipino technicians who use the WorkHive AI Assistant for fault diagnosis, log their fixes, and tag their skills become more visible at promotion time, not less. The honest framing: AI eliminates undocumented work, protects documented work.
 
 ### Can I use the AI assistant in Filipino or Taglish?
 
@@ -162,4 +162,4 @@ It will, sometimes. Always cross-check against three things: (1) the OEM service
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 494cd621ddc94c20 -->
+<!-- md-twin source-sha: 1a7ea23f340b4713 -->

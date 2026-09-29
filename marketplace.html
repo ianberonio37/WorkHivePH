@@ -99,7 +99,7 @@
     /* Page header — 1.5rem/24px keeps the top-level gap on the 8-pt grid (R1); 1.25rem=20px is off-scale. */
     .page-header { margin-bottom: 1.5rem; }
     .page-header h1 { font-size: 1.5rem; font-weight: 800; }
-    .page-header p { font-size: 0.8rem; color: var(--wh-steel-bright); margin-top: 0.2rem; }
+    .page-header p { font-size: 0.8rem; color: var(--wh-steel-bright); margin-top: 0.25rem; }   /* 0.2rem was 3.2px (W45965) */
 
     /* Section tabs */
     /* THE MAIN NAVIGATION SPILLED ON A PHONE (found 2026-08-04, V-edge-content batch walk). Four
@@ -118,7 +118,7 @@
     }
     .section-tabs::-webkit-scrollbar { display: none; }
     .section-tab {
-      flex: 1 0 auto; min-height: 44px; padding: 0.6rem 0.75rem; border: none; border-radius: 0.5rem;
+      flex: 1 0 auto; min-height: 44px; padding: 0.5rem 0.75rem; border: none; border-radius: 0.5rem;   /* 0.6rem was 9.6px; min-height:44px drives the height (W45965) */
       background: transparent; color: var(--wh-steel-bright);
       font-family: 'Poppins', sans-serif; font-size: 0.8rem; font-weight: 600;
       cursor: pointer; transition: all 0.2s;
@@ -130,19 +130,19 @@
     }
     .tab-count {
       background: rgba(247,162,27,0.2); color: var(--wh-orange-light);
-      border-radius: 999px; font-size: 0.62rem; padding: 0.1rem 0.4rem; font-weight: 700;
+      border-radius: 999px; font-size: 0.75rem; padding: 0.125rem 0.375rem; font-weight: 700;   /* 0.1rem/0.4rem was 1.6px/6.4px (W45965) */
     }
 
     /* Trust bar */
     .trust-bar {
       display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
-      padding: 0.6rem 0.875rem;
+      padding: 0.5rem 0.875rem;   /* 0.6rem was 9.6px (W45965) */
       background: rgba(41,182,217,0.06); border: 1px solid rgba(41,182,217,0.15);
       border-radius: 0.75rem; margin-bottom: 1rem;
     }
     .trust-item {
       display: flex; align-items: center; gap: 0.35rem;
-      font-size: 0.72rem; color:var(--wh-blue-text);
+      font-size: 0.75rem; color:var(--wh-blue-text);
     }
     .trust-item.right { margin-left: auto; }
 
@@ -151,7 +151,7 @@
     .search-wrap { flex: 1; position: relative; }
     .search-wrap svg { position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: var(--wh-steel-bright); pointer-events: none; }
     .search-input {
-      width: 100%; min-height: 44px; padding: 0.6rem 0.75rem 0.6rem 2.25rem;
+      width: 100%; min-height: 44px; padding: 0.5rem 0.75rem 0.5rem 2.25rem;   /* 0.6rem was 9.6px; min-height:44px drives the height (W45965) */
       background: rgba(22,32,50,0.6); border: 1px solid rgba(255,255,255,0.1);
       border-radius: var(--wh-radius-sm); color: var(--wh-cloud);
       font-family: 'Poppins', sans-serif; font-size: 1rem;
@@ -159,7 +159,7 @@
     .search-input:focus { outline: none; border-color: rgba(247,162,27,0.4); }
     .search-input::placeholder { color: var(--wh-steel-bright); }
     .btn-filter {
-      padding: 0.6rem 0.875rem;
+      padding: 0.5rem 0.875rem;   /* 0.6rem was 9.6px (W45965) */
       background: rgba(22,32,50,0.6); border: 1px solid rgba(255,255,255,0.1);
       border-radius: var(--wh-radius-sm); color: var(--wh-cloud);
       font-family: 'Poppins', sans-serif; font-size: 0.8rem;
@@ -177,7 +177,7 @@
       border-radius: var(--wh-radius); margin-bottom: 0.75rem;
     }
     .price-filter.show { display: block; }
-    .price-filter > label { font-size: 0.72rem; color: var(--wh-steel-bright); margin-bottom: 0.4rem; display: block; }
+    .price-filter > label { font-size: 0.75rem; color: var(--wh-steel-bright); margin-bottom: 0.4rem; display: block; }
     .price-range-row { display: flex; gap: 0.5rem; align-items: center; }
     .price-range-row input { flex: 1; }
     .price-range-sep { color: var(--wh-steel-bright); font-size: 0.8rem; }
@@ -186,10 +186,10 @@
     .filter-row { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 1rem; }
     .filter-chip {
       display: inline-flex; align-items: center; justify-content: center; min-height: 44px; min-width: 44px;
-      padding: 0.3rem 0.75rem; border-radius: 999px;
+      padding: 0.25rem 0.75rem; border-radius: 999px;   /* 0.3rem was 4.8px; min-height:44px drives the height anyway (W45965) */
       border: 1px solid rgba(255,255,255,0.12);
       background: rgba(22,32,50,0.5); color: var(--wh-steel-bright);
-      font-size: 0.72rem; font-family: 'Poppins', sans-serif; cursor: pointer;
+      font-size: 0.75rem; font-family: 'Poppins', sans-serif; cursor: pointer;
       transition: all 0.15s;
     }
     .filter-chip.active {
@@ -235,17 +235,17 @@
 
     /* Tier + verified badges */
     .badge-tier {
-      padding: 0.2rem 0.5rem; border-radius: 999px;
-      font-size: 0.62rem; font-weight: 700; font-family: 'Poppins', sans-serif;
+      padding: 0.25rem 0.5rem; border-radius: 999px;   /* 0.2rem was 3.2px (W45965) */
+      font-size: 0.75rem; font-weight: 700; font-family: 'Poppins', sans-serif;
     }
     .badge-tier.bronze { background: rgba(205,127,50,0.2); color: var(--wh-orange-light); border: 1px solid rgba(205,127,50,0.3); }   /* C2: AA-safe orange (was --wh-orange @ 4.42:1) */
     .badge-tier.silver { background: rgba(192,192,192,0.15); color: #c0c0c0; border: 1px solid rgba(192,192,192,0.3); }
     .badge-tier.gold   { background: rgba(247,162,27,0.15); color: var(--wh-orange-light); border: 1px solid rgba(247,162,27,0.35); }
     .badge-verified {
-      padding: 0.2rem 0.5rem; border-radius: 999px;
-      font-size: 0.62rem; font-weight: 700; font-family: 'Poppins', sans-serif;
+      padding: 0.25rem 0.5rem; border-radius: 999px;   /* 0.2rem was 3.2px (W45965) */
+      font-size: 0.75rem; font-weight: 700; font-family: 'Poppins', sans-serif;
       background: rgba(41,182,217,0.15); color: var(--wh-blue-light); border: 1px solid rgba(41,182,217,0.3);
-      display: inline-flex; align-items: center; gap: 0.2rem;
+      display: inline-flex; align-items: center; gap: 0.25rem;
     }
 
     /* Price pill over image */
@@ -287,14 +287,17 @@
     .heart-btn.saved:hover { background: rgba(248,113,113,0.25); }
 
     /* Card body */
-    .card-body { padding: 0.875rem; }
+    .card-body { padding: 0.75rem; }   /* 0.875rem was 14px, off the 4px rhythm on all 9 listing cards (W45965) */
     .card-title {
       font-size: 0.85rem; font-weight: 700; margin-bottom: 0.35rem; line-height: 1.3;
       display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
     }
     .card-meta { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 0.5rem; }
+    /* 0.15rem was 2.4px, and .cat-chip x27 plus .cond-chip x9 top-and-bottom was 72 of this page's 216
+       off-grid spacing values (design lens slop, 2026-09-17, W45965). Both move together because the
+       comment below says their geometry is deliberately identical. */
     .cat-chip {
-      padding: 0.15rem 0.5rem; border-radius: 999px; font-size: 0.65rem; font-weight: 600;
+      padding: 0.25rem 0.5rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600;
       background: rgba(255,255,255,0.06); color: var(--wh-steel-bright); border: 1px solid rgba(255,255,255,0.08);
     }
     /* Money coming BACK to the buyer, so it reads as a gain rather than another grey fact. Same chip
@@ -303,7 +306,7 @@
     .cat-chip.credits-back {
       background: rgba(74,222,128,0.12); color: var(--wh-green); border: 1px solid rgba(74,222,128,0.25);
     }
-    .cond-chip { padding: 0.15rem 0.5rem; border-radius: 999px; font-size: 0.65rem; font-weight: 600; }
+    .cond-chip { padding: 0.25rem 0.5rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600; }
     .cond-chip.new   { background: rgba(74,222,128,0.1); color: var(--wh-green); border: 1px solid rgba(74,222,128,0.2); }
     .cond-chip.used  { background: rgba(255,255,255,0.06); color: var(--wh-steel-bright); border: 1px solid rgba(255,255,255,0.1); }
     .cond-chip.refurb { background: rgba(251,191,36,0.1); color: var(--wh-orange); border: 1px solid rgba(251,191,36,0.2); }
@@ -311,7 +314,7 @@
     /* Card footer */
     .card-footer {
       display: flex; align-items: center; justify-content: space-between;
-      padding-top: 0.625rem; border-top: 1px solid rgba(255,255,255,0.05);
+      padding-top: 0.75rem; border-top: 1px solid rgba(255,255,255,0.05);   /* 0.625rem was 10px (W45965) */
     }
     .seller-row { display: flex; align-items: center; gap: 0.4rem; min-width: 0; }
     .seller-link { min-height: 44px; } /* D1 U2: the card's seller-profile link is a real tap target → 44px */
@@ -320,15 +323,15 @@
       width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
       background: rgba(247,162,27,0.2); border: 1px solid rgba(247,162,27,0.3);
       display: flex; align-items: center; justify-content: center;
-      font-size: 0.6rem; font-weight: 700; color:var(--wh-orange-text);
+      font-size: 0.75rem; font-weight: 700; color:var(--wh-orange-text);
     }
-    .seller-name { font-size: 0.7rem; color: var(--wh-steel-bright); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 80px; }
-    .stars { color:var(--wh-orange-text); font-size: 0.7rem; letter-spacing: -1px; }
-    .rating-val { font-size: 0.7rem; color: var(--wh-steel-bright); }
+    .seller-name { font-size: 0.75rem; color: var(--wh-steel-bright); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 80px; }
+    .stars { color:var(--wh-orange-text); font-size: 0.75rem; letter-spacing: -1px; }
+    .rating-val { font-size: 0.75rem; color: var(--wh-steel-bright); }
     .btn-view {
-      padding: 0.35rem 0.75rem; border-radius: 0.5rem; cursor: pointer; min-height: 44px; /* D1 U2: gloved-field tap target */
+      padding: 0.375rem 0.75rem; border-radius: 0.5rem; cursor: pointer; min-height: 44px;   /* 0.35rem was 5.6px; min-height:44px drives the height (W45965) */ /* D1 U2: gloved-field tap target */
       background: rgba(247,162,27,0.1); border: 1px solid rgba(247,162,27,0.25);
-      color:var(--wh-orange-text); font-size: 0.72rem; font-weight: 600;
+      color:var(--wh-orange-text); font-size: 0.75rem; font-weight: 600;
       font-family: 'Poppins', sans-serif; white-space: nowrap;
       transition: background 0.15s;
     }
@@ -370,7 +373,12 @@
       width: 52px; height: 52px; border-radius: 50%;
       background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light)); border: none; cursor: pointer;
       display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 4px 20px rgba(247,162,27,0.45); transition: transform 0.2s;
+      /* NEUTRAL, NOT AMBER (design lens slop, 2026-09-17, W45965). This was a 20px amber blur at rest under
+         an already-amber button - the zero-offset chromatic glow the rule names, and the same call already
+         made for .btn-primary on index.html. The button is a solid amber gradient circle on navy; it does
+         not need to emit its own colour to be found. Same geometry, neutral colour, so it still reads as
+         lifted. */
+      box-shadow: 0 4px 20px rgba(0,0,0,0.45); transition: transform 0.2s;
     }
     #fab-post:hover { transform: scale(1.08); }
 
@@ -449,7 +457,7 @@
       flex: 1; padding: 0.5rem; text-align: center;
       background: rgba(22,32,50,0.5); border: 1px solid rgba(255,255,255,0.1);
       border-radius: 0.5rem; color: var(--wh-steel-bright);
-      font-size: 0.72rem; font-weight: 600; font-family: 'Poppins', sans-serif; cursor: pointer;
+      font-size: 0.75rem; font-weight: 600; font-family: 'Poppins', sans-serif; cursor: pointer;
       transition: all 0.15s; min-height: 44px; /* D1 U2 */
     }
     .section-toggle-btn.active {
@@ -504,7 +512,7 @@
     .detail-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.75rem; line-height: 1.3; }
     .detail-section { margin-bottom: 1.25rem; }
     .detail-section-label {
-      font-size: 0.72rem; font-weight: 600; color: var(--wh-steel-bright); text-transform: uppercase;
+      font-size: 0.75rem; font-weight: 600; color: var(--wh-steel-bright); text-transform: uppercase;
       letter-spacing: 0.05em; margin-bottom: 0.5rem;
     }
     .detail-description { font-size: 0.82rem; color: #b0b8c4; line-height: 1.6; }
@@ -524,7 +532,7 @@
     }
     .seller-card-info { flex: 1; min-width: 0; }
     .seller-card-name { font-size: 0.88rem; font-weight: 700; }
-    .seller-card-meta { font-size: 0.7rem; color: var(--wh-steel-bright); margin-top: 0.15rem; }
+    .seller-card-meta { font-size: 0.75rem; color: var(--wh-steel-bright); margin-top: 0.25rem; }   /* 0.15rem was 2.4px (W45965) */
     .seller-badges { display: flex; gap: 0.35rem; margin-top: 0.35rem; flex-wrap: wrap; }
 
     /* Reviews */
@@ -532,7 +540,7 @@
     .review-item:last-child { border-bottom: none; }
     .review-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.35rem; }
     .review-author { font-size: 0.78rem; font-weight: 600; }
-    .review-date { font-size: 0.7rem; color: var(--wh-steel-bright); }
+    .review-date { font-size: 0.75rem; color: var(--wh-steel-bright); }
     .review-text { font-size: 0.78rem; color: #b0b8c4; line-height: 1.5; }
 
     /* Info notice */
@@ -550,7 +558,13 @@
       background: rgba(31,46,69,0.97); border: 1px solid rgba(255,255,255,0.12);
       border-radius: 0.75rem; padding: 0.75rem 1.25rem;
       font-size: 0.82rem; font-weight: 600; z-index: 200;
-      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      /* ★THE RETIRED BOUNCE, STILL HARD-CODED (design lens, 2026-09-16). tokens.css retired
+         --wh-ease-spring - cubic-bezier(0.34, 1.56, 0.64, 1) - for overshooting by 56%, and the grep
+         that confirmed it was unused searched the token's NAME. These files spell the curve as a
+         LITERAL, so the platform's one dated bounce outlived the decision that removed it. A toast
+         entering is an entrance, and review-animations/STANDARDS.md gives entrances ease-out at the
+         platform's own duration step. Same fix already recorded on integrations.html. */
+        transition: transform var(--wh-dur-slow, 0.25s) var(--wh-ease-out, ease-out);
       white-space: nowrap; max-width: 90vw;
     }
     #toast.show { transform: translateX(-50%) translateY(0); }
@@ -592,10 +606,10 @@
       .skel-pulse { animation: none; }
     }
     /* Plain-Read summary (Layer D — UX Contract) */
-    .verdict { display:flex; align-items:center; gap:12px; padding:14px 16px; margin-bottom:16px; border-radius:12px; border:1px solid; }
+    .verdict { display:flex; align-items:center; gap:12px; padding:12px 16px;   /* 14px was off-grid (W45965) */ margin-bottom:16px; border-radius:12px; border:1px solid; }
     .verdict-icon { font-size:1.5rem; line-height:1; font-weight:800; }
     .verdict-text { font-size:0.9rem; font-weight:700; line-height:1.35; }
-    .verdict-text small { display:block; font-size:0.72rem; font-weight:500; color:rgba(255,255,255,0.83); margin-top:3px; }
+    .verdict-text small { display:block; font-size: 0.75rem; font-weight:500; color:rgba(255,255,255,0.83); margin-top:4px; }   /* 3px was off-grid (W45965) */
     .verdict.healthy { background:rgba(74,222,128,0.07);  border-color:rgba(74,222,128,0.3); }
     .verdict.healthy .verdict-icon { color:var(--wh-green); }
     .verdict.watch   { background:rgba(247,162,27,0.07);  border-color:rgba(247,162,27,0.3); }
@@ -605,7 +619,7 @@
     .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
     .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.80); }
     /* .simple-row / .simple-card / .sc-* / .action-card / .details-toggle → components.css (STREAMLINE S11) */
-    #mk-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:16px; }
+    #mk-summary-details { display:none; padding:12px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:16px; }
     #mk-summary-details.open { display:block; }
   </style>
 <style>/* I1 CLS: static wayfinding back-pill band reserve (wayfinding.js sets this body padding-top post-paint on pill-pages = a late shift under full-run contention; present at first paint -> its `if(band>cur)` skips, layout unchanged). VERIFIED this page gets the pill (has <main>, no back-affordance, not home). */
@@ -630,7 +644,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
        ("you can buy parts there") had no door in. In-flow (not fixed) so it cannot fight the
        wayfinding back-pill band for the reserved top 64px; hidden for signed-in users by the
        DOMContentLoaded check below (utils.js whWorker loads after this markup). -->
-  <div id="mk-anon-masthead" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:space-between;background:rgba(22,32,50,0.7);border:1px solid rgba(247,162,27,0.25);border-radius:var(--wh-radius-lg, 16px);padding:10px 14px;">
+  <div id="mk-anon-masthead" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:space-between;background:rgba(22,32,50,0.7);border:1px solid rgba(247,162,27,0.25);border-radius:var(--wh-radius-lg, 16px);padding:10px 16px;">
     <div style="display:flex;align-items:center;gap:10px;min-width:0;">
       <a href="index.html" style="display:inline-flex;align-items:center;min-height:44px;"><img src="brand_assets/workhive-logo-transparent.png" alt="WorkHive home" style="height:26px;width:auto;" /></a>
       <span data-i="p_browsingasaguestsignintobuys_ec38" style="font-size:0.78rem;color:rgba(255,255,255,0.8);">Browsing as a guest. Sign in to buy, sell, or hail services</span>
@@ -665,7 +679,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     <h1 data-i="pagetitle">Marketplace</h1>
     <details class="wh-help">
       <summary data-i="p_howthispageworks_c540">How this page works</summary>
-      <ul>
+      <ul style="max-width:52ch;">
         <li data-i="p_listingsarepostedbyotherplan_59ef">Listings are posted by other plants and specialists, not by this platform. Read the seller's rating and their completed sales before committing.</li>
         <li data-i="p_aratingisearnedfrombuyerswho_62c2">A rating is earned from buyers who actually transacted; a seller cannot write their own.</li>
         <li data-i="p_contactingaselleropensaninqu_2374">Contacting a seller opens an inquiry. Nothing is bought here and no money moves through this page.</li>
@@ -676,7 +690,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     <!-- The provenance chip renders after the section resolves; an EMPTY slot at first paint pushed
          everything below it by 46px at 390 once the chip landed (CLS 0.038, measured signed-in 2026-09-05).
          Reserve the chip's own height: 46px on phones (two lines), one line on wider screens. -->
-    <p id="marketplace-source-chip" style="margin-top:3px;min-height:30px;"></p>
+    <p id="marketplace-source-chip" style="margin-top:4px;min-height:32px;"></p>
     <style>@media (max-width:767px){#marketplace-source-chip{min-height:46px}}    /* R3 (2026-09-05): one silhouette per job - selection controls (chips, tabs, toggles: any control that carries a pressed /
        selected / checked state) wear the PILL; press buttons keep the 12 px card-family radius. */
     [aria-pressed], [aria-selected], [aria-checked], [role="tab"], [role="radio"], [role="switch"] { border-radius: 999px; }
@@ -745,7 +759,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         Credits, paid when the job is done. 1 credit is worth 1 peso and you spend them on your next
         booking. Credits are not cash and cannot be withdrawn or transferred.</li>
     </ul>
-    <p data-i="p_usethetrustbarbuttonswatchli_f202" style="margin-top:8px;color:rgba(255,255,255,0.80);font-size:11px;">Use the trust bar buttons (Watchlist, Searches) to track listings you care about. Open inquiries land in your inbox.</p>
+    <p data-i="p_usethetrustbarbuttonswatchli_f202" style="margin-top:8px;color:rgba(255,255,255,0.80);font-size: 12px;">Use the trust bar buttons (Watchlist, Searches) to track listings you care about. Open inquiries land in your inbox.</p>
   </div>
 
   <!-- Section tabs -->
@@ -797,19 +811,19 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <span class="ic ic-list" aria-hidden="true"></span>
       <span data-i="p_countinglistings_3d0a" id="txt-total-listings">counting listings…</span>
     </div>
-    <button id="btn-my-watchlist" style="background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);border-radius:8px;color:var(--wh-red-text);font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;min-height:44px;padding:0.2rem 0.65rem;cursor:pointer;display:inline-flex;align-items:center;gap:0.3rem;" aria-label="My Watchlist">
+    <button id="btn-my-watchlist" style="background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);border-radius:8px;color:var(--wh-red-text);font-family:'Poppins',sans-serif;font-size: 0.75rem;font-weight:600;min-height:44px;padding:0.25rem 0.625rem;cursor:pointer;display:inline-flex;align-items:center;gap:0.25rem;" aria-label="My Watchlist">
       <span class="ic ic-save" aria-hidden="true"></span>
       <span data-i="watchlist">Watchlist</span>
     </button>
     <!-- --wh-violet-text, not --wh-violet: the brand lilac #a78bfa measures 4.21:1 on this button's
          computed navy (#283a56) at 11.2px, under the 4.5 small-text bar. tokens.css already carries the
          accessible twin (#C4B5FD, ~6.2:1) for precisely this case; this control had just never adopted it. -->
-    <button id="btn-saved-searches" style="background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.25);border-radius:8px;color:var(--wh-violet-text);font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;min-height:44px;padding:0.2rem 0.65rem;cursor:pointer;display:inline-flex;align-items:center;gap:0.3rem;" aria-label="Saved Searches">
+    <button id="btn-saved-searches" style="background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.25);border-radius:8px;color:var(--wh-violet-text);font-family:'Poppins',sans-serif;font-size: 0.75rem;font-weight:600;min-height:44px;padding:0.25rem 0.625rem;cursor:pointer;display:inline-flex;align-items:center;gap:0.25rem;" aria-label="Saved Searches">
       <span class="ic ic-saved" aria-hidden="true"></span>
       <span data-i="searches">Searches</span>
-      <span id="saved-search-badge" title="New listings matching your saved searches" style="display:none;background:var(--wh-orange);color:#1a1a1a;font-size:0.6rem;font-weight:800;border-radius:999px;padding:0.05rem 0.35rem;min-width:1rem;text-align:center;">0</span>
+      <span id="saved-search-badge" title="New listings matching your saved searches" style="display:none;background:var(--wh-orange);color:#1a1a1a;font-size: 0.75rem;font-weight:800;border-radius:999px;padding:0.05rem 0.35rem;min-width:1rem;text-align:center;">0</span>
     </button>
-    <a href="marketplace-seller.html" style="background:rgba(41,182,217,0.08);border:1px solid rgba(41,182,217,0.25);border-radius:999px;color:var(--wh-blue-text);font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;min-height:44px;padding:0.2rem 0.65rem;text-decoration:none;display:inline-flex;align-items:center;gap:0.3rem;" aria-label="My Listings">
+    <a href="marketplace-seller.html" style="background:rgba(41,182,217,0.08);border:1px solid rgba(41,182,217,0.25);border-radius:999px;color:var(--wh-blue-text);font-family:'Poppins',sans-serif;font-size: 0.75rem;font-weight:600;min-height:44px;padding:0.25rem 0.625rem;text-decoration:none;display:inline-flex;align-items:center;gap:0.3rem;" aria-label="My Listings">
       <span class="ic ic-list" aria-hidden="true"></span>
       My Listings
     </a>
@@ -821,7 +835,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
          link was never repointed. Measured 2026-08-04 by following it. Same class as the retired page
          that hid the only live control: the markup surviving underneath is exactly what makes it
          invisible to a grep and to any check that queries for the button. -->
-    <a id="btn-admin-link" href="platform-actions.html#sec-mkt-mod" style="display:none;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);border-radius:999px;color:var(--wh-red-text);font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;min-height:44px;padding:0.2rem 0.65rem;text-decoration:none;align-items:center;gap:0.3rem;" aria-label="Marketplace moderation in Platform Actions">
+    <a id="btn-admin-link" href="platform-actions.html#sec-mkt-mod" style="display:none;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);border-radius:999px;color:var(--wh-red-text);font-family:'Poppins',sans-serif;font-size: 0.75rem;font-weight:600;min-height:44px;padding:0.25rem 0.625rem;text-decoration:none;align-items:center;gap:0.3rem;" aria-label="Marketplace moderation in Platform Actions">
       <span class="ic ic-admin" aria-hidden="true"></span>
       Admin
     </a>
@@ -861,7 +875,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   <section id="parts-for-assets" style="display:none;margin:0.25rem 0 0.85rem;" aria-label="Parts for your assets">
     <div style="display:flex;align-items:baseline;gap:0.45rem;margin-bottom:0.45rem;flex-wrap:wrap;">
       <span data-i="p_partsforyourassets_e082" style="font-size:0.82rem;font-weight:700;color:var(--wh-blue-text);">Parts for your assets</span>
-      <span data-i="p_listedbyotherplantsmatchedto_e5f9" style="font-size:0.68rem;color:var(--wh-steel-bright);">listed by other plants, matched to what you stock</span>
+      <span data-i="p_listedbyotherplantsmatchedto_e5f9" style="font-size: 0.75rem;color:var(--wh-steel-bright);">listed by other plants, matched to what you stock</span>
     </div>
     <div id="parts-for-assets-rail" role="list" style="display:flex;gap:0.6rem;overflow-x:auto;padding-bottom:0.35rem;"></div>
   </section>
@@ -903,7 +917,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   <div style="max-width:880px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:0.75rem;flex-wrap:wrap;">
     <div style="font-size:0.85rem;font-weight:700;color:var(--wh-cloud);">
       <span id="compare-count">0</span> <span style="color:var(--wh-steel-bright);font-weight:600;">selected</span>
-      <span data-i="p_tapuptolistingstorequestquot_fc5a" style="font-size:0.7rem;color:var(--wh-steel-bright);font-weight:400;display:block;margin-top:0.15rem;">Tap up to 5 listings to request quotes</span>
+      <span data-i="p_tapuptolistingstorequestquot_fc5a" style="font-size: 0.75rem;color:var(--wh-steel-bright);font-weight:400;display:block;margin-top:0.25rem;">Tap up to 5 listings to request quotes</span>
     </div>
     <div style="display:flex;gap:0.5rem;">
       <button id="btn-compare-clear" style="padding:0.55rem 0.875rem;border-radius:0.5rem;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:var(--wh-steel-bright);font-family:'Poppins',sans-serif;font-size:0.78rem;font-weight:600;cursor:pointer;" data-i="clear">Clear</button>
@@ -942,7 +956,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <input class="wh-input" type="text" id="post-title" placeholder="e.g. SKF 6205 Deep Groove Ball Bearing" required maxlength="120">
     </div>
     <div class="form-group" id="post-partnumber-wrap">
-      <label class="form-label" for="post-part-number"><span data-i="partnumber">Part number</span> <span style="opacity:.55;font-weight:400;font-size:.72rem;">optional: buyers can search + reorder this exact part</span></label>
+      <label class="form-label" for="post-part-number"><span data-i="partnumber">Part number</span> <span style="opacity:.55;font-weight:400;font-size: 0.75rem;">optional: buyers can search + reorder this exact part</span></label>
       <input class="wh-input" type="text" id="post-part-number" placeholder="e.g. BRG-6313 or SKF-6205-2RS" maxlength="80">
     </div>
     <input type="hidden" id="post-source-item-id" value="" />
@@ -964,24 +978,24 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;flex-wrap:wrap;">
         <label class="form-label" for="post-desc" style="margin:0;" data-i="description">Description</label>
         <button type="button" id="post-ai-assist" aria-label="Suggest a category and description with AI"
-          style="display:inline-flex;align-items:center;justify-content:center;gap:0.35rem;min-height:44px;padding:0.4rem 0.85rem;background:rgba(41,182,217,0.1);border:1px solid rgba(41,182,217,0.35);border-radius:0.55rem;color:var(--wh-blue-text);font-family:'Poppins',sans-serif;font-size:0.74rem;font-weight:600;cursor:pointer;transition:background 0.15s;">
+          style="display:inline-flex;align-items:center;justify-content:center;gap:0.35rem;min-height:44px;padding:0.4rem 0.85rem;background:rgba(41,182,217,0.1);border:1px solid rgba(41,182,217,0.35);border-radius:0.55rem;color:var(--wh-blue-text);font-family:'Poppins',sans-serif;font-size: 0.75rem;font-weight:600;cursor:pointer;transition:background 0.15s;">
           <span aria-hidden="true">✨</span><span id="post-ai-assist-label" data-i="aiassist">AI assist</span>
         </button>
       </div>
       <textarea class="wh-textarea" id="post-desc" maxlength="2000" placeholder="Specs, compatibility, dimensions, quantity available..." required></textarea>
       <!-- T130 (2026-08-25): a cap that stops accepting keystrokes with no explanation reads as a
            broken keyboard - state the limit BEFORE refusal (community's counter idiom). -->
-      <p id="post-desc-count" style="text-align:right;font-size:0.7rem;color:rgba(255,255,255,0.80);margin:4px 0 0;">0 / 2000</p>
+      <p id="post-desc-count" style="text-align:right;font-size: 0.75rem;color:rgba(255,255,255,0.80);margin:4px 0 0;">0 / 2000</p>
       <script>document.getElementById('post-desc').addEventListener('input', function () {
         document.getElementById('post-desc-count').textContent = this.value.length + ' / 2000';
       });</script>
-      <div data-i="p_aidraftsacategoryanddescript_2f4e" id="post-ai-assist-hint" style="font-size:0.68rem;color:var(--wh-steel-bright);margin-top:0.3rem;">AI drafts a category and description from your title, part number, and photo. Always review before posting.</div>
+      <div data-i="p_aidraftsacategoryanddescript_2f4e" id="post-ai-assist-hint" style="font-size: 0.75rem;color:var(--wh-steel-bright);margin-top:0.3rem;">AI drafts a category and description from your title, part number, and photo. Always review before posting.</div>
     </div>
     <div class="form-row">
       <div class="form-group">
         <label class="form-label" for="post-price" data-i="priceph">Price (PHP)</label>
         <input class="wh-input" type="number" id="post-price" placeholder="Leave blank if negotiable" min="0" step="0.01" />
-        <div id="post-price-hint" style="font-size:0.7rem;color:var(--wh-blue-text);margin-top:0.3rem;display:none;"></div>
+        <div id="post-price-hint" style="font-size: 0.75rem;color:var(--wh-blue-text);margin-top:0.3rem;display:none;"></div>
       </div>
       <div class="form-group">
         <label class="form-label" for="post-location" data-i="location">Location</label>
@@ -1001,12 +1015,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         <div id="post-image-empty" style="color:var(--wh-steel-bright);">
           <span class="ic ic-image ic-lg" aria-hidden="true"></span>
           <div data-i="p_taptoaddaphoto_1576" style="font-size:0.78rem;font-weight:600;color:var(--wh-cloud);">Tap to add a photo</div>
-          <div data-i="p_jpegpngorwebpuptomblistingsw_14fb" style="font-size:0.7rem;margin-top:0.2rem;">JPEG, PNG or WebP up to 5MB. Listings with photos get 3× more inquiries.</div>
+          <div data-i="p_jpegpngorwebpuptomblistingsw_14fb" style="font-size: 0.75rem;margin-top:0.25rem;">JPEG, PNG or WebP up to 5MB. Listings with photos get 3× more inquiries.</div>
         </div>
         <div id="post-image-preview" style="display:none;">
           <img id="post-image-preview-img" alt="Preview" style="max-width:100%;max-height:200px;border-radius:0.5rem;display:block;margin:0 auto;" />
-          <div id="post-image-status" style="font-size:0.7rem;color:var(--wh-steel-bright);margin-top:0.5rem;"></div>
-          <button type="button" id="post-image-remove" style="margin-top:0.5rem;padding:0.35rem 0.75rem;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);border-radius:0.5rem;color:var(--wh-red);font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;cursor:pointer;" data-i="removephoto">Remove photo</button>
+          <div id="post-image-status" style="font-size: 0.75rem;color:var(--wh-steel-bright);margin-top:0.5rem;"></div>
+          <button type="button" id="post-image-remove" style="margin-top:0.5rem;padding:0.35rem 0.75rem;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);border-radius:0.5rem;color:var(--wh-red);font-family:'Poppins',sans-serif;font-size: 0.75rem;font-weight:600;cursor:pointer;" data-i="removephoto">Remove photo</button>
         </div>
       </div>
       <input type="hidden" id="post-image-url" value="" />
@@ -1031,7 +1045,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <div style="height:6px;background:rgba(255,255,255,0.07);border-radius:999px;overflow:hidden;">
         <div id="quality-bar" style="height:100%;width:0%;background:var(--wh-red);transition:width 0.3s,background 0.3s;"></div>
       </div>
-      <div id="quality-tips" style="margin-top:0.625rem;font-size:0.7rem;color:var(--wh-steel-bright);line-height:1.6;"></div>
+      <div id="quality-tips" style="margin-top:0.625rem;font-size: 0.75rem;color:var(--wh-steel-bright);line-height:1.6;"></div>
     </div>
 
     <!-- T100 (2026-08-26): PREVIEW BEFORE THE IRREVERSIBLE STEP. The walk found the AI assist sound
@@ -1041,9 +1055,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
          stranger judges the seller by - so J3's bar is preview-before-irreversible. Built from the
          SAME fields the insert reads, so the preview cannot drift from what actually publishes. -->
     <div id="post-preview" style="display:none;margin-bottom:0.75rem;padding:0.875rem;border:1px solid rgba(255,255,255,0.12);border-radius:0.75rem;background:rgba(255,255,255,0.03);">
-      <p data-i="p_howbuyerswillseethis_98e3" style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--wh-steel-bright);margin:0 0 0.5rem;">How buyers will see this</p>
+      <p data-i="p_howbuyerswillseethis_98e3" style="font-size: 0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--wh-steel-bright);margin:0 0 0.5rem;">How buyers will see this</p>
       <div id="post-preview-body"></div>
-      <p data-i="p_nothingispostedyetclosethist_491b" style="font-size:0.65rem;color:rgba(255,255,255,0.72);margin:0.5rem 0 0;">Nothing is posted yet. Close this to keep editing.</p>
+      <p data-i="p_nothingispostedyetclosethist_491b" style="font-size: 0.75rem;color:rgba(255,255,255,0.72);margin:0.5rem 0 0;">Nothing is posted yet. Close this to keep editing.</p>
     </div>
     <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
       <button type="button" class="btn-ghost" id="btn-preview-post" style="flex:1 1 auto;min-width:0;" data-i="previewasbuyer">Preview as buyer</button>
@@ -1136,7 +1150,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   <!-- Save current panel — only shown when at least one filter is active -->
   <div id="save-current-panel" style="display:none;background:rgba(41,182,217,0.06);border:1px solid rgba(41,182,217,0.18);border-radius:0.75rem;padding:0.875rem;margin-bottom:1rem;">
     <div data-i="p_savecurrentsearch_3c16" style="font-size:0.78rem;font-weight:700;margin-bottom:0.5rem;color:var(--wh-blue-text);">Save current search</div>
-    <div id="save-current-summary" style="font-size:0.72rem;color:var(--wh-steel-bright);margin-bottom:0.625rem;line-height:1.5;"></div>
+    <div id="save-current-summary" style="font-size: 0.75rem;color:var(--wh-steel-bright);margin-bottom:0.625rem;line-height:1.5;"></div>
     <div class="form-group" style="margin-bottom:0.625rem;">
       <input aria-label="Name this search (e.g. HVAC Manila)" class="wh-input" type="text" id="save-search-name" placeholder="Name this search (e.g. HVAC Manila)" maxlength="60" style="font-size:1rem;" />
     </div>
@@ -1207,7 +1221,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
        subscription (no fn consumes marketplace_watchlist for alerts). Say so, so nobody
        waits for a price-drop ping that will never come. Becomes false the day a notify
        lane ships — update it in the SAME change. -->
-  <p style="margin:0 0 0.6rem;font-size:0.72rem;color:var(--wh-steel-bright);line-height:1.45;" data-i="watchsemantics">
+  <p style="margin:0 0 0.6rem;font-size: 0.75rem;color:var(--wh-steel-bright);line-height:1.45;" data-i="watchsemantics">
     Your saved listings, synced to your account. Check back for price or stock changes -
     WorkHive doesn't send watchlist alerts yet.
   </p>
@@ -1585,7 +1599,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     if (plr) plr.textContent = selected.length === 1 ? '' : 's';
     if (list) {
       list/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = selected.map(item => `
-        <div style="display:flex;align-items:center;gap:0.5rem;padding:0.4rem;background:rgba(255,255,255,0.04);border-radius:0.4rem;font-size:0.72rem;">
+        <div style="display:flex;align-items:center;gap:0.5rem;padding:0.4rem;background:rgba(255,255,255,0.04);border-radius:0.4rem;font-size: 0.75rem;">
           <span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--wh-cloud);">${e(item.title)}</span>
           <span style="color:var(--wh-steel-bright);white-space:nowrap;">${e(item.seller_name || 'Seller')}</span>
         </div>`).join('');
@@ -1779,10 +1793,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       content/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = items.map(s => {
         const mm = matchMap[s.id] || {};
         const matchPill = Number(mm.new_count) > 0
-          ? `<span style="font-size:0.62rem;font-weight:800;color:#1a1a1a;background:var(--wh-orange);border-radius:999px;padding:0.1rem 0.45rem;">${mm.new_count} new</span>`
+          ? `<span style="font-size: 0.75rem;font-weight:800;color:#1a1a1a;background:var(--wh-orange);border-radius:999px;padding:0.1rem 0.45rem;">${mm.new_count} new</span>`
           : (Number(mm.total_count) > 0
-              ? `<span style="font-size:0.62rem;color:var(--wh-steel-bright);">${mm.total_count} match${Number(mm.total_count) > 1 ? 'es' : ''}</span>`
-              : `<span style="font-size:0.62rem;color:var(--wh-steel-bright);">no matches yet</span>`);
+              ? `<span style="font-size: 0.75rem;color:var(--wh-steel-bright);">${mm.total_count} match${Number(mm.total_count) > 1 ? 'es' : ''}</span>`
+              : `<span style="font-size: 0.75rem;color:var(--wh-steel-bright);">no matches yet</span>`);
         const pieces = [];
         if (s.section)    pieces.push(s.section.charAt(0).toUpperCase() + s.section.slice(1));
         if (s.category)   pieces.push(s.category);
@@ -1796,15 +1810,15 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
               <span style="font-size:0.85rem;font-weight:700;">${e(s.search_name)}</span>
               <span style="display:inline-flex;gap:0.3rem;align-items:center;">
                 ${matchPill}
-                ${s.email ? '<span style="font-size:0.62rem;color:var(--wh-violet-text);background:rgba(167,139,250,0.12);border:1px solid rgba(167,139,250,0.25);border-radius:999px;padding:0.1rem 0.45rem;">✉ Alerts on</span>' : ''}
+                ${s.email ? '<span style="font-size: 0.75rem;color:var(--wh-violet-text);background:rgba(167,139,250,0.12);border:1px solid rgba(167,139,250,0.25);border-radius:999px;padding:0.1rem 0.45rem;">✉ Alerts on</span>' : ''}
               </span>
             </div>
-            <div style="font-size:0.72rem;color:var(--wh-steel-bright);margin-bottom:0.625rem;">${e(pieces.join(' · ') || 'All listings')}</div>
+            <div style="font-size: 0.75rem;color:var(--wh-steel-bright);margin-bottom:0.625rem;">${e(pieces.join(' · ') || 'All listings')}</div>
             <div style="display:flex;gap:0.4rem;">
               <button class="btn-apply-search" data-id="${e(s.id)}" data-section="${e(s.section || 'parts')}" data-cat="${e(s.category || 'All')}" data-q="${e(s.query_text || '')}" data-min="${s.price_min ?? ''}" data-max="${s.price_max ?? ''}"
-                style="padding:0.4rem 0.875rem;border-radius:0.5rem;border:1px solid rgba(247,162,27,0.3);background:rgba(247,162,27,0.1);color:var(--wh-orange-text);font-family:'Poppins',sans-serif;font-size:0.72rem;font-weight:600;cursor:pointer;" data-i="apply">Apply</button>
+                style="padding:0.4rem 0.875rem;border-radius:0.5rem;border:1px solid rgba(247,162,27,0.3);background:rgba(247,162,27,0.1);color:var(--wh-orange-text);font-family:'Poppins',sans-serif;font-size: 0.75rem;font-weight:600;cursor:pointer;" data-i="apply">Apply</button>
               <button class="btn-delete-search" data-id="${e(s.id)}"
-                style="padding:0.4rem 0.875rem;border-radius:0.5rem;border:1px solid rgba(248,113,113,0.25);background:rgba(248,113,113,0.06);color:var(--wh-red);font-family:'Poppins',sans-serif;font-size:0.72rem;font-weight:600;cursor:pointer;" data-i="delete">Delete</button>
+                style="padding:0.4rem 0.875rem;border-radius:0.5rem;border:1px solid rgba(248,113,113,0.25);background:rgba(248,113,113,0.06);color:var(--wh-red);font-family:'Poppins',sans-serif;font-size: 0.75rem;font-weight:600;cursor:pointer;" data-i="delete">Delete</button>
             </div>
           </div>`;
       }).join('');
@@ -1993,24 +2007,24 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       if (error || !data || !data.length) return;
       const e = escHtml;
       slot.innerHTML =
-        '<div class="simple-card" style="padding:14px 16px;border-left:3px solid var(--wh-orange);">' +
-        '<div style="font-size:0.62rem;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:var(--wh-orange);margin-bottom:6px;">' +
+        '<div class="simple-card" style="padding:12px 16px;border-left:3px solid var(--wh-orange);">' +
+        '<div style="font-size: 0.75rem;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:var(--wh-orange);margin-bottom:6px;">' +
         'Your inquiries &middot; ' + data.length + '</div>' +
         data.map(function (r) {
           var when = r.replied_at ? (typeof whFmtDate === 'function' ? whFmtDate(r.replied_at) : String(r.replied_at).slice(0, 10)) : '';
           var sent = r.created_at ? (typeof whFmtDate === 'function' ? whFmtDate(r.created_at) : String(r.created_at).slice(0, 10)) : '';
           return '<div style="padding:6px 0;border-top:1px solid rgba(255,255,255,0.06);">' +
-            '<div style="font-size:0.72rem;opacity:0.75;">You asked: ' + e(String(r.message || '').slice(0, 90)) + '</div>' +
+            '<div style="font-size: 0.75rem;opacity:0.75;">You asked: ' + e(String(r.message || '').slice(0, 90)) + '</div>' +
             (r.reply_text
               ? '<div style="font-size:0.8rem;margin-top:2px;"><strong>' + e(r.seller_name || 'The seller') + '</strong> replied' +
-                (when ? ' <span style="opacity:0.7;font-size:0.7rem;">' + e(when) + '</span>' : '') + ': ' +
+                (when ? ' <span style="opacity:0.7;font-size: 0.75rem;">' + e(when) + '</span>' : '') + ': ' +
                 e(String(r.reply_text).slice(0, 220)) + '</div>'
               /* Pending: say it is SENT and waiting, and when - "waiting" with no date is the
                  same silence one step quieter, since the whole question is how long it has been. */
               : '<div style="font-size:0.8rem;margin-top:2px;opacity:0.85;">Sent to <strong>' +
-                e(r.seller_name || 'the seller') + '</strong>' + (sent ? ' <span style="opacity:0.7;font-size:0.7rem;">' + e(sent) + '</span>' : '') +
+                e(r.seller_name || 'the seller') + '</strong>' + (sent ? ' <span style="opacity:0.7;font-size: 0.75rem;">' + e(sent) + '</span>' : '') +
                 ' &middot; waiting for a reply</div>') +
-            (r.listing_id ? '<a href="marketplace.html?listing=' + encodeURIComponent(r.listing_id) + '" style="font-size:0.7rem;color:var(--wh-blue-text);text-decoration:none;display:inline-flex;min-height:44px;align-items:center;">Open the listing &rarr;</a>' : '') +
+            (r.listing_id ? '<a href="marketplace.html?listing=' + encodeURIComponent(r.listing_id) + '" style="font-size: 0.75rem;color:var(--wh-blue-text);text-decoration:none;display:inline-flex;min-height:44px;align-items:center;">Open the listing &rarr;</a>' : '') +
             '</div>';
         }).join('') + '</div>';
       slot.style.display = 'block';
@@ -2064,7 +2078,16 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     document.querySelectorAll(`.heart-btn[data-listing="${listingId}"]`).forEach(btn => {
       btn.classList.toggle('saved', isSaved);
       btn.setAttribute('aria-pressed', isSaved ? 'true' : 'false');
-      btn.setAttribute('aria-label',  isSaved ? 'Remove from watchlist' : 'Save to watchlist');
+      // W45967 audit: the label has to keep naming its LISTING after a toggle, or the fix in the
+      // renderer is undone the first time somebody presses the heart. The title is read back off the
+      // card rather than threaded through, because syncHeartIcons is called from several places and
+      // the DOM already holds the one authoritative copy.
+      var _card = btn.closest('article, .listing-card');
+      var _titleEl = _card ? _card.querySelector('h1,h2,h3,h4,[class*="title"]') : null;
+      var _title = _titleEl ? (_titleEl.textContent || '').replace(/\s+/g, ' ').trim() : '';
+      btn.setAttribute('aria-label', _title
+        ? (isSaved ? 'Remove ' + _title + ' from watchlist' : 'Save ' + _title + ' to watchlist')
+        : (isSaved ? 'Remove from watchlist' : 'Save to watchlist'));
       btn/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = isSaved
         ? `<span class="ic ic-save" aria-hidden="true"></span>`
         : `<span class="ic ic-save" aria-hidden="true"></span>`;
@@ -2120,7 +2143,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const _goneNote = _goneCount
         ? `<div role="status" style="font-size:0.75rem;color:rgba(255,255,255,0.85);background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.10);border-radius:0.5rem;padding:0.5rem 0.65rem;margin:0 0 0.6rem;display:flex;align-items:center;justify-content:space-between;gap:0.6rem;flex-wrap:wrap;">
              <span>${_goneCount} saved listing${_goneCount === 1 ? ' is' : 's are'} no longer available. ${_goneCount === 1 ? 'It was' : 'They were'} sold or withdrawn by the seller.</span>
-             <button id="btn-clear-gone-saves" class="btn-secondary" style="min-height:44px;padding:0.35rem 0.75rem;font-size:0.72rem;white-space:nowrap;">Remove ${_goneCount === 1 ? 'it' : 'them'}</button>
+             <button id="btn-clear-gone-saves" class="btn-secondary" style="min-height:44px;padding:0.35rem 0.75rem;font-size: 0.75rem;white-space:nowrap;">Remove ${_goneCount === 1 ? 'it' : 'them'}</button>
            </div>`
         : '';
       if (!items.length) {
@@ -2139,14 +2162,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
                        : `<span class="ic ic-image ic-lg" aria-hidden="true"></span>`}
             </div>
             <div style="flex:1;min-width:0;">
-              <div style="font-size:0.82rem;font-weight:700;line-height:1.3;margin-bottom:0.2rem;">${e(item.title)}</div>
-              <div style="font-size:0.7rem;color:var(--wh-steel-bright);">
+              <div style="font-size:0.82rem;font-weight:700;line-height:1.3;margin-bottom:0.25rem;">${e(item.title)}</div>
+              <div style="font-size: 0.75rem;color:var(--wh-steel-bright);">
                 ${e(fmtPrice(item.price))} &nbsp;·&nbsp; ${e(item.section)} &nbsp;·&nbsp; ${e(item.seller_name || 'Seller')}
                 ${removed ? `<br><span style="color:var(--wh-red);">No longer available</span>` : ''}
               </div>
               <div style="display:flex;gap:0.4rem;margin-top:0.5rem;">
-                ${!removed ? `<button class="btn-watch-view"   data-id="${e(item.id)}" aria-label="View ${e(item.title)}" style="padding:0.3rem 0.625rem;border-radius:0.4rem;background:rgba(247,162,27,0.1);border:1px solid rgba(247,162,27,0.25);color:var(--wh-orange-text);font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;cursor:pointer;" data-i="view">View</button>` : ''}
-                <button class="btn-watch-remove" data-id="${e(item.id)}" style="padding:0.3rem 0.625rem;border-radius:0.4rem;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);color:var(--wh-red);font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;cursor:pointer;" data-i="remove">Remove</button>
+                ${!removed ? `<button class="btn-watch-view"   data-id="${e(item.id)}" aria-label="View ${e(item.title)}" style="padding:0.3rem 0.625rem;border-radius:0.4rem;background:rgba(247,162,27,0.1);border:1px solid rgba(247,162,27,0.25);color:var(--wh-orange-text);font-family:'Poppins',sans-serif;font-size: 0.75rem;font-weight:600;cursor:pointer;" data-i="view">View</button>` : ''}
+                <button class="btn-watch-remove" data-id="${e(item.id)}" style="padding:0.3rem 0.625rem;border-radius:0.4rem;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);color:var(--wh-red);font-family:'Poppins',sans-serif;font-size: 0.75rem;font-weight:600;cursor:pointer;" data-i="remove">Remove</button>
               </div>
             </div>
           </div>`;
@@ -2239,12 +2262,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
               ? `<span class="badge-verified"><span class="ic ic-check" aria-hidden="true"></span>Verified</span>`
               : ''}
             ${_communityTrustedSellers.has(item.seller_name)
-              ? `<span title="Voice of the Hive in the WorkHive community" style="display:inline-flex;align-items:center;gap:0.15rem;padding:0.15rem 0.4rem;border-radius:999px;font-size:0.6rem;font-weight:700;background:rgba(41,182,217,0.9);color:#04212b;">🐝 Trusted</span>`
+              ? `<span title="Voice of the Hive in the WorkHive community" style="display:inline-flex;align-items:center;gap:0.25rem;padding:0.25rem 0.375rem;border-radius:999px;font-size: 0.75rem;font-weight:700;background:rgba(41,182,217,0.9);color:#04212b;">🐝 Trusted</span>`
               : ''}
           </div>
           <button class="heart-btn ${_watchlist.has(item.id) ? 'saved' : ''}" data-listing="${e(item.id)}"
                   aria-pressed="${_watchlist.has(item.id) ? 'true' : 'false'}"
-                  aria-label="${_watchlist.has(item.id) ? 'Remove from watchlist' : 'Save to watchlist'}">
+                  aria-label="${_watchlist.has(item.id) ? 'Remove ' + e(item.title) + ' from watchlist' : 'Save ' + e(item.title) + ' to watchlist'}">
             ${_watchlist.has(item.id)
               ? `<span class="ic ic-save" aria-hidden="true"></span>`
               : `<span class="ic ic-save" aria-hidden="true"></span>`}
@@ -2965,7 +2988,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
             <div class="review-header">
               <div style="display:flex;align-items:center;gap:0.4rem;">
                 <span class="review-author">${e(rv.reviewer_name)}</span>
-                ${rv.verified_purchase ? `<span class="badge-verified" style="font-size:0.6rem;padding:0.1rem 0.4rem;"><span class="ic ic-check" aria-hidden="true"></span>Verified</span>` : ''}
+                ${rv.verified_purchase ? `<span class="badge-verified" style="font-size: 0.75rem;padding:0.1rem 0.4rem;"><span class="ic ic-check" aria-hidden="true"></span>Verified</span>` : ''}
                 <span class="stars" style="font-size:0.75rem;">${renderStars(rv.rating)}</span>
               </div>
               <span class="review-date">${e(timeAgo(rv.created_at))}</span>
@@ -3015,7 +3038,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           <!-- 0.72rem, not the 0.68rem used for incidental hints on this page: this sentence explains how
                the score works and who sees your name, so it is load-bearing for the decision to post, not
                decoration. Matches the equivalent note on the seller profile. -->
-          <p style="font-size:0.72rem;color:rgba(255,255,255,0.80);margin:0.35rem 0 0.5rem;">Your review shows publicly under your name. It counts toward the seller's star rating only once WorkHive confirms the purchase, so an unconfirmed review is still shown but does not change their score.</p>
+          <p style="font-size: 0.75rem;color:rgba(255,255,255,0.80);margin:0.35rem 0 0.5rem;">Your review shows publicly under your name. It counts toward the seller's star rating only once WorkHive confirms the purchase, so an unconfirmed review is still shown but does not change their score.</p>
           <button id="btn-submit-review" class="btn-primary" style="min-height:44px;width:100%;" data-i="postreview">Post review</button>
         </div>`;
     }
@@ -3040,7 +3063,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
             cash, on the screen where someone decides to contact a stranger and pay them off-platform,
             has to carry its own meaning rather than rely on a panel nobody opened. */''}
       ${creditsBack(item.price)
-        ? `<p style="font-size:0.7rem;color:var(--wh-text-muted);margin:-0.25rem 0 0.5rem;">Credits are spent on WorkHive services. They are not cash and cannot be withdrawn. You get them when the job settles.</p>`
+        ? `<p style="font-size: 0.75rem;color:var(--wh-text-muted);margin:-0.25rem 0 0.5rem;">Credits are spent on WorkHive services. They are not cash and cannot be withdrawn. You get them when the job settles.</p>`
         : ''}
       <div class="detail-title">${e(item.title)}</div>
       <!-- T101 (2026-08-25): the report door. A buyer facing a scam-shaped listing had NO path
@@ -3048,7 +3071,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
            scoped decision — but the platform-wide feedback intake already reaches the founder).
            Opens the feedback panel with the listing reference prefilled. -->
       <button type="button" class="wh-report-listing" data-listing-id="${e(item.id)}" data-listing-title="${e(item.title)}"
-              style="background:none;border:none;padding:4px 0;min-height:44px;color:var(--wh-steel-bright);font-size:0.7rem;text-decoration:underline;cursor:pointer;display:inline-flex;align-items:center;">
+              style="background:none;border:none;padding:4px 0;min-height:44px;color:var(--wh-steel-bright);font-size: 0.75rem;text-decoration:underline;cursor:pointer;display:inline-flex;align-items:center;">
         ${escHtml(_t('Something wrong with this listing? Report it', 'May mali sa listing na ito? Iulat ito'))}
       </button>
 
@@ -3056,7 +3079,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         <div class="detail-section-label">Details</div>
         <div class="card-meta" style="margin-bottom:0.75rem;">
           <span class="cat-chip">${e(item.category || 'Other')}</span>
-          ${item.part_number ? `<span class="cat-chip" title="Part number: search or reorder this exact part" style="font-family:'JetBrains Mono',monospace;">#${e(item.part_number)}</span>` : ''}
+          ${item.part_number ? `<span class="cat-chip" title="Part number: search or reorder this exact part" style="font-family:monospace;">#${e(item.part_number)}</span>` : ''}
           ${item.section === 'parts' && item.condition
             ? `<span class="cond-chip ${condClass(item.condition)}">${e(condLabel(item.condition))}</span>`
             : ''}
@@ -3073,7 +3096,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
                floor. On a maintenance platform the person tapping is often gloved or one-handed, so a
                17px target is not a nicety — it is the difference between reaching the seller's history
                and giving up. Padding only; the visual weight is unchanged. -->
-          <a href="marketplace-seller-profile.html?worker=${encodeURIComponent(item.seller_name || '')}" style="text-transform:none;letter-spacing:normal;font-size:0.7rem;color:var(--wh-blue-text);text-decoration:none;font-weight:600;min-height:44px;display:inline-flex;align-items:center;padding:0 0.35rem;">${escHtml(_t('View profile', 'Tingnan ang profile'))} →</a>
+          <a href="marketplace-seller-profile.html?worker=${encodeURIComponent(item.seller_name || '')}" style="text-transform:none;letter-spacing:normal;font-size: 0.75rem;color:var(--wh-blue-text);text-decoration:none;font-weight:600;min-height:44px;display:inline-flex;align-items:center;padding:0 0.35rem;">${escHtml(_t('View profile', 'Tingnan ang profile'))} →</a>
         </div>
         <div class="seller-card">
           <div style="flex-shrink:0;padding-bottom:${(_sellerTiers[item.seller_name]||0)>0?'10px':'0'}">${renderWorkerAvatar(item.seller_name || 'Seller', _sellerTiers[item.seller_name] || 0, 42)}</div>
@@ -3122,23 +3145,23 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
                 // MK1/J11 (2026-07-24): central earned-badge rule (utils.js) — a "Certified" chip
                 // with no certifications on file is an empty claim.
                 if (whCertBadgeEarned(sp)) {
-                  out.push(`<span style="display:inline-flex;align-items:center;gap:0.2rem;padding:0.2rem 0.5rem;border-radius:999px;font-size:0.62rem;font-weight:700;background:rgba(167,139,250,0.15);color:var(--wh-violet-text);border:1px solid rgba(167,139,250,0.3);"><span class="ic ic-check" aria-hidden="true"></span>Certified</span>`);
+                  out.push(`<span style="display:inline-flex;align-items:center;gap:0.2rem;padding:0.2rem 0.5rem;border-radius:999px;font-size: 0.75rem;font-weight:700;background:rgba(167,139,250,0.15);color:var(--wh-violet-text);border:1px solid rgba(167,139,250,0.3);"><span class="ic ic-check" aria-hidden="true"></span>Certified</span>`);
                 }
                 if (isTopRated) {
-                  out.push(`<span style="display:inline-flex;align-items:center;gap:0.2rem;padding:0.2rem 0.5rem;border-radius:999px;font-size:0.62rem;font-weight:700;background:rgba(247,162,27,0.15);color:var(--wh-orange-text);border:1px solid rgba(247,162,27,0.3);">★ Top Rated</span>`);
+                  out.push(`<span style="display:inline-flex;align-items:center;gap:0.2rem;padding:0.2rem 0.5rem;border-radius:999px;font-size: 0.75rem;font-weight:700;background:rgba(247,162,27,0.15);color:var(--wh-orange-text);border:1px solid rgba(247,162,27,0.3);">★ Top Rated</span>`);
                 }
                 // X-axis: community authority vouches for a seller (esp. one with few ratings — cold-start trust)
                 if (sellerRep && (sellerRep.is_voice_of_hive || sellerRep.trust_tier === 'top_contributor')) {
-                  out.push(`<span title="Earned by helping teammates in the WorkHive community forum" style="display:inline-flex;align-items:center;gap:0.2rem;padding:0.2rem 0.5rem;border-radius:999px;font-size:0.62rem;font-weight:700;background:rgba(41,182,217,0.15);color:var(--wh-blue-text);border:1px solid rgba(41,182,217,0.35);">🐝 Community-trusted</span>`);
+                  out.push(`<span title="Earned by helping teammates in the WorkHive community forum" style="display:inline-flex;align-items:center;gap:0.2rem;padding:0.2rem 0.5rem;border-radius:999px;font-size: 0.75rem;font-weight:700;background:rgba(41,182,217,0.15);color:var(--wh-blue-text);border:1px solid rgba(41,182,217,0.35);">🐝 Community-trusted</span>`);
                 }
                 if (!out.length) {
-                  out.push(`<span class="cat-chip" style="font-size:0.62rem;color:var(--wh-steel-bright);">Unverified</span>`);
+                  out.push(`<span class="cat-chip" style="font-size: 0.75rem;color:var(--wh-steel-bright);">Unverified</span>`);
                 }
                 return out.join('');
               })()}
             </div>
             ${sellerProfile?.cert_verified && sellerProfile?.certifications
-              ? `<div style="margin-top:0.5rem;font-size:0.7rem;color:var(--wh-steel-bright);line-height:1.5;"><strong style="color:var(--wh-violet-text);">Certifications:</strong> ${e((sellerProfile.certifications || '').split('\n').filter(c => c.trim()).join(' · '))}</div>`
+              ? `<div style="margin-top:0.5rem;font-size: 0.75rem;color:var(--wh-steel-bright);line-height:1.5;"><strong style="color:var(--wh-violet-text);">Certifications:</strong> ${e((sellerProfile.certifications || '').split('\n').filter(c => c.trim()).join(' · '))}</div>`
               : ''}
           </div>
         </div>
@@ -3501,9 +3524,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       rail.innerHTML = rows.map(r => `
         <button class="pfa-card" role="listitem" translate="no" data-listing-id="${e(r.listing_id)}"
           style="flex:0 0 auto;min-width:158px;max-width:200px;text-align:left;background:#141922;border:1px solid rgba(41,182,217,0.25);border-radius:0.6rem;padding:0.6rem 0.7rem;cursor:pointer;min-height:44px;">
-          <div style="font-size:0.62rem;font-weight:700;color:var(--wh-blue-text);font-family:'JetBrains Mono',monospace;">#${e(r.part_number)}</div>
+          <div style="font-size: 0.75rem;font-weight:700;color:var(--wh-blue-text);font-family:monospace;">#${e(r.part_number)}</div>
           <div style="font-size:0.78rem;font-weight:600;color:var(--wh-cloud);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${e(r.title)}</div>
-          <div style="font-size:0.68rem;color:var(--wh-steel-bright);">${r.price != null ? whFmtPeso(r.price) : 'Negotiable'}${r.location ? ' · ' + e(r.location) : ''}</div>
+          <div style="font-size: 0.75rem;color:var(--wh-steel-bright);">${r.price != null ? whFmtPeso(r.price) : 'Negotiable'}${r.location ? ' · ' + e(r.location) : ''}</div>
         </button>`).join('');
       sec.style.display = 'block';
     } catch (_) { sec.style.display = 'none'; }
@@ -4236,7 +4259,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
          found", never learning the real reason was that nobody on the platform is certified for it.
          The hail is still ALLOWED — an unfilled hail is genuine demand signal and worth capturing —
          but the person deserves to know what they are waiting for before they wait. */
-      '<p id="svc-cert-note" style="display:none;margin:0.45rem 0 0;font-size:0.72rem;color:var(--wh-steel-bright);"></p>' +
+      '<p id="svc-cert-note" style="display:none;margin:0.45rem 0 0;font-size: 0.75rem;color:var(--wh-steel-bright);"></p>' +
       '<label style="display:block;margin-top:0.6rem;font-size:0.8rem;font-weight:600;">Where? (site / address)' +
       '<input id="svc-hail-address" type="text" aria-label="Job site or address" maxlength="120" placeholder="e.g. Plant 2, Baguio" style="' + _svcInputC + '"></label>' +
       /* PIN THE EXACT SPOT. Industrial sites mostly have no usable street address — "Plant 2,
@@ -4263,14 +4286,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
          replacement belongs under the button that causes it, not in a summary card at the top of a
          page: a hail is broadcast, first-accept wins, and it stays cancellable until the provider
          arrives — three facts a person wants BEFORE pressing, not after. */
-      '<p style="margin:0.45rem 0 0;font-size:0.72rem;color:var(--wh-text-muted);">Every nearby provider is notified straight away. The first one to accept takes the job, and you can still cancel until they arrive.</p>' +
+      '<p style="margin:0.45rem 0 0;font-size: 0.75rem;color:var(--wh-text-muted);">Every nearby provider is notified straight away. The first one to accept takes the job, and you can still cancel until they arrive.</p>' +
       // THE REWARD WAS UNDISCOVERABLE ON THE SURFACE WHERE THE BUYER COMMITS (measured 2026-08-04).
       // grant_service_reward() pays the buyer credits back when a hailed job SETTLES, and
       // guard_reward_exclusive makes earning and spending mutually exclusive on the same job -- yet
       // this pane mentioned neither credits, nor 10%, nor the hold. A buyer met the reward on a parts
       // listing (the credits-back chip) and never on a service, which is the same class as the chip
       // that silently vanished: the reward exists, and the person it belongs to never meets it.
-      '<p style="font-size:0.72rem;opacity:0.75;margin-top:0.4rem;">You pay the provider directly on completion. Standard rate shown; the provider confirms on accept. ' +
+      '<p style="font-size: 0.75rem;opacity:0.75;margin-top:0.4rem;">You pay the provider directly on completion. Standard rate shown; the provider confirms on accept. ' +
       // Phrased as "credits back" ON PURPOSE: that is the exact wording the listing chip uses
       // ("PHP6,898.05 credits back"), so a buyer meets ONE name for this reward across parts and
       // services rather than two dialects for the same thing.
@@ -4364,7 +4387,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     }
     slot.innerHTML = '<div id="svc-pin-map" style="height:220px;border-radius:var(--wh-radius);overflow:hidden;"'
       + ' role="application" aria-label="Tap the map to mark where the job is"></div>'
-      + '<p id="svc-pin-note" style="font-size:0.72rem;opacity:0.85;margin-top:0.25rem;">Tap the map where the job is.</p>';
+      + '<p id="svc-pin-note" style="font-size: 0.75rem;opacity:0.85;margin-top:0.25rem;">Tap the map where the job is.</p>';
     const map = whMap.create('svc-pin-map', _svcPin ? { center: _svcPin, zoom: 14 } : { zoom: 11 });
     if (!map) { slot.innerHTML = '<p style="font-size:0.75rem;opacity:0.8;">' + _t("Map unavailable on this device. ", "Hindi available ang mapa sa device na ito. ") + ''
       + 'Your typed address still works.</p>'; return; }
@@ -4596,13 +4619,13 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
            by the truth view, so it is a trust signal a query enforces rather than a chip that
            asserts. */
         (p.provider_type
-          ? ' <span style="font-size:0.72rem;opacity:0.85;" title="' + (p.provider_type === 'hive'
+          ? ' <span style="font-size: 0.75rem;opacity:0.85;" title="' + (p.provider_type === 'hive'
               ? 'A team operating under a registered hive'
               : 'An individual providing this service') + '">· '
             + (p.provider_type === 'hive' ? 'Hive team' : 'Freelancer') + '</span>'
           : '') +
-        (p.verified ? ' <span style="color:var(--wh-green, rgb(74,222,128));font-size:0.72rem;font-weight:700;">✓ Verified</span>' : '') +
-        ' <span style="font-size:0.72rem;opacity:0.8;">· ' + Number(p.completed_jobs || 0) + ' jobs done' + (p.rating_avg != null ? ' · ★' + Number(p.rating_avg).toFixed(1) + ' (' + Number(p.rating_count || 0) + ')' : '') + (p.tier === 'gold' ? ' · 🥇 Gold' : p.tier === 'silver' ? ' · 🥈 Silver' : '') + (o.eta_minutes ? ' · ETA ' + (o.eta_minutes >= 1440 ? Math.round(o.eta_minutes / 1440) + 'd' : Math.round(o.eta_minutes / 60) + 'h') : '') + '</span>' +
+        (p.verified ? ' <span style="color:var(--wh-green, rgb(74,222,128));font-size: 0.75rem;font-weight:700;">✓ Verified</span>' : '') +
+        ' <span style="font-size: 0.75rem;opacity:0.8;">· ' + Number(p.completed_jobs || 0) + ' jobs done' + (p.rating_avg != null ? ' · ★' + Number(p.rating_avg).toFixed(1) + ' (' + Number(p.rating_count || 0) + ')' : '') + (p.tier === 'gold' ? ' · 🥇 Gold' : p.tier === 'silver' ? ' · 🥈 Silver' : '') + (o.eta_minutes ? ' · ETA ' + (o.eta_minutes >= 1440 ? Math.round(o.eta_minutes / 1440) + 'd' : Math.round(o.eta_minutes / 60) + 'h') : '') + '</span>' +
         (o.message ? '<div style="font-size:0.75rem;opacity:0.85;margin-top:0.2rem;">' + e(o.message) + '</div>' : '') +
         '<button type="button" onclick="svcPickQuote(\'' + e(o.id) + '\')" style="' + _svcBtnC + 'margin-top:0.4rem;" data-i="choosethisprovider">Choose this provider</button>' +
         '</div>';
@@ -4652,11 +4675,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
                + escHtml(to.contact) + ' ⧉</button>'
                + '</div>';
         })() +
-        '<div data-i="paynocustody" style="font-size:0.72rem;opacity:0.8;margin-bottom:0.5rem;">WorkHive never holds your money. You pay the provider directly. This records it so both of you have the same number.</div>' +
-        '<label data-i="payamount" for="svc-pay-amt-' + id + '" style="font-size:0.72rem;opacity:0.85;">Amount paid (₱)</label>' +
+        '<div data-i="paynocustody" style="font-size: 0.75rem;opacity:0.8;margin-bottom:0.5rem;">WorkHive never holds your money. You pay the provider directly. This records it so both of you have the same number.</div>' +
+        '<label data-i="payamount" for="svc-pay-amt-' + id + '" style="font-size: 0.75rem;opacity:0.85;">Amount paid (₱)</label>' +
         '<input id="svc-pay-amt-' + id + '" type="number" min="1" step="0.01" inputmode="decimal" value="' +
           (Number(suggested) > 0 ? Number(suggested) : '') + '" style="' + _svcInputC + '">' +
-        '<label data-i="paymethod" for="svc-pay-method-' + id + '" style="font-size:0.72rem;opacity:0.85;">How you paid</label>' +
+        '<label data-i="paymethod" for="svc-pay-method-' + id + '" style="font-size: 0.75rem;opacity:0.85;">How you paid</label>' +
         /* NO SILENT DEFAULT ON A MONEY FORM. A pre-selected "Cash" is a claim the client never made, and
            it is the one field the founder later reconciles against GCash — a wrong default there costs a
            real reconciliation, not a re-render. Make them say it. */
@@ -4665,14 +4688,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           '<option value="cash" data-i="paycash">Cash</option><option value="gcash">GCash</option>' +
           '<option value="bank" data-i="paybank">Bank transfer</option><option value="other" data-i="payother">Other</option></select>' +
         '<div id="svc-pay-refwrap-' + id + '" style="display:none;">' +
-          '<label data-i="payref" for="svc-pay-ref-' + id + '" style="font-size:0.72rem;opacity:0.85;">GCash reference (13 digits, optional), or paste your receipt</label>' +
+          '<label data-i="payref" for="svc-pay-ref-' + id + '" style="font-size: 0.75rem;opacity:0.85;">GCash reference (13 digits, optional), or paste your receipt</label>' +
           '<input id="svc-pay-ref-' + id + '" type="text" inputmode="numeric" maxlength="13" placeholder="e.g. 1234567890123" style="' + _svcInputC + '">' +
           /* UPLOAD THE SCREENSHOT, same as the provider's top-up form. The buyer has just paid in
              GCash and is holding the receipt; reading 13 digits off it by eye is the worst moment in
              this flow and a mistyped digit is what makes the payment unmatchable later. Paste stays
              available for people who copy text rather than screenshot. */
           '<label for="svc-pay-img-' + id + '" style="display:inline-flex;align-items:center;gap:0.4rem;' +
-          'margin-top:0.35rem;font-size:0.72rem;cursor:pointer;color:var(--wh-blue);min-height:44px;">' +
+          'margin-top:0.35rem;font-size: 0.75rem;cursor:pointer;color:var(--wh-blue);min-height:44px;">' +
           '&#128196; Upload your GCash receipt instead</label>' +
           '<input id="svc-pay-img-' + id + '" type="file" accept="image/*" ' +
           'onchange="svcReadPayReceipt(\'' + id + '\', this)" ' +
@@ -4683,7 +4706,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
            synchronous — the amount field is what people came here to type. */
         '<div id="svc-pay-credits-' + id + '"></div>' +
         '<div id="svc-pay-whywrap-' + id + '" style="display:none;">' +
-          '<label data-i="paywhy" for="svc-pay-why-' + id + '" style="font-size:0.72rem;opacity:0.85;">Why the difference?</label>' +
+          '<label data-i="paywhy" for="svc-pay-why-' + id + '" style="font-size: 0.75rem;opacity:0.85;">Why the difference?</label>' +
           '<input id="svc-pay-why-' + id + '" type="text" maxlength="140" placeholder="a smaller job, a discount, part paid in materials…" style="' + _svcInputC + '">' +
         '</div>' +
         '<button type="button" data-i="payconfirmgo" id="svc-pay-go-' + id + '" onclick="svcSettle(\'' + id + '\')" style="' + _svcBtnC + 'margin-top:0.35rem;">Confirm payment &amp; release</button>' +
@@ -4821,7 +4844,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         if (earn > 0) {
           slot./* xss-allow: escHtml()'d */ innerHTML =
             '<div style="border-top:1px solid rgba(255,255,255,0.08);margin-top:0.5rem;padding-top:0.5rem;' +
-              'font-size:0.72rem;line-height:1.5;">' +
+              'font-size: 0.75rem;line-height:1.5;">' +
               '<strong>Pay in full and you receive ' + e0(fmtPrice(earn)) + ' back in credits.</strong> ' +
               '1 credit = ₱1, and you can put them toward your next job here.' +
             '</div>';
@@ -4832,9 +4855,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const e = escHtml, id = e(requestId);
       slot./* xss-allow: every interpolation is escHtml()'d or a Number */ innerHTML =
         '<div style="border-top:1px solid rgba(255,255,255,0.08);margin-top:0.5rem;padding-top:0.5rem;">' +
-          '<label for="svc-pay-credits-amt-' + id + '" style="font-size:0.72rem;opacity:0.85;">' +
+          '<label for="svc-pay-credits-amt-' + id + '" style="font-size: 0.75rem;opacity:0.85;">' +
             'Use your WorkHive Credits (optional)</label>' +
-          '<div style="font-size:0.68rem;opacity:0.75;margin-bottom:0.25rem;">' +
+          '<div style="font-size: 0.75rem;opacity:0.75;margin-bottom:0.25rem;">' +
             'You hold ' + e(fmtPrice(balance)) + '. You can put up to ' + e(fmtPrice(cap)) + ' toward this ' +
             'job. 1 credit = ₱1, so that is ' + e(fmtPrice(cap)) + ' less to pay. ' +
             'Use credits here and you do not earn credits on this job' +
@@ -5213,7 +5236,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     }
     const mapId = 'svc-map-' + requestId;
     slot.innerHTML = '<div id="' + mapId + '" style="height:220px;border-radius:var(--wh-radius);overflow:hidden;" role="img" aria-label="Live map: your site and the provider\'s position"></div>' +
-      '<p id="' + mapId + '-note" style="font-size:0.72rem;opacity:0.8;margin-top:0.25rem;">Live: the provider\'s position updates while the job is active.</p>';
+      '<p id="' + mapId + '-note" style="font-size: 0.75rem;opacity:0.8;margin-top:0.25rem;">Live: the provider\'s position updates while the job is active.</p>';
     let map = null, provMk = null, siteMk = null;
     const tick = async () => {
       const { data } = await db.from('v_service_job_tracking').select('*').eq('request_id', requestId).limit(1);
@@ -5917,8 +5940,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     body.innerHTML =
       '<p style="font-weight:700;font-size:0.9rem;margin:0 0 0.25rem;">' + (title ? e(title) : '<span style="color:var(--wh-steel-bright);">(no title yet)</span>') + '</p>'
       + '<p style="font-size:0.8rem;color:var(--wh-orange);font-weight:700;margin:0 0 0.35rem;">' + e(priceTxt) + '</p>'
-      + (cond ? '<span style="display:inline-block;font-size:0.62rem;padding:2px 8px;border-radius:999px;background:rgba(255,255,255,0.08);margin-bottom:0.4rem;">' + e(cond) + '</span>' : '')
-      + (part ? '<p style="font-size:0.7rem;color:rgba(255,255,255,0.72);margin:0.3rem 0 0;">Part no. ' + e(part) + '</p>' : '')
+      + (cond ? '<span style="display:inline-block;font-size: 0.75rem;padding:2px 8px;border-radius:999px;background:rgba(255,255,255,0.08);margin-bottom:0.4rem;">' + e(cond) + '</span>' : '')
+      + (part ? '<p style="font-size: 0.75rem;color:rgba(255,255,255,0.72);margin:0.3rem 0 0;">Part no. ' + e(part) + '</p>' : '')
       + '<p style="font-size:0.75rem;color:rgba(255,255,255,0.82);line-height:1.5;margin:0.4rem 0 0;">'
       + (desc ? e(desc) : '<span style="color:var(--wh-steel-bright);">(no description yet)</span>') + '</p>';
     box.style.display = 'block';

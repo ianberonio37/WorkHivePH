@@ -115,9 +115,9 @@
     }
     .pill {
       display: inline-block;
-      font-size: 0.65rem;
+      font-size: 0.75rem;
       font-weight: 700;
-      padding: 3px 10px;
+      padding: 4px 10px;
       border-radius: 100px;
       letter-spacing: 0.05em;
       text-transform: uppercase;
@@ -125,7 +125,7 @@
     .pill-orange { background: rgba(247,162,27,0.18); color: #F7A21B; border: 1px solid rgba(247,162,27,0.35); }
     .pill-steel  { background: rgba(123,135,148,0.18); color: #9CA8B5; border: 1px solid rgba(123,135,148,0.35); }
     /* Learn-hub search + filter (mirrors the community.html filter-chip pattern) */
-    .filter-chip { padding: 8px 14px; border-radius: 999px; font-size: 0.8rem; font-weight: 600; white-space: nowrap; cursor: pointer; min-height: 44px; min-width: 44px; justify-content: center; display: inline-flex; align-items: center; /* K2/F1 (2026-09-05): 31px tall / 43px wide chips at 390 */ background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.6); min-height: 44px; transition: all .15s ease; }
+    .filter-chip { padding: 8px 16px; border-radius: 999px; font-size: 0.8rem; font-weight: 600; white-space: nowrap; cursor: pointer; min-height: 44px; min-width: 44px; justify-content: center; display: inline-flex; align-items: center; /* K2/F1 (2026-09-05): 31px tall / 43px wide chips at 390 */ background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.6); min-height: 44px; transition: all .15s ease; }
     .filter-chip:hover { border-color: rgba(255,255,255,0.55); color: rgba(255,255,255,0.85); }
     .filter-chip.active { background: rgba(247,162,27,0.15); border-color: rgba(247,162,27,0.4); color: #F7A21B; }
     /* T2 (2026-09-05): at 390 px a nowrap chip wider than its box clips - let chips wrap their label on narrow phones */
@@ -198,6 +198,7 @@
   <!-- /WorkHive GA4 -->
 </head>
 <body class="bg-navy-wh text-white antialiased">
+<a class="wh-skip-link" href="#wh-main-content" data-wh-skip="learn-hub" style="position:fixed;top:0;left:0;z-index:10001;transform:translateY(-120%);background:var(--wh-orange,#F7A21B);color:var(--wh-navy,#162032);padding:0 20px;min-height:44px;display:inline-flex;align-items:center;font-weight:700;font-size:14px;text-decoration:none;border-radius:0 0 10px 0;box-shadow:0 4px 16px rgba(0,0,0,.35);transition:transform .15s cubic-bezier(0.23,1,0.32,1);box-sizing:border-box;" onfocus="this.style.transform='translateY(0)'" onblur="this.style.transform='translateY(-120%)'">Skip to main content</a>
 
 <!-- ── Nav ── -->
 <header class="border-b border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
@@ -222,6 +223,7 @@
     </nav>
   </div>
 </header>
+<main id="wh-main-content">
 
 <!-- ── Hero ── -->
 <section class="hex-pattern py-20 lg:py-28 border-b border-white/[0.06]">
@@ -229,7 +231,12 @@
     <p class="pill pill-orange mb-5">WorkHive Learn</p>
     <h1 data-i="lh-title" class="text-4xl sm:text-5xl lg:text-6xl font-black leading-[1.1] tracking-[-0.025em] mb-6">
       Free guides for the
-      <span style="background: linear-gradient(135deg, #F7A21B 30%, #FDB94A 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Philippine plant floor</span>
+      <!-- GRADIENT TEXT REMOVED (craft lens, 2026-09-16). The heading painted an amber gradient and clipped it
+         to the glyphs with -webkit-background-clip:text + -webkit-text-fill-color:transparent. On any engine
+         where that fill-color does not apply the word renders in its inherited WHITE straight onto the amber
+         box; dayplanner.html measured exactly that at 1.72:1 before the same fix. Solid #F7A21B is the colour
+         the gradient was imitating and it cannot fall back to anything - 7.8:1 on the page's #162032. -->
+      <span style="color: #F7A21B;">Philippine plant floor</span>
     </h1>
         <p class="wh-source-chip" role="status" aria-live="polite" style="font-size:.75rem; opacity:.85; margin:.25rem 0 1rem;">Static · the Learn library index, rendered as of this page load · articles link to their own sources</p><!-- G1+E3 -->
     <p class="text-lg text-white/85 leading-[1.7] max-w-2xl mx-auto font-light"><!-- C5: /70 sat at Lc 64/75 at 18px (2026-09-05) -->
@@ -408,7 +415,7 @@
           <span class="text-xs text-white/60">9 min read · 2 Jul 2026</span>
         </div>
         <h3 class="card-title text-xl sm:text-2xl font-black leading-[1.25] mb-2">Equipment history in one QR scan: Asset Brain 360</h3>
-        <p class="text-white/80 text-sm leading-relaxed">Scan a QR on any machine and see its whole life in one place: every logbook entry, PM, part, and project, plus sister machines, the parts that fit, an AI that answers only from that asset's own history, and its predictive risk score. The intelligence layer you get once the asset register is in.</p>
+        <p class="text-white/80 text-sm leading-relaxed">Scan a QR or barcode on any machine and see its whole life in one place: every logbook entry, PM, part and project, the parent it belongs to, its own Risk Profile, and an AI that answers only from that asset's records and comparable machines of the same class. The intelligence layer you get once the asset register is in.</p>
       </a>
 
       <a href="/learn/start-digital-logbook-philippine-factory/" class="article-card">
@@ -579,7 +586,7 @@
           <span class="text-xs text-white/60">7 min read · 17 May 2026</span>
         </div>
         <h3 class="card-title text-xl sm:text-2xl font-black leading-[1.25] mb-2">Gamifying maintenance for technician engagement</h3>
-        <p class="text-white/80 text-sm leading-relaxed">XP and badges that drive what compounds, what backfires, badge design that survives 12 months, and worker-portable career insurance.</p>
+        <p class="text-white/80 text-sm leading-relaxed">XP and badges that reward what compounds, the mechanics that backfire and why, badge design that survives 12 months, and which half actually travels when you change employers.</p>
       </a>
 
       <a href="/learn/industrial-marketplace-philippine-specialists/" class="article-card">
@@ -633,7 +640,7 @@
           <span class="text-xs text-white/60">7 min read · 17 May 2026</span>
         </div>
         <h3 class="card-title text-xl sm:text-2xl font-black leading-[1.25] mb-2">PH industrial benchmarks and intelligence reports (free)</h3>
-        <p class="text-white/80 text-sm leading-relaxed">Quarterly Philippine-specific OEE / MTBF / MTTR / PM compliance benchmarks by sector. Anonymous aggregation with 8-plant threshold. Free to read.</p>
+        <p class="text-white/80 text-sm leading-relaxed">Quarterly Philippine-specific OEE / MTBF / MTTR / PM compliance benchmarks by sector. Anonymous aggregation: a segment unlocks at 5 contributing hives. Free to read.</p>
       </a>
 
       <a href="/learn/reliability-centered-maintenance-philippine-plants/" class="article-card">
@@ -669,7 +676,7 @@
           <span class="text-xs text-white/60">14 min read · 18 May 2026</span>
         </div>
         <h3 class="card-title text-xl sm:text-2xl font-black leading-[1.25] mb-2">Vibration Analysis on a Phone Budget (Philippine PdM)</h3>
-        <p class="text-white/80 text-sm leading-relaxed">Learn how to perform vibration analysis on a phone budget using Voice Journal and ISO 10816 thresholds, and discover the failure modes it can detect.</p>
+        <p class="text-white/80 text-sm leading-relaxed">What a phone accelerometer can and cannot see, how to log each reading with Voice Journal, and how to judge it against the right ISO 10816-3 severity zone.</p>
       </a>
 
       <a href="/learn/thermography-for-pm-philippine-plants/" class="article-card">
@@ -764,6 +771,7 @@
 </section>
 
 <!-- ── Footer ── -->
+</main>
 <footer class="py-10 border-t border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
   <div class="max-w-4xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">
     <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-08-24">24 Aug 2026</time></p>

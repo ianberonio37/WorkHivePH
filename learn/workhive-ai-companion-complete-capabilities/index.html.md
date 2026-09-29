@@ -14,7 +14,7 @@ Updated 24 Aug 2026
 ·
 12 min read
 
-**Short answer:** The WorkHive AI Companion is a free helper built into WorkHive that you talk to like a knowledgeable workmate. It comes as two experts you switch between with one tap: **Hezekiah**, the hands-on fix expert for the machine in front of you right now, and **Zaniah**, the planner who watches the whole team and spots the patterns. It answers from your own hive's real records and shows you where it found each answer, it never makes up a number, it remembers what you told it days ago, and you can talk to it in your own language while it reads the answer back out loud so you can keep working. Most people use one small corner of it. This guide shows you the whole thing.
+**Short answer:** The WorkHive AI Companion is a free helper built into WorkHive that you talk to like a knowledgeable workmate. It comes as two experts you switch between with one tap: **Hezekiah**, the hands-on fix expert for the machine in front of you right now, and **Zaniah**, the planner who watches the whole team and spots the patterns. It answers from your own hive's real records and shows you where it found each answer, it will not pass off an invented number as one of yours, it remembers what you told it days ago, and you can talk to it in your own language while it reads the answer back out loud so you can keep working. Most people use one small corner of it. This guide shows you the whole thing.
  It ships as **2** expert personas: **Hezekiah** for technical reliability and **Zaniah** for maintenance strategy: reachable from every page.
 
 Who this is for
@@ -45,9 +45,9 @@ The clever part is that they hand off to each other automatically. If you ask He
 | **Hands over when** | Your question turns into "is this a pattern" or "should we replace it" | Your question turns into "what torque", "how do I measure", "what lock-out order" |
 | **Starts as default for** | Experienced hands-on work | New workers who need orientation first |
 
-Wherever you are in WorkHive, you will see a pulsing round button (the companion is available on about 32 pages). Tap it and a chat panel opens with an "Ask anything" box and a microphone, already aware of the page you are on. There is also a full [My Work Assistant](https://workhiveph.com/assistant.html) page, and a private [Voice Journal](https://workhiveph.com/voice-journal.html). One important thing to know: the floating helper and the Work Assistant page are the **same companion**, sharing one memory and one set of skills. It is not one brain in the corner and a different brain on the assistant page. It is one companion you meet in different places. For a deeper look at the two personalities, see our guide on [Hezekiah and Zaniah](https://workhiveph.com/learn/ai-companion-hezekiah-zaniah-personas/).
+Wherever you are in WorkHive, you will see a pulsing round button (the companion is on 31 pages). Tap it and a chat panel opens with an "Ask anything" box and a microphone, already aware of the page you are on. There is also a full [My Work Assistant](https://workhiveph.com/assistant.html) page, and a private [Voice Journal](https://workhiveph.com/voice-journal.html). One important thing to know: the floating helper and the Work Assistant page share the same memory and the same two personas, so a conversation carries between them. They are not identical underneath, though, and the difference is worth knowing: the floating helper runs a stricter numeric check than the assistant page does, described in the next section. For a deeper look at the two personalities, see our guide on [Hezekiah and Zaniah](https://workhiveph.com/learn/ai-companion-hezekiah-zaniah-personas/).
 
-## It answers from your own records, and never makes up numbers
+## It answers from your own records, and will not pass off an invented number
 
 This is the part that makes the companion trustworthy on a plant floor. It does not answer from generic advice it read on the internet. It answers from **your own hive's real records**: your logbook, your machines, your stock levels, your schedules, your projects, your risks.
 
@@ -55,13 +55,13 @@ So when you ask a broad question like "how's my plant?", it does not give you a 
 
 It also **shows you where it found the answer**. When you ask a "how do I fix this" question, it quotes the specific standard operating procedure, fault note, or logbook entry from your hive that it used, so you can check the source yourself rather than take its word for it.
 
-And it **never makes up a number**. This is not a promise, it is built into how it works: the AI only puts numbers into sentences that it was actually handed from your data. A separate check runs over every reply and strips out any number that cannot be traced back to your real records, a value you told it yourself, or the standard benchmark table. If it does not have the answer for the page you are on, it says so plainly and points you to the right page instead of guessing. In testing across hundreds of questions, inventing a number was almost never seen, and saying "I don't have that here, check the X page" was the normal behaviour for anything out of scope. It will not even invent a machine tag: if you name a machine that is not in your list, it tells you, rather than describe a machine that does not exist.
+And it is **built not to pass off an invented number as yours**. This is not a promise, it is two different mechanisms, and which one you get depends on where you are standing. On the **floating helper**, a check runs over every reply and removes any sentence whose number cannot be traced back to your real records, a value you told it yourself, or the standard benchmark table; if what is left reads badly, it is replaced with an honest pointer rather than a fragment. On the **My Work Assistant page** the rule is deliberately gentler, because stripping a legitimate figure would be its own kind of wrong: an ungrounded percentage is left in place as a plain estimate, but the phrase that would have dressed it up: “from your records”, “I pulled the numbers” is removed, so it can never masquerade as a figure from your hive. The practical rule: **if a number is presented as yours, it is yours.** If it does not have the answer for the page you are on, it says so plainly and points you to the right page instead of guessing. In testing across hundreds of questions, inventing a number was almost never seen, and saying "I don't have that here, check the X page" was the normal behaviour for anything out of scope. It will not even invent a machine tag: if you name a machine that is not in your list, it tells you, rather than describe a machine that does not exist.
 
 **Why this matters:** a helper that confidently invents a torque value or a stock number is worse than no helper at all, because you might act on it. The WorkHive companion is built so that being wrong-with-confidence is designed out. If the number is on your screen, it came from your data.
 
 ## Talk in your own language, and it reads the answer back out loud
 
-You do not have to type, and you do not have to speak English. You can talk to the companion in **English, Taglish, Bisaya (Cebuano), Ilocano, and more**: it understands ten Philippine languages. It listens, works out which language you used, writes down what you said, and replies in the same language. There is no rate limit and no need to slow down or "speak like a computer". Just talk the way you talk on the floor.
+You do not have to type, and you do not have to speak English. You can talk to the companion in **English, Taglish, Bisaya (Cebuano), Ilocano, and more**: it understands eight Philippine languages. It listens, works out which language you used, writes down what you said, and replies in the same language. There is no need to slow down or “speak like a computer” just talk the way you talk on the floor. There are usage caps behind the scenes, sized to stop one account running up the bill for everyone rather than to ration a working shift, so an ordinary day of asking and dictating will not meet them.
 
 It also **reads the reply back out loud** in a natural-sounding Filipino English voice. That means you can keep both hands on the job, ask a question, and listen to the answer, instead of stopping to read a screen. This is the whole point of a hands-free helper at the machine. For more on speaking to WorkHive instead of typing, see [voice to text on the plant floor](https://workhiveph.com/learn/voice-to-text-maintenance-philippine-plant-floor/).
 
@@ -77,12 +77,13 @@ It never writes to your records on its own. It shows you the draft first, you fi
 
 When you are troubleshooting one specific machine, you do not want the plant average. You want everything about *that* machine. On the [Asset Hub](https://workhiveph.com/asset-hub.html), ask a plain question about any machine by name and the companion pulls that machine's whole story together:
 
-- The machine itself, plus its parent equipment and its sister machines of the same type
-- A timeline of its recent logbook and preventive-maintenance events
-- How long it typically runs between breakdowns, and its upcoming scheduled jobs
-- The parts that fit it, and similar failures on the same kind of machine elsewhere in your hive
+- The machine itself and the parent equipment it belongs to
+- A timeline of its recent logbook entries and the preventive maintenance that was carried out, including the PMs that were due and deliberately skipped
+- How long it typically runs between breakdowns, and what is driving its current risk score
+- What has gone wrong on sister machines of the same type elsewhere in your hive, so a fault you have not seen on this pump may already be in someone else's logbook
+- The engineer-validated reliability work on it: failure modes, maintenance strategy, the wear-out curve and the inspection interval
 
-So "what keeps happening to Pump P-203, and what fits it?" gets you a real, grounded answer built from that machine's actual history, not a guess. We go deeper on this in the guide to [one machine's full history](https://workhiveph.com/learn/asset-brain-360-one-machine-history-philippine-plant/).
+So "what keeps happening to Pump P-203, and has it happened to the others?" gets you a real, grounded answer built from that machine's actual history, not a guess. Ask it for a part number or next week's schedule and it will tell you it does not have that here: parts live on the Inventory page and upcoming jobs on the PM scheduler. We go deeper on this in the guide to [one machine's full history](https://workhiveph.com/learn/asset-brain-360-one-machine-history-philippine-plant/).
 
 ## It remembers what you told it, even days later
 
@@ -114,12 +115,12 @@ Here is the honest situation: the companion can do far more than most people eve
 | --- | --- |
 | **Ask "how's my plant?"** | One combined answer that pulls your alerts, preventive-maintenance status, machine performance, stock, projects and risk together, instead of one narrow fact |
 | **Open with "what should I focus on?"** | A ranked list of your critical alerts, overdue jobs and stock-outs, each with an offer to act. It stays quiet when the shift is calm, so a nudge means it is real |
-| **Name the machine** | Ask about one machine by name and it pulls that machine's whole history, its sister equipment, the parts that fit, and its upcoming jobs |
+| **Name the machine** | Ask about one machine by name and it pulls that machine's history, the parent it sits under, what has failed on sister machines of the same type, and the reliability work behind its risk score |
 | **Ask the deeper question** | Reliability views (your biggest risks, wear-out signals, the best inspection interval) only appear when you ask for them, so ask |
 | **Use your voice** | Fill a whole work order in one spoken sentence, hands-free, in your own language, and hear the answer read back |
 | **Ask it to draft** | A supervisor escalation, a lessons-learned note, or report cover text, written for you and ready to send |
-| **Compare across years** | Ask it to compare Pump P-203 in 2022, 2023, 2024 and 2025 and it folds the whole trend into one grounded answer |
-| **Tap thumbs up or down** | Your rating actually trains it. Good and bad ratings feed the improvement loop that hardens the companion against real mistakes, so a quick tap is a lever, not decoration |
+| **Compare across years** | Ask what keeps recurring on Pump P-203 and it reads its recent history as a pattern rather than a list. It works from the latest events and the lifetime counts, so ask it about the trend, not about one quarter four years ago |
+| **Tap thumbs up or down** | Your rating is read by people, not by a model. Nothing retrains on a thumbs-down, but the ratings are harvested and reviewed, and a bad answer that gets flagged is how the prompt and the grounding get fixed. A quick tap is a lever, just a slower one than it sounds |
 | **Switch experts on purpose** | One tap between the fix expert and the planner, so you always have the right lens for the question |
 | **Always double-check safety and compliance** | Treat safety and code answers as solid guidance, then confirm against the actual standard and your own permit before you act |
 
@@ -129,9 +130,9 @@ If you remember only three of these, make them: **ask "how's my plant?"** for th
 
 The tool this guide is about
 
-#### Meet your companion in My Work Assistant
+### Meet your companion in My Work Assistant
 
-Two experts in one tap, answers from your own hive records with the source shown, hands-free voice in ten Philippine languages, memory across days, and paperwork drafted for you. Free forever, no paid tiers, working alongside the systems you already have.
+Two experts in one tap, answers from your own hive records with the source shown, hands-free voice in eight Philippine languages, memory across days, and paperwork drafted for you. Free forever, no paid tiers, working alongside the systems you already have.
 
 No hive yet? [Join WorkHive](https://workhiveph.com/?signup=1) first (free, takes 30 seconds).
 
@@ -139,7 +140,7 @@ No hive yet? [Join WorkHive](https://workhiveph.com/?signup=1) first (free, take
 
 ### What is the WorkHive AI Companion?
 
-It is a free helper built into WorkHive that you talk to like a knowledgeable workmate. It comes as two experts you switch between with one tap: Hezekiah, the hands-on fix expert for the machine in front of you right now, and Zaniah, the planner who watches the whole team and spots the patterns. It answers from your own hive's real records (your logbook, your machines, your stock, your schedules), shows you where it found each answer, and never makes up a number. You can type to it or just talk in your own language, and it reads the answer back out loud so you can keep working. The floating helper on your pages and the full My Work Assistant page are the same companion, sharing one memory and one set of skills.
+It is a free helper built into WorkHive that you talk to like a knowledgeable workmate. It comes as two experts you switch between with one tap: Hezekiah, the hands-on fix expert for the machine in front of you right now, and Zaniah, the planner who watches the whole team and spots the patterns. It answers from your own hive's real records (your logbook, your machines, your stock, your schedules), shows you where it found each answer, and will not pass off an invented number as one of yours. You can type to it or just talk in your own language, and it reads the answer back out loud so you can keep working. The floating helper on your pages and the full My Work Assistant page share one memory and the same two personas, though the floating helper runs a stricter numeric check than the assistant page does.
 
 ### What is the difference between Hezekiah and Zaniah?
 
@@ -147,11 +148,11 @@ Hezekiah is the hands-on fix expert: torque values, the lock-out order, lubricat
 
 ### Can the companion make up numbers or invent data?
 
-No. The companion only puts numbers into sentences that it was actually handed from your hive's records. A built-in check strips out any number that cannot be traced back to your real data, a value you told it yourself, or the standard benchmark table. It will not invent a machine tag that is not in your list, and it only recalls what you actually told it. If it does not have the answer for the page you are on, it tells you plainly and points you to the right page instead of guessing. In testing across hundreds of questions it almost never invented anything.
+Not as one of yours. On the floating helper, a built-in check removes any sentence whose number cannot be traced back to your real data, a value you told it yourself, or the standard benchmark table. On the My Work Assistant page the rule is gentler on purpose, because removing a legitimate figure would be its own kind of wrong: an ungrounded percentage stays as a plain estimate, but the wording that would present it as coming from your records is stripped out. So a number offered as yours is yours; a number offered as an estimate is an estimate. It will not invent a machine tag that is not in your list, and it only recalls what you actually told it. If it does not have the answer for the page you are on, it tells you plainly and points you to the right page instead of guessing. In testing across hundreds of questions it almost never invented anything.
 
 ### What languages can I speak to it in?
 
-You can speak to it in English, Taglish, Bisaya (Cebuano), Ilocano, and more: it understands ten Philippine languages. It listens, works out which language you used, writes down what you said, and replies in the same language. It also reads the reply back out loud in a natural-sounding Filipino English voice, so you can stay hands-free at the machine.
+You can speak to it in English, Taglish, Bisaya (Cebuano), Ilocano, and more: it understands eight Philippine languages. It listens, works out which language you used, writes down what you said, and replies in the same language. It also reads the reply back out loud in a natural-sounding Filipino English voice, so you can stay hands-free at the machine.
 
 ### Can it fill in a work order for me by voice?
 
@@ -178,4 +179,4 @@ It grounds its safety guidance in Philippine rules: the workplace-safety law RA 
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 293824088cb70860 -->
+<!-- md-twin source-sha: 0ee9ba4fa4d0eab2 -->

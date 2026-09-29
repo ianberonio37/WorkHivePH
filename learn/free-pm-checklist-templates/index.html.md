@@ -43,7 +43,7 @@ The fix is structural: better checklists, supervisor-enforced sign-off, and freq
 ## The 5 sections every PM checklist needs
 
 1. **Pre-work safety.** LOTO confirmed, PPE on, permit-to-work valid, work area cleared. This is not bureaucratic; this is the section DOLE inspectors sample first.
-2. **Inspection or service tasks.** One tick box per task. Specific verb plus specific object. Not "check belts" but "check belt tension by deflection test; replace if deflection more than 13 mm at midspan".
+2. **Inspection or service tasks.** One tick box per task. Specific verb plus specific object. Not “check belts” but “check belt tension by deflection at midspan under the OEM deflection force; re-tension if it exceeds 1/64 of the span”. Note that the limit is a RATIO, not a fixed millimetre figure: a number like “13 mm” is only meaningful beside the span it was derived from, and writing it without the span is the same vagueness this bullet is arguing against.
 3. **Measurement readings.** Numerical readings with normal-range guides printed on the checklist. Vibration, temperature, current, pressure, flow rate. The reading is the data; the tick box is the evidence the work was done.
 4. **Parts replaced.** Part number, quantity, reason replaced (preventive vs corrective). This feeds inventory and MTBF tracking.
 5. **Sign-off.** Technician name (not initials), time started, time completed, supervisor verification. Time-stamped on the server, not on the technician's phone clock.
@@ -60,7 +60,7 @@ The fix is structural: better checklists, supervisor-enforced sign-off, and freq
 
 The tool this guide is about
 
-#### WorkHive PM Scheduler runs these checklists with the right asset, the right technician, the right time
+### WorkHive PM Scheduler runs these checklists with the right asset, the right technician, the right time
 
 Every PM you upload becomes a scheduled task with the right frequency, assigned to a technician who is qualified per the Skill Matrix, with the checklist on their phone at the asset. PM compliance dashboard updates live. Tie completion to a logbook entry to stop the "ticked but not done" failure mode. Free at the worker tier.
 
@@ -83,7 +83,7 @@ Once you have 12 months of MTBF data per asset (see our [MTBF vs MTTR guide](htt
 
 ## How to drive PM compliance from 50 to 90 percent
 
-Most Philippine plants we benchmark sit at 50 to 75 percent PM compliance on first measurement. The path to 90 percent has four steps:
+A first honest PM-compliance measurement typically sits at 50 to 75 percent. The path to 90 percent has four steps:
 
 1. **Use a tool, not a spreadsheet.** Excel-based PM schedules silently drop tasks during the busy weeks. A scheduler that pushes the task to the technician's phone and tracks compliance live (like WorkHive PM Scheduler) prevents that.
 2. **Tie completion to a logbook entry.** A PM is not complete unless there is a matching logbook entry from the technician at the asset within the PM window. This stops "ticked but not done."
@@ -108,7 +108,7 @@ PM assignment should match the skill matrix. Routine PMs (cleaning, lubrication,
 
 ### What is PM compliance and what is a good target?
 
-PM compliance is the percentage of scheduled PMs completed on time (within the grace window). Industry benchmark is 90 percent or higher; world-class is 95 percent. Most Philippine plants we benchmark sit between 50 and 75 percent on first measurement. Below 70 percent and PMs are not preventing failures; the team is doing surface-level work and missing the substance. Above 95 percent in a plant with reactive maintenance still common means PMs are too easy.
+PM compliance is the percentage of scheduled PMs completed on time (within the grace window). Industry benchmark is 90 percent or higher; world-class is 95 percent. A plant measuring PM compliance for the first time typically sits between 50 and 75 percent. Below 70 percent and PMs are not preventing failures; the team is doing surface-level work and missing the substance. Above 95 percent in a plant with reactive maintenance still common means PMs are too easy.
 
 ### Should PMs be paper or digital?
 
@@ -129,4 +129,4 @@ The pattern that works: a PM cannot be marked complete in PM Scheduler unless th
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: bd90c0293ddf6272 -->
+<!-- md-twin source-sha: 6745e3c263e4514f -->

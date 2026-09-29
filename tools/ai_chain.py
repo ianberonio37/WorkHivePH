@@ -77,14 +77,15 @@ PROVIDER_CHAIN = [
     # deny-list, so this can be caught the day it happens instead of months later.
     # Qwen3.8 27B: 131K context, text AND image (the provider reports input_modalities), tools+json.
     {"provider": "groq",     "base_url": "https://api.groq.com/openai/v1",  "model": "qwen/qwen3.8-27b",                          "env_key": "GROQ_API_KEY"},
-    # Qwen3.6 27B: same shape, one generation back — the vision fallback.
-    {"provider": "groq",     "base_url": "https://api.groq.com/openai/v1",  "model": "qwen/qwen3.6-27b",                          "env_key": "GROQ_API_KEY"},
+    # 2026-09-28 (v6): `qwen/qwen3.6-27b` removed — Groq no longer serves it, and of the eleven ids
+    # Groq returns today only qwen3.8-27b (above) accepts images, so there is no second Groq vision
+    # model to fall back to. Mirrors _shared/ai-chain.ts.
     # GPT-OSS 20B: strict JSON-schema adherence (structured_outputs), cheapest per token.
     {"provider": "groq",     "base_url": "https://api.groq.com/openai/v1",  "model": "openai/gpt-oss-20b",                        "env_key": "GROQ_API_KEY"},
     # GPT-OSS 120B: largest model on Groq free tier — last quality resort.
     {"provider": "groq",     "base_url": "https://api.groq.com/openai/v1",  "model": "openai/gpt-oss-120b",                       "env_key": "GROQ_API_KEY"},
-    # Compound Mini: json_mode only — the fast, small last stop on Groq.
-    {"provider": "groq",     "base_url": "https://api.groq.com/openai/v1",  "model": "groq/compound-mini",                        "env_key": "GROQ_API_KEY"},
+    # 2026-09-28 (v6): `groq/compound-mini` removed — Groq no longer serves it, and its only other
+    # live general chat models are the two gpt-oss entries already above. Mirrors _shared/ai-chain.ts.
 
     # ── Tier 2: Cerebras — 1M tokens/day free, 8K total context cap ──────────
     # NOTE 2026-05-18: both entries below returned 404 "Model X does not exist
@@ -93,7 +94,8 @@ PROVIDER_CHAIN = [
     # named none of them; these ARE that list, read from https://api.cerebras.ai/v1/models.
     {"provider": "cerebras", "base_url": "https://api.cerebras.ai/v1",       "model": "gpt-oss-120b",                              "env_key": "CEREBRAS_API_KEY", "max_tokens_cap": 4096},
     {"provider": "cerebras", "base_url": "https://api.cerebras.ai/v1",       "model": "qwen-3.8-27b",                              "env_key": "CEREBRAS_API_KEY", "max_tokens_cap": 4096},
-    {"provider": "cerebras", "base_url": "https://api.cerebras.ai/v1",       "model": "gemma-4-31b",                               "env_key": "CEREBRAS_API_KEY", "max_tokens_cap": 4096},
+    # 2026-09-28 (v6): `gemma-4-31b` removed — Cerebras now serves exactly TWO ids, the two above.
+    # The note directly overhead said "exactly three"; that count went stale the same way twice.
 
     # NOTE: SambaNova was evaluated (FreeLLMAPI lists it) but REJECTED — its
     # free tier is $5 of credits that expire in 30 days, not permanently free.
@@ -113,7 +115,9 @@ PROVIDER_CHAIN = [
     {"provider": "openrouter", "base_url": "https://openrouter.ai/api/v1",  "model": "nvidia/nemotron-3.5-lightning:free",                  "env_key": "OPENROUTER_API_KEY", "extra_headers": {"HTTP-Referer": "https://workhiveph.com", "X-Title": "WorkHive"}},
     {"provider": "openrouter", "base_url": "https://openrouter.ai/api/v1",  "model": "google/gemma-4-26b-a4b-it:free",            "env_key": "OPENROUTER_API_KEY", "extra_headers": {"HTTP-Referer": "https://workhiveph.com", "X-Title": "WorkHive"}},
     {"provider": "openrouter", "base_url": "https://openrouter.ai/api/v1",  "model": "nvidia/nemotron-3-ultra-550b-a55b:free",    "env_key": "OPENROUTER_API_KEY", "extra_headers": {"HTTP-Referer": "https://workhiveph.com", "X-Title": "WorkHive"}},
-    {"provider": "openrouter", "base_url": "https://openrouter.ai/api/v1",  "model": "nex-agi/nex-n2.5-mini:free",                "env_key": "OPENROUTER_API_KEY", "extra_headers": {"HTTP-Referer": "https://workhiveph.com", "X-Title": "WorkHive"}},
+    # 2026-09-28 (v6): was `nex-agi/nex-n2.5-mini:free`, which OpenRouter no longer serves; replaced
+    # from its live :free list by reported input_modalities (text,image,video). Mirrors the TS chain.
+    {"provider": "openrouter", "base_url": "https://openrouter.ai/api/v1",  "model": "qwen/qwen3.8-27b:free",                    "env_key": "OPENROUTER_API_KEY", "extra_headers": {"HTTP-Referer": "https://workhiveph.com", "X-Title": "WorkHive"}},
 ]
 
 

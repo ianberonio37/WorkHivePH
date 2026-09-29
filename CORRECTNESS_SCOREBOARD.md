@@ -8,7 +8,7 @@ WHAT-axis→gate: **a**=canonical-source · **b**=calculation · **c**=cross-sur
 
 | Metric (formula) | pages | a src | b calc | c parity | d db | e prov | status |
 |---|---:|:---:|:---:|:---:|:---:|:---:|---|
-| pump_total_head_api_610 | 4 | ✓ | ✓ | ✓ | ✓ | ✓ | COVERED |
+| pump_total_head_api_610 | 5 | ✓ | ✓ | ✓ | ✓ | ✓ | COVERED |
 | adoption_risk_score_v1 | 3 | ✓ | ✓ | ✓ | ✓ | ✓ | COVERED |
 | achievement_card_level | 2 | ✓ | ✓ | ✓ | ✓ | ✓ | COVERED |
 | marketplace_seller_quality_score | 2 | ✓ | ✓ | ✓ | ✓ | ✓ | COVERED |

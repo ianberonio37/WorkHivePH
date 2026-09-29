@@ -162,7 +162,10 @@
       min-height: 44px;
       border-radius: 999px;
       font-family: var(--wh-font, 'Poppins', system-ui, sans-serif);
-      font-size: 0.66rem;
+/* ★BELOW THE PLATFORM'S OWN 12px FLOOR ON EVERY PAGE (design lens critique W45908, measured
+       live on dayplanner at 390 and 1280, 2026-09-15). Found by sweeping one page's text nodes; none
+       of the five offenders belonged to that page - they are all shared chrome. */
+      font-size: 0.75rem;
       font-weight: 700;
       color: var(--wh-cloud, #F4F6FA);
       background: rgba(22, 32, 50, 0.82);
@@ -230,7 +233,11 @@
     .wh-conn-popover .wh-conn-row:first-of-type { border-top: 0; }
     .wh-conn-popover .wh-conn-label { color: rgba(255,255,255,0.55); }
     .wh-conn-popover .wh-conn-value { font-weight: 700; }
-    .wh-conn-popover .wh-conn-help  { margin-top: 0.6rem; color: rgba(255,255,255,0.5); font-size: 0.62rem; }
+    /* ★THE SENTENCE SAYING YOUR WORK WILL NOT BE SAVED WAS THE SMALLEST TEXT ON THE SCREEN
+       (9.92px, measured 2026-09-15). It is written for a technician on a phone in a plant, and it was
+       set below every other string around it. Also lifted off 0.5 alpha: a warning at half opacity is
+       the same decision twice. */
+    .wh-conn-popover .wh-conn-help  { margin-top: 0.6rem; color: rgba(255,255,255,0.80); font-size: 0.75rem; }
 
     /* FAB-CONSOLIDATION (2026-07-20): the standalone corner chip + popover are
        retired — connectivity status now lives as a live pill inside the nav-hub

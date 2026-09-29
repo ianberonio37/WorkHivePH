@@ -26,14 +26,14 @@ Who this is for
 - Sensor vendors and edge platform providers
 - New OT/IT graduates joining plants
 
-Operate the Plant Connections gateway daily, not install-and-forget. Three things keep it reliable: a 5-minute edge-gateway health check each shift, a current sensor inventory with health status, and an OT/IT cybersecurity boundary (built on ISA/IEC 62443) that IT and reliability both signed off. Skip the check and gateway problems surface 6 to 18 hours late, as missing alerts.
+Operate the Plant Connections gateway daily, not install-and-forget. Three things keep it reliable: a 5-minute edge-gateway health check every day, a current sensor inventory with health status, and an OT/IT cybersecurity boundary (built on ISA/IEC 62443) that IT and reliability both signed off. Skip the check and gateway problems surface 6 to 18 hours late, as missing alerts.
 
 ## What the Plant Connections gateway does
 
 The edge gateway is a small server (physical or virtual) running on the plant network that:
 
 - Reads sensor data from your OT systems via OPC-UA (for PLCs and SCADA) or MQTT (for IoT sensors)
-- Reads work orders, asset master, and PM schedule from your CMMS (SAP PM, IBM Maximo, others) via REST or SOAP API
+- Reads work orders, asset master, and PM schedule from your CMMS (SAP PM, IBM Maximo, others) via its REST API
 - Pushes condition summaries and operational data to WorkHive cloud over secure HTTPS
 - Pushes WorkHive completion data back to the CMMS for finance and asset register sync
 
@@ -88,9 +88,9 @@ The model that works:
 
 The tool this guide is about
 
-#### WorkHive Plant Connections is the OT/IT operations console
+### WorkHive Plant Connections is the OT/IT operations console
 
-Daily health dashboard for the edge gateway, current sensor inventory with status, OPC-UA and MQTT subscription management, CMMS sync log, secure outbound-only architecture. Supervisor-only access by default; OT and IT teams get scoped views. Free at the worker tier; multi-site gateway fleet management unlocks at Stage 4.
+The console carries a **sensor topic map** (the MQTT topic and OPC-UA tag to parameter registry your gateway publishes against), a **gateway audit** for the last 7 days, **external sync activity** for the last 30, the CMMS integration list, a data-retention policy you can set, and an SSO status card. Note the access model before you plan around it: the page is **supervisor-only** — there are no separate OT and IT logins with different views, so whoever holds the supervisor account is who sees the gateway. Free at the worker tier. There is no multi-site gateway fleet view: a group running several plants runs a gateway and a hive per plant, and watches them one at a time.
 
 No hive yet? [Join WorkHive](https://workhiveph.com/?signup=1) first (free, takes 30 seconds).
 
@@ -114,7 +114,7 @@ Three rules: (1) OT-initiated outbound only (no inbound from internet to OT netw
 
 ### What sensors and protocols are supported?
 
-OPC-UA for traditional industrial automation (Siemens, Rockwell, Schneider PLCs and SCADA). MQTT for newer IoT sensors (wireless vibration, temperature, ultrasonic, energy meters). Edge gateway runtime options include AVEVA Edge, Ignition Edge, and Node-RED depending on stack preference. REST/SOAP for CMMS systems (SAP PM OData, IBM Maximo MIF, Hippo, Fiix, others). Custom integrations via the generic REST connector.
+OPC-UA for traditional industrial automation (Siemens, Rockwell, Schneider PLCs and SCADA). MQTT for newer IoT sensors (wireless vibration, temperature, ultrasonic, energy meters). Edge gateway runtime options include AVEVA Edge, Ignition Edge, and Node-RED depending on stack preference. For the CMMS side there are exactly three configured paths: SAP OData, Maximo OSLC, and a generic REST connector for anything else. A CMMS not on that list is reached through the generic connector rather than a purpose-built one, so budget integration time accordingly.
 
 ### What happens when the gateway loses internet?
 
@@ -130,4 +130,4 @@ The gateway continues reading sensor and CMMS data locally and buffers it. Buffe
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 1a893ff640366db2 -->
+<!-- md-twin source-sha: bcd97bac96193123 -->

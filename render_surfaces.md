@@ -4,29 +4,28 @@ _Mined by `tools/mine_render_surfaces.py`. The denominator is **(feature page ×
 
 ## Totals
 
-- **N = 83 render cells** across 17 pages (47 single-value tiles · 36 panel/list/chart surfaces)
-- **Already proven (credited): 13/83 = 15.7%** (§13 V-axis + asset-hub)
-- **Value tiles proven: 12/47 = 25.5%** → C1 target = the **35 uncredited value tiles** first
+- **N = 72 render cells** across 16 pages (44 single-value tiles · 28 panel/list/chart surfaces)
+- **Already proven (credited): 10/72 = 13.9%** (§13 V-axis + asset-hub)
+- **Value tiles proven: 9/44 = 20.5%** → C1 target = the **35 uncredited value tiles** first
 
 ## Per page
 
 | Page | nav | tiles | value | panel | credited |
 |---|---|--:|--:|--:|--:|
-| achievements.html | – | 7 | 3 | 4 | 0 |
+| achievements.html | – | 4 | 3 | 1 | 0 |
 | alert-hub.html | ✓ | 8 | 3 | 5 | 0 |
 | analytics.html | ✓ | 5 | 3 | 2 | 1 |
-| asset-hub.html | ✓ | 8 | 3 | 5 | 2 |
+| asset-hub.html | ✓ | 7 | 3 | 4 | 2 |
 | dayplanner.html | ✓ | 4 | 3 | 1 | 0 |
-| hive.html | ✓ | 4 | 3 | 1 | 1 |
+| hive.html | ✓ | 4 | 3 | 1 | 0 |
 | index.html | ✓ | 1 | 0 | 1 | 0 |
 | integrations.html | ✓ | 6 | 3 | 3 | 0 |
 | inventory.html | ✓ | 4 | 3 | 1 | 0 |
 | marketplace.html | ✓ | 4 | 2 | 2 | 1 |
 | ph-intelligence.html | ✓ | 4 | 3 | 1 | 0 |
 | pm-scheduler.html | ✓ | 4 | 3 | 1 | 3 |
-| predictive.html | – | 7 | 3 | 4 | 2 |
 | project-manager.html | ✓ | 5 | 3 | 2 | 0 |
-| report-sender.html | – | 4 | 3 | 1 | 0 |
+| report-sender.html | ✓ | 4 | 3 | 1 | 0 |
 | shift-brain.html | ✓ | 4 | 3 | 1 | 3 |
 | skillmatrix.html | ✓ | 4 | 3 | 1 | 0 |
 
@@ -56,8 +55,9 @@ _Mined by `tools/mine_render_surfaces.py`. The denominator is **(feature page ×
 | dayplanner.html | `dayplanner:today_count` | Tasks today | `dp-today-hero` |
 | dayplanner.html | `dayplanner:week_count` | Tasks this week | `dp-week-hero` |
 | dayplanner.html | `dayplanner:overdue_count` | Overdue tasks | `dp-overdue-hero` |
-| hive.html | `hive:maturity_stair` | Hive maturity stair | `ss-stair-hero` |
-| hive.html | `hive:adoption_health` | Adoption health | `ss-adoption-hero` |
+| hive.html | `hive:pm_overdue` | Assets with PM overdue | `ss-pm-hero` |
+| hive.html | `hive:low_stock` | Parts low on stock | `ss-stock-hero` |
+| hive.html | `hive:your_open_jobs` | Your open jobs | `ss-jobs-hero` |
 | integrations.html | `integrations:active` | Active integrations | `it-active-hero` |
 | integrations.html | `integrations:stale` | Stale syncs | `it-stale-hero` |
 | integrations.html | `integrations:disabled` | Disabled integrations | `it-disabled-hero` |
@@ -68,7 +68,6 @@ _Mined by `tools/mine_render_surfaces.py`. The denominator is **(feature page ×
 | ph-intelligence.html | `ph-intelligence:plants_in_network` | Plants in network | `ph-plants-hero` |
 | ph-intelligence.html | `ph-intelligence:top_failure_cause` | Top failure cause | `ph-cause-hero` |
 | ph-intelligence.html | `ph-intelligence:report_freshness` | Report freshness | `ph-fresh-hero` |
-| predictive.html | `predictive:earliest_forecast` | Earliest forecast failure | `pr-soonest-hero` |
 | project-manager.html | `project-manager:active_projects` | Active projects | `pm-active-hero` |
 | project-manager.html | `project-manager:past_end_date` | Past end date | `pm-overdue-hero` |
 | project-manager.html | `project-manager:on_hold_planning` | On hold or planning | `pm-blocked-hero` |

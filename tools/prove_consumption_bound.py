@@ -26,6 +26,12 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+
+# the ONE static-document test every layer gate shares (tools/page_kind.py, the rubric's _noDataClient rule)
+import sys as _sys
+_sys.path.insert(0, str(ROOT / 'tools'))
+from page_kind import is_static_doc as _is_static_doc  # noqa: E402
+
 REGISTRY = ROOT / "trajectory_registry.json"
 MARK = "bound what this page can consume"
 
@@ -216,6 +222,13 @@ def main() -> int:
             rec = {"verdict": "n/a", "line": f"{page} is retired behind the overlay - its content is not shown to anyone"}
         elif not src:
             rec = {"verdict": "n/a", "line": f"{page} could not be read from disk"}
+        # ★A PAGE THAT LOADS NOTHING HAS NOTHING TO BOUND (Wave 4, 2026-09-14). The wave seeded a Rate-Limiting
+        # story for every served page, and this lens - built for root pages - graded privacy-policy and
+        # terms-of-service "no bound on what it loads ... grows until it stops": they ship no data client at
+        # all. The rubric's own static-document rule (tools/page_kind.py, the `_noDataClient` test) is the
+        # honest answer: a fixed document consumes a fixed document. A page with ANY client keeps being graded.
+        elif _is_static_doc(page):
+            rec = {"verdict": "n/a", "line": f"{page} ships no data client (no utils.js, no Supabase, no inline fetch) - a fixed document has nothing to bound"}
         else:
             # ★THE BOUND MUST BE THIS PAGE'S OWN. `source_of` folds in every script the page loads, and
             # `utils.js` carries reads for the whole platform - so analytics-report and status were reported

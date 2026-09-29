@@ -1,6 +1,6 @@
 {
   "_doc": "Component adoption baseline (Layer F). Floors are FORWARD-ONLY: validate_component_adoption.py fails any drop and auto-tightens any rise. Regenerate view: python tools/component_adoption_census.py",
-  "generated": "2026-09-11T06:03:12.386606+00:00",
+  "generated": "2026-09-28T23:10:09.837714+00:00",
   "family_pages": 42,
   "rows": [
     {
@@ -139,8 +139,8 @@
       "mode": "measured",
       "need_rule": "wide-table",
       "adopters_n": 11,
-      "need_n": 15,
-      "pct": 73,
+      "need_n": 16,
+      "pct": 69,
       "adopters": [
         "agentic-rag-observability.html",
         "ai-quality.html",
@@ -157,6 +157,7 @@
       "gap": [
         "analytics-report.html",
         "architecture.html",
+        "assistant.html",
         "llm-observability.html",
         "validator-catalog.html"
       ],
@@ -275,8 +276,8 @@
       "mode": "measured",
       "need_rule": "destructive",
       "adopters_n": 19,
-      "need_n": 20,
-      "pct": 95,
+      "need_n": 21,
+      "pct": 90,
       "adopters": [
         "alert-hub.html",
         "asset-hub.html",
@@ -299,6 +300,7 @@
         "shift-brain.html"
       ],
       "gap": [
+        "assistant.html",
         "resume.html"
       ],
       "status": "built"
@@ -457,8 +459,8 @@
       "mode": "measured",
       "need_rule": "renders-number",
       "adopters_n": 6,
-      "need_n": 15,
-      "pct": 40,
+      "need_n": 17,
+      "pct": 35,
       "adopters": [
         "agentic-rag-observability.html",
         "ai-quality.html",
@@ -468,7 +470,9 @@
         "ph-intelligence.html"
       ],
       "gap": [
+        "achievements.html",
         "asset-hub.html",
+        "assistant.html",
         "audit-log.html",
         "founder-console.html",
         "hive.html",

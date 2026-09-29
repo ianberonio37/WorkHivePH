@@ -5,14 +5,14 @@
   <meta name="theme-color" content="#F7A21B" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Vibration Analysis on a Phone Budget (Philippine PdM) | WorkHive</title>
-  <meta name="description" content="Learn how to perform vibration analysis on a phone budget using Voice Journal and ISO 10816 thresholds, and discover the failure modes it can detect." />
+  <meta name="description" content="Learn how to run a phone-based vibration trend route in a Philippine plant: what a phone accelerometer can and cannot see, how to log readings with Voice Journal, and how to judge them against the ISO 10816-3 severity zone for the machine's class." />
   <meta name="keywords" content="vibration analysis, phone-based vibration analysis, predictive maintenance, PdM, Voice Journal, ISO 10816, equipment reliability, maintenance route, failure modes, bearing wear, gear-mesh frequencies" />
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="https://workhiveph.com/learn/vibration-analysis-on-a-phone-budget/" />
   <link rel="manifest" href="/manifest.json" />
 
   <meta property="og:title" content="Vibration Analysis on a Phone Budget (Philippine PdM)" />
-  <meta property="og:description" content="Learn how to perform vibration analysis on a phone budget using Voice Journal and ISO 10816 thresholds, and discover the failure modes it can detect." />
+  <meta property="og:description" content="Learn how to run a phone-based vibration trend route in a Philippine plant: what a phone accelerometer can and cannot see, how to log readings with Voice Journal, and how to judge them against the ISO 10816-3 severity zone for the machine's class." />
   <meta property="og:image" content="https://workhiveph.com/brand_assets/og-social.png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
@@ -28,7 +28,7 @@
 
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Vibration Analysis on a Phone Budget (Philippine PdM)" />
-  <meta name="twitter:description" content="Learn how to perform vibration analysis on a phone budget using Voice Journal and ISO 10816 thresholds, and discover the failure modes it can detect." />
+  <meta name="twitter:description" content="Learn how to run a phone-based vibration trend route in a Philippine plant: what a phone accelerometer can and cannot see, how to log readings with Voice Journal, and how to judge them against the ISO 10816-3 severity zone for the machine's class." />
   <meta name="twitter:image" content="https://workhiveph.com/brand_assets/og-social.png" />
   <meta name="twitter:image:alt" content="WorkHive: Free industrial tools for every Filipino worker" />
 
@@ -40,7 +40,7 @@
         "@type": "Article",
         "@id": "https://workhiveph.com/learn/vibration-analysis-on-a-phone-budget/#article",
         "headline": "Vibration Analysis on a Phone Budget (Philippine PdM)",
-        "description": "Learn how to perform vibration analysis on a phone budget using Voice Journal and ISO 10816 thresholds, and discover the failure modes it can detect.",
+        "description": "Learn how to run a phone-based vibration trend route in a Philippine plant: what a phone accelerometer can and cannot see, how to log readings with Voice Journal, and how to judge them against the ISO 10816-3 severity zone for the machine's class.",
         "image": "https://workhiveph.com/brand_assets/workhive-logo-transparent.png",
         "author": { "@type": "Organization", "name": "WorkHive Editorial Team", "url": "https://workhiveph.com/" },
         "publisher": { "@id": "https://workhiveph.com/#organization" },
@@ -56,9 +56,9 @@
         "@type": "FAQPage",
         "@id": "https://workhiveph.com/learn/vibration-analysis-on-a-phone-budget/#faq",
         "mainEntity": [
-          { "@type": "Question", "name": "What is the cost of a vibration analyzer?", "acceptedAnswer": { "@type": "Answer", "text": "The cost of a vibration analyzer can range from $5,000 to $10,000 or more, which may be out of budget for some Philippine plants. However, phone-based vibration analysis apps can provide a cost-effective solution." } },
+          { "@type": "Question", "name": "What is the cost of a vibration analyzer?", "acceptedAnswer": { "@type": "Answer", "text": "A dedicated analyser is a capital purchase, typically in the hundreds of thousands of pesos once the sensor, software and training are counted, and it usually has to be justified before any data exists to justify it. A phone accelerometer app plus a logged route costs nothing beyond the phones the technicians already carry, and the trend it produces is what makes the case for the analyser later." } },
           { "@type": "Question", "name": "Can phone vibration analysis detect all types of equipment failures?", "acceptedAnswer": { "@type": "Answer", "text": "No, phone vibration analysis has its limitations. It can detect certain types of failures, such as bearing wear, but may not detect others, such as gear-mesh frequencies." } },
-          { "@type": "Question", "name": "What is ISO 10816 and how does it relate to vibration analysis?", "acceptedAnswer": { "@type": "Answer", "text": "ISO 10816 is an international standard that provides guidelines for vibration severity. It provides thresholds for vibration measurements, which can be used to determine the severity of equipment vibration." } },
+          { "@type": "Question", "name": "What is ISO 10816 and how does it relate to vibration analysis?", "acceptedAnswer": { "@type": "Answer", "text": "ISO 10816 evaluates machine vibration measured on non-rotating parts. Part 1 sets the general framework; Part 3 is the one you use on plant, because it puts machines into Class I to IV by power and foundation and gives each class its own A/B/C/D velocity zones. Class II covers 15-300 kW on a rigid foundation, with boundaries at 2.8 and 7.1 mm/s RMS; Class I covers 15 kW and under, at 1.8 and 4.5. Quoting a single threshold without naming the class is the commonest way the standard gets misapplied." } },
           { "@type": "Question", "name": "How often should I perform vibration analysis?", "acceptedAnswer": { "@type": "Answer", "text": "The frequency of vibration analysis depends on the equipment and plant conditions. A weekly walkdown route can be a good starting point for many plants." } },
           { "@type": "Question", "name": "Can I use any phone app for vibration analysis?", "acceptedAnswer": { "@type": "Answer", "text": "No, not all phone apps are suitable for vibration analysis. Look for apps that are specifically designed for vibration analysis and have good reviews from users." } },
           { "@type": "Question", "name": "Is phone vibration analysis compliant with Philippine regulations?", "acceptedAnswer": { "@type": "Answer", "text": "The Department of Labor and Employment (DOLE) requires plants to implement a predictive maintenance program. Phone vibration analysis can be a part of this program, but ensure that it meets the requirements of DOLE and other relevant regulations." } }
@@ -104,29 +104,34 @@
     html, body, a, button { touch-action: manipulation; }   /* T3: no 300 ms tap delay, no double-tap zoom (the rubric reads html/body) */
     body { font-family: 'Poppins', sans-serif; }
     .hex-pattern { background-image: radial-gradient(circle, rgba(247,162,27,0.04) 1px, transparent 1px); background-size: 28px 28px; }
-    .audience-block { background: linear-gradient(135deg, rgba(41,182,217,0.10), rgba(41,182,217,0.04)); border: 1px solid rgba(41,182,217,0.22); border-radius: 14px; padding: 18px 22px; margin: 1.75rem 0; }
-    .audience-label { font-size: 11px; font-weight: 700; color: #5FCCE8; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
-    .audience-block ul { margin: 0; padding-left: 1.2rem; color: rgba(244,246,250,0.85); font-size: 0.92rem; line-height: 1.7; }
-    .answer-first { background: rgba(247,162,27,0.06); border-left: 3px solid #F7A21B; padding: 18px 22px; border-radius: 0 12px 12px 0; margin: 1.5rem 0; color: rgba(244,246,250,0.85); font-size: 1.02rem; line-height: 1.65; }
-    .toc { background: rgba(31,46,69,0.6); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; padding: 18px 22px; margin: 2rem 0; }
-    .toc h2 { margin: 0 0 8px; font-size: 13px; color: rgba(244,246,250,0.8); font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; }
-    .toc ol { margin: 0; padding-left: 1.2rem; color: rgba(244,246,250,0.85); font-size: 0.92rem; line-height: 1.85; }
+    .audience-block { background: linear-gradient(135deg, rgba(41,182,217,0.10), rgba(41,182,217,0.04)); border: 1px solid rgba(41,182,217,0.22); border-radius: 14px; padding: 20px 24px; margin: 1.75rem 0; }
+    .audience-label { font-size: 0.75rem; font-weight: 700; color: #5FCCE8; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
+    .audience-block ul { margin: 0; padding-left: 1.2rem; color: rgba(244,246,250,0.85); font-size: 0.95rem; line-height: 1.7; }
+    .answer-first { background: rgba(247,162,27,0.06); border: 1px solid rgba(247,162,27,0.30); padding: 20px 24px; border-radius: 0 12px 12px 0; margin: 1.5rem 0; color: rgba(244,246,250,0.85); font-size: 1.05rem; line-height: 1.65; }
+    .toc { background: rgba(31,46,69,0.6); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; padding: 20px 24px; margin: 2rem 0; }
+    .toc h2, .toc h4 { margin: 0 0 8px; font-size: 0.85rem; color: rgba(244,246,250,0.8); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+    .toc ol { margin: 0; padding-left: 1.2rem; color: rgba(244,246,250,0.85); font-size: 0.95rem; line-height: 1.85; }
     .toc a { color: rgba(244,246,250,0.85); }
     .toc a:hover { color: #FDB94A; }
-    .prose-wh h2 { font-size: 1.55rem; font-weight: 800; color: #F4F6FA; margin: 2.25rem 0 0.85rem; letter-spacing: -0.01em; }
-    .prose-wh p { overflow-wrap: anywhere; word-break: break-word; font-size: 1.005rem; color: rgba(244,246,250,0.85); line-height: 1.75; margin: 0.85rem 0; }
+    .prose-wh h2 { font-size: 1.55rem; font-weight: 800; color: #F4F6FA; margin: 2.25rem 0 1rem; letter-spacing: -0.01em; }
+    .prose-wh { overflow-wrap: anywhere; word-break: break-word; color: rgba(244,246,250,0.85); font-size: 1.05rem; line-height: 1.8; }
+    .prose-wh p { overflow-wrap: anywhere; word-break: break-word; font-size: 1.05rem; color: rgba(244,246,250,0.85); line-height: 1.75; margin: 1rem 0; }
+    /* MEASURE (2026-09-16): 72ch, inside the 65-75 craft floor. Measured at 1280 before the
+       cap: 80ch here against 73ch on the articles that already carried this rule. Below ~1100px
+       the column is already narrower than the cap, so nothing moves on a phone. */
+    .prose-wh p, .prose-wh li { max-width: 72ch; }
     .prose-wh strong { color: #F4F6FA; }
     .prose-wh a { color: #5FCCE8; text-decoration: underline; text-underline-offset: 3px; }
-    .prose-wh ol, .prose-wh ul { color: rgba(244,246,250,0.85); padding-left: 1.4rem; margin: 0.85rem 0; line-height: 1.75; }
-    .tool-cta { background: linear-gradient(135deg, rgba(247,162,27,0.14), rgba(247,162,27,0.04)); border: 1px solid rgba(247,162,27,0.32); border-radius: 14px; padding: 22px 26px; margin: 2.25rem 0; }
-    .tool-cta a { display: inline-block; margin-top: 10px; background: linear-gradient(135deg, #F7A21B, #FDB94A); color: #162032; font-weight: 700; padding: 10px 22px; border-radius: 10px; text-decoration: none; transition: transform 0.15s; }
+    .prose-wh ol, .prose-wh ul { color: rgba(244,246,250,0.85); padding-left: 1.4rem; margin: 1rem 0; line-height: 1.75; }
+    .tool-cta { background: linear-gradient(135deg, rgba(247,162,27,0.14), rgba(247,162,27,0.04)); border: 1px solid rgba(247,162,27,0.32); border-radius: 14px; padding: 24px 28px; margin: 2.25rem 0; }
+    .tool-cta a { display: inline-block; margin-top: 12px; background: linear-gradient(135deg, #F7A21B, #FDB94A); color: #162032; font-weight: 700; padding: 12px 24px; border-radius: 10px; text-decoration: none; transition: transform 0.15s; }
     .tool-cta a:hover { transform: translateY(-1px); }
-    .faq-item { background: rgba(31,46,69,0.6); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 16px 20px; margin: 0.7rem 0; }
-    .faq-item summary { cursor: pointer; font-weight: 600; color: #F4F6FA; font-size: 1rem; }
+    .faq-item { background: rgba(31,46,69,0.6); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 16px 20px; margin: 0.75rem 0; }
+    .faq-item summary { cursor: pointer; font-weight: 600; color: #F4F6FA; font-size: 1.05rem; }
     .faq-item[open] summary { color: #FDB94A; }
-    .faq-item .faq-answer { margin-top: 12px; color: rgba(244,246,250,0.85); font-size: 0.97rem; line-height: 1.7; }
+    .faq-item .faq-answer { margin-top: 12px; color: rgba(244,246,250,0.85); font-size: 0.95rem; line-height: 1.7; }
     .sources-list { list-style: none; padding: 0; }
-    .sources-list li { overflow-wrap: anywhere; word-break: break-word; padding: 8px 0; border-bottom: 1px dashed rgba(255,255,255,0.07); color: rgba(244,246,250,0.85); font-size: 0.9rem; }
+    .sources-list li { overflow-wrap: anywhere; word-break: break-word; padding: 8px 0; border-bottom: 1px dashed rgba(255,255,255,0.07); color: rgba(244,246,250,0.85); font-size: 0.95rem; }
       /* Z2/R2 (critic re-sweep 2026-09-07): a long unbroken token (a citation URL) widened a paragraph to 463px at 390 and the page scrolled sideways; long words now wrap */
   </style>
 <!-- WorkHive GA4 -->
@@ -140,16 +145,18 @@
   <script src="/wh-ga4.js" defer></script>
   <!-- /WorkHive GA4 -->
 <link rel="stylesheet" href="/learn-print.css" media="print" />
-<style data-wh-chrome-i18n>nav a,header a,footer a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;min-width:44px;}nav a{padding:0 .25rem;}.breadcrumb a,.toc a{display:inline-flex;align-items:center;min-height:44px;}.breadcrumb a{min-width:44px;justify-content:center;}a.text-sm[href$='/learn/'],a.text-sm[href$='/learn/index.html']{display:inline-flex;align-items:center;min-height:44px;}.wh-tap{display:inline-flex;align-items:center;min-height:44px;}td a,th a{display:inline-flex;align-items:center;min-height:44px;}</style>
+<style data-wh-chrome-i18n>nav a,header a,footer a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;min-width:44px;}nav a{padding:0 .25rem;}.breadcrumb a,.toc a{display:inline-flex;align-items:center;min-height:44px;}.breadcrumb a{min-width:44px;justify-content:center;}a.text-sm[href$='/learn/'],a.text-sm[href$='/learn/index.html']{display:inline-flex;align-items:center;min-height:44px;}.wh-tap{display:inline-flex;align-items:center;min-height:44px;}td a,th a{display:inline-flex;align-items:center;min-height:44px;}/*wh-brand-header-gap*/@media (max-width:399px){header nav.flex{gap:.75rem;}}</style>
 <script src="/wh-i18n-lite.js" data-wh-chrome-i18n></script>
 </head>
 <body class="bg-navy-wh text-white antialiased">
+<a class="wh-skip-link" href="#wh-main-content" data-wh-skip="learn" style="position:fixed;top:0;left:0;z-index:10001;transform:translateY(-120%);background:var(--wh-orange,#F7A21B);color:var(--wh-navy,#162032);padding:0 20px;min-height:44px;display:inline-flex;align-items:center;font-weight:700;font-size:14px;text-decoration:none;border-radius:0 0 10px 0;box-shadow:0 4px 16px rgba(0,0,0,.35);transition:transform .15s cubic-bezier(0.23,1,0.32,1);box-sizing:border-box;" onfocus="this.style.transform='translateY(0)'" onblur="this.style.transform='translateY(-120%)'">Skip to main content</a>
+
 
 <nav class="border-b border-white/10" style="background: rgba(13,24,36,0.85);">
   <div class="max-w-5xl mx-auto px-5 sm:px-8 h-14 flex items-center justify-between">
     <a href="/" class="flex items-center gap-2 text-sm font-bold tracking-tight">
       <img src="/brand_assets/workhive-logo-transparent.png" alt="WorkHive" class="h-7 w-auto" />
-      <span class="text-white">WorkHive</span>
+      <span class="text-white wh-brand-word hidden sm:inline" aria-hidden="true">WorkHive</span>
     </a>
     <div class="flex items-center gap-5 text-xs sm:text-sm">
       <a href="/learn/" class="text-white/55 hover:text-white transition-colors" data-i="learn">Learn</a>
@@ -160,7 +167,7 @@
   </div>
 </nav>
 
-<article class="hex-pattern">
+<main id="wh-main-content"><article class="hex-pattern">
   <div class="max-w-3xl mx-auto px-5 sm:px-8 py-10 sm:py-14">
 
     <p class="text-xs uppercase tracking-[0.18em] text-orange-wh font-bold mb-3">WorkHive Learn · Philippines</p>
@@ -173,7 +180,7 @@
       <span>8 min read</span>
     </div>
 
-    <div class="answer-first"><strong>Short answer:</strong> Predictive maintenance (PdM) is crucial for Philippine plants to reduce downtime and increase efficiency. However, not all plants have the budget for expensive vibration analyzers. Fortunately, phone-based vibration analysis apps can provide a cost-effective solution. Judge every reading against <strong>ISO 10816</strong>: on a typical medium machine a velocity above <strong>4.5 mm/s</strong> indicates severe vibration and warrants immediate investigation.</div>
+    <div class="answer-first"><strong>Short answer:</strong> Predictive maintenance (PdM) is crucial for Philippine plants to reduce downtime and increase efficiency. However, not all plants have the budget for expensive vibration analyzers. Fortunately, phone-based vibration analysis apps can provide a cost-effective solution. Judge every reading against <strong>ISO 10816-3</strong>, and against the right machine class: on a medium machine (Class II, 15&ndash;300&nbsp;kW on a rigid foundation) <strong>2.8&nbsp;mm/s</strong> RMS is where it stops being satisfactory and <strong>7.1&nbsp;mm/s</strong> is where it becomes severe. On a small machine (Class I, &le;15&nbsp;kW) those boundaries are 1.8 and 4.5. WorkHive&rsquo;s Vibration Analysis calculator works the zone out for you once you pick the class.</div>
 
     <div class="audience-block">
       <p class="audience-label">Who this is for</p>
@@ -190,10 +197,10 @@
     </div>
 
     <div class="toc">
-      <h4 aria-level="2">What's in this guide</h4>
+      <h2>What's in this guide</h2>
       <ol>
         <li><a href="#what-is-phone-based-vibration-analysis" class="wh-tap">What is Phone-Based Vibration Analysis?</a></li>
-        <li><a href="#using-voice-journal-for-vibration-analysis" class="wh-tap">Using Voice Journal for Vibration Analysis</a></li>
+        <li><a href="#using-voice-journal-for-vibration-analysis" class="wh-tap">Logging Readings with Voice Journal</a></li>
         <li><a href="#what-can-and-cant-phone-vibration-detect" class="wh-tap">What Can and Can't Phone Vibration Detect?</a></li>
         <li><a href="#a-weekly-walkdown-route-for-vibration-analysis" class="wh-tap">A Weekly Walkdown Route for Vibration Analysis</a></li>
         <li><a href="#failure-modes-detected-by-phone-vibration" class="wh-tap">Failure Modes Detected by Phone Vibration</a></li>
@@ -202,49 +209,50 @@
 
     <div class="prose-wh">
       <h2 id="what-is-phone-based-vibration-analysis">What is Phone-Based Vibration Analysis?</h2>
-      <p>Phone-based vibration analysis is a practical approach to Predictive Maintenance (PdM) for Philippine plants with limited budgets. Instead of investing in expensive vibration analyzers, plant supervisors at a PEZA industrial site in Batangas can use smartphone apps like Voice Journal to collect vibration data. These apps utilize the phone's built-in accelerometer to measure vibrations in machines.</p>
-      <p>One such app, used by a maintenance planner at a Pampanga manufacturing plant, costs only PHP 180,000 to implement, a fraction of the cost of traditional vibration analyzers. This app allows users to take readings on a schedule, such as during a 24-hour shift at 02:30 and 14:45, and log data using Voice Journal's voice notes and timestamp features.</p>
+      <p>Phone-based vibration analysis is a practical approach to Predictive Maintenance (PdM) for Philippine plants with limited budgets. Instead of investing in an analyser first, a plant supervisor at a PEZA industrial site in Batangas can start with two things they already have: a third-party accelerometer app to take the reading, and WorkHive to record and judge it. Be clear about which does what &mdash; <strong>Voice Journal does not measure vibration</strong>; it is a voice-to-text journal, and its job here is to capture the number and the context the moment you read it. The measuring is done by any of the accelerometer apps on the store, which use the phone's built-in accelerometer. That accelerometer is the whole constraint: it typically samples up to about 100&nbsp;Hz, which covers a machine turning below roughly 30&nbsp;Hz: most pumps, fans and motors under 1,800&nbsp;RPM, and the first few harmonics above it. Everything faster than that is invisible to it, which is what the can-and-cannot list below is really describing.</p>
+      <p>A maintenance planner at a Pampanga manufacturing plant runs this on the phone already in their pocket, where a traditional analyser is a capital purchase with a lead time. The discipline is the same whichever app takes the reading: a fixed schedule: the same point, the same machine state, the same day each week: with each number dictated into Voice Journal, which timestamps it and keeps the entry searchable.</p>
       <p>Phone-based vibration analysis can detect certain types of equipment problems, such as bearing wear. For example, a shift in-charge at a Bulacan power plant can use an app to identify imbalance or misalignment in Pump P-204B. However, it may not be able to detect more complex issues like gear-mesh frequencies. Understanding these limitations is crucial for effective PdM.</p>
       <p>A weekly walkdown route using Voice Journal can be an effective way to integrate phone-based vibration analysis into a plant's PdM routine. By taking readings at regular intervals, maintenance teams can track changes in vibration levels over time and identify potential issues before they become major problems. This approach has been successfully implemented at a Cabuyao industrial site in Calabarzon.</p>
       <p>Phone-based vibration analysis can detect three key failure modes: imbalance, misalignment, and bearing wear. By monitoring these issues, plants can prevent unexpected downtime and extend equipment lifespan. For instance, monitoring vibration levels on Boiler B-1 can help prevent costly repairs and ensure smooth operation.</p>
-      <h2 id="using-voice-journal-for-vibration-analysis">Using Voice Journal for Vibration Analysis</h2>
-      <p>During a weekly walkdown route at a PEZA plant in Cabuyao, Laguna, a maintenance planner can use Voice Journal to log vibration readings. This simple, cost-effective approach helps identify potential issues before they become major problems. With Voice Journal, you can record voice notes and save them as records, making it easier to track changes and trends over time.</p>
-      <p>A typical walkdown route might include critical equipment like Pump P-204B at a Bulacan manufacturing plant. At 02:30 during a 24-hour shift, the shift in-charge can use Voice Journal on a phone to record vibration readings. The readings can be compared to ISO 10816 thresholds to determine if there's a potential issue. For example, a reading above 4.5 mm/s might indicate severe vibration.</p>
+      <h2 id="using-voice-journal-for-vibration-analysis">Logging Readings with Voice Journal</h2>
+      <p>During a weekly walkdown route at a PEZA plant in Cabuyao, Laguna, a maintenance planner reads each machine with the accelerometer app and dictates the number into Voice Journal on the spot. That is the part people skip and the part that decides whether the route is worth running: a reading that stays on the measuring app's screen is gone by the next machine. Voice Journal timestamps the entry and keeps it searchable, so the trend exists.</p>
+      <p>A typical walkdown route might include critical equipment like Pump P-204B at a Bulacan manufacturing plant. On the walkdown, the shift in-charge dictates each reading into Voice Journal as it is taken. The numbers are then compared against the ISO 10816-3 zone for that machine's class: on a Class II medium machine, above 2.8&nbsp;mm/s is unsatisfactory and above 7.1&nbsp;mm/s is severe. Take the class from the motor rating, not from how big the machine looks: 4.5 is the severe threshold for a Class I machine of 15&nbsp;kW or less, and using it on a 55&nbsp;kW pump will have you chasing readings ISO 10816-3 calls acceptable.</p>
       <p>Voice Journal is particularly useful for detecting certain failure modes, such as bearing wear. However, it's not suitable for detecting gear-mesh frequencies, which typically require more specialized equipment. A plant supervisor at a Davao plant might use Voice Journal to track vibration readings on a weekly basis, focusing on equipment with a history of bearing issues.</p>
-      <p>When using Voice Journal for vibration analysis, it's essential to establish a consistent routine. For example, a maintenance planner at a Pampanga plant might take readings at the same time every week, such as during the 14:45 shift change. By doing so, you can ensure that you're capturing accurate, comparable data that helps you identify potential issues before they lead to equipment failure.</p>
-      <p>A weekly walkdown route using Voice Journal can be done at a fraction of the cost of traditional vibration analysis equipment. For instance, a PHP 180,000 investment in a vibration analyzer might be out of reach for some Philippine plants. In contrast, many maintenance teams already have access to a smartphone and Voice Journal, making it a cost-effective solution for vibration analysis.</p>
+      <p>When using Voice Journal for vibration analysis, it's essential to establish a consistent routine. For example, a maintenance planner at a Pampanga plant might take readings at the same point in the week, on the same shift, with the machine in the same state. By doing so, you can ensure that you're capturing accurate, comparable data that helps you identify potential issues before they lead to equipment failure.</p>
+      <p>A weekly walkdown route using Voice Journal can be done at a fraction of the cost of traditional vibration analysis equipment. For many Philippine plants a dedicated analyser is out of reach for a first route - not because of what it costs on the day, but because it is a capital request that has to be justified before any data exists to justify it. In contrast, many maintenance teams already have access to a smartphone and Voice Journal, making it a cost-effective solution for vibration analysis.</p>
       <h2 id="what-can-and-cant-phone-vibration-detect">What Can and Can't Phone Vibration Detect?</h2>
       <p>When conducting vibration analysis using a phone-based app like Voice Journal, it's essential to understand what it can and cannot detect. In a Philippine plant like the one in Cabuyao, Laguna, maintenance teams can use these apps to monitor equipment health. For instance, at the PEZA-designated zone in Calabarzon, plant supervisors can utilize Voice Journal to log readings and track changes in vibration severity over time. However, it's crucial to recognize the limitations of these apps, particularly when it comes to detecting specific types of failures or frequency ranges.</p>
-      <p>Phone-based vibration analysis apps, such as those using ISO 10816 thresholds, reliably catch some failure modes but miss others:</p>
+      <p>A phone accelerometer reliably catches some failure modes and misses others, whatever app reads it:</p>
       <ul>
         <li><strong>Can detect:</strong> unbalance, misalignment, looseness, and bearing wear.</li>
         <li><strong>Cannot detect:</strong> gear-mesh frequencies and other high-frequency phenomena, which need more specialized equipment.</li>
       </ul>
-      <p>For example, in a 24-hour shift at a plant in Pampanga, a shift in-charge can use Voice Journal to take readings at regular intervals, such as 02:30 and 14:45, to monitor the condition of critical equipment like Pump P-204B.</p>
-      <p>In terms of detectable failure modes, phone vibration analysis can effectively identify issues related to bearing degradation, cavitation, or electrical motor problems. For instance, at a plant in Batangas, maintenance planners can use Voice Journal to track changes in vibration severity over time, allowing them to schedule maintenance activities during planned outages. The app can help identify potential issues before they become major problems, reducing downtime and increasing overall equipment effectiveness. By using Voice Journal to log readings and track trends, maintenance teams can prioritize maintenance activities and reduce the risk of unexpected failures.</p>
-      <p>It's also important to note that phone-based vibration analysis should not replace more comprehensive vibration analysis techniques, but rather complement them. While a dedicated vibration analyzer might cost around PHP 180,000 or more, phone-based apps like Voice Journal offer a more affordable and accessible solution for many plants. By leveraging these apps, maintenance teams in the Philippines can still gain valuable insights into equipment health and prioritize maintenance activities, even on a limited budget. For example, a plant in Bulacan can use Voice Journal to monitor equipment vibration levels and identify potential issues before they become major problems, helping to reduce maintenance costs and increase overall plant efficiency.</p>
+      <p>For example, at a plant in Pampanga running around the clock, a shift in-charge takes a reading at the same point on each shift and logs it to Voice Journal, building the per-shift history for critical equipment like Pump P-204B.</p>
+      <p>In terms of detectable failure modes, phone vibration analysis is a TRENDING tool for the low-frequency faults above: unbalance, misalignment, looseness, and advanced bearing wear once it has raised the overall level. It will not characterise cavitation or an electrical rotor fault: those live at frequencies the phone cannot reach, and a rising trend on the phone is a reason to bring a real analyser, not a diagnosis. For instance, at a plant in Batangas, maintenance planners can use Voice Journal to track changes in vibration severity over time, allowing them to schedule maintenance activities during planned outages. The app can help identify potential issues before they become major problems, reducing downtime and increasing overall equipment effectiveness. By using Voice Journal to log readings and track trends, maintenance teams can prioritize maintenance activities and reduce the risk of unexpected failures.</p>
+      <p>It's also important to note that phone-based vibration analysis should not replace more comprehensive vibration analysis techniques, but rather complement them. A dedicated analyser is a capital purchase; phone-based apps like Voice Journal cost the plant nothing beyond the phones the technicians already carry. What a phone route buys is a TREND per machine - the same point, the same week, the same hand - which is what tells a team which machine is changing and which is merely loud, and so which to prioritise for maintenance activities, even on a limited budget. For example, a plant in Bulacan can use Voice Journal to monitor equipment vibration levels and identify potential issues before they become major problems, helping to reduce maintenance costs and increase overall plant efficiency.</p>
       <h2 id="a-weekly-walkdown-route-for-vibration-analysis">A Weekly Walkdown Route for Vibration Analysis</h2>
-      <p>For a typical Philippine plant, such as those in Calabarzon or Batangas, implementing a weekly walkdown route for vibration analysis can be a practical approach to Predictive Maintenance (PdM). Using Voice Journal on a smartphone, maintenance personnel can easily log vibration readings and notes during their rounds. For example, at a plant in Cabuyao, Laguna, a weekly route could include checking critical equipment like Pump P-204B, Boiler B-1, and Conveyor #2 during the 02:30 and 14:45 shift changes.</p>
+      <p>For a typical Philippine plant, such as those in Calabarzon or Batangas, implementing a weekly walkdown route for vibration analysis can be a practical approach to Predictive Maintenance (PdM). With an accelerometer app to read and Voice Journal to log, maintenance personnel can capture readings and notes during their rounds without stopping to type. For example, at a plant in Cabuyao, Laguna, a weekly route could include checking critical equipment like Pump P-204B, Boiler B-1, and Conveyor #2, always at the same point in the shift.</p>
       <p>A sample weekly walkdown route might start at the Pump House, where readings are taken on Pump P-204B using Voice Journal. The maintenance planner would then proceed to the Boiler area to check Boiler B-1, followed by the Conveyor belt system. At each stop, the vibration readings are logged, and any anomalies or concerns are noted. This systematic approach helps ensure that critical equipment is monitored regularly, reducing the risk of unexpected failures.</p>
-      <p>During the walkdown, Voice Journal can be used to record voice notes or dictate observations, making it easier to document findings. For instance, if the vibration reading on Pump P-204B exceeds the ISO 10816 threshold, a voice note can be recorded to alert the shift in-charge or plant supervisor. This facilitates prompt action and helps prevent equipment damage.</p>
-      <p>Assuming a PHP 180,000 budget for a basic vibration analysis toolkit, a plant can equip several technicians with smartphones and the Voice Journal app. This affordable solution enables more frequent monitoring and faster response to potential issues, ultimately reducing downtime and increasing overall equipment effectiveness.</p>
+      <p>During the walkdown, Voice Journal can be used to record voice notes or dictate observations, making it easier to document findings. For instance, if the reading on Pump P-204B lands in Zone C or D for its class, the voice note is where you say so in words: Voice Journal has no threshold or alert of its own, so the judgement has to be in the entry for anyone reading it later. This facilitates prompt action and helps prevent equipment damage.</p>
+      <p>A basic phone-based toolkit needs no budget line at all: the technicians have the phones, and the app is free at the worker tier. This affordable solution enables more frequent monitoring and faster response to potential issues, ultimately reducing downtime and increasing overall equipment effectiveness.</p>
       <p>By incorporating a weekly walkdown route for vibration analysis into their maintenance routine, Philippine plants can proactively identify potential problems. For example, at a plant in Bulacan, a maintenance team using Voice Journal detected bearing wear on a critical fan, allowing them to schedule a replacement before a failure occurred. This approach helps extend equipment lifespan and improves plant reliability.</p>
       <h2 id="failure-modes-detected-by-phone-vibration">Failure Modes Detected by Phone Vibration</h2>
       <p>Phone vibration analysis using Voice Journal can detect various failure modes in equipment. One such failure mode is imbalance, which can occur in rotating equipment like pumps and fans. For instance, at the Calabarzon industrial zone, a plant supervisor used Voice Journal to monitor the vibration levels of Pump P-204B. By regularly taking readings, they were able to identify an imbalance issue before it caused a major breakdown. This proactive approach helped prevent costly repairs and reduced downtime.</p>
-      <p>Another failure mode that phone vibration analysis can detect is misalignment. This occurs when two or more rotating components are not properly aligned, causing excessive vibration. A maintenance planner at a PEZA industrial estate in Bulacan used Voice Journal to track the vibration levels of Conveyor #2. By analyzing the data, they identified a misalignment issue and were able to correct it before it led to equipment failure. This saved the plant PHP 180,000 in potential repair costs.</p>
-      <p>Looseness is a third failure mode that phone vibration analysis can detect. This occurs when equipment components become loose, causing vibration levels to increase. At a 24-hour plant in Pampanga, a shift in-charge used Voice Journal to monitor the vibration levels of AHU-3 during the 02:30 and 14:45 shift changes. By regularly taking readings, they were able to identify a looseness issue and tighten the loose components before it caused a major problem. This proactive approach helped ensure equipment reliability and reduced the risk of unexpected downtime.</p>
+      <p>Another failure mode that phone vibration analysis can detect is misalignment. This occurs when two or more rotating components are not properly aligned, causing excessive vibration. A maintenance planner at a PEZA industrial estate in Bulacan used Voice Journal to track the vibration levels of Conveyor #2. By analyzing the data, they identified a misalignment issue and were able to correct it before it led to equipment failure. It caught the fault while it was still a bearing change rather than a shaft.</p>
+      <p>Looseness is a third failure mode that phone vibration analysis can detect. This occurs when equipment components become loose, causing vibration levels to increase. At a 24-hour plant in Pampanga, a shift in-charge used Voice Journal to monitor the vibration levels of AHU-3 at each shift change. By regularly taking readings, they were able to identify a looseness issue and tighten the loose components before it caused a major problem. This proactive approach helped ensure equipment reliability and reduced the risk of unexpected downtime.</p>
       <p>By using Voice Journal for phone vibration analysis, maintenance teams can detect these failure modes and take proactive steps to prevent equipment failures. Regular walkdown routes and readings can help identify potential issues before they become major problems. For example, a plant in Davao used Voice Journal to establish a weekly walkdown route, which helped them identify and address potential issues before they caused downtime. This approach can be particularly effective in Philippine plants, where budget constraints may limit the use of more expensive vibration analysis tools.</p>
       <p>Effective use of phone vibration analysis requires a thorough understanding of the equipment being monitored and the failure modes that can occur. By combining Voice Journal with knowledge of equipment operation and maintenance, teams can identify potential issues and take proactive steps to prevent failures. For instance, a plant in Batangas used Voice Journal to monitor the vibration levels of Boiler B-1 and was able to identify a potential issue before it caused a major breakdown. This approach can help Philippine plants reduce downtime and improve overall equipment reliability.</p>
 
       <div class="tool-cta">
-        <p style="margin:0; font-size:0.95rem; color:rgba(244,246,250,0.85);"><strong>Open the tool:</strong> Voice Journal is the WorkHive surface this guide funnels into. It is free at the worker tier, works offline, and is built for Philippine plants.</p>
+        <p style="margin:0; font-size:0.95rem; color:rgba(244,246,250,0.85);"><strong>Open the tools:</strong> two surfaces do the work here. <strong>Voice Journal</strong> captures each reading by voice on the round, offline. <strong>Engineering Design &rarr; Vibration Analysis</strong> then judges the number: pick the machine class and it returns the ISO 10816-3 severity zone, along with natural frequency and transmissibility if you are chasing a resonance.</p>
         <a href="/voice-journal.html">Open Voice Journal &rarr;</a>
+          <a href="/engineering-design.html">Open Vibration Analysis &rarr;</a>
       </div>
 
       <h2 id="faq">Frequently asked questions</h2>
-      <details class="faq-item"><summary>What is the cost of a vibration analyzer?</summary><div class="faq-answer">The cost of a vibration analyzer can range from $5,000 to $10,000 or more, which may be out of budget for some Philippine plants. However, phone-based vibration analysis apps can provide a cost-effective solution.</div></details>
+      <details class="faq-item"><summary>What is the cost of a vibration analyzer?</summary><div class="faq-answer">A dedicated analyser is a capital purchase, typically in the hundreds of thousands of pesos once the sensor, software and training are counted, and it usually has to be justified before any data exists to justify it. A phone accelerometer app plus a logged route costs nothing beyond the phones the technicians already carry, and the trend it produces is what makes the case for the analyser later.</div></details>
       <details class="faq-item"><summary>Can phone vibration analysis detect all types of equipment failures?</summary><div class="faq-answer">No, phone vibration analysis has its limitations. It can detect certain types of failures, such as bearing wear, but may not detect others, such as gear-mesh frequencies.</div></details>
-      <details class="faq-item"><summary>What is ISO 10816 and how does it relate to vibration analysis?</summary><div class="faq-answer">ISO 10816 is an international standard that provides guidelines for vibration severity. It provides thresholds for vibration measurements, which can be used to determine the severity of equipment vibration.</div></details>
+      <details class="faq-item"><summary>What is ISO 10816 and how does it relate to vibration analysis?</summary><div class="faq-answer">ISO 10816 evaluates machine vibration measured on non-rotating parts. Part 1 sets the general framework; Part 3 is the one you use on plant, because it puts machines into Class I to IV by power and foundation and gives each class its own A/B/C/D velocity zones. Class II covers 15-300 kW on a rigid foundation, with boundaries at 2.8 and 7.1 mm/s RMS; Class I covers 15 kW and under, at 1.8 and 4.5. Quoting a single threshold without naming the class is the commonest way the standard gets misapplied.</div></details>
       <details class="faq-item"><summary>How often should I perform vibration analysis?</summary><div class="faq-answer">The frequency of vibration analysis depends on the equipment and plant conditions. A weekly walkdown route can be a good starting point for many plants.</div></details>
       <details class="faq-item"><summary>Can I use any phone app for vibration analysis?</summary><div class="faq-answer">No, not all phone apps are suitable for vibration analysis. Look for apps that are specifically designed for vibration analysis and have good reviews from users.</div></details>
       <details class="faq-item"><summary>Is phone vibration analysis compliant with Philippine regulations?</summary><div class="faq-answer">The Department of Labor and Employment (DOLE) requires plants to implement a predictive maintenance program. Phone vibration analysis can be a part of this program, but ensure that it meets the requirements of DOLE and other relevant regulations.</div></details>
@@ -252,14 +260,12 @@
       <p><strong>Keep reading:</strong> <a href="/learn/thermography-for-pm-philippine-plants/">pair it with thermography</a>, or <a href="/learn/asset-brain-360-one-machine-history-philippine-plant/">give each machine one history</a>.</p>
       <h2 id="sources">Sources</h2>
       <ul class="sources-list">
-        <li>ISO 10816-1:2009, Mechanical vibration - Evaluation of machine vibration by measurements on non-rotating parts - Part 1: General guidelines</li>
-        <li>DOLE OSHS, Occupational Safety and Health Standards</li>
-        <li>IIEE Code, Philippine Electrical Code</li>
+        <li>ISO 10816-3, <strong>Mechanical vibration: Evaluation of machine vibration by measurements on non-rotating parts: Part 3: Industrial machines</strong> (the Class I&ndash;IV severity zones quoted above). Part 1:2009 gives the general framework.</li>
       </ul>
     </div>
 
   </div>
-</article>
+</article></main>
 
 <footer class="py-10 border-t border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
   <div class="max-w-5xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">

@@ -67,13 +67,13 @@
     .chart-section { margin-bottom: 1.5rem; }
     .chart-section .card { display: flex; flex-direction: column; align-items: center; }
     .chart-title { font-size: 0.9rem; font-weight: 600; color: #fff; align-self: flex-start; margin-bottom: 0.5rem; }
-    .chart-legend { display: flex; gap: 1rem; margin-top: 0.75rem; font-size: 0.7rem; color: var(--wh-steel-bright); }
+    .chart-legend { display: flex; gap: 1rem; margin-top: 0.75rem; font-size: 0.75rem; color: var(--wh-steel-bright); }
     .chart-legend span { display: flex; align-items: center; gap: 0.35rem; }
     .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
     #radar-canvas { max-width: 280px; max-height: 280px; }
     .chart-fallback { display: none; width: 100%; }
     .chart-fallback table { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
-    .chart-fallback td { padding: 0.4rem 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .chart-fallback td { padding: 0.5rem 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.06); }
     .chart-fallback .label { color: var(--wh-steel-bright); }
     .chart-fallback .val { text-align: right; font-weight: 600; }
 
@@ -91,16 +91,16 @@
       transition: transform 0.15s, border-color 0.15s;
     }
     .disc-card:active { transform: scale(0.98); }
-    .disc-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.6rem; }
+    .disc-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem; }
     .disc-card-name { font-size: 0.9rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 0.5rem; }
     .disc-icon { font-size: 18px; line-height: 1; display: inline-block; vertical-align: -0.15em; }
     .disc-level-badge {
-      font-size: 0.65rem; font-weight: 700; padding: 0.2rem 0.5rem;
+      font-size: 0.75rem; font-weight: 700; padding: 0.25rem 0.5rem;
       border-radius: 999px; background: rgba(255,255,255,0.08);
       color: var(--disc-color); border: 1px solid var(--disc-color);
     }
-    .disc-card-progress { margin-bottom: 0.6rem; }
-    .level-dots { display: flex; gap: 6px; margin-bottom: 0.4rem; }
+    .disc-card-progress { margin-bottom: 0.5rem; }
+    .level-dots { display: flex; gap: 6px; margin-bottom: 0.5rem; }
     .level-dot {
       width: 14px; height: 14px; border-radius: 50%;
       background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.15);
@@ -111,13 +111,13 @@
     .progress-bar-bg { height: 4px; background: rgba(255,255,255,0.08); border-radius: 999px; overflow: hidden; }
     .progress-bar-fill { height: 100%; border-radius: 999px; background: var(--disc-color); transition: width 0.5s; }
     .disc-card-footer { display: flex; align-items: center; justify-content: space-between; }
-    .disc-target-row { font-size: 0.7rem; color: var(--wh-steel-bright); }
-    .disc-cta { font-size: 0.7rem; font-weight: 600; color: var(--disc-color); display: flex; align-items: center; gap: 0.25rem; }
+    .disc-target-row { font-size: 0.75rem; color: var(--wh-steel-bright); }
+    .disc-cta { font-size: 0.75rem; font-weight: 600; color: var(--disc-color); display: flex; align-items: center; gap: 0.25rem; }
     .disc-cta svg { width: 12px; height: 12px; }
     .disc-card.primary-badge .disc-card-name::after {
-      content: 'Primary'; font-size: 0.55rem; font-weight: 600;
+      content: 'Primary'; font-size: 0.75rem; font-weight: 600;
       background: var(--disc-color); color: var(--wh-navy); border-radius: 999px;
-      padding: 0.1rem 0.4rem; margin-left: 0.25rem;
+      padding: 0.1rem 0.5rem; margin-left: 0.25rem;
     }
 
     /* ── Target stepper ── */
@@ -126,8 +126,8 @@
     /* mobile: stepper rows need ~195px min-content each → 2 cols overflow a 371px viewport by 86px. Single column. */
     @media (max-width: 480px) { .target-grid { grid-template-columns: 1fr; } }
     #header-sub { color: #94A3B8; }  /* was inherited var(--wh-steel) = 4.46:1 (fails AA); slate-400 passes */
-    .target-item { display: flex; align-items: center; justify-content: space-between; background: rgba(22,32,50,0.4); border-radius: 0.75rem; padding: 0.6rem 0.75rem; }
-    .target-name { font-size: 0.72rem; font-weight: 600; color: var(--wh-cloud); flex: 1; }
+    .target-item { display: flex; align-items: center; justify-content: space-between; background: rgba(22,32,50,0.4); border-radius: 0.75rem; padding: 0.5rem 0.75rem; }
+    .target-name { font-size: 0.75rem; font-weight: 600; color: var(--wh-cloud); flex: 1; }
     .stepper { display: flex; align-items: center; gap: 0.35rem; }
     .step-btn {
       width: 28px; height: 28px; border-radius: 0.5rem; border: 1px solid rgba(255,255,255,0.15);
@@ -189,7 +189,7 @@
       padding: 1rem 1.25rem 0.75rem;
     }
     .modal-title { font-size: 1rem; font-weight: 700; color: #fff; }
-    .modal-subtitle { font-size: 0.7rem; color: var(--wh-steel-bright); margin-top: 0.15rem; }
+    .modal-subtitle { font-size: 0.75rem; color: var(--wh-steel-bright); margin-top: 0.25rem; }
     .modal-close-btn {
       width: 36px; height: 36px; border-radius: 0.5rem; border: none;
       background: rgba(255,255,255,0.07); color:rgba(255,255,255,0.80);
@@ -201,17 +201,17 @@
 
     /* ── Lesson modal ── */
     .lesson-body { font-size: 0.82rem; color: rgba(255,255,255,0.8); line-height: 1.7; }
-    .lesson-body h3 { font-size: 0.9rem; font-weight: 700; color: #fff; margin: 1.25rem 0 0.4rem; }
+    .lesson-body h3 { font-size: 0.9rem; font-weight: 700; color: #fff; margin: 1.25rem 0 0.5rem; }
     .lesson-body p { margin-bottom: 0.75rem; }
     .lesson-read-gate {
       display: flex; align-items: center; gap: 0.5rem;
       font-size: 0.75rem; color: var(--wh-steel-bright); margin-bottom: 0.75rem;
     }
-    .scroll-hint { font-size: 0.7rem; color: var(--wh-steel-bright); text-align: center; margin-bottom: 0.5rem; }
+    .scroll-hint { font-size: 0.75rem; color: var(--wh-steel-bright); text-align: center; margin-bottom: 0.5rem; }
     .btn-primary {
       width: 100%; background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light));
       color: var(--wh-navy); font-weight: 700; border: none; border-radius: 0.75rem;
-      padding: 0.875rem 1.5rem; font-size: 0.875rem; cursor: pointer;
+      padding: 1rem 1.5rem; font-size: 0.875rem; cursor: pointer;
       font-family: 'Poppins', sans-serif; transition: all 0.2s;
       min-height: 44px; /* tap-target floor — stays >=44 even when label is set later (result-primary-btn) */
     }
@@ -229,13 +229,13 @@
     /* ── Exam modal ── */
     .exam-progress-bar { height: 3px; background: rgba(255,255,255,0.08); border-radius: 999px; margin-bottom: 1rem; overflow: hidden; }
     .exam-progress-fill { height: 100%; background: var(--wh-blue); border-radius: 999px; transition: width 0.3s; }
-    .exam-progress-label { font-size: 0.7rem; color: var(--wh-steel-bright); text-align: right; margin-top: -0.85rem; margin-bottom: 0.75rem; }
+    .exam-progress-label { font-size: 0.75rem; color: var(--wh-steel-bright); text-align: right; margin-top: -0.75rem; margin-bottom: 0.75rem; }
     .exam-question { font-size: 0.9rem; font-weight: 600; color: #fff; line-height: 1.5; margin-bottom: 1rem; }
     .exam-options { display: flex; flex-direction: column; gap: 0.5rem; }
     .exam-option {
       display: flex; align-items: center; gap: 0.75rem;
       background: rgba(22,32,50,0.5); border: 1.5px solid rgba(255,255,255,0.1);
-      border-radius: 0.75rem; padding: 0.875rem 1rem;
+      border-radius: 0.75rem; padding: 1rem 1rem;
       cursor: pointer; transition: all 0.15s; font-size: 0.82rem; color: var(--wh-cloud);
       min-height: 56px; text-align: left; width: 100%;
       font-family: 'Poppins', sans-serif;
@@ -248,7 +248,7 @@
     .option-letter {
       width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
       display: flex; align-items: center; justify-content: center;
-      font-size: 0.7rem; font-weight: 700;
+      font-size: 0.75rem; font-weight: 700;
       background: rgba(255,255,255,0.08); color:rgba(255,255,255,0.80);
     }
     .exam-option.selected .option-letter { background: var(--wh-blue); color: var(--wh-navy); }
@@ -285,7 +285,7 @@
     .result-review { margin-top: 1rem; display: flex; flex-direction: column; gap: 0.35rem; }
     .result-review-item {
       display: flex; align-items: flex-start; gap: 0.5rem;
-      font-size: 0.72rem; color:rgba(255,255,255,0.80); padding: 0.4rem 0;
+      font-size: 0.75rem; color:rgba(255,255,255,0.80); padding: 0.5rem 0;
       border-bottom: 1px solid rgba(255,255,255,0.05);
     }
     .result-review-item .ri-icon { font-size: 0.8rem; flex-shrink: 0; margin-top: 1px; }
@@ -304,10 +304,10 @@
     .text-amber { color: var(--wh-orange); }
     .text-red { color: var(--wh-red); }
     /* Plain-Read summary (Layer D — UX Contract) */
-    .verdict { display:flex; align-items:center; gap:12px; padding:14px 16px; margin-bottom:14px; border-radius:12px; border:1px solid; }
+    .verdict { display:flex; align-items:center; gap:12px; padding:16px; margin-bottom:16px; border-radius:12px; border:1px solid; }
     .verdict-icon { font-size:1.5rem; line-height:1; font-weight:800; }
     .verdict-text { font-size:0.9rem; font-weight:700; line-height:1.35; }
-    .verdict-text small { display:block; font-size:0.72rem; font-weight:500; color:rgba(255,255,255,0.83); margin-top:3px; }
+    .verdict-text small { display:block; font-size: 0.75rem; font-weight:500; color:rgba(255,255,255,0.83); margin-top:4px; }
     .verdict.healthy { background:rgba(74,222,128,0.07);  border-color:rgba(74,222,128,0.3); }
     .verdict.healthy .verdict-icon { color:var(--wh-green); }
     .verdict.watch   { background:rgba(247,162,27,0.07);  border-color:rgba(247,162,27,0.3); }
@@ -317,7 +317,7 @@
     .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
     .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.80); }
     /* .simple-row / .simple-card / .sc-* / .action-card / .details-toggle → components.css (STREAMLINE S11) */
-    #sm-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:14px; }
+    #sm-summary-details { display:none; padding:16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:16px; }
     #sm-summary-details.open { display:block; }
   </style>
   <link rel="canonical" href="https://workhiveph.com/skillmatrix.html" />
@@ -352,8 +352,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}    /* R3 (2026-09-
       <summary data-i="p_howthispageworks_c540">How this page works</summary>
       <ul>
         <li data-i="p_askilllevelisevidencebackedi_7004">A skill level is evidence-backed: it moves when the work you log touches that skill, not when you assert it.</li>
-        <li data-i="p_thematrixshowsthewholehiveso_8a8c">The matrix shows the whole hive, so a supervisor can see where cover is thin before it matters.</li>
-        <li data-i="p_agaphereisatrainingtargetnot_ef88">A gap here is a training target, not a judgement. It is the same view your supervisor sees.</li>
+        <li data-i="p_thematrixshowsthewholehiveso_8a8c">This matrix is yours alone: your supervisor cannot open it. Where your skills do reach the team is the daily brief, which matches people to jobs server-side without showing anyone your levels.</li>
+        <li data-i="p_agaphereisatrainingtargetnot_ef88">A gap here is a training target, not a judgement, and nobody else is looking at it.</li>
       </ul>
     </details>
 
@@ -363,7 +363,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}    /* R3 (2026-09-
          platform: skill_profiles, skill_badges and skill_exam_attempts are all RLS'd to
          `auth_uid = auth.uid()` - private to you, invisible even to your supervisor. Read off the
          policies, not assumed. -->
-    <p data-i="p_privatetoyouyourskillsbadges_adcc" style="font-size:.7rem;color:var(--wh-steel-bright,rgba(255,255,255,0.72));margin:2px 0 0;">
+    <p data-i="p_privatetoyouyourskillsbadges_adcc" style="font-size: 0.75rem;color:var(--wh-steel-bright,rgba(255,255,255,0.72));margin:2px 0 0;">
       Private to you: your skills, badges and exam attempts are visible only to you, not to your
       supervisor or teammates.
     </p>
@@ -371,7 +371,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}    /* R3 (2026-09-
          the chip answers the multi-hive contractor's separate question - which hive am I acting in
          while I read the hive-scoped lesson content. Same pattern as pm-scheduler's chip;
          self-filling so no page init needs touching. -->
-    <span id="wh-hive-chip" translate="no" style="display:none;align-items:center;gap:4px;padding:3px 10px;border-radius:999px;font-size:.68rem;font-weight:700;background:rgba(247,162,27,0.1);border:1px solid rgba(247,162,27,0.25);color:var(--wh-orange-text);max-width:140px;"><span id="wh-hive-chip-name" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span></span>
+    <span id="wh-hive-chip" translate="no" style="display:none;align-items:center;gap:4px;padding:4px 10px;border-radius:999px;font-size: 0.75rem;font-weight:700;background:rgba(247,162,27,0.1);border:1px solid rgba(247,162,27,0.25);color:var(--wh-orange-text);max-width:140px;"><span id="wh-hive-chip-name" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span></span>
     <script>try{var _hn=localStorage.getItem('wh_hive_name');/* storage-key-allow: pre-utils chip paint */if(_hn){document.getElementById('wh-hive-chip-name').textContent=_hn;document.getElementById('wh-hive-chip').style.display='inline-flex';}}catch(_){/* empty-catch-allow: the chip is context decoration */}</script>
     <!-- STREAMLINE F5: skillmatrix + achievements are ONE "Growth" surface. This tab bar
          switches Skills ↔ Achievements; one nav entry. Both pages kept on disk. -->
@@ -389,7 +389,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}    /* R3 (2026-09-
         <span aria-hidden="true">&#8681;</span><span data-i="csv">CSV</span>
       </button>
     </div>
-    <p id="skillmatrix-source-chip" style="margin-top:3px;"></p>
+    <p id="skillmatrix-source-chip" style="margin-top:4px;"></p>
   </header>
 
   <!-- Onboarding (first-time setup) -->
@@ -458,7 +458,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}    /* R3 (2026-09-
     </div>
     <!-- Service-hailing bridge (SERVICE_HAILING_ROADMAP.md P3 / §1c): the skill matrix IS the
          provider capability profile — earn here, get hailed there. Plain link, 44px target. -->
-    <div class="simple-card" style="margin-top:0.8rem;display:flex;flex-wrap:wrap;align-items:center;gap:0.6rem;justify-content:space-between;padding:14px 16px;">
+    <div class="simple-card" style="margin-top:0.8rem;display:flex;flex-wrap:wrap;align-items:center;gap:0.6rem;justify-content:space-between;padding:12px 16px;">
       <div>
         <strong data-i="p_yourskillscanearnontheside_ac29">Your skills can earn on the side</strong>
         <div data-i="p_registerasaserviceprovideran_69cf" style="font-size:0.78rem;opacity:0.8;margin-top:0.15rem;">Register as a service provider and get hailed for jobs near you. Your skills and badges on this page back you up.</div>
@@ -476,7 +476,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}    /* R3 (2026-09-
     data-rag-tile="skillmatrix:detail_panel"
     data-rag-label="Skill matrix detail">
       <strong data-i="p_howthisiscomputed_5b52" style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How this is computed</strong>
-      <div data-i="p_standardworkhiveskilltiermod_f8ed" style="font-size:11px;color:rgba(255,255,255,0.80);margin-bottom:6px;">Standard: WorkHive Skill Tier Model (platform-internal, 5 levels × 5 disciplines).</div>
+      <div data-i="p_standardworkhiveskilltiermod_f8ed" style="font-size: 12px;color:rgba(255,255,255,0.80);margin-bottom:6px;">Standard: WorkHive Skill Tier Model (platform-internal, 5 levels × 5 disciplines).</div>
       <ul style="margin:0;padding-left:20px;">
         <li><strong data-i="p_ontarget_412a">On target</strong>: disciplines where your actual level (highest consecutive badge from L1) meets or exceeds your target level.</li>
         <li><strong data-i="p_quizzesavailable_e065">Quizzes available</strong>: disciplines where the next level is within reach (actual + 1 &lt;= target + 1) and not yet on cooldown.</li>
@@ -547,7 +547,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}    /* R3 (2026-09-
            to withhold it. The numbers are the product's own, not invented: every exam in skill-content.js
            holds exactly 10 questions and submitExam() passes at `score >= 7`. Stated as a fraction rather
            than a percentage because the exam is answered in questions, not points. -->
-      <p id="lesson-pass-mark" style="font-size:0.68rem; color:rgba(255,255,255,0.80); margin:0 0 0.5rem; line-height:1.5;">
+      <p id="lesson-pass-mark" style="font-size: 0.75rem; color:rgba(255,255,255,0.80); margin:0 0 0.5rem; line-height:1.5;">
         <strong data-i="p_ofcorrect_4062">7 of 10 correct</strong> to pass. Passing awards the badge for this level; a failed attempt
         can be retaken after its cooldown.
       </p>
@@ -956,9 +956,9 @@ function renderTargetGrid() {
       <div class="target-item" style="--disc-color:${DISCIPLINE_COLORS[d]}">
         <div class="target-name" style="color:${DISCIPLINE_COLORS[d]}">${escHtml(d.split(' ')[0])}</div>
         <div class="stepper">
-          <button class="step-btn" data-disc="${escHtml(d)}" data-dir="-1" ${current <= min ? 'disabled' : ''} aria-label="Decrease target">−</button>
+          <button class="step-btn" data-disc="${escHtml(d)}" data-dir="-1" ${current <= min ? 'disabled' : ''} aria-label="${escHtml(_t('Decrease target', 'Bawasan ang target'))}">−</button>
           <span class="step-val" id="step-val-${escHtml(d.replace(/ /g,'_'))}">${current}</span>
-          <button class="step-btn" data-disc="${escHtml(d)}" data-dir="1" ${current >= max ? 'disabled' : ''} aria-label="Increase target">+</button>
+          <button class="step-btn" data-disc="${escHtml(d)}" data-dir="1" ${current >= max ? 'disabled' : ''} aria-label="${escHtml(_t('Increase target', 'Dagdagan ang target'))}">+</button>
         </div>
       </div>`;
   }).join('');
@@ -1373,6 +1373,23 @@ function openLesson(disc, level) {
 // renewal, or the OFW portfolio the platform builds elsewhere, readable on one screen and nowhere else.
 // The level comes from getActualLevel (the page's own rule: the highest CONSECUTIVE level earned from 1,
 // which is not the same as the highest badge) rather than a second derivation invented here.
+// W46045 (design lens copy, 2026-09-22): this button is STATIC HTML, so its title and aria-label
+// had no translation path and stayed English for a Filipino reader - the accessible NAME, which is
+// what a screen reader announces. The dynamic controls on this page already translate theirs
+// inline (aria-label="${escHtml(_t('Decrease target', 'Bawasan ang target'))}"); this one could
+// not, because there is no template literal to put _t() inside. Same guarded window._t pattern
+// every shared script uses. The visible "CSV" span is deliberately left alone - a file-format name
+// is not translated.
+(function () {
+  var _b = document.getElementById('btn-export-skills');
+  if (!_b) return;
+  var _n = (typeof window._t === 'function')
+    ? window._t('Export my skill record to CSV', 'I-export ang aking skill record sa CSV')
+    : 'Export my skill record to CSV';
+  _b.setAttribute('aria-label', _n);
+  _b.setAttribute('title', _n);
+})();
+
 document.getElementById('btn-export-skills').addEventListener('click', () => {
   if (!_profile) { showToast(_t('Set up your skill matrix first.', 'I-set up muna ang skill matrix mo.')); return; }
   const esc = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';

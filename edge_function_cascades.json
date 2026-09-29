@@ -6,14 +6,14 @@
     "data_cascades_UNMAPPED": 2,
     "operational_log_writes": 15,
     "self_config_writes": 2,
-    "infra_writes": 10
+    "infra_writes": 12
   },
   "data_cascades_unmapped": [
     {
       "fn": "cmms-webhook-receiver",
       "to_table": "inventory_items",
-      "line": 378,
-      "evidence": "functions/cmms-webhook-receiver/index.ts:378",
+      "line": 451,
+      "evidence": "functions/cmms-webhook-receiver/index.ts:451",
       "downstream_pages": [
         "alert-hub",
         "assistant",
@@ -29,8 +29,8 @@
     {
       "fn": "notify-push",
       "to_table": "push_subscriptions",
-      "line": 120,
-      "evidence": "functions/notify-push/index.ts:120",
+      "line": 136,
+      "evidence": "functions/notify-push/index.ts:136",
       "downstream_pages": [
         "marketplace-seller"
       ],
@@ -43,8 +43,8 @@
         {
           "fn": "agentic-rag-loop",
           "to_table": "agentic_rag_traces",
-          "line": 835,
-          "evidence": "functions/agentic-rag-loop/index.ts:835",
+          "line": 842,
+          "evidence": "functions/agentic-rag-loop/index.ts:842",
           "downstream_pages": [
             "agentic-rag-observability"
           ],
@@ -53,8 +53,8 @@
         {
           "fn": "agentic-rag-loop",
           "to_table": "ai_rate_limits",
-          "line": 220,
-          "evidence": "functions/agentic-rag-loop/index.ts:220",
+          "line": 225,
+          "evidence": "functions/agentic-rag-loop/index.ts:225",
           "downstream_pages": [],
           "disposition": "infra"
         }
@@ -113,8 +113,8 @@
         {
           "fn": "analytics-orchestrator",
           "to_table": "analytics_snapshots",
-          "line": 1209,
-          "evidence": "functions/analytics-orchestrator/index.ts:1209",
+          "line": 1252,
+          "evidence": "functions/analytics-orchestrator/index.ts:1252",
           "downstream_pages": [
             "analytics"
           ],
@@ -146,8 +146,8 @@
         {
           "fn": "batch-risk-scoring",
           "to_table": "asset_risk_scores",
-          "line": 437,
-          "evidence": "functions/batch-risk-scoring/index.ts:437",
+          "line": 462,
+          "evidence": "functions/batch-risk-scoring/index.ts:462",
           "downstream_pages": [
             "alert-hub",
             "asset-hub"
@@ -167,6 +167,7 @@
         }
       ],
       "reads": [
+        "asset_nodes",
         "pm_completions",
         "v_asset_truth",
         "v_fmea_truth",
@@ -188,8 +189,8 @@
         {
           "fn": "benchmark-compute",
           "to_table": "automation_log",
-          "line": 306,
-          "evidence": "functions/benchmark-compute/index.ts:306",
+          "line": 316,
+          "evidence": "functions/benchmark-compute/index.ts:316",
           "downstream_pages": [
             "alert-hub",
             "report-sender"
@@ -199,8 +200,8 @@
         {
           "fn": "benchmark-compute",
           "to_table": "hive_benchmarks",
-          "line": 167,
-          "evidence": "functions/benchmark-compute/index.ts:167",
+          "line": 171,
+          "evidence": "functions/benchmark-compute/index.ts:171",
           "downstream_pages": [
             "hive",
             "ph-intelligence"
@@ -210,8 +211,8 @@
         {
           "fn": "benchmark-compute",
           "to_table": "network_benchmarks",
-          "line": 217,
-          "evidence": "functions/benchmark-compute/index.ts:217",
+          "line": 226,
+          "evidence": "functions/benchmark-compute/index.ts:226",
           "downstream_pages": [
             "hive"
           ],
@@ -232,8 +233,8 @@
         {
           "fn": "cmms-push-completion",
           "to_table": "automation_log",
-          "line": 208,
-          "evidence": "functions/cmms-push-completion/index.ts:208",
+          "line": 238,
+          "evidence": "functions/cmms-push-completion/index.ts:238",
           "downstream_pages": [
             "alert-hub",
             "report-sender"
@@ -243,8 +244,8 @@
         {
           "fn": "cmms-push-completion",
           "to_table": "external_sync",
-          "line": 179,
-          "evidence": "functions/cmms-push-completion/index.ts:179",
+          "line": 196,
+          "evidence": "functions/cmms-push-completion/index.ts:196",
           "downstream_pages": [
             "asset-hub",
             "integrations",
@@ -268,8 +269,8 @@
         {
           "fn": "cmms-sync",
           "to_table": "automation_log",
-          "line": 407,
-          "evidence": "functions/cmms-sync/index.ts:407",
+          "line": 427,
+          "evidence": "functions/cmms-sync/index.ts:427",
           "downstream_pages": [
             "alert-hub",
             "report-sender"
@@ -279,8 +280,8 @@
         {
           "fn": "cmms-sync",
           "to_table": "cmms_audit_log",
-          "line": 415,
-          "evidence": "functions/cmms-sync/index.ts:415",
+          "line": 435,
+          "evidence": "functions/cmms-sync/index.ts:435",
           "downstream_pages": [
             "integrations"
           ],
@@ -312,8 +313,8 @@
         {
           "fn": "cmms-sync",
           "to_table": "integration_configs",
-          "line": 398,
-          "evidence": "functions/cmms-sync/index.ts:398",
+          "line": 412,
+          "evidence": "functions/cmms-sync/index.ts:412",
           "downstream_pages": [
             "integrations",
             "plant-connections"
@@ -353,8 +354,8 @@
         {
           "fn": "cmms-webhook-receiver",
           "to_table": "external_sync",
-          "line": 329,
-          "evidence": "functions/cmms-webhook-receiver/index.ts:329",
+          "line": 100,
+          "evidence": "functions/cmms-webhook-receiver/index.ts:100",
           "downstream_pages": [
             "asset-hub",
             "integrations",
@@ -366,8 +367,8 @@
         {
           "fn": "cmms-webhook-receiver",
           "to_table": "inventory_items",
-          "line": 378,
-          "evidence": "functions/cmms-webhook-receiver/index.ts:378",
+          "line": 451,
+          "evidence": "functions/cmms-webhook-receiver/index.ts:451",
           "downstream_pages": [
             "alert-hub",
             "assistant",
@@ -383,8 +384,8 @@
         {
           "fn": "cmms-webhook-receiver",
           "to_table": "logbook",
-          "line": 334,
-          "evidence": "functions/cmms-webhook-receiver/index.ts:334",
+          "line": 389,
+          "evidence": "functions/cmms-webhook-receiver/index.ts:389",
           "downstream_pages": [
             "asset-hub",
             "assistant",
@@ -413,8 +414,8 @@
         {
           "fn": "data-fabric-normalizer",
           "to_table": "unified_events",
-          "line": 193,
-          "evidence": "functions/data-fabric-normalizer/index.ts:193",
+          "line": 209,
+          "evidence": "functions/data-fabric-normalizer/index.ts:209",
           "downstream_pages": [],
           "disposition": "infra"
         }
@@ -450,15 +451,17 @@
       "reads": [
         "v_worker_truth"
       ],
-      "invoked_by_pages": []
+      "invoked_by_pages": [
+        "hive"
+      ]
     },
     "failure-signature-scan": {
       "writes": [
         {
           "fn": "failure-signature-scan",
           "to_table": "automation_log",
-          "line": 381,
-          "evidence": "functions/failure-signature-scan/index.ts:381",
+          "line": 382,
+          "evidence": "functions/failure-signature-scan/index.ts:382",
           "downstream_pages": [
             "alert-hub",
             "report-sender"
@@ -508,8 +511,8 @@
         {
           "fn": "gcash-receipt-inbound",
           "to_table": "gcash_inbound_receipts",
-          "line": 173,
-          "evidence": "functions/gcash-receipt-inbound/index.ts:173",
+          "line": 197,
+          "evidence": "functions/gcash-receipt-inbound/index.ts:197",
           "downstream_pages": [],
           "disposition": "infra"
         }
@@ -595,8 +598,8 @@
         {
           "fn": "notify-push",
           "to_table": "push_subscriptions",
-          "line": 120,
-          "evidence": "functions/notify-push/index.ts:120",
+          "line": 136,
+          "evidence": "functions/notify-push/index.ts:136",
           "downstream_pages": [
             "marketplace-seller"
           ],
@@ -647,9 +650,25 @@
       "writes": [
         {
           "fn": "pdf-ingest",
+          "to_table": "kb_chunks",
+          "line": 208,
+          "evidence": "functions/pdf-ingest/index.ts:208",
+          "downstream_pages": [],
+          "disposition": "infra"
+        },
+        {
+          "fn": "pdf-ingest",
+          "to_table": "kb_documents",
+          "line": 173,
+          "evidence": "functions/pdf-ingest/index.ts:173",
+          "downstream_pages": [],
+          "disposition": "infra"
+        },
+        {
+          "fn": "pdf-ingest",
           "to_table": "pdf_jobs",
-          "line": 62,
-          "evidence": "functions/pdf-ingest/index.ts:62",
+          "line": 115,
+          "evidence": "functions/pdf-ingest/index.ts:115",
           "downstream_pages": [],
           "disposition": "infra"
         }
@@ -685,8 +704,8 @@
         {
           "fn": "platform-gateway",
           "to_table": "gateway_audit_log",
-          "line": 271,
-          "evidence": "functions/platform-gateway/index.ts:271",
+          "line": 277,
+          "evidence": "functions/platform-gateway/index.ts:277",
           "downstream_pages": [
             "plant-connections"
           ],
@@ -720,8 +739,8 @@
         {
           "fn": "scheduled-agents",
           "to_table": "ai_reports",
-          "line": 46,
-          "evidence": "functions/scheduled-agents/index.ts:46",
+          "line": 52,
+          "evidence": "functions/scheduled-agents/index.ts:52",
           "downstream_pages": [
             "hive",
             "report-sender"
@@ -731,8 +750,8 @@
         {
           "fn": "scheduled-agents",
           "to_table": "automation_log",
-          "line": 40,
-          "evidence": "functions/scheduled-agents/index.ts:40",
+          "line": 41,
+          "evidence": "functions/scheduled-agents/index.ts:41",
           "downstream_pages": [
             "alert-hub",
             "report-sender"
@@ -774,8 +793,8 @@
         {
           "fn": "send-report-email",
           "to_table": "automation_log",
-          "line": 275,
-          "evidence": "functions/send-report-email/index.ts:275",
+          "line": 302,
+          "evidence": "functions/send-report-email/index.ts:302",
           "downstream_pages": [
             "alert-hub",
             "report-sender"
@@ -796,8 +815,8 @@
         {
           "fn": "sensor-readings-ingest",
           "to_table": "sensor_readings",
-          "line": 346,
-          "evidence": "functions/sensor-readings-ingest/index.ts:346",
+          "line": 369,
+          "evidence": "functions/sensor-readings-ingest/index.ts:369",
           "downstream_pages": [
             "asset-hub"
           ],
@@ -839,8 +858,8 @@
         {
           "fn": "supervisor-reset-password",
           "to_table": "hive_audit_log",
-          "line": 88,
-          "evidence": "functions/supervisor-reset-password/index.ts:88",
+          "line": 95,
+          "evidence": "functions/supervisor-reset-password/index.ts:95",
           "downstream_pages": [
             "alert-hub",
             "asset-hub",
@@ -861,8 +880,8 @@
         {
           "fn": "supervisor-reset-password",
           "to_table": "service_outbox",
-          "line": 100,
-          "evidence": "functions/supervisor-reset-password/index.ts:100",
+          "line": 107,
+          "evidence": "functions/supervisor-reset-password/index.ts:107",
           "downstream_pages": [],
           "disposition": "infra"
         }
@@ -879,8 +898,8 @@
         {
           "fn": "temporal-rag-orchestrator",
           "to_table": "ai_rate_limits",
-          "line": 307,
-          "evidence": "functions/temporal-rag-orchestrator/index.ts:307",
+          "line": 314,
+          "evidence": "functions/temporal-rag-orchestrator/index.ts:314",
           "downstream_pages": [],
           "disposition": "infra"
         }
@@ -896,8 +915,8 @@
         {
           "fn": "trigger-ml-retrain",
           "to_table": "automation_log",
-          "line": 135,
-          "evidence": "functions/trigger-ml-retrain/index.ts:135",
+          "line": 136,
+          "evidence": "functions/trigger-ml-retrain/index.ts:136",
           "downstream_pages": [
             "alert-hub",
             "report-sender"

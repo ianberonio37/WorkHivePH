@@ -86,6 +86,14 @@ try:
 except Exception:
     pass
 
+# Wave 4's name, from its seeder for the same reason (2026-09-14) - one code, W4, every row carrying its
+# kind (action / nav-hub / layer) and its axis on the row itself.
+try:
+    from seed_expansion_wave4 import WAVE as _W4_W, WAVE_NAME as _W4_NAME
+    WAVE_NAMES[_W4_W] = _W4_NAME
+except Exception:
+    pass
+
 # LX-FN's title, from its own seeder for the same reason (2026-09-07)
 try:
     from seed_layer_fn_wave import WAVE as _LXFN_W
@@ -242,6 +250,27 @@ def render() -> str:
                                       for _w, _e in sorted(_exp.items()))
                          + f" — **{sum(_e['seeded'] for _e in _exp.values())} new rows seeded, "
                          + f"{sum(_e['seeded'] - _e['closed'] for _e in _exp.values())} open**")
+        # ★PAGE × LAYER (Wave 4, Ian 2026-09-14: "cover, explore, experience those uncovered, unexplored, and
+        # unexperienced layers"). His three words are the registry's own depths: uncovered = a (served page,
+        # layer) cell with no row at all; unexplored = rows but none walked; unexperienced = walked as a
+        # single-page check but never LIVED as a gated >=4-page journey. Measured by the wave-4 seeder's
+        # page_layer_cells - un-frozen, so the lived count climbs as the walks close rows - never typed here.
+        try:
+            from seed_expansion_wave4 import page_layer_cells as _plc, LAYER_SET as _LS4
+            _g = _plc(scoped)
+            _live_n = len(_g["lived"])
+            lines.append("")
+            lines.append(f"**PAGE × LAYER** ({len(_g['roster'])} served pages × {len(_LS4)} layers = {_g['cells']} "
+                         f"cells · **{_live_n} lived** ({100.0 * _live_n / _g['cells']:.1f}%) · "
+                         f"{len(_g['not_lived'])} not lived = {_g['uncovered']} uncovered + "
+                         f"{_g['unexperienced']} unexperienced · {_g['pages_with_none_lived']} page(s) with no "
+                         f"layer lived) · not lived by layer: "
+                         + " · ".join(f"{k} {v}" for k, v in sorted(_g["by_layer"].items(), key=lambda kv: -kv[1]))
+                         + " · by class: " + " · ".join(f"{k} {v}" for k, v in _g["by_class"].items())
+                         + " — `python tools/seed_expansion_wave4.py --cells`")
+        except Exception as _e:
+            lines.append("")
+            lines.append(f"**PAGE × LAYER unavailable ({str(_e)[:60]})**")
         # ★JOURNEYS (Ian, 2026-09-07: "add also the trajectories for full journeys, diverse" then "we
         # still have to expand and extend the journeys"). A journey row is one whose walk crosses >=4
         # pages — before wave 3 the whole program had NINE of them and none crossed five. "Diverse" has

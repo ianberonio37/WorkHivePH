@@ -1,5 +1,6 @@
 # Free guides for the
- Philippine plant floor
+ 
+Philippine plant floor
 
 > Free guides on industrial maintenance for Philippine plants: OEE, MTBF, shift handover, digital logbook rollout, PM strategy, and more. Written for the plant floor.
 
@@ -91,7 +92,7 @@ Four AI sub-agents rank the riskiest assets, list the PMs due, carry forward las
 [Asset Hub
 9 min read · 2 Jul 2026
 Equipment history in one QR scan: Asset Brain 360
-Scan a QR on any machine and see its whole life in one place: every logbook entry, PM, part, and project, plus sister machines, the parts that fit, an AI that answers only from that asset's own history, and its predictive risk score. The intelligence layer you get once the asset register is in.](https://workhiveph.com/learn/asset-brain-360-one-machine-history-philippine-plant/)
+Scan a QR or barcode on any machine and see its whole life in one place: every logbook entry, PM, part and project, the parent it belongs to, its own Risk Profile, and an AI that answers only from that asset's records and comparable machines of the same class. The intelligence layer you get once the asset register is in.](https://workhiveph.com/learn/asset-brain-360-one-machine-history-philippine-plant/)
 [Logbook
 11 min read · 17 May 2026
 How to start a digital logbook in a Philippine factory (zero-budget guide)
@@ -167,7 +168,7 @@ Cross-plant knowledge sharing, 3 anonymity modes, Filipino moderation, the 5 hig
 [Achievements
 7 min read · 17 May 2026
 Gamifying maintenance for technician engagement
-XP and badges that drive what compounds, what backfires, badge design that survives 12 months, and worker-portable career insurance.](https://workhiveph.com/learn/gamifying-maintenance-for-engagement/)
+XP and badges that reward what compounds, the mechanics that backfire and why, badge design that survives 12 months, and which half actually travels when you change employers.](https://workhiveph.com/learn/gamifying-maintenance-for-engagement/)
 [Marketplace
 8 min read · 17 May 2026
 Industrial marketplace for Philippine specialists, parts, and services
@@ -191,7 +192,7 @@ Daily 5-minute health check, sensor inventory rotation, OT/IT cybersecurity boun
 [PH Intelligence
 7 min read · 17 May 2026
 PH industrial benchmarks and intelligence reports (free)
-Quarterly Philippine-specific OEE / MTBF / MTTR / PM compliance benchmarks by sector. Anonymous aggregation with 8-plant threshold. Free to read.](https://workhiveph.com/learn/ph-industrial-benchmarks-intelligence/)
+Quarterly Philippine-specific OEE / MTBF / MTTR / PM compliance benchmarks by sector. Anonymous aggregation: a segment unlocks at 5 contributing hives. Free to read.](https://workhiveph.com/learn/ph-industrial-benchmarks-intelligence/)
 [Reliability
 14 min read · 18 May 2026
 Reliability-Centered Maintenance (RCM) for Philippine Plants
@@ -207,7 +208,7 @@ Learn how to create a Lock-Out Tag-Out (LOTO) procedure template based on DOLE O
 [Predictive
 14 min read · 18 May 2026
 Vibration Analysis on a Phone Budget (Philippine PdM)
-Learn how to perform vibration analysis on a phone budget using Voice Journal and ISO 10816 thresholds, and discover the failure modes it can detect.](https://workhiveph.com/learn/vibration-analysis-on-a-phone-budget/)
+What a phone accelerometer can and cannot see, how to log each reading with Voice Journal, and how to judge it against the right ISO 10816-3 severity zone.](https://workhiveph.com/learn/vibration-analysis-on-a-phone-budget/)
 [Predictive
 16 min read · 18 May 2026
 Thermography for Preventive Maintenance in Philippine Plants
@@ -249,4 +250,4 @@ No guides match that search. Try a different word, or tap **All**.
 
 Show more guides
 
-<!-- md-twin source-sha: 17fffbe0ea56556a -->
+<!-- md-twin source-sha: 3c62c59b8a4db644 -->

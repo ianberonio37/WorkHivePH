@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Equipment History in One QR Scan: Asset Brain 360 | WorkHive</title>
   <meta name="description" content="Learn how Asset Brain 360 in WorkHive Asset Hub provides a complete history of every machine in your Philippine plant, accessible with a single QR scan." />
-  <meta name="keywords" content="Asset Brain 360, QR scan, machine history, predictive risk score, Health Heatmap, ISO 14224, failure coding, WorkHive Asset Hub, Philippine plant" />
+  <meta name="keywords" content="Asset Brain 360, QR scan, machine history, risk profile, reliability workbench, ISO 14224, failure coding, WorkHive Asset Hub, Philippine plant" />
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="https://workhiveph.com/learn/asset-brain-360-one-machine-history-philippine-plant/" />
   <link rel="manifest" href="/manifest.json" />
@@ -50,7 +50,7 @@
         "inLanguage": "en-PH",
         "articleSection": "Maintenance",
         "wordCount": 1188,
-        "keywords": "Asset Brain 360, QR scan, machine history, predictive risk score, Health Heatmap, ISO 14224, failure coding, WorkHive Asset Hub, Philippine plant"
+        "keywords": "Asset Brain 360, QR scan, machine history, risk profile, reliability workbench, ISO 14224, failure coding, WorkHive Asset Hub, Philippine plant"
       },
       {
         "@type": "FAQPage",
@@ -58,7 +58,7 @@
         "mainEntity": [
           { "@type": "Question", "name": "What is Asset Brain 360?", "acceptedAnswer": { "@type": "Answer", "text": "Asset Brain 360 is a feature in WorkHive Asset Hub that provides a complete history of every machine in your plant, accessible with a single QR scan." } },
           { "@type": "Question", "name": "How do I access Asset Brain 360?", "acceptedAnswer": { "@type": "Answer", "text": "You can access Asset Brain 360 by scanning a QR code on a machine using your mobile device." } },
-          { "@type": "Question", "name": "What kind of information is available in Asset Brain 360?", "acceptedAnswer": { "@type": "Answer", "text": "Asset Brain 360 includes a machine's timeline, relationships, predictive risk score, and parts information." } },
+          { "@type": "Question", "name": "What kind of information is available in Asset Brain 360?", "acceptedAnswer": { "@type": "Answer", "text": "Asset Brain 360 includes a machine's timeline, its parent breadcrumb, its own Risk Profile band, the parts issued against it, and the Reliability Workbench (FMEA, RCM, Weibull, P-F)." } },
           { "@type": "Question", "name": "Can I use Asset Brain 360 for machines that are not in our current asset register?", "acceptedAnswer": { "@type": "Answer", "text": "No, you need to have an asset register in place before using Asset Brain 360." } },
           { "@type": "Question", "name": "Is Asset Brain 360 available for all types of machines?", "acceptedAnswer": { "@type": "Answer", "text": "Asset Brain 360 is available for machines that have a QR code label and are registered in WorkHive Asset Hub." } },
           { "@type": "Question", "name": "Can I customize the information displayed in Asset Brain 360?", "acceptedAnswer": { "@type": "Answer", "text": "No, the information displayed in Asset Brain 360 is standardized based on ISO 14224 asset hierarchy and failure coding." } }
@@ -104,37 +104,47 @@
     html, body, a, button { touch-action: manipulation; }   /* T3: no 300 ms tap delay, no double-tap zoom (the rubric reads html/body) */
     body { font-family: 'Poppins', sans-serif; }
     .hex-pattern { background-image: radial-gradient(circle, rgba(247,162,27,0.04) 1px, transparent 1px); background-size: 28px 28px; }
-    .audience-block { background: linear-gradient(135deg, rgba(41,182,217,0.10), rgba(41,182,217,0.04)); border: 1px solid rgba(41,182,217,0.22); border-radius: 14px; padding: 18px 22px; margin: 1.75rem 0; }
-    .audience-label { font-size: 11px; font-weight: 700; color: #5FCCE8; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
-    .audience-block ul { margin: 0; padding-left: 1.2rem; color: rgba(244,246,250,0.85); font-size: 0.92rem; line-height: 1.7; }
-    .answer-first { background: rgba(247,162,27,0.06); border-left: 3px solid #F7A21B; padding: 18px 22px; border-radius: 0 12px 12px 0; margin: 1.5rem 0; color: rgba(244,246,250,0.85); font-size: 1.02rem; line-height: 1.65; }
-    .toc { background: rgba(31,46,69,0.6); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; padding: 18px 22px; margin: 2rem 0; }
-    .toc h2 { margin: 0 0 8px; font-size: 13px; color: rgba(244,246,250,0.8); font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; }
-    .toc ol { margin: 0; padding-left: 1.2rem; color: rgba(244,246,250,0.85); font-size: 0.92rem; line-height: 1.85; }
+    .audience-block { background: linear-gradient(135deg, rgba(41,182,217,0.10), rgba(41,182,217,0.04)); border: 1px solid rgba(41,182,217,0.22); border-radius: 14px; padding: 20px 24px; margin: 1.75rem 0; }
+    .audience-label { font-size: 0.75rem; font-weight: 700; color: #5FCCE8; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
+    .audience-block ul { margin: 0; padding-left: 1.2rem; color: rgba(244,246,250,0.85); font-size: 0.95rem; line-height: 1.7; }
+    .answer-first { background: rgba(247,162,27,0.06); border: 1px solid rgba(247,162,27,0.30); padding: 20px 24px; border-radius: 0 12px 12px 0; margin: 1.5rem 0; color: rgba(244,246,250,0.85); font-size: 1.05rem; line-height: 1.65; }
+    .toc { background: rgba(31,46,69,0.6); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; padding: 20px 24px; margin: 2rem 0; }
+    .toc h2, .toc h4 { margin: 0 0 8px; font-size: 0.85rem; color: rgba(244,246,250,0.8); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+    .toc ol { margin: 0; padding-left: 1.2rem; color: rgba(244,246,250,0.85); font-size: 0.95rem; line-height: 1.85; }
     .toc a { color: rgba(244,246,250,0.85); }
     .toc a:hover { color: #FDB94A; }
-    .prose-wh h2 { font-size: 1.55rem; font-weight: 800; color: #F4F6FA; margin: 2.25rem 0 0.85rem; letter-spacing: -0.01em; }
-    .prose-wh p { overflow-wrap: anywhere; word-break: break-word; font-size: 1.005rem; color: rgba(244,246,250,0.85); line-height: 1.75; margin: 0.85rem 0; }
+    .prose-wh h2 { font-size: 1.55rem; font-weight: 800; color: #F4F6FA; margin: 2.25rem 0 1rem; letter-spacing: -0.01em; }
+    .prose-wh { overflow-wrap: anywhere; word-break: break-word; color: rgba(244,246,250,0.85); font-size: 1.05rem; line-height: 1.8; }
+    .prose-wh p { overflow-wrap: anywhere; word-break: break-word; font-size: 1.05rem; color: rgba(244,246,250,0.85); line-height: 1.75; margin: 1rem 0; }
+    /* MEASURE (2026-09-16): 72ch, inside the 65-75 craft floor. Measured at 1280 before the
+       cap: 80ch here against 73ch on the articles that already carried this rule. Below ~1100px
+       the column is already narrower than the cap, so nothing moves on a phone. */
+    .prose-wh p, .prose-wh li { max-width: 72ch; }
     .prose-wh strong { color: #F4F6FA; }
     .prose-wh a { color: #5FCCE8; text-decoration: underline; text-underline-offset: 3px; }
-    .prose-wh ol, .prose-wh ul { color: rgba(244,246,250,0.85); padding-left: 1.4rem; margin: 0.85rem 0; line-height: 1.75; }
+    .prose-wh ol, .prose-wh ul { color: rgba(244,246,250,0.85); padding-left: 1.4rem; margin: 1rem 0; line-height: 1.75; }
     .prose-wh table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.95rem; }
     .prose-wh th, .prose-wh td { padding: 12px 14px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.08); }
-    .prose-wh th { background: rgba(31,46,69,0.6); font-weight: 700; color: #F4F6FA; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; }
-    .callout { background: rgba(41,182,217,0.06); border-left: 3px solid #29B6D9; border-radius: 8px; padding: 18px 22px; margin: 2rem 0; font-size: 0.98rem; line-height: 1.7; color: rgba(244,246,250,0.85); }
+    .prose-wh th { background: rgba(31,46,69,0.6); font-weight: 700; color: #F4F6FA; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em;
+      /* [data-table-scroll] promises a scrollable region, and a table pinned to width:100%%
+         can never overflow - so it crushed the header instead. Measured: 3 lines @124px for
+         "Annual membership" at 390 (W46205, 2026-09-21). One line here is what makes the
+         wrapper real. Ported from the pillar template's W46083 fix. */
+      white-space: nowrap; }
+    .callout { background: rgba(41,182,217,0.06); border: 1px solid rgba(41,182,217,0.28); border-radius: 8px; padding: 20px 24px; margin: 2rem 0; font-size: 0.95rem; line-height: 1.7; color: rgba(244,246,250,0.85); }
     .callout strong { color: #A4E2F2; }
     .article-fig { margin: 1.75rem 0; }
     .article-fig img { width: 100%; height: auto; display: block; }
     .article-fig figcaption { margin-top: 8px; font-size: 0.85rem; color: rgba(244,246,250,0.8); line-height: 1.55; }
-    .tool-cta { background: linear-gradient(135deg, rgba(247,162,27,0.14), rgba(247,162,27,0.04)); border: 1px solid rgba(247,162,27,0.32); border-radius: 14px; padding: 22px 26px; margin: 2.25rem 0; }
-    .tool-cta a { display: inline-block; margin-top: 10px; background: linear-gradient(135deg, #F7A21B, #FDB94A); color: #162032; font-weight: 700; padding: 10px 22px; border-radius: 10px; text-decoration: none; transition: transform 0.15s; }
+    .tool-cta { background: linear-gradient(135deg, rgba(247,162,27,0.14), rgba(247,162,27,0.04)); border: 1px solid rgba(247,162,27,0.32); border-radius: 14px; padding: 24px 28px; margin: 2.25rem 0; }
+    .tool-cta a { display: inline-block; margin-top: 12px; background: linear-gradient(135deg, #F7A21B, #FDB94A); color: #162032; font-weight: 700; padding: 12px 24px; border-radius: 10px; text-decoration: none; transition: transform 0.15s; }
     .tool-cta a:hover { transform: translateY(-1px); }
-    .faq-item { background: rgba(31,46,69,0.6); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 16px 20px; margin: 0.7rem 0; }
-    .faq-item summary { cursor: pointer; font-weight: 600; color: #F4F6FA; font-size: 1rem; }
+    .faq-item { background: rgba(31,46,69,0.6); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 16px 20px; margin: 0.75rem 0; }
+    .faq-item summary { cursor: pointer; font-weight: 600; color: #F4F6FA; font-size: 1.05rem; }
     .faq-item[open] summary { color: #FDB94A; }
-    .faq-item .faq-answer { margin-top: 12px; color: rgba(244,246,250,0.85); font-size: 0.97rem; line-height: 1.7; }
+    .faq-item .faq-answer { margin-top: 12px; color: rgba(244,246,250,0.85); font-size: 0.95rem; line-height: 1.7; }
     .sources-list { list-style: none; padding: 0; }
-    .sources-list li { overflow-wrap: anywhere; word-break: break-word; padding: 8px 0; border-bottom: 1px dashed rgba(255,255,255,0.07); color: rgba(244,246,250,0.85); font-size: 0.9rem; }
+    .sources-list li { overflow-wrap: anywhere; word-break: break-word; padding: 8px 0; border-bottom: 1px dashed rgba(255,255,255,0.07); color: rgba(244,246,250,0.85); font-size: 0.95rem; }
       /* Z2/R2 (critic re-sweep 2026-09-07): a long unbroken token (a citation URL) widened a paragraph to 463px at 390 and the page scrolled sideways; long words now wrap */
   </style>
 <!-- WorkHive GA4 -->
@@ -148,16 +158,18 @@
   <script src="/wh-ga4.js" defer></script>
   <!-- /WorkHive GA4 -->
 <link rel="stylesheet" href="/learn-print.css" media="print" />
-<style data-wh-chrome-i18n>nav a,header a,footer a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;min-width:44px;}nav a{padding:0 .25rem;}.breadcrumb a,.toc a{display:inline-flex;align-items:center;min-height:44px;}.breadcrumb a{min-width:44px;justify-content:center;}a.text-sm[href$='/learn/'],a.text-sm[href$='/learn/index.html']{display:inline-flex;align-items:center;min-height:44px;}.wh-tap{display:inline-flex;align-items:center;min-height:44px;}td a,th a{display:inline-flex;align-items:center;min-height:44px;}</style>
+<style data-wh-chrome-i18n>nav a,header a,footer a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;min-width:44px;}nav a{padding:0 .25rem;}.breadcrumb a,.toc a{display:inline-flex;align-items:center;min-height:44px;}.breadcrumb a{min-width:44px;justify-content:center;}a.text-sm[href$='/learn/'],a.text-sm[href$='/learn/index.html']{display:inline-flex;align-items:center;min-height:44px;}.wh-tap{display:inline-flex;align-items:center;min-height:44px;}td a,th a{display:inline-flex;align-items:center;min-height:44px;}/*wh-brand-header-gap*/@media (max-width:399px){header nav.flex{gap:.75rem;}}</style>
 <script src="/wh-i18n-lite.js" data-wh-chrome-i18n></script>
 </head>
 <body class="bg-navy-wh text-white antialiased">
+<a class="wh-skip-link" href="#wh-main-content" data-wh-skip="learn" style="position:fixed;top:0;left:0;z-index:10001;transform:translateY(-120%);background:var(--wh-orange,#F7A21B);color:var(--wh-navy,#162032);padding:0 20px;min-height:44px;display:inline-flex;align-items:center;font-weight:700;font-size:14px;text-decoration:none;border-radius:0 0 10px 0;box-shadow:0 4px 16px rgba(0,0,0,.35);transition:transform .15s cubic-bezier(0.23,1,0.32,1);box-sizing:border-box;" onfocus="this.style.transform='translateY(0)'" onblur="this.style.transform='translateY(-120%)'">Skip to main content</a>
+
 
 <nav class="border-b border-white/10" style="background: rgba(13,24,36,0.85);">
   <div class="max-w-5xl mx-auto px-5 sm:px-8 h-14 flex items-center justify-between">
     <a href="/" class="flex items-center gap-2 text-sm font-bold tracking-tight">
       <img src="/brand_assets/workhive-logo-transparent.png" alt="WorkHive" class="h-7 w-auto" />
-      <span class="text-white">WorkHive</span>
+      <span class="text-white wh-brand-word hidden sm:inline" aria-hidden="true">WorkHive</span>
     </a>
     <div class="flex items-center gap-5 text-xs sm:text-sm">
       <a href="/learn/" class="text-white/55 hover:text-white transition-colors" data-i="learn">Learn</a>
@@ -168,7 +180,7 @@
   </div>
 </nav>
 
-<article class="hex-pattern">
+<main id="wh-main-content"><article class="hex-pattern">
   <div class="max-w-3xl mx-auto px-5 sm:px-8 py-10 sm:py-14">
 
     <p class="text-xs uppercase tracking-[0.18em] text-orange-wh font-bold mb-3">WorkHive Learn · Philippines</p>
@@ -181,7 +193,7 @@
       <span>5 min read</span>
     </div>
 
-    <div class="answer-first"><strong>Short answer:</strong> <strong>Asset Brain 360</strong> resolves every record about one machine, its work orders, faults, parts and readings, into a single timeline reachable from one QR scan, with its relationships and a predictive risk score. The hierarchy behind it is <strong>ISO 14224</strong>, the international standard for collecting reliability and maintenance data, which is what lets <strong>10 years</strong> of scattered records resolve to one machine.</div>
+    <div class="answer-first"><strong>Short answer:</strong> <strong>Asset Brain 360</strong> resolves every record about one machine, its work orders, faults, parts and readings, into a single timeline reachable from one QR scan, with its relationships and a predictive risk score. The hierarchy behind it is <strong>ISO 14224</strong>, the international standard for collecting reliability and maintenance data, which is what lets records written by different people over many years resolve to the same machine.</div>
 
     <div class="audience-block">
       <p class="audience-label">Who this is for</p>
@@ -196,13 +208,13 @@
     </div>
 
     <div class="toc">
-      <h4 aria-level="2">What's in this guide</h4>
+      <h2>What's in this guide</h2>
       <ol>
         <li><a href="#anchor-intro" class="wh-tap">Introduction to Asset Brain 360</a></li>
         <li><a href="#anchor-scanning" class="wh-tap">Scanning a Machine's QR Code</a></li>
         <li><a href="#anchor-timeline" class="wh-tap">The Full Per-Asset Timeline</a></li>
         <li><a href="#anchor-relationships" class="wh-tap">Machine Relationships and Parts Information</a></li>
-        <li><a href="#anchor-predictive" class="wh-tap">Predictive Risk Score and Health Heatmap</a></li>
+        <li><a href="#anchor-predictive" class="wh-tap">The Risk Profile, and Where the Heatmap Lives</a></li>
         <li><a href="#anchor-example" class="wh-tap">Worked Example: Cabuyao Bottling-Line Pump P-204B</a></li>
       </ol>
     </div>
@@ -210,36 +222,37 @@
     <div class="prose-wh">
       <h2 id="anchor-intro">Introduction to Asset Brain 360</h2>
       <p>Asset Brain 360 is a powerful feature in WorkHive's Asset Hub, designed to provide a comprehensive history of every machine in your plant. By simply scanning a QR or barcode on a machine, you can access its full timeline, including logbook entries, preventive maintenance history, inventory and parts movements, and project work. This centralized view enables you to decide with evidence about machine maintenance and repair.</p>
-      <p>For example, consider a pump in a bottling line at a plant in Cabuyao, Calabarzon. With Asset Brain 360, you can scan the QR code on pump P-204B and instantly view its entire history, including any downtime in PHP. The asset's parent and sister-machine relationships are also clearly displayed, as well as a list of parts that fit this asset. This information is grounded in the ISO 14224 asset hierarchy and failure coding standards.</p>
-      <p>Asset Brain 360 also offers advanced features such as AI-powered Q&A, live asset state, and predictive risk scores. The <strong>Risk Ranking</strong> and <strong>Health Heatmap</strong> provide a visual representation of the asset's condition, allowing you to prioritize maintenance and repair efforts. With Asset Hub, you can start building your asset brain with a simple, zero-budget approach: label machines with printed QR codes, start logging, and let the brain assemble the history.</p>
+      <p>For example, consider a pump in a bottling line at a plant in Cabuyao, Calabarzon. With Asset Brain 360, you can scan the QR code on pump P-204B and instantly view its entire history, including any downtime in PHP. A breadcrumb above the asset shows its parent in the hierarchy, so you can see what the pump belongs to without leaving the page, and a <strong>Recommended Parts to Stage</strong> card appears when the model has enough history to predict what this machine will need next. The hierarchy itself follows ISO 14224 asset and failure coding.</p>
+      <p>Asset Brain 360 also carries a live asset state, a per-asset <strong>Risk Profile</strong>, and <strong>Ask Asset Brain</strong> &mdash; a question box answered only from that machine's own records. The fleet-wide view of the same scores lives on a different page: <strong>Predictive Maintenance</strong> is where the Risk Ranking and the Health Heatmap rank every asset against the others. Asset Hub answers &ldquo;how is this machine?&rdquo;; Predictive Maintenance answers &ldquo;which machine first?&rdquo; With Asset Hub, you can start building your asset brain with a simple, zero-budget approach: label machines with printed QR codes, start logging, and let the brain assemble the history.</p>
       <h2 id="anchor-scanning">Scanning a Machine's QR Code</h2>
       <p>As a plant supervisor in a Philippine facility, you're likely familiar with the challenges of tracking machine history. With Asset Hub's Asset Brain 360, you can access a machine's full history in one QR scan. This feature is part of WorkHive's Asset Hub, a tool designed to help you manage your assets efficiently.</p>
-      <p>To scan a machine's QR code, simply navigate to the Asset Hub page and click the <strong>Scan</strong> button. This will open your device's camera, allowing you to scan the QR code label on the machine. Make sure the QR code is printed and affixed to the machine, and that your device has a stable internet connection.</p>
+      <p>To scan a machine's QR code, simply navigate to the Asset Hub page and click the <strong>Scan</strong> button. This will open your device's camera, allowing you to scan the QR code label on the machine. Make sure the tag is printed and affixed to the machine. The scanner reads QR codes and ordinary barcodes alike (Code 128, EAN-13, Code 39), and if the camera is refused or the decoder will not load, the scanner stays open with manual entry so you can type the tag instead: the one path that still works in a plant with no signal.</p>
       <ol>
         <li>Navigate to the Asset Hub page in WorkHive.</li>
         <li>Click the <strong>Scan</strong> button to open your device's camera.</li>
         <li>Scan the QR code label on the machine, such as one for a Cabuyao bottling-line pump P-204B.</li>
         <li>The Asset Brain 360 page will load, displaying the machine's full history, including logbook entries, PM history, inventory and parts movements, and project work.</li>
+        <li>If the tag is not in your register yet, the scan does not fail silently: it drops what it read into the search box so you can see exactly what was on the label.</li>
       </ol>
       <figure class="article-fig"><img src="fig-1-step-flow.svg" alt="Scanning a Machine's QR Code. Scan QR code. View Asset Brain 360" width="660" height="440" loading="lazy" /><figcaption>Scanning a Machine's QR Code</figcaption></figure>
       <h2 id="anchor-timeline">The Full Per-Asset Timeline</h2>
       <p>Asset Brain 360 in WorkHive Asset Hub brings together a machine's entire history in one easily accessible timeline. After scanning a QR code on a machine, technicians can view logbook entries, PM history, inventory and parts movements, and project work all in one chronological record. This comprehensive view allows for a deeper understanding of the asset's performance over time.</p>
-      <p>The timeline in Asset Hub includes parent and sister-machine relationships, 'parts that fit this asset', and per-asset AI Q&A grounded only in that machine's own history. The live asset state and per-asset predictive risk score (Risk Ranking / Health Heatmap) are also available, providing valuable insights into the asset's current condition and potential risks. These features are all anchored to the ISO 14224 asset hierarchy and failure coding, ensuring a standardized and reliable approach.</p>
-      <div class="callout"><strong>Worked example:</strong> Consider a 24-hour bottling line in a Cabuyao plant, with a pump P-204B that experiences downtime costing PHP 50,000 per hour. With Asset Brain 360 in Asset Hub, technicians can quickly scan the pump's QR code and access its full timeline, including logbook entries, PM history, and project work. This helps identify the root cause of the downtime and enables the team to take corrective action to minimize future losses.</div>
+      <p>Around that timeline the page adds the parent breadcrumb, a <strong>Risk Profile</strong> for this asset alone, and <strong>Ask Asset Brain</strong>, which answers questions using only this machine's own records. Below them sits the part most readers never find: the <strong>Reliability Workbench</strong>, five tabs of standards-anchored analysis on the same asset: an FMEA matrix (AIAG-VDA 2019), RCM strategy (SAE JA1011 / JA1012), a Weibull fit (IEC 61649), P-F intervals (ISO 13381-1), and the last 365 days of corrective history. The hierarchy underneath it all is ISO 14224 asset and failure coding.</p>
+      <div class="callout"><strong>Worked example:</strong> Consider a bottling line in a Cabuyao plant running around the clock, where pump P-204B stops. Before you can price that stoppage you need to know how often it has happened and how long it took to clear each time: which is the timeline's job. Scanning the pump's tag brings up its logbook entries, PM history and project work in one chronological record, and the downtime minutes your own team logged against it are already there. Use your line's own cost per hour, not a figure from an article.</div>
       <h2 id="anchor-relationships">Machine Relationships and Parts Information</h2>
-      <p>In Asset Hub, when you scan a machine's QR code, Asset Brain 360 opens, showing not just the asset's timeline but also its relationships with other machines. For example, consider Pump P-204B in a Cabuyao bottling line. Its Asset Brain 360 page will list parent and sister machines, helping technicians understand the equipment hierarchy.</p>
-      <p>The 'parts that fit this asset' section on the Asset Brain 360 page lists compatible components for a specific machine. This feature helps maintenance teams quickly identify suitable spare parts, reducing inventory management errors. In Asset Hub, this information is easily accessible, making it simpler to plan and execute maintenance tasks.</p>
-      <p>By understanding machine relationships and parts information in Asset Brain 360, technicians and engineers can make more informed decisions. This feature, available in Asset Hub, supports more efficient maintenance and repair processes, ultimately contributing to increased equipment reliability and reduced downtime.</p>
-      <h2 id="anchor-predictive">Predictive Risk Score and Health Heatmap</h2>
-      <p>In Asset Brain 360, the predictive risk score and Health Heatmap provide early warnings of potential equipment failures. For example, a pump like P-204B in a Cabuyao bottling plant can be assessed for its risk level. This score is calculated based on the asset's maintenance history, operating conditions, and other factors, all of which are tracked in Asset Hub.</p>
-      <p>The Health Heatmap, now integrated into Asset Hub, visualizes the risk level of each asset, giving technicians and engineers a quick overview of the asset's health. This feature helps prioritize maintenance tasks and reduce downtime. By scanning the QR code on P-204B, maintenance teams can access its Asset Brain 360 and view its predictive risk score and Health Heatmap, enabling informed decisions.</p>
-      <div data-table-scroll style="overflow-x:auto;-webkit-overflow-scrolling:touch;" role="region" aria-label="Scrollable table" tabindex="0"><table><thead><tr><th>Risk Level</th><th>Description</th></tr></thead><tbody><tr><td>High</td><td>Immediate attention required to prevent failure</td></tr><tr><td>Medium</td><td>Monitor asset closely, schedule maintenance</td></tr><tr><td>Low</td><td>Asset operating within normal parameters</td></tr></tbody></table></div>
-      <figure class="article-fig"><img src="fig-2-bar.svg" alt="Predictive Risk Score Distribution. Low Risk. Medium Risk. High Risk" width="660" height="440" loading="lazy" /><figcaption>Illustrative predictive risk-score distribution across an asset fleet (low / medium / high bands).</figcaption></figure>
+      <p>In Asset Hub, when you scan a machine's QR code, Asset Brain 360 opens, showing not just the asset's timeline but also its relationships with other machines. For example, consider Pump P-204B in a Cabuyao bottling line. A breadcrumb above its name shows the parent it belongs to: the line, the skid, the system, so a technician can place the pump in the hierarchy at a glance. The chain is one hop today; deeper traversal is still being built.</p>
+      <p>Parts appear on the page in two ways, and it is worth knowing which is which. Every part ever issued against this machine is already in the timeline, as inventory movements you can read back. Separately, a <strong>Recommended Parts to Stage</strong> card appears when the model has enough history to predict what this asset will need: a pre-staging suggestion with a confidence chip attached, which you accept or ignore. The first is a record of what was used; the second is a forecast of what to have ready.</p>
+      <p>Read together, the parent chain and the parts record answer a question a single work order never can: whether this machine keeps failing on its own, or keeps failing because of what it is attached to. This feature, available in Asset Hub, supports more efficient maintenance and repair processes, ultimately contributing to increased equipment reliability and reduced downtime.</p>
+      <h2 id="anchor-predictive">The Risk Profile, and Where the Heatmap Lives</h2>
+      <p>The <strong>Risk Profile</strong> card on an asset's own page gives it a band: critical, high, medium or low: computed from the maintenance history your team logged against it. Scores are recomputed daily at 13:00 PHT by a batch job, so the number you see is yesterday's evidence, not a live reading. If a pump like P-204B is too new, or the engine has not run yet, the card says so plainly rather than inventing a score.</p>
+      <p>The <strong>Health Heatmap</strong> and the <strong>Risk Ranking</strong> are a different surface, and looking for them on the asset page is the commonest way to get lost here. They live on <strong>Predictive Maintenance</strong>, which scores 0 to 100 and ranks every asset in the hive against every other, alongside a failure-trend forecast. The rules engine runs from day one; a GBM model takes over once the hive has logged 500 or more corrective records, and until then the page suppresses predictions rather than guessing. Scan a tag to ask &ldquo;how is this machine?&rdquo;; open Predictive Maintenance to ask &ldquo;which machine do I touch first?&rdquo;</p>
+      <div data-table-scroll style="overflow-x:auto;-webkit-overflow-scrolling:touch;" role="region" aria-label="Scrollable table" tabindex="0"><table><thead><tr><th>Risk Level</th><th>Description</th></tr></thead><tbody><tr><td>Critical</td><td>Act now: this is the asset the shift plan should open with</td></tr><tr><td>High</td><td>Immediate attention required to prevent failure</td></tr><tr><td>Medium</td><td>Monitor asset closely, schedule maintenance</td></tr><tr><td>Low</td><td>Asset operating within normal parameters</td></tr></tbody></table></div>
+      <figure class="article-fig"><img src="fig-2-bar.svg" alt="Predictive Risk Score Distribution. Low Risk. Medium Risk. High Risk" width="660" height="440" loading="lazy" /><figcaption>Illustrative predictive risk-score distribution across an asset fleet (critical / high / medium / low bands).</figcaption></figure>
       <h2 id="anchor-example">Worked Example: Cabuyao Bottling-Line Pump P-204B</h2>
       <p>Let's consider a real-life example of using Asset Brain 360 in WorkHive Asset Hub. A plant supervisor in Cabuyao, Calabarzon, wants to check the history of a bottling-line pump, P-204B. After scanning the QR code on the pump, the supervisor opens the Asset Brain 360 page in Asset Hub.</p>
-      <p>The page shows a full timeline of the pump's history, including logbook entries, preventive maintenance records, inventory and parts movements, and project work. The supervisor can see 'parts that fit this asset' and relationships with parent and sister machines. They can even ask the AI questions about the pump's history.</p>
+      <p>The page shows a full timeline of the pump's history, including logbook entries, preventive maintenance records, inventory and parts movements, and project work. The parent breadcrumb places the pump in the line it belongs to, and if the model has enough history a Recommended Parts to Stage card suggests what to have ready. Ask Asset Brain answers questions from this pump's records and no one else's.</p>
       <div class="callout"><strong>Worked example:</strong> For instance, the Cabuyao plant's maintenance planner can use Asset Brain 360 to check the last downtime cause of pump P-204B, which was due to a faulty seal, and plan the replacement of parts accordingly, all within Asset Hub.</div>
-      <p>The Asset Brain 360 page also shows the live asset state and predictive risk score, also known as the Risk Ranking or Health Heatmap, which helps the reliability engineer prioritize maintenance tasks. This feature is now integrated into Asset Hub, providing a comprehensive view of the asset's health.</p>
+      <p>The page also shows the live asset state and this pump's own Risk Profile band, which is what the reliability engineer needs when the question is about P-204B. When the question becomes which of forty assets to schedule first, that ranking is on Predictive Maintenance, not here.</p>
 
       <div class="tool-cta">
         <p style="margin:0; font-size:0.95rem; color:rgba(244,246,250,0.85);"><strong>Open the tool:</strong> Asset Hub is the WorkHive surface this guide funnels into. It is free at the worker tier, works offline, and is built for Philippine plants.</p>
@@ -249,7 +262,7 @@
       <h2 id="faq">Frequently asked questions</h2>
       <details class="faq-item"><summary>What is Asset Brain 360?</summary><div class="faq-answer">Asset Brain 360 is a feature in WorkHive Asset Hub that provides a complete history of every machine in your plant, accessible with a single QR scan.</div></details>
       <details class="faq-item"><summary>How do I access Asset Brain 360?</summary><div class="faq-answer">You can access Asset Brain 360 by scanning a QR code on a machine using your mobile device.</div></details>
-      <details class="faq-item"><summary>What kind of information is available in Asset Brain 360?</summary><div class="faq-answer">Asset Brain 360 includes a machine's timeline, relationships, predictive risk score, and parts information.</div></details>
+      <details class="faq-item"><summary>What kind of information is available in Asset Brain 360?</summary><div class="faq-answer">Asset Brain 360 includes a machine's timeline, its parent breadcrumb, its own Risk Profile band, the parts issued against it, and the Reliability Workbench (FMEA, RCM, Weibull, P-F).</div></details>
       <details class="faq-item"><summary>Can I use Asset Brain 360 for machines that are not in our current asset register?</summary><div class="faq-answer">No, you need to have an asset register in place before using Asset Brain 360.</div></details>
       <details class="faq-item"><summary>Is Asset Brain 360 available for all types of machines?</summary><div class="faq-answer">Asset Brain 360 is available for machines that have a QR code label and are registered in WorkHive Asset Hub.</div></details>
       <details class="faq-item"><summary>Can I customize the information displayed in Asset Brain 360?</summary><div class="faq-answer">No, the information displayed in Asset Brain 360 is standardized based on ISO 14224 asset hierarchy and failure coding.</div></details>
@@ -264,7 +277,7 @@
     </div>
 
   </div>
-</article>
+</article></main>
 
 <footer class="py-10 border-t border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
   <div class="max-w-5xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">

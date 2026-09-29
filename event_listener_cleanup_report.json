@@ -7,33 +7,33 @@
   "per_page": [
     {
       "page": "index.html",
-      "add": 32,
+      "add": 30,
       "remove": 0,
-      "add_raw": 32,
-      "rebuild_scoped": 0,
+      "add_raw": 34,
+      "rebuild_scoped": 4,
       "risky": true
     },
     {
       "page": "hive.html",
-      "add": 54,
+      "add": 55,
       "remove": 0,
-      "add_raw": 55,
+      "add_raw": 56,
       "rebuild_scoped": 1,
       "risky": true
     },
     {
       "page": "logbook.html",
-      "add": 77,
+      "add": 76,
       "remove": 0,
-      "add_raw": 78,
-      "rebuild_scoped": 1,
+      "add_raw": 79,
+      "rebuild_scoped": 3,
       "risky": true
     },
     {
       "page": "inventory.html",
-      "add": 28,
+      "add": 29,
       "remove": 0,
-      "add_raw": 29,
+      "add_raw": 30,
       "rebuild_scoped": 1,
       "risky": true
     },
@@ -47,26 +47,26 @@
     },
     {
       "page": "analytics.html",
-      "add": 4,
+      "add": 3,
       "remove": 0,
+      "add_raw": 5,
+      "rebuild_scoped": 2,
+      "risky": false
+    },
+    {
+      "page": "analytics-report.html",
+      "add": 4,
+      "remove": 1,
       "add_raw": 4,
       "rebuild_scoped": 0,
       "risky": false
     },
     {
-      "page": "analytics-report.html",
-      "add": 3,
-      "remove": 1,
-      "add_raw": 3,
-      "rebuild_scoped": 0,
-      "risky": false
-    },
-    {
       "page": "skillmatrix.html",
-      "add": 13,
+      "add": 10,
       "remove": 1,
       "add_raw": 15,
-      "rebuild_scoped": 2,
+      "rebuild_scoped": 5,
       "risky": false
     },
     {
@@ -123,10 +123,10 @@
     },
     {
       "page": "assistant.html",
-      "add": 5,
+      "add": 8,
       "remove": 0,
-      "add_raw": 5,
-      "rebuild_scoped": 0,
+      "add_raw": 9,
+      "rebuild_scoped": 1,
       "risky": false
     },
     {
@@ -195,8 +195,8 @@
       "page": "asset-hub.html",
       "add": 13,
       "remove": 2,
-      "add_raw": 13,
-      "rebuild_scoped": 0,
+      "add_raw": 14,
+      "rebuild_scoped": 1,
       "risky": false
     },
     {
@@ -211,8 +211,8 @@
       "page": "alert-hub.html",
       "add": 9,
       "remove": 0,
-      "add_raw": 9,
-      "rebuild_scoped": 0,
+      "add_raw": 11,
+      "rebuild_scoped": 2,
       "risky": false
     },
     {

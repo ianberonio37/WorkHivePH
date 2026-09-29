@@ -605,5 +605,12 @@
   "20260908000005_hive_ai_monthly_cost_cap.sql": "e63b727cb80ae6124c39de3487a869987ecf294c36c08c647154469e6cfbeb1d",
   "20260910000001_schedule_items_edit_stamp.sql": "87d102af72a9b04b9bfbe68d7755d02186582f87657228f54bb26ecb78e0e8bb",
   "20260910000002_kb_chunks_need_their_document.sql": "3bed646b7abdd193242869b15d82e84595bc3d3bcb1a32c960515dba7eecb2ab",
-  "20260911000001_marketplace_sellers_hide_auth_uid.sql": "f25485fe2403268e1650be979273cee437d067bc0d9335d8d5989dd9f0dd8907"
+  "20260911000001_marketplace_sellers_hide_auth_uid.sql": "f25485fe2403268e1650be979273cee437d067bc0d9335d8d5989dd9f0dd8907",
+  "20260915000001_arm_v_kpi_truth_refresh_cron.sql": "06cfa8fe955548b210f083c53fac93f0f9b064ecfc04ac087b10e1ee1d8b5f1a",
+  "20260915000002_audit_asset_restore_to_pending.sql": "8387a83fdaf88cfdc4a78ce514467509c6ca1318087d326a7b172a9f5cecd982",
+  "20260915000003_pm_compliance_payload_carries_the_tag.sql": "8899b1bb92b43f1b6f72d64f6019947dc808099c89ccba1aff63171ea4c9222e",
+  "20260916000001_schedule_item_v1_item_status_planned.sql": "8e2114b3e746468a1c29a50b9366bb592895d9dc8ca7dc16fa2f292ddf923d10",
+  "20260916000002_normalise_legacy_schedule_item_categories.sql": "59fb7096ecc68c7f7809aa323bd9afd63b35e8ebfb5fb8193247af26c9543d82",
+  "20260916000003_capture_contracts_match_the_columns_they_govern.sql": "353f8aa3e8038646732c38186ca48262caf018bec1ca08db3b2acabd8d2bddda",
+  "20260918000001_a_solo_worker_could_never_amend_a_pm_completion.sql": "54de41acd0d57b8ee1f1237f5651e88386634ec41764065fc4c16229d14969d4"
 }

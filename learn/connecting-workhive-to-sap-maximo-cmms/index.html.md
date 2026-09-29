@@ -15,7 +15,7 @@ Updated 24 Aug 2026
 9 min read
 
 **Short answer:** WorkHive runs underneath your existing SAP PM, IBM Maximo, or other paid CMMS as the worker-facing capture layer. Four integration patterns are supported: one-way push (work-order completion to ERP), one-way pull (asset master from ERP), two-way sync, and batch CSV. Sensor data flows in via OPC-UA or MQTT through a local edge gateway. The most common mistake is integrating before you have 90 days of stable WorkHive Logbook data; the second most common is treating it as an IT project instead of a maintenance operations change.
- The most common failure is integrating too early: wait until you have **90 days** of stable WorkHive Logbook data before connecting SAP PM or IBM Maximo.
+ Wait for those **90 days** before you connect SAP PM or IBM Maximo.
 
 Who this is for
 
@@ -54,29 +54,23 @@ Most Philippine plants start with Pattern 1 or 2 because they get value fast: th
 
 ### SAP PM
 
-WorkHive integrates with SAP PM via the OData service layer (SAP S/4HANA and ECC 6.0 EHP 7+). The connector authenticates via OAuth 2.0 or basic auth depending on your SAP gateway configuration. Standard SAP objects mapped:
+WorkHive reads SAP PM through an **OData** endpoint you configure. It polls on a schedule and fetches only records changed since the last successful run, so a large plant is not re-reading its whole work-order history every cycle.
 
-- `I_TechnicalObject` for asset master (FunctionalLocation, Equipment)
-- `I_MaintenanceOrder` for work orders
-- `I_MaintenanceNotification` for fault/breakdown notifications
-- `I_MaintenanceItem` for PM plan items
-- `I_MaterialDocument` for parts consumption
+**Authentication is a bearer token.** You give WorkHive an endpoint URL and a token; it sends that token as an `Authorization: Bearer` header. There is no OAuth dance and no basic-auth flow to configure, which is less flexible than a full ERP middleware and considerably less work to stand up. Whatever your SAP gateway issues that token as, that is what you paste in.
 
-Typical setup: SAP team enables the OData services and creates a service user. WorkHive Plant Connections console maps the SAP fields to WorkHive entities. First sync takes 2 to 4 weeks of testing.
+**WorkHive does not ship a fixed list of SAP objects.** This is worth being plain about, because integration guides usually promise the opposite: you map the fields yourself in the Plant Connections console - which SAP field is the asset identifier, which is the work-order status, which is the completion date - and WorkHive translates statuses and maintenance types through that mapping. Every plant's SAP is configured differently, so a shipped object list would be a guess about yours.
+
+Typical setup: your SAP team exposes the OData service and issues a token, then the mapping is built and tested against a small slice before the schedule is turned on. Budget a few weeks of testing, and use the dry-run option, which fetches a first page without writing anything.
 
 ### IBM Maximo
 
-WorkHive integrates with IBM Maximo Application Suite (MAS) via the Maximo Integration Framework (MIF) REST API or via the older Maximo Enterprise Adapter (MEA) for plants still on Maximo 7.6. Authentication is typically maxauth basic or OIDC. Standard Maximo objects mapped:
+Maximo is read over **OSLC**, Maximo's own linked-data interface, with the same shape as the SAP path: an endpoint you configure, a bearer token, delta polling, and field mapping you control. Ask your Maximo administrator to expose the OSLC resources for the objects you want to pull and to issue a token for a service account.
 
-- `MXASSET` for asset master
-- `MXWO` for work orders
-- `MXSR` for service requests
-- `MXPM` for preventive maintenance schedules
-- `MXINVBAL` for inventory balance
+The same caution applies: WorkHive does not ship a fixed list of Maximo objects. You choose what to pull and say which field means what.
 
 ### Other CMMS
 
-WorkHive ships REST API connectors for Hippo CMMS, Fiix, UpKeep, and eMaint out of the box. For other systems, a generic REST or SOAP connector plus a custom mapping handles most cases.
+Everything else goes through the **generic REST** connector: if your CMMS exposes an HTTP endpoint that returns records and accepts a bearer token, it can be configured the same way as SAP or Maximo, with your own field mapping on top. That covers the common mid-market systems without WorkHive claiming a bespoke connector for each - there is one connector, and it is general. If your system has no API at all, the CSV import path exists precisely for that case and is the fastest thing in this guide to get working.
 
 ## Sensor data via OPC-UA and MQTT
 
@@ -89,9 +83,9 @@ The edge gateway runs on-premise so sensitive plant data never leaves your netwo
 
 The tool this guide is about
 
-#### WorkHive CMMS Integration is the connector layer
+### WorkHive CMMS Integration is the connector layer
 
-The CMMS Integration surface in WorkHive includes SAP PM, IBM Maximo, and generic REST live-sync, plus CSV history import, plus OPC-UA and MQTT for sensor data via a plant edge gateway. The CSV importer includes a visual column-mapping step; REST live-sync uses configurable field maps. The Plant Connections operations console (supervisor-only) shows live integration health, sync status, and any data-quality issues. Free at the worker tier; enterprise SSO and audit features unlock at Stage 4.
+The CMMS Integration surface in WorkHive includes SAP PM, IBM Maximo, and generic REST live-sync, plus CSV history import, plus OPC-UA and MQTT for sensor data via a plant edge gateway. The CSV importer includes a visual column-mapping step; REST live-sync uses configurable field maps. The Plant Connections operations console (supervisor-only) shows live integration health, sync status, and any data-quality issues. Free at the worker tier. On sign-in, raise SSO early if your IT department expects to manage these accounts centrally: it is not something you switch on yourself and it is not tied to a maturity stage: an operator provisions it during enterprise onboarding, and your hive’s Plant Connections page shows whether it is configured, which provider, and whether it is enforced or optional.
 
 No hive yet? [Join WorkHive](https://workhiveph.com/?signup=1) first (free, takes 30 seconds).
 
@@ -106,15 +100,15 @@ The technical connector is the easy part. The data mapping is the hard part. The
 
 The fix is upfront: 1 to 2 weeks of asset-master cleanup before any integration, plus a documented mapping spreadsheet that both teams sign off on.
 
-## Contractors and suppliers as integration users
+## Contractors and outside work, without ERP seats
 
-One of the highest-ROI use cases of the integration layer is enabling contractors and suppliers to participate without giving them broad ERP access.
+Plants with heavy external participation ask about this first, so here is where it genuinely stands rather than where a roadmap would like it to be.
 
-**Contractors:** a third-party PM service team gets a limited WorkHive login that lets them see only the work orders assigned to them, complete the work, attach photos, and submit. The completion flows through the integration to SAP for invoicing. The contractor never touches SAP; the plant never has to copy contractor reports into SAP manually.
+**What works today.** Outside work is recorded as a *contractor* project, and the jobs under it point at the same asset IDs your own PMs use - so a vendor's overhaul lands in the asset's timeline beside your team's work instead of in an email. When the job is closed, the completion is pushed back to SAP automatically, which removes the retyping that makes contractor reports late. None of that requires giving anyone an ERP seat, which is the expensive part you were trying to avoid.
 
-**Suppliers:** a parts supplier on consignment stock gets a limited view of usage forecasts for the SKUs they supply. They can plan deliveries against actual consumption rather than monthly POs. Replenishment becomes pull-based; inventory holding costs drop. The supplier never sees other hive data.
+**What does not exist yet, stated plainly.** There is no contractor login scoped to only their own work orders, and no supplier view scoped to only their SKUs. Hive membership is whole-hive: anyone you invite can see the hive's assets and records, and the only elevated role is supervisor. So if a vendor must not see the rest of your plant, do not invite them - have your planner record the completion against the asset, which is a minute of typing and keeps the boundary real.
 
-This is the multi-tenant integration pattern that makes WorkHive valuable for plants with heavy external participation. The same pattern serves the user's stated goal of helping Filipino contractors and suppliers build verifiable work histories without exposing client data.
+Scoped external accounts are a genuinely valuable pattern and a fair thing to press any vendor on. This guide will describe WorkHive's when WorkHive has one.
 
 ## 90-day stable data, then connect
 
@@ -159,8 +153,8 @@ Trying to integrate everything before the WorkHive side has 90 days of stable da
 ## Sources
 
 - Jenni Munar, **"Why Many Imported ERP Systems Fail in the Philippines"**, The Daily Chronicle, 7 May 2026. [thechronicle.com.ph](https://thechronicle.com.ph/why-many-imported-erp-systems-fail-in-the-philippines/)
-- SAP, **SAP S/4HANA Asset Management OData Services**. Reference for the integration objects listed above.
-- IBM, **Maximo Integration Framework REST API Guide**.
+- SAP, **SAP Asset Management OData Services**. Your own gateway documentation decides which services are exposed and what they are called.
+- IBM, **Maximo OSLC integration documentation** - the interface WorkHive reads Maximo through.
 - OPC Foundation, **OPC Unified Architecture Specification**, Parts 1 through 14.
 - OASIS, **MQTT Version 5.0** specification.
 - WorkHive platform positioning, "Four Gaps One Hive" with Integration as a Stage 3+ accelerator. [workhiveph.com](https://workhiveph.com/)
@@ -168,4 +162,4 @@ Trying to integrate everything before the WorkHive side has 90 days of stable da
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: e34dce81f4a9f939 -->
+<!-- md-twin source-sha: 4e37a4fa2aa1f5e6 -->

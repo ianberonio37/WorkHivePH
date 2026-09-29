@@ -8,7 +8,7 @@ MTBF & MTTR Calculator
 Static · formula-only · worked example computed when this page was built · no live data G1+E3 
 **The MTBF & MTTR Calculator computes Mean Time Between Failures, Mean Time To Repair, and the availability they produce together. Example: for a pump that ran 4,000 hours, failed 5 times, and took 40 hours of repair in total, MTBF = 800 h, MTTR = 8 h, Availability = 99 %, Failures = 5 (per ISO 14224 | IEC 60050-192 | SMRP).**
 How it works
-MTBF = operating hours / number of failures. MTTR = total repair time / number of repairs. Availability = MTBF / (MTBF + MTTR). For the example: MTBF = 4000/5 = 800 h, MTTR = 40/5 = 8 h, Availability = 800/808 = 99.0%.
+MTBF = operating hours / number of failures. MTTR = total repair time / number of repairs. Availability = MTBF / (MTBF + MTTR). For the example: MTBF = 4000/5 = 800 h, MTTR = 40/5 = 8 h, Availability = 800/808 = 99.0%. Anything the worked example does not state uses this calculator's standard default; the interactive version shows every input and lets you change it.
 I2: reserved block 
 Worked example (Reliability & Metrics)
 Inputs: a pump that ran 4,000 hours, failed 5 times, and took 40 hours of repair in total.
@@ -34,4 +34,4 @@ Related calculators
 [OEE Calculator](https://workhiveph.com/tools/oee-calculator/)
 [MTBF vs MTTR for supervisors](https://workhiveph.com/learn/mtbf-vs-mttr-for-supervisors/)
 
-<!-- md-twin source-sha: bfcc50c573642dda -->
+<!-- md-twin source-sha: 85ab0abef4c4aa14 -->

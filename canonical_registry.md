@@ -11,7 +11,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 - HTML surfaces: **62**
 - Edge fns:      **103**
 - Phantom tables (referenced in code, not in migrations): **0**
-- Duplicate signals: **84**
+- Duplicate signals: **81**
 
 ## Tables (sorted by usage)
 
@@ -30,10 +30,10 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `external_sync` | 11 | no | no | integrations.html | integrations.html | cmms-push-completion, cmms-sync, cmms-webhook-receiver |
 | `fault_knowledge` | 17 | yes | no | logbook.html | — | cmms-sync, visual-defect-capture |
 | `inventory_items` | 23 | yes | no | integrations.html, inventory.html, logbook.html | integrations.html, inventory.html | cmms-webhook-receiver |
-| `projects` | 19 | no | yes | inventory.html, logbook.html, pm-scheduler.html, project-manager.html ... | project-manager.html | — |
 | `integration_configs` | 17 | no | no | integrations.html, plant-connections.html | integrations.html | cmms-sync |
 | `pm_scope_items` | 12 | yes | no | asset-hub.html, integrations.html, pm-scheduler.html | asset-hub.html, integrations.html, pm-scheduler.html | — |
 | `worker_profiles` | 8 | yes | no | resume.html, voice-journal.html | voice-journal.html | — |
+| `projects` | 19 | no | yes | inventory.html, logbook.html, pm-scheduler.html, project-manager.html | project-manager.html | — |
 | `ai_rate_limits` | 5 | yes | no | — | — | _shared/rate-limit.ts, agentic-rag-loop, temporal-rag-orchestrator |
 | `parts_staging_recommendations` | 14 | no | yes | alert-hub.html, asset-hub.html | asset-hub.html | parts-staging-recommender |
 | `voice_journal_entries` | 10 | yes | no | assistant.html, voice-journal.html | — | _shared/journal-recall.ts |
@@ -55,7 +55,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `service_providers` | 18 | yes | no | marketplace-seller.html, marketplace.html | marketplace-seller.html | — |
 | `service_requests` | 29 | yes | yes | marketplace-seller.html, marketplace.html | marketplace-seller.html, marketplace.html | — |
 | `push_subscriptions` | 8 | yes | no | marketplace-seller.html | marketplace-seller.html | notify-push |
-| `schedule_items` | 14 | yes | no | assistant.html, dayplanner.html | dayplanner.html | — |
+| `schedule_items` | 15 | yes | no | assistant.html, dayplanner.html | dayplanner.html | — |
 | `skill_profiles` | 6 | yes | no | resume.html, skillmatrix.html | skillmatrix.html | — |
 | `project_roles` | 8 | no | yes | project-manager.html | project-manager.html | — |
 | `project_change_orders` | 16 | no | yes | project-manager.html | project-manager.html | — |
@@ -74,7 +74,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `community_xp` | 5 | yes | no | community.html, hive.html | — | — |
 | `engineering_calcs` | 13 | yes | no | project-manager.html | — | — |
 | `equipment_reading_templates` | 8 | no | no | asset-hub.html, logbook.html | — | — |
-| `hives` | 10 | yes | no | hive.html | hive.html | — |
+| `hives` | 12 | yes | no | hive.html | hive.html | — |
 | `inventory_transactions` | 11 | yes | no | inventory.html | inventory.html | — |
 | `marketplace_disputes` | 16 | yes | no | marketplace-admin.html | marketplace-admin.html | — |
 | `marketplace_orders` | 17 | yes | no | marketplace-admin.html | marketplace-admin.html | — |
@@ -95,6 +95,8 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `sensor_readings` | 14 | yes | yes | — | — | sensor-readings-ingest |
 | `anomaly_signals` | 22 | yes | yes | alert-hub.html | alert-hub.html | — |
 | `knowledge_graph_facts` | 18 | yes | yes | — | — | semantic-fact-extractor |
+| `kb_documents` | 11 | yes | no | — | — | pdf-ingest |
+| `kb_chunks` | 7 | yes | no | — | — | pdf-ingest |
 | `agent_episodic_memory` | 14 | yes | no | — | — | _shared/episodic-memory.ts |
 | `unified_events` | 12 | yes | no | — | — | data-fabric-normalizer |
 | `ai_cache` | 8 | yes | no | — | — | _shared/cache.ts |
@@ -116,6 +118,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `analytics_events` | 10 | yes | no | founder-console.html | — | — |
 | `hive_retention_config` | 6 | yes | no | plant-connections.html | — | — |
 | `sso_configs` | 13 | yes | no | plant-connections.html | — | — |
+| `ai_audit_log` | 7 | yes | no | audit-log.html | — | — |
 | `service_offers` | 10 | yes | yes | marketplace.html | — | — |
 | `service_voucher_redemptions` | 6 | yes | no | founder-console.html | — | — |
 | `assets` | 15 | yes | no | — | — | — |
@@ -146,8 +149,6 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `consulting_engagements` | 15 | yes | no | — | — | — |
 | `dialog_state` | 12 | yes | no | — | — | — |
 | `anomaly_alerts` | 16 | yes | no | — | — | — |
-| `kb_documents` | 11 | yes | no | — | — | — |
-| `kb_chunks` | 7 | yes | no | — | — | — |
 | `offline_snapshot_cache` | 7 | no | no | — | — | — |
 | `voice_response_queue` | 8 | yes | no | — | — | — |
 | `fallback_model_faq` | 5 | yes | no | — | — | — |
@@ -166,7 +167,6 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `platform_feedback_votes` | 3 | yes | no | — | — | — |
 | `canonical_lineage_edges` | 7 | yes | no | — | — | — |
 | `IF` | 7 | no | no | — | — | — |
-| `ai_audit_log` | 7 | yes | no | — | — | — |
 | `ai_knowledge_gap` | 7 | yes | no | — | — | — |
 | `ai_quality_escalation` | 8 | yes | no | — | — | — |
 | `asset_watchlist` | 4 | yes | no | — | — | — |
@@ -522,7 +522,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `architecture.html` | — | — | — | — |
 | `asset-hub.html` | asset_nodes, equipment_reading_templates, hive_audit_log, hive_members ... | asset_nodes, hive_audit_log, parts_staged_reservations ... | ensure_pm_asset_for_node | ai-gateway, asset-brain-query, fmea-populator |
 | `assistant.html` | ai_reply_feedback, asset_nodes, pm_assets, schedule_items ... | ai_reply_feedback | — | ai-gateway |
-| `audit-log.html` | hive_audit_log | — | — | — |
+| `audit-log.html` | ai_audit_log, hive_audit_log | — | — | — |
 | `community.html` | community_posts, community_reactions, community_replies, community_xp ... | community_posts, community_reactions, community_replies ... | get_community_reputation, get_hive_trade_peers, notify_post_mentions | — |
 | `dayplanner.html` | logbook, schedule_items, v_logbook_truth, v_pm_scope_items_truth | logbook, schedule_items | — | — |
 | `design-system.html` | — | — | — | — |
@@ -552,7 +552,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `poster-v4.html` | — | — | — | — |
 | `poster-v5.html` | — | — | — | — |
 | `project-manager.html` | asset_nodes, engineering_calcs, hive_members, pm_completions ... | project_change_orders, project_items, project_links ... | generate_change_order_number, generate_project_code, get_project_budget | embed-entry, project-orchestrator, project-progress |
-| `project-report.html` | project_links, projects, v_project_items_truth, v_project_progress_truth ... | — | get_project_budget | project-orchestrator |
+| `project-report.html` | project_links, v_project_items_truth, v_project_progress_truth, v_project_truth | — | get_project_budget | project-orchestrator |
 | `promo-poster.html` | — | — | — | — |
 | `props.html` | — | — | — | — |
 | `public-feed.html` | v_community_posts_truth | — | — | — |
@@ -619,8 +619,6 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 - `consulting_engagements` (defined but unreferenced)
 - `dialog_state` (defined but unreferenced)
 - `anomaly_alerts` (defined but unreferenced)
-- `kb_documents` (defined but unreferenced)
-- `kb_chunks` (defined but unreferenced)
 - `offline_snapshot_cache` (defined but unreferenced)
 - `voice_response_queue` (defined but unreferenced)
 - `fallback_model_faq` (defined but unreferenced)
@@ -639,7 +637,6 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 - `platform_feedback_votes` (defined but unreferenced)
 - `canonical_lineage_edges` (defined but unreferenced)
 - `IF` (defined but unreferenced)
-- `ai_audit_log` (defined but unreferenced)
 - `ai_knowledge_gap` (defined but unreferenced)
 - `ai_quality_escalation` (defined but unreferenced)
 - `asset_watchlist` (defined but unreferenced)

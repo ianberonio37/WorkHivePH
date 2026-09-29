@@ -67,7 +67,7 @@
     @media (max-width: 420px) { #meta { min-height: 58px; } }   /* I1 CLS (EX-PF F07, 2026-09-07): 'Loading…' is one line, the rollup sentence is three at 390 - the grid moved 40px after first paint */
     main { padding: 20px 28px; max-width: 1200px; margin: 0 auto; }
     .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-bottom: 24px; }
-    .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding:16px; }
     .card h3 { margin: 0 0 8px; font-size: 12px; color: var(--dim); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 500; }
     .card .big { font-size: 26px; font-weight: 600; color: var(--fg); font-variant-numeric: tabular-nums; }
     .card .delta { font-size: 12px; color: var(--dim); margin-top: 4px; }
@@ -76,7 +76,7 @@
     .card.bad  .big { color: var(--fail); }
     table { width: 100%; border-collapse: collapse; }
     th, td { padding: 8px 10px; text-align: left; font-size: 13px; border-bottom: 1px solid var(--border); }
-    th { color: var(--dim); font-weight: 500; text-transform: uppercase; font-size: 11px; letter-spacing: 0.04em; background: var(--bg2); }
+    th { color: var(--dim); font-weight: 500; text-transform: uppercase; font-size: 12px; letter-spacing: 0.04em; background: var(--bg2); }
     tr:hover td { background: rgba(56, 189, 248, 0.05); }
     .controls { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 16px /* R1 2026-09-05 */; }
     select, button { background: var(--card); color: var(--fg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; font-size: 16px; min-height: 44px; outline: none; cursor: pointer; }
@@ -87,7 +87,7 @@
     .meter { height: 6px; background: var(--bg2); border-radius: 3px; overflow: hidden; }
     .meter > div { height: 100%; background: var(--accent); }
     .empty { padding: 24px; text-align: center; color: var(--dim); }
-    .pill { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; }
+    .pill { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 12px; font-weight: 600; }
     .pill.cache { background: rgba(52,211,153,0.15); color: var(--pass); }
     .pill.live  { background: rgba(56,189,248,0.15); color: var(--accent); }
     .pill.fall  { background: rgba(251,191,36,0.15); color: var(--warn); }
@@ -95,8 +95,8 @@
        pushed scrollWidth past the viewport (387>360). Trim padding + let tables scroll within the
        page on narrow screens; desktop layout is unchanged. */
     @media (max-width: 600px) {
-      header { padding: 16px 14px 12px; }
-      main { padding: 16px 14px; }
+      header { padding:16px 12px; }
+      main { padding:16px; }
       table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
     }
   </style>
@@ -281,7 +281,7 @@
           <td><span class="id">${escHtml(hive.slice(0, 12))}…</span></td>
           <td>${num(h.calls)}</td>
           <td>${HIVE_CAP}</td>
-          <td><div class="meter"><div style="width:${burnPct.toFixed(0)}%; background: var(--${klass === 'bad' ? 'fail' : (klass === 'warn' ? 'warn' : 'pass')});"></div></div><div style="font-size:11px;color:var(--dim);margin-top:2px;">${burnPct.toFixed(0)}% of window</div></td>
+          <td><div class="meter"><div style="width:${burnPct.toFixed(0)}%; background: var(--${klass === 'bad' ? 'fail' : (klass === 'warn' ? 'warn' : 'pass')});"></div></div><div style="font-size: 12px;color:var(--dim);margin-top:2px;">${burnPct.toFixed(0)}% of window</div></td>
           <td style="color:var(--dim);font-size:12px;">${(h.last || '').slice(11, 19)}</td>
         </tr>`;
       })

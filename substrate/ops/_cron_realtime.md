@@ -2,13 +2,13 @@
 name: ops-cron-realtime
 type: ops
 source: db:cron.job+pg_publication_tables
-source_sha: a7f37d36f370befb
+source_sha: b976c8b35c2b0312
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## ops · cron jobs + realtime publication
 
-**pg_cron jobs (27)** — a failing cron is SILENT; audit `cron.job_run_details` for failures:
+**pg_cron jobs (28)** — a failing cron is SILENT; audit `cron.job_run_details` for failures:
 - `achievement-xp-log-purge` @ `0 3 * * 0` → DELETE FROM achievement_xp_log WHERE earned_at < now() - interval '90 days'
 - `agent-memory-retention` @ `15 4 * * *` →        DELETE FROM public.agent_memory        WHERE kind = 'turn'          AND c
 - `ai-eval-daily` @ `30 3 * * *` →        SELECT net.http_post(         url     := current_setting('app.supabase_fu
@@ -35,6 +35,7 @@ supersedes: null
 - `service-completion-sweep-hourly` @ `7 * * * *` → SELECT public.sweep_service_completions();
 - `service-outbox-drain-1min` @ `* * * * *` → SELECT public.drain_service_outbox(20);
 - `service-outbox-reconcile-1min` @ `* * * * *` → SELECT public.reconcile_service_outbox();
+- `v-kpi-truth-refresh-hourly` @ `0 * * * *` →  SELECT public.refresh_v_kpi_truth(); 
 - `voice-journal-retention` @ `45 4 * * *` →        DELETE FROM public.voice_journal_entries        WHERE created_at < now() 
 
 **Realtime publication `supabase_realtime` (36 tables)** — a table NOT here has DEAD postgres_changes subscriptions (no error, just no events):

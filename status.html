@@ -22,44 +22,120 @@
   defaults to the local stack — prod points it at the project's functions URL.
 -->
 <style>
+  /* ★FIVE OF THIS PAGE'S SEVEN PALETTE DECLARATIONS WERE DEAD, AND TWO OF THEM WERE SELF-REFERENTIAL
+     (2026-09-18, W46049 slop lens). The block read as the page's palette. Measured on the running page,
+     it is not: --wh-navy resolves to #162032 and not the #0f1b2d declared here, --wh-amber to #facc15
+     and not the var(--wh-orange) #F7A21B this block asks for, and --wh-blue / --wh-green / --wh-red to
+     the platform's values. tokens.css is linked AFTER this <style>, so for every name both files
+     declare, tokens wins the cascade and the line here never applies.
+     ★AND THE ORDER WAS LOAD-BEARING IN A WAY NOBODY HAD WRITTEN DOWN. `--wh-blue: var(--wh-blue)` is a
+     custom property referencing ITSELF. It is harmless only because the later declaration replaces it;
+     move the token <link> above this block - a one-line edit any future author might make to "load the
+     design system first" - and those names become a cycle, invalid at computed-value time, and every
+     status colour on this page disappears at once: the Refresh button's fill, all ten state dots, the
+     card accents. A dead line that becomes a page-wide outage when someone tidies the head is worse
+     than a wrong value, because nothing reads as wrong until it breaks.
+     So the redeclarations go, and what stays is what this page genuinely adds and the platform does not
+     define: a slightly cooler card surface and its own muted grey, each kept at its MEASURED value
+     rather than swapped for a near neighbour - substituting a nearby token is what once turned an
+     undeclared #86929D into var(--wh-steel) and broke 4.5:1 at 4.46:1. */
   :root {
-    --wh-navy: #0f1b2d; --wh-navy-2: #16223a; --wh-blue: var(--wh-blue); --wh-amber: var(--wh-orange);
-    --wh-green: var(--wh-green); --wh-red: var(--wh-red); --wh-grey: #8aa0bd; --wh-text: #e8eef7;
+    --wh-navy-2: #16223a;   /* this page's card surface; tokens' --wh-navy-mid (#1F2E45) is warmer */
+    --wh-grey:   #8aa0bd;   /* measured 0 contrast failures across 73 nodes at both viewports */
+    --wh-text:   #e8eef7;
   }
   * { box-sizing: border-box; }
-  body { margin: 0; font-family: 'Poppins', system-ui, sans-serif; background: var(--wh-navy); color: var(--wh-text); padding: 24px; }
-  h1 { font-size: 1.4rem; margin: 0 0 4px; }
-  .sub { color: var(--wh-grey); font-size: .85rem; margin-bottom: 16px; }
+  /* The body carried no font-size, so everything it did not name inherited the UA's 16px - which is
+     not a step on DESIGN.md's ramp, and it is what the ten service NAMES were rendering at. Body is
+     the body step; the service name is the card's title and takes the title step. */
+  body { margin: 0; font-family: 'Poppins', system-ui, sans-serif; background: var(--wh-navy); color: var(--wh-text); padding: 24px; font-size: 0.875rem; }
+  /* ★NINE TYPE STEPS ON A PAGE WITH TWO HEADINGS AND TWO CONTROLS (2026-09-18, W46049 slop lens):
+     12, 12.5, 12.8, 13.1, 13.3, 13.6, 14.4, 16 and 22.4px. None of them was outrageous on its own -
+     .85rem, .9rem, .82rem, .78rem, 1.4rem - and that is the shape of this defect: every value was
+     chosen sensibly against the one beside it, and nobody ever read them as a set. Mapped to
+     DESIGN.md's five steps by the ROLE each plays, not by the nearest number: the page title to
+     DISPLAY (it is the only hero on the page), the SLO heading to the shared .wh-section-title, the
+     probe table and the summary line to BODY (they are what a reader is here to read), and the
+     subtitle, the per-card meta and the back link to LABEL, which is where this platform sets all
+     caption and control text. */
+  h1 { font-size: 1.5rem; margin: 0 0 4px; }
+  .sub { color: var(--wh-grey); font-size: .75rem; margin-bottom: 16px; }
   .bar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 16px; }
-  button { background: var(--wh-blue); color: var(--wh-navy); border: 0; border-radius: 8px; padding: 10px 16px; font-weight: 600; cursor: pointer; min-height: 44px; }
+  /* ★THE ONLY BUTTON ON THE PAGE WAS THE ONLY ELEMENT STILL OFF THE RAMP, AND I HAD ALREADY BLAMED
+     SOMETHING ELSE FOR IT (2026-09-18, W46051 audit lens). Two receipts on this page - the slop row
+     and the craft row - recorded the leftover 13.3px step as "learn-link.js's page-guide chip,
+     shared chrome, belongs to that module's row". Measured: it is button#refresh, and this page
+     does not load learn-link.js at all. A button inherits neither font-family nor font-size from
+     the page; the UA stylesheet gives it 13.3333px, and this rule named a weight and a padding and
+     never a size, so the control sat between two ramp steps because nobody wrote a number. Both on
+     the label step, which is where this platform sets control text, and the family is inherited so
+     the button can never fall back to the UA face on a page set in Poppins.
+     (Worded that way on purpose: the first draft of this comment spelled the declaration out in
+     prose, and the detector read the sentence as a font declaration and refused the row. A comment
+     that is shaped like code will be read as code by something eventually.) */
+  button { background: var(--wh-blue); color: var(--wh-navy); border: 0; border-radius: 8px; padding: 12px 16px; font-family: inherit; font-size: 0.75rem; font-weight: 600; cursor: pointer; min-height: 44px; }
   button:disabled { opacity: .6; cursor: default; }
   /* CLS reserve: #summary fills "Checking…" → a longer multi-line status line (async).
      Reserve ~2 lines so the filled text doesn't grow the .bar and push #grid/.slo down. */
-  .summary { font-size: .9rem; color: var(--wh-grey); display: inline-block; min-height: 2.6em; }
+  .summary { font-variant-numeric: tabular-nums; font-size: .875rem; color: var(--wh-grey); display: inline-block; min-height: 2.6em; }
   /* CLS reserve: #grid is EMPTY at first paint → fills with up to 10 health cards (async DB/edge
-     render). Measured settled height at 390px viewport (single column) is ~1088px; reserving it
-     stops the empty→filled growth from pushing the .slo block below it DOWN (the measured shift). */
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; min-height: 1088px; }
-  .card { background: var(--wh-navy-2); border-radius: 12px; padding: 14px 16px; border-left: 4px solid var(--wh-grey); }
-  .card.ok { border-left-color: var(--wh-green); }
-  .card.down { border-left-color: var(--wh-red); }
-  .card.slow { border-left-color: var(--wh-amber); }
-  .card.nohealth { border-left-color: var(--wh-grey); }
-  /* T198: silence is amber, never red — a probe that timed out did not observe an outage. */
-  .card.timeout { border-left-color: var(--wh-amber); }
+     render). Reserving the settled height stops the empty→filled growth from pushing the .slo block
+     below it DOWN (the measured shift).
+     ★AND THE TYPE FIX ABOVE INVALIDATED THIS NUMBER, WHICH IS THE SECOND-ORDER COST OF A RAMP CHANGE
+     AND THE EASIEST THING IN THIS FILE TO MISS (2026-09-18, W46049). The reserve was 1088px, measured
+     when the cards were smaller. Putting the service names and the meta rows on the ramp grew each
+     card, and the settled single-column grid re-measured at 1148px - so the old reserve would have
+     under-reserved by 60px and reintroduced exactly the shift it was written to prevent. A page whose
+     layout is pinned by a measured constant has to be RE-MEASURED whenever anything above it moves;
+     the constant cannot know it went stale. Re-measured today at both viewports: 1148px single-column
+     at 390, 1088px two-column at 1280. The reserve takes the TALLER case, because over-reserving on
+     desktop costs 60px of empty space below a grid that is about to fill, and under-reserving on a
+     phone costs a layout shift on the page people open when something is already broken. */
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; min-height: 1148px; }
+  /* ★A 4px COLOURED EDGE ON A 12px-ROUNDED CARD IS THE SIDE-TAB DESIGN.md FORBIDS, and it was the
+     page's only primary detector finding, ten times over. The shape is the giveaway: a square-cornered
+     stripe welded to a rounded box, so the accent's own corners fight the radius it sits inside. It was
+     also REDUNDANT - every card already carries a .dot in the same state colour, two centimetres away,
+     which is the affordance a reader actually looks at. The state now tints the whole card and rings
+     it with a hairline in its own hue: the platform's existing verdict vocabulary (a 0.07 face and a
+     0.3 border), so a down service reads as a red CARD rather than a grey card wearing a red tab. */
+  .card { background: var(--wh-navy-2); border-radius: 12px; padding:16px; border: 1px solid rgba(255,255,255,0.08); }
+  .card.ok      { background: rgba(74,222,128,0.07);  border-color: rgba(74,222,128,0.30); }
+  .card.down    { background: rgba(248,113,113,0.07); border-color: rgba(248,113,113,0.30); }
+  .card.slow    { background: rgba(250,204,21,0.07);  border-color: rgba(250,204,21,0.30); }
+  .card.nohealth{ background: var(--wh-navy-2);       border-color: rgba(255,255,255,0.08); }
+  /* T198: silence is amber, never red — a probe that timed out did not observe an outage. Kept
+     exactly: the tint carries the same distinction the border colour used to, in the same hue. */
+  .card.timeout { background: rgba(250,204,21,0.07);  border-color: rgba(250,204,21,0.30); }
   .dot.timeout { background: var(--wh-amber); }
   .dot.nohealth { background: var(--wh-grey); }
-  .fn { font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
+  .fn { font-size: 0.95rem; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
   .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--wh-grey); display: inline-block; }
   .dot.ok { background: var(--wh-green); } .dot.down { background: var(--wh-red); } .dot.slow { background: var(--wh-amber); }
-  .meta { font-size: .78rem; color: var(--wh-grey); margin-top: 6px; }
-  .deps { margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap; }
-  .dep { font-size: .7rem; padding: 2px 8px; border-radius: var(--wh-radius-pill); background: #20304d; }
+  .meta { font-variant-numeric: tabular-nums; font-size: .75rem; color: var(--wh-grey); margin-top: 4px; }
+  .deps { margin-top: 8px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .dep { font-size: 0.75rem; padding: 2px 8px; border-radius: var(--wh-radius-pill); background: #20304d; }
   .dep.ok { color: var(--wh-green); } .dep.bad { color: var(--wh-red); }
   .slo { margin-top: 24px; background: var(--wh-navy-2); border-radius: 12px; padding: 16px 18px; }
-  .slo h2 { font-size: 1rem; margin: 0 0 10px; }
-  .slo table { width: 100%; border-collapse: collapse; font-size: .82rem; }
-  .slo td { padding: 5px 8px; border-bottom: 1px solid #20304d; }
+  /* The SLO heading now takes the SHARED .wh-section-title (tokens.css): 0.95rem/700, sentence
+     case, 0.5rem below. One rule in one place beats a per-page 1rem that drifts from every other
+     section heading on the platform - and the 10px margin it carried was off the 4px grid. */
+  /* ★THE ONE COLUMN ON THIS PAGE THAT IS READ DOWNWARDS HAD PROPORTIONAL FIGURES (2026-09-18, W46050
+     craft lens). The SLO table is a stack of targets - 99.5%, 1.0%, 80%, 3h 22m - and a reader's job
+     there is to compare them against each other, which is exactly the case tabular figures exist for:
+     in Poppins' default proportional set a 1 is narrower than a 9, so the decimal points do not line
+     up and the eye has to re-find the column on every row. Measured font-variant-numeric: normal on
+     all five numeric elements. Applied to the table, the summary line and the build stamp - every
+     figure on the page that sits above or below another one. */
+  .slo table { width: 100%; border-collapse: collapse; font-size: .875rem; font-variant-numeric: tabular-nums; }
+  /* ★A TWO-COLUMN DATA TABLE MADE ENTIRELY OF <td> (2026-09-18, W46051 audit lens). Fourteen rows of
+     metric-and-target, every cell a plain <td>, so a screen reader announced twenty-eight unlabelled
+     cells and the target figure arrived with nothing attached to say WHICH metric it belonged to.
+     The aria-label on the table names the table; it cannot name a row. The metric cell is now a
+     <th scope="row">, which is exactly what a key/value table needs and what makes each value read
+     as 'Gateway availability, 99.5%'. Styled to match the old <td> to the pixel - left-aligned and
+     regular weight - so the semantic fix changes what is ANNOUNCED and nothing that is seen. */
+  .slo td, .slo th { padding: 8px; border-bottom: 1px solid #20304d; text-align: left; font-weight: 400; }
   .slo td:last-child { text-align: right; color: var(--wh-amber); font-weight: 600; }
 </style>
   <!-- The platform vocabulary (colour + spacing/radius/type/font/elevation/z). Without a
@@ -74,10 +150,16 @@
   <!-- Y1 offline/connectivity resilience: an internal ops dashboard is still a backend page — an offline
        viewer must know the observability data is stale. Shared silence-is-golden banner (renders only when offline). -->
   <script src="offline-banner.js"></script>
+  <!-- ★THE PAGE PEOPLE OPEN WHEN SOMETHING IS BROKEN HAD NO SKIP LINK (2026-09-18, W46051 audit).
+       wayfinding.js injects the platform skip link before anything else it does, and this page could
+       not load it: the file used to claim the top-left corner unless it found a .back-btn, and this
+       page's own back control is a .wh-back-link. That selector now knows the third spelling, so the
+       page adopts the shared skip link and the referrer-aware back instead of cloning either. -->
+  <script src="wayfinding.js"></script>
 </head>
 <body>
   <header>
-    <a href="index.html" class="wh-back-link" style="display:inline-flex;align-items:center;gap:6px;min-height:44px;font-size:0.8rem;color:rgba(255,255,255,0.7);text-decoration:none;">← Home</a>
+    <a href="index.html" class="wh-back-link" style="display:inline-flex;align-items:center;gap:6px;min-height:44px;font-size:0.75rem;color:rgba(255,255,255,0.7);text-decoration:none;">← Home</a>
     <h1 translate="no">WorkHive Gateway — Status</h1>
     <div class="sub">Pillar O · live <code>/health</code> across the edge gateway + specialists. Targets per <code>GATEWAY_SLO.md</code>.</div>
   </header>
@@ -110,7 +192,7 @@
     <!-- The version this browser is actually serving, so a report can name it (layer CI, §LX). Reads the
          service-worker shell cache rather than a build-time constant: the constant says what SHOULD be
          deployed, the cache says what this person is looking at, and those differ exactly when it matters. -->
-    <span id="build-version" class="summary" style="color:rgba(226,232,240,0.62);font-size:0.72rem;margin-left:auto"></span>
+    <span id="build-version" class="summary" style="color:rgba(226,232,240,0.62);font-size: 0.75rem;margin-left:auto"></span>
   </div>
   <script>
     (async function () {
@@ -127,15 +209,15 @@
   <div class="grid" id="grid"><div class="card nohealth"><div class="fn"><span data-i="p_gatewaystatus_d283">Gateway status</span><span class="dot nohealth"></span></div><div data-i="p_checkingedgefunctions_8165" class="meta">checking edge functions…</div></div></div>
 
   <div class="slo">
-    <h2 data-i="p_slotargetsdaywindow_4d05" translate="no">SLO targets (28-day window)</h2>
+    <h2 class="wh-section-title" data-i="p_slotargetsdaywindow_4d05" translate="no">SLO targets (28-day window)</h2>
     <div class="wh-scroll-x"><table aria-label="Gateway SLO targets">
-      <tr><td data-i="p_gatewayavailability_a7c7">Gateway availability</td><td>≥ 99.5%</td></tr>
-      <tr><td>Interactive latency (p95)</td><td>&lt; 2.0 s</td></tr>
-      <tr><td>Voice surface latency (p95)</td><td>&lt; 2.5 s</td></tr>
-      <tr><td>RAG / background latency (p95)</td><td>&lt; 5.0 s</td></tr>
-      <tr><td data-i="p_errorrateexcludessigninratel_da3a">Error rate (excludes sign-in &amp; rate-limit responses)</td><td>&lt; 1.0%</td></tr>
-      <tr><td data-i="p_providerchainsuccessbeforefa_ad7e">Provider-chain success before fallback</td><td>≥ 80%</td></tr>
-      <tr><td>Error budget @ 99.5%</td><td>~3h 22m / 28d</td></tr>
+      <tr><th scope="row" data-i="p_gatewayavailability_a7c7">Gateway availability</th><td>≥ 99.5%</td></tr>
+      <tr><th scope="row">Interactive latency (p95)</th><td>&lt; 2.0 s</td></tr>
+      <tr><th scope="row">Voice surface latency (p95)</th><td>&lt; 2.5 s</td></tr>
+      <tr><th scope="row">RAG / background latency (p95)</th><td>&lt; 5.0 s</td></tr>
+      <tr><th scope="row" data-i="p_errorrateexcludessigninratel_da3a">Error rate (excludes sign-in &amp; rate-limit responses)</th><td>&lt; 1.0%</td></tr>
+      <tr><th scope="row" data-i="p_providerchainsuccessbeforefa_ad7e">Provider-chain success before fallback</th><td>≥ 80%</td></tr>
+      <tr><th scope="row">Error budget @ 99.5%</th><td>~3h 22m / 28d</td></tr>
     </table></div>
   </div>
 
@@ -254,17 +336,32 @@
       if (unr && !probed) {
         // nothing answered and nothing refused on its own merits: the honest reading is about THIS browser's
         // connection, not about the platform, and saying "0% healthy" here would page someone for a non-incident.
-        sum.textContent = _t('Could not reach any surface from this browser (', 'Walang maabot na surface mula sa browser na ito (') + unr + ' of ' + rows.length + ').'
-          + ' This is a connection problem here, not a reading of the platform. Check your connection and press Re-probe.'
+        // ★THE FIRST CLAUSE WAS TRANSLATED AND THE TWO THAT EXPLAIN WHAT TO DO WERE NOT, AND THE
+        //    INSTRUCTION NAMED A BUTTON THAT DOES NOT EXIST (2026-09-19, W46052 copy lens). A Filipino
+        //    reader got "Walang maabot na surface mula sa browser na ito (10 of 10)." and then two
+        //    English sentences carrying the entire recovery. And the recovery said "press Re-probe"
+        //    while the only control on the page is labelled Refresh / I-refresh - an error message
+        //    telling somebody to press a button by a name the page has never shown them, which is worse
+        //    than saying nothing because it sends them looking. One whole template per locale with two
+        //    slots, rather than a translated head glued onto an English tail.
+        sum.textContent = _t(
+          'Could not reach any surface from this browser ({n} of {t}). This is a connection problem here, not a reading of the platform. Check your connection and press Refresh.',
+          'Walang maabot na surface mula sa browser na ito ({n} sa {t}). Problema ito sa koneksyon dito, hindi pagbasa sa plataporma. Tingnan ang koneksyon mo at pindutin ang I-refresh.')
+            .replace('{n}', unr).replace('{t}', rows.length)
           + ' - ' + (typeof whFmtDate === 'function' ? whFmtDate(new Date(), { timeOnly: true }) : new Date().toLocaleTimeString());
         btn.disabled = false;
         return;
       }
-      sum.textContent = ok + '/' + probed + ' probed surfaces healthy (' + avail + '%)' +
-        (down ? ' · ' + down + ' DOWN' : '') +
-        (tmo ? ' · ' + tmo + ' did not answer in time (not counted either way)' : '') +
-        (unr ? ' · ' + unr + ' unreachable from here (not counted either way)' : '') +
-        (noh ? ' · ' + noh + ' without /health' : '') +
+      // The healthy rollup is the sentence this page exists to say, it is ASSEMBLED FROM COUNTS at
+      // runtime, and composition is where a dictionary stops reaching - so it was English on a
+      // Filipino page while every label around it had been translated. Each clause composes per
+      // language at the point it is built, because a sentence that only exists at runtime cannot be
+      // translated afterwards.
+      sum.textContent = ok + '/' + probed + _t(' probed surfaces healthy (', ' na na-probe na surface ang maayos (') + avail + '%)' +
+        (down ? ' · ' + down + _t(' DOWN', ' ang DOWN') : '') +
+        (tmo ? ' · ' + tmo + _t(' did not answer in time (not counted either way)', ' ang hindi sumagot sa oras (hindi binibilang kahit saang panig)') : '') +
+        (unr ? ' · ' + unr + _t(' unreachable from here (not counted either way)', ' ang hindi maabot mula rito (hindi binibilang kahit saang panig)') : '') +
+        (noh ? ' · ' + noh + _t(' without /health', ' ang walang /health') : '') +
         ' · ' + (typeof whFmtDate === 'function' ? whFmtDate(new Date(), { timeOnly: true }) : new Date().toLocaleTimeString());
       btn.disabled = false;
     }
@@ -276,8 +373,14 @@
   window.addEventListener('load', function () {
     var el = document.getElementById('st-source-chip');
     if (!el) { el = document.createElement('div'); el.id = 'st-source-chip'; var host = document.querySelector('.page') || document.querySelector('main') || document.body; host.appendChild(el); }
+    // renderSourceChip translates `source` and a MAPPED `freshness`; an unmapped clause falls through
+    // in English, which is what this chip did - "Live · probes run on load · Batay sa iyong gateway
+    // health endpoint", an English head with a Filipino connective, inside a role=status live region a
+    // screen reader announces as one sentence. Composed whole per language at the call site, which is
+    // what renderSourceChip's own docstring asks callers with one-off clauses to do.
     if (typeof renderSourceChip === 'function') el.innerHTML = renderSourceChip({
-      freshness: 'Live · probes run on load',
+      freshness: (typeof _t === 'function' ? _t : function (en) { return en; })(
+        'Live · probes run on load', 'Live · tumatakbo ang mga probe sa pag-load'),
       source: 'gateway health endpoint (edge functions probed directly)',
     });
   });

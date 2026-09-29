@@ -1,5 +1,5 @@
 {
-  "scored_at": "2026-09-04T17:21:17+00:00",
+  "scored_at": "2026-09-28T12:02:27+00:00",
   "lenses": {
     "X": {
       "title": "Injection & XSS",
@@ -44,8 +44,8 @@
     },
     "Z": {
       "title": "AuthZ / Access",
-      "pct": 88.2,
-      "passed": 15,
+      "pct": 94.1,
+      "passed": 16,
       "total": 17,
       "floor": 100,
       "cells": [
@@ -53,7 +53,7 @@
           "key": "gateway_bypass",
           "validator": "validate_gateway_bypass",
           "owasp": "A01",
-          "status": "FINDINGS",
+          "status": "PASS",
           "note": "gateway tenancy not bypassable",
           "covered": true
         },
@@ -305,7 +305,7 @@
   "owasp_top10": {
     "A01": {
       "scanners": 14,
-      "clean": false,
+      "clean": true,
       "covered": true
     },
     "A02": {
@@ -356,7 +356,7 @@
   },
   "floors_ok": false,
   "regressions": [
-    "Z: 88.2 < baseline 100.0"
+    "Z: 94.1 < baseline 100.0"
   ],
   "infra_errors": [],
   "baseline_error": false,

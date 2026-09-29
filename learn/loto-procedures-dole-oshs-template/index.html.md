@@ -1,6 +1,6 @@
-# Lock-Out Tag-Out (LOTO) Procedures: DOLE OSHS Template
+# Lock-Out Tag-Out (LOTO) Procedures: a Philippine Plant Template
 
-> Learn how to create a Lock-Out Tag-Out (LOTO) procedure template based on DOLE OSHS Rule 1063, including the 7-step lockout sequence and sample equipment-specific LOTO procedure.
+> A per-asset Lock-Out Tag-Out procedure template for Philippine plants under RA 11058 and DO 198-18: the seven-step sequence in the order that keeps someone alive, with a worked example for a 480V pump.
 
 Source: https://workhiveph.com/learn/loto-procedures-dole-oshs-template/
 
@@ -12,7 +12,7 @@ By WorkHive Editorial Team
 ·
 9 min read
 
-**Short answer:** Lock-Out Tag-Out (LOTO) procedures are crucial for ensuring the safety of workers during maintenance activities. A well-implemented LOTO procedure helps prevent accidents and ensures compliance with regulatory requirements. In this article, we will provide a template for LOTO procedures based on the DOLE OSHS Rule 1063. The stake is statutory, not advisory: under **RA 11058** and **DO 198-18**, wilful failure to comply with an OSH standard carries an administrative fine of up to **₱100,000 per day** until the violation is corrected.
+**Short answer:** Write one LOTO procedure per asset, and run the seven steps in order: the order is the safety measure, not a formality. The step that must come last is verification: release every scrap of stored energy first, then prove the machine is dead at the point where you are about to put your hands. This article gives you the sequence, a filled-in example for a 480V pump, and a template you can copy. The stake is statutory, not advisory: under **RA 11058** and **DO 198-18**, wilful failure to comply with an OSH standard carries an administrative fine of up to **₱100,000 per day** until the violation is corrected.
 
 Who this is for
 
@@ -29,75 +29,84 @@ Part of the [Philippine plant compliance guide: DOLE OSHS, LOTO and RA 11285](ht
 
 ## Introduction to Lock-Out Tag-Out (LOTO) Procedures
 
-To create a compliant LOTO procedure, write one from the DOLE OSHS Rule 1063 template and run the 7-step lockout sequence on each machine, like a 480V Pump P-204B. Sign-off and an audit trail prove it was followed. In the Philippines, non-compliance can cost fines of up to PHP 180,000.
+To create a compliant LOTO procedure, write one per asset and run the seven-step lockout sequence on each machine, like a 480V Pump P-204B. Sign-off and an audit trail prove it was followed. In the Philippines the fine scales with the violation and with every day it continues, and it is set by the OSH law, not by the inspector.
 
-Lock-Out Tag-Out (LOTO) procedures are a critical component of workplace safety in Philippine manufacturing plants, such as those found in the Calabarzon region. These procedures ensure that equipment is properly shut down and secured before maintenance or repair work begins, preventing unexpected startup and protecting workers from serious injury or even death. In the Philippines, the Department of Labor and Employment's Occupational Safety and Health Standards (DOLE OSHS) Rule 1063 provides guidelines for LOTO procedures. The WorkHive Audit tool helps track and verify LOTO events, providing a digital record for inspector review.
+Lock-Out Tag-Out (LOTO) procedures are a critical component of workplace safety in Philippine manufacturing plants, such as those found in the Calabarzon region. These procedures ensure that equipment is properly shut down and secured before maintenance or repair work begins, preventing unexpected startup and protecting workers from serious injury or even death. In the Philippines the requirement is statutory: RA 11058 and DOLE Department Order 198-18 make the Occupational Safety and Health Standards enforceable and require safe work procedures for hazardous work, which is what a written LOTO procedure is. WorkHive's logbook carries a LOTO field on the job record, so the isolation is dated and attributed rather than remembered.
 
-Effective LOTO procedures involve a series of steps that must be followed in sequence to ensure equipment is safely secured. A sample equipment-specific LOTO procedure for a 480V Pump P-204B can serve as a template for other equipment. For instance, a maintenance planner at a plant in Batangas might use a LOTO procedure template to ensure that Pump P-204B is properly locked out before performing maintenance work during a 24-hour shift, such as at 02:30 or 14:45. This helps prevent accidents and ensures compliance with DOLE OSHS regulations.
+Effective LOTO procedures involve a series of steps that must be followed in sequence to ensure equipment is safely secured. A sample equipment-specific LOTO procedure for a 480V Pump P-204B can serve as a template for other equipment. For instance, a maintenance planner at a plant in Batangas might use a LOTO procedure template to ensure that Pump P-204B is properly locked out before any maintenance work, on whichever shift the job lands. This helps prevent accidents and ensures compliance with DOLE OSHS regulations.
 
-The consequences of not following LOTO procedures can be severe, resulting in costly fines and damage to a plant's reputation. In the Philippines, non-compliance with OSHS regulations can lead to fines of up to PHP 180,000. Moreover, a LOTO-related accident can have a significant impact on plant operations, causing delays and lost productivity. By implementing a robust LOTO procedure and using tools like the WorkHive Audit, plant supervisors and shift in-charges in the Philippines can help prevent such incidents and maintain a safe working environment.
+The consequences of not following LOTO procedures can be severe, resulting in costly fines and damage to a plant's reputation. In the Philippines, non-compliance with OSHS regulations carries a daily fine for as long as the violation stands, so the cost is a function of how long it goes unfixed. Moreover, a LOTO-related accident can have a significant impact on plant operations, causing delays and lost productivity. With a per-asset LOTO procedure and a dated record of each isolation, plant supervisors and shift in-charges in the Philippines can help prevent such incidents and maintain a safe working environment.
 
-A well-documented LOTO procedure is essential for ensuring that workers understand their roles and responsibilities during maintenance activities. The WorkHive Audit Log captures every LOTO event, providing a permanent record that can be reviewed by inspectors and plant managers. This level of transparency and accountability helps to build trust among stakeholders and ensures that LOTO procedures are consistently followed. By using a downloadable LOTO procedure template and the WorkHive Audit tool, Philippine plants can streamline their LOTO processes and improve overall safety performance.
+A written procedure is what lets a crew who did not plan the job isolate the machine the way the planner intended, and it is the only thing an inspector can read after the fact. The two halves work together: the procedure says what should happen, and the dated record says what did. A written per-asset template plus a dated record of who isolated what turns LOTO from something the crew remembers into something the plant can show.
 
-## LOTO Procedure Template based on DOLE OSHS Rule 1063
+## What a LOTO procedure has to contain
 
-A LOTO procedure template based on DOLE OSHS Rule 1063 is crucial for ensuring the safety of maintenance personnel in Philippine plants, such as those in the PEZA zone of Batangas. This template helps standardize the lock-out tag-out process, reducing the risk of accidents and ensuring compliance with regulatory requirements. The WorkHive Audit tool can help track and verify LOTO procedures, providing a digital record of all LOTO events.
+A LOTO procedure is written per asset, not per plant. The point of writing it down is that the crew on the night shift, who did not plan the job, can isolate the machine the same way the planner intended, so it has to name the actual disconnect, the actual valve, and the energy that will still be in the machine after both are shut.
 
 The LOTO procedure template should include essential elements such as equipment identification, preparation for lock-out, application of locks and tags, verification of zero-energy state, and restoration of equipment. For example, a sample equipment-specific LOTO procedure for Pump P-204B at a plant in Cabuyao, Laguna, can serve as a reference point for other plants. The template should also specify the roles and responsibilities of personnel involved in the LOTO process, including the shift in-charge and maintenance planner.
 
-A typical LOTO procedure involves a 7-step lockout sequence: preparation for shutdown, shutdown of equipment, isolation of energy sources, application of locks and tags, verification of zero-energy state, performance of maintenance, and restoration of equipment. The WorkHive Audit Log captures every LOTO event, providing a permanent record for inspector review and ensuring that all LOTO procedures are properly documented. This can help plant supervisors in Pampanga or Bulacan ensure compliance with DOLE OSHS Rule 1063 and avoid costly penalties, such as PHP 180,000 for non-compliance.
+Every per-asset procedure names the same eight things: the asset and its tag number; every energy source it carries; the exact isolating device for each one; where the stored energy sits and how it is released; how zero energy is verified and with what instrument; who may authorise the isolation; who holds the locks; and the steps for putting it back. Write those and the sequence below is simply you walking your own document.
 
-To ensure a smooth LOTO process, plants can use a downloadable LOTO procedure template that frames the necessary steps and information. The template should be tailored to specific equipment and plant requirements, taking into account factors such as 24-hour shift times, like 02:30 and 14:45. By using a standardized template and the WorkHive Audit tool, plants in Calabarzon or Mindanao can improve the efficiency and effectiveness of their LOTO procedures, reducing downtime and increasing overall productivity.
+The template at the end of this article gives you that shape to copy. Tailor it per asset, and write it with the handover in mind: on a plant running around the clock the isolation is often applied by one crew and released by another, so the procedure has to make sense to someone who was not there when the lock went on.
 
 ## The 7-Step Lockout Sequence
 
-The 7-step lockout sequence is a critical component of Lock-Out Tag-Out (LOTO) procedures, ensuring the safe maintenance and servicing of equipment. At the Calabarzon plant in Cabuyao, Laguna, a 480V Pump P-204B was recently serviced using this sequence. The plant's maintenance planner worked closely with the shift in-charge to guarantee a smooth LOTO process. The sequence runs:
+**The order is the safety measure.** Each step is only trustworthy because the ones before it were done, which is why verification comes last: it is the step that proves the other six worked. Run them in this order every time:
 
-1. Prepare for shutdown: identify the equipment and notify relevant personnel.
-2. Shut down the equipment.
-3. Isolate the energy sources.
-4. Apply the lockout devices.
-5. Verify the zero-energy state.
-6. Block any stored energy.
-7. Remove the lockout devices and restore energy after maintenance is complete.
+1. **Prepare.** Find *every* energy source the job will expose, not just the obvious one: electrical supply, hydraulics, compressed air, steam, process fluid, springs under tension, anything held up by gravity, anything still hot. Write them down before you touch the machine.
+2. **Notify.** Tell operations and everyone who works on or near the machine that it is going down, and when they can expect it back.
+3. **Shut down.** Stop the equipment the normal way, using its own controls, not by pulling its isolator.
+4. **Isolate.** Operate each energy-isolating device you listed in step 1: open the disconnect, close and chain the valve, disconnect the line.
+5. **Lock and tag.** Each person doing the work applies their *own* lock and their own tag, and only that person removes it. On a multi-trade job that means several locks on one hasp: the machine cannot start while any of them is still on.
+6. **Release stored energy.** Bleed the lines, drain the casing, discharge the capacitors, block or lower the raised part, let it cool. Isolating a source does not empty what is already downstream of it, and this is what kills people who did everything else right.
+7. **Verify zero energy: last, and at the point of work.** Try to start the machine with its normal control, then return the control to off. Then *test*: meter on the conductors, gauge reading zero, bleed valve open. Verification is a measurement, not an assumption.
 
-Step 1 of the sequence involves preparing for shutdown by identifying the equipment to be serviced and notifying relevant personnel. The maintenance planner reviews the equipment's operating manual and identifies potential hazards. In the case of Pump P-204B, this meant isolating the power supply and ensuring the pump was depressurized. The WorkHive Audit Log captures every LOTO event, providing a clear record of the process for inspector review.
+**Why the last two are in that order:** if you verify before you release stored energy, your reading describes a machine that no longer exists by the time you open it. A pressurised accumulator, a charged drive capacitor or a suspended load is still live after a perfectly clean verification. Release first, verify second, and the reading you trust is the state you actually work in.
 
-Steps 2 to 6 involve shutting down the equipment, isolating energy sources, applying lockout devices, verifying zero energy state, and blocking any stored energy. For Pump P-204B, this meant switching off the power supply at 02:30 during a 24-hour shift and verifying that the pump had come to a complete stop. The plant supervisor reviews and approves the LOTO plan, ensuring compliance with DOLE OSHS Rule 1063. Any deviations from the plan can result in significant costs, such as PHP 180,000 in potential fines and lost productivity.
+Preparation is a paperwork step, and doing it properly is what makes the rest possible. For Pump P-204B it means establishing, before anyone walks to the machine, that it has two energy sources and not one: the 480V supply at its disconnect, and the process water still standing in the casing and the suction line. A procedure that lists only the electrical supply will be followed exactly as written and will still leave a worker opening a flooded casing.
 
-Step 7 involves removing lockout devices and restoring energy sources after maintenance is complete. The maintenance team performs a final safety check before releasing the equipment back to operation at 14:45. A thorough review of the LOTO process using the WorkHive Audit tool helps identify areas for improvement and ensures that all safety protocols were followed. By following this 7-step lockout sequence, Philippine plants can minimize risks and maintain a safe working environment.
+The middle of the sequence is where procedures quietly go wrong, because a machine that has stopped looks finished. **It is not.** A pump that has coasted to a halt is still connected to 480V, and “it stopped turning” is not a zero-energy verification: the only verification that counts is a try-start followed by an instrument reading at the point of work. Between those two comes the step that is easiest to skip and worst to skip: draining the casing, bleeding the line, discharging the drive. A deviation from the written plan is what an inspector finds, and what an incident investigation looks for first.
+
+**Releasing the isolation is its own procedure, not step 8.** Before any lock comes off: the work is finished and tools are out of the machine, guards are back on, everyone is clear and has been told it is about to be re-energised. Then each worker removes their own lock: nobody removes a lock for an absent colleague, which is exactly the shortcut that gets someone killed on the shift after the one that applied it. If a lock genuinely has to be cut because its owner has gone home, that is a documented decision by the supervisor with the owner contacted first, not a pair of bolt cutters and a judgement call.
 
 ## Sample Equipment-Specific LOTO Procedure
 
-Here's a sample equipment-specific LOTO procedure for a 480V Pump P-204B, commonly found in plants like those in Calabarzon, such as the Laguna Technopark. This procedure is designed to ensure the safety of maintenance personnel, like those working at a 24/7 facility with a 02:30 and 14:45 shift change. When performing LOTO, it's essential to use the WorkHive Audit tool to track and verify each step of the procedure.
+Here's a sample equipment-specific LOTO procedure for a 480V Pump P-204B, commonly found in plants like those in Calabarzon, such as the Laguna Technopark. This procedure is designed to ensure the safety of maintenance personnel, like those working at a facility that runs around the clock, where an isolation can outlive the crew that applied it. Copy the shape, not the values: the energy sources are what change from asset to asset.
 
-The LOTO procedure for Pump P-204B involves isolating the energy sources, including the 480V electrical supply and any potential water pressure. The plant supervisor or shift in-charge must ensure that the maintenance planner has identified all potential energy sources and included them in the LOTO plan. A PHP 180,000 fine may be imposed for non-compliance with DOLE OSHS Rule 1063, making it crucial to get the procedure right.
+The LOTO procedure for Pump P-204B involves isolating the energy sources, including the 480V electrical supply and any potential water pressure. The plant supervisor or shift in-charge must ensure that the maintenance planner has identified all potential energy sources and included them in the LOTO plan. An inspector reads the written procedure against what the crew actually does, which is why a procedure copied from another plant and never walked is worse than none: it documents a sequence nobody follows.
 
-To perform LOTO on Pump P-204B, start by notifying the operations team and obtaining approval from the plant supervisor. Then, shut down the pump and isolate the electrical supply using a lockable disconnect switch. Next, drain any water from the pump and its associated piping. The maintenance planner must verify that all energy sources have been isolated before allowing work to commence. The WorkHive Audit log will capture every LOTO event, providing a permanent record for inspector review.
+To perform LOTO on Pump P-204B, start by notifying the operations team and obtaining approval from the plant supervisor. Then, shut down the pump and isolate the electrical supply using a lockable disconnect switch. Next, drain any water from the pump and its associated piping. Then, and only then: verify: try-start from the local control, then meter the conductors at the motor terminals and confirm the drain runs dry. Record the isolation on the logbook entry for the job, with the permit number, so the record is dated and attributed rather than remembered.
 
-After completing the LOTO procedure, the maintenance team can perform the necessary work on Pump P-204B. Once the work is finished, the LOTO devices can be removed, and the pump can be restarted. The shift in-charge must verify that all LOTO devices have been removed and that the pump is operating safely before handing over to the operations team. By following this equipment-specific LOTO procedure and using the WorkHive Audit tool, plants can ensure a safe working environment for their maintenance personnel.
+When the work is done, the release runs in reverse and by person, not by machine: tools out, guards on, everyone clear and told, each worker pulls their own lock, then the disconnect is closed and the pump handed back to operations. On a round-the-clock plant the isolation will often outlive the crew that applied it: which is the whole reason the locks are personal and the record is written down.
 
-## Sign-off Requirements and Audit Log
+## Sign-off and the written record
 
-To ensure a safe and controlled LOTO process, sign-off requirements are crucial. In a Philippine plant setting, such as the Calabarzon industrial zone, the maintenance planner and shift in-charge must verify that all necessary steps have been taken before allowing work to commence. The WorkHive Audit Log captures every LOTO event, providing a permanent record of who performed the lockout, when, and why.
+An isolation nobody recorded is an isolation you cannot prove, and on a plant running three shifts it is also one the next crew cannot interpret. Two different things have to be true: the lock on the machine has to be *physical* and personal, and the fact of the isolation has to be *written* and dated.
 
-The sign-off process typically involves a series of checks and verifications. For example, at a plant in Batangas, the plant supervisor reviews and signs off on the LOTO procedure before work begins. This ensures that all safety protocols have been followed and that equipment is properly secured. The WorkHive Audit Log then captures this sign-off event, providing a digital record that can be reviewed by inspectors and auditors.
+**What WorkHive records, precisely.** The logbook entry for the job carries a deliberate LOTO field: a checkbox stating that energy isolation was applied, and an optional permit-to-work reference number beside it. Tick it and the entry shows a LOTO badge in the logbook list, carrying the permit number if you entered one. Because it sits on the entry it inherits the entry's date and the name of the worker who wrote it, and it is queryable: which matters more than it sounds: before that field existed an isolation could only be found by pattern-matching the free-text description, so it was accidental rather than deliberate, and could not be counted.
 
-In the event of an unexpected equipment startup or LOTO procedure deviation, the Audit Log provides a clear trail of events. For instance, during a 24-hour shift at a Pampanga plant, an unexpected issue arose at 02:30. The maintenance team quickly reviewed the LOTO procedure and verified that all safety steps had been taken. The WorkHive Audit Log captured every interaction, ensuring that the incident was thoroughly documented and reviewed.
+**What it does not do, so you plan for it.** It is one field on the job record, not a lockout workflow: it does not walk the crew through the seven steps, does not hold a supervisor's approval before work starts, and does not track individual locks on and off. Those stay on your permit-to-work paperwork and on the hasp itself. What the digital record adds is the part paper loses: a dated, attributed, searchable trail an inspector can read months later, which under RA 11058 and DO 198-18 is exactly the part you are asked to produce.
 
-Effective LOTO procedures also involve regular review and revision. At a PHP 180,000 equipment upgrade project in Bulacan, the maintenance team developed a comprehensive LOTO plan that included regular review and sign-off by the plant supervisor. By using the WorkHive Audit Log to track LOTO events, the team was able to identify areas for improvement and revise their procedures accordingly. This not only ensured a safe working environment but also helped to prevent costly equipment damage or downtime.
+## The LOTO procedure template
 
-## Downloadable LOTO Procedure Template
+Here is the template itself. Copy it into your own document, fill one in per asset, and keep it where the crew doing the job can reach it: a procedure filed in the office is not a procedure.
 
-To help you implement a robust Lock-Out Tag-Out (LOTO) procedure, we've prepared a downloadable template framing based on the DOLE OSHS Rule 1063. This template is designed to be adaptable to various equipment and plant settings, such as the 480V Pump P-204B at a Calabarzon manufacturing plant. By using this template, you can ensure compliance with Philippine occupational safety and health standards.
+- **Asset and tag number** — the name the crew uses, not the one on the purchase order.
+- **Energy sources** — one line each: type, where it enters, and its magnitude (480V 3-phase; process water at line pressure; 6 bar instrument air).
+- **Isolating device for each source** — the specific disconnect, valve or breaker, by its own tag, and where it is.
+- **Stored energy and how it is released** — what stays in the machine after isolation, and the drain, bleed, discharge or blocking step that empties it.
+- **Verification method** — what you try-start, what you measure, with which instrument, and what reading means dead.
+- **Who authorises and who holds the locks** — by role, and how many locks the hasp must take.
+- **Release steps** — the checks before re-energising, and who removes which lock.
+- **Revision date and who walked it** — a procedure nobody has walked against the actual machine is a draft.
 
-The LOTO procedure template is an essential tool for your plant's safety and maintenance teams, including the plant supervisor and maintenance planner. It outlines the steps to be taken during LOTO procedures, including the 7-step lockout sequence. With this template, you can customize it according to your specific equipment and plant requirements. For instance, you can include specific details about the equipment, such as its location, type, and energy sources.
+Two things make the difference between a template that gets used and one that gets filed. Write it against the actual machine rather than from memory: walk to the disconnect and read its tag, and keep it short enough that the crew reads it at the machine instead of nodding at it in the office.
 
-When implementing LOTO procedures, it's crucial to conduct regular audits to ensure compliance and effectiveness. The WorkHive Audit Log is an excellent tool for capturing every LOTO event, providing a clear record of all activities performed. This feature allows inspectors to review and verify that LOTO procedures are being followed correctly. For example, a 24-hour shift team at a Batangas plant can use the Audit Log to track LOTO activities during their 02:30 and 14:45 shift changes.
+Procedures go stale as machines change, so re-walk each one when the asset is modified and on a fixed interval otherwise, and date the revision. The isolations you recorded on logbook entries are what tell you which procedures are actually being used: an asset with a written procedure and no recorded isolations is either not being maintained or not being recorded, and both are worth knowing.
 
-By downloading and using our LOTO procedure template, you can save time and resources while ensuring a safer work environment. The estimated cost of implementing a LOTO program can range from PHP 180,000, which includes training, equipment, and procedure development. However, with our template, you can reduce these costs and focus on other critical aspects of your plant's operations. Download the template now and start customizing it to fit your plant's specific needs.
+Implementing a LOTO programme costs three things: training time, the locks and tags themselves, and someone's hours to write the per-asset procedures. The third is the one plants underestimate and the one the template above is meant to cut: copy it, and the writing becomes filling in eight fields per asset rather than starting from a blank page.
 
-**Open the tool:** Audit is the WorkHive surface this guide funnels into. It is free at the worker tier, works offline, and is built for Philippine plants.
+**Open the tool:** Logbook is the WorkHive surface this guide funnels into: its entry form carries the LOTO checkbox and permit-to-work reference. It is free at the worker tier, works offline, and is built for Philippine plants.
 
 ## Frequently asked questions
 
@@ -105,13 +114,13 @@ By downloading and using our LOTO procedure template, you can save time and reso
 
 The purpose of LOTO procedures is to ensure the safety of workers during maintenance activities by preventing accidental start-up of equipment.
 
-### What is the DOLE OSHS Rule 1063?
+### Which Philippine rules actually require LOTO?
 
-The DOLE OSHS Rule 1063 is a Philippine regulation that outlines the requirements for occupational safety and health standards.
+RA 11058 and its implementing order DO 198-18 make compliance with the Occupational Safety and Health Standards mandatory and set the penalties, and they require safe work procedures for hazardous work: which is what a written LOTO procedure is. Plants certified to ISO 45001 also carry it as an operational-control requirement.
 
 ### What is the 7-step lockout sequence?
 
-The 7-step lockout sequence is a series of steps that must be followed to ensure safe LOTO procedures, which includes preparation, shutdown, isolation, lockout/tagout, verification, and release.
+Prepare, notify, shut down, isolate, lock and tag, release stored energy, then verify zero energy. Verification is last on purpose: it is the step that proves the other six worked, so doing it before stored energy is released tells you nothing about the machine you are about to open.
 
 ### How do I create a LOTO procedure for my equipment?
 
@@ -121,17 +130,18 @@ To create a LOTO procedure for your equipment, you can use the template provided
 
 Sign-off requirements are important in LOTO procedures to ensure that all personnel involved in the maintenance activity acknowledge that the equipment is safe to work on.
 
-### How does WorkHive Audit Log help in LOTO procedures?
+### Where does WorkHive record that an isolation happened?
 
-WorkHive Audit Log helps in LOTO procedures by capturing every LOTO event for inspector review, ensuring compliance with regulatory requirements.
+On the logbook entry for the job. It carries a LOTO checkbox and an optional permit-to-work reference, so the isolation is dated, attributed to the worker who recorded it, and searchable later. It records that an isolation happened: it is not a lockout workflow and does not replace your permit paperwork or the locks themselves.
 
 **[Keep your LOTO permits in a dated audit trail](https://workhiveph.com/logbook.html)**: Timestamped and attributed, so a DOLE inspector sees the record, not a memory.
 
 ## Sources
 
 - [Republic Act 11058](https://www.officialgazette.gov.ph/2018/08/17/republic-act-no-11058/) and DOLE **Department Order 198-18**: OSH compliance and administrative penalties.
-- DOLE OSHS Rule 1063: Occupational Safety and Health Standards
+- DOLE **Occupational Safety and Health Standards** (as amended): the standards RA 11058 and DO 198-18 make enforceable.
+- ISO 45001: Occupational Health and Safety Management Systems: operational control (clause 8.1), under which a written isolation procedure sits.
 - IIEE Code: Philippine Electrical Code
 - ISO 14224: Petroleum, Petrochemical and Natural Gas Industries - Reliability, Availability and Maintainability (RAM) Data Exchange
 
-<!-- md-twin source-sha: 3100d978f891ff8e -->
+<!-- md-twin source-sha: cc2e0ba3985c5ebb -->

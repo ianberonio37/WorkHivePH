@@ -9,7 +9,7 @@ Libraries: math
 Method:
   Gross load = rated load + hook + sling
   Rope pull  = gross load / (n_parts × rope_efficiency_factor)
-  Power      = rope_pull × lift_speed
+  Power      = rope_pull × rope speed, and rope speed = lift_speed × n_parts
   Motor HP   = power / (mech_eff × 746)  × 1.15 SF
 """
 
@@ -53,11 +53,21 @@ def calculate(inputs: dict) -> dict:
     rope_pull_kg = round(gross_load_kg / (n_parts * rope_eff), 1)
     rope_pull_N  = round(rope_pull_kg * 9.81)
 
-    # Lift speed
+    # Lift speed - this is the LOAD's speed, which is how a hoist is specified
     speed_ms = round(lift_speed_mpm / 60.0, 2)
 
-    # Power at rope
-    power_W = round(rope_pull_N * speed_ms)
+    # ★THE ROPE MOVES n_parts TIMES FASTER THAN THE LOAD (2026-09-16). Reeving divides the rope TENSION
+    # by n and multiplies the rope TRAVEL by n; power is their product and is therefore invariant - a
+    # block and tackle trades force for distance and buys no power. This paired the divided tension with
+    # the undivided speed, so the reported power fell as 1/n_parts: 2661 W at 1 part, 1358 at 2, 709 at 4,
+    # against a true 2675 W at the load. The recommended motor followed it down - 7.5 HP, 3 HP, 1.5 HP for
+    # one and the same lift - so the calculator was least right exactly where a rigger adds parts, which is
+    # when the load is heaviest. Written as a multiplication rather than cancelled into the algebra so the
+    # names keep saying what the machine does.
+    rope_speed_ms = round(speed_ms * n_parts, 4)
+
+    # Power at rope = rope tension x rope speed
+    power_W = round(rope_pull_N * rope_speed_ms)
 
     # Motor sizing
     mech_eff = mech_eff_pct / 100.0

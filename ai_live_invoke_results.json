@@ -48,7 +48,7 @@
     },
     "H3/A": {
       "live": false,
-      "evidence": "embed server/space not deterministic (ok=True dim=384 stable=True)"
+      "evidence": "embed server unreachable (URLError) \u2014 start embed_server.py 8901"
     },
     "H8/I": {
       "live": false,

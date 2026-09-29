@@ -219,6 +219,17 @@ def main() -> int:
         print(f"     {s}")
     for s in none[:6]:
         print(f"     no chrome matched: {s}")
+
+    # ★--check MUST EXIT NON-ZERO WHEN WORK IS PENDING, OR IT IS A GATE THAT CANNOT BITE
+    # (~W46153, 2026-09-20). This returned 0 unconditionally. It was registered in
+    # run_platform_checks.py as `learn-shared-chrome` on the strength of its own report -
+    # and would have passed forever, including on the three pillar pages that were
+    # measurably missing the chrome (breadcrumb links 41x19 against 44x44 on every
+    # sibling) at the moment it was registered. A checker that prints "would change: 3"
+    # and exits 0 is worse than no checker: it converts a real defect into a green tick.
+    # Caught by breaking a page on purpose and watching --check still exit 0.
+    if mode == "--check" and touched:
+        return 1
     return 0
 
 

@@ -116,6 +116,25 @@ def emitted_page_keys(stem: str) -> set:
     return set(d) if isinstance(d, dict) else set()
 
 
+# A key the RUNTIME owns, declared absent on purpose. The convention mirrors this codebase's
+# other inline dispositions (empty-catch-allow, canonical-allow, attribution-allow): the source
+# states the reason beside the decision. The trailing colon is required so that an unexplained
+# absence stays BROKEN - the exemption is the explanation, not the phrase.
+RUNTIME_OWNED_RE = re.compile(r"(p_[a-z0-9_]+)\s+is\s+deliberately\s+ABSENT\s*:", re.I)
+
+
+def runtime_owned_keys(html: str) -> set:
+    """Keys the page declares it owns at RUNTIME, so a static dictionary entry would be wrong.
+
+    assistant.html's grounding chip is the case this was written for: whether answers are
+    grounded is decided from the session, and a 2026-09-15 critique found the static table
+    OVERWRITING the runtime's "not grounded" warning with a grounding claim. The entry was
+    removed and _setAssistantScopeChip given both languages. Reporting that as a broken
+    translation invites exactly the fix that breaks it again.
+    """
+    return set(RUNTIME_OWNED_RE.findall(html))
+
+
 def scan_text(html: str, common: set | None = None, stem: str = "") -> dict:
     markers = len(MARKER_RE.findall(html))
     r = {"markers": markers, "infra": bool(INFRA_RE.search(html)),
@@ -126,15 +145,20 @@ def scan_text(html: str, common: set | None = None, stem: str = "") -> dict:
     # A key resolves from ANY of the three live sources; the emitted file is the one added 2026-09-07.
     if common is not None and not OWN_ENGINE_RE.search(html):
         resolvable = common | page_dict_keys(html) | emitted_page_keys(stem)
+        owned = runtime_owned_keys(html)
         used = set(DATA_I_KEY_RE.findall(html))
-        r["unresolved"] = sorted(k for k in used if k not in resolvable)
+        r["unresolved"] = sorted(k for k in used if k not in resolvable and k not in owned)
+        # Kept and reported separately: a deliberate absence is a decision to keep VISIBLE, not
+        # to swallow. Only keys actually USED on the page count - a stale comment naming a key
+        # nobody renders exempts nothing.
+        r["runtime_owned"] = sorted(k for k in used if k in owned)
     return r
 
 
 def main() -> int:
     pages = [p for p in sorted(REPO.glob("*.html")) if not any(x in p.name for x in EXCLUDE)]
     common = common_keys()
-    rows, exempt, broken = [], [], []
+    rows, exempt, broken, owned = [], [], [], []
     for p in pages:
         try:
             txt = p.read_text(encoding="utf-8", errors="ignore")
@@ -143,6 +167,8 @@ def main() -> int:
         r = scan_text(txt, common, stem=p.stem)
         if r.get("unresolved"):
             broken.append((p.name, r["unresolved"]))
+        if r.get("runtime_owned"):
+            owned.append((p.name, r["runtime_owned"]))
         # Exempt: internal/admin surfaces (by name) OR a formal doc that DECLARES EN-by-design inline.
         if p.name in INTERNAL_EXEMPT or r["en_by_design"]:
             r["exempt_reason"] = "internal" if p.name in INTERNAL_EXEMPT else "en-by-design"
@@ -172,6 +198,11 @@ def main() -> int:
     if gaps:
         print("  FIX (lever ladder P5): adopt the shared data-i/_t system on the gap pages — "
               "it's the SAME shared component, not per-page translation. ADVISORY, ratchets.")
+    if owned:
+        print(f"  runtime-owned (declared deliberately ABSENT, both languages written in code — "
+              f"a dictionary entry here would be wrong):")
+        for n, ks in sorted(owned):
+            print(f"      {n}: {', '.join(ks)}")
     if broken:
         print(f"  ✗ BROKEN translations — {sum(len(k) for _, k in broken)} data-i marker(s) with NO "
               f"WH_FIL_COMMON/WH_FIL_PAGE entry (render EN in Filipino):")
@@ -219,6 +250,28 @@ def selftest() -> int:
             got = scan_text(html, set(), stem=real.name[:-len(".fil.json")]).get("unresolved")
             if got != ["zzz_absent"]:
                 fails.append(f"emitted-dictionary resolution: expected ['zzz_absent'], got {got}")
+    # A key declared deliberately ABSENT is exempt; one merely mentioned is NOT. Without the
+    # second half the phrase alone would become the exemption and any comment could grant it.
+    owned_html = ('<b data-i="p_owned_1234">X</b><b data-i="p_plain_5678">Y</b>'
+                  '<script>// p_owned_1234 is deliberately ABSENT: the runtime owns both sentences.</script>')
+    got = scan_text(owned_html, set())
+    if got.get("unresolved") != ["p_plain_5678"]:
+        fails.append(f"runtime-owned exemption: expected only p_plain_5678 unresolved, got "
+                     f"{got.get('unresolved')}")
+    if got.get("runtime_owned") != ["p_owned_1234"]:
+        fails.append(f"runtime-owned should be reported separately, got {got.get('runtime_owned')}")
+    no_reason = ('<b data-i="p_owned_1234">X</b>'
+                 '<script>// p_owned_1234 is deliberately ABSENT</script>')
+    if scan_text(no_reason, set()).get("unresolved") != ["p_owned_1234"]:
+        fails.append("an absence with NO reason (no colon) must stay BROKEN")
+    # The real page this was written for must resolve through the exemption, not through luck.
+    try:
+        real_html = (REPO / "assistant.html").read_text(encoding="utf-8", errors="ignore")
+        if "p_livehivedatabasedonyourlogbo_6885" not in runtime_owned_keys(real_html):
+            fails.append("assistant.html's deliberately-absent grounding key is no longer "
+                         "recognised — the comment or the convention moved")
+    except Exception as e:
+        fails.append(f"could not read assistant.html for the real-page assertion: {e}")
     if fails:
         print("✗ validate_i18n_coverage selftest FAILED:")
         for f in fails:

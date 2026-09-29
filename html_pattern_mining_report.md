@@ -3,7 +3,7 @@
 - Pages scanned: **42** (backups + test pages excluded)
 - Features extracted: **40**
 - Promotion threshold: >= 80% conformance, <= 6 outliers
-- Promotion candidates: **2**
+- Promotion candidates: **4**
 
 ## Promotion candidates (sweet spot)
 
@@ -12,8 +12,10 @@ outliers are real gaps or legitimate exceptions for that page type.
 
 | Feature | Conformance | Outliers |
 |---|---:|---|
-| `loads_utils_js` | 90% | architecture.html, promo-poster.html, symbol-gallery.html, validator-catalog.html |
-| `has_main_landmark` | 90% | design-system.html, platform-actions.html, promo-poster.html, status.html |
+| `has_details_toggle` | 97% | promo-poster.html |
+| `has_main_landmark` | 92% | design-system.html, platform-actions.html, promo-poster.html |
+| `loads_utils_js` | 88% | architecture.html, offline-fallback.html, promo-poster.html, symbol-gallery.html, validator-catalog.html |
+| `has_meta_description` | 85% | architecture.html, marketplace-admin.html, offline-fallback.html, platform-actions.html, promo-poster.html, symbol-gallery.html |
 
 ## Full conformance ranking
 
@@ -25,27 +27,26 @@ outliers are real gaps or legitimate exceptions for that page type.
 | `has_meta_viewport` | 100% | 42 / 42 |
 | `has_title_tag` | 100% | 42 / 42 |
 | `has_h1` | 100% | 42 / 42 |
-| `loads_utils_js` | 90% | 38 / 42 |
-| `has_main_landmark` | 90% | 38 / 42 |
-| `has_meta_description` | 83% | 35 / 42 |
+| `has_details_toggle` | 97% | 41 / 42 |
+| `has_main_landmark` | 92% | 39 / 42 |
+| `loads_utils_js` | 88% | 37 / 42 |
+| `has_meta_description` | 85% | 36 / 42 |
 | `has_manifest_link` | 83% | 35 / 42 |
 | `loads_offline_banner_js` | 83% | 35 / 42 |
-| `loads_supabase_cdn` | 83% | 35 / 42 |
-| `calls_eschtml` | 76% | 32 / 42 |
+| `calls_eschtml` | 78% | 33 / 42 |
+| `has_og_title` | 73% | 31 / 42 |
 | `loads_nav_hub_js` | 73% | 31 / 42 |
-| `has_og_title` | 71% | 30 / 42 |
 | `has_og_image` | 71% | 30 / 42 |
 | `has_canonical_link` | 66% | 28 / 42 |
-| `has_details_toggle` | 64% | 27 / 42 |
-| `has_meta_robots` | 57% | 24 / 42 |
+| `has_meta_robots` | 59% | 25 / 42 |
 | `has_empty_state_anchor` | 57% | 24 / 42 |
 | `has_verdict_card` | 45% | 19 / 42 |
-| `uses_eschtml_binding` | 35% | 15 / 42 |
+| `uses_eschtml_binding` | 38% | 16 / 42 |
+| `has_source_chip` | 38% | 16 / 42 |
+| `has_og_description` | 14% | 6 / 42 |
 | `loads_wh_capture_validate` | 14% | 6 / 42 |
 | `validates_hive_membership` | 14% | 6 / 42 |
-| `has_og_description` | 11% | 5 / 42 |
 | `has_twitter_card` | 9% | 4 / 42 |
-| `has_source_chip` | 9% | 4 / 42 |
 | `has_jsonld_schema` | 7% | 3 / 42 |
 | `loads_maturity_gate_js` | 7% | 3 / 42 |
 | `loads_wh_persona_js` | 4% | 2 / 42 |
@@ -56,6 +57,7 @@ outliers are real gaps or legitimate exceptions for that page type.
 | `loads_wh_tts_js` | 2% | 1 / 42 |
 | `loads_floating_ai_js` | 0% | 0 / 42 |
 | `loads_search_overlay_js` | 0% | 0 / 42 |
+| `loads_supabase_cdn` | 0% | 0 / 42 |
 | `uses_createclient` | 0% | 0 / 42 |
 | `handles_signin_redirect` | 0% | 0 / 42 |
 | `uses_tailwind_cdn` | 0% | 0 / 42 |

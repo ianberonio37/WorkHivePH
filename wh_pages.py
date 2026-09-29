@@ -81,7 +81,12 @@ LEARN_ARTICLES = [
     # ── Wave 2 (2026-05-18): methodology + career + sector + compliance ───────
     ("reliability-centered-maintenance-philippine-plants","Reliability-Centered Maintenance (RCM) for Philippine Plants",    "/pm-scheduler.html",        "PM Scheduler"),
     ("fmea-worked-example-philippine-bottling-line",      "FMEA Worked Example: a Philippine Bottling Line",                 "/asset-hub.html",           "Asset Hub"),
-    ("loto-procedures-dole-oshs-template",                "Lock-Out Tag-Out (LOTO) Procedures: DOLE OSHS Template",          "/audit-log.html",           "Audit"),
+    # 2026-09-28: was "/audit-log.html" / "Audit", which the article never linked. Its body links
+    # /logbook.html TWICE and its own CTA reads "Open Logbook" - the LOTO permit is recorded as a
+    # logbook entry, and the phrase "dated audit trail" in the CTA describes what the logbook GIVES
+    # you, not a different tool. learn-link.js puts the page-guide chip on the DECLARED page, so the
+    # stale declaration was landing the guide on Audit for an article about the Logbook.
+    ("loto-procedures-dole-oshs-template",                "Lock-Out Tag-Out (LOTO) Procedures: DOLE OSHS Template",          "/logbook.html",             "Logbook"),
     ("vibration-analysis-on-a-phone-budget",              "Vibration Analysis on a Phone Budget (Philippine PdM)",           "/voice-journal.html",       "Voice Journal"),
     ("thermography-for-pm-philippine-plants",             "Thermography for Preventive Maintenance in Philippine Plants",    "/pm-scheduler.html",        "PM Scheduler"),
     ("ra-11285-energy-efficiency-plant-checklist",        "RA 11285 Energy Efficiency: a Plant-Floor Compliance Checklist",  "/audit-log.html",           "Audit"),

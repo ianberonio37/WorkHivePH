@@ -2,7 +2,7 @@
 name: page-symbol-gallery
 type: page
 source: file:symbol-gallery.html
-source_sha: f3b94104dc84b075
+source_sha: 0a48b53ad7681e9f
 last_verified: 2026-07-13
 supersedes: null
 ---

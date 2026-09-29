@@ -104,37 +104,47 @@
     html, body, a, button { touch-action: manipulation; }   /* T3: no 300 ms tap delay, no double-tap zoom (the rubric reads html/body) */
     body { font-family: 'Poppins', sans-serif; }
     .hex-pattern { background-image: radial-gradient(circle, rgba(247,162,27,0.04) 1px, transparent 1px); background-size: 28px 28px; }
-    .audience-block { background: linear-gradient(135deg, rgba(41,182,217,0.10), rgba(41,182,217,0.04)); border: 1px solid rgba(41,182,217,0.22); border-radius: 14px; padding: 18px 22px; margin: 1.75rem 0; }
-    .audience-label { font-size: 11px; font-weight: 700; color: #5FCCE8; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
-    .audience-block ul { margin: 0; padding-left: 1.2rem; color: rgba(244,246,250,0.85); font-size: 0.92rem; line-height: 1.7; }
-    .answer-first { background: rgba(247,162,27,0.06); border-left: 3px solid #F7A21B; padding: 18px 22px; border-radius: 0 12px 12px 0; margin: 1.5rem 0; color: rgba(244,246,250,0.85); font-size: 1.02rem; line-height: 1.65; }
-    .toc { background: rgba(31,46,69,0.6); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; padding: 18px 22px; margin: 2rem 0; }
-    .toc h2 { margin: 0 0 8px; font-size: 13px; color: rgba(244,246,250,0.8); font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; }
-    .toc ol { margin: 0; padding-left: 1.2rem; color: rgba(244,246,250,0.85); font-size: 0.92rem; line-height: 1.85; }
+    .audience-block { background: linear-gradient(135deg, rgba(41,182,217,0.10), rgba(41,182,217,0.04)); border: 1px solid rgba(41,182,217,0.22); border-radius: 14px; padding: 20px 24px; margin: 1.75rem 0; }
+    .audience-label { font-size: 0.75rem; font-weight: 700; color: #5FCCE8; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
+    .audience-block ul { margin: 0; padding-left: 1.2rem; color: rgba(244,246,250,0.85); font-size: 0.95rem; line-height: 1.7; }
+    .answer-first { background: rgba(247,162,27,0.06); border: 1px solid rgba(247,162,27,0.30); padding: 20px 24px; border-radius: 0 12px 12px 0; margin: 1.5rem 0; color: rgba(244,246,250,0.85); font-size: 1.05rem; line-height: 1.65; }
+    .toc { background: rgba(31,46,69,0.6); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; padding: 20px 24px; margin: 2rem 0; }
+    .toc h2, .toc h4 { margin: 0 0 8px; font-size: 0.85rem; color: rgba(244,246,250,0.8); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+    .toc ol { margin: 0; padding-left: 1.2rem; color: rgba(244,246,250,0.85); font-size: 0.95rem; line-height: 1.85; }
     .toc a { color: rgba(244,246,250,0.85); }
     .toc a:hover { color: #FDB94A; }
-    .prose-wh h2 { font-size: 1.55rem; font-weight: 800; color: #F4F6FA; margin: 2.25rem 0 0.85rem; letter-spacing: -0.01em; }
-    .prose-wh p { overflow-wrap: anywhere; word-break: break-word; font-size: 1.005rem; color: rgba(244,246,250,0.85); line-height: 1.75; margin: 0.85rem 0; }
+    .prose-wh h2 { font-size: 1.55rem; font-weight: 800; color: #F4F6FA; margin: 2.25rem 0 1rem; letter-spacing: -0.01em; }
+    .prose-wh { overflow-wrap: anywhere; word-break: break-word; color: rgba(244,246,250,0.85); font-size: 1.05rem; line-height: 1.8; }
+    .prose-wh p { overflow-wrap: anywhere; word-break: break-word; font-size: 1.05rem; color: rgba(244,246,250,0.85); line-height: 1.75; margin: 1rem 0; }
+    /* MEASURE (2026-09-16): 72ch, inside the 65-75 craft floor. Measured at 1280 before the
+       cap: 80ch here against 73ch on the articles that already carried this rule. Below ~1100px
+       the column is already narrower than the cap, so nothing moves on a phone. */
+    .prose-wh p, .prose-wh li { max-width: 72ch; }
     .prose-wh strong { color: #F4F6FA; }
     .prose-wh a { color: #5FCCE8; text-decoration: underline; text-underline-offset: 3px; }
-    .prose-wh ol, .prose-wh ul { color: rgba(244,246,250,0.85); padding-left: 1.4rem; margin: 0.85rem 0; line-height: 1.75; }
+    .prose-wh ol, .prose-wh ul { color: rgba(244,246,250,0.85); padding-left: 1.4rem; margin: 1rem 0; line-height: 1.75; }
     .prose-wh table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.95rem; }
     .prose-wh th, .prose-wh td { padding: 12px 14px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.08); }
-    .prose-wh th { background: rgba(31,46,69,0.6); font-weight: 700; color: #F4F6FA; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; }
-    .callout { background: rgba(41,182,217,0.06); border-left: 3px solid #29B6D9; border-radius: 8px; padding: 18px 22px; margin: 2rem 0; font-size: 0.98rem; line-height: 1.7; color: rgba(244,246,250,0.85); }
+    .prose-wh th { background: rgba(31,46,69,0.6); font-weight: 700; color: #F4F6FA; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em;
+      /* [data-table-scroll] promises a scrollable region, and a table pinned to width:100%%
+         can never overflow - so it crushed the header instead. Measured: 3 lines @124px for
+         "Annual membership" at 390 (W46205, 2026-09-21). One line here is what makes the
+         wrapper real. Ported from the pillar template's W46083 fix. */
+      white-space: nowrap; }
+    .callout { background: rgba(41,182,217,0.06); border: 1px solid rgba(41,182,217,0.28); border-radius: 8px; padding: 20px 24px; margin: 2rem 0; font-size: 0.95rem; line-height: 1.7; color: rgba(244,246,250,0.85); }
     .callout strong { color: #A4E2F2; }
     .article-fig { margin: 1.75rem 0; }
     .article-fig img { width: 100%; height: auto; display: block; }
     .article-fig figcaption { margin-top: 8px; font-size: 0.85rem; color: rgba(244,246,250,0.8); line-height: 1.55; }
-    .tool-cta { background: linear-gradient(135deg, rgba(247,162,27,0.14), rgba(247,162,27,0.04)); border: 1px solid rgba(247,162,27,0.32); border-radius: 14px; padding: 22px 26px; margin: 2.25rem 0; }
-    .tool-cta a { display: inline-block; margin-top: 10px; background: linear-gradient(135deg, #F7A21B, #FDB94A); color: #162032; font-weight: 700; padding: 10px 22px; border-radius: 10px; text-decoration: none; transition: transform 0.15s; }
+    .tool-cta { background: linear-gradient(135deg, rgba(247,162,27,0.14), rgba(247,162,27,0.04)); border: 1px solid rgba(247,162,27,0.32); border-radius: 14px; padding: 24px 28px; margin: 2.25rem 0; }
+    .tool-cta a { display: inline-block; margin-top: 12px; background: linear-gradient(135deg, #F7A21B, #FDB94A); color: #162032; font-weight: 700; padding: 12px 24px; border-radius: 10px; text-decoration: none; transition: transform 0.15s; }
     .tool-cta a:hover { transform: translateY(-1px); }
-    .faq-item { background: rgba(31,46,69,0.6); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 16px 20px; margin: 0.7rem 0; }
-    .faq-item summary { cursor: pointer; font-weight: 600; color: #F4F6FA; font-size: 1rem; }
+    .faq-item { background: rgba(31,46,69,0.6); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 16px 20px; margin: 0.75rem 0; }
+    .faq-item summary { cursor: pointer; font-weight: 600; color: #F4F6FA; font-size: 1.05rem; }
     .faq-item[open] summary { color: #FDB94A; }
-    .faq-item .faq-answer { margin-top: 12px; color: rgba(244,246,250,0.85); font-size: 0.97rem; line-height: 1.7; }
+    .faq-item .faq-answer { margin-top: 12px; color: rgba(244,246,250,0.85); font-size: 0.95rem; line-height: 1.7; }
     .sources-list { list-style: none; padding: 0; }
-    .sources-list li { overflow-wrap: anywhere; word-break: break-word; padding: 8px 0; border-bottom: 1px dashed rgba(255,255,255,0.07); color: rgba(244,246,250,0.85); font-size: 0.9rem; }
+    .sources-list li { overflow-wrap: anywhere; word-break: break-word; padding: 8px 0; border-bottom: 1px dashed rgba(255,255,255,0.07); color: rgba(244,246,250,0.85); font-size: 0.95rem; }
       /* Z2/R2 (critic re-sweep 2026-09-07): a long unbroken token (a citation URL) widened a paragraph to 463px at 390 and the page scrolled sideways; long words now wrap */
   </style>
 <!-- WorkHive GA4 -->
@@ -148,16 +158,18 @@
   <script src="/wh-ga4.js" defer></script>
   <!-- /WorkHive GA4 -->
 <link rel="stylesheet" href="/learn-print.css" media="print" />
-<style data-wh-chrome-i18n>nav a,header a,footer a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;min-width:44px;}nav a{padding:0 .25rem;}.breadcrumb a,.toc a{display:inline-flex;align-items:center;min-height:44px;}.breadcrumb a{min-width:44px;justify-content:center;}a.text-sm[href$='/learn/'],a.text-sm[href$='/learn/index.html']{display:inline-flex;align-items:center;min-height:44px;}.wh-tap{display:inline-flex;align-items:center;min-height:44px;}td a,th a{display:inline-flex;align-items:center;min-height:44px;}</style>
+<style data-wh-chrome-i18n>nav a,header a,footer a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;min-width:44px;}nav a{padding:0 .25rem;}.breadcrumb a,.toc a{display:inline-flex;align-items:center;min-height:44px;}.breadcrumb a{min-width:44px;justify-content:center;}a.text-sm[href$='/learn/'],a.text-sm[href$='/learn/index.html']{display:inline-flex;align-items:center;min-height:44px;}.wh-tap{display:inline-flex;align-items:center;min-height:44px;}td a,th a{display:inline-flex;align-items:center;min-height:44px;}/*wh-brand-header-gap*/@media (max-width:399px){header nav.flex{gap:.75rem;}}</style>
 <script src="/wh-i18n-lite.js" data-wh-chrome-i18n></script>
 </head>
 <body class="bg-navy-wh text-white antialiased">
+<a class="wh-skip-link" href="#wh-main-content" data-wh-skip="learn" style="position:fixed;top:0;left:0;z-index:10001;transform:translateY(-120%);background:var(--wh-orange,#F7A21B);color:var(--wh-navy,#162032);padding:0 20px;min-height:44px;display:inline-flex;align-items:center;font-weight:700;font-size:14px;text-decoration:none;border-radius:0 0 10px 0;box-shadow:0 4px 16px rgba(0,0,0,.35);transition:transform .15s cubic-bezier(0.23,1,0.32,1);box-sizing:border-box;" onfocus="this.style.transform='translateY(0)'" onblur="this.style.transform='translateY(-120%)'">Skip to main content</a>
+
 
 <nav class="border-b border-white/10" style="background: rgba(13,24,36,0.85);">
   <div class="max-w-5xl mx-auto px-5 sm:px-8 h-14 flex items-center justify-between">
     <a href="/" class="flex items-center gap-2 text-sm font-bold tracking-tight">
       <img src="/brand_assets/workhive-logo-transparent.png" alt="WorkHive" class="h-7 w-auto" />
-      <span class="text-white">WorkHive</span>
+      <span class="text-white wh-brand-word hidden sm:inline" aria-hidden="true">WorkHive</span>
     </a>
     <div class="flex items-center gap-5 text-xs sm:text-sm">
       <a href="/learn/" class="text-white/55 hover:text-white transition-colors" data-i="learn">Learn</a>
@@ -168,7 +180,7 @@
   </div>
 </nav>
 
-<article class="hex-pattern">
+<main id="wh-main-content"><article class="hex-pattern">
   <div class="max-w-3xl mx-auto px-5 sm:px-8 py-10 sm:py-14">
 
     <p class="text-xs uppercase tracking-[0.18em] text-orange-wh font-bold mb-3">WorkHive Learn · Philippines</p>
@@ -196,7 +208,7 @@
     </div>
 
     <div class="toc">
-      <h4 aria-level="2">What's in this guide</h4>
+      <h2>What's in this guide</h2>
       <ol>
         <li><a href="#what-is-the-report" class="wh-tap">What is the WorkHive Analytics Report?</a></li>
         <li><a href="#who-reads-it" class="wh-tap">Who reads a maintenance report: managers, auditors, and plant heads</a></li>
@@ -209,26 +221,26 @@
 
     <div class="prose-wh">
       <h2 id="what-is-the-report">What is the WorkHive Analytics Report?</h2>
-      <p>The WorkHive Analytics Report is a print-ready maintenance report automatically compiled from the four analytics phases in WorkHive. For instance, a plant in Calabarzon, such as the Laguna Technopark, can utilize this report to streamline their maintenance analysis. The report provides an executive summary, KPI tiles with RAG colours, an AI-generated action plan, and a sign-off block.</p>
-      <p>This report is the one-click output of the Analytics Engine, which is fed by logbook and PM completions. It mirrors the standard maintenance audit format, satisfying management, ISO auditors, and DOLE compliance reviews. The report includes **MTBF**, **MTTR**, **Availability**, **OEE**, and **PM Compliance** KPI tiles, providing a comprehensive overview of maintenance performance.</p>
-      <p>The Analytics Report is a management-ready document that turns raw entries into a printable, signed, audit-ready document. Plant managers, operations heads, and auditors can use it to assess maintenance performance. With the **Generate Report** button, users can create a PDF report, which can be saved and signed off by supervisors or workers, ensuring a seamless workflow.</p>
+      <p>The WorkHive Analytics Report is a print-ready maintenance report automatically compiled from the four analytics phases in WorkHive. For a plant in Calabarzon like the Laguna Technopark, that means the month's review starts from a document rather than from someone re-keying figures the night before. The report provides an executive summary, KPI tiles with RAG colours, an AI-generated action plan, and a sign-off block.</p>
+      <p>This report is the one-click output of the Analytics Engine, which is fed by logbook and PM completions. It mirrors the standard maintenance audit format, satisfying management, ISO auditors, and DOLE compliance reviews. The KPI strip carries four tiles, each tinted green, amber or red against its own threshold: <strong>PM Compliance</strong> as a percentage, <strong>Fleet MTBF</strong> in days (note the unit: the metrics guides work in hours), <strong>Total Failures</strong> for the period, and <strong>High Risk (Predicted)</strong>, which is the count of assets the risk model expects to fail next. That last one is the tile a plant manager should read first, and it is the one a spreadsheet cannot produce.</p>
+      <p>The Analytics Report is a management-ready document that turns raw entries into a printable, signed, audit-ready document. Plant managers, operations heads, and auditors can use it to assess maintenance performance. The <strong>Generate Report</strong> button produces a PDF that can be saved and signed off by a supervisor, so the signature sits on the same document the figures came from rather than on a summary of it.</p>
       <h2 id="who-reads-it">Who reads a maintenance report: managers, auditors, and plant heads</h2>
       <p>The WorkHive Analytics Report is typically reviewed by senior personnel who oversee maintenance operations. In a Philippine plant, the <strong>Plant Supervisor</strong> or <strong>Maintenance Planner</strong> usually takes charge of ensuring the report's findings are addressed. They use the report to stay on top of maintenance performance and identify areas for improvement.</p>
-      <p>The report is also useful for <strong>Operations Heads</strong> and <strong>Reliability Engineers</strong> who need to evaluate the effectiveness of maintenance strategies. It provides a comprehensive overview of key performance indicators, such as MTBF, MTTR, and OEE, which are essential for informed decision-making. The report's executive summary and RAG-coloured KPI tiles make it easy to quickly understand the plant's maintenance performance.</p>
+      <p>The report is also useful for <strong>Operations Heads</strong> and <strong>Reliability Engineers</strong> who need to evaluate the effectiveness of maintenance strategies. It gives a plant-level read on PM compliance, fleet reliability, how many failures the period actually produced, and how many assets the risk model expects to fail next. The report's executive summary and RAG-coloured KPI tiles make it easy to quickly understand the plant's maintenance performance.</p>
       <p>Auditors, both internal and external, also rely on the Analytics Report to verify compliance with maintenance standards and regulations. The report's format mirrors the standard maintenance audit format, making it an essential document for ISO auditors and DOLE compliance reviews. By using the Analytics Report, plant managers and supervisors can ensure that their maintenance operations meet the required standards.</p>
       <h2 id="how-it-works">How the WorkHive Analytics Report Works</h2>
-      The WorkHive Analytics Report provides a print-ready maintenance report that your management will actually read. For example, at the end of a 24-hour shift, your plant's reliability engineer can quickly generate a report to review the previous day's maintenance activities. The report is automatically compiled from the four analytics phases, giving you a comprehensive overview of your plant's performance.
-      The report includes an executive summary, RAG-coloured KPI tiles for MTBF, MTTR, Availability, OEE, and PM Compliance, an AI-generated action plan, and a sign-off block. These components mirror the standard maintenance audit format, making it easy to satisfy management, ISO auditors, and DOLE compliance reviews. The report is also customizable, allowing you to input your name and report title, such as 'Plant Reliability Q2'.
+      <p>The WorkHive Analytics Report provides a print-ready maintenance report that your management will actually read. For example, at the end of a shift, your plant's reliability engineer can quickly generate a report to review the previous day's maintenance activities. The report is automatically compiled from the four analytics phases, giving you a comprehensive overview of your plant's performance.</p>
+      <p>The report includes an executive summary, four RAG-coloured KPI tiles (PM Compliance, Fleet MTBF in days, Total Failures, and High Risk (Predicted)), an AI-generated action plan, and a sign-off block. These components mirror the standard maintenance audit format, making it easy to satisfy management, ISO auditors, and DOLE compliance reviews. The report is also customizable, allowing you to input your name and report title, such as 'Plant Reliability Q2'.</p>
       <ol><li>Log in to WorkHive and navigate to the Analytics Report section.</li><li>Choose a date range using the 30d, 90d, 180d, or 365d buttons.</li><li>Click the Generate Report button to compile the report from your existing data.</li><li>Review the report, which includes the executive summary, KPI tiles, action plan, and sign-off block.</li><li>Save the report as a PDF using the Save as PDF button.</li></ol>
       <figure class="article-fig"><img src="fig-1-step-flow.svg" alt="WorkHive Analytics Report Flow. Log data in your logbook. Complete PM tasks. Analytics Engine processes data. Generate report" width="660" height="440" loading="lazy" /><figcaption>WorkHive Analytics Report Flow</figcaption></figure>
       <h2 id="report-contents">What Does the WorkHive Analytics Report Contain?</h2>
-      <p>The WorkHive Analytics Report contains a comprehensive overview of your plant's maintenance performance. It starts with an <strong>Executive Summary</strong> that provides a high-level view of your maintenance operations. This is followed by a series of <strong>RAG-coloured KPI tiles</strong> (red, amber, and green) that display key performance indicators such as <strong>MTBF</strong>, <strong>MTTR</strong>, <strong>Availability</strong>, <strong>OEE</strong>, and <strong>PM Compliance</strong> for a specific equipment like Pump P-204B.</p>
+      <p>The WorkHive Analytics Report contains a comprehensive overview of your plant's maintenance performance. It starts with an <strong>Executive Summary</strong> that provides a high-level view of your maintenance operations. This is followed by four <strong>RAG-coloured KPI tiles</strong> (red, amber and green): <strong>PM Compliance</strong>, <strong>Fleet MTBF</strong> in days, <strong>Total Failures</strong> for the period, and <strong>High Risk (Predicted)</strong>. Note the scope: these are plant-wide figures across the hive, not a card for one asset like Pump P-204B; individual assets are where the action plan points, not where the tiles sit.</p>
       <p>The report also includes an <strong>AI-generated action plan</strong> that outlines recommended steps to address maintenance issues. Additionally, there is a <strong>sign-off block</strong> for approval and verification. The report's structure mirrors the standard maintenance audit format, making it suitable for management review, ISO auditors, and DOLE compliance reviews. The report is automatically compiled from the four analytics phases, providing a one-click output of your Analytics Engine.</p>
       <div class="callout"><strong>Worked example:</strong> For instance, a plant manager reviewing the Analytics Report for Boiler B-1 can quickly identify areas for improvement and track performance over time using the 30d, 90d, 180d, and 365d buttons to view data trends.</div>
       <p>The Analytics Report is a printable, signed, and audit-ready document that turns raw entries into a document you hand upward, satisfying the needs of plant managers, operations heads, auditors, and reliability engineers. It is a zero-budget solution that compiles from existing data, eliminating the need for a separate reporting tool.</p>
-      <figure class="article-fig"><img src="fig-2-bar.svg" alt="Example KPI Tiles. ISO 14224 (2016). MTBF. MTTR. Availability. OEE" width="660" height="440" loading="lazy" /><figcaption>Example KPI Tiles Source: ISO 14224 (2016).</figcaption></figure>
+      <figure class="article-fig"><img src="fig-2-bar.svg" alt="Example KPI Tiles. ISO 14224 (2016). MTBF. MTTR. Availability. OEE" width="660" height="440" loading="lazy" /><figcaption>Illustrative KPI tiles: the values are examples, not measurements; the metric definitions follow ISO 14224 (2016).</figcaption></figure>
       <h2 id="benefits">Benefits of the WorkHive Analytics Report</h2>
-      <p>The WorkHive Analytics Report offers numerous benefits to plant managers and maintenance teams in the Philippines. For instance, a plant in Calabarzon can easily generate a comprehensive report that highlights key performance indicators such as MTBF, MTTR, and OEE. This report provides a clear overview of maintenance performance, enabling managers to identify areas for improvement.</p>
+      <p>The WorkHive Analytics Report offers numerous benefits to plant managers and maintenance teams in the Philippines. For instance, a plant in Calabarzon can generate the month's report in one click and hand over a document that already carries the compliance figure, the failure count and the predicted-risk list. This report provides a clear overview of maintenance performance, enabling managers to identify areas for improvement.</p>
       <p>The report's executive summary and RAG-coloured KPI tiles provide a quick and easy-to-understand snapshot of maintenance performance. The AI-generated action plan also helps teams prioritize corrective actions and optimize maintenance activities. This results in significant time savings, as the report compiles automatically from existing data, eliminating the need for manual reporting.</p>
       <div data-table-scroll style="overflow-x:auto;-webkit-overflow-scrolling:touch;" role="region" aria-label="Scrollable table" tabindex="0"><table><thead><tr><th>Benefits</th><th>Description</th></tr></thead><tbody><tr><td>Easy Generation</td><td>Automatically compiles from existing logbook and PM completion data</td></tr><tr><td>Clear Insights</td><td>RAG-coloured KPI tiles and executive summary provide a quick overview of maintenance performance</td></tr><tr><td>Actionable Recommendations</td><td>AI-generated action plan helps teams prioritize corrective actions</td></tr></tbody></table></div>
       <h2 id="implementation">Implementing the WorkHive Analytics Report in Your Plant</h2>
@@ -261,7 +273,7 @@
     </div>
 
   </div>
-</article>
+</article></main>
 
 <footer class="py-10 border-t border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
   <div class="max-w-5xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">

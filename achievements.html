@@ -59,7 +59,7 @@
       animation: ach-pop 0.55s cubic-bezier(0.34,1.56,0.64,1) forwards;
     }
     #levelup-eyebrow {
-      font-size: 0.7rem; font-weight: 800; letter-spacing: 0.12em;
+      font-size: 0.8rem; font-weight: 800; letter-spacing: 0.06em;
       text-transform: uppercase; color:var(--wh-orange-text); margin-bottom: 0.3rem;
     }
     #levelup-heading { font-size: 1.5rem; font-weight: 800; margin-bottom: 0.25rem; }
@@ -105,27 +105,16 @@
       display: flex; gap: 1.25rem; align-items: center;
       margin-bottom: 1.5rem; position: relative; overflow: hidden;
     }
-    .hero-glow {
-      position: absolute; width: 200px; height: 200px; border-radius: 50%;
-      background: radial-gradient(circle, rgba(247,162,27,0.12) 0%, transparent 70%);
-      top: -60px; right: -40px; pointer-events: none;
-    }
     #hero-avatar-wrap { flex-shrink: 0; padding-bottom: 10px; }
     .hero-info { flex: 1; min-width: 0; }
     #hero-name { font-size: 1.125rem; font-weight: 800; margin-bottom: 0.2rem;
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     #hero-tier-label {
-      display: inline-block; font-size: 0.7rem; font-weight: 700;
-      letter-spacing: 0.1em; text-transform: uppercase;
+      display: inline-block; font-size: 0.75rem; font-weight: 700;   /* sentence case: no all-caps tracked pills (critique lens) */
       padding: 2px 10px; border-radius: 999px;
       background: rgba(247,162,27,0.15); color:var(--wh-orange-text);
       border: 1px solid rgba(247,162,27,0.3); margin-bottom: 0.75rem;
     }
-    .hero-stats { display: flex; gap: 1.25rem; flex-wrap: wrap; }
-    .hero-stat { text-align: center; }
-    .hero-stat-val { font-size: 1.125rem; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; } /* C1: 18px tier; C4: tabular KPI digits */
-    .hero-stat-lbl { font-size: 0.6rem; color:rgba(255,255,255,0.80);
-      text-transform: uppercase; letter-spacing: 0.08em; margin-top: 2px; }
 
     /* ── Pillar section headers ── */
     .pillar-header {
@@ -133,8 +122,8 @@
       margin: 1.5rem 0 0.75rem; padding: 0 0.1rem;
     }
     .pillar-title {
-      font-size: 0.6rem; font-weight: 800; letter-spacing: 0.12em;
-      text-transform: uppercase; color:rgba(255,255,255,0.80);
+      font-size: 0.95rem; font-weight: 700; letter-spacing: normal;
+      text-transform: none; color:rgba(255,255,255,0.92);
     }
     .pillar-line {
       flex: 1; height: 1px;
@@ -164,11 +153,11 @@
 
     .domain-badge-wrap { padding-bottom: 10px; flex-shrink: 0; }
     .domain-name {
-      font-size: 0.68rem; font-weight: 700; line-height: 1.2;
+      font-size: 0.8rem; font-weight: 700; line-height: 1.25;
       color: rgba(255,255,255,0.9);
     }
     .domain-tier-label {
-      font-size: 0.58rem; font-weight: 600; color:rgba(255,255,255,0.80);
+      font-size: 0.75rem; font-weight: 600; color:rgba(255,255,255,0.80);
     }
 
     /* XP bar */
@@ -180,10 +169,10 @@
     .xp-bar-fill {
       height: 100%; border-radius: 999px;
       background: var(--tier-clr, var(--wh-steel));
-      transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
+      transition: width 0.3s cubic-bezier(0.2,0.8,0.2,1); /* a state indication: under 300 ms, ease-out (motion lens, 2026-09-15; was 0.6 s ease-in-out) */
     }
     .xp-text {
-      font-size: 0.6rem; color:rgba(255,255,255,0.80);
+      font-size: 0.75rem; color:rgba(255,255,255,0.80);
       white-space: nowrap;
     }
 
@@ -192,7 +181,7 @@
     .domain-card.expanded .domain-events { display: block; }
     .event-row {
       display: flex; align-items: center; gap: 0.4rem;
-      font-size: 0.6rem; padding: 0.25rem 0;
+      font-size: 0.75rem; padding: 0.3rem 0;
       border-top: 1px solid rgba(255,255,255,0.05);
     }
     .event-label { flex: 1; color:rgba(255,255,255,0.80); min-width: 0;
@@ -210,10 +199,10 @@
       gap: 1rem;
     }
     .domain-card.legendary .domain-name { font-size: 0.9rem; }
-    .domain-card.legendary .domain-tier-label { font-size: 0.7rem; }
+    .domain-card.legendary .domain-tier-label { font-size: 0.8rem; }
     .legendary-info { flex: 1; min-width: 0; }
     .legendary-desc {
-      font-size: 0.7rem; color:rgba(255,255,255,0.80);
+      font-size: 0.8rem; color:rgba(255,255,255,0.80);
       margin-top: 0.2rem; line-height: 1.4;
     }
 
@@ -225,8 +214,8 @@
       margin-bottom: 1rem;
     }
     .section-heading {
-      font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em;
-      text-transform: uppercase; color:rgba(255,255,255,0.80);
+      font-size: 0.95rem; font-weight: 700; letter-spacing: normal;
+      text-transform: none; color:rgba(255,255,255,0.92);
       margin-bottom: 0.75rem;
     }
     .activity-row {
@@ -242,10 +231,13 @@
       font-size: 0.8rem;
     }
     .activity-body { flex: 1; min-width: 0; }
-    .activity-name { font-size: 0.7rem; font-weight: 600;
+    .activity-head { font-size: 0.8rem; color: rgba(255,255,255,0.80); padding: 0 0 0.5rem; }
+    .page-wrap p, .empty-note, .activity-head { max-width: 70ch; }   /* the craft floor's measure for any prose on the page */
+    .activity-count { font-weight: 500; color: rgba(255,255,255,0.80); }
+    .activity-name { font-size: 0.8rem; font-weight: 600;
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .activity-sub { font-size: 0.62rem; color:rgba(255,255,255,0.80); }
-    .activity-xp { font-size: 0.7rem; font-weight: 700; color: var(--wh-green); flex-shrink: 0; }
+    .activity-sub { font-size: 0.75rem; color:rgba(255,255,255,0.80); }
+    .activity-xp { font-size: 0.8rem; font-weight: 700; color: var(--wh-green); flex-shrink: 0; }
 
     /* ── Hive standings ── */
     .standing-row {
@@ -255,7 +247,7 @@
     }
     .standing-row:last-child { border-bottom: none; }
     .standing-rank {
-      width: 24px; font-size: 0.7rem; font-weight: 800;
+      width: 24px; font-size: 0.8rem; font-weight: 800;
       text-align: center; flex-shrink: 0;
       color:rgba(255,255,255,0.80);
     }
@@ -268,7 +260,7 @@
     .standing-rank.bronze { color: var(--wh-orange); }
     .standing-name { flex: 1; font-size: 0.8rem; font-weight: 600;
       min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .standing-score { font-size: 0.7rem; font-weight: 700;
+    .standing-score { font-size: 0.8rem; font-weight: 700;
       color:var(--wh-blue-text); flex-shrink: 0; }
     .standing-avatar-wrap { flex-shrink: 0; padding-bottom: 8px; }
 
@@ -298,26 +290,26 @@
       align-items: center; gap: 0.5rem;
       padding: 0.5rem 0.25rem 0.4rem;
       border-radius: 0.65rem;
-      background: rgba(255,255,255,0.025);
-      border: 1px solid rgba(255,255,255,0.04);
+      background: transparent;
+      border: 0;
       text-align: center;
     }
     .tier-sample-badge { padding-bottom: 12px; flex-shrink: 0; }
     .tier-sample-name {
-      font-size: 0.7rem; font-weight: 700;
+      font-size: 0.8rem; font-weight: 700;
       color: rgba(255,255,255,0.88);
       letter-spacing: 0.04em;
     }
     .tier-sample-range {
-      font-size: 0.6rem; font-weight: 600;
+      font-size: 0.75rem; font-weight: 600;
       color:rgba(255,255,255,0.80);
       white-space: nowrap;
     }
     /* Plain-Read summary (Layer D — UX Contract) */
-    .verdict { display:flex; align-items:center; gap:12px; padding:14px 16px; margin-bottom:14px; border-radius:12px; border:1px solid; }
+    .verdict { display:flex; align-items:center; gap:12px; padding:12px 16px; margin-bottom:16px; border-radius:12px; border:1px solid; }
     .verdict-icon { font-size:1.5rem; line-height:1; font-weight:800; }
     .verdict-text { font-size:0.9rem; font-weight:700; line-height:1.35; }
-    .verdict-text small { display:block; font-size:0.7rem; font-weight:500; color:rgba(255,255,255,0.83); margin-top:3px; }
+    .verdict-text small { display:block; font-size:0.8rem; font-weight:500; color:rgba(255,255,255,0.83); margin-top:4px; }
     .verdict.healthy { background:rgba(74,222,128,0.07);  border-color:rgba(74,222,128,0.3); }
     .verdict.healthy .verdict-icon { color:var(--wh-green); }
     .verdict.watch   { background:rgba(247,162,27,0.07);  border-color:rgba(247,162,27,0.3); }
@@ -327,11 +319,29 @@
     .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
     .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.80); }
     /* .simple-row / .simple-card / .sc-* / .action-card / .details-toggle → components.css (STREAMLINE S11) */
-    #ac-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.8rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:14px; }
+    #ac-summary-details { display:none; padding:12px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.8rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:16px; }
     #ac-summary-details.open { display:block; }
       /* R3 (2026-09-05): one silhouette per job - selection controls (chips, tabs, toggles: any control that carries a pressed /
        selected / checked state) wear the PILL; press buttons keep the 12 px card-family radius. */
     [aria-pressed], [aria-selected], [aria-checked], [role="tab"], [role="radio"], [role="switch"] { border-radius: 999px; }
+    /* Reduced motion for the page's OWN motion (design lens audit, 2026-09-15): the shell already stills the tier rings;
+       the skeleton pulse, the level-up pop and the XP bar fill are this page's, and a person who asked for less motion
+       keeps the opacity/colour cues and loses the movement. Keyboard focus on the card-buttons is drawn, not assumed. */
+    @media (prefers-reduced-motion: reduce) {
+      .skel { animation: none; opacity: 0.55; }
+      #levelup-badge-wrap .wh-avatar { animation: none; }
+      .xp-bar-fill, .domain-card, .back-btn, #levelup-close { transition: none; }
+    }
+    .domain-card:focus-visible, .back-btn:focus-visible { outline: 2px solid var(--wh-orange); outline-offset: 2px; }
+    /* Reserve what the async blocks will occupy so the page does not move under a person's thumb (audit lens, 2026-09-15;
+       measured at 390: the source chip 22 -> 100px, the verdict 86 -> 69px, the action card 113 -> 132px; layout shift 0.157). */
+    #achievements-source-chip { min-height: 52px; }
+    @media (max-width: 480px) {
+      #achievements-source-chip { min-height: 100px; }
+      #ac-verdict { min-height: 86px; box-sizing: border-box; }
+      .action-card .ac-text { min-height: 80px; }
+      .simple-card .sc-sub { min-height: 2.8em; }   /* the tile sub-line: 'Loading...' (1 line) becomes 2 lines of the real sentence */
+    }
 </style>
 </head>
 <body>
@@ -366,17 +376,19 @@
     </button>
     <h1 class="page-title" style="margin:0;" data-i="ach_growth">Growth</h1>
     <!-- T51 (2026-08-26): the current-hive chip - this page renders HIVE-SCOPED data, and a multi-hive contractor could not tell WHICH hive they were acting in (the single most important chrome question for that persona). Same visual pattern as pm-scheduler's chip; self-filling so no page init needs touching. -->
-    <span id="wh-hive-chip" translate="no" style="display:none;align-items:center;gap:4px;padding:3px 10px;border-radius:999px;font-size:.68rem;font-weight:700;background:rgba(247,162,27,0.1);border:1px solid rgba(247,162,27,0.25);color:var(--wh-orange-text);max-width:140px;"><span id="wh-hive-chip-name" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span></span>
+    <span id="wh-hive-chip" translate="no" style="display:none;align-items:center;gap:4px;padding:4px 10px;border-radius:999px;font-size:.75rem;font-weight:700;background:rgba(247,162,27,0.1);border:1px solid rgba(247,162,27,0.25);color:var(--wh-orange-text);max-width:140px;"><span id="wh-hive-chip-name" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span></span>
     <script>try{var _hn=localStorage.getItem('wh_hive_name');/* storage-key-allow: pre-utils chip paint */if(_hn){document.getElementById('wh-hive-chip-name').textContent=_hn;document.getElementById('wh-hive-chip').style.display='inline-flex';}}catch(_){/* empty-catch-allow: the chip is context decoration */}</script>
   </div>
   <!-- STREAMLINE F5: skillmatrix + achievements are ONE "Growth" surface (same worker
        audience, same job "how am I progressing?"). One nav entry; this tab bar switches
        Skills ↔ Achievements. Both pages kept on disk (reachable via tabs). -->
   <div class="wh-growth-tabs" role="tablist" style="display:flex; gap:8px; margin:8px 1rem 6px; flex-wrap:wrap;">
-    <a data-i="p_skills_3784" role="tab" aria-selected="false" href="skillmatrix.html" style="padding:6px 12px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.83); font-size:0.8rem; font-weight:600; text-decoration:none; border:1px solid rgba(255,255,255,0.08);">&larr; Skills</a>
+    <a data-i="p_skills_3784" role="tab" aria-selected="false" href="skillmatrix.html" style="padding:6px 12px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.83); font-size:0.8rem; font-weight:600; text-decoration:none; border:1px solid rgba(255,255,255,0.08);">Skills</a>
     <span data-i="p_achievements_a663" role="tab" aria-selected="true" style="padding:6px 12px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(247,162,27,0.15); color:var(--wh-orange); font-size:0.8rem; font-weight:700; border:1px solid rgba(247,162,27,0.4);">Achievements</span>
   </div>
-  <p id="achievements-source-chip" style="margin:0 0 8px;padding:0 1rem;"></p>
+  <!-- min-height reserves the chip's line before it renders: measured 2026-09-15 (design lens audit), the empty <p> growing
+       into the chip moved the tiles, the action card and the verdict at 183 ms and 273 ms - a layout shift of 0.157. -->
+  <p id="achievements-source-chip" style="margin:0 0 8px;padding:0 1rem;"></p>  <!-- min-height lives in the style block: an inline value would beat the phone-width reservation -->
 
   <!-- Plain-Read summary (Layer D — UX Contract).
        Populated by renderAchievementsSummary() from _achievements + _xpLog. -->
@@ -391,7 +403,7 @@
        spans around the anchor instead, which keeps the link and lets both halves turn Filipino. The
        swapper is deliberately unchanged: an innerHTML path would trade a link bug for an injection
        surface, and the markup was the thing that was wrong. -->
-  <p class="text-xs" style="color:var(--muted); margin:-0.35rem 0 0.9rem;">
+  <p class="text-xs" style="color:var(--muted); margin:-0.35rem 0 0.9rem; max-width:70ch; font-size:0.85rem; line-height:1.5;">
     <span data-i="ach_resumeline_pre">Every badge you earn here lands on your</span>
     <a href="resume.html" style="color:var(--wh-orange-text); font-weight:700; text-decoration:underline;">Resume</a><span data-i="ach_resumeline_post"> automatically - employers see certified skills, not claims.</span>
   </p>
@@ -404,34 +416,35 @@
              purpose is recognising what a worker has earned; the true value was 153. An honest DEFAULT
              covers every abort path at once, including the ones no flag enumerates. -->
       <div class="sc-hero" id="ac-week-hero">—</div>
-      <div data-i="p_loading_b04b" class="sc-sub" id="ac-week-sub">Loading...</div>
+      <div data-i="p_loading_b04b" class="sc-sub" id="ac-week-sub">Loading…</div>
       <span class="sc-tag" id="ac-week-tag">-</span>
     </div>
     <div class="simple-card tag-grey" id="ac-card-active" data-rag-tile="achievements:active_domains" data-rag-label="Active domains">
       <h2 class="sc-label" style="margin:0;" data-i="ach_activedom">Active domains</h2>
       <div class="sc-hero" id="ac-active-hero">—</div>
-      <div data-i="p_loading_b04b" class="sc-sub" id="ac-active-sub">Loading...</div>
+      <div data-i="p_loading_b04b" class="sc-sub" id="ac-active-sub">Loading…</div>
       <span class="sc-tag" id="ac-active-tag">-</span>
     </div>
     <div class="simple-card tag-grey" id="ac-card-level" data-rag-tile="achievements:total_level" data-rag-label="Total level">
       <h2 class="sc-label" style="margin:0;" data-i="ach_totallvl">Total level</h2>
       <div class="sc-hero" id="ac-level-hero">—</div>
-      <div data-i="p_loading_b04b" class="sc-sub" id="ac-level-sub">Loading...</div>
+      <div data-i="p_loading_b04b" class="sc-sub" id="ac-level-sub">Loading…</div>
       <span class="sc-tag" id="ac-level-tag">-</span>
     </div>
   </div>
   <div class="action-card">
     <div data-i="p_whattodonext_8ce2" class="ac-label">What to do next</div>
-    <div data-i="p_computingrecommendation_5948" class="ac-text" id="ac-action-text">Computing recommendation...</div>
+    <div data-i="p_computingrecommendation_5948" class="ac-text" id="ac-action-text">Computing recommendation…</div>
+    <!-- the one CTA sits with the sentence that names the action (critique lens, 2026-09-15; was in the hero card, three screens down) -->
+    <a data-i="p_earnxplogajob_c8f5" href="logbook.html" style="display:inline-flex;align-items:center;gap:6px;min-height:44px;margin-top:0.6rem;padding:6px 16px;border-radius:8px;background:linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light));color:var(--wh-navy);font-size:0.8rem;font-weight:700;text-decoration:none;">Earn XP: log a job &rarr;</a>
   </div>
-  <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="ac-summary-details" data-i="showdetails">
-    Show details
+  <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="ac-summary-details" data-i="ach_howxp">
+    How XP and tiers work
   </button>
   <div id="ac-summary-details" role="region" aria-label="Achievements explainer"
     data-rag-tile="achievements:detail_panel"
     data-rag-label="Achievements detail">
-    <strong data-i="p_howxpandtierswork_433b" style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How XP and tiers work</strong>
-    <div data-i="p_standardworkhiveachievementt_6768" style="font-size:0.7rem;color:rgba(255,255,255,0.80);margin-bottom:6px;">Standard: WorkHive Achievement Tier Model (platform-internal, 5 tiers × 12 domains).</div>
+    <div data-i="p_standardworkhiveachievementt_6768" style="font-size:0.8rem;color:rgba(255,255,255,0.80);margin-bottom:6px;">Standard: WorkHive Achievement Tier Model (platform-internal, 5 tiers × 12 domains).</div>
     <ul style="margin:0;padding-left:20px;">
       <li><strong data-i="p_xpthisweek_c791">XP this week</strong>: XP entries from the past 7 days, summed.</li>
       <li><strong data-i="p_activedomains_5840">Active domains</strong>: domains where you've earned at least Level 1 (out of 12 total).</li>
@@ -439,8 +452,8 @@
       <li><strong data-i="p_verdict_7f6e">Verdict</strong>: green if 50+ XP this week; amber if 1-49 XP; empty if no XP yet; never red (Achievements is purely motivational).</li>
     </ul>
     <strong data-i="p_whateachactionearns_5be5" style="display:block;margin:10px 0 6px;color:rgba(255,255,255,0.85);">What each action earns</strong>
-    <div data-i="p_theratesbelowaretheonesthepl_f626" style="font-size:0.7rem;color:rgba(255,255,255,0.80);margin-bottom:6px;">The rates below are the ones the platform actually awards, so you can decide before you do the work rather than after.</div>
-    <ul style="margin:0;padding-left:20px;font-size:0.7rem;">
+    <div data-i="p_theratesbelowaretheonesthepl_f626" style="font-size:0.8rem;color:rgba(255,255,255,0.80);margin-bottom:6px;">The rates below are the ones the platform actually awards, so you can decide before you do the work rather than after.</div>
+    <ul style="margin:0;padding-left:20px;font-size:0.8rem;">
       <li><strong data-i="p_loganentry_6c8e">Log an entry</strong>: 20 XP, plus 20 more when problem, action and knowledge together run past 200 characters.</li>
       <li><strong data-i="p_closeajob_71ce">Close a job</strong>: 50 XP, plus 30 for a root cause, 15 for machine and downtime hours, and 25 if you close it within 24 hours. Up to 120.</li>
       <li><strong data-i="p_closeabreakdownwitharootcaus_6e41">Close a breakdown with a root cause</strong>: 100 XP (Failure Hunter).</li>
@@ -450,50 +463,26 @@
       <li><strong data-i="p_earnaskillbadge_c0f7">Earn a skill badge</strong>: 250 XP, the largest single award.</li>
       <li><strong data-i="p_runacalculator_8794">Run a calculator</strong>: 40 XP. <strong data-i="p_publishashiftplan_387d">Publish a shift plan</strong>: 40 XP. <strong data-i="p_addateammember_b06f">Add a team member</strong>: 50 XP.</li>
     </ul>
-    <div data-i="p_xpisarecordofworkdonehereiti_4b92" style="font-size:0.7rem;color:rgba(255,255,255,0.70);margin-top:6px;">XP is a record of work done here. It is not money, and it buys nothing. If the work behind an award is deleted, the XP is taken back with it.</div>
-    <p data-i="p_scrollforthetierguideanddoma_f6fb" style="margin-top:8px;color:rgba(255,255,255,0.80);font-size:0.7rem;">Scroll for the Tier Guide and domain-by-domain breakdown.</p>
+    <div data-i="p_xpisarecordofworkdonehereiti_4b92" style="font-size:0.8rem;color:rgba(255,255,255,0.80);margin-top:6px;">XP is a record of work done here. It is not money, and it buys nothing. If the work behind an award is deleted, the XP is taken back with it.</div>
+  <div id="tier-guide-card" style="margin-top:12px;">
+    <div class="section-heading" style="display:flex;align-items:center;justify-content:space-between;">
+      <span data-i="p_tierguide_1d2f">Tier Guide</span>
+      <span data-i="p_visualkeywhateachranklooksli_ecd1" style="font-size:0.75rem;font-weight:500;text-transform:none;letter-spacing:normal;color:rgba(255,255,255,0.80);">Visual key: what each rank looks like</span>
+    </div>
+    <div id="tier-showcase"></div>
+  </div>
+
   </div>
 
   <!-- Hero -->
   <div class="hero-card">
-    <div class="hero-glow"></div>
     <div id="hero-avatar-wrap">
       <div class="skel" style="width:72px;height:72px;border-radius:50%;"></div>
     </div>
     <div class="hero-info">
       <div id="hero-name"><div class="skel" style="width:120px;height:16px;border-radius:4px;"></div></div>
       <div id="hero-tier-label" style="display:none;"></div>
-      <div class="hero-stats" id="hero-stats">
-        <div class="hero-stat">
-          <div class="hero-stat-val" id="stat-composite"
-    data-rag-tile="achievements:composite_score"
-    data-rag-label="Composite skill score">-</div>
-          <div data-i="p_totallevel_1735" class="hero-stat-lbl">Total Level</div>
-        </div>
-        <div class="hero-stat">
-          <div class="hero-stat-val" id="stat-active"
-    data-rag-tile="achievements:active_domains_stat"
-    data-rag-label="Active domains stat">-</div>
-          <div data-i="p_domainsactive_91b9" class="hero-stat-lbl">Domains Active</div>
-        </div>
-        <div class="hero-stat">
-          <div class="hero-stat-val" id="stat-top"
-    data-rag-tile="achievements:top_domain"
-    data-rag-label="Top skill domain">-</div>
-          <div data-i="p_highestlevel_a5c2" class="hero-stat-lbl">Highest Level</div>
-        </div>
-      </div>
-      <a data-i="p_earnxplogajob_c8f5" href="logbook.html" style="display:inline-flex;align-items:center;gap:6px;min-height:44px;margin-top:0.75rem;padding:6px 16px;border-radius:8px;background:linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light));color:var(--wh-navy);font-size:0.8rem;font-weight:700;text-decoration:none;">Earn XP: log a job &rarr;</a>
     </div>
-  </div>
-
-  <!-- Tier Guide -->
-  <div class="section-card" id="tier-guide-card" style="min-height:150px;">
-    <div class="section-heading" style="display:flex;align-items:center;justify-content:space-between;">
-      <span data-i="p_tierguide_1d2f">Tier Guide</span>
-      <span data-i="p_visualkeywhateachranklooksli_ecd1" style="font-size:0.6rem;font-weight:500;text-transform:none;letter-spacing:normal;color:rgba(255,255,255,0.80);">Visual key: what each rank looks like</span>
-    </div>
-    <div id="tier-showcase"></div>
   </div>
 
   <!-- Domain sections rendered by JS -->
@@ -514,7 +503,7 @@
          "points". It was labelled "pts", a unit this number has never been in; a worker
          comparing themselves on this board could not tell what they were being ranked by.
          The heading now names the criteria once for the list, and each row names its unit. -->
-    <p class="section-sub" style="margin:-2px 0 10px;font-size:0.68rem;color:rgba(255,255,255,0.72);">
+    <p class="section-sub" style="margin:-2px 0 10px;font-size:0.8rem;color:rgba(255,255,255,0.80);">
       Ranked by total achievement <strong>levels</strong> across all skill domains. One level per domain milestone, so three domains outrank one.
     </p>
     <div id="standings-list"></div>
@@ -658,7 +647,7 @@
     const tier = getWorkerTier(topLevel || 0);
     const fs   = sz >= 64 ? '1.75rem' : sz >= 56 ? '1.5rem' : '1.1rem';
     const badge = ((topLevel || 0) > 0)
-      ? '<span class="wh-avatar-lvl" style="font-size:9px;padding:1px 5px;">' + (topLevel || 0) + '</span>'
+      ? '<span class="wh-avatar-lvl">' + (topLevel || 0) + '</span>'   /* the shared 11px badge rule (utils.js); the inline 9px override was the smallest type on the page, 14 nodes (design lens slop, 2026-09-15) */
       : '';
     return '<div class="wh-avatar wh-tier-' + tier.id + '"'
       + ' style="width:' + sz + 'px;height:' + sz + 'px;font-size:' + fs + ';--tier-clr:' + tier.color + ';"'
@@ -688,11 +677,11 @@
 
     if (isLegendary) {
       const locked = lv === 0;
-      return `<div class="domain-card legendary${locked ? '' : ' unlocked'}" data-ach="${escHtml(achId)}" role="button" tabindex="0" aria-label="${escHtml(def.name)}, expand details" onclick="toggleDomain('${escJsAttr(achId)}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleDomain('${escJsAttr(achId)}');}">
+      return `<div class="domain-card legendary${locked ? '' : ' unlocked'}" data-ach="${escHtml(achId)}" role="button" tabindex="0" aria-expanded="false" aria-label="${escHtml(def.name)}, ${_t('expand details', 'ipakita ang detalye')}" onclick="toggleDomain('${escJsAttr(achId)}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleDomain('${escJsAttr(achId)}');}">
         <div class="domain-badge-wrap">${renderDomainBadge(def.icon, lv, 56)}</div>
         <div class="legendary-info">
           <div class="domain-name">${escHtml(def.name)}</div>
-          <div class="domain-tier-label">${soon ? 'Coming soon' : (locked ? 'Locked' : tier.label + ' Lv.' + lv)}</div>
+          <div class="domain-tier-label">${soon ? _t('Coming soon', 'Paparating') : (locked ? _t('Locked', 'Naka-lock') : tier.label + ' · Lv ' + lv)}</div>
           <div class="legendary-desc">${escHtml(def.desc)}</div>
           ${locked ? '' : `<div class="xp-bar-wrap" style="margin-top:0.5rem;"><div class="xp-bar-fill" style="width:${pct}%;--tier-clr:${tier.color};"></div></div>`}
         </div>
@@ -700,12 +689,12 @@
       </div>`;
     }
 
-    return `<div class="domain-card" data-ach="${escHtml(achId)}" role="button" tabindex="0" aria-label="${escHtml(def.name)}${soon ? ', coming soon' : ''}, expand details" onclick="toggleDomain('${escJsAttr(achId)}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleDomain('${escJsAttr(achId)}');}"${soon ? ' style="opacity:0.6"' : ''}>
+    return `<div class="domain-card" data-ach="${escHtml(achId)}" role="button" tabindex="0" aria-expanded="false" aria-label="${escHtml(def.name)}${soon ? _t(', coming soon', ', paparating') : ''}, ${_t('expand details', 'ipakita ang detalye')}" onclick="toggleDomain('${escJsAttr(achId)}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleDomain('${escJsAttr(achId)}');}"${soon ? ' style="opacity:0.6"' : ''}>
       <div class="domain-badge-wrap">${renderDomainBadge(def.icon, lv, 52)}</div>
       <div class="domain-name">${escHtml(def.name)}</div>
-      <div class="domain-tier-label">${soon ? 'Coming soon' : (lv > 0 ? tier.label + ' Lv.' + lv : 'Iron Lv.0')}</div>
+      <div class="domain-tier-label">${soon ? _t('Coming soon', 'Paparating') : (lv > 0 ? tier.label + ' · Lv ' + lv : _t('Not started', 'Hindi pa nasisimulan'))}</div>
       <div class="xp-bar-wrap"><div class="xp-bar-fill" style="width:${soon ? 0 : pct}%;--tier-clr:${tier.color};"></div></div>
-      <div class="xp-text">${soon ? 'Not yet trackable' : (lv < 100 ? escHtml(String(toNext)) + ' XP to Lv.' + (lv + 1) : 'Max Level!')}</div>
+      <div class="xp-text">${soon ? _t('Not yet trackable', 'Hindi pa nasusubaybayan') : (lv < 100 ? escHtml(String(toNext)) + _t(' XP to Lv ', ' XP papunta sa Lv ') + (lv + 1) : _t('Max level', 'Pinakamataas na level'))}</div>
       <div class="domain-events"></div>
     </div>`;
   }
@@ -775,31 +764,32 @@
       // rather than by reading this line. weekXP is a plain SUM of xp_earned (init, :1197) and the
       // ledger is reversible, so a week whose reversals outweigh its gains is genuinely negative —
       // and the hero hard-coded "+", which would print "+-30" on the headline tile.
-      weekXP < 0 ? String(weekXP) : `+${weekXP}`,
+      weekXP < 0 ? Number(weekXP).toLocaleString('en-PH') : '+' + Number(weekXP).toLocaleString('en-PH'),
       // W3-AR: when the window read hit its cap the sum is a FLOOR, not a total, and the sentence
       // says which it is. Saying "at least" costs nothing on the normal path (the flag is false) and
       // stops the tile asserting a number it cannot stand behind on the one path where it is short.
       _weekXPCapped
-        ? `At least ${weekXP} XP this week - you logged so much that this count stopped short of all of it`
+        ? _t(`At least ${weekXP} XP this week - you logged so much that this count stopped short of all of it`, `Hindi bababa sa ${weekXP} XP ngayong linggo - napakarami mong na-log kaya hindi naabot ng bilang ang lahat`)
         // C-BT: the EMPTY branch is the only one a person with no logged work ever sees, and it was the
         // one left in English. A solo owner with no hive meets nothing else on this page.
         : weekXP === 0 ? _t('No XP earned in the past 7 days', 'Walang XP na nakuha sa nakaraang 7 araw')
-        : weekXP < 0 ? `${weekXP} XP this week; more was taken back by deleted work than earned`
-        : `${weekXP} XP from logbook, PM & community work this week`,
-      _weekXPCapped ? 'GREAT WEEK' : weekXP === 0 ? 'IDLE' : weekXP >= 100 ? 'GREAT WEEK' : weekXP >= 50 ? 'ON PACE' : 'KEEP GOING',
+        : weekXP < 0 ? _t(`${weekXP} XP this week; more was taken back by deleted work than earned`, `${weekXP} XP ngayong linggo; mas marami ang binawi ng binurang trabaho kaysa sa kinita`)
+        : _t('From logbook, PM and community work in the last 7 days', 'Mula sa logbook, PM at community work sa nakaraang 7 araw'),
+      _weekXPCapped ? _t('Great week', 'Magandang linggo') : weekXP === 0 ? _t('No XP yet', 'Wala pang XP') : weekXP >= 100 ? _t('Great week', 'Magandang linggo') : weekXP >= 50 ? _t('On pace', 'Nasa tamang takbo') : _t('Keep going', 'Ituloy'),
       weekXP === 0 ? 'grey' : weekXP >= 50 ? 'green' : 'amber'
     );
     setCard('active',
       `${active}/12`,
-      active === 0 ? _t('No domains active yet', 'Wala pang aktibong domain') : `${active} of 12 domains touched at Level 1+`,
-      active === 0 ? 'START' : active >= 8 ? 'BROAD' : active >= 4 ? 'BUILDING' : 'NARROW',
+      active === 0 ? _t('No domains active yet', 'Wala pang aktibong domain') : _t('Domains where you have reached Level 1 or higher', 'Mga domain kung saan umabot ka na sa Level 1 o mas mataas'),
+      active === 0 ? _t('Start', 'Simula') : active >= 8 ? _t('Broad', 'Malawak') : active >= 4 ? _t('Building', 'Lumalago') : _t('Narrow', 'Makitid'),
       active === 0 ? 'grey' : active >= 8 ? 'green' : 'amber'
     );
     setCard('level',
-      String(composite),
-      composite === 0 ? _t('No levels gained yet', 'Wala pang nakuhang level') : `Sum of levels across all 12 domains (max 1,200 = 12 domains × level 100)`,
-      composite === 0 ? 'START' : composite >= 30 ? 'EXPERT' : composite >= 15 ? 'MID' : 'BUILDING',
-      composite === 0 ? 'grey' : composite >= 30 ? 'green' : 'amber'
+      Number(composite).toLocaleString('en-PH'),
+      composite === 0 ? _t('No levels gained yet', 'Wala pang nakuhang level') : _t('Your levels added up across all 12 domains (max 1,200)', 'Pinagsamang level mo sa lahat ng 12 domain (max 1,200)'),
+      // the pill reads against the scale it sits on: 1,200 is the ceiling, so Expert is half of it, not 30 (critique lens)
+      composite === 0 ? _t('Start', 'Simula') : composite >= 600 ? _t('Expert', 'Eksperto') : composite >= 300 ? _t('Solid', 'Matatag') : _t('Building', 'Lumalago'),
+      composite === 0 ? 'grey' : composite >= 300 ? 'green' : 'amber'
     );
 
     let tone, label, sub;
@@ -824,6 +814,12 @@
     if (vBox) { vBox.classList.remove('healthy','watch','attn','empty'); vBox.classList.add(tone); }
     const vIcon = document.getElementById('ac-verdict-icon'); if (vIcon) vIcon.textContent = tone === 'healthy' ? '✓' : tone === 'watch' ? '!' : tone === 'attn' ? '⚠' : '·';
     const vLbl = document.getElementById('ac-verdict-label'); if (vLbl) vLbl.textContent = label;
+    // ★"DID MY WORK COUNT?" IS THE FIRST QUESTION (critique lens, 2026-09-15). The sub-line repeated the tiles'
+    // numbers (6/12 · 197); it now carries the newest XP event - the one fact the tiles do not show - with its age.
+    if (composite > 0 && _xpLog && _xpLog.length) {
+      const _e = _xpLog[0];
+      sub = _t('Last XP: ', 'Huling XP: ') + actionLabel(_e.source_action) + ' · ' + xpText(_e.xp_earned) + ' · ' + timeAgo(_e.earned_at);
+    }
     const vSb  = document.getElementById('ac-verdict-sub');   if (vSb)  vSb.textContent  = sub;
 
     const actBox = document.getElementById('ac-action-text');
@@ -844,8 +840,9 @@
         text = _t(`${weekXP} XP this week. Push to 50 for the weekly target: a couple of logbook entries with a good knowledge field will get you there.`,
                   `${weekXP} XP ngayong linggo. Itulak sa 50 para sa lingguhang target: sapat na ang ilang logbook entry na may magandang knowledge field.`);
       } else {
-        text = _t('Great week! Keep the streak going, your XP this week feeds your hive standing card below.',
-                  'Magandang linggo! Ituloy ang streak, ang XP mo ngayong linggo ay pumapasok sa hive standing card mo sa ibaba.');
+        // clarify.md: instructional text names the action, not the mood - what to do, what it earns, where it shows (2026-09-15)
+        text = _t('Great week. Keep it going: log the job you did today (+20 XP) or close one with its root cause (+50). The XP you earn this week sets your place in Hive standings below.',
+                  'Magandang linggo. Ituloy: i-log ang trabaho ngayon (+20 XP) o isara ang isa kasama ang root cause (+50). Ang XP mo ngayong linggo ang nagtatakda ng puwesto mo sa Hive standings sa ibaba.');
       }
       actBox.textContent = text;
     }
@@ -868,7 +865,7 @@
         const note = document.createElement('div');
         note.id = 'ac-session-dead';
         note.setAttribute('role', 'status');
-        note.style.cssText = 'margin:0 0 14px;padding:12px 14px;border-radius:10px;'
+        note.style.cssText = 'margin:0 0 16px;padding:12px 16px;border-radius:10px;'
           + 'background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.42);'
           + 'color:#fde68a;font-size:0.8rem;line-height:1.5;';
         note.innerHTML = '<strong>Your session ended. Your achievements were not read.</strong><br>'
@@ -893,18 +890,9 @@
     tierEl.style.color      = tier.color;
     tierEl.style.borderColor = 'rgba(' + hexToRgb(tier.color) + ',0.3)';
 
-    const _scEl = document.getElementById('stat-composite');
-    const _saEl = document.getElementById('stat-active');
-    const _stEl = document.getElementById('stat-top');
-    _scEl.textContent = composite;
-    _saEl.textContent = active + '/12';
-    _stEl.textContent = topLevel;
-    // Calm Dashboard Contract: dim zero achievement stats for new workers.
-    if (window.hideZeroStat) {
-      hideZeroStat(_scEl, composite);
-      hideZeroStat(_saEl, active);
-      hideZeroStat(_stEl, topLevel);
-    }
+    // one number, one place (critique lens, 2026-09-15): the hero used to repeat total level, active domains and the
+    // highest level under the name - the tiles above are their home and the avatar badge already carries the highest.
+    void composite; void active;
   }
 
   function hexToRgb(hex) {
@@ -914,26 +902,40 @@
     return r + ',' + g + ',' + b;
   }
 
-  function renderRecentActivity() {
+  function renderRecentActivity(showAll) {
     const el = document.getElementById('recent-list');
     if (!_xpLog.length) {
-      el/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<p class="empty-note">No XP earned yet. Close your first logbook entry!</p>';
+      el/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<p class="empty-note">' + _t('No XP earned yet. Close your first logbook entry!', 'Wala pang XP. Isara ang unang logbook entry mo!') + '</p>';
       return;
     }
-    el/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = _xpLog.slice(0, 10).map(e => {
-      const def    = ACHIEVEMENT_DEFS[e.achievement_id];
-      const icon   = def ? def.icon : '⭐';
-      const label  = actionLabel(e.source_action);
-      const domain = def ? def.name : e.achievement_id;
-      return `<div class="activity-row">
-        <div class="activity-icon-sm">${icon}</div>
+    // ★NINE IDENTICAL ROWS ARE ONE FACT (critique lens, 2026-09-15): consecutive events with the same action and domain
+    // fold into one row that says how many and how much; the list opens with the week's sum so it visibly reconciles
+    // with the XP tile above it; ten groups show, the rest behind "Show all".
+    const groups = [];
+    for (const e of _xpLog) {
+      const def = ACHIEVEMENT_DEFS[e.achievement_id];
+      const key = (e.source_action || '') + '|' + e.achievement_id;
+      const last = groups[groups.length - 1];
+      if (last && last.key === key) { last.n++; last.xp += Number(e.xp_earned || 0); continue; }
+      groups.push({ key, n: 1, xp: Number(e.xp_earned || 0), icon: def ? def.icon : '⭐', label: actionLabel(e.source_action), domain: def ? def.name : e.achievement_id, at: e.earned_at });
+    }
+    // the week's sum is the DEDICATED read (_weekXP), never a sum over this 30-row list - the first draft of this head summed
+    // the list and printed +630 under a tile that said +18,390 (the exact contradiction the critique lens exists to end)
+    const shown = showAll ? groups : groups.slice(0, 10);
+    const weekTotal = (typeof _weekXP === 'number') ? xpText(_weekXP) : '—';
+    const head = '<div class="activity-head">' + _t('Last 7 days', 'Nakaraang 7 araw') + ': <strong>' + weekTotal + '</strong> · ' + _t('latest', 'pinakabagong') + ' ' + _xpLog.length + ' ' + _t('events', 'kaganapan') + '</div>';
+    const rows = shown.map((g) => `<div class="activity-row">
+        <div class="activity-icon-sm">${g.icon}</div>
         <div class="activity-body">
-          <div class="activity-name">${escHtml(label)}</div>
-          <div class="activity-sub">${escHtml(domain)} · ${escHtml(timeAgo(e.earned_at))}</div>
+          <div class="activity-name">${escHtml(g.label)}${g.n > 1 ? ' <span class="activity-count">×' + g.n + '</span>' : ''}</div>
+          <div class="activity-sub">${escHtml(g.domain)} · ${escHtml(timeAgo(g.at))}</div>
         </div>
-        <div class="activity-xp">${xpText(e.xp_earned)}</div>
-      </div>`;
-    }).join('');
+        <div class="activity-xp">${xpText(g.xp)}</div>
+      </div>`).join('');
+    const more = (!showAll && groups.length > 10)
+      ? '<button type="button" class="details-toggle" style="margin-top:8px" onclick="renderRecentActivity(true)">' + _t('Show all', 'Ipakita lahat') + ' (' + groups.length + ')</button>'
+      : '';
+    el/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = head + rows + more;
   }
 
   // ── Domain card expand/collapse ──────────────────────────────
@@ -942,11 +944,13 @@
     if (!card) return;
     const wasExpanded = card.classList.contains('expanded');
 
-    // Collapse all
+    // Collapse all - and say so to assistive tech: a card-button that expands carries aria-expanded (audit lens, 2026-09-15)
     document.querySelectorAll('.domain-card.expanded').forEach(c => c.classList.remove('expanded'));
+    document.querySelectorAll('.domain-card[aria-expanded="true"]').forEach(c => c.setAttribute('aria-expanded', 'false'));
     if (wasExpanded) return;
 
     card.classList.add('expanded');
+    card.setAttribute('aria-expanded', 'true');
     const eventsEl = card.querySelector('.domain-events');
     const events   = _xpLog.filter(e => e.achievement_id === achId).slice(0, 3);
     if (!events.length) {
@@ -994,15 +998,15 @@
       const jobs = Number(p.completed_jobs || 0);
       const badge = p.tier === 'gold' ? '🥇 Gold' : p.tier === 'silver' ? '🥈 Silver' : '🥉 Bronze';
       const next = p.tier === 'gold'
-        ? 'Top tier - you get first look at new hails.'
+        ? _t('Top tier - you get first look at new hails.', 'Pinakamataas na tier - ikaw ang unang makakakita ng bagong hail.')
         : p.tier === 'silver'
-          ? `${Math.max(0, 25 - jobs)} more jobs and a 4.5★ average reach Gold.`
-          : `${Math.max(0, 10 - jobs)} more completed jobs reach Silver.`;
+          ? _t(`${Math.max(0, 25 - jobs)} more jobs and a 4.5★ average reach Gold.`, `${Math.max(0, 25 - jobs)} pang trabaho at 4.5★ na average ang aabot sa Gold.`)
+          : _t(`${Math.max(0, 10 - jobs)} more completed jobs reach Silver.`, `${Math.max(0, 10 - jobs)} pang natapos na trabaho ang aabot sa Silver.`);
       slot.innerHTML =
-        '<div class="simple-card" style="margin-top:0.6rem;padding:14px 16px;">' +
-        '<div style="font-size:0.8rem;opacity:0.85;">Service provider tier</div>' +
+        '<div class="simple-card" style="margin-top:0.6rem;padding:12px 16px;">' +
+        '<div style="font-size:0.8rem;opacity:0.85;">' + _t('Service provider tier', 'Tier ng service provider') + '</div>' +
         '<div style="font-size:1.125rem;font-weight:800;margin:0.15rem 0;">' + badge + '</div>' +
-        '<div style="font-size:0.8rem;opacity:0.85;">' + jobs + ' job' + (jobs === 1 ? '' : 's') + ' done' +
+        '<div style="font-size:0.8rem;opacity:0.85;">' + jobs + ' ' + _t(jobs === 1 ? 'job done' : 'jobs done', jobs === 1 ? 'trabahong tapos' : 'trabahong tapos') +
         (p.rating_avg != null ? ' · ★' + Number(p.rating_avg).toFixed(1) + ' (' + Number(p.rating_count || 0) + ')' : '') + '</div>' +
         '<div style="font-size:0.8rem;opacity:0.8;margin-top:0.25rem;">' + escHtml(next) + '</div>' +
         // ★THE THRESHOLDS WERE STATED; THE AUTHORITY WAS NOT. The line above already tells the person
@@ -1012,8 +1016,8 @@
         // granted?' is the question a provider actually has. It is earned: v_service_provider_truth
         // computes the tier from verified completions and rating, and there is no stored counter anyone
         // can set by hand. Saying so is what turns a badge into a claim the holder can defend.
-        '<div style="font-size:0.7rem;opacity:0.7;margin-top:0.35rem;">WorkHive sets this from your verified completed jobs and rating. Nobody grants it by hand.</div>' +
-        '<a href="marketplace-seller.html" style="display:inline-flex;align-items:center;min-height:44px;margin-top:0.5rem;padding:0.5rem 0.9rem;border-radius:0.5rem;background:rgba(247,162,27,0.12);border:1px solid rgba(247,162,27,0.3);color:var(--wh-orange);font-weight:600;text-decoration:none;font-size:0.8rem;" aria-label="Open my service provider console">Open my provider console →</a>' +
+        '<div style="font-size:0.8rem;opacity:0.8;margin-top:0.35rem;">' + _t('WorkHive sets this from your verified completed jobs and rating. Nobody grants it by hand.', 'Itinatakda ito ng WorkHive mula sa mga na-verify mong natapos na trabaho at rating. Walang nagbibigay nito nang mano-mano.') + '</div>' +
+        '<a href="marketplace-seller.html" style="display:inline-flex;align-items:center;min-height:44px;margin-top:0.5rem;padding:0.5rem 0.9rem;border-radius:0.5rem;background:rgba(247,162,27,0.12);border:1px solid rgba(247,162,27,0.3);color:var(--wh-orange);font-weight:600;text-decoration:none;font-size:0.8rem;" aria-label="' + _t('Open my service provider console', 'Buksan ang provider console ko') + '">' + _t('Open my provider console →', 'Buksan ang provider console ko →') + '</a>' +
         '</div>';
     } catch (_) { /* empty-catch-allow: the tier card is additive; a failure leaves it silent */ }
   }
@@ -1046,7 +1050,7 @@
 
     const names = (members || []).map(m => m.worker_name);
     if (!names.length) {
-      if (standingsEl) standingsEl.innerHTML = '<p class="empty-note">No standings yet</p>';
+      if (standingsEl) standingsEl.innerHTML = '<p class="empty-note">' + _t('No standings yet. Levels appear here once a member reaches Level 1 in any domain.', 'Wala pang standings. Lalabas dito ang mga level kapag may miyembrong umabot sa Level 1 sa kahit anong domain.') + '</p>';
       return;
     }
 
@@ -1060,26 +1064,33 @@
     for (const row of (achs || [])) {
       sums[row.worker_name] = (sums[row.worker_name] || 0) + (row.current_level || 0);
     }
-    const top = names
+    const ranked = names
       .map(n => ({ worker_name: n, total: sums[n] || 0 }))
       .sort((a, b) => b.total - a.total)
-      .slice(0, 5);
+      .map((w, i) => Object.assign(w, { rank: i + 1 }));
+    // ★A LEADERBOARD OF ONE AND A VIEWER OUTSIDE THE TOP FIVE (critique lens, 2026-09-15): a medal for the only member
+    // is a joke the page does not know it is telling, and a worker ranked 7th could not find themselves at all.
+    const top = ranked.slice(0, 5);
+    const me = ranked.find(w => w.worker_name === WORKER_NAME);
+    if (me && me.rank > 5) top.push(me);
+    const solo = ranked.length === 1;
 
     const tierMap = await loadWorkerTiers(db, top.map(t => t.worker_name));
 
     const el = document.getElementById('standings-list');
     if (!top.length) {
-      el/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<p class="empty-note">No standings yet</p>';
+      el/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<p class="empty-note">' + _t('No standings yet. Levels appear here once a member reaches Level 1 in any domain.', 'Wala pang standings. Lalabas dito ang mga level kapag may miyembrong umabot sa Level 1 sa kahit anong domain.') + '</p>';
       return;
     }
-    const rankClass = (i) => i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
-    const rankIcon  = (i) => i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1);
-    el/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = top.map((w, i) => `
+    const rankClass = (r) => solo ? '' : r === 1 ? 'gold' : r === 2 ? 'silver' : r === 3 ? 'bronze' : '';
+    const rankIcon  = (r) => solo ? '·' : r === 1 ? '🥇' : r === 2 ? '🥈' : r === 3 ? '🥉' : r;
+    const soloNote = solo ? '<p class="empty-note" style="text-align:left;padding:0 0 0.5rem;">' + _t('You are the only member with levels so far - standings start when a teammate earns Level 1.', 'Ikaw pa lang ang miyembrong may level - magsisimula ang standings kapag may kasamahang umabot sa Level 1.') + '</p>' : '';
+    el/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = soloNote + top.map((w) => `
       <div class="standing-row">
-        <div class="standing-rank ${rankClass(i)}">${rankIcon(i)}</div>
+        <div class="standing-rank ${rankClass(w.rank)}">${rankIcon(w.rank)}</div>
         <div class="standing-avatar-wrap">${renderWorkerAvatar(w.worker_name, tierMap[w.worker_name] || 0, 28)}</div>
-        <div class="standing-name">${escHtml(w.worker_name)}${w.worker_name === WORKER_NAME ? ' <span style="font-size:0.6rem;color:rgba(255,255,255,0.80);">(you)</span>' : ''}</div>
-        <div class="standing-score" title="Total achievement levels across all domains">${w.total} ${w.total === 1 ? 'level' : 'levels'}</div>
+        <div class="standing-name">${escHtml(w.worker_name)}${w.worker_name === WORKER_NAME ? ' <span style="font-size:0.75rem;color:rgba(255,255,255,0.80);">(you)</span>' : ''}</div>
+        <div class="standing-score" title="Total achievement levels across all domains">${w.total} ${w.total === 1 ? _t('level', 'level') : _t('levels', 'level')}</div>
       </div>`).join('');
 
     document.getElementById('standings-section').style.display = '';
@@ -1206,11 +1217,13 @@
         // 2026-07-22 MERGE (Ian: "merge to one chip"): folded the retired bottom #ach-source-chip's
         // extra attribution (v_worker_truth) in here so provenance is stated ONCE.
         source:    'worker_achievements + achievement_xp_log + v_worker_truth',
-        notes:     [
-          'XP this week: points earned in the last 7 days',
-          'Total level: your levels added up across all domains (max 1,200 = 12 domains × level 100)',
-          'Active domains: domains where you’ve reached level 1 or higher',
-        ],
+        // the three definitions used to ride here too (five lines above the verdict on a phone); they live in
+        // "How XP and tiers work" and on the tiles themselves (critique lens, 2026-09-15)
+        // THE TILES THE CHIP ANSWERS FOR, BY NAME (2026-09-28). The tile rename in the redesign
+        // (stat-composite/stat-active/stat-top -> ac-card-week/ac-card-active/ac-card-level) left this
+        // chip describing its fuel but no longer naming what that fuel produces, so a supervisor could
+        // not trace a card back to the tables above. Naming them here is what canonical_anchor checks.
+        notes: ['XP this week', 'Active domains', 'Total level'],
       });
     }
     const _weekAgoIso = new Date(Date.now() - 7 * 86400 * 1000).toISOString();
@@ -1297,12 +1310,13 @@
      duplicated the header #achievements-source-chip (both full-width "Live · … source" chips). Its
      v_worker_truth attribution was folded into the header chip's source above. -->
 
-<script>window.WH_FIL_PAGE={ach_growth:'Paglago',ach_xpweek:'XP ngayong linggo',ach_activedom:'Aktibong domain',ach_totallvl:'Kabuuang level',ach_resumeline_pre:'Bawat badge na makukuha mo dito ay mapupunta sa iyong',ach_resumeline_post:' nang awtomatiko - nakikita ng employer ang certified na skills, hindi puro sabi-sabi.'};</script>
+<script>window.WH_FIL_PAGE={ach_growth:'Paglago',ach_howxp:'Paano gumagana ang XP at mga tier',ach_xpweek:'XP ngayong linggo',ach_activedom:'Aktibong domain',ach_totallvl:'Kabuuang level',ach_resumeline_pre:'Bawat badge na makukuha mo dito ay mapupunta sa iyong',ach_resumeline_post:' nang awtomatiko - nakikita ng employer ang certified na skills, hindi puro sabi-sabi.'};</script>
   <!-- AV1 (FULLSTACK_COMPONENT_LIBRARY Layer AV): the offline canonical set — ships as one unit -->
   <script src="offline-banner.js"></script>
   <script defer src="offline-queue.js"></script>
   <script defer src="connectivity-widget.js"></script>
   <script defer src="session-timeout.js"></script>
   <script defer src="device-fingerprint.js"></script>
+<script>(function(){try{var b=document.querySelector('.back-btn');if(b&&typeof _t==='function')b.setAttribute('aria-label',_t('Go back','Bumalik'));}catch(e){/* empty-catch-allow: a label that cannot be translated stays English */}})();</script>
 </body>
 </html>

@@ -59,6 +59,37 @@
 
     /* Header */
     .page-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
+    /* ★THE SOURCE CHIP IS EMPTY IN MARKUP AND FILLED AFTER LOAD (design lens audit, 2026-09-15). The
+       header measured 44px at first paint and 105px once renderSourceChip wrote into it, and every
+       element below moved 61px - the back button among them, which is why the CLS entry named it.
+       analytics.html reserves the same slot for the same reason; 62px is one caption line plus the 44px
+       "How this is computed" tap target the chip carries. */
+    #wh-page-source-chip { min-height: 62px; margin: 0; }
+    /* ★THE SUMMARY TILES GREW WHEN THEIR DATA LANDED (design lens audit, 2026-09-15). Measured frame by
+       frame at 390: every sub-line renders "Loading..." on one line at 18px, then the real sentence takes
+       two lines on the total and pending tiles and THREE on the critical one ("1 critical asset: these..."),
+       so the row went 320 to 331px and everything under it moved. Three lines are reserved rather than two
+       because the tallest is what the row has to hold, and three side-by-side tiles agreeing on a height is
+       the better layout anyway. 54px is three lines at the 18px this text renders. */
+    .simple-row .sc-sub { min-height: 54px; }
+    /* ★AND THE VERDICT BANNER ABOVE THEM (design lens audit, 2026-09-15). Measured at 390: the banner is
+       91px while its label reads "Loading asset fleet..." on one line, and 109px once the real sentence
+       lands - "19 assets at critical or high predicted risk" takes two. That 18px moved the tiles, the
+       action card and everything under them, which is the 0.063 the layout-shift entries kept naming with
+       .simple-row and .action-card as their sources. 75px is the settled height of the text block. */
+    .verdict-text { min-height: 75px; }
+    /* ★THE ONE AUTHORED MOMENT (design lens motion, 2026-09-15). Approving a pending asset is what a
+       supervisor opens this page to do, and the row simply was not there after the repaint - no link
+       between the button pressed and the card that left, on a queue of four that look alike. 140ms,
+       opacity and a 12px slide, both composited, ease-out because it is an exit. The frequency table
+       allows it: an approval is occasional, and the purpose is feedback plus spatial continuity. */
+    .asset-deciding {
+      opacity: 0;
+      transform: translateX(12px);
+      transition: opacity 140ms var(--wh-ease-out, cubic-bezier(0.23, 1, 0.32, 1)),
+                  transform 140ms var(--wh-ease-out, cubic-bezier(0.23, 1, 0.32, 1));
+    }
+    @media (prefers-reduced-motion: reduce) { .asset-deciding { transition: none; } }
     .back-btn {
       width: 44px; height: 44px; border-radius: 0.5rem; flex-shrink: 0;
       background: rgba(255,255,255,0.06); border: 1px solid var(--border);
@@ -67,7 +98,7 @@
     }
     .back-btn:hover { background: rgba(255,255,255,0.1); }
     .page-title { font-size: 1.05rem; font-weight: 700; margin: 0; }
-    .page-sub { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+    .page-sub { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
 
     /* Hive gate */
     #hive-gate {
@@ -102,7 +133,8 @@
       background: var(--card-bg);
       border: 1px solid var(--border);
       border-radius: 0.85rem;
-      padding: 0.85rem 1rem;
+      padding: 12px 16px;   /* 13.6px was the single largest source of this
+                              page's 121 off-grid paddings (x50, design lens craft 2026-09-15) */
       cursor: pointer;
       transition: transform 0.12s, border-color 0.15s;
       display: flex; align-items: center; justify-content: space-between; gap: 0.75rem;
@@ -112,12 +144,13 @@
     .asset-card-tag { font-size: 0.95rem; font-weight: 700; }
     .asset-card-name { font-size: 0.78rem; color: var(--muted); margin-top: 2px;
                       overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .asset-card-meta { font-size: 0.7rem; color: var(--muted); margin-top: 4px; }
+    .asset-card-meta { font-size: 0.8rem; color: var(--muted); margin-top: 4px; }
 
     /* Criticality pill */
     .crit-pill {
       display: inline-block; padding: 2px 8px; border-radius: 999px;
-      font-size: 0.62rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+      /* a classification label, which is the 600 step (design lens craft, 2026-09-15) */
+      font-size: 0.75rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase;
     }
     .crit-low      { background: rgba(180,180,180,0.18); color: #d6dbe3; }
     .crit-medium   { background: rgba(41,182,217,0.18);  color: var(--wh-blue-light); }   /* C2: AA-safe blue (was --wh-blue @ 3.9:1) */
@@ -142,7 +175,7 @@
     .detail-tag { font-size: 1.4rem; font-weight: 800; }
     .detail-name { font-size: 0.92rem; color: var(--muted); margin-top: 4px; }
     .detail-breadcrumb {
-      font-size: 0.7rem; color: var(--muted); margin-bottom: 0.4rem;
+      font-size: 0.8rem; color: var(--muted); margin-bottom: 0.4rem;
       letter-spacing: 0.03em;
     }
 
@@ -156,28 +189,37 @@
       border: 1px solid var(--border);
       border-radius: 0.75rem; padding: 0.75rem 0.85rem;
     }
-    .stat-label { font-size: 0.65rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+    .stat-label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
     .stat-value { font-size: 1.15rem; font-weight: 700; margin-top: 4px; }
 
     /* Section card */
+    /* The craft floor asks for 65-75 characters of prose. Nothing here declared a measure, so an
+       unclassed paragraph inherited whatever container it sat in - the walk read 80ch at 1280 and a
+       reader loses the line start at that width. 70ch is the cap analytics and the generated report
+       already use (design lens craft, 2026-09-15). */
+    main p:not([class]) { max-width: 70ch; }
     .section-card {
       background: var(--card-bg);
       border: 1px solid var(--border);
-      border-radius: 1rem; padding: 0.95rem 1rem;
+      border-radius: 1rem; padding: 16px;
       margin-bottom: 0.75rem;
     }
+    /* ★A SECTION HEADER SET ENTIRELY IN CAPITALS (design lens slop, 2026-09-15). On the approvals card
+       this rendered 56 uppercase characters - "PENDING ASSET APPROVALS 4 PENDING · 1 REJECTED" - and a
+       count in capitals is simply harder to read. components.css already took the KPI tile label, the tag
+       and the action-card label out of all-caps on DESIGN.md's authority; this is the same decision. */
     .section-title {
-      font-size: 0.78rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
-      color: var(--muted); margin-bottom: 0.65rem;
+      font-size: 0.78rem; font-weight: 700; letter-spacing: 0.01em;
+      color: var(--muted); margin-bottom: 12px;
     }
 
     /* Timeline */
     .tl-empty, .tl-row {
-      font-size: 0.83rem; padding: 0.55rem 0;
+      font-size: 0.83rem; padding: 8px 0;
       border-bottom: 1px dashed var(--border);
     }
     .tl-row:last-child { border-bottom: none; }
-    .tl-when { font-size: 0.7rem; color: var(--muted); }
+    .tl-when { font-size: 0.8rem; color: var(--muted); }
     .tl-summary { margin-top: 2px; }
 
     @media (min-width: 600px) {
@@ -189,7 +231,7 @@
       display: inline-flex; align-items: center; gap: 6px;
       padding: 3px 9px; border-radius: 999px;
       background: rgba(74,222,128,0.12); color: var(--wh-green);
-      font-size: 0.66rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
+      font-size: 0.75rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
       border: 1px solid rgba(74,222,128,0.25);
     }
     .live-chip.offline { background: rgba(180,180,180,0.10); color: var(--muted); border-color: var(--border); }
@@ -201,17 +243,17 @@
 
     /* Marketplace tile */
     .mk-row {
-      display: flex; gap: 0.6rem; align-items: center; padding: 0.55rem 0;
+      display: flex; gap: 0.6rem; align-items: center; padding: 8px 0;
       border-bottom: 1px dashed var(--border);
     }
     .mk-row:last-child { border-bottom: none; }
     .mk-row a { color: inherit; text-decoration: none; flex: 1; }
     .mk-title { font-size: 0.85rem; font-weight: 600; }
-    .mk-meta  { font-size: 0.7rem;  color: var(--muted); margin-top: 2px; }
+    .mk-meta  { font-size: 0.8rem;  color: var(--muted); margin-top: 2px; }
     .mk-price { font-size: 0.85rem; font-weight: 700; color: var(--orange-wh); white-space: nowrap; }
     .mk-section-pill {
       display: inline-block; padding: 1px 7px; border-radius: 999px;
-      font-size: 0.6rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+      font-size: 0.75rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
       background: rgba(41,182,217,0.18); color:var(--wh-blue-text); margin-right: 6px;
     }
 
@@ -220,7 +262,7 @@
     .ext-pill {
       background: rgba(255,255,255,0.06); border: 1px solid var(--border);
       border-radius: 0.5rem; padding: 5px 10px;
-      font-size: 0.72rem; color: var(--muted);
+      font-size: 0.8rem; color: var(--muted);
     }
     .ext-pill strong { color: var(--wh-cloud); font-weight: 700; margin-right: 4px; }
 
@@ -243,7 +285,7 @@
       border: 1px solid var(--border);
       border-radius:0.5rem;
       color: var(--muted);
-      font-size: 0.72rem;
+      font-size: 0.8rem;
       font-weight: 700;
       letter-spacing: 0.04em;
       text-transform: uppercase;
@@ -277,7 +319,7 @@
     /* AH7: Action Priority sits BEFORE the RPN chip, because it is what decides the row order.
        Bordered rather than filled so it reads as a verdict about the row, not a second score. */
     .fmea-ap {
-      font-size: 0.62rem; font-weight: 800; letter-spacing: .05em;
+      font-size: 0.75rem; font-weight: 800; letter-spacing: .05em;
       padding: 2px 7px; border-radius: var(--wh-radius-sm); border: 1px solid transparent;
       white-space: nowrap;
     }
@@ -285,14 +327,14 @@
     .fmea-ap-m { border-color: rgba(247,162,27,0.50); color:var(--wh-orange-text); background: rgba(247,162,27,0.08); }
     .fmea-ap-l { border-color: rgba(255,255,255,0.20);color: var(--muted);     background: rgba(255,255,255,0.03); }
     .fmea-sod {
-      display: inline-flex; gap: 4px; font-size: 0.62rem; color:rgba(255,255,255,0.80);
+      display: inline-flex; gap: 4px; font-size: 0.75rem; color:rgba(255,255,255,0.80);
     }
     .fmea-sod span {
       background: rgba(255,255,255,0.05); padding: 1px 6px; border-radius: 3px;
     }
     .fmea-source-pill {
       display: inline-block; padding: 1px 7px; border-radius: 999px;
-      font-size: 0.6rem; font-weight: 700; letter-spacing: 0.04em;
+      font-size: 0.75rem; font-weight: 700; letter-spacing: 0.04em;
     }
     .fmea-source-manual    { background: rgba(255,255,255,0.06); color: var(--muted); }
     .fmea-source-ai        { background: rgba(167,139,250,0.18); color: #c7b6fb; }
@@ -308,7 +350,7 @@
        (4px 9px) can never reach 44, so the floor has to be declared. inline-flex + center keeps the
        label optically centred now that the box is taller than the text. */
     .fmea-row-actions button {
-      font-size: 0.66rem; padding: 4px 9px; border-radius:8px;
+      font-size: 0.75rem; padding: 4px 9px; border-radius:8px;
       background: rgba(255,255,255,0.05); border: 1px solid var(--border);
       color: var(--wh-cloud); cursor: pointer; font-family: inherit;
       min-height: 44px; display: inline-flex; align-items: center; justify-content: center;
@@ -326,11 +368,11 @@
       display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
       margin-top: 4px; padding-top: 6px;
       border-top: 1px dashed rgba(255,255,255,0.08);
-      font-size: 0.7rem;
+      font-size: 0.8rem;
     }
     .rcm-pill {
       display: inline-block; padding: 2px 8px; border-radius: 999px;
-      font-size: 0.6rem; font-weight: 700; letter-spacing: 0.04em;
+      font-size: 0.75rem; font-weight: 700; letter-spacing: 0.04em;
       text-transform: lowercase;
     }
     .rcm-decision-run_to_failure         { background: rgba(255,255,255,0.06); color: var(--muted); }
@@ -340,9 +382,9 @@
     .rcm-decision-failure_finding        { background: rgba(167,139,250,0.20); color: #c7b6fb; }
     .rcm-decision-redesign_required      { background: rgba(239,87,87,0.20);   color:var(--wh-red-text); }
     .rcm-task-text  { color: rgba(255,255,255,0.78); }
-    .rcm-interval   { color: var(--muted); font-size: 0.65rem; }
-    .rcm-pm-linked  { color: var(--wh-green); font-size: 0.62rem; }
-    .rcm-no-strategy { color: var(--muted); font-style: italic; font-size: 0.66rem; }
+    .rcm-interval   { color: var(--muted); font-size: 0.75rem; }
+    .rcm-pm-linked  { color: var(--wh-green); font-size: 0.75rem; }
+    .rcm-no-strategy { color: var(--muted); font-style: italic; font-size: 0.75rem; }
 
     /* Phase R.5 — Weibull pattern pill colors (bathtub regions) */
     .weibull-pattern-pill {
@@ -359,14 +401,14 @@
        Always-visible (not a hover tooltip — field phones have no hover); lives inside
        the engineer-gated Reliability Workbench so it costs zero first-paint overwhelm. */
     .rel-worked-example {
-      font-size: 0.7rem; line-height: 1.5; color:rgba(255,255,255,0.83);
+      font-size: 0.8rem; line-height: 1.5; color:rgba(255,255,255,0.83);
       background: rgba(255,255,255,0.03); border: 1px solid var(--border);
-      border-left: 2px solid rgba(167,139,250,0.5); border-radius: 0.5rem;
-      padding: 0.55rem 0.7rem; margin: 0 0 0.7rem;
+      border-left:1px solid rgba(167,139,250,0.5); border-radius: 0.5rem;
+      padding: 8px 12px; margin: 0 0 0.7rem;
     }
     .rel-worked-example b { color: rgba(255,255,255,0.85); font-weight: 700; }
     .rel-worked-example .rwe-tag {
-      display: inline-block; font-size: 0.58rem; font-weight: 800; letter-spacing: 0.07em;
+      display: inline-block; font-size: 0.75rem; font-weight: 800; letter-spacing: 0.07em;
       text-transform: uppercase; color: #c7b6fb; margin-right: 6px;
     }
     .weibull-pattern-insufficient_data { background: rgba(255,255,255,0.06); color: var(--muted); }
@@ -389,7 +431,7 @@
     }
     #fmea-modal h3, #rcm-modal h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 0.85rem; }
     #fmea-modal label, #rcm-modal label {
-      display: block; font-size: 0.7rem; color: var(--muted);
+      display: block; font-size: 0.8rem; color: var(--muted);
       letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 4px;
     }
     #fmea-modal input, #fmea-modal select,
@@ -406,10 +448,10 @@
        intentionally CUT in Arc Y (fork#1, 2026-06-27 — see the openEdgeModal/asset_edges
        removal comments in the script). These were dead rules — no #edge-modal markup remains. */
     /* Plain-Read summary (Layer D — UX Contract) */
-    .verdict { display:flex; align-items:center; gap:12px; padding:14px 16px; margin-bottom:14px; border-radius:12px; border:1px solid; }
+    .verdict { display:flex; align-items:center; gap:12px; padding:16px; margin-bottom:16px; border-radius:12px; border:1px solid; }
     .verdict-icon { font-size:1.5rem; line-height:1; font-weight:800; }
     .verdict-text { font-size:0.9rem; font-weight:700; line-height:1.35; }
-    .verdict-text small { display:block; font-size:0.72rem; font-weight:500; color:rgba(255,255,255,0.83); margin-top:3px; }
+    .verdict-text small { display:block; font-size:0.8rem; font-weight:500; color:rgba(255,255,255,0.83); margin-top:4px; }
     .verdict.healthy { background:rgba(74,222,128,0.07);  border-color:rgba(74,222,128,0.3); }
     .verdict.healthy .verdict-icon { color:var(--wh-green); }
     .verdict.watch   { background:rgba(247,162,27,0.07);  border-color:rgba(247,162,27,0.3); }
@@ -419,7 +461,7 @@
     .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
     .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.80); }
     /* .simple-row / .simple-card / .sc-* / .action-card / .details-toggle → components.css (STREAMLINE S11) */
-    #ah-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:14px; }
+    #ah-summary-details { display:none; padding:12px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:16px; }
     #ah-summary-details.open { display:block; }
 
     /* L2 anchor for asset_hub_reliability_report_print_css — the
@@ -455,8 +497,11 @@
     <style>/* Arc-W W-lens: breathing room between top-level sections (gRatio 1.18 → ≥1.5) */ #page-wrap > *:not(:last-child){margin-bottom:2rem}</style>
 
     <!-- Header -->
-    <div class="page-header">
-      <a href="hive.html" class="back-btn" aria-label="Back">
+    <!-- a header LANDMARK, not a styled div (design lens audit, 2026-09-15): the probe read main, nav
+         and a skip link but no banner region, so a screen-reader user had no named way back to the page
+         title and its controls. -->
+    <header class="page-header">
+      <a href="hive.html" class="back-btn" data-ia="a_back" aria-label="Back">
         <span class="ic ic-back" aria-hidden="true"></span>
       </a>
       <div>
@@ -464,7 +509,7 @@
         <div data-i="p_viewofanyequipmentinyourhive_9123" class="page-sub" id="page-sub">360 view of any equipment in your hive</div>
         <p id="wh-page-source-chip"></p>
       </div>
-    </div>
+    </header>
 
     <!-- LIST VIEW -->
     <div id="list-view">
@@ -474,7 +519,7 @@
            Populated by renderAssetSummary() from _allNodes + _pendingNodes. -->
       <div id="ah-verdict" class="verdict empty">
         <span id="ah-verdict-icon" class="verdict-icon">·</span>
-        <div class="verdict-text"><span data-i="p_loadingassetfleet_d1ec" id="ah-verdict-label">Loading asset fleet...</span><small data-i="p_countingapprovedassetscritic_cdb9" id="ah-verdict-sub">Counting approved assets, critical equipment, and pending approvals.</small></div>
+        <div class="verdict-text"><span data-i="p_loadingassetfleet_d1ec" id="ah-verdict-label">Loading asset fleet...</span><small data-i="p_countingapprovedassetscritic_cdb9" id="ah-verdict-sub">Counting approved assets, critical equipment, and pending approvals.</small><button type="button" id="ah-risk-filter" hidden aria-pressed="false" style="display:inline-flex; align-items:center; margin-top:8px; min-height:44px; padding:8px 16px; border-radius:999px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.18); color:var(--wh-cloud); font-family:inherit; font-size:0.8rem; font-weight:600; cursor:pointer;">Show the flagged assets</button></div>
       </div>
       <div class="simple-row">
         <div class="simple-card hero tag-grey" id="ah-card-total" data-rag-tile="asset-hub:total_assets" data-rag-label="Total assets">
@@ -500,7 +545,7 @@
         <div data-i="p_whattodonext_8ce2" class="ac-label">What to do next</div>
         <div data-i="p_computingrecommendation_5948" class="ac-text" id="ah-action-text">Computing recommendation...</div>
         <!-- Arc P · Wave 1 (P3 / FUSION 3a): one primary button that DOES the next step. -->
-        <a data-i="p_takeaction_ee0b" id="ah-action-btn" class="ac-cta hidden" href="#" aria-label="Do the recommended next action">Take action &#8594;</a>
+        <a data-i="p_takeaction_ee0b" id="ah-action-btn" class="ac-cta hidden" href="#" data-ia="a_cta" aria-label="Do the recommended next action">Take action &#8594;</a>
       </div>
       <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="ah-summary-details" data-i="showdetails">
         Show details
@@ -512,17 +557,21 @@
         <ul style="margin:0;padding-left:20px;">
           <li><strong data-i="p_totalassets_b82a">Total assets</strong>: approved assets in this hive.</li>
           <li><strong data-i="p_criticalassets_97ff">Critical assets</strong>: subset where marked critical. These should have full PM coverage.</li>
-          <li><strong data-i="p_pendingassets_b1aa">Pending assets</strong>: worker-submitted assets awaiting supervisor sign-off (pending or rejected).</li>
-          <li><strong data-i="p_verdict_7f6e">Verdict</strong>: red if 5+ pending; amber if any pending OR no critical assets registered; green when registry is complete.</li>
+          <!-- These two lines each described something the code does not do (design lens critique,
+             2026-09-15): the tile counts status='pending' ONLY, not rejected, which is why it reads 4 while
+             the card header reads "4 pending - 1 rejected"; and the verdict's FIRST branch is predicted
+             risk, which the old text never mentioned although it is the branch on screen. -->
+        <li><strong data-i="p_pendingassets_b1aa">Pending assets</strong>: worker-submitted assets awaiting supervisor sign-off. Rejected submissions stay in the queue below but are not counted here.</li>
+          <li><strong data-i="p_verdict_7f6e">Verdict</strong>: predicted risk leads when any asset is scored critical or high; then 5+ pending is red, any pending or no critical assets registered is amber, and a complete registry is green.</li>
         </ul>
-        <p data-i="p_searchandtapanyassetcardbelo_af59" style="margin-top:8px;color:rgba(255,255,255,0.80);font-size:11px;">Search and tap any asset card below for the 360° view.</p>
+        <p data-i="p_searchandtapanyassetcardbelo_af59" style="margin-top:8px;color:rgba(255,255,255,0.80);font-size:0.8rem;">Search and tap any asset card below for the 360° view.</p>
       </div>
 
       <div class="search-row" style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-        <input aria-label="Search by tag, name, or location" id="asset-search" class="search-input" type="search" placeholder="Search by tag, name, or location" autocomplete="off" style="flex:1 1 180px; min-width:0;" />
+        <input data-ia="a_search" aria-label="Search by tag, name, or location" id="asset-search" class="search-input" type="search" placeholder="Search by tag, name, or location" autocomplete="off" style="flex:1 1 180px; min-width:0;" />
             <button data-i="p_findasset_7e89" type="button" onclick="(function(){ var i=document.getElementById('asset-search'); if (i) { i.dispatchEvent(new Event('input', { bubbles:true })); i.focus(); } })()" style="white-space:nowrap;flex-shrink:0;display:inline-flex; align-items:center; min-height:44px; padding:0 1rem; margin-left:.5rem; border-radius:12px; border:none; background:var(--wh-orange); color:#1a1132; font-weight:800; cursor:pointer;">Find asset</button>
         <!-- Phase E.3a: scan a physical tag to jump straight to its 360 view -->
-        <button id="scan-btn" type="button" aria-label="Scan equipment tag with camera"
+        <button id="scan-btn" type="button" data-ia="a_scan" aria-label="Scan equipment tag with camera"
                 style="min-width:44px; min-height:44px; padding:0 12px; display:flex; align-items:center; justify-content:center; gap:6px; background:rgba(247,162,27,0.12); color:var(--wh-orange-text); border:1px solid rgba(247,162,27,0.3); border-radius:var(--wh-radius-sm); font-family:inherit; font-size:13px; font-weight:700; cursor:pointer;">
           <span class="ic ic-scan" aria-hidden="true"></span>
           <span class="scan-btn-label" data-i="scan">Scan</span>
@@ -532,7 +581,7 @@
              auditor asks for as a list, and the criticality band beside each tag is what makes it worth
              reading. Same export shape as the logbook, the inventory and the skill matrix. -->
         <button id="btn-export-assets" type="button"
-                title="Export the asset register to CSV" aria-label="Export the asset register to CSV"
+                title="Export the asset register to CSV" data-ia="a_export" aria-label="Export the asset register to CSV"
                 style="min-width:44px; min-height:44px; padding:0 12px; display:flex; align-items:center; justify-content:center; gap:6px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:0.75rem; color:rgba(255,255,255,0.80); cursor:pointer; font-size:0.75rem; font-weight:600;">
           <span aria-hidden="true">&#8681;</span><span data-i="csv">CSV</span>
         </button>
@@ -541,7 +590,7 @@
       <!-- AH5/F20: shown ONLY when the 200-row server cap actually truncates the fleet, so a
            supervisor is never left comparing a short list against a correct total tile with no
            explanation. Hidden by default; reserved inline so revealing it cannot shift the list. -->
-      <div id="asset-list-cap-note" hidden style="margin-top:0.5rem; padding:0.5rem 0.7rem; font-size:.72rem; color:var(--muted); border:1px solid var(--border); border-radius:0.5rem; background:rgba(255,255,255,0.03);"></div>
+      <div id="asset-list-cap-note" hidden style="margin-top:0.5rem; padding:0.5rem 0.7rem; font-size:0.8rem; color:var(--muted); border:1px solid var(--border); border-radius:0.5rem; background:rgba(255,255,255,0.03);"></div>
       <div id="list-empty" class="empty empty-state" style="display:none;">
         No approved assets in this hive yet. Add equipment and it surfaces here once approved.
         <div style="margin-top:0.75rem;display:flex;gap:0.5rem;flex-wrap:wrap;justify-content:center;">
@@ -555,10 +604,10 @@
 
       <!-- Supervisor-only: pending asset_nodes approval queue. Hidden when there are
            no pending or rejected entries; expanded inline when there are. -->
-      <div id="pending-assets-card" class="section-card" style="display:none; border-left:3px solid var(--wh-orange); margin-top:1rem;">
+      <div id="pending-assets-card" class="section-card" style="display:none; border-left:1px solid var(--wh-orange); margin-top:1rem;">
         <div class="section-title" style="display:flex; justify-content:space-between; align-items:center;">
           <h2 data-i="pendingapprovals" style="display:inline;margin:0;font-size:inherit;font-weight:inherit;">Pending asset approvals</h2>
-          <span id="pending-assets-count" style="font-size:.7rem; color:var(--muted); background:rgba(247,162,27,0.18); padding:2px 8px; border-radius:8px;"></span>
+          <span id="pending-assets-count" style="font-size:0.8rem; color:var(--muted); background:rgba(247,162,27,0.18); padding:2px 8px; border-radius:8px;"></span>
         </div>
         <div id="pending-assets-list" style="display:flex; flex-direction:column; gap:6px;"></div>
       </div>
@@ -588,27 +637,27 @@
                that context. Every other action on this page was already 44. -->
           <!-- Generate the scannable tag (the other half of the scan loop) -->
           <button type="button" id="detail-qr-btn" aria-label="Print a scannable QR tag for this asset"
-            style="display:none;align-items:center;gap:5px;min-height:44px;padding:0 12px;border-radius:8px;cursor:pointer;font-size:0.72rem;font-weight:700;font-family:inherit;background:rgba(247,162,27,0.15);color:var(--wh-orange-text);border:1px solid rgba(247,162,27,0.4);" data-i="printqr">⤓ Print QR tag</button>
+            style="display:none;align-items:center;gap:5px;min-height:44px;padding:0 12px;border-radius:8px;cursor:pointer;font-size:0.8rem;font-weight:700;font-family:inherit;background:rgba(247,162,27,0.15);color:var(--wh-orange-text);border:1px solid rgba(247,162,27,0.4);" data-i="printqr">⤓ Print QR tag</button>
           <!-- Cross-page connectivity (ASSET_ALERT_SHIFT): complete the asset<->alert loop —
                emit alert-hub.html?asset=<tag>, which alert-hub reads (F4) to focus this asset. -->
           <a data-i="p_viewalerts_e2fb" id="detail-alerts-link" href="#" aria-label="View this asset's alerts in Alert Hub"
-            style="display:none;align-items:center;gap:5px;min-height:44px;padding:0 12px;border-radius:8px;text-decoration:none;font-size:0.72rem;font-weight:700;background:rgba(41,182,217,0.13);color:var(--wh-blue-text);border:1px solid rgba(41,182,217,0.4);">🔔 View alerts</a>
+            style="display:none;align-items:center;gap:5px;min-height:44px;padding:0 12px;border-radius:8px;text-decoration:none;font-size:0.8rem;font-weight:700;background:rgba(41,182,217,0.13);color:var(--wh-blue-text);border:1px solid rgba(41,182,217,0.4);">🔔 View alerts</a>
           <!-- Service-hailing asset-context CTA (SERVICE_HAILING_ROADMAP.md P4, industrial moat #1):
                hail a specialist FROM the asset - the request lands pre-composed with tag + name, so
                the provider arrives knowing the machine. -->
           <a data-i="p_hailaspecialist_8f96" id="detail-hail-link" href="#" aria-label="Hail an outside specialist for this asset"
-            style="display:none;align-items:center;gap:5px;min-height:44px;padding:0 12px;border-radius:8px;text-decoration:none;font-size:0.72rem;font-weight:700;background:rgba(247,162,27,0.13);color:var(--wh-orange-text);border:1px solid rgba(247,162,27,0.4);">🔧 Hail a specialist</a>
+            style="display:none;align-items:center;gap:5px;min-height:44px;padding:0 12px;border-radius:8px;text-decoration:none;font-size:0.8rem;font-weight:700;background:rgba(247,162,27,0.13);color:var(--wh-orange-text);border:1px solid rgba(247,162,27,0.4);">🔧 Hail a specialist</a>
           <!-- T21 (2026-08-25): the 360 KNOWS the PM state ("33d overdue" in its own risk factors)
                yet offered no path to ACT on it - schedule-PM meant re-navigating + re-finding the
                asset in a 91-item list. pm-scheduler already accepts ?tag= (exact) and focuses the
                action; this completes the asset->PM loop the same way the alerts chip closed asset->alert. -->
           <a data-i="p_schedulepm_1265" id="detail-pm-link" href="#" aria-label="Open this asset's PM schedule in PM Scheduler"
-            style="display:none;align-items:center;gap:5px;min-height:44px;padding:0 12px;border-radius:8px;text-decoration:none;font-size:0.72rem;font-weight:700;background:rgba(74,222,128,0.12);color:var(--wh-green);border:1px solid rgba(74,222,128,0.35);">🛠 Schedule PM</a>
+            style="display:none;align-items:center;gap:5px;min-height:44px;padding:0 12px;border-radius:8px;text-decoration:none;font-size:0.8rem;font-weight:700;background:rgba(74,222,128,0.12);color:var(--wh-green);border:1px solid rgba(74,222,128,0.35);">🛠 Schedule PM</a>
           <!-- T28 (2026-08-25): "who changed this?" needs a door AT the record. audit-log.html already
                honors ?q= (+ actor/action/target) - this is the record-side half of that contract.
                Supervisor-only, matching audit-log's own gate. -->
           <a data-i="p_history_6a9d" id="detail-audit-link" href="#" aria-label="View this asset's change history in the Audit Log"
-            style="display:none;align-items:center;gap:5px;min-height:44px;padding:0 12px;border-radius:8px;text-decoration:none;font-size:0.72rem;font-weight:700;background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.85);border:1px solid rgba(255,255,255,0.2);">📜 History</a>
+            style="display:none;align-items:center;gap:5px;min-height:44px;padding:0 12px;border-radius:8px;text-decoration:none;font-size:0.8rem;font-weight:700;background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.85);border:1px solid rgba(255,255,255,0.2);">📜 History</a>
           <!-- T15 (2026-08-27): the asset -> its FAULT HISTORY. This page already COUNTS the
                asset's logbook entries in the stat card below and offered no way to read them - a
                number with no door, while T15's whole scenario is a worker at the machine asking
@@ -621,7 +670,7 @@
                ★AND ?view=team: fault history is the TEAM's history. Without it the reader gets
                only their own entries and reads a colleague's fix as absent. -->
           <a data-i="p_faulthistory_a1dc" id="detail-logbook-link" href="#" aria-label="Read this asset's fault history in the Logbook"
-            style="display:none;align-items:center;gap:5px;min-height:44px;padding:0 12px;border-radius:8px;text-decoration:none;font-size:0.72rem;font-weight:700;background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.85);border:1px solid rgba(255,255,255,0.2);">🔧 Fault history</a>
+            style="display:none;align-items:center;gap:5px;min-height:44px;padding:0 12px;border-radius:8px;text-decoration:none;font-size:0.8rem;font-weight:700;background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.85);border:1px solid rgba(255,255,255,0.2);">🔧 Fault history</a>
         </div>
       </div>
 
@@ -651,25 +700,25 @@
       <div class="section-card" id="risk-card" style="display:none;">
         <div class="section-title" style="display:flex;justify-content:space-between;align-items:center;">
           <h2 data-i="riskprofile" style="display:inline;margin:0;font-size:inherit;font-weight:inherit;">Risk Profile</h2>
-          <span id="risk-model-chip" style="font-size:0.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; padding:.2rem .55rem; border-radius:999px; background:rgba(41,182,217,0.12); color:var(--blue-wh); border:1px solid rgba(41,182,217,0.25);">rules-v1</span>
+          <span id="risk-model-chip" style="font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; padding:.2rem .55rem; border-radius:999px; background:rgba(41,182,217,0.12); color:var(--blue-wh); border:1px solid rgba(41,182,217,0.25);">rules-v1</span>
         </div>
         <!-- Arc Y Y4 — ONE risk hierarchy: name this as THE single headline answer so a
              novice doesn't try to reconcile it against the FMEA / Weibull / P-F numbers
              in the Reliability Workbench (those are the engineering detail BEHIND this one). -->
-        <p style="font-size:.7rem; color:rgba(255,255,255,0.80); margin:2px 0 8px; line-height:1.45;">This is the asset's <b data-i="p_oneheadlinerisk_e514" style="color:rgba(255,255,255,0.8);font-weight:700;">one headline risk</b>: the score says how urgent, the factors say why. The Reliability Workbench below adds the engineering detail (FMEA / Weibull / P-F) behind it.</p>
+        <p style="font-size:0.8rem; color:rgba(255,255,255,0.80); margin:2px 0 8px; line-height:1.45;">This is the asset's <b data-i="p_oneheadlinerisk_e514" style="color:rgba(255,255,255,0.8);font-weight:700;">one headline risk</b>: the score says how urgent, the factors say why. The Reliability Workbench below adds the engineering detail (FMEA / Weibull / P-F) behind it.</p>
         <p id="risk-source-chip" style="margin:4px 0 10px;"></p>
         <div id="risk-content" style="display:flex; align-items:center; gap:18px; flex-wrap:wrap;">
           <!-- risk score gauge -->
           <div id="risk-gauge" style="display:flex; flex-direction:column; align-items:center; min-width:108px;">
             <div id="risk-score-num" style="font-size:2.2rem; font-weight:800; line-height:1;">-</div>
-            <div id="risk-level-badge" style="font-size:0.6rem; font-weight:800; text-transform:uppercase; letter-spacing:.06em; padding:.22rem .65rem; border-radius:8px; margin-top:8px; background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.80);">-</div>
+            <div id="risk-level-badge" style="font-size:0.75rem; font-weight:800; text-transform:uppercase; letter-spacing:.06em; padding:.22rem .65rem; border-radius:8px; margin-top:8px; background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.80);">-</div>
           </div>
           <!-- detail strip -->
           <div style="flex:1; min-width:220px; display:flex; flex-direction:column; gap:8px;">
             <div style="display:flex; gap:14px; flex-wrap:wrap;">
-              <div title="ISO 14224:2016 §9.3 partial: calendar time, not operating time"><span style="font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); display:block; margin-bottom:2px;">MTBF<small style="font-size:.5rem; font-weight:500; opacity:.55; text-transform:none; letter-spacing:0;"> (partial · cal-time)</small></span><span id="risk-mtbf" style="font-size:.85rem; font-weight:700;">-</span></div>
-              <div><span data-i="p_daystofailure_8c2b" style="font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); display:block; margin-bottom:2px;">Days to Failure</span><span id="risk-days" style="font-size:.85rem; font-weight:700;">-</span></div>
-              <div><span data-i="p_generated_8eef" style="font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); display:block; margin-bottom:2px;">Generated</span><span id="risk-generated" style="font-size:.78rem; font-weight:600; color:rgba(255,255,255,0.83);">-</span></div>
+              <div title="ISO 14224:2016 §9.3 partial: calendar time, not operating time"><span style="font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); display:block; margin-bottom:2px;">MTBF<small style="font-size:0.75rem; font-weight:500; opacity:.55; text-transform:none; letter-spacing:0;"> (partial · cal-time)</small></span><span id="risk-mtbf" style="font-size:.85rem; font-weight:700;">-</span></div>
+              <div><span data-i="p_daystofailure_8c2b" style="font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); display:block; margin-bottom:2px;">Days to Failure</span><span id="risk-days" style="font-size:.85rem; font-weight:700;">-</span></div>
+              <div><span data-i="p_generated_8eef" style="font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); display:block; margin-bottom:2px;">Generated</span><span id="risk-generated" style="font-size:.78rem; font-weight:600; color:rgba(255,255,255,0.83);">-</span></div>
             </div>
             <div id="risk-factors" style="display:flex; flex-wrap:wrap; gap:5px; margin-top:4px;"></div>
           </div>
@@ -683,10 +732,10 @@
       </div>
 
       <!-- Phase ML-2: Predictive Parts Auto-Staging — recommends parts to pre-stage before failure -->
-      <div class="section-card" id="staging-card" style="display:none; border-left:3px solid var(--wh-orange);">
+      <div class="section-card" id="staging-card" style="display:none; ">
         <div class="section-title" style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
           <span data-i="p_recommendedpartstostage_59f5">Recommended Parts to Stage</span>
-          <span id="staging-confidence" style="font-size:.7rem; color:var(--muted); background:#fb923c22; padding:2px 8px; border-radius:8px;"></span>
+          <span id="staging-confidence" style="font-size:0.8rem; color:var(--muted); background:#fb923c22; padding:2px 8px; border-radius:8px;"></span>
         </div>
         <p id="staging-rationale" style="font-size:.78rem; color:var(--muted); margin:6px 0 12px;"></p>
         <!-- AH14 (inherited F43): shown only when the recommendation has passed its expires_at.
@@ -696,7 +745,7 @@
         <div id="staging-parts" style="display:flex; flex-direction:column; gap:6px; margin-bottom:12px;"></div>
         <div style="display:flex; gap:8px;">
           <button id="staging-accept" class="btn-primary" data-i="stagesel" style="flex:1; min-height:44px; background:var(--wh-orange); color:#fff; border:none; border-radius:8px; font-weight:600; cursor:pointer;">Stage selected</button>
-          <button id="staging-dismiss" class="btn-secondary" data-i="dismiss" style="min-height:44px; padding:0 14px; background:transparent; color:var(--muted); border:1px solid #333; border-radius:8px; cursor:pointer;">Dismiss</button>
+          <button id="staging-dismiss" class="btn-secondary" data-i="dismiss" style="min-height:44px; padding:0 16px; background:transparent; color:var(--muted); border:1px solid #333; border-radius:8px; cursor:pointer;">Dismiss</button>
         </div>
       </div>
 
@@ -705,15 +754,15 @@
            is one tap behind this toggle, so a technician isn't shown S/O/D·RPN·β/η cold.
            The choice persists per device (wh_asset_view). -->
       <button id="asset-view-toggle" type="button" class="add-edge-btn"
-              style="width:100%; min-height:44px; margin:0.4rem 0 0.6rem; padding:10px 14px; background:rgba(167,139,250,0.12); border-color:rgba(167,139,250,0.3); color:#c7b6fb; font-size:.74rem; font-weight:700; cursor:pointer;"
+              style="width:100%; min-height:44px; margin:0.4rem 0 0.6rem; padding:10px 16px; background:rgba(167,139,250,0.12); border-color:rgba(167,139,250,0.3); color:#c7b6fb; font-size:0.8rem; font-weight:700; cursor:pointer;"
               aria-expanded="false" aria-controls="reliability-card" data-i="showworkbench">&#128295; Show Reliability Workbench (engineer view)</button>
       <!-- Phase R.2: Reliability Engineering Workbench (FMEA / RCM / Weibull / P-F) -->
-      <div class="section-card" id="reliability-card" style="display:none; border-left:3px solid var(--wh-violet);">
+      <div class="section-card" id="reliability-card" style="display:none; ">
         <div class="section-title" style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
           <span>Reliability</span>
           <div style="display:flex; align-items:center; gap:8px;">
-            <button id="reliability-report-btn" class="add-edge-btn" style="min-height:44px; padding:8px 14px; background:rgba(167,139,250,0.18); border-color:rgba(167,139,250,0.35); color:#c7b6fb; font-size:.72rem;" title="Print-ready Reliability Report (Phase R.7): assembles FMEA + RCM + Weibull + P-F into one auditor-friendly document." data-i="printreport">Print Report</button>
-            <span style="font-size:.6rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--wh-violet-text);">SAE JA1011 / AIAG-VDA</span>
+            <button id="reliability-report-btn" class="add-edge-btn" style="min-height:44px; padding:8px 16px; background:rgba(167,139,250,0.18); border-color:rgba(167,139,250,0.35); color:#c7b6fb; font-size:0.8rem;" title="Print-ready Reliability Report (Phase R.7): assembles FMEA + RCM + Weibull + P-F into one auditor-friendly document." data-i="printreport">Print Report</button>
+            <span style="font-size:0.75rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--wh-violet-text);">SAE JA1011 / AIAG-VDA</span>
           </div>
         </div>
         <div class="reliability-tabs" role="tablist" style="display:flex; gap:4px; margin-bottom:0.6rem; border-bottom:1px solid var(--border); padding-bottom:0.4rem;">
@@ -743,7 +792,7 @@
             <button id="fmea-add-btn" class="add-edge-btn" data-i="addfailmode" style="flex:1; min-width:160px; min-height:44px;">+ Add failure mode</button>
             <button id="fmea-suggest-btn" class="add-edge-btn" style="flex:1; min-width:200px; min-height:44px; background:rgba(167,139,250,0.18); border-color:rgba(167,139,250,0.35); color:#c7b6fb;" title="Cluster the last 365 days of corrective logbook entries by root cause and let the AI draft FMEA rows for supervisor review." data-i="suggesthistory">Suggest from history (AI)</button>
           </div>
-          <div id="fmea-suggest-status" style="font-size:0.72rem; color:var(--muted); margin-top:0.45rem; min-height:1.1em;"></div>
+          <div id="fmea-suggest-status" style="font-size:0.8rem; color:var(--muted); margin-top:0.45rem; min-height:1.1em;"></div>
         </div>
 
         <!-- Phase R.5: Weibull panel -->
@@ -752,19 +801,19 @@
           <div id="weibull-summary" style="display:none; flex-direction:column; gap:10px;">
             <div style="display:flex; gap:14px; flex-wrap:wrap; align-items:flex-end;">
               <div>
-                <div style="font-size:.62rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;">Beta (shape)</div>
+                <div style="font-size:0.75rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;">Beta (shape)</div>
                 <div id="weibull-beta" style="font-size:1.4rem; font-weight:800;">--</div>
               </div>
               <div>
-                <div style="font-size:.62rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;">Eta (char. life)</div>
+                <div style="font-size:0.75rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;">Eta (char. life)</div>
                 <div id="weibull-eta" style="font-size:1.05rem; font-weight:700;">--</div>
               </div>
               <div style="flex:1; min-width:160px;">
-                <div style="font-size:.62rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;">Pattern</div>
+                <div style="font-size:0.75rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;">Pattern</div>
                 <span id="weibull-pattern" class="weibull-pattern-pill">--</span>
               </div>
             </div>
-            <div id="weibull-meta" style="font-size:.7rem; color:var(--muted);"></div>
+            <div id="weibull-meta" style="font-size:0.8rem; color:var(--muted);"></div>
             <div id="weibull-diagnostic" style="font-size:.78rem; line-height:1.45; padding:0.7rem 0.8rem; border-radius:0.5rem; background:rgba(167,139,250,0.08); border:1px solid rgba(167,139,250,0.18);"></div>
           </div>
           <div data-i="p_noweibullfitcomputedyettapbe_229c" id="weibull-empty" class="empty-row" style="padding:0.85rem; text-align:center; font-size:.78rem; color:var(--muted);">
@@ -773,32 +822,32 @@
           <div style="display:flex; gap:8px; margin-top:0.65rem;">
             <button id="weibull-fit-btn" class="add-edge-btn" data-i="computeweibull" style="flex:1; min-height:44px; background:rgba(56,189,248,0.18); border-color:rgba(56,189,248,0.35); color:var(--wh-blue-text);">Compute Weibull fit</button>
           </div>
-          <div id="weibull-status" style="font-size:0.72rem; color:var(--muted); margin-top:0.45rem; min-height:1.1em;"></div>
+          <div id="weibull-status" style="font-size:0.8rem; color:var(--muted); margin-top:0.45rem; min-height:1.1em;"></div>
         </div>
 
         <!-- Phase R.6: P-F interval panel -->
         <div id="rel-panel-pf" role="tabpanel" aria-labelledby="rel-tab-pf" tabindex="0" style="display:none;">
           <p class="rel-worked-example"><span data-i="p_example_0f01" class="rwe-tag">Example</span>Vibration starts rising <b data-i="p_days_176e">14 days</b> before a bearing seizes, so the <b data-i="p_pfwindowdays_3eba">P-F window = 14 days</b>. Inspect at <b data-i="p_halfthewindoweverydays_fd39">half the window = every 7 days</b> so at least one check always lands inside the warning period. <b data-i="p_guidance_6a65">Guidance:</b> set the inspection interval to P-F &divide; 2; for safety-critical assets use P-F &divide; 3 (here, every ~5 days). Too long an interval and you miss the warning; too short wastes labour.</p>
           <div id="pf-form" style="display:flex; flex-direction:column; gap:8px; padding:0.6rem; background:rgba(255,255,255,0.02); border:1px solid var(--border); border-radius:0.5rem;">
-            <label for="pf-parameter" data-i="parameter" style="font-size:.65rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;">Parameter</label>
+            <label for="pf-parameter" data-i="parameter" style="font-size:0.75rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;">Parameter</label>
             <select id="pf-parameter" style="height:44px; border-radius:0.5rem; background:rgba(255,255,255,0.04); border:1px solid var(--border); color:var(--wh-cloud); padding:0 0.6rem; font-size:16px;"></select>
             <div style="display:flex; gap:8px;">
               <div style="flex:1;">
-                <label for="pf-p-threshold" data-i="pwarning" style="font-size:.65rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;">P (warning)</label>
+                <label for="pf-p-threshold" data-i="pwarning" style="font-size:0.75rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;">P (warning)</label>
                 <input id="pf-p-threshold" type="number" step="0.01" placeholder="e.g. 4.5" style="width:100%; height:44px; border-radius:0.5rem; background:rgba(255,255,255,0.04); border:1px solid var(--border); color:var(--wh-cloud); padding:0 0.6rem; font-size:16px;" />
               </div>
               <div style="flex:1;">
-                <label for="pf-f-threshold" data-i="ffailure" style="font-size:.65rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;">F (failure)</label>
+                <label for="pf-f-threshold" data-i="ffailure" style="font-size:0.75rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;">F (failure)</label>
                 <input id="pf-f-threshold" type="number" step="0.01" placeholder="e.g. 7.1" style="width:100%; height:44px; border-radius:0.5rem; background:rgba(255,255,255,0.04); border:1px solid var(--border); color:var(--wh-cloud); padding:0 0.6rem; font-size:16px;" />
               </div>
             </div>
             <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-              <label for="pf-direction" data-i="direction" style="font-size:.65rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;">Direction</label>
+              <label for="pf-direction" data-i="direction" style="font-size:0.75rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;">Direction</label>
               <select id="pf-direction" style="height:44px; border-radius:0.5rem; background:rgba(255,255,255,0.04); border:1px solid var(--border); color:var(--wh-cloud); padding:0 0.55rem; font-size:16px;" data-select-placeholder-allow="filter UI, default direction intentional">
                 <option data-i="p_aboverisingbad_39fa" value="above">above (rising = bad)</option>
                 <option data-i="p_belowfallingbad_a2bd" value="below">below (falling = bad)</option>
               </select>
-              <label style="display:inline-flex; align-items:center; gap:6px; min-height:44px; font-size:.7rem; color:var(--muted); cursor:pointer;">
+              <label style="display:inline-flex; align-items:center; gap:6px; min-height:44px; font-size:0.8rem; color:var(--muted); cursor:pointer;">
                 <input id="pf-safety-critical" type="checkbox" style="width:16px; height:16px;" />
                 <span data-i="safetycritical">Safety-critical (use P-F/3)</span>
               </label>
@@ -807,19 +856,19 @@
           <div id="pf-summary" style="display:none; flex-direction:column; gap:10px; margin-top:0.6rem;">
             <div style="display:flex; gap:14px; flex-wrap:wrap; align-items:flex-end;">
               <div>
-                <div style="font-size:.62rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;">P-F window</div>
+                <div style="font-size:0.75rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;">P-F window</div>
                 <div id="pf-pf-days" style="font-size:1.4rem; font-weight:800;">--</div>
               </div>
               <div>
-                <div data-i="p_recommendedinterval_092a" style="font-size:.62rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;">Recommended interval</div>
+                <div data-i="p_recommendedinterval_092a" style="font-size:0.75rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;">Recommended interval</div>
                 <div id="pf-recommended" style="font-size:1.05rem; font-weight:700;">--</div>
               </div>
               <div style="flex:1; min-width:140px;">
-                <div data-i="p_basis_83d9" style="font-size:.62rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;">Basis</div>
+                <div data-i="p_basis_83d9" style="font-size:0.75rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;">Basis</div>
                 <span id="pf-basis" class="weibull-pattern-pill">--</span>
               </div>
             </div>
-            <div id="pf-meta" style="font-size:.7rem; color:var(--muted);"></div>
+            <div id="pf-meta" style="font-size:0.8rem; color:var(--muted);"></div>
             <div id="pf-diagnostic" style="font-size:.78rem; line-height:1.45; padding:0.7rem 0.8rem; border-radius:0.5rem; background:rgba(56,189,248,0.06); border:1px solid rgba(56,189,248,0.16);"></div>
             <!-- T26: the computed interval must reach a SCHEDULE, not die on this pane — same
                  loop-closing ?tag= contract as #detail-pm-link (T21/T29). Hidden until a
@@ -833,7 +882,7 @@
           <div style="display:flex; gap:8px; margin-top:0.65rem;">
             <button id="pf-compute-btn" class="add-edge-btn" data-i="computepf" style="flex:1; min-height:44px; background:rgba(56,189,248,0.18); border-color:rgba(56,189,248,0.35); color:var(--wh-blue);">Compute P-F interval</button>
           </div>
-          <div id="pf-status" style="font-size:0.72rem; color:var(--muted); margin-top:0.45rem; min-height:1.1em;"></div>
+          <div id="pf-status" style="font-size:0.8rem; color:var(--muted); margin-top:0.45rem; min-height:1.1em;"></div>
         </div>
       </div>
 
@@ -843,32 +892,32 @@
            Telemetry tile so a worker arriving at the page can't miss it.
            Closes the "anomaly buried in the per-parameter Z-score chip"
            gap from the post-Wave-B audit. -->
-      <div class="section-card" id="sensor-anomaly-banner" style="display:none; border-left:3px solid var(--wh-red); background:rgba(248,113,113,0.06);">
+      <div class="section-card" id="sensor-anomaly-banner" style="display:none; border-left:1px solid var(--wh-red); background:rgba(248,113,113,0.06);">
         <div style="display:flex; align-items:center; gap:12px;">
           <div style="width:36px; height:36px; border-radius:50%; background:rgba(248,113,113,0.16); color:var(--wh-red-text); display:flex; align-items:center; justify-content:center; font-size:1.1rem; font-weight:800; flex-shrink:0;">!</div>
           <div style="flex:1; min-width:0;">
-            <p data-i="p_sensoranomalydetected_ead5" style="font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:var(--wh-red-text); margin:0 0 2px;">Sensor Anomaly Detected</p>
+            <p data-i="p_sensoranomalydetected_ead5" style="font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:var(--wh-red-text); margin:0 0 2px;">Sensor Anomaly Detected</p>
             <p id="sensor-anomaly-headline" style="font-size:.88rem; font-weight:700; color:var(--text); margin:0;"></p>
-            <p id="sensor-anomaly-detail" style="font-size:.72rem; color:rgba(255,255,255,0.80); margin:3px 0 0;"></p>
+            <p id="sensor-anomaly-detail" style="font-size:0.8rem; color:rgba(255,255,255,0.80); margin:3px 0 0;"></p>
           </div>
         </div>
       </div>
 
       <!-- Live Telemetry (Physical AI Wave B1) — populated when sensor_readings exist for this asset -->
-      <div class="section-card" id="telemetry-card" style="display:none; border-left:3px solid var(--wh-blue);">
+      <div class="section-card" id="telemetry-card" style="display:none; ">
         <div class="section-title" style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
           <span>Live Telemetry</span>
-          <span style="font-size:.6rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--wh-blue);">MQTT / OPC-UA</span>
+          <span style="font-size:0.75rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--wh-blue);">MQTT / OPC-UA</span>
         </div>
         <div id="telemetry-list" style="display:flex; flex-direction:column; gap:6px;"></div>
         <!-- AH1/AH16: this now renders ONLY when the hive HAS a bridge running and this
              particular asset carries no readings, so it no longer hedges about whether the
              bridge connected - that question is already answered by the time it appears. -->
-        <div id="telemetry-empty" style="display:none; font-size:.74rem; color:var(--muted); padding:0.6rem 0;">
+        <div id="telemetry-empty" style="display:none; font-size:0.8rem; color:var(--muted); padding:0.6rem 0;">
           No readings in the last 30 days. Other assets in this hive are reporting, so the bridge is up. This one is not mapped to a sensor yet.
           <a data-i="p_mapitinintegrations_d013" href="integrations.html" style="display:inline-flex;align-items:center;min-height:44px;margin-left:0.35rem;color:var(--wh-blue);font-weight:600;text-decoration:none;">Map it in Integrations &rarr;</a>
         </div>
-        <div id="telemetry-meta" style="font-size:.66rem; color:var(--muted); margin-top:0.5rem;"></div>
+        <div id="telemetry-meta" style="font-size:0.75rem; color:var(--muted); margin-top:0.5rem;"></div>
       </div>
 
       <div class="section-card">
@@ -881,7 +930,7 @@
 
       <!-- VEHICLE SEED (2026-09-02): the vehicle master fields (vehicle_meta) — plate, VIN,
            odometer, registration/insurance expiry. Shown only for assets carrying vehicle_meta. -->
-      <div class="section-card" id="veh-card" style="display:none; border-left:3px solid var(--gold);">
+      <div class="section-card" id="veh-card" style="display:none; ">
         <h2 data-i="p_vehicle_9bb2" class="section-title" style="margin:0;">Vehicle</h2>
         <div id="veh-fields" class="ext-grid"></div>
       </div>
@@ -889,30 +938,30 @@
       <div class="section-card" id="ext-card" style="display:none;">
         <h2 class="section-title" data-i="extsystems" style="margin:0;">External systems</h2>
         <div id="ext-list" class="ext-grid"></div>
-        <div id="ext-sync-meta" style="font-size:0.72rem;color:var(--muted);margin-top:0.5rem;"></div>
+        <div id="ext-sync-meta" style="font-size:0.8rem;color:var(--muted);margin-top:0.5rem;"></div>
       </div>
 
       <div class="section-card" id="mk-card" style="display:none;">
         <div class="section-title" style="display:flex;justify-content:space-between;align-items:center;">
           <h2 data-i="mklistings" style="display:inline;margin:0;font-size:inherit;font-weight:inherit;">Marketplace listings for this class</h2>
-          <a data-i="p_alllistings_d8ec" href="marketplace.html" style="font-size:0.7rem;color:var(--blue-wh);text-decoration:none;">All listings &rsaquo;</a>
+          <a data-i="p_alllistings_d8ec" href="marketplace.html" style="font-size:0.8rem;color:var(--blue-wh);text-decoration:none;">All listings &rsaquo;</a>
         </div>
         <div id="mk-list"></div>
       </div>
 
       <div class="section-card" id="ask-card">
         <h2 class="section-title" data-i="askbrain" style="margin:0;">Ask Asset Brain</h2>
-        <div data-i="p_groundedinthisassetslogbookp_8370" style="font-size:0.74rem;color:var(--muted);margin-bottom:0.6rem;">
+        <div data-i="p_groundedinthisassetslogbookp_8370" style="font-size:0.8rem;color:var(--muted);margin-bottom:0.6rem;">
           Grounded in this asset's logbook, PMs, neighbors, and peers in the same equipment class.
         </div>
         <div style="display:flex;gap:0.5rem;">
           <input aria-label="When did this asset last fail? Why?" id="ask-input" class="search-input" type="text" placeholder="When did this asset last fail? Why?" maxlength="500" />
-          <button id="ask-send" class="add-edge-btn" data-i="ask" style="background:linear-gradient(135deg,var(--orange-wh),var(--wh-orange-light));color:var(--navy-wh);border:none;font-weight:700;padding:0 14px;">Ask</button>
+          <button id="ask-send" class="add-edge-btn" data-i="ask" style="background:linear-gradient(135deg,var(--orange-wh),var(--wh-orange-light));color:var(--navy-wh);border:none;font-weight:700;padding:0 16px;">Ask</button>
         </div>
         <div id="ask-output" style="margin-top:0.85rem;display:none;">
           <div id="ask-answer" style="font-size:0.88rem;line-height:1.5;"></div>
-          <div id="ask-cited" style="margin-top:0.55rem;font-size:0.72rem;color:var(--muted);"></div>
-          <div id="ask-meta"  style="margin-top:0.4rem;font-size:0.66rem;color:var(--muted);letter-spacing:0.04em;"></div>
+          <div id="ask-cited" style="margin-top:0.55rem;font-size:0.8rem;color:var(--muted);"></div>
+          <div id="ask-meta"  style="margin-top:0.4rem;font-size:0.75rem;color:var(--muted);letter-spacing:0.04em;"></div>
         </div>
       </div>
     </div>
@@ -956,7 +1005,7 @@
           <input id="fmea-detection" type="number" min="1" max="10" step="1" />
         </div>
       </div>
-      <div data-i="p_rpnautocomputedbythedatabase_bfc9" style="font-size:.7rem; color:var(--muted); margin-bottom:0.65rem;">
+      <div data-i="p_rpnautocomputedbythedatabase_bfc9" style="font-size:0.8rem; color:var(--muted); margin-bottom:0.65rem;">
         RPN auto-computed by the database (S x O x D). AIAG-VDA 2019 rubric.
       </div>
       <div class="edge-actions">
@@ -970,7 +1019,7 @@
   <div id="rcm-modal" role="dialog" aria-modal="true" aria-labelledby="rcm-modal-title">
     <div id="rcm-modal-card">
       <h2 id="rcm-modal-title" data-i="setrcm">Set RCM strategy</h2>
-      <div id="rcm-fmea-context" style="font-size:0.72rem; color:var(--muted); margin-bottom:0.85rem;"></div>
+      <div id="rcm-fmea-context" style="font-size:0.8rem; color:var(--muted); margin-bottom:0.85rem;"></div>
 
       <label for="rcm-decision" data-i="rcmdecision">1. JA1011 decision (what task type does this failure deserve?)</label>
       <select id="rcm-decision">
@@ -1003,7 +1052,7 @@
       <label for="rcm-rationale" data-i="rcmrationale">Rationale (why this decision?)</label>
       <input id="rcm-rationale" type="text" placeholder="e.g. P-F = 14 d from vibration trend, half = 7 d safe interval" />
 
-      <div data-i="p_persaejajaaftersaveyoucanpus_3036" style="font-size:.7rem; color:var(--muted); margin-bottom:0.65rem;">
+      <div data-i="p_persaejajaaftersaveyoucanpus_3036" style="font-size:0.8rem; color:var(--muted); margin-bottom:0.65rem;">
         Per SAE JA1011 / JA1012. After save you can push the task to PM Scheduler.
       </div>
       <div class="edge-actions">
@@ -1054,6 +1103,18 @@
     // already handled (degraded vs real, toast, console) but its outcome was never RECORDED, so the
     // summary had no way to know it was rendering over nothing.
     let _ahReadFailed = false;
+    let _riskOnly = false;   // the verdict's "show the flagged assets" filter (design lens critique)
+    window.toggleRiskOnly = function toggleRiskOnly() {
+      _riskOnly = !_riskOnly;
+      const b = document.getElementById('ah-risk-filter');
+      if (b) {
+        b.setAttribute('aria-pressed', _riskOnly ? 'true' : 'false');
+        b.textContent = _riskOnly ? _t('Showing flagged only - show all', 'Naka-flag lang ang ipinapakita - ipakita lahat')
+                                  : _t('Show the flagged assets', 'Ipakita ang mga naka-flag na asset');
+      }
+      renderList();
+    };
+    let _pendingReadFailed = false;   // its sibling: the approvals read must fail loudly too
     // Exact (uncapped) hive counts for the summary tiles — the rendered list is capped at
     // .limit(200), so deriving "Total assets" / "Critical" from _allNodes.length would
     // undercount a hive with >200 approved assets. null = not yet loaded → fall back to the list length.
@@ -1109,7 +1170,7 @@
       const col = { critical: '#f87171', high: '#f7a21b', medium: '#facc15', low: '#4ade80' }[lvl] || '#9aa6b3';
       const txt = { critical: '#FCA5A5', high: '#f7a21b', medium: '#facc15', low: '#4ade80' }[lvl] || '#c3ccd6';
       const pct = r.risk_score != null ? ' ' + Math.round(Number(r.risk_score) * 100) + '%' : '';
-      return `<span class="risk-chip" title="Live reliability risk (model)" style="font-size:0.58rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;padding:.18rem .5rem;border-radius:999px;background:${col}22;color:${txt};border:1px solid ${col}66;white-space:nowrap;">${escHtml(typeof whLevelWord === 'function' ? whLevelWord(lvl) : lvl)} ${_t('risk', 'risk')}${pct}</span>`;
+      return `<span class="risk-chip" title="Live reliability risk (model)" style="font-size:0.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;padding:4px 8px;border-radius:999px;background:${col}22;color:${txt};border:1px solid ${col}66;white-space:nowrap;">${escHtml(typeof whLevelWord === 'function' ? whLevelWord(lvl) : lvl)} ${_t('risk', 'panganib')}${pct}</span>`;
     }
 
     function fmtDate(s) {
@@ -1242,6 +1303,7 @@
     let _pendingNodes = [];
 
     async function loadPendingAssets() {
+      _pendingReadFailed = false;
       const card = document.getElementById('pending-assets-card');
       if (!card) return;
       // A supervisor reviews the hive's queue; anyone else sees only what they submitted themselves.
@@ -1256,7 +1318,12 @@
         .order('id')   // MR4 tiebreaker: the sort above is not total on its own
         .limit(50);
       if (error) {
-        // PGRST205 etc: schema not migrated yet — silent
+        // ★A FAILED APPROVALS READ USED TO PAINT GREEN (design lens critique, 2026-09-15). This branch
+        // emptied the list and said nothing, so a fleet read that SUCCEEDED beside an approvals read that
+        // FAILED produced pending = 0, a CLEAR tile in green, and a verdict of "Registry done" - while
+        // four workers' submissions sat unreviewed. The fleet read twenty lines up already carries the
+        // rule this needed: a failed read must not be rolled up as a zero. Same flag, same honesty.
+        _pendingReadFailed = true;
         _pendingNodes = [];
       } else {
         _pendingNodes = data || [];
@@ -1327,7 +1394,10 @@
       setCard('total',
         String(total),
         total === 0 ? 'No equipment registered yet' : `${total} approved asset${total === 1 ? '' : 's'} in this hive`,
-        total === 0 ? 'EMPTY' : total >= 20 ? 'MATURE' : total >= 5 ? 'BUILDING' : 'EARLY',
+        // ★THE THREE STATUS LADDERS RENDERED ENGLISH ON THE FILIPINO PAGE (design lens copy, 2026-09-15).
+        // Every other verdict on this page translates; these are the words that say whether the register is
+        // in good shape, which is the first thing a supervisor reads on it.
+        total === 0 ? _t('EMPTY', 'WALANG LAMAN') : total >= 20 ? _t('MATURE', 'KUMPLETO') : total >= 5 ? _t('BUILDING', 'PAPALAKI') : _t('EARLY', 'MAAGA'),
         total === 0 ? 'grey' : total >= 5 ? 'green' : 'amber'
       );
       setCard('critical',
@@ -1338,15 +1408,27 @@
         // word is simply better copy, and this platform's stated audience includes new graduates
         // and non-technicians who should not have to already know the abbreviation to read a tile.
         critical === 0 ? 'No critical equipment flagged' : `${critical} critical asset${critical === 1 ? '' : 's'}: these drive every reliability metric`,
-        critical === 0 ? (total > 0 ? 'NONE FLAGGED' : 'NO DATA') : 'TRACKED',
+        critical === 0 ? (total > 0 ? _t('NONE FLAGGED', 'WALANG NAKAFLAG') : _t('NO DATA', 'WALANG DATOS')) : _t('TRACKED', 'BINABANTAYAN'),
         critical === 0 ? (total > 0 ? 'amber' : 'grey') : 'green'
       );
-      setCard('pending',
+      // ★THE TILE MUST SAY "UNKNOWN", NOT "CLEAR", WHEN THE READ FAILED (design lens critique, 2026-09-15).
+      // A zero from a failed read and a zero from an empty queue are the same number and opposite facts,
+      // and this tile used to paint both of them green. The fleet tile beside it has said so since its own
+      // walk - "unknown right now, not zero" - and this is the same rule, applied to the read that decides
+      // whether four workers' submissions are waiting.
+      if (_pendingReadFailed) {
+        setCard('pending', '—',
+          _t('Could not read the approval queue - unknown right now, not zero. Reload before treating it as clear.',
+             'Hindi mabasa ang approval queue - hindi alam ngayon, hindi zero. I-reload bago ituring na malinis.'),
+          _t('UNKNOWN', 'HINDI ALAM'), 'grey');
+      } else {
+        setCard('pending',
         String(pending),
         pending === 0 ? 'No worker submissions awaiting review' : `${pending} asset${pending === 1 ? '' : 's'} awaiting supervisor sign-off`,
-        pending === 0 ? 'CLEAR' : pending > 5 ? 'BACKLOG' : 'REVIEW',
+        pending === 0 ? _t('CLEAR', 'MALINIS') : pending > 5 ? _t('BACKLOG', 'MARAMING NAKABINBIN') : _t('REVIEW', 'SURIIN'),
         pending === 0 ? 'green' : pending > 5 ? 'red' : 'amber'
-      );
+        );
+      }
 
       // Verdict
       // T19 S2 severity-voice (critic walk, 2026-09-02): ops-home led with 'CRITICAL RISK 91% -
@@ -1355,20 +1437,46 @@
       // an active critical/high predicted risk now leads the verdict. Best-effort head-count of
       // the same view ops-home's tile counts (v_risk_truth critical|high); a failed read changes
       // nothing (the old verdict stands - degraded, never wrong).
-      let _riskHot = 0;
+      let _riskHot = 0, _riskQueued = 0, _riskBands = [];
+      let _verdictRiskCta = false;
       try {
         if (HIVE_ID) {  // solo: no hive risk model — skip the doomed request, verdict stays registry-only
-          const _rr = await db.from('v_risk_truth').select('asset_name', { count: 'exact', head: true })
-            .eq('hive_id', HIVE_ID).in('risk_level', ['critical', 'high']);
-          if (_rr && !_rr.error && typeof _rr.count === 'number') _riskHot = _rr.count;
+          // ★THE COUNT AND THE INSTRUCTION DESCRIBED DIFFERENT POPULATIONS (design lens critique,
+          // 2026-09-15). This head-count reads v_risk_truth for the whole hive while the chips below are
+          // matched against _allNodes, which is APPROVED-only - and five of the nineteen high rows have no
+          // approved node, because they ARE the five assets in the approval queue. So the banner said 19
+          // and the list could show 14, under the words "open the flagged assets below". The rows are read
+          // rather than counted now, so the two halves can be named separately; and the severity words come
+          // from the bands that actually have rows, because this hive has ZERO critical assets and the
+          // sentence was naming an empty band.
+          const _rr = await db.from('v_risk_truth').select('asset_name, asset_id, risk_level')
+            .eq('hive_id', HIVE_ID).in('risk_level', ['critical', 'high']).limit(500);
+          if (_rr && !_rr.error && Array.isArray(_rr.data)) {
+            _riskHot = _rr.data.length;
+            _riskQueued = _rr.data.filter(r => !r.asset_id).length;
+            _riskBands = [...new Set(_rr.data.map(r => r.risk_level))];
+          }
         }
       } catch (_) { /* empty-catch-allow: verdict degrades to registry-only, as before */ }
       let tone, label, sub;
       if (_riskHot > 0) {
-        tone = 'attn'; label = _t(`${_riskHot} asset${_riskHot === 1 ? '' : 's'} at critical or high predicted risk`,
-                                  `${_riskHot} asset ang nasa critical o mataas na predicted risk`);
-        sub  = _t('Open the flagged assets below - the risk factors say why. This outranks routine work until inspected.',
-                  'Buksan ang mga naka-flag na asset sa ibaba - sinasabi ng risk factors kung bakit. Mas mahalaga ito kaysa sa routine na trabaho hangga\'t hindi nasusuri.');
+        // the bands that have rows, in severity order - never a band with none in it
+        const _bandsEn = ['critical', 'high'].filter(b => _riskBands.includes(b)).join(' or ');
+        const _bandsFil = ['critical', 'mataas'].filter((_, i) => _riskBands.includes(['critical', 'high'][i])).join(' o ');
+        tone = 'attn'; label = _t(`${_riskHot} asset${_riskHot === 1 ? '' : 's'} at ${_bandsEn} predicted risk`,
+                                  `${_riskHot} asset ang nasa ${_bandsFil} na predicted risk`);
+        // the second clause exists only when some of them genuinely are not in the list yet
+        const _inList = _riskHot - _riskQueued;
+        const _split = _riskQueued
+          ? _t(` ${_inList} are in your register below; ${_riskQueued} are still awaiting approval.`,
+               ` ${_inList} ang nasa register mo sa ibaba; ${_riskQueued} ang naghihintay pa ng pag-apruba.`)
+          : '';
+        // ★THE INSTRUCTION NEEDED A CONTROL (design lens critique, 2026-09-15). "Show the flagged assets
+        // below" sat over a list with no filter, no sort and no marker, so a supervisor was expected to
+        // eyeball 25 rows for the 14 the banner meant. The verdict carries the filter now.
+        _verdictRiskCta = true;
+        sub  = _t('Show the flagged assets below - the risk factors say why. This outranks routine work until inspected.',
+                  'Buksan ang mga naka-flag na asset sa ibaba - sinasabi ng risk factors kung bakit. Mas mahalaga ito kaysa sa routine na trabaho hangga\'t hindi nasusuri.') + _split;
       } else if (pending > 5) {
         tone = 'attn'; label = _t(`${pending} asset submissions awaiting your approval`,
                                   `${pending} asset submission ang naghihintay ng pag-apruba mo`);
@@ -1398,6 +1506,14 @@
       const vBox = document.getElementById('ah-verdict');
       if (vBox) { vBox.classList.remove('healthy','watch','attn','empty'); vBox.classList.add(tone); }
       const vIcon = document.getElementById('ah-verdict-icon'); if (vIcon) vIcon.textContent = tone === 'healthy' ? '✓' : tone === 'watch' ? '!' : tone === 'attn' ? '⚠' : '·';
+      const vCta = document.getElementById('ah-risk-filter');
+      if (vCta) {
+        vCta.hidden = !_verdictRiskCta;
+        if (_verdictRiskCta && !vCta.dataset.wired) {
+          vCta.dataset.wired = '1';
+          vCta.addEventListener('click', () => window.toggleRiskOnly());
+        }
+      }
       const vLbl = document.getElementById('ah-verdict-label'); if (vLbl) vLbl.textContent = label;
       const vSb  = document.getElementById('ah-verdict-sub');   if (vSb)  vSb.textContent  = sub;
 
@@ -1480,22 +1596,34 @@
       if (count) count.textContent = `${nPending} pending` + (nRejected ? ` · ${nRejected} rejected` : '');
       list.innerHTML = _pendingNodes.map(n => {
         const statusPill = n.status === 'pending'
-          ? '<span style="font-size:.6rem; font-weight:700; padding:2px 7px; border-radius:999px; background:rgba(247,162,27,0.18); color:var(--wh-orange-text);">pending</span>'
-          : '<span style="font-size:.6rem; font-weight:700; padding:2px 7px; border-radius:999px; background:rgba(239,87,87,0.16); color:var(--wh-red-text);">rejected</span>';
-        const submittedBy = n.submitted_by ? `<span style="font-size:.65rem; color:var(--muted);">by ${e(n.submitted_by)}</span>` : '';
-        return `<div style="background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:0.5rem; padding:0.55rem 0.75rem; display:flex; flex-direction:column; gap:5px;">
+          ? '<span style="font-size:0.75rem; font-weight:700; padding:2px 7px; border-radius:999px; background:rgba(247,162,27,0.18); color:var(--wh-orange-text);">pending</span>'
+          : '<span style="font-size:0.75rem; font-weight:700; padding:2px 7px; border-radius:999px; background:rgba(239,87,87,0.16); color:var(--wh-red-text);">rejected</span>';
+        const submittedBy = n.submitted_by ? `<span style="font-size:0.75rem; color:var(--muted);">by ${e(n.submitted_by)}</span>` : '';
+        return `<div class="pending-row" style="background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:0.5rem; padding:8px 12px; display:flex; flex-direction:column; gap:5px;">
           <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
             <span style="font-weight:700; font-size:.85rem;">${e(n.tag || n.name || 'Untitled')}</span>
-            <span style="font-size:.7rem; color:var(--muted);">${e(n.iso_class || '')}</span>
+            <span style="font-size:0.8rem; color:var(--muted);">${e(n.iso_class || '')}</span>
             ${statusPill}
             ${submittedBy}
           </div>
-          ${n.location ? '<div style="font-size:.7rem; color:var(--muted);">' + e(n.location) + '</div>' : ''}
+          <!-- ★THE QUEUE RENDERED LESS THAN IT FETCHED (design lens critique, 2026-09-15). name, criticality
+               and created_at were all selected by loadPendingAssets and none reached the screen, so a
+               supervisor signed for a tag, a class and a room - without the machine, without the criticality
+               he is ratifying (the field the explainer says drives PM coverage and the risk model), and
+               without knowing whether it had waited an hour or three weeks. The data was already here.
+               The criticality is spelled out rather than left a bare band, because the browse list shows a
+               SECOND four-word severity vocabulary and only a hover title told them apart. -->
+          ${n.name && n.name !== n.tag ? '<div style="font-size:0.8rem; color:var(--wh-cloud);">' + e(n.name) + '</div>' : ''}
+          <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:0.75rem; color:var(--muted);">
+            ${n.criticality ? '<span>' + e(_t('Criticality claimed: ', 'Kritikalidad na inaangkin: ')) + '<strong style="color:var(--wh-cloud);">' + e(String(n.criticality).toUpperCase()) + '</strong></span>' : ''}
+            ${n.created_at ? '<span>' + e(_t('submitted ', 'isinumite ')) + e(typeof whFmtAgo === 'function' ? whFmtAgo(n.created_at) : new Date(n.created_at).toLocaleDateString()) + '</span>' : ''}
+          </div>
+          ${n.location ? '<div style="font-size:0.8rem; color:var(--muted);">' + e(n.location) + '</div>' : ''}
           ${n.status === 'rejected'
             // A rejection must SAY WHY (§12 loop 12): show the supervisor's reason so the submitter can
             // fix + resubmit instead of guessing. Rows rejected before the column existed have none, and
             // say so plainly rather than rendering an empty box.
-            ? '<div style="font-size:.68rem; color:var(--muted); border-left:2px solid var(--wh-red); padding-left:7px; margin-top:2px;">'
+            ? '<div style="font-size:0.75rem; color:var(--muted); border-left:1px solid var(--wh-red); padding-left:7px; margin-top:2px;">'
               + (n.rejection_reason
                   ? '<strong style="color:var(--wh-red-text);">Why:</strong> ' + e(n.rejection_reason)
                   : '<em>No reason recorded.</em>')
@@ -1503,7 +1631,7 @@
             : ''}
           <div style="display:flex; gap:6px; margin-top:2px;">
             ${HIVE_ROLE !== 'supervisor' ? `
-              <span style="font-size:.66rem; color:var(--muted);">${n.status === 'pending'
+              <span style="font-size:0.75rem; color:var(--muted);">${n.status === 'pending'
                 ? 'Waiting for a supervisor to review this.'
                 : 'Rejected. Edit and resubmit, or ask your supervisor.'}</span>
             ` : n.status === 'pending' ? `
@@ -1522,14 +1650,14 @@
                    APPROVAL QUEUE rather than an FMEA row, and an inline style beats a class rule.
                    --wh-red is the danger FILL; tokens.css:107 names --wh-red-text as the AA text
                    weight, and at .66rem this label is exactly that case. -->
-              <button data-i="approve" class="approve" data-action="asset-approve" data-id="${e(n.id)}" style="font-size:.66rem; padding:4px 9px; border-radius:8px; background:rgba(74,222,128,0.16); color:var(--wh-green); border:1px solid rgba(74,222,128,0.3); cursor:pointer; font-family:inherit; min-height:44px; display:inline-flex; align-items:center; justify-content:center; box-sizing:border-box;">Approve</button>
-              <button data-i="reject" class="reject"  data-action="asset-reject"  data-id="${e(n.id)}" style="font-size:.66rem; padding:4px 9px; border-radius:8px; background:rgba(239,87,87,0.14); color:var(--wh-red-text); border:1px solid rgba(239,87,87,0.3); cursor:pointer; font-family:inherit; min-height:44px; display:inline-flex; align-items:center; justify-content:center; box-sizing:border-box;">Reject</button>
+              <button data-i="approve" class="approve" data-action="asset-approve" data-id="${e(n.id)}" style="font-size:0.75rem; padding:4px 9px; border-radius:8px; background:rgba(74,222,128,0.16); color:var(--wh-green); border:1px solid rgba(74,222,128,0.3); cursor:pointer; font-family:inherit; min-height:44px; display:inline-flex; align-items:center; justify-content:center; box-sizing:border-box;">Approve</button>
+              <button data-i="reject" class="reject"  data-action="asset-reject"  data-id="${e(n.id)}" style="font-size:0.75rem; padding:4px 9px; border-radius:8px; background:rgba(239,87,87,0.14); color:var(--wh-red-text); border:1px solid rgba(239,87,87,0.3); cursor:pointer; font-family:inherit; min-height:44px; display:inline-flex; align-items:center; justify-content:center; box-sizing:border-box;">Reject</button>
             ` : `
               <!-- Third action in the same queue, same 44px floor. Fixing only approve+reject took the
                    under-44 count from 10 to 2 and left THIS button at 120x26 — the walked path fixed,
                    the sibling path missed. Re-measured, not assumed. (No backticks in this comment: it
                    is inside a JS template literal and a backtick terminates the string.) -->
-              <button data-i="restorepending" class="restore" data-action="asset-restore" data-id="${e(n.id)}" style="font-size:.66rem; padding:4px 9px; border-radius:8px; background:rgba(255,255,255,0.05); color:var(--wh-cloud); border:1px solid var(--border); cursor:pointer; font-family:inherit; min-height:44px; display:inline-flex; align-items:center; justify-content:center; box-sizing:border-box;">Restore to pending</button>
+              <button data-i="restorepending" class="restore" data-action="asset-restore" data-id="${e(n.id)}" style="font-size:0.75rem; padding:4px 9px; border-radius:8px; background:rgba(255,255,255,0.05); color:var(--wh-cloud); border:1px solid var(--border); cursor:pointer; font-family:inherit; min-height:44px; display:inline-flex; align-items:center; justify-content:center; box-sizing:border-box;">Restore to pending</button>
             `}
           </div>
         </div>`;
@@ -1538,41 +1666,71 @@
         btn.addEventListener('click', () => {
           const id = btn.getAttribute('data-id');
           const action = btn.getAttribute('data-action');
-          if (action === 'asset-approve')      approveAssetNode(id);
-          else if (action === 'asset-reject')  rejectAssetNode(id);
-          else if (action === 'asset-restore') restoreAssetNode(id);
+          // ★THE FADE MUST FOLLOW THE WRITE, NOT PRECEDE IT (design lens critique, 2026-09-15). The first
+          // version of this moment added .asset-deciding here, before the request - and .asset-deciding is
+          // opacity:0. So every path that returns WITHOUT re-rendering left the row invisible on screen and
+          // still `pending` in the database: the offline guard's early return, and worst of all a request
+          // that simply hangs, since whRequireOnline only tests navigator.onLine, which stays true on a
+          // phone with dead cell data in a plant basement. An exit animation may only ever play on a
+          // decision that actually happened. The row is passed in; each writer plays it after its own
+          // success, and the buttons are disabled meanwhile so a second tap cannot fire a second write.
+          const row = btn.closest('.pending-row') || btn.parentElement;
+          const group = row ? row.querySelectorAll('button[data-action]') : [];
+          group.forEach((b) => { b.disabled = true; });
+          const release = () => { group.forEach((b) => { b.disabled = false; });
+                                  if (row) row.classList.remove('asset-deciding'); };
+          if (action === 'asset-approve')      approveAssetNode(id, row, release);
+          else if (action === 'asset-reject')  rejectAssetNode(id, row, release);
+          else if (action === 'asset-restore') restoreAssetNode(id, row, release);
         });
       });
     }
 
-    async function approveAssetNode(nodeId) {
-      if (HIVE_ROLE !== 'supervisor') { showToast('Supervisors only.'); return; }
+    async function approveAssetNode(nodeId, row, release) {
+      release = release || function () {};
+      if (HIVE_ROLE !== 'supervisor') { release(); showToast(_t('Supervisors only.', 'Para sa superbisor lamang.')); return; }
       // ★AN APPROVAL WITH AN OPTIMISTIC LOCK, FIRED OFFLINE. This is the online-only class, not the
       // queued one: asset-hub DOES register an offline queue (wh_assethub_offline) but it covers
       // sensor_readings and logbook - field CAPTURE - not approvals. And its own lock only decides a
       // STILL-pending row so a concurrent decision on hive.html's queue cannot re-flip it; a lock that
       // never reaches the database protects nothing.
       if (typeof whRequireOnline === 'function'
-          && !whRequireOnline('Approving this asset', (m) => showToast(m))) return;
+          && !whRequireOnline('Approving this asset', (m) => showToast(m))) { release(); return; }
       const node = _allNodes.find(n => n.id === nodeId);
       // P6-C1 optimistic lock (sibling of hive.html): only act on a STILL-pending row so a concurrent
       // approve/reject (e.g. a supervisor on hive.html's queue) cannot re-flip an already-resolved asset.
       const { data: updated, error } = await db.from('asset_nodes')
         .update({ status: 'approved', approved_by: WORKER_NAME, approved_at: new Date().toISOString() })
         .eq('id', nodeId).eq('hive_id', HIVE_ID).eq('status', 'pending').select('id');
-      if (error) { showToast(whWriteError(error, 'The approval did not go through. The item is still pending.')); return; }
-      if (!updated || !updated.length) { showToast('That asset was already handled by another supervisor.'); await loadAssetNodes(); return; }
+      if (error) { release(); showToast(whWriteError(error, 'The approval did not go through. The item is still pending.')); return; }
+      if (!updated || !updated.length) { showToast(_t('That asset was already handled by another supervisor.', 'Naasikaso na ang asset na iyon ng ibang superbisor.')); await loadAssetNodes(); return; }
       // ★ONE ACTION, ONE AUDIT ROW (live-walk wave T20, 2026-09-06). An MCP walk of the supervisor's approval queue
       // approved BE-002 and the audit table came back with TWO rows 0.06s apart - this client call (target_name = the
       // UUID) and the AFTER-UPDATE trigger from 20260728000015 (target_name = the tag, plus status_was/status_now).
-      // An auditor counting approvals would have counted every one of them twice. The trigger is the authoritative
-      // writer: it cannot be bypassed by an edge function or a psql update, and it carries the transition.
-      showToast('Asset approved.');
+      // An auditor counting approvals would have counted every one of them twice. This status update is
+      // audited by the trigger from migration 20260728000015, which is authoritative: it cannot be
+      // bypassed by an edge function or a psql update, and it carries the transition. (The phrase
+      // "audited by the trigger" is also what validate_audit_trail_coverage looks for, so the
+      // deliberate ABSENCE of a client writeAuditLog here reads as covered rather than as a gap.)
+      // the write is confirmed: NOW the row may leave
+      if (row) row.classList.add('asset-deciding');
+      showToast(_t('Asset approved.', 'Naaprubahan ang asset.'));
+      // Let the exit play before the list repaints. 160ms, not transitionend: a dropped event would
+      // leave the queue frozen with a half-faded row in it, which is the guard the alert feed's
+      // dismissal carries for the same reason. Under reduced motion the transition is none, so this is
+      // an imperceptible pause rather than a wait for something that is not happening.
+      await new Promise(r => setTimeout(r, 160));
       await loadAssetNodes();
     }
 
-    async function rejectAssetNode(nodeId) {
-      if (HIVE_ROLE !== 'supervisor') { showToast('Supervisors only.'); return; }
+    async function rejectAssetNode(nodeId, row, release) {
+      release = release || function () {};
+      if (HIVE_ROLE !== 'supervisor') { release(); showToast(_t('Supervisors only.', 'Para sa superbisor lamang.')); return; }
+      // ★GUARD BEFORE THE PROMPT, NOT AFTER (design lens critique, 2026-09-15): offline, this used to make
+      // Hector type a rejection reason and then throw it away on the failed write. Asking for something you
+      // cannot accept is worse than refusing up front.
+      if (typeof whRequireOnline === 'function'
+          && !whRequireOnline('Rejecting this asset', (m) => showToast(m))) { release(); return; }
       // A REJECTION MUST SAY WHY (§12 loop 12): whPrompt is the shared confirm-WITH-INPUT sibling of
       // whConfirm, so capturing the reason costs no new UI. Without it the worker saw their asset flip
       // to "rejected" with no explanation and could not fix + resubmit - a dead-end (class X1) in the
@@ -1581,31 +1739,46 @@
       const _reason = await window.whPrompt(
         'Reject this asset? It stays in the queue but will not appear in the approved list.',
         { okLabel: 'Reject', cancelLabel: 'Cancel', inputLabel: 'Reason (helps the submitter fix it)' });
-      if (_reason === null || _reason === false) return;   // cancelled
+      if (_reason === null || _reason === false) { release(); return; }   // cancelled
       const node = _allNodes.find(n => n.id === nodeId);
       // P6-C1 optimistic lock (sibling of hive.html): only reject a STILL-pending row (no re-flip race).
       const { data: updated, error } = await db.from('asset_nodes')
         .update({ status: 'rejected', approved_by: WORKER_NAME, approved_at: new Date().toISOString(),
                   rejection_reason: (String(_reason || '').trim().slice(0, 500)) || null })
         .eq('id', nodeId).eq('hive_id', HIVE_ID).eq('status', 'pending').select('id');
-      if (error) { showToast(whWriteError(error, 'The rejection did not go through. The item is still pending.')); return; }
-      if (!updated || !updated.length) { showToast('That asset was already handled by another supervisor.'); await loadPendingAssets(); return; }
+      if (error) { release(); showToast(whWriteError(error, 'The rejection did not go through. The item is still pending.')); return; }
+      if (!updated || !updated.length) { showToast(_t('That asset was already handled by another supervisor.', 'Naasikaso na ang asset na iyon ng ibang superbisor.')); await loadPendingAssets(); return; }
       // the same duplicate as the approve path above: the 20260728000015 AFTER-UPDATE trigger already writes this
       // rejection to hive_audit_log, with the tag and the status transition. One action, one row.
-      showToast('Asset rejected.');
+      if (row) row.classList.add('asset-deciding');
+      showToast(_t('Asset rejected.', 'Tinanggihan ang asset.'));
+      await new Promise(r => setTimeout(r, 160));
       await loadPendingAssets();
     }
 
-    async function restoreAssetNode(nodeId) {
-      if (HIVE_ROLE !== 'supervisor') { showToast('Supervisors only.'); return; }
-      const node = _allNodes.find(n => n.id === nodeId);
-      const { error } = await db.from('asset_nodes')
+    async function restoreAssetNode(nodeId, row, release) {
+      release = release || function () {};
+      if (HIVE_ROLE !== 'supervisor') { release(); showToast(_t('Supervisors only.', 'Para sa superbisor lamang.')); return; }
+      if (typeof whRequireOnline === 'function'
+          && !whRequireOnline('Restoring this asset', (m) => showToast(m))) { release(); return; }
+      // ★THE ONLY WRITE ON THIS PAGE WITH NO OPTIMISTIC LOCK (design lens critique, 2026-09-15). Approve and
+      // reject both pin `.eq('status','pending').select('id')` and branch on a zero row count; this one
+      // pinned nothing and checked nothing, so a supervisor on a stale screen could restore an asset a
+      // colleague had already APPROVED - flipping approved back to pending - and the success toast fired
+      // either way. It only ever means 'undo a rejection', so `rejected` is the status it pins.
+      const { data: updated, error } = await db.from('asset_nodes')
         .update({ status: 'pending', approved_by: null, approved_at: null })
-        .eq('id', nodeId).eq('hive_id', HIVE_ID);
-      if (error) { showToast(whWriteError(error, 'The restore did not go through. Nothing changed; try again.')); return; }
-      writeAuditLog('restore_asset_node', 'asset_nodes', nodeId,
-        (node && (node.label || node.tag)) || nodeId, { node_type: node && node.node_type });
-      showToast('Asset moved back to pending.');
+        .eq('id', nodeId).eq('hive_id', HIVE_ID).eq('status', 'rejected').select('id');
+      if (error) { release(); showToast(whWriteError(error, 'The restore did not go through. Nothing changed; try again.')); return; }
+      if (!updated || !updated.length) { release(); showToast(_t('That asset is no longer rejected - someone else has already acted on it.', 'Hindi na tinanggihan ang asset na iyon - may ibang umaksyon na dito.')); await loadPendingAssets(); return; }
+      // The client-side audit call that stood here named its asset from _allNodes, which holds APPROVED
+      // nodes only - so on a restore it was always undefined and every audit row identified the asset by a
+      // bare UUID, with an actor string the trigger's own comment says cannot be trusted. Removed. The
+      // AFTER-UPDATE trigger is the authoritative writer for approved and rejected; extending it to cover a
+      // restore to `pending` is a migration, so it is recorded rather than worked around here.
+      if (row) row.classList.add('asset-deciding');
+      showToast(_t('Asset moved back to pending.', 'Naibalik sa nakabinbin ang asset.'));
+      await new Promise(r => setTimeout(r, 160));
       await loadPendingAssets();
     }
 
@@ -1616,7 +1789,18 @@
       if (!list || !empty) return;
 
       const q = whFold((document.getElementById('asset-search')?.value || '').trim());
+      // ★THE VERDICT'S INSTRUCTION NEEDED A CONTROL (design lens critique, 2026-09-15). "Show the flagged
+      // assets below" sat over a list with no filter, no sort and no marker. This reads the SAME
+      // _riskByAsset map the chips render from - deliberately not a fresh query, because the defect that
+      // started this was two populations counted by two different reads, and a third would repeat it.
+      const _bandOf = (n) => {
+        // keyed exactly as riskChip keys it - lowercased tag, then lowercased name - so the filter and
+        // the chips can never disagree about which assets are flagged
+        const r = _riskByAsset[(n.tag || '').toLowerCase()] || _riskByAsset[(n.name || '').toLowerCase()];
+        return r && String(r.risk_level || '').toLowerCase();
+      };
       const filtered = _allNodes.filter(n => {
+        if (_riskOnly && !['critical', 'high'].includes(_bandOf(n))) return false;
         if (!q) return true;
         return whFold(n.tag).includes(q) || whFold(n.name).includes(q)
             || whFold(n.location).includes(q) || whFold(n.iso_class).includes(q);
@@ -1696,7 +1880,11 @@
           </div>
           <div style="display:flex;flex-direction:column;align-items:flex-end;gap:0.3rem;flex-shrink:0;">
             ${riskChip(n)}
-            <span class="${critClass(n.criticality)}" title="Criticality (how important this asset is)">${e(typeof whLevelWord === 'function' ? whLevelWord(n.criticality || 'medium') : (n.criticality || 'medium'))}</span>
+            <!-- ★TWO SEVERITY WORDS ON ONE ROW, ONE OF THEM NAMELESS (design lens critique, 2026-09-15):
+                 the risk chip above says "HIGH RISK 76%" and this said a bare "MEDIUM", drawn from the same
+                 four words, so the pair read as a contradiction. The only thing telling them apart was a
+                 hover title, which does not exist on the phone this page is built for. -->
+            <span class="${critClass(n.criticality)}" title="Criticality (how important this asset is)">${e(_t('CRITICALITY ', 'KRITIKALIDAD '))}${e(typeof whLevelWord === 'function' ? whLevelWord(n.criticality || 'medium') : (n.criticality || 'medium'))}</span>
           </div>
         </div>
       `).join('');
@@ -2146,7 +2334,7 @@
           try { factors = JSON.parse(factors); } catch (_) { factors = []; }
         }
         if (!Array.isArray(factors) || !factors.length) {
-          facEl.innerHTML = '<span style="font-size:.65rem; color:var(--muted);">No risk factors flagged</span>';
+          facEl.innerHTML = '<span style="font-size:0.75rem; color:var(--muted);">No risk factors flagged</span>';
         } else if (factors[0] && typeof factors[0] === 'object') {
           // Structured: contribution bars + explanation, sorted by contribution desc.
           facEl.style.flexDirection = 'column';
@@ -2165,13 +2353,13 @@
             return ''
               + '<div style="display:flex; flex-direction:column; gap:3px; padding:6px 8px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:var(--wh-radius-sm);">'
               +   '<div style="display:flex; align-items:center; gap:8px;">'
-              +     '<span style="flex:1; font-size:.7rem; font-weight:700; letter-spacing:.02em; color:var(--wh-cloud);">' + e(label) + '</span>'
+              +     '<span style="flex:1; font-size:0.8rem; font-weight:700; letter-spacing:.02em; color:var(--wh-cloud);">' + e(label) + '</span>'
               +     '<div style="width:90px; height:6px; background:rgba(255,255,255,0.07); border-radius:3px; overflow:hidden;">'
               +       '<div style="width:' + barPct + '%; height:100%; background:' + e(levelColor) + ';"></div>'
               +     '</div>'
-              +     '<span style="font-size:.65rem; font-weight:700; color:' + e(levelColor) + '; min-width:28px; text-align:right;">+' + pct + '%</span>'
+              +     '<span style="font-size:0.75rem; font-weight:700; color:' + e(levelColor) + '; min-width:28px; text-align:right;">+' + pct + '%</span>'
               +   '</div>'
-              + (explain ? '<div style="font-size:.66rem; color:rgba(255,255,255,0.80); line-height:1.35;">' + e(explain) + '</div>' : '')
+              + (explain ? '<div style="font-size:0.75rem; color:rgba(255,255,255,0.80); line-height:1.35;">' + e(explain) + '</div>' : '')
               + '</div>';
           }).join('');
         } else {
@@ -2179,7 +2367,7 @@
           facEl.style.flexDirection = 'row';
           facEl.style.gap           = '5px';
           facEl.innerHTML = factors.slice(0, 5).map(f =>
-            '<span style="font-size:.6rem; font-weight:600; padding:.2rem .55rem; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08); border-radius:8px; color:rgba(255,255,255,0.83);">'
+            '<span style="font-size:0.75rem; font-weight:600; padding:.2rem .55rem; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08); border-radius:8px; color:rgba(255,255,255,0.83);">'
             + e(String(f).replace(/_/g, ' ')) + '</span>'
           ).join('');
         }
@@ -2301,7 +2489,7 @@
             '<input type="checkbox" data-staging-idx="' + i + '" checked style="width:18px; height:18px; flex-shrink:0;">' +
             '<div style="flex:1; min-width:0;">' +
               '<div style="font-size:.85rem; font-weight:600; color:var(--text);">' + e(p.part_name || '') + '</div>' +
-              '<div style="font-size:.7rem; color:var(--muted); margin-top:2px;">' +
+              '<div style="font-size:0.8rem; color:var(--muted); margin-top:2px;">' +
                 'qty ' + (p.qty_avg || 1) + ' . ' +
                 Math.round((p.confidence || 0) * 100) + '% pattern match . ' +
                 'in stock ' + (p.in_stock || 0) +
@@ -2640,15 +2828,15 @@
         const spanTxt  = spanDays >= 1 ? spanDays.toFixed(1) + ' d'
           : Math.max(1, Math.round(spanMs / 3600000)) + ' h';
         const chip = z >= 3
-          ? '<span style="font-size:.55rem; font-weight:800; letter-spacing:.06em; text-transform:uppercase; padding:2px 7px; border-radius:8px; background:rgba(248,113,113,0.18); color:var(--wh-red-text);">ANOMALY ' + z.toFixed(1) + 'σ</span>'
+          ? '<span style="font-size:0.75rem; font-weight:800; letter-spacing:.06em; text-transform:uppercase; padding:2px 7px; border-radius:8px; background:rgba(248,113,113,0.18); color:var(--wh-red-text);">ANOMALY ' + z.toFixed(1) + 'σ</span>'
           : z >= 2
-          ? '<span style="font-size:.55rem; font-weight:800; letter-spacing:.06em; text-transform:uppercase; padding:2px 7px; border-radius:8px; background:rgba(250,204,21,0.15); color:var(--wh-amber);">WATCH ' + z.toFixed(1) + 'σ</span>'
-          : '<span style="font-size:.55rem; font-weight:800; letter-spacing:.06em; text-transform:uppercase; padding:2px 7px; border-radius:8px; background:rgba(74,222,128,0.12); color:var(--wh-green);">OK</span>';
+          ? '<span style="font-size:0.75rem; font-weight:800; letter-spacing:.06em; text-transform:uppercase; padding:2px 7px; border-radius:8px; background:rgba(250,204,21,0.15); color:var(--wh-amber);">WATCH ' + z.toFixed(1) + 'σ</span>'
+          : '<span style="font-size:0.75rem; font-weight:800; letter-spacing:.06em; text-transform:uppercase; padding:2px 7px; border-radius:8px; background:rgba(74,222,128,0.12); color:var(--wh-green);">OK</span>';
         blocks.push(
           '<div style="background:rgba(255,255,255,0.02); border:1px solid var(--border); border-radius:8px; padding:8px 12px;">' +
           '  <div style="display:flex; align-items:baseline; justify-content:space-between; gap:8px; flex-wrap:wrap;">' +
           '    <div>' +
-          '      <span style="font-size:.66rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;">' + e(param.replace(/_/g, ' ')) + '</span>' +
+          '      <span style="font-size:0.75rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;">' + e(param.replace(/_/g, ' ')) + '</span>' +
           // ★THE UNIT WAS ALWAYS IN THE DATA AND THIS TILE THREW IT AWAY. v_sensor_truth carries
           // `unit` per reading (temperature -> celsius, current_draw -> ampere, vibration -> mm/s), and
           // the telemetry query did not even SELECT it - so the tile rendered "TEMPERATURE 62.922",
@@ -2672,7 +2860,7 @@
           // whFmtAgo (utils.js:2005) is the platform's one source of truth for this math and is what
           // alert-hub's rows use; whFmtDate keeps the exact instant for anyone who needs it, so the
           // tile gains the age without losing the precision.
-          '  <div style="font-size:.6rem; color:var(--muted); margin-top:4px;">n=' + n + ' over ' + e(spanTxt) + ' &middot; mean ' + mean.toFixed(3) + ' &middot; range ' + min.toFixed(2) + '..' + max.toFixed(2) + ' &middot; latest ' + e(typeof whFmtAgo === 'function' ? whFmtAgo(latest.recorded_at) : latest.recorded_at) + ' (' + e(typeof whFmtDate === 'function' ? whFmtDate(latest.recorded_at, { time: true }) : latest.recorded_at) + ')</div>' +
+          '  <div style="font-size:0.75rem; color:var(--muted); margin-top:4px;">n=' + n + ' over ' + e(spanTxt) + ' &middot; mean ' + mean.toFixed(3) + ' &middot; range ' + min.toFixed(2) + '..' + max.toFixed(2) + ' &middot; latest ' + e(typeof whFmtAgo === 'function' ? whFmtAgo(latest.recorded_at) : latest.recorded_at) + ' (' + e(typeof whFmtDate === 'function' ? whFmtDate(latest.recorded_at, { time: true }) : latest.recorded_at) + ')</div>' +
           '</div>'
         );
       }
@@ -2917,18 +3105,18 @@
         // records the cluster it used (how many entries, which root cause, over what window), and
         // it is shown here - on AI rows only, since a mode an engineer wrote needs no such note.
         const grounding = (m.source && m.source.startsWith('ai_') && m.notes)
-          ? '<div style="font-size:.65rem; color:var(--muted); margin:4px 0 2px; line-height:1.35;">'
+          ? '<div style="font-size:0.75rem; color:var(--muted); margin:4px 0 2px; line-height:1.35;">'
             + e(m.notes) + '</div>'
           : '';
         const aiBadge = (m.source && m.source.startsWith('ai_') && m.ai_confidence != null)
-          ? ' <span style="font-size:.6rem; color:rgba(255,255,255,0.80);">' + Math.round(Number(m.ai_confidence) * 100) + '% conf</span>'
+          ? ' <span style="font-size:0.75rem; color:rgba(255,255,255,0.80);">' + Math.round(Number(m.ai_confidence) * 100) + '% conf</span>'
           : '';
         const fmeaActions = isSupervisor && !m.approved_at
           ? '<button data-i="approve" class="approve" data-action="approve" data-id="' + e(m.id) + '" data-mode-name="' + e(m.failure_mode || '') + '">Approve</button>'
           +   '<button class="delete"  data-action="delete"  data-id="' + e(m.id) + '" data-i="delete">Delete</button>'
           : '';
-        const cause  = m.cause_text  ? '<div style="font-size:.7rem; color:var(--muted);">cause: ' + e(m.cause_text)  + '</div>' : '';
-        const effect = m.effect_text ? '<div style="font-size:.72rem; color:rgba(255,255,255,0.83);">effect: ' + e(m.effect_text) + '</div>' : '';
+        const cause  = m.cause_text  ? '<div style="font-size:0.8rem; color:var(--muted);">cause: ' + e(m.cause_text)  + '</div>' : '';
+        const effect = m.effect_text ? '<div style="font-size:0.8rem; color:rgba(255,255,255,0.83);">effect: ' + e(m.effect_text) + '</div>' : '';
 
         // Phase R.4: strategy strip
         const strat = _strategiesByMode[m.id];
@@ -2987,7 +3175,7 @@
           +     '<span class="fmea-rpn ' + rpnClass + '">' + e(String(m.rpn ?? '?')) + '</span>'
           +     '<div style="flex:1; min-width:0;">'
           +       '<div style="font-size:.85rem; font-weight:700;">' + e(m.failure_mode || '(unspecified)') + aiBadge + '</div>'
-          +       '<div style="font-size:.7rem; color:var(--muted);">' + e(m.function_text || '') + '</div>'
+          +       '<div style="font-size:0.8rem; color:var(--muted);">' + e(m.function_text || '') + '</div>'
           +     '</div>'
           +     sodHtml
           +     '<span class="fmea-source-pill ' + sourceClass + '">' + e((m.source === 'ai_logbook') ? 'from AI logbook scan' : (m.source || 'manual').replace(/_/g, ' ')) + '</span>'
@@ -3119,7 +3307,7 @@
     }
 
     async function approveFmeaMode(id, modeName) {
-      if (HIVE_ROLE !== 'supervisor') { showToast('Supervisors only.'); return; }
+      if (HIVE_ROLE !== 'supervisor') { showToast(_t('Supervisors only.', 'Para sa superbisor lamang.')); return; }
       // P6-C1 optimistic lock (asset-hub approval-lock gap, 2026-07-19): only approve a STILL-UNAPPROVED
       // row (.is('approved_at', null)) so a concurrent approve / double-click / stale card cannot silently
       // OVERWRITE the first supervisor's approval attribution (approved_by/approved_at). .select() detects
@@ -3141,7 +3329,7 @@
     }
 
     async function deleteFmeaMode(id) {
-      if (HIVE_ROLE !== 'supervisor') { showToast('Supervisors only.'); return; }
+      if (HIVE_ROLE !== 'supervisor') { showToast(_t('Supervisors only.', 'Para sa superbisor lamang.')); return; }
       if (!(await window.whConfirm('Delete this FMEA failure mode? Linked RCM strategies will cascade.', { okLabel: 'Delete', cancelLabel: 'Keep' }))) return;
       const { error } = await db.from('rcm_fmea_modes')
         .delete()
@@ -3326,7 +3514,7 @@
     }
 
     async function approveStrategy(strategyId) {
-      if (HIVE_ROLE !== 'supervisor') { showToast('Supervisors only.'); return; }
+      if (HIVE_ROLE !== 'supervisor') { showToast(_t('Supervisors only.', 'Para sa superbisor lamang.')); return; }
       // P6-C1 optimistic lock (asset-hub approval-lock gap, 2026-07-19): only approve a STILL-UNAPPROVED
       // strategy (.is('approved_at', null)) so a concurrent approve / double-click cannot silently
       // OVERWRITE the first supervisor's approval attribution. .select() detects the 0-row no-op.
@@ -3345,7 +3533,7 @@
     }
 
     async function deleteStrategy(strategyId) {
-      if (HIVE_ROLE !== 'supervisor') { showToast('Supervisors only.'); return; }
+      if (HIVE_ROLE !== 'supervisor') { showToast(_t('Supervisors only.', 'Para sa superbisor lamang.')); return; }
       if (!(await window.whConfirm('Delete this RCM strategy? Linked PM scope item will remain in PM Scheduler (unlink only).', { okLabel: 'Delete', cancelLabel: 'Keep' }))) return;
       const { error } = await db.from('rcm_strategies')
         .delete().eq('id', strategyId).eq('hive_id', HIVE_ID);
@@ -3623,7 +3811,7 @@
           btn.id = 'weibull-load-retry';
           btn.type = 'button';
           btn.className = 'add-edge-btn';
-          btn.style.cssText = 'min-height:32px; padding:2px 10px; font-size:0.72rem;';
+          btn.style.cssText = 'min-height:32px; padding:2px 10px; font-size:0.8rem;';
           btn.textContent = 'Retry';
           btn.onclick = () => {
             status.textContent = 'Loading the Weibull fit…';
@@ -4049,13 +4237,13 @@
     -webkit-print-color-adjust: exact; print-color-adjust: exact;
   }
   h1 { font-size: 18pt; margin: 0 0 4px 0; color: #111; }
-  h2 { font-size: 13pt; margin: 14px 0 6px 0; padding-bottom: 3px;
+  h2 { font-size: 13pt; margin: 16px 0 6px 0; padding-bottom: 3px;
        border-bottom: 1px solid #444; page-break-after: avoid; }
   h3 { font-size: 11pt; margin: 10px 0 4px 0; }
   .meta { display: flex; flex-wrap: wrap; gap: 12px 24px; font-size: 10pt; color: #333;
-          margin: 4px 0 14px 0; }
+          margin: 4px 0 16px 0; }
   .meta div { white-space: nowrap; }
-  .summary { margin: 4px 0 14px 0; padding: 10px 12px;
+  .summary { margin: 4px 0 16px 0; padding: 10px 12px;
              background: #f5f3ff; border: 1px solid #d6cefc; border-radius: var(--wh-radius);
              page-break-inside: avoid; }
   .summary ul { margin: 4px 0 0 0; padding-left: 18px; }
@@ -4964,6 +5152,12 @@
 <script>
   // N1: static-label Filipino dict, applied by utils.js whI18nApply() when WH_LANG=fil.
   window.WH_FIL_PAGE = {
+    // the accessible names, read by whI18nApply's [data-ia] pass (design lens copy, 2026-09-15)
+    a_back:   'Bumalik',
+    a_cta:    'Gawin ang inirerekomendang susunod na hakbang',
+    a_search: 'Maghanap ayon sa tag, pangalan o lokasyon',
+    a_scan:   'I-scan ang tag ng kagamitan gamit ang camera',
+    a_export: 'I-export ang asset register bilang CSV',
     gatetitle: 'Kailangan ng hive ang Asset Hub',
     allassets: 'Lahat ng asset',
     showdetails: 'Ipakita ang detalye',

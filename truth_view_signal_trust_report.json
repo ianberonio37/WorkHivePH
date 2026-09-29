@@ -6211,6 +6211,11 @@
       "column": "asset_id",
       "consumers": [
         {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
           "file": "supabase/functions/amc-orchestrator/index.ts",
           "shape": "direct",
           "smells": []

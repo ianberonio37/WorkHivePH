@@ -23,7 +23,7 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg: #0f1923; --surface: var(--wh-navy); --card: #1d2e44;
+      --bg: var(--wh-navy); --surface: var(--wh-navy-mid); --card: var(--wh-navy-mid);   /* the platform ground ladder, tokens only (design lens audit, 2026-09-15) */
       --gold: var(--wh-orange); --blue: var(--wh-blue); --green: var(--wh-green);
       --red: var(--wh-red); --amber: var(--wh-orange); --yellow: var(--wh-amber); --purple: var(--wh-violet);
       --text: var(--wh-cloud); --muted: rgba(255,255,255,0.80);
@@ -38,7 +38,7 @@
 
     .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
     .page-title { font-size: 1.25rem; font-weight: 800; }
-    .hive-pill { font-size: 0.7rem; font-weight: 700; padding: .3rem .8rem; border-radius: 999px; background: rgba(41,182,217,0.12); color: var(--blue); border: 1px solid rgba(41,182,217,0.25); }
+    .hive-pill { font-size: 0.75rem; font-weight: 600; padding: 4px 12px; border-radius: 999px; background: rgba(41,182,217,0.12); color: var(--blue); border: 1px solid rgba(41,182,217,0.25); }
 
     /* Filter chips */
     .filter-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
@@ -46,14 +46,14 @@
       display: inline-flex; align-items: center; gap: 6px;
       padding: 6px 12px; min-height: 44px; background: rgba(22,32,50,0.85);
       border: 1px solid var(--border); border-radius: 999px;
-      font-family: inherit; font-size: 0.7rem; font-weight: 600;
+      font-family: inherit; font-size: 0.8rem; font-weight: 600;   /* 12px floor (design lens slop, 2026-09-15) */
       color:rgba(255,255,255,0.80); cursor: pointer;
-      transition: all .15s;
+      transition: color .15s ease, border-color .15s ease, background .15s ease;   /* was `all`: it animated layout properties too (design lens motion, 2026-09-15) */
     }
     .chip:hover { color: var(--text); border-color: rgba(255,255,255,0.18); }
     .chip.active { background: rgba(247,162,27,0.15); color: var(--gold); border-color: rgba(247,162,27,0.3); }
     .chip-count {
-      font-size: .6rem; font-weight: 800; padding: 1px 7px;
+      font-size: .75rem; font-weight: 700; padding: 2px 8px;
       border-radius: 999px; background: rgba(255,255,255,0.08);
     }
     .chip.active .chip-count { background: rgba(0,0,0,0.35); color: var(--gold); }
@@ -62,48 +62,55 @@
     .feed { display: flex; flex-direction: column; gap: 8px; }
     .alert {
       display: flex; align-items: flex-start; gap: 12px;
-      padding: 14px 16px; background: rgba(22,32,50,0.85);
+      padding: 16px; background: rgba(22,32,50,0.85);
       border: 1px solid var(--border); border-radius: 12px;
       border-left-width: 3px;
     }
-    .alert.kind-risk    { border-left-color: var(--red); }
-    .alert.kind-pm      { border-left-color: var(--amber); }
-    .alert.kind-stock   { border-left-color: var(--yellow); }
-    .alert.kind-pattern { border-left-color: var(--purple); }
-    .alert.kind-system  { border-left-color: var(--blue); }
+    /* ★THE EDGE CARRIES SEVERITY, NOT KIND (design lens critique, 2026-09-15). It used to carry kind,
+       so the 20 `critical` rows wore PURPLE (kind-pattern) and the 10 `high` rows wore RED (kind-risk)
+       - while red is also the critical PILL's colour. Measured: 0 of 30 rendered rows had a bar hue
+       that agreed with its pill. A supervisor scanning by colour was pulled past the criticals. Kind
+       keeps the icon, which can hold five values without competing with urgency. */
+    .alert.sev-critical { border-left-color: var(--wh-red); }
+    .alert.sev-high     { border-left-color: var(--wh-orange); }
+    .alert.sev-medium   { border-left-color: var(--wh-amber); }
+    .alert.sev-low,
+    .alert.sev-info     { border-left-color: rgba(255,255,255,0.22); }
     .alert-icon { font-size: 1.125rem; flex-shrink: 0; line-height: 1.2; }
     .alert-body { flex: 1; min-width: 0; }
     .alert-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
-    .alert-tag { font-size: 0.6rem; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; padding: .2rem .5rem; border-radius: 5px; }
+    .alert-tag { font-size: 0.75rem; font-weight: 600; padding: 4px 8px; border-radius: 999px; }   /* sentence-case status pill on the floor; 600 so the 700 title is the row's one bold (craft lens) */
     .tag-critical { background: rgba(248,113,113,0.15); color: var(--red); }
     .tag-high     { background: rgba(251,146,60,0.15); color: var(--amber); }
     .tag-medium   { background: rgba(250,204,21,0.12); color: var(--yellow); }
     .tag-info     { background: rgba(41,182,217,0.12); color: var(--blue); }
     .alert-title { font-size: 0.9rem; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; min-width: 0; }
-    .alert-time { font-size: 0.7rem; color: var(--muted); flex-shrink: 0; }
+    .alert-time { font-size: 0.75rem; color: var(--muted); flex-shrink: 0; }
     .alert-msg { font-size: 0.8rem; color:rgba(255,255,255,0.80); line-height: 1.4; margin-top: 2px; }
     .alert-action {
       display: inline-flex; align-items: center; gap: 4px; min-height: 44px;
-      font-size: 0.7rem; font-weight: 700; color: var(--gold);
+      font-size: 0.8rem; font-weight: 600; color: var(--gold);
       text-decoration: none; margin-top: 8px;
       padding: 4px 10px; border: 1px solid rgba(247,162,27,0.25);
       border-radius: var(--wh-radius-sm); background: rgba(247,162,27,0.06);
-      transition: background .15s;
+      transition: background .15s ease, transform .12s var(--wh-ease-out);
     }
     .alert-action:hover { background: rgba(247,162,27,0.15); }
     /* Arc Y Y3: alert agency — Handled control sits next to the open-action link */
     .alert-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
     .alert-dismiss {
       display: inline-flex; align-items: center; gap: 4px; min-height: 44px;
-      font-size: 0.7rem; font-weight: 700; color:rgba(255,255,255,0.86);
+      font-size: 0.8rem; font-weight: 600; color:rgba(255,255,255,0.86);
       margin-top: 8px; padding: 4px 12px; cursor: pointer;
       border: 1px solid rgba(255,255,255,0.16); border-radius: var(--wh-radius-sm);
-      background: rgba(255,255,255,0.05); transition: background .15s;
+      background: rgba(255,255,255,0.05);
+      transition: background .15s ease, transform .12s var(--wh-ease-out);
     }
+    .alert-dismiss:active, .alert-action:active { transform: scale(0.97); }   /* a tap answers physically, 120 ms (STANDARDS: 100-160 ms) */
     /* R3 one-shape-per-role: "Seen" is a SELECT toggle (aria-pressed) — give it the pill
        silhouette so it reads differently from the "Snooze"/details PRESS rects (8px). */
     .alert-dismiss[aria-pressed] { border-radius: var(--wh-radius-pill); }
-    .alert-dismiss:hover { background: rgba(255,255,255,0.12); color: #fff; }
+    .alert-dismiss:hover { background: rgba(255,255,255,0.12); color: var(--wh-cloud); }
     .alert-dismiss:active { transform: scale(.97); }
     /* Arc Y Y3: Acknowledge ("Seen") distinct visual — the alert stays but its
        CONTENT dims (icon/title/msg), keeping the badge + action buttons at full
@@ -122,8 +129,8 @@
     .alert.seen .alert-title,
     .alert.seen .alert-msg { opacity: 0.65; }
     .alert-seen-badge {
-      font-size: .6rem; font-weight: 800; text-transform: uppercase; letter-spacing: .08em;
-      padding: .15rem .45rem; border-radius: 5px; flex-shrink: 0;
+      font-size: .75rem; font-weight: 700;
+      padding: .15rem .5rem; border-radius: 999px; flex-shrink: 0;
       background: rgba(255,255,255,0.08); color:rgba(255,255,255,0.80);
       border: 1px solid rgba(255,255,255,0.14);
     }
@@ -135,12 +142,12 @@
       border-radius: 12px;
     }
     .empty-icon { font-size: 1.5rem; margin-bottom: 8px; }   /* C1: 32px was a lone tier; 24px is the hero-icon tier (2026-09-06) */
-    .empty-title { font-size: 1rem; font-weight: 800; color: var(--green); margin-bottom: 4px; }
+    .empty-title { font-size: 1rem; font-weight: 700; color: var(--green); margin-bottom: 4px; }
     .empty-sub { font-size: 0.8rem; color: var(--muted); }
     .loading { text-align: center; padding: 30px; color: var(--muted); font-size: 0.8rem; }
 
     /* Last refreshed */
-    .footer-meta { font-size: 0.6rem; color: var(--muted); text-align: right; margin-top: 16px; }
+    .footer-meta { font-size: 0.75rem; color: var(--muted); text-align: right; margin-top: 16px; }
 
     /* Auth gate (no hive) */
     .gate-card {
@@ -177,24 +184,25 @@
       background: linear-gradient(180deg, rgba(167,139,250,0.10), rgba(167,139,250,0.04));
       border: 1px solid rgba(167,139,250,0.30);
       border-radius: 14px;
-      padding: 18px;
+      padding: 16px;
       margin-bottom: 16px;
     }
-    .amc-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
-    .amc-badge { font-size: .6rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--wh-violet-text); padding: 3px 8px; border-radius: var(--wh-radius-sm); background: rgba(167,139,250,0.14); border: 1px solid rgba(167,139,250,0.25); }
-    .amc-headline { font-size: 1rem; font-weight: 800; color: var(--text); line-height: 1.35; }
+    .amc-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+    .amc-badge { font-size: .75rem; font-weight: 600; color: var(--wh-violet-text); padding: 4px 8px; border-radius: var(--wh-radius-sm); background: rgba(167,139,250,0.14); border: 1px solid rgba(167,139,250,0.25); }
+    .amc-headline { font-size: 1rem; font-weight: 700; color: var(--text); line-height: 1.35; }
     /* CLS: #amc-summary starts empty, fills with a short summary, then is UPGRADED IN PLACE to the
        taller renderActionBrief card — that growth shifted the content below (a full-sweep-contention
        CLS; 0 on a fast isolated load). Reserve the settled brief height so it never shifts, matching
        shift-brain's .briefing-card{min-height:240}. */
-    .amc-summary { font-size: 0.8rem; color: rgba(255,255,255,0.78); line-height: 1.5; margin: 6px 0 12px; min-height: 176px; }
+    .amc-summary { font-size: 0.8rem; color: rgba(255,255,255,0.78); line-height: 1.5; margin: 6px 0 12px; min-height: 120px; }   /* was 176px: the settled brief left 163px of dead space inside the card at 1280 (design lens critique, 2026-09-15) */
+    @media (min-width: 700px) { .amc-summary { min-height: 72px; } }
     .amc-stats { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 8px; margin: 12px 0; }
-    .amc-stat { background: rgba(15,25,35,0.4); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; text-align: center; }
+    .amc-stat { padding: 8px 10px; text-align: center; border-top: 1px solid var(--border); }   /* flat cells under a rule, not cards inside the AMC card (craft lens depth, 2026-09-15) */
     .amc-stat-num { font-size: 1.125rem; font-weight: 800; color: var(--text); line-height: 1; }
-    .amc-stat-label { font-size: 0.6rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); margin-top: 4px; }
-    .amc-details { display: none; margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--border); font-size: .76rem; color:rgba(255,255,255,0.83); }
+    .amc-stat-label { font-size: 0.75rem; font-weight: 600; color: var(--muted); margin-top: 4px; }
+    .amc-details { display: none; margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--border); font-size: .8rem; color:rgba(255,255,255,0.83); }
     .amc-details.open { display: block; }
-    .amc-section-title { font-size: .6rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--purple); margin: 10px 0 4px; }
+    .amc-section-title { font-size: .9rem; font-weight: 700; color: var(--purple); margin: 12px 0 4px; }   /* a section title is a heading, not an eyebrow */
     .amc-row { padding: 4px 0; border-bottom: 1px dotted rgba(255,255,255,0.05); }
     .amc-row:last-child { border-bottom: 0; }
     .amc-actions { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
@@ -206,18 +214,20 @@
     .amc-btn-reject:hover:not(:disabled) { background: rgba(248,113,113,0.20); }
     .amc-btn-toggle { background: rgba(255,255,255,0.04); color:rgba(255,255,255,0.80); border-color: var(--border); }
     .amc-btn-toggle:hover { background: rgba(255,255,255,0.08); color: var(--text); }
-    .amc-readonly-note { font-size: 0.7rem; color: var(--muted); margin-left: auto; align-self: center; }
-    .amc-status-msg { font-size: 0.7rem; color: var(--muted); margin-top: 8px; min-height: 1.1em; }
+    .amc-readonly-note { font-size: 0.8rem; color: var(--muted); margin-left: auto; align-self: center; }
+    .amc-status-msg { font-size: 0.8rem; color: var(--muted); margin-top: 8px; min-height: 1.1em; }
+    #wh-source-chip { min-height: 52px; }   /* the source chip lands after the first read; its slot is reserved so the header does not push the page (CLS, design lens audit 2026-09-15) */
+    @media (min-width: 700px) { #wh-source-chip { min-height: 24px; } }
     @media (max-width: 480px) {
       .amc-stats { grid-template-columns: repeat(2, minmax(0,1fr)); }
-      .amc-card { padding: 14px; }
+      .amc-card { padding: 16px; }
     }
 
     /* Plain-Read summary (Layer D — UX Contract) */
-    .verdict { display:flex; align-items:center; gap:12px; padding:14px 16px; margin-bottom:16px; border-radius:12px; border:1px solid; }
-    .verdict-icon { font-size:1.5rem; line-height:1; font-weight:800; }
+    .verdict { display:flex; align-items:center; gap:12px; padding:16px; margin-bottom:16px; border-radius:12px; border:1px solid; min-height:88px; }   /* reserves the settled two-line verdict: its arrival shifted the action card and AMC card (CLS 0.042 at 390, design lens audit 2026-09-15) */
+    .verdict-icon { font-size:1.5rem; line-height:1; }
     .verdict-text { font-size:1rem; font-weight:700; line-height:1.35; }   /* C1: 14.4px was a lone tier; 16px is the headline tier (2026-09-06) */
-    .verdict-text small { display:block; font-size:0.7rem; font-weight:500; color:rgba(255,255,255,0.83); margin-top:3px; }
+    .verdict-text small { display:block; font-size:0.8rem; font-weight:500; color:rgba(255,255,255,0.83); margin-top:4px; min-height:2.8em; }   /* two lines reserved: the loading line is one, the verdict is two (CLS, design lens audit 2026-09-15) */
     .verdict.healthy { background:rgba(74,222,128,0.07);  border-color:rgba(74,222,128,0.3); }
     .verdict.healthy .verdict-icon { color:var(--wh-green); }
     .verdict.watch   { background:rgba(247,162,27,0.07);  border-color:rgba(247,162,27,0.3); }
@@ -227,21 +237,22 @@
     .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
     .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.80); }
     .simple-row { display:grid; grid-template-columns:repeat(auto-fit, minmax(170px, 1fr)); gap:12px; margin-bottom:16px; }
-    .simple-card { background:var(--wh-navy); border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:14px 16px; min-height:134px; } /* CLS (Arc L L1): reserve settled card height (placeholder 118px → 134px when sc-sub fills) */
-    .simple-card .sc-label { font-size:0.7rem; font-weight:700; color:rgba(255,255,255,0.80); text-transform:uppercase; letter-spacing:0.06em; }
+    .simple-card { background:var(--card); border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:16px; min-height:134px; }
+    @media (max-width: 699px) { .simple-card { min-height:158px; } }   /* the settled one-column tile measured 158px at 390 (was reserved at 134: every tile grew 18px when its numbers landed, CLS 0.04 - design lens audit 2026-09-15) */ /* CLS (Arc L L1): reserve settled card height (placeholder 118px → 134px when sc-sub fills) */
+    .simple-card .sc-label { font-size:0.75rem; font-weight:700; color:rgba(255,255,255,0.80); }   /* the shared tile label (components.css) after the 2026-09-15 floor: sentence case */
     .simple-card .sc-hero  { font-size:1.5rem; font-weight:800; line-height:1.15; margin:4px 0 2px; color:var(--wh-cloud); font-variant-numeric:tabular-nums; }
-    .simple-card .sc-sub   { font-size:0.7rem; color:rgba(255,255,255,0.80); line-height:1.4; }
-    .simple-card .sc-tag   { display:inline-block; font-size:0.6rem; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; padding:0.18rem 0.5rem; border-radius:999px; margin-top:7px; }
+    .simple-card .sc-sub   { font-size:0.75rem; color:rgba(255,255,255,0.80); line-height:1.4; }
+    .simple-card .sc-tag   { display:inline-block; font-size:0.75rem; font-weight:600; padding:4px 8px; border-radius:999px; margin-top:8px; }   /* 12px floor, sentence case, on the 4px grid (design lens slop + craft, 2026-09-15) */
     .simple-card.tag-green .sc-tag { background:rgba(74,222,128,0.16);  color:var(--wh-green); }
     .simple-card.tag-amber .sc-tag { background:rgba(247,162,27,0.16);  color:var(--wh-orange); }
     .simple-card.tag-red   .sc-tag { background:rgba(248,113,113,0.16); color:var(--wh-red); }
     .simple-card.tag-grey  .sc-tag { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.80); }
-    .action-card { background:rgba(41,182,217,0.06); border:1px solid rgba(41,182,217,0.25); border-radius:12px; padding:14px 16px; margin-bottom:16px; }
-    .action-card .ac-label { font-size:0.7rem; font-weight:800; color:var(--wh-blue-text); text-transform:uppercase; letter-spacing:0.07em; }
-    .action-card .ac-text { font-size:0.8rem; line-height:1.5; margin-top:6px; color:rgba(255,255,255,0.85); min-height:59px; }/* C1: 0.82rem→0.75rem, merge the lone 13px tier into 12px (11→10 distinct sizes) */
+    .action-card { background:rgba(41,182,217,0.06); border:1px solid rgba(41,182,217,0.25); border-radius:12px; padding:16px; margin-bottom:16px; }
+    .action-card .ac-label { font-size:0.75rem; font-weight:700; color:var(--wh-blue-text); }
+    .action-card .ac-text { font-size:0.875rem; line-height:1.5; margin-top:6px; color:rgba(255,255,255,0.85); min-height:59px; }/* C1 said "0.82rem→0.75rem, merge the lone 13px tier into 12px" and the value it left was 0.8rem - the comment asserted a change the declaration never held. Reconciled 2026-09-17 to the canonical .ac-text in components.css: DESIGN.md's BODY step, 0.875rem/400. .ac-text is a sentence of instruction, not a caption, so merging it DOWN into the 0.75rem label tier would have put reading prose on the 12px floor to save a ramp step. */
 /* Arc P · Wave 1 (P3): the "one primary action" CTA button (this page inlines its
    component CSS — no components.css link — so .ac-cta lives here too). */
-.action-card .ac-cta { display:inline-flex; align-items:center; gap:6px; margin-top:12px; min-height:44px; padding:0.6rem 1.15rem; background:var(--wh-orange); color:var(--wh-navy); font-family:inherit; font-size:0.8rem; font-weight:800; border:none; border-radius:12px; cursor:pointer; text-decoration:none; transition:background 0.2s, transform 0.1s; }
+.action-card .ac-cta { display:inline-flex; align-items:center; gap:6px; margin-top:12px; min-height:44px; padding:12px 20px; background:var(--wh-orange); color:var(--wh-navy); font-family:inherit; font-size:0.8rem; font-weight:700; border:none; border-radius:12px; cursor:pointer; text-decoration:none; transition:background 0.2s ease, transform 0.12s var(--wh-ease-out);   /* the press answers on the platform's ease-out, like the row controls (motion lens) */ }
 .action-card .ac-cta:hover { background:var(--wh-orange-dark); }
 .action-card .ac-cta:active { transform:scale(0.98); }
 .action-card .ac-cta[hidden], .action-card .ac-cta.hidden { display:none; } /* CLS: reserve settled height ("Computing..." 20px → real recommendation 59px) */
@@ -249,9 +260,9 @@
        async-filled alert filter row (#filters empty → ~144px of severity/type chips, the dominant shifter). */
     /* #ah-verdict re-added (UX Contract Layer D) — composite-tone verdict, no KPI-number duplication (styled by .verdict rules above). */
     #filters { min-height:144px; }
-    .details-toggle { display:inline-flex; align-items:center; gap:6px; background:transparent; border:1px solid rgba(255,255,255,0.07); color:rgba(255,255,255,0.80); padding:8px 14px; border-radius:var(--wh-radius-sm); font-family:inherit; font-size:0.7rem; font-weight:600; cursor:pointer; min-height:44px; margin-bottom:16px; }
+    .details-toggle { display:inline-flex; align-items:center; gap:6px; background:transparent; border:1px solid rgba(255,255,255,0.07); color:rgba(255,255,255,0.80); padding:8px 16px; border-radius:var(--wh-radius-sm); font-family:inherit; font-size:0.75rem; font-weight:600; cursor:pointer; min-height:44px; margin-bottom:16px; }
     .details-toggle:hover { color:var(--wh-cloud); border-color:rgba(255,255,255,0.18); }
-    #ah-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.8rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:16px; }
+    #ah-summary-details { display:none; padding:12px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.8rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:16px; }
     #ah-summary-details.open { display:block; }
       /* R3 (2026-09-05): one silhouette per job - selection controls (chips, tabs, toggles: any control that carries a pressed /
        selected / checked state) wear the PILL; press buttons keep the 12 px card-family radius. */
@@ -264,15 +275,15 @@
 
 <div class="page">
 
-  <div class="page-header">
+  <header class="page-header">
     <div>
       <h1 class="page-title" style="margin:0;" translate="no">Alert Hub</h1>
-      <p style="font-size:.7rem; color:var(--muted); margin-top:2px;" id="page-sub" data-i="ah_sub">Everything that needs your attention, in one place.</p>
+      <p style="font-size:.8rem; color:var(--muted); margin-top:2px; max-width:70ch;" id="page-sub" data-i="ah_sub">Everything that needs your attention, in one place.</p>
       <p id="wh-source-chip"></p>
     </div>
     <span id="hive-pill" class="hive-pill" style="display:none;"></span>
-    <button id="ah-refresh" type="button" data-i="refresh" onclick="if (window._ahRefresh) window._ahRefresh();" style="font-size:.8rem; display:inline-flex; align-items:center; gap:.35rem; min-height:44px; padding:0 1rem; border-radius:var(--wh-radius-sm); border:none; background:#F7A21B; color:#1a1132; font-weight:800; cursor:pointer;" title="Refresh alerts now (they also refresh every 60 s)">&#8635; Refresh</button>
-  </div>
+    <button id="ah-refresh" type="button" data-i="refresh" onclick="if (window._ahRefresh) window._ahRefresh();" style="font-size:.8rem; display:inline-flex; align-items:center; gap:.35rem; min-height:44px; padding:0 1rem; border-radius:var(--wh-radius-sm); border:none; background:var(--wh-orange); color:var(--wh-navy); font-weight:600; cursor:pointer;" title="Refresh alerts now (they also refresh every 60 s)">&#8635; Refresh</button>
+  </header>
 
   <!-- Hive gate (shown when no HIVE_ID) -->
   <div id="gate-card" class="gate-card" style="display:none;">
@@ -301,31 +312,31 @@
       </div>
       <div class="simple-row">
         <div class="simple-card tag-grey hero" id="ah-card-critical" data-rag-tile="alert-hub:high_severity_alerts" data-rag-label="High-severity alerts">
-          <div class="sc-label">High-severity alerts</div>
+          <div class="sc-label" data-i="ah_tile_sev">High-severity alerts</div>
           <div class="sc-hero" id="ah-critical-hero">-</div>
           <div class="sc-sub" id="ah-critical-sub">Loading...</div>
           <span class="sc-tag" id="ah-critical-tag">-</span>
         </div>
         <div class="simple-card tag-grey" id="ah-card-anomaly" data-rag-tile="alert-hub:anomaly_signals" data-rag-label="Anomaly signals">
-          <div class="sc-label">Anomaly signals</div>
+          <div class="sc-label" data-i="ah_tile_anom">Anomaly signals</div>
           <div class="sc-hero" id="ah-anomaly-hero">-</div>
           <div class="sc-sub" id="ah-anomaly-sub">Loading...</div>
           <span class="sc-tag" id="ah-anomaly-tag">-</span>
         </div>
         <div class="simple-card tag-grey" id="ah-card-amc" data-rag-tile="alert-hub:amc_daily_brief" data-rag-label="AMC daily brief">
-          <div class="sc-label">AMC daily brief</div>
+          <div class="sc-label" data-i="ah_tile_amc">AMC daily brief</div>
           <div class="sc-hero" id="ah-amc-hero">-</div>
           <div class="sc-sub" id="ah-amc-sub">Loading...</div>
           <span class="sc-tag" id="ah-amc-tag">-</span>
         </div>
       </div>
       <div class="action-card">
-        <div class="ac-label">What to do next</div>
+        <div class="ac-label" data-i="ah_whatnext">What to do next</div>
         <div class="ac-text" id="ah-action-text">Computing recommendation...</div>
         <!-- Arc P · Wave 1 (P3 / FUSION 3a): one primary button that DOES the next step. -->
         <a id="ah-action-btn" class="ac-cta hidden" href="#" aria-label="Do the recommended next action">Take action &#8594;</a>
       </div>
-      <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="ah-summary-details" data-i="showdetails">
+      <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="ah-summary-details" aria-label="Show how these numbers are computed" data-i="showdetails">
         Show details
       </button>
       <div id="ah-summary-details" role="region" aria-label="Alert breakdown"
@@ -348,7 +359,7 @@
       <div class="amc-head">
         <div>
           <span class="amc-badge">AMC Daily Brief</span>
-          <span id="amc-shift-meta" style="font-size:0.7rem; color:var(--muted); margin-left:6px;"></span>
+          <span id="amc-shift-meta" style="font-size:0.75rem; color:var(--muted); margin-left:6px;"></span>
         </div>
         <span id="amc-status-pill" class="alert-tag tag-info">pending</span>
       </div>
@@ -367,20 +378,20 @@
       <div class="amc-stats">
         <div class="amc-stat"><div id="amc-stat-assets" class="amc-stat-num"
     data-rag-tile="alert-hub:amc_assets"
-    data-rag-label="AMC high-risk assets">0</div><div class="amc-stat-label">High Risk</div></div>
+    data-rag-label="AMC high-risk assets">0</div><div class="amc-stat-label" data-i="ah_amc_risk">High-risk assets</div></div>
         <div class="amc-stat"><div id="amc-stat-pms"    class="amc-stat-num"
     data-rag-tile="alert-hub:amc_pms"
-    data-rag-label="AMC PMs flagged">0</div><div class="amc-stat-label">PMs Due</div></div>
+    data-rag-label="AMC PMs flagged">0</div><div class="amc-stat-label" data-i="ah_amc_pms">PMs due</div></div>
         <div class="amc-stat"><div id="amc-stat-parts"  class="amc-stat-num"
     data-rag-tile="alert-hub:amc_parts"
-    data-rag-label="AMC parts at risk">0</div><div class="amc-stat-label">Parts</div></div>
+    data-rag-label="AMC parts at risk">0</div><div class="amc-stat-label" data-i="ah_amc_parts">Parts to stage</div></div>
         <div class="amc-stat"><div id="amc-stat-crew"   class="amc-stat-num"
     data-rag-tile="alert-hub:amc_crew"
-    data-rag-label="AMC crew alerts">0</div><div class="amc-stat-label">Crew</div></div>
+    data-rag-label="AMC crew alerts">0</div><div class="amc-stat-label" data-i="ah_amc_crew">Crew suggestions</div></div>
       </div>
       <div id="amc-details" class="amc-details"></div>
       <div class="amc-actions">
-        <button id="amc-toggle-btn" aria-expanded="false" aria-controls="amc-details"  class="amc-btn amc-btn-toggle"  type="button" data-i="showdetails">Show details</button>
+        <button id="amc-toggle-btn" aria-expanded="false" aria-controls="amc-details"  class="amc-btn amc-btn-toggle"  type="button" aria-label="Show today's AMC brief in full" data-i="showdetails">Show details</button>
         <button id="amc-approve-btn" class="amc-btn amc-btn-approve" type="button" style="display:none;" data-i="approvebrief">Approve brief</button>
         <button id="amc-reject-btn"  class="amc-btn amc-btn-reject"  type="button" style="display:none;" data-i="reject">Reject</button>
         <span id="amc-readonly-note" class="amc-readonly-note" style="display:none;">Supervisor approval required.</span>
@@ -398,11 +409,11 @@
       <div class="amc-head">
         <div>
           <span class="amc-badge" data-help="anomaly_signals" tabindex="0" style="background:rgba(167,139,250,0.18); color:var(--wh-violet-text); border-color:rgba(167,139,250,0.3);">Anomaly Engine 2.0</span>
-          <span id="anomaly-engine-meta" style="font-size:0.7rem; color:var(--muted); margin-left:6px;"></span>
+          <span id="anomaly-engine-meta" style="font-size:0.75rem; color:var(--muted); margin-left:6px;"></span>
         </div>
-        <span id="anomaly-engine-count" class="alert-tag tag-info" style="font-weight:800;">0 signals</span>
+        <span id="anomaly-engine-count" class="alert-tag tag-info">0 signals</span>
       </div>
-      <div id="anomaly-engine-empty" style="font-size:0.7rem; color:rgba(255,255,255,0.80); margin-top:6px; display:none;">No fused anomalies in your hive right now.</div>
+      <div id="anomaly-engine-empty" data-i="ah_noanomaly" style="font-size:0.8rem; color:rgba(255,255,255,0.80); margin-top:6px; display:none;">No fused anomalies in your hive right now.</div>
       <div id="anomaly-engine-list" style="margin-top:8px;"></div>
     </div>
 
@@ -414,6 +425,11 @@
          "Alerts" on a page whose every visible label spoke Filipino. Same channel as v375's nav-hub
          aria-labels. -->
     <h2 data-i="ah_alerts" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0;">Alerts</h2>
+    <p id="feed-legend" style="font-size:0.75rem; color:rgba(255,255,255,0.80); margin:0 0 12px; max-width:70ch; line-height:1.5;"></p>
+    <div id="sev-focus-bar" style="display:none; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:12px; padding:12px 16px; border-radius:12px; border:1px solid rgba(248,113,113,0.30); background:rgba(248,113,113,0.08);">
+      <span id="sev-focus-text" style="font-size:0.8rem; color:var(--text);"></span>
+      <button id="sev-focus-clear" type="button" style="margin-left:auto; min-height:44px; padding:0 16px; border-radius:8px; border:1px solid rgba(255,255,255,0.18); background:transparent; color:var(--wh-cloud); font-family:inherit; font-size:0.8rem; font-weight:600; cursor:pointer;">Show all alerts</button>
+    </div>
     <div id="feed" class="feed">
       <div class="loading">Loading alerts...</div>
     </div>
@@ -442,7 +458,7 @@
   document.getElementById('wh-source-chip').innerHTML = renderSourceChip({
     freshness: 'Live data',
     source:    'v_risk_truth',
-    notes:     ['PM overdue: counted once per asset, matches PM Scheduler'],
+    notes:     [_t('PM overdue: counted once per asset, matches PM Scheduler', 'PM overdue: binibilang nang isang beses kada asset, tugma sa PM Scheduler')],
   });
 
   const SUPABASE_URL = 'https://hzyvnjtisfgbksicrouu.supabase.co';
@@ -612,6 +628,25 @@
   const _ahView = (window.whRememberView || function () { return { restore() {}, save() {}, clear() {} }; })(
     'alert-filter', () => ({ kind: _activeKind }));
   let _alertDisplayCount = 30;  // List View Contract: client-side slice pagination
+  // ★DECLARED WITH THE REST OF THE MODULE STATE, not beside renderFeed (design lens critique, 2026-09-15):
+  // the first render runs during module evaluation, so a `let` sitting further down the file put the
+  // whole render path in its temporal dead zone - the feed rendered 'Could not load your alerts' and the
+  // DevTools console said exactly why: "Cannot access '_sevFocus' before initialization".
+  // the critical/high focus the primary CTA enters - read from the URL on arrival so a reload, an in-app
+  // Back or a link shared with the next shift lands on the same view (design lens critique, 2026-09-15;
+  // the kind filter has worked this way since Arc Y Y3 and this now matches it)
+  let _sevFocus = (() => { try { return new URLSearchParams(location.search).get('sev') === 'critical-high'; } catch (_) { return false; } })();
+  // ★MODULE SCOPE, because renderFeed reads it (design lens critique, 2026-09-15). Placed beside SEV_RANK at
+  // first - which is declared INSIDE loadAll - so the feed threw a ReferenceError and rendered its error state.
+  // The second scope slip of this batch: a shared constant goes with the module state, never beside the
+  // similarly-named local that inspired it.
+  const SEV_WORDS = {
+    critical: () => _t('Critical', 'Kritikal'),
+    high:     () => _t('High', 'Mataas'),
+    medium:   () => _t('Medium', 'Katamtaman'),
+    low:      () => _t('Low', 'Mababa'),
+    info:     () => _t('Watch', 'Bantayan'),
+  };
   let _refreshTimer = null;
   // Anomaly Engine 2.0 state lets — declared HERE (not next to the panel
   // code at ~line 555) because `await loadAll()` runs early at the bottom
@@ -781,7 +816,7 @@
     const b = brief.brief || {};
     const headlineEl = document.getElementById('amc-headline');
     const summaryEl  = document.getElementById('amc-summary');
-    if (headlineEl) headlineEl.textContent = String(b.headline || '(no headline)');
+    if (headlineEl) headlineEl.textContent = String(b.headline || _t('(no headline)', '(walang headline)'));
     if (summaryEl)  summaryEl.textContent  = String(b.summary  || '');
 
     // STREAMLINE S6: upgrade the brief body to the unified Action Brief (analytics
@@ -798,8 +833,8 @@
       const _refreshHint = document.createElement('div');
       _refreshHint.className = 'ah-brief-refreshing';
       _refreshHint.setAttribute('role', 'status');
-      _refreshHint.style.cssText = 'font-size:0.7rem;color:var(--muted,rgba(255,255,255,0.6));margin:4px 0 8px;display:flex;align-items:center;gap:6px;';
-      _refreshHint.textContent = '↻ Refreshing this brief with live data…';
+      _refreshHint.style.cssText = 'font-size:0.8rem;color:var(--muted,rgba(255,255,255,0.8));margin:4px 0 8px;display:flex;align-items:center;gap:6px;';
+      _refreshHint.textContent = _t('↻ Refreshing this brief with live data…', '↻ Nire-refresh ang brief na ito gamit ang live na data…');
       try { summaryEl.parentNode && summaryEl.parentNode.insertBefore(_refreshHint, summaryEl); } catch (_) { /* empty-catch-allow */ }
       try {
         const { data } = await db.functions.invoke('analytics-orchestrator', {
@@ -849,7 +884,7 @@
 
       if (Array.isArray(b.top_assets) && b.top_assets.length) {
         sections.push(
-          '<div class="amc-section-title">Top risk assets</div>' +
+          '<div class="amc-section-title">' + _t('Top risk assets', 'Mga asset na pinakamataas ang risk') + '</div>' +
           b.top_assets.map(a =>
             `<div class="amc-row"><strong>${e(a.asset_name || '?')}</strong>: ${e(a.risk_level || '?')} (${Math.round((Number(a.risk_score) || 0) * 100)}%)</div>`,
           ).join('')
@@ -857,7 +892,7 @@
       }
       if (Array.isArray(b.pm_due) && b.pm_due.length) {
         sections.push(
-          '<div class="amc-section-title">PMs due</div>' +
+          '<div class="amc-section-title">' + _t('PMs due', 'Mga PM na dapat gawin') + '</div>' +
           b.pm_due.map(p =>
             `<div class="amc-row"><strong>${e(p.asset_name || '?')}</strong>: ${e(p.category || 'general')}` +
             (p.days_since_last_completion != null ? `, ${p.days_since_last_completion}d since last` : '') +
@@ -868,7 +903,7 @@
       }
       if (Array.isArray(b.parts_to_stage) && b.parts_to_stage.length) {
         sections.push(
-          '<div class="amc-section-title">Parts to stage</div>' +
+          '<div class="amc-section-title">' + _t('Parts to stage', 'Mga part na ihahanda') + '</div>' +
           b.parts_to_stage.map(p => {
             const n = Array.isArray(p.parts) ? p.parts.length : 0;
             const conf = p.confidence != null ? Math.round(Number(p.confidence) * 100) + '%' : '?';
@@ -878,7 +913,7 @@
       }
       if (Array.isArray(b.crew) && b.crew.length) {
         sections.push(
-          '<div class="amc-section-title">Crew suggestions</div>' +
+          '<div class="amc-section-title">' + _t('Crew suggestions', 'Mga suhestiyon para sa crew') + '</div>' +
           b.crew.map(c =>
             `<div class="amc-row"><strong>${e(c.asset_name || '?')}</strong> → ${e(c.suggested_worker || '(no one available)')}` +
             (c.discipline ? ` <em>${e(c.discipline)}</em>` : '') +
@@ -935,7 +970,7 @@
   }
 
   async function actOnAmcBrief(newStatus) {
-    if (HIVE_ROLE !== 'supervisor') { showAmcMsg('Supervisor approval required.'); return; }
+    if (HIVE_ROLE !== 'supervisor') { showAmcMsg(_t('Only a supervisor can approve or reject this brief.', 'Supervisor lang ang maaaring mag-apruba o tumanggi sa brief na ito.')); return; }
     if (!_amcBrief || _amcBrief.status !== 'pending') return;
     // ★REFUSE BEFORE ASKING THEM TO COMMIT. This is an APPROVAL write, and offline it fired into a dead
     // network. The guard sits BEFORE the reject confirmation on purpose: making a supervisor confirm
@@ -945,13 +980,22 @@
     if (typeof whRequireOnline === 'function'
         && !whRequireOnline(newStatus === 'rejected' ? 'Rejecting this brief' : 'Approving this brief',
                             (m) => showAmcMsg(m))) return;
-    if (newStatus === 'rejected' && !(await window.whConfirm('Reject today\'s AMC brief? The crew will not act on it.', { okLabel: 'Reject', cancelLabel: 'Cancel' }))) return;
+    // ★THE DESTRUCTIVE HALF WAS GUARDED AND THE DISPATCHING HALF WAS NOT (design lens critique, 2026-09-15).
+    // Reject asked; Approve - which sends the day's work to every worker in the hive - went through on one tap.
+    // Both now name the action and its consequence, in the reader's language, on the message AND the button.
+    if (newStatus === 'rejected' && !(await window.whConfirm(
+          _t("Reject today's AMC brief? The crew will not act on it.", 'Tanggihan ang AMC brief ngayong araw? Hindi ito susundin ng crew.'),
+          { okLabel: _t('Reject', 'Tanggihan'), cancelLabel: _t('Cancel', 'Kanselahin') }))) return;
+    if (newStatus === 'approved' && !(await window.whConfirm(
+          _t("Approve today's brief? The crew suggestions go out to your whole hive under your name.",
+             'Aprubahan ang brief ngayong araw? Lalabas ang mga suhestiyon sa buong hive mo, nakapangalan sa iyo.'),
+          { okLabel: _t('Approve brief', 'Aprubahan'), cancelLabel: _t('Cancel', 'Kanselahin') }))) return;
 
     const approveBtn = document.getElementById('amc-approve-btn');
     const rejectBtn  = document.getElementById('amc-reject-btn');
     if (approveBtn) approveBtn.disabled = true;
     if (rejectBtn)  rejectBtn.disabled  = true;
-    showAmcMsg(newStatus === 'approved' ? 'Approving brief...' : 'Rejecting brief...');
+    showAmcMsg(newStatus === 'approved' ? _t('Approving brief…', 'Inaaprubahan ang brief…') : _t('Rejecting brief…', 'Tinatanggihan ang brief…'));
 
     // P6-C1 optimistic lock (approval-lock class, 2026-07-19): the `_amcBrief.status !== 'pending'`
     // check above reads STALE cached state — atomically guard `.eq('status','pending')` so a concurrent
@@ -976,7 +1020,7 @@
       return;
     }
     if (!updated || !updated.length) {
-      showAmcMsg('That brief was already decided by another supervisor.');
+      showAmcMsg(_t('That brief was already decided by another supervisor.', 'Napagdesisyunan na ang brief na iyon ng ibang supervisor.'));
       return;
     }
     // Record the supervisor decision in the canonical audit trail.
@@ -987,7 +1031,7 @@
       'AMC brief ' + (_amcBrief.shift_date || ''),
       { shift_date: _amcBrief.shift_date }
     );
-    showAmcMsg(newStatus === 'approved' ? 'Brief approved.' : 'Brief rejected.');
+    showAmcMsg(newStatus === 'approved' ? _t('Brief approved: the crew suggestions are live.', 'Aprubado ang brief: live na ang mga suhestiyon sa crew.') : _t('Brief rejected: no crew suggestions go out.', 'Tinanggihan ang brief: walang lalabas na suhestiyon sa crew.'));
     // Local refresh — realtime will also fire, but be fast for the actor.
     _amcBrief = { ..._amcBrief, status: newStatus, approved_by: WORKER_NAME, approved_at: new Date().toISOString() };
     renderAmcCard(_amcBrief);
@@ -1022,15 +1066,15 @@
   // live updates so multiple supervisors see the same state in real-time.
 
   const ANOMALY_SEVERITY = {
-    critical: { color: '#f87171', bg: 'rgba(248,113,113,0.15)', label: 'CRITICAL' },
-    warning:  { color: 'var(--wh-orange)', bg: 'rgba(247,162,27,0.15)',  label: 'WARNING'  },
+    critical: { color: 'var(--wh-red)', bg: 'rgba(248,113,113,0.15)', border: 'rgba(248,113,113,0.35)', label: 'Critical' },   /* tokens, not literals (design lens audit 2026-09-15) */
+    warning:  { color: 'var(--wh-orange)', bg: 'rgba(247,162,27,0.15)',  border: 'rgba(247,162,27,0.35)',  label: 'Warning'  },
     // ★ONE STORED VALUE WAS SHOWING TWO DIFFERENT WORDS. compute_anomaly_signals emits exactly
     // three severities - critical, warning, info - and never 'watch', so the key here was dead.
     // Meanwhile hive.html labels the SAME stored 'info' as 'Watch' (critical/warning/info ->
     // Critical/Warning/Watch). A person moving between the two boards saw INFO here and Watch there
     // for the identical signal. 'Watch' is the better word - it says what to do rather than naming a
     // tier - so info adopts it and the unreachable 'watch' key goes, leaving one word per value.
-    info:     { color: '#facc15', bg: 'rgba(250,204,21,0.12)', label: 'WATCH'    },
+    info:     { color: 'var(--wh-amber)', bg: 'rgba(250,204,21,0.12)', border: 'rgba(250,204,21,0.35)', label: 'Watch'    },
   };
   // _anomalyChannel + _anomalyLoading + _anomalyDebounce are declared at
   // the top of the IIFE (next to _amcChannel) so the early `await loadAll()`
@@ -1039,7 +1083,10 @@
   // Minimal showToast for DB-error surfacing. validate_input_guards
   // requires every DB-writing page to expose this so worker-visible errors
   // don't get silently console.warn'd. Walkthrough 2026-05-13.
-  function showToast(msg) {
+  // ★A TOAST THAT NAMES A CONSEQUENCE MUST BE ABLE TO CARRY THE WAY BACK (design lens critique,
+  // 2026-09-15): `grep -i undo` over this file returned nothing, while one tap on Handled hid a plant
+  // alert from the whole crew for good. `action` is optional, so every existing caller is unchanged.
+  function showToast(msg, action) {
     let host = document.getElementById('wh-toast');
     if (!host) {
       host = document.createElement('div');
@@ -1048,9 +1095,18 @@
       document.body.appendChild(host);
     }
     host.textContent = msg;
+    if (action && action.label && typeof action.onAct === 'function') {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.textContent = action.label;
+      btn.style.cssText = 'margin-left:12px;min-height:44px;padding:0 16px;border-radius:8px;border:1px solid rgba(255,255,255,0.28);'
+        + 'background:transparent;color:var(--wh-orange);font-family:inherit;font-size:0.8rem;font-weight:700;cursor:pointer;';
+      btn.addEventListener('click', () => { host.style.display = 'none'; clearTimeout(host._t); action.onAct(); });
+      host.appendChild(btn);
+    }
     host.style.display = 'block';
     clearTimeout(host._t);
-    host._t = setTimeout(() => { host.style.display = 'none'; }, 3500);
+    host._t = setTimeout(() => { host.style.display = 'none'; }, action ? 8000 : 3500);
   }
 
   // Audit trail writer — same pattern as hive.html / logbook.html / etc.
@@ -1176,20 +1232,20 @@
         ? reasons.map(rr => e(rr.label || rr.signal)).join(' · ')
         : 'Composite signal: open details for breakdown';
       const ackBtn = isSupervisor && r.status === 'active'
-        ? `<button class="amc-btn amc-btn-toggle" data-anomaly-id="${e(r.id)}" data-anomaly-machine="${e(r.machine)}" data-action="acknowledge" data-help="anomaly_acknowledged" type="button" aria-pressed="false" style="font-size:0.7rem; padding:6px 12px;" data-i="acknowledge">Acknowledge</button>`
+        ? `<button class="amc-btn amc-btn-toggle" data-anomaly-id="${e(r.id)}" data-anomaly-machine="${e(r.machine)}" data-action="acknowledge" data-help="anomaly_acknowledged" type="button" aria-pressed="false" style="font-size:0.8rem; padding:6px 12px;" data-i="acknowledge">Acknowledge</button>`
         : '';
       const resBtn = isSupervisor && r.status !== 'resolved'
-        ? `<button class="amc-btn amc-btn-approve" data-anomaly-id="${e(r.id)}" data-anomaly-machine="${e(r.machine)}" data-action="resolve" data-help="anomaly_resolved" type="button" style="font-size:0.7rem; padding:6px 12px;" data-i="resolve">Resolve</button>`
+        ? `<button class="amc-btn amc-btn-approve" data-anomaly-id="${e(r.id)}" data-anomaly-machine="${e(r.machine)}" data-action="resolve" data-help="anomaly_resolved" type="button" style="font-size:0.8rem; padding:6px 12px;" data-i="resolve">Resolve</button>`
         : '';
       const severityHelpKey = `severity_${r.severity}`;
       return `
         <div class="alert-card" style="margin-bottom:8px; border-left:3px solid ${sev.color};">
           <div style="display:flex; align-items:baseline; justify-content:space-between; gap:8px;">
-            <div style="font-weight:800; font-size:0.9rem;">${e(r.machine)}</div>
-            <span class="alert-tag" data-help="${e(severityHelpKey)}" tabindex="0" style="background:${sev.bg}; color:${sev.color}; border:1px solid ${sev.color}33;">${e(sev.label)} · ${e(String(r.composite_score))}/100</span>
+            <div style="font-weight:700; font-size:0.9rem;">${e(r.machine)}</div>
+            <span class="alert-tag" data-help="${e(severityHelpKey)}" tabindex="0" style="background:${sev.bg}; color:${sev.color}; border:1px solid ${sev.border};">${e(sev.label)} · ${e(String(r.composite_score))}/100</span>
           </div>
-          <div style="font-size:0.7rem; color:rgba(255,255,255,0.83); margin-top:6px;">${reasonStr}</div>
-          <div style="font-size:0.6rem; color:rgba(255,255,255,0.4); margin-top:4px;">${e(String(r.source_count))} source${r.source_count === 1 ? '' : 's'} fired · status ${e(r.status)}</div>
+          <div style="font-size:0.8rem; color:rgba(255,255,255,0.83); margin-top:6px;">${reasonStr}</div>
+          <div style="font-size: 0.75rem; color:rgba(255,255,255,0.4); margin-top:4px;">${e(String(r.source_count))} source${r.source_count === 1 ? '' : 's'} fired · status ${e(r.status)}</div>
           ${(ackBtn || resBtn) ? `<div style="margin-top:8px; display:flex; gap:6px;">${ackBtn}${resBtn}</div>` : ''}
         </div>
       `;
@@ -1391,21 +1447,40 @@
         // Legacy emits flat strings. Match predictive.html's shape-aware reader so the
         // alert message stays plain-text-friendly without rendering [object Object] when the
         // structured shape lands. Falls back gracefully when the field is absent or empty.
-        const factors = Array.isArray(r.top_factors)
-          ? r.top_factors.slice(0, 3).map(f => {
-              if (f && typeof f === 'object') return String(f.factor || '').replace(/_/g, ' ');
-              return String(f).replace(/_/g, ' ');
-            }).filter(Boolean).join(', ')
+        // ★A DATABASE ENUM IS NOT A SENTENCE, IN EITHER LANGUAGE (design lens critique, 2026-09-15).
+        // top_factors arrives as ['pm_overdue','time_to_mtbf','repeat_fault'] and this printed it with
+        // .replace(/_/g,' ') - a transform, not a translation. An English reader got "time to mtbf"; a
+        // Filipino reader got the same. Both arms are written out, and an unknown key still degrades to
+        // the old de-underscored form rather than vanishing.
+        const FACTOR_WORDS = {
+          pm_overdue:   ['PM overdue',         'overdue ang PM'],
+          time_to_mtbf: ['close to its MTBF',  'malapit na sa MTBF nito'],
+          repeat_fault: ['repeat fault',       'paulit-ulit na sira'],
+          downtime:     ['heavy downtime',     'matagal na downtime'],
+          criticality:  ['critical asset',     'kritikal na asset'],
+          age:          ['ageing asset',       'matanda nang asset'],
+          open_issues:  ['open issues',        'may bukas na isyu'],
+        };
+        const _factorWord = (f, i) => {
+          const key = String((f && typeof f === 'object') ? (f.factor || '') : f).trim();
+          const pair = FACTOR_WORDS[key];
+          return pair ? pair[i] : key.replace(/_/g, ' ');
+        };
+        const _factorList = (i) => Array.isArray(r.top_factors)
+          ? r.top_factors.slice(0, 3).map((f) => _factorWord(f, i)).filter(Boolean).join(', ')
           : '';
+        const factors = _factorList(0);
+        const factorsFil = _factorList(1);
         all.push({
           kind: 'risk',
           dedupeKey: 'risk:' + (r.asset_name || 'unknown'),   // Arc Y Y3: stable dismissal key
           severity: r.risk_level,
-          title: r.asset_name || 'Unknown asset',
-          msg: `Risk score ${Math.round((Number(r.risk_score) || 0) * 100)}%${factors ? ', ' + factors : ''}`,
+          title: r.asset_name || _t('Unknown asset', 'Hindi kilalang asset'),
+          msg: _t(`Risk score ${Math.round((Number(r.risk_score) || 0) * 100)}%${factors ? ', ' + factors : ''}`,
+                  `Risk score ${Math.round((Number(r.risk_score) || 0) * 100)}%${factorsFil ? ', ' + factorsFil : ''}`),
           time: r.generated_at,
           href: 'asset-hub.html?tag=' + encodeURIComponent(r.asset_name || ''),
-          actionLabel: 'Open in Asset Hub',
+          actionLabel: _t('Open in Asset Hub', 'Buksan sa Asset Hub'),
           // Service-hailing demand trigger (SERVICE_HAILING_ROADMAP.md P4, §1c): a critical/high
           // risk alert offers "Hail a specialist" - lands on the marketplace Services pane with
           // the asset + risk context pre-composed.
@@ -1435,12 +1510,12 @@
             kind: 'stock',
             dedupeKey: 'stock:' + (i.part_name || i.id || 'unknown'),   // Arc Y Y3: stable dismissal key
             severity: stock.severity,
-            title: i.part_name || 'Unnamed part',
-            msg: `${qty} on hand, reorder at ${rp}`,
+            title: i.part_name || _t('Unnamed part', 'Walang pangalang part'),
+            msg: _t(`${qty} on hand, reorder at ${rp}`, `${qty} ang natitira, mag-order na sa ${rp}`),
             time: i.updated_at || new Date().toISOString(),
             // Arc X A1: deep-link to the NAMED part (inventory.html reads ?q= -> filters + scrolls).
             href: 'inventory.html?q=' + encodeURIComponent(i.part_name || ''),
-            actionLabel: 'Open Inventory',
+            actionLabel: _t('Open Inventory', 'Buksan ang Inventory'),
           });
         }
       }
@@ -1459,18 +1534,18 @@
         if (_seenPmAsset.has(key)) continue;   // one alert per asset (worst item)
         _seenPmAsset.add(key);
         const detail = (r.days_until_due != null && r.days_until_due < 0)
-          ? `PM ${Math.abs(r.days_until_due)}d overdue`
-          : 'PM overdue';
+          ? _t(`PM ${Math.abs(r.days_until_due)}d overdue`, `${Math.abs(r.days_until_due)}d na overdue ang PM`)
+          : _t('PM overdue', 'Overdue ang PM');
         all.push({
           kind: 'pm',
           dedupeKey: 'pm:' + key,   // Arc Y Y3: stable dismissal key (pm_asset_id||asset_name)
           severity: (r.asset_criticality === 'critical') ? 'critical' : 'high',
-          title: r.asset_name || 'Unnamed asset',
+          title: r.asset_name || _t('Unnamed asset', 'Walang pangalang asset'),
           msg: `${detail} (${r.asset_category || 'general'})`,
           time: r.last_completed_at || pmCutoff,
           // Arc X A1: deep-link to the NAMED asset's PM detail (pm-scheduler reads ?asset=).
           href: 'pm-scheduler.html?asset=' + encodeURIComponent(r.asset_name || ''),
-          actionLabel: 'Open PM Scheduler',
+          actionLabel: _t('Open PM Scheduler', 'Buksan ang PM Scheduler'),
         });
       }
     }
@@ -1482,12 +1557,12 @@
           kind: 'pattern',
           dedupeKey: 'pattern:' + (p.machine || '') + ':' + (p.rule_id || p.title || ''),   // Arc Y Y3
           severity: p.severity || 'medium',
-          title: p.machine || 'Unknown machine',
+          title: p.machine || _t('Unknown machine', 'Hindi kilalang makina'),
           // v_alert_truth renames alert_title→title / alert_detail→detail
-          msg: p.title || p.detail || ('Pattern: ' + (p.rule_id || 'unknown')),
+          msg: p.title || p.detail || _t('Pattern: ' + (p.rule_id || 'unknown'), 'Pattern: ' + (p.rule_id || 'hindi kilala')),
           time: p.detected_at,
           href: 'asset-hub.html?tag=' + encodeURIComponent(p.machine || ''),
-          actionLabel: 'Open in Asset Hub',
+          actionLabel: _t('Open in Asset Hub', 'Buksan sa Asset Hub'),
         });
       }
     }
@@ -1516,7 +1591,7 @@
           msg: `${partsCount} part${partsCount === 1 ? '' : 's'} recommended (${conf}% confidence)${r.failure_mode ? ' for ' + r.failure_mode : ''}. ${r.rationale || ''}`.slice(0, 220),   // two sentences, not one colon-joined line (B3)
           time: r.generated_at,
           href: 'asset-hub.html?tag=' + encodeURIComponent(r.asset_name || ''),
-          actionLabel: 'Review & stage',
+          actionLabel: _t('Review & stage', 'Suriin at i-stage'),
         });
       }
     }
@@ -1527,8 +1602,8 @@
         all.push({
           kind: 'system',
           severity: 'info',
-          title: l.job_name || 'Automation job',
-          msg: (l.detail || '').slice(0, 120) || 'Automation run failed',
+          title: l.job_name || _t('Automation job', 'Automation job'),
+          msg: (l.detail || '').slice(0, 120) || _t('Automation run failed', 'Nabigo ang automation run'),
           time: l.triggered_at,
           href: '#',
           actionLabel: '',
@@ -1562,7 +1637,7 @@
       }
       renderAmcCard(amcRes.todayBrief, amcRes.historic);
       for (const b of (amcRes.historic || [])) {
-        const head = (b.brief && b.brief.headline) ? String(b.brief.headline) : '(no headline)';
+        const head = (b.brief && b.brief.headline) ? String(b.brief.headline) : _t('(no headline)', '(walang headline)');
         // ★A BRIEF STILL AWAITING A DECISION WAS FILED AS NEWS. The map sent anything not rejected or expired
         // to 'info' - the lowest severity - which includes PENDING. And the approve/reject pair lives only on
         // the TODAY card, while this loop renders the neq.today rows, so once the Manila day rolls over a
@@ -1583,7 +1658,8 @@
           severity: sev,
           title: `AMC brief ${b.shift_date}`,
           msg: stranded
-            ? head + '. Still awaiting approval from an earlier shift - open the brief for that day to decide.'
+            ? head + _t('. Still awaiting approval from an earlier shift - open the brief for that day to decide.',
+                        '. Hinihintay pa rin ang pag-apruba mula sa naunang shift - buksan ang brief ng araw na iyon para magdesisyon.')
             : head + ' (' + b.status + ')',
           time: b.generated_at,
           href: '#',
@@ -1685,6 +1761,9 @@
     document.getElementById('filters').innerHTML = KINDS.map(k => {
       const active = k.id === _activeKind ? ' active' : '';
       const count = counts[k.id] || 0;
+      // a chip for a kind with nothing in it cannot do anything - "System 0" was rendered every load
+      // (design lens critique, 2026-09-15). The ACTIVE chip always stays, or the view could not be left.
+      if (!active && k.id !== 'all' && count === 0) return '';
       return `<button class="chip${active}" data-kind="${e(k.id)}" role="tab" aria-selected="${active ? 'true' : 'false'}" translate="no">
         <span>${e(k.icon)}</span>${e(k.label)}
         <span class="chip-count">${count}</span>
@@ -1715,6 +1794,29 @@
   // Arc Y Y3: mark a derived alert handled — OPTIMISTIC (remove + re-render now),
   // then persist to alert_dismissals (hive-member RLS). On failure, re-fetch so the
   // feed never lies. 'handled' hides until the underlying signal re-fires (new key).
+  // ★THE ROW VANISHED UNDER HIS THUMB (design lens motion, W45857, 2026-09-15). dismissAlert filtered the
+  // alert out of _alerts and re-rendered the feed in the SAME frame, so the row the supervisor had just
+  // tapped disappeared and every row below it jumped up by its height mid-gesture. review-animations
+  // STANDARDS: motion on a tens-of-times-a-day action is justified ONLY to prevent a jarring change, and
+  // must be the smallest thing that does the job - so the row releases itself in 140 ms on opacity and
+  // transform alone (GPU, no layout), and only then does the feed close the gap. Reduced motion skips it
+  // entirely; a dropped transitionend cannot hang the dismissal (the 180 ms fallback always resolves).
+  function _releaseAlertRow(key) {
+    return new Promise(function (resolve) {
+      var row = null;
+      try { row = document.querySelector('.alert[data-alert-key="' + String(key).replace(/"/g, '') + '"]'); } catch (e) { void e; }
+      var reduce = false;
+      try { reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { void e; }
+      if (!row || reduce) return resolve();
+      var done = false;
+      var fin = function () { if (done) return; done = true; resolve(); };
+      row.style.transition = 'opacity 140ms var(--wh-ease-out), transform 140ms var(--wh-ease-out)';
+      row.style.opacity = '0';
+      row.style.transform = 'translateX(12px)';
+      row.addEventListener('transitionend', fin, { once: true });
+      setTimeout(fin, 180);
+    });
+  }
   async function dismissAlert(key, action = 'handled', snoozeDays = 0) {
     if (!key || !HIVE_ID) return;
     // ★THE ALERT VANISHED AND NOTHING WAS RECORDED. This mutates _dismissals, filters the alert out of
@@ -1725,6 +1827,7 @@
     if (typeof whRequireOnline === 'function'
         && !whRequireOnline(action === 'snoozed' ? 'Snoozing this alert' : 'Dismissing this alert',
                             (m) => showToast(m))) return;
+    await _releaseAlertRow(key);   // the row leaves before the list closes the gap (motion lens, 2026-09-15)
     const prev = _alerts;
     const snoozeUntil = (action === 'snoozed' && snoozeDays > 0)
       ? new Date(Date.now() + snoozeDays * 86400000).toISOString() : null;
@@ -1747,8 +1850,28 @@
       // actor: WORKER_NAME, so the action IS attributable - and saying that out loud is what makes the scope
       // feel deliberate rather than accidental. Both halves are claims the code backs on the same statement.
       showToast(action === 'snoozed'
-        ? `Snoozed for ${snoozeDays} day${snoozeDays === 1 ? '' : 's'} → hidden for your whole hive until then, under your name.`
-        : 'Alert marked handled → hidden for your whole hive now, recorded under your name.');
+        ? _t(`Snoozed for ${snoozeDays} day${snoozeDays === 1 ? '' : 's'} → hidden for your whole hive until then, under your name.`,
+             `Naka-snooze ng ${snoozeDays} araw → nakatago sa buong hive mo hanggang doon, nakapangalan sa iyo.`)
+        : _t('Alert marked handled → hidden for your whole hive now, recorded under your name.',
+             'Namarkahang naasikaso ang alerto → nakatago na sa buong hive mo, nakatala sa pangalan mo.'),
+        // the way back, for the 8 s the toast stands: it deletes the row this write created and puts
+        // the alert back in everyone's feed (design lens critique, 2026-09-15 - there was no undo at all)
+        { label: _t('Undo', 'I-undo'), onAct: async () => {
+            try {
+              const { error: undoErr } = await db.from('alert_dismissals')
+                .delete().eq('hive_id', HIVE_ID).eq('alert_key', key);
+              if (undoErr) throw undoErr;
+              delete _dismissals[key];
+              _alerts = prev;
+              renderFeed(); renderAlertSummary();
+              writeAuditLog('alert_dismissal_undone', 'alert', key, key, { undid: action });
+              showToast(_t('Put back → the alert is in your hive\u2019s feed again.',
+                           'Naibalik → nasa feed na ulit ng hive mo ang alerto.'));
+            } catch (undoE) {
+              console.error('alert-hub undo failed:', undoE);
+              showToast(_t('Could not undo, the alert stays hidden', 'Hindi na-undo, nananatiling nakatago ang alerto'));
+            }
+          } });
     } catch (e) {
       console.error('alert-hub dismiss failed:', e);
       delete _dismissals[key];
@@ -1883,16 +2006,16 @@
 
     // AMC brief status: read from the AMC card visible state + status pill.
     let amcStatus = 'none';
-    let amcHero = 'None today';
+    let amcHero = _t('None today', 'Wala ngayong araw');
     try {
       const amcCard = document.getElementById('amc-card');
       if (amcCard && amcCard.style.display !== 'none') {
         const pill = document.getElementById('amc-status-pill');
         const txt = pill ? (pill.textContent || '').trim().toLowerCase() : '';
-        if (txt.includes('pending'))  { amcStatus = 'pending';  amcHero = 'Pending'; }
-        else if (txt.includes('approved')) { amcStatus = 'approved'; amcHero = 'Approved'; }
-        else if (txt.includes('rejected')) { amcStatus = 'rejected'; amcHero = 'Rejected'; }
-        else { amcStatus = 'active'; amcHero = 'Brief ready'; }
+        if (txt.includes('pending'))  { amcStatus = 'pending';  amcHero = _t('Pending', 'Nakabinbin'); }
+        else if (txt.includes('approved')) { amcStatus = 'approved'; amcHero = _t('Approved', 'Aprubado'); }
+        else if (txt.includes('rejected')) { amcStatus = 'rejected'; amcHero = _t('Rejected', 'Tinanggihan'); }
+        else { amcStatus = 'active'; amcHero = _t('Brief ready', 'Handa na ang brief'); }
       }
     } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
 
@@ -1910,8 +2033,9 @@
     // Card 1 — High-severity alerts
     setCard('critical',
       String(critical),
-      critical === 0 ? `${total} total alerts · none critical or high` : `${critical} of ${total} alerts need eyes now`,
-      critical === 0 ? 'CLEAR' : critical > 3 ? 'STACKING UP' : 'WATCH',
+      critical === 0 ? _t(`${total} total alerts · none critical or high`, `${total} alerto sa kabuuan · walang critical o high`)
+                     : _t(`${critical} of ${total} alerts need eyes now`, `${critical} sa ${total} alerto ang kailangang tingnan ngayon`),
+      critical === 0 ? _t('Clear', 'Malinis') : critical > 3 ? _t('Stacking up', 'Dumadami') : _t('Watch', 'Bantayan'),
       critical === 0 ? 'green' : critical > 3 ? 'red' : 'amber'
     );
 
@@ -1930,11 +2054,11 @@
     const anomalyKnown = (_anomalyCount != null);
     setCard('anomaly',
       anomalyKnown ? String(anomalyCount) : '—',
-      !anomalyKnown ? 'Anomaly scan has not run for this hive'
-        : anomalyCount === 0 ? 'No fused anomalies in your hive right now'
-        : `${anomalyCount} multi-source anomalies in attention`,
-      !anomalyKnown ? 'NOT RUN'
-        : anomalyCount === 0 ? 'CLEAR' : anomalyCount > 3 ? 'STACKING UP' : 'WATCH',
+      !anomalyKnown ? _t('Anomaly scan has not run for this hive', 'Hindi pa tumatakbo ang anomaly scan para sa hive na ito')
+        : anomalyCount === 0 ? _t('No fused anomalies in your hive right now', 'Walang pinagsamang anomalya sa hive mo ngayon')
+        : _t(`${anomalyCount} multi-source anomalies in attention`, `${anomalyCount} multi-source na anomalya ang binabantayan`),
+      !anomalyKnown ? _t('Not run', 'Hindi pa tumakbo')
+        : anomalyCount === 0 ? _t('Clear', 'Malinis') : anomalyCount > 3 ? _t('Stacking up', 'Dumadami') : _t('Watch', 'Bantayan'),
       !anomalyKnown ? 'grey'
         : anomalyCount === 0 ? 'green' : anomalyCount > 3 ? 'red' : 'amber'
     );
@@ -1945,16 +2069,16 @@
                   : amcStatus === 'rejected' ? 'red'
                   : amcStatus === 'active'   ? 'amber'
                   : 'grey';
-    const amcTag  = amcStatus === 'pending'  ? 'AWAITING APPROVAL'
-                  : amcStatus === 'approved' ? 'APPROVED'
-                  : amcStatus === 'rejected' ? 'REJECTED'
-                  : amcStatus === 'active'   ? 'READY'
-                  : 'NO BRIEF';
-    const amcSub  = amcStatus === 'pending'  ? 'Supervisor approval blocks AMC dispatch'
-                  : amcStatus === 'approved' ? "Today's brief is live; crew is dispatched"
-                  : amcStatus === 'rejected' ? "Today's brief rejected: see status message on card"
-                  : amcStatus === 'active'   ? 'Brief loaded for this shift'
-                  : "No AMC brief for today's shift";
+    const amcTag  = amcStatus === 'pending'  ? _t('Awaiting approval', 'Hinihintay ang pag-apruba')
+                  : amcStatus === 'approved' ? _t('Approved', 'Aprubado')
+                  : amcStatus === 'rejected' ? _t('Rejected', 'Tinanggihan')
+                  : amcStatus === 'active'   ? _t('Ready', 'Handa')
+                  : _t('No brief', 'Walang brief');
+    const amcSub  = amcStatus === 'pending'  ? _t('Supervisor approval blocks AMC dispatch', 'Kailangan ng pag-apruba ng supervisor bago mag-dispatch ang AMC')
+                  : amcStatus === 'approved' ? _t("Today's brief is live; crew is dispatched", 'Live na ang brief ngayong araw; naka-dispatch na ang crew')
+                  : amcStatus === 'rejected' ? _t("Today's brief rejected: see status message on card", 'Tinanggihan ang brief ngayong araw: tingnan ang status message sa card')
+                  : amcStatus === 'active'   ? _t('Brief loaded for this shift', 'Naka-load ang brief para sa shift na ito')
+                  : _t("No AMC brief for today's shift", 'Walang AMC brief para sa shift ngayong araw');
     setCard('amc', amcHero, amcSub, amcTag, amcTone);
 
     // Plain-Read verdict (Layer D) — one composite tone only. Deliberately does
@@ -1968,22 +2092,22 @@
       let tone, icon, label, sub;
       if (critical > 0) {
         tone = 'attn'; icon = '⚠';
-        label = 'Needs your attention now';
-        sub = 'You have open critical alerts. Clear the top of the feed first.';
+        label = _t('Needs your attention now', 'Kailangan ng atensyon mo ngayon');
+        sub = _t('You have open critical alerts. Clear the top of the feed first.', 'May bukas kang critical na alerto. Unahin ang itaas ng feed.');
       } else if (anomalyCount > 0 || amcStatus === 'pending') {
         tone = 'watch'; icon = '!';
-        label = 'Worth a look this shift';
+        label = _t('Worth a look this shift', 'Sulit tingnan ngayong shift');
         sub = anomalyCount > 0
-          ? 'Anomaly signals are brewing: a fault may be forming across your assets.'
-          : "Today's AMC brief is waiting on your approval before crew dispatch.";
+          ? _t('Anomaly signals are brewing: a fault may be forming across your assets.', 'May nabubuong anomaly signals: baka may fault na umuusbong sa mga asset mo.')
+          : _t("Today's AMC brief is waiting on your approval before crew dispatch.", 'Naghihintay ng pag-apruba mo ang AMC brief ngayong araw bago i-dispatch ang crew.');
       } else if (total > 0) {
         tone = 'watch'; icon = '!';
-        label = 'Calm, a few open items';
-        sub = 'Open alerts remain but none are critical, work them on your next walkaround.';
+        label = _t('Calm, a few open items', 'Kalmado, may ilang bukas na item');
+        sub = _t('Open alerts remain but none are critical, work them on your next walkaround.', 'May natitirang bukas na alerto pero walang critical. Asikasuhin sa susunod mong walkaround.');
       } else {
         tone = 'healthy'; icon = '✓';
-        label = 'All clear';
-        sub = 'No critical alerts, anomalies, or pending briefs for your hive right now.';
+        label = _t('All clear', 'Walang problema');
+        sub = _t('No critical alerts, anomalies, or pending briefs for your hive right now.', 'Walang critical na alerto, anomalya, o nakabinbing brief sa hive mo ngayon.');
       }
       vBox.classList.remove('healthy', 'watch', 'attn', 'empty');
       vBox.classList.add(tone);
@@ -1997,9 +2121,12 @@
     if (actBox) {
       // Arc P · Wave 1 (P3 / FUSION 3a): one primary button that scrolls to the feed
       // (or the AMC card) so the recommended step is one tap away.
-      const setCta = (label, scroll) => {
+      const setCta = (label, scroll, act) => {
         const b = document.getElementById('ah-action-btn'); if (!b) return;
         b.textContent = label; b.classList.remove('hidden');
+        // the accessible name follows the language too (design lens copy, 2026-09-15): it was a fixed English
+        // sentence while the visible label was translated, so a Filipino screen-reader user heard English
+        b.setAttribute('aria-label', _t('Do the recommended next action', 'Gawin ang inirerekomendang susunod na hakbang'));
         // ★COHORT DRIFT, CLOSED. analytics / alert-hub / shift-brain render the SAME executive-summary
         // chrome under three id prefixes, and analytics had already fixed this while the other two had not:
         // an on-page CTA gets a REAL fragment href, not "#", so the browser jumps to the target with zero
@@ -2009,9 +2136,10 @@
         b.setAttribute('href', (scroll || '#').replace(/^\./, '#'));
         b.onclick = (e) => {
           const t = scroll && document.querySelector(scroll);
-          if (!t) return;                       // no target -> let the href do its job
+          if (!t && !act) return;               // no target and nothing to do -> let the href do its job
           e.preventDefault();
-          t.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          if (act) act();                      // DO the step, then take him to it
+          if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' });
         };
       };
       const hideCta = () => { const b = document.getElementById('ah-action-btn'); if (b) b.classList.add('hidden'); };
@@ -2022,7 +2150,7 @@
         // (there is no severity chip; chips filter by kind only, so that instruction was impossible).
         text = _t(`${critical} critical/high alert${critical === 1 ? '' : 's'} at the top of the feed. Clear those first, then work down. Tap an alert to open it in its source page.`,
           `${critical} critical/high na alert ang nasa itaas ng feed. Unahin ang mga iyon, tapos bumaba. Pindutin ang alert para buksan ito sa pinagmulang page.`);
-        setCta(_t(`Clear ${critical} critical/high →`, `Linisin ang ${critical} critical/high →`), '#feed');
+        setCta(_t(`Show the ${critical} critical and high →`, `Ipakita ang ${critical} critical at high →`), '#feed', () => { _sevFocus = true; _alertDisplayCount = 30; _mirrorSevFocus(); renderFeed(); });
       } else if (anomalyCount > 0) {
         text = _t(`Open the Anomaly Engine 2.0 panel below: multi-source signals mean a fault is brewing across logbook + sensors + PM drift, not just one signal.`,
           `Buksan ang Anomaly Engine 2.0 panel sa ibaba: ang multi-source na signal ay nangangahulugang may fault na nabubuo sa logbook + sensors + PM drift, hindi lang isang signal.`);
@@ -2044,13 +2172,49 @@
     }
   }
 
+  // the focus lives in the URL, like the kind filter, so the view can be returned to and handed on
+  function _mirrorSevFocus() {
+    try {
+      const u = new URL(location.href);
+      if (_sevFocus) u.searchParams.set('sev', 'critical-high'); else u.searchParams.delete('sev');
+      history.replaceState(null, '', u);
+    } catch (e) { void e; /* empty-catch-allow: the view still filters if the URL cannot be rewritten */ }
+  }
   function renderFeed() {
+    // ★THE THREE VERBS DIFFERED ONLY INSIDE aria-labels (design lens critique, 2026-09-15). A sighted
+    // supervisor saw 'Seen', 'Snooze 7d' and 'Handled' with no way to learn which one hides a plant alert
+    // from his whole crew - the platform's own recorded lesson, recurring on its highest-traffic control.
+    // One line above the feed, not a tooltip on each of thirty rows.
+    const _legend = document.getElementById('feed-legend');
+    if (_legend && !_legend.textContent) {
+      _legend.textContent = _t('Seen keeps the alert and dims it for your hive · Snooze 7d hides it for a week · Handled removes it for everyone, under your name.',
+                               'Ang Nakita ay nananatili pero kumukupas para sa hive mo · Ang Snooze 7d ay nagtatago nito nang isang linggo · Ang Handled ay nag-aalis nito para sa lahat, nakapangalan sa iyo.');
+    }
     const feed   = document.getElementById('feed');
     const empty  = document.getElementById('empty');
     const lmWrap = document.getElementById('alert-load-more-wrap');
-    const items = _activeKind === 'all'
+    // ★THE PAGE'S ONE PRIMARY BUTTON USED TO ONLY SCROLL (design lens critique, 2026-09-15). "Clear 74
+    // critical/high" was an anchor to #feed - it performed the action he would have taken anyway. It now
+    // enters a severity focus, and the focus is VISIBLE and leaveable rather than a hidden mode.
+    let items = _activeKind === 'all'
       ? _alerts
       : _alerts.filter(a => a.kind === _activeKind);
+    if (_sevFocus) items = items.filter(a => a.severity === 'critical' || a.severity === 'high');
+    const _sfBar = document.getElementById('sev-focus-bar');
+    if (_sfBar) {
+      _sfBar.style.display = _sevFocus ? 'flex' : 'none';
+      if (_sevFocus) {
+        const _sfText = document.getElementById('sev-focus-text');
+        const _sfClear = document.getElementById('sev-focus-clear');
+        if (_sfText) _sfText.textContent = _t(`Showing the ${items.length} critical and high alerts only.`,
+                                              `Ang ${items.length} critical at high na alerto lang ang ipinapakita.`);
+        if (_sfClear) {
+          _sfClear.textContent = _t('Show all alerts', 'Ipakita lahat');
+          // assignment, not addEventListener: renderFeed runs on every change and listeners would stack
+          _sfClear.onclick = () => { _sevFocus = false; _alertDisplayCount = 30; _mirrorSevFocus(); renderFeed(); };
+        }
+      }
+    }
 
     if (!items.length) {
       feed.innerHTML = '';
@@ -2096,29 +2260,32 @@
       // F34: include 'low' (v_alert_truth normalizes some signature severities to it) so it
       // renders as the least-severe style instead of silently borrowing tag-medium.
       const tagClass = ({ critical: 'tag-critical', high: 'tag-high', medium: 'tag-medium', low: 'tag-info', info: 'tag-info' })[sev] || 'tag-medium';
+      // ★A DATABASE ENUM WAS THE PILL'S VISIBLE TEXT (design lens critique, 2026-09-15): the pill read
+      // `critical` / `high` - lowercase, English, straight from v_alert_truth - on a page whose every
+      // other label is sentence case and bilingual. The severity words are the ones hive.html uses.
       const icon = ({ risk: '🔴', pm: '⚠️', stock: '📦', pattern: '🧬', system: '⚙️' })[a.kind] || '•';
       const isSeen = !!(a.dedupeKey && _seen[a.dedupeKey]);
-      return `<div class="alert kind-${e(a.kind)}${isSeen ? ' seen' : ''}">
+      return `<div class="alert kind-${e(a.kind)} sev-${e(sev)}${isSeen ? ' seen' : ''}" data-alert-key="${e(a.dedupeKey || '')}">
         <div class="alert-icon">${e(icon)}</div>
         <div class="alert-body">
           <div class="alert-head">
-            <span class="alert-tag ${e(tagClass)}">${e(sev)}</span>
+            <span class="alert-tag ${e(tagClass)}">${e(SEV_WORDS[sev] ? SEV_WORDS[sev]() : sev)}</span>
             <h3 class="alert-title" style="display:inline;margin:0;font-size:inherit;" title="${e(a.title)}" translate="no">${e(a.title)}</h3>
             ${isSeen ? '<span class="alert-seen-badge" data-i="ah_seen">Seen</span>' : ''}
             <span class="alert-time">${e(fmtRelative(a.time))}</span>
           </div>
           <div class="alert-msg">${e(a.msg || '')}</div>
-          <div class="alert-actions">
+          <div class="alert-actions"><!-- every control names ITS alert (ledger C33, 2026-09-15): thirty identical names in one region were one name to a screen reader -->
             ${a.actionLabel && a.href !== '#'
-              ? `<a class="alert-action" href="${e(a.href)}">${e(a.actionLabel)} →</a>`
+              ? `<a class="alert-action" href="${e(a.href)}" aria-label="${e(a.actionLabel)}: ${e(a.title)}">${e(a.actionLabel)} →</a>`
               : ''}
             ${a.hailHref
-              ? `<a class="alert-action" href="${e(a.hailHref)}" aria-label="Hail an outside specialist for this asset">🔧 Hail a specialist →</a>`
+              ? `<a class="alert-action" href="${e(a.hailHref)}" aria-label="${e(_t('Hail an outside specialist for', 'Kumuha ng labas na specialist para sa'))} ${e(a.title)}">🔧 ${e(_t('Hail a specialist', 'Kumuha ng specialist'))} →</a>`
               : ''}
             ${a.dedupeKey
-              ? `<button type="button" class="alert-dismiss" data-seen-key="${e(a.dedupeKey)}" aria-pressed="${isSeen ? 'true' : 'false'}" aria-label="${isSeen ? 'Mark this alert not seen' : 'Mark this alert as seen (keeps it, dims it)'}" data-i="ah_seenbtn">${isSeen ? '&#8634; Unsee' : '&#128065; Seen'}</button>
-                 <button type="button" class="alert-dismiss" data-snooze-key="${e(a.dedupeKey)}" aria-label="Snooze this alert for 7 days" data-i="ah_snooze">&#9203; Snooze 7d</button>
-                 <button type="button" class="alert-dismiss" data-dismiss-key="${e(a.dedupeKey)}" aria-label="Mark this alert handled" data-i="ah_handled">&#10003; Handled</button>`
+              ? `<button type="button" class="alert-dismiss" data-seen-key="${e(a.dedupeKey)}" aria-pressed="${isSeen ? 'true' : 'false'}" aria-label="${isSeen ? e(_t('Mark not seen:', 'Markahang hindi pa nakita:')) + ' ' + e(a.title) : e(_t('Mark as seen (keeps it, dims it):', 'Markahang nakita (mananatili, mangungupas lang):')) + ' ' + e(a.title)}" data-i="ah_seenbtn">${isSeen ? '&#8634; Unsee' : '&#128065; Seen'}</button>
+                 <button type="button" class="alert-dismiss" data-snooze-key="${e(a.dedupeKey)}" aria-label="${e(_t('Snooze for 7 days:', 'I-snooze ng 7 araw:'))} ${e(a.title)}" data-i="ah_snooze">&#9203; Snooze 7d</button>
+                 <button type="button" class="alert-dismiss" data-dismiss-key="${e(a.dedupeKey)}" aria-label="${e(_t('Mark handled:', 'Markahang naasikaso na:'))} ${e(a.title)}" data-i="ah_handled">&#10003; Handled</button>`
               : ''}
           </div>
         </div>
@@ -2200,7 +2367,7 @@
 <!-- U3 status-feedback: persistent polite live region (STREAMLINE E2). showToast/whListError announce here; screen readers get status, never a silent fetch. -->
 <div id="toast" role="alert" aria-live="polite"></div>
 
-<script>window.WH_FIL_PAGE={approvebrief:'Aprubahan ang brief',joinhive:'Sumali sa hive para makita ang mga alerto',ah_seen:'Nakita',ah_seenbtn:'👁 Nakita',ah_snooze:'⏳ Snooze 7d',ah_handled:'✓ Handled',ah_sub:'Lahat ng nangangailangan ng atensyon mo, sa isang lugar.',ah_alerts:'Mga alerto'};</script>
+<script>window.WH_FIL_PAGE={ah_amc_risk:'Mga asset na mataas ang risk',ah_amc_pms:'Mga PM na dapat gawin',ah_amc_parts:'Mga part na ihahanda',ah_amc_crew:'Mga suhestiyon sa crew',ah_tile_sev:'Mga high-severity na alerto',ah_tile_anom:'Mga anomaly signal',ah_tile_amc:'AMC daily brief',ah_whatnext:'Ano ang susunod na gagawin',ah_noanomaly:'Walang pinagsamang anomalya sa hive mo ngayon.',approvebrief:'Aprubahan ang brief',joinhive:'Sumali sa hive para makita ang mga alerto',ah_seen:'Nakita',ah_seenbtn:'👁 Nakita',ah_snooze:'⏳ Snooze 7d',ah_handled:'✓ Handled',ah_sub:'Lahat ng nangangailangan ng atensyon mo, sa isang lugar.',ah_alerts:'Mga alerto'};</script>
   <!-- AV1 (FULLSTACK_COMPONENT_LIBRARY Layer AV): the offline canonical set — ships as one unit -->
   <script src="offline-banner.js"></script>
   <script defer src="offline-queue.js"></script>

@@ -29,9 +29,21 @@ ROOT = Path(__file__).resolve().parent.parent
 CHECK_NAMES = ["assistant-no-orphan-fragment"]
 
 STEP1_GUARD_RE = re.compile(r"stream-orphan guard[\s\S]{0,900}?_fragment\s*=\s*_a\.length\s*<\s*4")
-STEP2_GUARD_RE = re.compile(r"fallback half[\s\S]{0,600}?_fb\.length\s*<\s*4[\s\S]{0,300}?throw new Error")
+# ★WHAT IS THROWN IS NOT THE LOCK; THAT IT THROWS IS (2026-09-28). This demanded the literal
+# `throw new Error`. The floor now does `throw _phrased(window.whAiError({...}) + ' Nothing you typed
+# was lost.')` - the same control flow into the same catch, carrying a sentence a person can act on
+# instead of a bare Error - and it got STRICTER at the same time (`_fb.length < 4 ||
+# (!/[.!?...]/.test(_fb) && _fb.length < 12)`). Matching on `throw` keeps the lock (deleting the throw,
+# or falling through to render the fragment, still reddens) without pinning the exception's class.
+STEP2_GUARD_RE = re.compile(r"fallback half[\s\S]{0,600}?_fb\.length\s*<\s*4[\s\S]{0,400}?\bthrow\b")
 AUTOSTART_RE = re.compile(r"savedName\s*=\s*localStorage\.getItem\(KEY_WORKER\)[\s\S]{0,500}?startChat\(\)")
-QUOTA_PREASK_RE = re.compile(r"wh_ai_remaining[\s\S]{0,300}?12 \* 3600 \* 1000")
+# ★AND THE 12-HOUR BOUND WAS THE BUG, NOT THE LOCK (2026-09-28). This demanded `12 * 3600 * 1000`.
+# assistant.html cut it to `3600 * 1000` on purpose, and its comment says why: the cache ran twelve
+# hours while the limit it reports is a rolling 60-MINUTE window, so a restored reading could warn
+# "only 2 left this hour" eleven hours after that hour had passed. Requiring the old number would
+# require the defect. The property is that the restore is TIME-BOUNDED at all, so any `3600 * 1000`
+# bound satisfies it and removing the bound still reddens.
+QUOTA_PREASK_RE = re.compile(r"wh_ai_remaining[\s\S]{0,400}?(?:\d+\s*\*\s*)?3600\s*\*\s*1000")
 
 
 def problems_for(src: str) -> list[str]:

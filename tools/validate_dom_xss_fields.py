@@ -48,6 +48,37 @@ UNTRUSTED_FIELDS = {
 INTERP = re.compile(r"\$\{\s*([A-Za-z_]\w*)\.([A-Za-z_]\w+)\s*\}")
 HTML_LINE = re.compile(r"<[a-zA-Z/][^>]*>|<[a-zA-Z]+\s|src=|href=|class=|<span|<div|<p[ >]|<img|<li|<a[ >]|<b>")
 
+
+# ★ESCAPING CAN BE APPLIED TO THE COMPOSED STRING, NOT ONLY FIELD-BY-FIELD (2026-09-28).
+# The docstring above assumes the safe form is `${escHtml(obj.field)}`, so a BARE `${obj.field}` is
+# unescaped by definition. community.html builds its member-card labels the other way round:
+#     aria-label="${escHtml(_t(`View ${row.worker_name}'s member card`, `Tingnan ...`))}"
+# The field is bare inside the template literal, but the WHOLE _t() result - field already substituted
+# - is passed through escHtml, so the rendered attribute is escaped. Ten such sites were reported as
+# new XSS on a page whose onclick siblings correctly use escJsAttr. Masking balanced `escHtml( ... )`
+# spans before the scan removes exactly that false positive and nothing else: a field sitting OUTSIDE
+# an escHtml call is still bare, still matched, still failed - which self_test() pins both ways.
+def mask_escaped(line: str) -> str:
+    """Blank out balanced escHtml( ... ) spans, preserving length so columns/lines stay put."""
+    out = list(line)
+    i = 0
+    n = len(line)
+    while True:
+        j = line.find("escHtml(", i)
+        if j < 0:
+            return "".join(out)
+        k = j + len("escHtml(")
+        depth = 1
+        while k < n and depth:
+            if line[k] == "(":
+                depth += 1
+            elif line[k] == ")":
+                depth -= 1
+            k += 1
+        for x in range(j, min(k, n)):
+            out[x] = " "
+        i = k if k > j else j + 1
+
 # --- SECOND CLASS (Hive board arc, 2026-07-10): escHtml() inside a JS STRING LITERAL that
 # sits inside an inline event handler, e.g.  onclick="fn('${escHtml(x)}')".  escHtml is the
 # WRONG escaper there: the HTML parser decodes &#39; back to ' BEFORE the handler compiles,
@@ -77,6 +108,8 @@ def scan_text(text: str) -> list[tuple[int, str]]:
             continue
         if not HTML_LINE.search(line):
             continue
+        # a field inside a balanced escHtml( ... ) span is escaped by that call, however deeply nested
+        line = mask_escaped(line)
         for m in INTERP.finditer(line):
             obj, field = m.group(1), m.group(2)
             if field in UNTRUSTED_FIELDS:
@@ -90,6 +123,18 @@ def self_test() -> bool:
         print(f"{R}self-test FAIL: missed bare ${{a.machine}} in HTML.{X}"); ok = False
     if scan_text('rows.push(`<span class="v">${escHtml(a.machine)}</span>`);'):
         print(f"{R}self-test FAIL: flagged escHtml-wrapped field.{X}"); ok = False
+    # OUTER escaping: the field is bare inside the template literal, but the whole _t() result is
+    # escaped, which is how community.html builds its member-card labels.
+    outer = ('h.push(`<button aria-label="${escHtml(_t(`View ${p.author_name} card`, '
+             '`Tingnan ${p.author_name}`))}">x</button>`);')
+    if scan_text(outer):
+        print(f"{R}self-test FAIL: flagged a field escaped by an OUTER escHtml().{X}"); ok = False
+    # and the teeth must survive it: the SAME field, with no escHtml anywhere, still fails
+    if not scan_text('h.push(`<span>${p.author_name}</span>`);'):
+        print(f"{R}self-test FAIL: missed a genuinely bare DB field.{X}"); ok = False
+    # ...including a bare field on a line that ALSO has an escHtml call elsewhere
+    if not scan_text('h.push(`<i>${escHtml(a.machine)}</i><b>${p.author_name}</b>`);'):
+        print(f"{R}self-test FAIL: masking escHtml hid a bare field on the same line.{X}"); ok = False
     if scan_text('rows.push(`<span class="v">${a.mtbf_days}d</span>`);'):
         print(f"{R}self-test FAIL: flagged a numeric/enum field.{X}"); ok = False
     if scan_text('const s = `Question: ${a.machine}`;'):

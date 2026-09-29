@@ -14,7 +14,7 @@ Updated 24 Aug 2026
 ·
 10 min read
 
-**Short answer:** Overall Equipment Effectiveness (OEE) measures three things in one number: how often equipment runs, how fast it produces, and how much of what it produces is good. The formula is `OEE = Availability × Performance × Quality`. World-class is 85 percent or higher. Most Philippine plants score 40 to 60 percent on first measurement. The number matters less than what you do with it: catch losses you could not see before, prioritize the right fix, and turn maintenance from a cost center into a measurable contribution.
+**Short answer:** Overall Equipment Effectiveness (OEE) measures three things in one number: how often equipment runs, how fast it produces, and how much of what it produces is good. The formula is `OEE = Availability × Performance × Quality`. World-class is 85 percent or higher, and a plant measuring honestly for the first time usually lands well below that: 40 to 60 percent is the ordinary starting point. The number matters less than what you do with it: catch losses you could not see before, prioritize the right fix, and turn maintenance from a cost center into a measurable contribution.
 
 Who this is for
 
@@ -72,9 +72,9 @@ The quality inspector pulled 1,728 bars with wrapping defects (sealed crooked, l
 
 ### Step 5: OEE
 
-This is roughly the median Philippine plant. Not embarrassing, not impressive. The number itself is the starting line, not the finish line.
+That is a perfectly ordinary first measurement, and nothing about it says the plant is badly run. Of the bars this line could have made in its planned time, 42 in every 100 never arrive good, and the three factors say where they went: it is down for a fifth of the planned time, it runs at 80 percent of rated speed while it is up, and one bar in ten is scrap.
 
-To run this on your own line without redoing the arithmetic, use the free [OEE calculator](https://workhiveph.com/tools/oee-calculator/): enter planned time, downtime, ideal cycle time, and your good and total counts, and it returns Availability, Performance, Quality and OEE separately, which is what tells you *which* of the three is costing you.
+To run this on your own line, know where the number comes from. WorkHive does not have a form you type these five figures into; it *derives* OEE from the shift entries your team already writes, and reports Availability, Performance and Quality separately in Analytics: which is the part that tells you *which* of the three is costing you. The [OEE calculator page](https://workhiveph.com/tools/oee-calculator/) walks through the formula and a second worked example if you want to check your own arithmetic by hand first.
 
 ## The 6 big losses OEE catches
 
@@ -84,12 +84,12 @@ Nakajima identified six specific losses that an OEE measurement reveals. Each ma
 | --- | --- | --- | --- |
 | 1 | Equipment breakdown | Availability | Wrapper jam (35 min) |
 | 2 | Setup / changeover | Availability | Sealer adjustment overrun (20 min) |
-| 3 | Idling / minor stops | Performance | Waiting for foil batch (25 min) |
+| 3 | Idling / minor stops | Performance | Brief photo-eye misfeeds and jams cleared in seconds: never logged as downtime |
 | 4 | Reduced speed | Performance | Line ran at 48/min not 60/min |
 | 5 | Production defects | Quality | 1,728 wrapping defects (10%) |
 | 6 | Startup losses | Quality | First 50 bars after restart (scrap) |
 
-Once you know the breakdown, the question is no longer "is our OEE bad?" but "which loss is the biggest, and what is the cheapest fix?" In the example above, the biggest single loss is the 35-minute wrapper jam. That is a maintenance fix (better PM on the wrapper) and a knowledge fix (a logbook entry so the next shift sees the recurrence pattern).
+Once you know the breakdown, the question is no longer "is our OEE bad?" but "which loss is the biggest, and what is the cheapest fix?" Answer it in bars, not minutes, because that is the unit the three components share. In the example above the wrapper jam is the biggest single *stoppage* at 35 minutes, or 2,100 bars: a maintenance fix (better PM on the wrapper) and a knowledge fix (a logbook entry so the next shift sees the recurrence pattern). But it is not the biggest loss. Running at 48 bars a minute instead of 60 for all 360 running minutes cost **4,320 bars** — more than the jam and the sealer overrun put together, and it never appeared as a stoppage anyone logged. Loss 4, reduced speed, is the one this line should chase first, and the reason OEE separates the three components is that a shift report built only from downtime events would have hidden it.
 
 ## How to measure OEE without expensive sensors
 
@@ -106,9 +106,9 @@ Only after this discipline is in place does sensor investment make sense. Sensor
 
 The tool this guide is about
 
-#### WorkHive Analytics computes OEE automatically
+### WorkHive Analytics computes OEE automatically
 
-Every shift entry in the WorkHive Logbook (run time, unplanned downtime reasons, units produced, defects) flows into Analytics as A × P × Q. Track per asset, per shift, per day. No spreadsheets, no SCADA, no per-user license. Free at the worker tier forever.
+Every shift entry in the WorkHive Logbook: run time, unplanned downtime reasons, units produced, defects: flows into Analytics, per asset, per shift, per day. Those four give you Availability and Quality. **Performance needs one more field:** the asset’s ideal cycle time in seconds per unit, set once on the asset wizard (“e.g. 6” for a 600-unit-per-hour line). Leave it blank and Analytics is honest about it: the tile reads *OEE (avg, partial)* and the figure is A × Q, not the full number. Fill it in and the same tile becomes real three-factor OEE. The entry a technician already writes at the end of a shift is the OEE record, so nothing is typed a second time and nothing is counted per seat. Free at the worker tier forever.
 
 No hive yet? [Join WorkHive](https://workhiveph.com/?signup=1) first (free, takes 30 seconds).
 
@@ -135,7 +135,7 @@ If a plant tells you their OEE is 30 percent and they are still operating, the O
 
 ## The path from 50 percent to 75 percent OEE
 
-Most Philippine plants we have benchmarked sit between 40 and 60 percent OEE on first measurement. The path to 75 percent takes 12 to 18 months of disciplined improvement. The pattern is consistent:
+A first honest OEE measurement typically lands between 40 and 60 percent. The path to 75 percent takes 12 to 18 months of disciplined improvement. The pattern is consistent:
 
 - **Months 1 to 3: Just measure.** No improvement projects yet. Get the OEE number to be the same number on the floor whiteboard as the supervisor reports up. Most plants discover their first 5 percentage points of "improvement" here just from measurement honesty.
 - **Months 4 to 6: Fix the top loss.** Pick one loss (usually a recurring breakdown or a slow-changeover) and run a focused improvement project. Aim for 5 to 10 OEE points.
@@ -150,7 +150,7 @@ This sequence matches WorkHive's 4-stage path: Paper-to-Digital (months 1 to 3),
 
 ### What is a good OEE score?
 
-World-class OEE for discrete manufacturing is 85 percent or higher. Industry average is around 60 percent. Most Philippine plants we have benchmarked sit between 40 and 60 percent on first measurement. Anything below 40 percent usually means measurement errors, not actual performance, because real plants do not survive at that level.
+World-class OEE for discrete manufacturing is 85 percent or higher. Industry average is around 60 percent. A plant measuring OEE honestly for the first time typically lands between 40 and 60 percent. Anything below 40 percent usually means measurement errors, not actual performance, because real plants do not survive at that level.
 
 ### What is the OEE formula?
 
@@ -182,4 +182,4 @@ No. Utilization only measures how much time the equipment ran versus calendar ti
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: a0f0449a0a662a66 -->
+<!-- md-twin source-sha: 1a97e245c8450b40 -->

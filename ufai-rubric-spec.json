@@ -4,7 +4,7 @@
     "version": "1.0.0",
     "description": "Canonical machine-readable UFAI UI/UX rubric — the rubric-as-DATA SSOT (UR-P1). One source the prose doc (substrate/reference/ufai-ux-rubric.md), the code lens (survey_ufai_rubric.js / __RUBRIC), and the battery (ufai_battery.js / __UFAI) all derive from. Threshold datum shape follows the Stylelint/ESLint rules-as-data model surfaced by the Night-Crawler: each numeric floor is {value, unit, op, severity, cite}. The validate_rubric_parity gate locks prose<->spec<->code so no dim or threshold can drift.",
     "classes": 33,
-    "dims": 102,
+    "dims": 103,
     "verdicts": {
       "measured": "a real denominator (passing/total) from the DOM",
       "judged": "cited criterion, no honest denominator -> reports null, never an invented number",
@@ -546,6 +546,13 @@
     "verdict": "judged",
     "owner": "rubric-lens",
     "cite": "external-layout-regions-hierarchy-whitespace, ux-f-pattern"
+  },
+  "R6": {
+    "class": "R",
+    "title": "Element overflow inside its container",
+    "verdict": "measured",
+    "owner": "rubric-lens",
+    "cite": "external-ux-fixed-height-overflow-overlapping-content-col, live-phone-walk-2026-09-14"
   },
   "S1": {
     "class": "S",

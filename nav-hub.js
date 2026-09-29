@@ -557,6 +557,16 @@
 
   // Paint (or clear) the FAB dot + Community-tile count pill from _communityUnread.
   // Idempotent + re-run after rebuildToolGrids() so a mode switch keeps the badge.
+  // ★THE BADGE PAINTER COULD NOT SEE THE TRANSLATOR (Wave 4 walk W41420, 2026-09-14). `_tt` was a `const`
+  // inside renderPanel's scope (the template below), while _paintCommunityBadges lives here at module level
+  // and is called from rebuildToolGrids on EVERY mode click - so every mode switch threw
+  // "ReferenceError: _tt is not defined" (24 uncaught errors in one sweep, on all 31 host pages) and the
+  // community badge + the fab's aria-label never repainted after a switch. A hoisted module-level helper,
+  // identical in behaviour to the inner one, so every caller in this file can translate.
+  function _tt(en, fil) {
+    return (typeof window._t === 'function') ? window._t(en, fil) : en;
+  }
+
   function _paintCommunityBadges() {
     const hub = document.getElementById('wh-hub');
     if (!hub) return;
@@ -796,9 +806,9 @@
           background: rgba(22,32,50,0.96);
           border: 1px solid rgba(247,162,27,0.25);
           color: rgba(255,255,255,0.7);
-          font-size: 11px;
+          font-size: 0.75rem;
           font-weight: 500;
-          padding: 5px 10px;
+          padding: 4px 8px;
           border-radius: 8px;
           white-space: nowrap;
           pointer-events: none;
@@ -834,7 +844,7 @@
           border-radius: 8px;
           background: var(--wh-orange, #F7A21B);
           color: #10192B;
-          font-size: 9px; font-weight: 700; line-height: 16px;
+          font-size: 12px; font-weight: 700; line-height: 16px;
           text-align: center;
           font-family: var(--wh-font, 'Poppins', sans-serif);
           box-shadow: 0 1px 4px rgba(0,0,0,0.4);
@@ -897,15 +907,22 @@
           padding-bottom: 10px;
           border-bottom: 1px solid rgba(255,255,255,0.06);
         }
+        /* W45939 audit: 11px is under the platform's 12px floor, and NO WALK COULD SEE IT. Every design
+           walk this wave measures the page at rest, where this panel is visibility:hidden, so its text
+           is excluded from the sample by construction - inventory.html reads minFontPx 12 / under12 0
+           closed and minFontPx 11 / under12 5 the moment the hub is opened. The header carries the
+           product's own name to somebody who has just tapped for navigation, so it is read, not
+           decoration. Both to the 12px label step; the tracking comes to the 0.04em ceiling DESIGN.md
+           allows for a SHORT all-caps label, from 0.08em. */
         #wh-hub-panel-header span {
-          font-size: 11px;
+          font-size: 12px;
           font-weight: 600;
           color: rgba(255,255,255,0.6); /* WCAG AA */
-          letter-spacing: 0.08em;
+          letter-spacing: 0.04em;
           text-transform: uppercase;
         }
         #wh-hub-panel-header strong {
-          font-size: 11px;
+          font-size: 12px;
           font-weight: 600;
           color: var(--wh-orange, #F7A21B);
           letter-spacing: 0.04em;
@@ -913,7 +930,9 @@
 
         /* ── Section labels ── */
         .wh-hub-section-label {
-          font-size: 10px; font-weight: 600; letter-spacing: 0.1em;
+          /* 0.1em was over DESIGN.md's 0.04em ceiling for an all-caps label; these ARE short group
+             headings (two words), so the caps stay and only the tracking comes down. */
+          font-size: 12px; font-weight: 600; letter-spacing: 0.04em;
           text-transform: uppercase; color: rgba(255,255,255,0.6); /* WCAG AA contrast over dark bg */
           margin: 0 0 8px;
         }
@@ -955,7 +974,7 @@
         .wh-hub-quick-tile.active .wh-hub-quick-icon { color: var(--wh-orange, #F7A21B); }
         .wh-hub-quick-icon { color: rgba(255,255,255,0.7); display:flex; }
         .wh-hub-quick-label {
-          font-size: 9px; color: rgba(255,255,255,0.72); font-weight: 500; /* WCAG AA: 0.6 measured 4.32:1 (<4.5), 0.72 clears it */
+          font-size: 12px; color: rgba(255,255,255,0.72); font-weight: 500; /* WCAG AA: 0.6 measured 4.32:1 (<4.5), 0.72 clears it */
           text-align: center; line-height: 1.2; font-family: var(--wh-font, 'Poppins', sans-serif);
         }
         .wh-hub-quick-tile.active .wh-hub-quick-label { color: var(--wh-orange, #F7A21B); }
@@ -967,7 +986,7 @@
         #wh-hub-all-toggle {
           width: 100%; display: flex; align-items: center; justify-content: space-between;
           padding: 6px 2px; background: none; border: none; cursor: pointer;
-          color: rgba(255,255,255,0.35); font-size: 10px; font-weight: 600;
+          color: rgba(255,255,255,0.35); font-size: 12px; font-weight: 600;
           text-transform: uppercase; letter-spacing: 0.1em;
           font-family: var(--wh-font, 'Poppins', sans-serif); margin-bottom: 2px;
           transition: color 0.2s ease;
@@ -1003,7 +1022,7 @@
         #wh-hub-search-kbd {
           position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
           background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12);
-          border-radius: 4px; padding: 1px 5px; font-size: 9px; color: rgba(255,255,255,0.75); /* C2 AA: 0.6=4.41:1 on the chip bg */
+          border-radius: 4px; padding: 1px 5px; font-size: 12px; color: rgba(255,255,255,0.75); /* C2 AA: 0.6=4.41:1 on the chip bg */
           font-family: monospace; pointer-events: none;
         }
         #wh-hub-no-results {
@@ -1074,7 +1093,7 @@
           justify-content: center;
         }
         .wh-hub-tile-label {
-          font-size: 10px;
+          font-size: 12px;
           font-weight: 600;
           color: rgba(255,255,255,0.72); /* C2 WCAG AA: 0.5 measured 4.32:1 (<4.5) on the panel; 0.72 clears it */
           text-align: center;
@@ -1096,6 +1115,7 @@
         /* ── Role mode switcher (Phase D) ── */
         #wh-hub-mode {
           display: flex;
+          flex-wrap: wrap;   /* ledger C31 (2026-09-15): at 320 the row squeezed its buttons to 37px; it wraps rather than shrink a target below the floor */
           gap: 4px;
           padding: 4px;
           background: rgba(0,0,0,0.25);
@@ -1110,13 +1130,14 @@
         .wh-hub-mode-btn {
           flex: 1;
           min-height: 44px;
+          min-width: 44px;   /* the platform's tap floor at every viewport (C31: measured 37x44 at 320) */
           padding: 6px 4px;
           background: transparent;
           border: none;
           border-radius: 7px;
           color: rgba(255,255,255,0.6); /* WCAG AA contrast over dark bg */
           font-family: inherit;
-          font-size: 10px;
+          font-size: 12px;
           font-weight: 600;
           letter-spacing: 0.02em;
           cursor: pointer;
@@ -1149,7 +1170,7 @@
           border: 1px solid rgba(255,255,255,0.1);
           border-radius: var(--wh-radius-pill, 999px);
           color: var(--wh-text-faint, rgba(255,255,255,0.72));
-          font-family: var(--wh-font, 'Poppins', sans-serif); font-size: 10px; font-weight: 600;
+          font-family: var(--wh-font, 'Poppins', sans-serif); font-size: 12px; font-weight: 600;
           letter-spacing: 0.02em; cursor: pointer;
           transition: background 0.15s ease, border-color 0.15s ease;
         }
@@ -1175,7 +1196,7 @@
         #wh-hub-conn-badge {
           min-width: 16px; padding: 0 4px; border-radius: var(--wh-radius-sm, 8px);
           background: rgba(var(--wh-orange-rgb, 247,162,27),0.9); color: var(--wh-navy, #162032);
-          font-size: 9px; font-weight: 800; text-align: center; line-height: 16px;
+          font-size: 12px; font-weight: 800; text-align: center; line-height: 16px;
         }
 
         /* Connectivity detail — folded in from the retired .wh-conn-popover, toggled by the pill */
@@ -1192,7 +1213,7 @@
         #wh-hub-conn-detail .wh-hub-conn-row:first-child { border-top: 0; }
         #wh-hub-conn-detail .k { color: var(--wh-text-muted, rgba(255,255,255,0.62)); }
         #wh-hub-conn-detail .v { color: rgba(255,255,255,0.85); font-weight: 600; }
-        #wh-hub-conn-detail .help { margin-top: 6px; color: var(--wh-text-muted, rgba(255,255,255,0.5)); font-size: 10px; line-height: 1.4; }
+        #wh-hub-conn-detail .help { margin-top: 6px; color: var(--wh-text-muted, rgba(255,255,255,0.5)); font-size: 12px; line-height: 1.4; }
 
         /* ── FAB-CONSOLIDATION: Assistant action row (Companion + Feedback) — token-built ── */
         #wh-hub-assist-row {
@@ -1269,15 +1290,20 @@
         <button type="button" id="wh-hub-global-search" style="display:flex; align-items:center; gap:8px; width:100%; min-height:44px; padding:10px 12px; margin:0 0 8px; background:rgba(247,162,27,0.08); border:1px solid rgba(247,162,27,0.2); border-radius:10px; color:var(--wh-orange, #F7A21B); font-family:inherit; font-size:12px; font-weight:600; cursor:pointer; text-align:left;" aria-label="${_tt('Open global search', 'Buksan ang global search')}">
           <span class="ic ic-search" aria-hidden="true"></span>
           <span style="flex:1;">${_tt('Search assets, jobs, parts, PMs', 'Maghanap ng assets, trabaho, parts, PM')}</span>
-          <span style="font-size:9px; font-weight:700; padding:2px 5px; background:rgba(247,162,27,0.15); border:1px solid rgba(247,162,27,0.3); border-radius:4px;">⌘K</span>
+          <!-- C6 (confusion ledger, 2026-09-14): the ⌘K badge was HERE, but Ctrl/⌘-K focuses the tools-FILTER
+               input below (see the keydown handler), not this global-search launcher - a wrong shortcut badge that
+               made the two search-shaped controls look like twins. The badge now lives only on the filter input it
+               actually drives; this launcher opens the global overlay on click (aria-label says so). -->
         </button>
 
         <!-- Search bar -->
         <div id="wh-hub-search-wrap">
           <span id="wh-hub-search-icon">
-            <span class="ic ic-search" aria-hidden="true"></span>
+            <!-- C6 (confusion ledger, 2026-09-14): a FILTER icon (was ic-search, identical to the global-search
+                 launcher above). This control FILTERS the tiles below; it does not search the hive. -->
+            <span class="ic ic-filter" aria-hidden="true"></span>
           </span>
-          <input id="wh-hub-search" type="search" placeholder="${_tt('Search tools…', 'Maghanap ng tools…')}" autocomplete="off" aria-label="${_tt('Search tools', 'Maghanap ng tools')}">
+          <input id="wh-hub-search" type="search" placeholder="${_tt('Filter tools…', 'I-filter ang tools…')}" autocomplete="off" aria-label="${_tt('Filter tools', 'I-filter ang tools')}">
           <span id="wh-hub-search-kbd">Ctrl K</span>
         </div>
 
@@ -1300,9 +1326,16 @@
         <div class="wh-hub-divider"></div>
 
         <!-- All Tools — 4-col grid, always visible, scrollable -->
-        <p class="wh-hub-section-label">${_tt('All Tools', 'Lahat ng Tools')}</p>
+        <p class="wh-hub-section-label" id="wh-hub-tiles-label">${_tt('All Tools', 'Lahat ng Tools')}</p>
         <div id="wh-hub-no-results">${_tt('No tools match your search.', 'Walang tool na tumugma sa paghahanap.')}</div>
-        <div id="wh-hub-tiles" role="region">${tilesHTML}</div>
+        <!-- W45939 audit: this was role="region" with NO accessible name, so a screen reader listed an
+             unnamed landmark inside the hub - worse than no role at all, because it adds an entry to the
+             landmark list that says nothing. It was the only named-role element in this file without a
+             name; every sibling here carries a bilingual one. LABELLEDBY rather than a fresh aria-label:
+             the grid already has a visible heading directly above it, so pointing at that text keeps the
+             spoken name identical to the seen one and keeps it translated by the same _tt call, instead
+             of a second string that can drift out of step with it. -->
+        <div id="wh-hub-tiles" role="region" aria-labelledby="wh-hub-tiles-label">${tilesHTML}</div>
       </div>
     `;
 
@@ -1416,13 +1449,25 @@
     paintConnPill();
   }
 
-  function closeHub() {
+  function closeHub(restoreFocus) {
     isOpen = false;
     document.getElementById('wh-hub').classList.remove('hub-open');
     document.getElementById('wh-hub-fab').classList.remove('open');
     document.getElementById('wh-hub-fab').setAttribute('aria-expanded', 'false');
     document.getElementById('wh-hub-panel').classList.remove('open');
     document.body.classList.remove('wh-hub-open');
+    // ★A CLOSE MUST GIVE FOCUS BACK (Wave 4 walk W41420, 2026-09-14): Escape and the fab toggle left
+    // document.activeElement on <body>, so a keyboard or screen-reader person lost their place every
+    // time the hub closed. The dialog rule: focus returns to the control that opened it. Only the
+    // person's own close (Escape / the fab) restores; a hand-off to another overlay (global search,
+    // companion, feedback) leaves focus to the overlay, and a click-outside follows the pointer.
+    if (restoreFocus) {
+      const fab = document.getElementById('wh-hub-fab');
+      // #wh-hub is visibility:hidden while open and for the close transition after - a plain focus() here
+      // lands on <body>. utils.js whFocusWhenVisible waits for the fab to be focusable (measured: the
+      // first version of this fix called focus() correctly and the walk still read <body>).
+      if (fab) { try { (window.whFocusWhenVisible || function (el) { el.focus(); })(fab); } catch (_) { /* empty-catch-allow: focus is best-effort */ } }
+    }
   }
 
   // ─── Drag + Snap (same pattern as floating-ai.js) ─────────────────────────────
@@ -1653,7 +1698,7 @@
     fab.addEventListener('touchstart', onStart, { passive: true });
     fab.addEventListener('click', () => {
       if (didDrag) { didDrag = false; return; }
-      isOpen ? closeHub() : openHub();
+      isOpen ? closeHub(true) : openHub();
     });
   }
 
@@ -1665,7 +1710,7 @@
       if (e.key === 'Escape' && isOpen) {
         const q = document.getElementById('wh-hub-search');
         if (q && q.value) { q.value = ''; filterTools(''); }
-        else closeHub();
+        else closeHub(true);
         return;
       }
       // Ctrl+K / Cmd+K — open hub + focus search
@@ -1883,7 +1928,38 @@
       });
       // Hide section break headers while searching (grid becomes a flat filtered list)
       breaks.forEach(b => b.classList.toggle('hidden', !!query));
-      if (noResults) noResults.style.display = (query && visible === 0) ? 'block' : 'none';
+      if (noResults) {
+        noResults.style.display = (query && visible === 0) ? 'block' : 'none';
+        // ★THE FILTER SEARCHES ONLY THE CURRENT VIEW AND SAID NOTHING ABOUT IT (Wave 4 walk W41420,
+        // 2026-09-14): in Engineer view, "logbook" answered "No tools match your search." while Logbook
+        // sits one mode away under All - a dead end for a person who does not know the view is filtered.
+        // When the whole roster does hold a match, say which view is filtering and offer the way out.
+        // The query is never written into the markup (it is the person's own text); only fixed strings are.
+        if (query && visible === 0 && typeof getMode === 'function' && getMode() !== 'all'
+            && Array.isArray(TOOLS) && TOOLS.some(t => ((t.label || '') + ' ' + (t.href || '')).toLowerCase().includes(query))) {
+          const modeName = (MODES.find(m => m.id === getMode()) || {}).label || getMode();
+          noResults.textContent = '';
+          noResults.appendChild(document.createTextNode(_tt('No ' + modeName + ' tools match. ', 'Walang ' + modeName + ' na tool na tumugma. ')));
+          const showAll = document.createElement('button');
+          showAll.type = 'button';
+          showAll.className = 'wh-hub-show-all';
+          showAll.style.cssText = 'background:none;border:0;padding:0;color:var(--wh-orange,#F7A21B);font:inherit;font-weight:700;text-decoration:underline;cursor:pointer;min-height:44px;';
+          showAll.textContent = _tt('Show all tools', 'Ipakita ang lahat ng tools');
+          showAll.addEventListener('click', function () {
+            setMode('all');
+            document.querySelectorAll('#wh-hub-mode .wh-hub-mode-btn').forEach(function (b) {
+              const on = b.getAttribute('data-mode') === 'all';
+              b.classList.toggle('active', on);
+              b.setAttribute('aria-selected', on ? 'true' : 'false');
+            });
+            rebuildToolGrids();
+            filterTools(q);
+          });
+          noResults.appendChild(showAll);
+        } else if (query && visible === 0) {
+          noResults.textContent = _tt('No tools match your search.', 'Walang tool na tumugma sa paghahanap.');
+        }
+      }
       // Also hide Recent row when searching (search shows all matches in the grid)
       const quickSection = document.getElementById('wh-hub-quick');
       if (quickSection) quickSection.style.display = query ? 'none' : '';

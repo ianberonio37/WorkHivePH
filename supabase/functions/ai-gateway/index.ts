@@ -853,8 +853,24 @@ serveObserved("ai-gateway", async (req) => {
   let accountPersona = "zaniah";
   let authUid: string | null = null;
   if (user) {
-    const { data: profile } = await adminClient.from("v_worker_truth")
-      .select("worker_name, preferred_persona").eq("auth_uid", user.id).maybeSingle();
+    /* ★THE CLIENT LEARNED THIS AND THE SERVER DID NOT (design lens critique on assistant.html round 5,
+       2026-09-15). v_worker_truth carries ONE ROW PER HIVE MEMBERSHIP, so a worker in two hives - a
+       supervisor covering two plants, a supported state - returns two rows, and .maybeSingle() resolves
+       to null on multiple rows. The destructure swallows the error, `profile` is undefined, and
+       worker_name falls through to user.EMAIL - which is then the key for episodic recall, procedure
+       matching, due-followup recall AND the journal stamp, and the persona silently defaults to zaniah.
+       utils.js:5051 fixed exactly this on the client months ago and wrote down why; the same view, read
+       the same way, was left broken here.
+       MEASURED LIVE, not inferred: v_worker_truth returns 27 rows for 23 distinct users, 3 of whom
+       return more than one; voice_journal_entries holds 484 rows of which 46 are stamped with an email
+       as worker_name; and ALL 46 belong to multi-hive users, with ZERO from anyone else. Every duplicate
+       user carries exactly one distinct worker_name and one distinct persona across their rows, so any
+       row is correct - ordering only makes the choice deterministic rather than whichever the planner
+       returns first. */
+    const { data: _profileRows } = await adminClient.from("v_worker_truth")
+      .select("worker_name, preferred_persona").eq("auth_uid", user.id)
+      .order("worker_name", { ascending: true }).limit(1);
+    const profile = (_profileRows && _profileRows[0]) || null;
     worker_name    = profile?.worker_name || user.email || "anonymous";
     accountPersona = (profile?.preferred_persona as string | undefined) || "zaniah";
     authUid        = user.id;

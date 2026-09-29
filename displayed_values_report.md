@@ -7,11 +7,11 @@ each as contracted / uncontracted / raw / unknown.
 ## Summary
 
 - Pages scanned:           **36**
-- Display anchors found:   **119**
+- Display anchors found:   **121**
 - Contracted ✅:           **22** (anchor maps to a registered formula)
 - **Uncontracted ⚠️:**     **0** (domain-meaningful metric, no formula registered)
-- Raw (counts/dates):      **93** (no contract needed)
-- Unknown:                 **4** (couldn't classify from id alone)
+- Raw (counts/dates):      **94** (no contract needed)
+- Unknown:                 **5** (couldn't classify from id alone)
 - Formula registry:        **24** entries
 
 ## Per-page breakdown
@@ -28,10 +28,10 @@ each as contracted / uncontracted / raw / unknown.
 | `community.html` | 8 | 0 | 0 | 8 | 0 |
 | `public-feed.html` | 0 | 0 | 0 | 0 | 0 |
 | `marketplace.html` | 9 | 3 | 0 | 6 | 0 |
-| `marketplace-seller.html` | 2 | 1 | 0 | 1 | 0 |
-| `dayplanner.html` | 4 | 0 | 0 | 4 | 0 |
+| `marketplace-seller.html` | 1 | 1 | 0 | 0 | 0 |
+| `dayplanner.html` | 5 | 0 | 0 | 5 | 0 |
 | `engineering-design.html` | 1 | 0 | 0 | 1 | 0 |
-| `assistant.html` | 1 | 0 | 0 | 1 | 0 |
+| `assistant.html` | 2 | 0 | 0 | 2 | 0 |
 | `report-sender.html` | 3 | 0 | 0 | 3 | 0 |
 | `project-manager.html` | 6 | 0 | 0 | 6 | 0 |
 | `integrations.html` | 4 | 0 | 0 | 4 | 0 |
@@ -42,7 +42,7 @@ each as contracted / uncontracted / raw / unknown.
 | `achievements.html` | 4 | 3 | 0 | 1 | 0 |
 | `asset-hub.html` | 7 | 5 | 0 | 2 | 0 |
 | `shift-brain.html` | 5 | 0 | 0 | 5 | 0 |
-| `alert-hub.html` | 6 | 1 | 0 | 5 | 0 |
+| `alert-hub.html` | 7 | 1 | 0 | 5 | 1 |
 | `audit-log.html` | 0 | 0 | 0 | 0 | 0 |
 | `voice-journal.html` | 3 | 0 | 0 | 3 | 0 |
 | `founder-console.html` | 6 | 2 | 0 | 4 | 0 |

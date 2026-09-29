@@ -91,9 +91,20 @@ TILE_LOCKS: dict = {    "analytics:oee": {"page": "analytics", "label": "OEE (av
     "skillmatrix:detail_panel": {"page": "skillmatrix", "label": "Skill matrix detail", "first_seen": "turn 30", "route": "None"},
     "hive:detail_panel": {"page": "hive", "label": "Hive supervisor detail", "first_seen": "turn 30", "route": "None"},
     "achievements:detail_panel": {"page": "achievements", "label": "Achievements detail", "first_seen": "turn 30", "route": "None"},
-    "achievements:composite_score": {"page": "achievements", "label": "Composite skill score", "first_seen": "turn 30", "route": "None"},
-    "achievements:active_domains_stat": {"page": "achievements", "label": "Active domains stat", "first_seen": "turn 30", "route": "None"},
-    "achievements:top_domain": {"page": "achievements", "label": "Top skill domain", "first_seen": "turn 30", "route": "None"},
+    # achievements:composite_score / :active_domains_stat / :top_domain tile-locks RETIRED 2026-09-28
+    # with the achievements stat-strip consolidation. Those three ids lived on the OLD stat-composite /
+    # stat-active / stat-top elements, which the design-lens redesign deleted as DUPLICATES of the
+    # simple-card strip beside them. achievements.html:413-417 records why they had to go: under an
+    # injected 500 the new cards read 0 while the old stats correctly dashed, so one screen carried two
+    # element sets disagreeing about the same numbers ("Total level 0" on the surface whose whole purpose
+    # is recognising what a worker earned; the true value was 153).
+    # Where the data went, so this is a rename and not a loss of coverage:
+    #   composite_score      -> achievements:total_level    (the "Total level" card renders `composite`)
+    #   active_domains_stat  -> achievements:active_domains (still locked, two lines above)
+    #   top_domain           -> genuinely dropped; no surface on the page names a top domain any more.
+    # Retired rather than regenerated on purpose: rag_flywheel_processor.py derives these from the live
+    # markup, so a blind regeneration would let the ratchet quietly forget whatever had just been
+    # deleted - the ratchet-loosening-itself failure this suite already caught once (runbook 0e).
     "dayplanner:detail_panel": {"page": "dayplanner", "label": "Day planner detail", "first_seen": "turn 30", "route": "None"},
     "integrations:detail_panel": {"page": "integrations", "label": "Integrations detail", "first_seen": "turn 30", "route": "None"},
     "integrations:api_config": {"page": "integrations", "label": "API configuration", "first_seen": "turn 30", "route": "None"},

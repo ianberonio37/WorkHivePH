@@ -40,9 +40,9 @@ WorkHive Voice Journal accepts Filipino (Tagalog), English, and Taglish. The tra
 
 Example: a technician says *"Sa Pump P-204B, may mild leak sa mechanical seal area, walang dripping pero may damp spot, baka grasa lang yan pero need i-check ulit next shift."* The transcription captures it verbatim and tags the asset (Pump P-204B) automatically from the spoken asset code.
 
-Recognition quality is highest when the speaker uses their natural language. Forcing English produces shorter, less specific entries because the speaker drops nuances that did not translate cleanly. The data is consistent: Taglish entries average 30 percent more usable detail than the same speaker forced into English-only.
+Recognition quality is highest when the speaker uses their natural language. Forcing English produces shorter, less specific entries because the speaker drops nuances that did not translate cleanly. The practical consequence is that an entry dictated in the speaker's own register tends to carry more usable detail than the same speaker forced into English-only: which is why the field accepts Taglish rather than correcting it.
 
-Future regional language support (Cebuano, Hiligaynon, Ilocano) is on the WorkHive roadmap once the user base reaches scale in those regions.
+Cebuano, Hiligaynon and Ilocano already transcribe as well: the engine auto-detects the language rather than being told it, and the journal labels and filters entries by what it detected, so a Bisaya entry files itself as Bisaya. Expect accuracy below what you get in Tagalog or English, because there is far less training audio in those languages; the 5-second confirm step is doing more work on a Cebuano entry than on a Taglish one, and it is worth reading before you submit.
 
 ## Handling plant noise
 
@@ -58,7 +58,7 @@ Voice Journal applies noise suppression preprocessing before transcription, whic
 
 ## The 5 use cases that change the day
 
-1. **Fault capture at the asset.** Technician spots an issue, records it in 60 seconds while standing there, photo attached. Detail captured at peak observation freshness. No "I'll write it later" loss.
+1. **Fault capture at the asset.** Technician spots an issue and records it in 60 seconds while standing there, with the detail captured at peak observation freshness and no "I'll write it later" loss. Add the photo afterwards in the Logbook entry itself: the Voice Journal captures speech, not images.
 2. **Supervisor handover walks.** Outgoing supervisor does the 5S round at end of shift, dictates a walking commentary that pre-fills sections of the shift handover. Saves 10 minutes of typing per shift.
 3. **Contractor status updates.** A third-party service team visiting the plant for a scheduled job records their verbal status (work done, parts used, follow-up needed) without needing to access a desktop. Updates flow into WorkHive and back to SAP via the integration.
 4. **Safety walkthroughs.** Safety officer dictates observations during a walk without breaking flow. Each observation lands as a logbook entry tagged with the area. DOLE OSHS-compliant record by default.
@@ -66,9 +66,9 @@ Voice Journal applies noise suppression preprocessing before transcription, whic
 
 The tool this guide is about
 
-#### WorkHive Voice Journal turns spoken observations into logbook entries
+### WorkHive Voice Journal turns spoken observations into logbook entries
 
-Tap to record, speak in Filipino, English, or Taglish, confirm the transcription in 5 seconds, submit. The entry lands in your hive's Logbook with the right asset tag and timestamp, ready for the AI Assistant to reference and the supervisor to review. Free at the worker tier; 90-day audio retention for compliance dispute resolution.
+Tap to record, speak in Filipino, English, or Taglish, confirm the transcription in 5 seconds, submit. The entry lands in your hive's Logbook with the right asset tag and timestamp, ready for the AI Assistant to reference and the supervisor to review. Free at the worker tier. The audio is never stored: it is transcribed and discarded, and the saved record is the transcript you confirmed.
 
 No hive yet? [Join WorkHive](https://workhiveph.com/?signup=1) first (free, takes 30 seconds).
 
@@ -78,16 +78,16 @@ Voice-captured entries are fully DOLE OSHS Rule 1063 compliant. The requirement 
 
 - Time-stamped at recording (server-side, not editable)
 - Attributable to a specific worker (logged-in user)
-- Non-editable after submission (audit trail preserved)
+- Amendable only by their author, with every amendment preserved in the audit trail
 - Available for inspector sampling (PDF export, electronic search)
 
-WorkHive Voice Journal satisfies all four. The transcribed text plus the original audio file (retained 90 days) plus the metadata (asset, location, time, user) form a stronger compliance record than handwritten entries typically do because the audit trail is automatic.
+WorkHive Voice Journal satisfies all four, and the fourth one works in a way worth understanding before an inspection. An entry is *not* frozen: its author can correct it, which matters because the alternative to amending is a wrong record standing forever. What Rule 1063 needs is the trail, and that is what is preserved: every amendment is written to the DOLE/ISO audit log, and that log accepts inserts and reads only, so the history of a correction cannot itself be edited or deleted. Nobody but the author can touch the entry, and nobody at all can touch the record of what changed. The confirmed transcript plus the metadata (asset, location, time, user) then form a stronger compliance record than handwritten entries typically do, because the trail is automatic rather than remembered. The record is the text, not a recording: the audio is never stored.
 
 ## Privacy and data retention
 
-Voice recordings are encrypted in transit (TLS 1.3) and at rest (AES-256). Transcripts are scoped to the hive that recorded them; WorkHive does not share data across hives without explicit consent. Audio recordings are retained for 90 days for dispute resolution then automatically deleted unless the entry is flagged for legal hold (extended retention for incident investigation, regulatory dispute, or HR matter).
+**WorkHive does not keep your audio.** A recording is sent over an encrypted connection to be transcribed, the text comes back, and the audio is not written to WorkHive storage at any point: there is no recording to retain, expire or subpoena. What is saved is the TRANSCRIPT, scoped to the hive that recorded it, and WorkHive does not share data across hives without explicit consent.
 
-The speech-to-text providers used contractually do not use plant data to train their general models. This matters for plants with confidentiality concerns about voice content that may include process details, safety incidents, or personnel names.
+The part worth knowing before you roll this out: transcription is done by a third-party speech-to-text service, so the audio does leave the platform for the few seconds it takes to turn into text. For plants with confidentiality concerns about voice content that may include process details, safety incidents or personnel names, that is the fact to weigh, and the practical control is the one your team already has, which is to say the fault and the asset rather than anything that does not belong on a record.
 
 ## Rollout sequence
 
@@ -110,7 +110,7 @@ Because typing on the plant floor is rarely practical. Hands are dirty, gloves a
 
 ### Does it work in Filipino and Taglish?
 
-Yes. WorkHive Voice Journal accepts Filipino (Tagalog), English, and Taglish (the mixed code-switching most Filipino industrial workers actually speak). Recognition quality is best when the speaker uses their natural language; forcing English on a Filipino-thinking team produces shorter, less specific entries. Future regional language support (Cebuano, Hiligaynon, Ilocano) is on the roadmap once the user base reaches scale in those regions.
+Yes. WorkHive Voice Journal accepts Filipino (Tagalog), English, and Taglish (the mixed code-switching most Filipino industrial workers actually speak). Recognition quality is best when the speaker uses their natural language; forcing English on a Filipino-thinking team produces shorter, less specific entries. Cebuano, Hiligaynon and Ilocano work too - the language is auto-detected rather than selected, and entries are labelled and filtered by the language they were spoken in - though accuracy in those languages is lower than in Tagalog or English, so read the transcript before confirming.
 
 ### What if the plant floor is noisy?
 
@@ -118,7 +118,7 @@ Voice Journal uses noise-suppression preprocessing that handles typical plant am
 
 ### Is voice transcription accurate enough for compliance records?
 
-Yes, with a review step. The Voice Journal transcribes the recording into text and shows it for the technician to confirm or correct in 5 seconds before submitting. The audio file is also retained for 90 days so any disputed transcription can be played back. DOLE OSHS Rule 1063 on Safety and Health Records is satisfied because the entry has a time-stamped, technician-identified, non-editable audit trail.
+Yes, with a review step. The Voice Journal transcribes the recording into text and shows it for the technician to confirm or correct in 5 seconds before submitting. That review step is the safeguard, and it is load-bearing: the audio is not kept and cannot be replayed later, so the confirmed text is the only record there will ever be. DOLE OSHS Rule 1063 on Safety and Health Records is satisfied because the entry is time-stamped and technician-identified, and because every later amendment is written to an audit log that accepts inserts and reads only. The entry can be corrected by its author; the record of the correction cannot be removed by anyone.
 
 ### What are the highest-value use cases for voice?
 
@@ -126,7 +126,7 @@ Five use cases that consistently change the day: (1) capturing a fault descripti
 
 ### Does the voice data stay private?
 
-Yes. Voice recordings are encrypted in transit and at rest. Transcripts are scoped to the hive that recorded them; no cross-hive sharing without explicit hive-to-hive consent. Recordings are retained for 90 days for dispute resolution then automatically deleted unless the entry is flagged for legal hold. WorkHive uses speech-to-text providers that contractually do not use plant data to train their general models.
+WorkHive does not keep your audio. The recording is sent over an encrypted connection to a third-party speech-to-text service, the text comes back, and the audio is never written to WorkHive storage, so there is no recording to retain or delete. The transcript is what is saved, scoped to the hive that recorded it, with no cross-hive sharing without explicit hive-to-hive consent.
 
 ## Sources
 
@@ -137,4 +137,4 @@ Yes. Voice recordings are encrypted in transit and at rest. Transcripts are scop
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 014ab7e31b773482 -->
+<!-- md-twin source-sha: eca8da0e50421a6c -->

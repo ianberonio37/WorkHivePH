@@ -28,7 +28,7 @@ Who this is for
 
 ## Why every maintenance team needs a skill matrix
 
-Build a skill matrix as a grid of every worker against every required competency, scoring each cell on a 4-level scale (1 aware, 2 assisted, 3 independent, 4 instructor) drawn from ISO 18404. Assess each cell with the 3-input rule: certificates, tagged logbook history, and a Level 4 practical sign-off.
+Build a skill matrix as a grid of every worker against every required competency, scoring each cell on WorkHive's 5-level scale (1 Safety Awareness, 2 Supervised Practice, 3 Independent Technician, 4 Senior / Specialist, 5 Engineer / Strategist). Assess each cell with the 3-input rule: certificates, tagged logbook history, and a Level 4 or 5 practical sign-off.
 
 Without a skill matrix, three patterns repeat in every Philippine plant:
 
@@ -91,9 +91,9 @@ Reading this matrix:
 
 The tool this guide is about
 
-#### WorkHive Skill Matrix is free and tied to the Logbook
+### WorkHive Skill Matrix is free and tied to the Logbook
 
-Every Logbook entry can be tagged with the competency it demonstrated, building each technician's evidence record automatically. The Skill Matrix dashboard shows gaps, single-point-of-failures, and ready-for-promotion patterns. PM Scheduler reads it for assignment. Free at the worker tier forever.
+Read this before you plan a rollout, because the tool is not shaped like the matrix above. **WorkHive’s Skill Matrix is a personal one, not a team grid.** Each technician picks a primary discipline and a target level, sits quizzes to earn badges, and sees their own radar, their own gap to target, and which quizzes that unlocks, and the database keeps it that way: skills, badges and exam attempts are readable only by the worker they belong to, not by a supervisor. So the six-by-five grid in this guide is something you still maintain yourself; what WorkHive removes is the assessment argument, because a level is earned by passing a quiz rather than assigned in a meeting. Where the data does reach a planner is the daily AMC brief, whose crew-builder matches workers to assets server-side. Free at the worker tier forever.
 
 No hive yet? [Join WorkHive](https://workhiveph.com/?signup=1) first (free, takes 30 seconds).
 
@@ -121,7 +121,7 @@ Here is the mechanism:
 
 - **When management evaluates headcount cuts**, the skill matrix is the first document HR opens. Technicians at Level 3 or 4 in critical-path disciplines are protected. Technicians whose value lives only in their head are easy to cut on a spreadsheet.
 - **When a Filipino technician applies to work overseas** (Saudi, UAE, Singapore, Japan), the hiring manager wants verifiable competence. A skill matrix entry signed off by a Level 4 instructor plus 200 tagged logbook entries is verifiable. "Trust me, I'm good" is not.
-- **When the AI work assistant trains on plant data**, it cites technicians by name. The Level 4 instructor on RCA who has authored 47 root-cause investigations becomes the AI's reference; that technician's reputation compounds across every junior technician's question.
+- **When the AI work assistant answers from plant data**, it answers out of the records your team wrote and cites the entry it used. It does not credit people by name: the citation points at the record, not the author, but the record itself carries who wrote it, so the technician who authored the root-cause investigations the assistant keeps reaching for is one click behind every one of those answers. Documented work is what makes that traceable at all.
 - **When the plant gets sold or merged**, the new owner looks at the skill matrix to decide who to retain. Undocumented technicians get severance; documented ones get transition bonuses.
 
 Document your work. Document your skills. The skill matrix is the document Filipino industrial workers most underuse and most need.
@@ -172,4 +172,4 @@ Yes. The matrix gives an objective answer to who has earned the next role. A tec
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 6ceb763eb122803c -->
+<!-- md-twin source-sha: 64e400067924f22a -->

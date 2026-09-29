@@ -2,7 +2,7 @@
 name: doc-sentinel_drafts
 type: doc
 source: file:sentinel_drafts.md
-source_sha: 4ea11bdc4073f648
+source_sha: 36a1b11574547dab
 last_verified: 2026-07-13
 supersedes: null
 ---

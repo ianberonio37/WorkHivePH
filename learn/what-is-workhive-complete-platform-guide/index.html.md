@@ -73,7 +73,7 @@ Stage 1 · Capture (record the raw truth)
 | --- | --- |
 | [Home / Landing](https://workhiveph.com/) | The front door: sign in or create a free account, install it on your phone like an app, pick your AI helper, and browse every tool grouped by your plant's growth stage. |
 | [Digital Maintenance Logbook](https://workhiveph.com/logbook.html) | Record every repair, failure, and fix by typing or speaking. The AI drafts the entry, and it feeds every other tool. |
-| [Voice Journal](https://workhiveph.com/voice-journal.html) | Speak your notes in your own language (10 Philippine languages) and it writes them down and remembers them, so you can log even with oily gloves on. |
+| [Voice Journal](https://workhiveph.com/voice-journal.html) | Speak your notes in your own language: eight Philippine languages plus English, and it writes them down and remembers them, so you can log even with oily gloves on. |
 | [Spare-Parts Inventory](https://workhiveph.com/inventory.html) | Track every spare part and get a warning before you run out, with a clear record of each use and restock. |
 | [Asset Hub](https://workhiveph.com/asset-hub.html) | Every machine's whole life in one view (failures, checks, parts, related machines), plus reliability tools and an AI that answers about that exact machine. |
 | [Skill Matrix](https://workhiveph.com/skillmatrix.html) | Track who can do what, set skill targets, take short exams, and earn badges that show who is ready for a job. |
@@ -136,7 +136,7 @@ The difference between these pages and the [Engineering Design workbench](https:
 
 The platform this guide is about
 
-#### One free hive for your whole plant team
+### One free hive for your whole plant team
 
 28 connected tools, from the digital logbook to 60 engineering calculators to the AI helper, all in one browser app that works offline on any phone. No per-seat charge, no credit card. Sign up, start logging, and watch the intelligence build as your records grow.
 
@@ -164,7 +164,7 @@ Across all 28 tools sits one AI helper. It is not a separate product you switch 
 - **You can just talk to it.** Speak in English, Taglish, Bisaya, or Ilocano and it writes down what you say. It can also read the answer back out loud, so you can keep both hands on the job.
 - **It sends you to the right page.** Ask "where do I log this?" and it takes you straight there, instead of leaving you to hunt through menus.
 - **It remembers.** It remembers what you told it before, even days later, so you do not have to repeat yourself every morning.
-- **It never makes up a number.** If it does not have the figure, it says so and points you to the page where you can get it. It will not invent a reading to sound confident.
+- **It will not pass off an invented number as one of yours.** If it does not have the figure, it says so and points you to the page where you can get it. Where it does offer an estimate, it is labelled as one rather than dressed up as a reading from your records.
 - **It knows each machine.** Ask about one machine and it pulls up that machine's whole history, not a generic textbook answer.
 
 The more your team logs, the more useful this helper becomes, because it is answering from your plant's real work, not from the internet.
@@ -236,7 +236,7 @@ It works offline on any phone, so a brownout or a weak signal does not stop you 
 
 This page is the map. Each guide below goes deep on one tool or one job. They are grouped by the same four flywheel stages, so you can start wherever your plant is today.
 
-#### Capture guides
+### Capture guides
 
 - [Start a digital logbook in a Philippine factory (zero-budget)](https://workhiveph.com/learn/start-digital-logbook-philippine-factory/)
 - [Voice-to-text on the plant floor (Filipino, English, Taglish)](https://workhiveph.com/learn/voice-to-text-maintenance-philippine-plant-floor/)
@@ -246,7 +246,7 @@ This page is the map. Each guide below goes deep on one tool or one job. They ar
 - [Build a skill matrix for maintenance technicians](https://workhiveph.com/learn/skill-matrix-for-maintenance-technicians/)
 - [Map TESDA NC II and NC III to your skill matrix](https://workhiveph.com/learn/tesda-nc-mapping-to-skill-matrix/)
 
-#### Plan guides
+### Plan guides
 
 - [Free preventive-maintenance checklist templates](https://workhiveph.com/learn/free-pm-checklist-templates/)
 - [DILO, WILO, MILO, YILO: the day planner method](https://workhiveph.com/learn/dilo-wilo-day-planner-supervisors/)
@@ -255,7 +255,7 @@ This page is the map. Each guide below goes deep on one tool or one job. They ar
 - [One alert inbox for the whole plant, and the 6 AM brief](https://workhiveph.com/learn/plant-alert-inbox-amc-daily-brief/)
 - [Predictive alert thresholds for industrial plants](https://workhiveph.com/learn/predictive-alert-thresholds-plants/)
 
-#### Analyze guides
+### Analyze guides
 
 - [What is OEE and how do I calculate it?](https://workhiveph.com/learn/what-is-oee-how-to-calculate/)
 - [MTBF vs MTTR explained for supervisors](https://workhiveph.com/learn/mtbf-vs-mttr-for-supervisors/)
@@ -270,7 +270,7 @@ This page is the map. Each guide below goes deep on one tool or one job. They ar
 - [Meet the AI companion: Hezekiah and Zaniah](https://workhiveph.com/learn/ai-companion-hezekiah-zaniah-personas/)
 - [Measuring AI quality and value for your plant](https://workhiveph.com/learn/ai-quality-and-roi-stage-2-plants/)
 
-#### Act and Prove guides
+### Act and Prove guides
 
 - [The print-ready report management actually reads](https://workhiveph.com/learn/print-ready-maintenance-analytics-report/)
 - [Write a maintenance shift handover (template)](https://workhiveph.com/learn/maintenance-shift-handover-template/)
@@ -285,7 +285,7 @@ This page is the map. Each guide below goes deep on one tool or one job. They ar
 - [Build an ATS-ready resume from your work history](https://workhiveph.com/learn/resume-builder-for-filipino-industrial-workers/)
 - [How OFW-track engineers build a portable portfolio](https://workhiveph.com/learn/ofw-engineer-portable-portfolio/)
 
-#### Industry, safety, and careers
+### Industry, safety, and careers
 
 - [Lock-out tag-out (LOTO) procedures: DOLE OSHS template](https://workhiveph.com/learn/loto-procedures-dole-oshs-template/)
 - [RA 11285 energy efficiency: a compliance checklist](https://workhiveph.com/learn/ra-11285-energy-efficiency-plant-checklist/)
@@ -296,9 +296,9 @@ This page is the map. Each guide below goes deep on one tool or one job. They ar
 
 Start with the AI helper
 
-#### Meet your AI work assistant
+### Meet your AI work assistant
 
-The helper that sits over all 28 tools, answers from your own records, speaks your language, and never makes up a number. Open it and ask your first question in plain Taglish.
+The helper that sits over all 28 tools, answers from your own records, speaks your language, and will not pass off an invented number as one of yours. Open it and ask your first question in plain Taglish.
 
 Prefer to read first? [Meet Hezekiah and Zaniah](https://workhiveph.com/learn/ai-companion-hezekiah-zaniah-personas/).
 
@@ -315,4 +315,4 @@ Prefer to read first? [Meet Hezekiah and Zaniah](https://workhiveph.com/learn/ai
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: fa02eacc7e82637c -->
+<!-- md-twin source-sha: 02432d2f7cd2cfdb -->

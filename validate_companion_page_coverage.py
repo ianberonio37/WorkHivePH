@@ -5,6 +5,7 @@ Layer 0 — Forward-only ratchet.
 Enforce: Every nav-hub page must also load companion-launcher.js.
 Allowlist for intentional exclusions (assistant.html, index.html, dev/ops pages, test pages).
 """
+import re
 import io
 import sys
 from pathlib import Path
@@ -26,6 +27,19 @@ def is_test_page(filename):
     """Check if page is a test page (not production user-facing)."""
     return "-test.html" in filename or filename.startswith("test-")
 
+def _SCRIPT_SRC(fname):
+    """A real <script src=...fname> tag, not any mention of the filename.
+
+    A MENTION IS NOT A LOAD (2026-09-28): this used to be `"nav-hub.js" in content`, so a COMMENT naming
+    the file made a page look like a nav-hub page. platform-actions.html is an admin console that
+    deliberately loads neither nav-hub nor wayfinding - its own comment says "this console loads neither
+    ... a navigation hub on an admin console is a product decision" - and it was reported as a
+    companion-missing page purely on the strength of those sentences.
+    """
+    quote = "[\"']"
+    return re.compile("<script[^>]*" + r"\bsrc\s*=\s*" + quote + "[^\"']*" + re.escape(fname), re.I)
+
+
 def check_companion_page_coverage():
     """Verify all user-facing pages with nav-hub.js also load companion-launcher.js."""
     root_html = list(ROOT.glob("*.html"))
@@ -44,8 +58,10 @@ def check_companion_page_coverage():
 
         content = html_file.read_text(encoding="utf-8", errors="replace")
 
-        has_nav_hub = "nav-hub.js" in content
-        has_companion = "companion-launcher.js" in content
+        # a MENTION is not a LOAD - see the note in validate_pill_reserve.py; platform-actions.html
+        # names nav-hub.js only in comments explaining that it deliberately does NOT load it.
+        has_nav_hub = bool(_SCRIPT_SRC('nav-hub.js').search(content))
+        has_companion = bool(_SCRIPT_SRC('companion-launcher.js').search(content))
 
         # If it has nav-hub, it must have companion-launcher (unless allowlisted)
         if has_nav_hub and not has_companion:

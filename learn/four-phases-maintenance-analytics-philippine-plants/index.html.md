@@ -12,22 +12,22 @@ By WorkHive Editorial Team
 ·
 6 min read
 
-**Short answer:** In the Philippines, plant managers and reliability engineers strive to maximize equipment performance and minimize downtime. A key tool in achieving this goal is WorkHive's Analytics Engine, which provides a data-driven approach to maintenance. By using this engine, plants can progress through four phases of maintenance analytics. The metrics underneath are the standard ones: **ISO 14224** for how failure data is collected, and the **SMRP** benchmark of **90 percent** PM compliance as the leading indicator that moves the rest.
+**Short answer:** Maintenance analytics comes in four phases, and a plant can only stand on one at a time: descriptive (what happened), diagnostic (why), predictive (what will), prescriptive (what to do about it). WorkHive's Analytics Engine computes all four from the logbook entries and PM completions a team already writes, which is what decides how far up the four a plant can actually get. The metrics underneath are the standard ones: **ISO 14224** for how failure data is collected, and the **SMRP** benchmark of **90 percent** PM compliance as the leading indicator that moves the rest.
 
 Who this is for
 
-- Supervisors who oversee daily plant operations
-- Reliability engineers responsible for equipment performance
-- Planners who schedule maintenance activities
-- Plant managers who make strategic decisions
-- Field workers who perform routine maintenance tasks
-- Technicians who troubleshoot equipment issues
+- Reliability engineers who want to know which phase their data can actually support
+- Supervisors reading KPI tiles that have to mean something at the morning huddle
+- Planners who need a Pareto of causes before they re-cut the PM schedule
+- Plant managers deciding whether to buy prediction or fix the record first
+- Technicians whose logbook entries are the only input every number here is built from
+- Anyone who has been sold a dashboard before the plant had data to put in it
 
 Part of the [maintenance metrics guide: OEE, MTBF, MTTR and reliability](https://workhiveph.com/learn/maintenance-metrics-reliability-guide/): the hub that connects every reliability metric and shows how they chain together.
 
 ## What is maintenance analytics?
 
-In the heart of Calabarzon, Philippine plants are increasingly turning to maintenance analytics to elevate their asset management game. At its core, maintenance analytics is about transforming raw data into actionable insights. This process is facilitated by WorkHive's Analytics Engine, which serves as an interconnected intelligence hub. It takes logbook entries and PM completions as inputs and computes key performance indicators such as MTBF, MTTR, Availability, OEE, PM Compliance, and Pareto analysis.
+Maintenance analytics is what a plant can say about its own equipment from the records it keeps - and how far it can say it depends entirely on how good those records are. WorkHive's Analytics Engine takes logbook entries and PM completions as its only inputs and computes MTBF, MTTR, Availability, OEE, PM compliance and a Pareto of failure causes from them. Nothing else is typed; if the entries are thin, so is every number below.
 
 The Analytics Engine is designed to guide maintenance teams through four phases of analytics maturity: descriptive, diagnostic, predictive, and prescriptive analytics. The **Descriptive** phase provides a snapshot of what has happened, through live KPI tiles. The **Diagnostic** phase delves into why things happened, using Pareto and root-cause analysis. The **Predictive** phase forecasts what might happen, through failure risk and forecast tools. Finally, the **Prescriptive** phase recommends what to do next, via an AI-driven action plan. This structured approach ensures that maintenance teams can systematically improve their operations.
 
@@ -43,7 +43,7 @@ The Analytics Engine also calculates other important metrics, including Availabi
 
 ## Diagnostic Analytics: Why It Happened
 
-In the **Diagnostic** phase of WorkHive Analytics, we analyze **what happened** and **why** it happened. This phase provides insights into the root causes of equipment failures and maintenance issues. For example, a 24-hour shift schedule with changing personnel at 06:00, 14:00, and 22:00 can lead to variations in maintenance quality. The Analytics Engine helps identify these patterns.
+In the **Diagnostic** phase of WorkHive Analytics, we analyze **what happened** and **why** it happened. This phase provides insights into the root causes of equipment failures and maintenance issues. For example, a round-the-clock schedule with changing personnel at 06:00, 14:00, and 22:00 can lead to variations in maintenance quality. The Analytics Engine helps identify these patterns.
 
 The engine provides **Pareto analysis** to highlight the most common causes of failures. This information is crucial for maintenance teams to prioritize tasks and allocate resources effectively. By analyzing data from logbook entries and PM completions, the engine computes key metrics such as **MTBF**, **MTTR**, and **Availability**. These metrics help teams understand the impact of maintenance activities on equipment performance.
 
@@ -57,10 +57,10 @@ The engine provides **Pareto analysis** to highlight the most common causes of f
 
 The WorkHive Analytics Engine takes maintenance analytics to the next level with predictive analytics, enabling your team to anticipate and prepare for potential equipment failures. For instance, consider Pump P-204B in a Philippine plant. By analyzing historical data, the engine provides failure risk scores and forecasts, giving maintenance teams a proactive edge.
 
-With the engine's predictive capabilities, you can assess the likelihood of equipment failure and prioritize maintenance activities accordingly. The **↑ Recompute risk** button allows you to refresh risk scores and forecasts, ensuring that your team has the most up-to-date information. The engine's predictions are based on industry-recognized standards, such as ISO 14224, ensuring that your plant's maintenance practices are aligned with global best practices.
+With the engine's predictive capabilities, you can assess the likelihood of equipment failure and prioritize maintenance activities accordingly. Risk scores are computed by a batch run at **13:00 PHT each day**, which is worth knowing before you distrust a figure: a score you read at nine in the morning reflects yesterday's evidence, not this morning's breakdown. A supervisor can skip the wait with the **Recompute risk** button, which re-runs the scoring for the hive on demand. It is supervisor-only, so if you are a technician and the numbers look stale, that is the person to ask. The engine's predictions are based on industry-recognized standards, such as ISO 14224, ensuring that your plant's maintenance practices are aligned with global best practices.
 
 1. Navigate to the **Predictive** tab to access failure risk scores and forecasts for your equipment.
-2. Use the **✅ Critical**, **✊ High**, **✋ Medium**, and **✌ Low** filters to prioritize equipment based on their risk levels.
+2. Filter by risk band with the traffic-light chips — **🔴 Critical**, **🟠 High**, **🟡 Medium**, **🟢 Low** — or **All** to drop the filter. There are discipline chips beside them too (Mechanical, Electrical, Instrumentation, Hydraulic, Pneumatic, Lubrication), which is how you get from “everything at risk” to “everything at risk that my team owns”.
 3. Click **Show details** to view more information on the predicted failures and plan maintenance activities.
 
 ## Prescriptive Analytics: What to Do Next
@@ -69,7 +69,7 @@ Prescriptive Analytics in WorkHive's Analytics Engine takes maintenance strategy
 
 The engine's prescriptive analytics capability is built on industry-recognized standards such as ISO 14224 and ISA-101. This ensures that the recommended actions are aligned with best practices in reliability and maintenance. By using these standards, the engine can provide actionable insights that maintenance teams can trust. The **Prescriptive** tab in the Analytics Engine provides a clear and concise view of the recommended actions.
 
-**Worked example:** In a Pampanga plant, the Analytics Engine identified a critical asset with a high risk of failure. The engine recommended a proactive maintenance schedule, which was implemented by the maintenance team. As a result, the plant was able to prevent a costly unplanned downtime.
+**How to read a prescriptive recommendation:** each one names the analysis it came from and the standard behind it: a PM interval suggestion cites SAE JA1011 §7, a reorder recommendation comes from an inventory × PM cross-reference, a training-gap recommendation from MTTR × skill. Read the basis before you act on the advice, because the recommendation is only as good as the history underneath it, and on a thin logbook it will say so rather than guess. Be wary of any tool, this one included, that tells you it prevented a failure: the downtime that did not happen leaves no record, so that claim can never be checked.
 
 ## Implementation and Integration
 
@@ -89,7 +89,7 @@ Descriptive analytics looks at what happened, while predictive analytics forecas
 
 ### How does WorkHive's Analytics Engine integrate with existing systems?
 
-The engine can be integrated with existing systems through logbook entries and PM completions. This allows for seamless data collection and analysis.
+The engine reads the logbook entries and PM completions your team already writes, so there is no second system to keep fed - the analysis is built from the record, not from a separate data entry step.
 
 ### What is the role of ISO 14224 in maintenance analytics?
 
@@ -114,4 +114,4 @@ WorkHive provides technical support and training for Analytics Engine users. Thi
 - DOLE OSHS - Occupational Safety and Health Standards
 - Related WorkHive guides: [The print-ready analytics report](https://workhiveph.com/learn/print-ready-maintenance-analytics-report/) · [What is OEE](https://workhiveph.com/learn/what-is-oee-how-to-calculate/) · [Predictive maintenance on a budget](https://workhiveph.com/learn/predictive-maintenance-on-a-budget-philippines/)
 
-<!-- md-twin source-sha: 1d88b62bb4ee9732 -->
+<!-- md-twin source-sha: eaadd50607d7f742 -->

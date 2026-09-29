@@ -43,11 +43,25 @@
 
     /* ── Layout ── */
     .page { position: relative; z-index: 1; max-width: 720px; margin: 0 auto; padding: 1.5rem 1rem; }
+
+    /* ★THE MEASURE RAN 85 CHARACTERS A LINE AT DESKTOP (2026-09-18, W46029 craft). .page caps at 720px,
+       so every prose child inherited 688px of reading width against the craft floor's 65-75 band. The
+       cap goes on the PROSE and not on the page, and on this surface that distinction is the whole
+       point: .page also holds the input fields, and a form field SHOULD be full width - narrowing the
+       column to fix a paragraph would make every text box harder to type into to make one sentence
+       easier to read. Stated in ch, so the cap tracks each element's own size rather than freezing a
+       pixel width - which matters here because this page's type moved one row ago. At 390 the column is
+       already narrower than the cap, so the phone reading does not move. */
+    .page-header p,
+    .sec-sub,
+    .empty-prompt p,
+    .opt-toggle span,
+    .card > p { max-width: 68ch; }
     .page-header { margin-bottom: 1rem; }
-    .page-header h1 { font-size: 1.9rem; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 0.5rem; } /* Arc-W focal: heading ≥2.3× body median (was 1.5rem/1.83×) */
-    .page-header p { font-size: 0.8rem; color: #9AA8B6; margin-top: 0.25rem; }
-    .ctx-pill { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.68rem; font-weight: 600; color: var(--wh-blue);
-      background: rgba(41,182,217,0.1); border: 1px solid rgba(41,182,217,0.25); border-radius: 999px; padding: 0.2rem 0.6rem; margin-top: 0.5rem; }
+    .page-header h1 { font-size: 1.5rem; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 0.5rem; } /* Arc-W focal: heading ≥2.3× body median (was 1.5rem/1.83×) */
+    .page-header p { font-size: 0.75rem; color: #9AA8B6; margin-top: 0.25rem; }
+    .ctx-pill { display: inline-flex; align-items: center; gap: 0.25rem; font-size: 0.75rem; font-weight: 600; color: var(--wh-blue);
+      background: rgba(41,182,217,0.1); border: 1px solid rgba(41,182,217,0.25); border-radius: 999px; padding: 0.25rem 0.5rem; margin-top: 0.5rem; }
 
     /* ── Offline banner ── */
     #offline-banner { display: none; background: rgba(247,162,27,0.15); border: 1px solid rgba(247,162,27,0.4);
@@ -57,46 +71,55 @@
     /* ── Toast ── */
     #toast { position: fixed; top: 1rem; left: 50%; transform: translateX(-50%) translateY(-90px);
       background: rgba(31,46,69,0.97); border: 1px solid rgba(255,255,255,0.1); border-radius: 0.75rem;
-      padding: 0.75rem 1.25rem; font-size: 0.8rem; color: #fff; z-index: 9999; transition: transform 0.25s ease-out;
+      padding: 0.75rem 1.25rem; font-size: 0.75rem; color: #fff; z-index: 9999; transition: transform 0.25s ease-out;
       display: flex; align-items: center; gap: 0.5rem; max-width: 340px; }
     #toast.show { transform: translateX(-50%) translateY(0); }
 
     /* ── Cards ── */
     .card { background: linear-gradient(145deg, rgba(42,61,88,0.5), rgba(31,46,69,0.7));
-      border: 1px solid rgba(255,255,255,0.07); border-radius: 1rem; padding: 1.1rem 1.2rem; margin-bottom: 1rem; }
+      border: 1px solid rgba(255,255,255,0.07); border-radius: 1rem; padding: 1rem 1.25rem; margin-bottom: 1rem; }
     .sec-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; }
     .sec-title { font-size: 0.95rem; font-weight: 700; color: #fff; }
     /* --wh-steel-bright, not --wh-steel, on every one of this page-s muted labels. tokens.css
-       annotates the reason on the token itself: --wh-steel #7B8794 measures 3.3-3.9:1 on the card
-       gradient and FAILS WCAG AA for small text, which is why --wh-steel-bright #CFD7E0 exists for
+       annotates the reason on the token itself: --wh-steel var(--wh-steel, #7B8794) measures 3.3-3.9:1 on the card
+       gradient and FAILS WCAG AA for small text, which is why --wh-steel-bright var(--wh-steel-bright, #CFD7E0) exists for
        dark surfaces. Measured here: 28 of 54 text nodes at exactly 3.92:1 against rgb(29,43,62) -
        one identical ratio repeated 28 times, which is the signature of one shared token rather
        than 28 separate decisions. All 10 uses on this page are 0.64-0.76rem on dark cards.
        The worst-placed of them was the privacy promise - "your files are read just to fill in your
        resume, then discarded" - so the single most consequential sentence on the page was also the
        hardest to read. */
-    .sec-sub { font-size: 0.68rem; color: var(--wh-steel-bright); margin-top: 0.1rem; }
+    .sec-sub { font-size: 0.75rem; color: var(--wh-steel-bright); margin-top: 0.25rem; }
 
     /* ── Buttons ── */
-    .btn { min-height: 44px; border-radius:0.75rem; font-family: inherit; font-size: 0.85rem; font-weight: 700;
-      cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem;
-      padding: 0.5rem 1rem; border: 1px solid transparent; transition: transform 0.12s, opacity 0.12s; }
+    .btn { min-height: 44px; border-radius:0.75rem; font-family: inherit; font-size: 0.75rem; font-weight: 700;
+      cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+      padding: 0.5rem 1rem; border: 1px solid transparent;
+      /* ★NAMED THE RIGHT PROPERTIES AND NO CURVE (2026-09-18, W46032 motion). Omitting the easing
+         inherits the CSS default `ease`, which is an ease-IN-out: the press feedback STARTS slowly,
+         and on a response to a finger that reads as lag rather than polish. transform and opacity
+         were already the right two properties. The DURATION moved 120ms -> 150ms, because
+         --wh-dur-fast is 0.15s and the token wins over the fallback - measured, not assumed. That
+         is the better number anyway: a bespoke 120ms was one page's private step, and both are
+         comfortably inside the 300ms ceiling. */
+      transition: transform var(--wh-dur-fast, 0.12s) var(--wh-ease-out, ease-out),
+                  opacity var(--wh-dur-fast, 0.12s) var(--wh-ease-out, ease-out); }
     .btn:active { transform: scale(0.97); }
     .btn-primary { background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light)); color: var(--wh-navy); }
     .btn-primary:active { opacity: 0.85; }
     .btn-ghost { background: rgba(255,255,255,0.05); color: var(--wh-cloud); border-color: rgba(255,255,255,0.12); }
     .btn-ghost:active { background: rgba(255,255,255,0.1); }
-    .btn-sm { min-height: 36px; padding: 0.35rem 0.7rem; font-size: 0.74rem; }
+    .btn-sm { min-height: 36px; padding: 0.35rem 0.7rem; font-size: 0.75rem; }
     /* Export/preview dialog is the most-used surface: hold the 44px platform tap floor. */
     .preview-bar .btn-sm { min-height: 44px; }
-    .btn-add { width: 100%; margin-top: 0.6rem; background: rgba(41,182,217,0.08); border: 1px dashed rgba(41,182,217,0.4); color: var(--wh-blue-light); }
+    .btn-add { width: 100%; margin-top: 0.5rem; background: rgba(41,182,217,0.08); border: 1px dashed rgba(41,182,217,0.4); color: var(--wh-blue-light); }
     .btn-add:active { background: rgba(41,182,217,0.15); }
     /* -text variant, not the fill token: tokens.css annotates the base as a FILL and names the AA-safe text variant. Measured APCA below the 60 floor as small text; the variant already exists. */
     .icon-del { background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.25); color: var(--wh-red-text);
       width: 44px; height: 44px; min-height: 44px; border-radius: 0.5rem; font-size: 1rem; flex-shrink: 0; }
     .icon-mv { background: rgba(148,163,184,0.10); border: 1px solid rgba(148,163,184,0.30); color: #cbd5e1;
-      width: 44px; height: 44px; min-height: 44px; border-radius: 0.5rem; font-size: 0.85rem; flex-shrink: 0; }
-    .item-actions { display: flex; align-items: center; gap: 0.35rem; }
+      width: 44px; height: 44px; min-height: 44px; border-radius: 0.5rem; font-size: 0.75rem; flex-shrink: 0; }
+    .item-actions { display: flex; align-items: center; gap: 0.5rem; }
     /* ★THE DESTRUCTIVE CONTROL SAT 6px FROM THE ONE PEOPLE PRESS MOST (walked 2026-09-11, J31, a solo
        van owner with no hive, desktop-1280). Every ✕ Remove is a correct 44x44 target - the SIZE was
        never the problem - but `gap: 0.35rem` put it 6px from the ▲/▼ reorder buttons in the same row,
@@ -119,17 +142,22 @@
     .item-actions .icon-del { margin-left: 20px; }
 
     /* ── Action bar ── */
-    .action-bar { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-bottom: 1.1rem; }
-    .action-bar .btn { flex: 1 1 auto; min-width: calc(50% - 0.6rem); }
+    .action-bar { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
+    .action-bar .btn { flex: 1 1 auto; min-width: calc(50% - 0.5rem); }
 
     /* ── Inputs (font-size 16px = no iOS auto-zoom) ── */
-    .field { margin-bottom: 0.65rem; }
-    .field label { display: block; font-size: 0.66rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;
+    .field { margin-bottom: 0.75rem; }
+    /* ★A FORM LABEL IS NOT A STATUS PILL (2026-09-18, W46028 slop). DESIGN.md reserves all-caps for
+   two-or-three-word status pills at 0.75rem or larger with no more than 0.04em tracking. These
+   are the labels above every field on a resume form - Name, Professional title, Email, Phone,
+   Summary - and a person filling a long form reads them one after another. All-caps removes the
+   word shapes that make a label scannable, and 0.05em tracking spreads them further; the    detector reads the result as body text shouting. Sentence case, same size, same weight. */
+    .field label { display: block; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.01em;
       color: var(--wh-steel-bright); margin-bottom: 0.25rem; }
-    .wh-input { width: 100%; padding: 0.6rem 0.75rem; border-radius:0.5rem; border: 1px solid rgba(255,255,255,0.12);
+    .wh-input { width: 100%; padding: 0.5rem 0.75rem; border-radius:0.5rem; border: 1px solid rgba(255,255,255,0.12);
       background: rgba(22,32,50,0.55); color: var(--wh-cloud); font-size: 1rem; font-family: inherit; line-height: 1.4; }
     .wh-input:focus { outline: none; border-color: rgba(41,182,217,0.6); }
-    .field-hint { font-size: 0.64rem; color: var(--wh-steel-bright); margin-top: 0.25rem; line-height: 1.4; }
+    .field-hint { font-size: 0.75rem; color: var(--wh-steel-bright); margin-top: 0.25rem; line-height: 1.4; }
     textarea.wh-input { resize: vertical; min-height: 64px; }
     .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.55rem; }
 
@@ -139,18 +167,27 @@
     .item-top { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.55rem; }
 
     /* ── Provenance chips ── */
-    .src-chip { font-size: 0.58rem; font-weight: 700; letter-spacing: 0.03em; padding: 0.12rem 0.45rem; border-radius: 999px;
+    .src-chip { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.03em; padding: 0.12rem 0.45rem; border-radius: 999px;
       white-space: nowrap; border: 1px solid; }
 
     /* ── Keyword-gap score (Tailor to JD) ── */
     .jd-score-head { display: flex; align-items: baseline; gap: 0.5rem; margin-bottom: 0.5rem; }
-    .jd-score-pct { font-size: 1.6rem; font-weight: 800; line-height: 1; }
-    .jd-score-sub { font-size: 0.72rem; color: #9fb0c0; }
+    .jd-score-pct { font-size: 1.5rem; font-weight: 800; line-height: 1; }
+    .jd-score-sub { font-size: 0.75rem; color: #9fb0c0; }
     .jd-bar { height: 8px; border-radius: 999px; background: rgba(255,255,255,0.08); overflow: hidden; margin-bottom: 0.6rem; }
-    .jd-bar > span { display: block; height: 100%; border-radius: 999px; transition: width 0.4s ease; }
-    .kw-group-title { font-size: 0.66rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin: 0.7rem 0 0.4rem; }
+        /* ★400ms ON A LAYOUT PROPERTY WITH AN EASE-IN CURVE - the same three-in-one this wave found on
+       ph-intelligence's MTBF bar. `ease` is ease-IN-out so the bar starts slowly; 400ms is past the
+       300ms ceiling for interface motion; and `width` reflows its row on every frame. Unlike that
+       one, this bar DOES animate - the JD match score is recomputed while the reader edits, so the
+       width genuinely changes on an element already in the DOM, which is exactly the case a
+       transition is for. Kept as `width` and named: scaleX with transform-origin:left is the GPU
+       answer, and it needs the renderer to stop writing an inline width, which is a change to the
+       score renderer rather than to a transition. */
+    .jd-bar > span { display: block; height: 100%; border-radius: 999px;
+      transition: width var(--wh-dur-slow, 0.25s) var(--wh-ease-out, ease-out); }
+    .kw-group-title { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; margin: 0.7rem 0 0.4rem; }
     .kw-wrap { display: flex; flex-wrap: wrap; gap: 0.4rem; }
-    .kw-chip { font-size: 0.72rem; font-weight: 600; border-radius: 999px; border: 1px solid; white-space: nowrap; }
+    .kw-chip { font-size: 0.75rem; font-weight: 600; border-radius: 999px; border: 1px solid; white-space: nowrap; }
     .kw-have { color: var(--wh-green); background: rgba(46,158,91,0.12); border-color: rgba(46,158,91,0.4);
       display: inline-flex; align-items: center; min-height: 30px; padding: 0 0.6rem; }
     .kw-miss { color: var(--wh-orange); background: rgba(217,138,41,0.10); border-color: rgba(217,138,41,0.4);
@@ -158,7 +195,7 @@
     .kw-miss[aria-pressed="true"] { background: rgba(95,204,232,0.18); border-color: var(--wh-blue-light); color: #cdeffa; }
 
     /* ── Quantification coach (Experience) ── */
-    .quant-coach { font-size: 0.7rem; line-height: 1.4; border-radius: 0.5rem; padding: 0.5rem 0.7rem; margin-bottom: 0.7rem;
+    .quant-coach { font-size: 0.75rem; line-height: 1.4; border-radius: 0.5rem; padding: 0.5rem 0.7rem; margin-bottom: 0.7rem;
       color: var(--wh-orange); background: rgba(217,138,41,0.10); border: 1px solid rgba(217,138,41,0.3); }
     .quant-coach.ok { color: var(--wh-green); background: rgba(46,158,91,0.10); border-color: rgba(46,158,91,0.3); }
 
@@ -173,15 +210,15 @@
        childElementCount 1 and the lens skips it. The whole sentence inherits this same colour and was
        therefore equally short; fixing only the <b> would have left the explanatory text it sits in
        just as unreadable while the metric went green. */
-    .opt-toggle { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.6rem; min-height: 44px;
+    .opt-toggle { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem; min-height: 44px;
       font-size: 0.875rem; color: #b6c4d1; cursor: pointer; }
     .opt-toggle input { width: 18px; height: 18px; flex: 0 0 auto; accent-color: var(--wh-blue); }
     :focus-visible { outline: 2px solid var(--wh-orange); outline-offset: 2px; }
 
     /* ── Empty / prompt ── */
-    .empty-prompt { text-align: center; padding: 1.4rem 1rem; }
-    .empty-prompt .big { font-size: 2rem; margin-bottom: 0.4rem; }
-    .empty-prompt p { font-size: 0.82rem; color: #9fb0c0; margin-bottom: 0.9rem; line-height: 1.5; }
+    .empty-prompt { text-align: center; padding: 1.5rem 1rem; }
+    .empty-prompt .big { font-size: 1.5rem; margin-bottom: 0.5rem; }
+    .empty-prompt p { font-size: 0.875rem; color: #9fb0c0; margin-bottom: 1rem; line-height: 1.5; }
 
     /* ── Bottom sheet (checklist review) ── */
     .sheet-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 1000; display: none; }
@@ -189,11 +226,33 @@
     .sheet-panel { position: fixed; left: 0; right: 0; bottom: 0; z-index: 1001; background: var(--wh-navy);
       border-top-left-radius: 1.1rem; border-top-right-radius: 1.1rem; max-height: 85vh; overflow-y: auto;
       padding: 1rem 1rem calc(1rem + env(safe-area-inset-bottom)); transform: translateY(100%);
-      transition: transform 0.3s cubic-bezier(.34,1.2,.64,1); }
+      /* ★THE RETIRED BOUNCE, STILL HARD-CODED (design lens, 2026-09-16). tokens.css retired
+         --wh-ease-spring - cubic-bezier(0.34, 1.56, 0.64, 1) - for overshooting by 56%, and the grep
+         that confirmed it was unused searched the token's NAME. These files spell the curve as a
+         LITERAL, so the platform's one dated bounce outlived the decision that removed it. A toast
+         entering is an entrance, and review-animations/STANDARDS.md gives entrances ease-out at the
+         platform's own duration step. Same fix already recorded on integrations.html. */
+        transition: transform var(--wh-dur-slow, 0.25s) var(--wh-ease-out, ease-out); }
     .sheet-overlay.open .sheet-panel { transform: translateY(0); }
+
+    /* ★NO REDUCED-MOTION HANDLING AT ALL, AND THE REASON IS ONE LINE AT THE TOP OF THIS STYLESHEET
+       (2026-09-18, W46032 motion). The platform's prefers-reduced-motion block lives in components.css
+       and THIS PAGE DOES NOT LINK components.css - its own comment at line 26 says so, for an unrelated
+       reason (the scrollbar gutter). Measured rather than assumed: a probe under emulated
+       prefers-reduced-motion:reduce read .btn still transitioning at 0.15s, unchanged from
+       no-preference. So a reader who has asked their operating system for less motion got exactly as
+       much of it as everyone else - on a page that animates a press on every one of 28 controls and
+       slides a sheet panel.
+       Second page this wave where a local block was needed because the shared one cannot reach
+       (public-feed was the first), which is the argument for the pages that DO link components.css:
+       one rule, one place. Declared locally and named, so whoever links components.css here later can
+       delete this rather than wonder why there are two. */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+    }
     .sheet-handle { width: 40px; height: 4px; border-radius: 999px; background: rgba(255,255,255,0.2); margin: 0 auto 0.8rem; }
-    .sheet-group-title { font-size: 0.66rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
-      color: var(--wh-blue-light); margin: 0.9rem 0 0.45rem; }
+    .sheet-group-title { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+      color: var(--wh-blue-light); margin: 1rem 0 0.5rem; }
     .check-row { display: flex; align-items: flex-start; gap: 0.6rem; padding: 0.5rem 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
     /* ★24px ON THE ONE CONTROL THAT DECIDES WHAT ENTERS SOMEONE'S CV. These are the review sheet's
        per-item checkboxes - the mechanism behind this page's own promise that nothing is added without
@@ -205,7 +264,15 @@
        module-scoped and not callable from the page"), which is false - window.WHResume.openReview exposes
        it. Nine provers skipped #review-sheet on that claim; the layout prover reported it FAIL on the
        first run after the entry was corrected. */
-    .check-row input[type="checkbox"] { width: 44px; height: 44px; min-width: 44px; margin-top: 0.15rem; accent-color: var(--wh-blue); }
+    /* ★A 44px RULE THAT DID NOT REACH THE CHECKBOX IT WAS WRITTEN FOR (2026-09-18, W46028 slop).
+   The walk measured one control under the floor on this page - input "" 18x18 - and it is
+   #promote-dedupe, which lives in a .opt-toggle label rather than a .check-row. So the rule
+   below, which already holds every OTHER checkbox on the page to 44px, simply never matched it:
+   a well-formed rule, a correct value, and an element it cannot see. Same family as a CSS rule
+   whose class nothing emits. Both containers are named here rather than adding a second copy of
+   the declaration, because two copies of one contract is how the .wh-help drift started. */
+    .check-row input[type="checkbox"],
+    .opt-toggle input[type="checkbox"] { width: 44px; height: 44px; min-width: 44px; margin-top: 0.25rem; accent-color: var(--wh-blue); }
     .check-row .cr-body { flex: 1; }
     /* Clear the sticky .sheet-foot so the LAST review row's editable input is never
        obscured by the footer (WCAG 2.2 SC 2.5.8 target-size). */
@@ -213,9 +280,9 @@
     /* ── My Resumes manager ── */
     .rm-row { display: flex; align-items: center; gap: 0.6rem; padding: 0.55rem 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
     .rm-row-main { flex: 1; min-width: 0; }
-    .rm-row-title { font-size: 0.86rem; font-weight: 600; color: #fff; overflow-wrap: break-word; }
-    .rm-row-sub { font-size: 0.66rem; color: var(--wh-steel-bright); margin-top: 0.1rem; }
-    .rm-badge { font-size: 0.58rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+    .rm-row-title { font-size: 0.875rem; font-weight: 600; color: #fff; overflow-wrap: break-word; }
+    .rm-row-sub { font-size: 0.75rem; color: var(--wh-steel-bright); margin-top: 0.1rem; }
+    .rm-badge { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
       color: #0B1220; background: var(--wh-blue-light); border-radius: 999px; padding: 0.05rem 0.4rem; margin-left: 0.35rem; vertical-align: middle; }
     .rm-row-actions { display: flex; align-items: center; gap: 0.4rem; flex: 0 0 auto; }
     .sheet-foot { position: sticky; bottom: 0; background: var(--wh-navy); padding-top: 0.75rem; margin-top: 0.5rem; }
@@ -256,7 +323,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       </ul>
     </details>
 
-    <p data-i="p_yourresumesavedonthisdevicea_182d" class="wh-source-chip" role="status" style="font-size:.62rem;opacity:.8;margin:.25rem 0 0;">Your resume · saved on this device and to your account · as of this page load</p>
+    <p data-i="p_yourresumesavedonthisdevicea_182d" class="wh-source-chip" role="status" style="font-size: 0.75rem;opacity:.8;margin:.25rem 0 0;">Your resume · saved on this device and to your account · as of this page load</p>
       <p data-i="p_buildaprofessionalresumefrom_d73d">Build a professional resume from your WorkHive experience. Everything is editable: you decide what goes in.</p>
       <div id="ctx-pill" class="ctx-pill" style="display:none;"></div>
     </header>
@@ -271,14 +338,20 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
     <div class="card" id="upload-card">
       <div class="sec-head"><div><h2 class="sec-title" role="heading" aria-level="2" data-i="rz_add_files">📎 Add from files</h2><div class="sec-sub" data-i="rz_upload_sub">Dump as many as you like: photo, screenshot, PDF, Word, Excel, or text. We read each one and you choose what to keep. Multi-page resume? Snap one photo per page (or upload the PDF): each photo is read on its own.</div></div></div>
+      <!-- ★C21 (wave-4 narrow-320 nav-hub walk, 2026-09-14): at 320 the two half-width buttons are ~140px each and
+           "Take photos" / "Choose files" broke onto two lines (2 lines at 119px). Below 360px each takes the full
+           row (they stack), so every label stays one line; wider phones keep the side-by-side pair. -->
+      <!-- !important: the buttons carry min-width INLINE (calc(50% - 0.6rem)), and an inline declaration beats an id
+           selector - the first cut of this rule was silently overridden and the 320 re-walk still read 119px. -->
+      <style>@media (max-width: 360px) { #btn-photo, #btn-file { min-width: 100% !important; } }</style>
       <div style="display:flex;flex-wrap:wrap;gap:0.6rem;">
-        <button class="btn btn-ghost" id="btn-photo" type="button" style="flex:1;min-width:calc(50% - 0.6rem);" data-i="rz_take_photos">📷 Take photos</button>
-        <button class="btn btn-ghost" id="btn-file" type="button" style="flex:1;min-width:calc(50% - 0.6rem);" data-i="rz_choose_files">📁 Choose files</button>
+        <button class="btn btn-ghost" id="btn-photo" type="button" style="flex:1;min-width:calc(50% - 0.6rem);white-space:nowrap;" data-i="rz_take_photos">📷 Take photos</button>
+        <button class="btn btn-ghost" id="btn-file" type="button" style="flex:1;min-width:calc(50% - 0.6rem);white-space:nowrap;" data-i="rz_choose_files">📁 Choose files</button>
       </div>
       <input type="file" id="file-photo" aria-label="Take or choose photos of your resume or certificates" accept="image/*" capture="environment" multiple style="display:none;" />
       <input type="file" id="file-any" aria-label="Choose a PDF, Word, Excel, text, or image file to import" accept="image/*,application/pdf,.pdf,.doc,.docx,.xls,.xlsx,.txt,.md,text/plain,text/markdown,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" multiple style="display:none;" />
-      <p id="upload-status" style="font-size:0.72rem;color:var(--wh-blue-light);margin-top:0.6rem;display:none;"></p>
-      <p style="font-size:0.66rem;color:var(--wh-steel-bright);margin-top:0.4rem;" data-i="rz_upload_privacy">Your files are read just to fill in your resume, then discarded. Nothing gets added until you tap Confirm. Keep adding more anytime: it builds on what you already have.</p>
+      <p id="upload-status" style="font-size: 0.75rem;color:var(--wh-blue-light);margin-top:0.6rem;display:none;"></p>
+      <p style="font-size: 0.75rem;color:var(--wh-steel-bright);margin-top:0.5rem;" data-i="rz_upload_privacy">Your files are read just to fill in your resume, then discarded. Nothing gets added until you tap Confirm. Keep adding more anytime: it builds on what you already have.</p>
       <script>
         // P11 i18n — adopt the SHARED data-i/_t system (utils.js WH_FIL_PAGE lever, P5 lever ladder).
         // First batch: upload-card chrome + header actions. Natural Taglish, English domain terms kept.
@@ -319,8 +392,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   <div class="sheet-overlay" id="review-sheet" role="dialog" aria-modal="true" aria-label="Review extracted resume">
     <div class="sheet-panel" role="dialog" aria-modal="true" aria-labelledby="review-title">
       <div class="sheet-handle"></div>
-      <h2 data-i="rs-review" id="review-title" style="font-size:1rem;font-weight:700;color:#fff;margin-bottom:0.2rem;">Review what we found</h2>
-      <p id="review-sub" style="font-size:0.74rem;color:#9fb0c0;margin-bottom:0.4rem;">Uncheck anything you don't want. Tap a value to edit it before adding.</p>
+      <h2 data-i="rs-review" id="review-title" style="font-size:1.125rem;font-weight:700;color:#fff;margin-bottom:0.2rem;">Review what we found</h2>
+      <p id="review-sub" style="font-size: 0.75rem;color:#9fb0c0;margin-bottom:0.4rem;">Uncheck anything you don't want. Tap a value to edit it before adding.</p>
       <div id="review-body"></div>
       <div class="sheet-foot">
         <div style="display:flex;gap:0.6rem;">
@@ -335,9 +408,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   <div class="sheet-overlay" id="resume-manager" role="dialog" aria-modal="true" aria-label="Saved resumes">
     <div class="sheet-panel" role="dialog" aria-modal="true" aria-labelledby="rm-title">
       <div class="sheet-handle"></div>
-      <h2 data-i="rs-myresumes" id="rm-title" style="font-size:1rem;font-weight:700;color:#fff;margin-bottom:0.2rem;">📂 My Resumes</h2>
-      <p style="font-size:0.74rem;color:#9fb0c0;margin-bottom:0.6rem;">Keep separate resumes for different jobs, e.g. a maintenance CV and an OFW application. Each saves on its own.</p>
-      <label data-i="rs-resname" style="display:block;font-size:0.7rem;color:#9fb0c0;margin-bottom:0.8rem;">This resume’s name
+      <h2 data-i="rs-myresumes" id="rm-title" style="font-size:1.125rem;font-weight:700;color:#fff;margin-bottom:0.2rem;">📂 My Resumes</h2>
+      <p style="font-size: 0.75rem;color:#9fb0c0;margin-bottom:0.6rem;">Keep separate resumes for different jobs, e.g. a maintenance CV and an OFW application. Each saves on its own.</p>
+      <label data-i="rs-resname" style="display:block;font-size: 0.75rem;color:#9fb0c0;margin-bottom:0.8rem;">This resume’s name
         <input class="wh-input" id="rm-current-title" aria-label="Name of the resume you are editing" placeholder="e.g. Maintenance Technician CV" style="margin-top:0.25rem;" />
       </label>
       <div class="sheet-group-title">Your saved resumes</div>
@@ -375,7 +448,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
          the overlay CHROME, deliberately NOT inside #resume-paper, because that node is what
          html2pdf captures: a warning printed onto the artifact would be the artifact. Shown only
          when the resume really is near-empty, so a finished one carries no false alarm. -->
-    <div id="pv-empty-note" style="display:none;margin:0 0.75rem 0.5rem;padding:0.5rem 0.7rem;border-radius:0.5rem;font-size:0.72rem;line-height:1.5;background:rgba(247,162,27,0.10);border:1px solid rgba(247,162,27,0.28);color:var(--wh-orange-text,#F7A21B);"></div>
+    <div id="pv-empty-note" style="display:none;margin:0 0.75rem 0.5rem;padding:0.5rem 0.7rem;border-radius:0.5rem;font-size: 0.75rem;line-height:1.5;background:rgba(247,162,27,0.10);border:1px solid rgba(247,162,27,0.28);color:var(--wh-orange-text,#F7A21B);"></div>
     <div class="preview-scroll"><div id="resume-paper" class="resume-paper"></div></div>
   </div>
 
@@ -500,7 +573,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const a = parse(it && it.startDate), b = parse(it && it.endDate);
       if (a === null || b === null) return "";   // "Present", blank, or unparseable: not our business
       if (b >= a) return "";
-      return '<span class="date-warn" style="font-size:0.62rem;color:#f87171;margin-left:0.4rem;">'
+      return '<span class="date-warn" style="font-size: 0.75rem;color:#f87171;margin-left:0.4rem;">'
         + '⚠ ends before it starts</span>';
     }
 
@@ -561,10 +634,20 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         // and say what NOT to do — because the damaging action here is re-typing a resume that exists.
         html += `<div class="card empty-prompt">
           <div class="big">⚠️</div>
-          <p><b>Could not load your saved resume.</b></p>
+          <!-- ★THE PAGE SAID WHAT WENT WRONG IN ENGLISH, INSIDE A FILIPINO NOTICE (2026-09-18, W46031).
+               The fil-degraded walk reads the shared chrome correctly - "Hindi maabot ang server, kaya
+               hindi na-load ang bahagi ng page na ito" - and then THIS sentence, the one that explains
+               what actually failed and why it is not an empty resume, arrived in English. The reader is
+               told there is a problem in their language and told what the problem IS in somebody
+               else's. The page already calls _t() twenty times; these three strings simply never went
+               through it. It is the mirror of the public-feed finding, where the page was Filipino and
+               the chrome was English - the seam is the same either way. -->
+          <p><b>${_t('Could not load your saved resume.', 'Hindi ma-load ang naka-save mong resume.')}</b></p>
           <p>${isEmptyResume()
-            ? 'This is a connection problem, not an empty resume. Anything you saved is still on the server. Try again before typing it out from scratch.'
-            : 'What you see below is the copy saved on this device, which may be older than your saved version. Try again before editing, so you do not overwrite newer work.'}</p>
+            ? _t('This is a connection problem, not an empty resume. Anything you saved is still on the server. Try again before typing it out from scratch.',
+                  'Problema ito sa koneksyon, hindi dahil walang laman ang resume mo. Nasa server pa rin ang lahat ng na-save mo. Subukan muli bago mo i-type ulit mula sa simula.')
+            : _t('What you see below is the copy saved on this device, which may be older than your saved version. Try again before editing, so you do not overwrite newer work.',
+                  'Ang nakikita mo sa ibaba ay ang kopyang naka-save sa device na ito, na maaaring mas luma kaysa sa naka-save mong bersyon. Subukan muli bago mag-edit para hindi mo mapatungan ang mas bagong kopya.')}</p>
           <div style="display:flex;gap:0.6rem;flex-wrap:wrap;justify-content:center;">
             <button data-i="rs-retry" class="btn btn-primary" id="btn-retry-load" type="button">↻ Try again</button>
           </div>
@@ -577,8 +660,15 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         // path they actually need. (Novice MCP sweep 2026-06-06.)
         html += `<div class="card empty-prompt">
           <div class="big">🧰</div>
-          <p><b>Three ways to start: pick whichever is easiest:</b></p>
-          <p>① <b>Auto-fill</b> from your WorkHive skills, badges &amp; logbook &nbsp;·&nbsp; ② <b>Upload</b> an old resume (photo, PDF, Word, or text) &nbsp;·&nbsp; ③ Just <b>type</b> into the sections below. You can edit everything afterwards.</p>
+          <!-- ★THE FIRST SCREEN A NEW USER MEETS, IN ENGLISH ONLY (2026-09-18, W46031). This card
+               renders when the resume is empty - so it is what a brand-new reader sees before anything
+               else on the page, and the fil walk read it verbatim in English while every control
+               around it was Filipino. It is also the card that exists precisely because first-timers
+               hit auto-fill, get almost nothing, and never find Upload; a path-finder that only speaks
+               one language cannot do that job for half its audience. -->
+          <p><b>${_t('Three ways to start: pick whichever is easiest:', 'Tatlong paraan para magsimula - piliin kung alin ang pinakamadali:')}</b></p>
+          <p>${_t(`① <b>Auto-fill</b> from your WorkHive skills, badges &amp; logbook &nbsp;·&nbsp; ② <b>Upload</b> an old resume (photo, PDF, Word, or text) &nbsp;·&nbsp; ③ Just <b>type</b> into the sections below. You can edit everything afterwards.`,
+                  `① <b>Awtomatikong punan</b> mula sa iyong WorkHive skills, badges at logbook &nbsp;·&nbsp; ② <b>Mag-upload</b> ng lumang resume (litrato, PDF, Word, o text) &nbsp;·&nbsp; ③ <b>I-type</b> nang manu-mano sa ibaba.`)}</p>
           <div style="display:flex;gap:0.6rem;flex-wrap:wrap;justify-content:center;">
             <button data-i="rs-autofill2" class="btn btn-primary" id="btn-autofill-2" type="button">✨ Auto-fill from WorkHive</button>
             <button data-i="rs-upload" class="btn btn-ghost" id="btn-file-2" type="button">📁 Upload a resume</button>
@@ -654,7 +744,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           ${basicsField('city', 'City', b.location.city, 'Batangas City')}
           ${basicsField('region', 'Province / Region', b.location.region, 'Batangas')}
         </div>
-        ${basicsField('summary', 'Professional summary', b.summary, 'A short paragraph about you...', 'area')}
+        ${basicsField('summary', 'Professional summary', b.summary, _t('A short paragraph about you...', 'Isang maikling talata tungkol sa iyo...'), 'area')}
       </div>`;
     }
 
@@ -698,7 +788,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       return `<div class="card">
         <div class="sec-head"><div><h2 class="sec-title" role="heading" aria-level="2" data-i="rs-sec-${sec.key}">${escHtml(sec.title)}</h2>${sec.sub ? `<div class="sec-sub">${escHtml(sec.sub)}</div>` : ''}</div></div>
         ${sec.key === 'work' ? '<div id="quant-coach" class="quant-coach" role="status" aria-live="polite" style="display:none;"></div>' : ''}
-        ${body || `<p style="font-size:0.76rem;color:var(--wh-steel-bright);">Nothing here yet.</p>`}
+        ${body || `<p style="font-size:0.75rem;color:var(--wh-steel-bright);">Nothing here yet.</p>`}
         <button class="btn btn-add" data-action="add" data-sec="${sec.key}" type="button" data-i="rs-add-${sec.key}">+ Add ${escHtml(sec.title.replace(/s$/, '').toLowerCase())}</button>
       </div>`;
     }
@@ -985,7 +1075,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       // E2 consistent states: shared shimmer skeleton while saved resumes load
       // (was a plain "Loading…" the List View Contract didn't recognize).
       if (typeof whListSkeleton === 'function') whListSkeleton(wrap, 3);
-      else wrap.innerHTML = '<div style="font-size:0.74rem;color:var(--wh-steel-bright);padding:0.4rem 0;">Loading…</div>';
+      else wrap.innerHTML = '<div style="font-size: 0.75rem;color:var(--wh-steel-bright);padding:0.4rem 0;">Loading…</div>';
       let docs;
       try {
         docs = await listResumes();
@@ -998,7 +1088,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         return;
       }
       if (!docs.length) {
-        wrap.innerHTML = '<p style="font-size:0.74rem;color:var(--wh-steel-bright);padding:0.4rem 0;">No saved resumes yet. Edit this one and tap 💾 Save, or start a new blank.</p>';
+        wrap.innerHTML = '<p style="font-size: 0.75rem;color:var(--wh-steel-bright);padding:0.4rem 0;">No saved resumes yet. Edit this one and tap 💾 Save, or start a new blank.</p>';
         return;
       }
       wrap.innerHTML = docs.map((d) => {
@@ -1107,7 +1197,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         const id = delBtn.getAttribute('data-rm-del');
         const actions = delBtn.closest('.rm-row-actions');
         if (actions) actions.innerHTML =
-          `<span style="font-size:0.68rem;color:var(--wh-red);">Delete?</span>` +
+          `<span style="font-size: 0.75rem;color:var(--wh-red);">Delete?</span>` +
           `<button class="btn btn-ghost btn-sm" data-rm-del-yes="${escHtml(id)}" type="button">Yes</button>` +
           `<button class="btn btn-ghost btn-sm" data-rm-del-no="1" type="button">No</button>`;
       }
@@ -1263,7 +1353,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           html += `<div class="check-row">
             <input type="checkbox" data-review-check="${i}" ${it.checked ? 'checked' : ''} aria-label="Include this item" />
             <div class="cr-body">
-              ${it.label ? `<div style="font-size:0.62rem;color:#9fb0c0;margin-bottom:0.2rem;">${escHtml(it.label)} ${srcChip(it.src)}</div>` : `<div style="margin-bottom:0.2rem;">${srcChip(it.src)}</div>`}
+              ${it.label ? `<div style="font-size: 0.75rem;color:#9fb0c0;margin-bottom:0.2rem;">${escHtml(it.label)} ${srcChip(it.src)}</div>` : `<div style="margin-bottom:0.2rem;">${srcChip(it.src)}</div>`}
               <input class="wh-input" data-review-value="${i}" value="${escHtml(it.value)}" aria-label="${escHtml('Edit ' + String(it.label || it.group || 'value').replace(/^Was:\s*/i, '').slice(0, 60))}" />
             </div></div>`;
         }
@@ -1855,7 +1945,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         html += `<div class="kw-group-title" style="color:var(--wh-orange)">Missing from your resume (${miss.length})</div>`;
         html += `<div class="kw-wrap" id="jd-miss-wrap">${miss.map(k =>
           `<button type="button" class="kw-chip kw-miss" data-term="${e(k.term)}" aria-pressed="${_jdSelected.has(k.term)}">${k.importance === 'high' ? '★ ' : ''}${e(k.term)}</button>`).join('')}</div>`;
-        html += `<p style="font-size:0.68rem;color:var(--wh-steel-bright);margin:0.5rem 0 0;">Tap the ones you genuinely have, then add them to Skills. ★ = the job stresses it. Never add a skill you cannot back up.</p>`;
+        html += `<p style="font-size: 0.75rem;color:var(--wh-steel-bright);margin:0.5rem 0 0;">Tap the ones you genuinely have, then add them to Skills. ★ = the job stresses it. Never add a skill you cannot back up.</p>`;
         html += `<button type="button" id="btn-jd-add" class="btn btn-primary" style="width:100%;margin-top:0.6rem;display:none;">+ Add selected to Skills</button>`;
       }
       if (hit.length) {
@@ -1921,7 +2011,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       panel.innerHTML =
         `<div class="kw-group-title" style="color:var(--wh-blue-light)">${escHtml(_t('Your cover letter draft', 'Draft ng cover letter mo'))}</div>` +
         `<textarea id="cl-text" class="wh-input" rows="12" aria-label="Cover letter draft" style="width:100%;font-size:1rem;line-height:1.5;">${e(letter)}</textarea>` +
-        `<p style="font-size:0.68rem;color:var(--wh-steel-bright);margin:0.4rem 0;">Drafted from your real experience. Read it, edit anything, and make it yours before sending. We never invent facts.</p>` +
+        `<p style="font-size: 0.75rem;color:var(--wh-steel-bright);margin:0.5rem 0;">Drafted from your real experience. Read it, edit anything, and make it yours before sending. We never invent facts.</p>` +
         `<div style="display:flex;gap:0.5rem;flex-wrap:wrap;">` +
         `<button data-i="rs-copy" type="button" id="cl-copy" class="btn btn-primary btn-sm" style="flex:1;min-width:120px;">📋 Copy</button>` +
         `<button data-i="rs-dltxt" type="button" id="cl-download" class="btn btn-ghost btn-sm" style="flex:1;min-width:120px;">⬇ Download .txt</button></div>`;
@@ -1967,7 +2057,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         '.r-name{font-size:24px;font-weight:800;margin:0;}',
         '.r-label{font-size:14px;margin:2px 0 6px;}',
         '.r-contact{font-size:12px;color:#444;margin-bottom:10px;}',
-        '.r-summary{margin:0 0 14px;}',
+        '.r-summary{margin:0 0 16px;}',
         '.r-sec{margin-top:16px;}',
         '.r-sec-title{font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;border-bottom:1.5px solid currentColor;padding-bottom:3px;margin-bottom:8px;page-break-after:avoid;break-after:avoid;}',
         '.r-entry{margin-bottom:10px;page-break-inside:avoid;break-inside:avoid;}',

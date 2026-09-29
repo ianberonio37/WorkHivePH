@@ -119,6 +119,10 @@
     }
 
     /* Asset status badges */
+    /* AA RED ON A CARD (2026-09-16): Tailwind's text-red-400 is #f87171 = --wh-red, the token whose own
+       comment reads "alert / danger FILL (AA text = --wh-red-text)". On this page's cards (rgb(42,61,88))
+       it measures 3.98:1; --wh-red-text measures 7.7:1 there. Used wherever red TEXT sits on a card. */
+    .wh-red-aa { color: var(--wh-red-text); }
     .badge-overdue  { background: rgba(239,68,68,0.15); color: var(--wh-red-text); border: 1px solid rgba(239,68,68,0.3); }
     .badge-duesoon  { background: rgba(251,191,36,0.15); color: var(--wh-orange); border: 1px solid rgba(251,191,36,0.3); }
     .badge-ontrack  { background: rgba(34,197,94,0.15);  color: var(--wh-green); border: 1px solid rgba(34,197,94,0.25); }
@@ -130,8 +134,8 @@
     .badge-nodata   { background: rgba(156,163,175,0.15); color: rgba(255,255,255,0.78); border: 1px solid rgba(156,163,175,0.3); }
 
     .status-badge {
-      display: inline-flex; align-items: center; padding: 3px 10px;
-      border-radius: 999px; font-size: 0.65rem; font-weight: 700; text-transform: uppercase;
+      display: inline-flex; align-items: center; padding: 4px 10px;
+      border-radius: 999px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
       letter-spacing: 0.05em; white-space: nowrap;
     }
 
@@ -152,13 +156,13 @@
     /* Category pill */
     .cat-pill {
       display: inline-flex; align-items: center; padding: 2px 8px;
-      border-radius: 999px; font-size: 0.6rem; font-weight: 600; white-space: nowrap;
+      border-radius: 999px; font-size: 0.75rem; font-weight: 600; white-space: nowrap;
     }
 
     /* Frequency badge */
     .freq-badge {
       display: inline-flex; padding: 1px 7px; border-radius: 999px;
-      font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+      font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
     }
     .freq-D  { background: rgba(244,114,182,0.15); color: var(--wh-red); }
     .freq-W  { background: rgba(56,189,248,0.15);  color: var(--wh-blue); }
@@ -199,7 +203,7 @@
 
     /* Filter chip */
     .filter-chip {
-      padding: 6px 14px; border-radius: 999px; font-size: 0.75rem; font-weight: 600;
+      padding: 6px 16px; border-radius: 999px; font-size: 0.75rem; font-weight: 600;
       min-height: 44px; display: inline-flex; align-items: center; justify-content: center;
       border: 1px solid rgba(255,255,255,0.12); color:rgba(255,255,255,0.80);
       background: transparent; cursor: pointer; transition: all 0.15s; white-space: nowrap;
@@ -239,6 +243,32 @@
     #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
     /* Bottom nav */
+    /* NOTHING RESERVED SPACE FOR THE FIXED BAR (2026-09-16). .bottom-nav is position:fixed at bottom:0
+       with z-index 30 and a 56px-tall tab row, and <main> carried no bottom padding - so whatever lands in
+       the last 56px of the viewport sits under it, and scrolling cannot clear the END of the page because
+       the bar travels with the viewport. The slop walk caught it at desktop-1280 on the page's own primary
+       CTA: #pm-action-btn "Do the recommended next action" at 334,748 (197x44), under #tab-dashboard at
+       317,744 (320x56). This is the same class as the update notice that covered the guide link - a fixed
+       band and content that does not know about it - and the fix is the same: RESERVE the space rather than
+       move the thing that got covered, because the next thing to land there would be covered too. */
+    main { padding-bottom: calc(72px + env(safe-area-inset-bottom)); }
+
+    /* AND THE RESERVE FIXES THE END OF THE DOCUMENT, NOT THE BAND (W45995 audit, 2026-09-19). The
+       padding above guarantees the LAST content clears the bar; it can do nothing about whatever
+       happens to sit in the bar's 57px band at an intermediate scroll offset, because a fixed bar
+       overlaps whatever is behind it wherever the page happens to rest. Measured today at scrollY 0:
+       at 1280x800 the victim is #pm-action-btn, covered by 10.4px; at 1280x900 that button clears by
+       9.7px and the victim becomes #details-toggle-btn "Show details"; at 390x844 nothing is in the
+       band at all. That is the C28 residual exactly - raising or lowering picks a different victim -
+       and it is recorded rather than chased.
+       What IS fixable is the half that a keyboard reaches. With no scroll-padding anywhere on this
+       platform (checked: zero occurrences in every css, html and js file), Tab-ing to a control near
+       the fold, following an in-page anchor, or any scrollIntoView() lands the target flush with the
+       viewport edge - underneath the bar. scroll-padding-bottom tells the browser where the usable
+       bottom actually is, so every one of those scrolls stops above it. Matched to the same reserve
+       the padding uses, so the two cannot drift apart. */
+    html { scroll-padding-bottom: calc(72px + env(safe-area-inset-bottom)); }
+
     .bottom-nav {
       position: fixed; bottom: 0; left: 0; right: 0; z-index: 30;
       background: rgba(22,32,50,0.95); border-top: 1px solid rgba(255,255,255,0.07);
@@ -248,7 +278,7 @@
     .nav-tab {
       display: flex; flex-direction: column; align-items: center; justify-content: center;
       gap: 3px; flex: 1; min-height: 56px; color:rgba(255,255,255,0.80);
-      font-size: 0.6rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em;
+      font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em;
       cursor: pointer; border: none; background: transparent; transition: color 0.15s;
     }
     .nav-tab.active { color: var(--wh-orange); }
@@ -288,10 +318,10 @@
     }
 
     /* Plain-Read summary (Layer D — UX Contract) */
-    .verdict { display:flex; align-items:center; gap:12px; padding:14px 16px; margin-bottom:14px; border-radius:12px; border:1px solid; }
+    .verdict { display:flex; align-items:center; gap:12px; padding:16px; margin-bottom:16px; border-radius:12px; border:1px solid; }
     .verdict-icon { font-size:1.5rem; line-height:1; font-weight:800; }
     .verdict-text { font-size:0.9rem; font-weight:700; line-height:1.35; }
-    .verdict-text small { display:block; font-size:0.72rem; font-weight:500; color:rgba(255,255,255,0.83); margin-top:3px; }
+    .verdict-text small { display:block; font-size: 0.75rem; font-weight:500; color:rgba(255,255,255,0.83); margin-top:4px; }
     .verdict.healthy { background:rgba(74,222,128,0.07);  border-color:rgba(74,222,128,0.3); }
     .verdict.healthy .verdict-icon { color:var(--wh-green); }
     .verdict.watch   { background:rgba(247,162,27,0.07);  border-color:rgba(247,162,27,0.3); }
@@ -300,28 +330,28 @@
     .verdict.attn    .verdict-icon { color:var(--wh-red-text); }
     .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
     .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.80); }
-    .simple-row { display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:12px; margin-bottom:14px; }
-    .simple-card { background:var(--wh-navy); border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:14px 16px; }
-    .simple-card .sc-label { font-size:0.65rem; font-weight:700; color:rgba(255,255,255,0.80); text-transform:uppercase; letter-spacing:0.06em; }
+    .simple-row { display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:12px; margin-bottom:16px; }
+    .simple-card { background:var(--wh-navy); border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:16px; }
+    .simple-card .sc-label { font-size: 0.75rem; font-weight:700; color:rgba(255,255,255,0.80); text-transform:uppercase; letter-spacing:0.06em; }
     .simple-card .sc-hero  { font-size:1.5rem; font-weight:800; line-height:1.15; margin:4px 0 2px; color:var(--wh-cloud); font-variant-numeric:tabular-nums; }
-    .simple-card .sc-sub   { font-size:0.7rem; color:rgba(255,255,255,0.80); line-height:1.4; }
-    .simple-card .sc-tag   { display:inline-block; font-size:0.58rem; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; padding:0.18rem 0.5rem; border-radius:999px; margin-top:7px; }
+    .simple-card .sc-sub   { font-size: 0.75rem; color:rgba(255,255,255,0.80); line-height:1.4; }
+    .simple-card .sc-tag   { display:inline-block; font-size: 0.75rem; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; padding:4px 8px; border-radius:999px; margin-top:8px; }
     .simple-card.tag-green .sc-tag { background:rgba(74,222,128,0.16);  color:var(--wh-green); }
     .simple-card.tag-amber .sc-tag { background:rgba(247,162,27,0.16);  color:var(--wh-orange); }
     .simple-card.tag-red   .sc-tag { background:rgba(248,113,113,0.16); color:var(--wh-red-text); }
     .simple-card.tag-grey  .sc-tag { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.80); }
-    .action-card { background:rgba(41,182,217,0.06); border:1px solid rgba(41,182,217,0.25); border-radius:12px; padding:14px 16px; margin-bottom:14px; }
-    .action-card .ac-label { font-size:0.65rem; font-weight:800; color:var(--wh-blue-text); text-transform:uppercase; letter-spacing:0.07em; }
-    .action-card .ac-text { font-size:0.82rem; line-height:1.5; margin-top:6px; color:rgba(255,255,255,0.85); }
+    .action-card { background:rgba(41,182,217,0.06); border:1px solid rgba(41,182,217,0.25); border-radius:12px; padding:16px; margin-bottom:16px; }
+    .action-card .ac-label { font-size: 0.75rem; font-weight:800; color:var(--wh-blue-text); text-transform:uppercase; letter-spacing:0.07em; }
+    .action-card .ac-text { font-size:0.875rem; line-height:1.5; margin-top:6px; color:rgba(255,255,255,0.85); }
 /* Arc P · Wave 1 (P3): the "one primary action" CTA button (this page inlines its
    component CSS — no components.css link — so .ac-cta lives here too). */
-.action-card .ac-cta { display:inline-flex; align-items:center; gap:6px; margin-top:12px; min-height:44px; padding:0.6rem 1.15rem; background:var(--wh-orange); color:var(--wh-navy); font-family:inherit; font-size:0.8rem; font-weight:800; border:none; border-radius:8px; cursor:pointer; text-decoration:none; transition:background 0.2s, transform 0.1s; }
+.action-card .ac-cta { display:inline-flex; align-items:center; gap:6px; margin-top:12px; min-height:44px; padding:12px 18px; background:var(--wh-orange); color:var(--wh-navy); font-family:inherit; font-size:0.8rem; font-weight:800; border:none; border-radius:8px; cursor:pointer; text-decoration:none; transition:background 0.2s, transform 0.1s; }
 .action-card .ac-cta:hover { background:var(--wh-orange-dark); }
 .action-card .ac-cta:active { transform:scale(0.98); }
 .action-card .ac-cta[hidden], .action-card .ac-cta.hidden { display:none; }
-    .details-toggle { display:inline-flex; align-items:center; gap:6px; background:transparent; border:1px solid rgba(255,255,255,0.07); color:rgba(255,255,255,0.80); padding:8px 14px; border-radius:8px; font-family:inherit; font-size:0.7rem; font-weight:600; cursor:pointer; min-height:44px; margin-bottom:14px; }
+    .details-toggle { display:inline-flex; align-items:center; gap:6px; background:transparent; border:1px solid rgba(255,255,255,0.07); color:rgba(255,255,255,0.80); padding:8px 16px; border-radius:8px; font-family:inherit; font-size: 0.75rem; font-weight:600; cursor:pointer; min-height:44px; margin-bottom:16px; }
     .details-toggle:hover { color:var(--wh-cloud); border-color:rgba(255,255,255,0.18); }
-    #pm-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:14px; }
+    #pm-summary-details { display:none; padding:12px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:16px; }
     #pm-summary-details.open { display:block; }
     /* T124 (2026-08-25): print reality — the PM schedule is the one page plants PIN TO A
        BOARD, and it printed as a dark dashboard: navy background swallowing toner, nav/FAB
@@ -383,7 +413,7 @@
     </details>
 
       <p id="dash-subtitle" class="text-sm text-white/80 mt-0.5">Track all your equipment PM tasks in one place.</p>
-      <p id="pm-source-chip" style="margin-top:3px;"></p>
+      <p id="pm-source-chip" style="margin-top:4px;"></p>
     </div>
 
     <!-- Plain-Read summary (Layer D — UX Contract).
@@ -451,7 +481,7 @@
         <li><strong>On track</strong>: everything else, including items with no completion history yet.</li>
         <li><strong>Compliance %</strong>: SMRP Metric 2.1.1, PM occurrences completed on schedule / occurrences due in the window (frequency-aware), via the canonical SMRP compliance calculation (same value Analytics shows). This is the Stair-2 gate metric, distinct both from the "on track now" snapshot count and from the "done on time" figure below it, which measures each PM against its own interval rather than against the schedule.</li>
       </ul>
-      <p style="margin-top:8px;color:rgba(255,255,255,0.80);font-size:11px;">PM compliance feeds the Reliability dimension of your Maturity Stairway. Two consecutive weeks &gt; 80% is the gate to Stair 2.</p>
+      <p style="margin-top:8px;color:rgba(255,255,255,0.80);font-size: 12px;">PM compliance feeds the Reliability dimension of your Maturity Stairway. Two consecutive weeks &gt; 80% is the gate to Stair 2.</p>
     </div>
 
     <!-- Filter chips -->
@@ -720,9 +750,9 @@
              (the same landing pad as asset-hub's CTA). href set in renderDetail. -->
         <button type="button" id="det-autohail-btn" onclick="toggleAutoHail()" aria-pressed="false"
           aria-label="Turn this asset's due PM work into a recurring service contract that hails a provider automatically"
-          style="display:none;align-items:center;gap:5px;min-height:44px;padding:0 12px;border-radius:8px;font-size:0.72rem;font-weight:700;cursor:pointer;background:rgba(255,255,255,0.06);color:inherit;border:1px solid rgba(255,255,255,0.15);">🔁 Auto-hail when due</button>
+          style="display:none;align-items:center;gap:5px;min-height:44px;padding:0 12px;border-radius:8px;font-size: 0.75rem;font-weight:700;cursor:pointer;background:rgba(255,255,255,0.06);color:inherit;border:1px solid rgba(255,255,255,0.15);">🔁 Auto-hail when due</button>
         <a id="det-hail-link" href="#" aria-label="Hail an outside specialist for this asset's PM work"
-          style="display:none;align-items:center;gap:5px;min-height:44px;padding:0 12px;border-radius:8px;text-decoration:none;font-size:0.72rem;font-weight:700;background:rgba(247,162,27,0.13);color:var(--wh-orange-text);border:1px solid rgba(247,162,27,0.4);">🔧 Hail a specialist</a>
+          style="display:none;align-items:center;gap:5px;min-height:44px;padding:0 12px;border-radius:8px;text-decoration:none;font-size: 0.75rem;font-weight:700;background:rgba(247,162,27,0.13);color:var(--wh-orange-text);border:1px solid rgba(247,162,27,0.4);">🔧 Hail a specialist</a>
       </div>
     </div>
 
@@ -807,7 +837,7 @@
       </select>
     </div>
 
-    <p role="alert" aria-live="assertive" id="pm-edit-error" class="text-xs text-red-400 mb-3 hidden"></p>
+    <p role="alert" aria-live="assertive" id="pm-edit-error" class="text-xs wh-red-aa mb-3 hidden"></p>
 
     <div class="flex gap-2">
       <button onclick="saveEditPMAsset()" id="pm-edit-save-btn" class="btn-primary flex-1" data-i="savechanges">Save Changes</button>
@@ -1970,7 +2000,7 @@ function renderDashboard() {
   const pmWrap = document.getElementById('pm-load-more-wrap');
   const pmLbl  = document.getElementById('pm-count-label');
   pmWrap.classList.toggle('hidden', _pmDisplayCount >= filtered.length);
-  pmLbl.textContent = _t(`Showing ${visible.length} of ${filtered.length} assets`, `Ipinapakita ang ${visible.length} sa ${filtered.length} asset`);
+  pmLbl.textContent = _t(`Showing ${visible.length} of ${filtered.length} asset${filtered.length === 1 ? '' : 's'}`, `Ipinapakita ang ${visible.length} sa ${filtered.length} asset`);
 
   list/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = visible.map(asset => {
     const totalItems    = asset.enrichedItems.length;
@@ -2005,7 +2035,12 @@ function renderDashboard() {
           ${HIVE_ID && asset.worker_name ? (asset.worker_name === WORKER_NAME
             ? '<span class="text-xs font-semibold" style="color:var(--wh-orange);">yours</span>'
             : `<span class="text-xs text-white/60">${escHtml(asset.worker_name)}</span>`) : ''}
-          ${overdueItems > 0 ? `<span class="text-xs font-semibold text-red-400">${overdueItems} task${overdueItems > 1 ? 's' : ''} overdue</span>` : ''}
+          ${overdueItems > 0 ? `<!-- AA RED (2026-09-16): text-red-400 is #f87171, which is --wh-red - the token whose own comment says
+               "alert / danger FILL (AA text = --wh-red-text)". It measured 3.98:1 here because this span sits
+               on a CARD at rgb(42,61,88), not on the page ground where the same red reaches 5.9:1. This page
+               already gets it right one rule away: .badge-overdue uses var(--wh-red-text). Now so does this.
+               --wh-red-text on the card measures 7.7:1. -->
+          <span class="text-xs font-semibold" style="color: var(--wh-red-text);">${overdueItems} task${overdueItems > 1 ? 's' : ''} overdue</span>` : ''}
         </div>
 
         <p class="text-xs text-white/80 mb-2 truncate">${escHtml(nextDueLabel)}</p>
@@ -2130,7 +2165,7 @@ function renderDetail(asset) {
             let kmLine = '';
             if (item.interval_km != null && item.next_due_km != null) {
               const dueAt = `due at ${Number(item.next_due_km).toLocaleString()} km`;
-              const kmCls = (item.km_until_due != null && item.km_until_due < 0) ? 'text-red-400'
+              const kmCls = (item.km_until_due != null && item.km_until_due < 0) ? 'wh-red-aa'
                           : (item.km_until_due != null && item.km_until_due <= 500) ? 'text-yellow-400'
                           : 'text-white/80';
               const kmTail = item.current_km == null ? 'no odometer reading yet - log one in the Logbook'
@@ -2148,7 +2183,7 @@ function renderDetail(asset) {
                 <div class="flex items-center justify-between">
                   <div class="text-xs text-white/80 space-y-0.5">
                     <div>Last done: <span class="text-white/80">${lastStr}</span></div>
-                    <div>Next due: <span class="${item.itemStatus === 'overdue' ? 'text-red-400' : item.itemStatus === 'duesoon' ? 'text-yellow-400' : 'text-white/80'}">${nextStr} (${daysStr})</span></div>
+                    <div>Next due: <span class="${item.itemStatus === 'overdue' ? 'wh-red-aa' : item.itemStatus === 'duesoon' ? 'text-yellow-400' : 'text-white/80'}">${nextStr} (${daysStr})</span></div>
                     ${kmLine}
                   </div>
                   <button class="complete-btn ${item.itemStatus === 'ontrack' ? 'done' : ''}"

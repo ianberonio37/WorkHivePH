@@ -35,44 +35,44 @@
     body { font-family: 'Poppins', system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 90px; }
     .page { max-width: 980px; margin: 0 auto; padding: 1rem 1rem 0; padding-top: 68px; }
     .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
-    .page-title { font-size: 1.3rem; font-weight: 800; }
-    .page-sub { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
-    .role-pill { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; padding: 0.25rem 0.7rem; border-radius: 999px; background: rgba(247,162,27,0.12); color: var(--gold); border: 1px solid rgba(247,162,27,0.25); }
+    .page-title { font-size: 1.125rem; font-weight: 800; }   /* 20.8px was between the headline and display rungs */
+    .page-sub { font-size: 0.75rem; color: var(--muted); margin-top: 4px; }
+    .role-pill { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; padding: 4px 12px; border-radius: 999px; background: rgba(247,162,27,0.12); color: var(--gold); border: 1px solid rgba(247,162,27,0.25); }
 
     .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
-    .card h3 { font-size: 0.92rem; font-weight: 800; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
-    .card .meta { font-size: 0.62rem; color: var(--muted); margin-bottom: 12px; }
-    .empty { font-size: 0.72rem; color: var(--muted); padding: 12px 0; }
+    .card h3 { font-size: 0.95rem; font-weight: 800; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
+    .card .meta { font-size: 0.75rem; color: var(--muted); margin-bottom: 12px; }
+    .empty { font-size: 0.75rem; color: var(--muted); padding: 12px 0; }
 
-    table.pc-table { width: 100%; border-collapse: collapse; font-size: 0.76rem; }
-    table.pc-table th { text-align: left; font-size: 0.58rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); padding: 7px 8px; border-bottom: 1px solid var(--border); }
+    table.pc-table { width: 100%; border-collapse: collapse; font-size: 0.75rem; }
+    table.pc-table th { text-align: left; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); padding: 8px 8px; border-bottom: 1px solid var(--border); }
     table.pc-table td { padding: 9px 8px; border-bottom: 1px solid rgba(255,255,255,0.04); }
     table.pc-table tr:hover td { background: rgba(255,255,255,0.02); }
     /* A1 mobile overflow: wide (6-col) pc-tables scroll inside their own container
        so the page body never scrolls horizontally at 390px. */
     .pc-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
     .num-right { text-align: right; font-variant-numeric: tabular-nums; }
-    .pill { display: inline-block; font-size: 0.58rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 999px; }
+    .pill { display: inline-block; font-size: 0.75rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 999px; }
     .pill-green { background: rgba(74,222,128,0.12); color: var(--green); }
     .pill-amber { background: rgba(247,162,27,0.12); color: var(--gold); }
     .pill-red   { background: rgba(248,113,113,0.12); color: var(--red); }
     .pill-grey  { background: rgba(255,255,255,0.06); color: var(--muted); }
 
     .denied { padding: 1.25rem; border: 1px solid rgba(247,162,27,0.3); border-radius: 12px; background: rgba(247,162,27,0.06); text-align: center; }
-    .denied h2 { font-size: 1.05rem; margin-bottom: 0.4rem; }
-    .denied p { font-size: 0.78rem; color:rgba(255,255,255,0.83); }
+    .denied h2 { font-size: 1.125rem; margin-bottom: 0.4rem; }
+    .denied p { font-size: 0.875rem; color:rgba(255,255,255,0.83); }
 
     /* ── Simple supervisor view (2026-05-13 streamline) ──────────────
        4 plain-language cards above the engineering details. Same
        pattern as ai-quality.html. */
     .verdict {
       display: flex; align-items: center; gap: 12px;
-      padding: 14px 16px; margin-bottom: 14px;
+      padding:16px; margin-bottom: 16px;
       border-radius: 12px; border: 1px solid;
     }
     .verdict-icon { font-size: 1.5rem; line-height: 1; font-weight: 800; }
-    .verdict-text { font-size: 0.85rem; font-weight: 700; line-height: 1.35; }
-    .verdict-text small { display: block; font-size: 0.7rem; font-weight: 500; color:rgba(255,255,255,0.83); margin-top: 3px; }
+    .verdict-text { font-size: 0.875rem; font-weight: 700; line-height: 1.35; }
+    .verdict-text small { display: block; font-size: 0.75rem; font-weight: 500; color:rgba(255,255,255,0.83); margin-top: 4px; }
     .verdict.healthy { background: rgba(74,222,128,0.07);  border-color: rgba(74,222,128,0.3); }
     .verdict.healthy .verdict-icon { color: var(--green); }
     .verdict.watch   { background: rgba(247,162,27,0.07);  border-color: rgba(247,162,27,0.3); }
@@ -83,14 +83,23 @@
     .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.80); }
 
     .simple-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 16px; }
-    .simple-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; }
-    .simple-card .sc-label { font-size: 0.65rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+    .simple-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding:16px; }
+    .simple-card .sc-label { font-size: 0.75rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
     /* 1.5rem == the canonical KPI tier (components.css .sc-hero). This page does NOT
    link components.css, so the rule must live here -- but it must MATCH the canonical
    or the same KPI renders a different size than every other page. (Drift healed 2026-07-15.) */
     .simple-card .sc-hero  { font-size: 1.5rem; font-weight: 800; line-height: 1.15; margin: 4px 0 2px; color: var(--text); font-variant-numeric: tabular-nums; }
-    .simple-card .sc-sub   { font-size: 0.7rem; color:rgba(255,255,255,0.80); line-height: 1.4; }
-    .simple-card .sc-tag   { display: inline-block; font-size: 0.58rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; padding: 0.18rem 0.5rem; border-radius: 999px; margin-top: 7px; }
+    .simple-card .sc-sub   { font-size: 0.75rem; color:rgba(255,255,255,0.80); line-height: 1.4; }
+    /* ★A LOCAL CLONE OF A SHARED RULE, DRIFTED FROM THE COPY THAT WAS ALREADY FIXED (2026-09-19, W45980
+       craft lens). This page keeps its own .sc-label / .sc-tag / .sc-hero because it themes on
+       var(--surface) rather than the shared palette - a documented exception in components.css. What
+       the exception did NOT buy it was the craft work done on the shared copy earlier this wave:
+       components.css moved .sc-tag to 4px 8px padding and weight 600, and this clone still carried
+       0.18rem (2.88px) and a 7px top margin - eight of the page's twelve off-grid values, measured.
+       Tracking too: 0.06em on a two-word status pill, over the 0.04em ceiling DESIGN.md sets. This is
+       the clone-debt class in miniature: an exception taken for ONE property quietly opts a rule out
+       of every later fix to the original. Brought into line with the shared copy. */
+    .simple-card .sc-tag   { display: inline-block; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; padding: 4px 8px; border-radius: 999px; margin-top: 8px; }
     .simple-card.tag-green .sc-tag { background: rgba(74,222,128,0.16);  color: var(--green); }
     .simple-card.tag-amber .sc-tag { background: rgba(247,162,27,0.16);  color: var(--gold); }
     .simple-card.tag-red   .sc-tag { background: rgba(248,113,113,0.16); color: var(--red); }
@@ -100,25 +109,27 @@
       background: rgba(41,182,217,0.06);
       border: 1px solid rgba(41,182,217,0.25);
       border-radius: 12px;
-      padding: 14px 16px;
+      padding:16px;
       margin-bottom: 16px;
     }
+    /* Sentence case: 'What to do next' is a label above the card's own heading, and DESIGN.md's
+       all-caps allowance is for two-or-three-word status pills at no more than 0.04em - not for a
+       kicker over a heading. Same rule, same fix, as hive.html carried this morning. */
     .action-card .ac-label {
-      font-size: 0.65rem; font-weight: 800; color: var(--blue);
-      text-transform: uppercase; letter-spacing: 0.07em;
+      font-size: 0.75rem; font-weight: 800; color: var(--blue); letter-spacing: normal;
     }
-    .action-card .ac-text { font-size: 0.82rem; line-height: 1.5; margin-top: 6px; color: rgba(255,255,255,0.85); }
+    .action-card .ac-text { font-size: 0.875rem; line-height: 1.5; margin-top: 8px; color: rgba(255,255,255,0.85); }
 
     .details-toggle {
       display: inline-flex; align-items: center; gap: 6px;
       background: transparent; border: 1px solid var(--border);
       color:rgba(255,255,255,0.80);
-      padding: 8px 14px; border-radius: 8px;
-      font-family: inherit; font-size: 0.7rem; font-weight: 600;
+      padding: 8px 16px; border-radius: 8px;
+      font-family: inherit; font-size: 0.75rem; font-weight: 600;
       cursor: pointer; min-height: 44px;
     }
     .details-toggle:hover { color: var(--text); border-color: rgba(255,255,255,0.18); }
-    #details-pane { display: none; margin-top: 14px; }
+    #details-pane { display: none; margin-top: 16px; }
     #details-pane.open { display: block; }
   </style>
 <style>/* I1 CLS: static wayfinding back-pill band reserve (wayfinding.js sets this body padding-top post-paint on pill-pages = a late shift under full-run contention; present at first paint -> its `if(band>cur)` skips, layout unchanged). VERIFIED this page gets the pill (has <main>, no back-affordance, not home). */
@@ -137,15 +148,15 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         <p data-i="p_cmmssyncsensorbridgegatewaya_2e66" class="page-sub">CMMS sync · sensor bridge · gateway audit, all in one supervisor surface.</p>
         <!-- STREAMLINE F7: integrations + plant-connections are ONE "Connections" surface.
              This tab bar switches CMMS ↔ Plant/IoT; one nav entry. Both pages kept on disk. -->
-        <div class="wh-conn-tabs" role="tablist" style="display:flex; gap:8px; margin:10px 0 2px; flex-wrap:wrap;">
-          <a role="tab" aria-selected="false" href="integrations.html" style="padding:7px 14px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.83); font-size:.78rem; font-weight:600; text-decoration:none; border:1px solid rgba(255,255,255,0.08);">&larr; CMMS Integration</a>
-          <span role="tab" aria-selected="true" style="padding:7px 14px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(247,162,27,0.15); color:var(--wh-orange); font-size:.78rem; font-weight:700; border:1px solid rgba(247,162,27,0.4);">Plant / IoT</span>
+        <div class="wh-conn-tabs" role="tablist" style="display:flex; gap:8px; margin:8px 0 4px; flex-wrap:wrap;">
+          <a role="tab" aria-selected="false" href="integrations.html" style="padding:8px 16px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.83); font-size:0.75rem; font-weight:600; text-decoration:none; border:1px solid rgba(255,255,255,0.08);">&larr; CMMS Integration</a>
+          <span role="tab" aria-selected="true" style="padding:8px 16px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(247,162,27,0.15); color:var(--wh-orange); font-size:0.75rem; font-weight:700; border:1px solid rgba(247,162,27,0.4);">Plant / IoT</span>
         </div>
       </div>
       <div style="display:flex; align-items:center; gap:0.5rem; flex-shrink:0;">
         <!-- A1: a monitoring board's primary action is re-pulling the latest sync/gateway state.
              Filled so the 5-second scan lands on one clear CTA; a real reload, not a dead button. -->
-        <button type="button" onclick="location.reload()" data-i="pc_refresh_cta" style="min-height:44px; display:inline-flex; align-items:center; gap:0.35rem; padding:0.5rem 1rem; border:1px solid transparent; border-radius:8px; background:linear-gradient(135deg,var(--wh-orange),var(--wh-orange-light)); color:var(--wh-navy); font-family:'Poppins',sans-serif; font-weight:700; font-size:0.8rem; cursor:pointer;">↻ Refresh</button>
+        <button type="button" onclick="location.reload()" data-i="pc_refresh_cta" style="min-height:44px; display:inline-flex; align-items:center; gap:0.35rem; padding:0.5rem 1rem; border:1px solid transparent; border-radius:8px; background:linear-gradient(135deg,var(--wh-orange),var(--wh-orange-light)); color:var(--wh-navy); font-family:'Poppins',sans-serif; font-weight:700; font-size:0.75rem; cursor:pointer;">↻ Refresh</button>
         <span data-i="p_supervisoronly_d045" class="role-pill">Supervisor only</span>
       </div>
     </header>
@@ -364,7 +375,17 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       `;
       return `
         <div class="simple-row">
-          ${row('CMMS sync', cmms, true)}
+          <!-- ★THE VON RESTORFF SLOT WENT TO THE LONGEST STRING, AND IT WAS THE ONLY ONE THAT WRAPPED
+               (2026-09-19, W45980 craft lens). .simple-card.hero is components.css's ONE key metric
+               treatment - clamp(2rem, 5.5vw, 2.4rem), 32px at phone and 38.4px at desktop - and it
+               exists so a single NUMBER can dominate a row of tiles. Measured what these four tiles
+               actually hold: 'Generic REST (Local Mock)', '0 sensors', 'No traffic', 'Defaults only'.
+               Not one is a number, and the one wearing the hero treatment is a 25-character connector
+               NAME that wraps to two lines at 32px while its three peers sit on one line at 24px. So
+               the emphasis was spent on a proper noun, and spent on the tile least able to carry it.
+               The four are peers; they render as peers. If a real metric lands here later, that is the
+               card that should take the slot. -->
+          ${row('CMMS sync', cmms, false)}
           ${row('Sensor feed', sensors)}
           ${row('API health (7d)', api)}
           ${row('Compliance', comp)}
@@ -578,7 +599,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           : 'fresh';
         return `
           <tr>
-            <td><strong>${escHtml(c.label || c.system_type)}</strong> <span style="color:var(--muted); font-size:0.62rem;">${escHtml(c.system_type)}</span></td>
+            <td><strong>${escHtml(c.label || c.system_type)}</strong> <span style="color:var(--muted); font-size: 0.75rem;">${escHtml(c.system_type)}</span></td>
             <!-- T63 (2026-08-26): sync_freq is stored and shown, and nothing reads it -
                  no cron, no edge function. A supervisor reading 'daily' here concluded a
                  scheduler was running. Say what is true until one is. -->
@@ -655,7 +676,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const CAP = 100; // A2: bound the DOM at volume (a plant can map 100s of topics)
       const rows = topics.slice(0, CAP).map(t => `
         <tr>
-          <td><code style="font-family:'JetBrains Mono',monospace; font-size:0.7rem;">${escHtml(t.topic_pattern)}</code></td>
+          <!-- ★A SURVIVOR OF THE MONO-STACK SWEEP, BECAUSE IT LIVES IN A TEMPLATE LITERAL (2026-09-18,
+               W45979). That sweep unified 99 declarations across 85 files onto the stack DESIGN.md
+               records, and this one sat inside a JS template string building innerHTML, where a CSS
+               sweep does not look. It was doubly wrong: 'JetBrains Mono' is not loaded by this page at
+               all - no @font-face, no stylesheet link - so it silently fell through to plain monospace
+               and rendered as whatever the device happened to have. A font nobody ships is a decision
+               nobody made. -->
+          <td><code style="font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; font-size: 0.75rem;">${escHtml(t.topic_pattern)}</code></td>
           <td>${escHtml(t.parameter)}</td>
           <td>${escHtml(t.unit || '-')}</td>
         </tr>
@@ -723,8 +751,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
 <!-- Calm Dashboard Contract footer: data-sources disclosure + hideZeroStat helper -->
 <details data-calm-disclosure="data-sources" style="max-width:680px; margin:1rem auto 2rem; padding:0 1rem;">
-  <summary data-i="p_aboutthisdashboardsdatasourc_8e23" style="cursor:pointer; font-size:.78rem; color:rgba(255,255,255,0.80); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
-  <p data-i="p_numberscomefromyourliveworkh_9c03" style="font-size:.78rem; color:rgba(255,255,255,0.80); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
+  <summary data-i="p_aboutthisdashboardsdatasourc_8e23" style="cursor:pointer; font-size:0.75rem; color:rgba(255,255,255,0.80); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
+  <p data-i="p_numberscomefromyourliveworkh_9c03" style="font-size:0.75rem; color:rgba(255,255,255,0.80); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
 </details>
 <script>
   window.hideZeroStat = window.hideZeroStat || function(el, val) {
@@ -740,7 +768,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   window.addEventListener('load', function () {
     var el = document.getElementById('pc-source-chip');
     if (!el) { el = document.createElement('div'); el.id = 'pc-source-chip'; var host = document.querySelector('.page') || document.querySelector('main') || document.body; host.appendChild(el); }
-    el.setAttribute('role', 'status'); el.setAttribute('aria-live', 'polite');  // G1 (Nielsen #1): this in-content provenance chip IS the page's system-status/freshness region
+    // W45981 audit: this wrapper used to set role=status + aria-live=polite ITSELF, and renderSourceChip() emits a <p class="wh-source-chip" role="status" aria-live="polite"> into it - so the page carried a live region INSIDE a live region and announced the same provenance sentence twice on arrival. The G1 reasoning was right (this chip IS the page's status region) and is now satisfied by the chip itself, which is where the role belongs: one element, one announcement.
     if (typeof renderSourceChip === 'function') el.innerHTML = renderSourceChip({
       freshness: 'Live · refreshed on load',
       source: 'integration_configs + gateway_audit_log + hive_retention_config',
@@ -764,7 +792,7 @@ window.addEventListener('load', function () { setTimeout(function () {
   try { console.error('[plant-connections] utils.js did not load; the page cannot render its data'); } catch (e) { void e; }
   var m = document.querySelector('main') || document.body; if (!m || m.querySelector('.wh-shared-missing')) return;
   var d = document.createElement('div'); d.className = 'honest-empty wh-shared-missing'; d.setAttribute('role', 'alert');
-  d.style.cssText = 'margin:12px;padding:14px 16px;border:1px solid rgba(248,113,113,.4);border-radius:10px;background:rgba(248,113,113,.08);color:#fca5a5;font:14px/1.5 system-ui,sans-serif;';
+  d.style.cssText = 'margin:12px;padding:12px 16px;border:1px solid rgba(248,113,113,.4);border-radius:10px;background:rgba(248,113,113,.08);color:#fca5a5;font:14px/1.5 system-ui,sans-serif;';
   d.innerHTML = 'WorkHive could not load its shared script (utils.js), so this page cannot show your data. <button type="button" onclick="location.reload()" style="color:inherit;text-decoration:underline;background:none;border:0;padding:0;font:inherit;cursor:pointer;min-height:44px;" data-i="reloadtotryagain">Reload to try again</button>.';
   m.insertBefore(d, m.firstChild);
   var sk = document.querySelectorAll('.wh-skeleton, [class*="skeleton"]'); for (var i = 0; i < sk.length; i++) sk[i].style.display = 'none';

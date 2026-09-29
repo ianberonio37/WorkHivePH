@@ -48,9 +48,11 @@ The builder does not invent experience. Every line traces to something you alrea
 | You recorded it as | It becomes |
 | --- | --- |
 | Logbook entries: faults fixed, PMs done, a 22:00 changeover repair on Conveyor #2 | Work-experience bullets with real dates |
-| Skill Matrix badges: competencies verified by your supervisor | A skills section worded in job-ad terms |
+| Skill Matrix badges: competencies you earned by passing the skill exam: private to you, not visible to your supervisor | A skills section worded in job-ad terms |
 | Photos of paper certificates: TESDA NCs, safety and equipment training | A certifications section, typed out by the AI |
 | Anything you type or edit by hand | Stays exactly as you wrote it |
+
+That privacy point is worth dwelling on, because it is what makes a badge worth putting on a resume: your skills, badges and exam attempts are readable only by you: the database policy keys them to your own account, not your hive, so they are yours to show whom you choose, and they survive leaving the plant that trained you. The logbook entries behind your work-experience bullets do not; those belong to the plant’s records. Export while you are still a member.
 
 If your plant history is thin on WorkHive, start logging now. A maintenance planner in Cabuyao who logs daily has a resume that updates itself; **✨ Polish my experience wording** then turns raw entries into clean bullets without changing the facts.
 
@@ -115,4 +117,4 @@ Your resume lives in your WorkHive account and is not shared with employers or o
 - Harvard University career services: Resumes and Cover Letters guide, on quantified accomplishment statements
 - TESDA National Certification framework (NC I to NC IV): the credential levels Filipino industrial workers list under certifications
 
-<!-- md-twin source-sha: ea2bb879cc3a9f3f -->
+<!-- md-twin source-sha: 95d310b413bb4904 -->

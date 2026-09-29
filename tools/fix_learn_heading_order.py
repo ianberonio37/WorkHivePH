@@ -7,11 +7,31 @@ followed by two template <h4>s — the table-of-contents label (<div class="toc"
 "cta-eyebrow">...</p><h4>...</h4>). That produces a WCAG 1.3.1 / axe
 "heading-order" violation: h1 -> h4 (skips h2/h3) and h2 -> h4.
 
-Each article carries its OWN inline <style> keyed on the tag (`.toc h4`,
-`.cta-box h4`), so changing the tag would break styling across 37 files. The
-low-blast-radius fix is `aria-level`: ARIA overrides the computed heading level
-for assistive tech AND axe's heading-order check, while the visual styling
-(which keys on the h4 tag) is preserved exactly.
+Each article carries its OWN inline <style>, so the low-blast-radius fix is
+`aria-level`: ARIA overrides the computed heading level for assistive tech AND
+axe's heading-order check, without touching the tag.
+
+~W46129 SUPERSEDED (2026-09-20). Both branches of this sweep are now INERT, and
+that is the intended end state rather than a regression. aria-level was the right
+call while the styling was coupled to the tag; once the selectors matched both
+tags, the tag itself could simply be correct. The TOC label is now <h2> on all 54
+articles (tools/fix_learn_toc_label.py) and the CTA/related headings are <h3> on
+all 27 (tools/fix_learn_cta_heading.py), so neither regex finds anything to patch.
+The payoff is that `impeccable detect` agrees with the walk again: it reads the TAG
+and ignored aria-level, so it reported a false `skipped-heading` on every one of
+those articles while the walk measured headingSkips ZERO. Measured after: 2 -> 0 on
+the page that surfaced it. This file is kept because a NEW article written by hand
+against the old pattern would still be caught by it.
+
+~W46101 CORRECTION (2026-09-20). This docstring used to say the visual styling
+'keys on the h4 tag (`.toc h4`)' and is 'preserved exactly'. That was true of the
+CTA callout and FALSE of the TOC label: `.toc h4` existed on 4 of the 49 articles
+with a table of contents, while 45 carried `.toc h2` against <h4> markup and
+rendered that label UNSTYLED at the browser default 16px - measured live. The
+claim was never checked against the files. The selector is now `.toc h2, .toc h4`
+on every article (tools/fix_learn_toc_label.py, gate `learn-toc-label`), so the
+styling no longer depends on which tag the label happens to carry and this
+sweep's aria-level approach is genuinely style-preserving.
 
   - TOC label   -> aria-level="2"  (peer of the article's top-level sections)
   - CTA callout -> aria-level="3"  (subordinate to the surrounding h2 section)

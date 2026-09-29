@@ -45,9 +45,17 @@
       width: 100%;
       font-size: 1rem;
       outline: none;
-      transition: border-color 0.2s;
+      transition: border-color var(--wh-dur, 0.2s) var(--wh-ease-out, ease-out);
     }
-    .wh-input:focus { border-color: rgba(247,162,27,0.5); box-shadow: 0 0 0 3px rgba(247,162,27,0.08); }
+    /* ★A ZERO-OFFSET COLOURED RING AT 0.08 ALPHA IS A GLOW PRETENDING TO BE A FOCUS INDICATOR
+       (2026-09-19, W46056 slop lens). A 3px amber ring at 8% alpha, drawn with no offset at all, so
+       it is the dark-page glow DESIGN.md forbids - and at 8% alpha over a dark field it is close to
+       invisible, which means the one thing it was there to do, tell a keyboard user where they are,
+       it did not do. Replaced with the outline the rest of this platform uses for focus: 2px solid
+       amber at a 2px offset, which is drawn outside the box, cannot be mistaken for a shadow, and is
+       what every other control on the page already takes. The border tint stays - that is the field
+       saying it is active, a different job from the ring. */
+    .wh-input:focus { border-color: rgba(247,162,27,0.5); outline: 2px solid var(--wh-orange); outline-offset: 2px; }
     .wh-input::placeholder { color:rgba(255,255,255,0.80); }
 
     .btn-primary {
@@ -57,12 +65,21 @@
       border-radius: 0.75rem;
       padding: 0.75rem 1.25rem;
       cursor: pointer;
-      transition: all 0.2s;
+      /* ★`transition: all` IS A PROMISE TO ANIMATE ANYTHING THAT EVER CHANGES (2026-09-19, W46060
+         motion lens). It covers layout properties too, so a rule added later - a width, a padding,
+         a margin - silently becomes an animated reflow nobody asked for, on a button pressed on a
+         phone in a plant. Name the properties that actually change, which here are paint-only; and
+         name the curve, because omitting it inherits `ease`, an ease-IN-out that starts slowly and
+         reads as the tap not registering. */
+      transition: background var(--wh-dur, 0.2s) var(--wh-ease-out, ease-out), border-color var(--wh-dur, 0.2s) var(--wh-ease-out, ease-out), color var(--wh-dur, 0.2s) var(--wh-ease-out, ease-out), transform var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out);
       border: none;
-      font-size: 0.9rem;
+      font-size: 0.875rem;
       min-height: 44px;
     }
-    .btn-primary:hover  { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(247,162,27,0.35); }
+    /* The same coloured-glow-on-dark as the mic button, one control down: an amber button
+       lifting into an amber halo. Neutral elevation; the lift still reads, and it reads as a lift
+       rather than as a bloom. */
+    .btn-primary:hover  { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,0,0,0.45); }
     .btn-primary:active { opacity: 0.75; transform: scale(0.98); }
     .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
 
@@ -71,15 +88,43 @@
       border: 1px solid rgba(255,255,255,0.12);
       color:rgba(255,255,255,0.86);
       min-height: 44px; /* WCAG 2.5.8 / F1 */
-      font-weight: 500;
+      /* 500 was a fourth weight on a page that already uses 400, 600 and 700, carried by these two
+         toggles and the record-bar label. The craft floor asks for three, and the reason is that a
+         reader reads weight as hierarchy: a fourth step says there is a fourth level of importance,
+         and there is not. Both move to 600, the weight this page already gives its other controls. */
+      font-weight: 600;
       border-radius: 0.75rem;
-      padding: 0.5rem 0.9rem;
+      padding: 0.5rem 1rem;
       cursor: pointer;
-      transition: all 0.2s;
-      font-size: 0.78rem;
+      /* ★`transition: all` IS A PROMISE TO ANIMATE ANYTHING THAT EVER CHANGES (2026-09-19, W46060
+         motion lens). It covers layout properties too, so a rule added later - a width, a padding,
+         a margin - silently becomes an animated reflow nobody asked for, on a button pressed on a
+         phone in a plant. Name the properties that actually change, which here are paint-only; and
+         name the curve, because omitting it inherits `ease`, an ease-IN-out that starts slowly and
+         reads as the tap not registering. */
+      transition: background var(--wh-dur, 0.2s) var(--wh-ease-out, ease-out), border-color var(--wh-dur, 0.2s) var(--wh-ease-out, ease-out), color var(--wh-dur, 0.2s) var(--wh-ease-out, ease-out), transform var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out);
+      font-size: 0.75rem;
       /* F1/K2 dual-viewport: 44px tap target at BOTH 390 + 1280 (a stray min-height:36px here
          overrode the 44px above on desktop — the rubric grades tap size worse-per-viewport). */
     }
+    /* ★A FINDING THAT WAS MY PROBE, NOT THE PAGE, AND THE RULE I WROTE FOR IT IS REVERTED
+       (2026-09-19, W46057 craft lens). The probe focused each control with el.focus() and read the
+       outline: eight came back with the platform's amber 2px ring at a 2px offset and these two
+       toggles came back with Chrome's white 2.67px ring at offset 0, which reads exactly like
+       .btn-ghost having no focus style. It has one, and so does every button: an inline platform
+       sheet declares a:focus-visible, button:focus-visible ... { outline: 2px solid var(--wh-orange)
+       !important }, the element matches it, and the token resolves to #F7A21B at that element.
+       THE READING SURVIVED FOUR ATTEMPTS TO CONFIRM IT AND ONE TO REFUTE IT. Real Tab travel: same
+       white ring. Element.matches(':focus-visible'): true. A full recursive walk of every stylesheet
+       for rules this element matches that touch outline: exactly one, the platform's. And then the
+       test that broke it - setting the outline INLINE with !important on the focused element, which
+       nothing in CSS can override - still computed to the white ring. An inline !important that does
+       not win is not a cascade result; it is an instrument lying. getComputedStyle().outline on a
+       FOCUSED element reports the UA focus-ring serialization rather than the painted value.
+       Settled by the only instrument that cannot be argued with: a screenshot of the header with
+       this toggle focused, which shows a clean amber ring around "Voice On". The page was right and
+       the probe was wrong, and a .btn-ghost:focus rule would have been worse than nothing - it would
+       ring these two on a MOUSE click, which is exactly what :focus-visible exists to avoid. */
     .btn-ghost:hover  { border-color: rgba(255,255,255,0.25); color: white; }
     /* R3 one-shape-per-role: the voice toggles are SELECT controls (aria-pressed) — give them
        the pill silhouette; a page's SELECT vocabulary is pill (persona radios + filter chips),
@@ -87,29 +132,62 @@
     #tts-toggle, #sov-voice-toggle { border-radius: var(--wh-radius-pill); }
     .speak-btn { border-radius: var(--wh-radius-sm); }
     .btn-ghost:active { background: rgba(255,255,255,0.08); transform: scale(0.97); }
-    @media (max-width: 480px) { .btn-ghost { min-height: 44px; padding: 0.65rem 1rem; } }
+    @media (max-width: 480px) { .btn-ghost { min-height: 44px; padding: 0.75rem 1rem; } }
 
+    /* The page title, on DESIGN.md's headline step (1.125rem/700 - the step it names for page
+       titles), replacing a text-base that put the title at body size. */
+    /* ★THREE ADJACENT RAMP STEPS IS STILL A FLAT HIERARCHY. The first pass put the title on the
+       headline step (1.125rem) and the section heading on the title step (0.95rem) - both correct
+       DESIGN.md steps, and the page still read flat, because 18 / 15.2 / 14 are three NEIGHBOURING
+       values and a reader cannot see a 1.13:1 jump. The ramp exists to be used across its range, not
+       three rungs at a time. The page title takes the display step: it is the hero of a header that
+       otherwise holds only a Back control and two toggles, and the jump to the section heading below
+       it is now unmistakable. Measured after: 24 / 15.2 / 14, a 1.58:1 largest adjacent step. */
+    .vj-title { font-size: 1.5rem; font-weight: 700; line-height: 1.25; }
+    /* The page named no body size, so every element it did not style inherited the UA's 16px -
+       which is not a step on DESIGN.md's ramp and is what the detector was reading as "body". */
+    body { font-size: 0.875rem; }
     /* Mic button: thumb-sized circular focal control. */
     .mic-btn {
       width: 132px; height: 132px; border-radius: 50%; border: none; cursor: pointer;
       background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light));
       color: var(--wh-navy);
-      box-shadow: 0 18px 48px rgba(247,162,27,0.32);
+      /* ★AN AMBER HALO AT REST, ON A DARK PAGE, UNDER A BUTTON THAT IS ALREADY AMBER (2026-09-19,
+         W46056 slop lens - the detector's dark-glow finding). A 48px coloured blur around a
+         132px amber disc is the brand colour used twice for one job: the fill already makes this
+         the loudest thing on the screen, and the halo only adds a smear that reads as a render
+         artefact on an OLED phone in a dim bay. DESIGN.md forbids the coloured glow on dark; the
+         platform's own elevation is neutral, so the button now sits on a neutral shadow and keeps
+         every bit of its prominence from size and fill, which is where prominence should come
+         from. The RECORDING and PROCESSING pulses keep their colour deliberately - see below. */
+      box-shadow: 0 12px 32px rgba(0,0,0,0.45);
       display: flex; align-items: center; justify-content: center;
-      transition: transform 0.18s ease, box-shadow 0.18s ease;
+      /* box-shadow was transitioned on a 132px disc - a repaint of the blur every frame. The shadow
+         is now static (the slop row made it neutral), so only the press moves, on the platform curve. */
+      transition: transform var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out);
       margin: 0 auto;
     }
-    .mic-btn:hover  { transform: translateY(-2px); box-shadow: 0 22px 56px rgba(247,162,27,0.42); }
+    .mic-btn:hover  { transform: translateY(-2px); box-shadow: 0 16px 40px rgba(0,0,0,0.5); }
     .mic-btn:active { transform: scale(0.96); }
     .mic-btn:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: none; transform: none; }
     .mic-btn.recording {
       background: linear-gradient(135deg, var(--wh-red), var(--wh-red));
       color: white;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.45);
       animation: mic-pulse 1.4s ease-in-out infinite;
     }
+    /* ★THE RECORDING PULSE WAS A COLOURED GLOW *AND* THE MOST EXPENSIVE WAY TO DRAW ONE (2026-09-19,
+       W46056 slop lens). It animated box-shadow - a 38-to-70px red blur around a 132px disc, 1.4s,
+       infinite, while somebody is speaking into the phone. Every frame of that is a full repaint of
+       the blur, on the low-end Android this platform is built for, during the one interaction that is
+       already competing for the microphone and the network. And it is the dark-page coloured glow
+       DESIGN.md forbids. The state itself is not in question: the button must obviously be recording.
+       It now pulses by SCALE, which the compositor handles without repainting anything, over a static
+       neutral shadow - and the state is still unmistakable, because the fill has already gone red. A
+       cheaper animation that says the same thing is not a compromise. */
     @keyframes mic-pulse {
-      0%, 100% { box-shadow: 0 18px 38px rgba(195,59,59,0.45); }
-      50%      { box-shadow: 0 24px 70px rgba(195,59,59,0.78); }
+      0%, 100% { transform: scale(1); }
+      50%      { transform: scale(1.06); }
     }
     /* Processing state (transcribing / composing): a distinct rotating ring so the
        "I'm working" step reads at a GLANCE, not as a dimmed-idle button. The button is
@@ -128,9 +206,12 @@
       animation: mic-spin 0.9s linear infinite;
     }
     @keyframes mic-spin  { to { transform: rotate(360deg); } }
+    /* Same treatment for the processing breath, and for the same two reasons. The spinning ring
+       above it is what actually says "working"; the breath is emphasis, and emphasis does not need a
+       repainting blur. */
     @keyframes mic-breathe {
-      0%, 100% { box-shadow: 0 18px 42px rgba(247,162,27,0.40); }
-      50%      { box-shadow: 0 22px 60px rgba(247,162,27,0.62); }
+      0%, 100% { transform: scale(1); }
+      50%      { transform: scale(1.03); }
     }
     /* Reduced-motion: keep a STATIC ring (still a distinct visual state) but no spin/breathe. */
     @media (prefers-reduced-motion: reduce) {
@@ -143,11 +224,11 @@
     }
 
     .lang-pill {
-      display: inline-flex; align-items: center; gap: 0.35rem;
+      display: inline-flex; align-items: center; gap: 0.25rem;
       background: rgba(41,182,217,0.14); color:var(--wh-blue-text);
       border: 1px solid rgba(41,182,217,0.25);
-      font-size: 0.66rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
-      padding: 0.18rem 0.55rem; border-radius: 999px;
+      font-size: 0.75rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 0.25rem 0.5rem; border-radius: 999px;
     }
     .lang-pill.warn { background: rgba(247,162,27,0.14); color: var(--wh-orange); border-color: rgba(247,162,27,0.25); }
 
@@ -155,7 +236,7 @@
       background: rgba(22,32,50,0.55);
       border: 1px dashed rgba(255,255,255,0.12);
       border-radius: 0.75rem;
-      padding: 0.85rem 1rem;
+      padding: 0.75rem 1rem;
       min-height: 3.2rem;
       font-size: 0.95rem; line-height: 1.5;
       color: rgba(255,255,255,0.92);
@@ -167,8 +248,8 @@
       background: linear-gradient(145deg, rgba(247,162,27,0.14), rgba(247,162,27,0.06));
       border: 1px solid rgba(247,162,27,0.22);
       border-radius: 1rem 1rem 1rem 0.25rem;
-      padding: 0.85rem 1rem;
-      font-size: 0.94rem; line-height: 1.55;
+      padding: 0.75rem 1rem;
+      font-size: 0.95rem; line-height: 1.55;
       color: rgba(255,255,255,0.95);
       word-break: break-word;
     }
@@ -176,27 +257,36 @@
     .history-entry {
       background: rgba(22,32,50,0.45);
       border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 0.85rem;
-      padding: 0.85rem 1rem;
+      /* 13.6px was between the md and lg rungs of DESIGN.md's rounded scale (8/12/16) - the same
+         0.05rem habit as the spacing on this page, applied to a shape. On the platform's token. */
+      border-radius: var(--wh-radius, 12px);
+      padding: 0.75rem 1rem;
     }
-    .history-entry + .history-entry { margin-top: 0.6rem; }
+    .history-entry + .history-entry { margin-top: 0.5rem; }
     .history-day {
-      font-size: 0.62rem; letter-spacing: 0.10em; text-transform: uppercase;
-      color:rgba(255,255,255,0.80); margin: 1.1rem 0 0.5rem;
+      font-size: 0.75rem; letter-spacing: 0.10em; text-transform: uppercase;
+      color:rgba(255,255,255,0.80); margin: 1rem 0 0.5rem;
       font-weight: 700;
     }
     .history-day:first-child { margin-top: 0.25rem; }
-    .history-meta { font-size: 0.7rem; color:rgba(255,255,255,0.80); display: flex; gap: 0.5rem; align-items: center; }
-    .history-text { font-size: 0.85rem; line-height: 1.5; color: rgba(255,255,255,0.88); margin-top: 0.35rem; word-break: break-word; }
-    .history-reply { font-size: 0.82rem; line-height: 1.5; color:rgba(255,255,255,0.80); margin-top: 0.4rem; padding-left: 0.7rem; border-left: 2px solid rgba(247,162,27,0.4); word-break: break-word; }
+    /* The journal is a column of timestamps read downwards - 02:09 AM, 10:27 AM, 01:54 PM - and
+       Poppins' proportional figures make a 1 narrower than a 0, so the colons do not line up and
+       the eye re-finds the column on every row. Measured font-variant-numeric: normal on all eight. */
+    .history-meta { font-variant-numeric: tabular-nums; font-size: 0.75rem; color:rgba(255,255,255,0.80); display: flex; gap: 0.5rem; align-items: center; }
+    .history-text { font-size: 0.875rem; line-height: 1.5; color: rgba(255,255,255,0.88); margin-top: 0.25rem; word-break: break-word; }
+    .history-reply { font-size: 0.875rem; line-height: 1.5; color:rgba(255,255,255,0.80); margin-top: 0.5rem; padding-left: 0.75rem; border-left: 2px solid rgba(247,162,27,0.4); word-break: break-word; }
 
     .speak-btn {
+      /* ★C22 (wave-4 narrow-320 nav-hub walk, 2026-09-14): in a history entry's flex row this button was squeezed to
+         86-88px at 320 and "Speak again" broke onto two lines. A press control keeps its natural width and its
+         label on one line (nowrap + no shrink); the row's text beside it is what gives way. */
+      white-space: nowrap; flex-shrink: 0;
       background: rgba(247,162,27,0.18);
       border: 1px solid rgba(247,162,27,0.3);
       color:var(--wh-orange-text);
       border-radius: var(--wh-radius-sm); /* R3: PRESS action → rect, not the pill worn by the select toggles/chips */
-      font-size: 0.66rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
-      padding: 0.3rem 0.7rem; cursor: pointer;
+      font-size: 0.75rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 0.25rem 0.75rem; cursor: pointer;
       min-height: 44px; display: inline-flex; align-items: center; justify-content: center;
     }
 
@@ -206,11 +296,11 @@
       color:rgba(255,255,255,0.80);
       border-radius: 999px;
       font-family: inherit;
-      font-size: 0.78rem; font-weight: 600;
-      padding: 0.4rem 0.9rem;
+      font-size: 0.75rem; font-weight: 600;
+      padding: 0.5rem 1rem;
       cursor: pointer;
-      transition: background .15s, border-color .15s, color .15s;
-      display: inline-flex; align-items: center; gap: 0.4rem;
+      transition: background var(--wh-dur-fast, .15s) var(--wh-ease-out, ease-out), border-color var(--wh-dur-fast, .15s) var(--wh-ease-out, ease-out), color var(--wh-dur-fast, .15s) var(--wh-ease-out, ease-out);
+      display: inline-flex; align-items: center; gap: 0.5rem;
       min-height: 44px;   /* F1/K2 dual-viewport: 44px tap target at BOTH 390 + 1280 (was 36px @desktop) */
     }
     .persona-chip:hover { color: var(--text, var(--wh-cloud)); border-color: rgba(255,255,255,0.22); }
@@ -235,8 +325,8 @@
       border: 1px solid rgba(255,255,255,0.10);
       color:rgba(255,255,255,0.80);
       border-radius: 999px;
-      padding: 0.3rem 0.75rem;
-      font-size: 0.7rem; font-weight: 600;
+      padding: 0.25rem 0.75rem;
+      font-size: 0.75rem; font-weight: 600;
       cursor: pointer;
       min-height: 44px;
       display: inline-flex; align-items: center; justify-content: center;
@@ -246,7 +336,7 @@
     .filter-chip.active {
       background: rgba(247,162,27,0.18); border-color: rgba(247,162,27,0.35); color: var(--wh-orange-light);   /* C2: AA-safe orange (was --wh-orange @ 4.44:1) */
     }
-    @media (max-width: 480px) { .filter-chip { min-height: 44px; padding: 0.45rem 0.95rem; } }
+    @media (max-width: 480px) { .filter-chip { min-height: 44px; padding: 0.5rem 1rem; } }
       /* env(safe-area-inset-bottom) added 2026-08-06: this toast sat a fixed distance from the
          bottom with NO home-indicator guard, so on an iPhone it could render under the indicator.
          Found by auditing every toast rule on the platform after the layout lens reported
@@ -261,16 +351,19 @@
       transform: translateX(-50%) translateY(4px);
       background: linear-gradient(135deg, rgba(42,61,88,0.95), rgba(31,46,69,0.98));
       border: 1px solid rgba(255,255,255,0.12);
-      padding: 0.625rem 1.25rem; border-radius: 999px;
-      font-size: 0.8rem; font-weight: 500;
-      opacity: 0; transition: opacity 0.3s, transform 0.3s;
+      padding: 0.75rem 1.25rem; border-radius: 999px;
+      font-size: 0.75rem; font-weight: 600;
+      /* 0.3s is not UNDER the 300ms ceiling for interface motion, it IS the ceiling, and neither
+         property named a curve. This is the toast that confirms a note was saved or tells somebody
+         the microphone failed - the acknowledgement of something they are waiting on. */
+      opacity: 0; transition: opacity var(--wh-dur-slow, 0.25s) var(--wh-ease-out, ease-out), transform var(--wh-dur-slow, 0.25s) var(--wh-ease-out, ease-out);
       pointer-events: none; z-index: 9999; white-space: nowrap;
     }
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
     .skeleton-row {
       background: rgba(255,255,255,0.04);
-      border-radius: 0.6rem; height: 64px;
+      border-radius: var(--wh-radius-sm, 8px); height: 64px;   /* 9.6px was off the 8/12/16 scale */
       animation: skeleton 1.2s ease-in-out infinite;
     }
     @keyframes skeleton {
@@ -279,7 +372,7 @@
     }
 
     @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-    .fade-up { animation: fadeUp 0.3s ease forwards; }
+    .fade-up { animation: fadeUp var(--wh-dur-slow, 0.25s) var(--wh-ease-out, ease-out) forwards; }
     /* This page ALREADY had a reduce block (the .mic-btn ring, above) and .fade-up escaped it -
        which is why a page-level "does a reduce rule exist" check reported this page compliant
        while 8 entries kept sliding. The guard has to name every animation, not exist. */
@@ -324,11 +417,18 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     <header class="flex items-center justify-between mb-5 flex-wrap gap-y-2">   <!-- phone fit (2026-09-06): four items in one row crushed the two toggles to 35px -->
       <button onclick="history.back()" class="flex items-center gap-2 text-white/80 hover:text-white/70 text-sm font-medium" style="min-height:44px;">
         <span class="ic ic-back" aria-hidden="true"></span>
-        <span>Back</span>
+        <span data-i="vj_back">Back</span>
       </button>
+      <!-- ★A KICKER ABOVE A HEADING, AND THE HEADING AT BODY SIZE (2026-09-19, W46056 slop lens). Two of
+           DESIGN.md's named don'ts stacked on each other: an uppercase tracked "WorkHive" eyebrow sitting
+           directly above the page title, and the title itself at text-base - 16px, the same size as body
+           text, with the section heading BELOW it at 14px. So the loudest thing in the header was a word
+           the browser tab, the nav hub and the whole shell already say, and the one string that tells a
+           reader which page they are on had no more weight than a paragraph. The kicker is deleted rather
+           than restyled, because the question a kicker has to answer - what does this add - has no answer
+           here. The title takes the headline step DESIGN.md assigns to page titles. -->
       <div class="text-center min-w-0">
-        <div class="text-[10px] uppercase tracking-widest text-white/80 font-semibold">WorkHive</div>
-        <h1 class="text-base font-bold" style="margin:0;" data-i="vj_title">Voice Journal</h1>
+        <h1 class="vj-title" style="margin:0;" data-i="vj_title">Voice Journal</h1>
       </div>
       <button id="tts-toggle" class="btn-ghost" aria-pressed="true" title="Toggle voice replies" style="white-space:nowrap;flex-shrink:0;">
         <span id="tts-toggle-label">Voice On</span>
@@ -399,16 +499,16 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
            ctx.persona. 2026-05-19 Step D: Zaniah = default (Strategist),
            Hezekiah = Technical. Labels signal the LENS, not just the name. -->
       <div id="persona-row" class="flex items-center justify-center gap-2 mb-4" role="radiogroup" aria-label="Choose your companion lens">
-        <span class="text-[10px] uppercase tracking-widest text-white/80 font-semibold mr-1">Talking with</span>
+        <span class="text-xs uppercase tracking-widest text-white/80 font-semibold mr-1">Talking with</span>
         <button id="persona-zaniah" type="button" role="radio" aria-checked="true"
                 class="persona-chip persona-chip-active" data-persona="zaniah" translate="no"
                 title="Strategist: patterns, priorities, this-week thinking">
-          <span aria-hidden="true">🧭</span> Zaniah <span class="text-[9px] opacity-70">· Strategy</span>
+          <span aria-hidden="true">🧭</span> Zaniah <span class="text-xs opacity-70">· Strategy</span>
         </button>
         <button id="persona-hezekiah" type="button" role="radio" aria-checked="false"
                 class="persona-chip" data-persona="hezekiah" translate="no"
                 title="Technical Expert: torque, SOPs, this-asset thinking">
-          <span aria-hidden="true">🛠️</span> Hezekiah <span class="text-[9px] opacity-70">· Technical</span>
+          <span aria-hidden="true">🛠️</span> Hezekiah <span class="text-xs opacity-70">· Technical</span>
         </button>
       </div>
 
@@ -465,7 +565,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         <textarea id="type-input" class="wh-input" rows="3" maxlength="2000"
                   placeholder="Type what you would have said - Filipino, English or Taglish."></textarea>
         <div class="flex justify-end mt-2">
-          <button id="type-send" type="button" class="btn-primary">Send note</button>
+          <button id="type-send" type="button" class="btn-primary" data-i="vj_send">Send note</button>
         </div>
         <div id="type-state" class="text-xs text-white/80 mt-2" style="min-height:1rem;"
              role="status" aria-live="polite"></div>
@@ -473,13 +573,13 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
       <div class="mt-4 space-y-3" id="current-turn" style="display:none;">
         <div class="flex items-center justify-between gap-2">
-          <span class="text-[10px] uppercase tracking-widest text-white/80 font-semibold">You said</span>
+          <span class="text-xs uppercase tracking-widest text-white/80 font-semibold">You said</span>
           <span id="current-lang" class="lang-pill" style="display:none;"></span>
         </div>
         <div data-user-content id="current-transcript" class="transcript-box empty">Waiting for voice...</div>
 
         <div class="flex items-center justify-between gap-2 mt-3">
-          <span class="text-[10px] uppercase tracking-widest text-white/80 font-semibold">Journal reply</span>
+          <span class="text-xs uppercase tracking-widest text-white/80 font-semibold">Journal reply</span>
           <button id="current-replay" class="speak-btn" style="display:none;" type="button" data-i="speakagain">Speak again</button>
         </div>
         <div id="current-reply" class="reply-bubble" style="display:none;"></div>
@@ -490,8 +590,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     <!-- History panel -->
     <section class="card p-5">
       <div class="flex items-center justify-between mb-3">
-        <h2 class="text-sm font-bold text-white/90" data-i="vj_journal">Your journal</h2>
-        <span id="entry-count" class="text-[11px] text-white/80"></span>
+        <h2 class="wh-section-title" data-i="vj_journal">Your journal</h2>
+        <span id="entry-count" class="text-xs text-white/80"></span>
       </div>
 
       <input aria-label="Search your entries..." id="search-input" class="wh-input mb-3" type="search" placeholder="Search your entries..." />
@@ -512,7 +612,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
   </div>
 
-  <div id="toast" class="toast" role="alert" aria-live="polite"></div>
+  <!-- role/aria-live are set per message by showToast(); these are the calm defaults so the
+       region is announced correctly even if something toasts before that runs. -->
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
   <script src="utils.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
@@ -612,8 +714,22 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
     // ──────────────── DOM helpers ────────────────
     const $ = (id) => document.getElementById(id);
-    function showToast(msg, ms) {
+    // ★ONE TOAST CARRIED TWO SEVERITIES AND DECLARED A ROLE THAT CONTRADICTED ITS OWN aria-live
+    //    (2026-09-19, W46058 audit lens). The element shipped role="alert" AND aria-live="polite".
+    //    role="alert" carries an implicit assertive liveness, so the explicit polite overrides it and
+    //    the markup says two different things about the same region - which means how urgently it is
+    //    announced depends on the screen reader rather than on the author. And the channel really does
+    //    carry both kinds: "Using cloud voice" is a confirmation, while "Microphone permission denied",
+    //    "The microphone could not start" and "Voice processing failed, and the note was not saved" are
+    //    failures on a surface whose whole purpose is capturing a note somebody just spoke. Polite means
+    //    a reader may hear "the note was not saved" only after finishing whatever they were on.
+    //    So the liveness now follows the MESSAGE instead of being guessed once: status/polite by
+    //    default, alert/assertive when the caller says this one is a failure. One element, two honest
+    //    states, and the pair is always set together so they can never disagree again.
+    function showToast(msg, ms, urgent) {
       const el = $('toast');
+      el.setAttribute('role', urgent ? 'alert' : 'status');
+      el.setAttribute('aria-live', urgent ? 'assertive' : 'polite');
       el.textContent = msg;
       el.classList.add('show');
       clearTimeout(showToast._t);
@@ -641,7 +757,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     // ──────────────── TTS ────────────────
     function setTtsButton() {
       const lbl = $('tts-toggle-label');
-      if (lbl) lbl.textContent = _ttsOn ? 'Voice On' : 'Voice Off';
+      // Written by the application after the dictionary pass, so a data-i would be overwritten -
+      // the same mechanism that kept shift-brain's publish button English. Composed here instead.
+      if (lbl) lbl.textContent = _ttsOn ? _t('Voice On', 'Bukas ang boses') : _t('Voice Off', 'Sarado ang boses');
       const btn = $('tts-toggle');
       if (btn) btn.setAttribute('aria-pressed', String(_ttsOn));
     }
@@ -672,7 +790,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     }
     function setSovVoiceButton() {
       const on = isSovVoiceOn();
-      const lbl = $('sov-voice-label'); if (lbl) lbl.textContent = on ? 'Local voice' : 'Cloud voice';
+      const lbl = $('sov-voice-label'); if (lbl) lbl.textContent = on ? _t('Local voice', 'Boses sa device') : _t('Cloud voice', 'Boses sa cloud');
       const btn = $('sov-voice-toggle'); if (btn) btn.setAttribute('aria-pressed', String(on));
     }
     function toggleSovereignVoice() {
@@ -919,7 +1037,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         return true;
       } catch (err) {
         console.error('bootstrapIdentity:', err);
-        showToast(_t('Could not verify session. Try again.', 'Hindi na-verify ang session. Subukan muli.'));
+        showToast(_t('Could not verify session. Try again.', 'Hindi na-verify ang session. Subukan muli.'), 3200, true);
         return false;
       }
     }
@@ -1048,7 +1166,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         // set is everything.
         `<button class="filter-chip ${_activeFilter === 'all' ? 'active' : ''}" data-filter="all" type="button" aria-pressed="${_activeFilter === 'all' ? 'true' : 'false'}" translate="no">${
           (typeof _totalEntries === 'number' && _totalEntries > _entries.length)
-            ? `Latest ${_entries.length}` : `All (${_entries.length})`}</button>`,
+            ? _t(`Latest ${_entries.length}`, `Huling ${_entries.length}`)
+            : _t(`All (${_entries.length})`, `Lahat (${_entries.length})`)}</button>`,
       ].concat(displays.map(d =>
         `<button class="filter-chip ${_activeFilter === d ? 'active' : ''}" data-filter="${escSafe(d)}" type="button" aria-pressed="${_activeFilter === d ? 'true' : 'false'}" translate="no">${escSafe(d)} (${seenByDisplay[d]})</button>`
       ));
@@ -1076,6 +1195,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       } catch (_) { /* empty-catch-allow: best-effort URL sync */ }
     }
 
+    // null until the first render has established what was already on screen; a timestamp after that.
+    let _fadeSinceTs = null;
     function renderHistory() {
       const listEl     = $('history-list');
       const emptyEl    = $('history-empty');
@@ -1105,7 +1226,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         : '';
       const _si = $('search-input');
       if (_si) {
-        _si.placeholder = _capped ? `Search the latest ${_entries.length} entr${_entries.length === 1 ? 'y' : 'ies'}…` : 'Search your entries...';
+        _si.placeholder = _capped
+          ? _t(`Search the latest ${_entries.length} entr${_entries.length === 1 ? 'y' : 'ies'}…`,
+               `Maghanap sa huling ${_entries.length} entry…`)
+          : _t('Search your entries...', 'Maghanap sa mga entry mo...');
         _si.setAttribute('aria-label', _si.placeholder);
       }
 
@@ -1126,6 +1250,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const visible = filtered.slice(0, _voiceDisplayCount);
       const wrap = document.getElementById('voice-load-more-wrap');
       wrap.classList.toggle('hidden', visible.length >= filtered.length);
+      // raise the baseline to the newest entry this render put on screen, so the NEXT render only
+      // animates something that arrived after it
+      const _newest = visible.reduce((m, e) => {
+        const t = e.ts ? new Date(e.ts).getTime() : 0; return t > m ? t : m; }, 0);
 
       let lastDay = '';
       const html = visible.map(p => {
@@ -1138,8 +1266,19 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         const replayBtn = p.agent
           ? `<button class="speak-btn" data-action="replay" data-text="${escSafe(p.agent)}" data-lang="${escSafe(p.lang || 'en')}" type="button" data-i="speakagain">Speak again</button>`
           : '';
+        // ★AN ENTRANCE THAT REPLAYED ON EVERY KEYSTROKE (2026-09-19, W46060 motion lens). Every
+        //    entry carried .fade-up, and renderHistory() runs on load, on each filter chip, on Load
+        //    More, and on every INPUT event in the search box - so eight journal entries slid up and
+        //    faded in again each time somebody typed a letter. An entrance says "this is new"; saying
+        //    it about notes the reader recorded last week, eight times, while they are trying to find
+        //    one of them, is motion that actively fights the task. The rule this restores: an entrance
+        //    belongs to ARRIVAL, not to re-render. Only an entry newer than the newest one already on
+        //    screen animates - which in practice is the note the person has just spoken, the one change
+        //    they actually caused - and the first render establishes the baseline without animating,
+        //    because a list that was already there did not arrive.
+        const _isNew = _fadeSinceTs !== null && p.ts && new Date(p.ts).getTime() > _fadeSinceTs;
         return `${dayHeader}
-          <div class="history-entry fade-up">
+          <div class="history-entry${_isNew ? ' fade-up' : ''}">
             <div class="history-meta">
               <span>${escSafe(timeLabel(p.ts))}</span>
               ${langPill}
@@ -1151,6 +1290,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       }).join('');
 
       listEl.innerHTML = html;
+      // set AFTER the markup is written, so the entries this render animated are not re-animated by
+      // the next one, and the first render (which animates nothing) still establishes the baseline
+      _fadeSinceTs = Math.max(_fadeSinceTs || 0, _newest);
       listEl.querySelectorAll('[data-action="replay"]').forEach(btn => {
         btn.addEventListener('click', () => {
           const text = btn.getAttribute('data-text') || '';
@@ -1172,7 +1314,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
     async function startRecording() {
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        showToast(_t('Voice not supported on this browser.', 'Hindi supportado ang voice sa browser na ito.'));
+        showToast(_t('Voice not supported on this browser.', 'Hindi supportado ang voice sa browser na ito.'), 3200, true);
         return;
       }
       // T12 S2 (critic walk 2026-09-02): in a prompt-suppressed context getUserMedia NEVER SETTLES
@@ -1194,13 +1336,13 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         const _n = (err && err.name) || '';
         if (_n === 'NotAllowedError' || _n === 'SecurityError') {
           showToast(_t('Microphone permission denied. Type your note below instead, or allow the mic in your browser settings.',
-                       'Hindi pinayagan ang mikropono. I-type na lang ang tala mo sa ibaba, o payagan ang mic sa browser settings.'));
+                       'Hindi pinayagan ang mikropono. I-type na lang ang tala mo sa ibaba, o payagan ang mic sa browser settings.'), 3200, true);
         } else if (_n === 'NotFoundError' || _n === 'OverconstrainedError') {
           showToast(_t('No microphone found on this device. Type your note below instead.',
-                       'Walang mikropono sa device na ito. I-type na lang ang tala mo sa ibaba.'));
+                       'Walang mikropono sa device na ito. I-type na lang ang tala mo sa ibaba.'), 3200, true);
         } else {
           showToast(_t('The microphone could not start. Type your note below instead.',
-                       'Hindi ma-start ang mikropono. I-type na lang ang tala mo sa ibaba.'));
+                       'Hindi ma-start ang mikropono. I-type na lang ang tala mo sa ibaba.'), 3200, true);
         }
         return;
       }
@@ -1209,7 +1351,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       try {
         _recorder = new MediaRecorder(_stream, { mimeType: mime });
       } catch (err) {
-        showToast(_t('Recording not supported.', 'Hindi supportado ang recording.'));
+        showToast(_t('Recording not supported.', 'Hindi supportado ang recording.'), 3200, true);
         return;
       }
       _recorder.ondataavailable = (ev) => { if (ev.data && ev.data.size) _chunks.push(ev.data); };
@@ -1218,7 +1360,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       _startedAt = Date.now();
 
       $('mic-btn').classList.add('recording');
-      $('mic-btn').setAttribute('aria-label', 'Tap to stop');
+      $('mic-btn').setAttribute('aria-label', _t('Tap to stop', 'Pindutin para tumigil'));
       $('mic-state').textContent = 'Listening. Tap to stop.';
       $('mic-timer').textContent = '0:00';
 
@@ -1246,7 +1388,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       if (_stopTimer) { clearTimeout(_stopTimer); _stopTimer = null; }
       try { if (_recorder && _recorder.state === 'recording') _recorder.stop(); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
       $('mic-btn').classList.remove('recording');
-      $('mic-btn').setAttribute('aria-label', 'Tap to start');
+      $('mic-btn').setAttribute('aria-label', _t('Tap to start', 'Pindutin para magsimula'));
     }
 
     async function onStopRecording() {
@@ -1311,7 +1453,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           // believing a spoken note was captured. The typed path already says it plainly one
           // handler below; the spoken path now matches it.
           $('mic-state').textContent = 'Your note was not saved. Tap to try again.';
-          showToast(whAiError(err, 'Voice processing failed, and the note was not saved.'));
+          showToast(whAiError(err, 'Voice processing failed, and the note was not saved.'), 3200, true);
         }
       } finally {
         _busy = false;
@@ -1425,7 +1567,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           showToast(_lim);
         } else {
           $('type-state').textContent = whWriteError(err, 'Your note was not saved. Try sending it again.');
-          showToast(whAiError(err, 'Could not save your note.'));
+          showToast(whAiError(err, 'Could not save your note.'), 3200, true);
         }
       } finally {
         _busy = false;
@@ -1544,16 +1686,42 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 <script>
   // E3 provenance (FAMILY F3): sources = this page's verified reads.
   window.addEventListener('load', function () {
+    // ★THE ATTRIBUTES NOBODY TRANSLATES, BECAUSE A DICTIONARY PASS ONLY REWRITES TEXT NODES
+    //    (2026-09-19, W46059 copy lens). A placeholder and an aria-label are the two strings a data-i
+    //    sweep cannot reach, and this page's three most-used fields carried all of them in English on
+    //    a Filipino screen: the mic button's name, the note field's prompt, and the search box's label
+    //    and placeholder - which the app writes as the SAME string, so the label a screen reader
+    //    announces was the placeholder a sighted reader had already been shown in English. Set here,
+    //    at load, composed in both languages, rather than by adding another mechanism to the page.
+    (function translateStaticAttrs() {
+      var T = (typeof _t === 'function') ? _t : function (en) { return en; };
+      var mic = document.getElementById('mic-btn');
+      if (mic) mic.setAttribute('aria-label', T('Tap to start recording', 'Pindutin para magsimulang mag-record'));
+      var ta = document.getElementById('type-input');
+      if (ta) ta.setAttribute('placeholder', T('Type what you would have said - Filipino, English or Taglish.',
+                                               'I-type ang sasabihin mo sana - Filipino, English o Taglish.'));
+      var si = document.getElementById('search-input');
+      if (si) {
+        si.setAttribute('placeholder', T('Search your entries...', 'Maghanap sa mga entry mo...'));
+        si.setAttribute('aria-label', si.getAttribute('placeholder'));
+      }
+    })();
     var el = document.getElementById('vj-source-chip');
     if (!el) { el = document.createElement('div'); el.id = 'vj-source-chip'; var host = document.querySelector('.page') || document.body; host.appendChild(el); }
     if (typeof renderSourceChip === 'function') el.innerHTML = renderSourceChip({
+      // The freshness clause IS in renderSourceChip's phrase map, so it translated; the SOURCE did
+      // not, and the result read 'Batay sa iyong voice journal entries, your profile & worker
+      // profile' - a Filipino connective introducing an English list, with an English possessive
+      // still inside it. _whFriendlySource maps the table names; the readable half is composed here.
       freshness: 'Live · refreshed on load',
-      source: 'voice_journal_entries + v_worker_truth + worker_profiles',
+      source: (typeof _t === 'function' ? _t : function (en) { return en; })(
+        'your voice journal entries, your profile & worker profile',
+        'mga entry mo sa voice journal, profile mo at worker profile'),
     });
   });
 </script>
 
-<script>window.WH_FIL_PAGE={vj_title:'Voice Journal',vj_journal:'Iyong journal',speakagain:'Magsalita ulit'};</script>
+<script>window.WH_FIL_PAGE={vj_title:'Voice Journal',vj_journal:'Iyong journal',speakagain:'Magsalita ulit',vj_send:'Ipadala ang note',vj_back:'Bumalik'};</script>
   <!-- AV1 (FULLSTACK_COMPONENT_LIBRARY Layer AV): the offline canonical set — ships as one unit -->
   <script src="offline-banner.js"></script>
   <script defer src="offline-queue.js"></script>

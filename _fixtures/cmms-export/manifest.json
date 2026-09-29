@@ -1,0 +1,28 @@
+{
+  "_doc": "Provenance for the real internet-sourced files in this directory (wave 4). The files are gitignored; this manifest is tracked. Written only by tools/fetch_fixture.py.",
+  "kind": "cmms-export",
+  "files": [
+    {
+      "file": "cmms-event-log-2025.csv",
+      "source_url": "https://raw.githubusercontent.com/panteamkhh/maintenance-data-pipeline/main/data/raw_maintenance_data.csv",
+      "license": "MIT (repository licence; see repo)",
+      "author": "panteamkhh (GitHub)",
+      "note": "a CMMS event log CSV (~3,000 events, 10 machines) published on GitHub - the shape a CMMS export has; the integrations wizard maps its columns",
+      "mime": "text/plain",
+      "bytes": 486558,
+      "sha256": "e870a9f9e7decc6c7f38b59cc298f3c114faf16ab15dbcc63b5ac028aa3b0cc6",
+      "fetched": "2026-09-13T20:27:52Z"
+    },
+    {
+      "file": "weg-m-line-induction-motor-manual.pdf",
+      "source_url": "https://static.weg.net/medias/downloadcenter/h73/hee/WEG-low-and-high-voltage-three-phase-induction-motors-m-line-squirrel-cage-rotor-horizontal-11171349-manual-english-dc.pdf",
+      "license": "WEG public download centre (manufacturer documentation)",
+      "author": "WEG S.A.",
+      "note": "a real OEM manual: WEG low and high voltage three-phase induction motors, M line, installation/operation/maintenance",
+      "mime": "application/pdf",
+      "bytes": 2839562,
+      "sha256": "8f45e72ad55864f10dfbd846c40424eef66460261e829964316703b5aff2a01f",
+      "fetched": "2026-09-13T20:27:55Z"
+    }
+  ]
+}

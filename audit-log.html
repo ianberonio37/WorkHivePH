@@ -38,8 +38,12 @@
 
     .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
     .page-title { font-size: 1.3rem; font-weight: 800; }
-    .page-sub { font-size: .7rem; color: var(--muted); margin-top: 2px; }
-    .hive-pill { font-size: .65rem; font-weight: 700; padding: .3rem .8rem; border-radius: 999px; background: rgba(41,182,217,0.12); color: var(--blue); border: 1px solid rgba(41,182,217,0.25); }
+    .page-sub { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+    /* measured at 390: the header goes 69px to 173px when renderSourceChip writes here, so the shared
+       62px floor is not enough on this page - the chip carries a longer provenance line over two rows
+       plus the disclosure. 104px is what it settles at (design lens audit, 2026-09-15). */
+    #audit-source-chip { min-height: 104px; }
+    .hive-pill { font-size: 0.75rem; font-weight: 600; padding: 4px 12px; border-radius: 999px; background: rgba(41,182,217,0.12); color: var(--blue); border: 1px solid rgba(41,182,217,0.25); }
 
     /* Filter bar */
     .filter-bar { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
@@ -52,9 +56,16 @@
       display: inline-flex; align-items: center; gap: 6px;
       padding: 6px 12px; background: rgba(22,32,50,0.85);
       border: 1px solid var(--border); border-radius: 999px;
-      font-family: inherit; font-size: .72rem; font-weight: 600;
+      font-family: inherit; font-size: 0.8rem; font-weight: 600;
       color:rgba(255,255,255,0.80); cursor: pointer;
-      transition: all .15s; min-height: 44px;
+      /* ★`all` ANIMATED WHATEVER HAPPENED TO CHANGE (design lens motion, 2026-09-15). These chips move
+         three properties on hover and a fourth on .active, so a class flip rode one blanket curve and
+         any property added later would join it silently. Named, and on the platform's ease-out token:
+         the CSS default is `ease`, a mild ease-in-out that starts SLOW at the instant of a press. */
+      transition: background-color .15s var(--wh-ease-out, ease-out),
+                  color .15s var(--wh-ease-out, ease-out),
+                  border-color .15s var(--wh-ease-out, ease-out);
+      min-height: 44px;
     }
     .chip:hover { color: var(--text); border-color: rgba(255,255,255,0.18); }
     .chip.active { background: rgba(247,162,27,0.15); color: var(--gold); border-color: rgba(247,162,27,0.3); }
@@ -72,21 +83,21 @@
     .filter-actions { display: flex; gap: 6px; flex-wrap: wrap; }
     .btn-export {
       display: inline-flex; align-items: center; gap: 6px;
-      padding: 8px 14px; background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light));
+      padding: 8px 16px; background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light));
       color: var(--wh-navy); border: none;
       border-radius: 8px; font-size: .75rem; font-weight: 700;
       cursor: pointer; min-height: 44px;
     }
     .btn-export:hover { opacity: .9; }
     .btn-clear {
-      padding: 8px 14px; background: transparent;
+      padding: 8px 16px; background: transparent;
       color: var(--muted); border: 1px solid var(--border);
-      border-radius: 8px; font-size: .72rem; font-weight: 600;
+      border-radius: 8px; font-size: 0.8rem; font-weight: 600;
       cursor: pointer; min-height: 44px;
     }
     .btn-clear:hover { color: var(--text); border-color: rgba(255,255,255,0.18); }
 
-    .filter-summary { font-size: .65rem; color: var(--muted); margin-left: auto; }
+    .filter-summary { font-size: 0.75rem; color: var(--muted); margin-left: auto; }
 
     /* Feed */
     .feed { display: flex; flex-direction: column; gap: 8px; }
@@ -98,10 +109,25 @@
     #feed { min-height: 400px; }
     .entry {
       display: flex; align-items: flex-start; gap: 12px;
-      padding: 12px 14px; background: rgba(22,32,50,0.85);
+      padding: 12px 16px; background: rgba(22,32,50,0.85);
       border: 1px solid var(--border); border-radius: 10px;
       border-left-width: 3px;
     }
+    /* ★THE ONE MOMENT THIS PAGE HAS, AND IT PASSED IN SILENCE (design lens motion, 2026-09-15). The feed
+       polls every 30 seconds and rebuilds itself wholesale, so a new approval or role change simply APPEARS,
+       indistinguishable from the thirty rows already on screen - on a surface whose entire job is recording
+       who did what, when. This is the entrance of a NEW record, so it is ease-out per the standards' easing
+       order, 220ms (inside the 150-250ms band rather than at the 300ms ceiling), and opacity plus transform
+       only, both composited. It is bound to NEWNESS, not to rendering - see renderFeed's _paintedIds - so a
+       poll that changes nothing animates nothing and the first paint animates nothing. Reduced motion needs
+       no rule here: the global block in components.css sets animation-name:none !important outside the
+       loader family, and `both` fill lands that on the row's natural state rather than a half-faded one. */
+    @keyframes audit-entry-in {
+      from { opacity: 0; transform: translateY(-6px); }
+      to   { opacity: 1; transform: none; }
+    }
+    .entry.entry-new { animation: audit-entry-in 220ms var(--wh-ease-out, cubic-bezier(0.23, 1, 0.32, 1)) both; }
+
     .entry.action-approve { border-left-color: var(--green); }
     .entry.action-reject  { border-left-color: var(--red); }
     .entry.action-kick    { border-left-color: var(--amber); }
@@ -114,8 +140,14 @@
     .entry-body { flex: 1; min-width: 0; }
     .entry-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
     .entry-actor {
-      font-size: .55rem; font-weight: 800; text-transform: uppercase;
-      letter-spacing: .06em; padding: .2rem .5rem; border-radius: 5px;
+      /* 600, not 800: 800 is the platform's DISPLAY-NUMBER step and this page renders no display numbers -
+         it was 31 of the 237 nodes, on a chip that is already uppercase, tracked and tinted, so the weight
+         was a fourth signal saying what three were already saying (design lens craft, 2026-09-15). */
+      font-size: 0.75rem; font-weight: 600; text-transform: uppercase;
+      /* 3.2px was HALF this page's 66 off-grid paddings on its own, because this chip renders once per
+         row and the log shows thirty (design lens craft, 2026-09-15). The radius joins the platform's
+         4px step at the same time. */
+      letter-spacing: .06em; padding: 4px 8px; border-radius: 4px;
       background: rgba(41,182,217,0.12); color: var(--blue);
     }
     .entry-action {
@@ -128,12 +160,12 @@
       overflow-wrap: anywhere; word-break: break-word; min-width: 0;
     }
     .entry-target-type {
-      font-size: .55rem; color: var(--muted); text-transform: capitalize;
+      font-size: 0.75rem; color: var(--muted); text-transform: capitalize;
       letter-spacing: .05em;
     }
-    .entry-time { font-size: .65rem; color: var(--muted); flex-shrink: 0; margin-left: auto; }
+    .entry-time { font-size: 0.75rem; color: var(--muted); flex-shrink: 0; margin-left: auto; }
     .entry-meta-toggle {
-      font-size: .65rem; font-weight: 600; color: var(--gold);
+      font-size: 0.75rem; font-weight: 600; color: var(--gold);
       background: transparent; border: none; padding: 4px 0;
       cursor: pointer; margin-top: 4px;
       min-height: 44px; display: inline-flex; align-items: center; /* D1 U2: gloved-field tap target */
@@ -145,7 +177,7 @@
       border-radius: 6px;
       /* T28: this held a <pre> of raw JSON, so it was monospaced and pre-wrapped. It now holds
          labelled lines a person reads, so it takes the page's own typeface. */
-      font-size: .7rem; color:rgba(255,255,255,0.83);
+      font-size: 0.8rem; color:rgba(255,255,255,0.83);
       word-break: break-word;
       max-height: 240px; overflow: auto;
     }
@@ -166,7 +198,7 @@
     .empty-sub { font-size: .75rem; color: var(--muted); }
     .loading { text-align: center; padding: 30px; color: var(--muted); font-size: .78rem; }
 
-    .footer-meta { font-size: .62rem; color: var(--muted); text-align: right; margin-top: 16px; }
+    .footer-meta { font-size: 0.75rem; color: var(--muted); text-align: right; margin-top: 16px; }
 
     /* Gate cards (no hive / not supervisor) */
     .gate-card {
@@ -178,7 +210,7 @@
     .gate-card p { font-size: .8rem; color: var(--muted); margin-bottom: 16px; }
     /* ★THE ONE CONTROL OFFERED TO SOMEBODY WHO CANNOT PROCEED WAS TOO SMALL TO HIT (2026-09-10,
        found by an in-motion critic walk, dim F1). This page's supervisors-only gate is the state a
-       WORKER meets here, and it is correct that it says so - but at `padding: 10px 24px` on .82rem text
+       WORKER meets here, and it is correct that it says so - but at `padding: 12px 24px` on .82rem text
        the escape rendered 142x41, under the 44px touch floor, on a 390px phone. That is the worst place
        on the platform to put an unhittable control: the person has already been told no, and this is
        their only way out. A page-at-rest sweep never sees it, because it grades this page as a
@@ -186,7 +218,7 @@
        exactly as it looks and gives it the height the thumb needs. */
     .gate-btn {
       display: inline-flex; align-items: center; justify-content: center;
-      min-height: 44px; padding: 10px 24px;
+      min-height: 44px; padding: 12px 24px;
       background: rgba(41,182,217,0.15); color: var(--blue);
       border: 1px solid rgba(41,182,217,0.3); border-radius: 8px;
       text-decoration: none; font-size: .82rem; font-weight: 700;
@@ -251,14 +283,17 @@
 
 <div class="page">
 
-  <div class="page-header">
+  <!-- a header LANDMARK, not a styled div (design lens audit, 2026-09-15): the probe read main, nav and
+       a skip link but no banner region, so a screen-reader user could reach the log and the navigation and
+       had no named way back to the page title, its hive pill and its provenance line. -->
+  <header class="page-header">
     <div>
       <h1 class="page-title" style="margin:0;" data-i="al_title">Audit Log</h1>
       <p data-i="p_everysupervisorandworkeracti_1870" class="page-sub">Every supervisor and worker action in your hive, on the record. Use it for compliance checks and team transparency.</p>
-      <p id="audit-source-chip" style="margin-top:3px;"></p>
+      <p id="audit-source-chip" style="margin-top:4px;"></p>
     </div>
     <span id="hive-pill" class="hive-pill" style="display:none;"></span>
-  </div>
+  </header>
 
   <details class="wh-help">
     <summary data-i="p_howthislogworks_cfda">How this log works</summary>
@@ -302,18 +337,25 @@
       <div class="filter-row">
         <!-- Arc V L-lens: actor/action/target filters were flat >7-option <select>s (Miller overload);
              datalist comboboxes let the user TYPE to narrow (low Hick), esp. the 11-actor list. -->
-        <input id="actor-filter" list="actor-filter-options" type="text" class="filter-select" aria-label="Filter by actor" placeholder="All actors" autocomplete="off" />
+        <!-- ★THE ARIA-LABEL IS THE ACCESSIBLE NAME AND IT WINS (design lens copy, 2026-09-15). Rendered in
+             both languages and compared, these four controls came back byte-identical: a Filipino
+             supervisor filtered his own audit log through English labels and English placeholders. The
+             data-ia / data-ip passes in whI18nApply exist for exactly this and this page carried none. -->
+        <input id="actor-filter" list="actor-filter-options" type="text" class="filter-select" aria-label="Filter by actor" data-ia="al_ia_actor" placeholder="All actors" data-ip="al_ip_actor" autocomplete="off" />
         <datalist id="actor-filter-options"></datalist>
-        <input id="action-filter" list="action-filter-options" type="text" class="filter-select" aria-label="Filter by action" placeholder="All actions" autocomplete="off" />
+        <input id="action-filter" list="action-filter-options" type="text" class="filter-select" aria-label="Filter by action" data-ia="al_ia_action" placeholder="All actions" data-ip="al_ip_action" autocomplete="off" />
         <datalist id="action-filter-options"></datalist>
-        <input id="target-filter" list="target-filter-options" type="text" class="filter-select" aria-label="Filter by target type" placeholder="All targets" autocomplete="off" />
+        <input id="target-filter" list="target-filter-options" type="text" class="filter-select" aria-label="Filter by target type" data-ia="al_ia_target" placeholder="All targets" data-ip="al_ip_target" autocomplete="off" />
         <datalist id="target-filter-options"></datalist>
-        <input id="search-input" class="filter-input" type="search" placeholder="Search target name or actor..." aria-label="Search audit entries" />
+        <input id="search-input" class="filter-input" type="search" placeholder="Search target name or actor..." data-ip="al_ip_search" aria-label="Search audit entries" data-ia="al_ia_search" />
       </div>
       <div class="filter-row">
         <div class="filter-actions">
-          <button id="btn-export" class="btn-export" type="button" aria-label="Export filtered entries to CSV" data-i="exportcsv">⬇ Export CSV</button>
-          <button id="btn-clear" class="btn-clear" type="button" aria-label="Clear all filters" data-i="clearfilters">Clear filters</button>
+          <!-- data-i has translated the visible text of these two since long before this walk; the aria-label
+               never was, and it OVERRIDES the visible text for the accessible name. So the same button read
+               "I-export sa CSV" and announced "Export filtered entries to CSV". -->
+          <button id="btn-export" class="btn-export" type="button" aria-label="Export filtered entries to CSV" data-ia="al_ia_export" data-i="exportcsv">⬇ Export CSV</button>
+          <button id="btn-clear" class="btn-clear" type="button" aria-label="Clear all filters" data-ia="al_ia_clear" data-i="clearfilters">Clear filters</button>
         </div>
         <div id="filter-summary" class="filter-summary"></div>
       </div>
@@ -430,13 +472,34 @@
   }
 
   // ── State ──────────────────────────────────────────────────────────────────
+  // ★`translate="no"` GUARDED THE ABSENCE OF A TRANSLATION (design lens copy, 2026-09-15). These five
+  // labels were English literals rendered with translate="no", which asks a browser not to
+  // machine-translate them - correct for a unit like "24h", and on "7 days" / "30 days" / "90 days" /
+  // "All time" it forbade the only translation that was ever going to happen. The Filipino is ours now,
+  // and the attribute guards our words rather than their absence. `fil` sits beside `label` rather than
+  // calling _t() here because this table is built at parse time and _t belongs to the shared chrome; the
+  // choice is made at RENDER, where the language is known and settled.
   const RANGES = [
-    { id: '24h',  label: '24h',   hours: 24 },
-    { id: '7d',   label: '7 days', hours: 24 * 7 },
-    { id: '30d',  label: '30 days', hours: 24 * 30 },
-    { id: '90d',  label: '90 days', hours: 24 * 90 },
-    { id: 'all',  label: 'All time', hours: null },
+    { id: '24h',  label: '24h',      fil: '24h',                hours: 24 },
+    { id: '7d',   label: '7 days',   fil: '7 araw',             hours: 24 * 7 },
+    { id: '30d',  label: '30 days',  fil: '30 araw',            hours: 24 * 30 },
+    { id: '90d',  label: '90 days',  fil: '90 araw',            hours: 24 * 90 },
+    { id: 'all',  label: 'All time', fil: 'Lahat ng panahon',   hours: null },
   ];
+  // The ids this feed has already painted. A row animates its arrival only if it is not in here, which is
+  // what separates "a new record landed" from "the 30-second poll re-rendered the same thirty rows". Empty
+  // until the first paint completes, so the first paint - thirty rows at once - stays still.
+  // ★HERE, WITH THE OTHER MODULE STATE, FOR THE REASON THE NOTE BELOW ALREADY GIVES (design lens motion,
+  // 2026-09-15). Declared beside renderFeed instead, it sat in its temporal dead zone when loadEntries
+  // reached the render from its async start: ReferenceError on every paint, measured live as an audit log
+  // with zero rows. The same failure this file's _filterVocabPartial comment was written after.
+  const _paintedIds = new Set();
+  // ★NOVELTY IS NOT ARRIVAL (design lens motion, 2026-09-15). "A row the feed has never painted" also
+  // describes Load more, a widened date range and a cleared filter - thirty unseen rows at once, every one
+  // of them fetched because the reader asked. Animating those is the wall of motion this animation exists
+  // to avoid, and it would bury the single case worth marking. A poll is the only render on this page the
+  // reader did not initiate, so agency is what the flag records, not newness.
+  let _fromPoll    = false;
   let _entries     = [];
   let _entriesTotal = null;   // the hive's TOTAL rows for the honest cap line ('latest 500 (N total)') - was read but never declared: ReferenceError on every render (2026-09-06)
   // whether the VOICE half of the timeline could be read. A failed read is not an empty one: without this
@@ -493,7 +556,9 @@
   // reads). Same UX intent (the feed self-refreshes), zero realtime channel cost.
   function subscribeRealtime() {
     if (_realtimeSub) return;
-    _realtimeSub = whPoll(loadEntries, 30000, { immediate: false });  // first load already ran
+    // The flag is set HERE, at the only call site the reader did not make. loadEntries is also called by
+    // the filters, the range chips and Load more, and none of those should mark anything as arriving.
+    _realtimeSub = whPoll(() => { _fromPoll = true; return loadEntries(); }, 30000, { immediate: false });  // first load already ran
   }
   function unsubscribeRealtime() {
     if (!_realtimeSub) return;
@@ -587,8 +652,17 @@
       // two tables now, and the chip says so: a chip naming one source beside a feed carrying two is the
       // same class of untruth this page exists to prevent
       source:    'hive_audit_log + ai_audit_log',
-      notes:     ['Supervisor-only · hive-scoped', 'Filters: actor / action / target-type / date range',
-                  'Voice-driven actions appear with target type “voice”'],
+      // ★THE CHIP EXPLAINED ITSELF IN ENGLISH ON A FILIPINO PAGE (design lens copy, 2026-09-15).
+      // renderSourceChip translates the freshness and names the tables in both languages; these three
+      // notes are literals from this page and were not translated, so a Filipino supervisor opening
+      // "How this is computed" got the freshness in his language and the substance in another. Behind a
+      // closed disclosure, which is why a rest-state walk could not see it - it took opening the thing.
+      notes:     [_t('Supervisor-only · hive-scoped',
+                     'Supervisor lang · nakatali sa hive'),
+                  _t('Filters: actor / action / target-type / date range',
+                     'Mga filter: gumawa / aksyon / uri ng target / saklaw ng petsa'),
+                  _t('Voice-driven actions appear with target type “voice”',
+                     'Ang mga aksyong gawa sa boses ay lilitaw na may target type na “voice”')],
     });
   }
   await loadEntries();
@@ -717,7 +791,7 @@
     const e = escHtml;
     document.getElementById('date-filters').innerHTML = RANGES.map(r => {
       const active = r.id === _activeRange ? ' active' : '';
-      return '<button class="chip' + active + '" data-range="' + e(r.id) + '" role="tab" aria-selected="' + (active ? 'true' : 'false') + '" translate="no">' + e(r.label) + '</button>';
+      return '<button class="chip' + active + '" data-range="' + e(r.id) + '" role="tab" aria-selected="' + (active ? 'true' : 'false') + '" translate="no">' + e(_t(r.label, r.fil)) + '</button>';
     }).join('');
     document.querySelectorAll('#date-filters .chip').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -913,7 +987,11 @@
       const detail = Object.assign({}, meta || {}, nameIsUuid ? { id: en.target_id || en.target_name } : {});
       const hasDetail = Object.keys(detail).length > 0;
 
-      return '<div class="entry action-' + e(actionClass) + '">'
+      // A row ARRIVED only if this render came from the poll and the feed has never painted this row.
+      // Both halves are needed: without _fromPoll, Load more animates thirty rows; without _paintedIds,
+      // every poll animates all thirty again.
+      const isNew = _fromPoll && !_paintedIds.has(en.id);
+      return '<div class="entry action-' + e(actionClass) + (isNew ? ' entry-new' : '') + '">'
            +   '<div class="entry-icon">' + e(icon) + '</div>'
            +   '<div class="entry-body">'
            +     '<div class="entry-head">'
@@ -924,8 +1002,18 @@
            +       '<span class="entry-time" title="' + e(en.created_at || '') + '">' + e(fmtRelative(en.created_at)) + '</span>'
            +     '</div>'
            +     (hasDetail
-                  ? '<button class="entry-meta-toggle" data-id="' + e(en.id) + '" aria-expanded="' + (expanded ? 'true' : 'false') + '" data-i="showdetails">'
-                    + (expanded ? '▾ Hide details' : '▸ Show details')
+                  /* ★THE LABEL CONTRADICTED THE STATE, IN ONE LANGUAGE ONLY (design lens copy, 2026-09-15).
+                     The key was fixed at "showdetails" in the markup while the words were written by a
+                     ternary. In English the ternary wins and the button reads "Hide details" when open;
+                     in Filipino the dictionary pass overwrites it with "Ipakita ang detalye" - "Show
+                     details" - on rows that are ALREADY OPEN. aria-expanded was correct the whole time,
+                     so the defect was visible only to someone reading, and only in Filipino. The key
+                     follows the state now, and the arrow moves OUT of the translated node so it survives
+                     the pass in both languages instead of being replaced along with the words. */
+                  ? '<button class="entry-meta-toggle" data-id="' + e(en.id) + '" aria-expanded="' + (expanded ? 'true' : 'false') + '">'
+                    + '<span aria-hidden="true">' + (expanded ? '▾ ' : '▸ ') + '</span>'
+                    + '<span data-i="' + (expanded ? 'hidedetails' : 'showdetails') + '">'
+                    + (expanded ? 'Hide details' : 'Show details') + '</span>'
                     + '</button>'
                     + (expanded ? '<div class="entry-meta">' + metaRows(detail).map(r =>
                           '<div><span class="meta-k">' + e(r[0]) + '</span> ' + e(r[1]) + '</div>').join('') + '</div>' : '')
@@ -933,6 +1021,10 @@
            +   '</div>'
            + '</div>';
     }).join('');
+    // AFTER the markup is built, never before: the check above asks whether a row was painted in a PREVIOUS
+    // pass, so marking them as we go would make every row look already-seen and the animation would never run.
+    visible.forEach((en) => _paintedIds.add(en.id));
+    _fromPoll = false;   // consumed: the next render is the reader's until the poll says otherwise
 
     document.querySelectorAll('.entry-meta-toggle').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -1086,7 +1178,17 @@
 <!-- U3 status-feedback: persistent polite live region (STREAMLINE E2). showToast/whListError announce here; screen readers get status, never a silent fetch. -->
 <div id="toast" role="alert" aria-live="polite"></div>
 
-<script>window.WH_FIL_PAGE={al_title:'Audit Log',al_activity:'Aktibidad'};</script>
+<script>window.WH_FIL_PAGE={
+  al_title:'Audit Log', al_activity:'Aktibidad',
+  // The names and the placeholders of the page's whole filter apparatus - eleven controls that came
+  // back byte-identical when this page was rendered in both languages and compared.
+  al_ia_actor:'Salain ayon sa gumawa',        al_ip_actor:'Lahat ng gumawa',
+  al_ia_action:'Salain ayon sa aksyon',       al_ip_action:'Lahat ng aksyon',
+  al_ia_target:'Salain ayon sa uri ng target', al_ip_target:'Lahat ng target',
+  al_ia_search:'Maghanap sa audit log',       al_ip_search:'Maghanap ng pangalan ng target o gumawa...',
+  al_ia_export:'I-export ang mga na-filter na entry sa CSV',
+  al_ia_clear:'I-clear ang lahat ng filter'
+};</script>
   <!-- AV1 (FULLSTACK_COMPONENT_LIBRARY Layer AV): the offline canonical set — ships as one unit -->
   <script src="offline-banner.js"></script>
   <script defer src="offline-queue.js"></script>

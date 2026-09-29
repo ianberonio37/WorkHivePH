@@ -6,12 +6,12 @@ Source: https://workhiveph.com/tools/pump-tdh-calculator/
 
 Pump TDH Calculator
 Static · formula-only · worked example computed when this page was built · no live data G1+E3 
-**The Pump TDH Calculator sizes a pump and motor from Total Dynamic Head (TDH) = static head + friction head + velocity head. Example: for a 200 L/min pump lifting water 15 m through 60 m of 50 mm PVC pipe, Total Dynamic Head = 18.12 m, Pipe velocity = 1.54 m/s, Recommended motor = 1.1 kW, NPSH available = 9.44 m (per ISO 9906 | PSME Code | ASHRAE 2021 Ch.22).**
+**The Pump TDH Calculator sizes a pump and motor from Total Dynamic Head (TDH) = static head + friction head + velocity head. Example: for a 200 L/min pump lifting water 15 m through 60 m of 50 mm PVC pipe, at 30 °C fluid temperature, at 90% motor efficiency, Total Dynamic Head = 18.12 m, Pipe velocity = 1.54 m/s, Recommended motor = 1.1 kW, NPSH available = 9.44 m (per ISO 9906 | PSME Code | ASHRAE 2021 Ch.22).**
 How it works
-TDH = H_static + H_friction + H_velocity, where friction head uses Darcy–Weisbach with the Colebrook–White friction factor and real water properties at the operating temperature.
+TDH = H_static + H_friction + H_velocity, where friction head uses Darcy–Weisbach with the Colebrook–White friction factor and real water properties at the operating temperature. Anything the worked example does not state uses this calculator's standard default; the interactive version shows every input and lets you change it.
 I2: reserved block 
 Worked example (Plumbing & Pumps)
-Inputs: a 200 L/min pump lifting water 15 m through 60 m of 50 mm PVC pipe.
+Inputs: a 200 L/min pump lifting water 15 m through 60 m of 50 mm PVC pipe, at 30 °C fluid temperature, at 90% motor efficiency.
 ResultValue
 Total Dynamic Head18.12 m
 Pipe velocity1.54 m/s
@@ -19,7 +19,7 @@ Recommended motor1.1 kW
 NPSH available9.44 m
 Computed by WorkHive's calculation engine when this page was built; standard: ISO 9906 | PSME Code | ASHRAE 2021 Ch.22.
 How to use this calculator
-Read the worked example. It uses a 200 L/min pump lifting water 15 m through 60 m of 50 mm PVC pipe and shows every number in the method.
+Read the worked example. It uses a 200 L/min pump lifting water 15 m through 60 m of 50 mm PVC pipe, at 30 °C fluid temperature, at 90% motor efficiency and shows every number in the method.
 Follow the formula with your own figures: it returns Total Dynamic Head, Pipe velocity, Recommended motor, NPSH available, computed per ISO 9906 | PSME Code | ASHRAE 2021 Ch.22.
 To compute interactively, open the Pump TDH Calculator inside WorkHive's free Engineering Design suite (link below). It runs the same method with your inputs.
 FAQ
@@ -35,4 +35,4 @@ Related calculators
 [Roof Drain Sizing Calculator](https://workhiveph.com/tools/roof-drain-calculator/)
 [Predictive maintenance on a budget](https://workhiveph.com/learn/predictive-maintenance-on-a-budget-philippines/)
 
-<!-- md-twin source-sha: 851b038cc96ff7ec -->
+<!-- md-twin source-sha: e236b04818d4258d -->

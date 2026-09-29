@@ -186,7 +186,10 @@
       max-height: 90vh; overflow-y: auto;
     }
     .wh-voice-title {
-      font-size: 0.66rem; letter-spacing: 0.10em; text-transform: uppercase;
+      /* ★BELOW THE PLATFORM'S OWN 12px FLOOR ON EVERY PAGE (design lens critique W45908, measured
+       live on dayplanner at 390 and 1280, 2026-09-15). Found by sweeping one page's text nodes; none
+       of the five offenders belonged to that page - they are all shared chrome. */
+      font-size: 0.75rem; letter-spacing: 0.10em; text-transform: uppercase;
       color: rgba(255,255,255,0.6); margin-bottom: 0.4rem;
     }
     .wh-voice-status {
@@ -221,11 +224,11 @@
       margin-bottom: 0.55rem;
     }
     .wh-voice-kind {
-      font-size: 0.62rem; letter-spacing: 0.08em; text-transform: uppercase;
+      font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase;
       color: var(--wh-orange, #F7A21B); font-weight: 700;
     }
     .wh-voice-conf {
-      font-size: 0.62rem; color: rgba(255,255,255,0.5); float: right;
+      font-size: 0.75rem; color: rgba(255,255,255,0.5); float: right;
     }
     .wh-voice-summary {
       font-size: 0.92rem; line-height: 1.45; margin: 0.4rem 0 0.4rem;
@@ -234,7 +237,7 @@
     .wh-voice-asset-pill {
       display: inline-block; padding: 2px 9px; border-radius: 999px;
       background: rgba(247,162,27,0.18); color: #ffc566;
-      font-size: 0.66rem; font-weight: 700; letter-spacing: 0.04em;
+      font-size: 0.75rem; font-weight: 700; letter-spacing: 0.04em;
       margin-right: 0.35rem;
     }
     .wh-voice-asset-pill.ambiguous { background: rgba(239,87,87,0.18); color: #ff8a8a; }
@@ -341,7 +344,7 @@
         <div id="wh-voice-rec-row" class="wh-voice-rec-row">
           <span class="wh-voice-dot"></span>
           <span class="wh-voice-elapsed" id="wh-voice-elapsed">0:00</span>
-          <span style="margin-left:auto;font-size:0.7rem;color:rgba(255,255,255,0.4);">Tap Stop when done</span>
+          <span style="margin-left:auto;font-size:0.75rem;color:rgba(255,255,255,0.62);">Tap Stop when done</span>
         </div>
         <!-- T79 (2026-08-27) VOCABULARY DISCOVERABILITY. This overlay said "Voice command",
              "Listening..." and "Tap Stop when done" — and never what you may SAY. The router
@@ -355,7 +358,7 @@
              (logbook.create / inventory.deduct / pm.complete / asset.lookup / query.ask) rather
              than invented, so the hint cannot promise a command the router does not route.
              Hidden once a transcript arrives — it is for the moment before you speak. -->
-        <div id="wh-voice-vocab" class="wh-voice-vocab" style="font-size:0.68rem;line-height:1.55;color:rgba(255,255,255,0.62);margin:0.15rem 0 0.55rem;">
+        <div id="wh-voice-vocab" class="wh-voice-vocab" style="font-size:0.75rem;line-height:1.55;color:rgba(255,255,255,0.72);margin:0.15rem 0 0.55rem;">
           Try: &ldquo;log a repair on Pump 2&rdquo; &middot; &ldquo;used 2 bearings&rdquo; &middot;
           &ldquo;PM done on Line 3&rdquo; &middot; &ldquo;what is Pump 2&rsquo;s history&rdquo;
         </div>

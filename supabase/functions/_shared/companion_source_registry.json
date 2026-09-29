@@ -1,5 +1,5 @@
 {
-  "_comment": "THE SOURCES GATEWAY (Ian 2026-06-14). Single declarative registry of every platform data source the AI Companion can read. The companion's ops-snapshot fetcher (ai-gateway buildOpsSnapshot) and the fabrication grader's ground_truth() BOTH read this so they never drift; validate_companion_source_coverage.py (Layer 0 ratchet) enforces that EVERY v_*_truth view is triaged here (served, or served:false with a reason). Add a new source = add an entry here. status: served=wired into the always-on snapshot; candidate=worker-relevant, queued for Pillar R on-demand fetch; out_of_scope=not a worker-companion concern.",
+  "_comment": "THE SOURCES GATEWAY (Ian 2026-06-14). Single declarative registry of every platform data source the AI Companion can read. The companion's ops-snapshot fetcher (ai-gateway buildOpsSnapshot) and the fabrication grader's ground_truth() BOTH read this so they never drift; validate_companion_source_coverage.py (Layer 0 ratchet) enforces that EVERY v_*_truth view is triaged here (served, or served:false with a reason). Add a new source = add an entry here. status: served=wired into the always-on snapshot; candidate=worker-relevant, queued for Pillar R on-demand fetch; out_of_scope=not a worker-companion concern. || Filipino/Taglish terms added to every on-demand match array (design lens critique, 2026-09-15): _msgMatchesKeywords lowercases and substring-matches with no translation step, so these arrays were an English-only lock on the grounding - while the assistant page promised the logbook IN FILIPINO and invited Filipino questions with its starter chips. 121 keywords, 0 Filipino, before this. Engineering nouns stay English the way a Philippine plant says them; the verbs and question words are Filipino. Short roots (sira) are deliberate: substring matching makes one root cover nasira, masira, sirang and pagkasira.",
   "version": 2,
   "created": "2026-06-14",
   "_engine": "served entries may carry an `engine` spec (declarative fetch+aggregate+render) run by ai-gateway buildFromRegistry() — register, don't wire. Entries with only `helper` still use a hand-coded fn (being migrated to specs). Aggregation kinds: count, count_where{any:[flags]|eq:[field,value]|gte:[field,n] — AND-combined, each optional}, avg_of{field}, list_where{any:[flags],item,join,limit}, top_n_by{field,dir,n,item,join}, take{n,item,join}, count_distinct{field}, distinct_list{field,limit,join}.",
@@ -268,7 +268,12 @@
         "manufacturer",
         "which assets",
         "asset list",
-        "criticality"
+        "criticality",
+        "nasaan ang",
+        "anong asset",
+        "kondisyon ng",
+        "detalye ng asset",
+        "gamit na"
       ],
       "engine": {
         "select": "tag,name,criticality,status,location,manufacturer",
@@ -302,7 +307,10 @@
         "condition report",
         "verified state",
         "latest state",
-        "asset condition"
+        "asset condition",
+        "kalagayan ng asset",
+        "anong kalagayan",
+        "estado ng asset"
       ],
       "engine": {
         "order": {
@@ -355,7 +363,21 @@
         "broke down",
         "stopped working",
         "machines failed",
-        "breakdowns"
+        "breakdowns",
+        "sira",
+        "nasira",
+        "nabuwag",
+        "tumigil",
+        "natigil",
+        "nag-down",
+        "bumagsak",
+        "palya",
+        "aberya",
+        "hindi umaandar",
+        "nag-trip",
+        "nasunog",
+        "anong nangyari",
+        "huminto ang"
       ],
       "engine": {
         "order": {
@@ -391,7 +413,11 @@
         "abnormal",
         "detected anything",
         "outlier",
-        "something wrong"
+        "something wrong",
+        "kakaiba",
+        "hindi normal",
+        "may mali",
+        "kahina-hinala"
       ],
       "engine": {
         "select": "machine,severity,composite_score,status",
@@ -428,7 +454,11 @@
         "temperature",
         "current draw",
         "telemetry",
-        "live reading"
+        "live reading",
+        "temperatura",
+        "pagbasa ng sensor",
+        "panginginig",
+        "lakas ng kuryente"
       ],
       "engine": {
         "order": {
@@ -475,7 +505,10 @@
         "rpn",
         "effects analysis",
         "what can fail",
-        "failure analysis"
+        "failure analysis",
+        "paraan ng pagkasira",
+        "anong pwedeng masira",
+        "suri ng pagkasira"
       ],
       "engine": {
         "select": "asset_tag,failure_mode,severity,occurrence,detection,rpn",
@@ -511,7 +544,10 @@
         "maintenance strategy",
         "maintenance decision",
         "rcm decision",
-        "what strategy"
+        "what strategy",
+        "estratehiya sa maintenance",
+        "anong estratehiya",
+        "desisyon sa maintenance"
       ],
       "engine": {
         "select": "decision,task_text,interval_days",
@@ -558,7 +594,10 @@
         "wear-out",
         "wearout",
         "failure pattern",
-        "reliability fit"
+        "reliability fit",
+        "padron ng pagkasira",
+        "pattern ng sira",
+        "gasgas na"
       ],
       "engine": {
         "select": "beta,eta_days,failure_pattern,n_failures",
@@ -598,7 +637,10 @@
         "pf curve",
         "potential failure",
         "inspection interval",
-        "detection interval"
+        "detection interval",
+        "agwat ng inspeksyon",
+        "bago tuluyang masira",
+        "panahon ng inspeksyon"
       ],
       "engine": {
         "select": "parameter,pf_days,recommended_interval_days",
@@ -662,7 +704,13 @@
         "capacity",
         "who has",
         "busy",
-        "available worker"
+        "available worker",
+        "sino ang",
+        "sino na",
+        "kanino naka",
+        "abala",
+        "bakante",
+        "may ginagawa"
       ],
       "engine": {
         "select": "worker_name,role,open_jobs,jobs_30d,capacity_signal",
@@ -712,7 +760,11 @@
         "project owner",
         "project budget",
         "deliverable",
-        "what projects"
+        "what projects",
+        "anong proyekto",
+        "mga proyekto",
+        "may-ari ng proyekto",
+        "badyet ng proyekto"
       ],
       "engine": {
         "select": "name,project_code,status,owner_name,item_count,items_done",
@@ -748,7 +800,11 @@
         "overdue task",
         "blocked task",
         "work breakdown",
-        "milestone"
+        "milestone",
+        "gawain",
+        "mga gawain",
+        "naka-block na gawain",
+        "lagpas na gawain"
       ],
       "engine": {
         "select": "title,status,is_done,is_overdue,is_blocked,project_name",
@@ -808,7 +864,10 @@
         "annual maintenance",
         "maintenance contract",
         "service agreement",
-        "sla"
+        "sla",
+        "kontrata",
+        "kasunduan sa serbisyo",
+        "taunang kontrata"
       ],
       "engine": {
         "order": {
@@ -856,7 +915,12 @@
         "market place",
         "buy parts",
         "used parts",
-        "spare for sale"
+        "spare for sale",
+        "ipinagbibili",
+        "binebenta",
+        "bilhin",
+        "pangalawang kamay",
+        "sobrang parts"
       ],
       "engine": {
         "select": "section,title,status,is_published,is_sold",

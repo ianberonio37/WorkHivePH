@@ -75,12 +75,12 @@ Notice what is NOT in this handover: long narrative paragraphs, troubleshooting 
 
 ## The handover that prevented a ₱180,000 loss
 
-In one of the plants we work with, a graveyard handover similar to the one above noted "Conveyor 3 Motor 3B vibration rising, 2.1 to 4.8 mm/s in 7 hours" as a P1 item. The morning supervisor escalated it within the first hour, ordered the standby motor swap during the 10 AM changeover, and prevented a full-line stop during the 1 PM peak production window.
+Here is what that discipline is worth, worked through on the same line as the example above. A graveyard handover noted "Conveyor 3 Motor 3B vibration rising, 2.1 to 4.8 mm/s in 7 hours" as a P1 item. The morning supervisor escalated it within the first hour, ordered the standby motor swap during the 10 AM changeover, and prevented a full-line stop during the 1 PM peak production window.
 
 The math:
 
 - Planned 45-minute motor swap during scheduled changeover: cost ≈ ₱0 (already-scheduled downtime).
-- Unplanned motor failure mid-production: 4-hour line stop × ₱45,000/hr in lost revenue ≈ **₱180,000**, plus emergency motor purchase markup.
+- Unplanned motor failure mid-production: a 4-hour line stop at an assumed ₱45,000/hr in lost revenue ≈ **₱180,000**, plus emergency motor purchase markup.
 
 The supervisor who wrote the P1 entry did not know any of this would happen. He just followed the template: a measurement, a trend, a priority. The discipline produced the catch. The catch produced the saving. Without the written handover, the morning supervisor would have walked the line at 7 AM, noticed the noise himself, and started planning at 8 AM. By then the motor would have been dying for 9 hours instead of 7. The window to act would have closed.
 
@@ -108,9 +108,9 @@ The big difference is not the writing experience; it is theread experience three
 
 The tool this guide is about
 
-#### WorkHive Shift Brain auto-drafts the handover from your Logbook entries
+### WorkHive Shift Brain auto-drafts the handover from your Logbook entries
 
-Every entry your team logs during the shift gets categorised and prioritised. At end of shift, Shift Brain auto-fills the 5-section handover. The supervisor edits in 5 minutes instead of writing from scratch in 15, and submits. The incoming supervisor sees it the moment they log in. Free at the worker tier forever.
+Shift Brain reads the shift’s logbook entries and drafts the handover for you, so the supervisor edits rather than writes from scratch. It organises the draft the way a handover actually needs to be read: what was opened this shift, separated from what is carrying forward from previous ones, with the overdue items flagged, and it raises a banner when any entry mentions an isolation or permit-to-work. Then you **copy or print it**, with a signature block for outgoing and incoming. Note what that means: the handover is a document you hand over, not a record the next supervisor finds waiting at login, so sending it is still a step someone has to take. Free at the worker tier forever.
 
 No hive yet? [Join WorkHive](https://workhiveph.com/?signup=1) first (free, takes 30 seconds).
 
@@ -172,4 +172,4 @@ The logbook captures individual events as they happen during the shift. The hand
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: fd79b37829e5e8e8 -->
+<!-- md-twin source-sha: 76d1312c1a85dff0 -->

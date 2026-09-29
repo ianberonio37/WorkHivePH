@@ -14,7 +14,7 @@ Updated 24 Aug 2026
 ·
 7 min read
 
-**Short answer:** An industrial community of practice is a forum where workers from multiple plants share fault solutions, ask questions, and learn from each other without violating per-plant confidentiality. Done well, it cuts repeat-fault troubleshooting time across the country by 30 to 50 percent because a worker in Cebu can find the answer that a worker in Cabuyao posted last month. WorkHive Community runs this layer with anonymised sharing, hive-scoped posting, and Filipino-friendly moderation.
+**Short answer:** An industrial community of practice is a forum where workers from multiple plants share fault solutions, ask questions, and learn from each other without violating per-plant confidentiality. Done well, the second plant to meet a fault does not start from zero: a worker in Cebu finds the answer a worker in Cabuyao posted last month, and the hours they save are the hours the first plant already paid for. WorkHive Community runs this layer with hive-scoped posting by default, an explicit opt-in to share across plants, and Filipino-friendly moderation. Posts are always signed; what keeps them safe to share is leaving the identifying detail out.
 
 Who this is for
 
@@ -28,7 +28,7 @@ Who this is for
 
 ## Why plants need a community of practice
 
-Every Philippine plant rediscovers the same faults independently. A bearing failure mode that a Cabuyao plant solved in 2023 will get rediscovered by a Cebu plant in 2026, costing the second plant 40 hours of troubleshooting and 200,000 pesos of downtime. The knowledge exists; it just is not shared.
+Every Philippine plant rediscovers the same faults independently. A bearing failure mode that a Cabuyao plant solved in 2023 will get rediscovered by a Cebu plant in 2026, and the second plant pays again, in troubleshooting hours and stopped production, for something already solved. The knowledge exists; it just is not shared.
 
 A community of practice fixes this without violating confidentiality. The fault description, the diagnostic steps, the fix, and the lesson learned can be shared across plants without revealing which plant or which asset. The next worker to face the same fault searches the community, finds the answer, and saves the day.
 
@@ -36,24 +36,27 @@ This is the single most under-built layer of Philippine industrial knowledge. Wo
 
 ## How WorkHive Community works
 
-Workers post questions and answers in the Community surface. Posts are visible across all hives by default (with the option to keep hive-private). Each post is tagged with the asset type (pump, motor, conveyor), the fault category (mechanical, electrical, instrumentation), and the work discipline (PM, troubleshoot, project).
+Workers post questions and answers in the Community surface. **A post stays inside your own hive unless you tick the box that makes it public** — that is the default, and the form says so while you are writing: “This stays inside your hive. Only your hive-mates can read it, and it will not appear on the public Global feed.” Each post is tagged with the asset type (pump, motor, conveyor), the fault category (mechanical, electrical, instrumentation), and the work discipline (PM, troubleshoot, project).
 
 Other workers across the country can search, upvote, comment, and reference the post in their own logbook entries. The AI Assistant indexes the community content and surfaces relevant answers when a similar question is asked in any hive.
 
-## Anonymity and hive-scoped sharing
+## Who can see your post, and whose name is on it
 
-Three sharing modes balance learning with confidentiality:
+**There is no anonymous posting in WorkHive Community, and you should know that before you write anything sensitive.** Every post carries the author's name. There are two modes, and the difference between them is REACH, not attribution:
 
-- **Public anonymous:** the question and answer are visible to all hives but stripped of plant name, asset code, and worker name. This is the default for fault-pattern posts that any plant could benefit from.
-- **Public attributed:** the worker chooses to attribute the post to themselves (not the plant) to build personal reputation. Common for senior technicians and OFW-track engineers.
-- **Hive-private:** the post stays within the originating hive. Common for plant-specific operational questions.
+- **Hive-only (the default):** your hive-mates can read it. Your name is on it, and your supervisor is one of your hive-mates.
+- **Public (a checkbox you tick):** workers in any hive can read it and search it, which is how a fault solved in Cabuyao reaches Cebu. Your name is still on it.
+
+What you CAN control is what you put in the post. Describe the failure mode, the diagnostic steps and the fix; leave out the plant name, the asset tag and anything that identifies a customer or a person. That is how the knowledge crosses plants without the confidential detail going with it, and it is a discipline you apply while writing, not a mode the software applies for you.
+
+**If you need to raise something without your name attached: a safety concern about a supervisor, a pressured shortcut, anything you would not sign: Community is the wrong channel.** Use your plant's grievance procedure or DOLE's reporting channels, which are built for that and this is not.
 
 ## Filipino-friendly moderation
 
 Posts can be in English, Filipino, or Taglish. Moderation handles three things:
 
 - Spam and off-topic removal (1-day SLA)
-- Confidential data leakage (plant name accidentally mentioned, photos with visible asset tags); flagged for re-anonymisation
+- Confidential data leakage: a plant name mentioned in passing, a photo with a visible asset tag: flagged so the author can edit or delete it. Note that this is a cleanup after the fact, not a guarantee before it: the post was readable until someone flagged it.
 - Vendor pitching dressed as helpful answers (allowed if disclosed, removed if hidden)
 
 The moderation team is Filipino-speaking. Posts are not auto-translated; the language stays the language the worker chose.
@@ -68,9 +71,9 @@ The moderation team is Filipino-speaking. Posts are not auto-translated; the lan
 
 The tool this guide is about
 
-#### WorkHive Community is the cross-plant knowledge layer
+### WorkHive Community is the cross-plant knowledge layer
 
-Post questions, answer others, search by asset type or fault category. Hive-scoped or anonymised public modes. AI Assistant pulls Community answers into in-hive diagnostics automatically. Free at the worker tier; moderation in Filipino, English, and Taglish.
+Post questions, answer others, search by asset type or fault category. Hive-only by default, public across plants when you choose it: always under your own name. AI Assistant pulls Community answers into in-hive diagnostics automatically. Free at the worker tier; moderation in Filipino, English, and Taglish.
 
 No hive yet? [Join WorkHive](https://workhiveph.com/?signup=1) first (free, takes 30 seconds).
 
@@ -82,15 +85,15 @@ A forum where workers from multiple plants share fault solutions, ask questions,
 
 ### How is my plant data kept private when I post?
 
-Three modes: public anonymous (post visible to all but plant name and asset code stripped), public attributed (you choose to attribute to yourself for reputation), or hive-private (stays within your plant). Default is public anonymous for fault patterns. Confidential leakage is moderated within 1 business day.
+By what you leave out, not by a mode the software applies. A post stays inside your hive unless you tick the box to make it public, and either way it carries your name. So write the failure mode, the diagnosis and the fix, and leave out the plant name, the asset tag and anything identifying. If confidential detail does slip in, flagging it lets the author edit or delete it, usually within a business day - but that is a cleanup, not a guarantee.
 
 ### Can I use Filipino or Taglish in posts?
 
 Yes. Posts can be in English, Filipino, or Taglish. The moderation team is Filipino-speaking. Posts are not auto-translated; the language stays the language the worker chose. Search works across all three languages so a Filipino post is findable when an English search runs.
 
-### Will my employer see what I post anonymously?
+### Can I post anonymously, and can my employer see what I write?
 
-Not by default. Anonymous posts strip plant name and worker name from the public view. The hive supervisor can see attributed posts from their workers but not anonymous ones unless the worker chooses to disclose authorship. WorkHive does not share anonymous post authorship with employers.
+Yes. There is no anonymous posting: every post carries your name, and your supervisor is a member of your hive, so they can read what you write there. Please do not treat Community as a confidential channel. If you need to raise a safety concern or a complaint without your name attached, use your plant's grievance procedure or DOLE's reporting channels instead.
 
 ### How does the AI Assistant use Community content?
 
@@ -109,4 +112,4 @@ Allowed with disclosure (vendor identifies themselves and offers a useful answer
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 9791eed6f7814db7 -->
+<!-- md-twin source-sha: f3360896ee146d82 -->

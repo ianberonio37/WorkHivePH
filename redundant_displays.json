@@ -82,29 +82,6 @@
       "why": "Fault history on 9 surfaces (timeline, context panels) = the platform's spine; highest blast radius. Keep, but Phase-D should make its cross-page effect VISIBLE."
     },
     {
-      "terminus_table": "marketplace_listings",
-      "is_infra": false,
-      "display_pages": [
-        "asset-hub",
-        "community",
-        "founder-console",
-        "marketplace",
-        "marketplace-admin",
-        "marketplace-seller",
-        "marketplace-seller-profile",
-        "platform-actions",
-        "project-manager"
-      ],
-      "page_count": 9,
-      "via_canonical_views": [
-        "v_marketplace_listings_truth"
-      ],
-      "verdict": "KEEP",
-      "canonical_home": "marketplace.html",
-      "ux_law": "DRY",
-      "why": "Listings surfaced on 6 marketplace-family pages + asset-hub spares; one v_marketplace_listings_truth. Keep."
-    },
-    {
       "terminus_table": "inventory_items",
       "is_infra": false,
       "display_pages": [
@@ -170,25 +147,25 @@
       "why": "PM due/overdue on 5 surfaces, all v_pm_scope_items_truth. Reinforcement is fine; deep-link all to pm-scheduler; enforce is_overdue/is_due_soon."
     },
     {
-      "terminus_table": "marketplace_sellers",
+      "terminus_table": "marketplace_listings",
       "is_infra": false,
       "display_pages": [
-        "community",
+        "asset-hub",
         "founder-console",
         "marketplace",
         "marketplace-admin",
         "marketplace-seller",
-        "marketplace-seller-profile",
-        "platform-actions"
+        "platform-actions",
+        "project-manager"
       ],
       "page_count": 7,
       "via_canonical_views": [
-        "v_marketplace_sellers_truth"
+        "v_marketplace_listings_truth"
       ],
-      "verdict": "KEEP-context",
-      "canonical_home": "marketplace-seller.html",
-      "ux_law": "context read",
-      "why": "Seller profile/tier read across marketplace-family; KEEP (Ian 2026-06-29)."
+      "verdict": "KEEP",
+      "canonical_home": "marketplace.html",
+      "ux_law": "DRY",
+      "why": "Listings surfaced on 6 marketplace-family pages + asset-hub spares; one v_marketplace_listings_truth. Keep."
     },
     {
       "terminus_table": "pm_completions",
@@ -209,6 +186,25 @@
       "canonical_home": "pm-scheduler.html",
       "ux_law": "NN/g #6 Recognition-over-Recall",
       "why": "PM compliance ledger read on 6 pages for context; one canonical RPC get_pm_compliance_smrp. Keep, ensure single derivation."
+    },
+    {
+      "terminus_table": "marketplace_sellers",
+      "is_infra": false,
+      "display_pages": [
+        "community",
+        "founder-console",
+        "marketplace-admin",
+        "marketplace-seller",
+        "platform-actions"
+      ],
+      "page_count": 5,
+      "via_canonical_views": [
+        "v_marketplace_sellers_truth"
+      ],
+      "verdict": "KEEP-context",
+      "canonical_home": "marketplace-seller.html",
+      "ux_law": "context read",
+      "why": "Seller profile/tier read across marketplace-family; KEEP (Ian 2026-06-29)."
     },
     {
       "terminus_table": "project_links",

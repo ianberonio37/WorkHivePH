@@ -74,7 +74,12 @@
     var css = document.createElement('style');
     css.id = 'wh-wayfinding-css';
     css.textContent = [
-      '#wh-wayfinding{position:fixed;z-index:9000;top:max(10px,env(safe-area-inset-top));left:max(10px,env(safe-area-inset-left));display:flex;align-items:center;gap:8px;pointer-events:none;font-family:inherit}',
+      /* ★DROP BELOW THE OFFLINE BANNER (Wave-4 ratchet, 2026-09-14): the offline banner (offline-banner.js)
+         is a full-width fixed strip at top:0 z-index:9999 and covered this z-index:9000 back button whenever
+         it showed, so an offline person could not go back. The banner publishes its height as
+         --wh-offline-banner-h; add it to this top offset (0 when no banner) and slide, so nothing here is
+         ever under the banner. */
+      '#wh-wayfinding{position:fixed;z-index:9000;top:max(10px,env(safe-area-inset-top));transform:translateY(var(--wh-offline-banner-h,0px));left:max(10px,env(safe-area-inset-left));display:flex;align-items:center;gap:8px;pointer-events:none;font-family:inherit;transition:transform 0.18s var(--wh-ease-out,cubic-bezier(0.23,1,0.32,1))}',
       /* .72 -> .92: the chip's own translucency was the contrast defect, not the link colour.
          This chrome is fixed over WHATEVER the page puts behind it, and on a light surface
          (analytics-report's white document) rgba(17,24,39,.72) composites to about rgb(84,88,99) —
@@ -141,9 +146,20 @@
       skip.textContent = _wantFil ? _skipFil : 'Skip to main content';
       if (_wantFil) skip.lang = 'fil';
       skip.style.cssText = 'position:fixed;top:0;left:0;z-index:10001;transform:translateY(-120%);' +
-        'background:var(--wh-orange, #F7A21B);color:#0f1923;padding:0 18px;min-height:44px;display:inline-flex;align-items:center;' +
+        /* 18px was the only off-grid inset on the first focusable element of every page (design lens craft,
+         2026-09-17, W45924). 20px: on the 4px rhythm, and the roomier of the two neighbours for a control
+         that only ever appears under keyboard focus. */
+        'background:var(--wh-orange, #F7A21B);color:var(--wh-navy, #162032);padding:0 20px;min-height:44px;display:inline-flex;align-items:center;' +
         'font-family:inherit;font-weight:700;font-size:14px;text-decoration:none;border-radius:0 0 10px 0;' +
-        'box-shadow:0 4px 16px rgba(0,0,0,.35);transition:transform .15s ease;box-sizing:border-box;';
+        // ★THE FIRST FOCUSABLE ELEMENT ON EVERY PAGE MOVED ON THE WRONG CURVE (2026-09-19, W46053
+        // motion lens on status.html, where it is the ONLY animated element in the document). `ease` is
+        // the CSS default and it is an ease-IN-out: the motion starts slowly. This is the control that
+        // drops into view the instant a keyboard user presses Tab on a page they have just opened, so a
+        // slow start reads as the page not having responded - the one moment where arriving fast
+        // matters most. 150ms was already well under the 300ms ceiling and the property was already
+        // transform, compositable and reflowing nothing; only the curve was wrong, which is the defect
+        // a declaration cannot show you because there is no wrong value written down.
+        'box-shadow:0 4px 16px rgba(0,0,0,.35);transition:transform var(--wh-dur-fast, .15s) var(--wh-ease-out, ease-out);box-sizing:border-box;';
       skip.addEventListener('focus', function () { skip.style.transform = 'translateY(0)'; });
       skip.addEventListener('blur', function () { skip.style.transform = 'translateY(-120%)'; });
       skip.addEventListener('click', function () { main.setAttribute('tabindex', '-1'); main.focus(); });
@@ -159,10 +175,49 @@
     // top-left corner — just REWIRE that back to the smart referrer-aware logic
     // (fixes F3: asset-hub's hard-coded hive.html in-place) and DON'T inject our
     // floating pill/breadcrumb on top of it (that caused a header overlap).
-    var existing = document.querySelector('.back-btn,[data-wh-back]');
+    // ★.wh-back-link IS THE SAME CLAIM ON THE SAME CORNER UNDER A DIFFERENT NAME (2026-09-18, W46051
+    // audit lens on status.html). The selector listed two spellings of "this page owns its own back
+    // control" and the platform has three; status.html ships a .wh-back-link ("← Home") and therefore
+    // could not load this file at all without getting a floating pill on top of its own. Which meant it
+    // also went without the SKIP LINK this file injects before build() ever runs - so the page a person
+    // opens when something is broken was the one page with no way for a keyboard user to jump the
+    // header. Measured before adding it: exactly 2 pages carry .wh-back-link and NEITHER loads this
+    // file, so the new alternative changes nothing for anything shipping today and simply lets those
+    // two adopt the shared chrome instead of cloning it.
+    var existing = document.querySelector('.back-btn,.wh-back-link,[data-wh-back]');
     if (existing) {
       existing.addEventListener('click', smartBack, true);
-      if (!existing.getAttribute('aria-label')) existing.setAttribute('aria-label', 'Back');
+      // ★THIS LINE RENAMED A CONTROL THAT ALREADY HAD A NAME, IN THE WRONG LANGUAGE, AND BROKE LABEL
+      // IN NAME DOING IT (2026-09-19, W46052 copy lens on status.html). The page's back control reads
+      // "← Home". This gave it aria-label="Back", and an aria-label REPLACES the visible text as the
+      // accessible name - so a screen reader announced "Back", a Filipino reader heard an English word
+      // on a page whose other controls had all been translated, and anyone driving by voice who said
+      // "click Home" was talking about a control the machine now called something else (WCAG 2.5.3:
+      // the accessible name must CONTAIN the visible label). The label was written for an ICON-only
+      // back button, where there is no visible text to preserve and a name is genuinely missing. It
+      // now applies only in that case - measured by the control's own visible text - and when it does
+      // apply it speaks the reader's language, read straight from WH_LANG like the skip link above,
+      // because this file runs before utils.js may have defined the translator.
+      // "Has visible text" means WORDS, not marks: a control reading only "←" or "⟵" has a glyph and
+      // no name, and leaving it unlabelled would announce as the arrow character - which is how the
+      // aria-label-only anti-pattern gets fixed into a different broken name. So the test asks for a
+      // letter or a digit, and an arrow-only button still gets the label it needs.
+      if (!existing.getAttribute('aria-label') && !/[\p{L}\p{N}]/u.test(existing.textContent || '')) {
+        var _backFil = 'Bumalik';
+        var _bWantFil = false;
+        try {
+          _bWantFil = (window.WH_LANG === 'fil') || (localStorage.getItem('wh_lang') === 'fil');
+        } catch (_) { _bWantFil = (window.WH_LANG === 'fil'); }
+        existing.setAttribute('aria-label', _bWantFil ? _backFil : 'Back');
+        // No per-element lang here, unlike the skip link above, and the difference is measured rather
+        // than assumed: the skip link is injected before utils.js has set the document's language, so
+        // it can be the one Filipino string in an English document and must declare itself. This
+        // control is labelled from build(), by which time document.documentElement.lang already reads
+        // "fil" (measured on asset-hub), so an element-level lang would restate what the document
+        // already says. A first draft did set it; it was removed after the probe read the attribute
+        // back as null - shipping a line that does nothing is the same defect as the dead palette this
+        // row's page just lost.
+      }
       return;
     }
     // ★I1/CLS + dedup: the page ALSO owns its top-left corner (so a floating pill would DUPLICATE
@@ -181,8 +236,12 @@
     var back = document.createElement('button');  // a <button>, NOT <a href="#"> — avoids a dead-link (L6)
     back.type = 'button';
     back.className = 'wf-back back-btn';          // back-btn class => harness L5 detector + style hooks
-    back.setAttribute('aria-label', 'Back to previous page');
-    back.innerHTML = CHEVRON + '<span>Back</span>';
+    back.setAttribute('aria-label', (typeof window._t === 'function') ? window._t('Back to previous page', 'Bumalik sa nakaraang page') : 'Back to previous page');   // the pill speaks the page's language (copy lens, 2026-09-15)
+    /* ★AND ITS VISIBLE WORD STAYED ENGLISH (design lens copy on dayplanner, 2026-09-15). The line above
+       translates the accessible NAME; this one drew the word a sighted reader actually sees, and it read
+       "Back" on every page in both languages. The platform's own lesson, inverted. */
+    back.innerHTML = CHEVRON + '<span>'
+      + ((typeof window._t === 'function') ? window._t('Back', 'Bumalik') : 'Back') + '</span>';
     back.addEventListener('click', smartBack);
     wrap.appendChild(back);
 

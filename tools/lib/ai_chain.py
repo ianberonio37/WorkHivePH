@@ -76,15 +76,19 @@ _CHAIN: list[_Provider] = [
     # models that no longer exist, measured against each provider's /models endpoint. This file's
     # own header says "change one, change both", and there are in fact THREE: _shared/ai-chain.ts,
     # tools/ai_chain.py and this one. All three carried the same dead names.
+    # ...AND IT DRIFTED AGAIN ON 2026-09-28, for the reason the note above only half-names: the gate
+    # written after that lesson, validate_ai_chain_mirror.py, compares ai-chain.ts against
+    # tools/ai_chain.py and has never opened THIS file. So the pair stayed in lockstep, reported
+    # "15 == 15, all pairs match", and this third copy kept four models none of the providers serve.
+    # A mirror gate that reads two of three mirrors is a gate whose reach is narrower than its rule.
+    # It now reads all three; see its L5.
     _Provider("groq", "https://api.groq.com/openai/v1", "qwen/qwen3.8-27b",                           "GROQ_API_KEY"),
-    _Provider("groq", "https://api.groq.com/openai/v1", "qwen/qwen3.6-27b",                           "GROQ_API_KEY"),
     _Provider("groq", "https://api.groq.com/openai/v1", "openai/gpt-oss-20b",                         "GROQ_API_KEY"),
     _Provider("groq", "https://api.groq.com/openai/v1", "openai/gpt-oss-120b",                        "GROQ_API_KEY"),
-    _Provider("groq", "https://api.groq.com/openai/v1", "groq/compound-mini",                         "GROQ_API_KEY"),
-    # Tier 2: Cerebras (1M tokens/day free) - these three ARE the list Cerebras serves
+    # Tier 2: Cerebras (1M tokens/day free) - these TWO ARE the list Cerebras serves (asked 2026-09-28;
+    # it was three until gemma-4-31b was retired, which is why the count is written here and checked)
     _Provider("cerebras", "https://api.cerebras.ai/v1", "gpt-oss-120b", "CEREBRAS_API_KEY", max_tokens_cap=4096),
     _Provider("cerebras", "https://api.cerebras.ai/v1", "qwen-3.8-27b", "CEREBRAS_API_KEY", max_tokens_cap=4096),
-    _Provider("cerebras", "https://api.cerebras.ai/v1", "gemma-4-31b",  "CEREBRAS_API_KEY", max_tokens_cap=4096),
     # Tier 3: Google Gemini (free tier)
     _Provider("google", "https://generativelanguage.googleapis.com/v1beta/openai", "gemini-2.5-flash",      "GEMINI_API_KEY"),
     _Provider("google", "https://generativelanguage.googleapis.com/v1beta/openai", "gemini-2.5-flash-lite", "GEMINI_API_KEY"),
@@ -102,7 +106,7 @@ _CHAIN: list[_Provider] = [
               "OPENROUTER_API_KEY", extra_headers={"HTTP-Referer": "https://workhiveph.com", "X-Title": "WorkHive"}),
     _Provider("openrouter", "https://openrouter.ai/api/v1", "nvidia/nemotron-3-ultra-550b-a55b:free",
               "OPENROUTER_API_KEY", extra_headers={"HTTP-Referer": "https://workhiveph.com", "X-Title": "WorkHive"}),
-    _Provider("openrouter", "https://openrouter.ai/api/v1", "nex-agi/nex-n2.5-mini:free",
+    _Provider("openrouter", "https://openrouter.ai/api/v1", "qwen/qwen3.8-27b:free",
               "OPENROUTER_API_KEY", extra_headers={"HTTP-Referer": "https://workhiveph.com", "X-Title": "WorkHive"}),
 ]
 

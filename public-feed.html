@@ -72,12 +72,12 @@
     }
     .header-pill {
       background: rgba(34,197,94,0.12); border: 1px solid rgba(34,197,94,0.25);
-      color: var(--wh-green); font-size: 0.65rem; font-weight: 700; padding: 2px 8px;
+      color: var(--wh-green); font-size: 0.75rem; font-weight: 700; padding: 2px 8px;
       border-radius: 999px; text-transform: uppercase; letter-spacing: 0.05em; flex-shrink: 0; }
     .header-btn {
       background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light)); border: none;
-      color: var(--wh-navy); font-size: 0.75rem; font-weight: 700; padding: 6px 14px;
-      border-radius: 0.5rem; cursor: pointer; transition: all 0.15s; white-space: nowrap;
+      color: var(--wh-navy); font-size: 0.75rem; font-weight: 700; padding: 6px 16px;
+      border-radius: 0.5rem; cursor: pointer; transition: opacity var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out); white-space: nowrap;
       min-height: 44px; display: inline-flex; align-items: center; justify-content: center; /* D1 U2 */
       text-decoration: none; display: inline-block;
     }
@@ -85,7 +85,14 @@
        "Sign in to post", "Create a free account", "Hail a service" -- three competing primaries
        and no recommended action. One stays filled; the other two step down to an outlined
        secondary so the eye lands on one. Same hue, same size, same 44px tap target. */
-    .header-btn.secondary { background: transparent; border: 1px solid rgba(247,162,27,0.55); color: var(--wh-orange-text); }
+    /* ★SAYING "transparent" AND MEANING "DROP THE GRADIENT TOO" (2026-09-18, W46017 re-bank). The
+       shorthand `background: transparent` DOES reset background-image to none - the browser computes
+       exactly that, verified live - but a reader that resolves declarations without applying shorthand
+       resets composites this text over the BASE rule's gradient and lands on amber-on-amber, 1.0:1.
+       Measured on the running page, these two links are rgb(253,185,74) on rgb(22,32,50): 9.49:1, four
+       times over the floor. The rule is written out longhand so it states what it means to every
+       reader, human or static; the computed style is byte-identical and nothing on screen moves. */
+    .header-btn.secondary { background-color: transparent; background-image: none; border: 1px solid rgba(247,162,27,0.55); color: var(--wh-orange-text); }
     .header-btn.secondary:hover { background: rgba(247,162,27,0.12); }
     .header-btn:hover { opacity: .9; }
 
@@ -96,14 +103,23 @@
       text-align: center; margin-bottom: 2rem;
     }
     .page-intro h1 { font-size: 1.5rem; font-weight: 800; margin: 0 0 0.5rem; }
-    .page-intro p { font-size: 0.82rem; color:rgba(255,255,255,0.83); margin: 0; } /* D1 a11y: 0.4→0.7 WCAG 1.4.3 */
+    .page-intro p { font-size: 0.875rem; color:rgba(255,255,255,0.83); margin: 0 auto; max-width: 68ch; } /* D1 a11y: 0.4→0.7 WCAG 1.4.3 */
 
     /* Post cards */
+    /* ★THREE OF THIS PAGE'S FOUR TRANSITIONS BROKE THE STANDARD, ALL IN THE SAME WAY (2026-09-18,
+       W46018 motion). .header-btn declared `all`, which animates every animatable property a rule
+       has - present and future, so a property added next year joins the timeline silently - when the
+       only thing its :hover changes is opacity. .post-card and .load-more-btn named the right
+       property but no easing, and the CSS default is `ease`, an ease-IN-out: the motion STARTS
+       slowly, which on a response to a finger reads as lag rather than polish. .load-more-btn also
+       used the `background` shorthand, dragging image and position onto the clock for a colour
+       change. All three now name the property their own state class changes, on the platform's
+       duration and ease-out tokens. */
     .post-card {
       background: linear-gradient(145deg, rgba(42,61,88,0.5), rgba(31,46,69,0.7));
       border: 1px solid rgba(255,255,255,0.07); border-radius: 0.875rem;
       border-left: 3px solid rgba(255,255,255,0.15);
-      padding: 1rem; margin-bottom: 0.75rem; transition: border-color 0.2s;
+      padding: 1rem; margin-bottom: 0.75rem; transition: border-color var(--wh-dur, 0.2s) var(--wh-ease-out, ease-out);
     }
     .post-card:hover { border-color: rgba(255,255,255,0.18); }
     .post-card.cat-safety      { border-left-color: var(--wh-red); }
@@ -113,25 +129,46 @@
     .post-meta {
       display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 6px;
     }
-    .post-author { font-size: 0.8rem; font-weight: 700; color: var(--wh-cloud); } /* D1 a11y: explicit high-contrast name (WCAG 1.4.3) */
+    .post-author { font-size: 0.875rem; font-weight: 700; color: var(--wh-cloud); } /* D1 a11y: explicit high-contrast name (WCAG 1.4.3) */
     .cat-badge {
       display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px;
-      font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+      font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
     }
     .cat-general      { background: rgba(255,255,255,0.08); color:rgba(255,255,255,0.86); } /* D1 a11y: 0.5→0.72 WCAG 1.4.3 */
     .cat-safety       { background: rgba(239,68,68,0.15); color: var(--wh-red-text); } /* D1 U5: var(--wh-red)<4.5:1 on tinted bg → WCAG 1.4.3 */
     .cat-technical    { background: rgba(41,182,217,0.12); color: var(--wh-blue-light); } /* C2: AA-safe blue (was --wh-blue @ 4.48:1, WCAG 1.4.3) */
     .cat-announcement { background: rgba(168,85,247,0.12); color: #d8b4fe; } /* D1 U5: var(--wh-violet)<4.5:1 → WCAG 1.4.3 */
-    .post-time { font-size: 0.7rem; color:rgba(255,255,255,0.83); margin-left: auto; } /* D1 a11y: 0.3→0.66 WCAG 1.4.3 */
+    .post-time { font-size: 0.75rem; color:rgba(255,255,255,0.83); margin-left: auto; } /* D1 a11y: 0.3→0.66 WCAG 1.4.3 */
 
+    /* ★THE MEASURE RAN 98 CHARACTERS A LINE AT DESKTOP (2026-09-18, W46015 craft). .main caps at
+       680px, so a post's prose filled 648px of it - and a reader loses the start of the next line
+       somewhere past 80, which is the whole reason the craft floor asks for 65-75. On a FEED this is
+       the worst place for it: the eye makes the return sweep once per post, 38 times down the page.
+       Capped at 68ch, stated in ch so it tracks the font size rather than freezing a pixel width.
+       At 390 the column is already narrower than the cap, so the phone reading does not move. */
     .post-content {
-      font-size: 0.85rem; line-height: 1.55; color: rgba(255,255,255,0.82);
-      margin: 0; word-break: break-word;
+      font-size: 0.875rem; line-height: 1.55; color: rgba(255,255,255,0.82);
+      margin: 0; word-break: break-word; max-width: 68ch;
     }
 
     /* Skeleton */
     .skeleton { background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 0.5rem; }
     @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+    /* ★AN INFINITE SHIMMER THAT NOBODY COULD TURN OFF (2026-09-18, W46018 motion). The platform's
+       reduced-motion block lives in components.css, together with the exemption list that deliberately
+       spares skeletons and spinners - and THIS PAGE DOES NOT LINK components.css, which its own comment
+       at the top of this stylesheet says in as many words for a different reason (the scrollbar gutter).
+       So `animation: shimmer 1.5s infinite` ran for every reader, including one who has asked their
+       operating system for less motion, with nothing on the page to stop it. The standard's rule is not
+       that a loading indicator must be still; it is that a reader who asked must be able to stop things
+       moving. The box stays exactly where it is and still reads as loading - it simply stops travelling.
+       Declared locally because the shared rule cannot reach here, and named so that whoever links
+       components.css to this page later can delete it rather than wonder. */
+    @media (prefers-reduced-motion: reduce) {
+      .skeleton { animation: none; }
+      *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+    }
     .skeleton-card { height: 90px; border-radius: 0.875rem; margin-bottom: 0.75rem; }
 
     .empty-state {
@@ -142,7 +179,7 @@
     .load-more-btn {
       background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
       color:rgba(255,255,255,0.83); border-radius: var(--wh-radius-sm); padding: 0.6rem 1.5rem;
-      font-size: 0.8rem; cursor: pointer; transition: background 0.15s; min-height: 44px; /* D1 U2 */
+      font-size: 0.75rem; cursor: pointer; transition: background-color var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out); min-height: 44px; /* D1 U2 */
     }
     .load-more-btn:hover { background: rgba(255,255,255,0.1); }
     .load-more-btn:disabled { opacity: 0.4; cursor: not-allowed; }
@@ -157,7 +194,17 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 <header class="header">
   <div class="header-left">
     <img src="brand_assets/workhive-logo-transparent.png" alt="WorkHive" class="header-logo" />
-    <h2 class="header-title" style="display:inline;margin:0;font-size:inherit;font-weight:inherit;" data-i="pf_public_feed">Public Feed</h2>
+    <!-- ★THE DOCUMENT'S FIRST HEADING WAS AN h2, BEFORE THE h1 (2026-09-18, W46016 audit). Measured in
+         document order: "H2 Public Feed" -> "H1 What hives are talking about" -> "H2 Latest posts". So
+         somebody navigating by heading met a level-2 before the page's only level-1, and the outline had
+         no root. It was never a section heading: it is the masthead label beside the logo, styled
+         font-size:inherit and font-weight:inherit, so it does not look like a heading to anyone who can
+         see it - only to someone who cannot. A span renders byte-identically and leaves the outline as
+         h1 then h2, which is what it describes.
+         ★WORTH RECORDING ABOUT THE INSTRUMENT: the walk's headingSkips read 0 through all of this,
+         because it tests for a level JUMPED on the way down and this is a level that arrives too early.
+         A metric that only looks one direction cannot see an outline with no root. -->
+    <span class="header-title" style="display:inline;margin:0;font-size:inherit;font-weight:inherit;" data-i="pf_public_feed">Public Feed</span>
     <span class="header-pill" data-i="pf_readonly">Read-only</span>
   </div>
   <!-- T1: was a bare index.html link — the modal never opened and the return trip was lost.
@@ -233,13 +280,36 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const inHive = !!(localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id'));
       const cta = document.querySelector('[data-i="pf_signin"]');
       const sub = document.querySelector('[data-i="pf_subtitle"]');
+      // ★THE DICTIONARY PUT THE SIGNED-OUT LABEL BACK, AND THE HREF DID NOT AGREE WITH IT (2026-09-18,
+      // W46017 copy). Both elements are written here from session state AND still carried data-i, so the
+      // Filipino pass ran afterwards and restored the markup's original strings. Measured on the same
+      // button in the same walk: English "Post in your hive →", Filipino "Mag-sign In →" - while the
+      // href this code had just set said community.html. So a signed-in Filipino reader was told to sign
+      // in, on a button that takes them to their hive's Community. The label told them to do the one
+      // thing they had already done.
+      // THIRD INSTANCE OF THIS MECHANISM (marketplace-seller's h1 read "Naglo-load..." forever, and its
+      // edit-sheet title the same way, both W45961). The rule it keeps proving: A VALUE THE APPLICATION
+      // COMPUTES MUST DROP ITS data-i WHEN THE APPLICATION WRITES IT - otherwise the dictionary is a
+      // second writer racing the first, and it always wins because it runs last. And the string has to
+      // be composed in BOTH languages here, because dropping data-i is exactly what stops the
+      // dictionary from doing it.
+      const _T = (en, fil) => (typeof _t === 'function' ? _t(en, fil)
+                             : (document.documentElement.lang === 'fil' ? fil : en));
       if (cta) {
-        cta.textContent = inHive ? 'Post in your hive →' : 'Join a hive to post →';
+        cta.removeAttribute('data-i');
+        cta.textContent = inHive
+          ? _T('Post in your hive →', 'Mag-post sa hive mo →')
+          : _T('Join a hive to post →', 'Sumali sa hive para makapag-post →');
         cta.setAttribute('href', inHive ? 'community.html' : 'hive.html');
       }
-      if (sub) sub.textContent = inHive
-        ? 'Public posts from WorkHive maintenance teams. You’re signed in. Post from your hive’s Community.'
-        : 'Public posts from WorkHive maintenance teams. You are signed in - join a hive to post.';
+      if (sub) {
+        sub.removeAttribute('data-i');
+        sub.textContent = inHive
+          ? _T('Public posts from WorkHive maintenance teams. You’re signed in. Post from your hive’s Community.',
+               'Mga pampublikong post mula sa mga maintenance team ng WorkHive. Naka-sign in ka na. Mag-post mula sa Community ng hive mo.')
+          : _T('Public posts from WorkHive maintenance teams. You are signed in - join a hive to post.',
+               'Mga pampublikong post mula sa mga maintenance team ng WorkHive. Naka-sign in ka na - sumali sa isang hive para makapag-post.');
+      }
     } catch (_) { /* empty-catch-allow: anon copy stands if the session read fails */ }
   })();
 
@@ -474,7 +544,7 @@ window.addEventListener('load', function () { setTimeout(function () {
   try { console.error('[public-feed] utils.js did not load; the page cannot render its data'); } catch (e) { void e; }
   var m = document.querySelector('main') || document.body; if (!m || m.querySelector('.wh-shared-missing')) return;
   var d = document.createElement('div'); d.className = 'honest-empty wh-shared-missing'; d.setAttribute('role', 'alert');
-  d.style.cssText = 'margin:12px;padding:14px 16px;border:1px solid rgba(248,113,113,.4);border-radius:10px;background:rgba(248,113,113,.08);color:#fca5a5;font:14px/1.5 system-ui,sans-serif;';
+  d.style.cssText = 'margin:12px;padding:12px 16px;border:1px solid rgba(248,113,113,.4);border-radius:10px;background:rgba(248,113,113,.08);color:#fca5a5;font:14px/1.5 system-ui,sans-serif;';
   d.innerHTML = 'WorkHive could not load its shared script (utils.js), so this page cannot show your data. <button type="button" onclick="location.reload()" style="color:inherit;text-decoration:underline;background:none;border:0;padding:0;font:inherit;cursor:pointer;min-height:44px;" data-i="reloadtotryagain">Reload to try again</button>.';
   m.insertBefore(d, m.firstChild);
   var sk = document.querySelectorAll('.wh-skeleton, [class*="skeleton"]'); for (var i = 0; i < sk.length; i++) sk[i].style.display = 'none';

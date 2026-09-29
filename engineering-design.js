@@ -2824,6 +2824,36 @@ function _orNA(v, dec) {
   return (v == null || v === '' || isNaN(n) || n === 0) ? 'n/a' : n.toFixed(dec);
 }
 
+// ★C27 (wave-4, 2026-09-15): SIXTY tools/<slug>-calculator guide pages link here as ?calc=<slug> ("Open the interactive
+// AHU Sizing Calculator in WorkHive"), and this page never read the query - the person landed on the grid of 55 cards
+// with nothing selected and had to find the calculator again. Resolve the slug against CALC_TYPES_UI (every token of
+// the slug must appear in the card's name; the best-covered name wins; a few guide slugs whose wording differs are
+// aliased), select it, open the calculator tab and bring the form into view. An unknown slug leaves the grid as before.
+const CALC_SLUG_ALIASES = { 'boiler-steam': 'Boiler System', 'chiller-sizing': 'Chiller System — Air Cooled', 'load-schedule': 'Load Estimation', 'vibration-isolation': 'Vibration Analysis', 'sewer-drainage': 'Drainage Pipe Sizing' };   // domestic-water-demand deliberately unaliased: "Hot Water Demand" is a different calculation
+function applyCalcDeepLink() {
+  let slug = '';
+  try { slug = String(new URLSearchParams(location.search).get('calc') || '').toLowerCase().replace(/-calculator$/, '').trim(); } catch (_) { return; }   /* empty-catch-allow: no query, nothing to do */
+  if (!slug) return;
+  const norm = (x) => String(x).toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+  const ids = Object.values(CALC_TYPES_UI).flat().map((c) => c.id);
+  let id = CALC_SLUG_ALIASES[slug] || null;
+  if (!id) {
+    const toks = norm(slug).split(' ').filter(Boolean); let best = null, score = 0;
+    for (const cid of ids) { const nt = norm(cid).split(' '); const hit = toks.filter((t) => nt.includes(t)).length; if (toks.length && hit === toks.length && hit / nt.length > score) { best = cid; score = hit / nt.length; } }
+    id = best;
+  }
+  if (!id || !ids.includes(id)) return;
+  let tries = 0;
+  const go = () => {
+    if (!document.querySelector('.calc-card[data-id]')) { if (tries++ < 20) { setTimeout(go, 150); } return; }
+    try { if (typeof switchTab === 'function') switchTab('calculator'); } catch (_) { /* empty-catch-allow: the tab may already be active */ }
+    selectCalcType(id);
+    const target = document.querySelector('.calc-card.selected') || document.getElementById('calc-btn');
+    if (target && target.scrollIntoView) target.scrollIntoView({ block: 'center' });
+  };
+  go();
+}
+
 function selectCalcType(id) {
   _calcType = id;
   trackRecentCalc(id);
@@ -2850,7 +2880,7 @@ function renderInputForm(calcType) {
 
       <!-- Building type toggle -->
       <div class="mb-4">
-        <div class="field-label">Building Type <span style="color:rgba(255,255,255,0.35);font-size:0.7rem;font-weight:400;">(for permit documentation: also suggests Room Function)</span></div>
+        <div class="field-label">Building Type <span style="color:var(--wh-text-faint);font-size:0.75rem;font-weight:400;">(for permit documentation: also suggests Room Function)</span></div>
         <div class="toggle-group" id="tg-building">
           ${['Office','Industrial','Residential','Hospital','Food Processing'].map((v,i) =>
             `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-building','${v}');applyBuildingTypeDefaults('${v}')">${v}</button>`
@@ -2860,8 +2890,8 @@ function renderInputForm(calcType) {
 
       <!-- Room function toggle -->
       <div class="mb-4">
-        <div class="field-label">Room Function <span style="color:rgba(255,255,255,0.35);font-size:0.7rem;font-weight:400;">(drives heat load and lighting: override freely)</span></div>
-        <div id="room-function-hint" style="font-size:0.7rem;color:#F7A21B;margin-bottom:0.4rem;min-height:1rem;"></div>
+        <div class="field-label">Room Function <span style="color:var(--wh-text-faint);font-size:0.75rem;font-weight:400;">(drives heat load and lighting: override freely)</span></div>
+        <div id="room-function-hint" style="font-size:0.75rem;color:#F7A21B;margin-bottom:0.4rem;min-height:1rem;"></div>
         <div class="toggle-group" id="tg-function">
           ${['Office','Conference','Server Room','Production Floor','Warehouse','Retail'].map((v,i) =>
             `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-function','${v}');applyRoomDefaults('${v}')">${v}</button>`
@@ -2889,14 +2919,14 @@ function renderInputForm(calcType) {
 
       <div class="grid grid-cols-2 gap-3 mb-4">
         <div>
-          <div class="field-label">Wall Area <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(leave blank = auto)</span></div>
+          <div class="field-label">Wall Area <span style="color:var(--wh-text-faint);font-size:0.75rem;">(leave blank = auto)</span></div>
           <div class="input-group">
             <input aria-label="Auto" id="f-wall-area" class="wh-input" type="number" placeholder="Auto" min="0" />
             <span class="input-unit">m²</span>
           </div>
         </div>
         <div>
-          <div class="field-label">Glass / Window Area <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(blank = 20%)</span></div>
+          <div class="field-label">Glass / Window Area <span style="color:var(--wh-text-faint);font-size:0.75rem;">(blank = 20%)</span></div>
           <div class="input-group">
             <input aria-label="Auto" id="f-glass-area" class="wh-input" type="number" placeholder="Auto" min="0" />
             <span class="input-unit">m²</span>
@@ -2944,7 +2974,7 @@ function renderInputForm(calcType) {
 
       <!-- Window orientation toggle -->
       <div class="mb-4">
-        <div class="field-label">Window Orientation <span style="color:rgba(255,255,255,0.35);font-size:0.7rem;font-weight:400;">(East/West: 700 W/m² peak solar: 3.5× higher than Mixed)</span></div>
+        <div class="field-label">Window Orientation <span style="color:var(--wh-text-faint);font-size:0.75rem;font-weight:400;">(East/West: 700 W/m² peak solar: 3.5× higher than Mixed)</span></div>
         <div class="toggle-group" id="tg-orientation">
           ${['North','South','East','West','Horizontal','Mixed'].map((v,i) =>
             `<button class="toggle-btn${i===5?' active':''}" onclick="toggle('tg-orientation','${v}')">${v}</button>`
@@ -2954,7 +2984,7 @@ function renderInputForm(calcType) {
 
       <!-- Climate conditions -->
       <div class="mb-1">
-        <div class="field-label">Climate Conditions <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(Philippine defaults pre-filled)</span></div>
+        <div class="field-label">Climate Conditions <span style="color:var(--wh-text-faint);font-size:0.75rem;">(Philippine defaults pre-filled)</span></div>
         <div class="grid grid-cols-2 gap-3">
           <div>
             <div class="field-label">Outdoor Temp</div>
@@ -3025,7 +3055,7 @@ function renderInputForm(calcType) {
 
       <!-- Occupancy -->
       <div class="mb-4">
-        <div class="field-label">No. of Persons <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(0 for unoccupied / exhaust-only spaces)</span></div>
+        <div class="field-label">No. of Persons <span style="color:var(--wh-text-faint);font-size:0.75rem;">(0 for unoccupied / exhaust-only spaces)</span></div>
         <div class="input-group" style="max-width:160px;">
           <input aria-label="0" id="f-persons" class="wh-input" type="number" placeholder="0" min="0" value="10" />
           <span class="input-unit">pax</span>
@@ -3081,14 +3111,14 @@ function renderInputForm(calcType) {
       <!-- Pipe length & diameter -->
       <div class="grid grid-cols-2 gap-3 mb-4">
         <div>
-          <div class="field-label">Total Pipe Length <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(suction + discharge)</span></div>
+          <div class="field-label">Total Pipe Length <span style="color:var(--wh-text-faint);font-size:0.75rem;">(suction + discharge)</span></div>
           <div class="input-group">
             <input aria-label="0" id="f-pipe-length" class="wh-input" type="number" placeholder="0" min="0" />
             <span class="input-unit">m</span>
           </div>
         </div>
         <div>
-          <div class="field-label">Pipe Diameter <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(0 = auto)</span></div>
+          <div class="field-label">Pipe Diameter <span style="color:var(--wh-text-faint);font-size:0.75rem;">(0 = auto)</span></div>
           <div class="input-group">
             <input aria-label="Auto" id="f-pipe-dia" class="wh-input" type="number" placeholder="Auto" min="0" value="0" />
             <span class="input-unit">mm</span>
@@ -3109,14 +3139,14 @@ function renderInputForm(calcType) {
       <!-- Suction head & pressure head -->
       <div class="grid grid-cols-2 gap-3 mb-4">
         <div>
-          <div class="field-label">Suction Head <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(+ flooded, - lift)</span></div>
+          <div class="field-label">Suction Head <span style="color:var(--wh-text-faint);font-size:0.75rem;">(+ flooded, - lift)</span></div>
           <div class="input-group">
             <input aria-label="0" id="f-suction-head" class="wh-input" type="number" placeholder="0" step="0.5" value="0" />
             <span class="input-unit">m</span>
           </div>
         </div>
         <div>
-          <div class="field-label">Discharge Pressure Head <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(system back-pressure)</span></div>
+          <div class="field-label">Discharge Pressure Head <span style="color:var(--wh-text-faint);font-size:0.75rem;">(system back-pressure)</span></div>
           <div class="input-group">
             <input aria-label="0" id="f-pressure-head" class="wh-input" type="number" placeholder="0" min="0" step="0.5" value="0" />
             <span class="input-unit">m</span>
@@ -3151,7 +3181,7 @@ function renderInputForm(calcType) {
 
       <!-- Fluid density (auto-filled) -->
       <div class="mb-4">
-        <div class="field-label">Fluid Density <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(auto-filled by fluid type)</span></div>
+        <div class="field-label">Fluid Density <span style="color:var(--wh-text-faint);font-size:0.75rem;">(auto-filled by fluid type)</span></div>
         <div class="input-group" style="max-width:160px;">
           <input aria-label="Fluid Density" id="f-fluid-density" class="wh-input" type="number" value="1000" min="0" />
           <span class="input-unit">kg/m³</span>
@@ -3426,7 +3456,7 @@ function renderInputForm(calcType) {
           </div>
         </div>
         <div>
-          <div class="field-label">Fluid Density <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(auto by service)</span></div>
+          <div class="field-label">Fluid Density <span style="color:var(--wh-text-faint);font-size:0.75rem;">(auto by service)</span></div>
           <div class="input-group">
             <input aria-label="Fluid Density" id="f-fluid-density" class="wh-input" type="number" value="1000" min="0" />
             <span class="input-unit">kg/m³</span>
@@ -3437,7 +3467,7 @@ function renderInputForm(calcType) {
       <!-- Fluid temperature -->
       <div class="grid grid-cols-2 gap-3 mb-4">
         <div>
-          <div class="field-label">Fluid Temperature <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(auto by service)</span></div>
+          <div class="field-label">Fluid Temperature <span style="color:var(--wh-text-faint);font-size:0.75rem;">(auto by service)</span></div>
           <div class="input-group">
             <input aria-label="Fluid Temperature" id="f-fluid-temp" class="wh-input" type="number" value="20" min="-10" max="150" />
             <span class="input-unit">°C</span>
@@ -3664,10 +3694,10 @@ function renderInputForm(calcType) {
       <div class="mb-2">
         <div class="field-label">Hot Water Users / Occupancy</div>
         <div style="display:grid;grid-template-columns:1fr 70px 70px 70px 28px;gap:0.3rem;align-items:center;margin-bottom:0.3rem;">
-          <div style="font-size:0.72rem;color:rgba(255,255,255,0.35);">Use Type</div>
-          <div style="font-size:0.72rem;color:rgba(255,255,255,0.35);">Qty</div>
-          <div style="font-size:0.72rem;color:rgba(255,255,255,0.35);">Uses/day</div>
-          <div style="font-size:0.72rem;color:rgba(255,255,255,0.35);">L/use</div>
+          <div style="font-size:0.75rem;color:var(--wh-text-faint);">Use Type</div>
+          <div style="font-size:0.75rem;color:var(--wh-text-faint);">Qty</div>
+          <div style="font-size:0.75rem;color:var(--wh-text-faint);">Uses/day</div>
+          <div style="font-size:0.75rem;color:var(--wh-text-faint);">L/use</div>
           <div></div>
         </div>
         <div id="hw-use-list" style="display:flex;flex-direction:column;gap:0.5rem;margin-bottom:0.5rem;"></div>
@@ -3721,10 +3751,10 @@ function renderInputForm(calcType) {
       <div class="mb-2">
         <div class="field-label">Plumbing Fixtures (served by this drain)</div>
         <div style="display:grid;grid-template-columns:1fr 70px 70px 70px 28px;gap:0.3rem;align-items:center;margin-bottom:0.3rem;">
-          <div style="font-size:0.72rem;color:rgba(255,255,255,0.35);">Fixture Type</div>
-          <div style="font-size:0.72rem;color:rgba(255,255,255,0.35);">Qty</div>
-          <div style="font-size:0.72rem;color:rgba(255,255,255,0.35);">DFU each</div>
-          <div style="font-size:0.72rem;color:rgba(255,255,255,0.35);">(auto)</div>
+          <div style="font-size:0.75rem;color:var(--wh-text-faint);">Fixture Type</div>
+          <div style="font-size:0.75rem;color:var(--wh-text-faint);">Qty</div>
+          <div style="font-size:0.75rem;color:var(--wh-text-faint);">DFU each</div>
+          <div style="font-size:0.75rem;color:var(--wh-text-faint);">(auto)</div>
           <div></div>
         </div>
         <div id="drain-fixture-list" style="display:flex;flex-direction:column;gap:0.5rem;margin-bottom:0.5rem;"></div>
@@ -4259,7 +4289,7 @@ function renderInputForm(calcType) {
       <div class="grid grid-cols-2 gap-3 mb-4">
         <div>
           <div class="field-label">Rainfall Intensity</div>
-          <div style="font-size:0.72rem;color:rgba(255,255,255,0.6);margin-bottom:0.3rem;">Auto-filled from PAGASA Metro Manila IDF. Override for other locations.</div>
+          <div style="font-size:0.75rem;color:rgba(255,255,255,0.6);margin-bottom:0.3rem;">Auto-filled from PAGASA Metro Manila IDF. Override for other locations.</div>
           <div class="input-group">
             <input aria-label="Rainfall Intensity" id="f-sd-intensity" class="wh-input" type="number" value="75" min="10" step="1" />
             <span class="input-unit">mm/hr</span>
@@ -4335,7 +4365,7 @@ function renderInputForm(calcType) {
       <div class="grid grid-cols-2 gap-3 mb-4">
         <div>
           <div class="field-label">Meals per Day</div>
-          <div style="font-size:0.72rem;color:rgba(255,255,255,0.6);margin-bottom:0.3rem;">Used to estimate daily grease load and cleaning interval.</div>
+          <div style="font-size:0.75rem;color:rgba(255,255,255,0.6);margin-bottom:0.3rem;">Used to estimate daily grease load and cleaning interval.</div>
           <div class="input-group">
             <input aria-label="Meals per Day" id="f-gt-meals" class="wh-input" type="number" value="200" min="1" step="1" />
             <span class="input-unit">meals/day</span>
@@ -4343,7 +4373,7 @@ function renderInputForm(calcType) {
         </div>
         <div>
           <div class="field-label">Simultaneous Use Factor</div>
-          <div style="font-size:0.72rem;color:rgba(255,255,255,0.6);margin-bottom:0.3rem;">PDI BH-201 default: 0.75</div>
+          <div style="font-size:0.75rem;color:rgba(255,255,255,0.6);margin-bottom:0.3rem;">PDI BH-201 default: 0.75</div>
           <div class="input-group">
             <input aria-label="Simultaneous Use Factor" id="f-gt-suf" class="wh-input" type="number" value="0.75" min="0.50" max="1.0" step="0.01" />
             <span class="input-unit">SUF</span>
@@ -4354,7 +4384,7 @@ function renderInputForm(calcType) {
         <div class="field-label" style="margin:0;">Fixtures Connected to Grease Trap</div>
         <button class="wh-btn-sm" onclick="addGTFixtureRow()">+ Add Fixture</button>
       </div>
-      <div style="display:grid;grid-template-columns:2fr 100px 70px 28px;gap:4px;margin-bottom:0.3rem;font-size:0.72rem;color:rgba(255,255,255,0.5);padding:0 2px;">
+      <div style="display:grid;grid-template-columns:2fr 100px 70px 28px;gap:4px;margin-bottom:0.3rem;font-size:0.75rem;color:rgba(255,255,255,0.5);padding:0 2px;">
         <div>Fixture Type</div><div>Flow (L/min)</div><div>Qty</div><div></div>
       </div>
       <div id="gt-fixture-list" style="display:flex;flex-direction:column;gap:4px;"></div>
@@ -4379,7 +4409,7 @@ function renderInputForm(calcType) {
 
       <!-- Rainfall intensity preset -->
       <div class="mb-4">
-        <div class="field-label">Design Rainfall Intensity <span style="color:rgba(255,255,255,0.35);font-size:0.7rem;font-weight:400;">(PAGASA 10-yr, 60-min: or enter custom)</span></div>
+        <div class="field-label">Design Rainfall Intensity <span style="color:var(--wh-text-faint);font-size:0.75rem;font-weight:400;">(PAGASA 10-yr, 60-min: or enter custom)</span></div>
         <div class="toggle-group mb-2" id="tg-rd-city">
           ${Object.entries(RD_CITY_INTENSITY).map(([city, val], i) =>
             `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-rd-city','${city}');rdSetIntensity('${city}',${val})">${city}</button>`
@@ -4401,7 +4431,7 @@ function renderInputForm(calcType) {
           </div>
         </div>
         <div>
-          <div class="field-label">No. of Primary Drains <span style="color:#F7A21B;font-size:0.7rem;">min 2</span></div>
+          <div class="field-label">No. of Primary Drains <span style="color:#F7A21B;font-size:0.75rem;">min 2</span></div>
           <div class="input-group">
             <input aria-label="No. of Primary Drains min 2" id="f-n-drains" class="wh-input" type="number" value="2" min="1" step="1" />
             <span class="input-unit">drains</span>
@@ -4411,7 +4441,7 @@ function renderInputForm(calcType) {
 
       <!-- Parapet -->
       <div class="mb-4">
-        <div class="field-label">Parapet Walls Present? <span style="color:rgba(255,255,255,0.35);font-size:0.7rem;font-weight:400;">(overflow drains required when Yes: IPC §1101.7)</span></div>
+        <div class="field-label">Parapet Walls Present? <span style="color:var(--wh-text-faint);font-size:0.75rem;font-weight:400;">(overflow drains required when Yes: IPC §1101.7)</span></div>
         <div class="toggle-group" id="tg-parapet">
           ${['Yes','No'].map((v,i) =>
             `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-parapet','${v}')">${v}</button>`
@@ -4422,7 +4452,7 @@ function renderInputForm(calcType) {
       <!-- Leader slope + pipe material -->
       <div class="grid grid-cols-2 gap-3 mb-4">
         <div>
-          <div class="field-label">Horizontal Leader Slope <span style="color:rgba(255,255,255,0.35);font-size:0.7rem;font-weight:400;">(min 1%)</span></div>
+          <div class="field-label">Horizontal Leader Slope <span style="color:var(--wh-text-faint);font-size:0.75rem;font-weight:400;">(min 1%)</span></div>
           <div class="input-group">
             <input aria-label="Horizontal Leader Slope" id="f-leader-slope" class="wh-input" type="number" value="1.0" min="0.5" max="10" step="0.5" />
             <span class="input-unit">%</span>
@@ -4468,10 +4498,10 @@ function renderInputForm(calcType) {
       <div class="mb-2">
         <div class="field-label">Load Schedule</div>
         <div style="display:grid;grid-template-columns:1fr 55px 80px 80px 28px;gap:0.3rem;align-items:center;margin-bottom:0.3rem;">
-          <div style="font-size:0.72rem;color:rgba(255,255,255,0.35);">Load Type</div>
-          <div style="font-size:0.72rem;color:rgba(255,255,255,0.35);">Qty</div>
-          <div style="font-size:0.72rem;color:rgba(255,255,255,0.35);">Watts each</div>
-          <div style="font-size:0.72rem;color:rgba(255,255,255,0.35);">PF</div>
+          <div style="font-size:0.75rem;color:var(--wh-text-faint);">Load Type</div>
+          <div style="font-size:0.75rem;color:var(--wh-text-faint);">Qty</div>
+          <div style="font-size:0.75rem;color:var(--wh-text-faint);">Watts each</div>
+          <div style="font-size:0.75rem;color:var(--wh-text-faint);">PF</div>
           <div></div>
         </div>
         <div id="load-list" style="display:flex;flex-direction:column;gap:0.5rem;margin-bottom:0.5rem;"></div>
@@ -4517,10 +4547,10 @@ function renderInputForm(calcType) {
       <div class="mb-2">
         <div class="field-label">Connected Load Schedule</div>
         <div style="display:grid;grid-template-columns:1fr 55px 80px 80px 28px;gap:0.3rem;align-items:center;margin-bottom:0.3rem;">
-          <div style="font-size:0.72rem;color:rgba(255,255,255,0.35);">Load Type</div>
-          <div style="font-size:0.72rem;color:rgba(255,255,255,0.35);">Qty</div>
-          <div style="font-size:0.72rem;color:rgba(255,255,255,0.35);">Watts each</div>
-          <div style="font-size:0.72rem;color:rgba(255,255,255,0.35);">PF</div>
+          <div style="font-size:0.75rem;color:var(--wh-text-faint);">Load Type</div>
+          <div style="font-size:0.75rem;color:var(--wh-text-faint);">Qty</div>
+          <div style="font-size:0.75rem;color:var(--wh-text-faint);">Watts each</div>
+          <div style="font-size:0.75rem;color:var(--wh-text-faint);">PF</div>
           <div></div>
         </div>
         <div id="gen-load-list" style="display:flex;flex-direction:column;gap:0.5rem;margin-bottom:0.5rem;"></div>
@@ -4593,7 +4623,7 @@ function renderInputForm(calcType) {
       </div>
 
       <div class="mb-4">
-        <div class="field-label">Location <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(sets Peak Sun Hours)</span></div>
+        <div class="field-label">Location <span style="color:var(--wh-text-faint);font-size:0.75rem;">(sets Peak Sun Hours)</span></div>
         <div class="toggle-group" id="tg-pv-loc" style="flex-wrap:wrap;">
           ${[['Metro Manila','4.5'],['Cebu','4.8'],['Davao','4.9'],['Iloilo','4.7'],['Baguio','4.2'],['CDO','4.6'],['Zamboanga','4.9'],['Batangas','4.6'],['Legazpi','4.4'],['Tacloban','4.5'],['Custom','']].map(([loc,psh],i) =>
             `<button class="toggle-btn${i===0?' active':''}" data-val="${loc}" onclick="setPVLocation('${loc}','${psh}')">${loc}</button>`
@@ -4638,14 +4668,14 @@ function renderInputForm(calcType) {
 
       <div class="grid grid-cols-2 gap-3 mb-4">
         <div>
-          <div class="field-label">Voc Temp. Coefficient <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(negative for mono/poly)</span></div>
+          <div class="field-label">Voc Temp. Coefficient <span style="color:var(--wh-text-faint);font-size:0.75rem;">(negative for mono/poly)</span></div>
           <div class="input-group">
             <input aria-label="Voc Temp. Coefficient" id="f-pv-temp-coeff" class="wh-input" type="number" value="-0.29" min="-0.50" max="0" step="0.01" />
             <span class="input-unit">%/°C</span>
           </div>
         </div>
         <div>
-          <div class="field-label">Min. Site Temp. <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(auto from location)</span></div>
+          <div class="field-label">Min. Site Temp. <span style="color:var(--wh-text-faint);font-size:0.75rem;">(auto from location)</span></div>
           <div class="input-group">
             <input aria-label="Min. Site Temp." id="f-pv-tmin" class="wh-input" type="number" value="18" min="-10" max="30" step="1" />
             <span class="input-unit">°C</span>
@@ -4722,7 +4752,7 @@ function renderInputForm(calcType) {
       </div>
 
       <div class="mb-4">
-        <div class="field-label">Load <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(active power at time of peak demand)</span></div>
+        <div class="field-label">Load <span style="color:var(--wh-text-faint);font-size:0.75rem;">(active power at time of peak demand)</span></div>
         <div class="input-group">
           <input aria-label="Load" id="f-pfc-kw" class="wh-input" type="number" value="100" min="1" step="1" />
           <span class="input-unit">kW</span>
@@ -4739,7 +4769,7 @@ function renderInputForm(calcType) {
       </div>
 
       <div class="mb-4">
-        <div class="field-label">Target Power Factor <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(≥ 0.85 avoids Meralco surcharge)</span></div>
+        <div class="field-label">Target Power Factor <span style="color:var(--wh-text-faint);font-size:0.75rem;">(≥ 0.85 avoids Meralco surcharge)</span></div>
         <div class="toggle-group" id="tg-pfc-pf-target">
           ${[0.90,0.92,0.95,0.97,0.99].map((v,i) =>
             `<button class="toggle-btn${i===2?' active':''}" data-val="${v}" onclick="toggle('tg-pfc-pf-target','${v}')">${v}</button>`
@@ -4767,14 +4797,14 @@ function renderInputForm(calcType) {
 
       <div class="grid grid-cols-2 gap-3 mb-4">
         <div>
-          <div class="field-label">Monthly kWh <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(optional: for savings est.)</span></div>
+          <div class="field-label">Monthly kWh <span style="color:var(--wh-text-faint);font-size:0.75rem;">(optional: for savings est.)</span></div>
           <div class="input-group">
             <input aria-label="e.g. 15000" id="f-pfc-kwh" class="wh-input" type="number" value="" placeholder="e.g. 15000" min="0" step="100" />
             <span class="input-unit">kWh/mo</span>
           </div>
         </div>
         <div>
-          <div class="field-label">Meralco Rate <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(optional)</span></div>
+          <div class="field-label">Meralco Rate <span style="color:var(--wh-text-faint);font-size:0.75rem;">(optional)</span></div>
           <div class="input-group">
             <input aria-label="e.g. 11.50" id="f-pfc-rate" class="wh-input" type="number" value="" placeholder="e.g. 11.50" min="0" step="0.10" />
             <span class="input-unit">₱/kWh</span>
@@ -4820,7 +4850,7 @@ function renderInputForm(calcType) {
 
       <div class="grid grid-cols-2 gap-3 mb-4">
         <div>
-          <div class="field-label">Fill Ratio Limit <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(NEC 392.22)</span></div>
+          <div class="field-label">Fill Ratio Limit <span style="color:var(--wh-text-faint);font-size:0.75rem;">(NEC 392.22)</span></div>
           <div class="toggle-group" id="tg-ct-fill">
             <button class="toggle-btn active" data-val="40" onclick="toggle('tg-ct-fill','40')">40% (mixed)</button>
             <button class="toggle-btn" data-val="50" onclick="toggle('tg-ct-fill','50')">50% (ctrl only)</button>
@@ -4839,7 +4869,7 @@ function renderInputForm(calcType) {
       </div>
 
       <div class="mb-4">
-        <div class="field-label">Tray Run Length <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(for BOM quantity estimate)</span></div>
+        <div class="field-label">Tray Run Length <span style="color:var(--wh-text-faint);font-size:0.75rem;">(for BOM quantity estimate)</span></div>
         <div class="input-group">
           <input aria-label="Tray Run Length" id="f-ct-run" class="wh-input" type="number" value="30" min="1" step="1" />
           <span class="input-unit">m</span>
@@ -4848,7 +4878,7 @@ function renderInputForm(calcType) {
 
       <div class="mb-4">
         <div class="field-label">Cable Schedule</div>
-        <div style="display:grid;grid-template-columns:2fr 80px 60px 80px 28px;gap:0.35rem;margin-bottom:0.35rem;font-size:0.72rem;color:rgba(255,255,255,0.6);padding:0 0.25rem;">
+        <div style="display:grid;grid-template-columns:2fr 80px 60px 80px 28px;gap:0.35rem;margin-bottom:0.35rem;font-size:0.75rem;color:rgba(255,255,255,0.6);padding:0 0.25rem;">
           <div>Description</div><div style="text-align:center;">OD (mm)</div><div style="text-align:center;">Qty</div><div style="text-align:center;">kg/m (opt)</div><div></div>
         </div>
         <div id="ct-cable-list" style="display:flex;flex-direction:column;gap:0.35rem;margin-bottom:0.5rem;"></div>
@@ -4893,7 +4923,7 @@ function renderInputForm(calcType) {
 
       <div class="grid grid-cols-2 gap-3 mb-4">
         <div>
-          <div class="field-label">Backup Time <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(min)</span></div>
+          <div class="field-label">Backup Time <span style="color:var(--wh-text-faint);font-size:0.75rem;">(min)</span></div>
           <div class="toggle-group" id="tg-ups-backup" style="flex-wrap:wrap;">
             <button class="toggle-btn" data-val="10" onclick="toggle('tg-ups-backup','10')">10</button>
             <button class="toggle-btn" data-val="15" onclick="toggle('tg-ups-backup','15')">15</button>
@@ -4906,7 +4936,7 @@ function renderInputForm(calcType) {
           </div>
         </div>
         <div>
-          <div class="field-label">Growth Factor <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(future loads)</span></div>
+          <div class="field-label">Growth Factor <span style="color:var(--wh-text-faint);font-size:0.75rem;">(future loads)</span></div>
           <div class="toggle-group" id="tg-ups-growth" style="flex-wrap:wrap;">
             <button class="toggle-btn" data-val="1.10" onclick="toggle('tg-ups-growth','1.10')">1.10</button>
             <button class="toggle-btn active" data-val="1.20" onclick="toggle('tg-ups-growth','1.20')">1.20</button>
@@ -4917,7 +4947,7 @@ function renderInputForm(calcType) {
       </div>
 
       <div class="mb-4">
-        <div class="field-label">UPS Efficiency <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(inverter: affects battery sizing)</span></div>
+        <div class="field-label">UPS Efficiency <span style="color:var(--wh-text-faint);font-size:0.75rem;">(inverter: affects battery sizing)</span></div>
         <div class="toggle-group" id="tg-ups-eff">
           <button class="toggle-btn" data-val="0.94" onclick="toggle('tg-ups-eff','0.94')">94%</button>
           <button class="toggle-btn active" data-val="0.96" onclick="toggle('tg-ups-eff','0.96')">96%</button>
@@ -4927,7 +4957,7 @@ function renderInputForm(calcType) {
 
       <div class="mb-4">
         <div class="field-label">Load Schedule</div>
-        <div style="display:grid;grid-template-columns:3fr 70px 55px 50px 28px;gap:0.35rem;margin-bottom:0.35rem;font-size:0.72rem;color:rgba(255,255,255,0.6);padding:0 0.25rem;">
+        <div style="display:grid;grid-template-columns:3fr 70px 55px 50px 28px;gap:0.35rem;margin-bottom:0.35rem;font-size:0.75rem;color:rgba(255,255,255,0.6);padding:0 0.25rem;">
           <div>Description</div><div style="text-align:center;">VA/unit</div><div style="text-align:center;">PF</div><div style="text-align:center;">Qty</div><div></div>
         </div>
         <div id="ups-load-list" style="display:flex;flex-direction:column;gap:0.35rem;margin-bottom:0.5rem;"></div>
@@ -5064,7 +5094,7 @@ function renderInputForm(calcType) {
 
       <div class="grid grid-cols-2 gap-3 mb-4">
         <div>
-          <div class="field-label">System Type <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(resistance limit)</span></div>
+          <div class="field-label">System Type <span style="color:var(--wh-text-faint);font-size:0.75rem;">(resistance limit)</span></div>
           <div class="toggle-group" id="tg-eg-systype" style="flex-wrap:wrap;">
             <button class="toggle-btn active" data-val="Residential / Commercial" onclick="toggle('tg-eg-systype','Residential / Commercial')">Residential / Commercial (10 &Omega;)</button>
             <button class="toggle-btn" data-val="Industrial" onclick="toggle('tg-eg-systype','Industrial')">Industrial (5 &Omega;)</button>
@@ -5084,7 +5114,7 @@ function renderInputForm(calcType) {
 
       <div class="grid grid-cols-2 gap-3 mb-4">
         <div>
-          <div class="field-label">Soil Resistivity &rho; <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(&Omega;&middot;m)</span></div>
+          <div class="field-label">Soil Resistivity &rho; <span style="color:var(--wh-text-faint);font-size:0.75rem;">(&Omega;&middot;m)</span></div>
           <div class="toggle-group" id="tg-eg-soil" style="flex-wrap:wrap;">
             <button class="toggle-btn" data-val="50"    onclick="toggle('tg-eg-soil','50');document.getElementById('f-eg-rho').value='50'">50 (wet clay)</button>
             <button class="toggle-btn active" data-val="100"   onclick="toggle('tg-eg-soil','100');document.getElementById('f-eg-rho').value='100'">100 (loam)</button>
@@ -5111,7 +5141,7 @@ function renderInputForm(calcType) {
       <div id="eg-rod-fields">
         <div class="grid grid-cols-2 gap-3 mb-4">
           <div>
-            <div class="field-label">Rod Length <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(m)</span></div>
+            <div class="field-label">Rod Length <span style="color:var(--wh-text-faint);font-size:0.75rem;">(m)</span></div>
             <div class="toggle-group" id="tg-eg-rodlen" style="flex-wrap:wrap;">
               <button class="toggle-btn" data-val="1.5" onclick="toggle('tg-eg-rodlen','1.5')">1.5 m</button>
               <button class="toggle-btn" data-val="2.4" onclick="toggle('tg-eg-rodlen','2.4')">2.4 m</button>
@@ -5121,7 +5151,7 @@ function renderInputForm(calcType) {
             </div>
           </div>
           <div>
-            <div class="field-label">Rod Diameter <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(mm)</span></div>
+            <div class="field-label">Rod Diameter <span style="color:var(--wh-text-faint);font-size:0.75rem;">(mm)</span></div>
             <div class="toggle-group" id="tg-eg-roddia" style="flex-wrap:wrap;">
               <button class="toggle-btn" data-val="12" onclick="toggle('tg-eg-roddia','12')">12 mm</button>
               <button class="toggle-btn active" data-val="16" onclick="toggle('tg-eg-roddia','16')">16 mm</button>
@@ -5136,11 +5166,11 @@ function renderInputForm(calcType) {
       <div id="eg-plate-fields" style="display:none;">
         <div class="grid grid-cols-2 gap-3 mb-4">
           <div>
-            <div class="field-label">Plate Width <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(m)</span></div>
+            <div class="field-label">Plate Width <span style="color:var(--wh-text-faint);font-size:0.75rem;">(m)</span></div>
             <input aria-label="e.g. 0.6" id="f-eg-pw" class="wh-input" type="number" value="0.6" min="0.1" step="0.1" placeholder="e.g. 0.6" />
           </div>
           <div>
-            <div class="field-label">Plate Height <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(m)</span></div>
+            <div class="field-label">Plate Height <span style="color:var(--wh-text-faint);font-size:0.75rem;">(m)</span></div>
             <input aria-label="e.g. 0.6" id="f-eg-ph" class="wh-input" type="number" value="0.6" min="0.1" step="0.1" placeholder="e.g. 0.6" />
           </div>
         </div>
@@ -5150,11 +5180,11 @@ function renderInputForm(calcType) {
       <div id="eg-ring-fields" style="display:none;">
         <div class="grid grid-cols-2 gap-3 mb-4">
           <div>
-            <div class="field-label">Ring Mean Diameter <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(m)</span></div>
+            <div class="field-label">Ring Mean Diameter <span style="color:var(--wh-text-faint);font-size:0.75rem;">(m)</span></div>
             <input aria-label="e.g. 10 m" id="f-eg-ringd" class="wh-input" type="number" value="10" min="0.5" step="0.5" placeholder="e.g. 10 m" />
           </div>
           <div>
-            <div class="field-label">Conductor Diameter <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(mm)</span></div>
+            <div class="field-label">Conductor Diameter <span style="color:var(--wh-text-faint);font-size:0.75rem;">(mm)</span></div>
             <div class="toggle-group" id="tg-eg-ringcond" style="flex-wrap:wrap;">
               <button class="toggle-btn" data-val="8"  onclick="toggle('tg-eg-ringcond','8')">8 mm</button>
               <button class="toggle-btn active" data-val="10" onclick="toggle('tg-eg-ringcond','10')">10 mm</button>
@@ -5168,7 +5198,7 @@ function renderInputForm(calcType) {
       <!-- Service conductor and system voltage -->
       <div class="grid grid-cols-2 gap-3 mb-4">
         <div>
-          <div class="field-label">Largest Service Conductor <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(mm&sup2; for GEC sizing)</span></div>
+          <div class="field-label">Largest Service Conductor <span style="color:var(--wh-text-faint);font-size:0.75rem;">(mm&sup2; for GEC sizing)</span></div>
           <div class="toggle-group" id="tg-eg-svcond" style="flex-wrap:wrap;">
             <button class="toggle-btn active" data-val="35"  onclick="toggle('tg-eg-svcond','35')">35 mm&sup2;</button>
             <button class="toggle-btn" data-val="50"  onclick="toggle('tg-eg-svcond','50')">50 mm&sup2;</button>
@@ -5181,7 +5211,7 @@ function renderInputForm(calcType) {
           </div>
         </div>
         <div>
-          <div class="field-label">System Voltage <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(V L-L, for fault current ref.)</span></div>
+          <div class="field-label">System Voltage <span style="color:var(--wh-text-faint);font-size:0.75rem;">(V L-L, for fault current ref.)</span></div>
           <div class="toggle-group" id="tg-eg-sysvolt" style="flex-wrap:wrap;">
             <button class="toggle-btn" data-val="230"   onclick="toggle('tg-eg-sysvolt','230')">230 V (1-ph)</button>
             <button class="toggle-btn active" data-val="400"   onclick="toggle('tg-eg-sysvolt','400')">400 V (3-ph)</button>
@@ -5217,7 +5247,7 @@ function renderInputForm(calcType) {
           </div>
         </div>
         <div>
-          <div class="field-label">Friction Rate <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(Pa/m)</span></div>
+          <div class="field-label">Friction Rate <span style="color:var(--wh-text-faint);font-size:0.75rem;">(Pa/m)</span></div>
           <div class="toggle-group" id="tg-duct-fr" style="flex-wrap:wrap;">
             <button class="toggle-btn" data-val="0.8" onclick="toggle('tg-duct-fr','0.8')">0.8</button>
             <button class="toggle-btn active" data-val="1.0" onclick="toggle('tg-duct-fr','1.0')">1.0</button>
@@ -5229,7 +5259,7 @@ function renderInputForm(calcType) {
 
       <div class="grid grid-cols-2 gap-3 mb-4">
         <div>
-          <div class="field-label">Air Density <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(kg/m³)</span></div>
+          <div class="field-label">Air Density <span style="color:var(--wh-text-faint);font-size:0.75rem;">(kg/m³)</span></div>
           <div class="toggle-group" id="tg-duct-rho">
             <button class="toggle-btn active" data-val="1.20" onclick="toggle('tg-duct-rho','1.20')">1.20 std</button>
             <button class="toggle-btn" data-val="1.15" onclick="toggle('tg-duct-rho','1.15')">1.15 tropical</button>
@@ -5246,7 +5276,7 @@ function renderInputForm(calcType) {
       </div>
 
       <div id="duct-aspect-row" class="mb-4" style="display:none;">
-        <div class="field-label">Max Aspect Ratio <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(W:H)</span></div>
+        <div class="field-label">Max Aspect Ratio <span style="color:var(--wh-text-faint);font-size:0.75rem;">(W:H)</span></div>
         <div class="toggle-group" id="tg-duct-aspect">
           <button class="toggle-btn" data-val="1" onclick="toggle('tg-duct-aspect','1')">1:1</button>
           <button class="toggle-btn active" data-val="2" onclick="toggle('tg-duct-aspect','2')">2:1</button>
@@ -5257,7 +5287,7 @@ function renderInputForm(calcType) {
 
       <div class="mb-4">
         <div class="field-label">Duct Segment Schedule</div>
-        <div style="display:grid;grid-template-columns:2fr 70px 70px 100px 28px;gap:0.35rem;margin-bottom:0.35rem;font-size:0.72rem;color:rgba(255,255,255,0.6);padding:0 0.25rem;">
+        <div style="display:grid;grid-template-columns:2fr 70px 70px 100px 28px;gap:0.35rem;margin-bottom:0.35rem;font-size:0.75rem;color:rgba(255,255,255,0.6);padding:0 0.25rem;">
           <div>Segment</div><div style="text-align:center;">Flow L/s</div><div style="text-align:center;">Length m</div><div style="text-align:center;">Type</div><div></div>
         </div>
         <div id="duct-seg-list" style="display:flex;flex-direction:column;gap:0.35rem;margin-bottom:0.5rem;"></div>
@@ -5302,7 +5332,7 @@ function renderInputForm(calcType) {
       </div>
 
       <div id="et-direct-section" class="mb-4">
-        <div class="field-label">System Water Volume <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(all pipes + equipment)</span></div>
+        <div class="field-label">System Water Volume <span style="color:var(--wh-text-faint);font-size:0.75rem;">(all pipes + equipment)</span></div>
         <div class="input-group">
           <input aria-label="System Water Volume" id="f-et-vol" class="wh-input" type="number" value="500" min="1" step="10" />
           <span class="input-unit">L</span>
@@ -5310,24 +5340,24 @@ function renderInputForm(calcType) {
       </div>
 
       <div id="et-estimate-section" class="mb-4" style="display:none;">
-        <div class="field-label">System Capacity <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(for volume estimate)</span></div>
+        <div class="field-label">System Capacity <span style="color:var(--wh-text-faint);font-size:0.75rem;">(for volume estimate)</span></div>
         <div class="input-group">
           <input aria-label="System Capacity" id="f-et-kw" class="wh-input" type="number" value="100" min="1" step="10" />
           <span class="input-unit">kW</span>
         </div>
-        <div style="font-size:0.75rem;color:rgba(255,255,255,0.35);margin-top:0.4rem;">Rule of thumb: CHW 8 L/kW · HHW 10 L/kW · CW 6 L/kW (ASHRAE preliminary)</div>
+        <div style="font-size:0.75rem;color:var(--wh-text-faint);margin-top:0.4rem;">Rule of thumb: CHW 8 L/kW · HHW 10 L/kW · CW 6 L/kW (ASHRAE preliminary)</div>
       </div>
 
       <div class="grid grid-cols-2 gap-3 mb-4">
         <div>
-          <div class="field-label">Fill Temperature <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(ambient at fill)</span></div>
+          <div class="field-label">Fill Temperature <span style="color:var(--wh-text-faint);font-size:0.75rem;">(ambient at fill)</span></div>
           <div class="input-group">
             <input aria-label="Fill Temperature" id="f-et-fill-temp" class="wh-input" type="number" value="20" min="0" max="50" step="1" />
             <span class="input-unit">°C</span>
           </div>
         </div>
         <div>
-          <div id="et-max-temp-label" class="field-label">Min Operating Temperature <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(CHW supply temp: lower than fill)</span></div>
+          <div id="et-max-temp-label" class="field-label">Min Operating Temperature <span style="color:var(--wh-text-faint);font-size:0.75rem;">(CHW supply temp: lower than fill)</span></div>
           <div class="input-group">
             <input aria-label="Min Operating Temperature" id="f-et-max-temp" class="wh-input" type="number" value="7" min="1" max="99" step="1" />
             <span class="input-unit">°C</span>
@@ -5337,14 +5367,14 @@ function renderInputForm(calcType) {
 
       <div class="grid grid-cols-2 gap-3 mb-4">
         <div>
-          <div class="field-label">Static Head <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(height above tank)</span></div>
+          <div class="field-label">Static Head <span style="color:var(--wh-text-faint);font-size:0.75rem;">(height above tank)</span></div>
           <div class="input-group">
             <input aria-label="Static Head" id="f-et-head" class="wh-input" type="number" value="10" min="0" step="0.5" />
             <span class="input-unit">m</span>
           </div>
         </div>
         <div>
-          <div class="field-label">Max System Pressure <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(relief valve − 10%)</span></div>
+          <div class="field-label">Max System Pressure <span style="color:var(--wh-text-faint);font-size:0.75rem;">(relief valve − 10%)</span></div>
           <div class="input-group">
             <input aria-label="Max System Pressure" id="f-et-maxpress" class="wh-input" type="number" value="400" min="100" step="25" />
             <span class="input-unit">kPa g</span>
@@ -5410,7 +5440,7 @@ function renderInputForm(calcType) {
 
       <div class="mb-4">
         <div class="field-label">Room / Zone Schedule</div>
-        <div style="display:grid;grid-template-columns:2fr 65px 80px 55px 28px;gap:0.35rem;margin-bottom:0.35rem;font-size:0.72rem;color:rgba(255,255,255,0.6);padding:0 0.25rem;">
+        <div style="display:grid;grid-template-columns:2fr 65px 80px 55px 28px;gap:0.35rem;margin-bottom:0.35rem;font-size:0.75rem;color:rgba(255,255,255,0.6);padding:0 0.25rem;">
           <div>Room / Zone Name</div><div style="text-align:center;">Area (m²)</div><div style="text-align:center;">Load (kW)</div><div style="text-align:center;">Qty</div><div></div>
         </div>
         <div id="fcu-room-list" style="display:flex;flex-direction:column;gap:0.35rem;margin-bottom:0.5rem;"></div>
@@ -5448,7 +5478,7 @@ function renderInputForm(calcType) {
           </div>
         </div>
         <div>
-          <div class="field-label">System Capacity <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(kW)</span></div>
+          <div class="field-label">System Capacity <span style="color:var(--wh-text-faint);font-size:0.75rem;">(kW)</span></div>
           <div class="input-group">
             <input aria-label="System Capacity" id="f-capacity" class="wh-input" type="number" value="10" min="0.5" step="0.5" />
             <span class="input-unit">kW</span>
@@ -5477,7 +5507,7 @@ function renderInputForm(calcType) {
 
       <div class="mb-4">
         <div class="field-label">Refrigerant Line Schedule</div>
-        <div style="display:grid;grid-template-columns:2fr 120px 70px 28px;gap:0.35rem;margin-bottom:0.35rem;font-size:0.72rem;color:rgba(255,255,255,0.6);padding:0 0.25rem;">
+        <div style="display:grid;grid-template-columns:2fr 120px 70px 28px;gap:0.35rem;margin-bottom:0.35rem;font-size:0.75rem;color:rgba(255,255,255,0.6);padding:0 0.25rem;">
           <div>Line Name</div><div style="text-align:center;">Line Type</div><div style="text-align:center;">Equiv. Length (m)</div><div></div>
         </div>
         <div id="refrig-line-list" style="display:flex;flex-direction:column;gap:0.35rem;margin-bottom:0.5rem;"></div>
@@ -5907,7 +5937,7 @@ function renderInputForm(calcType) {
       </div>
 
       <div class="mb-4">
-        <div class="field-label">Building Type <span style="color:rgba(255,255,255,0.6);font-size:0.7rem;">(sets minimum pressure differential)</span></div>
+        <div class="field-label">Building Type <span style="color:rgba(255,255,255,0.6);font-size:0.75rem;">(sets minimum pressure differential)</span></div>
         <div class="toggle-group" id="tg-bldg-type">
           <button class="toggle-btn active" data-val="Sprinklered" onclick="toggle('tg-bldg-type','Sprinklered');applyPressDefaults('Sprinklered')">Sprinklered (min 12.5 Pa)</button>
           <button class="toggle-btn" data-val="Non-Sprinklered" onclick="toggle('tg-bldg-type','Non-Sprinklered');applyPressDefaults('Non-Sprinklered')">Non-Sprinklered (min 25 Pa)</button>
@@ -5930,7 +5960,7 @@ function renderInputForm(calcType) {
       </div>
 
       <div class="mb-4">
-        <div class="field-label">Door Fit / Seal Quality <span style="color:rgba(255,255,255,0.6);font-size:0.7rem;">(NFPA 92 Table B.1 leakage area)</span></div>
+        <div class="field-label">Door Fit / Seal Quality <span style="color:rgba(255,255,255,0.6);font-size:0.75rem;">(NFPA 92 Table B.1 leakage area)</span></div>
         <div class="toggle-group" id="tg-door-fit">
           <button class="toggle-btn" data-val="Tight" onclick="toggle('tg-door-fit','Tight')">Tight (0.019 m²: brush seals)</button>
           <button class="toggle-btn active" data-val="Average" onclick="toggle('tg-door-fit','Average')">Average (0.039 m²: standard)</button>
@@ -5940,7 +5970,7 @@ function renderInputForm(calcType) {
 
       <div class="grid grid-cols-2 gap-3 mb-4">
         <div>
-          <div class="field-label">Design Pressure Differential <span style="color:rgba(255,255,255,0.6);font-size:0.7rem;">(max 87 Pa)</span></div>
+          <div class="field-label">Design Pressure Differential <span style="color:rgba(255,255,255,0.6);font-size:0.75rem;">(max 87 Pa)</span></div>
           <div class="input-group">
             <input aria-label="Design Pressure Differential" id="f-delta-p" class="wh-input" type="number" value="25" min="12" max="87" />
             <span class="input-unit">Pa</span>
@@ -6113,7 +6143,7 @@ function renderInputForm(calcType) {
         </div>
       </div>
       <div style="font-size:0.78rem;color:#F7A21B;font-weight:600;margin-bottom:0.5rem;">Harmonic Components (% of I₁)</div>
-      <div style="display:grid;grid-template-columns:auto 1fr 90px;gap:0.4rem;align-items:center;font-size:0.74rem;color:rgba(255,255,255,0.6);margin-bottom:0.3rem;padding:0 0.25rem;">
+      <div style="display:grid;grid-template-columns:auto 1fr 90px;gap:0.4rem;align-items:center;font-size:0.75rem;color:rgba(255,255,255,0.6);margin-bottom:0.3rem;padding:0 0.25rem;">
         <div>Order</div><div>Description</div><div style="text-align:center;">% of I₁</div>
       </div>
       ${[
@@ -6147,7 +6177,7 @@ function renderInputForm(calcType) {
       </div>
 
       <div class="mb-4">
-        <div class="field-label">Occupancy Hazard Classification <span style="color:rgba(255,255,255,0.6);font-size:0.7rem;">(NFPA 13: auto-fills design parameters)</span></div>
+        <div class="field-label">Occupancy Hazard Classification <span style="color:rgba(255,255,255,0.6);font-size:0.75rem;">(NFPA 13: auto-fills design parameters)</span></div>
         <div class="toggle-group" id="tg-hazard">
           ${[
             ['Light Hazard',       'Office, hotel, school'],
@@ -6163,14 +6193,14 @@ function renderInputForm(calcType) {
 
       <div class="grid grid-cols-2 gap-3 mb-4">
         <div>
-          <div class="field-label">Design Area <span style="color:rgba(255,255,255,0.6);font-size:0.7rem;">(auto-filled)</span></div>
+          <div class="field-label">Design Area <span style="color:rgba(255,255,255,0.6);font-size:0.75rem;">(auto-filled)</span></div>
           <div class="input-group">
             <input aria-label="Design Area" id="f-design-area" class="wh-input" type="number" value="139" min="1" />
             <span class="input-unit">m²</span>
           </div>
         </div>
         <div>
-          <div class="field-label">Design Density <span style="color:rgba(255,255,255,0.6);font-size:0.7rem;">(auto-filled)</span></div>
+          <div class="field-label">Design Density <span style="color:rgba(255,255,255,0.6);font-size:0.75rem;">(auto-filled)</span></div>
           <div class="input-group">
             <input aria-label="Design Density" id="f-density" class="wh-input" type="number" value="6.1" min="0.1" step="0.1" />
             <span class="input-unit">mm/min</span>
@@ -6180,14 +6210,14 @@ function renderInputForm(calcType) {
 
       <div class="grid grid-cols-2 gap-3 mb-4">
         <div>
-          <div class="field-label">Coverage per Sprinkler Head <span style="color:rgba(255,255,255,0.6);font-size:0.7rem;">(auto-filled)</span></div>
+          <div class="field-label">Coverage per Sprinkler Head <span style="color:rgba(255,255,255,0.6);font-size:0.75rem;">(auto-filled)</span></div>
           <div class="input-group">
             <input aria-label="Coverage per Sprinkler Head" id="f-coverage" class="wh-input" type="number" value="12.1" min="1" step="0.1" />
             <span class="input-unit">m²/head</span>
           </div>
         </div>
         <div>
-          <div class="field-label">Hose Stream Allowance <span style="color:rgba(255,255,255,0.6);font-size:0.7rem;">(auto-filled)</span></div>
+          <div class="field-label">Hose Stream Allowance <span style="color:rgba(255,255,255,0.6);font-size:0.75rem;">(auto-filled)</span></div>
           <div class="input-group">
             <input aria-label="Hose Stream Allowance" id="f-hose" class="wh-input" type="number" value="500" min="0" />
             <span class="input-unit">L/min</span>
@@ -6302,7 +6332,7 @@ function renderInputForm(calcType) {
           </div>
         </div>
         <div>
-          <div class="field-label">Pipe Diameter <span style="color:rgba(255,255,255,0.6);font-size:0.7rem;">(0 = auto)</span></div>
+          <div class="field-label">Pipe Diameter <span style="color:rgba(255,255,255,0.6);font-size:0.75rem;">(0 = auto)</span></div>
           <div class="input-group">
             <input aria-label="0" id="f-fp-pipe-dia" class="wh-input" type="number" placeholder="0" min="0" value="0" />
             <span class="input-unit">mm</span>
@@ -6714,7 +6744,7 @@ function renderInputForm(calcType) {
           <input aria-label="e.g. 6.5" id="f-iplv" class="wh-input" type="number" placeholder="e.g. 6.5" min="1.0" max="15.0" step="0.01" />
           <span class="input-unit">-</span>
         </div>
-        <div style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin-top:0.25rem;">ASHRAE 90.1-2019 min IPLV: Centrifugal 6.28 / 7.19 / 8.27 (by size) · Screw 5.32 / 5.86 · Scroll 5.32 · Recip 4.32</div>
+        <div style="font-size:0.75rem;color:var(--wh-text-faint);margin-top:0.25rem;">ASHRAE 90.1-2019 min IPLV: Centrifugal 6.28 / 7.19 / 8.27 (by size) · Screw 5.32 / 5.86 · Scroll 5.32 · Recip 4.32</div>
       </div>
 
       <div style="background:rgba(41,182,217,0.08);border:1px solid rgba(41,182,217,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);margin-top:0.25rem;">
@@ -6803,7 +6833,7 @@ function renderInputForm(calcType) {
           <input aria-label="e.g. 3.6" id="f-iplv" class="wh-input" type="number" placeholder="e.g. 3.6" min="1.0" max="10.0" step="0.01" />
           <span class="input-unit">-</span>
         </div>
-        <div style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin-top:0.25rem;">ASHRAE 90.1-2019 min IPLV: 3.50 (&lt;150 TR) · 3.45 (≥150 TR)</div>
+        <div style="font-size:0.75rem;color:var(--wh-text-faint);margin-top:0.25rem;">ASHRAE 90.1-2019 min IPLV: 3.50 (&lt;150 TR) · 3.45 (≥150 TR)</div>
       </div>
 
       <div style="background:rgba(41,182,217,0.08);border:1px solid rgba(41,182,217,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);margin-top:0.25rem;">
@@ -7101,7 +7131,7 @@ function renderInputForm(calcType) {
           </div>
         </div>
         <div>
-          <div class="field-label">Service Factor (Ks) <span style="color:rgba(255,255,255,0.6);font-size:0.7rem;">RMA IP-20</span></div>
+          <div class="field-label">Service Factor (Ks) <span style="color:rgba(255,255,255,0.6);font-size:0.75rem;">RMA IP-20</span></div>
           <div class="toggle-group" id="tg-ks">
             <button class="toggle-btn" data-val="1.0" onclick="toggle('tg-ks','1.0')">1.0: Uniform (pump)</button>
             <button class="toggle-btn active" data-val="1.2" onclick="toggle('tg-ks','1.2')">1.2: Moderate (fan)</button>
@@ -7131,7 +7161,7 @@ function renderInputForm(calcType) {
 
       <div class="grid grid-cols-2 gap-3 mb-4">
         <div>
-          <div class="field-label">Belt Section <span style="color:rgba(255,255,255,0.6);font-size:0.7rem;">(classical)</span></div>
+          <div class="field-label">Belt Section <span style="color:rgba(255,255,255,0.6);font-size:0.75rem;">(classical)</span></div>
           <div class="toggle-group" id="tg-belt-section">
             <button class="toggle-btn" data-val="A" onclick="toggle('tg-belt-section','A');applyBeltDefaults('A')">A (light)</button>
             <button class="toggle-btn active" data-val="B" onclick="toggle('tg-belt-section','B');applyBeltDefaults('B')">B (medium)</button>
@@ -7149,7 +7179,7 @@ function renderInputForm(calcType) {
       </div>
 
       <div class="mb-4">
-        <div class="field-label">Center Distance <span style="color:rgba(255,255,255,0.6);font-size:0.7rem;">(shaft to shaft)</span></div>
+        <div class="field-label">Center Distance <span style="color:rgba(255,255,255,0.6);font-size:0.75rem;">(shaft to shaft)</span></div>
         <div class="input-group">
           <input aria-label="Center Distance" id="f-center-dist" class="wh-input" type="number" value="500" min="100" step="10" />
           <span class="input-unit">mm</span>
@@ -7182,7 +7212,7 @@ function renderInputForm(calcType) {
 
       <div class="grid grid-cols-2 gap-3 mb-4">
         <div>
-          <div class="field-label">Dynamic Load Rating (C) <span style="color:rgba(255,255,255,0.6);font-size:0.7rem;">from catalog</span></div>
+          <div class="field-label">Dynamic Load Rating (C) <span style="color:rgba(255,255,255,0.6);font-size:0.75rem;">from catalog</span></div>
           <div class="input-group">
             <input aria-label="Dynamic Load Rating (C) from catalog" id="f-C-rating" class="wh-input" type="number" value="25.5" min="0.1" step="0.1" />
             <span class="input-unit">kN</span>
@@ -7206,7 +7236,7 @@ function renderInputForm(calcType) {
           </div>
         </div>
         <div>
-          <div class="field-label">Axial Load (Fa) <span style="color:rgba(255,255,255,0.6);font-size:0.7rem;">(0 if none)</span></div>
+          <div class="field-label">Axial Load (Fa) <span style="color:rgba(255,255,255,0.6);font-size:0.75rem;">(0 if none)</span></div>
           <div class="input-group">
             <input aria-label="Axial Load (Fa)" id="f-Fa" class="wh-input" type="number" value="0" min="0" step="0.1" />
             <span class="input-unit">kN</span>
@@ -7233,7 +7263,7 @@ function renderInputForm(calcType) {
       </div>
 
       <div class="mb-4">
-        <div class="field-label">Bearing Number <span style="color:rgba(255,255,255,0.6);font-size:0.7rem;">(optional: for report reference)</span></div>
+        <div class="field-label">Bearing Number <span style="color:rgba(255,255,255,0.6);font-size:0.75rem;">(optional: for report reference)</span></div>
         <input aria-label="e.g. SKF 6308, FAG 22216, NSK 6210" id="f-bearing-no" class="wh-input" placeholder="e.g. SKF 6308, FAG 22216, NSK 6210" />
       </div>
 
@@ -7275,7 +7305,7 @@ function renderInputForm(calcType) {
 
       <div class="grid grid-cols-2 gap-3 mb-4">
         <div>
-          <div class="field-label">Transverse Load (F) <span style="color:rgba(255,255,255,0.6);font-size:0.7rem;">belt / gear force</span></div>
+          <div class="field-label">Transverse Load (F) <span style="color:rgba(255,255,255,0.6);font-size:0.75rem;">belt / gear force</span></div>
           <div class="input-group">
             <input aria-label="Transverse Load (F) belt / gear force" id="f-transverse-load" class="wh-input" type="number" value="2000" min="0" />
             <span class="input-unit">N</span>
@@ -7309,7 +7339,7 @@ function renderInputForm(calcType) {
           </div>
         </div>
         <div>
-          <div class="field-label">Loading / Shock Type <span style="color:rgba(255,255,255,0.6);font-size:0.7rem;">ASME B106.1M</span></div>
+          <div class="field-label">Loading / Shock Type <span style="color:rgba(255,255,255,0.6);font-size:0.75rem;">ASME B106.1M</span></div>
           <div class="toggle-group" id="tg-shock">
             <button class="toggle-btn" data-val="Steady" onclick="toggle('tg-shock','Steady')">Steady (Kb=1.0, Kt=1.0)</button>
             <button class="toggle-btn active" data-val="Minor" onclick="toggle('tg-shock','Minor')">Minor shock (Kb=1.5, Kt=1.0)</button>
@@ -7360,7 +7390,7 @@ function renderInputForm(calcType) {
 
       <div class="grid grid-cols-2 gap-3 mb-4">
         <div>
-          <div class="field-label">Nut Factor (K) <span style="color:rgba(255,255,255,0.6);font-size:0.7rem;">friction condition</span></div>
+          <div class="field-label">Nut Factor (K) <span style="color:rgba(255,255,255,0.6);font-size:0.75rem;">friction condition</span></div>
           <div class="toggle-group" id="tg-nut-factor">
             <button class="toggle-btn" data-val="0.11" onclick="toggle('tg-nut-factor','0.11')">0.11: MoS₂ grease</button>
             <button class="toggle-btn" data-val="0.13" onclick="toggle('tg-nut-factor','0.13')">0.13: Machine oil</button>
@@ -7425,14 +7455,14 @@ function renderInputForm(calcType) {
           <div class="input-group"><input aria-label="Span / Length" id="f-span-m" class="wh-input" type="number" value="6" min="0.5" step="0.1"/><span class="input-unit">m</span></div>
         </div>
         <div>
-          <div class="field-label">UDL w (kN/m) <span style="color:rgba(255,255,255,0.6);font-size:0.7rem;">for deflection</span></div>
+          <div class="field-label">UDL w (kN/m) <span style="color:rgba(255,255,255,0.6);font-size:0.75rem;">for deflection</span></div>
           <div class="input-group"><input aria-label="UDL w (kN/m) for deflection" id="f-w-udl" class="wh-input" type="number" value="30" min="0"/><span class="input-unit">kN/m</span></div>
         </div>
       </div>
       <div class="grid grid-cols-3 gap-3 mb-4">
         <div><div class="field-label">M<sub>u</sub> (kN·m)</div><div class="input-group"><input aria-label="M u" id="f-Mu" class="wh-input" type="number" value="180" min="0"/><span class="input-unit">kN·m</span></div></div>
         <div><div class="field-label">V<sub>u</sub> (kN)</div><div class="input-group"><input aria-label="V u" id="f-Vu" class="wh-input" type="number" value="90" min="0"/><span class="input-unit">kN</span></div></div>
-        <div><div class="field-label">P<sub>u</sub> (kN) <span style="color:rgba(255,255,255,0.6);font-size:0.7rem;">columns</span></div><div class="input-group"><input aria-label="P u (kN) columns" id="f-Pu" class="wh-input" type="number" value="500" min="0"/><span class="input-unit">kN</span></div></div>
+        <div><div class="field-label">P<sub>u</sub> (kN) <span style="color:rgba(255,255,255,0.6);font-size:0.75rem;">columns</span></div><div class="input-group"><input aria-label="P u (kN) columns" id="f-Pu" class="wh-input" type="number" value="500" min="0"/><span class="input-unit">kN</span></div></div>
       </div>
       <div class="mb-4">
         <div class="field-label">Steel Grade</div>
@@ -7962,11 +7992,11 @@ function addToolRow(defaultTool = 'Impact Wrench 1/2', defaultQty = 1) {
     </select>
     <div class="input-group" style="min-width:0;">
       <input id="tool-qty-${id}" aria-label="Tool quantity" class="wh-input py-2" type="number" value="${defaultQty}" min="1" style="padding:0.5rem 0.4rem;" />
-      <span class="input-unit" style="font-size:0.7rem;">qty</span>
+      <span class="input-unit" style="font-size:0.75rem;">qty</span>
     </div>
     <div class="input-group" style="min-width:0;" id="custom-cfm-wrap-${id}" style="display:none;">
       <input id="tool-cfm-${id}" aria-label="Tool CFM" class="wh-input py-2" type="number" value="0" min="0" placeholder="CFM" style="padding:0.5rem 0.4rem;" />
-      <span class="input-unit" style="font-size:0.7rem;">CFM</span>
+      <span class="input-unit" style="font-size:0.75rem;">CFM</span>
     </div>
     <button onclick="document.getElementById('tool-row-${id}').remove()" style="background:rgba(220,50,50,0.15);border:1px solid rgba(220,50,50,0.3);border-radius:0.4rem;color:rgba(220,50,50,0.8);width:28px;height:28px;cursor:pointer;font-size:0.9rem;flex-shrink:0;">x</button>
   `;
@@ -7994,15 +8024,15 @@ function addFixtureRow(defaultFixture = 'Water Closet (Flush Tank)', defaultQty 
     </select>
     <div class="input-group" style="min-width:0;">
       <input id="fix-qty-${id}" aria-label="Fixture quantity" class="wh-input py-2" type="number" value="${defaultQty}" min="1" style="padding:0.5rem 0.4rem;" />
-      <span class="input-unit" style="font-size:0.7rem;">qty</span>
+      <span class="input-unit" style="font-size:0.75rem;">qty</span>
     </div>
     <div class="input-group" style="min-width:0;display:none;" id="fix-wfu-wrap-${id}">
       <input id="fix-wfu-${id}" aria-label="Fixture WFU" class="wh-input py-2" type="number" value="1" min="0" placeholder="WFU" style="padding:0.5rem 0.4rem;" />
-      <span class="input-unit" style="font-size:0.65rem;">WFU</span>
+      <span class="input-unit" style="font-size:0.75rem;">WFU</span>
     </div>
     <div class="input-group" style="min-width:0;display:none;" id="fix-lpm-wrap-${id}">
       <input id="fix-lpm-${id}" aria-label="Fixture L/min" class="wh-input py-2" type="number" value="3.8" min="0" placeholder="L/min" style="padding:0.5rem 0.4rem;" />
-      <span class="input-unit" style="font-size:0.65rem;">L/min</span>
+      <span class="input-unit" style="font-size:0.75rem;">L/min</span>
     </div>
     <button onclick="document.getElementById('fixture-row-${id}').remove()" style="background:rgba(220,50,50,0.15);border:1px solid rgba(220,50,50,0.3);border-radius:0.4rem;color:rgba(220,50,50,0.8);width:28px;height:28px;cursor:pointer;font-size:0.9rem;flex-shrink:0;">x</button>
   `;
@@ -8033,15 +8063,15 @@ function addUseRow(defaultType = 'Hotel Room', defaultQty = 10, defaultCount = 1
     </select>
     <div class="input-group" style="min-width:0;">
       <input id="hw-qty-${id}" aria-label="Hot water quantity" class="wh-input py-2" type="number" value="${defaultQty}" min="1" style="padding:0.5rem 0.4rem;" />
-      <span class="input-unit" style="font-size:0.65rem;">qty</span>
+      <span class="input-unit" style="font-size:0.75rem;">qty</span>
     </div>
     <div class="input-group" style="min-width:0;">
       <input id="hw-count-${id}" aria-label="Hot water count" class="wh-input py-2" type="number" value="${defaultCount}" min="1" style="padding:0.5rem 0.4rem;" />
-      <span class="input-unit" style="font-size:0.65rem;">/day</span>
+      <span class="input-unit" style="font-size:0.75rem;">/day</span>
     </div>
     <div class="input-group" style="min-width:0;" id="hw-rate-wrap-${id}">
       <input id="hw-rate-${id}" aria-label="Hot water rate" class="wh-input py-2" type="number" value="${HW_USE_RATES[defaultType]||0}" min="0" style="padding:0.5rem 0.4rem;" />
-      <span class="input-unit" style="font-size:0.65rem;">L</span>
+      <span class="input-unit" style="font-size:0.75rem;">L</span>
     </div>
     <button onclick="document.getElementById('hw-use-row-${id}').remove()" style="background:rgba(220,50,50,0.15);border:1px solid rgba(220,50,50,0.3);border-radius:0.4rem;color:rgba(220,50,50,0.8);width:28px;height:28px;cursor:pointer;font-size:0.9rem;flex-shrink:0;">x</button>
   `;
@@ -8081,13 +8111,13 @@ function addDrainFixtureRow(defaultType = 'Water Closet', defaultQty = 1) {
     </select>
     <div class="input-group" style="min-width:0;">
       <input id="drain-qty-${id}" aria-label="Drain quantity" class="wh-input py-2" type="number" value="${defaultQty}" min="1" style="padding:0.5rem 0.4rem;" />
-      <span class="input-unit" style="font-size:0.65rem;">qty</span>
+      <span class="input-unit" style="font-size:0.75rem;">qty</span>
     </div>
     <div class="input-group" style="min-width:0;" id="drain-dfu-wrap-${id}">
       <input id="drain-dfu-${id}" aria-label="Drain DFU" class="wh-input py-2" type="number" value="${DRAIN_DFU_VALUES[defaultType]||0}" min="0" style="padding:0.5rem 0.4rem;" />
-      <span class="input-unit" style="font-size:0.65rem;">DFU</span>
+      <span class="input-unit" style="font-size:0.75rem;">DFU</span>
     </div>
-    <div style="font-size:0.7rem;color:rgba(255,255,255,0.6);text-align:center;" id="drain-total-${id}">x${defaultQty}</div>
+    <div style="font-size:0.75rem;color:rgba(255,255,255,0.6);text-align:center;" id="drain-total-${id}">x${defaultQty}</div>
     <button onclick="document.getElementById('drain-row-${id}').remove()" style="background:rgba(220,50,50,0.15);border:1px solid rgba(220,50,50,0.3);border-radius:0.4rem;color:rgba(220,50,50,0.8);width:28px;height:28px;cursor:pointer;font-size:0.9rem;flex-shrink:0;">x</button>
   `;
   document.getElementById('drain-fixture-list').appendChild(row);
@@ -8146,11 +8176,11 @@ function addGTFixtureRow(defaultType = 'Single Kitchen Sink', defaultFlow = 7.6,
     </select>
     <div class="input-group" style="min-width:0;">
       <input id="gt-flow-${id}" aria-label="Gas tool flow" class="wh-input py-2" type="number" value="${defaultFlow}" min="0" step="0.1" style="padding:0.5rem 0.4rem;" />
-      <span class="input-unit" style="font-size:0.65rem;">L/m</span>
+      <span class="input-unit" style="font-size:0.75rem;">L/m</span>
     </div>
     <div class="input-group" style="min-width:0;">
       <input id="gt-qty-${id}" aria-label="Gas tool quantity" class="wh-input py-2" type="number" value="${defaultQty}" min="1" style="padding:0.5rem 0.4rem;" />
-      <span class="input-unit" style="font-size:0.65rem;">qty</span>
+      <span class="input-unit" style="font-size:0.75rem;">qty</span>
     </div>
     <button onclick="document.getElementById('gt-row-${id}').remove()" style="background:rgba(220,50,50,0.15);border:1px solid rgba(220,50,50,0.3);border-radius:0.4rem;color:rgba(220,50,50,0.8);width:28px;height:28px;cursor:pointer;font-size:0.9rem;flex-shrink:0;">x</button>
   `;
@@ -8207,15 +8237,15 @@ function addLoadRow(defaultType = 'Lighting (General)', defaultQty = 1, defaultW
     </select>
     <div class="input-group" style="min-width:0;">
       <input id="lt-qty-${id}" aria-label="Lighting quantity" class="wh-input py-2" type="number" value="${defaultQty}" min="1" style="padding:0.5rem 0.4rem;" />
-      <span class="input-unit" style="font-size:0.6rem;">qty</span>
+      <span class="input-unit" style="font-size:0.75rem;">qty</span>
     </div>
     <div class="input-group" style="min-width:0;">
       <input id="lt-w-${id}" aria-label="Lighting wattage" class="wh-input py-2" type="number" value="${defaultW}" min="1" style="padding:0.5rem 0.4rem;" />
-      <span class="input-unit" style="font-size:0.6rem;">W</span>
+      <span class="input-unit" style="font-size:0.75rem;">W</span>
     </div>
     <div class="input-group" style="min-width:0;">
       <input id="lt-pf-${id}" aria-label="Lighting power factor" class="wh-input py-2" type="number" value="${defaultPF}" min="0.5" max="1.0" step="0.05" style="padding:0.5rem 0.4rem;" />
-      <span class="input-unit" style="font-size:0.6rem;">PF</span>
+      <span class="input-unit" style="font-size:0.75rem;">PF</span>
     </div>
     <button onclick="document.getElementById('load-row-${id}').remove()" style="background:rgba(220,50,50,0.15);border:1px solid rgba(220,50,50,0.3);border-radius:0.4rem;color:rgba(220,50,50,0.8);width:28px;height:28px;cursor:pointer;font-size:0.9rem;flex-shrink:0;">x</button>
   `;
@@ -8240,15 +8270,15 @@ function addGenLoadRow(defaultType = 'Lighting (General)', defaultQty = 1, defau
     </select>
     <div class="input-group" style="min-width:0;">
       <input id="glt-qty-${id}" aria-label="General lighting quantity" class="wh-input py-2" type="number" value="${defaultQty}" min="1" style="padding:0.5rem 0.4rem;" />
-      <span class="input-unit" style="font-size:0.6rem;">qty</span>
+      <span class="input-unit" style="font-size:0.75rem;">qty</span>
     </div>
     <div class="input-group" style="min-width:0;">
       <input id="glt-w-${id}" aria-label="General lighting wattage" class="wh-input py-2" type="number" value="${defaultW}" min="1" style="padding:0.5rem 0.4rem;" />
-      <span class="input-unit" style="font-size:0.6rem;">W</span>
+      <span class="input-unit" style="font-size:0.75rem;">W</span>
     </div>
     <div class="input-group" style="min-width:0;">
       <input id="glt-pf-${id}" aria-label="General lighting power factor" class="wh-input py-2" type="number" value="${defaultPF}" min="0.5" max="1.0" step="0.05" style="padding:0.5rem 0.4rem;" />
-      <span class="input-unit" style="font-size:0.6rem;">PF</span>
+      <span class="input-unit" style="font-size:0.75rem;">PF</span>
     </div>
     <button onclick="document.getElementById('gen-load-row-${id}').remove()" style="background:rgba(220,50,50,0.15);border:1px solid rgba(220,50,50,0.3);border-radius:0.4rem;color:rgba(220,50,50,0.8);width:28px;height:28px;cursor:pointer;font-size:0.9rem;flex-shrink:0;">x</button>
   `;
@@ -8275,15 +8305,15 @@ function addCTCableRow(defaultType = 'Power', defaultOD = 25, defaultQty = 1, de
     </select>
     <div class="input-group" style="min-width:0;">
       <input id="ct-od-${id}" aria-label="Conduit outer diameter" class="wh-input py-2" type="number" value="${defaultOD}" min="1" step="0.5" style="padding:0.5rem 0.4rem;" />
-      <span class="input-unit" style="font-size:0.6rem;">mm</span>
+      <span class="input-unit" style="font-size:0.75rem;">mm</span>
     </div>
     <div class="input-group" style="min-width:0;">
       <input id="ct-qty-${id}" aria-label="Conduit quantity" class="wh-input py-2" type="number" value="${defaultQty}" min="1" style="padding:0.5rem 0.4rem;" />
-      <span class="input-unit" style="font-size:0.6rem;">qty</span>
+      <span class="input-unit" style="font-size:0.75rem;">qty</span>
     </div>
     <div class="input-group" style="min-width:0;">
       <input id="ct-w-${id}" aria-label="Conduit weight" class="wh-input py-2" type="number" value="${defaultWeight}" min="0" step="0.01" placeholder="auto" style="padding:0.5rem 0.4rem;" />
-      <span class="input-unit" style="font-size:0.55rem;">kg/m</span>
+      <span class="input-unit" style="font-size:0.75rem;">kg/m</span>
     </div>
     <button onclick="document.getElementById('ct-cable-row-${id}').remove()" style="background:rgba(220,50,50,0.15);border:1px solid rgba(220,50,50,0.3);border-radius:0.4rem;color:rgba(220,50,50,0.8);width:28px;height:28px;cursor:pointer;font-size:0.9rem;flex-shrink:0;">x</button>
   `;
@@ -8301,15 +8331,15 @@ function addUPSLoadRow(defaultDesc = 'Load', defaultVA = 1000, defaultPF = 0.9, 
     <input id="ups-desc-${id}" aria-label="UPS load description" class="wh-input py-2" type="text" value="${escHtml(String(defaultDesc))}" placeholder="Load description" style="padding:0.5rem 0.4rem;" />
     <div class="input-group" style="min-width:0;">
       <input id="ups-va-${id}" aria-label="UPS VA rating" class="wh-input py-2" type="number" value="${defaultVA}" min="1" step="1" style="padding:0.5rem 0.4rem;" />
-      <span class="input-unit" style="font-size:0.6rem;">VA</span>
+      <span class="input-unit" style="font-size:0.75rem;">VA</span>
     </div>
     <div class="input-group" style="min-width:0;">
       <input id="ups-pf-${id}" aria-label="UPS power factor" class="wh-input py-2" type="number" value="${defaultPF}" min="0.1" max="1.0" step="0.01" style="padding:0.5rem 0.4rem;" />
-      <span class="input-unit" style="font-size:0.55rem;">PF</span>
+      <span class="input-unit" style="font-size:0.75rem;">PF</span>
     </div>
     <div class="input-group" style="min-width:0;">
       <input id="ups-qty-${id}" aria-label="UPS quantity" class="wh-input py-2" type="number" value="${defaultQty}" min="1" style="padding:0.5rem 0.4rem;" />
-      <span class="input-unit" style="font-size:0.55rem;">qty</span>
+      <span class="input-unit" style="font-size:0.75rem;">qty</span>
     </div>
     <button onclick="document.getElementById('ups-load-row-${id}').remove()" style="background:rgba(220,50,50,0.15);border:1px solid rgba(220,50,50,0.3);border-radius:0.4rem;color:rgba(220,50,50,0.8);width:28px;height:28px;cursor:pointer;font-size:0.9rem;flex-shrink:0;">x</button>
   `;
@@ -8328,11 +8358,11 @@ function addDuctSegRow(defaultName = 'Segment', defaultFlow = 500, defaultLen = 
     <input id="duct-name-${id}" aria-label="Duct segment name" class="wh-input py-2" type="text" value="${escHtml(String(defaultName))}" placeholder="Segment name" style="padding:0.5rem 0.4rem;" />
     <div class="input-group" style="min-width:0;">
       <input id="duct-flow-${id}" aria-label="Duct flow" class="wh-input py-2" type="number" value="${defaultFlow}" min="1" step="1" style="padding:0.5rem 0.4rem;" />
-      <span class="input-unit" style="font-size:0.6rem;">L/s</span>
+      <span class="input-unit" style="font-size:0.75rem;">L/s</span>
     </div>
     <div class="input-group" style="min-width:0;">
       <input id="duct-len-${id}" aria-label="Duct length" class="wh-input py-2" type="number" value="${defaultLen}" min="0.1" step="0.5" style="padding:0.5rem 0.4rem;" />
-      <span class="input-unit" style="font-size:0.6rem;">m</span>
+      <span class="input-unit" style="font-size:0.75rem;">m</span>
     </div>
     <select class="wh-input py-2" id="duct-type-${id}">
       ${DUCT_SEG_TYPES.map(t => `<option value="${t}"${t === defaultType ? ' selected' : ''}>${t}</option>`).join('')}
@@ -8382,9 +8412,9 @@ function setExpTankDefaults(type) {
   const lbl = document.getElementById('et-max-temp-label');
   if (lbl) {
     if (type === 'Chilled Water') {
-      lbl.innerHTML = 'Min Operating Temperature <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(CHW supply temp: lower than fill)</span>';
+      lbl.innerHTML = 'Min Operating Temperature <span style="color:var(--wh-text-faint);font-size:0.75rem;">(CHW supply temp: lower than fill)</span>';
     } else {
-      lbl.innerHTML = 'Max Operating Temperature <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(system supply temp: higher than fill)</span>';
+      lbl.innerHTML = 'Max Operating Temperature <span style="color:var(--wh-text-faint);font-size:0.75rem;">(system supply temp: higher than fill)</span>';
     }
   }
 }
@@ -8428,7 +8458,7 @@ function addRefrigLineRow(defaultName = 'Line', defaultType = 'Suction: Horizont
     </select>
     <div class="input-group" style="min-width:0;">
       <input id="refrig-len-${id}" aria-label="Refrigerant line length" class="wh-input py-2" type="number" value="${defaultLen}" min="0.5" step="0.5" style="font-size:16px;padding:0.5rem 0.4rem;" />
-      <span class="input-unit" style="font-size:0.6rem;">m</span>
+      <span class="input-unit" style="font-size:0.75rem;">m</span>
     </div>
     <button onclick="document.getElementById('refrig-line-row-${id}').remove()" style="background:rgba(220,50,50,0.15);border:1px solid rgba(220,50,50,0.3);border-radius:0.4rem;color:rgba(220,50,50,0.8);width:28px;height:28px;cursor:pointer;font-size:0.9rem;flex-shrink:0;">x</button>
   `;
@@ -11683,14 +11713,14 @@ function renderGeneratorReport(inputs, results, narrative) {
         <tr>
           <td style="width:50%;padding:0;vertical-align:top;">
             <div class="result-highlight" style="background:#f0f4ff;border:2px solid #162032;border-radius:0.6rem;padding:0.85rem 1rem;text-align:center;page-break-inside:avoid;break-inside:avoid;">
-              <div style="font-size:0.72rem;color:#555;text-transform:uppercase;letter-spacing:0.5px;">Selected Generator</div>
+              <div style="font-size:0.75rem;color:#555;text-transform:uppercase;letter-spacing:0.5px;">Selected Generator</div>
               <div style="font-size:1.5rem;font-weight:800;color:#162032;">${r.selected_kva || 'n/a'} kVA</div>
               <div style="font-size:0.82rem;color:#333;">${r.selected_kw||0} kW @ PF 0.8</div>
             </div>
           </td>
           <td style="width:50%;padding:0;vertical-align:top;">
             <div class="result-highlight" style="background:#fff8e1;border:2px solid #F7A21B;border-radius:0.6rem;padding:0.85rem 1rem;text-align:center;page-break-inside:avoid;break-inside:avoid;">
-              <div style="font-size:0.72rem;color:#555;text-transform:uppercase;letter-spacing:0.5px;">Running kVA</div>
+              <div style="font-size:0.75rem;color:#555;text-transform:uppercase;letter-spacing:0.5px;">Running kVA</div>
               <div style="font-size:1.5rem;font-weight:800;color:#D88A0E;">${r.running_kva || 'n/a'} kVA</div>
               <div style="font-size:0.82rem;color:#333;">${r.running_kw||0} kW demand</div>
             </div>
@@ -11699,14 +11729,14 @@ function renderGeneratorReport(inputs, results, narrative) {
         <tr>
           <td style="padding:0;vertical-align:top;">
             <div class="result-highlight" style="background:#fff0f0;border:2px solid #c0392b;border-radius:0.6rem;padding:0.85rem 1rem;text-align:center;page-break-inside:avoid;break-inside:avoid;">
-              <div style="font-size:0.72rem;color:#555;text-transform:uppercase;letter-spacing:0.5px;">Starting kVA (surge)</div>
+              <div style="font-size:0.75rem;color:#555;text-transform:uppercase;letter-spacing:0.5px;">Starting kVA (surge)</div>
               <div style="font-size:1.5rem;font-weight:800;color:#c0392b;">${r.starting_kva || 'n/a'} kVA</div>
               <div style="font-size:0.82rem;color:#333;">${r.motor_hp || 'n/a'} HP motor, ${e(r.start_method||'DOL')}</div>
             </div>
           </td>
           <td style="padding:0;vertical-align:top;">
             <div class="result-highlight" style="background:#f0fff4;border:2px solid #27ae60;border-radius:0.6rem;padding:0.85rem 1rem;text-align:center;page-break-inside:avoid;break-inside:avoid;">
-              <div style="font-size:0.72rem;color:#555;text-transform:uppercase;letter-spacing:0.5px;">Fuel (100% load)</div>
+              <div style="font-size:0.75rem;color:#555;text-transform:uppercase;letter-spacing:0.5px;">Fuel (100% load)</div>
               <div style="font-size:1.5rem;font-weight:800;color:#27ae60;">${r.fuel_100pct_lhr||0} L/hr</div>
               <div style="font-size:0.82rem;color:#333;">${r.tank_8hr_litres||0} L min tank (8 hr)</div>
             </div>
@@ -11787,25 +11817,25 @@ function renderSolarPVReport(inputs, results, narrative) {
     <div style="page-break-inside:avoid;break-inside:avoid;">
       <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;margin-bottom:1.5rem;">
         <div class="result-highlight" style="background:#f0f7ff;border:2px solid #162032;border-radius:0.5rem;padding:1rem;text-align:center;">
-          <div style="font-size:0.72rem;color:#555;text-transform:uppercase;letter-spacing:0.5px;">Array Capacity</div>
+          <div style="font-size:0.75rem;color:#555;text-transform:uppercase;letter-spacing:0.5px;">Array Capacity</div>
           <div style="font-size:2rem;font-weight:800;color:#162032;">${e(results.actual_array_kwp || 0)}</div>
           <div style="font-size:0.8rem;color:#666;">kWp (actual)</div>
           <div style="font-size:0.75rem;color:#595959;margin-top:0.3rem;">Required: ${e(results.required_array_kwp || 0)} kWp</div>
         </div>
         <div class="result-highlight" style="background:#f0fff4;border:2px solid #22c55e;border-radius:0.5rem;padding:1rem;text-align:center;">
-          <div style="font-size:0.72rem;color:#555;text-transform:uppercase;letter-spacing:0.5px;">Panel Count</div>
+          <div style="font-size:0.75rem;color:#555;text-transform:uppercase;letter-spacing:0.5px;">Panel Count</div>
           <div style="font-size:2rem;font-weight:800;color:#1a6b3c;">${e(results.panel_qty || 0)}</div>
           <div style="font-size:0.8rem;color:#666;">panels × ${e(inputs.panel_wp || 450)} Wp</div>
           <div style="font-size:0.75rem;color:#595959;margin-top:0.3rem;">${e(results.panels_per_string || 0)} panels/string × ${e(results.num_strings || 0)} strings</div>
         </div>
         <div class="result-highlight" style="background:#fffbf0;border:2px solid #F7A21B;border-radius:0.5rem;padding:1rem;text-align:center;">
-          <div style="font-size:0.72rem;color:#555;text-transform:uppercase;letter-spacing:0.5px;">Inverter Capacity</div>
+          <div style="font-size:0.75rem;color:#555;text-transform:uppercase;letter-spacing:0.5px;">Inverter Capacity</div>
           <div style="font-size:2rem;font-weight:800;color:#7a5200;">${e(results.inverter_kw || 0)}</div>
           <div style="font-size:0.8rem;color:#666;">kW</div>
           <div style="font-size:0.75rem;color:#595959;margin-top:0.3rem;">DC/AC ratio ≈ 1.0</div>
         </div>
         <div class="result-highlight" style="background:#fef3f2;border:2px solid #ef4444;border-radius:0.5rem;padding:1rem;text-align:center;">
-          <div style="font-size:0.72rem;color:#555;text-transform:uppercase;letter-spacing:0.5px;">Annual Yield</div>
+          <div style="font-size:0.75rem;color:#555;text-transform:uppercase;letter-spacing:0.5px;">Annual Yield</div>
           <div style="font-size:2rem;font-weight:800;color:#991b1b;">${e(results.annual_yield_kwh || 0)}</div>
           <div style="font-size:0.8rem;color:#666;">kWh/year</div>
           <div style="font-size:0.75rem;color:#595959;margin-top:0.3rem;">CO₂ saved: ${e(results.co2_reduction_kg || 0)} kg/yr</div>
@@ -11870,28 +11900,28 @@ function renderSolarPVReport(inputs, results, narrative) {
         <div style="height:2.5rem;"></div>
         <div style="border-top:1px solid #999;padding-top:0.3rem;">
           <div style="font-size:0.78rem;font-weight:700;">${ef('_________________________')}</div>
-          <div style="font-size:0.74rem;color:#555;">${ef('Electrical Engineer')}</div>
-          <div style="font-size:0.74rem;color:#555;">PRC Lic. No.: ${ef('_____________')}</div>
-          <div style="font-size:0.74rem;color:#555;">PTR No.: ${ef('_____________')}</div>
-          <div style="font-size:0.72rem;color:#595959;margin-top:0.2rem;">Prepared by</div>
+          <div style="font-size:0.75rem;color:#555;">${ef('Electrical Engineer')}</div>
+          <div style="font-size:0.75rem;color:#555;">PRC Lic. No.: ${ef('_____________')}</div>
+          <div style="font-size:0.75rem;color:#555;">PTR No.: ${ef('_____________')}</div>
+          <div style="font-size:0.75rem;color:#595959;margin-top:0.2rem;">Prepared by</div>
         </div>
       </div>
       <div style="flex:1 1 200px;">
         <div style="height:2.5rem;"></div>
         <div style="border-top:1px solid #999;padding-top:0.3rem;">
           <div style="font-size:0.78rem;font-weight:700;">${ef('_________________________')}</div>
-          <div style="font-size:0.74rem;color:#555;">${ef('Project Engineer / Manager')}</div>
-          <div style="font-size:0.74rem;color:#555;">Company: ${ef('_____________')}</div>
-          <div style="font-size:0.72rem;color:#595959;margin-top:0.2rem;">Checked by</div>
+          <div style="font-size:0.75rem;color:#555;">${ef('Project Engineer / Manager')}</div>
+          <div style="font-size:0.75rem;color:#555;">Company: ${ef('_____________')}</div>
+          <div style="font-size:0.75rem;color:#595959;margin-top:0.2rem;">Checked by</div>
         </div>
       </div>
       <div style="flex:1 1 200px;">
         <div style="height:2.5rem;"></div>
         <div style="border-top:1px solid #999;padding-top:0.3rem;">
           <div style="font-size:0.78rem;font-weight:700;">${ef('_________________________')}</div>
-          <div style="font-size:0.74rem;color:#555;">${ef('Owner / Client Representative')}</div>
-          <div style="font-size:0.74rem;color:#555;">Date: ${ef(new Date().toLocaleDateString('en-PH',{year:'numeric',month:'long',day:'numeric'}))}</div>
-          <div style="font-size:0.72rem;color:#595959;margin-top:0.2rem;">Approved by</div>
+          <div style="font-size:0.75rem;color:#555;">${ef('Owner / Client Representative')}</div>
+          <div style="font-size:0.75rem;color:#555;">Date: ${ef(new Date().toLocaleDateString('en-PH',{year:'numeric',month:'long',day:'numeric'}))}</div>
+          <div style="font-size:0.75rem;color:#595959;margin-top:0.2rem;">Approved by</div>
         </div>
       </div>
     </div>
@@ -11945,8 +11975,8 @@ function renderPFCReport(inputs, results, narrative) {
       </div>
       <div class="report-logo-block">
         <div style="font-size:0.75rem;font-weight:700;color:#1a56db;">IEEE 18 / IEEE 1036</div>
-        <div style="font-size:0.7rem;color:#555;">PEC 2017 Art. 4.60</div>
-        <div style="font-size:0.7rem;color:#555;">IEC 60831-1</div>
+        <div style="font-size:0.75rem;color:#555;">PEC 2017 Art. 4.60</div>
+        <div style="font-size:0.75rem;color:#555;">IEC 60831-1</div>
       </div>
     </div>
 
@@ -12049,25 +12079,25 @@ function renderPFCReport(inputs, results, narrative) {
       <div>
         <div style="margin-top:2.5rem;border-top:1px solid #999;padding-top:0.3rem;">
           <div style="font-size:0.78rem;font-weight:700;">${e(WORKER_NAME || '')}</div>
-          <div style="font-size:0.74rem;color:#555;">${e('Electrical Engineer')}</div>
-          <div style="font-size:0.74rem;color:#555;">PRC Lic. No.: ${e('_____________')}</div>
-          <div style="font-size:0.72rem;color:#595959;margin-top:0.2rem;">Prepared by</div>
+          <div style="font-size:0.75rem;color:#555;">${e('Electrical Engineer')}</div>
+          <div style="font-size:0.75rem;color:#555;">PRC Lic. No.: ${e('_____________')}</div>
+          <div style="font-size:0.75rem;color:#595959;margin-top:0.2rem;">Prepared by</div>
         </div>
       </div>
       <div>
         <div style="margin-top:2.5rem;border-top:1px solid #999;padding-top:0.3rem;">
           <div style="font-size:0.78rem;font-weight:700;">${e('_________________')}</div>
-          <div style="font-size:0.74rem;color:#555;">${e('Electrical Engineer')}</div>
-          <div style="font-size:0.74rem;color:#555;">PRC Lic. No.: ${e('_____________')}</div>
-          <div style="font-size:0.72rem;color:#595959;margin-top:0.2rem;">Checked by</div>
+          <div style="font-size:0.75rem;color:#555;">${e('Electrical Engineer')}</div>
+          <div style="font-size:0.75rem;color:#555;">PRC Lic. No.: ${e('_____________')}</div>
+          <div style="font-size:0.75rem;color:#595959;margin-top:0.2rem;">Checked by</div>
         </div>
       </div>
       <div>
         <div style="margin-top:2.5rem;border-top:1px solid #999;padding-top:0.3rem;">
           <div style="font-size:0.78rem;font-weight:700;">${e('_________________')}</div>
-          <div style="font-size:0.74rem;color:#555;">${e('Owner / Client Representative')}</div>
-          <div style="font-size:0.74rem;color:#555;">Date: ${e(new Date().toLocaleDateString('en-PH',{year:'numeric',month:'long',day:'numeric'}))}</div>
-          <div style="font-size:0.72rem;color:#595959;margin-top:0.2rem;">Approved by</div>
+          <div style="font-size:0.75rem;color:#555;">${e('Owner / Client Representative')}</div>
+          <div style="font-size:0.75rem;color:#555;">Date: ${e(new Date().toLocaleDateString('en-PH',{year:'numeric',month:'long',day:'numeric'}))}</div>
+          <div style="font-size:0.75rem;color:#595959;margin-top:0.2rem;">Approved by</div>
         </div>
       </div>
     </div>
@@ -12133,8 +12163,8 @@ function renderCableTrayReport(inputs, results, narrative) {
       </div>
       <div class="report-logo-block">
         <div style="font-size:0.75rem;font-weight:700;color:#1a56db;">NEMA VE 1</div>
-        <div style="font-size:0.7rem;color:#555;">NEC Art. 392</div>
-        <div style="font-size:0.7rem;color:#555;">PEC 2017 Art. 3.92</div>
+        <div style="font-size:0.75rem;color:#555;">NEC Art. 392</div>
+        <div style="font-size:0.75rem;color:#555;">PEC 2017 Art. 3.92</div>
       </div>
     </div>
 
@@ -12251,25 +12281,25 @@ function renderCableTrayReport(inputs, results, narrative) {
       <div>
         <div style="margin-top:2.5rem;border-top:1px solid #999;padding-top:0.3rem;">
           <div style="font-size:0.78rem;font-weight:700;">${e(WORKER_NAME || '')}</div>
-          <div style="font-size:0.74rem;color:#555;">${e('Electrical Engineer')}</div>
-          <div style="font-size:0.74rem;color:#555;">PRC Lic. No.: ${e('_____________')}</div>
-          <div style="font-size:0.72rem;color:#595959;margin-top:0.2rem;">Prepared by</div>
+          <div style="font-size:0.75rem;color:#555;">${e('Electrical Engineer')}</div>
+          <div style="font-size:0.75rem;color:#555;">PRC Lic. No.: ${e('_____________')}</div>
+          <div style="font-size:0.75rem;color:#595959;margin-top:0.2rem;">Prepared by</div>
         </div>
       </div>
       <div>
         <div style="margin-top:2.5rem;border-top:1px solid #999;padding-top:0.3rem;">
           <div style="font-size:0.78rem;font-weight:700;">${e('_________________')}</div>
-          <div style="font-size:0.74rem;color:#555;">${e('Electrical Engineer')}</div>
-          <div style="font-size:0.74rem;color:#555;">PRC Lic. No.: ${e('_____________')}</div>
-          <div style="font-size:0.72rem;color:#595959;margin-top:0.2rem;">Checked by</div>
+          <div style="font-size:0.75rem;color:#555;">${e('Electrical Engineer')}</div>
+          <div style="font-size:0.75rem;color:#555;">PRC Lic. No.: ${e('_____________')}</div>
+          <div style="font-size:0.75rem;color:#595959;margin-top:0.2rem;">Checked by</div>
         </div>
       </div>
       <div>
         <div style="margin-top:2.5rem;border-top:1px solid #999;padding-top:0.3rem;">
           <div style="font-size:0.78rem;font-weight:700;">${e('_________________')}</div>
-          <div style="font-size:0.74rem;color:#555;">${e('Owner / Client Representative')}</div>
-          <div style="font-size:0.74rem;color:#555;">Date: ${e(dateStr)}</div>
-          <div style="font-size:0.72rem;color:#595959;margin-top:0.2rem;">Approved by</div>
+          <div style="font-size:0.75rem;color:#555;">${e('Owner / Client Representative')}</div>
+          <div style="font-size:0.75rem;color:#555;">Date: ${e(dateStr)}</div>
+          <div style="font-size:0.75rem;color:#595959;margin-top:0.2rem;">Approved by</div>
         </div>
       </div>
     </div>
@@ -12471,25 +12501,25 @@ function renderUPSSizingReport(inputs, results, narrative) {
       <div>
         <div style="margin-top:2.5rem;border-top:1px solid #999;padding-top:0.3rem;">
           <div style="font-size:0.78rem;font-weight:700;">${e(WORKER_NAME || '')}</div>
-          <div style="font-size:0.74rem;color:#555;">${e('Electrical Engineer')}</div>
-          <div style="font-size:0.74rem;color:#555;">PRC Lic. No.: ${e('_____________')}</div>
-          <div style="font-size:0.72rem;color:#595959;margin-top:0.2rem;">Prepared by</div>
+          <div style="font-size:0.75rem;color:#555;">${e('Electrical Engineer')}</div>
+          <div style="font-size:0.75rem;color:#555;">PRC Lic. No.: ${e('_____________')}</div>
+          <div style="font-size:0.75rem;color:#595959;margin-top:0.2rem;">Prepared by</div>
         </div>
       </div>
       <div>
         <div style="margin-top:2.5rem;border-top:1px solid #999;padding-top:0.3rem;">
           <div style="font-size:0.78rem;font-weight:700;">${e('_________________')}</div>
-          <div style="font-size:0.74rem;color:#555;">${e('Electrical Engineer')}</div>
-          <div style="font-size:0.74rem;color:#555;">PRC Lic. No.: ${e('_____________')}</div>
-          <div style="font-size:0.72rem;color:#595959;margin-top:0.2rem;">Checked by</div>
+          <div style="font-size:0.75rem;color:#555;">${e('Electrical Engineer')}</div>
+          <div style="font-size:0.75rem;color:#555;">PRC Lic. No.: ${e('_____________')}</div>
+          <div style="font-size:0.75rem;color:#595959;margin-top:0.2rem;">Checked by</div>
         </div>
       </div>
       <div>
         <div style="margin-top:2.5rem;border-top:1px solid #999;padding-top:0.3rem;">
           <div style="font-size:0.78rem;font-weight:700;">${e('_________________')}</div>
-          <div style="font-size:0.74rem;color:#555;">${e('Owner / Client Representative')}</div>
-          <div style="font-size:0.74rem;color:#555;">Date: ${e(dateStr)}</div>
-          <div style="font-size:0.72rem;color:#595959;margin-top:0.2rem;">Approved by</div>
+          <div style="font-size:0.75rem;color:#555;">${e('Owner / Client Representative')}</div>
+          <div style="font-size:0.75rem;color:#555;">Date: ${e(dateStr)}</div>
+          <div style="font-size:0.75rem;color:#595959;margin-top:0.2rem;">Approved by</div>
         </div>
       </div>
     </div>
@@ -13464,17 +13494,17 @@ function renderEarthingReport(inputs, results, narrative) {
       <div class="sig-col">
         <div class="sig-line"></div>
         <div style="font-size:0.85rem;font-weight:600;">${e(WORKER_NAME || 'Engineer of Record')}</div>
-        <div style="font-size:0.72rem;color:#595959;margin-top:0.2rem;">Prepared by</div>
+        <div style="font-size:0.75rem;color:#595959;margin-top:0.2rem;">Prepared by</div>
       </div>
       <div class="sig-col">
         <div class="sig-line"></div>
         <div style="font-size:0.85rem;font-weight:600;">${e('Reviewed by')}</div>
-        <div style="font-size:0.72rem;color:#595959;margin-top:0.2rem;">Checked by</div>
+        <div style="font-size:0.75rem;color:#595959;margin-top:0.2rem;">Checked by</div>
       </div>
       <div class="sig-col">
         <div class="sig-line"></div>
         <div style="font-size:0.85rem;font-weight:600;">${e('Approved by')}</div>
-        <div style="font-size:0.72rem;color:#595959;margin-top:0.2rem;">Approved by</div>
+        <div style="font-size:0.75rem;color:#595959;margin-top:0.2rem;">Approved by</div>
       </div>
     </div>
   </div>`;
@@ -13639,9 +13669,9 @@ function renderLPSReport(inputs, results, narrative) {
 
     <div class="report-section">
       <div class="report-section-title">8. Recommendations and Compliance Notes</div>
-      ${narrative?.objective ? `<div style="font-size:0.72rem;font-weight:600;color:#555;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:0.3rem;">Objective</div><div class="editable-field" contenteditable="true" style="line-height:1.75;color:#2c2c2c;margin-bottom:0.75rem;">${escHtml(narrative.objective)}</div>` : ''}
-      ${narrative?.assumptions ? `<div style="font-size:0.72rem;font-weight:600;color:#555;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:0.3rem;">Assumptions</div><div class="editable-field" contenteditable="true" style="line-height:1.75;color:#2c2c2c;margin-bottom:0.75rem;">${escHtml(narrative.assumptions)}</div>` : ''}
-      ${narrative?.recommendations ? `<div style="font-size:0.72rem;font-weight:600;color:#555;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:0.3rem;">Recommendations</div><div class="editable-field" contenteditable="true" style="line-height:1.75;color:#2c2c2c;">${escHtml(narrative.recommendations)}</div>` : ''}
+      ${narrative?.objective ? `<div style="font-size:0.75rem;font-weight:600;color:#555;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:0.3rem;">Objective</div><div class="editable-field" contenteditable="true" style="line-height:1.75;color:#2c2c2c;margin-bottom:0.75rem;">${escHtml(narrative.objective)}</div>` : ''}
+      ${narrative?.assumptions ? `<div style="font-size:0.75rem;font-weight:600;color:#555;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:0.3rem;">Assumptions</div><div class="editable-field" contenteditable="true" style="line-height:1.75;color:#2c2c2c;margin-bottom:0.75rem;">${escHtml(narrative.assumptions)}</div>` : ''}
+      ${narrative?.recommendations ? `<div style="font-size:0.75rem;font-weight:600;color:#555;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:0.3rem;">Recommendations</div><div class="editable-field" contenteditable="true" style="line-height:1.75;color:#2c2c2c;">${escHtml(narrative.recommendations)}</div>` : ''}
     </div>
 
     <div class="report-section">
@@ -13676,18 +13706,18 @@ function renderLPSReport(inputs, results, narrative) {
       <div class="sig-col">
         <div class="sig-line"></div>
         <div style="font-size:0.85rem;font-weight:600;">${e(WORKER_NAME)}</div>
-        <div style="font-size:0.72rem;color:#595959;">Electrical Engineer:PRC Lic. No. ${e('_______')}</div>
-        <div style="font-size:0.72rem;color:#595959;margin-top:0.2rem;">Prepared by</div>
+        <div style="font-size:0.75rem;color:#595959;">Electrical Engineer:PRC Lic. No. ${e('_______')}</div>
+        <div style="font-size:0.75rem;color:#595959;margin-top:0.2rem;">Prepared by</div>
       </div>
       <div class="sig-col">
         <div class="sig-line"></div>
         <div style="font-size:0.85rem;font-weight:600;">${e('Reviewed by')}</div>
-        <div style="font-size:0.72rem;color:#595959;margin-top:0.2rem;">Checked by</div>
+        <div style="font-size:0.75rem;color:#595959;margin-top:0.2rem;">Checked by</div>
       </div>
       <div class="sig-col">
         <div class="sig-line"></div>
         <div style="font-size:0.85rem;font-weight:600;">${e('Approved by')}</div>
-        <div style="font-size:0.72rem;color:#595959;margin-top:0.2rem;">Approved by</div>
+        <div style="font-size:0.75rem;color:#595959;margin-top:0.2rem;">Approved by</div>
       </div>
     </div>
   </div>`;
@@ -13846,26 +13876,26 @@ function renderDuctSizingReport(inputs, results, narrative) {
       <div>
         <div style="margin-top:2.5rem;border-top:1px solid #999;padding-top:0.3rem;">
           <div style="font-size:0.78rem;font-weight:700;">${e(typeof WORKER_NAME !== 'undefined' ? WORKER_NAME : '')}</div>
-          <div style="font-size:0.74rem;color:#555;">${e('Mechanical Engineer')}</div>
-          <div style="font-size:0.74rem;color:#555;">PRC Lic. No.: ${e('_____________')}</div>
-          <div style="font-size:0.74rem;color:#555;">PTR No.: ${e('_____________')}</div>
-          <div style="font-size:0.72rem;color:#595959;margin-top:0.2rem;">Prepared by</div>
+          <div style="font-size:0.75rem;color:#555;">${e('Mechanical Engineer')}</div>
+          <div style="font-size:0.75rem;color:#555;">PRC Lic. No.: ${e('_____________')}</div>
+          <div style="font-size:0.75rem;color:#555;">PTR No.: ${e('_____________')}</div>
+          <div style="font-size:0.75rem;color:#595959;margin-top:0.2rem;">Prepared by</div>
         </div>
       </div>
       <div>
         <div style="margin-top:2.5rem;border-top:1px solid #999;padding-top:0.3rem;">
           <div style="font-size:0.78rem;font-weight:700;">${e('_________________________')}</div>
-          <div style="font-size:0.74rem;color:#555;">${e('Project Engineer / Manager')}</div>
-          <div style="font-size:0.74rem;color:#555;">Company: ${e('_____________')}</div>
-          <div style="font-size:0.72rem;color:#595959;margin-top:0.2rem;">Checked by</div>
+          <div style="font-size:0.75rem;color:#555;">${e('Project Engineer / Manager')}</div>
+          <div style="font-size:0.75rem;color:#555;">Company: ${e('_____________')}</div>
+          <div style="font-size:0.75rem;color:#595959;margin-top:0.2rem;">Checked by</div>
         </div>
       </div>
       <div>
         <div style="margin-top:2.5rem;border-top:1px solid #999;padding-top:0.3rem;">
           <div style="font-size:0.78rem;font-weight:700;">${e('_________________________')}</div>
-          <div style="font-size:0.74rem;color:#555;">${e('Owner / Client Representative')}</div>
-          <div style="font-size:0.74rem;color:#555;">Date: ${e(dateStr)}</div>
-          <div style="font-size:0.72rem;color:#595959;margin-top:0.2rem;">Approved by</div>
+          <div style="font-size:0.75rem;color:#555;">${e('Owner / Client Representative')}</div>
+          <div style="font-size:0.75rem;color:#555;">Date: ${e(dateStr)}</div>
+          <div style="font-size:0.75rem;color:#595959;margin-top:0.2rem;">Approved by</div>
         </div>
       </div>
     </div>
@@ -14271,7 +14301,7 @@ function renderRefrigPipeReport(inputs, results, narrative) {
       <td>${escHtml(l.name || inpLines[i]?.name || '')}</td>
       <td>${escHtml(l.line_type || '')}</td>
       <td class="num">${l.equiv_length_m}</td>
-      <td class="num">${l.selected_od_mm}<br><span style="font-size:0.72rem;color:#595959;">ID ${l.selected_id_mm}</span></td>
+      <td class="num">${l.selected_od_mm}<br><span style="font-size:0.75rem;color:#595959;">ID ${l.selected_id_mm}</span></td>
       <td class="num">${l.velocity_ms}</td>
       <td class="num" style="color:${velColour(l.vel_check)};font-weight:700;">${escHtml(l.vel_check || '')}</td>
       <td class="num">${l.dp_total_pa}</td>
@@ -14381,26 +14411,26 @@ function renderRefrigPipeReport(inputs, results, narrative) {
       <div>
         <div style="margin-top:2.5rem;border-top:1px solid #999;padding-top:0.3rem;">
           <div style="font-size:0.78rem;font-weight:700;">${e(typeof WORKER_NAME !== 'undefined' ? WORKER_NAME : '')}</div>
-          <div style="font-size:0.74rem;color:#555;">${e('Mechanical Engineer')}</div>
-          <div style="font-size:0.74rem;color:#555;">PRC Lic. No.: ${e('_____________')}</div>
-          <div style="font-size:0.74rem;color:#555;">PTR No.: ${e('_____________')}</div>
-          <div style="font-size:0.72rem;color:#595959;margin-top:0.2rem;">Prepared by</div>
+          <div style="font-size:0.75rem;color:#555;">${e('Mechanical Engineer')}</div>
+          <div style="font-size:0.75rem;color:#555;">PRC Lic. No.: ${e('_____________')}</div>
+          <div style="font-size:0.75rem;color:#555;">PTR No.: ${e('_____________')}</div>
+          <div style="font-size:0.75rem;color:#595959;margin-top:0.2rem;">Prepared by</div>
         </div>
       </div>
       <div>
         <div style="margin-top:2.5rem;border-top:1px solid #999;padding-top:0.3rem;">
           <div style="font-size:0.78rem;font-weight:700;">${e('_________________________')}</div>
-          <div style="font-size:0.74rem;color:#555;">${e('Project Engineer / Manager')}</div>
-          <div style="font-size:0.74rem;color:#555;">Company: ${e('_____________')}</div>
-          <div style="font-size:0.72rem;color:#595959;margin-top:0.2rem;">Checked by</div>
+          <div style="font-size:0.75rem;color:#555;">${e('Project Engineer / Manager')}</div>
+          <div style="font-size:0.75rem;color:#555;">Company: ${e('_____________')}</div>
+          <div style="font-size:0.75rem;color:#595959;margin-top:0.2rem;">Checked by</div>
         </div>
       </div>
       <div>
         <div style="margin-top:2.5rem;border-top:1px solid #999;padding-top:0.3rem;">
           <div style="font-size:0.78rem;font-weight:700;">${e('_________________________')}</div>
-          <div style="font-size:0.74rem;color:#555;">${e('Owner / Client Representative')}</div>
-          <div style="font-size:0.74rem;color:#555;">Date: ${e(dateStr)}</div>
-          <div style="font-size:0.72rem;color:#595959;margin-top:0.2rem;">Approved by</div>
+          <div style="font-size:0.75rem;color:#555;">${e('Owner / Client Representative')}</div>
+          <div style="font-size:0.75rem;color:#555;">Date: ${e(dateStr)}</div>
+          <div style="font-size:0.75rem;color:#595959;margin-top:0.2rem;">Approved by</div>
         </div>
       </div>
     </div>
@@ -14518,9 +14548,9 @@ function renderLoadReport(inputs, results, narrative) {
     <p>${e(narrative?.recommendations || `Install a ${results.recommended_breaker_A} A main circuit breaker (MCCB) for this panel. Size all feeder conductors to carry at minimum ${results.ampacity_with_spare} A continuously. Provide a sub-panel with spare circuit breaker slots for future loads. Verify voltage drop on all feeders supplying this panel: run a separate voltage drop calculation for runs exceeding 30 m.`)}</p>
 
     <div class="sig-block">
-      <div><div class="sig-line">${e('________________________')}</div><div style="font-size:0.72rem;color:#555;">Electrical Engineer / Prepared by</div><div style="margin-top:0.3rem;font-size:0.72rem;">PRC Lic. No.: ${e('_____________')}</div><div style="font-size:0.72rem;">PTR No.: ${e('_____________')}</div><div style="font-size:0.72rem;">Date: ${e('_____________')}</div></div>
-      <div><div class="sig-line">${e('________________________')}</div><div style="font-size:0.72rem;color:#555;">Project Engineer / Checked by</div><div style="margin-top:0.3rem;font-size:0.72rem;">Company: ${e('_____________')}</div><div style="font-size:0.72rem;">Date: ${e('_____________')}</div></div>
-      <div><div class="sig-line">${e('________________________')}</div><div style="font-size:0.72rem;color:#555;">Owner / Client Representative</div><div style="margin-top:0.3rem;font-size:0.72rem;">Date: ${e('_____________')}</div></div>
+      <div><div class="sig-line">${e('________________________')}</div><div style="font-size:0.75rem;color:#555;">Electrical Engineer / Prepared by</div><div style="margin-top:0.3rem;font-size:0.75rem;">PRC Lic. No.: ${e('_____________')}</div><div style="font-size:0.75rem;">PTR No.: ${e('_____________')}</div><div style="font-size:0.75rem;">Date: ${e('_____________')}</div></div>
+      <div><div class="sig-line">${e('________________________')}</div><div style="font-size:0.75rem;color:#555;">Project Engineer / Checked by</div><div style="margin-top:0.3rem;font-size:0.75rem;">Company: ${e('_____________')}</div><div style="font-size:0.75rem;">Date: ${e('_____________')}</div></div>
+      <div><div class="sig-line">${e('________________________')}</div><div style="font-size:0.75rem;color:#555;">Owner / Client Representative</div><div style="margin-top:0.3rem;font-size:0.75rem;">Date: ${e('_____________')}</div></div>
     </div>
   `;
   document.getElementById('report-panel').innerHTML = html;
@@ -14633,9 +14663,9 @@ function renderVDReport(inputs, results, narrative) {
       : `Selected conductor ${results.conductor_mm2} mm² exceeds the PEC ${results.vd_limit}% voltage drop limit. Upsize the conductor: refer to the size comparison table above for the smallest size that passes. Alternatively, reduce the circuit length or split the load into two circuits from a closer sub-panel.`))}</p>
 
     <div class="sig-block">
-      <div><div class="sig-line">${e('________________________')}</div><div style="font-size:0.72rem;color:#555;">Electrical Engineer / Prepared by</div><div style="margin-top:0.3rem;font-size:0.72rem;">PRC Lic. No.: ${e('_____________')}</div><div style="font-size:0.72rem;">PTR No.: ${e('_____________')}</div><div style="font-size:0.72rem;">Date: ${e('_____________')}</div></div>
-      <div><div class="sig-line">${e('________________________')}</div><div style="font-size:0.72rem;color:#555;">Project Engineer / Checked by</div><div style="margin-top:0.3rem;font-size:0.72rem;">Company: ${e('_____________')}</div><div style="font-size:0.72rem;">Date: ${e('_____________')}</div></div>
-      <div><div class="sig-line">${e('________________________')}</div><div style="font-size:0.72rem;color:#555;">Owner / Client Representative</div><div style="margin-top:0.3rem;font-size:0.72rem;">Date: ${e('_____________')}</div></div>
+      <div><div class="sig-line">${e('________________________')}</div><div style="font-size:0.75rem;color:#555;">Electrical Engineer / Prepared by</div><div style="margin-top:0.3rem;font-size:0.75rem;">PRC Lic. No.: ${e('_____________')}</div><div style="font-size:0.75rem;">PTR No.: ${e('_____________')}</div><div style="font-size:0.75rem;">Date: ${e('_____________')}</div></div>
+      <div><div class="sig-line">${e('________________________')}</div><div style="font-size:0.75rem;color:#555;">Project Engineer / Checked by</div><div style="margin-top:0.3rem;font-size:0.75rem;">Company: ${e('_____________')}</div><div style="font-size:0.75rem;">Date: ${e('_____________')}</div></div>
+      <div><div class="sig-line">${e('________________________')}</div><div style="font-size:0.75rem;color:#555;">Owner / Client Representative</div><div style="margin-top:0.3rem;font-size:0.75rem;">Date: ${e('_____________')}</div></div>
     </div>
   `;
   document.getElementById('report-panel').innerHTML = html;
@@ -14732,9 +14762,9 @@ function renderWireSizingReport(inputs, results, narrative) {
     <p>${e(narrative?.recommendations || `Use ${results.recommended_size_mm2} mm² copper THHN/THWN-2 conductor for this circuit. Install a ${results.recommended_breaker_A} A circuit breaker. Ensure conduit fill does not exceed the assumed ${escHtml(results.conduit_fill)} current-carrying conductors. Run a separate voltage drop calculation for circuit runs exceeding 30 m: ampacity compliance does not guarantee acceptable voltage drop.`)}</p>
 
     <div class="sig-block">
-      <div><div class="sig-line">${e('________________________')}</div><div style="font-size:0.72rem;color:#555;">Electrical Engineer / Prepared by</div><div style="margin-top:0.3rem;font-size:0.72rem;">PRC Lic. No.: ${e('_____________')}</div><div style="font-size:0.72rem;">PTR No.: ${e('_____________')}</div><div style="font-size:0.72rem;">Date: ${e('_____________')}</div></div>
-      <div><div class="sig-line">${e('________________________')}</div><div style="font-size:0.72rem;color:#555;">Project Engineer / Checked by</div><div style="margin-top:0.3rem;font-size:0.72rem;">Company: ${e('_____________')}</div><div style="font-size:0.72rem;">Date: ${e('_____________')}</div></div>
-      <div><div class="sig-line">${e('________________________')}</div><div style="font-size:0.72rem;color:#555;">Owner / Client Representative</div><div style="margin-top:0.3rem;font-size:0.72rem;">Date: ${e('_____________')}</div></div>
+      <div><div class="sig-line">${e('________________________')}</div><div style="font-size:0.75rem;color:#555;">Electrical Engineer / Prepared by</div><div style="margin-top:0.3rem;font-size:0.75rem;">PRC Lic. No.: ${e('_____________')}</div><div style="font-size:0.75rem;">PTR No.: ${e('_____________')}</div><div style="font-size:0.75rem;">Date: ${e('_____________')}</div></div>
+      <div><div class="sig-line">${e('________________________')}</div><div style="font-size:0.75rem;color:#555;">Project Engineer / Checked by</div><div style="margin-top:0.3rem;font-size:0.75rem;">Company: ${e('_____________')}</div><div style="font-size:0.75rem;">Date: ${e('_____________')}</div></div>
+      <div><div class="sig-line">${e('________________________')}</div><div style="font-size:0.75rem;color:#555;">Owner / Client Representative</div><div style="margin-top:0.3rem;font-size:0.75rem;">Date: ${e('_____________')}</div></div>
     </div>
   `;
   document.getElementById('report-panel').innerHTML = html;
@@ -15769,17 +15799,17 @@ function renderStairwellPressReport(inputs, results, narrative) {
       <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
         <div style="font-size:0.78rem;color:#444;">Prepared by</div>
         <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">${escHtml(WORKER_NAME)}</div>
-        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+        <div style="font-size:0.75rem;color:#666;">Name / PRC Lic. No. / Date</div>
       </div>
       <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
         <div style="font-size:0.78rem;color:#444;">Checked by</div>
         <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">&nbsp;</div>
-        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+        <div style="font-size:0.75rem;color:#666;">Name / PRC Lic. No. / Date</div>
       </div>
       <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
         <div style="font-size:0.78rem;color:#444;">Approved by</div>
         <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">&nbsp;</div>
-        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+        <div style="font-size:0.75rem;color:#666;">Name / PRC Lic. No. / Date</div>
       </div>
     </div>
   `;
@@ -15944,17 +15974,17 @@ function renderFirePumpReport(inputs, results, narrative) {
       <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
         <div style="font-size:0.78rem;color:#444;">Prepared by</div>
         <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">${escHtml(WORKER_NAME)}</div>
-        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+        <div style="font-size:0.75rem;color:#666;">Name / PRC Lic. No. / Date</div>
       </div>
       <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
         <div style="font-size:0.78rem;color:#444;">Checked by</div>
         <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">&nbsp;</div>
-        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+        <div style="font-size:0.75rem;color:#666;">Name / PRC Lic. No. / Date</div>
       </div>
       <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
         <div style="font-size:0.78rem;color:#444;">Approved by</div>
         <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">&nbsp;</div>
-        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+        <div style="font-size:0.75rem;color:#666;">Name / PRC Lic. No. / Date</div>
       </div>
     </div>
   `;
@@ -16000,7 +16030,7 @@ function renderLightingDesignReport(inputs, results, narrative) {
           <div style="font-size:1.3rem;font-weight:800;color:#162032;">LIGHTING DESIGN CALCULATION</div>
           <div style="font-size:0.8rem;color:#555;margin-top:0.2rem;">Lumen (Zonal Cavity) Method: IES / PEC 2017</div>
         </div>
-        <div style="text-align:right;font-size:0.72rem;color:#555;">
+        <div style="text-align:right;font-size:0.75rem;color:#555;">
           <div>Date: ${now.toLocaleDateString('en-PH',{year:'numeric',month:'long',day:'numeric'})}</div>
           <div>Standard: IES RP-1 / PEC Article 3.60</div>
         </div>
@@ -16069,24 +16099,24 @@ function renderLightingDesignReport(inputs, results, narrative) {
 
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
         <div style="background:#162032;color:#fff;padding:1rem;border-radius:0.75rem;text-align:center;">
-          <div style="font-size:0.7rem;color:rgba(255,255,255,0.8);text-transform:uppercase;margin-bottom:0.25rem;">No. of Luminaires</div>
+          <div style="font-size:0.75rem;color:rgba(255,255,255,0.8);text-transform:uppercase;margin-bottom:0.25rem;">No. of Luminaires</div>
           <div style="font-size:1.8rem;font-weight:800;color:#F7A21B;">${r.N_fixtures}</div>
-          <div style="font-size:0.68rem;color:rgba(255,255,255,0.72);">${inputs.fixture_type}</div>
+          <div style="font-size:0.75rem;color:rgba(255,255,255,0.72);">${inputs.fixture_type}</div>
         </div>
         <div style="background:#162032;color:#fff;padding:1rem;border-radius:0.75rem;text-align:center;">
-          <div style="font-size:0.7rem;color:rgba(255,255,255,0.8);text-transform:uppercase;margin-bottom:0.25rem;">Achieved Illuminance</div>
+          <div style="font-size:0.75rem;color:rgba(255,255,255,0.8);text-transform:uppercase;margin-bottom:0.25rem;">Achieved Illuminance</div>
           <div style="font-size:1.8rem;font-weight:800;color:#F7A21B;">${r.E_actual_lux}</div>
-          <div style="font-size:0.68rem;color:rgba(255,255,255,0.72);">lux (target: ${inputs.target_lux} lux)</div>
+          <div style="font-size:0.75rem;color:rgba(255,255,255,0.72);">lux (target: ${inputs.target_lux} lux)</div>
         </div>
         <div style="background:#1F2E45;color:#fff;padding:1rem;border-radius:0.75rem;text-align:center;">
-          <div style="font-size:0.7rem;color:rgba(255,255,255,0.8);text-transform:uppercase;margin-bottom:0.25rem;">Total Lighting Load</div>
+          <div style="font-size:0.75rem;color:rgba(255,255,255,0.8);text-transform:uppercase;margin-bottom:0.25rem;">Total Lighting Load</div>
           <div style="font-size:1.8rem;font-weight:800;color:#29B6D9;">${r.total_kW} kW</div>
-          <div style="font-size:0.68rem;color:rgba(255,255,255,0.72);">${r.total_watts} W total</div>
+          <div style="font-size:0.75rem;color:rgba(255,255,255,0.72);">${r.total_watts} W total</div>
         </div>
         <div style="background:#1F2E45;color:#fff;padding:1rem;border-radius:0.75rem;text-align:center;">
-          <div style="font-size:0.7rem;color:rgba(255,255,255,0.8);text-transform:uppercase;margin-bottom:0.25rem;">Lighting Power Density</div>
+          <div style="font-size:0.75rem;color:rgba(255,255,255,0.8);text-transform:uppercase;margin-bottom:0.25rem;">Lighting Power Density</div>
           <div style="font-size:1.8rem;font-weight:800;color:#29B6D9;">${r.lpd_W_m2}</div>
-          <div style="font-size:0.68rem;color:rgba(255,255,255,0.72);">W/m² (Room Cavity Ratio: ${r.RCR})</div>
+          <div style="font-size:0.75rem;color:rgba(255,255,255,0.72);">W/m² (Room Cavity Ratio: ${r.RCR})</div>
         </div>
       </div>
 
@@ -16129,7 +16159,7 @@ function renderShortCircuitReport(inputs, results, narrative) {
           <div style="font-size:1.3rem;font-weight:800;color:#162032;">SHORT CIRCUIT ANALYSIS</div>
           <div style="font-size:0.8rem;color:#555;margin-top:0.2rem;">Fault Current &amp; Breaker Interrupting Capacity Verification</div>
         </div>
-        <div style="text-align:right;font-size:0.72rem;color:#555;">
+        <div style="text-align:right;font-size:0.75rem;color:#555;">
           <div>Date: ${now.toLocaleDateString('en-PH',{year:'numeric',month:'long',day:'numeric'})}</div>
           <div>Standard: PEC 2017 / IEC 60909 / IEEE 141</div>
         </div>
@@ -16201,24 +16231,24 @@ function renderShortCircuitReport(inputs, results, narrative) {
 
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
         <div style="background:#162032;color:#fff;padding:1rem;border-radius:0.75rem;text-align:center;">
-          <div style="font-size:0.7rem;color:rgba(255,255,255,0.8);text-transform:uppercase;margin-bottom:0.25rem;">Available Fault Current</div>
+          <div style="font-size:0.75rem;color:rgba(255,255,255,0.8);text-transform:uppercase;margin-bottom:0.25rem;">Available Fault Current</div>
           <div style="font-size:1.8rem;font-weight:800;color:#F7A21B;">${r.Isc_kA} kA</div>
-          <div style="font-size:0.68rem;color:rgba(255,255,255,0.72);">3-phase symmetrical rms</div>
+          <div style="font-size:0.75rem;color:rgba(255,255,255,0.72);">3-phase symmetrical rms</div>
         </div>
         <div style="background:${icPass?'#16a34a':'#dc2626'};color:#fff;padding:1rem;border-radius:0.75rem;text-align:center;">
-          <div style="font-size:0.7rem;opacity:0.8;text-transform:uppercase;margin-bottom:0.25rem;">Breaker IC Check</div>
+          <div style="font-size:0.75rem;opacity:0.8;text-transform:uppercase;margin-bottom:0.25rem;">Breaker IC Check</div>
           <div style="font-size:1.8rem;font-weight:800;">${passLabel}</div>
-          <div style="font-size:0.68rem;opacity:0.8;">${inputs.breaker_ic_kA} kA installed vs ${r.Isc_kA} kA required</div>
+          <div style="font-size:0.75rem;opacity:0.8;">${inputs.breaker_ic_kA} kA installed vs ${r.Isc_kA} kA required</div>
         </div>
         <div style="background:#1F2E45;color:#fff;padding:1rem;border-radius:0.75rem;text-align:center;">
-          <div style="font-size:0.7rem;color:rgba(255,255,255,0.8);text-transform:uppercase;margin-bottom:0.25rem;">Peak Asymmetrical</div>
+          <div style="font-size:0.75rem;color:rgba(255,255,255,0.8);text-transform:uppercase;margin-bottom:0.25rem;">Peak Asymmetrical</div>
           <div style="font-size:1.8rem;font-weight:800;color:#29B6D9;">${r.Ipeak_kA} kA</div>
-          <div style="font-size:0.68rem;color:rgba(255,255,255,0.72);">1.8 × Isc (IEC 60909)</div>
+          <div style="font-size:0.75rem;color:rgba(255,255,255,0.72);">1.8 × Isc (IEC 60909)</div>
         </div>
         <div style="background:#1F2E45;color:#fff;padding:1rem;border-radius:0.75rem;text-align:center;">
-          <div style="font-size:0.7rem;color:rgba(255,255,255,0.8);text-transform:uppercase;margin-bottom:0.25rem;">Total Z at Panel</div>
+          <div style="font-size:0.75rem;color:rgba(255,255,255,0.8);text-transform:uppercase;margin-bottom:0.25rem;">Total Z at Panel</div>
           <div style="font-size:1.8rem;font-weight:800;color:#29B6D9;">${r.Z_total_ohm} Ω</div>
-          <div style="font-size:0.68rem;color:rgba(255,255,255,0.72);">Xfmr + Cable impedance</div>
+          <div style="font-size:0.75rem;color:rgba(255,255,255,0.72);">Xfmr + Cable impedance</div>
         </div>
       </div>
 
@@ -16383,17 +16413,17 @@ function renderFireSprinklerReport(inputs, results, narrative) {
       <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
         <div style="font-size:0.78rem;color:#444;">Prepared by</div>
         <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">${escHtml(WORKER_NAME)}</div>
-        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+        <div style="font-size:0.75rem;color:#666;">Name / PRC Lic. No. / Date</div>
       </div>
       <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
         <div style="font-size:0.78rem;color:#444;">Checked by</div>
         <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">&nbsp;</div>
-        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+        <div style="font-size:0.75rem;color:#666;">Name / PRC Lic. No. / Date</div>
       </div>
       <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
         <div style="font-size:0.78rem;color:#444;">Approved by</div>
         <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">&nbsp;</div>
-        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+        <div style="font-size:0.75rem;color:#666;">Name / PRC Lic. No. / Date</div>
       </div>
     </div>
   `;
@@ -16557,17 +16587,17 @@ function renderFireAlarmBatteryReport(inputs, results, narrative) {
       <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
         <div style="font-size:0.78rem;color:#444;">Prepared by</div>
         <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">${escHtml(WORKER_NAME)}</div>
-        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+        <div style="font-size:0.75rem;color:#666;">Name / PRC Lic. No. / Date</div>
       </div>
       <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
         <div style="font-size:0.78rem;color:#444;">Checked by</div>
         <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">&nbsp;</div>
-        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+        <div style="font-size:0.75rem;color:#666;">Name / PRC Lic. No. / Date</div>
       </div>
       <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
         <div style="font-size:0.78rem;color:#444;">Approved by</div>
         <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">&nbsp;</div>
-        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+        <div style="font-size:0.75rem;color:#666;">Name / PRC Lic. No. / Date</div>
       </div>
     </div>
   `;
@@ -16693,17 +16723,17 @@ function renderBoltTorqueReport(inputs, results, narrative) {
       <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
         <div style="font-size:0.78rem;color:#444;">Prepared by</div>
         <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">${escHtml(WORKER_NAME)}</div>
-        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+        <div style="font-size:0.75rem;color:#666;">Name / PRC Lic. No. / Date</div>
       </div>
       <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
         <div style="font-size:0.78rem;color:#444;">Checked by</div>
         <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">&nbsp;</div>
-        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+        <div style="font-size:0.75rem;color:#666;">Name / PRC Lic. No. / Date</div>
       </div>
       <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
         <div style="font-size:0.78rem;color:#444;">Approved by</div>
         <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">&nbsp;</div>
-        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+        <div style="font-size:0.75rem;color:#666;">Name / PRC Lic. No. / Date</div>
       </div>
     </div>
   `;
@@ -16914,17 +16944,17 @@ function renderShaftDesignReport(inputs, results, narrative) {
       <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
         <div style="font-size:0.78rem;color:#444;">Prepared by</div>
         <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">${escHtml(WORKER_NAME)}</div>
-        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+        <div style="font-size:0.75rem;color:#666;">Name / PRC Lic. No. / Date</div>
       </div>
       <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
         <div style="font-size:0.78rem;color:#444;">Checked by</div>
         <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">&nbsp;</div>
-        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+        <div style="font-size:0.75rem;color:#666;">Name / PRC Lic. No. / Date</div>
       </div>
       <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
         <div style="font-size:0.78rem;color:#444;">Approved by</div>
         <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">&nbsp;</div>
-        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+        <div style="font-size:0.75rem;color:#666;">Name / PRC Lic. No. / Date</div>
       </div>
     </div>
   `;
@@ -17037,7 +17067,7 @@ function renderBearingLifeReport(inputs, results, narrative) {
       <div style="text-align:center;padding:1rem;border:1px solid #ddd;border-radius:0.5rem;">
         <div style="font-size:0.78rem;color:#777;">Life vs. Required</div>
         <div style="font-size:1.4rem;font-weight:800;color:${lifeColor};">${lifeOk ? 'PASS' : 'FAIL'}</div>
-        <div style="font-size:0.72rem;font-weight:700;color:${lifeColor};">${escHtml(lifeNote)}</div>
+        <div style="font-size:0.75rem;font-weight:700;color:${lifeColor};">${escHtml(lifeNote)}</div>
       </div>
     </div>
 
@@ -17048,17 +17078,17 @@ function renderBearingLifeReport(inputs, results, narrative) {
       <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
         <div style="font-size:0.78rem;color:#444;">Prepared by</div>
         <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">${escHtml(WORKER_NAME)}</div>
-        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+        <div style="font-size:0.75rem;color:#666;">Name / PRC Lic. No. / Date</div>
       </div>
       <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
         <div style="font-size:0.78rem;color:#444;">Checked by</div>
         <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">&nbsp;</div>
-        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+        <div style="font-size:0.75rem;color:#666;">Name / PRC Lic. No. / Date</div>
       </div>
       <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
         <div style="font-size:0.78rem;color:#444;">Approved by</div>
         <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">&nbsp;</div>
-        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+        <div style="font-size:0.75rem;color:#666;">Name / PRC Lic. No. / Date</div>
       </div>
     </div>
   `;
@@ -17192,17 +17222,17 @@ function renderVBeltReport(inputs, results, narrative) {
       <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
         <div style="font-size:0.78rem;color:#444;">Prepared by</div>
         <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">${escHtml(WORKER_NAME)}</div>
-        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+        <div style="font-size:0.75rem;color:#666;">Name / PRC Lic. No. / Date</div>
       </div>
       <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
         <div style="font-size:0.78rem;color:#444;">Checked by</div>
         <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">&nbsp;</div>
-        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+        <div style="font-size:0.75rem;color:#666;">Name / PRC Lic. No. / Date</div>
       </div>
       <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
         <div style="font-size:0.78rem;color:#444;">Approved by</div>
         <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">&nbsp;</div>
-        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+        <div style="font-size:0.75rem;color:#666;">Name / PRC Lic. No. / Date</div>
       </div>
     </div>
   `;
@@ -17911,17 +17941,17 @@ function renderHoistCapacityReport(inputs, results, narrative) {
       <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
         <div style="font-size:0.78rem;color:#444;">Prepared by</div>
         <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">${escHtml(WORKER_NAME)}</div>
-        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+        <div style="font-size:0.75rem;color:#666;">Name / PRC Lic. No. / Date</div>
       </div>
       <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
         <div style="font-size:0.78rem;color:#444;">Checked by</div>
         <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">&nbsp;</div>
-        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+        <div style="font-size:0.75rem;color:#666;">Name / PRC Lic. No. / Date</div>
       </div>
       <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
         <div style="font-size:0.78rem;color:#444;">Approved by</div>
         <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">&nbsp;</div>
-        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+        <div style="font-size:0.75rem;color:#666;">Name / PRC Lic. No. / Date</div>
       </div>
     </div>
   `;
@@ -18061,17 +18091,17 @@ function renderElevatorTrafficReport(inputs, results, narrative) {
       <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
         <div style="font-size:0.78rem;color:#444;">Prepared by</div>
         <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">${escHtml(WORKER_NAME)}</div>
-        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+        <div style="font-size:0.75rem;color:#666;">Name / PRC Lic. No. / Date</div>
       </div>
       <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
         <div style="font-size:0.78rem;color:#444;">Checked by</div>
         <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">&nbsp;</div>
-        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+        <div style="font-size:0.75rem;color:#666;">Name / PRC Lic. No. / Date</div>
       </div>
       <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
         <div style="font-size:0.78rem;color:#444;">Approved by</div>
         <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">&nbsp;</div>
-        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+        <div style="font-size:0.75rem;color:#666;">Name / PRC Lic. No. / Date</div>
       </div>
     </div>
   `;
@@ -18226,34 +18256,34 @@ function renderAHUSizingReport(inputs, results, narrative) {
     <h2>Step 8: Summary of Results</h2>
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.75rem;margin:1rem 0;">
       <div class="result-highlight">
-        <div style="font-size:0.72rem;color:#555;text-transform:uppercase;letter-spacing:0.05em;">Selected AHU Size</div>
-        <div style="font-size:1.4rem;font-weight:800;color:#1a1a1a;">${r.nominal_AHU_CMH_each} <span style="font-size:0.7rem;">CMH each</span></div>
-        <div style="font-size:0.72rem;color:#555;">${r.n_units}× units = ${r.nominal_AHU_CMH_total} CMH total</div>
+        <div style="font-size:0.75rem;color:#555;text-transform:uppercase;letter-spacing:0.05em;">Selected AHU Size</div>
+        <div style="font-size:1.4rem;font-weight:800;color:#1a1a1a;">${r.nominal_AHU_CMH_each} <span style="font-size:0.75rem;">CMH each</span></div>
+        <div style="font-size:0.75rem;color:#555;">${r.n_units}× units = ${r.nominal_AHU_CMH_total} CMH total</div>
       </div>
       <div class="result-highlight">
-        <div style="font-size:0.72rem;color:#555;text-transform:uppercase;letter-spacing:0.05em;">Cooling Coil</div>
-        <div style="font-size:1.4rem;font-weight:800;color:#1a1a1a;">${r.Q_coil_total_kW} <span style="font-size:0.7rem;">kW</span></div>
-        <div style="font-size:0.72rem;color:#555;">${r.Q_coil_TR} TR total coil capacity</div>
+        <div style="font-size:0.75rem;color:#555;text-transform:uppercase;letter-spacing:0.05em;">Cooling Coil</div>
+        <div style="font-size:1.4rem;font-weight:800;color:#1a1a1a;">${r.Q_coil_total_kW} <span style="font-size:0.75rem;">kW</span></div>
+        <div style="font-size:0.75rem;color:#555;">${r.Q_coil_TR} TR total coil capacity</div>
       </div>
       <div class="result-highlight">
-        <div style="font-size:0.72rem;color:#555;text-transform:uppercase;letter-spacing:0.05em;">Fan Motor (each)</div>
-        <div style="font-size:1.4rem;font-weight:800;color:#1a1a1a;">${r.fan_hp_std} <span style="font-size:0.7rem;">HP</span></div>
-        <div style="font-size:0.72rem;color:#555;">${(r.fan_hp_std*0.7457).toFixed(1)} kW | ${r.fan_power_W_lps} W/L·s</div>
+        <div style="font-size:0.75rem;color:#555;text-transform:uppercase;letter-spacing:0.05em;">Fan Motor (each)</div>
+        <div style="font-size:1.4rem;font-weight:800;color:#1a1a1a;">${r.fan_hp_std} <span style="font-size:0.75rem;">HP</span></div>
+        <div style="font-size:0.75rem;color:#555;">${(r.fan_hp_std*0.7457).toFixed(1)} kW | ${r.fan_power_W_lps} W/L·s</div>
       </div>
       <div class="result-highlight">
-        <div style="font-size:0.72rem;color:#555;text-transform:uppercase;letter-spacing:0.05em;">Supply Airflow</div>
-        <div style="font-size:1.4rem;font-weight:800;color:#1a1a1a;">${r.Q_sa_CMH} <span style="font-size:0.7rem;">CMH</span></div>
-        <div style="font-size:0.72rem;color:#555;">${r.Q_sa_CFM} CFM | ${r.Q_sa_m3s} m³/s</div>
+        <div style="font-size:0.75rem;color:#555;text-transform:uppercase;letter-spacing:0.05em;">Supply Airflow</div>
+        <div style="font-size:1.4rem;font-weight:800;color:#1a1a1a;">${r.Q_sa_CMH} <span style="font-size:0.75rem;">CMH</span></div>
+        <div style="font-size:0.75rem;color:#555;">${r.Q_sa_CFM} CFM | ${r.Q_sa_m3s} m³/s</div>
       </div>
       <div class="result-highlight">
-        <div style="font-size:0.72rem;color:#555;text-transform:uppercase;letter-spacing:0.05em;">CHW Flow</div>
-        <div style="font-size:1.4rem;font-weight:800;color:#1a1a1a;">${r.Q_chw_lps} <span style="font-size:0.7rem;">L/s</span></div>
-        <div style="font-size:0.72rem;color:#555;">${r.Q_chw_GPM} US GPM | ${r.Q_chw_m3h} m³/h</div>
+        <div style="font-size:0.75rem;color:#555;text-transform:uppercase;letter-spacing:0.05em;">CHW Flow</div>
+        <div style="font-size:1.4rem;font-weight:800;color:#1a1a1a;">${r.Q_chw_lps} <span style="font-size:0.75rem;">L/s</span></div>
+        <div style="font-size:0.75rem;color:#555;">${r.Q_chw_GPM} US GPM | ${r.Q_chw_m3h} m³/h</div>
       </div>
       <div class="result-highlight" style="background:${fanBg};border:1px solid ${fanColor}40;">
-        <div style="font-size:0.72rem;color:#555;text-transform:uppercase;letter-spacing:0.05em;">ASHRAE 90.1 Fan Power</div>
+        <div style="font-size:0.75rem;color:#555;text-transform:uppercase;letter-spacing:0.05em;">ASHRAE 90.1 Fan Power</div>
         <div style="font-size:1.4rem;font-weight:800;color:${fanColor};">${r.fan_power_check === 'PASS' ? 'PASS' : 'FAIL'}</div>
-        <div style="font-size:0.72rem;color:#555;">${r.fan_power_W_lps} W/L·s (max 0.82)</div>
+        <div style="font-size:0.75rem;color:#555;">${r.fan_power_W_lps} W/L·s (max 0.82)</div>
       </div>
     </div>
 
@@ -18266,21 +18296,21 @@ function renderAHUSizingReport(inputs, results, narrative) {
         <div style="margin-top:2.5rem;border-top:1px solid #999;padding-top:0.3rem;">
           <div style="font-size:0.78rem;font-weight:700;color:#1a1a1a;">PREPARED BY</div>
           <div style="font-size:0.75rem;color:#555;" contenteditable="true" class="editable-field">${escHtml(WORKER_NAME)}</div>
-          <div style="font-size:0.72rem;color:#595959;">Mechanical Engineer / Designer</div>
+          <div style="font-size:0.75rem;color:#595959;">Mechanical Engineer / Designer</div>
         </div>
       </div>
       <div>
         <div style="margin-top:2.5rem;border-top:1px solid #999;padding-top:0.3rem;">
           <div style="font-size:0.78rem;font-weight:700;color:#1a1a1a;">CHECKED BY</div>
           <div style="font-size:0.75rem;color:#555;" contenteditable="true" class="editable-field"> </div>
-          <div style="font-size:0.72rem;color:#595959;">PRC Lic. No.: <span contenteditable="true" class="editable-field"> </span></div>
+          <div style="font-size:0.75rem;color:#595959;">PRC Lic. No.: <span contenteditable="true" class="editable-field"> </span></div>
         </div>
       </div>
       <div>
         <div style="margin-top:2.5rem;border-top:1px solid #999;padding-top:0.3rem;">
           <div style="font-size:0.78rem;font-weight:700;color:#1a1a1a;">APPROVED BY</div>
           <div style="font-size:0.75rem;color:#555;" contenteditable="true" class="editable-field"> </div>
-          <div style="font-size:0.72rem;color:#595959;">PRC Lic. No.: <span contenteditable="true" class="editable-field"> </span></div>
+          <div style="font-size:0.75rem;color:#595959;">PRC Lic. No.: <span contenteditable="true" class="editable-field"> </span></div>
         </div>
       </div>
     </div>
@@ -28368,7 +28398,7 @@ async function loadHistory() {
     list/* xss-allow: static markup, no user input */ .innerHTML = `<div class="text-center py-16" style="color:rgba(255,255,255,0.85);">
       <div style="font-size:2rem;margin-bottom:0.75rem;">⚠</div>
       <div>${escHtml(_why)}</div>
-      <div style="font-size:0.72rem;margin-top:0.4rem;color:rgba(255,255,255,0.7);">This is not an empty history. Reload before recomputing a calculation you may already have saved.</div>
+      <div style="font-size:0.75rem;margin-top:0.4rem;color:rgba(255,255,255,0.7);">This is not an empty history. Reload before recomputing a calculation you may already have saved.</div>
       <button type="button" onclick="loadHistory();" style="margin-top:0.8rem;min-height:44px;padding:0 0.9rem;border-radius:8px;font-size:0.75rem;font-weight:600;background:rgba(247,162,27,0.12);border:1px solid rgba(247,162,27,0.3);color:var(--wh-orange-text);">${_is429 ? 'Try again in a moment' : 'Retry'}</button>
     </div>`;
     return;
@@ -29084,7 +29114,7 @@ function renderBomTablePreview(items) {
             <div style="font-size:0.78rem;font-weight:700;color:#1a1a1a;">
               <span class="editable-field" contenteditable="true">${escHtml(WORKER_NAME)}</span>
             </div>
-            <div style="font-size:0.74rem;color:#555;">
+            <div style="font-size:0.75rem;color:#555;">
               <span class="editable-field" contenteditable="true">${
                 (isLoadEst || isVD || isWire || isSC || isLight || isLPS || isEG || isUPS || isCT || isPFC || isSolarPV || isGen || isXFMR || isHarmonic) ? 'Electrical Engineer'
                 : (isDrain || isWS || isHW || isSeptic || isWaterSoft || isWT || isSTP || isSD || isGT || isRD) ? 'Sanitary Engineer'
@@ -29092,10 +29122,10 @@ function renderBomTablePreview(items) {
                 : 'Mechanical Engineer'
               }</span>
             </div>
-            <div style="font-size:0.74rem;color:#555;">
+            <div style="font-size:0.75rem;color:#555;">
               PRC Lic. No.: <span class="editable-field" contenteditable="true">_____________</span>
             </div>
-            <div style="font-size:0.72rem;color:#595959;margin-top:0.2rem;">Prepared by</div>
+            <div style="font-size:0.75rem;color:#595959;margin-top:0.2rem;">Prepared by</div>
           </div>
         </div>
         <div>
@@ -29103,13 +29133,13 @@ function renderBomTablePreview(items) {
             <div style="font-size:0.78rem;font-weight:700;color:#1a1a1a;">
               <span class="editable-field" contenteditable="true">_________________________</span>
             </div>
-            <div style="font-size:0.74rem;color:#555;">
+            <div style="font-size:0.75rem;color:#555;">
               <span class="editable-field" contenteditable="true">Project Engineer / Manager</span>
             </div>
-            <div style="font-size:0.74rem;color:#555;">
+            <div style="font-size:0.75rem;color:#555;">
               Company: <span class="editable-field" contenteditable="true">_____________</span>
             </div>
-            <div style="font-size:0.72rem;color:#595959;margin-top:0.2rem;">Checked by</div>
+            <div style="font-size:0.75rem;color:#595959;margin-top:0.2rem;">Checked by</div>
           </div>
         </div>
         <div>
@@ -29117,13 +29147,13 @@ function renderBomTablePreview(items) {
             <div style="font-size:0.78rem;font-weight:700;color:#1a1a1a;">
               <span class="editable-field" contenteditable="true">_________________________</span>
             </div>
-            <div style="font-size:0.74rem;color:#555;">
+            <div style="font-size:0.75rem;color:#555;">
               <span class="editable-field" contenteditable="true">Owner / Client Representative</span>
             </div>
-            <div style="font-size:0.74rem;color:#555;">
+            <div style="font-size:0.75rem;color:#555;">
               Date: <span class="editable-field" contenteditable="true">_____________</span>
             </div>
-            <div style="font-size:0.72rem;color:#595959;margin-top:0.2rem;">Approved by</div>
+            <div style="font-size:0.75rem;color:#595959;margin-top:0.2rem;">Approved by</div>
           </div>
         </div>
       </div>
@@ -29453,7 +29483,7 @@ ${isLight
             <div style="font-size:0.78rem;font-weight:700;color:#1a1a1a;">
               <span class="editable-field" contenteditable="true">${escHtml(WORKER_NAME)}</span>
             </div>
-            <div style="font-size:0.74rem;color:#555;">
+            <div style="font-size:0.75rem;color:#555;">
               <span class="editable-field" contenteditable="true">${
                 (isLoadEst || isVD || isWire || isSC || isLight || isLPSS || isEGS || isUPSS || isCTS || isPFCS || isSolarPVS || isGenS || isXFMR || isHarmonic) ? 'Electrical Engineer'
                 : (isDrain || isWS || isHW || isSeptic || isWaterSoftS || isWTS || isSTPS || isSDS || isGTS || isRDS) ? 'Sanitary Engineer'
@@ -29462,13 +29492,13 @@ ${isLight
                 : 'Mechanical Engineer'
               }</span>
             </div>
-            <div style="font-size:0.74rem;color:#555;">
+            <div style="font-size:0.75rem;color:#555;">
               PRC Lic. No.: <span class="editable-field" contenteditable="true">_____________</span>
             </div>
-            <div style="font-size:0.74rem;color:#555;">
+            <div style="font-size:0.75rem;color:#555;">
               PTR No.: <span class="editable-field" contenteditable="true">_____________</span>
             </div>
-            <div style="font-size:0.72rem;color:#595959;margin-top:0.2rem;">Prepared by</div>
+            <div style="font-size:0.75rem;color:#595959;margin-top:0.2rem;">Prepared by</div>
           </div>
         </div>
         <div>
@@ -29476,13 +29506,13 @@ ${isLight
             <div style="font-size:0.78rem;font-weight:700;color:#1a1a1a;">
               <span class="editable-field" contenteditable="true">_________________________</span>
             </div>
-            <div style="font-size:0.74rem;color:#555;">
+            <div style="font-size:0.75rem;color:#555;">
               <span class="editable-field" contenteditable="true">Project Engineer / Manager</span>
             </div>
-            <div style="font-size:0.74rem;color:#555;">
+            <div style="font-size:0.75rem;color:#555;">
               Company: <span class="editable-field" contenteditable="true">_____________</span>
             </div>
-            <div style="font-size:0.72rem;color:#595959;margin-top:0.2rem;">Checked / Reviewed by</div>
+            <div style="font-size:0.75rem;color:#595959;margin-top:0.2rem;">Checked / Reviewed by</div>
           </div>
         </div>
         <div>
@@ -29490,13 +29520,13 @@ ${isLight
             <div style="font-size:0.78rem;font-weight:700;color:#1a1a1a;">
               <span class="editable-field" contenteditable="true">_________________________</span>
             </div>
-            <div style="font-size:0.74rem;color:#555;">
+            <div style="font-size:0.75rem;color:#555;">
               <span class="editable-field" contenteditable="true">Owner / Client Representative</span>
             </div>
-            <div style="font-size:0.74rem;color:#555;">
+            <div style="font-size:0.75rem;color:#555;">
               Date: <span class="editable-field" contenteditable="true">_____________</span>
             </div>
-            <div style="font-size:0.72rem;color:#595959;margin-top:0.2rem;">Approved by</div>
+            <div style="font-size:0.75rem;color:#595959;margin-top:0.2rem;">Approved by</div>
           </div>
         </div>
       </div>
@@ -29555,9 +29585,9 @@ function renderCoolingTowerReport(inputs, results, narrative) {
         ['Approach / Range', `${r.approach_c}°C / ${r.range_c}°C`, 'approach / range'],
       ].map(([label, val, sub]) => `
         <div style="background:#f5f7ff;border:1px solid #dde;border-radius:0.6rem;padding:0.7rem 0.85rem;">
-          <div style="font-size:0.7rem;color:#555;margin-bottom:0.2rem;">${escHtml(label)}</div>
+          <div style="font-size:0.75rem;color:#555;margin-bottom:0.2rem;">${escHtml(label)}</div>
           <div style="font-weight:700;font-size:1rem;color:#1a237e;">${escHtml(val)}</div>
-          <div style="font-size:0.68rem;color:#595959;">${escHtml(sub)}</div>
+          <div style="font-size:0.75rem;color:#595959;">${escHtml(sub)}</div>
         </div>`).join('')}
     </div>
 
@@ -29587,7 +29617,7 @@ function renderCoolingTowerReport(inputs, results, narrative) {
           <td style="padding:0.35rem 0.6rem;">Approach (LWT − WBT)</td>
           <td style="padding:0.35rem 0.6rem;text-align:right;color:${approachColor};">${r.approach_c}°C</td>
           <td style="padding:0.35rem 0.6rem;">
-            <span style="background:${approachColor};color:#fff;padding:0.15rem 0.5rem;border-radius:999px;font-size:0.72rem;">${escHtml(r.approach_check)}</span>
+            <span style="background:${approachColor};color:#fff;padding:0.15rem 0.5rem;border-radius:999px;font-size:0.75rem;">${escHtml(r.approach_check)}</span>
             &nbsp;Min 2°C: CTI Std-201
           </td>
         </tr>
@@ -29649,9 +29679,9 @@ function renderCoolingTowerReport(inputs, results, narrative) {
     ${narrative ? `
     <div style="margin-bottom:1.5rem;">
       <div style="font-weight:700;font-size:0.88rem;color:#1a237e;border-left:3px solid #1a237e;padding-left:0.6rem;margin-bottom:0.5rem;">Engineering Narrative</div>
-      ${narrative.objective ? `<div class="narrative-block" style="margin-bottom:0.6rem;"><div style="font-size:0.72rem;font-weight:600;color:#555;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:0.2rem;">Objective</div><div class="narrative-box" style="font-size:0.8rem;color:#333;line-height:1.7;background:#fafbff;border:1px solid #e0e4f0;border-radius:0.5rem;padding:0.7rem 1rem;">${escHtml(narrative.objective)}</div></div>` : ''}
-      ${narrative.assumptions ? `<div class="narrative-block" style="margin-bottom:0.6rem;"><div style="font-size:0.72rem;font-weight:600;color:#555;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:0.2rem;">Assumptions</div><div class="narrative-box" style="font-size:0.8rem;color:#333;line-height:1.7;background:#fafbff;border:1px solid #e0e4f0;border-radius:0.5rem;padding:0.7rem 1rem;">${escHtml(narrative.assumptions)}</div></div>` : ''}
-      ${narrative.recommendations ? `<div class="narrative-block"><div style="font-size:0.72rem;font-weight:600;color:#555;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:0.2rem;">Recommendations</div><div class="narrative-box" style="font-size:0.8rem;color:#333;line-height:1.7;background:#fafbff;border:1px solid #e0e4f0;border-radius:0.5rem;padding:0.7rem 1rem;">${escHtml(narrative.recommendations)}</div></div>` : ''}
+      ${narrative.objective ? `<div class="narrative-block" style="margin-bottom:0.6rem;"><div style="font-size:0.75rem;font-weight:600;color:#555;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:0.2rem;">Objective</div><div class="narrative-box" style="font-size:0.8rem;color:#333;line-height:1.7;background:#fafbff;border:1px solid #e0e4f0;border-radius:0.5rem;padding:0.7rem 1rem;">${escHtml(narrative.objective)}</div></div>` : ''}
+      ${narrative.assumptions ? `<div class="narrative-block" style="margin-bottom:0.6rem;"><div style="font-size:0.75rem;font-weight:600;color:#555;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:0.2rem;">Assumptions</div><div class="narrative-box" style="font-size:0.8rem;color:#333;line-height:1.7;background:#fafbff;border:1px solid #e0e4f0;border-radius:0.5rem;padding:0.7rem 1rem;">${escHtml(narrative.assumptions)}</div></div>` : ''}
+      ${narrative.recommendations ? `<div class="narrative-block"><div style="font-size:0.75rem;font-weight:600;color:#555;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:0.2rem;">Recommendations</div><div class="narrative-box" style="font-size:0.8rem;color:#333;line-height:1.7;background:#fafbff;border:1px solid #e0e4f0;border-radius:0.5rem;padding:0.7rem 1rem;">${escHtml(narrative.recommendations)}</div></div>` : ''}
     </div>` : ''}
 
     <!-- Signature Block -->
@@ -29903,7 +29933,7 @@ function renderWaterTreatmentReport(inputs, results, narrative) {
 
   const trainHtml = (r.train_steps || []).map((step, i) =>
     `<div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.35rem;">
-       <span style="background:#162032;color:#fff;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:700;flex-shrink:0;">${i + 1}</span>
+       <span style="background:#162032;color:#fff;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;flex-shrink:0;">${i + 1}</span>
        <span style="font-size:0.82rem;">${escHtml(step)}</span>
      </div>`
   ).join('');
@@ -30241,29 +30271,29 @@ function renderRoofDrainReport(inputs, r, narrative) {
   <!-- Summary cards -->
   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:0.75rem;margin-bottom:1.5rem;">
     <div style="background:#f8fafc;border:2px solid ${passColor};border-radius:0.75rem;padding:0.75rem;text-align:center;">
-      <div style="font-size:0.7rem;color:#666;text-transform:uppercase;letter-spacing:1px;">Overall Status</div>
+      <div style="font-size:0.75rem;color:#666;text-transform:uppercase;letter-spacing:1px;">Overall Status</div>
       <div style="font-size:1.6rem;font-weight:800;color:${passColor};">${escHtml2(passLabel)}</div>
     </div>
     <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:0.75rem;padding:0.75rem;text-align:center;">
-      <div style="font-size:0.7rem;color:#666;text-transform:uppercase;letter-spacing:1px;">Design Flow</div>
+      <div style="font-size:0.75rem;color:#666;text-transform:uppercase;letter-spacing:1px;">Design Flow</div>
       <div style="font-size:1.4rem;font-weight:800;color:#0f766e;">${escHtml2(String(r.q_total_ls))} L/s</div>
-      <div style="font-size:0.72rem;color:#666;">${escHtml2(String(r.q_each_ls))} L/s per drain</div>
+      <div style="font-size:0.75rem;color:#666;">${escHtml2(String(r.q_each_ls))} L/s per drain</div>
     </div>
     <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:0.75rem;padding:0.75rem;text-align:center;">
-      <div style="font-size:0.7rem;color:#666;text-transform:uppercase;letter-spacing:1px;">Primary Drain</div>
+      <div style="font-size:0.75rem;color:#666;text-transform:uppercase;letter-spacing:1px;">Primary Drain</div>
       <div style="font-size:1.4rem;font-weight:800;color:#0f766e;">${escHtml2(String(r.drain_size_mm))} mm</div>
-      <div style="font-size:0.72rem;color:#666;">${escHtml2(String(r.n_drains))} drains × ${escHtml2(String(r.drain_cap_ls))} L/s cap.</div>
+      <div style="font-size:0.75rem;color:#666;">${escHtml2(String(r.n_drains))} drains × ${escHtml2(String(r.drain_cap_ls))} L/s cap.</div>
     </div>
     <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:0.75rem;padding:0.75rem;text-align:center;">
-      <div style="font-size:0.7rem;color:#666;text-transform:uppercase;letter-spacing:1px;">Horiz. Leader</div>
+      <div style="font-size:0.75rem;color:#666;text-transform:uppercase;letter-spacing:1px;">Horiz. Leader</div>
       <div style="font-size:1.4rem;font-weight:800;color:#0f766e;">${escHtml2(String(r.horiz_leader_mm))} mm</div>
-      <div style="font-size:0.72rem;color:#666;">@ ${escHtml2(String(r.leader_slope_pct))}% slope</div>
+      <div style="font-size:0.75rem;color:#666;">@ ${escHtml2(String(r.leader_slope_pct))}% slope</div>
     </div>
     ${r.overflow_drain_mm ? `
     <div style="background:#fefce8;border:1px solid #fde047;border-radius:0.75rem;padding:0.75rem;text-align:center;">
-      <div style="font-size:0.7rem;color:#666;text-transform:uppercase;letter-spacing:1px;">Overflow Drain</div>
+      <div style="font-size:0.75rem;color:#666;text-transform:uppercase;letter-spacing:1px;">Overflow Drain</div>
       <div style="font-size:1.4rem;font-weight:800;color:#ca8a04;">${escHtml2(String(r.overflow_drain_mm))} mm</div>
-      <div style="font-size:0.72rem;color:#666;">Invert +50 mm above primary</div>
+      <div style="font-size:0.75rem;color:#666;">Invert +50 mm above primary</div>
     </div>` : ''}
   </div>
 
@@ -30442,7 +30472,7 @@ function renderStormDrainReport(inputs, r, narrative) {
       <!-- HEADER -->
       <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.25rem;gap:1rem;flex-wrap:wrap;">
         <div style="flex:1;min-width:0;">
-          <div style="font-size:0.72rem;font-weight:700;color:#595959;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:0.15rem;">DESIGN CALCULATION REPORT</div>
+          <div style="font-size:0.75rem;font-weight:700;color:#595959;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:0.15rem;">DESIGN CALCULATION REPORT</div>
           <!-- heading-allow: standalone calc report template --><h1 class="editable-field" contenteditable="true" style="font-size:1.15rem;font-weight:800;margin-bottom:0.35rem;color:#1a1a1a;">${e(proj)}</h1>
           <div style="font-size:1.05rem;font-weight:600;color:#1a1a1a;margin-top:0.2rem;">Storm Drain / Stormwater Sizing: Rational Method</div>
           <div style="font-size:0.78rem;color:#555;margin-top:0.3rem;">
@@ -30451,7 +30481,7 @@ function renderStormDrainReport(inputs, r, narrative) {
             Doc No.: <span class="editable-field" contenteditable="true">PLMB-SD-${new Date().toISOString().slice(0,10).replace(/-/g,'')}</span>
           </div>
         </div>
-        <div style="text-align:right;font-size:0.72rem;color:#595959;white-space:nowrap;">
+        <div style="text-align:right;font-size:0.75rem;color:#595959;white-space:nowrap;">
           <div style="font-weight:700;">DPWH Drainage Guidelines</div>
           <div>PAGASA IDF | Manning's Eq.</div>
         </div>
@@ -30611,25 +30641,25 @@ function renderStormDrainReport(inputs, r, narrative) {
         <div>
           <div style="margin-top:2.5rem;border-top:1px solid #999;padding-top:0.3rem;">
             <div style="font-size:0.78rem;font-weight:700;color:#1a1a1a;"><span class="editable-field" contenteditable="true">${escHtml(WORKER_NAME)}</span></div>
-            <div style="font-size:0.74rem;color:#555;"><span class="editable-field" contenteditable="true">Civil / Sanitary Engineer</span></div>
-            <div style="font-size:0.74rem;color:#555;">PRC Lic. No.: <span class="editable-field" contenteditable="true">_____________</span></div>
-            <div style="font-size:0.72rem;color:#595959;margin-top:0.2rem;">Prepared by</div>
+            <div style="font-size:0.75rem;color:#555;"><span class="editable-field" contenteditable="true">Civil / Sanitary Engineer</span></div>
+            <div style="font-size:0.75rem;color:#555;">PRC Lic. No.: <span class="editable-field" contenteditable="true">_____________</span></div>
+            <div style="font-size:0.75rem;color:#595959;margin-top:0.2rem;">Prepared by</div>
           </div>
         </div>
         <div>
           <div style="margin-top:2.5rem;border-top:1px solid #999;padding-top:0.3rem;">
             <div style="font-size:0.78rem;font-weight:700;color:#1a1a1a;"><span class="editable-field" contenteditable="true">_________________________</span></div>
-            <div style="font-size:0.74rem;color:#555;"><span class="editable-field" contenteditable="true">Project Engineer / Manager</span></div>
-            <div style="font-size:0.74rem;color:#555;">Company: <span class="editable-field" contenteditable="true">_____________</span></div>
-            <div style="font-size:0.72rem;color:#595959;margin-top:0.2rem;">Checked by</div>
+            <div style="font-size:0.75rem;color:#555;"><span class="editable-field" contenteditable="true">Project Engineer / Manager</span></div>
+            <div style="font-size:0.75rem;color:#555;">Company: <span class="editable-field" contenteditable="true">_____________</span></div>
+            <div style="font-size:0.75rem;color:#595959;margin-top:0.2rem;">Checked by</div>
           </div>
         </div>
         <div>
           <div style="margin-top:2.5rem;border-top:1px solid #999;padding-top:0.3rem;">
             <div style="font-size:0.78rem;font-weight:700;color:#1a1a1a;"><span class="editable-field" contenteditable="true">_________________________</span></div>
-            <div style="font-size:0.74rem;color:#555;"><span class="editable-field" contenteditable="true">Owner / Client Representative</span></div>
-            <div style="font-size:0.74rem;color:#555;">Date: <span class="editable-field" contenteditable="true">_____________</span></div>
-            <div style="font-size:0.72rem;color:#595959;margin-top:0.2rem;">Approved by</div>
+            <div style="font-size:0.75rem;color:#555;"><span class="editable-field" contenteditable="true">Owner / Client Representative</span></div>
+            <div style="font-size:0.75rem;color:#555;">Date: <span class="editable-field" contenteditable="true">_____________</span></div>
+            <div style="font-size:0.75rem;color:#595959;margin-top:0.2rem;">Approved by</div>
           </div>
         </div>
       </div>
@@ -30665,7 +30695,7 @@ function renderSTPReport(inputs, r, narrative) {
       <!-- HEADER -->
       <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.25rem;gap:1rem;flex-wrap:wrap;">
         <div style="flex:1;min-width:0;">
-          <div style="font-size:0.72rem;font-weight:700;color:#595959;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:0.15rem;">DESIGN CALCULATION REPORT</div>
+          <div style="font-size:0.75rem;font-weight:700;color:#595959;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:0.15rem;">DESIGN CALCULATION REPORT</div>
           <!-- heading-allow: standalone calc report template --><h1 class="editable-field" contenteditable="true" style="font-size:1.15rem;font-weight:800;margin-bottom:0.35rem;color:#1a1a1a;">${e(proj)}</h1>
           <div style="font-size:1.05rem;font-weight:600;color:#1a1a1a;margin-top:0.2rem;">Wastewater Treatment Plant: Activated Sludge</div>
           <div style="font-size:0.78rem;color:#555;margin-top:0.3rem;">
@@ -30674,7 +30704,7 @@ function renderSTPReport(inputs, r, narrative) {
             Doc No.: <span class="editable-field" contenteditable="true">PLMB-STP-${new Date().toISOString().slice(0,10).replace(/-/g,'')}</span>
           </div>
         </div>
-        <div style="text-align:right;font-size:0.72rem;color:#595959;white-space:nowrap;">
+        <div style="text-align:right;font-size:0.75rem;color:#595959;white-space:nowrap;">
           <div style="font-weight:700;">PSME / DENR DAO 2016-08</div>
           <div>DOH PD 856 | Metcalf & Eddy</div>
         </div>
@@ -30976,25 +31006,25 @@ function renderSTPReport(inputs, r, narrative) {
         <div>
           <div style="margin-top:2.5rem;border-top:1px solid #999;padding-top:0.3rem;">
             <div style="font-size:0.78rem;font-weight:700;color:#1a1a1a;"><span class="editable-field" contenteditable="true">${escHtml(WORKER_NAME)}</span></div>
-            <div style="font-size:0.74rem;color:#555;"><span class="editable-field" contenteditable="true">Sanitary / Mechanical Engineer</span></div>
-            <div style="font-size:0.74rem;color:#555;">PRC Lic. No.: <span class="editable-field" contenteditable="true">_____________</span></div>
-            <div style="font-size:0.72rem;color:#595959;margin-top:0.2rem;">Prepared by</div>
+            <div style="font-size:0.75rem;color:#555;"><span class="editable-field" contenteditable="true">Sanitary / Mechanical Engineer</span></div>
+            <div style="font-size:0.75rem;color:#555;">PRC Lic. No.: <span class="editable-field" contenteditable="true">_____________</span></div>
+            <div style="font-size:0.75rem;color:#595959;margin-top:0.2rem;">Prepared by</div>
           </div>
         </div>
         <div>
           <div style="margin-top:2.5rem;border-top:1px solid #999;padding-top:0.3rem;">
             <div style="font-size:0.78rem;font-weight:700;color:#1a1a1a;"><span class="editable-field" contenteditable="true">_________________________</span></div>
-            <div style="font-size:0.74rem;color:#555;"><span class="editable-field" contenteditable="true">Project Engineer / Manager</span></div>
-            <div style="font-size:0.74rem;color:#555;">Company: <span class="editable-field" contenteditable="true">_____________</span></div>
-            <div style="font-size:0.72rem;color:#595959;margin-top:0.2rem;">Checked by</div>
+            <div style="font-size:0.75rem;color:#555;"><span class="editable-field" contenteditable="true">Project Engineer / Manager</span></div>
+            <div style="font-size:0.75rem;color:#555;">Company: <span class="editable-field" contenteditable="true">_____________</span></div>
+            <div style="font-size:0.75rem;color:#595959;margin-top:0.2rem;">Checked by</div>
           </div>
         </div>
         <div>
           <div style="margin-top:2.5rem;border-top:1px solid #999;padding-top:0.3rem;">
             <div style="font-size:0.78rem;font-weight:700;color:#1a1a1a;"><span class="editable-field" contenteditable="true">_________________________</span></div>
-            <div style="font-size:0.74rem;color:#555;"><span class="editable-field" contenteditable="true">Owner / Client Representative</span></div>
-            <div style="font-size:0.74rem;color:#555;">Date: <span class="editable-field" contenteditable="true">_____________</span></div>
-            <div style="font-size:0.72rem;color:#595959;margin-top:0.2rem;">Approved by</div>
+            <div style="font-size:0.75rem;color:#555;"><span class="editable-field" contenteditable="true">Owner / Client Representative</span></div>
+            <div style="font-size:0.75rem;color:#555;">Date: <span class="editable-field" contenteditable="true">_____________</span></div>
+            <div style="font-size:0.75rem;color:#595959;margin-top:0.2rem;">Approved by</div>
           </div>
         </div>
       </div>
@@ -31380,17 +31410,17 @@ function renderBeamColumnReport(inputs, r, narrative) {
       <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
         <div style="font-size:0.78rem;color:#444;">Prepared by</div>
         <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">${escHtml(WORKER_NAME)}</div>
-        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+        <div style="font-size:0.75rem;color:#666;">Name / PRC Lic. No. / Date</div>
       </div>
       <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
         <div style="font-size:0.78rem;color:#444;">Checked by</div>
         <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">&nbsp;</div>
-        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+        <div style="font-size:0.75rem;color:#666;">Name / PRC Lic. No. / Date</div>
       </div>
       <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
         <div style="font-size:0.78rem;color:#444;">Approved by</div>
         <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">&nbsp;</div>
-        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+        <div style="font-size:0.75rem;color:#666;">Name / PRC Lic. No. / Date</div>
       </div>
     </div>
   `;
@@ -31519,17 +31549,17 @@ function renderPressureVesselReport(inputs, r, narrative) {
       <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
         <div style="font-size:0.78rem;color:#444;">Prepared by</div>
         <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">${escHtml(WORKER_NAME)}</div>
-        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+        <div style="font-size:0.75rem;color:#666;">Name / PRC Lic. No. / Date</div>
       </div>
       <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
         <div style="font-size:0.78rem;color:#444;">Checked by (AI)</div>
         <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">&nbsp;</div>
-        <div style="font-size:0.72rem;color:#666;">Authorized Inspector / Date</div>
+        <div style="font-size:0.75rem;color:#666;">Authorized Inspector / Date</div>
       </div>
       <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
         <div style="font-size:0.78rem;color:#444;">Approved by</div>
         <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">&nbsp;</div>
-        <div style="font-size:0.72rem;color:#666;">Owner / Client / Date</div>
+        <div style="font-size:0.75rem;color:#666;">Owner / Client / Date</div>
       </div>
     </div>
   `;
@@ -31720,17 +31750,17 @@ function renderVibrationReport(inputs, r, narrative) {
       <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
         <div style="font-size:0.78rem;color:#444;">Prepared by</div>
         <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">${escHtml(WORKER_NAME)}</div>
-        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+        <div style="font-size:0.75rem;color:#666;">Name / PRC Lic. No. / Date</div>
       </div>
       <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
         <div style="font-size:0.78rem;color:#444;">Checked by</div>
         <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">&nbsp;</div>
-        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+        <div style="font-size:0.75rem;color:#666;">Name / PRC Lic. No. / Date</div>
       </div>
       <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
         <div style="font-size:0.78rem;color:#444;">Approved by</div>
         <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">&nbsp;</div>
-        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+        <div style="font-size:0.75rem;color:#666;">Name / PRC Lic. No. / Date</div>
       </div>
     </div>
   `;
@@ -31875,17 +31905,17 @@ function renderFluidPowerReport(inputs, r, narrative) {
       <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
         <div style="font-size:0.78rem;color:#444;">Prepared by</div>
         <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">${escHtml(WORKER_NAME)}</div>
-        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+        <div style="font-size:0.75rem;color:#666;">Name / PRC Lic. No. / Date</div>
       </div>
       <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
         <div style="font-size:0.78rem;color:#444;">Checked by</div>
         <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">&nbsp;</div>
-        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+        <div style="font-size:0.75rem;color:#666;">Name / PRC Lic. No. / Date</div>
       </div>
       <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
         <div style="font-size:0.78rem;color:#444;">Approved by</div>
         <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">&nbsp;</div>
-        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+        <div style="font-size:0.75rem;color:#666;">Name / PRC Lic. No. / Date</div>
       </div>
     </div>
   `;
@@ -32024,17 +32054,17 @@ function renderNoiseAcousticsReport(inputs, r, narrative) {
       <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
         <div style="font-size:0.78rem;color:#444;">Prepared by</div>
         <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">${escHtml(WORKER_NAME)}</div>
-        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+        <div style="font-size:0.75rem;color:#666;">Name / PRC Lic. No. / Date</div>
       </div>
       <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
         <div style="font-size:0.78rem;color:#444;">Checked by</div>
         <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">&nbsp;</div>
-        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+        <div style="font-size:0.75rem;color:#666;">Name / PRC Lic. No. / Date</div>
       </div>
       <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
         <div style="font-size:0.78rem;color:#444;">Approved by</div>
         <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">&nbsp;</div>
-        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+        <div style="font-size:0.75rem;color:#666;">Name / PRC Lic. No. / Date</div>
       </div>
     </div>
   `;
@@ -32081,6 +32111,7 @@ async function init() {
     window.location.href = 'index.html?signin=1&return=' + encodeURIComponent(_ret); return;
   }
   syncCalcCounts();
+  applyCalcDeepLink();   // C27: the guide's ?calc=<slug> lands on that calculator
   const _engChip = document.getElementById('eng-source-chip');
   if (_engChip && typeof renderSourceChip === 'function') {
     _engChip.innerHTML = renderSourceChip({

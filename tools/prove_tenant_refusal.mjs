@@ -95,6 +95,30 @@ const BLIND_BY_DESIGN = {
   // may make another call must not be readable OR writable by the person it limits, so a worker
   // seeing none of it is the control working. Undeclared, it failed this gate as a broken probe.
   ai_rate_limits: 'locked to every client (USING false); only grafana_reader and the service role read it',
+  // ★DECLARED 2026-09-28. Read from the policies, not assumed. ai_user_rate_limits carries two:
+  // ai_user_rate_limits_grafana_read (grafana_reader, USING true) and ai_user_rate_limits_own
+  // (ALL, public, USING auth.uid() IS NOT NULL AND user_id = auth.uid()::text). So the per-user
+  // read DOES work - this is a per-user store, the same shape as agent_memory above, and the
+  // control reads BLIND for a reason worth writing down: the probe's notion of "own" is
+  // hive-scoped, and this table is NOT hive-scoped in practice. Its `hive_id` is NULL on most
+  // rows, and `user_id` is not always a uid at all - the live table holds `ip:172.18.0.10` and
+  // `status` buckets beside real auth uids, because anonymous and health-check traffic still has
+  // to be rate-limited. A member therefore sees none of the row the hive probe calls his, which
+  // is the policy working (that row belongs to another identity), not a refusal to show him his.
+  ai_user_rate_limits: 'per-user store (user_id = auth.uid()::text) + non-user ip:/status buckets; hive_id is incidental and mostly NULL, so a hive-scoped control reads BLIND',
+  // ★DECLARED 2026-09-28, AND THE DECLARATION IS ALSO A FINDING. wh_traces carries two policies:
+  // wh_traces_grafana_slo_read (grafana_reader) and wh_traces_hive_read (SELECT, authenticated,
+  // USING hive_id = (request.jwt.claims ->> 'hive_id')::uuid). That second one reads the hive from
+  // a JWT CLAIM - and this platform never mints one. Measured: of the policies in `public`, 95 use
+  // `hive_members` and exactly ONE uses a jwt hive_id claim, this one; there are zero
+  // custom-access-token / custom-claims functions in the database to put it there. So the clause
+  // evaluates NULL for every signed-in caller and the policy can never return a row. It fails
+  // CLOSED, so this is not a leak - it is a capability that was written and never worked, and the
+  // BLIND control is the honest reading of it. Widening it to the `hive_members` idiom the rest of
+  // the platform uses would GRANT trace access that nobody has today, which is a product call
+  // about what one member may see of another's activity - not a mechanical fix to make a gate
+  // green, and not something to slip into a deploy. Recorded for Ian instead.
+  wh_traces: 'service-role/grafana only in practice: its one authenticated policy keys off a request.jwt.claims hive_id that nothing mints, so it can never match (inert, fails closed)',
   // ★DECLARED 2026-09-09, AND ONLY BECAUSE THE TABLE FINALLY HAD A ROW. api_keys sat empty for the whole
   // program, so this gate had nothing to test and never asked the question; reseeding one CMMS connector
   // per hive populated it, the control came back BLIND, and the gate correctly refused to guess. Read from

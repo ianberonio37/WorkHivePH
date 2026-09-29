@@ -50,14 +50,16 @@
        62px = one caption line (16px) + the 44px "How this is computed" tap target. */
     #wh-source-chip { min-height: 62px; margin: 0; }
     .page-header h1 { font-size: 1.8rem; font-weight: 800; color: #fff; line-height: 1.2; } /* Arc-W focal: heading ≥2.3× body median (was 1.4rem/2.0×) */
-    .page-header p { font-size: 0.75rem; color: #9aa6b3; margin-top: 0.2rem; }
-    .header-badge { font-size: 0.6rem; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 999px; background: rgba(167,139,250,0.15); color: var(--wh-violet-text); border: 1px solid rgba(167,139,250,0.3); white-space: nowrap; margin-top: 0.25rem; }
+    .page-header p { font-size: 0.75rem; color: #9aa6b3; margin-top: 4px; }
+    .header-badge { font-size: 0.75rem; font-weight: 600; padding: 4px 8px; border-radius: 999px; background: rgba(167,139,250,0.15); color: var(--wh-violet-text); border: 1px solid rgba(167,139,250,0.3); white-space: nowrap; margin-top: 0.25rem; }
 
     /* ── Period selector ── */
     .period-row { display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
     .period-btn {
-      font-family: 'Poppins', sans-serif; font-size: 0.72rem; font-weight: 600;
-      padding: 0.4rem 0.875rem; border-radius: 999px; cursor: pointer; transition: all 0.15s;
+      font-family: 'Poppins', sans-serif; font-size: 0.8rem; font-weight: 600;
+      padding: 8px 16px; border-radius: 999px; cursor: pointer;
+      /* was `all 0.15s` - it animated layout properties too (design lens craft, 2026-09-15) */
+      transition: background .15s ease, border-color .15s ease, color .15s ease, transform .12s var(--wh-ease-out);
       background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.80);
       min-height: 44px;
     }
@@ -71,8 +73,10 @@
        "999px|44 worn by period-btn+refresh-btn+role-btn+filter-chip".
        [external-ux-laws-principles-jakob-hick-fitts-miller (gestalt similarity)] */
     .refresh-btn {
-      font-family: var(--wh-font); font-size: 0.72rem; font-weight: 600;
-      padding: 0.4rem 0.875rem; border-radius: var(--wh-radius-sm); cursor: pointer; transition: all 0.2s;
+      font-family: var(--wh-font); font-size: 0.8rem; font-weight: 600;
+      padding: 8px 16px; border-radius: var(--wh-radius-sm); cursor: pointer;
+      /* was `all 0.2s` - it animated layout properties too (design lens craft, 2026-09-15) */
+      transition: background .15s ease, border-color .15s ease, color .15s ease, transform .12s var(--wh-ease-out);
       background: rgba(167,139,250,0.1); border: 1px solid rgba(167,139,250,0.25); color: var(--wh-violet-text);
       min-height: 44px; margin-left: auto; display: flex; align-items: center; gap: 0.35rem;
     }
@@ -83,7 +87,7 @@
        the 5-second scan lands on one clear CTA (A1); the sibling report/nav buttons stay ghost. */
     /* C2 dual-viewport: navy text on the darker purple stop was 3.76:1 (<4.5). Lighten both stops
        so the dark stop clears the WCAG floor while keeping the purple primary-action look. */
-    #refresh-btn { background: linear-gradient(135deg, var(--wh-violet), var(--wh-violet-text)); border-color: transparent; color: var(--wh-navy); font-weight: 700; }
+    #refresh-btn { background: linear-gradient(135deg, var(--wh-violet), var(--wh-violet-text)); border-color: transparent; color: var(--wh-navy); font-weight: 600; }
     #refresh-btn:hover { filter: brightness(1.06); background: linear-gradient(135deg, var(--wh-violet), var(--wh-violet-text)); }
 
     /* ── Phase tabs ── */
@@ -121,7 +125,7 @@
     /* ── Global filter chips (Criticality + Discipline) ──────────────── */
     .global-filters {
       display: flex; flex-direction: column; gap: 0.5rem;
-      padding: 0.65rem 0.75rem;
+      padding: 12px;
       margin-bottom: 1rem;
       background: rgba(255,255,255,0.02);
       border: 1px solid rgba(255,255,255,0.06);
@@ -129,19 +133,19 @@
     }
     .filter-group { display: flex; flex-wrap: wrap; gap: 0.35rem; align-items: center; }
     .filter-label {
-      font-size: 0.6rem; font-weight: 700; letter-spacing: 0.07em;
+      font-size: 0.75rem; font-weight: 600; letter-spacing: 0.07em;
       text-transform: uppercase; color:rgba(255,255,255,0.80);
       margin-right: 0.5rem; flex-shrink: 0;
       min-width: 80px;
     }
     .filter-chip {
       min-height: 44px; min-width: 44px;   /* WCAG 2.5.8 / owner 44px tap rule */
-      padding: 0.35rem 0.7rem;
+      padding: 4px 12px;   /* 5.6px was the largest single source of this page's 160 off-grid paddings (x24, design lens craft 2026-09-15) */
       border-radius: 999px;
       background: rgba(255,255,255,0.04);
       border: 1px solid rgba(255,255,255,0.08);
       color:rgba(255,255,255,0.80);
-      font-size: 0.7rem;
+      font-size: 0.8rem;
       font-weight: 600;
       font-family: inherit;
       cursor: pointer;
@@ -161,7 +165,7 @@
     }
     .filter-chip:active { transform: scale(0.97); }
     .filter-active-banner {
-      font-size: 0.68rem;
+      font-size: 0.75rem;
       color: var(--wh-violet-text);
       padding: 0.25rem 0.5rem;
       background: rgba(167,139,250,0.06);
@@ -182,10 +186,12 @@
       .filter-label { min-width: 70px; }
     }
     .phase-tab {
-      font-family: 'Poppins', sans-serif; font-size: 0.72rem; font-weight: 600;
+      font-family: 'Poppins', sans-serif; font-size: 0.8rem; font-weight: 600;
       padding: 0.5rem 0.875rem; border-radius: 0; cursor: pointer; white-space: nowrap;
       background: rgba(255,255,255,0.04); border: none; border-right: 1px solid rgba(255,255,255,0.08); color:rgba(255,255,255,0.80);
-      transition: all 0.15s; min-height: 44px;
+      /* was `all 0.15s`: it animates layout properties too (design lens motion, 2026-09-15) */
+      transition: background .15s ease, border-color .15s ease, color .15s ease, transform .12s var(--wh-ease-out);
+      min-height: 44px;
     }
     .phase-tab.active { background: rgba(167,139,250,0.12); border-color: var(--wh-violet-text); color: var(--wh-violet-text); }
     .phase-tab.soon { opacity: 0.4; cursor: not-allowed; }
@@ -193,7 +199,7 @@
     /* WCAG 2.2 AA (FB2/axe color-contrast): opacity:0.6 compounded the already-translucent
        parent color, dropping the sub-label to 3.29:1 (inactive) / 2.89:1 (active) over the
        tab bg. Use explicit opaque colors instead -> 6.49:1 inactive / 8.02:1 active. */
-    .phase-sub { display: block; font-size: 0.58rem; font-weight: 400; color: #9aa6b3; letter-spacing: 0.02em; margin-top: 1px; }
+    .phase-sub { display: block; font-size: 0.75rem; font-weight: 400; color: #9aa6b3; margin-top: 4px; }
     .phase-tab.active .phase-sub { color: var(--wh-violet-text); }
 
     /* ── Cards ── */
@@ -202,15 +208,23 @@
       border: 1px solid rgba(255,255,255,0.07); border-radius: 1rem; padding: 1.25rem;
       margin-bottom: 1rem;
     }
-    .card-title { font-size: 0.72rem; font-weight: 700; color:rgba(255,255,255,0.80); text-transform: uppercase; letter-spacing: 0.08em; margin: 0 0 0.75rem; display: flex; align-items: center; gap: 0.5rem; } /* arc U5: WCAG AA 4.5:1 over dark bg */
-    .card-standard { font-size: 0.6rem; color:rgba(255,255,255,0.80); font-weight: 500; }
+    .card-title { font-size: 0.8rem; font-weight: 600; color:rgba(255,255,255,0.80); text-transform: uppercase; letter-spacing: 0.08em; margin: 0 0 0.75rem; display: flex; align-items: center; gap: 0.5rem; } /* arc U5: WCAG AA 4.5:1 over dark bg */
+    .card-standard { font-size: 0.75rem; color:rgba(255,255,255,0.80); font-weight: 500; }
 
     /* ── Tables ── */
     .data-table { width: 100%; border-collapse: collapse; font-size: 0.75rem; }
-    .data-table th { text-align: left; color:rgba(255,255,255,0.80); font-weight: 600; padding: 0.4rem 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 0.68rem; }    .data-table td { padding: 0.5rem 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.04); color:rgba(255,255,255,0.86); }
+    .data-table th { text-align: left; color:rgba(255,255,255,0.80); font-weight: 600; padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 0.75rem; }    .data-table td { padding: 0.5rem 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.04); color:rgba(255,255,255,0.86); }
     .data-table tr:last-child td { border-bottom: none; }
     .data-table .machine-name { font-weight: 600; color: #fff; }
-    .data-table .num { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
+    /* ★THE WHOLE NUMERIC COLUMN WAS BOLD (design lens craft, 2026-09-15). This one rule rendered 130
+       table figures and 11 headers at weight 700 - 36% of the page's bold text - so no figure could be
+       emphasised against another. Right alignment and tabular figures are what make a column read as
+       numbers; weight is what should mark the one that ranks, and the priority and risk-score cells
+       still override to 800. Batch 3 took the figures the rest of the way to 400: at 600 they left the
+       page with 294 of 395 nodes semibold and no regular text at all, which is the same flatness one
+       step down. */
+    .data-table td.num { text-align: right; font-weight: 400; font-variant-numeric: tabular-nums; }
+    .data-table th.num { text-align: right; }   /* the header keeps the 600 its own rule sets */
     .data-table .alert { color: var(--wh-red-text); }
     .data-table .warn  { color: var(--wh-orange); }
     /* Arc A1: wide tables (6-col Priority Ranking etc.) scroll horizontally within their
@@ -226,8 +240,8 @@
     .list-with-showall .showall-toggle {
       display: block;
       width: 100%;
-      margin-top: 0.6rem;
-      padding: 0.7rem 1rem;
+      margin-top: 8px;
+      padding: 12px 16px;
       min-height: 44px;                    /* mobile tap target */
       background: rgba(167,139,250,0.06);
       border: 1px solid rgba(167,139,250,0.18);
@@ -250,7 +264,7 @@
       display: block;
       width: 100%;
       margin-bottom: 0.5rem;
-      padding: 0.55rem 0.85rem;
+      padding: 8px 12px;
       /* 44px is the tap-target floor (F1) — gloved, one-handed field use. */
       min-height: 44px;
       background: rgba(255,255,255,0.04);
@@ -274,35 +288,53 @@
     .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem; }
     .stat-tile { background: rgba(255,255,255,0.04); border-radius: 0.75rem; padding: 0.875rem; border: 1px solid rgba(255,255,255,0.06); }
     .stat-tile .val { font-size: 1.5rem; font-weight: 800; color: var(--wh-violet-text); line-height: 1; }
-    .stat-tile .label { font-size: 0.65rem; color:rgba(255,255,255,0.80); margin-top: 0.25rem; font-weight: 600; }
+    .stat-tile .label { font-size: 0.75rem; color:rgba(255,255,255,0.80); margin-top: 0.25rem; font-weight: 600; }
     /* ── Bar chart (CSS) ── */
     .bar-row { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
-    .bar-label { font-size: 0.7rem; color:rgba(255,255,255,0.80); width: 120px; flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .bar-label { font-size: 0.8rem; color:rgba(255,255,255,0.80); width: 120px; flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .bar-track { flex: 1; height: 8px; background: rgba(255,255,255,0.06); border-radius: 999px; overflow: hidden; }
-    .bar-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--wh-violet), #7c3aed); transition: width 0.6s ease; }
-    .bar-val { font-size: 0.68rem; font-weight: 700; color:rgba(255,255,255,0.80); width: 40px; text-align: right; flex-shrink: 0; }
+    .bar-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--wh-violet), #7c3aed); }
+    /* ★A 600 ms TRANSITION ON `width` THAT NEVER RUNS (design lens slop, 2026-09-15). The walk measured
+       eight of these declaring a transition past the standards' 300 ms ceiling, on a LAYOUT property the
+       compositor cannot run - and all three render sites set the width INLINE at insertion, so there is no
+       starting value to animate from and it has never actually fired. It was cost and risk with no motion to
+       show for it: the day a bar's width is updated in place, the page takes 600 ms of relayout nobody asked
+       for. Removed rather than shortened, because these bars do not move after they are drawn. */
+    .bar-val { font-size: 0.75rem; font-weight: 600; color:rgba(255,255,255,0.80); width: 40px; text-align: right; flex-shrink: 0; }
 
     /* ── Empty / loading states ── */
     .empty { text-align: center; padding: 2rem; color:rgba(255,255,255,0.80); font-size: 0.78rem; }    .loading-card { display: flex; align-items: center; justify-content: center; gap: 0.75rem; padding: 2rem; color:rgba(255,255,255,0.80); font-size: 0.8rem; }    .spinner { width: 20px; height: 20px; border: 2px solid rgba(167,139,250,0.2); border-top-color: var(--wh-violet-text); border-radius: 50%; animation: spin 0.8s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
+    /* ★THE ONE AUTHORED MOMENT (design lens motion, 2026-09-15). Moving between the four phases replaced
+       the whole panel in a single frame, so the same heading suddenly carried different data with nothing
+       to say so. 140ms, opacity and a 4px rise, both composited, ease-out because it is an entrance. The
+       frequency table allows it: a phase switch is occasional, and the purpose is the valid one - marking
+       that state changed instead of cutting. */
+    @keyframes wh-phase-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+    #results-panel.phase-in { animation: wh-phase-in 140ms var(--wh-ease-out) both; }
+
     /* ── Collapsible card detail ── */
+    /* ★THE HEIGHT IS NOT ANIMATED, AND THAT IS THE FIX (design lens motion, 2026-09-15). This rule used
+       to run `max-height 0.3s, opacity 0.25s, padding-top 0.25s` - two layout properties, and a cap that
+       had already been raised from 800px to 2400px because it clipped a 1102px table. That is the
+       max-height trap: the number must exceed any content, so the transition's real speed is set by the
+       guess rather than by the content.
+       grid-template-rows 0fr -> 1fr is what the standards name instead, and measured on THIS panel it did
+       not hold: the panel has several children, so the explicit track collapsed and the implicit ones did
+       not (closed panels measured 9px, and about 60px on the cards with larger trailing blocks), while
+       grid-auto-rows: 1fr split the open height evenly and doubled it, 962px where 488 was right.
+       The comment under .kpi-detail:not(.open) says why the children are display:none: merely clipped,
+       they still lay out, and a child's getBoundingClientRect() reports a phantom rect ~1100px down the
+       page. Any approach that keeps them in flow reopens that defect.
+       So: opacity only. No magic number, no layout property in a transition, a true zero when collapsed,
+       and the phantom rect stays fixed. The panel fades in and the chevron turns; the height settles in
+       one frame, which is the standards' own answer when a layout property is the only way to animate. */
     .kpi-detail {
       overflow: hidden;
-      max-height: 0;
-      transition: max-height 0.3s ease, opacity 0.25s ease, padding-top 0.25s ease;
       opacity: 0;
-      padding-top: 0;
+      transition: opacity 0.2s var(--wh-ease-out);
     }
-    .kpi-detail.open {
-      /* Was 800px — clipped the full-asset detail tables (PM Compliance ran 1102px
-         for this hive), which cut off the bottom rows + the threshold legend AND
-         made the clipped legend's box overlap the next card's H2 (rubric V1 flag,
-         measured 2026-07-22 @1280). Sized to fit realistic detail content so nothing
-         clips. overflow stays hidden for the collapse transition. */
-      max-height: 2400px;
-      opacity: 1;
-      padding-top: 0.75rem;
-    }
+    .kpi-detail.open { opacity: 1; }
     /* A COLLAPSED detail keeps max-height:0 + overflow:hidden, so its content is VISUALLY hidden —
        but the content still LAYS OUT at full height and overflows downward, so a child's
        getBoundingClientRect() reports a phantom rect ~1100px below (the threshold-legend <p> landed
@@ -333,7 +365,7 @@
       -webkit-tap-highlight-color: transparent;
     }
     .kpi-chevron {
-      font-size: 0.65rem; color:rgba(255,255,255,0.80); /* arc U5: SC 1.4.11 non-text contrast */
+      font-size: 0.75rem; color:rgba(255,255,255,0.80); /* arc U5: SC 1.4.11 non-text contrast */
       transition: transform 0.25s ease; flex-shrink: 0; margin-left: 0.5rem;
     }
     .kpi-chevron.open { transform: rotate(180deg); }
@@ -346,10 +378,11 @@
     /* ── Role selector ── */
     .role-bar { display:flex; gap:0.375rem; margin-bottom:1rem; }
     .role-btn {
-      font-family:inherit; font-size:0.72rem; font-weight:600;
-      padding:0.35rem 0.875rem; border-radius:999px; cursor:pointer;
+      font-family:inherit; font-size:0.8rem; font-weight:600;
+      padding:4px 12px; border-radius:999px; cursor:pointer;   /* the .filter-chip padding: both are filter pills */
       background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08);
-      color:rgba(255,255,255,0.80); transition:all 0.15s; min-height:44px;
+      color:rgba(255,255,255,0.80); min-height:44px;
+      transition: background .15s ease, border-color .15s ease, color .15s ease, transform .12s var(--wh-ease-out);
     }
     .role-btn.active { background:rgba(41,182,217,0.12); border-color:rgba(41,182,217,0.3); color:var(--wh-blue); }
     .role-btn .role-icon { margin-right:0.25rem; }
@@ -360,10 +393,10 @@
       background:linear-gradient(145deg,rgba(41,182,217,0.08),rgba(31,46,69,0.7));
       border:1px solid rgba(41,182,217,0.2);
     }
-    .role-card-title { font-size:0.68rem; font-weight:700; color:var(--wh-blue-text); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:0.625rem; }
-    .role-row { display:flex; justify-content:space-between; align-items:center; padding:0.4rem 0; border-bottom:1px solid rgba(255,255,255,0.05); font-size:0.75rem; }
+    .role-card-title { font-size:0.75rem; font-weight:600; color:var(--wh-blue-text); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:12px; }
+    .role-row { display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.05); font-size:0.75rem; }
     .role-row:last-child { border-bottom:none; }
-    .role-row .label { color:rgba(255,255,255,0.80); }    .role-row .val { font-weight:700; }
+    .role-row .label { color:rgba(255,255,255,0.80); }    .role-row .val { font-weight:600; }
 
     /* In-card AI recommendation block (replaces the separate banner below) */
     .role-ai-rec {
@@ -374,11 +407,11 @@
       border-radius: 0.5rem;
     }
     .role-ai-rec-label {
-      font-size: 0.6rem; font-weight: 700; letter-spacing: 0.07em;
+      font-size: 0.75rem; font-weight: 600; letter-spacing: 0.07em;
       text-transform: uppercase; color: var(--wh-violet-text); margin-bottom: 0.25rem;
     }
     .role-ai-rec-text {
-      font-size: 0.74rem; color:rgba(255,255,255,0.86); line-height: 1.45;
+      font-size: 0.8rem; color:rgba(255,255,255,0.86); line-height: 1.45;
       max-width: 70ch;  /* generated prose: length varies run to run — cap the container's measure */
     }
     .pm-asset-select {
@@ -390,14 +423,15 @@
     .pm-asset-select option { background:#1a2e44; color:var(--wh-cloud); }
 
     /* ── Info banner ── */
-    .info-banner { display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.875rem 1rem; border-radius: 0.75rem; background: rgba(167,139,250,0.07); border: 1px solid rgba(167,139,250,0.15); margin-bottom: 1rem; font-size: 0.75rem; color:rgba(255,255,255,0.80); }
+    .info-banner { display: flex; align-items: flex-start; gap: 0.75rem; padding: 16px; border-radius: 0.75rem; background: rgba(167,139,250,0.07); border: 1px solid rgba(167,139,250,0.15); margin-bottom: 1rem; font-size: 0.75rem; color:rgba(255,255,255,0.80); }
 
     /* ── Repeat failure badge ── */
-    .repeat-badge { font-size: 0.65rem; font-weight: 700; padding: 0.15rem 0.4rem; border-radius: 999px; background: rgba(248,113,113,0.15); color: var(--wh-red-text); border: 1px solid rgba(248,113,113,0.25); }
+    .filter-chip:active, .refresh-btn:active, .period-btn:active, .showall-toggle:active { transform: scale(0.97); }   /* 120 ms press feedback, the platform's band */
+    .repeat-badge { font-size: 0.75rem; font-weight: 600; padding: 4px 8px; border-radius: 999px; background: rgba(248,113,113,0.15); color: var(--wh-red-text); border: 1px solid rgba(248,113,113,0.25); }
 
     /* ── Compliance bar ── */
     .compliance-track { height: 10px; background: rgba(255,255,255,0.06); border-radius: 999px; overflow: hidden; margin: 0.4rem 0; }
-    .compliance-fill { height: 100%; border-radius: 999px; transition: width 0.6s ease; }
+    .compliance-fill { height: 100%; border-radius: 999px; }   /* the same inert 600ms width transition the KPI bars carried: the width is set inline at render */
 
     /* ── Toast ── */
     #toast {
@@ -413,7 +447,7 @@
     .verdict { display:flex; align-items:center; gap:16px; padding:16px; margin-bottom:16px; border-radius:12px; border:1px solid; min-height:72px; }
     .verdict-icon { font-size:1.5rem; line-height:1; font-weight:800; }
     .verdict-text { font-size:0.9rem; font-weight:700; line-height:1.35; color:rgba(255,255,255,0.92); }
-    .verdict-text small { display:block; font-size:0.72rem; font-weight:500; color:rgba(255,255,255,0.83); margin-top:3px; }
+    .verdict-text small { display:block; font-size:0.8rem; font-weight:500; color:rgba(255,255,255,0.83); margin-top:4px; }
     .verdict.healthy { background:rgba(74,222,128,0.07);  border-color:rgba(74,222,128,0.3); }
     .verdict.healthy .verdict-icon { color:var(--wh-green); }
     .verdict.watch   { background:rgba(247,162,27,0.07);  border-color:rgba(247,162,27,0.3); }
@@ -425,12 +459,26 @@
     .simple-row { display:grid; grid-template-columns:repeat(auto-fit, minmax(170px, 1fr)); gap:16px; margin-bottom:16px; }
     @media (max-width:420px) { .simple-row { grid-template-columns:1fr; } }   /* phone fit (2026-09-06): two 171px tiles wrapped 'PM compliance (90 days) · complete' into 3 lines; KPI tiles stack on a phone */
     .simple-card { background:rgba(22,32,50,0.7); border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:16px; }
-    .simple-card .sc-label { font-size:0.65rem; font-weight:700; color:rgba(255,255,255,0.80); text-transform:uppercase; letter-spacing:0.06em; }
+    /* ★PROSE RAN TO 92ch AT 1280 (design lens craft, 2026-09-15). The OEE explainer carries no class,
+       so it inherited the card's full width and a reader lost the line start on every wrap. 70ch is the
+       cap .role-ai-rec-text already uses for generated prose. */
+    .card p:not([class]) { max-width: 70ch; }
+    .simple-card .sc-label { font-size:0.75rem; font-weight:600; color:rgba(255,255,255,0.80); text-transform:uppercase; letter-spacing:0.06em; }
     /* tabular-nums keeps digits on a fixed pitch so KPIs stay comparable
        column-to-column and do not jitter as values refresh (C4). */
     .simple-card .sc-hero  { font-size:1.5rem; font-weight:800; line-height:1.15; margin:4px 0 2px; color:var(--wh-cloud); font-variant-numeric:tabular-nums; }
-    .simple-card .sc-sub   { font-size:0.7rem; color:rgba(255,255,255,0.80); line-height:1.4; }
-    .simple-card .sc-tag   { display:inline-block; font-size:0.58rem; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; padding:0.18rem 0.5rem; border-radius:999px; margin-top:7px; }
+    /* ★THE PM TILE GREW 46px WHEN ITS DATA LANDED (design lens audit, 2026-09-15). Measured frame by
+       frame: .simple-row 511 -> 556 at 619ms, and every element below #an-summary moved with it - the
+       CLS the DevTools trace attributed to .period-row and .hdr-right, which were its victims, not its
+       cause. Both of the PM tile's text blocks wrap to a second line once they carry real content
+       ("Loading..." -> "329 of 539 PMs completed, 30 days"; "SMRP v5.0" -> the full reference), while
+       the OEE and MTBF tiles already render two lines in both states and so sit still. Reserving two
+       lines in the placeholder state removes the shift and makes the three tiles agree on a height. */
+    .simple-card .sc-sub   { font-size:0.75rem; color:rgba(255,255,255,0.80); line-height:1.4; min-height:2.8em; }
+    /* the footnote declares its own line-height so 2.8em IS exactly two lines; at the inherited 1.17 it
+       was not, and a reservation that does not match the text it reserves for is just a taller box. */
+    .simple-card > small   { line-height:1.4; min-height:2.8em; }
+    .simple-card .sc-tag   { display:inline-block; font-size:0.75rem; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; padding:4px 8px; border-radius:999px; margin-top:8px; }
     .simple-card.tag-green .sc-tag { background:rgba(74,222,128,0.16);  color:var(--wh-green); }
     .simple-card.tag-amber .sc-tag { background:rgba(247,162,27,0.16);  color:var(--wh-orange); }
     .simple-card.tag-red   .sc-tag { background:rgba(248,113,113,0.16); color:var(--wh-red-text); }
@@ -438,17 +486,17 @@
     /* min-height reserves the height of the recommendation + its CTA, which are
        both filled in after the fetch resolves (I1/CLS). */
     .action-card { background:rgba(41,182,217,0.06); border:1px solid rgba(41,182,217,0.25); border-radius:12px; padding:16px; margin-bottom:16px; min-height:168px; }
-    .action-card .ac-label { font-size:0.65rem; font-weight:800; color:var(--wh-blue-text); text-transform:uppercase; letter-spacing:0.07em; }
-    .action-card .ac-text { font-size:0.82rem; line-height:1.5; margin-top:6px; color:rgba(255,255,255,0.85); }
+    .action-card .ac-label { font-size:0.75rem; font-weight:800; color:var(--wh-blue-text); text-transform:uppercase; letter-spacing:0.07em; }
+    .action-card .ac-text { font-size:0.875rem; line-height:1.5; margin-top:6px; color:rgba(255,255,255,0.85); }
 /* Arc P · Wave 1 (P3): the "one primary action" CTA button (this page inlines its
    component CSS — no components.css link — so .ac-cta lives here too). */
-.action-card .ac-cta { display:inline-flex; align-items:center; gap:6px; margin-top:12px; min-height:44px; padding:0.6rem 1.15rem; background:var(--wh-orange); color:var(--wh-navy); font-family:inherit; font-size:0.8rem; font-weight:800; border:none; border-radius:8px; cursor:pointer; text-decoration:none; transition:background 0.2s, transform 0.1s; }
+.action-card .ac-cta { display:inline-flex; align-items:center; gap:6px; margin-top:12px; min-height:44px; padding:8px 16px; background:var(--wh-orange); color:var(--wh-navy); font-family:inherit; font-size:0.8rem; font-weight:800; border:none; border-radius:8px; cursor:pointer; text-decoration:none; transition:background 0.2s, transform 0.1s; }
 .action-card .ac-cta:hover { background:var(--wh-orange-dark); }
 .action-card .ac-cta:active { transform:scale(0.98); }
 .action-card .ac-cta[hidden], .action-card .ac-cta.hidden { display:none; }
-    .details-toggle { display:inline-flex; align-items:center; gap:6px; background:transparent; border:1px solid rgba(255,255,255,0.07); color:rgba(255,255,255,0.80); padding:8px 14px; border-radius:8px; font-family:inherit; font-size:0.7rem; font-weight:600; cursor:pointer; min-height:44px; margin-bottom:14px; }
+    .details-toggle { display:inline-flex; align-items:center; gap:6px; background:transparent; border:1px solid rgba(255,255,255,0.07); color:rgba(255,255,255,0.80); padding:8px 16px; border-radius:8px; font-family:inherit; font-size:0.75rem; font-weight:600; cursor:pointer; min-height:44px; margin-bottom:16px; }
     .details-toggle:hover { color:var(--wh-cloud); border-color:rgba(255,255,255,0.18); }
-    #an-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:14px; }
+    #an-summary-details { display:none; padding:12px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:16px; }
     #an-summary-details.open { display:block; }
 
     /* N1: EN/FIL toggle. 44px min on both axes -- F1 fails on the MIN dimension,
@@ -461,7 +509,7 @@
          it wore the 8px ACTION rect instead: same job, two shapes (rubric R3). */
       min-width:44px; min-height:44px; padding:0 8px; border-radius:var(--wh-radius-pill); cursor:pointer;
       background:transparent; border:1px solid rgba(255,255,255,0.12);
-      color:rgba(255,255,255,0.80); font-family:inherit; font-size:0.62rem; font-weight:800;
+      color:rgba(255,255,255,0.80); font-family:inherit; font-size:0.75rem; font-weight:800;
       letter-spacing:0.06em; transition:background 0.15s, color 0.15s, border-color 0.15s;
     }
     .an-lang button:hover { color:var(--wh-cloud); border-color:rgba(255,255,255,0.24); }
@@ -481,6 +529,7 @@
       /* the bar still renders at its full width, it just does not grow into it */
       .bar-fill                   { transition: none; }
       .kpi-detail                 { transition: none; }
+      #results-panel.phase-in     { animation: none; }
       .kpi-chevron                { transition: none; }
     }
   </style>
@@ -502,10 +551,16 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 <div class="page">
 
   <!-- Header -->
-  <div class="page-header">
+  <!-- a header LANDMARK, not a styled div (design lens audit, 2026-09-15): the audit read main, nav and
+       a skip link but no banner region, so a screen-reader user could jump to the content and the
+       navigation and had no named way back to the page title and its controls. -->
+  <header class="page-header">
     <div>
-      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;"><h1 translate="no" style="margin:0;">Analytics Engine</h1><div id="hive-chip" class="hidden" style="display:none;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;font-size:0.7rem;background:rgba(247,162,27,0.1);border:1px solid rgba(247,162,27,0.25);color:var(--wh-orange-text);"><span class="ic ic-community" aria-hidden="true"></span><span id="hive-chip-name" style="font-weight:600;"></span></div></div>
-      <p>ISO 14224 · SMRP Metrics · Stage 3 Cyborg Worker</p>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;"><h1 translate="no" style="margin:0;">Analytics Engine</h1><div id="hive-chip" class="hidden" style="display:none;align-items:center;gap:5px;padding:4px 12px;border-radius:999px;font-size:0.8rem;background:rgba(247,162,27,0.1);border:1px solid rgba(247,162,27,0.25);color:var(--wh-orange-text);"><span class="ic ic-community" aria-hidden="true"></span><span id="hive-chip-name" style="font-weight:600;"></span></div></div>
+      <!-- "Stage 3 Cyborg Worker" was an internal product-stage name on the subtitle line, with a
+           second "Stage 3" badge 40px below it (design lens critique, 2026-09-15). It means nothing to a
+           maintenance supervisor and it occupied the line that should say what this page reads. -->
+      <p>ISO 14224 · SMRP metrics · computed from your hive's own records</p>
     </div>
     <div class="hdr-right">
       <!-- N1: EN/FIL toggle. Wired by addEventListener below (never inline onclick --
@@ -516,7 +571,29 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       </div>
       <span class="header-badge">Stage 3</span>
     </div>
-  </div>
+  </header>
+  <script>
+  // ★THE HIVE CHIP REVEALED AFTER FIRST PAINT AND MOVED THE WHOLE PAGE (design lens audit, 2026-09-15).
+  // This block used to sit at the BOTTOM of the body, after two deferred scripts, so the header painted
+  // without the chip and reflowed around it at ~230ms: at 390 the chip wrapped to a second line inside
+  // the title column (53 -> 87px) and at 1280 it widened that column until .hdr-right, which is
+  // flex-shrink:0 by design, wrapped onto its own line (y88 -> y157). Either way the header grew and
+  // every element below it moved - the CLS the DevTools trace attributed to #an-summary and .period-row,
+  // which were the victims. The name is read synchronously from localStorage, so nothing was waiting on
+  // anything; the work was just scheduled after the paint it invalidates. Here it lands in the first
+  // frame, and when there is no hive the chip stays display:none and reserves nothing.
+  // T125/T51: light the hive stamp from the stored name (cleared on membership loss).
+  (function () {
+    try {
+      const _hn = localStorage.getItem('wh_hive_name');
+      const _chip = document.getElementById('hive-chip');
+      if (_hn && _chip) {
+        _chip.classList.remove('hidden'); _chip.style.display = 'inline-flex';
+        const n = document.getElementById('hive-chip-name'); if (n) n.textContent = _hn;
+      }
+    } catch (_) { /* empty-catch-allow: best-effort chrome */ }
+  })();
+  </script>
 
   <!-- Page-level controls: period selector + refresh.
        These are not role-specific so they live with the header, not inside
@@ -583,14 +660,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         <div class="sc-hero" id="an-oee-hero">-</div>
         <div class="sc-sub" id="an-oee-sub">Loading...</div>
         <span class="sc-tag" id="an-oee-tag">-</span>
-        <small style="display:block;font-size:.55rem;color:rgba(255,255,255,0.80);margin-top:4px;">ISO 22400-2:2014 · Availability × Quality only. Add each asset's cycle time to include Performance.</small>
+        <small style="display:block;font-size:0.75rem;color:rgba(255,255,255,0.80);margin-top:4px;">ISO 22400-2:2014 · Availability × Quality only. Add each asset's cycle time to include Performance.</small>
       </div>
       <div class="simple-card tag-grey" id="an-card-mtbf" data-rag-tile="analytics:mtbf" data-rag-label="Worst MTBF (partial)">
         <div class="sc-label" data-i="lblmtbf">Worst MTBF (partial)</div>
         <div class="sc-hero" id="an-mtbf-hero">-</div>
         <div class="sc-sub" id="an-mtbf-sub">Loading...</div>
         <span class="sc-tag" id="an-mtbf-tag">-</span>
-        <small style="display:block;font-size:.55rem;color:rgba(255,255,255,0.80);margin-top:4px;">ISO 14224:2016 · Counts calendar days between failures, not running hours.</small>
+        <small style="display:block;font-size:0.75rem;color:rgba(255,255,255,0.80);margin-top:4px;">ISO 14224:2016 · Counts calendar days between failures, not running hours.</small>
       </div>
       <div class="simple-card tag-grey" id="an-card-pm" data-rag-tile="analytics:pm_compliance" data-rag-label="PM compliance (30d approx)">
         <!-- The period is written by renderAnalyticsSummary from the payload's own period_days.
@@ -601,14 +678,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         <div class="sc-hero" id="an-pm-hero">-</div>
         <div class="sc-sub" id="an-pm-sub">Loading...</div>
         <span class="sc-tag" id="an-pm-tag">-</span>
-        <small id="an-pm-foot" style="display:block;font-size:.55rem;color:rgba(255,255,255,0.80);margin-top:4px;">SMRP v5.0</small>
+        <small id="an-pm-foot" style="display:block;font-size:0.75rem;color:rgba(255,255,255,0.80);margin-top:4px;">SMRP v5.0</small>
       </div>
     </div>
     <div class="action-card">
       <div class="ac-label" data-i="whatnext">What to do next</div>
       <div class="ac-text" id="an-action-text">Computing recommendation...</div>
       <!-- Arc P · Wave 1 (P3 / FUSION 3a): one primary button that DOES the next step. -->
-      <a id="an-action-btn" class="ac-cta hidden" href="#" aria-label="Do the recommended next action">Take action &#8594;</a>
+      <a id="an-action-btn" class="ac-cta hidden" href="#" data-ia="ctaaria" aria-label="Do the recommended next action">Take action &#8594;</a>
     </div>
     <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="an-summary-details">
       <span data-i="showdetails">Show details</span>
@@ -618,12 +695,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     data-rag-label="Analytics detail breakdown">
       <strong style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How these KPIs are computed</strong>
       <ul style="margin:0;padding-left:20px;">
-        <li><strong>OEE</strong>: average of OEE across all assets returned by the descriptive phase. Availability × Performance × Quality (the OEE formula).</li>
+        <li><strong>OEE</strong>: average across the assets the descriptive phase returns, computed as Availability × Quality ONLY. Full OEE is Availability × Performance × Quality; Performance needs each asset's ideal cycle time, which this hive has not recorded, so the figure is an upper bound on true OEE and carries no benchmark.</li>
         <li><strong>Worst MTBF</strong>: lowest MTBF in days across all assets with at least one corrective failure in the window. Mean Time Between Failures.</li>
         <li><strong>PM compliance</strong>: scope items completed within frequency window / total scope items in the period.</li>
         <li><strong>Verdict</strong>: red if OEE &lt; 60% OR worst MTBF &lt; 14 days OR compliance &lt; 50%; amber if any KPI under its healthy threshold; green when all three clear.</li>
       </ul>
-      <p style="margin-top:8px;color:rgba(255,255,255,0.80);font-size:11px;">Use the phase tabs below (Descriptive / Diagnostic / Predictive / Prescriptive) for the full per-asset breakdown.</p>
+      <p style="margin-top:8px;color:rgba(255,255,255,0.80);font-size:0.75rem;">Use the phase tabs below (Descriptive / Diagnostic / Predictive / Prescriptive) for the full per-asset breakdown.</p>
     </div>
   </div>
 
@@ -641,7 +718,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   <!-- Status bar: last updated + loading indicator -->
   <div id="status-bar" style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;min-height:20px;">
     <span id="status-dot" style="width:8px;height:8px;border-radius:50%;background:var(--wh-green);flex-shrink:0;display:none;"></span>
-    <span id="status-text" style="font-size:0.68rem;color:rgba(255,255,255,0.80);"></span>
+    <span id="status-text" style="font-size:0.75rem;color:rgba(255,255,255,0.80);"></span>
     <div id="status-spinner" class="spinner" style="width:14px;height:14px;border-width:2px;border-color:var(--wh-violet-text);border-top-color:var(--wh-violet-text);display:none;"></div>
   </div>
 
@@ -676,8 +753,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <button class="filter-chip active" aria-pressed="true" data-dim="discipline" data-value="all"           onclick="setFilter(this)"><span data-i="fall2">All</span></button>
       <!-- N1: discipline taxonomy deliberately stays English in FIL (canonical
            platform vocabulary — see the i18n contract comment beside _anFIL). -->
-      <button class="filter-chip" aria-pressed="false" data-dim="discipline" data-value="Mechanical"     onclick="setFilter(this)" translate="no" data-i="mechanical">Mechanical</button>
-      <button class="filter-chip" aria-pressed="false" data-dim="discipline" data-value="Electrical"     onclick="setFilter(this)" translate="no" data-i="electrical">Electrical</button>
+      <!-- the contract above is why these carry NO data-i: the shared dictionary translated Mechanical and
+           Electrical while the other four had no hook, so the row rendered half in each language and the two
+           translated labels no longer matched the data-value they filter on (design lens copy, 2026-09-15). -->
+      <button class="filter-chip" aria-pressed="false" data-dim="discipline" data-value="Mechanical"     onclick="setFilter(this)" translate="no">Mechanical</button>
+      <button class="filter-chip" aria-pressed="false" data-dim="discipline" data-value="Electrical"     onclick="setFilter(this)" translate="no">Electrical</button>
       <button class="filter-chip" aria-pressed="false" data-dim="discipline" data-value="Instrumentation" onclick="setFilter(this)" translate="no">Instrumentation</button>
       <button class="filter-chip" aria-pressed="false" data-dim="discipline" data-value="Hydraulic"      onclick="setFilter(this)" translate="no">Hydraulic</button>
       <button class="filter-chip" aria-pressed="false" data-dim="discipline" data-value="Pneumatic"      onclick="setFilter(this)" translate="no">Pneumatic</button>
@@ -733,16 +813,20 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     CALC_TYPES_ref:      'CALC_TYPES registry count (calc-type count consistent across pages)',
   };
   // ── Rotating loading messages (matches Engineering AI pattern) ────────────
+  // ★THE FIRST MINUTE OF THIS PAGE WAS ENGLISH-ONLY (design lens critique, 2026-09-15). Nine literals
+  // with no _t() on a page that ships an EN/FIL toggle, so a Filipino reader's entire first impression
+  // was in a language they may not have chosen. The "60 seconds" promise also undersold the 120s bound
+  // the fetch actually enforces.
   const LOADING_MESSAGES = [
-    'Connecting to WorkHive Analytics AI...',
-    'Fetching maintenance records from your hive...',
-    'Running ISO 14224 standards-grade analysis...',
-    'Computing MTBF, MTTR and Availability...',
-    'Warming up analytics engine (first run may take up to 60 seconds)...',
-    'Cross-referencing logbook, PM, and inventory data...',
-    'Applying Spearman correlation and statistical models...',
-    'Building your maintenance intelligence report...',
-    'Almost there...',
+    _t('Connecting to WorkHive Analytics AI...', 'Kumukonekta sa WorkHive Analytics AI...'),
+    _t('Fetching maintenance records from your hive...', 'Kinukuha ang mga tala ng maintenance mula sa hive mo...'),
+    _t('Running ISO 14224 standards-grade analysis...', 'Isinasagawa ang pagsusuri ayon sa ISO 14224...'),
+    _t('Computing MTBF, MTTR and Availability...', 'Kinakalkula ang MTBF, MTTR at Availability...'),
+    _t('Warming up analytics engine (first run may take up to 2 minutes)...', 'Nagpapainit ang analytics engine (hanggang 2 minuto ang unang takbo)...'),
+    _t('Cross-referencing logbook, PM, and inventory data...', 'Pinagtutugma ang logbook, PM at inventory...'),
+    _t('Applying Spearman correlation and statistical models...', 'Ikinakapit ang Spearman correlation at mga statistical model...'),
+    _t('Building your maintenance intelligence report...', 'Binubuo ang iyong maintenance intelligence report...'),
+    _t('Almost there...', 'Malapit na...'),
   ];
 
   let _loadingInterval = null;
@@ -756,7 +840,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     _loadingInterval = setInterval(() => {
       el.style.opacity = '0';
       setTimeout(() => {
-        idx = (idx + 1) % LOADING_MESSAGES.length;
+        // ★THE PROGRESS INDICATOR RESTARTED ITSELF (design lens critique, 2026-09-15). The modulo wrapped
+        // "Almost there..." back round to "Connecting to WorkHive Analytics AI..." every 25 seconds, which
+        // reads as a failed retry on a page that can legitimately take two minutes. It holds on the last
+        // message instead, and the interval stops with it.
+        if (idx >= LOADING_MESSAGES.length - 1) { clearInterval(_loadingInterval); _loadingInterval = null; el.style.opacity = '1'; return; }
+        idx += 1;
         el.textContent = LOADING_MESSAGES[idx];
         el.style.opacity = '1';
       }, 400);
@@ -848,6 +937,21 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     prescriptive:'⚡ Phase 4: Prescriptive Analytics. What should I do? Standards: ISO 55000:2014, SAE JA1011 RCM, SMRP workforce metrics. Powered by WorkHive AI.',
   };
 
+  // Replays the phase-in moment on the panel that was just written. The class is removed on
+  // animationend AND on a timer, because a dropped animationend would leave the class stuck and the
+  // next switch would not replay - the same reason the alert feed's dismissal does not hang on
+  // transitionend.
+  function _playPhaseIn() {
+    const rp = document.getElementById('results-panel');
+    if (!rp) return;
+    rp.classList.remove('phase-in');
+    void rp.offsetWidth;                    // restart the animation rather than let it be a no-op
+    rp.classList.add('phase-in');
+    const off = () => rp.classList.remove('phase-in');
+    rp.addEventListener('animationend', off, { once: true });
+    setTimeout(off, 260);
+  }
+
   function setPhase(phase) {
     _phase = phase;
     document.querySelectorAll('.phase-tab:not(.soon)').forEach(b => {
@@ -867,6 +971,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
     // Instant switch from cache if available
     if (_cache[phase]) {
+      _playPhaseIn();
       renderPhase(phase, _cache[phase]);
       updateStatusBar(phase);
     } else if (!_loading) {
@@ -955,6 +1060,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   if (!_filters.discipline)  _filters.discipline  = 'all';
 
   function setFilter(btn) {
+    // A chip tap re-fetches the active phase and warms the other three - four orchestrator calls, each
+    // an AI round trip. refreshAll has carried an in-flight guard since the measured 429; these two
+    // entry points did not, so three quick taps on a laggy phone put twelve calls in the air (design
+    // lens critique, 2026-09-15).
+    if (_loading) return;
     const dim = btn.dataset.dim;
     const val = btn.dataset.value;
     if (!dim || _filters[dim] === val) return;
@@ -989,10 +1099,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       banner.textContent = '';
     } else {
       banner.style.display = '';
-      banner/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `Filtered: ${active.map(escHtml).join(' · ')} <button onclick="resetFilters()" style="margin-left:0.5rem;background:none;border:none;color:var(--wh-violet-text);cursor:pointer;text-decoration:underline;font-size:0.66rem;font-family:inherit;" data-i="clear">clear</button>`;
+      banner/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `Filtered: ${active.map(escHtml).join(' · ')} <button onclick="resetFilters()" style="margin-left:0.5rem;background:none;border:none;color:var(--wh-violet-text);cursor:pointer;text-decoration:underline;font-size:0.75rem;font-family:inherit;min-height:44px;min-width:44px;padding:0 8px;" data-i="clear">clear</button>`;
     }
   }
   function resetFilters() {
+    if (_loading) return;   // the same in-flight guard as setFilter and refreshAll
     _filters = { criticality: 'all', discipline: 'all' };
     try { localStorage.setItem('wh_analytics_filters', JSON.stringify({ ..._filters, __owner: _anOwner() })); } catch { /* empty-catch-allow: best-effort silent swallow */ }
     document.querySelectorAll('.filter-chip').forEach(c => {
@@ -1260,7 +1371,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     const mins = Math.round((Date.now() - t) / 60000);
     dot.style.display = 'block';
     dot.style.background = mins > 60 ? '#F7A21B' : '#4ade80';
-    txt.textContent = `Updated ${typeof whFmtAgo === 'function' ? whFmtAgo(t) : (mins < 1 ? 'just now' : mins + ' min ago')}`; // FD1e canonical
+    txt.textContent = `${_t('Updated', 'Na-update')} ${typeof whFmtAgo === 'function' ? whFmtAgo(t) : (mins < 1 ? _t('just now', 'ngayon lang') : mins + _t(' min ago', ' min ang nakalipas'))}`; // FD1e canonical
   }
 
   // ── Skeleton loading cards ─────────────────────────────────────────────────
@@ -1268,9 +1379,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     document.getElementById('results-panel')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
       <div class="card skeleton" style="min-height:260px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:2.5rem;">
         <div class="spinner" style="width:40px;height:40px;border-width:3px;border-color:var(--wh-violet-text);border-top-color:var(--wh-violet-text);margin-bottom:1.25rem;"></div>
-        <div style="color:var(--wh-violet-text);font-size:0.7rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:0.6rem;">${escHtml(_t('WorkHive Analytics AI', 'WorkHive Analytics AI'))}</div>
-        <div id="loading-status-msg" style="font-size:0.85rem;font-weight:600;color:#fff;min-height:1.4rem;transition:opacity 0.4s;margin-bottom:0.4rem;">Loading...</div>
-        <div style="font-size:0.7rem;color:rgba(255,255,255,0.80);margin-bottom:1rem;">${escHtml(_t('ISO 14224 standards-grade analysis', 'Pagsusuring standards-grade ayon sa ISO 14224'))}</div>
+        <div style="color:var(--wh-violet-text);font-size:0.8rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:0.6rem;">${escHtml(_t('WorkHive Analytics AI', 'WorkHive Analytics AI'))}</div>
+        <div id="loading-status-msg" style="font-size:0.85rem;font-weight:600;color:#fff;min-height:1.4rem;transition:opacity 0.25s var(--wh-ease-out);margin-bottom:0.4rem;">Loading...</div>
+        <div style="font-size:0.8rem;color:rgba(255,255,255,0.80);margin-bottom:1rem;">${escHtml(_t('ISO 14224 standards-grade analysis', 'Pagsusuring standards-grade ayon sa ISO 14224'))}</div>
         <div style="display:flex;gap:0.5rem;">
           <div style="width:7px;height:7px;border-radius:50%;background:var(--wh-violet);animation:dotPulse 1.4s ease-in-out infinite;"></div>
           <div style="width:7px;height:7px;border-radius:50%;background:var(--wh-violet);animation:dotPulse 1.4s ease-in-out 0.2s infinite;"></div>
@@ -1294,8 +1405,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     const period = data.period_days || _period;
     const gen = data.generated_at ? whFmtDate(data.generated_at, { time: true }) : '';
 
-    let html = `<p style="font-size:0.68rem;color:rgba(255,255,255,0.80);margin-bottom:1rem;">
-      Generated: ${escHtml(gen)} · Period: last ${period} days
+    let html = `<p style="font-size:0.75rem;color:rgba(255,255,255,0.80);margin-bottom:1rem;">
+      ${_t('Generated', 'Ginawa')}: ${escHtml(gen)} · ${_t('Period', 'Panahon')}: ${_t('last', 'huling')} ${period} ${_t('days', 'araw')}
     </p>`;
 
     // Order: synthesis → reliability dimensions → drilldowns → cost
@@ -1326,7 +1437,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     // and then re-renders the active phase, which lands back here — so this survives a locale swap.
     const _pmPeriod = (data && data.period_days) || _period;
     const _pmLabel = document.getElementById('an-pm-label');
-    if (_pmLabel) _pmLabel.textContent = _t(`PM compliance (${_pmPeriod} days) · completed in window`, `PM compliance (${_pmPeriod} araw) · nakumpleto sa window`); // T22 S1: name WHICH rate - pm-scheduler shows on-time delivery beside the same source, and the two figures read as one metric without the split word
+    if (_pmLabel) _pmLabel.textContent = _t(`PM compliance (${_pmPeriod} days) · completed, late included`, `PM compliance (${_pmPeriod} araw) · nakumpleto, kasama ang huli`); // T22 S1: name WHICH rate - pm-scheduler shows on-time delivery beside the same source, and the two figures read as one metric without the split word
     // ★THE SAME CLAIM LIVED IN TWO PLACES AND ONLY THE VISIBLE ONE WAS FIXED. #an-card-pm also
     // carries data-rag-label, hardcoded at ":555 as "PM compliance (30d approx)", and that attribute is
     // what the RAG / AI-grounding layer reads. Measured live with the period at 90: the person saw
@@ -1386,8 +1497,20 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
              : _t('Not enough downtime data yet', 'Kulang pa ang datos ng downtime'));
       setCard('oee', '-', oeeNote, 'NO DATA', 'grey');
     } else {
-      const tag  = oeeAvg >= 85 ? _t('WORLD CLASS','WORLD CLASS') : oeeAvg >= 65 ? _t('TYPICAL','KARANIWAN') : _t('NEEDS WORK','KAILANGAN AYUSIN');
-      const tone = oeeAvg >= 85 ? 'green' : oeeAvg >= 65 ? 'amber' : 'red';
+      // ★A PARTIAL FIGURE CANNOT EARN A FULL-OEE VERDICT (design lens critique, 2026-09-15). These
+      // thresholds are written for Availability × Performance × Quality and this number omits
+      // Performance, which cannot exceed 100% - so A × Q is an upper BOUND on true OEE and 88% was being
+      // called WORLD CLASS two inches under "Reliability KPIs need action". While Performance is missing
+      // the ladder is suppressed and the tile says so.
+      // The card header hard-codes "partial (A × Q)" and no performance field exists in the payload
+      // today, so this is true on every render - which is the honest state, not a bug. It is written as
+      // a test rather than a constant so the ladder returns by itself the day the orchestrator sends a
+      // real Performance term.
+      const _oeePartial = !(data.oee && data.oee.has_performance);
+      const tag  = _oeePartial ? _t('PARTIAL - NO BENCHMARK','BAHAGI - WALANG BENCHMARK')
+                 : oeeAvg >= 85 ? _t('WORLD CLASS','PINAKAMAHUSAY') : oeeAvg >= 65 ? _t('TYPICAL','KARANIWAN') : _t('NEEDS WORK','KAILANGAN AYUSIN');
+      const tone = _oeePartial ? 'grey'
+                 : oeeAvg >= 85 ? 'green' : oeeAvg >= 65 ? 'amber' : 'red';
       const _n = oeeAssets.length;
       setCard('oee', oeeAvg + '%', _t(`Avg across ${_n} asset${_n === 1 ? '' : 's'}`, `Karaniwan sa ${_n} asset`), tag, tone);
     }
@@ -1424,7 +1547,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       // ('partial - cal-time') - two methods under one metric name across pages. Each figure now
       // NAMES its window beside itself (qualifier-beside-figure): this card is the 90-day logbook
       // window; the workbench names its own cal-time method on its own chip.
-      setCard('mtbf', d + 'd', _t(`${assetLabel} between failures${basis} · 90d window`, `${assetLabel} sa pagitan ng pagkasira${basis} · 90-araw`), tag, tone);
+      setCard('mtbf', d + 'd', _t(`${assetLabel} between failures${basis} · ${_period}d window`, `${assetLabel} sa pagitan ng pagkasira${basis} · ${_period}-araw`), tag, tone);
       // T47 drill-to-evidence (critic walk 2026-09-02): the figure was honest and stated its basis
       // (asset + failure count) but the card was a DEAD END — a skeptical engineer could only trust
       // it or hand-count in logbook. The card now IS the drill: click/Enter opens logbook's team
@@ -1491,8 +1614,15 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       // landed. This is the PM Scheduler card's rule, swept here so the two pages cannot disagree.
       const _lad = (anPmOntime && anPmOntime.ontime_pct != null)
         ? Math.min(pmPct, anPmOntime.ontime_pct) : pmPct;
-      const tag  = _lad >= 80 ? _t('STAIR-READY','HANDA SA STAIR') : _lad >= 60 ? _t('BUILDING','PAPALAKI') : _t('BELOW STAIR','MABABA SA STAIR');
-      const tone = _lad >= 80 ? 'green' : _lad >= 60 ? 'amber' : 'red';
+      // ★THE TILE GRADED A NUMBER IT DOES NOT DISPLAY, ON A LADDER ITS SIBLINGS DO NOT USE (design lens
+      // critique, 2026-09-15). `_lad` is min(compliance, on-time), so the colour was a verdict on the
+      // on-time figure while the percentage beside it is the completion figure - and the thresholds were
+      // 80/60 where the phase card, the per-asset rows and the supervisor roll-up all use SMRP's 85/70.
+      // 61% therefore rendered BUILDING in amber on one surface and Critical in red on another, on the
+      // same screen. It grades what it shows, on the ladder the rest of the page uses; the on-time figure
+      // keeps its place in the sub-line, stated as a number instead of smuggled into a colour.
+      const tag  = pmPct >= 85 ? _t('STAIR-READY','HANDA SA STAIR') : pmPct >= 70 ? _t('BUILDING','PAPALAKI') : _t('BELOW STAIR','MABABA SA STAIR');
+      const tone = pmPct >= 85 ? 'green' : pmPct >= 70 ? 'amber' : 'red';
       if (anPmOntime && anPmOntime.ontime_pct != null && anPmOntime.late > 0) {
         pmSub += _t(` · ${anPmOntime.ontime_pct}% on time`, ` · ${anPmOntime.ontime_pct}% nasa oras`);
       }
@@ -1504,7 +1634,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       // moment it answers (and back-fills the cached summary so re-renders keep it); the
       // snapshot stays the instant-paint fallback when the RPC cannot answer.
       try {
-        db.rpc('get_pm_compliance_smrp', { p_hive_id: HIVE_ID, p_period_days: 90 }).then(function (res) {
+        db.rpc('get_pm_compliance_smrp', { p_hive_id: HIVE_ID, p_period_days: _period }).then(function (res) {
           if (res.error || !res.data || typeof res.data.overall_pct !== 'number') return;
           var live = Math.round(res.data.overall_pct);
           if (live === pmPct) return;
@@ -1565,6 +1695,17 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         // script ever fails, and reads as a dead link to a11y tooling.
         b.setAttribute('href', opts.href || (opts.scroll ? opts.scroll.replace(/^\./, '#') : '#'));
         b.onclick = opts.href ? null : (e) => {
+          // ★THE PAGE'S ONE PRIMARY ACTION ONLY SCROLLED (design lens critique, 2026-09-15). "Open the
+          // Predictive tab" set an href to .phase-tabs and smooth-scrolled there, leaving Hector on
+          // Descriptive looking at the tab strip - setPhase was never called from any CTA branch. The PM
+          // branch navigates for real via { href }, so the page already knew the difference.
+          if (opts.phase && typeof setPhase === 'function') {
+            e.preventDefault();
+            setPhase(opts.phase);
+            const panel = document.getElementById('results-panel');
+            if (panel) panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            return;
+          }
           const t = opts.scroll && document.querySelector(opts.scroll);
           if (!t) return;                       // no target -> let the href do its job
           e.preventDefault();
@@ -1577,7 +1718,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         const a = (worstMTBF.machine || worstMTBF.asset_name || _t('One asset','Isang asset'));
         text = _t(`${a} fails every ${worstMTBF.mtbf_days} days. Check if its risk is rising. It may need a root-cause review or replacement.`,
                   `Nasisira ang ${a} bawat ${worstMTBF.mtbf_days} araw. Tingnan kung tumataas ang panganib nito. Maaaring kailangan ng root-cause review o palitan.`);
-        setCta(_t('Open the Predictive tab →','Buksan ang Predictive tab →'), { scroll: '.phase-tabs' });
+        setCta(_t('Open the Predictive tab →','Buksan ang Predictive tab →'), { phase: 'predictive' });
       } else if (pmBad) {
         // T194 (2026-08-28): this advice used to say "bulk-assign overdue items" (FIL: "i-assign
         // nang sabay-sabay" - assign them all at once). PM Scheduler has NO bulk or multi-select
@@ -1593,12 +1734,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       } else if (oeeBad) {
         text = _t(`OEE at ${oeeAvg}%. Open the Downtime Pareto and Repeat Failures cards below: they pinpoint which assets are consuming the most uptime.`,
                   `Nasa ${oeeAvg}% ang OEE. Buksan ang Downtime Pareto at Repeat Failures na card sa ibaba: itinuturo ng mga ito kung aling asset ang kumakain ng pinakamaraming uptime.`);
-        setCta(_t('See the downtime breakdown →','Tingnan ang downtime breakdown →'), { scroll: '.phase-tabs' });
+        setCta(_t('See the downtime breakdown →','Tingnan ang downtime breakdown →'), { phase: 'descriptive' });
       } else if (mtbfWatch) {
         const a = (worstMTBF.machine || worstMTBF.asset_name || 'asset');
         text = _t(`Worst MTBF (${a}, ${worstMTBF.mtbf_days}d) is in the warning band. Schedule a PRO PM cycle or condition-based check before it slips under 14 days.`,
                   `Nasa warning band ang pinakamababang MTBF (${a}, ${worstMTBF.mtbf_days}d). Mag-schedule ng PRO PM cycle o condition-based check bago ito bumaba sa 14 araw.`);
-        setCta(_t('Open the Predictive tab →','Buksan ang Predictive tab →'), { scroll: '.phase-tabs' });
+        setCta(_t('Open the Predictive tab →','Buksan ang Predictive tab →'), { phase: 'predictive' });
       } else if (pmWatch) {
         text = _t(`PM compliance ${pmPct}%. Bring it above 80% to clear the Reliability dimension on the Maturity Stairway.`,
                   `PM compliance ${pmPct}%. Itaas ito lampas 80% para malampasan ang Reliability dimension sa Maturity Stairway.`);
@@ -1610,7 +1751,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       } else {
         text = _t('KPIs are healthy. Use the Predictive tab to see which assets are trending up in risk, and the Prescriptive tab for the recommended next interventions.',
                   'Malusog ang mga KPI. Gamitin ang Predictive tab para makita kung aling asset ang tumataas ang panganib, at ang Prescriptive tab para sa mga inirerekomendang susunod na hakbang.');
-        setCta(_t('Explore the Predictive tab →','Tuklasin ang Predictive tab →'), { scroll: '.phase-tabs' });
+        setCta(_t('Explore the Predictive tab →','Tuklasin ang Predictive tab →'), { phase: 'predictive' });
       }
       actBox.textContent = text;
     }
@@ -1639,6 +1780,15 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     if (!detail) return;
     const isOpen = detail.classList.toggle('open');
     if (chevron) chevron.classList.toggle('open', isOpen);
+    // ★THE BUTTON ANNOUNCED "COLLAPSED" FOREVER (design lens motion, 2026-09-15). renderKpiTile writes
+    // aria-expanded on the toggle and nothing ever wrote it again, so a screen-reader user was told the
+    // panel was closed however many times they opened it. The audit lens counted toggles that HAVE a
+    // state attribute, not ones that CHANGE it. `inert` takes the collapsed panel out of the focus
+    // order and the accessibility tree, which is the job the old `display:none` child rule was doing
+    // and which a grid-row animation cannot work through.
+    detail.inert = !isOpen;
+    const ctl = document.querySelector('[aria-controls="' + id + '"]');
+    if (ctl) ctl.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
     // Plotly charts inside collapsed cards render at 0px — resize on open
     if (isOpen) {
       requestAnimationFrame(() => {
@@ -1656,7 +1806,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     if (!d?.oee_by_asset?.length) return `<div class="card">
       <h2 class="card-title">OEE: Overall Equipment Effectiveness <span class="card-standard">ISO 22400-2:2014 · partial (Availability × Quality)</span></h2>
       <div class="empty" style="padding:1rem 0;">${escHtml(d?.note || 'No production_output data yet. Fill Quick Readings and production units in Breakdown entries.')}</div>
-      <p style="font-size:0.62rem;color:rgba(255,255,255,0.80);margin-top:0.5rem;">This is OEE without Performance. Add each asset's ideal cycle time to see the full score.</p>
+      <p style="font-size:0.75rem;color:rgba(255,255,255,0.80);margin-top:0.5rem;">This is OEE without Performance. Add each asset's ideal cycle time to see the full score.</p>
     </div>`;
     // Arc P · Wave 2 (P2 list-discipline): sort worst-OEE first + cap to top-8 with a
     // "Show all N" toggle via the shared helper (was: all ~25 rows rendered inline,
@@ -1665,7 +1815,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       (a.oee_pct == null ? Infinity : a.oee_pct) - (b.oee_pct == null ? Infinity : b.oee_pct));
     const table = renderListWithShowAll({
       items: sorted,
-      tableHeader: '<thead><tr><th>Asset</th><th class="num">Availability</th><th class="num">Quality</th><th class="num">OEE (partial)</th></tr></thead>',
+      tableHeader: `<thead><tr><th>Asset</th><th class="num">Availability (uptime)</th><th class="num">${_t('Quality', 'Kalidad')}</th><th class="num">${_t('OEE (partial)', 'OEE (bahagi)')}</th></tr></thead>`,
       defaultN: 8,
       itemNoun: 'asset',
       renderRow: (r) => {
@@ -1686,7 +1836,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
            metaphor onto the glass ("until that fuel field lands"). A supervisor needs:
            what this shows, what unlocks the rest, how to read the colours. One idea per
            sentence, <=20 words each. (2026-07-15, found by the B3 readability lens.) -->
-      <p style="font-size:0.62rem;color:rgba(255,255,255,0.80);margin-top:0.5rem;">Full OEE = <strong>Availability × Performance × Quality</strong>. This shows A × Q only. Add each asset's ideal cycle time to see Performance. 🟢 ≥85% World class · 🟡 ≥65% Typical · 🔴 &lt;65% Needs attention.</p>
+      <p style="font-size:0.75rem;color:rgba(255,255,255,0.80);margin-top:0.5rem;">${_t('Full OEE = <strong>Availability × Performance × Quality</strong>. This shows A × Q only. Add each asset\'s ideal cycle time to see Performance. 🟢 ≥85% World class · 🟡 ≥65% Typical · 🔴 &lt;65% Needs attention.', 'Buong OEE = <strong>Availability × Performance × Quality</strong>. A × Q lang ang ipinapakita nito. Idagdag ang ideal cycle time ng bawat asset para makita ang Performance. 🟢 ≥85% Pinakamahusay · 🟡 ≥65% Karaniwan · 🔴 &lt;65% Kailangan ng pansin.')}</p>
     </div>`;
   }
 
@@ -1696,7 +1846,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     const worst    = withData[0]; // sorted lowest first
     const heroVal  = worst ? worst.mtbf_days + 'd' : '-';
     const heroColor= !worst ? 'grey' : worst.mtbf_days < 14 ? 'red' : worst.mtbf_days < 30 ? 'yellow' : 'green';
-    const heroSub  = worst ? `${worst.machine}: most critical asset` : 'Insufficient failure history';
+    const heroSub  = worst ? `${worst.machine}: ${_t('most critical asset', 'pinakakritikal na asset')}` : _t('Insufficient failure history', 'Kulang ang kasaysayan ng sira');
 
     const detail = renderListWithShowAll({
       items: d.mtbf_by_asset,
@@ -1716,10 +1866,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
     return kpiCard({
       title: 'MTBF: Mean Time Between Failures', standard: 'ISO 14224:2016 §9.3',
-      value: heroVal, unit: worst ? _t('average between failures','karaniwan sa pagitan ng pagkasira') : '', sublabel: heroSub,
+      // ★THIS IS THE MINIMUM, NOT AN AVERAGE (design lens critique, 2026-09-15): `worst` is withData[0]
+      // on a list sorted lowest-first, and the tile above and the supervisor roll-up both call the same
+      // number "worst". Every sibling card uses this slot as a SELECTOR - "slowest repair", "overall
+      // hive" - so "average" read as the aggregation.
+      value: heroVal, unit: worst ? _t('worst asset','pinakamasamang asset') : '', sublabel: heroSub,
       color: heroColor,
       detail,
-      legend: '🔴 <14d critical · 🟡 <30d watch · 🟢 ≥30d healthy',
+      legend: _t('🔴 <14d critical · 🟡 <30d watch · 🟢 ≥30d healthy', '🔴 <14d kritikal · 🟡 <30d bantayan · 🟢 ≥30d maayos'),
     });
   }
 
@@ -1730,7 +1884,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
     const detail = renderListWithShowAll({
       items: d.mttr_by_asset,
-      tableHeader: '<thead><tr><th>Asset</th><th class="num">Repairs</th><th class="num">Total DT</th><th class="num">MTTR</th></tr></thead>',
+      tableHeader: `<thead><tr><th>Asset</th><th class="num">${_t('Repairs', 'Pagkumpuni')}</th><th class="num">${_t('Total DT', 'Kabuuang DT')}</th><th class="num">MTTR</th></tr></thead>`,
       defaultN: 8,
       itemNoun: 'asset',
       searchable: true,
@@ -1747,7 +1901,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
     return kpiCard({
       title: 'MTTR: Mean Time To Repair', standard: 'ISO 14224:2016 §9.4',
-      value: worst.mttr_hours + 'h', unit: 'slowest repair', sublabel: `${worst.machine}: ${worst.repair_count} repair(s)`,
+      value: worst.mttr_hours + 'h', unit: _t('slowest repair', 'pinakamabagal na pagkumpuni'), sublabel: `${worst.machine}: ${worst.repair_count} ${_t('repair(s)', 'na pagkumpuni')}`,
       color: heroColor,
       detail,
       legend: '🔴 >24h · 🟡 >8h · 🟢 ≤8h',
@@ -1755,7 +1909,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   }
 
   function renderAvailability(d) {
-    if (!d || !d.availability_by_asset?.length) return cardEmpty('Availability %', 'ISO 14224:2016 §9.2', 'Insufficient data: need both MTBF and MTTR per machine.');
+    if (!d || !d.availability_by_asset?.length) return cardEmpty(_t('Availability % (MTBF-based)', 'Availability % (batay sa MTBF)'), 'ISO 14224:2016 §9.2', _t('Insufficient data: need both MTBF and MTTR per machine.', 'Kulang ang datos: kailangan ang MTBF at MTTR ng bawat makina.'));
     const withData = d.availability_by_asset.filter(r => r.availability_pct !== null);
     const worst = withData[0]; // sorted lowest first
     const heroColor = !worst ? 'grey' : worst.availability_pct < 80 ? 'red' : worst.availability_pct < 90 ? 'yellow' : 'green';
@@ -1772,8 +1926,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         const color = pct < 80 ? '#f87171' : pct < 90 ? '#F7A21B' : '#4ade80';
         return `<div style="margin-bottom:0.6rem;">
           <div style="display:flex;justify-content:space-between;margin-bottom:0.2rem;">
-            <span style="font-size:0.72rem;font-weight:600;color:#fff;">${escHtml(r.machine)}</span>
-            <span style="font-size:0.72rem;font-weight:700;color:${color}">${pct !== null ? pct + '%' : '-'}</span>
+            <span style="font-size:0.8rem;font-weight:600;color:#fff;">${escHtml(r.machine)}</span>
+            <span style="font-size:0.8rem;font-weight:700;color:${color}">${pct !== null ? pct + '%' : '-'}</span>
           </div>
           <div class="compliance-track"><div class="compliance-fill" style="width:${barPct}%;background:${color}"></div></div>
         </div>`;
@@ -1781,8 +1935,13 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     });
 
     return kpiCard({
-      title: 'Availability %', standard: 'ISO 14224:2016 §9.2',
-      value: worst ? worst.availability_pct + '%' : '-', unit: 'lowest asset',
+      // ★ONE WORD, TWO COMPUTATIONS (design lens critique, 2026-09-15). This card reads
+      // availability_by_asset - the reliability ratio MTBF/(MTBF+MTTR) - while the OEE table above reads
+      // oee_by_asset[].availability_pct, which is uptime. Both were labelled "Availability", so the card's
+      // "lowest asset" of 94.9% was contradicted by six rows printed above it (M-003 at 92.9%): they are
+      // not the same measurement. Each is named by its method now.
+      title: _t('Availability % (MTBF-based)', 'Availability % (batay sa MTBF)'), standard: 'ISO 14224:2016 §9.2',
+      value: worst ? worst.availability_pct + '%' : '-', unit: _t('lowest of this set', 'pinakamababa sa set na ito'),
       sublabel: worst ? `${worst.machine}: MTBF/(MTBF+MTTR)` : 'No data',
       color: heroColor,
       detail,
@@ -1795,20 +1954,39 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     const overall = d.overall_pct;
     const heroColor = overall < 70 ? 'red' : overall < 85 ? 'yellow' : 'green';
     const failing = d.compliance_by_asset.filter(r => r.compliance_pct < 85);
-    const rows = d.compliance_by_asset.map(r => {
+    // ★THE RPC RETURNS BYTE-IDENTICAL ROWS AND NO TAG (design lens critique, 2026-09-15). Queried
+    // directly, get_pm_compliance_smrp emits {asset_name, completed, scheduled, compliance_pct} with
+    // "Yaskawa A1000 2/5 40%" twice and "Cleaver-Brooks CB-700-200 9/17 52.9%" twice - two different
+    // machines sharing a model name, with nothing in the payload to tell them apart. Printing them as two
+    // separate readings claims a distinction the page does not have, in the one card that turns into crew
+    // assignments. They fold into one line that says how many assets it covers. A tag in the payload is
+    // the real fix and that is a migration.
+    const _seen = new Map();
+    d.compliance_by_asset.forEach(r => {
+      const k = [r.asset_name, r.completed, r.scheduled, r.compliance_pct].join('\u0001');
+      const hit = _seen.get(k);
+      if (hit) { hit._n += 1; } else { _seen.set(k, Object.assign({}, r, { _n: 1 })); }
+    });
+    const _folded = [..._seen.values()];
+    const _dupAssets = _folded.reduce((a, r) => a + (r._n > 1 ? r._n : 0), 0);
+    const rows = _folded.map(r => {
       const cls = r.compliance_pct < 70 ? 'alert' : r.compliance_pct < 85 ? 'warn' : 'good';
       return `<tr>
-        <td class="machine-name">${escHtml(r.asset_name)}</td>
+        <!-- ★THE ONLY TABLE THAT NAMED ASSETS BY VENDOR MODEL (design lens critique, 2026-09-15): nine sibling
+             tables render r.machine (the tag: M-003, VFD-001) and this one rendered r.asset_name, which put
+             "Yaskawa A1000 2/5 40%" on screen twice with nothing to tell the rows apart - in the one card
+             that turns into crew assignments. -->
+        <td class="machine-name">${escHtml(r.machine || r.asset_name || "")}${r._n > 1 ? `<span style="font-weight:400;color:rgba(255,255,255,0.80);"> ${_t(`(${r._n} assets, same record)`, `(${r._n} asset, parehong tala)`)}</span>` : ""}</td>
         <td class="num">${r.completed}/${r.scheduled}</td>
         <td class="num ${cls}">${r.compliance_pct}%</td>
       </tr>`;
     }).join('');
     return kpiCard({
       title: 'PM Compliance Rate', standard: 'SMRP Metric 2.1.1',
-      value: overall + '%', unit: 'overall hive',
+      value: overall + '%', unit: _t('overall hive', 'buong hive'),
       sublabel: failing.length ? `${failing.length} asset(s) below 85% target` : 'All assets on track',
       color: heroColor,
-      detail: `<!-- table-name-allow: maintenance analytics data table --> <div class="wh-scroll-x"><table class="data-table"><thead><tr><th>Asset</th><th class="num">Done/Sched</th><th class="num">Rate</th></tr></thead><tbody>${rows}</tbody></table></div>`,
+      detail: `<!-- table-name-allow: maintenance analytics data table --> <div class="wh-scroll-x"><table class="data-table"><thead><tr><th>Asset</th><th class="num">${_t('Done/Sched', 'Tapos/Naka-iskedyul')}</th><th class="num">${_t('Rate', 'Porsyento')}</th></tr></thead><tbody>${rows}</tbody></table></div>`,
       legend: '🔴 <70% · 🟡 <85% · 🟢 ≥85%',
     });
   }
@@ -1848,7 +2026,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   const PLOTLY_BASE_LAYOUT = {
     paper_bgcolor: 'rgba(0,0,0,0)',
     plot_bgcolor:  'rgba(0,0,0,0)',
-    font: { color: 'rgba(255,255,255,0.55)', family: 'Poppins, sans-serif', size: 11 },
+    // ★CHART TEXT BELOW THE PLATFORM FLOOR, HIDDEN BY A COLLAPSED PANEL (design lens critique,
+    // 2026-09-15). 11px here, 10px on the axis titles, 9px on the 80% annotation - none of it measured
+    // by four consecutive walks, because renderKpiTile auto-opens only a RED tile and the Pareto is
+    // green, so its chart was never rendered while the page was being measured. The ramp shows the gap:
+    // no 9, 10 or 11px entry exists in it. One tap on the chevron and 9px text is on a phone.
+    font: { color: 'rgba(255,255,255,0.55)', family: 'Poppins, sans-serif', size: 12 },
     margin: { l: 10, r: 10, t: 10, b: 30 },
     xaxis: { gridcolor: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.3)', zeroline: false },
     yaxis: { gridcolor: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.3)', zeroline: false },
@@ -1922,8 +2105,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const layout = {
         ...PLOTLY_BASE_LAYOUT,
         margin: { l: 130, r: 50, t: 10, b: 30 },
-        xaxis:  { ...PLOTLY_BASE_LAYOUT.xaxis, title: { text: 'Downtime (h)', font: { size: 10 } } },
-        xaxis2: { overlaying: 'x', side: 'top', range: [0, 110], title: { text: 'Cumulative %', font: { size: 10 } }, color: '#4ade80', gridcolor: 'rgba(0,0,0,0)' },
+        xaxis:  { ...PLOTLY_BASE_LAYOUT.xaxis, title: { text: 'Downtime (h)', font: { size: 12 } } },
+        xaxis2: { overlaying: 'x', side: 'top', range: [0, 110], title: { text: 'Cumulative %', font: { size: 12 } }, color: '#4ade80', gridcolor: 'rgba(0,0,0,0)' },
         // Plotly puts data[0] at the BOTTOM of a horizontal bar chart, which renders a
         // Pareto upside-down: the worst offender ends up last. Reversing the axis puts
         // the biggest bar on top, so the chart reads worst-first like every Pareto the
@@ -1931,7 +2114,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         yaxis:  { ...PLOTLY_BASE_LAYOUT.yaxis, autorange: 'reversed' },
         height: Math.max(180, items.length * 36),
         shapes: [{ type: 'line', x0: 80, x1: 80, y0: -0.5, y1: items.length - 0.5, xref: 'x2', line: { color: 'rgba(74,222,128,0.4)', width: 1, dash: 'dot' } }],
-        annotations: [{ x: 80, y: items.length - 0.5, xref: 'x2', text: '80%', font: { color: '#4ade80', size: 9 }, showarrow: false, yshift: 8 }],
+        annotations: [{ x: 80, y: items.length - 0.5, xref: 'x2', text: '80%', font: { color: '#4ade80', size: 12 }, showarrow: false, yshift: 8 }],
       };
       if (document.getElementById(chartId)) {
         // Arc S F-lens (F-007): if the Plotly CDN failed to load, degrade to a
@@ -1997,25 +2180,25 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         <h2 class="card-title">Repeat Failure Count <span class="card-standard">ISO 14224:2016</span></h2>
         <div class="empty" style="padding:1rem 0;">
           <span style="color:var(--wh-green);">✓ No repeat failures detected.</span><br>
-          <span style="font-size:0.68rem;color:rgba(255,255,255,0.80);margin-top:0.25rem;display:block;">Same root cause on same machine ≥ 2 times indicates ineffective repair.</span>
+          <span style="font-size:0.75rem;color:rgba(255,255,255,0.80);margin-top:0.25rem;display:block;">Same root cause on same machine ≥ 2 times indicates ineffective repair.</span>
         </div>
       </div>`;
     }
     const list = renderListWithShowAll({
       items: d.repeats,
-      tableHeader: '<thead><tr><th>Asset</th><th>Root Cause</th><th class="num">Count</th></tr></thead>',
+      tableHeader: `<thead><tr><th>Asset</th><th>${_t('Root Cause', 'Ugat na Dahilan')}</th><th class="num">${_t('Count', 'Bilang')}</th></tr></thead>`,
       defaultN: 8,
       itemNoun: 'pair',
       renderRow: (r) => `<tr>
         <td class="machine-name">${escHtml(r.machine)}</td>
-        <td style="font-size:0.72rem;color:rgba(255,255,255,0.80);">${escHtml(r.root_cause)}</td>
+        <td style="font-size:0.8rem;color:rgba(255,255,255,0.80);">${escHtml(r.root_cause)}</td>
         <td class="num"><span class="repeat-badge">${r.occurrences}×</span></td>
       </tr>`,
     });
     return `<div class="card">
       <h2 class="card-title">Repeat Failure Count <span class="card-standard">ISO 14224:2016 · ${d.repeat_pair_count} repeat pair(s) found</span></h2>
       ${list}
-      <p style="font-size:0.65rem;color:rgba(255,255,255,0.80);margin-top:0.75rem;">${escHtml(d.note || '')}</p>
+      <p style="font-size:0.75rem;color:rgba(255,255,255,0.80);margin-top:0.75rem;">${escHtml(d.note || '')}</p>
     </div>`;
   }
 
@@ -2024,7 +2207,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     _kpiCardId = 0;
     const panel = document.getElementById('results-panel');
     const gen = data.generated_at ? whFmtDate(data.generated_at, { time: true }) : '';
-    let html = `<p style="font-size:0.68rem;color:rgba(255,255,255,0.80);margin-bottom:1rem;">Generated: ${escHtml(gen)} · Period: last ${data.period_days} days</p>`;
+    let html = `<p style="font-size:0.75rem;color:rgba(255,255,255,0.80);margin-bottom:1rem;">${_t('Generated', 'Ginawa')}: ${escHtml(gen)} · ${_t('Period', 'Panahon')}: ${_t('last', 'huling')} ${data.period_days} ${_t('days', 'araw')}</p>`;
     // Order: root causes → recurrence → correlations (strategic→tactical) → taxonomy → QA
     html += renderFailureModeDistribution(data.failure_mode_distribution);  // top "why" signal
     html += renderRepeatFailureClustering(data.repeat_failure_clustering);  // root cause × machine = clearest action
@@ -2058,7 +2241,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     return `<div class="card">
       <h2 class="card-title">RCM Consequence Classification <span class="card-standard">SAE JA1011 §5.4 · ${d.coverage_pct}% coverage</span></h2>
       ${bars}
-      <p style="font-size:0.65rem;color:rgba(255,255,255,0.80);margin-top:0.5rem;">${d.recorded_count} of ${d.total_failures} failures have consequence recorded. Coverage improves as team fills impact level on Breakdown entries.</p>
+      <p style="font-size:0.75rem;color:rgba(255,255,255,0.80);margin-top:0.5rem;">${d.recorded_count} of ${d.total_failures} failures have consequence recorded. Coverage improves as team fills impact level on Breakdown entries.</p>
     </div>`;
   }
 
@@ -2076,7 +2259,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     return `<div class="card">
       <h2 class="card-title">Failure Mode Distribution <span class="card-standard">ISO 14224:2016 · ${d.total_failures} total failures</span></h2>
       ${bars}
-      <p style="font-size:0.65rem;color:rgba(255,255,255,0.80);margin-top:0.5rem;">Top mode: <strong style="color:var(--wh-violet-text)">${escHtml(d.top_root_cause || '-')}</strong> accounts for ${d.top_root_cause_pct || 0}% of all failures.</p>
+      <p style="font-size:0.75rem;color:rgba(255,255,255,0.80);margin-top:0.5rem;">Top mode: <strong style="color:var(--wh-violet-text)">${escHtml(d.top_root_cause || '-')}</strong> accounts for ${d.top_root_cause_pct || 0}% of all failures.</p>
     </div>`;
   }
 
@@ -2098,7 +2281,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           <div class="stat-tile"><div class="val" style="color:${sig ? 'var(--wh-red)' : 'var(--wh-green)'}">${sig ? 'YES' : 'NO'}</div><div class="label">Significant?</div></div>
         </div>` : ''}
       <p style="font-size:0.75rem;color:rgba(255,255,255,0.80);line-height:1.5;">${escHtml(d.interpretation || d.note || '')}</p>
-      ${d.data_points ? `<p style="font-size:0.65rem;color:rgba(255,255,255,0.80);margin-top:0.5rem;">${d.data_points} machines analysed</p>` : ''}
+      ${d.data_points ? `<p style="font-size:0.75rem;color:rgba(255,255,255,0.80);margin-top:0.5rem;">${d.data_points} machines analysed</p>` : ''}
     </div>`;
   }
 
@@ -2124,17 +2307,17 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const cls = sig && disc.correlation < -0.3 ? 'good' : sig ? 'warn' : '';
       return `<div style="margin-bottom:0.875rem;padding-bottom:0.875rem;border-bottom:1px solid rgba(255,255,255,0.05);">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.4rem;">
-          <span style="font-size:0.8rem;font-weight:700;color:#fff;">${escHtml(disc.discipline)}</span>
-          <span class="${cls}" style="font-size:0.72rem;font-weight:700;">r = ${disc.correlation} (${strength(disc.correlation)}) ${sig ? '✓' : ''}</span>
+          <span style="font-size:0.8rem;font-weight:600;color:#fff;">${escHtml(disc.discipline)}</span>
+          <span class="${cls}" style="font-size:0.8rem;font-weight:700;">r = ${disc.correlation} (${strength(disc.correlation)}) ${sig ? '✓' : ''}</span>
         </div>
-        ${sig ? `<p style="font-size:0.7rem;color:rgba(255,255,255,0.80);">${escHtml(disc.interpretation)}</p>` : ''}
-        ${disc.by_level.map(l => `<span style="font-size:0.65rem;color:rgba(255,255,255,0.80);margin-right:0.75rem;">L${l.level}: ${l.avg_mttr}h avg</span>`).join('')}
+        ${sig ? `<p style="font-size:0.8rem;color:rgba(255,255,255,0.80);">${escHtml(disc.interpretation)}</p>` : ''}
+        ${disc.by_level.map(l => `<span style="font-size:0.75rem;color:rgba(255,255,255,0.80);margin-right:0.75rem;">L${l.level}: ${l.avg_mttr}h avg</span>`).join('')}
       </div>`;
     }).join('');
     return `<div class="card">
       <h2 class="card-title">Skill-MTTR Correlation <span class="card-standard">Spearman rank by discipline</span></h2>
-      <p style="font-size:0.72rem;color:rgba(255,255,255,0.86);font-weight:600;margin-bottom:0.5rem;">${escHtml(headline)}</p>
-      <p style="font-size:0.62rem;color:rgba(255,255,255,0.80);margin-bottom:0.75rem;">r = how strongly skill level tracks repair speed (-1 to +1). A negative r means more-skilled workers repair faster (good). The check mark = statistically significant.</p>
+      <p style="font-size:0.8rem;color:rgba(255,255,255,0.86);font-weight:600;margin-bottom:0.5rem;">${escHtml(headline)}</p>
+      <p style="font-size:0.75rem;color:rgba(255,255,255,0.80);margin-bottom:0.75rem;">r = how strongly skill level tracks repair speed (-1 to +1). A negative r means more-skilled workers repair faster (good). The check mark = statistically significant.</p>
       ${cards}
     </div>`;
   }
@@ -2145,7 +2328,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <td class="machine-name">${escHtml(j.machine)}</td>
       <td class="num alert">${j.downtime_hours}h</td>
       <td class="num">${j.above_avg_by_h > 0 ? '+' : ''}${j.above_avg_by_h}h</td>
-      <td style="font-size:0.68rem;color:rgba(255,255,255,0.80);">${escHtml(j.date)}</td>
+      <td style="font-size:0.75rem;color:rgba(255,255,255,0.80);">${escHtml(j.date)}</td>
     </tr>`).join('');
     return `<div class="card">
       <h2 class="card-title">Parts Availability Impact <span class="card-standard">logbook × inventory cross-reference</span></h2>
@@ -2153,8 +2336,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         <div class="stat-tile"><div class="val">${d.overall_avg_mttr_h}h</div><div class="label">Avg MTTR</div></div>
         <div class="stat-tile"><div class="val">${d.median_mttr_h}h</div><div class="label">Median MTTR</div></div>
       </div>
-      ${rows ? `<!-- table-name-allow: maintenance analytics data table --> <div class="wh-scroll-x"><table class="data-table"><thead><tr><th>Asset</th><th class="num">Downtime</th><th class="num">Above avg</th><th>Date</th></tr></thead><tbody>${rows}</tbody></table></div>` : ''}
-      <p style="font-size:0.65rem;color:rgba(255,255,255,0.80);margin-top:0.75rem;">${escHtml(d.note || '')}</p>
+      ${rows ? `<!-- table-name-allow: maintenance analytics data table --> <div class="wh-scroll-x"><table class="data-table"><thead><tr><th>Asset</th><th class="num">Downtime</th><th class="num">${_t('Above avg', 'Lampas sa karaniwan')}</th><th>${_t('Date', 'Petsa')}</th></tr></thead><tbody>${rows}</tbody></table></div>` : ''}
+      <p style="font-size:0.75rem;color:rgba(255,255,255,0.80);margin-top:0.75rem;">${escHtml(d.note || '')}</p>
     </div>`;
   }
 
@@ -2184,9 +2367,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           <!-- flex-wrap (dialog-floor 320, 2026-09-03): the nowrap count span overflowed the
                282px panel by 3.3px; wrapping drops the whole pill to its own line instead -->
           <span style="font-size:0.75rem;font-weight:600;color:var(--wh-red-text);">${escHtml(s.root_cause)}</span>
-          <span style="font-size:0.65rem;font-weight:700;color:rgba(255,255,255,0.86);white-space:nowrap;">${s.machine_count} ${s.machine_count === 1 ? 'machine' : 'machines'} · ${s.total_occurrences} occurrences</span>
+          <span style="font-size:0.75rem;font-weight:700;color:rgba(255,255,255,0.86);white-space:nowrap;">${s.machine_count} ${s.machine_count === 1 ? 'machine' : 'machines'} · ${s.total_occurrences} occurrences</span>
         </div>
-        <div style="font-size:0.65rem;color:rgba(255,255,255,0.80);margin-top:0.2rem;">${head}${more ? ' ' + more : ''}</div>
+        <div style="font-size:0.75rem;color:rgba(255,255,255,0.80);margin-top:4px;">${head}${more ? ' ' + more : ''}</div>
       </div>`;
     }).join('');
     return `<div class="card">
@@ -2195,7 +2378,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <!-- max-width 70ch: d.insight is GENERATED prose (the analytics API composes it from live
            tags), so its length varies run to run — the width gate caught a 78ch line running the
            card's full width at 1920. Constrain the CONTAINER, not the words. -->
-      <p style="font-size:0.65rem;color:rgba(255,255,255,0.80);margin-top:0.75rem;max-width:70ch;">${escHtml(d.insight || '')}</p>
+      <p style="font-size:0.75rem;color:rgba(255,255,255,0.80);margin-top:0.75rem;max-width:70ch;">${escHtml(d.insight || '')}</p>
     </div>`;
   }
 
@@ -2209,11 +2392,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     const rows = d.flagged.map(f => `
       <div style="margin-bottom:0.75rem;padding:0.75rem;background:rgba(247,162,27,0.06);border-radius:0.75rem;border:1px solid rgba(247,162,27,0.15);">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:0.5rem;margin-bottom:0.3rem;">
-          <span style="font-size:0.8rem;font-weight:700;color:#fff;">${escHtml(f.machine)}</span>
-          <span class="warn" style="font-size:0.68rem;font-weight:700;">${f.failure_count} ${f.failure_count === 1 ? 'failure' : 'failures'} · ${f.total_downtime_h}h DT</span>
+          <span style="font-size:0.8rem;font-weight:600;color:#fff;">${escHtml(f.machine)}</span>
+          <span class="warn" style="font-size:0.75rem;font-weight:700;">${f.failure_count} ${f.failure_count === 1 ? 'failure' : 'failures'} · ${f.total_downtime_h}h DT</span>
         </div>
-        <div style="font-size:0.68rem;color:rgba(255,255,255,0.80);">Matched calc: ${escHtml(f.matched_calc)}</div>
-        <p style="font-size:0.7rem;color:rgba(255,255,255,0.80);margin-top:0.3rem;">${escHtml(f.recommendation)}</p>
+        <div style="font-size:0.75rem;color:rgba(255,255,255,0.80);">Matched calc: ${escHtml(f.matched_calc)}</div>
+        <p style="font-size:0.8rem;color:rgba(255,255,255,0.80);margin-top:0.3rem;">${escHtml(f.recommendation)}</p>
       </div>`).join('');
     return `<div class="card">
       <h2 class="card-title">Engineering Validation <span class="card-standard">WAT pattern: ${d.flagged_count} match(es) flagged</span></h2>
@@ -2226,7 +2409,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     _kpiCardId = 0;
     const panel = document.getElementById('results-panel');
     const gen = data.generated_at ? whFmtDate(data.generated_at, { time: true }) : '';
-    let html = `<p style="font-size:0.68rem;color:rgba(255,255,255,0.80);margin-bottom:1rem;">Generated: ${escHtml(gen)} · Period: last ${data.period_days} days</p>`;
+    let html = `<p style="font-size:0.75rem;color:rgba(255,255,255,0.80);margin-bottom:1rem;">${_t('Generated', 'Ginawa')}: ${escHtml(gen)} · ${_t('Period', 'Panahon')}: ${_t('last', 'huling')} ${data.period_days} ${_t('days', 'araw')}</p>`;
     // Recompute risk (supervisors only): risk scores come from the daily 13:00 PHT
     // cron, so this forces an on-demand recompute for THIS hive. It renders inside
     // the panel rather than the shared header row — see the note at the header.
@@ -2267,15 +2450,15 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         const sColor = s.signal === 'CRITICAL' ? '#f87171' : s.signal === 'NEW_USAGE' ? '#29B6D9' : '#F7A21B';
         return `<div style="padding:0.6rem 0;border-bottom:1px solid rgba(255,255,255,0.05);">
           <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:0.5rem;margin-bottom:0.2rem;">
-            <span style="font-size:0.78rem;font-weight:700;color:#fff;">${escHtml(s.part_name)}</span>
-            <span style="font-size:0.65rem;font-weight:700;color:${sColor};white-space:nowrap;flex-shrink:0;">
+            <span style="font-size:0.78rem;font-weight:600;color:#fff;">${escHtml(s.part_name)}</span>
+            <span style="font-size:0.75rem;font-weight:700;color:${sColor};white-space:nowrap;flex-shrink:0;">
               ${s.spike_factor ? s.spike_factor + '× spike' : 'New usage'}
             </span>
           </div>
-          <div style="font-size:0.68rem;color:rgba(255,255,255,0.80);margin-bottom:0.25rem;">
+          <div style="font-size:0.75rem;color:rgba(255,255,255,0.80);margin-bottom:0.25rem;">
             Now: ${s.current_rate}/mo ${s.previous_rate > 0 ? `· Before: ${s.previous_rate}/mo` : '· No prior usage'}
           </div>
-          <p style="font-size:0.7rem;color:rgba(255,255,255,0.80);">${escHtml(s.interpretation)}</p>
+          <p style="font-size:0.8rem;color:rgba(255,255,255,0.80);">${escHtml(s.interpretation)}</p>
         </div>`;
       },
     });
@@ -2304,23 +2487,23 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     const anomalyHtml = anomalies.length
       ? anomalies.map(a => `<div style="padding:0.6rem;border-radius:0.625rem;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.2);margin-bottom:0.5rem;">
           <div style="display:flex;justify-content:space-between;">
-            <span style="font-size:0.75rem;font-weight:700;color:#fff;">${escHtml(a.machine)}</span>
-            <span class="alert" style="font-size:0.7rem;font-weight:700;">${escHtml(a.direction)} · ${a.deviation}σ</span>
+            <span style="font-size:0.75rem;font-weight:600;color:#fff;">${escHtml(a.machine)}</span>
+            <span class="alert" style="font-size:0.8rem;font-weight:700;">${escHtml(a.direction)} · ${a.deviation}σ</span>
           </div>
-          <p style="font-size:0.68rem;color:rgba(255,255,255,0.80);margin-top:0.2rem;">${escHtml(a.alert)}</p>
+          <p style="font-size:0.75rem;color:rgba(255,255,255,0.80);margin-top:4px;">${escHtml(a.alert)}</p>
         </div>`).join('')
-      : `<p style="font-size:0.72rem;color:var(--wh-green);margin-bottom:0.75rem;">✓ All readings within 2σ control limits.</p>`;
+      : `<p style="font-size:0.8rem;color:var(--wh-green);margin-bottom:0.75rem;">✓ All readings within 2σ control limits.</p>`;
 
     const baselineList = renderListWithShowAll({
       items: d.baselines,
-      tableHeader: '<thead><tr><th>Asset</th><th>Reading</th><th class="num">Mean</th><th class="num">UCL</th><th class="num">Last</th></tr></thead>',
+      tableHeader: `<thead><tr><th>Asset</th><th>${_t('Reading', 'Pagbasa')}</th><th class="num">${_t('Mean', 'Karaniwan')}</th><th class="num">UCL</th><th class="num">${_t('Last', 'Huli')}</th></tr></thead>`,
       defaultN: 8,
       itemNoun: 'reading',
       searchable: true,
       searchPlaceholder: 'Filter by machine or reading type…',
       renderRow: (b) => `<tr>
         <td class="machine-name">${escHtml(b.machine)}</td>
-        <td style="font-size:0.68rem;color:rgba(255,255,255,0.80);">${escHtml(b.label)} (${escHtml(b.unit)})</td>
+        <td style="font-size:0.75rem;color:rgba(255,255,255,0.80);">${escHtml(b.label)} (${escHtml(b.unit)})</td>
         <td class="num">${b.mean}</td>
         <td class="num">${b.ucl}</td>
         <td class="num">${b.last_value}</td>
@@ -2330,9 +2513,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     return `<div class="card">
       <h2 class="card-title">Anomaly Baseline Detection <span class="card-standard">ISO 7870-2 SPC · ${d.machines_tracked} machine(s) · ${d.anomaly_count} alert(s)</span><!-- native-dialog-allow: literal text in HTML string, not a function call --></h2>
       ${anomalyHtml}
-      <p style="font-size:0.62rem;color:rgba(255,255,255,0.80);margin:0.75rem 0 0.4rem;text-transform:uppercase;letter-spacing:0.06em;font-weight:600;">Baseline reference (top 8 by sample count)</p>
+      <p style="font-size:0.75rem;color:rgba(255,255,255,0.80);margin:0.75rem 0 0.4rem;text-transform:uppercase;letter-spacing:0.06em;font-weight:600;">Baseline reference (top 8 by sample count)</p>
       ${baselineList}
-      <p style="font-size:0.62rem;color:rgba(255,255,255,0.80);margin-top:0.5rem;">"σ" (sigma) = how far a reading strays from the machine's normal range. Past 2σ (the UCL / upper control limit) is unusual and worth a check. Mean = the machine's typical value.</p>
+      <p style="font-size:0.75rem;color:rgba(255,255,255,0.80);margin-top:0.5rem;">"σ" (sigma) = how far a reading strays from the machine's normal range. Past 2σ (the UCL / upper control limit) is unusual and worth a check. Mean = the machine's typical value.</p>
     </div>`;
   }
 
@@ -2394,10 +2577,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     const worstComps = worst.components || {};
     const compBreakdown = worstComps.pm_score !== undefined ? `
       <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.5rem;">
-        <span style="font-size:0.62rem;padding:0.15rem 0.5rem;border-radius:999px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.80);">PM ${worstComps.pm_score}</span>
-        <span style="font-size:0.62rem;padding:0.15rem 0.5rem;border-radius:999px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.80);">Fault ${worstComps.fault_score}</span>
-        <span style="font-size:0.62rem;padding:0.15rem 0.5rem;border-radius:999px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.80);">Time ${worstComps.time_score}</span>
-        <span style="font-size:0.62rem;padding:0.15rem 0.5rem;border-radius:999px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.80);">Repeat ${worstComps.repeat_score}</span>
+        <span style="font-size:0.75rem;padding:0.15rem 0.5rem;border-radius:999px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.80);">PM ${worstComps.pm_score}</span>
+        <span style="font-size:0.75rem;padding:0.15rem 0.5rem;border-radius:999px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.80);">Fault ${worstComps.fault_score}</span>
+        <span style="font-size:0.75rem;padding:0.15rem 0.5rem;border-radius:999px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.80);">Time ${worstComps.time_score}</span>
+        <span style="font-size:0.75rem;padding:0.15rem 0.5rem;border-radius:999px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.80);">Repeat ${worstComps.repeat_score}</span>
       </div>` : '';
 
     return kpiCard({
@@ -2417,7 +2600,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
     const list = renderListWithShowAll({
       items: d.predictions,
-      tableHeader: '<thead><tr><th>Asset</th><th class="num">MTBF</th><th class="num">Last Logged</th><th class="num">Predicted Next</th><th>Status</th></tr></thead>',
+      tableHeader: `<thead><tr><th>Asset</th><th class="num">MTBF</th><th class="num">${_t('Last Logged', 'Huling Naitala')}</th><th class="num">${_t('Predicted Next', 'Hinulaang Susunod')}</th><th>${_t('Status', 'Katayuan')}</th></tr></thead>`,
       defaultN: 8,
       itemNoun: 'machine',
       searchable: true,
@@ -2426,19 +2609,19 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         const isSuspect = p.mtbf_days < 1; // < 1 day MTBF = likely data quality issue
         let statusHtml;
         if (isSuspect) {
-          statusHtml = `<span style="font-size:0.62rem;color:var(--wh-orange-text);">⚠ Check data</span>`;
+          statusHtml = `<span style="font-size:0.75rem;color:var(--wh-orange-text);">⚠ Check data</span>`;
         } else if (isOverdue) {
-          statusHtml = `<span style="font-size:0.62rem;color:var(--wh-red-text);">Overdue by ${Math.abs(Math.round(p.days_until))}d, not yet logged</span>`;
+          statusHtml = `<span style="font-size:0.75rem;color:var(--wh-red-text);">Overdue by ${Math.abs(Math.round(p.days_until))}d, not yet logged</span>`;
         } else {
-          statusHtml = `<span style="font-size:0.62rem;color:${p.risk==='MEDIUM'?'var(--wh-orange)':'var(--wh-green)'};">Due in ${Math.round(p.days_until)} days</span>`;
+          statusHtml = `<span style="font-size:0.75rem;color:${p.risk==='MEDIUM'?'var(--wh-orange)':'var(--wh-green)'};">Due in ${Math.round(p.days_until)} days</span>`;
         }
         const dateColor = isOverdue ? '#f87171' : p.risk === 'MEDIUM' ? '#F7A21B' : 'rgba(255,255,255,0.6)';
         const dateLabel = isOverdue ? `${escHtml(p.predicted_next)} ← past` : escHtml(p.predicted_next);
         return `<tr style="${isSuspect ? 'background:rgba(247,162,27,0.06);' : ''}">
-          <td class="machine-name">${escHtml(p.machine)}${isSuspect ? ' <span style="font-size:0.6rem;color:var(--wh-orange-text);">⚠</span>' : ''}</td>
+          <td class="machine-name">${escHtml(p.machine)}${isSuspect ? ' <span style="font-size:0.75rem;color:var(--wh-orange-text);">⚠</span>' : ''}</td>
           <td class="num" style="color:${isSuspect?'var(--wh-orange)':'rgba(255,255,255,0.6)'};">${p.mtbf_days}d</td>
           <td class="num" style="color:rgba(255,255,255,0.80);">${escHtml(p.last_failure)}</td>
-          <td class="num" style="color:${dateColor};font-size:0.72rem;">${dateLabel}</td>
+          <td class="num" style="color:${dateColor};font-size:0.8rem;">${dateLabel}</td>
           <td>${statusHtml}</td>
         </tr>`;
       },
@@ -2455,8 +2638,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       color: d.high_risk > 0 ? 'red' : d.medium_risk > 0 ? 'yellow' : 'green',
       detail: `
         ${list}
-        ${suspectCount > 0 ? `<p style="font-size:0.65rem;color:var(--wh-orange-text);margin-top:0.75rem;">⚠ ${suspectCount} machine(s) with MTBF < 1 day (likely multiple failures logged in same shift). Review logbook entries for data accuracy.</p>` : ''}
-        <p style="font-size:0.62rem;color:rgba(255,255,255,0.80);margin-top:0.5rem;">A past date means MTBF expected another failure by now. Check the logbook, or inspect the machine.</p>`,
+        ${suspectCount > 0 ? `<p style="font-size:0.75rem;color:var(--wh-orange-text);margin-top:0.75rem;">⚠ ${suspectCount} machine(s) with MTBF < 1 day (likely multiple failures logged in same shift). Review logbook entries for data accuracy.</p>` : ''}
+        <p style="font-size:0.75rem;color:rgba(255,255,255,0.80);margin-top:0.5rem;">A past date means MTBF expected another failure by now. Check the logbook, or inspect the machine.</p>`,
       legend: 'Prediction = last logged failure date + mean interval between historical failures. Requires ≥ 2 failures per machine.',
     });
   }
@@ -2490,8 +2673,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const hasOver   = tasks.some(t => t.risk === 'OVERDUE');
       const hasSoon   = tasks.some(t => t.risk === 'DUE SOON');
       const assetColor = hasOver ? '#f87171' : hasSoon ? '#F7A21B' : '#a78bfa';
-      const badge     = hasOver ? `<span style="font-size:0.6rem;font-weight:700;padding:0.15rem 0.4rem;border-radius:999px;background:rgba(248,113,113,0.15);color:var(--wh-red-text);border:1px solid rgba(248,113,113,0.25);">${tasks.filter(t=>t.risk==='OVERDUE').length} OVERDUE</span>`
-                      : hasSoon ? `<span style="font-size:0.6rem;font-weight:700;padding:0.15rem 0.4rem;border-radius:999px;background:rgba(247,162,27,0.15);color:var(--wh-orange-text);border:1px solid rgba(247,162,27,0.25);">${tasks.length} DUE SOON</span>` : '';
+      const badge     = hasOver ? `<span style="font-size:0.75rem;font-weight:700;padding:0.15rem 0.4rem;border-radius:999px;background:rgba(248,113,113,0.15);color:var(--wh-red-text);border:1px solid rgba(248,113,113,0.25);">${tasks.filter(t=>t.risk==='OVERDUE').length} OVERDUE</span>`
+                      : hasSoon ? `<span style="font-size:0.75rem;font-weight:700;padding:0.15rem 0.4rem;border-radius:999px;background:rgba(247,162,27,0.15);color:var(--wh-orange-text);border:1px solid rgba(247,162,27,0.25);">${tasks.length} DUE SOON</span>` : '';
       const id = `pm-asset-${pmCardId++}`;
       // Auto-expand overdue assets
       const autoOpen = hasOver;
@@ -2500,10 +2683,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         const tc = t.risk === 'OVERDUE' ? '#f87171' : t.risk === 'DUE SOON' ? '#F7A21B' : '#a78bfa';
         return `<div style="display:flex;justify-content:space-between;align-items:center;padding:0.5rem 0;border-bottom:1px solid rgba(255,255,255,0.04);">
           <div style="flex:1;min-width:0;">
-            <p style="font-size:0.73rem;color:rgba(255,255,255,0.86);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(t.task)}</p>
-            <p style="font-size:0.62rem;color:rgba(255,255,255,0.80);margin-top:0.1rem;">${escHtml(t.frequency)} · Last: ${escHtml(t.last_done)}</p>
+            <p style="font-size:0.8rem;color:rgba(255,255,255,0.86);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(t.task)}</p>
+            <p style="font-size:0.75rem;color:rgba(255,255,255,0.80);margin-top:0.1rem;">${escHtml(t.frequency)} · Last: ${escHtml(t.last_done)}</p>
           </div>
-          <span style="font-size:0.68rem;font-weight:700;color:${tc};white-space:nowrap;margin-left:0.75rem;flex-shrink:0;">${escHtml(t.status)}</span>
+          <span style="font-size:0.75rem;font-weight:700;color:${tc};white-space:nowrap;margin-left:0.75rem;flex-shrink:0;">${escHtml(t.status)}</span>
         </div>`;
       }).join('');
 
@@ -2511,11 +2694,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         <button onclick="togglePMAsset('${id}')" style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:0.75rem 1rem;background:rgba(255,255,255,0.03);border:none;cursor:pointer;min-height:48px;-webkit-tap-highlight-color:transparent;">
           <div style="display:flex;align-items:center;gap:0.625rem;flex:1;min-width:0;">
             <span style="width:8px;height:8px;border-radius:50%;background:${assetColor};flex-shrink:0;"></span>
-            <span style="font-size:0.8rem;font-weight:700;color:#fff;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(assetName)}</span>
+            <span style="font-size:0.8rem;font-weight:600;color:#fff;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(assetName)}</span>
             ${badge}
-            <span style="font-size:0.65rem;color:rgba(255,255,255,0.80);">${tasks.length} task${tasks.length!==1?'s':''}</span>
+            <span style="font-size:0.75rem;color:rgba(255,255,255,0.80);">${tasks.length} task${tasks.length!==1?'s':''}</span>
           </div>
-          <span id="${id}-chev" style="font-size:0.65rem;color:rgba(255,255,255,0.80);transition:transform 0.25s;flex-shrink:0;margin-left:0.5rem;${autoOpen?'transform:rotate(180deg)':''}">▼</span>
+          <span id="${id}-chev" style="font-size:0.75rem;color:rgba(255,255,255,0.80);transition:transform 0.25s;flex-shrink:0;margin-left:0.5rem;${autoOpen?'transform:rotate(180deg)':''}">▼</span>
         </button>
         <div id="${id}" style="max-height:${autoOpen?'800px':'0'};overflow:hidden;transition:max-height 0.3s ease;padding:${autoOpen?'0 1rem':'0'};background:rgba(22,32,50,0.4);">
           <div style="padding-bottom:0.5rem;">${taskRows}</div>
@@ -2566,7 +2749,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           <td class="num">${p.qty_on_hand}</td>
           <td class="num">${p.daily_rate || '-'}</td>
           <td class="num ${cls}">${p.days_to_stockout !== null ? p.days_to_stockout + 'd' : '-'}</td>
-          <td class="num"><span style="font-size:0.65rem;font-weight:700;color:${p.risk==='CRITICAL'?'var(--wh-red)':p.risk==='HIGH'?'var(--wh-orange)':'var(--wh-violet)'}">${p.risk}</span></td>
+          <td class="num"><span style="font-size:0.75rem;font-weight:700;color:${p.risk==='CRITICAL'?'var(--wh-red)':p.risk==='HIGH'?'var(--wh-orange)':'var(--wh-violet)'}">${p.risk}</span></td>
         </tr>`;
       },
     });
@@ -2610,7 +2793,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         ...PLOTLY_BASE_LAYOUT,
         margin: { l: 30, r: 20, t: 10, b: 40 },
         xaxis: { ...PLOTLY_BASE_LAYOUT.xaxis, tickangle: -30, nticks: 8 },
-        yaxis: { ...PLOTLY_BASE_LAYOUT.yaxis, title: { text: 'Failures/week', font: { size: 10 } }, autorange: false, range: [0, maxCount + 1] },
+        yaxis: { ...PLOTLY_BASE_LAYOUT.yaxis, title: { text: 'Failures/week', font: { size: 12 } }, autorange: false, range: [0, maxCount + 1] },
         height: 200,
       };
       if (document.getElementById(chartId)) {
@@ -2644,7 +2827,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     _kpiCardId = 0;
     const panel = document.getElementById('results-panel');
     const gen = data.generated_at ? whFmtDate(data.generated_at, { time: true }) : '';
-    let html = `<p style="font-size:0.68rem;color:rgba(255,255,255,0.80);margin-bottom:1rem;">Generated: ${escHtml(gen)} · Period: last ${data.period_days} days</p>`;
+    let html = `<p style="font-size:0.75rem;color:rgba(255,255,255,0.80);margin-bottom:1rem;">${_t('Generated', 'Ginawa')}: ${escHtml(gen)} · ${_t('Period', 'Panahon')}: ${_t('last', 'huling')} ${data.period_days} ${_t('days', 'araw')}</p>`;
     // Order: AI synthesis → triage → this-week ops actions → scheduling change → HR development
     if (data.action_plan) html += renderActionPlan(data.action_plan);  // cross-phase synthesis
     html += renderPriorityRanking(data.priority_ranking);              // which assets to attack first
@@ -2658,12 +2841,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   function renderActionPlan(plan) {
     if (!plan?.this_week?.length) return '';
     const items = plan.this_week.map(a => `<li style="margin-bottom:0.4rem;color:rgba(255,255,255,0.8);">${escHtml(a)}</li>`).join('');
-    const watchItems = (plan.watch_list || []).map(w => `<span style="font-size:0.7rem;padding:0.2rem 0.5rem;border-radius:999px;background:rgba(247,162,27,0.12);color:var(--wh-orange-text);border:1px solid rgba(247,162,27,0.25);margin-right:0.4rem;">${escHtml(w)}</span>`).join('');
+    const watchItems = (plan.watch_list || []).map(w => `<span style="font-size:0.8rem;padding:0.2rem 0.5rem;border-radius:999px;background:rgba(247,162,27,0.12);color:var(--wh-orange-text);border:1px solid rgba(247,162,27,0.25);margin-right:0.4rem;">${escHtml(w)}</span>`).join('');
     return `<div class="card" style="border-color:var(--wh-violet-text);background:linear-gradient(145deg,rgba(124,58,237,0.12),rgba(31,46,69,0.7));margin-bottom:1rem;">
       <div class="card-title" style="color:var(--wh-violet-text);">⚡ AI Action Plan <span class="card-standard">WorkHive AI · ISO 55000:2014</span></div>
       ${plan.summary ? `<p style="font-size:0.8rem;font-weight:600;color:#fff;margin-bottom:0.75rem;max-width:70ch;">${escHtml(plan.summary)}</p>` : ''}
       <ul style="padding-left:1.25rem;font-size:0.75rem;line-height:1.7;">${items}</ul>
-      ${watchItems ? `<div style="margin-top:0.75rem;"><p style="font-size:0.65rem;color:rgba(255,255,255,0.80);margin-bottom:0.4rem;">Watch list:</p>${watchItems}</div>` : ''}
+      ${watchItems ? `<div style="margin-top:0.75rem;"><p style="font-size:0.75rem;color:rgba(255,255,255,0.80);margin-bottom:0.4rem;">Watch list:</p>${watchItems}</div>` : ''}
     </div>`;
   }
 
@@ -2678,9 +2861,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       renderRow: (r) => {
         const pColor = r.priority==='P1' ? '#f87171' : r.priority==='P2' ? '#F7A21B' : '#4ade80';
         return `<tr>
-          <td><span style="font-size:0.7rem;font-weight:800;color:${pColor};padding:0.15rem 0.4rem;border-radius:999px;background:rgba(0,0,0,0.2);">${r.priority}</span></td>
+          <td><span style="font-size:0.8rem;font-weight:800;color:${pColor};padding:0.15rem 0.4rem;border-radius:999px;background:rgba(0,0,0,0.2);">${r.priority}</span></td>
           <td class="machine-name">${escHtml(r.machine)}</td>
-          <td style="font-size:0.68rem;color:rgba(255,255,255,0.80);">${escHtml(r.criticality)}</td>
+          <td style="font-size:0.75rem;color:rgba(255,255,255,0.80);">${escHtml(r.criticality)}</td>
           <td class="num">${r.failure_count}</td>
           <td class="num">${r.avg_downtime_h}h</td>
           <td class="num" style="color:var(--wh-violet-text);font-weight:800;">${r.risk_score}</td>
@@ -2690,7 +2873,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     return `<div class="card">
       <h2 class="card-title">Priority Maintenance Ranking <span class="card-standard">ISO 55001-inspired · 🔴 ${d.p1_count} P1 · 🟡 ${d.p2_count} P2</span></h2>
       ${list}
-      <p style="font-size:0.62rem;color:rgba(255,255,255,0.80);margin-top:0.5rem;">Score = Criticality × Failure count × Avg downtime. P1 ≥ 150, P2 ≥ 60.</p>
+      <p style="font-size:0.75rem;color:rgba(255,255,255,0.80);margin-top:0.5rem;">Score = Criticality × Failure count × Avg downtime. P1 ≥ 150, P2 ≥ 60.</p>
     </div>`;
   }
 
@@ -2725,7 +2908,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       searchPlaceholder: 'Filter by asset name or code…',
       renderRow: (r) => {
         const codeBadge = r.machine_code
-          ? `<code style="font-size:0.65rem;color:var(--wh-orange-text);background:rgba(247,162,27,0.08);padding:1px 6px;border-radius:4px;margin-left:0.4rem;">${escHtml(r.machine_code)}</code>`
+          ? `<code style="font-size:0.75rem;color:var(--wh-orange-text);background:rgba(247,162,27,0.08);padding:1px 6px;border-radius:4px;margin-left:0.4rem;">${escHtml(r.machine_code)}</code>`
           : '';
         const scopeNote = r.scope_items_count
           ? ` · covers ${r.scope_items_count} PM task${r.scope_items_count === 1 ? '' : 's'}`
@@ -2733,17 +2916,17 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         return `
           <div style="margin-bottom:0.75rem;padding:0.75rem;border-radius:0.75rem;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.3rem;">
-              <span style="font-size:0.78rem;font-weight:700;color:#fff;">${escHtml(r.asset_name)}${codeBadge}</span>
-              <span style="font-size:0.65rem;font-weight:700;color:${r.action.includes('ROOT CAUSE')?'var(--wh-red)':r.action.includes('INCREASE')?'var(--wh-red)':'var(--wh-orange)'};">${escHtml(r.action)}</span>
+              <span style="font-size:0.78rem;font-weight:600;color:#fff;">${escHtml(r.asset_name)}${codeBadge}</span>
+              <span style="font-size:0.75rem;font-weight:700;color:${r.action.includes('ROOT CAUSE')?'var(--wh-red)':r.action.includes('INCREASE')?'var(--wh-red)':'var(--wh-orange)'};">${escHtml(r.action)}</span>
             </div>
-            <p style="font-size:0.68rem;color:rgba(255,255,255,0.80);">${escHtml(r.reason)}</p>
+            <p style="font-size:0.75rem;color:rgba(255,255,255,0.80);">${escHtml(r.reason)}</p>
             <!-- Name the SCHEDULABLE frequency ("Daily"), not "every 1 days": the operator
                  picks a frequency from a dropdown, so a raw day-count is not actionable.
                  ROOT CAUSE means PM frequency is not the lever, so it must NOT print a
                  "Recommended: <interval>" line -- that is the no-op the card used to show. -->
             ${r.action.includes('ROOT CAUSE')
-              ? `<p style="font-size:0.65rem;color:var(--wh-violet-text);margin-top:0.25rem;">PM stays ${escHtml(r.current_frequency)}${scopeNote}. The fix is the failure mode, not the schedule.</p>`
-              : `<p style="font-size:0.65rem;color:var(--wh-violet-text);margin-top:0.25rem;">Recommended: ${escHtml(r.recommended_frequency || ('every ' + r.recommended_days + ' days'))} (currently ${escHtml(r.current_frequency)}${scopeNote})</p>`}
+              ? `<p style="font-size:0.75rem;color:var(--wh-violet-text);margin-top:0.25rem;">PM stays ${escHtml(r.current_frequency)}${scopeNote}. The fix is the failure mode, not the schedule.</p>`
+              : `<p style="font-size:0.75rem;color:var(--wh-violet-text);margin-top:0.25rem;">Recommended: ${escHtml(r.recommended_frequency || ('every ' + r.recommended_days + ' days'))} (currently ${escHtml(r.current_frequency)}${scopeNote})</p>`}
           </div>`;
       },
     });
@@ -2757,8 +2940,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     if (!d?.assignments?.length && !d?.skill_gaps?.length) return cardEmpty('Technician Assignment', 'SMRP workforce metrics', d?.note || 'No open jobs to assign.');
     const assignments = (d.assignments || []).map(a => `<tr>
       <td class="machine-name">${escHtml(a.machine)}</td>
-      <td style="font-size:0.68rem;color:rgba(255,255,255,0.80);">${escHtml(a.problem)}</td>
-      <td style="font-size:0.72rem;font-weight:600;color:var(--wh-blue-text);">${escHtml(a.assigned_to)}</td>
+      <td style="font-size:0.75rem;color:rgba(255,255,255,0.80);">${escHtml(a.problem)}</td>
+      <td style="font-size:0.8rem;font-weight:600;color:var(--wh-blue-text);">${escHtml(a.assigned_to)}</td>
       <td class="num good">L${a.skill_level}</td>
     </tr>`).join('');
     // Group identical gaps so we don't render 8 copies of "No qualified Mechanical
@@ -2773,11 +2956,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const machineList = grp.machines.length
         ? `<span style="color:rgba(255,255,255,0.80);"> · ${escHtml(grp.machines.slice(0, 4).join(', '))}${grp.machines.length > 4 ? ` +${grp.machines.length - 4} more` : ''}</span>`
         : '';
-      return `<div style="font-size:0.74rem;color:var(--wh-red-text);margin-top:0.5rem;">⚠ No qualified <strong>${escHtml(grp.discipline)}</strong> technician in the team. <span style="color:rgba(255,255,255,0.80);">(${grp.machines.length} machine${grp.machines.length === 1 ? '' : 's'} affected)</span>${machineList}</div>`;
+      return `<div style="font-size:0.8rem;color:var(--wh-red-text);margin-top:0.5rem;">⚠ No qualified <strong>${escHtml(grp.discipline)}</strong> technician in the team. <span style="color:rgba(255,255,255,0.80);">(${grp.machines.length} machine${grp.machines.length === 1 ? '' : 's'} affected)</span>${machineList}</div>`;
     }).join('');
     return `<div class="card">
       <h2 class="card-title">Technician Assignment <span class="card-standard">SMRP workforce · ${d.open_job_count || 0} open job(s)</span></h2>
-      ${assignments ? `<!-- table-name-allow: maintenance analytics data table --> <div class="wh-scroll-x"><table class="data-table"><thead><tr><th>Asset</th><th>Problem</th><th>Assign To</th><th class="num">Level</th></tr></thead><tbody>${assignments}</tbody></table></div>` : ''}
+      ${assignments ? `<!-- table-name-allow: maintenance analytics data table --> <div class="wh-scroll-x"><table class="data-table"><thead><tr><th>Asset</th><th>${_t('Problem', 'Problema')}</th><th>${_t('Assign To', 'Italaga Kay')}</th><th class="num">${_t('Level', 'Antas')}</th></tr></thead><tbody>${assignments}</tbody></table></div>` : ''}
       ${gaps}
     </div>`;
   }
@@ -2796,11 +2979,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       renderRow: (r) => {
         const cls = r.urgency==='CRITICAL' ? 'alert' : r.urgency==='HIGH' ? 'warn' : '';
         return `<tr>
-          <td class="machine-name">${escHtml(r.part_name)}${r.pm_relevant ? ' <span style="font-size:0.6rem;color:var(--wh-violet-text);">PM</span>' : ''}</td>
+          <td class="machine-name">${escHtml(r.part_name)}${r.pm_relevant ? ' <span style="font-size:0.75rem;color:var(--wh-violet-text);">PM</span>' : ''}</td>
           <td class="num">${r.qty_on_hand}</td>
           <td class="num">${r.reorder_point}</td>
           <td class="num ${cls}">${r.urgency}</td>
-          <td style="font-size:0.68rem;color:rgba(255,255,255,0.80);">Order ${r.suggested_order}</td>
+          <td style="font-size:0.75rem;color:rgba(255,255,255,0.80);">Order ${r.suggested_order}</td>
         </tr>`;
       },
     });
@@ -2839,10 +3022,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <div style="margin-bottom:0.75rem;padding:0.75rem;border-radius:0.75rem;background:rgba(167,139,250,0.06);border:1px solid rgba(167,139,250,0.15);">
         <div style="display:flex;justify-content:space-between;margin-bottom:0.3rem;">
           <span style="font-size:0.8rem;font-weight:700;color:#fff;">${escHtml(g.discipline)}</span>
-          <span style="font-size:0.7rem;color:var(--wh-red-text);">Avg MTTR: ${g.avg_mttr_h}h (+${g.above_avg_by_h}h above avg)</span>
+          <span style="font-size:0.8rem;color:var(--wh-red-text);">Avg MTTR: ${g.avg_mttr_h}h (+${g.above_avg_by_h}h above avg)</span>
         </div>
-        <p style="font-size:0.72rem;color:rgba(255,255,255,0.80);">${escHtml(g.recommendation)}</p>
-        ${g.low_skill_workers?.length ? `<div style="margin-top:0.4rem;">${g.low_skill_workers.map(w=>`<span style="font-size:0.65rem;color:var(--wh-violet-text);margin-right:0.5rem;">${escHtml(w.worker)} (L${w.current_level})</span>`).join('')}</div>` : ''}
+        <p style="font-size:0.8rem;color:rgba(255,255,255,0.80);">${escHtml(g.recommendation)}</p>
+        ${g.low_skill_workers?.length ? `<div style="margin-top:0.4rem;">${g.low_skill_workers.map(w=>`<span style="font-size:0.75rem;color:var(--wh-violet-text);margin-right:0.5rem;">${escHtml(w.worker)} (L${w.current_level})</span>`).join('')}</div>` : ''}
       </div>`).join('');
     return `<div class="card">
       <h2 class="card-title">Training Gap Recommendation <span class="card-standard">SMRP workforce development · ${d.gap_count} gap(s)</span></h2>
@@ -2945,12 +3128,33 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     const toggleBtn = wrap.querySelector('.showall-toggle');
     const allRows = Array.from(wrap.querySelectorAll('tbody tr, .cards-stack > *, .extra-cards > *'));
 
+    // ★aria-expanded MOVES WITH `hidden` IN BOTH BRANCHES (design lens critique, 2026-09-15). This
+    // function force-expands the extra rows while searching and re-hides them when the query clears, and
+    // it never wrote the state - while its sibling toggleShowAll carries a comment saying the state must
+    // move WITH the attribute. So after any search the button's label and what it announced disagreed.
+    const _setToggle = (expanded, label) => {
+      if (!toggleBtn) return;
+      toggleBtn.textContent = label;
+      toggleBtn.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+    };
+    // The no-match line lives in the list's own wrapper so every list gets one without new markup.
+    let note = wrap.querySelector('.wh-nomatch');
+    if (!note) {
+      note = document.createElement('p');
+      note.className = 'wh-nomatch';
+      note.setAttribute('role', 'status');
+      note.style.cssText = 'margin:8px 0 0;font-size:0.8rem;color:rgba(255,255,255,0.80);';
+      note.hidden = true;
+      wrap.appendChild(note);
+    }
+
     if (!q) {
       // Empty query: restore default state (extras hidden, all visible rows shown).
       allRows.forEach(r => { r.style.display = ''; });
+      note.hidden = true;
       if (extra && !extra.hasAttribute('hidden')) {
         extra.setAttribute('hidden', '');
-        if (toggleBtn) toggleBtn.textContent = toggleBtn.dataset.showAll;
+        _setToggle(false, toggleBtn ? toggleBtn.dataset.showAll : '');
       }
       return;
     }
@@ -2958,7 +3162,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     // Searching: expand the hidden container so matches in there are visible.
     if (extra && extra.hasAttribute('hidden')) {
       extra.removeAttribute('hidden');
-      if (toggleBtn) toggleBtn.textContent = toggleBtn.dataset.showLess;
+      _setToggle(true, toggleBtn ? toggleBtn.dataset.showLess : '');
     }
     let matchCount = 0;
     allRows.forEach(r => {
@@ -2967,8 +3171,18 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       r.style.display = hit ? '' : 'none';
       if (hit) matchCount++;
     });
-    // Optional: surface a "no results" state inline. Skipped for now — empty
-    // table is self-explanatory.
+    // ★matchCount WAS COUNTED AND NEVER READ (design lens critique, 2026-09-15). A typo in any of the
+    // four search boxes on this tab left a bare table head, or a blank region for the card lists, with
+    // nothing to say whether the filter matched nothing or the data had failed - the one distinction
+    // this page makes carefully everywhere else.
+    if (matchCount === 0) {
+      const total = allRows.length;
+      note.textContent = _t(`No row matches "${input.value.trim()}". Clear the box to see all ${total}.`,
+                            `Walang tugma sa "${input.value.trim()}". I-clear ang kahon para makita lahat ng ${total}.`);
+      note.hidden = false;
+    } else {
+      note.hidden = true;
+    }
   }
 
   function toggleShowAll(btn) {
@@ -3105,19 +3319,19 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
     // MTBF worst
     const mtbf = desc?.mtbf?.mtbf_by_asset?.filter(a => a.mtbf_days !== null)[0];
-    if (mtbf) rows.push(`<div class="role-row"><span class="label">⏱ Worst MTBF</span><span class="val" style="color:${mtbf.mtbf_days<14?'var(--wh-red)':mtbf.mtbf_days<30?'var(--wh-orange)':'var(--wh-green)'};">${escHtml(mtbf.machine)} · ${mtbf.mtbf_days}d</span></div>`);
+    if (mtbf) rows.push(`<div class="role-row"><span class="label">⏱ ${_t('Worst MTBF', 'Pinakamababang MTBF')}</span><span class="val" style="color:${mtbf.mtbf_days<14?'var(--wh-red)':mtbf.mtbf_days<30?'var(--wh-orange)':'var(--wh-green)'};">${escHtml(mtbf.machine)} · ${mtbf.mtbf_days}d</span></div>`);
 
     // MTTR worst
     const mttr = desc?.mttr?.mttr_by_asset?.[0];
-    if (mttr) rows.push(`<div class="role-row"><span class="label">🔧 Slowest repair</span><span class="val" style="color:${mttr.mttr_hours>24?'var(--wh-red)':mttr.mttr_hours>8?'var(--wh-orange)':'var(--wh-green)'};">${escHtml(mttr.machine)} · ${mttr.mttr_hours}h</span></div>`);
+    if (mttr) rows.push(`<div class="role-row"><span class="label">🔧 ${_t('Slowest repair', 'Pinakamabagal na pagkumpuni')}</span><span class="val" style="color:${mttr.mttr_hours>24?'var(--wh-red)':mttr.mttr_hours>8?'var(--wh-orange)':'var(--wh-green)'};">${escHtml(mttr.machine)} · ${mttr.mttr_hours}h</span></div>`);
 
     // PM compliance
     const pm = desc?.pm_compliance?.overall_pct;
-    if (pm !== null && pm !== undefined) rows.push(`<div class="role-row"><span class="label">📋 PM compliance</span><span class="val" style="color:${pm<70?'var(--wh-red)':pm<85?'var(--wh-orange)':'var(--wh-green)'};">${pm}%</span></div>`);
+    if (pm !== null && pm !== undefined) rows.push(`<div class="role-row"><span class="label">📋 ${_t('PM compliance', 'Pagsunod sa PM')}</span><span class="val" style="color:${pm<70?'var(--wh-red)':pm<85?'var(--wh-orange)':'var(--wh-green)'};">${pm}%</span></div>`);
 
     // Overdue PMs — Arc Y Y2 fork#2: canonical = ASSETS overdue (matches the tiles), not tasks
     const overdue = pred?.pm_due_calendar?.overdue_asset_count ?? pred?.pm_due_calendar?.overdue_count;
-    if (overdue > 0) rows.push(`<div class="role-row"><span class="label">🔴 Overdue PMs</span><span class="val" style="color:var(--wh-red-text);">${overdue} asset(s) overdue</span></div>`);
+    if (overdue > 0) rows.push(`<div class="role-row"><span class="label">🔴 ${_t('Overdue PMs', 'Lagpas na ang PM')}</span><span class="val" style="color:var(--wh-red-text);">${overdue} ${_t('asset(s) overdue', 'asset ang lagpas na')}</span></div>`);
 
     // Training gaps
     const gaps = presc?.training_gaps?.gaps?.[0];
@@ -3135,7 +3349,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     }
 
     if (!rows.length && !aiBlock) return '';
-    return `<div class="role-card"><div class="role-card-title">👷 Supervisor: Team Status</div>${rows.join('')}${aiBlock}</div>`;
+    return `<div class="role-card"><div class="role-card-title">👷 ${_t('Supervisor: Team Status', 'Superbisor: Katayuan ng Koponan')}</div>${rows.join('')}${aiBlock}</div>`;
   }
 
   // (Removed: buildManagerView and updateCommandBar — see PRODUCTION_FIXES #27.
@@ -3162,7 +3376,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     const _age = _cacheTime[_phase];
     let _freshness;
     if (_fromSnapshot && _age) {
-      const mins = Math.max(0, Math.round((Date.now() - _age) / 60000));
+      // ★TWO FORMATTERS ON ONE TIMESTAMP (design lens critique, 2026-09-15). This rounded and the status
+      // bar's whFmtAgo floors, so the same instant printed "computed 14 min ago" here and "Updated 13m ago"
+      // one section below. Same helper for both, so they cannot drift again.
+      const mins = Math.max(0, Math.floor((Date.now() - _age) / 60000));
       const when = mins < 60 ? `${mins} min ago`
                  : mins < 1440 ? `${Math.round(mins / 60)}h ago`
                  : `${Math.round(mins / 1440)}d ago`;
@@ -3233,6 +3450,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     d30:'30 araw', d90:'90 araw', d180:'180 araw', d365:'1 taon',
     refresh:'I-refresh', recompute:'Muling kalkulahin', pdfreport:'PDF na Ulat', send:'Ipadala',
     assetrisk:'Panganib ng Asset', shiftbrain:'Shift Brain', networkview:'Network View',
+    ctaaria:'Gawin ang inirerekomendang susunod na hakbang',
     lbloee:'OEE (karaniwan, bahagi)', lblmtbf:'Pinakamababang MTBF (bahagi)', lblpm:'PM compliance',
     whatnext:'Ano ang susunod', showdetails:'Ipakita ang detalye',
     ph1:'Ano ang nangyari',  ph1s:'Descriptive',
@@ -3252,6 +3470,15 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     if (!window._anEnCap) { window._anEnCap = {}; els.forEach(function(e){ window._anEnCap[e.dataset.i] = e.innerHTML; }); }
     var dict = (window.WH_LANG === 'fil') ? window._anFIL : window._anEnCap;
     els.forEach(function(e){ if (dict[e.dataset.i] != null) e.innerHTML = dict[e.dataset.i]; });
+    // ★NO ACCESSIBLE NAME ON THIS PAGE COULD BE TRANSLATED (design lens copy, 2026-09-15). This swapped
+    // innerHTML for [data-i] nodes and never touched aria-label, so the recommended-action button
+    // announced an English sentence to a Filipino screen reader - and would have gone on doing so for
+    // every aria-label anyone added. [data-ia] reads the same dictionary, with the same capture-once of
+    // the authored English so switching back restores it verbatim.
+    var alab = document.querySelectorAll('.page [data-ia]');
+    if (!window._anEnCapA) { window._anEnCapA = {}; alab.forEach(function(e){ window._anEnCapA[e.dataset.ia] = e.getAttribute('aria-label') || ''; }); }
+    var adict = (window.WH_LANG === 'fil') ? window._anFIL : window._anEnCapA;
+    alab.forEach(function(e){ if (adict[e.dataset.ia] != null) e.setAttribute('aria-label', adict[e.dataset.ia]); });
     document.documentElement.lang = (window.WH_LANG === 'fil') ? 'fil' : 'en';
     document.querySelectorAll('#an-lang button').forEach(function(b){
       var on = b.dataset.lang === window.WH_LANG;
@@ -3339,18 +3566,5 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   <script defer src="connectivity-widget.js"></script>
   <script defer src="session-timeout.js"></script>
   <script defer src="device-fingerprint.js"></script>
-<script>
-// T125/T51: light the hive stamp from the stored name (cleared on membership loss).
-(function () {
-  try {
-    const _hn = localStorage.getItem('wh_hive_name');
-    const _chip = document.getElementById('hive-chip');
-    if (_hn && _chip) {
-      _chip.classList.remove('hidden'); _chip.style.display = 'inline-flex';
-      const n = document.getElementById('hive-chip-name'); if (n) n.textContent = _hn;
-    }
-  } catch (_) { /* empty-catch-allow: best-effort chrome */ }
-})();
-</script>
 </body>
 </html>

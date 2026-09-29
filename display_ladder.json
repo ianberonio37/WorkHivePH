@@ -1,18 +1,18 @@
 {
   "_doc": "Display ladder classification (Phase E). Each display anchor tagged on Gartner's Descriptive->Diagnostic->Predictive->Prescriptive ladder. grounded = anchor resolves to a canonical source (Phase B RESOLVED*). Ungrounded predictive/prescriptive tiles claim a higher rung than their data backs = residual to fix.",
   "totals": {
-    "displays": 74,
+    "displays": 84,
     "by_rung": {
       "predictive": 6,
-      "descriptive": 49,
+      "descriptive": 59,
       "diagnostic": 17,
       "prescriptive": 2
     },
-    "grounded": 65,
-    "grounded_pct": 87.8,
+    "grounded": 66,
+    "grounded_pct": 78.6,
     "grounded_by_rung": {
       "predictive": 6,
-      "descriptive": 40,
+      "descriptive": 41,
       "diagnostic": 17,
       "prescriptive": 2
     },
@@ -316,14 +316,6 @@
       "source_via": "js_parse_heuristic"
     },
     {
-      "page": "marketplace-seller.html",
-      "id": "cert-input-label",
-      "token": "cert-input-label",
-      "rung": "descriptive",
-      "grounded": false,
-      "source_via": null
-    },
-    {
       "page": "dayplanner.html",
       "id": "dp-verdict-label",
       "token": "-verdict-label",
@@ -346,6 +338,22 @@
       "rung": "descriptive",
       "grounded": true,
       "source_via": "verified_bind"
+    },
+    {
+      "page": "dayplanner.html",
+      "id": "sidebar-rail-count",
+      "token": "count",
+      "rung": "descriptive",
+      "grounded": true,
+      "source_via": "js_parse_heuristic"
+    },
+    {
+      "page": "assistant.html",
+      "id": "assistant-conn-label",
+      "token": "conn-label",
+      "rung": "descriptive",
+      "grounded": false,
+      "source_via": null
     },
     {
       "page": "project-manager.html",
@@ -580,6 +588,14 @@
       "source_via": "verified_bind"
     },
     {
+      "page": "alert-hub.html",
+      "id": "sev-focus-bar",
+      "token": "sev-focus-bar",
+      "rung": "descriptive",
+      "grounded": false,
+      "source_via": null
+    },
+    {
       "page": "voice-journal.html",
       "id": "entry-count",
       "token": "count",
@@ -610,6 +626,70 @@
       "rung": "diagnostic",
       "grounded": true,
       "source_via": "verified_bind"
+    },
+    {
+      "page": "validator-catalog.html",
+      "id": "count-stat",
+      "token": "count",
+      "rung": "descriptive",
+      "grounded": false,
+      "source_via": null
+    },
+    {
+      "page": "validator-catalog.html",
+      "id": "fail-stat",
+      "token": "fail-stat",
+      "rung": "descriptive",
+      "grounded": false,
+      "source_via": null
+    },
+    {
+      "page": "validator-catalog.html",
+      "id": "pass-stat",
+      "token": "pass-stat",
+      "rung": "descriptive",
+      "grounded": false,
+      "source_via": null
+    },
+    {
+      "page": "symbol-gallery.html",
+      "id": "sym-count",
+      "token": "count",
+      "rung": "descriptive",
+      "grounded": false,
+      "source_via": null
+    },
+    {
+      "page": "llm-observability.html",
+      "id": "kpi-total",
+      "token": "total",
+      "rung": "descriptive",
+      "grounded": false,
+      "source_via": null
+    },
+    {
+      "page": "llm-observability.html",
+      "id": "kpi-error-rate",
+      "token": "kpi-error-rate",
+      "rung": "descriptive",
+      "grounded": false,
+      "source_via": null
+    },
+    {
+      "page": "architecture.html",
+      "id": "n-index",
+      "token": "n-index",
+      "rung": "descriptive",
+      "grounded": false,
+      "source_via": null
+    },
+    {
+      "page": "learn/index.html",
+      "id": "lh-count",
+      "token": "count",
+      "rung": "descriptive",
+      "grounded": false,
+      "source_via": null
     }
   ],
   "ungrounded_high_rung": []

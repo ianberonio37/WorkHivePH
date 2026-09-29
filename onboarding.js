@@ -152,7 +152,17 @@
                         : isNext ? 'font-weight:700; color:#fff;'
                         : 'color:rgba(255,255,255,0.85);';
       const label   = `<span style="${labelStyle} flex:1;">${_esc(T(s.label))}</span>`;
-      const rowStyle = 'display:flex; align-items:center; gap:8px; min-height:44px; padding:4px 0; font-size:12px;';
+      // ★THE PROGRESS BAR RAN 400ms ON THE DEFAULT ease CURVE (2026-09-19, W45920 motion lens on hive,
+  //    where this card renders). 400ms is past the 300ms ceiling for interface motion and the default
+  //    curve is an ease-IN-out, so the fill started slowly - on the one element whose whole job is to
+  //    show progress moving. Both on the platform tokens now. The bar KEEPS width rather than taking a
+  //    compositor scaleX, and that is deliberate: it carries a gradient, and scaling a gradient scales
+  //    the ramp with it, so a bar at 30 percent would show the whole orange-to-light sweep squeezed
+  //    into a third of the track instead of the start of it. Same reasoning as hive's readiness bar;
+  //    the clean fix for both is a clip-path on a full-width gradient, which needs its own row.
+  //    (Written as a JS comment rather than inside the template: the first draft used backticks around
+  //    the property names INSIDE the literal, which closed it and broke the file.)
+  const rowStyle = 'display:flex; align-items:center; gap:8px; min-height:44px; padding:4px 0; font-size:12px;';
       if (!s.done && href) {
         return `<li><a href="${href}" style="${rowStyle} text-decoration:none; color:inherit;">${marker}${label}<span aria-hidden="true" style="color:var(--wh-orange, #F7A21B); font-weight:700; flex-shrink:0;">&#8594;</span></a></li>`;
       }
@@ -161,6 +171,16 @@
 
     // H2 endowed-progress: convert the Zeigarnik "N left" tension into a pull toward completion.
     const endowed = remaining > 0
+      // ★THE ONBOARDING CARD'S TITLE WAS THE SMALLEST TEXT ON THE PAGE (2026-09-19, W45917 craft lens
+      //    on hive.html, where the walk read minFontPx 10 against a 12px floor). The pill carrying
+      //    "Supervisor setup" / "Get started" - the line that says what this card IS - rendered at 10px,
+      //    weight 800, uppercase, +0.06em: DESIGN.md names that exact combination as the micro-label
+      //    habit the design lenses are removing, and says not to reintroduce it. Everything around it,
+      //    including its own subtitle and every step row, was already at 12px, so the title was the one
+      //    thing below the floor and the one thing a reader needs first. Lifted to the label step, and
+      //    the tracking to the 0.04em ceiling DESIGN.md allows for a short all-caps status pill; it is
+      //    two words, which is what that allowance is for. Shared chrome: this pays on every page that
+      //    renders the onboarding card, not only the one whose walk caught it.
       ? `<p style="font-size:12px; color:rgba(255,255,255,0.6); margin:8px 0 0; font-variant-numeric:tabular-nums;">${isFil ? `${remaining} hakbang na lang para handa ang hive.` : `${remaining} step${remaining > 1 ? 's' : ''} left to a hive-ready setup.`}</p>`
       : '';
 
@@ -168,13 +188,13 @@
       <div style="padding:14px 16px;">
         <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap;">
           <div style="display:flex; align-items:center; gap:10px;">
-            <span style="display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:999px; font-size:10px; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; background:rgba(247,162,27,0.18); color:var(--wh-orange, #F7A21B);">${_esc(title)}</span>
+            <span style="display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:999px; font-size:12px; font-weight:800; letter-spacing:0.04em; text-transform:uppercase; background:rgba(247,162,27,0.18); color:var(--wh-orange, #F7A21B);">${_esc(title)}</span>
             <span style="font-size:12px; color:rgba(255,255,255,0.62); font-variant-numeric:tabular-nums;">${_esc(subtitle)}</span>
           </div>
           <span style="font-size:14px; font-weight:800; color:var(--wh-orange, #F7A21B); font-variant-numeric:tabular-nums;">${pct}%</span>
         </div>
         <div style="height:5px; background:rgba(255,255,255,0.06); border-radius:3px; margin:8px 0; overflow:hidden;">
-          <div style="height:100%; width:${pct}%; background:linear-gradient(90deg,var(--wh-orange, #F7A21B),var(--wh-orange-light, #FDB94A)); border-radius:3px; transition:width 0.4s ease;"></div>
+          <div style="height:100%; width:${pct}%; background:linear-gradient(90deg,var(--wh-orange, #F7A21B),var(--wh-orange-light, #FDB94A)); border-radius:3px; transition:width var(--wh-dur-slow, 0.25s) var(--wh-ease-out, ease-out);"></div>
         </div>
         <ul style="list-style:none; padding:0; margin:6px 0 0;">${items}</ul>
         ${endowed}

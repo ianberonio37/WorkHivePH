@@ -111,7 +111,7 @@ By the end of week 12 the department is digital, the team has 3 months of entrie
 
 The tool this guide is about
 
-#### WorkHive Logbook is free
+### WorkHive Logbook is free
 
 It runs in the browser, installs as a PWA on Android and iPhone, queues entries offline, and gives the supervisor a real-time view without printing. No credit card, no per-user license. Built for Philippine industrial use as Stage 1 ("Paper to Digital") of a 4-stage path that scales all the way to predictive maintenance and AI.
 
@@ -170,7 +170,7 @@ The technicians most at risk from AI are the ones whose knowledge lives only in 
 The technicians most **protected** from AI are the ones whose entries are in the system. Why?
 
 1. **Their entries are evidence.** Promotion conversations stop being "who does management like" and start being "who has documented their work."
-2. **Their entries become the training data the AI assistant cites by name.** When a junior technician asks the AI "how did we fix the Pump 7 coupling issue?", the AI cites the senior who wrote the entry. Visibility goes up, not down.
+2. **Their entries become what the assistant answers from.** When a junior technician asks "how did we fix the Pump 7 coupling issue?", the answer comes out of the senior's entry and points at it, and that entry carries their name. Visibility goes up, not down.
 3. **Their entries are portable.** A technician with 3 years of well-documented work history can negotiate better when they move to another plant or apply for an overseas posting. The hiring manager can verify the work.
 4. **Their entries surface during salary reviews.** "I wrote 1,847 entries last year, of which 412 prevented a recurrence" is a harder argument to dismiss than "trust me, I work hard."
 
@@ -182,7 +182,7 @@ This is the deeper reason WorkHive's free Stage 1 logbook matters more than any 
 
 ## Free tools comparison
 
-If you are deciding which tool to start with, here is how the common Philippine-factory options compare on the six non-negotiables from earlier:
+If you are deciding which tool to start with, here is how the common Philippine-factory options compare on three of the six non-negotiables above: offline, phone install and server-side timestamps: plus what each costs per user. Those three are properties of the tool and can be tabulated fairly; the other three depend on how you set it up. Note that the hardest one, surviving turnover, is not in this table and is the one that decides most rollouts: ask of any option who owns the file when the person who made it resigns.
 
 | Tool | Offline? | Mobile install? | Server-side timestamp? | Free for unlimited users? |
 | --- | --- | --- | --- | --- |
@@ -213,7 +213,7 @@ Yes, if it provides time-stamped entries, identifies the recording technician, a
 
 ### How long until I see ROI on a digital logbook rollout?
 
-Plants with a disciplined 12-week rollout typically see two measurable wins by month 4: a 20 to 30 percent drop in repeat faults (because the team now searches history before working) and a 1 to 2 hour reduction in shift change time (because the handover is digital). Hard cost savings show up around month 6 once the team starts referencing entries during PM planning.
+A disciplined 12-week rollout tends to show two wins by around month 4, and both have a mechanism you can check rather than a number you have to take on faith: repeat faults fall, because the team now searches history before starting work instead of rediscovering the same cause; and shift handover gets shorter, because the outgoing crew hands over a record instead of a briefing. Measure both against your own baseline before the rollout - the size of the win depends entirely on how bad the paper trail was. Hard cost savings usually follow once the team starts referencing entries during PM planning.
 
 ### We already have SAP, IBM Maximo, or an Excel system. Do we still need a digital logbook?
 
@@ -221,7 +221,7 @@ Yes, because none of those tools capture what a logbook captures. SAP and Maximo
 
 ### Will an AI take my job if I log everything into a digital logbook?
 
-The opposite is more likely. The technicians most at risk from AI are the ones whose knowledge lives only in their heads and never gets recorded. When they retire or get laid off, that knowledge dies with them. The technicians most protected are the ones whose entries are in the system, because their entries become evidence at promotion time, training data the AI cites by name, and a portable work history they can carry to the next employer. Document your work. The AI is coming whether or not you cooperate. The question is whether it has your name on it.
+The opposite is more likely. The technicians most at risk from AI are the ones whose knowledge lives only in their heads and never gets recorded. When they retire or get laid off, that knowledge dies with them. The technicians most protected are the ones whose entries are in the system, because their entries become evidence at promotion time, the material the assistant answers from, and a portable work history they can carry to the next employer. Document your work. The AI is coming whether or not you cooperate. The question is whether it has your name on it.
 
 ## Sources
 
@@ -233,4 +233,4 @@ The opposite is more likely. The technicians most at risk from AI are the ones w
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 059a873851ed0886 -->
+<!-- md-twin source-sha: f4d8ef3ca8fb2618 -->

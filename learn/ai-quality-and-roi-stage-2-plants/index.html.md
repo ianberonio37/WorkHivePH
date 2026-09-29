@@ -14,7 +14,7 @@ Updated 24 Aug 2026
 ·
 7 min read
 
-**Short answer:** AI assistants in industrial plants need explicit quality measurement; without it, drift goes undetected and trust erodes. Three metrics matter: accuracy (verified by the technician after acting on the advice), time saved (estimated by the worker per query), and cost per useful answer (the total AI cost divided by queries the worker rated useful). Plants that measure these monthly see AI ROI climb from negative in month 3 to 5 to 10x by month 12; plants that do not measure either over-trust or abandon the AI within 6 months.
+**Short answer:** AI assistants in industrial plants need explicit quality measurement; without it, drift goes undetected and trust erodes. Three metrics matter: accuracy (verified by the technician after acting on the advice), time saved (estimated by the worker per query), and cost per useful answer (the total AI cost divided by queries the worker rated useful). Plants that measure these monthly see AI ROI climb from negative in month 3 to between 5x and 10x by month 12; plants that do not measure either over-trust or abandon the AI within 6 months.
 
 Who this is for
 
@@ -36,49 +36,37 @@ The AI Quality + ROI dashboard shows the estimated 30-day ROI, per-function spen
 
 | Metric | What it measures | How to capture |
 | --- | --- | --- |
-| Accuracy | Did the AI suggestion match what fixed the problem? | Worker rates after the fix is verified |
-| Time saved | How much faster did this query make the work? | Worker estimate in 5-second tap |
-| Cost per useful answer | Total AI spend divided by queries rated useful | Automated from token billing + ratings |
+| Worker trust | Did the answer actually help the person who asked? | A thumbs up or down on the reply itself |
+| Time saved (est.) | Roughly how much work the useful answers displaced | Estimated from the useful answers: nobody is asked to stop and log minutes |
+| Cost, last 30 days | What the AI actually cost, and which function spent it | Automated from token billing, broken out per function |
 
 ## Accuracy: technician-verified, not vendor-claimed
 
 Vendor accuracy numbers (95 percent on benchmark X) are not your plant's reality. Your plant's AI accuracy is what your technicians verify after acting on the advice. The pattern that works:
 
-- After every fix where the worker used an AI suggestion, the Logbook entry includes an AI-accuracy rating (1 to 5)
-- Ratings aggregate per asset type, fault category, and query type
-- Monthly review surfaces where the AI is below 4.0 average (likely needs prompt tuning, knowledge-base update, or model upgrade)
+- The worker rates the ANSWER, not the fix: a thumbs up or down on the reply, one tap, at the moment they know whether it helped
+- Those ratings are what the Worker trust figure on AI Quality + ROI is built from
+- A run of thumbs-down on one kind of question is the signal worth acting on: it usually means the knowledge base is thin there, not that the model is broken
 
-Most Philippine plants find their AI starts at 3.5 to 4.0 average in month 1 and climbs to 4.3 to 4.7 by month 6 as the AI learns the plant's specifics. Plants below 3.5 at month 6 have a real problem and should investigate root cause.
+**Do not over-read a small sample.** Below roughly five ratings a single tap swings the figure by twenty points, which is why the surface holds its verdict until there are enough. That guard exists because of a real reading: 348 AI calls and ONE thumbs-down once turned an owner's headline red with “AI is struggling”. Wait for the sample before you conclude anything, and look at which QUESTIONS drew the downs rather than at the percentage.
 
 ## Time saved: estimate per query
 
-After every AI query, the worker taps one of 4 buttons:
+Nobody is asked to stop and log minutes: a technician with gloves on will not do it, and a number they invent to dismiss a prompt is worse than no number. The figure is ESTIMATED instead: each answer the worker marked useful is counted as a few minutes of work displaced, and the total is shown as *Time saved (est.)*. The word 'est.' is doing real work in that label: it is a scale indicator, not a measurement, and it is honest about being one.
 
-- Saved 5 minutes or less
-- Saved 15 to 30 minutes
-- Saved 1 to 2 hours
-- Saved 4+ hours (caught something I would have missed)
-
-Aggregate weekly. A typical Philippine plant with 20 active AI users sees 200 to 400 queries per week, averaging 15 to 25 hours of self-reported saved time. Worker estimates are imperfect but consistent enough to track trend.
+Read it as a trend rather than a total. Because it is derived rather than reported, the figure is only as good as the thumbs behind it: which is the argument for keeping the rating a one-tap habit instead of a form nobody fills in.
 
 ## Cost per useful answer
 
-The honest ROI number is cost per useful answer, not cost per query. Calculation:
+The honest ROI number is cost against USEFUL answers, not cost per query: a cheap month where nothing helped is not a win. AI Quality + ROI gives you both halves: *Cost, last 30 days* with a *Per-function spend* breakdown, and the Worker trust figure that says how much of it landed.
 
-Indicative ranges:
-
-- Month 1 to 3: PHP 50 to 200 per useful answer (high cost, learning phase)
-- Month 4 to 6: PHP 20 to 80 per useful answer (improving)
-- Month 7 to 12: PHP 5 to 30 per useful answer (mature)
-- Year 2+: PHP 2 to 10 per useful answer for plants that mature the system
-
-Compare against the value of an hour of technician time (typically PHP 200 to 600 fully loaded) to see the ROI multiple.
+Do that division with YOUR two numbers rather than against a benchmark: the cost side moves with which functions your plant leans on, and the useful side moves with how well your logbook and asset register are filled in. The per-function breakdown is the actionable half: it shows WHICH surface is spending, so an expensive month usually has one answer behind it rather than a general problem.
 
 ## Catching AI drift before it hurts operations
 
 AI drift is the silent failure mode where the AI gets gradually worse without anybody noticing because each individual answer looks plausible. The AI Quality dashboard catches drift with three signals:
 
-- **Accuracy trend.** Falling average rating per asset type or fault category is the first signal. Investigate.
+- **Trust trend.** A falling share of thumbs-up, especially concentrated on one kind of question, is the first signal. Investigate that question type rather than the model.
 - **Query escalation rate.** Rising percentage of queries that the worker then escalated to a human expert (instead of acting on the AI answer) signals declining trust.
 - **Cost-per-useful trending up.** If total AI cost stays flat but useful-answer count drops, the cost per useful answer rises. This is the cleanest single-number indicator.
 
@@ -86,9 +74,9 @@ Weekly 5-minute review by the reliability engineer catches drift early. Plants t
 
 The tool this guide is about
 
-#### WorkHive AI Quality + ROI dashboard makes AI value measurable
+### WorkHive AI Quality + ROI dashboard makes AI value measurable
 
-Accuracy tracking from technician-rated outcomes, time-saved estimates per query, cost per useful answer, drift detection across asset types and fault categories. Stair 2+ (plants with 90+ days of Logbook history). Free at the worker tier; full enterprise reporting (per-shift accuracy, cross-hive benchmarks) unlocks at Stage 4.
+Accuracy tracking from technician-rated outcomes, time-saved estimates per query, cost per useful answer, drift detection across asset types and fault categories. Stage 2+ (plants with 90+ days of Logbook history). Free at the worker tier. AI Quality is one of the surfaces the maturity stair actually gates: a hive reads it from Stair 2 (Disciplined) onward, which it earns by logging, not by paying. Benchmarks across separate hives are not available: each hive’s data stays inside it.
 
 No hive yet? [Join WorkHive](https://workhiveph.com/?signup=1) first (free, takes 30 seconds).
 
@@ -100,11 +88,11 @@ Vendor accuracy is on their benchmark dataset, not your plant's reality. Your pl
 
 ### What is a reasonable AI accuracy target?
 
-Month 1 to 3: 3.5 to 4.0 out of 5 (worker-rated, after verification). Month 4 to 6: 4.0 to 4.5. Month 7 to 12: 4.3 to 4.7 as the AI learns the plant's specifics. Plants below 3.5 at month 6 have a real problem: likely the knowledge base is incomplete, the prompts are not tuned, or the model needs upgrade. Above 4.7 average usually means workers are rating generously; spot-check the verification process.
+There is no target score to hit, because the rating is a thumbs up or down rather than a mark out of five. What matters is the DIRECTION and the CONCENTRATION: a trust figure that climbs as your logbook and asset register fill in is the system working, and a run of thumbs-down clustered on one kind of question is the signal to act on: usually a thin patch in the knowledge base rather than a broken model. Ignore the figure entirely below about five ratings; a single tap swings it that far.
 
 ### How do I measure cost per useful answer?
 
-Total monthly AI cost (from the token-billing report) divided by number of queries rated 4+ accuracy AND saved 15+ minutes. Indicative ranges: PHP 50 to 200 per useful answer in months 1 to 3, PHP 5 to 30 per useful answer at maturity. Compare against the value of an hour of technician time (PHP 200 to 600 fully loaded for a Philippine plant) to see the ROI multiple.
+Take the two figures AI Quality + ROI already shows you: Cost, last 30 days, and the share of answers your team marked useful. Divide one by the other and you have what a useful answer costs your plant. There is no benchmark worth comparing that against: it moves with which functions you lean on and how well your logbook is filled in, so watch your own number over successive months, and use the Per-function spend breakdown to see which surface is actually spending.
 
 ### What is AI drift and how do I catch it?
 
@@ -127,4 +115,4 @@ At Stage 4 enterprise tier, yes (anonymous benchmarking against the cohort of Wo
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: eca48a7dcc19a7f7 -->
+<!-- md-twin source-sha: 459d12ca9e56f35e -->

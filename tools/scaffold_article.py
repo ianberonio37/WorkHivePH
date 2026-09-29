@@ -239,7 +239,13 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     .audience-block ul {{ margin: 0; padding-left: 1.2rem; color: rgba(244,246,250,0.78); font-size: 0.92rem; line-height: 1.7; }}
     .answer-first {{ background: rgba(247,162,27,0.06); border-left: 3px solid #F7A21B; padding: 18px 22px; border-radius: 0 12px 12px 0; margin: 1.5rem 0; color: rgba(244,246,250,0.85); font-size: 1.02rem; line-height: 1.65; }}
     .toc {{ background: rgba(31,46,69,0.6); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; padding: 18px 22px; margin: 2rem 0; }}
-    .toc h4 {{ margin: 0 0 8px; font-size: 13px; color: rgba(244,246,250,0.6); font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; }}
+    /* ~W46101: BOTH tags. The label has been an h2 and an h4 at different times and the
+       selector was once coupled to the tag - when the tag moved and the selector did not,
+       45 of 54 published articles rendered this label at the browser default 16px for as
+       long as nobody asked why the type ramp had nine steps. Matching both tags means the
+       styling cannot come apart from the markup again. Tracking is 0.04em per DESIGN.md,
+       which caps all-caps labels there. */
+    .toc h2, .toc h4 {{ margin: 0 0 8px; font-size: 13px; color: rgba(244,246,250,0.6); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }}
     .toc ol {{ margin: 0; padding-left: 1.2rem; color: rgba(244,246,250,0.75); font-size: 0.92rem; line-height: 1.85; }}
     .toc a {{ color: rgba(244,246,250,0.75); }}
     .toc a:hover {{ color: #FDB94A; }}
@@ -306,7 +312,13 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     </div>
 
     <div class="toc">
-      <h4 aria-level="2">What's in this guide</h4>
+      <!-- ~W46129: h2, not h4-with-aria-level. This label is a PEER of the article's h2
+           sections. It was <h4 aria-level="2"> on 49 published articles - the ARIA level
+           was correct and the TAG was not, so `impeccable detect` reported a false
+           skipped-heading on every one while the walk (which honours aria-level) measured
+           zero. An <h2> IS level 2: markup, accessibility tree and detector now agree, and
+           `.toc h2, .toc h4` styles it either way. -->
+      <h2>What's in this guide</h2>
       <ol>
 {TOC_HTML}
       </ol>

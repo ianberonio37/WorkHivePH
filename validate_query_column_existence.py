@@ -63,7 +63,15 @@ def _parse_projection(s: str) -> set[str]:
     if "*" in s:
         return set()
     # FIRST drop any `identifier(args)` — both the identifier AND the parens.
-    cleaned = re.sub(r"\b[a-z_][\w]*\s*\([^)]*\)", "", s, flags=re.IGNORECASE)
+    # ★THE EMBED MODIFIER IS PART OF THE EMBED (2026-09-28). PostgREST writes an inner join as
+    # `hive_members!inner(status)`, and the old pattern matched only `inner(status)` — the `!` broke the
+    # identifier in two — so `hive_members!` survived, `.strip("!")` turned it into `hive_members`, and
+    # amc-orchestrator was reported as selecting a column that does not exist on v_hives_truth.
+    # PROVEN AGAINST THE LIVE GATEWAY rather than argued: that exact query returns HTTP 200, while a
+    # bogus column returns 42703 "column ... does not exist" and a bogus embed returns PGRST200 "Could
+    # not find a relationship" — so the request is valid and the gate was wrong. `!inner`, `!left` and
+    # the `!fk_name` disambiguator all take this form.
+    cleaned = re.sub(r"\b[a-z_][\w]*(?:\s*!\s*[a-z_][\w]*)?\s*\([^)]*\)", "", s, flags=re.IGNORECASE)
     cols = set()
     for tok in cleaned.split(","):
         tok = tok.strip()

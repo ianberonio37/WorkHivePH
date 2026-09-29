@@ -2,7 +2,7 @@
 name: page-promo-poster
 type: page
 source: file:promo-poster.html
-source_sha: ccc7223a24ad1972
+source_sha: 2b2c1e4740d18d2a
 last_verified: 2026-07-13
 supersedes: null
 ---

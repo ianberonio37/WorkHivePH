@@ -13,9 +13,9 @@ The deliverable is `UFAI_UIUX_IMPROVEMENT_PLAN.md` — every improvement cluster
 evidence — then fix waves that land and LOCK each improvement.
 
 <!-- critic-scoreboard:begin (GENERATED - edit critic_registry.json, not this block) -->
-**CRITIC PROGRAM: 78.7% overall · 3959 in-scope trajectories · critiqued 1675 · improving 2284 — registry critic_registry.json (updated 2026-09-11, rubric 975123b63769).**
+**CRITIC PROGRAM: 31.9% overall · 9749 in-scope trajectories · pending 5790 · critiqued 1670 · improving 2289 — registry critic_registry.json (updated 2026-09-11, rubric 975123b63769).**
 Findings: 9986 total (S4 820, S3 2141, S2 6493, S1 532) · open Major+ 2961.
-Per-wave: A 74% · B 84% · C 82% · D 81% · E 76% · F 80% · G 75% · H 73% · I 70% · J 70% · K 70% · L 70% · M 70% · N 70% · O 70% · P 72% · Q 70% · R 70% · S 70% · T 70% · U 70% · V 70% · W 70% · X 70% · Y 70% · Z 70% · AA 70% · AC 70% · AD 70% · AE 70% · VD 70% · VM 70% · VP 71% · P-A 82% · P-B 81% · P-C 81% · P-D 83% · P-E 78% · P-F 85% · P-G 81% · P-H 81% · P-I 80% · P-J 81% · P-K 79% · P-L 81% · P-M 82% · LX-H 82% · LX-L 83% · LX-S 82% · EX-AT 79% · EX-AX 82% · EX-HP 82% · EX-PF 81% · EX-PX 82% · EX-RV 84% · EX-SB 82% · EX-TL 81% · LX-CI 83% · LX-FN 85% · LX-LB 83% · LX-RL 81% · W3-AR 81% · W3-CL 70% · W3-DF 81% · W3-FN 85% · W3-JN 81% · W3-LC 82% · W3-LN 70% · W3-PG 79% · W3-SC 70%
+Per-wave: A 74% · B 84% · C 82% · D 81% · E 76% · F 80% · G 75% · H 73% · I 70% · J 70% · K 70% · L 70% · M 70% · N 70% · O 70% · P 72% · Q 70% · R 70% · S 70% · T 70% · U 70% · V 70% · W 70% · X 70% · Y 70% · Z 70% · AA 70% · AC 70% · AD 70% · AE 70% · VD 70% · VM 70% · VP 71% · W4 0% · P-A 82% · P-B 81% · P-C 81% · P-D 83% · P-E 78% · P-F 85% · P-G 81% · P-H 81% · P-I 80% · P-J 81% · P-K 79% · P-L 81% · P-M 82% · LX-H 82% · LX-L 83% · LX-S 82% · EX-AT 79% · EX-AX 82% · EX-HP 82% · EX-PF 81% · EX-PX 82% · EX-RV 84% · EX-SB 82% · EX-TL 81% · LX-CI 83% · LX-FN 85% · LX-LB 83% · LX-RL 81% · W3-AR 81% · W3-CL 70% · W3-DF 81% · W3-FN 85% · W3-JN 81% · W3-LC 83% · W3-LN 70% · W3-PG 79% · W3-SC 70%
 <!-- critic-scoreboard:end -->
 
 ## §1 · Scope — ALL 500 considered, 480 critiqued, none silently skipped

@@ -28,6 +28,7 @@
 //   node tools/prove_full_journeys.mjs --self-test             # no browser: the oracles have teeth
 import { chromium } from 'playwright';
 import { takeBrowserSlot } from './browser_slot.mjs';
+import { record as fitRecord, issuesOf as fitIssues } from './phone_fit_audit.mjs';
 import { execSync } from 'node:child_process';
 import { readFileSync, writeFileSync, mkdirSync, readdirSync } from 'node:fs';
 
@@ -1079,9 +1080,16 @@ async function walk(browser, story) {
       if (act) {
         performed = await page.evaluate(act).catch((e) => ({ ok: false, why: String(e.message || e).slice(0, 90) }));
       }
+      // ★THE PER-STEP OVERLAP / OCCLUSION RECORD (Wave 4, 2026-09-14: "overlapping and overflowing in using
+      // the platform through phone"). Taken after the step's reading AND its action, at this story's own width
+      // and language, so a finding that appears only after a step is tagged with that step. It never alters a
+      // story's verdict - it is banked beside it; the rubric's V1 (occlusion branch) and R6 own pass/fail.
+      const fit = (!loadError && landed === pageFile) ? await fitRecord(page, null, pageFile) : null;
       await page.close().catch(() => {});
       steps.push({ page: pageFile, next, landed, loadError, rest: rest.slice(0, 3), ...(reading || {}),
                    ...(performed ? { performed } : {}),
+                   ...(fit ? { fit: { findings: fit.findings || 0, occlusion: (fit.occlusion || []).length,
+                                      overflowEl: (fit.overflowEl || []).length, lines: fitIssues(fit).slice(0, 8) } } : {}),
                    // WHO walked this step. Only ever recorded when it is NOT the story's primary cast, so
                    // a receipt cannot quietly credit one person with the other's reach.
                    ...(walkedBy && story.identity && walkedBy !== story.identity.name ? { walkedBy } : {}) });

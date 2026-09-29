@@ -2,7 +2,7 @@
 name: doc-render_surfaces
 type: doc
 source: file:render_surfaces.md
-source_sha: 6b97f3ed167a7384
+source_sha: 664327ac4f45ca42
 last_verified: 2026-07-13
 supersedes: null
 ---

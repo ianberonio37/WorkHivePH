@@ -2,13 +2,13 @@
 name: page-analytics-report
 type: page
 source: file:analytics-report.html
-source_sha: 57978ddf7e4833ab
+source_sha: 168a0d18a4885c69
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## page · `analytics-report.html` — Analytics Report | WorkHive
 
-Size: 113KB · 34 top-level fns. (Retrieve THIS instead of reading the file.)
+Size: 128KB · 34 top-level fns. (Retrieve THIS instead of reading the file.)
 
 **DB writes** (0): (none detected)
 **RPC calls**: (none)

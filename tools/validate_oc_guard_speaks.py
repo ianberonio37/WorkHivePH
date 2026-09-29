@@ -66,6 +66,17 @@ def main() -> int:
         for i, line in enumerate(lines):
             if not FILTER.search(line):
                 continue
+            # ★A COMMENT IS NOT A CALL SITE (2026-09-28). dayplanner.html:2789 is a COMMENT explaining
+            # the bug this gate exists to catch - "the .update().eq('updated_at', ...) branch was
+            # unreachable" - and the gate read it as a real guarded update, found no zero-row check in
+            # the 40 lines of prose that follow, and reported the page as silent. The page's ACTUAL
+            # guard is line 1101, which the gate passes. So the accusation was against a sentence, and
+            # a false accusation about working code is this gate's own stated worst failure mode (see
+            # the ZERO note above). Documenting a past defect must not re-open its gate.
+            # feedback_quoting_a_comment_is_not_reading_the_code.
+            stripped = line.lstrip()
+            if stripped.startswith("//") or stripped.startswith("*") or stripped.startswith("/*"):
+                continue
             total += 1
             window = "\n".join(lines[i: i + 40])
             if not (ZERO.search(window) and SAYS.search(window)):

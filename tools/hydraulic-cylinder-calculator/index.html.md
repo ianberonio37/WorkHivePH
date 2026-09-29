@@ -6,23 +6,23 @@ Source: https://workhiveph.com/tools/hydraulic-cylinder-calculator/
 
 Hydraulic Cylinder Calculator
 Static · formula-only · worked example computed when this page was built · no live data G1+E3 
-**The Hydraulic Cylinder Calculator finds the extend force, speed, and cycle time for a hydraulic cylinder from its bore, rod, pressure, and flow. Example: for an 80 mm bore / 45 mm rod cylinder at 160 bar with 30 L/min flow, Extend force = 80.42 kN, Extend speed = 0.1 m/s, Extend time = 4.02 s (per ISO 4413:2010 | NFPA T2.12.10 | Bosch Rexroth Hydraulic Trainer | Parker Hydraulics).**
+**The Hydraulic Cylinder Calculator finds the extend force, speed, and cycle time for a hydraulic cylinder from its bore, rod, pressure, and flow. Example: for an 80 mm bore / 45 mm rod cylinder at 160 bar with 30 L/min flow, over a 400 mm stroke, Extend force = 80.42 kN, Extend speed = 0.1 m/s, Extend time = 4.02 s (per ISO 4413:2010 | NFPA T2.12.10 | Bosch Rexroth Hydraulic Trainer | Parker Hydraulics).**
 How it works
-Computed from your inputs per ISO 4413:2010 | NFPA T2.12.10 | Bosch Rexroth Hydraulic Trainer | Parker Hydraulics.
+Computed from your inputs per ISO 4413:2010 | NFPA T2.12.10 | Bosch Rexroth Hydraulic Trainer | Parker Hydraulics. Anything the worked example does not state uses this calculator's standard default; the interactive version shows every input and lets you change it.
 I2: reserved block 
 Worked example (Mechanical & Machine Design)
-Inputs: an 80 mm bore / 45 mm rod cylinder at 160 bar with 30 L/min flow.
+Inputs: an 80 mm bore / 45 mm rod cylinder at 160 bar with 30 L/min flow, over a 400 mm stroke.
 ResultValue
 Extend force80.42 kN
 Extend speed0.1 m/s
 Extend time4.02 s
 Computed by WorkHive's calculation engine when this page was built; standard: ISO 4413:2010 | NFPA T2.12.10 | Bosch Rexroth Hydraulic Trainer | Parker Hydraulics.
 How to use this calculator
-Read the worked example. It uses an 80 mm bore / 45 mm rod cylinder at 160 bar with 30 L/min flow and shows every number in the method.
+Read the worked example. It uses an 80 mm bore / 45 mm rod cylinder at 160 bar with 30 L/min flow, over a 400 mm stroke and shows every number in the method.
 Follow the formula with your own figures: it returns Extend force, Extend speed, Extend time, computed per ISO 4413:2010.
 To compute interactively, open the Hydraulic Cylinder Calculator inside WorkHive's free Engineering Design suite (link below). It runs the same method with your inputs.
 FAQ
-What is a hydraulic cylinder force calculator bore?The Hydraulic Cylinder Calculator is a free online tool that computes finds the extend force, speed, and cycle time for a hydraulic cylinder from its bore, rod, pressure, and flow. It shows the formula and a fully worked example so you can check the method, not just the number.
+What is a hydraulic cylinder force calculator bore?The Hydraulic Cylinder Calculator is a free online tool that finds the extend force, speed, and cycle time for a hydraulic cylinder from its bore, rod, pressure, and flow. It shows the formula and a fully worked example so you can check the method, not just the number.
 How is it calculated?The result is computed from your inputs following ISO 4413:2010. The worked example on this page shows a real computation with real numbers.
 Is the calculator free?Yes. WorkHive is free: this worked example is open to everyone, and the interactive calculator runs inside the free Engineering Design suite after a free sign-up (your work is saved to your account). WorkHive is a free, offline-first maintenance platform built for Philippine industrial plants.
 Run it on your own numbers
@@ -31,6 +31,5 @@ Related calculators
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
 [Bearing Life (L10) Calculator](https://workhiveph.com/tools/bearing-life-calculator/)
 [Bolt Torque Calculator](https://workhiveph.com/tools/bolt-torque-calculator/)
-[Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/)
 
-<!-- md-twin source-sha: 4e128b25cf871d4c -->
+<!-- md-twin source-sha: fb20b5991be4db8e -->

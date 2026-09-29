@@ -60,6 +60,16 @@
        finish loading (title on row 1, the pill/button group on row 2). RESERVE the loaded 2-row
        height so that internal reflow never pushes the grid down (was the dominant 0.33 shift).
        Pre-paint the row layout too, so the async Tailwind CDN arriving late changes nothing. */
+    /* ★AND THE PHONE WAS LEFT TO THE FONT (design lens audit, 2026-09-15). The reserve below was given
+       to >=640px only. At 390 the two action controls share one 344px line in the FALLBACK font and need
+       two lines once Poppins arrives - measured, same text, 153->176 and 146->172 - so the row went 87 ->
+       139px at 359ms and pushed the whole grid down 52. A reserve is the wrong answer here: sized for
+       Poppins it leaves 52px of empty space whenever the fallback wins, which is every first visit on a
+       slow link, and that reader is who this page is for. A full row each is deterministic in either font
+       AND is the better phone target: 344px wide instead of 176. */
+    @media (max-width: 639px) {
+      #wh-logbook-header .stat-pill ~ .btn-secondary { flex: 1 1 100%; justify-content: center; }
+    }
     @media (min-width: 640px) {
       #wh-logbook-header { min-height: 116px; }
       #wh-logbook-header > div { display: flex; flex-direction: row; align-items: center; justify-content: space-between; gap: 1rem; }
@@ -105,7 +115,7 @@
        A border is not text and has no contrast obligation to meet, so only the glyph moves. */
     .step-dot {
       width:28px; height:28px; border-radius:50%; display:flex; align-items:center;
-      justify-content:center; font-size:0.72rem; font-weight:700; flex-shrink:0;
+      justify-content:center; font-size:0.75rem; font-weight:700; flex-shrink:0;
       transition:all 0.25s; background:rgba(255,255,255,0.06);
       border:2px solid rgba(255,255,255,0.15); color:rgba(255,255,255,0.80);
     }
@@ -113,7 +123,7 @@
     .step-dot.done    { background:rgba(247,162,27,0.15); border-color:rgba(247,162,27,0.5); color:var(--wh-orange-text); }
     .step-line        { flex:1; height:2px; background:rgba(255,255,255,0.08); margin:0 4px; }
     .step-line.done   { background:rgba(247,162,27,0.35); }
-    .step-label       { font-size:0.7rem; font-weight:600; color:rgba(255,255,255,0.80);
+    .step-label       { font-size:0.75rem; font-weight:600; color:rgba(255,255,255,0.80);
                          text-transform:uppercase; letter-spacing:0.06em; margin-bottom:1rem; }
     .step-panel       { display:none; }
     .step-panel.active{ display:block; }
@@ -133,7 +143,11 @@
       background:linear-gradient(135deg,var(--wh-orange),var(--wh-orange-light)); border:none;
       color:var(--wh-navy); min-height:44px;
     }
-    .step-nav .btn-next:hover { box-shadow:0 4px 16px rgba(247,162,27,0.35); transform:translateY(-1px); }
+    /* ★A COLOURED HALO IS NOT DEPTH (design lens slop, 2026-09-15): an amber glow on a dark page is the
+       detector's dark-glow and the craft floor's decoration-instead-of-depth. Same offset, same blur,
+       neutral - which is what a raised button actually casts. The amber focus ring below stays: a focus
+       indicator must be visible, and that is not decoration. */
+    .step-nav .btn-next:hover { box-shadow:0 4px 16px rgba(0,0,0,0.35); transform:translateY(-1px); }
     .extras-toggle {
       font-family:inherit; font-size:0.75rem; font-weight:600; width:100%;
       padding:0.6rem 1rem; border-radius:0.75rem; cursor:pointer; margin-top:0.5rem;
@@ -166,20 +180,20 @@
     }
     .consequence-icon { font-size: 1.1rem; line-height: 1; }
     .consequence-title { font-size: 0.75rem; font-weight: 700; color: inherit; }
-    .consequence-desc  { font-size: 0.62rem; color:rgba(255,255,255,0.80); font-weight: 400; }
+    .consequence-desc  { font-size: 0.75rem; color:rgba(255,255,255,0.80); font-weight: 400; }
     .consequence-btn.selected .consequence-desc { color: inherit; opacity: 0.7; }
 
     /* ── Root cause chips ── */
     .rc-chip {
       display: inline-flex; align-items: center; gap: 0.3rem;
       padding: 0.5rem 0.85rem; border-radius: 999px; cursor: pointer;
-      font-size: 0.7rem; font-weight: 600; min-height: 44px;
+      font-size: 0.75rem; font-weight: 600; min-height: 44px;
       background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12);
       color:rgba(255,255,255,0.80); transition: all 0.15s; user-select: none;
     }
     .rc-chip:active  { transform: scale(0.96); }
     .rc-chip.selected { background: rgba(247,162,27,0.15); border-color: rgba(247,162,27,0.4); color: var(--wh-orange); }
-    .rc-chip .chip-count { font-size: 0.6rem; opacity: 0.6; }
+    .rc-chip .chip-count { font-size: 0.75rem; opacity: 0.6; }
 
     .hex-pattern {
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='92' viewBox='0 0 80 92'%3E%3Cpath d='M40 0 L80 23 L80 69 L40 92 L0 69 L0 23 Z' fill='none' stroke='%23ffffff08' stroke-width='1.5'/%3E%3C/svg%3E");
@@ -251,7 +265,7 @@
       transition: opacity 0.2s, transform 0.1s;
       border: none;
     }
-    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(247,162,27,0.35); }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,0,0,0.35); }
     .btn-primary:active { opacity: 0.75; transform: scale(0.98); box-shadow: none; }
 
     .btn-secondary {
@@ -314,7 +328,7 @@
     /* Badge */
     .badge-category {
       display: inline-block;
-      font-size: 0.65rem;
+      font-size: 0.75rem;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.08em;
@@ -360,14 +374,23 @@
     .empty-state { opacity: 1; }
 
     /* Label */
+    /* ★THE LABELS ON THIS FORM ARE QUESTIONS, AND THEY WERE DRESSED AS BADGES (design lens slop,
+       2026-09-15). uppercase + 0.1em tracking on 12px text, applied to "Symptom / What was wrong?",
+       "Discipline / Category", "What did you do?" - strings of 25 to 34 characters. Uppercase removes the
+       word shapes a reader recognises and wide tracking pulls the letters apart, on the form that IS this
+       page, filled one-handed mid-shift by someone who came here to write down what broke. It is also both
+       detector findings at their source: all-caps-body counts uppercase runs past 30 characters and
+       wide-tracking counts 0.1em on body text. Weight and size carry a label perfectly well. */
     .wh-label {
       display: block;
-      font-size: 0.7rem;
+      font-size: 0.75rem;
       font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
+      letter-spacing: 0.01em;
       color:rgba(255,255,255,0.80);
-      margin-bottom: 0.4rem;
+      /* 0.4rem is 6.4px and was one of the five paddings still off the 4px grid after the rhythm pass
+         (design lens craft, 2026-09-15); 8px is the step above it, on a label that sits above every
+         field in the capture form. */
+      margin-bottom: 0.5rem;
     }
 
     /* Search highlight */
@@ -379,11 +402,15 @@
     }
 
     /* Stats bar */
+    /* ★ONE OFF-GRID VALUE, RENDERED SIX TIMES (design lens craft, 2026-09-15). 0.35rem is 5.6px, and
+       the stat row draws this pill six times, so a single wrong number was six of the twenty off-grid
+       paddings the walk counted. 8px is the grid step above it; a pill is a label, not a control, so
+       nothing about the 44px floor is involved. */
     .stat-pill {
       background: rgba(255,255,255,0.05);
       border: 1px solid rgba(255,255,255,0.08);
       border-radius: 999px;
-      padding: 0.35rem 0.9rem;
+      padding: 0.5rem 0.9rem;
       font-size: 0.75rem;
     }
 
@@ -411,7 +438,7 @@
       min-height: 44px;
       padding: 0.5rem;
       border-radius: 0.625rem;
-      font-size: 0.7rem;
+      font-size: 0.75rem;
       font-weight: 700;
       cursor: pointer;
       border: 1px solid rgba(255,255,255,0.1);
@@ -512,7 +539,7 @@
           <img src="brand_assets/workhive-logo-transparent.png" alt="WorkHive" class="h-8 w-auto" />
         </a>
         <div class="w-px h-4 bg-white/15"></div>
-        <span class="text-xs font-semibold text-white/80 uppercase tracking-widest truncate">Digital Logbook</span>
+        <span data-i="p_digitallogbook_ecf7" class="text-xs font-semibold text-white/80 uppercase tracking-widest truncate">Digital Logbook</span>
         <!-- T125/T51 (2026-08-25): the hive stamp. Screenshots of this page travel to Viber
              groups carrying ZERO identity — and a multi-hive contractor could not tell WHICH
              hive's logbook they were reading (pm-scheduler had the chip; this page did not).
@@ -538,10 +565,10 @@
       <div class="w-14 h-14 rounded-2xl mx-auto mb-5 flex items-center justify-center" style="background:rgba(247,162,27,0.12); border:1px solid rgba(247,162,27,0.2);">
         <span class="ic ic-community" aria-hidden="true"></span>
       </div>
-      <h2 class="font-black text-xl mb-2">Join a WorkHive First</h2>
-      <p class="text-sm mb-6" style="color:rgba(255,255,255,0.80);">The Logbook is a team tool. Create or join a Hive to start logging repairs with your team.</p>
-      <a href="hive.html" class="btn-primary block text-center mb-3" style="display:block; text-decoration:none; line-height:2.5;">Go to WorkHive Board</a>
-      <p class="text-xs" style="color:rgba(255,255,255,0.80);">You'll be brought back here once you're set up.</p>
+      <h2 data-i="p_joinaworkhivefirst_7998" class="font-black text-xl mb-2">Join a WorkHive First</h2>
+      <p data-i="p_thelogbookisateamtoolcreateo_8175" class="text-sm mb-6" style="color:rgba(255,255,255,0.80);">The Logbook is a team tool. Create or join a Hive to start logging repairs with your team.</p>
+      <a data-i="p_gotoworkhiveboard_4523" href="hive.html" class="btn-primary block text-center mb-3" style="display:block; text-decoration:none; line-height:2.5;">Go to WorkHive Board</a>
+      <p data-i="p_youllbebroughtbackhereonceyo_14d9" class="text-xs" style="color:rgba(255,255,255,0.80);">You'll be brought back here once you're set up.</p>
     </div>
   </div>
 
@@ -549,7 +576,11 @@
   <main class="relative z-10 max-w-6xl mx-auto px-5 sm:px-8 py-8">
 
     <!-- Header -->
-    <div id="wh-logbook-header" class="mb-8">
+    <!-- ★A HEADER LANDMARK, NOT A STYLED DIV (design lens audit, 2026-09-15): the probe read main, nav,
+         h1 and the skip link and found header:false at both viewports, so the block carrying the page
+         title, the three counts and the two actions had no landmark a screen-reader user could jump to.
+         Every rule that styles this is keyed on the id, so the tag changes and nothing else does. -->
+    <header id="wh-logbook-header" class="mb-8">
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 class="text-2xl sm:text-3xl font-black tracking-tight" data-i="pagetitle">Your Repair Logbook</h1>
@@ -579,7 +610,7 @@
           </a>
         </div>
       </div>
-    </div>
+    </header>
 
     <!-- I1 CLS: reserve the 2-col grid's desktop height so the async growers (entries list on
          the right, machine-history + pm-tasks panels on the left) fill WITHIN the reserved
@@ -605,21 +636,21 @@
             <div class="step-line" id="sline-2"></div>
             <div class="step-dot" id="sdot-3">3</div>
           </div>
-          <p class="step-label" id="step-label-text">Step 1: Asset & Type</p>
+          <p data-i="p_stepassettype_d340" class="step-label" id="step-label-text">Step 1: Asset & Type</p>
 
           <!-- T174 (2026-08-26): THE EXPLAINER, on the page that most needed one. 28 surfaces carry
                a "how this works" disclosure; the LOGBOOK - the most-used page on the platform and
                the first one a new worker touches - carried none, so the questions it answers here
                (what happens to my entry, who sees it, what Open vs Closed costs) had nowhere to be
                asked. Native <details> so it needs no script and prints closed. -->
-          <details class="wh-help" style="margin:0 0 14px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; padding:10px 14px;">
-            <summary style="cursor:pointer; min-height:44px; display:flex; align-items:center; font-size:0.74rem; font-weight:700; color:rgba(255,255,255,0.85);"><span data-i="howworks">How this page works</span></summary>
-            <ul style="margin:8px 0 0; padding-left:18px; font-size:0.74rem; line-height:1.55; color:rgba(255,255,255,0.8);">
-              <li><strong>Three steps</strong>: pick the asset and what kind of work it was, describe the problem and what you did, then save. Your typing is kept as you go, so an interruption does not lose it.</li>
-              <li><strong>Who sees it</strong>: entries are shared with your hive - your team and supervisor read them, and they feed PM compliance and the asset's history.</li>
-              <li><strong>Open vs Closed</strong>: Closed means the job is finished. Open leaves it on your open-jobs list and on the team board until someone closes it.</li>
-              <li><strong>Offline</strong>: if you lose signal mid-entry the save is held on this device and syncs when you reconnect - it tells you when that happens.</li>
-              <li><strong>Parts and photos</strong>: adding a part deducts it from Inventory; a photo can be read by the AI to draft the entry, which you can edit before saving.</li>
+          <details class="wh-help" style="margin:0 0 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; padding:10px 16px;">
+            <summary style="cursor:pointer; min-height:44px; display:flex; align-items:center; font-size:0.75rem; font-weight:700; color:rgba(255,255,255,0.85);"><span data-i="howworks">How this page works</span></summary>
+            <ul style="margin:8px 0 0; padding-left:18px; font-size:0.75rem; line-height:1.55; color:rgba(255,255,255,0.8);">
+              <li><strong data-i="p_threesteps_75c6">Three steps</strong>: <span data-i="p_picktheassetandwhatkindofwor_79ce">pick the asset and what kind of work it was, describe the problem and what you did, then save. Your typing is kept as you go, so an interruption does not lose it.</span></li>
+              <li><strong data-i="p_whoseesit_a9fa">Who sees it</strong>: <span data-i="p_entriesaresharedwithyourhive_0252">entries are shared with your hive - your team and supervisor read them, and they feed PM compliance and the asset's history.</span></li>
+              <li><strong data-i="p_openvsclosed_6fca">Open vs Closed</strong>: <span data-i="p_closedmeansthejobisfinishedo_fe48">Closed means the job is finished. Open leaves it on your open-jobs list and on the team board until someone closes it.</span></li>
+              <li><strong data-i="p_offline_e01f">Offline</strong>: <span data-i="p_ifyoulosesignalmidentrythesa_31b7">if you lose signal mid-entry the save is held on this device and syncs when you reconnect - it tells you when that happens.</span></li>
+              <li><strong data-i="p_partsandphotos_b9e3">Parts and photos</strong>: <span data-i="p_addingapartdeductsitfrominve_09a5">adding a part deducts it from Inventory; a photo can be read by the AI to draft the entry, which you can edit before saving.</span></li>
             </ul>
           </details>
 
@@ -629,10 +660,17 @@
             <div id="edit-mode-banner" class="hidden mb-4 rounded-xl px-4 py-3 flex items-center gap-3" style="background:rgba(247,162,27,0.12);border:2px solid rgba(247,162,27,0.5);">
               <span class="ic ic-edit" aria-hidden="true"></span>
               <div class="flex-1 min-w-0">
-                <p class="text-[11px] font-bold uppercase tracking-widest" style="color:var(--wh-orange-text);">✏ Editing existing entry, not logging a new one</p>
+                <!-- ★THE MOST IMPORTANT SENTENCE IN THIS STATE, IN THE HARDEST TREATMENT (design lens slop,
+                     2026-09-15). 47 characters of uppercase at tracking-widest - the last all-caps-body the
+                     detector counts - on the line whose whole job is to stop a technician creating a
+                     duplicate entry. And it opened with a pencil EMOJI standing in for an icon, two
+                     centimetres from the real .ic-edit icon on the line above it: the craft floor bans a
+                     glyph doing an icon's job, and here it was doing it twice over. Sentence case, the
+                     weight and the amber token keeping the emphasis, one icon. -->
+                <p data-i="p_editinganexistingentrynotlog_5f65" class="text-xs font-bold" style="color:var(--wh-orange-text);letter-spacing:0.01em;">Editing an existing entry, not logging a new one</p>
                 <p id="edit-mode-machine" class="text-sm font-semibold text-white/80 truncate mt-0.5"></p>
               </div>
-              <button type="button" onclick="cancelEditMode()" style="min-height:44px;padding:0.5rem 1rem;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.4);border-radius:0.625rem;color:var(--wh-red);font-size:0.75rem;font-weight:700;cursor:pointer;">✕ Cancel Edit</button>
+              <button data-i="p_canceledit_0f6f" type="button" onclick="cancelEditMode()" style="min-height:44px;padding:0.5rem 1rem;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.4);border-radius:0.625rem;color:var(--wh-red);font-size:0.75rem;font-weight:700;cursor:pointer;">✕ Cancel Edit</button>
             </div>
 
             <!-- ── STEP 1: Machine + Type + Status ── -->
@@ -642,18 +680,18 @@
                    describe it once (voice) or snap a photo and AI fills the whole entry. The
                    manual wizard below stays as the fallback (Arc-K drive uses it). -->
               <div style="display:flex; align-items:center; gap:8px; margin-bottom:2px;">
-                <span style="font-size:.78rem; font-weight:800; color:var(--wh-violet-text); letter-spacing:.02em;">Fastest: let AI fill it</span>
+                <span data-i="p_fastestletaifillit_01c9" style="font-size:.78rem; font-weight:800; color:var(--wh-violet-text); letter-spacing:.02em;">Fastest: let AI fill it</span>
                 <span style="flex:1; height:1px; background:rgba(255,255,255,0.08);"></span>
               </div>
 
               <!-- Voice-First Smart Fill (Phase 2.2) -->
-              <div id="voice-fill-card" style="background:linear-gradient(135deg,rgba(167,139,250,0.08),rgba(41,182,217,0.05)); border:1px solid rgba(167,139,250,0.25); border-radius:12px; padding:14px 16px; margin-bottom:4px;">
+              <div id="voice-fill-card" style="background:linear-gradient(135deg,rgba(167,139,250,0.08),rgba(41,182,217,0.05)); border:1px solid rgba(167,139,250,0.25); border-radius:12px; padding:16px; margin-bottom:4px;">
                 <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;">
                   <div>
-                    <p style="font-size:.82rem; font-weight:700; color:rgba(255,255,255,0.9);">Speak to fill</p>
-                    <p style="font-size:.7rem; color:rgba(255,255,255,0.80); margin-top:2px;">Describe the situation once: AI fills machine, problem, action, type, and more.</p>
+                    <p data-i="p_speaktofill_6bcf" style="font-size:.82rem; font-weight:700; color:rgba(255,255,255,0.9);">Speak to fill</p>
+                    <p data-i="p_describethesituationonceaifi_417a" style="font-size:0.75rem; color:rgba(255,255,255,0.80); margin-top:2px;">Describe the situation once: AI fills machine, problem, action, type, and more.</p>
                   </div>
-                  <button type="button" id="voice-fill-btn" onclick="startSmartVoice()" style="padding:10px 16px; min-height:44px; background:rgba(167,139,250,0.15); color:var(--wh-violet-text); border:1px solid rgba(167,139,250,0.4); border-radius:var(--wh-radius-sm); font-family:inherit; font-size:.82rem; font-weight:700; cursor:pointer; white-space:nowrap; display:flex; align-items:center; gap:6px;">
+                  <button type="button" id="voice-fill-btn" onclick="startSmartVoice()" style="padding:12px 16px; min-height:44px; background:rgba(167,139,250,0.15); color:var(--wh-violet-text); border:1px solid rgba(167,139,250,0.4); border-radius:var(--wh-radius-sm); font-family:inherit; font-size:.82rem; font-weight:700; cursor:pointer; white-space:nowrap; display:flex; align-items:center; gap:6px;">
                     <span class="ic ic-voice" aria-hidden="true"></span>
                     <span data-i="speak">Speak</span>
                   </button>
@@ -667,20 +705,20 @@
                 </div>
                 <!-- Processing state -->
                 <div id="vf-processing" style="display:none; margin-top:10px; font-size:.75rem; color:rgba(255,255,255,0.80);">
-                  <span>AI is structuring your work order...</span>
+                  <span data-i="p_aiisstructuringyourworkorder_4dfb">AI is structuring your work order...</span>
                 </div>
                 <!-- Result preview -->
                 <div id="vf-result" style="display:none; margin-top:10px; font-size:.75rem; border-top:1px solid rgba(255,255,255,0.06); padding-top:10px;"></div>
               </div>
 
               <!-- Photo Defect Capture (Wave A2) - multimodal classify -->
-              <div id="vdc-card" style="background:linear-gradient(135deg,rgba(74,222,128,0.08),rgba(247,162,27,0.05)); border:1px solid rgba(74,222,128,0.25); border-radius:12px; padding:14px 16px; margin-bottom:4px;">
+              <div id="vdc-card" style="background:linear-gradient(135deg,rgba(74,222,128,0.08),rgba(247,162,27,0.05)); border:1px solid rgba(74,222,128,0.25); border-radius:12px; padding:16px; margin-bottom:4px;">
                 <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;">
                   <div>
-                    <p style="font-size:.82rem; font-weight:700; color:rgba(255,255,255,0.9);">Photo defect capture</p>
-                    <p style="font-size:.7rem; color:rgba(255,255,255,0.80); margin-top:2px;">Snap a photo of the defect (rust, leak, crack, burn). AI drafts the entry from the image.</p>
+                    <p data-i="p_photodefectcapture_20b7" style="font-size:.82rem; font-weight:700; color:rgba(255,255,255,0.9);">Photo defect capture</p>
+                    <p data-i="p_snapaphotoofthedefectrustlea_5dc1" style="font-size:0.75rem; color:rgba(255,255,255,0.80); margin-top:2px;">Snap a photo of the defect (rust, leak, crack, burn). AI drafts the entry from the image.</p>
                   </div>
-                  <button id="vdc-capture-btn" type="button" style="padding:10px 16px; min-height:44px; background:rgba(74,222,128,0.15); color:var(--wh-green); border:1px solid rgba(74,222,128,0.4); border-radius:var(--wh-radius-sm); font-family:inherit; font-size:.82rem; font-weight:700; cursor:pointer; white-space:nowrap; display:flex; align-items:center; gap:6px;">
+                  <button id="vdc-capture-btn" type="button" style="padding:12px 16px; min-height:44px; background:rgba(74,222,128,0.15); color:var(--wh-green); border:1px solid rgba(74,222,128,0.4); border-radius:var(--wh-radius-sm); font-family:inherit; font-size:.82rem; font-weight:700; cursor:pointer; white-space:nowrap; display:flex; align-items:center; gap:6px;">
                     <span class="ic ic-image" aria-hidden="true"></span>
                     <span data-i="capture">Capture</span>
                   </button>
@@ -689,29 +727,29 @@
                 <div id="vdc-preview" style="display:none; margin-top:10px;">
                   <img id="vdc-preview-img" alt="Captured defect preview" style="max-width:100%; max-height:220px; border-radius:8px; border:1px solid rgba(255,255,255,0.08);" />
                   <div style="display:flex; gap:8px; margin-top:8px; flex-wrap:wrap;">
-                    <button id="vdc-analyze-btn" type="button" style="flex:1; min-width:120px; min-height:44px; padding:8px 14px; background:rgba(74,222,128,0.18); color:var(--wh-green); border:1px solid rgba(74,222,128,0.4); border-radius:8px; font-family:inherit; font-size:.78rem; font-weight:700; cursor:pointer;">Analyze with AI</button>
-                    <button id="vdc-retake-btn" type="button" style="min-height:44px; padding:8px 14px; background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.80); border:1px solid rgba(255,255,255,0.08); border-radius:8px; font-family:inherit; font-size:.78rem; font-weight:700; cursor:pointer;">Retake</button>
+                    <button data-i="p_analyzewithai_8c55" id="vdc-analyze-btn" type="button" style="flex:1; min-width:120px; min-height:44px; padding:8px 16px; background:rgba(74,222,128,0.18); color:var(--wh-green); border:1px solid rgba(74,222,128,0.4); border-radius:8px; font-family:inherit; font-size:.78rem; font-weight:700; cursor:pointer;">Analyze with AI</button>
+                    <button data-i="p_retake_1645" id="vdc-retake-btn" type="button" style="min-height:44px; padding:8px 16px; background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.80); border:1px solid rgba(255,255,255,0.08); border-radius:8px; font-family:inherit; font-size:.78rem; font-weight:700; cursor:pointer;">Retake</button>
                   </div>
                 </div>
                 <div id="vdc-processing" style="display:none; margin-top:10px; font-size:.75rem; color:rgba(255,255,255,0.80);">
-                  <span>AI is analyzing the photo...</span>
+                  <span data-i="p_aiisanalyzingthephoto_dbb3">AI is analyzing the photo...</span>
                 </div>
                 <div id="vdc-result" style="display:none; margin-top:10px; font-size:.75rem; border-top:1px solid rgba(255,255,255,0.06); padding-top:10px;"></div>
-                <div id="vdc-status" style="display:none; margin-top:6px; font-size:.7rem; color:rgba(255,255,255,0.80);"></div>
+                <div id="vdc-status" style="display:none; margin-top:6px; font-size:0.75rem; color:rgba(255,255,255,0.80);"></div>
               </div>
 
               <!-- Arc V (EFFORTLESS): the manual wizard is the fallback path, framed below the AI-fill primary. -->
               <div style="display:flex; align-items:center; gap:8px; margin:6px 0 2px;">
                 <span style="flex:1; height:1px; background:rgba(255,255,255,0.06);"></span>
-                <span style="font-size:.72rem; font-weight:700; color:rgba(255,255,255,0.80);">or fill in manually</span>
+                <span data-i="p_orfillinmanually_e14d" style="font-size:0.75rem; font-weight:700; color:rgba(255,255,255,0.80);">or fill in manually</span>
                 <span style="flex:1; height:1px; background:rgba(255,255,255,0.06);"></span>
               </div>
 
               <div>
-                <label class="wh-label"><span data-i="machineequip">Asset</span> <span style="color:var(--wh-red);font-size:0.625rem;font-weight:600;text-transform:none;">required</span></label>
+                <label class="wh-label"><span data-i="machineequip">Asset</span> <span style="color:var(--wh-red-text);font-size:0.75rem;font-weight:600;text-transform:none;">required</span></label>
                 <div style="display:flex; gap:8px; align-items:stretch;">
                   <button type="button" id="asset-picker-btn" class="wh-input text-left flex items-center justify-between gap-2" style="cursor:pointer; min-height:44px; flex:1;">
-                    <span id="asset-picker-label" class="truncate flex-1 text-sm" style="color:rgba(255,255,255,0.80);">Select or search asset...</span>
+                    <span data-i="p_selectorsearchasset_1a58" id="asset-picker-label" class="truncate flex-1 text-sm" style="color:rgba(255,255,255,0.80);">Select or search asset...</span>
                     <span class="ic ic-caret" aria-hidden="true"></span>
                   </button>
                   <!-- Phase E.3d: Scan to find/select an asset by physical tag -->
@@ -727,8 +765,8 @@
               <div id="machine-history-wrap" style="display:none;">
                 <!-- FI1 canonical disclosure; blue tint kept as the machine-sync context variant -->
                 <details id="machine-history-details" class="wh-disclose" style="background:rgba(41,182,217,0.06); border-color:rgba(41,182,217,0.2);">
-                  <summary style="padding:10px 14px; cursor:pointer; font-size:0.75rem; font-weight:700; color:var(--wh-blue-light); list-style:none; display:flex; align-items:center; justify-content:space-between; user-select:none;">
-                    <span id="machine-history-title">Past repairs on this machine</span>
+                  <summary style="padding:12px 16px; cursor:pointer; font-size:0.75rem; font-weight:700; color:var(--wh-blue-light); list-style:none; display:flex; align-items:center; justify-content:space-between; user-select:none;">
+                    <span data-i="p_pastrepairsonthismachine_b0ae" id="machine-history-title">Past repairs on this machine</span>
                     <span class="ic ic-caret" aria-hidden="true"></span>
                   </summary>
                   <div id="machine-history-content" style="padding:0 12px 12px; font-size:0.75rem; max-height:280px; overflow-y:auto;"></div>
@@ -752,70 +790,70 @@
                 <!-- The capture contract (logbook_add_entry_v1) requires maintenance_type, so the
                      label must say so — this was the one step-2 required field with no chip and no
                      boundary check, so workers met it as a save-time refusal in column-name speak. -->
-                <label for="f-maint-type" class="wh-label">Maintenance Type <span style="color:var(--wh-red);font-size:0.625rem;font-weight:600;text-transform:none;">required</span></label>
+                <label for="f-maint-type" class="wh-label">Maintenance Type <span style="color:var(--wh-red-text);font-size:0.75rem;font-weight:600;text-transform:none;">required</span></label>
                 <select id="f-maint-type" class="wh-input">
-                  <option value="">Select type...</option>
-                  <option value="Breakdown / Corrective">Breakdown / Corrective</option>
-                  <option value="Preventive Maintenance">Preventive Maintenance</option>
-                  <option value="Inspection">Inspection</option>
-                  <option value="Project Work">Project Work</option>
+                  <option data-i="p_selecttype_fd19" value="">Select type...</option>
+                  <option data-i="p_breakdowncorrective_1e5d" value="Breakdown / Corrective">Breakdown / Corrective</option>
+                  <option data-i="p_preventivemaintenance_6dc3" value="Preventive Maintenance">Preventive Maintenance</option>
+                  <option data-i="p_inspection_d3ce" value="Inspection">Inspection</option>
+                  <option data-i="p_projectwork_3fa7" value="Project Work">Project Work</option>
                 </select>
               </div>
 
               <div>
-                <span class="wh-label" id="status-grouplabel">Status</span>
+                <span data-i="p_status_bae7" class="wh-label" id="status-grouplabel">Status</span>
                 <div class="status-toggle" role="radiogroup" aria-labelledby="status-grouplabel">
                   <input type="radio" name="f-status" id="st-open" value="Open" checked />
-                  <label for="st-open">Open</label>
+                  <label data-i="p_open_cf9b" for="st-open">Open</label>
                   <input type="radio" name="f-status" id="st-closed" value="Closed" />
-                  <label for="st-closed">Closed</label>
+                  <label data-i="p_closed_88d8" for="st-closed">Closed</label>
                 </div>
               </div>
 
               <!-- Phase E.4: Work Order workflow state (opt-in; legacy NULL = use Status only) -->
               <div id="wo-state-wrap">
-                <label for="f-wo-state" class="wh-label">Workflow State <span style="color:rgba(255,255,255,0.80);font-size:0.625rem;font-weight:600;text-transform:none;">optional</span></label>
+                <label for="f-wo-state" class="wh-label">Workflow State <span style="color:rgba(255,255,255,0.80);font-size:0.75rem;font-weight:600;text-transform:none;">optional</span></label>
                 <select id="f-wo-state" class="wh-input">
-                  <option value="">None (use Status only)</option>
-                  <option value="requested">Requested</option>
-                  <option value="approved">Approved</option>
-                  <option value="assigned">Assigned</option>
-                  <option value="in_progress">In Progress</option>
-                  <option value="completed">Completed</option>
-                  <option value="verified">Verified</option>
-                  <option value="rejected">Rejected</option>
+                  <option data-i="p_noneusestatusonly_d047" value="">None (use Status only)</option>
+                  <option data-i="p_requested_c26b" value="requested">Requested</option>
+                  <option data-i="p_approved_41b8" value="approved">Approved</option>
+                  <option data-i="p_assigned_e24e" value="assigned">Assigned</option>
+                  <option data-i="p_inprogress_f61e" value="in_progress">In Progress</option>
+                  <option data-i="p_completed_1798" value="completed">Completed</option>
+                  <option data-i="p_verified_aed3" value="verified">Verified</option>
+                  <option data-i="p_rejected_27ee" value="rejected">Rejected</option>
                 </select>
-                <p id="f-wo-hint" style="font-size:0.65rem;color:rgba(255,255,255,0.80);margin-top:4px;line-height:1.4;">
+                <p data-i="p_optionalstateworkflowrequest_8c56" id="f-wo-hint" style="font-size:0.75rem;color:rgba(255,255,255,0.80);margin-top:4px;line-height:1.4;">
                   Optional 7-state workflow: requested → approved → assigned → in progress → completed → verified. Workers move their own assigned items forward; supervisors approve, assign, and verify.
                 </p>
               </div>
 
               <!-- Assigned-to (only meaningful when wo_state is approved/assigned/in_progress) -->
               <div id="wo-assigned-wrap" style="display:none;">
-                <label for="f-wo-assigned-to" class="wh-label">Assigned To</label>
+                <label data-i="p_assignedto_d00c" for="f-wo-assigned-to" class="wh-label">Assigned To</label>
                 <input id="f-wo-assigned-to" type="text" class="wh-input" placeholder="Your name" autocomplete="off" />
               </div>
 
               <div>
-                <label for="f-category" class="wh-label">Discipline / Category <span style="color:var(--wh-red);font-size:0.625rem;font-weight:600;text-transform:none;">required</span></label>
+                <label for="f-category" class="wh-label">Discipline / Category <span style="color:var(--wh-red-text);font-size:0.75rem;font-weight:600;text-transform:none;">required</span></label>
                 <select id="f-category" class="wh-input">
-                  <option value="">Select category...</option>
-                  <option value="Mechanical">Mechanical</option>
-                  <option value="Electrical">Electrical</option>
-                  <option value="Hydraulic">Hydraulic</option>
-                  <option value="Pneumatic">Pneumatic</option>
-                  <option value="Instrumentation">Instrumentation</option>
-                  <option value="Lubrication">Lubrication</option>
+                  <option data-i="p_selectcategory_7068" value="">Select category...</option>
+                  <option data-i="p_mechanical_0f2d" value="Mechanical">Mechanical</option>
+                  <option data-i="p_electrical_16ec" value="Electrical">Electrical</option>
+                  <option data-i="p_hydraulic_6cd6" value="Hydraulic">Hydraulic</option>
+                  <option data-i="p_pneumatic_ad98" value="Pneumatic">Pneumatic</option>
+                  <option data-i="p_instrumentation_cb49" value="Instrumentation">Instrumentation</option>
+                  <option data-i="p_lubrication_f2da" value="Lubrication">Lubrication</option>
                   <!-- VEHICLE SEED (2026-09-02): unlocks the Vehicle reading templates
                        (odometer_km / fuel_l) — an odometer entry here rolls the vehicle's
                        meter forward (trg_roll_vehicle_odometer) and moves every km-based PM. -->
-                  <option value="Vehicle">Vehicle</option>
-                  <option value="Other">Other</option>
+                  <option data-i="p_vehicle_9bb2" value="Vehicle">Vehicle</option>
+                  <option data-i="p_other_6e6a" value="Other">Other</option>
                 </select>
               </div>
 
               <div>
-                <label for="f-problem" class="wh-label">Symptom / What was wrong? <span style="color:var(--wh-red);font-size:0.625rem;font-weight:600;text-transform:none;">required</span></label>
+                <label for="f-problem" class="wh-label">Symptom / What was wrong? <span style="color:var(--wh-red-text);font-size:0.75rem;font-weight:600;text-transform:none;">required</span></label>
                 <div class="relative">
                   <textarea id="f-problem" maxlength="2000" class="wh-input pr-10" rows="3" placeholder="Describe what you observed: noise, leak, trip, error code..."></textarea>
                   <button type="button" id="voice-problem" title="Voice input"
@@ -827,32 +865,32 @@
               </div>
 
               <div>
-                <label for="f-root-cause" class="wh-label">Root Cause</label>
+                <label data-i="p_rootcause_fec7" for="f-root-cause" class="wh-label">Root Cause</label>
                 <!-- History chips — populated when a machine is selected -->
                 <div id="root-cause-chips" class="hidden mb-2">
-                  <p class="text-[10px] text-white/80 mb-1.5 font-semibold uppercase tracking-widest">Common for this machine</p>
+                  <p data-i="p_commonforthismachine_418a" class="text-xs text-white/80 mb-1.5 font-semibold uppercase tracking-widest">Common for this machine</p>
                   <div id="root-cause-chip-list" class="flex flex-wrap gap-1.5"></div>
                 </div>
                 <select id="f-root-cause" class="wh-input">
-                  <option value="">Select root cause...</option>
-                  <option value="Misalignment">Misalignment</option>
-                  <option value="Contamination / Dirt">Contamination / Dirt</option>
-                  <option value="Wear">Wear</option>
-                  <option value="Overload">Overload</option>
-                  <option value="Corrosion">Corrosion</option>
-                  <option value="Lubrication Failure">Lubrication Failure</option>
-                  <option value="Electrical Fault">Electrical Fault</option>
-                  <option value="Mechanical Damage">Mechanical Damage</option>
-                  <option value="Vibration / Fatigue">Vibration / Fatigue</option>
-                  <option value="Human Error">Human Error</option>
-                  <option value="Design Issue">Design Issue</option>
-                  <option value="Unknown">Unknown</option>
+                  <option data-i="p_selectrootcause_c73a" value="">Select root cause...</option>
+                  <option data-i="p_misalignment_2555" value="Misalignment">Misalignment</option>
+                  <option data-i="p_contaminationdirt_ce88" value="Contamination / Dirt">Contamination / Dirt</option>
+                  <option data-i="p_wear_9443" value="Wear">Wear</option>
+                  <option data-i="p_overload_956d" value="Overload">Overload</option>
+                  <option data-i="p_corrosion_408d" value="Corrosion">Corrosion</option>
+                  <option data-i="p_lubricationfailure_17ce" value="Lubrication Failure">Lubrication Failure</option>
+                  <option data-i="p_electricalfault_d695" value="Electrical Fault">Electrical Fault</option>
+                  <option data-i="p_mechanicaldamage_54f1" value="Mechanical Damage">Mechanical Damage</option>
+                  <option data-i="p_vibrationfatigue_4542" value="Vibration / Fatigue">Vibration / Fatigue</option>
+                  <option data-i="p_humanerror_8547" value="Human Error">Human Error</option>
+                  <option data-i="p_designissue_5eaa" value="Design Issue">Design Issue</option>
+                  <option data-i="p_unknown_bc78" value="Unknown">Unknown</option>
                 </select>
               </div>
 
               <div class="step-nav">
                 <button type="button" class="btn-back" onclick="stepGo(1)" data-i="back">← Back</button>
-                <button type="button" class="btn-next" onclick="stepGo(3)">What did you do? →</button>
+                <button data-i="p_whatdidyoudo_cb99" type="button" class="btn-next" onclick="stepGo(3)">What did you do? →</button>
               </div>
             </div>
 
@@ -860,7 +898,7 @@
             <div class="step-panel space-y-4" id="step-panel-3">
 
               <div>
-                <label for="f-action" class="wh-label">What did you do?</label>
+                <label data-i="p_whatdidyoudo_3414" for="f-action" class="wh-label">What did you do?</label>
                 <div class="relative">
                   <textarea id="f-action" maxlength="2000" class="wh-input pr-10" rows="4" placeholder="Steps taken, parts replaced, settings changed..."></textarea>
                   <button type="button" id="voice-action" title="Voice input"
@@ -878,12 +916,12 @@
                      multi-step form where the difference between going back and saving is the whole
                      of the user's work. -->
                 <button type="button" class="btn-back" onclick="stepGo(2)" aria-label="Back to step 2">←</button>
-                <button type="submit" id="save-entry-btn" class="btn-primary flex-1">Save Entry</button>
+                <button data-i="p_saveentry_ffb5" type="submit" id="save-entry-btn" class="btn-primary flex-1">Save Entry</button>
               </div>
 
               <button type="button" class="extras-toggle" id="extras-toggle-btn" onclick="toggleExtras()">
                 <span class="ic ic-add" aria-hidden="true"></span>
-                <span id="extras-toggle-label">Add details: parts, photo, lesson learned</span>
+                <span data-i="p_adddetailspartsphotolessonle_b7be" id="extras-toggle-label">Add details: parts, photo, lesson learned</span>
               </button>
 
               <!-- ── EXTRAS DRAWER (optional) ── -->
@@ -891,27 +929,27 @@
 
                 <!-- Failure consequence — Breakdown entries only (SAE JA1011 §5.4) -->
                 <div id="consequence-section" class="hidden">
-                  <label class="wh-label">What was the impact? <span id="consequence-required-badge" class="hidden" style="color:var(--wh-red-text);font-size:0.65rem;font-weight:700;margin-left:0.25rem;">required for Breakdown</span></label>
+                  <label class="wh-label">What was the impact? <span data-i="p_requiredforbreakdown_84ed" id="consequence-required-badge" class="hidden" style="color:var(--wh-red-text);font-size:0.75rem;font-weight:700;margin-left:0.25rem;">required for Breakdown</span></label>
                   <div class="grid grid-cols-2 gap-2">
                     <button type="button" class="consequence-btn" data-value="Hidden" onclick="selectConsequence(this)">
                       <span class="consequence-icon">👁</span>
-                      <span class="consequence-title">Hidden</span>
-                      <span class="consequence-desc">No one noticed until checked</span>
+                      <span data-i="p_hidden_d4c2" class="consequence-title">Hidden</span>
+                      <span data-i="p_noonenoticeduntilchecked_e0eb" class="consequence-desc">No one noticed until checked</span>
                     </button>
                     <button type="button" class="consequence-btn" data-value="Running reduced" onclick="selectConsequence(this)">
                       <span class="consequence-icon">⚠️</span>
-                      <span class="consequence-title">Running reduced</span>
-                      <span class="consequence-desc">Still working, less output</span>
+                      <span data-i="p_runningreduced_02d8" class="consequence-title">Running reduced</span>
+                      <span data-i="p_stillworkinglessoutput_bfef" class="consequence-desc">Still working, less output</span>
                     </button>
                     <button type="button" class="consequence-btn" data-value="Safety risk" onclick="selectConsequence(this)">
                       <span class="consequence-icon">🚨</span>
-                      <span class="consequence-title">Safety risk</span>
-                      <span class="consequence-desc">Risk to people or environment</span>
+                      <span data-i="p_safetyrisk_2698" class="consequence-title">Safety risk</span>
+                      <span data-i="p_risktopeopleorenvironment_0db9" class="consequence-desc">Risk to people or environment</span>
                     </button>
                     <button type="button" class="consequence-btn" data-value="Stopped production" onclick="selectConsequence(this)">
                       <span class="consequence-icon">🛑</span>
-                      <span class="consequence-title">Stopped production</span>
-                      <span class="consequence-desc">Machine or line down</span>
+                      <span data-i="p_stoppedproduction_9ce9" class="consequence-title">Stopped production</span>
+                      <span data-i="p_machineorlinedown_6cf4" class="consequence-desc">Machine or line down</span>
                     </button>
                   </div>
                   <input type="hidden" id="f-consequence" />
@@ -923,14 +961,14 @@
                 <div id="loto-section" class="hidden">
                   <label class="wh-label flex items-center gap-1.5">
                     Safety Isolation
-                    <span style="font-size:0.6rem;color:rgba(255,255,255,0.80);font-weight:500;text-transform:none;letter-spacing:0;">energy locked/tagged out for this job</span>
+                    <span data-i="p_energylockedtaggedoutforthis_256e" style="font-size:0.75rem;color:rgba(255,255,255,0.80);font-weight:500;text-transform:none;letter-spacing:0;">energy locked/tagged out for this job</span>
                   </label>
                   <label for="f-loto" class="flex items-center gap-2 cursor-pointer" style="min-height:44px;">
                     <input type="checkbox" id="f-loto" class="w-5 h-5" onchange="toggleLotoPermit()" aria-label="LOTO or Permit-to-Work applied" />
-                    <span class="text-sm text-white/85">🔒 LOTO / Permit-to-Work applied</span>
+                    <span data-i="p_lotopermittoworkapplied_7e7d" class="text-sm text-white/85">🔒 LOTO / Permit-to-Work applied</span>
                   </label>
                   <div id="f-permit-ref-wrap" class="hidden mt-2">
-                    <label for="f-permit-ref" class="text-xs text-white/85" style="display:block;margin-bottom:4px;">Permit-to-Work reference number (optional)</label>
+                    <label data-i="p_permittoworkreferencenumbero_9945" for="f-permit-ref" class="text-xs text-white/85" style="display:block;margin-bottom:4px;">Permit-to-Work reference number (optional)</label>
                     <input type="text" id="f-permit-ref" class="wh-input" maxlength="120"
                            placeholder="e.g. PTW-2026-0431" style="font-size:1rem;padding:0.6rem 0.75rem;" />
                   </div>
@@ -940,7 +978,7 @@
                 <div id="readings-section" class="hidden">
                   <label class="wh-label flex items-center gap-1.5">
                     Quick Readings
-                    <span style="font-size:0.6rem;color:rgba(255,255,255,0.80);font-weight:500;text-transform:none;letter-spacing:0;">optional: unlocks anomaly detection</span>
+                    <span data-i="p_optionalunlocksanomalydetect_fdb9" style="font-size:0.75rem;color:rgba(255,255,255,0.80);font-weight:500;text-transform:none;letter-spacing:0;">optional: unlocks anomaly detection</span>
                   </label>
                   <div id="readings-fields" class="grid grid-cols-2 gap-2"></div>
                 </div>
@@ -948,7 +986,7 @@
                 <div>
                   <label for="f-knowledge" class="wh-label flex items-center gap-1.5">
                     What should the next person know?
-                    <span class="text-orange-wh text-[10px] font-bold bg-orange-wh/10 px-1.5 py-0.5 rounded-full">Most Valuable</span>
+                    <span data-i="p_mostvaluable_af50" class="text-orange-wh text-xs font-bold bg-orange-wh/10 px-1.5 py-0.5 rounded-full">Most Valuable</span>
                   </label>
                   <div class="relative">
                     <textarea aria-label="Tips, gotchas, torque specs, watch-outs..." id="f-knowledge" maxlength="2000" class="wh-input pr-10" rows="3" placeholder="Tips, gotchas, torque specs, watch-outs..."></textarea>
@@ -961,7 +999,7 @@
                 </div>
 
                 <div>
-                  <label for="f-downtime" class="wh-label">Downtime Hours <span class="text-white/80 font-normal normal-case">(optional)</span></label>
+                  <label for="f-downtime" class="wh-label">Downtime Hours <span data-i="p_optional_b16c" class="text-white/80 font-normal normal-case">(optional)</span></label>
                   <input aria-label="e.g. 2.5: how long was the asset offline?" id="f-downtime" type="number" min="0" step="0.5" class="wh-input" placeholder="e.g. 2.5: how long was the asset offline?" />
                 </div>
 
@@ -969,17 +1007,17 @@
                 <div id="production-section" class="hidden">
                   <label for="f-good-units" class="wh-label flex items-center gap-1.5">
                     Production this shift
-                    <span style="font-size:0.6rem;color:rgba(255,255,255,0.80);font-weight:500;text-transform:none;letter-spacing:0;">optional: unlocks OEE</span>
+                    <span data-i="p_optionalunlocksoee_e8ac" style="font-size:0.75rem;color:rgba(255,255,255,0.80);font-weight:500;text-transform:none;letter-spacing:0;">optional: unlocks OEE</span>
                   </label>
                   <div class="grid grid-cols-2 gap-2">
                     <div>
-                      <label for="f-good-units" class="block text-[10px] text-white/80 font-semibold mb-1">Good units produced</label>
+                      <label data-i="p_goodunitsproduced_a147" for="f-good-units" class="block text-xs text-white/80 font-semibold mb-1">Good units produced</label>
                       <input type="number" id="f-good-units" min="0" step="1" class="wh-input"
                              placeholder="e.g. 1850" style="padding:0.6rem 0.75rem;font-size:0.875rem;"
                              oninput="updateQualityPct()" />
                     </div>
                     <div>
-                      <label for="f-total-units" class="block text-[10px] text-white/80 font-semibold mb-1">Total units attempted</label>
+                      <label data-i="p_totalunitsattempted_5e81" for="f-total-units" class="block text-xs text-white/80 font-semibold mb-1">Total units attempted</label>
                       <input type="number" id="f-total-units" min="0" step="1" class="wh-input"
                              placeholder="e.g. 2000" style="padding:0.6rem 0.75rem;font-size:0.875rem;"
                              oninput="updateQualityPct()" />
@@ -987,29 +1025,37 @@
                   </div>
                   <div id="quality-pct-display" class="hidden mt-2 text-center py-1.5 rounded-lg"
                        style="background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.2);">
-                    <span style="font-size:0.72rem;color:rgba(255,255,255,0.80);">OEE Quality: </span>
+                    <span data-i="p_oeequality_b7b1" style="font-size:0.75rem;color:rgba(255,255,255,0.80);">OEE Quality: </span>
                     <span id="quality-pct-value" style="font-size:0.9rem;font-weight:800;color:var(--wh-green);"></span>
                   </div>
                 </div>
 
                 <div>
-                  <label for="f-photo" class="wh-label">Attach Photo (optional)</label>
+                  <label data-i="p_attachphotooptional_1f1f" for="f-photo" class="wh-label">Attach Photo (optional)</label>
                   <input id="f-photo" type="file" accept="image/*" class="hidden" />
                   <label id="photo-dropzone" for="f-photo"
                     class="flex items-center gap-3 cursor-pointer rounded-xl px-4 py-3 border border-dashed border-white/15 hover:border-white/30 transition-colors"
                     style="background: rgba(255,255,255,0.03);">
                     <span class="ic ic-image" aria-hidden="true"></span>
-                    <span class="text-xs text-white/80">Tap to attach photo</span>
+                    <span data-i="p_taptoattachphoto_7dd7" class="text-xs text-white/80">Tap to attach photo</span>
                   </label>
                   <div id="photo-preview" class="hidden mt-2" style="position: relative;">
-                    <img id="photo-thumb" class="photo-thumb cursor-pointer" title="Tap to replace photo" alt="" />
+                    <!-- ★A CONTROL THAT WAS AN IMAGE WITH NO NAME (design lens slop, 2026-09-15). This
+                         carries a click listener, a pointer cursor and a title - and alt="", no role, no
+                         tabindex. So replacing an attached photo needed a pointer, and a screen-reader user
+                         was told nothing about it at all. Named, focusable and operable from the keyboard;
+                         the click listener already attached below does the work for all three. -->
+                    <img id="photo-thumb" class="photo-thumb cursor-pointer" role="button" tabindex="0"
+                         title="Tap to replace photo" alt="Attached photo"
+                         aria-label="Replace the attached photo"
+                         onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}" />
                     <button type="button" id="photo-remove-btn"
                       style="position: absolute; top: -16px; right: -16px; width: 44px; height: 44px;
                              display: flex; align-items: center; justify-content: center;
                              background: transparent; border: none; cursor: pointer; padding: 0;" aria-label="Remove">
                       <span style="width: 20px; height: 20px; background: rgba(30,30,40,0.95);
                                    border: 1.5px solid rgba(255,255,255,0.18); border-radius: 50%;
-                                   color:rgba(255,255,255,0.86); font-size: 11px;
+                                   color:rgba(255,255,255,0.86); font-size: 0.75rem;
                                    display: flex; align-items: center; justify-content: center; line-height: 1;">&#x2715;</span>
                     </button>
                   </div>
@@ -1019,7 +1065,7 @@
                 <div id="voice-status" class="hidden rounded-xl px-4 py-3 text-xs text-white/80 flex items-center gap-2"
                      style="background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2);">
                   <div class="w-2 h-2 rounded-full bg-red-400 animate-pulse"></div>
-                  <span id="voice-status-text">Listening...</span>
+                  <span data-i="p_listening_4fc2" id="voice-status-text">Listening...</span>
                 </div>
 
               </div><!-- end extras-drawer -->
@@ -1028,7 +1074,7 @@
 
             <!-- Parts Used (shown when status = Closed) -->
             <div id="parts-used-section" class="hidden space-y-2">
-              <label class="wh-label">Parts Used <span class="text-white/80 font-normal normal-case">(from your inventory)</span></label>
+              <label class="wh-label">Parts Used <span data-i="p_fromyourinventory_b1f4" class="text-white/80 font-normal normal-case">(from your inventory)</span></label>
               <div id="selected-parts-display" class="space-y-1.5"></div>
               <button type="button" id="btn-add-part" class="btn-secondary w-full text-xs py-2.5 flex items-center justify-center gap-1.5" style="min-height:44px;">
                 <span class="ic ic-add" aria-hidden="true"></span>
@@ -1040,10 +1086,10 @@
             <div id="pm-tasks-panel" class="hidden">
               <div class="rounded-xl p-3" style="background:rgba(247,162,27,0.06);border:1px solid rgba(247,162,27,0.2);">
                 <div class="flex items-center justify-between mb-2">
-                  <p class="text-[11px] font-bold uppercase tracking-widest" style="color:var(--wh-orange-text);">PM Tasks for this Asset</p>
-                  <span id="pm-tasks-count" class="text-[11px] text-white/80"></span>
+                  <p data-i="p_pmtasksforthisasset_37c9" class="text-xs font-bold uppercase tracking-widest" style="color:var(--wh-orange-text);">PM Tasks for this Asset</p>
+                  <span id="pm-tasks-count" class="text-xs text-white/80"></span>
                 </div>
-                <p class="text-[11px] text-white/80 mb-3">Tick the PM tasks you completed during this job. They will be marked done and their schedules updated.</p>
+                <p data-i="p_tickthepmtasksyoucompleteddu_8795" class="text-xs text-white/80 mb-3">Tick the PM tasks you completed during this job. They will be marked done and their schedules updated.</p>
                 <div id="pm-tasks-list" class="flex flex-col gap-2"></div>
               </div>
             </div>
@@ -1052,8 +1098,8 @@
             <div id="tasklist-ack-section" class="hidden">
               <div class="rounded-xl p-3" style="background:rgba(41,182,217,0.06);border:1px solid rgba(41,182,217,0.18);">
                 <div class="flex items-center justify-between mb-2">
-                  <p class="text-[11px] font-bold uppercase tracking-widest" style="color:var(--wh-blue-light);">Work Tasklist</p>
-                  <button type="button" id="btn-view-tasklist" class="text-[11px] font-semibold flex items-center gap-1" style="color:var(--wh-blue-light);background:none;border:none;cursor:pointer;min-height:44px;padding:0.25rem 0;">
+                  <p data-i="p_worktasklist_8b06" class="text-xs font-bold uppercase tracking-widest" style="color:var(--wh-blue-light);">Work Tasklist</p>
+                  <button type="button" id="btn-view-tasklist" class="text-xs font-semibold flex items-center gap-1" style="color:var(--wh-blue-light);background:none;border:none;cursor:pointer;min-height:44px;padding:0.25rem 0;">
                     <span class="ic ic-list" aria-hidden="true"></span>
                     View Tasklist
                   </button>
@@ -1063,9 +1109,9 @@
                   <div id="tasklist-ack-box" class="w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 transition-all" style="background:rgba(255,255,255,0.06);border:2px solid rgba(255,255,255,0.2);">
                     <span id="tasklist-ack-tick" class="ic ic-check hidden" aria-hidden="true"></span>
                   </div>
-                  <span class="text-sm text-white/85">I have read the work tasklist for this job</span>
+                  <span data-i="p_ihavereadtheworktasklistfort_b22c" class="text-sm text-white/85">I have read the work tasklist for this job</span>
                 </label>
-                <p role="alert" aria-live="assertive" id="tasklist-ack-error" class="hidden text-[11px] mt-1.5" style="color:var(--wh-red);">Please acknowledge you have read the work tasklist before closing.</p>
+                <p data-i="p_pleaseacknowledgeyouhaveread_2e77" role="alert" aria-live="assertive" id="tasklist-ack-error" class="hidden text-xs mt-1.5" style="color:var(--wh-red);">Please acknowledge you have read the work tasklist before closing.</p>
               </div>
             </div>
 
@@ -1095,9 +1141,9 @@
                  tokens.css already ships --wh-red-text (#FDC9C9) for exactly this reason ("small-text
                  red fails APCA on the navy shell"); it was simply never adopted here. Verified live:
                  the page went from 1 failing of 214 to 0. -->
-            <h3 class="text-xs font-bold uppercase tracking-widest" style="color:var(--wh-red-text);">My Open Jobs</h3>
+            <h3 data-i="p_myopenjobs_0a43" class="text-xs font-bold uppercase tracking-widest" style="color:var(--wh-red-text);">My Open Jobs</h3>
             <!-- C2 2026-09-10: --wh-red is the danger FILL; at 10px this measured 4.38:1 against the 4.5 it owes. tokens.css declares --wh-red-text for exactly this. -->
-            <span id="open-jobs-count" class="text-[10px] font-bold px-2 py-0.5 rounded-full" style="background:rgba(239,68,68,0.1);color:var(--wh-red-text);"></span>
+            <span id="open-jobs-count" class="text-xs font-bold px-2 py-0.5 rounded-full" style="background:rgba(239,68,68,0.1);color:var(--wh-red-text);"></span>
           </div>
           <div id="open-jobs-list"></div>
         </div>
@@ -1116,19 +1162,24 @@
               <input aria-label="Search machine, failure, keyword..." id="search-input" type="text" class="wh-input pl-9 w-full" style="min-width:180px;" placeholder="Search machine, failure, keyword..." />
             </div>
             <select id="filter-category" aria-label="Filter by category" class="wh-input sm:w-44">
-              <option value="">All categories</option>
-              <option value="Mechanical">Mechanical</option>
-              <option value="Electrical">Electrical</option>
-              <option value="Hydraulic">Hydraulic</option>
-              <option value="Pneumatic">Pneumatic</option>
-              <option value="Instrumentation">Instrumentation</option>
-              <option value="Lubrication">Lubrication</option>
-              <option value="Other">Other</option>
+              <option data-i="p_allcategories_060b" value="">All categories</option>
+              <!-- 7,987 of 31,240 rows (25.6%) carry no discipline - five years of CMMS-imported
+                   history, where the source work order had none to give. Without this option the
+                   seven disciplines below are exact-match filters that drop every one of them and
+                   say nothing about it. -->
+              <option data-i="p_nodisciplinerecorded_0a52" value="__none">No discipline recorded</option>
+              <option data-i="p_mechanical_0f2d" value="Mechanical">Mechanical</option>
+              <option data-i="p_electrical_16ec" value="Electrical">Electrical</option>
+              <option data-i="p_hydraulic_6cd6" value="Hydraulic">Hydraulic</option>
+              <option data-i="p_pneumatic_ad98" value="Pneumatic">Pneumatic</option>
+              <option data-i="p_instrumentation_cb49" value="Instrumentation">Instrumentation</option>
+              <option data-i="p_lubrication_f2da" value="Lubrication">Lubrication</option>
+              <option data-i="p_other_6e6a" value="Other">Other</option>
             </select>
             <select id="filter-status" aria-label="Filter by status" class="wh-input sm:w-36">
-              <option value="">All status</option>
-              <option value="Open">Open</option>
-              <option value="Closed">Closed</option>
+              <option data-i="p_allstatus_543f" value="">All status</option>
+              <option data-i="p_open_cf9b" value="Open">Open</option>
+              <option data-i="p_closed_88d8" value="Closed">Closed</option>
             </select>
             <button id="btn-export-csv" translate="no" title="Export to CSV" aria-label="Export to CSV" style="min-height:44px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:0.75rem; padding:0 0.875rem; color:rgba(255,255,255,0.80); cursor:pointer; display:flex; align-items:center; gap:6px; font-size:0.75rem; font-weight:600; white-space:nowrap; flex-shrink:0; transition:background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.06)'">
               <span class="ic ic-download" aria-hidden="true"></span>
@@ -1138,7 +1189,7 @@
           <!-- Team-specific filters: visible only in team mode -->
           <div id="team-filter-row" class="hidden mt-3 flex flex-col sm:flex-row gap-3 items-center flex-wrap">
             <select id="filter-worker" aria-label="Filter by worker" class="wh-input sm:w-44">
-              <option value="">All workers</option>
+              <option data-i="p_allworkers_f190" value="">All workers</option>
             </select>
             <input id="filter-date-from" aria-label="Filter from date" type="date" class="wh-input sm:w-36" />
             <input id="filter-date-to" aria-label="Filter to date" type="date" class="wh-input sm:w-36" />
@@ -1149,8 +1200,8 @@
         <!-- Offline banner -->
         <div id="offline-banner" class="hidden mb-3 rounded-xl px-4 py-2.5 flex items-center gap-2.5" style="background:rgba(247,162,27,0.1);border:1px solid rgba(247,162,27,0.3);">
           <span class="ic ic-refresh" aria-hidden="true"></span>
-          <span class="text-xs font-semibold" style="color:var(--wh-orange-text);">Offline: new entries will sync when connected</span>
-          <span id="offline-queue-count" class="ml-auto text-[10px] font-bold px-2 py-0.5 rounded-full hidden" style="background:rgba(247,162,27,0.2);color:var(--wh-orange-text);"></span>
+          <span data-i="p_offlinenewentrieswillsyncwhe_1f27" class="text-xs font-semibold" style="color:var(--wh-orange-text);">Offline: new entries will sync when connected</span>
+          <span id="offline-queue-count" class="ml-auto text-xs font-bold px-2 py-0.5 rounded-full hidden" style="background:rgba(247,162,27,0.2);color:var(--wh-orange-text);"></span>
         </div>
 
         <!-- Live team-activity badge (D3.2 INTERACTIVE_LINEAGE): a teammate logged
@@ -1161,8 +1212,8 @@
           style="background:rgba(41,182,217,0.12);border:1px solid rgba(41,182,217,0.35);cursor:pointer;"
           onmouseover="this.style.background='rgba(41,182,217,0.2)'" onmouseout="this.style.background='rgba(41,182,217,0.12)'">
           <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse flex-shrink-0" style="background:var(--wh-blue);"></span>
-          <span id="logbook-live-badge-text" class="text-xs font-semibold" style="color:var(--wh-blue-light);">New team entry</span>
-          <span class="ml-auto text-[11px] font-bold" style="color:rgba(41,182,217,0.8);">Tap to refresh ↻</span>
+          <span data-i="p_newteamentry_dea3" id="logbook-live-badge-text" class="text-xs font-semibold" style="color:var(--wh-blue-light);">New team entry</span>
+          <span data-i="p_taptorefresh_5acb" class="ml-auto text-xs font-bold" style="color:rgba(41,182,217,0.8);">Tap to refresh ↻</span>
         </button>
 
         <!-- H1 goal-gradient: closed/total of MY loaded entries (whProgressStrip). -->
@@ -1185,9 +1236,9 @@
              un-hides it when the read really did return nothing. -->
         <div id="empty-state" class="text-center py-20 empty-state hidden">
           <span class="ic ic-doc" aria-hidden="true"></span>
-          <p class="text-sm text-white/80 font-medium">No entries yet.</p>
-          <p class="text-xs text-white/80 mt-1">Log your first repair to get started.</p>
-          <a href="#log-form" onclick="document.getElementById('log-form')?.scrollIntoView({behavior:'smooth'});" class="mt-4 px-4 rounded-lg text-xs font-semibold" style="min-height:44px;display:inline-flex;align-items:center;justify-content:center;background:rgba(247,162,27,0.12);border:1px solid rgba(247,162,27,0.3);color:var(--wh-orange-text);text-decoration:none;">Log Your First Repair →</a>
+          <p data-i="p_noentriesyet_db0e" class="text-sm text-white/80 font-medium">No entries yet.</p>
+          <p data-i="p_logyourfirstrepairtogetstart_5fe1" class="text-xs text-white/80 mt-1">Log your first repair to get started.</p>
+          <a data-i="p_logyourfirstrepair_5149" href="#log-form" onclick="document.getElementById('log-form')?.scrollIntoView({behavior:'smooth'});" class="mt-4 px-4 rounded-lg text-xs font-semibold" style="min-height:44px;display:inline-flex;align-items:center;justify-content:center;background:rgba(247,162,27,0.12);border:1px solid rgba(247,162,27,0.3);color:var(--wh-orange-text);text-decoration:none;">Log Your First Repair →</a>
         </div>
 
         <!-- Read-failed state: the third case beside "loaded and empty" and "loaded with entries".
@@ -1195,8 +1246,8 @@
              after load, leaving the empty state as the only thing on screen. -->
         <div id="read-failed-state" class="text-center py-20 empty-state hidden" style="opacity:1;">
           <span class="ic ic-warn" aria-hidden="true"></span>
-          <p class="text-sm text-white/90 font-semibold">Could not load your logbook.</p>
-          <p class="text-xs text-white/80 mt-1">Your entries are unknown right now, not missing. Check your connection and reload before logging a repeat of work you may have already recorded.</p>
+          <p data-i="p_couldnotloadyourlogbook_4bbd" class="text-sm text-white/90 font-semibold">Could not load your logbook.</p>
+          <p data-i="p_yourentriesareunknownrightno_68fa" class="text-xs text-white/80 mt-1">Your entries are unknown right now, not missing. Check your connection and reload before logging a repeat of work you may have already recorded.</p>
           <!-- Retry must RE-ISSUE the read, not re-render the previous failure — renderEntries(true)
                calls loadEntries(), which is the request that failed. The distinction is the whole
                content of the retry_path oracle, and re-rendering is the defect commit 3ddef99d fixed
@@ -1207,14 +1258,14 @@
         <!-- No results state -->
         <div id="no-results" class="text-center py-16 empty-state hidden">
           <span class="ic ic-search" aria-hidden="true"></span>
-          <p class="text-sm text-white/80">No entries match your search.</p>
+          <p data-i="p_noentriesmatchyoursearch_748d" class="text-sm text-white/80">No entries match your search.</p>
         </div>
 
         <!-- Team prompt: shown in team mode before first search -->
         <div id="team-prompt" class="text-center py-20 empty-state hidden" style="opacity:1;"><!-- opacity:1 cancels .empty-state 0.4 multiplier so prompt text meets AA contrast -->
           <span class="ic ic-community" aria-hidden="true"></span>
-          <p class="text-sm font-medium" style="color:rgba(255,255,255,0.83);">Search team entries above.</p>
-          <p class="text-xs mt-1" style="color:rgba(255,255,255,0.80);">Set a date range, filter by worker or category, then tap <strong style="color:rgba(41,182,217,1);">Search Team</strong>.</p>
+          <p data-i="p_searchteamentriesabove_9d37" class="text-sm font-medium" style="color:rgba(255,255,255,0.83);">Search team entries above.</p>
+          <p class="text-xs mt-1" style="color:rgba(255,255,255,0.80);"><span data-i="p_setadaterangefilterbyworkero_f8e7">Set a date range, filter by worker or category, then tap</span> <strong data-i="p_searchteam_fe70" style="color:rgba(41,182,217,1);">Search Team</strong>.</p>
         </div>
 
       </div>
@@ -1228,7 +1279,7 @@
       <!-- id added so showToast can swap the glyph: nine callers pass '⚠️' for a REFUSAL, and a refusal
            rendered with a green check is the wrong signal even once the text is visible. -->
       <span id="toast-icon" class="ic ic-check" aria-hidden="true"></span>
-      <span id="toast-text">Entry saved.</span>
+      <span data-i="p_entrysaved_c562" id="toast-text">Entry saved.</span>
     </div>
   </div>
 
@@ -1254,7 +1305,7 @@
       <!-- ★TOUCH FLOOR: both asset tabs measured 143x35 inside #asset-modal, under the 44px rule. py-2 -> py-3
            plus an explicit min-height, so the tab keeps its shape when the label wraps. -->
       <button id="asset-tab-register" class="flex-1 py-3 text-xs font-bold rounded-lg transition-all" data-i="registerasset">Register Asset</button>
-      <button id="asset-tab-manage" class="flex-1 py-3 text-xs font-bold rounded-lg transition-all">Manage Assets <span id="asset-count-badge" class="ml-1 text-[10px] font-bold px-1.5 py-0.5 rounded-full" style="background:rgba(41,182,217,0.15);color:var(--wh-blue-light);display:none"></span></button>
+      <button id="asset-tab-manage" class="flex-1 py-3 text-xs font-bold rounded-lg transition-all">Manage Assets <span id="asset-count-badge" class="ml-1 text-xs font-bold px-1.5 py-0.5 rounded-full" style="background:rgba(41,182,217,0.15);color:var(--wh-blue-light);display:none"></span></button>
     </div>
 
     <!-- Register view -->
@@ -1271,35 +1322,35 @@
                    aria-label="Scan equipment nameplate photo" />
             <button id="a-scan-btn" type="button" class="btn-secondary text-xs py-1.5 px-3 flex items-center gap-1.5 min-h-[44px]" style="background: rgba(247,162,27,0.12); border-color: rgba(247,162,27,0.35); color:var(--wh-orange-text);">
               <span class="ic ic-image" aria-hidden="true"></span>
-              <span>Scan nameplate</span>
+              <span data-i="p_scannameplate_b453">Scan nameplate</span>
             </button>
-            <div class="text-[10px] flex-1 leading-snug" style="color:rgba(255,255,255,0.80);">
+            <div class="text-xs flex-1 leading-snug" style="color:rgba(255,255,255,0.80);">
               Photograph the equipment nameplate. We will auto-fill manufacturer, model, and serial below.
               <span id="a-scan-status" class="block mt-0.5" style="color:var(--wh-orange);"></span>
             </div>
           </div>
         </div>
         <div>
-          <label for="a-asset-id" class="wh-label">Asset ID <span class="text-orange-wh text-[10px] normal-case font-semibold">required</span></label>
+          <label for="a-asset-id" class="wh-label">Asset ID <span class="text-orange-wh text-xs normal-case font-semibold">required</span></label>
           <input aria-label="e.g. PUMP-001, CONV-A03, MOTOR-12" id="a-asset-id" type="text" class="wh-input" placeholder="e.g. PUMP-001, CONV-A03, MOTOR-12" autocomplete="off" />
-          <p class="text-[10px] text-white/80 mt-1">Use a unique code you already use on the plant floor.</p>
+          <p data-i="p_useauniquecodeyoualreadyuseo_3d0e" class="text-xs text-white/80 mt-1">Use a unique code you already use on the plant floor.</p>
         </div>
         <div>
-          <label for="a-name" class="wh-label">Asset Name <span class="text-white/80 font-normal normal-case">(optional)</span></label>
+          <label for="a-name" class="wh-label">Asset Name <span data-i="p_optional_b16c" class="text-white/80 font-normal normal-case">(optional)</span></label>
           <input aria-label="e.g. Cooling Water Pump, Line 3 Conveyor" id="a-name" type="text" class="wh-input" placeholder="e.g. Cooling Water Pump, Line 3 Conveyor" autocomplete="off" />
         </div>
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label for="a-manufacturer" class="wh-label">Manufacturer <span class="text-white/80 font-normal normal-case">(optional)</span></label>
+            <label for="a-manufacturer" class="wh-label">Manufacturer <span data-i="p_optional_b16c" class="text-white/80 font-normal normal-case">(optional)</span></label>
             <input aria-label="e.g. ABB, Mitsubishi, Siemens" id="a-manufacturer" type="text" class="wh-input" placeholder="e.g. ABB, Mitsubishi" autocomplete="off" />
           </div>
           <div>
-            <label for="a-model" class="wh-label">Model <span class="text-white/80 font-normal normal-case">(optional)</span></label>
+            <label for="a-model" class="wh-label">Model <span data-i="p_optional_b16c" class="text-white/80 font-normal normal-case">(optional)</span></label>
             <input aria-label="e.g. ACS580-01-046A-4" id="a-model" type="text" class="wh-input" placeholder="e.g. ACS580-01-046A-4" autocomplete="off" />
           </div>
         </div>
         <div>
-          <label for="a-serial-no" class="wh-label">Serial Number <span class="text-white/80 font-normal normal-case">(optional)</span></label>
+          <label for="a-serial-no" class="wh-label">Serial Number <span data-i="p_optional_b16c" class="text-white/80 font-normal normal-case">(optional)</span></label>
           <input aria-label="Serial number printed on the equipment nameplate" id="a-serial-no" type="text" class="wh-input" placeholder="e.g. AB22-987654" autocomplete="off" />
         </div>
         <div>
@@ -1307,32 +1358,32 @@
                field that unlocks full OEE (Availability × Performance × Quality).
                When NULL the platform reports the partial form (A × Q). Unit:
                seconds per unit produced (ISO 22400-2 §3.4.18). -->
-          <label for="a-ideal-cycle-time" class="wh-label">Ideal Cycle Time <span class="text-white/80 font-normal normal-case">(seconds per unit: unlocks full OEE)</span></label>
+          <label for="a-ideal-cycle-time" class="wh-label">Ideal Cycle Time <span data-i="p_secondsperunitunlocksfulloee_1e5d" class="text-white/80 font-normal normal-case">(seconds per unit: unlocks full OEE)</span></label>
           <input aria-label="Seconds per unit at planned ideal cycle. Leave blank if no planned rate." id="a-ideal-cycle-time" name="ideal_cycle_time_seconds" type="number" step="0.01" min="0" class="wh-input" placeholder="e.g. 6 (600 units/hour line)" autocomplete="off" />
         </div>
         <div>
-          <label for="a-type" class="wh-label">Asset Type</label>
+          <label data-i="p_assettype_ec59" for="a-type" class="wh-label">Asset Type</label>
           <select id="a-type" class="wh-input">
-            <option value="">Select type...</option>
-            <option value="Pump">Pump</option>
-            <option value="Motor">Motor</option>
-            <option value="Conveyor">Conveyor</option>
-            <option value="Compressor">Compressor</option>
+            <option data-i="p_selecttype_fd19" value="">Select type...</option>
+            <option data-i="p_pump_e8bd" value="Pump">Pump</option>
+            <option data-i="p_motor_ceae" value="Motor">Motor</option>
+            <option data-i="p_conveyor_7c13" value="Conveyor">Conveyor</option>
+            <option data-i="p_compressor_b23f" value="Compressor">Compressor</option>
             <option value="HVAC">HVAC</option>
-            <option value="Boiler">Boiler</option>
-            <option value="Fan / Blower">Fan / Blower</option>
-            <option value="Gearbox">Gearbox</option>
-            <option value="Generator">Generator</option>
-            <option value="Valve">Valve</option>
-            <option value="Other">Other</option>
+            <option data-i="p_boiler_ab1c" value="Boiler">Boiler</option>
+            <option data-i="p_fanblower_e6ac" value="Fan / Blower">Fan / Blower</option>
+            <option data-i="p_gearbox_b1ba" value="Gearbox">Gearbox</option>
+            <option data-i="p_generator_1d20" value="Generator">Generator</option>
+            <option data-i="p_valve_986d" value="Valve">Valve</option>
+            <option data-i="p_other_6e6a" value="Other">Other</option>
           </select>
         </div>
         <div>
-          <label for="a-location" class="wh-label">Location / Area <span class="text-white/80 font-normal normal-case">(optional)</span></label>
+          <label for="a-location" class="wh-label">Location / Area <span data-i="p_optional_b16c" class="text-white/80 font-normal normal-case">(optional)</span></label>
           <input aria-label="e.g. Line 1, Utility Room, Boiler Bay" id="a-location" type="text" class="wh-input" placeholder="e.g. Line 1, Utility Room, Boiler Bay" autocomplete="off" />
         </div>
         <div>
-          <label class="wh-label">Criticality <span class="text-white/80 font-normal normal-case">(if this asset fails, impact is...)</span></label>
+          <label class="wh-label">Criticality <span data-i="p_ifthisassetfailsimpactis_cc12" class="text-white/80 font-normal normal-case">(if this asset fails, impact is...)</span></label>
           <div class="grid grid-cols-3 gap-2 mt-1">
             <label class="criticality-btn" id="crit-btn-Critical">
               <input type="radio" name="a-criticality" value="Critical" class="hidden" />
@@ -1372,34 +1423,34 @@
     <button onclick="closeEditAsset()" class="absolute top-3 right-3 w-11 h-11 rounded-lg flex items-center justify-center text-white/80 hover:text-white/80 transition-colors" style="background: rgba(255,255,255,0.06);" aria-label="Close">
       <span class="ic ic-close" aria-hidden="true"></span>
     </button>
-    <h3 class="font-bold text-base text-white mb-4 pr-8">Edit Asset</h3>
+    <h3 data-i="p_editasset_3f0e" class="font-bold text-base text-white mb-4 pr-8">Edit Asset</h3>
 
     <input type="hidden" id="edit-asset-id">
 
     <div class="mb-3">
-      <label for="edit-asset-asset-id" class="block text-xs text-white/80 mb-1">Asset ID / Tag</label>
+      <label data-i="p_assetidtag_9da2" for="edit-asset-asset-id" class="block text-xs text-white/80 mb-1">Asset ID / Tag</label>
       <input id="edit-asset-asset-id" type="text" class="wh-input w-full" placeholder="e.g. PUMP-001">
     </div>
     <div class="mb-3">
-      <label for="edit-asset-name" class="block text-xs text-white/80 mb-1">Asset Name</label>
+      <label data-i="p_assetname_5d3a" for="edit-asset-name" class="block text-xs text-white/80 mb-1">Asset Name</label>
       <input id="edit-asset-name" type="text" class="wh-input w-full" placeholder="e.g. Cooling Water Pump">
     </div>
     <div class="mb-3">
-      <label for="edit-asset-type" class="block text-xs text-white/80 mb-1">Type</label>
+      <label data-i="p_type_3deb" for="edit-asset-type" class="block text-xs text-white/80 mb-1">Type</label>
       <input id="edit-asset-type" type="text" class="wh-input w-full" placeholder="e.g. Centrifugal Pump">
     </div>
     <div class="mb-3">
-      <label for="edit-asset-location" class="block text-xs text-white/80 mb-1">Location</label>
+      <label data-i="p_location_d219" for="edit-asset-location" class="block text-xs text-white/80 mb-1">Location</label>
       <input id="edit-asset-location" type="text" class="wh-input w-full" placeholder="e.g. Building A, Level 2">
     </div>
     <div class="mb-4">
-      <label for="edit-asset-criticality" class="block text-xs text-white/80 mb-1">Criticality</label>
+      <label data-i="p_criticality_b9be" for="edit-asset-criticality" class="block text-xs text-white/80 mb-1">Criticality</label>
       <select id="edit-asset-criticality" class="wh-input w-full">
-        <option value="">-- Select --</option>
-        <option value="Critical">Critical</option>
-        <option value="High">High</option>
-        <option value="Medium">Medium</option>
-        <option value="Low">Low</option>
+        <option data-i="p_select_92ad" value="">-- Select --</option>
+        <option data-i="p_critical_04b7" value="Critical">Critical</option>
+        <option data-i="p_high_b1a5" value="High">High</option>
+        <option data-i="p_medium_d404" value="Medium">Medium</option>
+        <option data-i="p_low_a124" value="Low">Low</option>
       </select>
     </div>
 
@@ -1422,12 +1473,12 @@
     <div id="asset-detail-header" class="mb-5 pr-8"></div>
 
     <div class="flex gap-1 mb-4 p-1 rounded-xl" style="background: rgba(22,32,50,0.8); border: 1px solid rgba(255,255,255,0.08);">
-      <button id="detail-tab-stocked" class="flex-1 py-2 text-xs font-bold rounded-lg transition-all">Stocked Parts</button>
-      <button id="detail-tab-consumption" class="flex-1 py-2 text-xs font-bold rounded-lg transition-all">Consumption</button>
-      <button id="detail-tab-faults" class="flex-1 py-2 text-xs font-bold rounded-lg transition-all">Fault History</button>
+      <button data-i="p_stockedparts_baa7" id="detail-tab-stocked" class="flex-1 py-2 text-xs font-bold rounded-lg transition-all">Stocked Parts</button>
+      <button data-i="p_consumption_47a1" id="detail-tab-consumption" class="flex-1 py-2 text-xs font-bold rounded-lg transition-all">Consumption</button>
+      <button data-i="p_faulthistory_f869" id="detail-tab-faults" class="flex-1 py-2 text-xs font-bold rounded-lg transition-all">Fault History</button>
     </div>
 
-    <div id="asset-detail-loading" class="py-10 text-center text-white/80 text-sm">Loading...</div>
+    <div data-i="p_loading_b04b" id="asset-detail-loading" class="py-10 text-center text-white/80 text-sm">Loading...</div>
     <div id="detail-stocked-view" class="hidden"><div id="detail-stocked-list"></div></div>
     <div id="detail-consumption-view" class="hidden"><div id="detail-consumption-list"></div></div>
     <div id="detail-faults-view" class="hidden"><div id="detail-faults-list"></div></div>
@@ -1439,7 +1490,7 @@
   <div class="card w-full max-w-md" style="max-height:82vh; display:flex; flex-direction:column;">
     <div class="p-5 border-b" style="border-color:rgba(255,255,255,0.07);">
       <div class="flex items-center justify-between mb-3">
-        <h3 class="font-bold text-sm">Select Asset</h3>
+        <h3 data-i="p_selectasset_11de" class="font-bold text-sm">Select Asset</h3>
         <button id="asset-picker-modal-close" class="w-11 h-11 rounded-lg flex items-center justify-center" style="background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.80);" aria-label="Close">
           <span class="ic ic-close" aria-hidden="true"></span>
         </button>
@@ -1463,8 +1514,8 @@
     <div class="p-5 border-b flex-shrink-0" style="border-color:rgba(255,255,255,0.07);">
       <div class="flex items-center justify-between">
         <div>
-          <h3 class="font-bold text-sm text-white">Work Tasklist</h3>
-          <p id="tasklist-modal-subtitle" class="text-[11px] text-white/80 mt-0.5"></p>
+          <h3 data-i="p_worktasklist_8b06" class="font-bold text-sm text-white">Work Tasklist</h3>
+          <p id="tasklist-modal-subtitle" class="text-xs text-white/80 mt-0.5"></p>
         </div>
         <button id="tasklist-modal-close" class="w-11 h-11 rounded-lg flex items-center justify-center flex-shrink-0" style="background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.80);" aria-label="Close">
           <span class="ic ic-close" aria-hidden="true"></span>
@@ -1473,9 +1524,9 @@
     </div>
     <div id="tasklist-modal-items" class="overflow-y-auto p-4 flex-1 flex flex-col gap-2"></div>
     <div class="p-4 border-t flex-shrink-0" style="border-color:rgba(255,255,255,0.07);">
-      <label for="tasklist-modal-note" class="block text-[11px] font-semibold text-white/80 uppercase tracking-widest mb-2">Add Note <span class="normal-case font-normal">(optional)</span></label>
+      <label for="tasklist-modal-note" class="block text-xs font-semibold text-white/80 uppercase tracking-widest mb-2">Add Note <span data-i="p_optional_b16c" class="normal-case font-normal">(optional)</span></label>
       <textarea aria-label="Additional steps, observations, or deviations from procedure..." id="tasklist-modal-note" class="wh-input mb-3" rows="2" placeholder="Additional steps, observations, or deviations from procedure..."></textarea>
-      <button id="tasklist-modal-done" class="btn-primary w-full">Done: Back to Logbook</button>
+      <button data-i="p_donebacktologbook_b236" id="tasklist-modal-done" class="btn-primary w-full">Done: Back to Logbook</button>
     </div>
   </div>
 </div>
@@ -1484,7 +1535,7 @@
   <div class="card w-full max-w-md" style="max-height:82vh; display:flex; flex-direction:column;">
     <div class="p-5 border-b" style="border-color:rgba(255,255,255,0.07);">
       <div class="flex items-center justify-between mb-3">
-        <h3 class="font-bold text-sm">Select Part Used</h3>
+        <h3 data-i="p_selectpartused_3373" class="font-bold text-sm">Select Part Used</h3>
         <button id="parts-picker-modal-close" class="w-11 h-11 rounded-lg flex items-center justify-center" style="background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.80);" aria-label="Close">
           <span class="ic ic-close" aria-hidden="true"></span>
         </button>
@@ -1881,7 +1932,10 @@ async function searchTeam(append = false) {
     .order('id')   // MR4 tiebreaker: the sort above is not total on its own
     .limit(TEAM_PAGE);
 
-  if (category) query = query.eq('category', category);
+  // .eq('category', null) matches NOTHING in PostgREST - a null comparison is never true - so the
+  // no-discipline case needs .is(), not a falsy value passed to the same call.
+  if (category === '__none') query = query.is('category', null);
+  else if (category)         query = query.eq('category', category);
   if (status)   query = query.eq('status', status);
   if (worker)   query = query.eq('worker_name', worker);
   if (dateFrom) query = query.gte('date', dateFrom);
@@ -3042,17 +3096,17 @@ function renderAssetList() {
         <div class="flex-1 min-w-0">
           <div class="flex items-center gap-2 flex-wrap mb-1">
             <span class="font-bold text-sm text-white">${escHtml(a.asset_id)}</span>
-            ${a.status === 'pending' ? '<span class="text-[10px] font-bold px-2 py-0.5 rounded-full" style="background:rgba(247,162,27,0.15);color:var(--wh-orange-text);border:1px solid rgba(247,162,27,0.3);">Pending Approval</span>' : ''}
+            ${a.status === 'pending' ? '<span class="text-xs font-bold px-2 py-0.5 rounded-full" style="background:rgba(247,162,27,0.15);color:var(--wh-orange-text);border:1px solid rgba(247,162,27,0.3);">Pending Approval</span>' : ''}
             ${criticalityBadge(a.criticality)}
-            ${a.type ? `<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full" style="background:rgba(41,182,217,0.1);color:rgba(41,182,217,0.7);border:1px solid rgba(41,182,217,0.15)">${escHtml(a.type)}</span>` : ''}
+            ${a.type ? `<span class="text-xs font-semibold px-2 py-0.5 rounded-full" style="background:rgba(41,182,217,0.1);color:rgba(41,182,217,0.7);border:1px solid rgba(41,182,217,0.15)">${escHtml(a.type)}</span>` : ''}
           </div>
           ${a.name ? `<p class="text-xs text-white/80 mb-0.5">${escHtml(a.name)}</p>` : ''}
-          ${a.location ? `<p class="text-[11px] text-white/80">${escHtml(a.location)}</p>` : ''}
+          ${a.location ? `<p class="text-xs text-white/80">${escHtml(a.location)}</p>` : ''}
         </div>
         <div class="flex gap-2 flex-shrink-0">
-          <button onclick="openAssetDetail('${a.id}')" class="btn-secondary text-[11px] py-1 px-2.5" aria-label="View ${escHtml(a.name || 'asset')} details" data-i="view">View</button>
-          ${(!HIVE_ID || HIVE_ROLE === 'supervisor' || a.worker_name === WORKER_NAME) ? `<button onclick="openEditAsset('${a.id}')" class="btn-secondary text-[11px] py-1 px-2.5" style="color:var(--wh-blue-light);border-color:rgba(41,182,217,0.3);" data-i="edit">Edit</button>` : ''}
-          <button onclick="deleteAsset('${a.id}')" class="btn-danger text-[11px] py-1 px-2.5" data-i="remove">Remove</button>
+          <button onclick="openAssetDetail('${a.id}')" class="btn-secondary text-xs py-1 px-2.5" aria-label="View ${escHtml(a.name || 'asset')} details" data-i="view">View</button>
+          ${(!HIVE_ID || HIVE_ROLE === 'supervisor' || a.worker_name === WORKER_NAME) ? `<button onclick="openEditAsset('${a.id}')" class="btn-secondary text-xs py-1 px-2.5" style="color:var(--wh-blue-light);border-color:rgba(41,182,217,0.3);" data-i="edit">Edit</button>` : ''}
+          <button onclick="deleteAsset('${a.id}')" class="btn-danger text-xs py-1 px-2.5" data-i="remove">Remove</button>
         </div>
       </div>
     </div>`).join('');
@@ -3070,7 +3124,7 @@ function openAssetDetail(id) {
     <div class="flex items-center gap-2 flex-wrap mb-1">
       <span class="font-black text-base text-white">${escHtml(asset.asset_id)}</span>
       ${criticalityBadge(asset.criticality)}
-      ${asset.type ? `<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full" style="background:rgba(41,182,217,0.1);color:rgba(41,182,217,0.7);border:1px solid rgba(41,182,217,0.15)">${escHtml(asset.type)}</span>` : ''}
+      ${asset.type ? `<span class="text-xs font-semibold px-2 py-0.5 rounded-full" style="background:rgba(41,182,217,0.1);color:rgba(41,182,217,0.7);border:1px solid rgba(41,182,217,0.15)">${escHtml(asset.type)}</span>` : ''}
     </div>
     ${asset.name     ? `<p class="text-sm text-white/85">${escHtml(asset.name)}</p>` : ''}
     ${asset.location ? `<p class="text-xs text-white/80 mt-0.5">${escHtml(asset.location)}</p>` : ''}`;
@@ -3190,12 +3244,12 @@ function renderDetailStocked(items) {
       <div class="flex items-start justify-between gap-2">
         <div class="flex-1 min-w-0">
           <p class="text-sm font-semibold text-white truncate">${escHtml(i.part_name)}</p>
-          ${i.part_number  ? `<p class="text-[11px] text-white/80">${escHtml(i.part_number)}</p>` : ''}
-          ${i.bin_location ? `<p class="text-[11px] text-white/80 mt-0.5">Bin: ${escHtml(i.bin_location)}</p>` : ''}
+          ${i.part_number  ? `<p class="text-xs text-white/80">${escHtml(i.part_number)}</p>` : ''}
+          ${i.bin_location ? `<p class="text-xs text-white/80 mt-0.5">Bin: ${escHtml(i.bin_location)}</p>` : ''}
         </div>
         <div class="text-right flex-shrink-0">
           <p class="text-sm font-bold" style="color:${qtyColor}">${i.qty_on_hand} <span class="text-white/80 font-normal text-xs">${escHtml(i.unit || 'pcs')}</span></p>
-          ${qtyLabel ? `<p class="text-[10px] font-semibold" style="color:${qtyColor}">${qtyLabel}</p>` : ''}
+          ${qtyLabel ? `<p class="text-xs font-semibold" style="color:${qtyColor}">${qtyLabel}</p>` : ''}
         </div>
       </div>
     </div>`;
@@ -3228,12 +3282,12 @@ function renderDetailConsumption(txns, itemsList) {
       <div class="flex items-start justify-between gap-2">
         <div class="flex-1 min-w-0">
           <p class="text-sm font-semibold text-white">${name}</p>
-          ${jobRef ? `<p class="text-[11px] text-white/80 mt-0.5">Job: ${jobRef}</p>` : ''}
-          ${note   ? `<p class="text-[11px] text-white/80">${note}</p>` : ''}
+          ${jobRef ? `<p class="text-xs text-white/80 mt-0.5">Job: ${jobRef}</p>` : ''}
+          ${note   ? `<p class="text-xs text-white/80">${note}</p>` : ''}
         </div>
         <div class="text-right flex-shrink-0">
           <p class="text-sm font-bold text-white/80">${qty} <span class="text-white/80 font-normal text-xs">${unit}</span></p>
-          <p class="text-[11px] text-white/80">${date}</p>
+          <p class="text-xs text-white/80">${date}</p>
         </div>
       </div>
     </div>`;
@@ -3267,11 +3321,11 @@ function renderDetailFaultHistory(entries) {
     return `<div class="rounded-xl p-3 mb-2" style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07); border-left:3px solid ${borderColor};">
       <div class="flex items-start justify-between gap-2 mb-1">
         <div class="flex items-center gap-1.5 flex-wrap">
-          <span class="text-[10px] font-bold px-2 py-0.5 rounded-full" style="background:${statusBg};color:${statusTx};">${escHtml(e.status || 'Open')}</span>
-          ${e.category ? `<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full" style="background:rgba(255,255,255,0.06);color:${catColor};">${escHtml(e.category)}</span>` : ''}
-          ${e.maintenance_type ? `<span class="text-[10px] text-white/80">${escHtml(e.maintenance_type)}</span>` : ''}
+          <span class="text-xs font-bold px-2 py-0.5 rounded-full" style="background:${statusBg};color:${statusTx};">${escHtml(e.status || 'Open')}</span>
+          ${e.category ? `<span class="text-xs font-semibold px-2 py-0.5 rounded-full" style="background:rgba(255,255,255,0.06);color:${catColor};">${escHtml(e.category)}</span>` : ''}
+          ${e.maintenance_type ? `<span class="text-xs text-white/80">${escHtml(e.maintenance_type)}</span>` : ''}
         </div>
-        <span class="text-[11px] text-white/80 flex-shrink-0">${date}</span>
+        <span class="text-xs text-white/80 flex-shrink-0">${date}</span>
       </div>
       ${e.problem ? `<p class="text-xs text-white/80 leading-relaxed" style="overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">${escHtml(e.problem)}</p>` : ''}
     </div>`;
@@ -3451,11 +3505,11 @@ async function loadMachineHistory(machineId) {
         ? new Date(r.created_at).toLocaleDateString('en-PH', { year: '2-digit', month: 'short', day: 'numeric' })
         : '';
       return '<div style="border-top:1px solid rgba(255,255,255,0.06); padding:10px 2px 6px;">'
-        + (r.problem  ? '<p style="color:rgba(255,255,255,0.86); margin-bottom:3px;"><span style="color:rgba(255,255,255,0.80); font-size:0.65rem; text-transform:uppercase; letter-spacing:0.05em;">Problem</span><br>' + escHtml(r.problem) + '</p>' : '')
-        + (r.root_cause ? '<p style="color:var(--wh-orange-text); margin-bottom:3px; font-size:0.7rem;"><span style="color:rgba(255,255,255,0.80); font-size:0.65rem; text-transform:uppercase; letter-spacing:0.05em;">Root cause</span><br>' + escHtml(r.root_cause) + '</p>' : '')
-        + (r.action   ? '<p style="color:var(--wh-green); margin-bottom:3px; font-size:0.7rem;"><span style="color:rgba(255,255,255,0.80); font-size:0.65rem; text-transform:uppercase; letter-spacing:0.05em;">Fixed by</span><br>' + escHtml(r.action) + '</p>' : '')
-        + (r.knowledge ? '<p style="color:rgba(255,255,255,0.80); font-size:0.68rem; font-style:italic;">' + escHtml(r.knowledge) + '</p>' : '')
-        + '<p style="color:rgba(255,255,255,0.80); font-size:0.65rem; margin-top:4px;">'
+        + (r.problem  ? '<p style="color:rgba(255,255,255,0.86); margin-bottom:3px;"><span style="color:rgba(255,255,255,0.80); font-size:0.75rem; text-transform:uppercase; letter-spacing:0.05em;">Problem</span><br>' + escHtml(r.problem) + '</p>' : '')
+        + (r.root_cause ? '<p style="color:var(--wh-orange-text); margin-bottom:3px; font-size:0.75rem;"><span style="color:rgba(255,255,255,0.80); font-size:0.75rem; text-transform:uppercase; letter-spacing:0.05em;">Root cause</span><br>' + escHtml(r.root_cause) + '</p>' : '')
+        + (r.action   ? '<p style="color:var(--wh-green); margin-bottom:3px; font-size:0.75rem;"><span style="color:rgba(255,255,255,0.80); font-size:0.75rem; text-transform:uppercase; letter-spacing:0.05em;">Fixed by</span><br>' + escHtml(r.action) + '</p>' : '')
+        + (r.knowledge ? '<p style="color:rgba(255,255,255,0.80); font-size:0.75rem; font-style:italic;">' + escHtml(r.knowledge) + '</p>' : '')
+        + '<p style="color:rgba(255,255,255,0.80); font-size:0.75rem; margin-top:4px;">'
         + (r.worker_name ? escHtml(r.worker_name) + ' · ' : '') + dt
         // AI6 render half: anything not logged by a person says so, beside the name it would
         // otherwise borrow. Named model where the row carries one, because "AI-captured" and
@@ -3625,7 +3679,7 @@ async function renderReadingsFields(category) {
 
   fields.innerHTML = defs.map(d => `
     <div>
-      <label for="reading-${escHtml(d.key)}" class="block text-[10px] text-white/80 font-semibold mb-1">${escHtml(d.label)} <span class="text-white/80">(${escHtml(d.unit)})</span></label>
+      <label for="reading-${escHtml(d.key)}" class="block text-xs text-white/80 font-semibold mb-1">${escHtml(d.label)} <span class="text-white/80">(${escHtml(d.unit)})</span></label>
       <input type="number" step="any" class="wh-input py-2"
              id="reading-${escHtml(d.key)}"
              data-key="${escHtml(d.key)}" data-unit="${escHtml(d.unit)}"
@@ -3955,7 +4009,7 @@ const catColors = {
 function lotoBadge(e) {
   if (!e || (!e.loto_applied && !e.permit_reference)) return '';
   const ref = e.permit_reference ? ' ' + escHtml(String(e.permit_reference)) : '';
-  return '<span class="text-[10px] font-bold px-2 py-0.5 rounded-full" title="Lock-out / tag-out or a permit to work was applied on this job"'
+  return '<span class="text-xs font-bold px-2 py-0.5 rounded-full" title="Lock-out / tag-out or a permit to work was applied on this job"'
     + ' style="background:rgba(247,162,27,0.16);color:var(--wh-orange-text);border:1px solid rgba(247,162,27,0.35);">'
     + '&#128274; LOTO' + ref + '</span>';
 }
@@ -3974,7 +4028,7 @@ function consequenceBadge(e) {
     : mid
       ? 'background:rgba(247,162,27,0.12);color:var(--wh-orange-text);border:1px solid rgba(247,162,27,0.3);'
       : 'background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.7);border:1px solid rgba(255,255,255,0.12);';
-  return '<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full" title="What this failure did to the plant"'
+  return '<span class="text-xs font-semibold px-2 py-0.5 rounded-full" title="What this failure did to the plant"'
     + ' style="' + style + '">' + escHtml(String(v)) + '</span>';
 }
 
@@ -4007,13 +4061,13 @@ function readingsBlock(e) {
     label = label.charAt(0).toUpperCase() + label.slice(1);
     if (!unit && parts.length > 1) label = String(k).split('_').join(' ');
     return '<div class="rounded-lg px-3 py-2" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);">'
-      + '<p class="text-[10px] uppercase tracking-wider" style="color:rgba(255,255,255,0.55);">' + escHtml(label) + '</p>'
+      + '<p class="text-xs uppercase tracking-wider" style="color:rgba(255,255,255,0.55);">' + escHtml(label) + '</p>'
       + '<p class="text-sm font-semibold text-white/90">' + escHtml(String(r[k])) + (unit ? ' <span class="text-xs font-normal text-white/60">' + unit + '</span>' : '') + '</p>'
       + '</div>';
   }).join('');
 
   return '<div class="mb-5">'
-    + '<p class="text-[10px] text-white/80 uppercase tracking-widest font-semibold mb-2">Readings taken</p>'
+    + '<p class="text-xs text-white/80 uppercase tracking-widest font-semibold mb-2">Readings taken</p>'
     + '<div class="grid grid-cols-2 gap-2">' + cells + '</div>'
     + '</div>';
 }
@@ -4227,7 +4281,9 @@ async function renderEntries(reload = true, fromStatPills = false) {
 
   // Mine mode: client-side filter. Team mode: server already filtered — show all.
   const filtered = _viewMode === 'team' ? entries : entries.filter(e => {
-    const matchCat    = !catFilter    || e.category === catFilter;
+    // '__none' asks for the entries that have NO discipline (imported history); '' is still
+    // "all". Exact equality alone made a quarter of the logbook unreachable from this control.
+    const matchCat    = !catFilter    || (catFilter === '__none' ? !e.category : e.category === catFilter);
     const matchStatus = !statusFilter || (e.status || 'Open') === statusFilter;
     if (!matchCat || !matchStatus) return false;
     if (!query) return true;
@@ -4317,7 +4373,7 @@ async function renderEntries(reload = true, fromStatPills = false) {
     const knowledge = highlight(e.knowledge, q);
 
     return `
-    <div class="card p-5 mb-3 entry-card cursor-pointer hover:border-white/15 transition-colors" onclick="openModal('${e.id}')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openModal('${e.id}')}" aria-label="Open entry: ${escHtml((e.machine || '') + ' - ' + (e.problem || '').slice(0, 60))}">
+    <div class="card p-5 mb-3 entry-card cursor-pointer hover:border-white/15 transition-colors" onclick="openModal('${e.id}')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openModal('${e.id}')}" aria-label="${escHtml(_t('Open entry', 'Buksan ang entry'))}: ${escHtml((e.machine || '') + ' - ' + (e.problem || '').slice(0, 60))}">
       <div class="flex items-start justify-between gap-3 mb-3">
         <div class="flex-1 min-w-0">
           <div class="flex items-center gap-2 flex-wrap mb-1">
@@ -4326,30 +4382,30 @@ async function renderEntries(reload = true, fromStatPills = false) {
             ${statusBadge(e.status || 'Open')}
             ${woStateBadge(e.wo_state, e.wo_assigned_to)}
             ${lotoBadge(e)}${consequenceBadge(e)}
-            ${_syncedMachineSource[e.machine] ? `<span class="text-[10px] font-semibold px-1.5 py-0.5 rounded-md" style="background:rgba(41,182,217,0.1);color:var(--wh-blue-light);border:1px solid rgba(41,182,217,0.25);" title="Sourced from CMMS integration">⇄ ${escHtml(_syncedMachineSource[e.machine])}</span>` : ''}
-            ${(e._offline || e._pending_edit) ? `<span class="text-[10px] font-semibold px-1.5 py-0.5 rounded-md" style="background:rgba(247,162,27,0.15);color:var(--wh-orange-text);border:1px solid rgba(247,162,27,0.2);">${e._offline ? 'Pending sync' : 'Edit pending sync'}</span>` : ''}
+            ${_syncedMachineSource[e.machine] ? `<span class="text-xs font-semibold px-1.5 py-0.5 rounded-md" style="background:rgba(41,182,217,0.1);color:var(--wh-blue-light);border:1px solid rgba(41,182,217,0.25);" title="Sourced from CMMS integration">⇄ ${escHtml(_syncedMachineSource[e.machine])}</span>` : ''}
+            ${(e._offline || e._pending_edit) ? `<span class="text-xs font-semibold px-1.5 py-0.5 rounded-md" style="background:rgba(247,162,27,0.15);color:var(--wh-orange-text);border:1px solid rgba(247,162,27,0.2);">${e._offline ? 'Pending sync' : 'Edit pending sync'}</span>` : ''}
           </div>
-          <span class="text-[11px] text-white/80">${formatDate(e.date)}</span>
-          ${_viewMode === 'team' && e.worker_name !== WORKER_NAME ? `<span class="text-[10px] font-semibold px-1.5 py-0.5 rounded-md" style="background:rgba(41,182,217,0.12);color:var(--wh-blue-light);">${escHtml(e.worker_name)}</span>` : ''}
+          <span class="text-xs text-white/80">${formatDate(e.date)}</span>
+          ${_viewMode === 'team' && e.worker_name !== WORKER_NAME ? `<span class="text-xs font-semibold px-1.5 py-0.5 rounded-md" style="background:rgba(41,182,217,0.12);color:var(--wh-blue-light);">${escHtml(e.worker_name)}</span>` : ''}
         </div>
         <span class="ic ic-next" aria-hidden="true"></span>
       </div>
 
       ${e.problem ? `
       <div class="mb-2">
-        <span class="text-[10px] text-white/80 uppercase tracking-widest font-semibold">Problem</span>
+        <span class="text-xs text-white/80 uppercase tracking-widest font-semibold">Problem</span>
         <p class="text-xs text-white/85 mt-0.5 leading-relaxed line-clamp-2">${problem}</p>
       </div>` : ''}
 
       ${e.action ? `
       <div class="mb-2">
-        <span class="text-[10px] text-white/80 uppercase tracking-widest font-semibold">Action Taken</span>
+        <span class="text-xs text-white/80 uppercase tracking-widest font-semibold">Action Taken</span>
         <p class="text-xs text-white/85 mt-0.5 leading-relaxed line-clamp-2">${action}</p>
       </div>` : ''}
 
       ${e.knowledge ? `
       <div class="rounded-lg px-3 py-2 mt-3" style="background: rgba(247,162,27,0.06); border: 1px solid rgba(247,162,27,0.12);">
-        <span class="text-[10px] text-orange-wh uppercase tracking-widest font-semibold flex items-center gap-1">
+        <span class="text-xs text-orange-wh uppercase tracking-widest font-semibold flex items-center gap-1">
           <span class="ic ic-star" aria-hidden="true"></span>
           Knowledge
         </span>
@@ -4391,9 +4447,9 @@ async function openModal(id) {
       ${woStateBadge(entry.wo_state, entry.wo_assigned_to)}
     </div>
     <div class="flex flex-wrap gap-2 mb-4">
-      ${entry.maintenance_type ? `<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full" style="background:rgba(41,182,217,0.12);color:var(--wh-blue-light);border:1px solid rgba(41,182,217,0.2)">${escHtml(entry.maintenance_type)}</span>` : ''}
-      ${entry.downtime_hours != null ? `<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full" style="background:rgba(239,68,68,0.1);color:var(--wh-red);border:1px solid rgba(239,68,68,0.2)">${entry.downtime_hours}h downtime</span>` : ''}
-      ${(String(entry.id || '').startsWith('pm-') || entry.pm_completion_id) ? `<a href="pm-scheduler.html?asset=${encodeURIComponent(entry.machine || '')}" class="text-[10px] font-bold px-2 py-0.5 rounded-full underline" style="background:rgba(74,222,128,0.1);color:var(--wh-green);border:1px solid rgba(74,222,128,0.25);min-height:44px;display:inline-flex;align-items:center;" title="This entry was created by a PM completion - open the asset's PM schedule">from PM Schedule → view tasks</a>` : ''}
+      ${entry.maintenance_type ? `<span class="text-xs font-semibold px-2 py-0.5 rounded-full" style="background:rgba(41,182,217,0.12);color:var(--wh-blue-light);border:1px solid rgba(41,182,217,0.2)">${escHtml(entry.maintenance_type)}</span>` : ''}
+      ${entry.downtime_hours != null ? `<span class="text-xs font-semibold px-2 py-0.5 rounded-full" style="background:rgba(239,68,68,0.1);color:var(--wh-red);border:1px solid rgba(239,68,68,0.2)">${entry.downtime_hours}h downtime</span>` : ''}
+      ${(String(entry.id || '').startsWith('pm-') || entry.pm_completion_id) ? `<a href="pm-scheduler.html?asset=${encodeURIComponent(entry.machine || '')}" class="text-xs font-bold px-2 py-0.5 rounded-full underline" style="background:rgba(74,222,128,0.1);color:var(--wh-green);border:1px solid rgba(74,222,128,0.25);min-height:44px;display:inline-flex;align-items:center;" title="This entry was created by a PM completion - open the asset's PM schedule">from PM Schedule → view tasks</a>` : ''}
       ${lotoBadge(entry)}
       ${consequenceBadge(entry)}
     </div><!-- T32: the pm-scheduler mirror mints 'pm-' prefixed ids for traceability; surfacing that
@@ -4404,19 +4460,19 @@ async function openModal(id) {
 
     ${entry.problem ? `
     <div class="mb-4">
-      <p class="text-[10px] text-white/80 uppercase tracking-widest font-semibold mb-1.5">Symptom</p>
+      <p class="text-xs text-white/80 uppercase tracking-widest font-semibold mb-1.5">Symptom</p>
       <p class="text-sm text-white/85 leading-relaxed">${escHtml(entry.problem)}</p>
     </div>` : ''}
 
     ${entry.root_cause ? `
     <div class="mb-4">
-      <p class="text-[10px] text-white/80 uppercase tracking-widest font-semibold mb-1.5">Root Cause</p>
+      <p class="text-xs text-white/80 uppercase tracking-widest font-semibold mb-1.5">Root Cause</p>
       <p class="text-sm text-white/85 leading-relaxed">${escHtml(entry.root_cause)}</p>
     </div>` : ''}
 
     ${entry.action ? `
     <div class="mb-5">
-      <p class="text-[10px] text-white/80 uppercase tracking-widest font-semibold mb-1.5">Action taken</p>
+      <p class="text-xs text-white/80 uppercase tracking-widest font-semibold mb-1.5">Action taken</p>
       <p class="text-sm text-white/85 leading-relaxed">${escHtml(entry.action)}</p>
     </div>` : ''}
 
@@ -4424,7 +4480,7 @@ async function openModal(id) {
 
     ${entry.knowledge ? `
     <div class="rounded-xl px-4 py-4 mb-5" style="background: rgba(247,162,27,0.07); border: 1px solid rgba(247,162,27,0.15);">
-      <p class="text-[10px] text-orange-wh uppercase tracking-widest font-semibold mb-1.5 flex items-center gap-1.5">
+      <p class="text-xs text-orange-wh uppercase tracking-widest font-semibold mb-1.5 flex items-center gap-1.5">
         <span class="ic ic-star" aria-hidden="true"></span>
         Knowledge for next person
       </p>
@@ -4433,19 +4489,19 @@ async function openModal(id) {
 
     ${entry.photo && (entry.photo.startsWith('data:image/') || entry.photo.startsWith('https://')) ? `
     <div class="mb-5">
-      <p class="text-[10px] text-white/80 uppercase tracking-widest font-semibold mb-2">Photo</p>
+      <p class="text-xs text-white/80 uppercase tracking-widest font-semibold mb-2">Photo</p>
       <img src="${escHtml(entry.photo)}" alt="Logbook entry photo (full size)" class="w-full rounded-xl border border-white/10 object-cover max-h-64" />
     </div>` : ''}
 
     ${entry.parts_used && entry.parts_used.length ? `
     <div class="mb-5">
-      <p class="text-[10px] text-white/80 uppercase tracking-widest font-semibold mb-2">Parts Used</p>
+      <p class="text-xs text-white/80 uppercase tracking-widest font-semibold mb-2">Parts Used</p>
       <div class="space-y-1.5">
         ${entry.parts_used.map(p => `
           <div class="flex items-center justify-between rounded-lg px-3 py-2" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);">
             <div>
               <span class="text-xs font-semibold text-white/80">${escHtml(p.partName || '')}</span>
-              ${p.partNumber ? `<span class="text-[10px] text-white/80 ml-1">#${escHtml(p.partNumber)}</span>` : ''}
+              ${p.partNumber ? `<span class="text-xs text-white/80 ml-1">#${escHtml(p.partNumber)}</span>` : ''}
             </div>
             <span class="text-xs font-bold text-white/80">${p.qty} ${escHtml(p.unit || 'pcs')}</span>
           </div>`).join('')}
@@ -4457,7 +4513,7 @@ async function openModal(id) {
       <span class="ic ic-check" aria-hidden="true"></span>
       <div class="flex-1 min-w-0">
         <span class="text-xs font-semibold" style="color:${entry.tasklist_acknowledged ? 'var(--wh-green)' : 'rgba(255,255,255,0.3)'};">${entry.tasklist_acknowledged ? 'Work tasklist read' : 'Tasklist not acknowledged'}</span>
-        ${entry.tasklist_note ? `<p class="text-[10px] text-white/80 mt-0.5 truncate">${escHtml(entry.tasklist_note)}</p>` : ''}
+        ${entry.tasklist_note ? `<p class="text-xs text-white/80 mt-0.5 truncate">${escHtml(entry.tasklist_note)}</p>` : ''}
       </div>
     </div>` : ''}
 
@@ -4951,12 +5007,12 @@ function renderPMTasksPanel() {
     needsAttention.length ? `${needsAttention.length} need${needsAttention.length === 1 ? 's' : ''} attention` : 'All tasks on track';
 
   function daysLabel(item) {
-    if (item.status === 'overdue')  return `<span style="color:var(--wh-red);font-size:10px;">${Math.abs(item.diff)} day${Math.abs(item.diff) === 1 ? '' : 's'} overdue</span>`;
-    if (item.status === 'duesoon')  return `<span style="color:var(--wh-orange-text);font-size:10px;">due in ${item.diff} day${item.diff === 1 ? '' : 's'}</span>`;
-    if (item.status === 'nodata')   return `<span style="color:rgba(255,255,255,0.80);font-size:10px;">no history</span>`;
+    if (item.status === 'overdue')  return `<span style="color:var(--wh-red);font-size:0.75rem;">${Math.abs(item.diff)} day${Math.abs(item.diff) === 1 ? '' : 's'} overdue</span>`;
+    if (item.status === 'duesoon')  return `<span style="color:var(--wh-orange-text);font-size:0.75rem;">due in ${item.diff} day${item.diff === 1 ? '' : 's'}</span>`;
+    if (item.status === 'nodata')   return `<span style="color:rgba(255,255,255,0.80);font-size:0.75rem;">no history</span>`;
     if (item.nextDue) {
       const d = item.nextDue;
-      return `<span style="color:rgba(255,255,255,0.80);font-size:10px;">next: ${d.toLocaleDateString('en-PH',{month:'short',day:'numeric'})}</span>`;
+      return `<span style="color:rgba(255,255,255,0.80);font-size:0.75rem;">next: ${d.toLocaleDateString('en-PH',{month:'short',day:'numeric'})}</span>`;
     }
     return '';
   }
@@ -4974,7 +5030,7 @@ function renderPMTasksPanel() {
         <div class="flex-1 min-w-0">
           <p class="text-sm text-white/80 leading-snug">${escHtml(item.item_text)}</p>
           <div class="flex items-center gap-1.5 mt-1 flex-wrap">
-            <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-full" style="background:${freqCls[item.frequency] || 'rgba(255,255,255,0.08);color:rgba(255,255,255,0.80)'};">${freqMap[item.frequency] || item.frequency}</span>
+            <span class="text-xs font-bold px-1.5 py-0.5 rounded-full" style="background:${freqCls[item.frequency] || 'rgba(255,255,255,0.08);color:rgba(255,255,255,0.80)'};">${freqMap[item.frequency] || item.frequency}</span>
             ${daysLabel(item)}
           </div>
         </div>
@@ -5654,18 +5710,18 @@ function applySmartVoiceFill(e, transcript) {
   let html = `<p style="color:rgba(74,222,128,0.9); font-weight:700; margin-bottom:8px;">✓ Filled ${filled.length} ${filled.length === 1 ? 'field' : 'fields'}: ${filled.join(', ')}</p>`;
 
   if (e.loto_detected) {
-    html += `<div style="padding:6px 10px; background:rgba(248,113,113,0.1); border:1px solid rgba(248,113,113,0.3); border-radius:6px; margin-bottom:6px; font-size:.72rem; color:var(--wh-red); font-weight:600;">⚠ LOTO/Isolation detected${e.loto_note ? ': ' + escHtml(e.loto_note) : ''} (add to LOTO notes)</div>`;
+    html += `<div style="padding:6px 10px; background:rgba(248,113,113,0.1); border:1px solid rgba(248,113,113,0.3); border-radius:6px; margin-bottom:6px; font-size:0.75rem; color:var(--wh-red); font-weight:600;">⚠ LOTO/Isolation detected${e.loto_note ? ': ' + escHtml(e.loto_note) : ''} (add to LOTO notes)</div>`;
   }
 
   if (e.parts_mentioned?.length) {
-    html += `<p style="color:rgba(247,162,27,0.8); font-size:.72rem; margin-bottom:4px;">🔧 Parts mentioned: ${e.parts_mentioned.map(p => escHtml(p)).join(', ')} (check inventory)</p>`;
+    html += `<p style="color:rgba(247,162,27,0.8); font-size:0.75rem; margin-bottom:4px;">🔧 Parts mentioned: ${e.parts_mentioned.map(p => escHtml(p)).join(', ')} (check inventory)</p>`;
   }
 
   if (e.supervisor_alert) {
-    html += `<p style="color:var(--wh-blue-light); font-size:.72rem;">📢 Supervisor note: ${escHtml(e.supervisor_alert)}</p>`;
+    html += `<p style="color:var(--wh-blue-light); font-size:0.75rem;">📢 Supervisor note: ${escHtml(e.supervisor_alert)}</p>`;
   }
 
-  html += `<button onclick="document.getElementById('vf-result').style.display='none';" style="margin-top:8px; font-size:.68rem; color:rgba(255,255,255,0.80); background:none; border:none; cursor:pointer; font-family:inherit;" data-i="dismiss">Dismiss</button>`;
+  html += `<button onclick="document.getElementById('vf-result').style.display='none';" style="margin-top:8px; font-size:0.75rem; color:rgba(255,255,255,0.80); background:none; border:none; cursor:pointer; font-family:inherit;" data-i="dismiss">Dismiss</button>`;
 
   resultDiv.innerHTML = html;
   resultDiv.style.display = 'block';
@@ -5888,7 +5944,7 @@ function vdcApplyDraft(payload) {
                     : sev === 'medium'  ? '#facc15'
                                         : 'rgba(255,255,255,0.5)';
     const tagLine = draft.asset_tag_extracted
-      ? `<p style="color:rgba(255,255,255,0.80); font-size:.7rem; margin-top:4px;">Asset tag read from photo: <strong>${e(draft.asset_tag_extracted)}</strong>${matched ? ' (matched in hive)' : ' (no hive match)'}</p>`
+      ? `<p style="color:rgba(255,255,255,0.80); font-size:0.75rem; margin-top:4px;">Asset tag read from photo: <strong>${e(draft.asset_tag_extracted)}</strong>${matched ? ' (matched in hive)' : ' (no hive match)'}</p>`
       : '';
     resultDiv.innerHTML =
       `<p style="color:rgba(74,222,128,0.9); font-weight:700; margin-bottom:6px;">` +
@@ -5900,7 +5956,7 @@ function vdcApplyDraft(payload) {
         `Confidence: ${confPct}%` +
       `</p>` +
       tagLine +
-      `<button type="button" onclick="document.getElementById('vdc-result').style.display='none';" style="margin-top:8px; font-size:.68rem; color:rgba(255,255,255,0.80); background:none; border:none; cursor:pointer; font-family:inherit;" data-i="dismiss">Dismiss</button>`;
+      `<button type="button" onclick="document.getElementById('vdc-result').style.display='none';" style="margin-top:8px; font-size:0.75rem; color:rgba(255,255,255,0.80); background:none; border:none; cursor:pointer; font-family:inherit;" data-i="dismiss">Dismiss</button>`;
     resultDiv.style.display = 'block';
   }
 
@@ -6402,7 +6458,7 @@ document.getElementById('btn-view-tasklist').addEventListener('click', () => {
   document.getElementById('tasklist-modal-subtitle').textContent = `${key}: ${category}`;
   document.getElementById('tasklist-modal-items').innerHTML = tasks.map((t, i) =>
     `<div class="flex items-start gap-3 rounded-xl px-3 py-2.5" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);">
-      <span class="text-[11px] font-black flex-shrink-0 mt-0.5" style="color:rgba(255,255,255,0.80);">${String(i + 1).padStart(2, '0')}</span>
+      <span class="text-xs font-black flex-shrink-0 mt-0.5" style="color:rgba(255,255,255,0.80);">${String(i + 1).padStart(2, '0')}</span>
       <span class="text-sm text-white/80 leading-snug">${escHtml(t)}</span>
     </div>`
   ).join('');
@@ -6649,12 +6705,12 @@ function renderPartsPickerList(query) {
         <div class="flex-1 min-w-0">
           <p class="text-sm font-semibold text-white">${escHtml(i.part_name)}</p>
           ${i.part_number ? '<p class="text-xs mt-0.5" style="color:rgba(255,255,255,0.80);">' + escHtml(i.part_number) + '</p>' : ''}
-          ${fits ? '<p class="text-[10px] font-bold mt-0.5" style="color:var(--wh-blue-text);">● Fits this asset</p>' : ''}
+          ${fits ? '<p class="text-xs font-bold mt-0.5" style="color:var(--wh-blue-text);">● Fits this asset</p>' : ''}
         </div>
         <div class="text-right flex-shrink-0">
           <p class="text-sm font-bold" style="color:${qtyColor}">${i.qty_on_hand} <span class="text-xs font-normal" style="color:rgba(255,255,255,0.80);">${escHtml(i.unit || 'pcs')}</span></p>
-          ${stockChip ? '<p class="text-[10px] font-bold" style="color:' + qtyColor + ';">' + stockChip + '</p>' : ''}
-          ${alreadyAdded ? '<p class="text-[10px]" style="color:rgba(255,255,255,0.80);">Added</p>' : ''}
+          ${stockChip ? '<p class="text-xs font-bold" style="color:' + qtyColor + ';">' + stockChip + '</p>' : ''}
+          ${alreadyAdded ? '<p class="text-xs" style="color:rgba(255,255,255,0.80);">Added</p>' : ''}
         </div>
       </div>
     </button>`;
@@ -6681,15 +6737,15 @@ function renderSelectedParts() {
     <div class="flex items-center gap-2 rounded-xl px-3 py-2.5" style="background:rgba(41,182,217,0.06); border:1px solid rgba(41,182,217,0.15);">
       <div class="flex-1 min-w-0">
         <p class="text-xs font-semibold text-white truncate">${escHtml(p.partName)}</p>
-        ${p.partNumber ? '<p class="text-[10px]" style="color:rgba(255,255,255,0.80);">' + escHtml(p.partNumber) + '</p>' : ''}
+        ${p.partNumber ? '<p class="text-xs" style="color:rgba(255,255,255,0.80);">' + escHtml(p.partNumber) + '</p>' : ''}
       </div>
       <div class="flex items-center gap-1.5 flex-shrink-0">
-        <span class="text-[10px]" style="color:rgba(255,255,255,0.80);">Qty:</span>
+        <span class="text-xs" style="color:rgba(255,255,255,0.80);">Qty:</span>
         <input type="number" min="1" value="${p.qty}" inputmode="numeric" aria-label="Quantity used"
           onchange="_partsUsed[${idx}].qty = Math.max(1, parseInt(this.value)||1)"
           class="text-xs text-center rounded-lg px-1 font-semibold"
           style="width:3rem; background:rgba(22,32,50,0.8); border:1px solid rgba(255,255,255,0.12); color:white; min-height:44px; font-size:16px;" />
-        <span class="text-[10px]" style="color:rgba(255,255,255,0.80);">${escHtml(p.unit)}</span>
+        <span class="text-xs" style="color:rgba(255,255,255,0.80);">${escHtml(p.unit)}</span>
         <button type="button" onclick="_partsUsed.splice(${idx},1); renderSelectedParts();"
           class="w-11 h-11 rounded-lg flex items-center justify-center ml-1"
           style="background:rgba(239,68,68,0.1); color:var(--wh-red); border:1px solid rgba(239,68,68,0.2); min-height:44px; min-width:44px; cursor:pointer;" aria-label="Remove">
@@ -6725,13 +6781,13 @@ function renderOpenJobs(entries) {
 
   const displayed = openEntries.slice(0, 3);
   const overflowMsg = openEntries.length > 3
-    ? `<p class="text-[11px] text-center mt-1" style="color:rgba(255,255,255,0.80);">+${openEntries.length - 3} more: use the "Open" filter below</p>`
+    ? `<p class="text-xs text-center mt-1" style="color:rgba(255,255,255,0.80);">+${openEntries.length - 3} more: use the "Open" filter below</p>`
     : '';
   list.innerHTML = displayed.map(e => `
     <div class="rounded-xl p-3 mb-2 cursor-pointer" style="background:rgba(239,68,68,0.06); border:1px solid rgba(239,68,68,0.15);"
       onclick="openModal('${e.id}')" role="button" tabindex="0"
       onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openModal('${e.id}')}"
-      aria-label="Open entry: ${escHtml(e.machine || 'Unknown machine')}"
+      aria-label="${escHtml(_t('Open entry', 'Buksan ang entry'))}: ${escHtml(e.machine || _t('Unknown machine', 'Hindi kilalang makina'))}"
       onmouseover="this.style.background='rgba(239,68,68,0.1)'" onmouseout="this.style.background='rgba(239,68,68,0.06)'">
       <div class="flex items-center justify-between gap-2">
         <div class="flex-1 min-w-0">
@@ -6739,8 +6795,8 @@ function renderOpenJobs(entries) {
           ${e.problem ? '<p class="text-xs mt-0.5 truncate" style="color:rgba(255,255,255,0.80);">' + escHtml(e.problem) + '</p>' : ''}
         </div>
         <div class="text-right flex-shrink-0 ml-2">
-          <p class="text-[10px]" style="color:rgba(255,255,255,0.80);">${e.date ? new Date(e.date).toLocaleDateString('en-PH', { month:'short', day:'numeric' }) : ''}</p>
-          <p class="text-[10px] font-bold mt-0.5" style="color:var(--wh-red);">Open</p>
+          <p class="text-xs" style="color:rgba(255,255,255,0.80);">${e.date ? new Date(e.date).toLocaleDateString('en-PH', { month:'short', day:'numeric' }) : ''}</p>
+          <p class="text-xs font-bold mt-0.5" style="color:var(--wh-red);">Open</p>
         </div>
       </div>
     </div>`).join('') + overflowMsg;
@@ -7071,6 +7127,48 @@ document.getElementById('f-category').addEventListener('change', updateTasklistS
     subtitle: 'Bawat trabahong nila-log mo ay nagpapalago ng iyong skill profile at knowledge base ng planta.',
     howworks: 'Paano gumagana ang page na ito',
   };
+</script>
+<script>
+/* Untranslated accessible names (design lens copy, 2026-09-22). These attributes are STATIC markup,
+   so there is nowhere to put a _t() call and they stayed English while the rest of the page
+   translated - the visible words in Filipino, the announced ones in English. Matched by their
+   English VALUE rather than by id, so duplicates are covered and nothing depends on an id.
+   WH_LANG is read directly with an English floor, as wayfinding.js does, because these must be
+   right on first paint and must not wait for utils.js to define the translator. Every swapped
+   element declares its own lang (WCAG 3.1.2, language of parts). */
+(function () {
+  var fil = false;
+  try { fil = (window.WH_LANG === 'fil') || (localStorage.getItem('wh_lang') === 'fil'); }
+  catch (_) { fil = (window.WH_LANG === 'fil'); }
+  if (!fil) return;
+  var MAP = [
+    ['aria-label', 'Scan equipment tag with camera', 'I-scan ang tag ng kagamitan gamit ang camera'],
+    ['aria-label', 'Search machine, failure, keyword...', 'Maghanap ng makina, sira, o keyword...'],
+    ['placeholder', 'Search machine, failure, keyword...', 'Maghanap ng makina, sira, o keyword...'],
+    ['aria-label', 'Filter by category', 'I-filter ayon sa kategorya'],
+    ['aria-label', 'Filter by status', 'I-filter ayon sa status'],
+    ['aria-label', 'Filter by worker', 'I-filter ayon sa manggagawa'],
+    ['aria-label', 'Filter from date', 'I-filter mula sa petsa'],
+    ['aria-label', 'Filter to date', 'I-filter hanggang sa petsa'],
+    ['aria-label', 'Export to CSV', 'I-export sa CSV'],
+    ['title', 'Export to CSV', 'I-export sa CSV']
+  ];
+  var apply = function () {
+    MAP.forEach(function (row) {
+      var attr = row[0], en = row[1], tl = row[2];
+      var sel = '[' + attr + '="' + en.replace(/"/g, '\\"') + '"]';
+      var nodes;
+      try { nodes = document.querySelectorAll(sel); } catch (_) { return; }
+      Array.prototype.forEach.call(nodes, function (el) {
+        el.setAttribute(attr, tl);
+        el.lang = 'fil';
+      });
+    });
+  };
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', apply);
+  } else { apply(); }
+})();
 </script>
 </body>
 </html>

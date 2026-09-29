@@ -44,7 +44,14 @@ CHECK_NAMES = ["pill_reserve"]
 # Home page(s) — wayfinding returns early (IS_HOME), no pill.
 HOME_PAGES = {"index.html"}
 
-LOADS_NAVHUB_RE  = re.compile(r"nav-hub\.js")
+# ★A MENTION IS NOT A LOAD (2026-09-28). This matched the bare string "nav-hub.js", so any
+# COMMENT naming the file made a page look like a nav-hub page. platform-actions.html is an admin
+# console that deliberately loads NEITHER nav-hub nor wayfinding - its own comment says so, "this
+# console loads neither ... a navigation hub on an admin console is a product decision" - and it was
+# reported as a pill-page/companion-page purely on the strength of those sentences. Acting on the
+# false reading first added 64px of dead top padding for a back-pill that is never injected.
+# Require an actual <script src=...> to call it loaded.
+LOADS_NAVHUB_RE  = re.compile(r"""<script[^>]*\ssrc\s*=\s*['"][^'"]*nav-hub\.js""")
 # In-layout back affordance that makes wayfinding SKIP the pill (so no reserve needed).
 BACK_AFFORDANCE_RE = re.compile(
     r"""class\s*=\s*["'][^"']*\b(?:back-btn|back-link|home-link|breadcrumb)\b"""

@@ -1,0 +1,28 @@
+{
+  "_doc": "Provenance for the real internet-sourced files in this directory (wave 4). The files are gitignored; this manifest is tracked. Written only by tools/fetch_fixture.py.",
+  "kind": "audio-clip",
+  "files": [
+    {
+      "file": "en-maintenance.wav",
+      "source_url": "https://upload.wikimedia.org/wikipedia/commons/c/c0/LL-Q1860_%28eng%29-Back_ache-Maintenance.wav",
+      "license": "CC BY-SA 4.0",
+      "author": "Speaker: Back ache\nRecorder: Back ache",
+      "note": "a real short English speech clip (Lingua Libre, the word 'maintenance') - WAV, playable into the microphone as Chromium's fake audio capture | source page https://commons.wikimedia.org/wiki/File:LL-Q1860_(eng)-Back_ache-Maintenance.wav",
+      "mime": "audio/x-wav",
+      "bytes": 125740,
+      "sha256": "89ad6bed5c25c226aaa659dc107076aa0eb8afc8a5e7721bf63b5be3bd4bb600",
+      "fetched": "2026-09-13T20:27:50Z"
+    },
+    {
+      "file": "en-us-percussive-maintenance.ogg",
+      "source_url": "https://upload.wikimedia.org/wikipedia/commons/4/47/En-us-percussive_maintenance.ogg",
+      "license": "CC BY-SA 4.0",
+      "author": "Paul2520",
+      "note": "a real short English speech clip ('percussive maintenance', US English) - OGG | source page https://commons.wikimedia.org/wiki/File:En-us-percussive_maintenance.ogg",
+      "mime": "application/ogg",
+      "bytes": 41347,
+      "sha256": "768625db10e122df789eaf88808fb2bedf16a25070b3976e6a9376755d11131a",
+      "fetched": "2026-09-13T20:27:52Z"
+    }
+  ]
+}
