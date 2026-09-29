@@ -34,7 +34,16 @@ export function audit(VIS_JS, opts) {
   opts = opts || {};
   const vis = VIS_JS ? (0, eval)(VIS_JS) : ((e) => !!e && (typeof e.checkVisibility === 'function' ? e.checkVisibility({ visibilityProperty: true }) : e.offsetParent !== null));
   const vw = innerWidth, vh = innerHeight;
+  // ★LANGUAGE OF PAGE AND LANGUAGE OF PARTS ARE TWO DIFFERENT WCAG CRITERIA (2026-09-29).
+  // `lang` alone answers 3.1.1 and is the wrong question on a MIXED page. A learn article in FIL swaps
+  // its chrome to Filipino while the prose stays English, and wh-i18n-lite.js says so in its own words:
+  // "the whole-document lang is deliberately NOT flipped here ... lang='fil' on <html> would be as untrue
+  // as lang='en' and the primary-language call is Ian's." What it DOES do is stamp every element it
+  // changed with `el.lang = 'fil'`, which is exactly what 3.1.2 asks. So `filParts` is recorded beside
+  // `lang`: a page with English prose, `<html lang="en">` and Filipino parts correctly marked is
+  // CONFORMANT, while a page showing Filipino with no lang declared anywhere is the real defect.
   const out = { step: opts.step || null, width: vw, lang: (document.documentElement.lang || '').slice(0, 3) || null,
+    filParts: document.querySelectorAll('[lang^="fil"], [lang^="tl"]').length,
     overflow: document.documentElement.scrollWidth - vw, outside: [], clipped: [], wrapped: [], spill: [], overflowEl: [], occlusion: [] };
   const poster = ((document.querySelector('meta[name="artifact-genre"]') || {}).content || '') === 'poster';
   if (poster) { out.poster = true; return out; }
@@ -185,15 +194,25 @@ export async function interactionSweep(page, VIS_JS, opts = {}) {
   for (const t of triggers.slice(0, max)) {
     await page.tap(`[data-pfs="${t.i}"]`, { timeout: 3000, force: true }).catch(async () => { await page.click(`[data-pfs="${t.i}"]`, { timeout: 3000, force: true }).catch(() => {}); });
     await page.waitForTimeout(600);
-    const a = await page.evaluate(audit, VIS_JS, { step: `after tapping "${t.label || '⋯'}"` }).catch((e) => ({ error: String(e).slice(0, 120), outside: [], clipped: [], wrapped: [], spill: [], overflowEl: [], occlusion: [], overflow: 0, step: `after tapping "${t.label}"` }));
-    records.push(a);
+    // ★THE SWEEP HAD NEVER MEASURED A SINGLE POST-TAP STATE (2026-09-29). This called
+    // `page.evaluate(audit, VIS_JS, {step})` — the two-argument form Playwright refuses with
+    // "Too many arguments. If you need to pass more than 1 argument to the function wrap them in an
+    // object." Every post-tap audit threw, the .catch turned it into an empty record, and the run
+    // printed `audit error: ...` beside a state it had measured NOTHING about: on the 320-wide FIL
+    // funnel that was 6 states on feedback/, 6 on marketplace.html, 3 on public-feed.html, 6 on
+    // learn/index.html. The sweep exists to catch what only appears AFTER an interaction, so a
+    // silent throw there is the instrument's entire purpose failing quietly.
+    // `record()` — nine lines below, added for exactly this and saying so in its own docstring
+    // ("awkward for two-argument evaluate; this bundles them") — was never called from here.
+    records.push(await record(page, VIS_JS, `after tapping "${t.label || '⋯'}"`));
     await page.keyboard.press('Escape').catch(() => {}); await page.waitForTimeout(200);
   }
   // the keyboard state: focus the first visible text input, take the record with it focused
   const focused = await page.evaluate(() => { const i = [...document.querySelectorAll('input[type="text"], input[type="search"], input:not([type]), textarea')].find((e) => e.checkVisibility && e.checkVisibility()); if (!i) return null; i.focus(); return i.id || i.name || i.placeholder || 'input'; }).catch(() => null);
   if (focused) {
     await page.waitForTimeout(300);
-    records.push(await page.evaluate(audit, VIS_JS, { step: `with "${focused}" focused (keyboard state)` }).catch(() => null));
+    // same two-argument bug as the tap loop above; the keyboard state was never measured either
+    records.push(await record(page, VIS_JS, `with "${focused}" focused (keyboard state)`));
     await page.keyboard.press('Escape').catch(() => {});
   }
   return records.filter(Boolean);

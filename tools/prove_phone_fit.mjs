@@ -63,7 +63,15 @@ for (const file of PAGES) {
   // the interaction sweep: the states a journey passes through, each with its own record
   const sweep = SWEEP ? await interactionSweep(p, VIS_JS, { max: 6 }) : [];
   if (a.poster) { console.log(`  n/a ${file.padEnd(34)} print poster: a fixed-width artifact by design (rubric artifact-genre=poster)`); n--; await p.close(); continue; }
-  const langNote = LANG === 'fil' && a.lang && !/^fil|^tl/.test(a.lang) ? [`lang: page answered <html lang="${a.lang}"> to a Filipino reader`] : [];
+  // ★A MIXED PAGE SATISFIES 3.1.2, NOT 3.1.1, AND THIS ASKED ONLY 3.1.1 (2026-09-29). The old test was
+  // `<html lang>` alone, so every learn article and calculator read BAD in FIL — 4 of the 10 pages in the
+  // 320-wide sweep — for a state their code chose on purpose. wh-i18n-lite.js swaps the CHROME to Filipino
+  // and leaves the PROSE English, stamping `el.lang='fil'` on each element it changed, and says in its own
+  // comment that flipping the whole document "would be as untrue as lang='en'" with the primary-language
+  // call reserved for Ian. A page whose Filipino is correctly marked part-by-part is conformant; the real
+  // defect is Filipino text with NO language declared anywhere, which is what this now catches.
+  const langNote = LANG === 'fil' && a.lang && !/^fil|^tl/.test(a.lang) && !a.filParts
+    ? [`lang: page answered <html lang="${a.lang}"> to a Filipino reader and marked no part lang="fil" (WCAG 3.1.1/3.1.2: declare the page's language, or the language of each swapped part)`] : [];
   const issues = issuesOf(a).concat(menuBad.map((s) => 'menu: ' + s), langNote, ...sweep.map((s) => issuesOf(s)));
   if (issues.length) bad++;
   console.log(`  ${issues.length ? 'BAD' : 'ok '} ${file.padEnd(34)} ${issues.length ? issues.length + ' issue(s)' : 'fits'}${a.error ? ' (' + a.error + ')' : ''}${SWEEP ? ` · ${sweep.length} interaction state(s)` : ''}`);
