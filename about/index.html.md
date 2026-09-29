@@ -10,7 +10,9 @@ Last updated 17 May 2026
 
 WorkHive is a free industrial intelligence platform built for every Filipino industrial worker, from field to management. It bundles a digital logbook, preventive maintenance scheduler, spare-parts inventory, skill matrix, engineering design calculators, and an AI work assistant. All free at the worker tier, forever.
 
-DTI Registered Business Name 8080496 · Valid 2026 to 2031 · National Scope
+DTI Registered Business Name 8080496
+
+Valid 2026 to 2031 · National Scope
 
 ## Why WorkHive exists
 
@@ -45,4 +47,4 @@ For partnerships, press, association memberships, or general inquiries: [admin@w
 
 For technical questions about the platform: open the AI Work Assistant in your hive, or email the same address.
 
-<!-- md-twin source-sha: 2ceb377230ac25e8 -->
+<!-- md-twin source-sha: 3f0203fa974ad0fb -->
