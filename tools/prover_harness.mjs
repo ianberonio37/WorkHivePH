@@ -27,7 +27,21 @@ export const DB_PAGES = [
 // a page that needs a query to render at all - keyed by the page's OWN parameter name (urlParams.get('worker'), not 'seller')
 export const PAGE_QUERY = { 'marketplace-seller-profile.html': '?worker=Isidro%20Suarez' };
 // visibility INSIDE the page: a position:fixed notice or a sticky header has NO offsetParent and is still on screen
-export const VIS_JS = "(function (e) { return !!e && (typeof e.checkVisibility === 'function' ? e.checkVisibility() : e.offsetParent !== null); })";
+// ★BARE checkVisibility() CALLS A HIDDEN ELEMENT VISIBLE (2026-09-29). Every option defaults to FALSE,
+// so `e.checkVisibility()` tests only `display:none` and an empty box - it returns TRUE for
+// `visibility:hidden` and for `opacity:0`. Measured on index.html at 320: all four nav-hub controls
+// (#wh-hub-open-companion, #wh-hub-open-feedback, #wh-hub-global-search, #wh-hub-search) compute
+// `visibility: hidden; pointer-events: none` because the hub panel is CLOSED, and this predicate said
+// visible for all four. The occlusion check then dutifully reported each one "covered" by whatever sits
+// above a closed panel - 18 findings on marketplace.html, 17 on public-feed.html, 6 on index.html, none
+// of them real. A closed panel's buttons are not occluded controls; they are not controls on screen at all.
+// The correct form was already in this repo: phone_fit_audit.mjs's own fallback passes
+// `{ visibilityProperty: true }`. Only the SHARED predicate, which every prover importing VIS_JS uses,
+// never did - so the fix belongs here rather than in one caller.
+// opacityProperty and contentVisibilityAuto are included for the same reason: a fully transparent control
+// and a `content-visibility:auto` subtree that was never rendered are both invisible to the person the
+// walk is meant to be standing in for.
+export const VIS_JS = "(function (e) { return !!e && (typeof e.checkVisibility === 'function' ? e.checkVisibility({ visibilityProperty: true, opacityProperty: true, contentVisibilityAuto: true }) : e.offsetParent !== null); })";
 
 export async function signIn(ctx, opts = {}) {
   const who = { ...WORKER, ...opts };
@@ -90,6 +104,19 @@ if (process.argv.includes('--self-test')) {
   if (visFn && visFn(null) !== false) fails.push('VIS_JS must treat a missing element as invisible');
   if (visFn && visFn({ checkVisibility: () => true }) !== true) fails.push('VIS_JS must honour checkVisibility()');
   if (visFn && visFn({ offsetParent: null }) !== false) fails.push('VIS_JS falls back to offsetParent when checkVisibility is absent');
+  // ★AND IT MUST ASK FOR THE OPTIONS, which is the bug this file shipped until 2026-09-29: every option
+  // defaults to FALSE, so a bare checkVisibility() called `visibility:hidden` and `opacity:0` VISIBLE and
+  // the occlusion check reported a closed nav-hub panel's buttons as covered controls (18 findings on
+  // marketplace.html alone, none real). The assertions above could not see that - both pass against a
+  // predicate that ignores the options entirely - so this records WHAT WAS ASKED, not just that the modern
+  // API was reached for.
+  if (visFn) {
+    let asked = null;
+    visFn({ checkVisibility: (o) => { asked = o; return true; } });
+    for (const k of ['visibilityProperty', 'opacityProperty', 'contentVisibilityAuto']) {
+      if (!asked || asked[k] !== true) fails.push(`VIS_JS must pass ${k}:true — without it checkVisibility() calls a hidden element visible`);
+    }
+  }
   console.log(fails.length ? 'FAIL prover-harness self-test - ' + fails.join('; ') : 'self-test OK: psql + psqlAs answer, PAGE_QUERY uses the page\'s own key, VIS_JS prefers checkVisibility');
   process.exit(fails.length ? 1 : 0);
 }
