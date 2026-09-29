@@ -1046,7 +1046,7 @@ def _html_page(slug: str, data: dict) -> tuple[str, list]:
          whether the chip is TRUE - a page can hold two contradictory false claims and read 100% on the
          trust dimension ([[feedback_metric_label_is_a_claim_add_the_missing_half]]). Both now state the
          one true thing: the platform's real engine produced these numbers when the page was built. -->
-    <p class="wh-source-chip" role="status" aria-live="polite" data-i="calc_chip" style="font-size:.7rem; opacity:.85; margin:.25rem 0 1rem;">Static · formula-only · worked example computed when this page was built · no live data</p><!-- G1+E3 -->
+    <p class="wh-source-chip" role="status" aria-live="polite" data-i="calc_chip" style="font-size: 0.75rem; opacity:.85; margin:.25rem 0 1rem;">Static · formula-only · worked example computed when this page was built · no live data</p><!-- G1+E3 -->
 
     <p class="answer-first"><strong>{e(answer)}</strong></p>
 
