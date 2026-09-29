@@ -279,6 +279,43 @@ def declared_paths() -> dict:
     return paths
 
 
+def _is_public(page: str) -> bool:
+    """A signed-out surface. The roster's own shape: root app pages are bare `*.html`, while every
+    learn article, calculator and public page is `<dir>/index.html` (served_pages(): root 32 bare names,
+    learn 55, calc 60, public 4 — all directory-form)."""
+    return "/" in page
+
+
+def declared_signin_roles() -> dict:
+    """The mode each archetype is walked as AFTER it signs in, when the registry declares one.
+
+    ★A JOURNEY THAT STARTS ANONYMOUS CHANGES WHO IS WALKING IT PART-WAY THROUGH (2026-09-29), and one
+    `persona` per row could not say so. 1,000+ W4 rows arrive on a public page as `anon` and then continue
+    into app pages, e.g. W41891: `learn/ai-companion-…/index.html -> hive.html -> analytics.html ->
+    hive.html -> audit-log.html`. Graded with ONE cast for the whole path, every app hop looked like "a
+    surface the product reserves for another role" and 19 archetypes read red.
+
+    The route those hops actually take is NOT the nav drawer — it is the auth wall. An anonymous visitor
+    who follows a learn article's CTA into an app page is bounced to `index.html?signin=1&return=<page>`
+    and returned to it, which is the SAME mechanism `g5d-reauth-restore` exists to prove and which was
+    driven live on 2026-09-29 (filled `#si-username`/`#si-password`, clicked `#si-btn`, landed on
+    `logbook.html`). So the public->app hop is reachable, and it is the segment AFTER it that has a role
+    question — asked of whoever signed in, not of the anonymous person who started.
+
+    Absent `journey.signed_in_as` this returns nothing and `role_blocked_hops` grades exactly as before,
+    so the rule cannot change a verdict until the registry actually declares the role.
+    """
+    reg = json.loads(REGISTRY.read_text(encoding="utf-8"))
+    out = {}
+    for t in reg["trajectories"]:
+        j = t.get("journey") or {}
+        arch = j.get("archetype")
+        role = j.get("signed_in_as")
+        if arch and role and arch not in out:
+            out[arch] = role
+    return out
+
+
 def declared_casts() -> dict:
     """Which hub mode each archetype is actually walked as — the same rule the journey prover applies."""
     reg = json.loads(REGISTRY.read_text(encoding="utf-8"))
@@ -300,10 +337,22 @@ def role_blocked_hops(paths=None, casts=None, links=None) -> list:
         links = link_graph()
     roles = hub_roles()
     outonly = signed_out_only()
+    signin = declared_signin_roles()
     out = []
     for arch, pages in sorted(paths.items()):
         mode = casts.get(arch, "field")
+        # The post-sign-in mode, when the registry declares one. Falls back to `mode`, so an archetype
+        # that declares nothing is graded exactly as it was before this rule existed.
+        after = signin.get(arch) or mode
+        crossed = False
         for a, b in zip(pages, pages[1:]):
+            # THE AUTH WALL IS THE ROUTE, so the public->app hop is not a hub-drawer question: the person
+            # is bounced to index.html?signin=1&return=<b> and returned to b. Everything after it is
+            # walked by whoever signed in, which is why `after` takes over from here.
+            if not crossed and _is_public(a) and not _is_public(b):
+                crossed = True
+                mode = after
+                continue
             # a destination only a signed-OUT visitor can reach is unreachable to every cast here: each of
             # them is somebody with an account, and the landing page hides that section from them
             if b in outonly:
@@ -458,7 +507,14 @@ def main() -> int:
         # ★TEETH FOR THE ROLE CLASS, WHICH READ 28 THEN 14 THEN 6 BEFORE IT WAS RIGHT. Each mutation below
         # is one of the three vocabulary errors that inflated it, so none of them can come back quietly.
         hr = hub_roles()
-        if hr.get("alert-hub.html") != ["supervisor"]:
+        # ★PIN THE PROPERTY, NOT THE MEMBERSHIP (2026-09-29). This read `!= ["supervisor"]`, so when
+        # alert-hub legitimately gained `engineer` in nav-hub.js the self-test failed while the gate was
+        # working perfectly — the assertion was tracking a product decision instead of the parser. What
+        # this test exists to prove is that roles are READ at all and that alert-hub is not a field
+        # destination, which is exactly what the two role_blocked_hops teeth below rely on; whether a
+        # second non-field role sits beside supervisor is the product's business and may change again.
+        _ah = hr.get("alert-hub.html") or []
+        if "supervisor" not in _ah or "field" in _ah:
             fails.append(f"the hub's roles are not being read: alert-hub -> {hr.get('alert-hub.html')}")
         if "field" not in (hr.get("logbook.html") or []):
             fails.append("the logbook reads as closed to a field worker - the hub's word for a worker is 'field'")

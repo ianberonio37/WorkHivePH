@@ -87,6 +87,42 @@ ACTION_UFAI = {"write": ["F", "I"], "rpc": ["F"], "edge": ["F", "A"], "upload": 
 NAV_HUB_LAYERS, NAV_HUB_UFAI = ["F", "CA"], ["U", "A"]
 PERSON_LAYERS = {"F", "CA"}           # every other layer story is a contract the platform must keep
 CONTINUATION = ["hive.html", "analytics.html", "audit-log.html", "logbook.html", "index.html"]
+# ★THE PADDING WAS ROLE-BLIND, SO WORKER JOURNEYS WERE PADDED WITH SUPERVISOR SURFACES (2026-09-29).
+# `_path` pads every journey from CONTINUATION to reach min_pages, and two of its five entries are pages
+# the hub does NOT offer a worker: asked of nav-hub.js through check_journey_paths.hub_roles(),
+# `analytics.html` is ['supervisor','engineer'] and `audit-log.html` is ['supervisor'] (while `hive.html`
+# and `logbook.html` are ['field','supervisor'], so those two were always fine). Result: W41468
+# `persona: worker` seeded `index.html -> hive.html -> ai-quality.html -> analytics.html`, and W45761
+# `persona: worker` seeded `... -> analytics.html -> hive.html -> audit-log.html` - routes their own cast
+# cannot walk. check_journey_paths reported it from the other end as 19 archetypes whose "CAST's own hub
+# mode cannot reach" the destination.
+# `_hop_ok`/`_NAV_OFFERED` ask whether the platform offers a hop to SOMEONE, never whether THIS cast can
+# reach it, which is why the seeder could satisfy "every hop follows an offered route" (0 findings) and
+# still hand a worker a supervisor's page.
+# These are the hub's ACTUAL field-mode destinations, read from nav-hub.js and not assumed: asset-hub,
+# dayplanner, hive, inventory, logbook, pm-scheduler, shift-brain, voice-journal (+ index.html, the
+# landing page, which carries no `roles:` because it is nobody's drawer entry).
+CONTINUATION_FIELD = ["hive.html", "logbook.html", "pm-scheduler.html", "inventory.html", "index.html"]
+_CAST_SUP = __import__("re").compile(r"supervisor|oversight|owner|engineer|manager", re.I)
+
+
+def _hub_roles() -> dict:
+    """Which hub modes each destination is offered to, read by the GATE's parser so there is exactly one
+    reader of nav-hub.js. Returns {} if the gate is unavailable, which leaves the historical vote intact
+    rather than silently reassigning every persona on an import error."""
+    try:
+        sys.path.insert(0, str(Path(__file__).resolve().parent))
+        from check_journey_paths import hub_roles
+        return hub_roles()
+    except Exception:
+        return {}
+
+
+def _cast_of(persona_str: str) -> str:
+    """field vs supervisor, by the SAME rule check_journey_paths.cast_mode applies to the row it writes.
+    Duplicating the regex here rather than importing keeps the seeder standalone; the selftest below
+    pins the two against each other so they cannot drift."""
+    return "supervisor" if _CAST_SUP.search(persona_str or "") else "field"
 NAV_HUB_STOPS = ["hive.html", "assistant.html", "logbook.html", "alert-hub.html"]
 ANON_VERTICAL = {"learn": "a search result for a learn article", "calc": "a free calculator someone linked",
                  "public": "a search result for the platform itself"}
@@ -277,7 +313,8 @@ def _effects(page: str, kind: str, subject: str, roots: list[str]) -> list[str]:
     return []
 
 
-def _path(start: list[str], page: str, effects: list[str], min_pages: int = 4) -> list[str]:
+def _path(start: list[str], page: str, effects: list[str], min_pages: int = 4,
+          cast: str = "supervisor") -> list[str]:
     """The route a person actually takes: every hop entered the way the platform parents it (the wave-3
     _entry_chain), the page, the pages its effect crosses, and the platform's own continuation until the
     journey spans at least four pages (feedback_a_journey_path_is_a_route_not_a_list)."""
@@ -306,7 +343,9 @@ def _path(start: list[str], page: str, effects: list[str], min_pages: int = 4) -
     add(page)
     for e in effects:
         add(e)
-    for c in CONTINUATION:
+    # Pad only from surfaces THIS cast is offered. `cast` defaults to "supervisor" so an un-updated
+    # caller keeps the old, widest list rather than silently narrowing a supervisor journey.
+    for c in (CONTINUATION_FIELD if cast == "field" else CONTINUATION):
         if len(pages) >= min_pages:
             break
         add(c)
@@ -396,6 +435,21 @@ def _persona_by_page(existing: list[dict]) -> dict[str, str]:
             if k not in ("any", "?"):
                 out[p] = k
                 break
+    # ★A VOTE OVER HISTORY PERPETUATES HISTORY'S MISTAKES (2026-09-29). The loop above picks whichever
+    # persona the most existing rows already used for a page, so once any wave attached `worker` to a
+    # supervisor-only surface, every later wave inherited it by majority. That is the second half of the
+    # journey-paths red: after the padding was made cast-aware, the only unreachable page left in a field
+    # route was the row's OWN SUBJECT - `ai-quality.html` (hub ['supervisor']), `analytics.html`
+    # (['supervisor','engineer']), `audit-log.html` (['supervisor']) - carrying persona `worker`. A field
+    # protagonist cannot be the subject of a page the hub never offers them.
+    # So the vote is now CHECKED against what the hub offers, asked of check_journey_paths.hub_roles()
+    # rather than re-parsed here: one reader of nav-hub.js, so the seeder and the gate cannot disagree
+    # about who a page is for.
+    roles = _hub_roles()
+    for p, k in list(out.items()):
+        r = roles.get(p)
+        if r and _cast_of(k) not in r:
+            out[p] = "supervisor" if "supervisor" in r else r[0]
     return out
 
 
@@ -453,7 +507,8 @@ def plan(existing: list[dict] | None = None) -> list[dict]:
             layers = ACTION_LAYERS[kind]
             for lay in layers:
                 action_cells.add((page, lay))
-            pages = _path(_start(page), page, _effects(page, kind, subject, roots))
+            pages = _path(_start(page), page, _effects(page, kind, subject, roots),
+                          cast=_cast_of(persona(page)))
             fixture = UPLOAD_PAGES[page][0] if (kind == "upload" and page in UPLOAD_PAGES) else None
             story = (f"{persona(page)} arrives by {entry(page)}, reaches {_short(page)} through the platform's "
                      f"own navigation, {_verb(kind, subject, page)}, and follows the effect to its terminus "
@@ -485,7 +540,7 @@ def plan(existing: list[dict] | None = None) -> list[dict]:
     layer_cells = [c for c in grid["not_lived"] if c not in action_cells]
     for page, lay in layer_cells:
         lens, ufai = LAYER_LENS[lay]
-        pages = _path(_start(page), page, [])
+        pages = _path(_start(page), page, [], cast=_cast_of(persona(page)))
         story = (f"{persona(page)} lives layer {lay} on {_short(page)} start to end: "
                  f"{lens[0].lower() + lens[1:]}; provoked, observed and followed across "
                  f"{' -> '.join(_short(p) for p in pages)}" + record)
@@ -543,8 +598,8 @@ def confusion_rows(existing: list[dict]) -> list[dict]:
             continue
         page = e.get("host") or (e["page"] if e["page"].endswith(".html") else "achievements.html")
         component = e["page"] if e["page"].endswith(".js") else None
-        pages = _path(_start(page), page, [])
         persona = "anon" if page_class(page) != "root" else persona_of.get(page, "worker")
+        pages = _path(_start(page), page, [], cast=_cast_of(persona))
         entry = "search-arrival" if page_class(page) != "root" else ("direct" if page == "index.html" else "hub-nav")
         idx = roots.index(page) if page in roots else 0
         short = _short(page) + (f" ({component})" if component else "")
@@ -621,8 +676,8 @@ def design_rows(existing: list[dict]) -> list[dict]:
     arithmetic: dict = {"by_class": Counter(), "by_lens": Counter()}
     for page in roster:
         cls = page_class(page)
-        pages = _path(_start(page), page, [])
         persona = "anon" if cls != "root" else persona_of.get(page, "worker")
+        pages = _path(_start(page), page, [], cast=_cast_of(persona))
         entry = "search-arrival" if cls != "root" else ("direct" if page == "index.html" else "hub-nav")
         idx = roster.index(page)
         vertical = ANON_VERTICAL[cls] if cls != "root" else HIVES[idx % len(HIVES)]

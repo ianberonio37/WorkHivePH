@@ -1,16 +1,16 @@
 ---
 name: memory-corpus
 type: memory
-source: memory-curated:967-files
-source_sha: 676beab6e0e40810
+source: memory-curated:970-files
+source_sha: 7dfc62d15625c5b3
 last_verified: 2026-07-13
 supersedes: null
 ---
-## memory · curated auto-memory (967 durable topic files)
+## memory · curated auto-memory (970 durable topic files)
 
 First-class substrate source. The BODIES live in `memory/*.md` (Memento-indexed for retrieval via `memory_cache.py --retrieve`); this manifest is the freshness/governance record for the CURATED corpus (reference/feedback/project) — transient handoffs are excluded.
 
-**By type:** feedback=581 · project=297 · reference=89
+**By type:** feedback=583 · project=298 · reference=89
 
 **Corpus fingerprint (source_sha):** editing/adding any curated memory changes it → rebuild `build_substrate.py --type memory` (part of the flywheel's persist spoke).
 
@@ -93,6 +93,7 @@ Entries (name · type · sha):
 - `feedback_a_live_poll_repaint_destroys_focus_but_not_the_draft` · feedback · 523e21d446d18205
 - `feedback_a_lock_nothing_runs_locks_nothing` · feedback · 1f7a7fdfe5431e69
 - `feedback_a_locked_trajectory_still_had_the_defect` · feedback · 5bab23356ce11814
+- `feedback_a_long_boards_fail_count_is_a_claim_about_the_run` · feedback · 7fdedefaa1edfcbf
 - `feedback_a_manual_walk_must_resolve_the_pinned_hive_like_the_sweep_does` · feedback · 141437e9009500f6
 - `feedback_a_media_query_adds_no_specificity` · feedback · dbfdb84f74a4e837
 - `feedback_a_metamorphic_relation_needs_a_non_vacuity_check` · feedback · 3ef9b3ad98824df5
@@ -515,7 +516,6 @@ Entries (name · type · sha):
 - `feedback_the_gate_kept_scoring_the_old_mechanism` · feedback · 2d7bb9bdf00f664e
 - `feedback_the_guard_failed_open_timeout` · feedback · 4b5997e1e75a441c
 - `feedback_the_guard_watched_the_caption_not_the_article` · feedback · 98bb9ac46d8e82ce
-- `feedback_the_hosts_name_was_in_the_walls_url` · feedback · 1a965cc604dc3c8d
-- … +467 more (all included in the fingerprint)
+- … +470 more (all included in the fingerprint)
 
 Links: [[project_platform_knowledge_substrate]] [[reference_pm_attribution_pin]]

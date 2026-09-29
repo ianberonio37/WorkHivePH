@@ -4,7 +4,7 @@
   "health": "platform_health.json",
   "automation_log": "public.automation_log"
  },
- "open": 2,
+ "open": 1,
  "resolved": 4,
  "incidents": [
   {
@@ -44,20 +44,11 @@
    "status": "resolved"
   },
   {
-   "id": "gate-journey-paths",
-   "source": "gate",
-   "title": "journey-paths",
-   "severity": "major",
-   "started_at": "2026-09-28T23:33:14.370998+00:00",
-   "ended_at": null,
-   "status": "open"
-  },
-  {
    "id": "gate-status-incidents-derived",
    "source": "gate",
    "title": "status-incidents-derived",
    "severity": "major",
-   "started_at": "2026-09-28T23:33:14.370998+00:00",
+   "started_at": "2026-09-29T01:55:24.212352+00:00",
    "ended_at": null,
    "status": "open"
   }
