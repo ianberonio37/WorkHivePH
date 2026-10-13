@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: da3f252fc95fe2e4
+source_sha: 4a5c8ef576a6b5d4
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (1359) — the 'what's already gated' brain
+## gate · registered validators (1360) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -374,7 +374,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `w4-layer-loadbearing` ⚡ [fail] — Wave-4 layer-LB stories: every LB-layer row's page keeps its rendered list bounded (a fetch cap, pagination, virtualization, or a pre-render slice), or reads no
 - `w4-layer-rl` ⚡ [fail] — Wave-4 layer-RL stories: every RL-layer row's page bounds what it fetches or has no list to bound (source-level, the non-browser witness the rate-limit layer ne
 
-### Platform (998)
+### Platform (999)
 - `404-notice-helps` [fail] — 404 Notice Helps (a dead path names itself, pre-fills the slug the visitor asked for, and one Enter reaches matching guides; no-match says so; real pages stay s
 - `a-busy-button-says-working` [fail] — T41 (2026-08-28): a locked control announces WORK, not unavailability. button-lock.js is the platform's single-flight guard - withButtonLock disables a committi
 - `a-deferral-is-not-a-completion` [fail] — T10 (2026-08-28): a task put off is not a task done. A worker who cannot do a PM today DEFERS it; one who does it COMPLETES it, and the gap between those is whe
@@ -1126,6 +1126,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `read_idempotency` [fail] — Read idempotency (the same ordered read twice, over two separate connections, returns the same bytes — with a proven-sensitive digest, not a vacuous match)
 - `readonly-p6-no-edit` ⚡ [fail] — Read-only P6 lock (static) — 11 pages VERIFIED to have no client edit surface (no .update/.upsert on a shared row) were scored P6=100 covered-by-nature (no conc
 - `realtime-backfill` [fail] — Reconnect & backfill: hive/community re-read on rejoin, platform-actions/alert-hub catch up by poll (live: network cut, DB insert, reconnect -> row appears)
+- `realtime-blocked-socket` [fail] — A blocked realtime socket never stops a page from loading, and the shipped CSP lets WebKit open it: WebKit throws SecurityError under the old connect-src and no
 - `realtime-channel-cap` ⚡ [fail] — Q5 Realtime Cap + Graceful-429 (whRealtimeSubscribe bounds channels PER CLIENT against the verified 200-concurrent free-tier wall + degrades overflow/offline to
 - `realtime-channel-cleanup` ⚡ [fail] — Realtime Channel Cleanup (every db.channel() has cleanup; forward-only ratchet)
 - `realtime-cleanup` ⚡ [fail] — Realtime Subscription Cleanup (4-layer: cleanup pairing + lifecycle wiring + const-decl warning + asymmetry metric)

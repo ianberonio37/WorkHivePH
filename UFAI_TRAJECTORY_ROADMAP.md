@@ -2625,6 +2625,21 @@ refilled the key. The release's account-keyed check stopped the deleting; it cou
   third `logbook-hive-restore` walk); an empty list in personal mode says so and offers "Show my hive's assets"; and
   the Manage Assets cards stack their buttons (at 390 the tag wrapped to "PB-"/"001" and the name ran one word a line).
 
+- **Ian, a third time: "the same concerns ... it can be found to asset hub, but no list in my manage assets and
+  select assets, why seems you don't get the problem?"** Three local reproductions had each found a real defect and
+  none was his. The answer was in production's own instruments, not in a look-alike: the API gateway log showed his
+  phone's Asset Hub fetching `asset_nodes` (6 rows) on every visit and his logbook never asking for them at all, and
+  `client_errors` held what the logbook wrote on every visit: *"WebSocket not available: The operation is insecure."*
+  from `subscribeLogbookRealtime()`, inside the async start-up, before `initAssets()`. WebKit (iPhone Chrome and
+  Safari) throws `SecurityError` from `new WebSocket` when the CSP's `connect-src` does not name `wss:` - vercel.json
+  named only `https://…supabase.co` - and supabase-js opens the socket synchronously inside `channel.subscribe()`;
+  Chromium fails such a socket quietly, so every local walk passed. Asset Hub subscribes only on a detail open, so its
+  list survived. Fixed: `connect-src` names `wss://…supabase.co`; `utils.js` wraps every channel's `subscribe()` (29
+  sites on 14 pages pass through the one client factory) so a throw becomes a warning and `CHANNEL_ERROR`;
+  `logbook.html` guards its own call. Gate `realtime-blocked-socket` (`tools/prove_realtime_blocked_socket.mjs`): real
+  WebKit throws under the old `connect-src` and constructs under the shipped one; with `new WebSocket` forced to throw,
+  the logbook loads 30 assets and the pre-fix files (`90ed9a8e`) never build the list. sw v519.
+
 **The front door, decided by Ian** (AskUserQuestion, all four recommendations). Measured before building: since the
 lens learned to see scroll-revealed content, the FAQ's `<details>` count, so O2 (18 help affordances) and A3
 (15 disclosures) already passed on a phone; a new "How it works" panel would have duplicated the FAQ and the hero's

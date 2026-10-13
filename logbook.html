@@ -7781,7 +7781,11 @@ document.getElementById('f-category').addEventListener('change', updateTasklistS
     document.getElementById('btn-view-team').addEventListener('click', () => setViewMode('team'));
 
     // D3.2 — live cross-page propagation: badge teammates' new logbook entries.
-    subscribeLogbookRealtime();
+    // ★NEVER LET THE LIVE BADGE DECIDE WHETHER THE PAGE LOADS (2026-10-14). On Ian's iPhone this call threw
+    // ("WebSocket not available: The operation is insecure." - WebKit on a CSP-blocked wss:) and, being inside this
+    // async start-up, ended it here: initAssets() below never ran and Manage Assets / Select Asset read empty on every
+    // visit. utils.js now guards every subscribe; this keeps the asset load alive whatever the socket does.
+    try { subscribeLogbookRealtime(); } catch (e) { console.warn('[logbook] live badge unavailable; the page loads without it:', e && e.message); }
   }
 
   initAssets().then(() => {

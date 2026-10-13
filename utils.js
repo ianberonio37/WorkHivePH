@@ -2102,6 +2102,34 @@ window.getDb = function(url, key) {
     // refreshes on wake, before the user's next action.
     auth: { autoRefreshToken: true, persistSession: true, detectSessionInUrl: true },
   });
+  /* ★A BLOCKED SOCKET MUST NOT KILL THE PAGE (2026-10-14, Ian's missing logbook assets, read from production's
+     client_errors). WebKit (iPhone Chrome and Safari) THROWS "SecurityError: The operation is insecure." from
+     `new WebSocket` when the CSP's connect-src does not name wss: (Chromium fails the socket quietly instead), and
+     supabase-js opens the socket synchronously inside channel.subscribe(). logbook.html subscribed during its
+     start-up, so the throw ended the start-up before initAssets() ever ran - "No assets registered yet." on every
+     visit from his phone, while Asset Hub (which subscribes only on a detail open) still listed them. 29 channel
+     sites across 14 pages call subscribe the same way; this is the one place they all pass through, so a throw here
+     becomes a warning and the callback hears CHANNEL_ERROR (rtConn() then reports 'offline', and the pages that use
+     whRealtimeSubscribe degrade to polling). The CSP now names wss: too (vercel.json); this holds for the next cause. */
+  (function (client) {
+    if (!client || typeof client.channel !== 'function') return;
+    var _channel = client.channel.bind(client);
+    client.channel = function () {
+      var ch = _channel.apply(null, arguments);
+      if (!ch || typeof ch.subscribe !== 'function') return ch;
+      var _subscribe = ch.subscribe.bind(ch);
+      ch.subscribe = function (cb, timeout) {
+        try {
+          return _subscribe(cb, timeout);
+        } catch (e) {
+          try { console.warn('[wh] realtime unavailable on this device; live updates are off:', e && e.message); } catch (_) { /* empty-catch-allow */ }
+          try { if (typeof cb === 'function') cb('CHANNEL_ERROR', e); } catch (_) { /* empty-catch-allow: the callback's own fault */ }
+          return ch;
+        }
+      };
+      return ch;
+    };
+  })(window._whSupabaseClient);
   // Finding #6: proactively refresh the session when the tab returns to the foreground after
   // being hidden — covers the "woke from hours of idle" case where the background refresh timer
   // didn't run, so queries after wake use a fresh token instead of 401-ing on the expired one.
