@@ -2,7 +2,7 @@
 name: memory-corpus
 type: memory
 source: memory-curated:1005-files
-source_sha: ee8f74f9fae1231a
+source_sha: 1a6997ddc972f7fa
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -196,7 +196,7 @@ Entries (name · type · sha):
 - `feedback_an_impossibly_good_result_is_the_defect` · feedback · b5c69946621283f0
 - `feedback_an_inventory_wrong_in_both_directions` · feedback · fa98d1196b01ceaf
 - `feedback_an_oracle_that_does_not_match_the_claim` · feedback · 3e2f05e53d0fbe02
-- `feedback_an_oracles_vocabulary_is_part_of_the_oracle` · feedback · eb91d611a74810a8
+- `feedback_an_oracles_vocabulary_is_part_of_the_oracle` · feedback · 001495ac3d6067c7
 - `feedback_analytics_engine_ufai_chart_truths` · feedback · 46b99242f6940bd6
 - `feedback_analytics_orchestrator_local_edge_cpu_and_b3_guard` · feedback · 82a690177f3b49f5
 - `feedback_ancestor_padding_cannot_move_a_viewport_pinned_box` · feedback · d7fb7cff282a0b8a
