@@ -108,6 +108,46 @@ async function walk(disableHelper) {
   return { seatedAtSignIn, ...prev, personal, hub, pm };
 }
 
+// ★THE SKEW WALK (2026-10-14, the MCP journey of Ian's phone): an old utils.js held in the HTTP cache, served to every
+// <script src> until the page fetch()es the file past the cache - the logbook's self-heal - and the real file after.
+async function skewWalk() {
+  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: 'block' });
+  const seen = [];
+  let fresh = false;
+  await ctx.route('**/utils.js*', async (route) => {
+    const kind = route.request().resourceType();
+    if (kind === 'fetch') fresh = true;
+    const res = await route.fetch();
+    let body = await res.text();
+    if (!fresh) body = body.replace('async function whEnsureHiveContext(', 'async function whEnsureHiveContext_disabled(');
+    seen.push(`${kind}:${fresh ? 'fresh' : 'stale'}`);
+    await route.fulfill({ response: res, body });
+  });
+  const page = await ctx.newPage();
+  await page.goto(`${SEEDER}/workhive/index.html?signin=1`, { waitUntil: 'load', timeout: 30000 });
+  await page.fill('#si-username', WHO.username);
+  await page.fill('#si-password', WHO.password);
+  await page.click('#si-btn');
+  await page.waitForFunction(() => !!localStorage.getItem('wh_active_hive_id'), null, { timeout: 20000 }).catch(() => {});
+  await page.evaluate((keys) => { keys.forEach((k) => localStorage.removeItem(k)); sessionStorage.clear(); }, WIPE);
+  seen.length = 0; fresh = false;
+  await page.goto(`${SEEDER}/workhive/logbook.html`, { waitUntil: 'load', timeout: 45000 });
+  let st = { hive: null, tags: null, guard: null };
+  for (let i = 0; i < 25; i++) {
+    await page.waitForTimeout(1000);
+    try {
+      st = await page.evaluate(() => ({
+        hive: (typeof HIVE_ID !== 'undefined') ? HIVE_ID : 'undeclared',
+        tags: (typeof _assets !== 'undefined' && Array.isArray(_assets)) ? _assets.map((a) => a.asset_id || a.tag || a.name) : null,
+        guard: sessionStorage.getItem('wh_utils_refetched'),
+      }));
+    } catch (_) { continue; }   // mid-reload
+    if (st.hive === HIVE && st.tags && st.tags.includes(TAG)) break;
+  }
+  await ctx.close();
+  return { ...st, seen: seen.slice() };
+}
+
 const fixed = await walk(false);
 notes.push(`with the restore: signed in to ${fixed.seatedAtSignIn === HIVE ? 'his hive' : fixed.seatedAtSignIn}; after the wipe + name drift the logbook `
   + `read HIVE_ID=${fixed.hive === HIVE ? 'his hive' : fixed.hive}, ${fixed.tags ? fixed.tags.length : 'no'} asset(s), ${TAG} present: ${fixed.tags ? fixed.tags.includes(TAG) : 'n/a'}`);
@@ -120,6 +160,13 @@ if (fixed.hub.stored !== HIVE || !fixed.hub.listed) problems.push(`Asset Hub ope
 notes.push(`with the recovery, PM Scheduler opened directly after the same wipe: HIVE_ID ${fixed.pm.hive === HIVE ? '= his hive (re-seated, one reload)' : fixed.pm.hive}`);
 if (fixed.pm.hive !== HIVE) problems.push(`PM Scheduler (no start-up restore of its own) stayed solo after the wipe (HIVE_ID=${fixed.pm.hive}) - utils.js whHiveRecovery did not re-seat it`);
 if (fixed.personal !== 0) problems.push(`VACUOUS: ${WHO.real} has ${fixed.personal} personal asset(s); a solo page could list those, so the empty-list half proves nothing (pick a subject with none)`);
+
+const sk = await skewWalk();
+notes.push(`skew (an old utils.js cached until the page fetches it past the cache): utils requests [${sk.seen.join(', ')}]; `
+  + `HIVE_ID ${sk.hive === HIVE ? '= his hive' : sk.hive}, ${TAG} listed: ${!!(sk.tags && sk.tags.includes(TAG))}, guard ${sk.guard}`);
+if (!(sk.hive === HIVE && sk.tags && sk.tags.includes(TAG))) problems.push(`with an old utils.js cached the logbook did not heal itself (HIVE_ID=${sk.hive}) - the page Ian saw: personal mode, "No assets registered yet."`);
+if (sk.guard !== '1') problems.push('the self-heal ran without its once-per-tab guard, so a page that cannot get a fresh copy could reload forever');
+if (!sk.seen.some((x) => x.startsWith('fetch:'))) problems.push('VACUOUS skew walk: the page never fetched utils.js past the cache, so the walk did not exercise the heal');
 
 const bare = await walk(true);
 notes.push(`teeth (helper renamed away): HIVE_ID=${bare.hive === null ? 'null (solo)' : bare.hive}, ${bare.tags ? bare.tags.length : 'no'} asset(s)`);

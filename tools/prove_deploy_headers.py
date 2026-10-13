@@ -7,7 +7,8 @@ Rows (LX-H + P-E, all `fixing` with "only Ian's deploy can make the claim true")
   "A feature that works locally is dead in production because the origin sends no header for ..."
                                               Permissions-Policy names microphone=(self) and camera=(self) on the page
   "An asset is re-downloaded every visit because the deployed origin never told the browser ..."
-                                              Cache-Control on a script/stylesheet the page ships (max-age=3600) and on an
+                                              Cache-Control on a script/stylesheet the page ships (max-age=0, must-revalidate,
+                                              with a validator - see the 2026-10-14 note below) and on an
                                               image/icon (max-age=31536000, immutable); sw.js is no-store
 
 Served by tools/serve_vercel_headers.py, which applies vercel.json's own rules the way the Vercel edge does. This
@@ -118,8 +119,14 @@ def main() -> int:
                 for ref in (js[:1] + css[:1]):
                     s2, h2, _ = head(to_url(page, ref))
                     c2 = h2.get("cache-control", "")
-                    if "max-age=3600" not in c2:
-                        issues.append(f"{ref}: Cache-Control '{c2}' (expected max-age=3600, must-revalidate)")
+                    # ★REVALIDATE, NEVER AN HOUR (2026-10-14). max-age=3600 let a phone run a new page with its old
+                    # utils.js for an hour after every deploy (Ian's logbook: no restore, personal mode, "No assets
+                    # registered yet"). The scripts are not content-hashed, so they revalidate; a validator makes that
+                    # a 304 with no body, which is what "never re-downloaded every visit" actually needs.
+                    if "max-age=0" not in c2 or "must-revalidate" not in c2:
+                        issues.append(f"{ref}: Cache-Control '{c2}' (expected max-age=0, must-revalidate: not content-hashed)")
+                    if not (h2.get("etag") or h2.get("last-modified")):
+                        issues.append(f"{ref}: no ETag or Last-Modified, so revalidating would re-download it")
                 for ref in img[:1]:
                     s3, h3, _ = head(to_url(page, ref))
                     c3 = h3.get("cache-control", "")

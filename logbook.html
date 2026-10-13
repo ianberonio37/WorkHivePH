@@ -3555,9 +3555,34 @@ function criticalityBadge(c) {
   return `<span class="badge-category" style="background:${s.bg};color:${s.text};border:1px solid ${s.border};">${c}</span>`;
 }
 
+// ★AN EMPTY LIST NAMES WHICH LIST IT IS (2026-10-14). Ian's hive assets showed in Asset Hub while this page said "No
+// assets registered yet." - true of the PERSONAL list the page had fallen back to, and silent about the hive. With no
+// hive on this device the empty state says so and offers the hive's list; the button re-seats it from the account.
+function _lbPersonalEmpty() {
+  return `<div class="text-center py-8 empty-state">
+        <span class="ic ic-list" aria-hidden="true"></span>
+        <p class="text-sm text-white/80">No personal assets yet.</p>
+        <p class="text-xs text-white/80 mt-1">This is your personal list. If your assets belong to a hive, open the hive's list.</p>
+        <button type="button" class="btn-secondary text-xs mt-3" style="min-height:44px;padding:8px 16px;" onclick="_lbShowHiveAssets(this)">Show my hive's assets</button>
+      </div>`;
+}
+async function _lbShowHiveAssets(btn) {
+  if (btn) btn.disabled = true;
+  if (typeof whEnsureHiveContext !== 'function') {   // an older shared script on this device: take the current one
+    try { await fetch('utils.js', { cache: 'reload' }); } catch (_) { /* empty-catch-allow: offline - the reload still runs */ }
+    location.reload();
+    return;
+  }
+  const seated = await whEnsureHiveContext(db);
+  if (seated) { location.reload(); return; }
+  if (btn) btn.disabled = false;
+  showToast('This account is not in a hive yet. Join one from the Hive page, or register an asset here.');
+}
+
 function renderAssetList() {
   const assets = loadAssets();
   const container = document.getElementById('asset-list-container');
+  if (assets.length === 0 && !HIVE_ID) { container.innerHTML = _lbPersonalEmpty(); return; }
   if (assets.length === 0) {
     container.innerHTML = `
       <div class="text-center py-10 empty-state">
@@ -3569,8 +3594,8 @@ function renderAssetList() {
   }
   container.innerHTML = assets.map(a => `
     <div class="rounded-xl p-4 mb-3 entry-card" style="background: rgba(255,255,255,0.04); border: 1px solid ${a.status === 'pending' ? 'rgba(247,162,27,0.3)' : 'rgba(255,255,255,0.08)'};">
-      <div class="flex items-start justify-between gap-2">
-        <div class="flex-1 min-w-0">
+      <div class="flex flex-col gap-3">
+        <div class="min-w-0">
           <div class="flex items-center gap-2 flex-wrap mb-1">
             <span class="font-bold text-sm text-white">${escHtml(a.asset_id)}</span>
             ${a.status === 'pending' ? '<span class="text-xs font-bold px-2 py-0.5 rounded-full" style="background:rgba(247,162,27,0.15);color:var(--wh-orange-text);border:1px solid rgba(247,162,27,0.3);">Pending Approval</span>' : ''}
@@ -3580,7 +3605,7 @@ function renderAssetList() {
           ${a.name ? `<p class="text-xs text-white/80 mb-0.5">${escHtml(a.name)}</p>` : ''}
           ${a.location ? `<p class="text-xs text-white/80">${escHtml(a.location)}</p>` : ''}
         </div>
-        <div class="flex gap-2 flex-shrink-0">
+        <div class="flex gap-2 flex-wrap">
           <button onclick="openAssetDetail('${a.id}')" class="btn-secondary text-xs py-1 px-2.5" aria-label="View ${escHtml(a.name || 'asset')} details" data-i="view">View</button>
           ${(!HIVE_ID || HIVE_ROLE === 'supervisor' || a.worker_name === WORKER_NAME) ? `<button onclick="openEditAsset('${a.id}')" class="btn-secondary text-xs py-1 px-2.5" style="color:var(--wh-blue-light);border-color:rgba(41,182,217,0.3);" data-i="edit">Edit</button>` : ''}
           <button onclick="deleteAsset('${a.id}')" class="btn-danger text-xs py-1 px-2.5" data-i="remove">Remove</button>
@@ -3858,6 +3883,7 @@ function renderAssetPickerList(query) {
 
   const list = document.getElementById('asset-picker-list');
 
+  if (filtered.length === 0 && !q && !HIVE_ID) { list.innerHTML = _lbPersonalEmpty(); return; }
   if (filtered.length === 0) {
     list.innerHTML = `<div class="text-center py-8">
       <p class="text-sm" style="color:rgba(255,255,255,0.80);">${q ? 'No assets match &quot;' + escHtml(query) + '&quot;' : 'No assets registered yet.'}</p>
@@ -7694,6 +7720,21 @@ document.getElementById('f-category').addEventListener('change', updateTasklistS
   // from Select Asset). The logbook before 2026-10-13 deleted the stored hive whenever this device's name
   // drifted from the membership row, and nothing but the home ever refilled it, so a supervisor opening the
   // logbook directly ran in solo mode and the picker read "No assets registered yet." See whEnsureHiveContext.
+  // ★A NEW PAGE WITH AN OLD SHARED SCRIPT (2026-10-14, the MCP journey of Ian's missing assets). vercel.json let a
+  // phone keep utils.js for an hour, so right after a deploy this page could run with yesterday's utils.js - which has
+  // no whEnsureHiveContext - and a device whose hive the old name check had deleted ran solo: "No assets registered
+  // yet." Scripts now revalidate on every load; for a copy already held, fetch the current one past the HTTP cache
+  // and reload once (sessionStorage guard: never a loop).
+  if (!HIVE_ID && typeof whEnsureHiveContext !== 'function') {
+    let _refetched = true;
+    try { _refetched = sessionStorage.getItem('wh_utils_refetched') === '1'; } catch (_) { /* storage blocked: no guard, so no reload */ }
+    if (!_refetched) {
+      try { sessionStorage.setItem('wh_utils_refetched', '1'); } catch (_) { /* empty-catch-allow: the read above already decided */ }
+      try { await fetch('utils.js', { cache: 'reload' }); } catch (_) { /* empty-catch-allow: offline - the reload still runs */ }
+      location.reload();
+      return;
+    }
+  }
   if (!HIVE_ID && typeof whEnsureHiveContext === 'function') {
     const _seated = await whEnsureHiveContext(db);
     if (_seated) {

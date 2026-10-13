@@ -9,7 +9,8 @@ own `head`, `local_assets` and `to_url`. For each H-layer row this checks, on th
 the layer belongs to):
   - a Content-Security-Policy is served and X-Frame-Options is DENY,
   - Permissions-Policy grants microphone=(self) and camera=(self),
-  - the HTML is Cache-Control max-age=0 must-revalidate, a shipped script/style is max-age=3600, sw.js no-store.
+  - the HTML is Cache-Control max-age=0 must-revalidate, a shipped script/style is max-age=0 must-revalidate with a
+    validator (2026-10-14: an hour let a new page run its old utils.js), sw.js no-store.
 It writes an MCP-shaped receipt per row (.tmp/mcp_walks/<id>.json) carrying the `witness` a contract layer needs
 (live_walk_manifest._w4_missing), so a passing row can advance fixing -> locking through the w4-layer-headers gate.
 The three axes share one header reading (the header is the same) - each axis-row is banked from the same witness.
@@ -114,13 +115,16 @@ def check_page(page: str) -> tuple[bool, list[str], str]:
     js, css, img = dh.local_assets(body.decode("utf-8", "replace"))
     for ref in (js[:1] + css[:1]):
         _s, h2, _b = dh.head(dh.to_url(page, ref))
-        if "max-age=3600" not in h2.get("cache-control", ""):
-            issues.append(f"{ref}: Cache-Control '{h2.get('cache-control', '')}' (expected max-age=3600)")
+        _c2 = h2.get("cache-control", "")
+        if "max-age=0" not in _c2 or "must-revalidate" not in _c2:
+            issues.append(f"{ref}: Cache-Control '{_c2}' (expected max-age=0, must-revalidate)")
+        if not (h2.get("etag") or h2.get("last-modified")):
+            issues.append(f"{ref}: no ETag or Last-Modified to revalidate against")
     _s4, h4, _b4 = dh.head("/sw.js")
     if "no-store" not in h4.get("cache-control", ""):
         issues.append(f"sw.js Cache-Control '{h4.get('cache-control', '')}' (expected no-store)")
     witness = (f"served headers on {page}: CSP present, X-Frame-Options DENY, Permissions-Policy mic+camera=self, "
-               f"HTML no-cache, asset max-age=3600, sw.js no-store (tools/serve_vercel_headers.py = vercel.json)")
+               f"HTML no-cache, asset revalidated (max-age=0 + validator), sw.js no-store (tools/serve_vercel_headers.py = vercel.json)")
     return not issues, issues, witness
 
 

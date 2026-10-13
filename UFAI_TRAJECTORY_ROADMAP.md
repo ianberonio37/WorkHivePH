@@ -2601,6 +2601,19 @@ refilled the key. The release's account-keyed check stopped the deleting; it cou
   name drifted: "(you)" on his own row, no Remove there, the other 3 Remove buttons carry row ids. Gate
   `member-writes-by-row` (static; the pre-fix page fails at both sites).
 
+- **Ian, after that release: "still you haven't get it right ... can you do a full journey mcp for it so that you
+  could understand?"** The walk (Playwright MCP, 390, Leandro with Ian's shape) found what the provers had not. On a
+  clean device the journey works: Register Asset -> Manage Assets lists 30. Then Ian's device: the stored hive deleted
+  by the pre-release name check AND tonight's `logbook.html` running with LAST night's `utils.js` - `vercel.json`
+  served `*.js`/`*.css` with `max-age=3600`, so for an hour after every deploy a phone ran the new page with its old
+  script, which has no `whEnsureHiveContext`. Manage Assets read "No assets registered yet." - Ian's screen exactly.
+  Production itself was right: under his RLS the restore's query returns his hive and the logbook's queries return 6.
+  Fixed: scripts and styles revalidate on every load (`max-age=0, must-revalidate`; a validator makes it a 304, and
+  `_headers` already said these unhashed scripts "must revalidate"; `deploy-headers-local` and `w4-layer-headers` now
+  hold that); the logbook heals the skew itself (fetch `utils.js` past the cache, reload once per tab - proved by a
+  third `logbook-hive-restore` walk); an empty list in personal mode says so and offers "Show my hive's assets"; and
+  the Manage Assets cards stack their buttons (at 390 the tag wrapped to "PB-"/"001" and the name ran one word a line).
+
 **The front door, decided by Ian** (AskUserQuestion, all four recommendations). Measured before building: since the
 lens learned to see scroll-revealed content, the FAQ's `<details>` count, so O2 (18 help affordances) and A3
 (15 disclosures) already passed on a phone; a new "How it works" panel would have duplicated the FAQ and the hero's
