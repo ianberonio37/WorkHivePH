@@ -1,3 +1,45 @@
+# Production Deploy Runbook — release `ea9ed822` (2026-10-14) ✅ DEPLOYED
+
+> **✅ DEPLOYED 2026-10-14 (executed by Claude on Ian's explicit instruction: "after this, we have to commit what we have
+> achieved, deploy and push to production what we have achieved in the trajectories roadmap and other roadmap, use the
+> runbook").** Release `b112a351..ea9ed822`: 3 commits, 33 files. Order A -> B -> C from the `Z:` subst drive.
+>
+> **Why this release, the same night as the last one.** Ian: "I still can't find my registered assets, it is still
+> missing, when I access the logbook." His account (read on production, counts only) is an active supervisor of one hive
+> with 6 approved hive assets bound to his account. Until the 2026-10-13 release the logbook checked membership by the
+> name the device had stored and DELETED the stored hive on any drift; every page then ran solo, where a hive's assets
+> cannot appear, and only the home ever refilled the key. This release refills it everywhere: `whEnsureHiveContext` in
+> the logbook's and Asset Hub's start-up, `whHiveRecovery` (seat after load, reload once per tab) on the other 27 pages.
+> Proved both ways by `logbook-hive-restore`. Also: hive.html's remove and supervisor hand-over act on the member's ROW
+> and "is this me" is the account (two namesakes were both removed or promoted); and Ian's front-door decisions (only the
+> sourced figure stays, with its source; plain copy; one filled first step). The critic deepwalk moved 76.9% -> 79.8%:
+> 2,347 signed-out rows closed after a full signed-out sweep and a lens fix (controls behind an open, inert dialog are
+> not calls to action).
+>
+> - **Gates:** the batches covering every changed file passed (17 + 7 + 16 gates: storage keys, SW shell, source chips,
+>   md twins, rubric parity and teeth, DOM refs, admin gates, extractability, landing, design-detector ratchet, the two
+>   logbook provers, hive-restore-adoption, member-writes-by-row, migrations additive/immutable/ordered, definer and
+>   tenant gates, role checks, hive board, board-covers-roster). Pre-commit canonical contract green on every commit.
+> - **Leg A — DB: 1 migration** (20261014000001_board_members_carry_row_and_self.sql): the dry-run read
+>   first and listing exactly that; `get_hive_board_dashboard`'s members carry the row id and `is_me` (from the JWT).
+>   A full-body replace, diffed against its last migration (20260825000006) before writing: only the members block differs.
+> - **Leg B — Edge: no function changed since the 2026-10-13 release, so nothing to deploy.
+> - **Leg C — Frontend: `git push origin master --no-verify`** -> Vercel built. `--no-verify` for the runbook's standing
+>   reason: the hook re-runs the ~17-min board that crashes this 8GB host, and the gates covering every changed file had
+>   just run green.
+> - **For Ian, on the phone:** the release brings the hive back by itself. Until the phone has loaded it, opening Home
+>   once re-seats the hive (the home always could), and the logbook then lists the hive's assets.
+>
+> **Post-deploy smoke:**
+> - 9/9 pages answer 200 with content.
+> - prod serves the service worker `workhive-shell-v517` (HTTP 200, read from the ACTIVE const line; expected workhive-shell-v517).
+> - front door: source chip on the sourced figure present; removed figures still visible: none; plain copy live.
+> - utils.js carries the hive restore (whEnsureHiveContext + whHiveRecovery): yes (HTTP 200).
+> - ai-gateway /health -> HTTP 200 {"ok":true,"surface":"ai-gateway","status":"ok","deps":[{"na
+> - the memory fix still holds: an anonymous agent-memory-store recall -> HTTP 401
+
+---
+
 # Production Deploy Runbook — release `c458e051` (2026-10-13) ✅ DEPLOYED
 
 > **✅ DEPLOYED 2026-10-13 (executed by Claude on Ian's explicit instruction: "if we complete it to 100%, then we have to
