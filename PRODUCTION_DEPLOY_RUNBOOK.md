@@ -1,3 +1,32 @@
+# Production Deploy Runbook — release `a2f9a45f` (2026-10-14) ✅ DEPLOYED
+
+> **✅ DEPLOYED 2026-10-14, the third release of the night, for the cause of Ian's missing logbook assets.** Release
+> `90ed9a8e..a2f9a45f`: 1 commit, 11 files. No migration, no function. Leg C only: `git push origin master --no-verify`
+> (the runbook's standing reason) -> Vercel built; prod serves `workhive-shell-v519` and the CSP `connect-src` now
+> names `wss://hzyvnjtisfgbksicrouu.supabase.co` (read from the live `logbook.html` response headers).
+> - **The cause, read from production, not reproduced locally:** the API gateway log showed his iPhone's Asset Hub
+>   fetching `asset_nodes` (6 rows) on every visit and his logbook never asking for them; `client_errors` held the
+>   logbook's own report on every visit: "WebSocket not available: The operation is insecure." from
+>   `subscribeLogbookRealtime()` inside the start-up, before `initAssets()`. WebKit throws `SecurityError` from
+>   `new WebSocket` when `connect-src` lacks `wss:`; Chromium fails it quietly, so every local walk had passed.
+> - **Fix:** `vercel.json` connect-src names `wss:`; `utils.js` wraps every channel's `subscribe()` in the one client
+>   factory (29 sites, 14 pages) so a throw becomes a warning + `CHANNEL_ERROR`; `logbook.html` guards its own call.
+>   Gate `realtime-blocked-socket` (real WebKit: throws under the old CSP, constructs under the shipped one; with the
+>   socket forced to throw, the logbook loads 30 assets and the pre-fix files never build the list). 8 header/CSP/shell
+>   gates pass. Playwright WebKit installed from the `Z:` drive (the `&` in the path breaks `npx`).
+> - **For Ian, on the phone:** open the site once (the service worker updates to v519 and precaches the new logbook),
+>   then open Logbook; if the first open still shows the old copy, close the tab and open Logbook again.
+>
+> **Post-deploy smoke:**
+> - 9/9 pages answer 200 with content.
+> - prod serves the service worker `workhive-shell-v519` (HTTP 200, read from the ACTIVE const line; expected workhive-shell-v519).
+> - front door: source chip on the sourced figure present; removed figures still visible: none; plain copy live.
+> - utils.js carries the hive restore (whEnsureHiveContext + whHiveRecovery): yes (HTTP 200).
+> - ai-gateway /health -> HTTP 200 {"ok":true,"surface":"ai-gateway","status":"ok","deps":[{"na
+> - the memory fix still holds: an anonymous agent-memory-store recall -> HTTP 401
+
+---
+
 # Production Deploy Runbook — release `ea9ed822` (2026-10-14) ✅ DEPLOYED
 
 > **✅ DEPLOYED 2026-10-14 (executed by Claude on Ian's explicit instruction: "after this, we have to commit what we have
