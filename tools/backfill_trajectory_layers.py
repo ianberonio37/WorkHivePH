@@ -177,6 +177,37 @@ def _persona(t: dict) -> str:
     return t.get("persona") or (t.get("lx") or {}).get("persona") or "any"
 
 
+def sublayer_health(rows: list[dict], closed_ids: set[str]) -> dict:
+    """{layer: {sub-layer: (rows, closed)}} in NAMES order (Ian, 2026-10-14: "numbers trajectories for each full stack
+    architectural layer and sublayers"). The 13 layers' sub-layers come from the SL rows (tools/sublayer_inventory.py),
+    LM's ten from its own rows; `closed_ids` is the headline's closed set, so a sub-layer cannot read done while the
+    layer above it reads open."""
+    try:
+        from sublayer_inventory import SUBLAYERS as _SL
+        from seed_expansion_wave4 import LM_SUBLAYERS as _LMS
+    except Exception:
+        _SL, _LMS = {}, {}
+    acc: dict = {}
+    for t in rows:
+        sl, lx = t.get("sl") or {}, t.get("lx") or {}
+        if sl.get("kind") == "sublayer":
+            key = (sl.get("layer"), sl.get("sublayer"))
+        elif lx.get("kind") == "llm":
+            key = ("LM", lx.get("sublayer"))
+        else:
+            continue
+        e = acc.setdefault(key, [0, 0])
+        e[0] += 1
+        e[1] += t["id"] in closed_ids
+    out: dict = {}
+    for code in list(_SL) + [c for c in NAMES if c not in _SL]:          # the full-stack order F, D, A ... then LM
+        order = list(_LMS) if code == "LM" else list((_SL.get(code) or {}))
+        subs = sorted((s for (l, s) in acc if l == code), key=lambda s: order.index(s) if s in order else 99)
+        if subs:
+            out[code] = {s: tuple(acc[(code, s)]) for s in subs}
+    return out
+
+
 def layer_health(rows: list[dict], closed_ids: set[str]) -> list[dict]:
     """Per layer: active, closed, closed %, open product / open public, fix-landed %, thin cells, score.
     `rows` are the IN-SCOPE registry rows; `closed_ids` comes from live_walk_manifest.row_closed, so every
@@ -186,6 +217,7 @@ def layer_health(rows: list[dict], closed_ids: set[str]) -> list[dict]:
     except Exception:
         _signed_in = []
     out = []
+    subs_all = sublayer_health(rows, closed_ids)
     for code, name in NAMES.items():
         act = [t for t in rows if code in (t.get("layers") or [])]
         if not act:
@@ -199,7 +231,9 @@ def layer_health(rows: list[dict], closed_ids: set[str]) -> list[dict]:
         thin = [p for p in _signed_in if per.get(p, 0) < HEALTH_FLOOR]
         rate = landed / len(walked) if walked else 0.0
         closed = len(act) - len(open_)
+        subs = subs_all.get(code) or {}
         out.append({"code": code, "name": name, "active": len(act), "closed": closed,
+                    "subs": len(subs), "subs_closed": sum(1 for n, c in subs.values() if n and n == c),
                     "pct": round(100.0 * closed / len(act), 1), "open_product": len(prod_open),
                     "open_public": len(open_) - len(prod_open), "landed_pct": round(100.0 * rate),
                     "thin": thin, "score": round(rate * len(prod_open), 1)})

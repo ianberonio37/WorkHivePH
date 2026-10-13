@@ -169,6 +169,23 @@ try:
 except Exception as _e:
     _LX_IMPORT_ERROR = _LX_IMPORT_ERROR or _e
 
+# ★THE SUB-LAYER, ENHANCEMENT AND OPERATOR-CONSOLE WAVES, SL1.. ENH1.. OPC1.. (2026-10-14) - Ian: "dig deeper to make
+# numbers trajectories for each full stack architectural layer and sublayers of my SaaS ... for every
+# production/public/founder pages." Each in its own id space, replayed from the registry's own sl/enh/opc metadata (the
+# BRP/BRH rule), registered here AFTER BRH in the order they were seeded, in the SAME change that seeds them: the bind
+# audit, so none of their 4,399 rows is invisible to this gate, the ledger or the guard. One registry read for all three.
+try:
+    from seed_expansion_wave4 import (enhancement_rows as _enh_rows_fn, operator_console_rows as _opc_rows_fn,
+                                      sublayer_rows as _sl_rows_fn)
+    _reg_rows_1014 = json.loads(REGISTRY.read_text(encoding="utf-8"))["trajectories"]
+    for _set, _fn, _pfx in (("_sl", _sl_rows_fn, "SL"), ("_enh", _enh_rows_fn, "ENH"), ("_opc", _opc_rows_fn, "OPC")):
+        globals()[_set] = _fn(_reg_rows_1014, replay=True)
+        for _i, _r in enumerate(globals()[_set], start=1):
+            NAMED_WAVES.setdefault(_r["wave"], []).append(f"{_pfx}{_i}")
+    del _reg_rows_1014
+except Exception as _e:
+    _LX_IMPORT_ERROR = _LX_IMPORT_ERROR or _e
+
 # ★EXPANSION WAVE 2, EX1.. (2026-09-07) — eight waves seeded as one change (persona x device x entry
 # cells, Tagalog-first, the per-page floor, hostile personas, AI trust, recovery, shift boundaries,
 # accessibility personas), every row declaring the UFAI dimension it improves. The ★×16 rule a fifth
@@ -268,7 +285,8 @@ if "_brp" in dir():
     NAMED_WAVE_ORDER = NAMED_WAVE_ORDER + _seen_brp
 # ...then the layer floor (LXC-*) and the LLM layer (LM-*), seeded after BRP in that order (2026-10-06), and the
 # bug-hunt wave (BRH-*), seeded after LM (2026-10-14) - a wave this order does not name has no block to match.
-for _set_name in ("_lxc", "_lm", "_brh"):
+# ...and the sub-layer (SL-*), enhancement (ENH-*) and operator-console (OPC-*) waves, seeded after BRH in that order.
+for _set_name in ("_lxc", "_lm", "_brh", "_sl", "_enh", "_opc"):
     if _set_name in dir():
         _seen_new = []
         for _r in globals()[_set_name]:

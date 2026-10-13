@@ -106,6 +106,20 @@ try:
                        for cls, (layer, _persona, mech, _repro, _fix) in _BRH_CLASS.items()})
 except Exception:
     pass
+# SL / ENH / OPC = the three waves of 2026-10-14 (the sub-layers, the enhancements, the operator console), named from
+# their own tables in the SAME change that seeds them, or render() raises KeyError on the first new row.
+try:
+    from backfill_trajectory_layers import NAMES as _LN3
+    from enhancement_inventory import CLASSES as _ENH_CLASSES
+    from seed_expansion_wave4 import OPC_KIND_NAME as _OPC_NAMES
+    WAVE_NAMES.update({f"SL-{code}": f"Sub-layers: {title} - every page, every sub-layer its source owns"
+                       for code, title in _LN3.items()})
+    WAVE_NAMES.update({f"ENH-{c}": f"Enhancement: {label} - built, walked, gated"
+                       for c, (label, _layer) in _ENH_CLASSES.items()})
+    WAVE_NAMES.update({f"OPC-{w}": f"Operator console: {nm} - in the one console, walked as oversight"
+                       for w, nm in _OPC_NAMES.items()})
+except Exception:
+    pass
 try:
     from seed_layer_ux_wave import WAVES as _LX_WAVES   # any wave whose key is not a layer code
     WAVE_NAMES.update({spec["wave"]: WAVE_NAMES.get(spec["wave"],
@@ -199,11 +213,25 @@ def render() -> str:
                      "rule · landed = of walked product rows, the share that recorded a fix · thin = signed-in "
                      "personas under 12 rows on the layer) — `python tools/backfill_trajectory_layers.py --report`")
         lines.append("")
-        lines.append("| layer | closed | open product | open public | landed | thin cells |")
-        lines.append("|---|---|---|---|---|---|")
+        lines.append("| layer | closed | sub-layers closed | open product | open public | landed | thin cells |")
+        lines.append("|---|---|---|---|---|---|---|")
         for _h in sorted(_health, key=lambda h: h["pct"]):
             lines.append(f"| **{_h['code']}** {_h['name']} | {_h['closed']}/{_h['active']} · **{_h['pct']:.1f}%** "
+                         f"| {_h.get('subs_closed', 0)}/{_h.get('subs', 0)} "
                          f"| {_h['open_product']} | {_h['open_public']} | {_h['landed_pct']}% | {len(_h['thin'])} |")
+        # ★↳ SUB-LAYERS (Ian, 2026-10-14: "dig deeper to make numbers trajectories for each full stack architectural
+        # layer and sublayers of my SaaS"). One generated line per layer, each sub-layer's closed/rows from the SAME
+        # closed set as the headline - a sub-layer cannot read done while the layer above it reads open.
+        from backfill_trajectory_layers import sublayer_health as _sublayer_health
+        _subs = _sublayer_health(scoped, _closed_ids)
+        if _subs:
+            lines.append("")
+            lines.append(f"**↳ SUB-LAYERS** ({sum(len(v) for v in _subs.values())} sub-layers across {len(_subs)} "
+                         "layers · closed/rows per sub-layer, the headline's own rule) — "
+                         "`python tools/sublayer_inventory.py`")
+            lines.append("")
+            for _code, _sv in _subs.items():
+                lines.append(f"- **{_code}** " + " · ".join(f"{_s} {_c}/{_n}" for _s, (_n, _c) in _sv.items()))
         _prod, _pub = _walk_order(_health)
         lines.append("")
         lines.append("**WALK ORDER** (close first = fix-landed × open product rows; public lanes after every "

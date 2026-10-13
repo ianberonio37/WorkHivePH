@@ -405,6 +405,11 @@ def _w4_receipts() -> dict:
              # ...and the bug waves: BRP (2026-10-04) and BRH (2026-10-14) write BRP<id>.json / BRH<id>.json
              + sorted(glob.glob(str(ROOT / ".tmp" / "mcp_walks" / "BRP*.json")))
              + sorted(glob.glob(str(ROOT / ".tmp" / "mcp_walks" / "BRH*.json")))
+             # ...and the three waves of 2026-10-14 write SL<id>.json, ENH<id>.json and OPC<id>.json - taught to this
+             # glob in the SAME change that seeded them, the lesson above learned a fourth time in advance
+             + sorted(glob.glob(str(ROOT / ".tmp" / "mcp_walks" / "SL*.json")))
+             + sorted(glob.glob(str(ROOT / ".tmp" / "mcp_walks" / "ENH*.json")))
+             + sorted(glob.glob(str(ROOT / ".tmp" / "mcp_walks" / "OPC*.json")))
              + sorted(glob.glob(str(ROOT / ".tmp" / "full_journeys_w4navhub_*.json"))))
     for path in globs:
         try:
@@ -575,6 +580,36 @@ def _lm_missing(row: dict, receipts: dict) -> str:
     return "; ".join(problems)
 
 
+def _meta_1014(row: dict) -> dict:
+    """The sl / enh / opc metadata of a 2026-10-14 row, or {}."""
+    return row.get("sl") or row.get("enh") or row.get("opc") or {}
+
+
+def _sl_missing(row: dict, receipts: dict) -> str:
+    """Why an SL / ENH / OPC WALK row's evidence is incomplete ('' when complete). A prover-settled row (a contract
+    sub-layer, a missing journey) closes on its prover's basis and gate like every W4 contract row, so only the rows
+    whose declared instrument is a walk are held to a receipt here: the persona signed in, both viewports, the
+    sub-layer for SL, and - the reason the wave exists - the ENGINE on a row that must be walked in WebKit, because
+    WebKit threw on the logbook's realtime socket while every Chromium walk passed (2026-10-14)."""
+    meta = _meta_1014(row)
+    if not meta or str(meta.get("instrument") or "").startswith("library"):
+        return ""
+    res = receipts.get(row["id"])
+    if not res:
+        return "no MCP receipt"
+    got = res.get("w4") or {}
+    problems = []
+    if got.get("as_persona") != meta.get("persona"):
+        problems.append(f"walked as {got.get('as_persona')!r}, row is {meta.get('persona')!r}")
+    if not {"phone-390", "desktop-1280"} <= set(got.get("viewports") or []):
+        problems.append("not walked at both viewports")
+    if row.get("sl") and got.get("sublayer") != meta.get("sublayer"):
+        problems.append(f"sub-layer {got.get('sublayer')!r} != {meta.get('sublayer')!r}")
+    if meta.get("engine") == "webkit" and got.get("engine") != "webkit":
+        problems.append("an engine-sensitive row needs a receipt walked in WebKit (--engine webkit)")
+    return "; ".join(problems)
+
+
 def _pct(done: int, total: int) -> float:
     """Percent closed, and it may NEVER round up to 100 while a row is still open (2026-09-10).
 
@@ -613,6 +648,10 @@ def build() -> dict:
         # sentence would route it by keyword, and "budget" or "refuse" must not pick an LLM row's instrument
         if (r.get("lx") or {}).get("kind") == "llm":
             want = (r.get("lx") or {}).get("instrument") or want
+        # ...and so does every SL / ENH / OPC row (2026-10-14): a contract sub-layer names its batch prover, a walk row
+        # the chrome-devtools + postgres walk - a title's keywords must not re-route either
+        if _meta_1014(r):
+            want = _meta_1014(r).get("instrument") or want
         basis = (r.get("basis") or "")
         # did this row's own evidence come from the instrument its lens demands?
         tag = want.split()[0].replace("-mcp", "").replace("-connector", "")
@@ -763,7 +802,8 @@ def build() -> dict:
             "needs_mcp_rewalk": bool(not used and not want.startswith("library") and want != "unassigned"),
             "receipt_red": r["id"] in _RED_RECEIPTS,
             # wave 4 only: '' when the receipt carries everything the wave asks for, else why it is still open
-            "needs_w4_evidence": _w4_missing(r, _W4_RECEIPTS) or _lm_missing(r, _W4_RECEIPTS),
+            "needs_w4_evidence": (_w4_missing(r, _W4_RECEIPTS) or _lm_missing(r, _W4_RECEIPTS)
+                                  or _sl_missing(r, _W4_RECEIPTS)),
         })
     live = [r for r in out_rows if r["kind"] == "live"]
     # ★CLOSED TIGHTENED 2026-09-06 (Ian: "revisit the entire trajectories, and determine which needed to be rewalk

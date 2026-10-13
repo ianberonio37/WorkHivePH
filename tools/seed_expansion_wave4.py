@@ -769,8 +769,12 @@ def _lx_state(scoped: list[dict]) -> tuple[dict, set, list]:
     # ★AND THE BUG-HUNT WAVE (BRH, 2026-10-14), FOR THE SAME REASON - met the hard way: seeding its 237 rows made
     # the LXP replay expect a different wave for LXP159.. (a returner now "reached" pages only BRH had put them on),
     # and the registry gate failed on rows nobody had touched. A replay's INPUTS must not depend on the present.
+    # ★AND THE THREE WAVES OF 2026-10-14 (SL sub-layers, ENH enhancements, OPC the operator console), for the same
+    # reason a third time: SL alone puts 3,959 persona journeys onto 158 pages, and every one the LXP replay could see
+    # would move a Gap-B cell and renumber the ids after it. Excluded BEFORE they were seeded, not after the gate reds.
     scoped = [t for t in scoped if (t.get("lx") or {}).get("kind") not in ("layer-ux", "layer-floor", "llm")
-              and (t.get("brh") or {}).get("kind") != "bug-hunt"]
+              and (t.get("brh") or {}).get("kind") != "bug-hunt"
+              and not t.get("sl") and not t.get("enh") and not t.get("opc")]
     for t in scoped:
         # ★"REACHES" IS ANY APP PAGE ON THE JOURNEY, NOT ITS LAST ONE. _path() appends the platform's
         # own continuation until a journey spans four pages, so pages[-1] is where the route ENDS, not
@@ -1406,6 +1410,226 @@ def llm_layer_rows(existing: list[dict], replay: bool = False) -> list[dict]:
     return rows
 
 
+# ════════════════════════════════════════════════════════
+# SL · ENH · OPC - THE SUB-LAYERS, THE ENHANCEMENTS, THE OPERATOR CONSOLE (Ian, 2026-10-14)
+# ════════════════════════════════════════════════════════
+# Ian, after the real cause of his missing logbook assets turned out to be a CSP without `wss:` (WebKit threw on the
+# realtime socket and the start-up died): "I am pretty sure that is belong to a layer or sublayer of our full stack
+# architectural layer SaaS, so we have to dig deeper to make numbers trajectories for each full stack architectural
+# layer and sublayers of my SaaS ... for every production/public/founder pages." Three waves, each in its OWN id space
+# with a replay ANCHORED to the registry's own metadata (the BRP/BRH rule), each sized by its inventory - never typed:
+#   SL   tools/sublayer_inventory.py        one row per (page, layer, sub-layer) cell, 52 sub-layers, 158 pages
+#   ENH  tools/enhancement_inventory.py     one row per capability a page lacks (the solar power-station planner first)
+#   OPC  tools/operator_console_inventory.py one row per panel the ONE operator console must hold, persona oversight
+SL_PREFIX, ENH_PREFIX, OPC_PREFIX = "SL", "ENH", "OPC"
+OPC_KIND_WAVE = OrderedDict([("operations", "O"), ("grafana", "G"), ("feed", "F"), ("developer", "D")])
+OPC_KIND_NAME = {"O": "operations queues and actions", "G": "Grafana as live numbers in-page",
+                 "F": "the error feed and the gate board", "D": "the Developer tab"}
+
+
+def _seeded(existing: list, field: str, kind: str, prefix: str) -> list:
+    """What a wave SEEDED, in id order, from the registry's own metadata - the record its replay must return."""
+    return sorted((x for x in existing if (x.get(field) or {}).get(kind[0]) == kind[1]),
+                  key=lambda x: int(str(x["id"])[len(prefix):] or 0))
+
+
+def _cell_route(page: str, cls: str, persona: str, roles: dict) -> tuple[list, str]:
+    """(pages, entry) for a page-scoped row. A public page is reached from a search result and the row lives on it;
+    a founder surface the hub offers nobody is opened directly by URL; every other page is reached through the
+    platform's own navigation, padded from the surfaces THIS cast is offered (the LXP/BRH route)."""
+    if cls == "public":
+        return [page], "search-arrival"
+    if persona == "anon":          # a production page only a signed-out visitor reaches (public-feed): a shared link
+        return [page], "direct"
+    if cls == "founder" and not roles.get(page):
+        return [page], "direct"
+    return _path(_start(page), page, [], cast=_cast_of(persona)), ("direct" if page == "index.html" else "hub-nav")
+
+
+def _hive_for(page: str) -> str:
+    return HIVES[sum(map(ord, page)) % len(HIVES)]
+
+
+def sublayer_rows(existing: list[dict], replay: bool = False) -> list[dict]:
+    """One row per measured (page, layer, sub-layer) cell, layer-major so each SL-<layer> owns a contiguous id range.
+    replay=True returns what was SEEDED, in id order - the record, so a roster tightened later never renumbers."""
+    if replay:
+        sublayer_rows.arithmetic = {}
+        return [{"wave": t["wave"], "sl": t["sl"]} for t in _seeded(existing, "sl", ("kind", "sublayer"), SL_PREFIX)]
+    from sublayer_inventory import CONTRACT, SUBLAYERS, casts, collect, page_classes
+    from backfill_trajectory_layers import NAMES as _LNAMES
+    scoped = [t for t in existing if t.get("status") != "descoped"]
+    classes = page_classes()
+    cast = casts(scoped, classes)
+    roles = _hub_roles()
+    carried = {((t.get("sl") or {}).get("layer"), (t.get("sl") or {}).get("sublayer"), (t.get("sl") or {}).get("page"))
+               for t in existing if (t.get("sl") or {}).get("kind") == "sublayer"}
+    rows, arithmetic = [], {"by_layer": Counter(), "by_class": Counter(), "webkit": 0}
+    for c in collect(classes=classes):
+        layer, code, page, cls = c["layer"], c["sublayer"], c["page"], c["class"]
+        if (layer, code, page) in carried:
+            continue
+        name, ask, roster = SUBLAYERS[layer][code]
+        persona = cast.get(page) or ("anon" if cls == "public" else "worker")
+        who = "a person" if persona == "any" else ("an anonymous visitor" if persona == "anon" else persona)
+        pages, entry = _cell_route(page, cls, persona, roles)
+        webkit = c["engine"] == "webkit"
+        prover = code in CONTRACT
+        engine_txt = " in real WebKit as well as Chromium (WebKit throws where Chromium stays silent)" if webkit else ""
+        how = (f"It is settled in a batch by a registered prover over every page of its roster (the W4 contract-layer "
+               f"precedent: the served bytes, the scan, the ratchet){engine_txt}" if prover else
+               f"It is walked live as {who} through the chrome-devtools MCP at {' and '.join(LX_VIEWPORTS)}"
+               f"{engine_txt}, with the condition induced (an init script that makes a subsystem throw, a refused "
+               f"route, a demoted role, a renamed hive, a 1,000-row list), the postgres MCP the witness where it writes")
+        closes = (f"a registered prover settles {code} on {_short(page)}, its receipt names the sub-layer, and the gate "
+                  f"reddens when the fix is reverted" if prover else
+                  f"the {code} ask is answered from {_short(page)} itself at phone-390 AND desktop-1280 as {who}"
+                  f"{' in WebKit and Chromium' if webkit else ''}, on a receipt naming the layer, the sub-layer, the "
+                  f"persona{' and the engine' if webkit else ''}, and a gate holds what the walk found")
+        rows.append({
+            "wave": f"{SL_PREFIX}-{layer}",
+            "title": f"{code} · {ask} - {who} · {_short(page)}",
+            "pages": list(pages),
+            "layers": [layer],
+            "ufai": list(LAYER_LENS[layer][1]),
+            "persona": persona,
+            "device": "any",
+            "entry": entry,
+            "framing": "person",
+            "story": (f"{who} reaches {_short(page)} ({' -> '.join(_short(p) for p in pages)}) and the "
+                      f"{_LNAMES.get(layer, layer)} layer's sub-layer {code}, {name}, is exercised there: {ask}. "
+                      f"{how}. It closes when {closes}"),
+            "journey": {"archetype": f"{SL_PREFIX}-{code}:{persona}", "stage": "operate", "vertical": _hive_for(page),
+                        "pair": "", "language": "en", "moment": "present", "condition": "normal", "tier": "A",
+                        "pages": list(pages)},
+            "axis": {"device": "phone-390", "language": "en"},
+            "sl": {"kind": "sublayer", "layer": layer, "sublayer": code, "name": name, "page": page,
+                   "page_class": cls, "roster": roster, "persona": persona, "viewports": list(LX_VIEWPORTS),
+                   "instrument": c["instrument"], "engine": c["engine"], "ask": ask, "closes": closes},
+        })
+        arithmetic["by_layer"][layer] += 1
+        arithmetic["by_class"][cls] += 1
+        arithmetic["webkit"] += webkit
+    sublayer_rows.arithmetic = arithmetic
+    return rows
+
+
+def enhancement_rows(existing: list[dict], replay: bool = False) -> list[dict]:
+    """One row per measured missing capability, class-major (ENH-S first: the solar power-station planner)."""
+    if replay:
+        enhancement_rows.arithmetic = {}
+        return [{"wave": t["wave"], "enh": t["enh"]}
+                for t in _seeded(existing, "enh", ("kind", "enhancement"), ENH_PREFIX)]
+    from enhancement_inventory import CLASSES, collect
+    from sublayer_inventory import casts, page_classes
+    scoped = [t for t in existing if t.get("status") != "descoped"]
+    classes = page_classes()
+    cast = casts(scoped, classes)
+    roles = _hub_roles()
+    cls_of = {p: k for k, v in classes.items() for p in v}
+    carried = Counter(((t.get("enh") or {}).get("cls"), (t.get("enh") or {}).get("page"), (t.get("enh") or {}).get("key"))
+                      for t in existing if (t.get("enh") or {}).get("kind") == "enhancement")
+    rows, arithmetic = [], Counter()
+    for s in collect():
+        k = (s["cls"], s["page"], s["key"])
+        if carried[k] > 0:
+            carried[k] -= 1
+            continue
+        label, layer = CLASSES[s["cls"]]
+        page = s["page"]
+        pcls = cls_of.get(page) or ("public" if "/" in page else "production")
+        persona = cast.get(page) or ("anon" if pcls == "public" else "worker")
+        who = "an anonymous visitor" if persona == "anon" else persona
+        pages, entry = _cell_route(page, pcls, persona, roles)
+        ask = f"The platform must {s['ask']}"
+        what = f"{s['key']} on the solar power-station planner" if s["cls"] == "S" else s["key"]
+        prover = s["cls"] == "J"
+        instrument = ("library sweep (tools/live_page_journeys.mjs, the journey runner, in Chromium and WebKit)"
+                      if prover else LX_INSTRUMENT)
+        closes = (f"a live journey for {_short(page)} exists, passes in Chromium and WebKit, and the live-page-journeys "
+                  f"gate holds it" if prover else
+                  f"the capability is BUILT on {_short(page)} itself (not described), used end to end as {who} at "
+                  f"phone-390 AND desktop-1280, and a gate fails on the page as it was before the build")
+        rows.append({
+            "wave": f"{ENH_PREFIX}-{s['cls']}",
+            "title": f"{ask} ({what}) - {who} · {_short(page)}",
+            "pages": list(pages),
+            "layers": [layer],
+            "ufai": list(LAYER_LENS[layer][1]),
+            "persona": persona,
+            "device": "any",
+            "entry": entry,
+            "framing": "person",
+            "story": (f"{who} reaches {_short(page)} ({' -> '.join(_short(p) for p in pages)}) wanting what the page "
+                      f"does not yet give: {s['detail']}. {ask}. ENHANCEMENT ({label}): it is built, then walked live "
+                      f"through the chrome-devtools MCP at {' and '.join(LX_VIEWPORTS)}. It closes when {closes}"),
+            "journey": {"archetype": f"{ENH_PREFIX}-{s['cls']}:{persona}", "stage": "operate",
+                        "vertical": _hive_for(page), "pair": "", "language": "en", "moment": "present",
+                        "condition": "normal", "tier": "A", "pages": list(pages)},
+            "axis": {"device": "phone-390", "language": "en"},
+            "enh": {"kind": "enhancement", "cls": s["cls"], "page": page, "page_class": pcls, "key": s["key"],
+                    "detail": s["detail"], "ask": ask, "layer": layer, "persona": persona,
+                    "viewports": list(LX_VIEWPORTS), "instrument": instrument, "closes": closes},
+        })
+        arithmetic[s["cls"]] += 1
+        arithmetic["public" if pcls == "public" else "production"] += 1
+    enhancement_rows.arithmetic = arithmetic
+    return rows
+
+
+def operator_console_rows(existing: list[dict], replay: bool = False) -> list[dict]:
+    """One row per panel the ONE operator console must hold, grouped by kind (OPC-O operations first)."""
+    if replay:
+        operator_console_rows.arithmetic = {}
+        return [{"wave": t["wave"], "opc": t["opc"]}
+                for t in _seeded(existing, "opc", ("kind", "operator-console"), OPC_PREFIX)]
+    from operator_console_inventory import CONSOLE, collect
+    cells = collect()
+    raw = dict(collect.arithmetic)
+    carried = {((t.get("opc") or {}).get("surface"), (t.get("opc") or {}).get("panel"))
+               for t in existing if (t.get("opc") or {}).get("kind") == "operator-console"}
+    rows, arithmetic = [], Counter()
+    for c in cells:
+        if (c["surface"], c["panel"]) in carried:
+            continue
+        wave = OPC_KIND_WAVE[c["kind"]]
+        panel = c["panel"].replace(" - ", " – ")
+        live = c["kind"] in ("grafana", "feed")
+        where = c["surface"] + (" (also: " + "; ".join(c["also_on"]) + ")" if c["also_on"] else "")
+        closes = (f"'{panel}' is in the one operator console ({_short(CONSOLE)}, un-retired), "
+                  + ("showing the live number with a link to its dashboard, " if live else "acted on in place, ")
+                  + "walked as oversight at phone-390 AND desktop-1280 with its data live, and its old home "
+                    "redirects to the console or is retired")
+        rows.append({
+            "wave": f"{OPC_PREFIX}-{wave}",
+            "title": f"The platform must give the founder {panel} in the one operator console - oversight · "
+                     f"{_short(CONSOLE)} (today: {c['surface']})",
+            "pages": [CONSOLE],
+            "layers": ["F", "L"] if live else ["F"],
+            "ufai": ["U", "F", "I"],
+            "persona": "oversight",
+            "device": "any",
+            "entry": "direct",
+            "framing": "person",
+            "story": (f"The founder signs in and opens the one operator console and finds '{panel}' there, where "
+                      f"today it lives on {where}. OPERATOR CONSOLE ({OPC_KIND_NAME[wave]}): built into "
+                      f"{_short(CONSOLE)}, then walked live as oversight through the chrome-devtools MCP at "
+                      f"{' and '.join(LX_VIEWPORTS)}. It closes when {closes}"),
+            "journey": {"archetype": f"{OPC_PREFIX}-{wave}:oversight", "stage": "operate", "vertical": _hive_for(panel),
+                        "pair": "", "language": "en", "moment": "present", "condition": "normal", "tier": "A",
+                        "pages": [CONSOLE]},
+            "axis": {"device": "phone-390", "language": "en"},
+            "opc": {"kind": "operator-console", "surface": c["surface"], "panel": c["panel"], "panel_kind": c["kind"],
+                    "also_on": list(c["also_on"]), "page": CONSOLE, "persona": "oversight",
+                    "viewports": list(LX_VIEWPORTS), "instrument": LX_INSTRUMENT, "closes": closes},
+        })
+        arithmetic[wave] += 1
+    rows.sort(key=lambda r: list(OPC_KIND_WAVE.values()).index(r["wave"].split("-", 1)[1]))
+    arithmetic.update({"raw": raw.get("raw", 0), "exact": raw.get("exact", 0), "near": raw.get("near", 0)})
+    operator_console_rows.arithmetic = arithmetic
+    return rows
+
+
 def _append_own_space(existing: list, rows: list, prefix: str) -> list:
     have = {t["id"] for t in existing}
     nxt, created = 1, []
@@ -1436,6 +1660,13 @@ def main() -> int:
                     help="append one BRP row per MEASURED defect site (tools/bug_repro_inventory.py), both viewports")
     ap.add_argument("--add-bug-hunt", action="store_true",
                     help="BRH (2026-10-14): append one row per MEASURED defect site (tools/bug_hunt_inventory.py), both viewports")
+    ap.add_argument("--add-sublayers", action="store_true",
+                    help="SL (2026-10-14): one row per (page, layer, sub-layer) cell (tools/sublayer_inventory.py)")
+    ap.add_argument("--add-enhancements", action="store_true",
+                    help="ENH (2026-10-14): one row per capability a page lacks (tools/enhancement_inventory.py)")
+    ap.add_argument("--add-operator-console", action="store_true",
+                    help="OPC (2026-10-14): one row per panel the one operator console holds "
+                         "(tools/operator_console_inventory.py)")
     args = ap.parse_args()
     doc = json.loads(REGISTRY.read_text(encoding="utf-8"))
     existing = doc["trajectories"]
@@ -1483,6 +1714,60 @@ def main() -> int:
         from critic_seed_missing import seed_missing  # noqa: E402  - the same flow BRP and LXP follow
         seed_missing()
         print(chr(10) + f"  wrote {len(created)} {label} row(s) into {REGISTRY.name} (registry now {doc['count']})")
+        return 0
+    if args.add_sublayers or args.add_enhancements or args.add_operator_console:
+        # ★THE THREE WAVES OF 2026-10-14, each into its OWN id space, each printing THE NUMBER from its inventory before
+        # anything is written (Ian asks to see the new rows first - feedback_extend_the_existing_roadmap_never_a_side_program).
+        if args.add_sublayers:
+            rows, label, prefix = sublayer_rows(existing), "SL sub-layer", SL_PREFIX
+            a = sublayer_rows.arithmetic
+        elif args.add_enhancements:
+            rows, label, prefix = enhancement_rows(existing), "ENH enhancement", ENH_PREFIX
+            a = enhancement_rows.arithmetic
+        else:
+            rows, label, prefix = operator_console_rows(existing), "OPC operator console", OPC_PREFIX
+            a = operator_console_rows.arithmetic
+        if not rows:
+            print(f"  {label}: every measured cell is already seeded - nothing to add")
+            return 0
+        created = _append_own_space(existing, rows, prefix)
+        print(f"  THE NUMBER, measured by the inventory (never typed) - {label}:")
+        if args.add_sublayers:
+            from sublayer_inventory import CLASSES as _SLC, SUBLAYERS as _SLS
+            per = Counter((r["sl"]["layer"], r["sl"]["page_class"]) for r in created)
+            subs = Counter(r["sl"]["sublayer"] for r in created)
+            print(f"    {'layer':<6} {'production':>10} {'founder':>8} {'public':>7} {'rows':>6}   sub-layers")
+            for lay, s in _SLS.items():
+                n = [per[(lay, k)] for k in _SLC]
+                print(f"    {lay:<6} {n[0]:>10} {n[1]:>8} {n[2]:>7} {sum(n):>6}   "
+                      + " · ".join(f"{c} {subs[c]}" for c in s))
+            tot = [sum(per[(lay, k)] for lay in _SLS) for k in _SLC]
+            print(f"    {'all':<6} {tot[0]:>10} {tot[1]:>8} {tot[2]:>7} {sum(tot):>6}   "
+                  f"({sum(len(s) for s in _SLS.values())} sub-layers; engine webkit on {a['webkit']} rows)")
+        elif args.add_enhancements:
+            from enhancement_inventory import CLASSES as _EC
+            for c, (lab, lay) in _EC.items():
+                print(f"    {c} · {lab:<54} (layer {lay:<2}): {a.get(c, 0)}")
+            print(f"    public {a.get('public', 0)} · production {a.get('production', 0)}")
+        else:
+            print(f"    measured {a['raw']} panel cells - {a['exact']} same panel on two surfaces - {a['near']} console "
+                  f"panels that are Grafana panels")
+            for w, nm in OPC_KIND_NAME.items():
+                print(f"    {OPC_PREFIX}-{w} · {nm:<40} {a.get(w, 0)}")
+        print(f"    = {len(created)} new rows ({created[0]['id']}..{created[-1]['id']}), each walked at "
+              f"{' and '.join(LX_VIEWPORTS)}")
+        print(f"  program: {len(scoped)} in scope today -> {len(scoped) + len(created)} after seeding")
+        if args.dry_run:
+            print(f"  {created[0]['id']:<7} {created[0]['title'][:150]}")
+            print(f"  {created[-1]['id']:<7} {created[-1]['title'][:150]}")
+            print("  (nothing written)")
+            return 0
+        doc["trajectories"] = existing + created
+        doc["count"] = len(doc["trajectories"])
+        _atomic_write(REGISTRY, json.dumps(doc, indent=2, ensure_ascii=False) + "\n")
+        from critic_seed_missing import seed_missing  # noqa: E402  - the same flow BRP, LXP, LXC, LM and BRH follow
+        seed_missing()
+        print("\n" + f"  wrote {len(created)} {label} row(s) into {REGISTRY.name} (registry now {doc['count']})")
         return 0
     if args.add_bug_hunt:
         rows = bug_hunt_rows(existing)

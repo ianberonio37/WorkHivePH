@@ -164,7 +164,19 @@ def build_receipt(rid: str, instrument: str, condition: str, cast: str,
     # sentence on a thin cell, and LM (the LLM layer) is a persona asking a page's AI - both close only as a named
     # person at both viewports.
     # ...and BRH (the bug-hunt wave, 2026-10-14): a defect reproduced as a named person at both viewports.
-    if rid.startswith(("LXP", "LXC", "BRH")) or (rid.startswith("LM") and rid[2:].isdigit()):
+    # ...and the three waves of 2026-10-14 - SL (a page's sub-layer), ENH (an enhancement built), OPC (a panel in the
+    # one operator console): the same contract, plus the SUB-LAYER on an SL receipt and the ENGINE wherever the walk
+    # ran in WebKit. The engine is the whole lesson of the night they were seeded: WebKit threw on the logbook's
+    # realtime socket while every Chromium walk passed, so a receipt that does not say which engine proves nothing
+    # about the other one. live_walk_manifest._sl_missing holds an engine-sensitive row open without it.
+    _wave_1014 = (rid.startswith(("ENH", "OPC")) or (rid.startswith("SL") and rid[2:].isdigit()))
+    if w4 and w4.get("engine") and w4["engine"] not in ("chromium", "webkit"):
+        raise ValueError("--engine is chromium or webkit")
+    if _wave_1014:
+        w4 = w4 or {}
+        if rid.startswith("SL") and not w4.get("sublayer"):
+            raise ValueError("an SL receipt needs --sublayer <the sub-layer walked, e.g. H1, A3, AV1>")
+    if rid.startswith(("LXP", "LXC", "BRH")) or (rid.startswith("LM") and rid[2:].isdigit()) or _wave_1014:
         w4 = w4 or {}
         if not w4.get("layer"):
             raise ValueError("an LXP receipt needs --layer <the architectural layer the walk provoked>")
@@ -242,7 +254,10 @@ def main() -> int:
     ap.add_argument("--witness", default="", help="W4 contract-layer story (S/AU/L/D/A/AV/C/CI/LB/RL): the non-browser evidence - the refusal received as the person, the trail row, the provenance, the served headers, the limit met")
     ap.add_argument("--lens", default="", help="W4 design story: the lens walked (slop/craft/audit/copy/motion/figma/critique)")
     ap.add_argument("--viewports", default="", help="W4 design story: 'phone-390,desktop-1280' - both, one batched round")
-    ap.add_argument("--sublayer", default="", help="LM story: the LLM sub-layer walked (X G S R P A V L E O)")
+    ap.add_argument("--sublayer", default="", help="LM story: the LLM sub-layer walked (X G S R P A V L E O); "
+                                                   "SL story: the full-stack sub-layer walked (F1..CI4)")
+    ap.add_argument("--engine", default="", help="SL/ENH/OPC: the engine the walk ran in (chromium | webkit) - an "
+                                                 "engine-sensitive row closes only on a WebKit receipt")
     ap.add_argument("--live-model", default="", help="LM-G / LM-R story: '<model> <tokens spent>'")
     ap.add_argument("--as-persona", default="", help="LXP story: the persona the walk signed in AS (worker, assistive-tech, driver-worker, returner, oversight, adversary, new-user, any)")
     ap.add_argument("--detector", default="", help="W4 design story: path to the page's `impeccable detect --json` output")
@@ -256,7 +271,7 @@ def main() -> int:
     scores = json.loads(args.scores) if args.scores else None
     w4 = {k: v for k, v in (("axis", args.axis), ("effect", args.effect), ("layer", args.layer),
                             ("as_persona", args.as_persona),
-                            ("sublayer", args.sublayer), ("live_model", args.live_model),
+                            ("sublayer", args.sublayer), ("live_model", args.live_model), ("engine", args.engine),
                             ("hub_controls", args.hub_controls), ("fixture_provenance", args.fixture_provenance),
                             ("witness", args.witness), ("lens", args.lens), ("viewports", args.viewports),
                             ("detector", args.detector),

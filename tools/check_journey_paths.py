@@ -267,10 +267,18 @@ def _shortest_walk(a: str, b: str, links: dict, offered: set, limit: int = 3):
 
 
 def declared_paths() -> dict:
-    """Each archetype's declared path, taken once from the first row that carries it."""
+    """Each archetype's declared path, taken once from the first IN-SCOPE row that carries it.
+
+    ★A DESCOPED ROW DECLARES NOTHING (2026-10-14). These three readers took the first row carrying an archetype
+    whatever its status, so descoping a row whose route the product never offers - seven LXC rows that sent a buyer
+    through hive.html to analytics.html - left the same finding standing on a row the program no longer counts. Every
+    other consumer (the header, the ledger, the critic bank) treats descoped as out of the program; this gate now does.
+    """
     reg = json.loads(REGISTRY.read_text(encoding="utf-8"))
     paths = {}
     for t in reg["trajectories"]:
+        if t.get("status") == "descoped":
+            continue
         j = t.get("journey") or {}
         arch = j.get("archetype")
         pages = j.get("pages") or t.get("pages") or []
@@ -308,6 +316,8 @@ def declared_signin_roles() -> dict:
     reg = json.loads(REGISTRY.read_text(encoding="utf-8"))
     out = {}
     for t in reg["trajectories"]:
+        if t.get("status") == "descoped":
+            continue
         j = t.get("journey") or {}
         arch = j.get("archetype")
         role = j.get("signed_in_as")
@@ -321,6 +331,8 @@ def declared_casts() -> dict:
     reg = json.loads(REGISTRY.read_text(encoding="utf-8"))
     casts = {}
     for t in reg["trajectories"]:
+        if t.get("status") == "descoped":
+            continue
         arch = (t.get("journey") or {}).get("archetype")
         if arch and arch not in casts:
             casts[arch] = cast_mode(t)
