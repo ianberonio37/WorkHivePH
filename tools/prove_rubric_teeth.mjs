@@ -80,17 +80,25 @@ const PAGES = {
     + '<h2>Find the gap</h2></div><div class="card"><span class="step-dot" style="font-size:16px">02</span><h2>Close it</h2></div></main></body></html>',
   k2small: HEAD + '<main><h1>Synthetic tiles</h1><div class="card"><p style="font-size:16px">12</p><p>Open work orders</p></div>'
     + '<div class="card"><span class="step-dot" style="font-size:16px">01</span><h2>Step one</h2></div></main></body></html>',
+  // ★2026-10-14: a dialog open over a page that made itself inert. Only the dialog's button is a choice (G3 must pass);
+  // the same page WITHOUT inert offers three filled buttons at once (G3 must still fail).
+  g3modal: HEAD + '<main inert aria-hidden="true"><h1>Synthetic landing</h1><p><button class="btn-primary">Join the hive</button></p>'
+    + '<p><button class="btn-primary">Create your free account</button></p></main>'
+    + '<div role="dialog" aria-modal="true" aria-label="Sign in"><button class="btn-primary">Sign in</button></div></body></html>',
+  g3bare: HEAD + '<main><h1>Synthetic landing</h1><p><button class="btn-primary">Join the hive</button></p>'
+    + '<p><button class="btn-primary">Create your free account</button></p>'
+    + '<p><button class="btn-primary">Sign in</button></p></main></body></html>',
   brjoin: HEAD + '<main><h1>Synthetic line break</h1><p>Each report covers one project and lists its tasks, costs and sign-offs'
     + ' for the whole team.<br><a href="#pm" style="display:inline-flex;min-height:44px;align-items:center">Open the project'
     + ' manager to choose one project now</a></p></main></body></html>',
 };
 
-async function grade(page, html) {
+async function grade(page, html, root = 'main') {
   await page.setContent(html, { waitUntil: 'load' });
   await page.evaluate((src) => (0, eval)('(' + src + ')')(), RUBRIC);
-  const res = await page.evaluate(() => window.__RUBRIC.survey({ pageId: 'synthetic', root: 'main' }));
+  const res = await page.evaluate((r) => window.__RUBRIC.survey({ pageId: 'synthetic', root: r }), root);
   const dim = (id) => (res.dims || []).find((d) => d.dim === id) || {};
-  return { V1: dim('V1'), R6: dim('R6'), B3: dim('B3'), B4: dim('B4'), J1: dim('J1'), K2: dim('K2') };
+  return { V1: dim('V1'), R6: dim('R6'), B3: dim('B3'), B4: dim('B4'), J1: dim('J1'), K2: dim('K2'), G3: dim('G3') };
 }
 
 const b = await chromium.launch();
@@ -131,6 +139,10 @@ if (/grade>8=0\b/.test(b3g.B3.note || ''))
 const brj = await grade(page, PAGES.brjoin);
 if (!/>20w=0\b/.test(brj.B3.note || ''))
   fails.push(`B3 must read a <br> as a line break (no 25-word merge of a sentence and the link below it) - got note="${(brj.B3.note || '').slice(0, 140)}"`);
+const g3m = await grade(page, PAGES.g3modal, 'body');
+if (g3m.G3.pass !== 1) fails.push(`G3 must not count buttons behind an open modal (inert) - got ${g3m.G3.pass}/${g3m.G3.total} "${(g3m.G3.note || '').slice(0, 80)}"`);
+const g3b = await grade(page, PAGES.g3bare, 'body');
+if (g3b.G3.pass !== 0) fails.push(`G3 must still fail three reachable filled buttons - got ${g3b.G3.pass}/${g3b.G3.total} "${(g3b.G3.note || '').slice(0, 80)}"`);
 const k2o = await grade(page, PAGES.k2ordinal);
 if (!(k2o.K2.kind === 'MEASURED' && k2o.K2.pass === k2o.K2.total))
   fails.push(`K2 must not read zero-padded stage badges as KPIs - got ${k2o.K2.pass}/${k2o.K2.total} "${(k2o.K2.note || '').slice(0, 100)}"`);

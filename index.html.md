@@ -145,7 +145,7 @@ See All Tools
 
 ## What is WorkHive?
 
-WorkHive is a **free industrial intelligence platform** for every Filipino industrial worker, from field to management: field technicians and operators, engineers, supervisors and planners, plant and operations managers, suppliers, contractors, new graduates entering the labor market, and existing workers expanding their capabilities with AI. It bundles a digital logbook, preventive maintenance scheduler, spare-parts inventory, skill matrix, engineering design calculators, and an AI work assistant in one browser-based hive.
+WorkHive is **free for every Filipino industrial worker**. That means technicians, operators, engineers, supervisors and planners. It also means plant managers, suppliers, contractors and new graduates. Its tools: a digital logbook, PM scheduler, parts inventory, skill matrix. It also has engineering calculators and an AI work assistant. Everything runs in your browser, in one hive.
 
 Free · Philippines-first · Works offline · Mobile and desktop
 
@@ -165,8 +165,7 @@ Petrochemicals
 
 ## Four gaps.
 
-Philippine industrial work is held back by four compounding gaps. WorkHive is the first
- hive designed to close all of them, simultaneously, from a single system.
+Philippine industrial work is held back by four compounding gaps. WorkHive closes all four gaps at once, in one system.
 
 01
 
@@ -184,7 +183,7 @@ Less Unplanned Downtime
 
 ### From Guesswork to Precision
 
-The gap: Organizations can't deploy their best people because they don't know what their people can actually do. Jobs go by availability, not competence.
+The gap: Teams can't put their best people on a job. They don't know who can do what. Jobs go by availability, not competence.
 
 Right person, right job, every time. Competence replaces availability.
 
@@ -238,7 +237,7 @@ Less Unplanned Downtime
 
 What mature predictive programmes reach. Most plants see 15-25% in their first 18 months.
 
-Source: [our downtime guide](https://workhiveph.com/learn/reduce-unplanned-downtime-guide/), which reports it as a widely cited industry range, not a published standard · updated 24 Aug 2026
+Source: [our downtime guide](https://workhiveph.com/learn/reduce-unplanned-downtime-guide/). A common industry range, not a fixed standard · updated 24 Aug 2026
 
 ## Every worker
 
@@ -250,7 +249,7 @@ You prevented ten failures this year and received less credit than the person wh
 
 ### Managers & Supervisors
 
-You can't deploy your best people to your most critical problems if you don't know what your people can actually do. WorkHive gives you the full picture, and the tools to act on it.
+You can't send your best people to your worst problems. Not if you don't know what they can do. WorkHive gives you the full picture, and the tools to act on it.
 
 ### Entrepreneurs & Builders
 
@@ -259,8 +258,7 @@ Build a verified reputation in the hive. Post your services, get found by the pl
 ### A community of practice, not just a forum
 
 Ask a question at 2am and a technician three plants away answers it. Share the fix that saved your shift.
- The trust you build by helping others follows you, from the community straight to the free marketplace,
- where it becomes real jobs and trades.
+ Help others in the community and your name grows. That trust follows you to the free marketplace. There it turns into real jobs and trades.
 
 secondary, like "See All Tools" (critic batch G3, 2026-10-13): a filled blue button here made browsing the feed a
  third filled call to action beside the two amber "Join" buttons; joining is the one filled step. 
@@ -273,7 +271,7 @@ Quick answers about WorkHive, pricing, privacy, and what works offline.
 
 ### What is WorkHive?
 
-WorkHive is a free industrial intelligence platform for Filipino industrial workers at every level: field technicians, supervisors, engineers, planners, and plant managers. It bundles a digital logbook, preventive maintenance scheduler, spare-parts inventory, skill matrix, engineering design calculators, and an AI work assistant in one browser-based hive.
+WorkHive is free for every Filipino industrial worker. That means technicians, operators, engineers, supervisors and planners. It also means plant managers, suppliers, contractors and new graduates. Its tools: a digital logbook, PM scheduler, parts inventory, skill matrix. It also has engineering calculators and an AI work assistant. Everything runs in your browser, in one hive.
 
 ### Is WorkHive really free?
 
@@ -311,7 +309,7 @@ English by default, with Filipino (Tagalog) support in the AI work assistant. Wo
 
 Tap Sign Up, choose a username and password, and you are in: free, about 30 seconds, no email and no waiting for provisioning. Every tool works immediately in Solo Mode, and you create or join your plant's hive with an invite code whenever your team is ready. Prefer product updates by email first? The Get updates form on this page adds you to the mailing list without creating an account.
 
-### How do I start today, before my plant is provisioned?
+### How do I start today, before my company signs up?
 
 Sign up free in under a minute, then open any tool in Solo Mode, no hive required. The Logbook, PM Scheduler, Engineering Calculators, and AI Assistant all run solo: type entries, run calculations, ask the assistant. When your plant joins, your Solo Mode entries migrate into your hive automatically. You do not have to wait for anyone to approve anything before getting value.
 
@@ -333,7 +331,7 @@ Yes. WorkHive targets the realistic Philippine plant-floor device: a 5-year-old 
 
 ## Practical writing for the Philippine plant floor
 
-CATALOG:guide_count54/CATALOG:guide_count in-depth guides covering OEE, MTBF, PM checklists, skill matrix, shift handover, AI assistants, CMMS integrations, and more. Every guide is tool-aligned with WorkHive and free to read.
+CATALOG:guide_count54/CATALOG:guide_count in-depth guides. Topics include OEE, MTBF, PM checklists and skill matrices. Others cover shift handover, AI assistants and CMMS integrations. Every guide is tool-aligned with WorkHive and free to read.
 
 [Start Here
 What is WorkHive? The complete platform guide
@@ -358,8 +356,7 @@ SAME MARK, SAME TREATMENT (2026-09-17). This carried a bare zero-offset amber ha
 
 Build the future.
 
-The beehive has been showing us how for 80 million years: every worker valued, every role
- purposeful, the whole greater than the sum of its parts. That's the system Philippine industry
+Bees have shown us how for 80 million years. Every worker counts and every role has a purpose. Together, the hive is more than its parts. That's the system Philippine industry
  has been missing. Be among the first to build it.
 
 Free at the worker tier, forever · About 30 seconds · No email required
@@ -409,4 +406,4 @@ Secure account →
 Sign In
 Sign Up
 
-<!-- md-twin source-sha: 19357111bfa4159d -->
+<!-- md-twin source-sha: 30248c40a81239a5 -->

@@ -585,6 +585,11 @@
         .concat(pageFabs)
         // The cookie notice's Allow/Decline answer a separate, passing question the platform asks, not the page's offer;
         // counted as a page CTA it made every signed-out landing screen read 4 primaries (critic batch G3, 2026-10-13).
+        // ★A CONTROL BEHIND AN OPEN MODAL IS NOT A CHOICE (2026-10-14). index.html?signin=1 opens the sign-in dialog
+        // and makes everything behind it inert + aria-hidden; the lens counted the landing's filled buttons there with
+        // the dialog's own Sign In, so 2,347 signed-out rows read "3 primary calls to action" for buttons no person
+        // could reach. Teeth both ways in prove_rubric_teeth.mjs (g3modal passes, g3bare still fails).
+        .filter((e2) => !e2.closest('[inert], [aria-hidden="true"]'))
         .filter((e2) => !isSelection(e2) && !isCard(e2) && !e2.closest('#wh-consent'))
         .map((e2) => [((e2.innerText || '').trim().slice(0, 24) + '|' + String(e2.className)), e2]);
     // A REPEATED ROW ACTION -- the same design appearing >=2 times, each inside its own list

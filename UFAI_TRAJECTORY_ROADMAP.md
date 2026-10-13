@@ -47,7 +47,7 @@ _Status SSOT: `trajectory_registry.json` · scoreboard below is GENERATED — ha
 
 **REGISTRY: 13360 trajectories · 12037 in scope · 1323 descoped (out of the denominator, each with its reason in the row's basis)** — `trajectory_registry.json` (updated 2026-10-13). **Completion is the CLOSED/OPEN line above — the MCP-deepwalk measure — and nothing else.** A row's own pct (specced 5 · walked 25 · fixed 60 · locked 100) is in-flight bookkeeping cited by its basis, not a completion figure; 10575 locking · 1462 locked · 1323 descoped.
 
-**↳ CRITIC DEEPWALK (UI/UX extension): 76.9% · 6495 critiqued · 5542 improving · 113828 receipted findings** — `UFAI_CRITIC_DEEPWALK_ROADMAP.md` / `critic_registry.json`; walk → critique → fix → gate, every trajectory, until 100%.
+**↳ CRITIC DEEPWALK (UI/UX extension): 79.8% · 4148 critiqued · 7889 improving · 113828 receipted findings** — `UFAI_CRITIC_DEEPWALK_ROADMAP.md` / `critic_registry.json`; walk → critique → fix → gate, every trajectory, until 100%.
 
 **↳ HOW EVERY OPEN ROW IS WALKED: through the MCPs, in real time — the chrome-devtools MCP for a surface (a TRUE 390 and 1280 through CDP), postgres for the effect, invoke + PostgREST for a contract (§LW.2).** A headless batch is the EXCEPTION, taken only when a sweep is uniform and nothing in it needs deciding mid-flight; it is never the default, because triage that arrives hours later arrives after the rows were already banked wrong.
 
@@ -2616,9 +2616,24 @@ lens learned to see scroll-revealed content, the FAQ's `<details>` count, so O2 
   now shows the grid. **K2 (the lens):** with the "35%" tiles gone, the stage badges 01-04 read as four small KPIs;
   a zero-padded ordinal is a label. Teeth both ways in `rubric-teeth`, which also had a dead case: its "over-grade"
   B3 sentence was 11 words, under the 12-word floor B3 grades from, so it could never bite (now 14).
-- **Still failing on the landing:** B3 (9 sentences above grade 8, the worst the 44-word "What is WorkHive?" answer),
-  C1 and A1 (type scale), all measured before tonight's changes. B3 is front-door copy, so it goes to Ian as a
-  proposal with each rewrite shown.
+- **B3, the front door's copy, approved by Ian the same night** (AskUserQuestion, each rewrite shown): the 44-word
+  "What is WorkHive?" answer as six short sentences that keep every audience and tool (visible, in the FAQ, and in the
+  FAQPage structured data), four "four gaps" lines (the unverifiable "first hive" claim dropped), the beehive and
+  guides lines, and the FAQ's passive question ("before my company signs up"). My own source-chip sentence read 8.4 and
+  was rewritten too. B3 now reads 0 long, 0 passive, 0 over-grade at 320/390/1280. **Still failing on the landing:**
+  C1 and A1 (type scale: 5-6 display sizes), measured before tonight and carried by 6 critic rows only.
+- **The signed-out rows closed: 2,347 critic rows to improving (critic 76.9% -> 79.8%).** A full signed-out sweep
+  (`family_rubric_sweep.mjs --anon`, mean 97) left every landing dim clean but two: the member pages a stranger is sent
+  from (hive, analytics, audit-log, engineering-design) land on `index.html?signin=1`, and with the sign-in dialog open
+  the lens counted the landing's filled buttons BEHIND it, which index.html makes inert and aria-hidden (the WCAG
+  dialog pattern) - 3 "primary calls to action" on 2,347 rows, for buttons no person could reach. The lens now skips
+  controls inside `[inert]`/`[aria-hidden="true"]` (teeth both ways in `rubric-teeth`: an inert page behind a dialog
+  passes G3, the same page without inert still fails); the six pages re-swept at 99%; `close_critic_findings.py
+  --apply` moved every row whose findings were all clean on a sweep newer than its bank.
+- **NEXT for this program:** 2,480 signed-out rows wait on pages never swept signed out (privacy-policy 440, feedback
+  429, terms-of-service 399, the reliability-metrics guide 386, the platform guide 258, about 235, and more learn
+  guides): run `family_rubric_sweep.mjs --anon --page <those>` and the closer. Guides still carrying B3 are the
+  content program already sized for Ian.
 
 ## §LW · The LIVE-WALK wave and its MCP instruments (Ian, 2026-09-06)
 
